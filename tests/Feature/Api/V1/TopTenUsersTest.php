@@ -24,10 +24,8 @@ class TopTenUsersTest extends TestCase
         $user2 = User::factory()->create(['RAPoints' => 3847, 'TrueRAPoints' => 5378]);
         /** @var User $user3 */
         $user3 = User::factory()->create(['RAPoints' => 25840, 'TrueRAPoints' => 46980]);
-        /** @var User $user4 */
-        $user4 = User::factory()->create(['RAPoints' => 0, 'TrueRAPoints' => 0]);
-        /** @var User $user5 */
-        $user5 = User::factory()->create(['RAPoints' => 172, 'TrueRAPoints' => 223]);
+        User::factory()->create(['RAPoints' => 0, 'TrueRAPoints' => 0]);
+        User::factory()->create(['RAPoints' => 172, 'TrueRAPoints' => 223]);
         /** @var User $user6 */
         $user6 = User::factory()->create(['RAPoints' => 85736, 'TrueRAPoints' => 102332]);
         /** @var User $user7 */

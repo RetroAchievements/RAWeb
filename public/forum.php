@@ -50,7 +50,7 @@ RenderContentStart($pageTitle);
         $forumIter = 0;
 
         echo "<div class='table-wrapper'>";
-        foreach ((array) $forumList as $forumData) {
+        foreach ($forumList as $forumData) {
             $nextCategory = $forumData['CategoryName'];
             $nextCategoryID = $forumData['CategoryID'];
 

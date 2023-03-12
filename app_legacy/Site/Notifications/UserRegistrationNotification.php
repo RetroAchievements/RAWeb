@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LegacyApp\Site\Notifications;
 
 use Illuminate\Bus\Queueable;
@@ -44,7 +46,6 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
 
         $embeds = [];
         $messageElements = [];
-        $changeElements = [];
         $footerElements = [];
         $fields = [];
         $descriptionElements = [];

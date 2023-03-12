@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * legacyDbAll() behaves like mysqli_fetch_all().
  * PDO will return an array of objects by default which will be cast to arrays.
+ *
+ * @return Collection<int, array>
  */
 function legacyDbFetchAll(string $query, array $bindings = []): Collection
 {
@@ -28,13 +30,13 @@ function legacyDbFetch(string $query, array $bindings = []): ?array
 function legacyDbSelect(string $query, array $bindings = []): array
 {
     return DB::connection('mysql_legacy')
-        ->select(DB::connection('mysql_legacy')->raw($query), $bindings);
+        ->select($query, $bindings);
 }
 
 function legacyDbStatement(string $query, array $bindings = []): bool
 {
     return DB::connection('mysql_legacy')
-        ->statement(DB::connection('mysql_legacy')->raw($query), $bindings);
+        ->statement($query, $bindings);
 }
 
 function legacyDbDriver(): string
@@ -80,13 +82,13 @@ function getMysqliConnection(): mysqli
 /**
  * @deprecated
  */
-function sanitize_sql_inputs(&...$inputs): void
+function sanitize_sql_inputs(int|string|null &...$inputs): void
 {
     $db = getMysqliConnection();
 
     foreach ($inputs as &$input) {
         if (!empty($input)) {
-            $input = mysqli_real_escape_string($db, $input);
+            $input = mysqli_real_escape_string($db, (string) $input);
         }
     }
 }
@@ -94,7 +96,7 @@ function sanitize_sql_inputs(&...$inputs): void
 /**
  * @deprecated
  */
-function s_mysql_query($query): mysqli_result|bool
+function s_mysql_query(string $query): mysqli_result|bool
 {
     $db = getMysqliConnection();
 

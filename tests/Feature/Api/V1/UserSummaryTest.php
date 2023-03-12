@@ -142,7 +142,7 @@ class UserSummaryTest extends TestCase
         $unlock = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $earnedAchievement->ID, 'User' => $user->User]);
 
          // make sure $this->user is ranked higher than $user
-        $this->user->RAPoints = 1234567;
+        $this->user->RAPoints = 1_234_567;
         $this->user->save();
 
         $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User]))

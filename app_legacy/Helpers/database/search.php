@@ -15,14 +15,20 @@ function canSearch(int $searchType, int $permissions): bool {
     };
 }
 
-function performSearch(int|array $searchType, string $searchQuery, int $offset, int $count,
-    int $permissions, array &$searchResultsOut, bool $wantTotalResults = true): int
-{
+function performSearch(
+    int|array $searchType,
+    string $searchQuery,
+    int $offset,
+    int $count,
+    int $permissions,
+    ?array &$searchResultsOut,
+    bool $wantTotalResults = true
+): int {
     sanitize_sql_inputs($searchQuery, $offset, $count);
 
     if (is_int($searchType)) {
         if ($searchType == SearchType::All) {
-            $searchType = array_filter(SearchType::cases(), function ($c) { return $c != SearchType::All; });
+            $searchType = array_filter(SearchType::cases(), fn ($c) => $c != SearchType::All);
         } else {
             $searchType = [$searchType];
         }
@@ -130,7 +136,7 @@ function performSearch(int|array $searchType, string $searchQuery, int $offset, 
         }
     }
 
-    if (count($articleTypes) > 0) {
+    if ($articleTypes !== []) {
         $counts[] = "SELECT COUNT(*) AS Count FROM Comment AS c
             LEFT JOIN UserAccounts AS cua ON cua.ID=c.UserID
             LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype=" . ArticleType::User . "
@@ -175,7 +181,8 @@ function performSearch(int|array $searchType, string $searchQuery, int $offset, 
     }
 
     $resultCount = 0;
-    for ($i = 0; $i < count($parts); $i++) {
+    $partsCount = count($parts);
+    for ($i = 0; $i < $partsCount; $i++) {
         // determine how many rows this subquery would return
         $query = $counts[$i];
 

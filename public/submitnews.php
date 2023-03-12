@@ -47,7 +47,6 @@ RenderContentStart("Manage News");
                         <select id="id" name="ab" onchange="if (this.selectedIndex >= 0) window.location = '/submitnews.php?news=' + this.value; return false;">
                             <option value="">--New--</option>
                             <?php foreach ($newsItems as $newsItem): ?>
-                                <?php /** @var News $newsItem */ ?>
                                 <option value="<?= $newsItem->ID ?>" <?= $newsItem->ID == $newsId ? 'selected' : '' ?>><?= $newsItem->Timestamp->format('Y-m-d H:i') ?> - <?= $newsItem->Title ?></option>
                             <?php endforeach ?>
                         </select>

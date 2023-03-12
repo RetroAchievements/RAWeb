@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Emulator;
 use App\Platform\Models\Game;

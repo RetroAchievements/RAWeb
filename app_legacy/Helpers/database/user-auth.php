@@ -6,28 +6,31 @@ use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 
-function authenticateFromPasswordOrAppToken($user, $pass, $token): array
+function authenticateFromPasswordOrAppToken(string $user, ?string $pass = null, ?string $token = null): array
 {
     sanitize_sql_inputs($user, $token);
 
-    $query = null;
     $response = [];
+
+    if (empty($user) || !isValidUsername($user)) {
+        // username failed: empty user
+        $response['Success'] = false;
+        $response['Error'] = "Invalid User/Password combination. Please try again";
+
+        return $response;
+    }
 
     $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
     $tokenProvided = (isset($token) && mb_strlen($token) >= 1);
-
-    if (!isset($user) || $user == false || mb_strlen($user) < 2) {
-        // username failed: empty user
-    } else {
-        if ($passwordProvided) {
-            // Password provided, validate it
-            if (authenticateFromPassword($user, $pass)) {
-                $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken FROM UserAccounts WHERE User='$user'";
-            }
-        } elseif ($tokenProvided) {
-            // Token provided, look for match
-            $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$token'";
+    $query = null;
+    if ($passwordProvided) {
+        // Password provided, validate it
+        if (authenticateFromPassword($user, $pass)) {
+            $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken FROM UserAccounts WHERE User='$user'";
         }
+    } elseif ($tokenProvided) {
+        // Token provided, look for match
+        $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$token'";
     }
 
     if (!$query) {
@@ -74,7 +77,7 @@ function authenticateFromPasswordOrAppToken($user, $pass, $token): array
             s_mysql_query($query);
         }
 
-        postActivity($user, ActivityType::Login, "");
+        postActivity($user, ActivityType::Login);
 
         $response['Success'] = true;
         $response['User'] = $user;
@@ -96,7 +99,7 @@ function authenticateFromPasswordOrAppToken($user, $pass, $token): array
  * PASSWORD
  */
 
-function authenticateFromPassword(&$user, $pass): bool
+function authenticateFromPassword(string &$user, string $pass): bool
 {
     if (!isValidUsername($user)) {
         return false;
@@ -141,7 +144,7 @@ function authenticateFromPassword(&$user, $pass): bool
     return true;
 }
 
-function changePassword($user, $pass): bool
+function changePassword(string $user, string $pass): bool
 {
     sanitize_sql_inputs($user);
 
@@ -156,7 +159,7 @@ function changePassword($user, $pass): bool
     return true;
 }
 
-function hashPassword($pass): string
+function hashPassword(string $pass): string
 {
     return password_hash($pass, PASSWORD_ARGON2ID, [
         'memory_cost' => 1024,
@@ -165,7 +168,7 @@ function hashPassword($pass): string
     ]);
 }
 
-function migratePassword($user, $pass): string
+function migratePassword(string $user, string $pass): string
 {
     $hashedPassword = hashPassword($pass);
     s_mysql_query("UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='' WHERE User='$user'");
@@ -226,11 +229,11 @@ function authenticateFromCookie(
  */
 
 function authenticateFromAppToken(
-    &$userOut,
-    $token,
-    &$permissionOut
+    ?string &$userOut,
+    string $token,
+    ?int &$permissionOut
 ): bool {
-    if ($userOut == null || $userOut == '') {
+    if (empty($userOut)) {
         return false;
     }
     if (!isValidUsername($userOut)) {
@@ -249,13 +252,13 @@ function authenticateFromAppToken(
         return false;
     }
 
-    $userOut = $user->getAttribute('User');
-    $permissionOut = $user->getAttribute('Permissions');
+    $userOut = $user->User;
+    $permissionOut = $user->Permissions;
 
     return true;
 }
 
-function generateAppToken($user, &$tokenOut): bool
+function generateAppToken(string $user, ?string &$tokenOut): bool
 {
     if (empty($user)) {
         return false;
@@ -271,9 +274,9 @@ function generateAppToken($user, &$tokenOut): bool
         $tokenOut = $newToken;
 
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 /*
@@ -281,7 +284,7 @@ function generateAppToken($user, &$tokenOut): bool
  * TODO replace with passport personal token
  */
 
-function generateAPIKey($user): string
+function generateAPIKey(string $user): string
 {
     sanitize_sql_inputs($user);
 
@@ -305,25 +308,4 @@ function generateAPIKey($user): string
     }
 
     return $newKey;
-}
-
-function GetAPIKey($user): ?string
-{
-    sanitize_sql_inputs($user);
-
-    if (!isValidUsername($user)) {
-        return null;
-    }
-
-    $query = "SELECT APIKey FROM UserAccounts AS ua
-        WHERE ua.User = '$user' AND ua.Permissions >= " . Permissions::Registered;
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return null;
-    } else {
-        $db_entry = mysqli_fetch_assoc($dbResult);
-
-        return $db_entry['APIKey'];
-    }
 }

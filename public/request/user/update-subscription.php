@@ -1,10 +1,11 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Site\Enums\Permissions;
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'subject_type' => 'required|string',
     'subject_id' => 'required|integer',
     'operation' => 'required|string|in:subscribe,unsubscribe',

@@ -11,9 +11,7 @@ if ($staticData === null) {
 $achID = $staticData['Event_AOTW_AchievementID'];
 $forumTopicID = $staticData['Event_AOTW_ForumID'];
 
-$achData = [];
-getAchievementMetadata($achID, $achData);
-
+$achData = GetAchievementData($achID);
 if (empty($achData)) {
     return;
 }

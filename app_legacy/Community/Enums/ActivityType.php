@@ -1,11 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LegacyApp\Community\Enums;
 
 abstract class ActivityType
 {
-    public const Unknown = 0;
-
     public const EarnedAchievement = 1;
 
     public const Login = 2;
@@ -29,7 +29,6 @@ abstract class ActivityType
     public static function cases(): array
     {
         return [
-            self::Unknown,
             self::EarnedAchievement,
             self::Login,
             self::StartedPlaying,
@@ -41,5 +40,10 @@ abstract class ActivityType
             self::OpenedTicket,
             self::ClosedTicket,
         ];
+    }
+
+    public static function isValid(int $value): bool
+    {
+        return in_array($value, self::cases());
     }
 }

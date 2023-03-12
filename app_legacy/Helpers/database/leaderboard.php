@@ -6,10 +6,14 @@ use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Database\Models\DeletedModels;
 
-function SubmitLeaderboardEntry($user, $lbID, $newEntry, $validation): array
-{
+function SubmitLeaderboardEntry(
+    string $user,
+    int $lbID,
+    int $newEntry,
+    string $validation
+): array {
     $db = getMysqliConnection();
-    sanitize_sql_inputs($user, $lbID, $newEntry);
+    sanitize_sql_inputs($user);
 
     $retVal = [];
     $retVal['Success'] = true;
@@ -22,34 +26,19 @@ function SubmitLeaderboardEntry($user, $lbID, $newEntry, $validation): array
     if ($dbResult !== false) {
         $lbData = mysqli_fetch_assoc($dbResult);
 
-        $lbID = $lbData['LeaderboardID'];
-        $gameID = $lbData['GameID'];
-        $lbTitle = $lbData['Title'];
-        $lowerIsBetter = $lbData['LowerIsBetter'];
-        settype($lowerIsBetter, 'integer');
+        $lowerIsBetter = (int) $lbData['LowerIsBetter'];
 
         $scoreFormatted = GetFormattedLeaderboardEntry($lbData['Format'], $newEntry);
 
         $retVal['LBData'] = $lbData;
-        settype($retVal['LBData']['LeaderboardID'], 'integer');
-        settype($retVal['LBData']['GameID'], 'integer');
-        settype($retVal['LBData']['LowerIsBetter'], 'integer');
+        $retVal['LBData']['LeaderboardID'] = (int) $retVal['LBData']['LeaderboardID'];
+        $retVal['LBData']['GameID'] = (int) $retVal['LBData']['GameID'];
+        $retVal['LBData']['LowerIsBetter'] = (int) $retVal['LBData']['LowerIsBetter'];
 
         $retVal['Score'] = $newEntry;
-        settype($retVal['Score'], 'integer');
         $retVal['ScoreFormatted'] = $scoreFormatted;
 
-        $scoreData = [];
-        $scoreData['Score'] = $newEntry;
-        settype($scoreData['Score'], 'integer');
-        $scoreData['GameID'] = $gameID;
-        settype($scoreData['GameID'], 'integer');
-        $scoreData['ScoreFormatted'] = $scoreFormatted;
-        $scoreData['LBTitle'] = $lbTitle;
-        $scoreData['LBID'] = $lbID;
-        settype($scoreData['LBID'], 'integer');
-
-        $comparisonOp = ($lowerIsBetter == 1) ? '<' : '>';
+        $comparisonOp = $lowerIsBetter === 1 ? '<' : '>';
 
         // Read: IF the score VALUE provided $compares as "betterthan" the existing score, use the VALUE given, otherwise the existing Score.
         // Also, if the score VALUE provided $compares as "betterthan" the existing score, use NOW(), otherwise the existing DateSubmitted.
@@ -72,23 +61,21 @@ function SubmitLeaderboardEntry($user, $lbID, $newEntry, $validation): array
                 $query = "SELECT Score FROM LeaderboardEntry WHERE LeaderboardID=$lbID AND UserID=(SELECT ID FROM UserAccounts WHERE User='$user')";
                 $dbResult = s_mysql_query($query);
                 $data = mysqli_fetch_assoc($dbResult);
-                $retVal['BestScore'] = $data['Score'];
+                $retVal['BestScore'] = (int) $data['Score'];
             } elseif ($numRowsAffected == 1) {
                 // (New) Entry added!
                 $retVal['BestScore'] = $newEntry;
-                postActivity($user, ActivityType::NewLeaderboardEntry, $scoreData);
+                postActivity($user, ActivityType::NewLeaderboardEntry, $lbID, $newEntry);
             } else { // if ( $numRowsAffected == 2 )
                 // Improved Entry added!
                 $retVal['BestScore'] = $newEntry;
-                postActivity($user, ActivityType::ImprovedLeaderboardEntry, $scoreData);
+                postActivity($user, ActivityType::ImprovedLeaderboardEntry, $lbID, $newEntry);
             }
-
-            settype($retVal['BestScore'], 'integer');
 
             // If you fall through to here, populate $dataOut with some juicy info :)
             $retVal['TopEntries'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, false);
             $retVal['TopEntriesFriends'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, true);
-            $retVal['RankInfo'] = GetLeaderboardRankingJSON($user, $lbID, $lowerIsBetter);
+            $retVal['RankInfo'] = GetLeaderboardRankingJSON($user, $lbID, (bool) $lowerIsBetter);
         } else {
             $retVal['Success'] = false;
             $retVal['Error'] = "Cannot insert the value $newEntry into leaderboard with ID: $lbID (unknown issue)";
@@ -101,9 +88,9 @@ function SubmitLeaderboardEntry($user, $lbID, $newEntry, $validation): array
     return $retVal;
 }
 
-function removeLeaderboardEntry($user, $lbID, &$score): bool
+function removeLeaderboardEntry(string $user, int $lbID, ?int &$score): bool
 {
-    sanitize_sql_inputs($user, $lbID);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT le.Score, ld.Format FROM LeaderboardEntry AS le
               LEFT JOIN LeaderboardDef AS ld ON ld.ID = le.LeaderboardID
@@ -117,10 +104,10 @@ function removeLeaderboardEntry($user, $lbID, &$score): bool
         return false;
     }
 
-    $score = GetFormattedLeaderboardEntry($data['Format'], $data['Score']);
+    $score = GetFormattedLeaderboardEntry($data['Format'], (int) $data['Score']);
 
     $userID = getUserIDFromUser($user);
-    if (!$userID) {
+    if ($userID === 0) {
         return false;
     }
 
@@ -130,16 +117,13 @@ function removeLeaderboardEntry($user, $lbID, &$score): bool
     s_mysql_query($query);
 
     $db = getMysqliConnection();
-    if (mysqli_affected_rows($db) == 0) {
-        return false;
-    }
 
-    return true;
+    return mysqli_affected_rows($db) != 0;
 }
 
-function GetLeaderboardRankingJSON($user, $lbID, $lowerIsBetter): array
+function GetLeaderboardRankingJSON(string $user, int $lbID, bool $lowerIsBetter): array
 {
-    sanitize_sql_inputs($user, $lbID);
+    sanitize_sql_inputs($user);
 
     $retVal = [];
 
@@ -176,9 +160,9 @@ function GetLeaderboardRankingJSON($user, $lbID, $lowerIsBetter): array
 }
 
 // TODO Deprecate: fold into above
-function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries): bool
+function getLeaderboardRanking(string $user, int $lbID, ?int &$rankOut = 0, ?int &$totalEntries = 0): bool
 {
-    sanitize_sql_inputs($user, $lbID);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT
               COUNT(*) AS UserRank,
@@ -207,16 +191,15 @@ function getLeaderboardRanking($user, $lbID, &$rankOut, &$totalEntries): bool
         }
 
         return true;
-    } else {
-        log_sql_fail();
-
-        return false;
     }
+    log_sql_fail();
+
+    return false;
 }
 
-function getLeaderboardsForGame($gameID, &$dataOut, $localUser): int
+function getLeaderboardsForGame(int $gameID, ?array &$dataOut, ?string $localUser): int
 {
-    sanitize_sql_inputs($gameID, $localUser);
+    sanitize_sql_inputs($localUser);
 
     $query = "SELECT lbd.ID AS LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder,
                      le2.UserID, ua.User, le2.DateSubmitted, BestEntries.Score
@@ -254,14 +237,14 @@ function getLeaderboardsForGame($gameID, &$dataOut, $localUser): int
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         return (int) mysqli_fetch_assoc($dbResult)['lbCount'];
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
-function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $friendsOnly): array
+function GetLeaderboardEntriesDataJSON(int $lbID, string $user, int $numToFetch, int $offset, bool $friendsOnly): array
 {
-    sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
+    sanitize_sql_inputs($user);
 
     $retVal = [];
 
@@ -283,8 +266,8 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     $numFound = 0;
     while ($nextData = mysqli_fetch_assoc($dbResult)) {
         $nextData['Rank'] = $numFound + $offset + 1;
-        settype($nextData['Score'], 'integer');
-        settype($nextData['DateSubmitted'], 'integer');
+        $nextData['Score'] = (int) $nextData['Score'];
+        $nextData['DateSubmitted'] = (int) $nextData['DateSubmitted'];
         $retVal[] = $nextData;
         $numFound++;
     }
@@ -292,9 +275,14 @@ function GetLeaderboardEntriesDataJSON($lbID, $user, $numToFetch, $offset, $frie
     return $retVal;
 }
 
-function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $nearby = false): array
-{
-    sanitize_sql_inputs($lbID, $user, $numToFetch, $offset);
+function GetLeaderboardData(
+    int $lbID,
+    string $user,
+    int $numToFetch,
+    int $offset,
+    bool $nearby = false
+): array {
+    sanitize_sql_inputs($user);
 
     $retVal = [];
 
@@ -330,12 +318,12 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $retVal = mysqli_fetch_assoc($dbResult);
-        settype($retVal['LBID'], 'integer');
-        settype($retVal['GameID'], 'integer');
-        settype($retVal['LowerIsBetter'], 'integer');
-        settype($retVal['ConsoleID'], 'integer');
-        settype($retVal['ForumTopicID'], 'integer');
-        settype($retVal['TotalEntries'], 'integer');
+        $retVal['LBID'] = (int) $retVal['LBID'];
+        $retVal['GameID'] = (int) $retVal['GameID'];
+        $retVal['LowerIsBetter'] = (int) $retVal['LowerIsBetter'];
+        $retVal['ConsoleID'] = (int) $retVal['ConsoleID'];
+        $retVal['ForumTopicID'] = (int) $retVal['ForumTopicID'];
+        $retVal['TotalEntries'] = (int) $retVal['TotalEntries'];
 
         $retVal['Entries'] = [];
 
@@ -380,7 +368,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
 
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
-                settype($db_entry['Score'], 'integer');
+                $db_entry['Score'] = (int) $db_entry['Score'];
                 $db_entry['Rank'] = (int) $db_entry['UserRank'];
                 unset($db_entry['UserRank']);
                 $db_entry['Index'] = (int) $db_entry['UserIndex'];
@@ -418,7 +406,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
                         // should be 1 or 0?.. I hope...
                         $db_entry = mysqli_fetch_assoc($dbResult);
                         $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
-                        settype($db_entry['Score'], 'integer');
+                        $db_entry['Score'] = (int) $db_entry['Score'];
                         $db_entry['Rank'] = (int) $db_entry['UserRank'];
                         // @phpstan-ignore-next-line
                         unset($db_entry['UserRank']);
@@ -442,7 +430,7 @@ function GetLeaderboardData($lbID, $user, $numToFetch, $offset, $friendsOnly, $n
     return $retVal;
 }
 
-function formatLeaderboardValueSeconds($hours, $mins, $secs): string
+function formatLeaderboardValueSeconds(int $hours, int $mins, int $secs): string
 {
     if ($hours == 0) {
         return sprintf("%02d:%02d", $mins, $secs);
@@ -451,55 +439,60 @@ function formatLeaderboardValueSeconds($hours, $mins, $secs): string
     return sprintf("%02dh%02d:%02d", $hours, $mins, $secs);
 }
 
-function GetFormattedLeaderboardEntry($formatType, $scoreIn): string
+function GetFormattedLeaderboardEntry(string $formatType, int $scoreIn): string
 {
-    settype($scoreIn, 'integer');
-
     // NOTE: a/b results in a float, a%b results in an integer
-
-    if ($formatType == 'TIME') { // Number of frames
+    if ($formatType === 'TIME') {
+        // Number of frames
         $hours = $scoreIn / 216000;
-        settype($hours, 'integer');
+        $hours = (int) $hours;
         $mins = ($scoreIn / 3600) - ($hours * 60);
         $secs = ($scoreIn % 3600) / 60;
         $milli = (($scoreIn % 3600) % 60) * (100.0 / 60.0);
-        settype($mins, 'integer');
-        settype($secs, 'integer');
-        settype($milli, 'integer');
+        $mins = (int) $mins;
+        $secs = (int) $secs;
+        $milli = (int) $milli;
 
         return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
-    } elseif ($formatType == 'TIMESECS') { // Number of seconds
+    }
+    if ($formatType === 'TIMESECS') {
+        // Number of seconds
         $hours = $scoreIn / 3600;
-        settype($hours, 'integer');
+        $hours = (int) $hours;
         $mins = ($scoreIn / 60) - ($hours * 60);
         $secs = $scoreIn % 60;
 
         return formatLeaderboardValueSeconds($hours, $mins, $secs);
-    } elseif ($formatType == 'MILLISECS') { // Hundredths of seconds
+    }
+    if ($formatType === 'MILLISECS') {
+        // Hundredths of seconds
         $hours = $scoreIn / 360000;
-        settype($hours, 'integer');
+        $hours = (int) $hours;
         $mins = ($scoreIn / 6000) - ($hours * 60);
         $secs = ($scoreIn % 6000) / 100;
         $milli = ($scoreIn % 100);
-        settype($mins, 'integer');
-        settype($secs, 'integer');
-        settype($milli, 'integer');
+        $mins = (int) $mins;
+        $secs = (int) $secs;
 
         return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
-    } elseif ($formatType == 'MINUTES') { // Number of minutes
+    }
+    if ($formatType === 'MINUTES') { // Number of minutes
         $hours = $scoreIn / 60;
-        settype($hours, 'integer');
+        $hours = (int) $hours;
         $mins = $scoreIn % 60;
 
         return sprintf("%01dh%02d", $hours, $mins);
-    } elseif ($formatType == 'SCORE') { // Number padded to six digits
-        return sprintf("%06d", $scoreIn);
-    } else { // Raw number
-        return "$scoreIn";
     }
+    if ($formatType == 'SCORE') { // Number padded to six digits
+        return sprintf("%06d", $scoreIn);
+    }
+
+    // Raw number
+    return "$scoreIn";
 }
 
-function isValidLeaderboardFormat($formatType): bool
+// TODO replace with Enum
+function isValidLeaderboardFormat(string $formatType): bool
 {
     return $formatType == 'TIME' ||      // Frames
            $formatType == 'TIMESECS' ||  // Seconds
@@ -509,9 +502,9 @@ function isValidLeaderboardFormat($formatType): bool
            $formatType == 'SCORE';       // Number padded to six digits
 }
 
-function getLeaderboardUserPosition($lbID, $user, &$lbPosition): bool
+function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition): bool
 {
-    sanitize_sql_inputs($lbID, $user);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT UserIndex FROM
                          (SELECT ua.User, le.Score, le.DateSubmitted,
@@ -537,11 +530,10 @@ function getLeaderboardUserPosition($lbID, $user, &$lbPosition): bool
         $lbPosition = $db_entry['UserIndex'];
 
         return true;
-    } else {
-        log_sql_fail();
-
-        return false;
     }
+    log_sql_fail();
+
+    return false;
 }
 
 function getLeaderboardsList(
@@ -612,12 +604,19 @@ function getLeaderboardsList(
     return legacyDbFetchAll($query, ['gameId' => $gameID])->toArray();
 }
 
-function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder): bool
-{
+function submitLBData(
+    string $user,
+    int $lbID,
+    string $lbMem,
+    string $lbTitle,
+    string $lbDescription,
+    string $lbFormat,
+    bool $lbLowerIsBetter,
+    int $lbDisplayOrder
+): bool {
     sanitize_sql_inputs($user, $lbMem, $lbTitle, $lbDescription, $lbFormat);
-    settype($lbID, 'integer');
-    settype($lbDisplayOrder, 'integer');
-    settype($lbLowerIsBetter, 'integer');
+
+    $lbLowerIsBetter = (int) $lbLowerIsBetter;
 
     $query = "UPDATE LeaderboardDef AS ld SET
               ld.Mem = '$lbMem',
@@ -633,15 +632,13 @@ function submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat,
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
-function SubmitNewLeaderboard($gameID, &$lbIDOut, $user): bool
+function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, string $user): bool
 {
-    sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
     if ($gameID == 0) {
         return false;
     }
@@ -657,21 +654,21 @@ function SubmitNewLeaderboard($gameID, &$lbIDOut, $user): bool
         $lbIDOut = mysqli_insert_id($db);
 
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 function UploadNewLeaderboard(
-    $author,
-    $gameID,
-    $title,
-    $desc,
-    $format,
-    $lowerIsBetter,
-    $mem,
-    &$idInOut,
-    &$errorOut
+    string $author,
+    int $gameID,
+    string $title,
+    string $desc,
+    string $format,
+    bool $lowerIsBetter,
+    string $mem,
+    ?int &$idInOut,
+    ?string &$errorOut
 ): bool {
     $displayOrder = 0;
     $originalAuthor = '';
@@ -683,7 +680,7 @@ function UploadNewLeaderboard(
             $data = mysqli_fetch_assoc($dbResult);
             $displayOrder = $data['DisplayOrder'];
             $originalAuthor = $data['Author'] ?? "Unknown";
-            settype($displayOrder, 'integer');
+            $displayOrder = (int) $displayOrder;
         } else {
             $errorOut = "Unknown leaderboard";
 
@@ -695,7 +692,7 @@ function UploadNewLeaderboard(
     $userPermissions = getUserPermissions($author);
     if ($userPermissions < Permissions::Developer) {
         if ($userPermissions < Permissions::JuniorDeveloper ||
-            (!empty($originalAuthor) && $author != $originalAuthor)) {
+            (!empty($originalAuthor) && $author !== $originalAuthor)) {
             $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
             return false;
@@ -726,7 +723,7 @@ function UploadNewLeaderboard(
         if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
             $data = mysqli_fetch_assoc($dbResult);
             $displayOrder = $data['DisplayOrder'];
-            settype($displayOrder, 'integer');
+            $displayOrder = (int) $displayOrder;
         }
     }
 
@@ -748,13 +745,8 @@ function UploadNewLeaderboard(
 /**
  * Duplicates a leaderboard a specified number of times.
  */
-function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNumber, $user): bool
+function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNumber, string $user): bool
 {
-    sanitize_sql_inputs($gameID, $leaderboardID);
-    settype($gameID, 'integer');
-    settype($leaderboardID, 'integer');
-    settype($duplicateNumber, 'integer');
-
     if ($gameID == 0) {
         return false;
     }
@@ -804,10 +796,8 @@ function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNum
     return true;
 }
 
-function requestResetLB($lbID): bool
+function requestResetLB(int $lbID): bool
 {
-    sanitize_sql_inputs($lbID);
-    settype($lbID, 'integer');
     if ($lbID == 0) {
         return false;
     }
@@ -819,11 +809,8 @@ function requestResetLB($lbID): bool
     return $dbResult !== false;
 }
 
-function requestDeleteLB($lbID): bool
+function requestDeleteLB(int $lbID): bool
 {
-    sanitize_sql_inputs($lbID);
-    settype($lbID, 'integer');
-
     $query = "DELETE FROM LeaderboardDef WHERE ID = $lbID";
 
     $dbResult = s_mysql_query($query);
@@ -840,9 +827,8 @@ function requestDeleteLB($lbID): bool
     return $dbResult !== false;
 }
 
-function GetLBPatch($gameID): array
+function GetLBPatch(int $gameID): array
 {
-    sanitize_sql_inputs($gameID);
     $lbData = [];
 
     // Always append LBs?
@@ -855,9 +841,9 @@ function GetLBPatch($gameID): array
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            settype($db_entry['ID'], 'integer');
-            settype($db_entry['LowerIsBetter'], 'boolean');
-            settype($db_entry['Hidden'], 'boolean');
+            $db_entry['ID'] = (int) $db_entry['ID'];
+            $db_entry['LowerIsBetter'] = (bool) $db_entry['LowerIsBetter'];
+            $db_entry['Hidden'] = (bool) $db_entry['Hidden'];
             $lbData[] = $db_entry;
         }
     }

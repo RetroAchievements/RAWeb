@@ -11,32 +11,35 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 
 // cookie only returns the most common account details. go get the rest
 getAccountDetails($user, $userDetails);
-$points = $userDetails['RAPoints'];
-$websitePrefs = $userDetails['websitePrefs'];
+$points = (int) $userDetails['RAPoints'];
+$websitePrefs = (int) $userDetails['websitePrefs'];
 $emailAddr = $userDetails['EmailAddress'];
-$permissions = $userDetails['Permissions'];
-$contribCount = $userDetails['ContribCount'];
-$contribYield = $userDetails['ContribYield'];
+$permissions = (int) $userDetails['Permissions'];
+$contribCount = (int) $userDetails['ContribCount'];
+$contribYield = (int) $userDetails['ContribYield'];
 $userWallActive = $userDetails['UserWallActive'];
 $apiKey = $userDetails['APIKey'];
 $userMotto = htmlspecialchars($userDetails['Motto']);
 
 RenderContentStart("My Settings");
 
-function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): void
-{
+function RenderUserPref(
+    int $websitePrefs,
+    int $userPref,
+    bool $setIfTrue,
+    ?string $state = null
+): void {
     echo "<input id='UserPreference$userPref' type='checkbox' ";
     echo "onchange='DoChangeUserPrefs(); return false;' value='1'";
 
     if ($state) {
         echo " $state";
-    } elseif (BitSet($websitePrefs, $userPref) == $setIfTrue) {
+    } elseif (BitSet($websitePrefs, $userPref) === $setIfTrue) {
         echo " checked";
     }
 
     echo " />";
 }
-
 ?>
 <script>
 function DoChangeUserPrefs() {

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\ArticleType;
@@ -10,7 +11,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',
     'flag' => ['required', 'integer', Rule::in(AchievementType::cases())],
 ]);
@@ -18,7 +19,7 @@ $input = Validator::validate(request()->post(), [
 $achievementIds = $input['achievements'];
 $value = (int) $input['flag'];
 
-$achievement = GetAchievementMetadataJSON((int) (is_array($achievementIds) ? $achievementIds[0] : $achievementIds));
+$achievement = GetAchievementData((int) (is_array($achievementIds) ? $achievementIds[0] : $achievementIds));
 if ($value === AchievementType::OfficialCore && !isValidConsoleId($achievement['ConsoleID'])) {
     abort(400, 'Invalid console');
 }

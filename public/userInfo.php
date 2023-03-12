@@ -500,12 +500,12 @@ RenderContentStart($userPage);
                 $numAchievedHardcore = $userMassData['Awarded'][$gameID]['NumAchievedHardcore'];
                 $scoreEarnedHardcore = $userMassData['Awarded'][$gameID]['ScoreAchievedHardcore'];
 
-                settype($numPossibleAchievements, "integer");
-                settype($maxPossibleScore, "integer");
-                settype($numAchieved, "integer");
-                settype($scoreEarned, "integer");
-                settype($numAchievedHardcore, "integer");
-                settype($scoreEarnedHardcore, "integer");
+                $numPossibleAchievements = (int) $numPossibleAchievements;
+                $maxPossibleScore = (int) $maxPossibleScore;
+                $numAchieved = (int) $numAchieved;
+                $scoreEarned = (int) $scoreEarned;
+                $numAchievedHardcore = (int) $numAchievedHardcore;
+                $scoreEarnedHardcore = (int) $scoreEarnedHardcore;
 
                 echo "<div class='md:flex justify-between mb-3'>";
 
@@ -540,7 +540,6 @@ RenderContentStart($userPage);
                         $achPoints = $achData['Points'];
                         $achTitle = $achData['Title'];
                         $achDesc = $achData['Description'];
-                        $achUnlockDate = getNiceDate(strtotime($achData['DateAwarded']));
                         $achHardcore = $achData['HardcoreAchieved'];
 
                         $unlockedStr = "";
@@ -549,6 +548,7 @@ RenderContentStart($userPage);
                         if (!$achData['IsAwarded']) {
                             $badgeName .= "_lock";
                         } else {
+                            $achUnlockDate = getNiceDate(strtotime($achData['DateAwarded']));
                             $unlockedStr = "<br clear=all>Unlocked: $achUnlockDate";
                             if ($achHardcore == 1) {
                                 $unlockedStr .= "<br>HARDCORE";

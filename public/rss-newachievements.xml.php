@@ -73,4 +73,4 @@ for ($i = 0; $i < $numArticles; $i++) {
     $article->appendChild($guid);
 }
 
-return response(html_entity_decode($dom->saveXML()), headers: ['Content-type' => 'text/xml']);
+return response(html_entity_decode((string) $dom->saveXML()), headers: ['Content-type' => 'text/xml']);

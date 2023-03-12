@@ -32,6 +32,9 @@ class StaticData extends BaseModel
         return StaticDataFactory::new();
     }
 
+    /**
+     * @return BelongsTo<User, StaticData>
+     */
     public function lastRegisteredUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'LastRegisteredUser', 'User');

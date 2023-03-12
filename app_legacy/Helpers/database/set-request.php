@@ -167,22 +167,21 @@ function toggleSetRequest(string $user, int $gameID, int $remaining): bool
 
             if (s_mysql_query($query2)) {
                 return true;
-            } else {
-                return false;
             }
-        } else {
-            // Only insert a set request if the user has some available
-            if ($remaining > 0) {
-                $query2 = "
+
+            return false;
+        }
+        // Only insert a set request if the user has some available
+        if ($remaining > 0) {
+            $query2 = "
                     INSERT
                         INTO SetRequest (`User`, `GameID`)
                     VALUES ('$user', '$gameID')";
-                if (s_mysql_query($query2)) {
-                    return true;
-                } else {
-                    return false;
-                }
+            if (s_mysql_query($query2)) {
+                return true;
             }
+
+            return false;
         }
     }
 
@@ -195,7 +194,6 @@ function toggleSetRequest(string $user, int $gameID, int $remaining): bool
 function getSetRequestCount(int $gameID): int
 {
     sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
     if ($gameID < 1) {
         return 0;
     }
@@ -208,9 +206,9 @@ function getSetRequestCount(int $gameID): int
 
     if ($dbResult !== false) {
         return (int) (mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
 /**
@@ -219,7 +217,6 @@ function getSetRequestCount(int $gameID): int
 function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 {
     sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
 
     $retVal = [];
 

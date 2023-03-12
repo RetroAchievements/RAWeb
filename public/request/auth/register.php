@@ -1,9 +1,10 @@
 <?php
 
 use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => [
         'required',
         'unique:mysql_legacy.UserAccounts,User',

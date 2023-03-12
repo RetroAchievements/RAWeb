@@ -30,7 +30,6 @@
  *   string     HardcoreMode   "1" if unlocked in hardcore, otherwise "0"
  */
 
-$user = null;
 $achievementID = (int) request()->query('a');
 $count = min((int) request()->query('c', '50'), 500);
 $offset = (int) request()->query('o');
@@ -41,7 +40,7 @@ if (empty($achievementID)) {
     ]);
 }
 
-$achievementData = GetAchievementMetadataJSON($achievementID);
+$achievementData = GetAchievementData($achievementID);
 
 $achievement = [
     'ID' => $achievementData['AchievementID'] ?? null,
@@ -64,7 +63,7 @@ $console = [
     'Title' => $achievementData['ConsoleName'] ?? null,
 ];
 
-$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $user, $offset, $count);
+$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, null, $offset, $count);
 
 return response()->json([
     'Achievement' => $achievement,

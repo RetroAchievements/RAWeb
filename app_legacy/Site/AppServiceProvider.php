@@ -63,10 +63,9 @@ class AppServiceProvider extends ServiceProvider
             } catch (Exception $exception) {
                 if (app()->environment('local', 'testing')) {
                     throw $exception;
-                } else {
-                    echo 'Could not connect to database. Please try again later.';
-                    exit;
                 }
+                echo 'Could not connect to database. Please try again later.';
+                exit;
             }
         });
     }
