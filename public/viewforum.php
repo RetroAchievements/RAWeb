@@ -121,11 +121,7 @@ RenderContentStart("Forum: $thisForumTitle");
                 $nextTopicLastCommentAuthor,
             );
 
-            if ($nextTopicPostedDate !== null) {
-                $nextTopicPostedNiceDate = getNiceDate(strtotime($nextTopicPostedDate));
-            } else {
-                $nextTopicPostedNiceDate = "None";
-            }
+            $nextTopicPostedNiceDate = $nextTopicPostedDate !== null ? getNiceDate(strtotime($nextTopicPostedDate)) : "None";
 
             if ($nextTopicLastCommentPostedDate !== null) {
                 $nextTopicLastCommentPostedNiceDate = getNiceDate(strtotime($nextTopicLastCommentPostedDate));

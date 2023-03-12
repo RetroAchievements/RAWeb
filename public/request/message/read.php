@@ -1,12 +1,13 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'message' => 'required|integer|exists:mysql_legacy.Messages,ID',
     'status' => 'required|integer|in:0,1',
 ]);

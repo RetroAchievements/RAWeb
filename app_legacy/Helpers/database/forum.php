@@ -5,13 +5,8 @@ use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Site\Enums\Permissions;
 
-function getForumList($categoryID = 0): ?array
+function getForumList(int $categoryID = 0): array
 {
-    sanitize_sql_inputs($categoryID);
-    settype($categoryID, 'integer');
-
-    // Specify NULL for all categories
-
     $query = "    SELECT f.ID, f.CategoryID, fc.Name AS CategoryName, fc.Description AS CategoryDescription, f.Title, f.Description, COUNT(DISTINCT ft.ID) AS NumTopics, COUNT( ft.ID ) AS NumPosts, ftc2.ID AS LastPostID, ftc2.Author AS LastPostAuthor, ftc2.DateCreated AS LastPostCreated, ft2.Title AS LastPostTopicName, ft2.ID AS LastPostTopicID, f.DisplayOrder
                 FROM Forum AS f
                 LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
@@ -21,34 +16,16 @@ function getForumList($categoryID = 0): ?array
                 LEFT JOIN ForumTopic AS ft2 ON ft2.ID = ftc2.ForumTopicID ";
 
     if ($categoryID > 0) {
-        settype($categoryID, "integer");
         $query .= "WHERE fc.ID = '$categoryID' ";
     }
     $query .= "GROUP BY f.ID ";
     $query .= "ORDER BY fc.DisplayOrder, f.DisplayOrder, f.ID ";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = [];
-
-        $numResults = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
-        }
-
-        return $dataOut;
-    } else {
-        log_sql_fail();
-
-        return null;
-    }
+    return legacyDbFetchAll($query)->toArray();
 }
 
-function getForumDetails($forumID, &$forumDataOut): bool
+function getForumDetails(int $forumID, ?array &$forumDataOut): bool
 {
-    sanitize_sql_inputs($forumID);
-    settype($forumID, "integer");
     $query = "    SELECT f.ID, f.Title AS ForumTitle, f.Description AS ForumDescription, fc.ID AS CategoryID, fc.Name AS CategoryName
                 FROM Forum AS f
                 LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
@@ -59,19 +36,15 @@ function getForumDetails($forumID, &$forumDataOut): bool
         $forumDataOut = mysqli_fetch_assoc($dbResult);
 
         return $forumDataOut != null;
-    } else {
-        log_sql_fail();
-        $forumDataOut = null;
-
-        return false;
     }
+    log_sql_fail();
+    $forumDataOut = null;
+
+    return false;
 }
 
-function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut): ?array
+function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): ?array
 {
-    sanitize_sql_inputs($forumID, $offset, $count);
-    settype($forumID, "integer");
-
     $query = "  SELECT COUNT(*) FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
@@ -106,11 +79,10 @@ function getForumTopics($forumID, $offset, $count, $permissions, &$maxCountOut):
         }
 
         return $dataOut;
-    } else {
-        log_sql_fail();
-
-        return null;
     }
+    log_sql_fail();
+
+    return null;
 }
 
 function getUnauthorisedForumLinks(): ?array
@@ -135,17 +107,14 @@ function getUnauthorisedForumLinks(): ?array
         }
 
         return $dataOut;
-    } else {
-        log_sql_fail();
-
-        return null;
     }
+    log_sql_fail();
+
+    return null;
 }
 
-function getTopicDetails($topicID, &$topicDataOut): bool
+function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
 {
-    sanitize_sql_inputs($topicID);
-    settype($topicID, "integer");
     $query = "  SELECT ft.ID, ft.Author, ft.AuthorID, fc.ID AS CategoryID, fc.Name AS Category, fc.ID as CategoryID, f.ID AS ForumID, f.Title AS Forum, ft.Title AS TopicTitle, ft.RequiredPermissions
                 FROM ForumTopic AS ft
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
@@ -157,17 +126,15 @@ function getTopicDetails($topicID, &$topicDataOut): bool
         $topicDataOut = mysqli_fetch_assoc($dbResult);
 
         return $topicID == ($topicDataOut['ID'] ?? null);
-    } else {
-        $topicDataOut = null;
-
-        return false;
     }
+    $topicDataOut = null;
+
+    return false;
 }
 
-function getTopicComments($topicID, $offset, $count, &$maxCountOut): ?array
+function getTopicComments(int $topicID, int $offset, int $count, ?int &$maxCountOut): ?array
 {
     sanitize_sql_inputs($topicID);
-    settype($topicID, "integer");
 
     $query = "    SELECT COUNT(*) FROM ForumTopicComment AS ftc
                 WHERE ftc.ForumTopicID = $topicID ";
@@ -175,7 +142,7 @@ function getTopicComments($topicID, $offset, $count, &$maxCountOut): ?array
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
-        $maxCountOut = $data['COUNT(*)'];
+        $maxCountOut = (int) $data['COUNT(*)'];
     }
 
     $query = "SELECT ftc.ID, ftc.ForumTopicID, ftc.Payload, ftc.Author, ftc.AuthorID, ftc.DateCreated, ftc.DateModified, ftc.Authorised, ua.RAPoints
@@ -196,17 +163,14 @@ function getTopicComments($topicID, $offset, $count, &$maxCountOut): ?array
         }
 
         return $dataOut;
-    } else {
-        log_sql_fail();
-
-        return null;
     }
+    log_sql_fail();
+
+    return null;
 }
 
-function getSingleTopicComment($forumPostID, &$dataOut): bool
+function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
 {
-    sanitize_sql_inputs($forumPostID);
-    settype($forumPostID, 'integer');
     $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified
                 FROM ForumTopicComment
                 WHERE ID=$forumPostID";
@@ -221,9 +185,14 @@ function getSingleTopicComment($forumPostID, &$dataOut): bool
     return false;
 }
 
-function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicIDOut): bool
-{
-    sanitize_sql_inputs($user, $forumID);
+function submitNewTopic(
+    string $user,
+    int $forumID,
+    string $topicTitle,
+    string $topicPayload,
+    ?int &$newTopicIDOut
+): bool {
+    sanitize_sql_inputs($user);
     $userID = getUserIDFromUser($user);
 
     if (mb_strlen($topicTitle) < 2) {
@@ -252,10 +221,8 @@ function submitNewTopic($user, $forumID, $topicTitle, $topicPayload, &$newTopicI
     return submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID);
 }
 
-function setLatestCommentInForumTopic($topicID, $commentID): bool
+function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 {
-    sanitize_sql_inputs($topicID, $commentID);
-
     // Update ForumTopic table
     $query = "UPDATE ForumTopic SET LatestCommentID=$commentID WHERE ID=$topicID";
     $dbResult = s_mysql_query($query);
@@ -279,10 +246,8 @@ function setLatestCommentInForumTopic($topicID, $commentID): bool
     return true;
 }
 
-function editTopicComment($commentID, $newPayload): bool
+function editTopicComment(int $commentID, string $newPayload): bool
 {
-    sanitize_sql_inputs($commentID);
-    settype($commentID, 'integer');
     $newPayload = str_replace("'", "''", $newPayload);
     $newPayload = str_replace("<", "&lt;", $newPayload);
     $newPayload = str_replace(">", "&gt;", $newPayload);
@@ -293,16 +258,20 @@ function editTopicComment($commentID, $newPayload): bool
     $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
     if ($dbResult !== false) {
         return true;
-    } else {
-        log_sql_fail();
-
-        return false;
     }
+    log_sql_fail();
+
+    return false;
 }
 
-function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$newCommentIDOut): bool
-{
-    sanitize_sql_inputs($user, $topicID);
+function submitTopicComment(
+    string $user,
+    int $topicID,
+    ?string $topicTitle,
+    string $commentPayload,
+    ?int &$newCommentIDOut
+): bool {
+    sanitize_sql_inputs($user);
     $userID = getUserIDFromUser($user);
 
     // Replace inverted commas, Remove HTML
@@ -322,12 +291,7 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
         setLatestCommentInForumTopic($topicID, $newCommentIDOut);
 
         if ($topicTitle == null) {
-            $topicData = [];
-            if (getTopicDetails($topicID, $topicData)) {
-                $topicTitle = $topicData['TopicTitle'];
-            } else {
-                $topicTitle = '';
-            }
+            $topicTitle = getTopicDetails($topicID, $topicData) ? $topicData['TopicTitle'] : '';
         }
 
         if ($authFlags) {
@@ -335,14 +299,13 @@ function submitTopicComment($user, $topicID, $topicTitle, $commentPayload, &$new
         }
 
         return true;
-    } else {
-        log_sql_fail();
-
-        return false;
     }
+    log_sql_fail();
+
+    return false;
 }
 
-function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentID): void
+function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
 {
     sanitize_sql_inputs($topicID, $author, $commentID);
 
@@ -367,11 +330,11 @@ function notifyUsersAboutForumActivity($topicID, $topicTitle, $author, $commentI
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, null, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, false, $urlTarget);
     }
 }
 
-function getTopicCommentCommentOffset($forumTopicID, $commentID, $count, &$offset): bool
+function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $count, ?int &$offset): bool
 {
     // Focus on most recent comment
     if ($commentID == -1) {
@@ -398,17 +361,15 @@ function getTopicCommentCommentOffset($forumTopicID, $commentID, $count, &$offse
         $offset = $pageOffset - $count;
 
         return true;
-    } else {
-        $offset = 0;
-
-        return false;
     }
+    $offset = 0;
+
+    return false;
 }
 
-function generateGameForumTopic($user, $gameID, &$forumTopicID): bool
+function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID): bool
 {
-    sanitize_sql_inputs($user, $gameID);
-    settype($gameID, 'integer');
+    sanitize_sql_inputs($user);
     if ($gameID == 0) {
         return false;
     }
@@ -419,7 +380,7 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID): bool
 
     if (isset($gameData['ForumTopicID'])
         && $gameData['ForumTopicID'] != 0
-        && getTopicDetails($gameData['ForumTopicID'], $dumbData)) {
+        && getTopicDetails($gameData['ForumTopicID'], $topic)) {
         // Bad times?!
         return false;
     }
@@ -467,13 +428,21 @@ function generateGameForumTopic($user, $gameID, &$forumTopicID): bool
         $dbResult = s_mysql_query($query);
 
         return $dbResult !== false;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
-function getRecentForumPosts($offset, $limit, $numMessageChars, $permissions, $fromUser = null): Collection
-{
+/**
+ * @return Collection<int, array>
+ */
+function getRecentForumPosts(
+    int $offset,
+    int $limit,
+    int $numMessageChars,
+    ?int $permissions = Permissions::Unregistered,
+    ?string $fromUser = null
+): Collection {
     $bindings = [
         'fromOffset' => $offset,
         'fromLimit' => $limit + 20,
@@ -589,7 +558,7 @@ function updateTopicPermissions(int $topicId, int $permissions): bool
     return true;
 }
 
-function RemoveUnauthorisedForumPosts($user): bool
+function RemoveUnauthorisedForumPosts(string $user): bool
 {
     sanitize_sql_inputs($user);
 
@@ -606,7 +575,7 @@ function RemoveUnauthorisedForumPosts($user): bool
     return true;
 }
 
-function AuthoriseAllForumPosts($user): bool
+function AuthoriseAllForumPosts(string $user): bool
 {
     sanitize_sql_inputs($user);
 
@@ -619,7 +588,7 @@ function AuthoriseAllForumPosts($user): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            notifyUsersAboutForumActivity($db_entry['TopicID'], $db_entry['TopicTitle'], $user, $db_entry['CommentID']);
+            notifyUsersAboutForumActivity((int) $db_entry['TopicID'], $db_entry['TopicTitle'], $user, (int) $db_entry['CommentID']);
         }
     } else {
         log_sql_fail();
@@ -634,14 +603,13 @@ function AuthoriseAllForumPosts($user): bool
     if ($dbResult !== false) {
         // user's forum post comments have all been authorised!
         return true;
-    } else {
-        log_sql_fail();
-
-        return false;
     }
+    log_sql_fail();
+
+    return false;
 }
 
-function isUserSubscribedToForumTopic($topicID, $userID): bool
+function isUserSubscribedToForumTopic(int $topicID, int $userID): bool
 {
     return isUserSubscribedTo(
         SubscriptionSubjectType::ForumTopic,

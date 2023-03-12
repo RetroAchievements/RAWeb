@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\RatingType;
@@ -9,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
     'type' => ['required', Rule::in(RatingType::cases())],
     'rating' => 'required|integer|min:1|max:5',

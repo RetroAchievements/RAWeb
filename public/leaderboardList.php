@@ -155,7 +155,7 @@ RenderContentStart($pageTitle);
         $lbFormat = $nextLB['Format'];
         $lbLowerIsBetter = $nextLB['LowerIsBetter'];
         $lbNumEntries = $nextLB['NumResults'];
-        settype($lbNumEntries, 'integer');
+        $lbNumEntries = (int) $lbNumEntries;
         $lbDisplayOrder = $nextLB['DisplayOrder'];
         $lbAuthor = $nextLB['Author'];
         $gameID = $nextLB['GameID'];

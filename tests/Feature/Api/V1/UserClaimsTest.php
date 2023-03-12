@@ -24,7 +24,7 @@ class UserClaimsTest extends TestCase
 
     public function testGetUserClaimsUnknownUser(): void
     {
-        $game = Game::factory()->create();
+        Game::factory()->create();
 
         $this->get($this->apiUrl('GetUserClaims', ['u' => 'nonExistant']))
             ->assertSuccessful()

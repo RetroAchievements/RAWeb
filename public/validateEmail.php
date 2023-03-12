@@ -1,8 +1,9 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-$input = Validator::validate(request()->query(), [
+$input = Validator::validate(Arr::wrap(request()->query()), [
     'v' => 'required',
 ], customAttributes: [
     'v' => 'token',

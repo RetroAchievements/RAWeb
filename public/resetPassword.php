@@ -2,7 +2,7 @@
 
 $user = request()->query('u');
 $token = request()->query('t');
-$allowNewPasswordEntry = $user && $token && isValidPasswordResetToken($user, $token);
+$allowNewPasswordEntry = is_string($user) && is_string($token) && isValidPasswordResetToken($user, $token);
 
 RenderContentStart("Password Reset");
 ?>

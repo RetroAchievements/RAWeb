@@ -14,7 +14,7 @@ class SystemFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ucwords($this->faker->words(1, true)),
+            'name' => ucwords(fake()->words(1, true)),
         ];
     }
 }

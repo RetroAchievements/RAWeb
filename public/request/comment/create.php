@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\TicketState;
@@ -9,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:2000',
     'commentable_id' => 'required|integer',
     'commentable_type' => 'required|integer',

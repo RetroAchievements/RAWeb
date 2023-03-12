@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Models\News;
 use LegacyApp\Site\Enums\Permissions;
@@ -12,7 +13,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::
 /** @var User $user */
 $user = request()->user();
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'news' => 'nullable|integer',
     'body' => 'required|string',
     'title' => 'required|string',

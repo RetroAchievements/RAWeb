@@ -14,7 +14,7 @@ class ForumFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ucwords($this->faker->words(2, true)),
+            'name' => ucwords(fake()->words(2, true)),
         ];
     }
 }

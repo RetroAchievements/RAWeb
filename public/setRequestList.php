@@ -131,7 +131,7 @@ RenderContentStart("Set Requests");
                     echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
                 }
             }
-            if ($gameCounter == $maxCount && $offset != ($totalRequestedGames - $maxCount)) {
+            if ($gameCounter == $maxCount && $offset != $totalRequestedGames - $maxCount) {
                 $nextOffset = $offset + $maxCount;
                 if (!empty($selectedConsoleId)) {
                     echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsoleId'>Next $maxCount &gt;</a>";

@@ -12,6 +12,9 @@ class Ticket extends BaseModel
 {
     protected $table = 'Ticket';
 
+    /**
+     * @return BelongsTo<Achievement, Ticket>
+     */
     public function achievement(): BelongsTo
     {
         return $this->belongsTo(Achievement::class, 'AchievementID');

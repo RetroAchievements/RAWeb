@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LegacyApp\Community\Enums;
 
 abstract class ClaimSorting
@@ -103,6 +105,6 @@ abstract class ClaimSorting
 
     public static function getSortingValue(int $input, int $value): int
     {
-        return $input == $value ? $value + 10 : $value;
+        return $input === $value ? $value + 10 : $value;
     }
 }

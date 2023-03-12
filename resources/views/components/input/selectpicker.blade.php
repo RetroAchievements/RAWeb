@@ -1,4 +1,7 @@
 <?php
+
+use Illuminate\Support\Arr;
+
 $optionLabelAttribute ??= 'name';
 $options ??= [];
 $selected = Arr::wrap($selected) ?? [];

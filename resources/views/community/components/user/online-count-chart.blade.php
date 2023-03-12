@@ -41,7 +41,7 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
                     continue;
                 }
                 $players = empty($playersOnlineChartData[$i]) ? 0 : $playersOnlineChartData[$i];
-                settype($players, 'integer');
+                $players = (int) $players;
 
                 if ($i != 0) {
                     echo ", ";

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Site\Models\User;
 
@@ -9,7 +10,7 @@ if (!$user) {
     return back()->withErrors(__('legacy.error.account'));
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'password_current' => 'required',
     'password' => 'required|confirmed|min:8|different:username',
 ]);

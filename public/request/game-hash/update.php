@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Site\Enums\Permissions;
 
@@ -7,7 +8,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
     'hash' => 'required|string',
     'name' => 'required|string',

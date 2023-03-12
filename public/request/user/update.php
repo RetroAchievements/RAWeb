@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\ArticleType;
@@ -10,7 +11,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admi
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'target' => 'required|string|exists:mysql_legacy.UserAccounts,User',
     'property' => ['required', 'integer', Rule::in(UserAction::cases())],
     'value' => 'required|integer',
@@ -55,7 +56,8 @@ if ($propertyType === UserAction::PatreonBadge) {
 if ($propertyType === UserAction::LegendBadge) {
     $hasBadge = HasCertifiedLegendBadge($targetUser);
     SetCertifiedLegend($targetUser, !$hasBadge);
-        if (getAccountDetails($targetUser, $targetUserData)) {
+
+    if (getAccountDetails($targetUser, $targetUserData)) {
         addArticleComment('Server', ArticleType::UserModeration, $targetUserData['ID'],
             $user . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
         );

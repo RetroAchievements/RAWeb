@@ -76,7 +76,7 @@ foreach ($gamesList as $game) {
                 $anyDevEasiestGame = $game;
             }
         }
-        array_push($anyDevGameIDs, $game['ID']);
+        $anyDevGameIDs[] = $game['ID'];
         $anyDevRichPresenceCount += $game['RichPresence'];
         $anyDevLeaderboardTotal += $game['NumLBs'];
         if (isset($game['NumLBs'])) {
@@ -96,7 +96,7 @@ foreach ($gamesList as $game) {
                     $majorityDevEasiestGame = $game;
                 }
             }
-            array_push($majorityDevGameIDs, $game['ID']);
+            $majorityDevGameIDs[] = $game['ID'];
             $majorityDevAchievementCount += $game['MyAchievements'];
             $majorityDevRichPresenceCount += $game['RichPresence'];
             $majorityDevLeaderboardTotal += $game['NumLBs'];
@@ -118,7 +118,7 @@ foreach ($gamesList as $game) {
                     $onlyDevEasiestGame = $game;
                 }
             }
-            array_push($onlyDevGameIDs, $game['ID']);
+            $onlyDevGameIDs[] = $game['ID'];
             $onlyDevAchievementCount += $game['MyAchievements'];
             $onlyDevRichPresenceCount += $game['RichPresence'];
             $onlyDevLeaderboardTotal += $game['NumLBs'];
@@ -380,7 +380,7 @@ foreach ($userArchInfo as $achievement) {
     $totalPoints += $achievement['Points'];
     $totalTruePoints += $achievement['TrueRatio'];
     $lastAchievement = $achievement;
-    array_push($achievementIDs, $achievement['ID']);
+    $achievementIDs[] = $achievement['ID'];
 }
 
 $averagePoints = $totalPoints / $achievementCount;
@@ -1156,7 +1156,8 @@ RenderContentStart("$dev's Developer Stats");
             echo "<div id='devstatsscrollpane'>";
             echo "<table class='table-highlight'><tbody>";
             $rowCount = 0;
-            for ($i = 0; $i < count($recentlyObtainedAchievements) && $rowCount < ($maxRecentAchievements / 2); $i++) {
+            $recentlyObtainedAchievementsCount = count($recentlyObtainedAchievements);
+            for ($i = 0; $i < $recentlyObtainedAchievementsCount && $rowCount < ($maxRecentAchievements / 2); $i++) {
                 $skipNextEntry = false;
                 echo "<tr><td width='35%'>";
                 echo achievementAvatar($recentlyObtainedAchievements[$i]);
@@ -1243,7 +1244,7 @@ RenderContentStart("$dev's Developer Stats");
             if ($userTickets['resolved'] > 0) {
                 $parts[] = $userTickets['resolved'] . " Resolved";
             }
-            if (count($parts) > 0) {
+            if (!empty($parts)) {
                 echo ' (' . implode(' - ', $parts) . ')';
             }
             echo '</td>';

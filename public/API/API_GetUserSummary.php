@@ -94,7 +94,7 @@ $recentAchievementsEarned = (int) request()->query('a', '10');
 
 $retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
 
-if (!$retVal) {
+if (empty($retVal)) {
     return response()->json([
         'ID' => null,
         'User' => $user,
@@ -111,7 +111,7 @@ if (in_array('LastGame', $retVal)) {
 
 // Find out if we're online or offline
 getAccountDetails($user, $userDetails);
-$retVal['LastActivity'] = getActivityMetadata($userDetails['LastActivityID'] ?? 0);
+$retVal['LastActivity'] = getActivityMetadata((int) ($userDetails['LastActivityID'] ?? 0));
 
 $status = 'Offline';
 if ($retVal['LastActivity']) {

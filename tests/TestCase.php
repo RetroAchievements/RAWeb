@@ -57,6 +57,9 @@ abstract class TestCase extends BaseTestCase
         return $system;
     }
 
+    /**
+     * @return Collection<int, Game>
+     */
     protected function seedGames(int $amount = 3, ?System $system = null, int $achievementsAmount = 0, bool $withHash = true): Collection
     {
         if ($system === null) {
@@ -64,7 +67,7 @@ abstract class TestCase extends BaseTestCase
         }
 
         /** @var System $system */
-        /** @var Collection $games */
+        /** @var Collection<int, Game> $games */
         $games = $system->games()->saveMany(Game::factory()->count($amount)->create());
 
         if ($withHash) {
@@ -83,13 +86,16 @@ abstract class TestCase extends BaseTestCase
         return $this->seedGames(1, $system, $achievements, $withHash)->first();
     }
 
+    /**
+     * @return Collection<int, Achievement>
+     */
     protected function seedAchievements(int $amount = 3, ?Game $game = null): Collection
     {
         if ($game === null) {
             $game = $this->seedGame();
         }
 
-        /** @var Collection $achievements */
+        /** @var Collection<int, Achievement> $achievements */
         $achievements = $game->achievements()->saveMany(Achievement::factory()->count($amount)->create());
 
         return $achievements;

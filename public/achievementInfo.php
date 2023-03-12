@@ -13,8 +13,7 @@ if (empty($achievementID)) {
     abort(404);
 }
 
-$dataOut = [];
-getAchievementMetadata($achievementID, $dataOut);
+$dataOut = GetAchievementData($achievementID);
 if (empty($dataOut)) {
     abort(404);
 }

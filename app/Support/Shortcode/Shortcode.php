@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Support\Shortcode;
 
 use Illuminate\Support\Facades\Cache;
@@ -27,9 +29,9 @@ final class Shortcode
             ->add('url', fn (ShortcodeInterface $s) => $this->renderUrlLink($s))
             ->add('link', fn (ShortcodeInterface $s) => $this->renderLink($s))
             ->add('spoiler', fn (ShortcodeInterface $s) => $this->renderSpoiler($s))
-            ->add('ach', fn (ShortcodeInterface $s) => $this->embedAchievement($s->getBbCode() ?: $s->getContent()))
-            ->add('game', fn (ShortcodeInterface $s) => $this->embedGame($s->getBbCode() ?: $s->getContent()))
-            ->add('ticket', fn (ShortcodeInterface $s) => $this->embedTicket($s->getBbCode() ?: $s->getContent()))
+            ->add('ach', fn (ShortcodeInterface $s) => $this->embedAchievement((int) ($s->getBbCode() ?: $s->getContent())))
+            ->add('game', fn (ShortcodeInterface $s) => $this->embedGame((int) ($s->getBbCode() ?: $s->getContent())))
+            ->add('ticket', fn (ShortcodeInterface $s) => $this->embedTicket((int) ($s->getBbCode() ?: $s->getContent())))
             ->add('user', fn (ShortcodeInterface $s) => $this->embedUser($s->getBbCode() ?: $s->getContent()));
     }
 
@@ -132,14 +134,9 @@ final class Shortcode
         EOF;
     }
 
-    private function embedAchievement($id): string
+    private function embedAchievement(int $id): string
     {
-        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', function () use ($id) {
-            $data = [];
-            getAchievementMetadata($id, $data);
-
-            return $data;
-        });
+        $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
 
         if (empty($data)) {
             return '';
@@ -148,21 +145,9 @@ final class Shortcode
         return achievementAvatar($data, iconSize: 24);
     }
 
-    private function embedGame($id): string
+    private function embedGame(int $id): string
     {
-        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', function () use ($id) {
-            $data = [];
-            getGameTitleFromID(
-                $id,
-                $gameName,
-                $consoleIDOut,
-                $consoleName,
-                $forumTopicID,
-                $data
-            );
-
-            return $data;
-        });
+        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', fn () => getGameData($id));
 
         if (empty($data)) {
             return '';
@@ -171,7 +156,7 @@ final class Shortcode
         return gameAvatar($data, iconSize: 24);
     }
 
-    private function embedTicket($id): string
+    private function embedTicket(int $id): string
     {
         $ticketModel = GetTicketModel($id);
 

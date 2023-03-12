@@ -58,7 +58,7 @@ class UserCompletedGamesTest extends TestCase
             'ConsoleID' => $system->ID,
             'ImageIcon' => '/Images/003456.png',
         ]);
-        $publishedAchievements3 = Achievement::factory()->published()->count(3)->create(['GameID' => $game3->ID]);
+        Achievement::factory()->published()->count(3)->create(['GameID' => $game3->ID]);
 
         /** @var Game $game4 */
         $game4 = Game::factory()->create([
