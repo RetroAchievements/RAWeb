@@ -27,10 +27,10 @@ function avatar(
 
     $tooltipTrigger = '';
     if ($tooltip) {
-        $tooltipTrigger = "x-init=\"mobileSafeTipEvents.attachTooltip(\$el, { dynamicType: '$resource', dynamicId: '$id', dynamicContext: '$context' })\"";
+        $tooltipTrigger = "x-init=\"attachTooltipToElement(\$el, { dynamicType: '$resource', dynamicId: '$id', dynamicContext: '$context' })\"";
         if (is_string($tooltip)) {
             $escapedTooltip = tooltipEscape($tooltip);
-            $tooltipTrigger = "x-init=\"mobileSafeTipEvents.attachTooltip(\$el, { staticHtmlContent: useCard('$resource', '$id', '$context', '$escapedTooltip') })\"";
+            $tooltipTrigger = "x-init=\"attachTooltipToElement(\$el, { staticHtmlContent: useCard('$resource', '$id', '$context', '$escapedTooltip') })\"";
         }
     }
 
