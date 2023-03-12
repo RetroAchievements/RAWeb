@@ -102,6 +102,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
             const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
             const gameId = <?= $gameID ?>;
 
+            // FIXME: Use the `fetcher` util.
             fetch('/request/user/update-notification.php', {
                 method: 'POST',
                 headers: {
