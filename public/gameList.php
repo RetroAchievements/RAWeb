@@ -198,10 +198,11 @@ RenderContentStart($requestedConsole . " Games");
                     echo "<br/>";
                 }
             } else {
-                $fallBackConsoleIcon = "assets/images/systems/no-system-icon.png";
+                $consoleIconName = str_replace("/", "", $consoleName); // Clean "Mega Drive / Genesis", etc.
+                $fallBackConsoleIcon = "assets/images/system/Unknown.png";
                 echo "<h2 class='flex'>";
-                echo " <img src='assets/images/systems/$consoleName.png' class='w-8 h-8 mr-2' alt='Console icon' ";
-                echo " onerror='this.src=\"$fallBackConsoleIcon\"'></img>"; #fallback
+                echo " <img src='assets/images/system/$consoleIconName.png' class='mr-2' alt='Console icon' width='32' height='32'";
+                echo " onerror='this.src=\"$fallBackConsoleIcon\"'></img>"; // fallback
                 echo " <div class=''>$consoleName</div>";
                 echo "</h2>";
 
