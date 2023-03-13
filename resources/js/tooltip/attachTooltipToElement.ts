@@ -16,8 +16,6 @@ function attachTooltipListeners(anchorEl: HTMLElement, showFn: () => void) {
     ['mouseover', showFn],
     ['mouseleave', hideTooltip],
     ['mousemove', (event: MouseEvent) => trackTooltipMouseMovement(anchorEl, event)],
-    ['focus', showFn],
-    ['blur', hideTooltip],
   ];
 
   tooltipListeners.forEach(([event, listenerFn]) => {

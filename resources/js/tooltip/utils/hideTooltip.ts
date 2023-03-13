@@ -4,6 +4,10 @@ export function hideTooltip() {
   const activeTooltipId = store.currentTooltipId;
   const tooltipEl = store.tooltipEl;
 
+  if (store.dynamicTimeoutId) {
+    clearTimeout(store.dynamicTimeoutId);
+  }
+
   if (tooltipEl) {
     store.dynamicTimeoutId = null;
 

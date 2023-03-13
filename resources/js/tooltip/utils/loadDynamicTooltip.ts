@@ -4,20 +4,6 @@ import { tooltipStore as store } from '../state/tooltipStore';
 import { renderTooltip } from './renderTooltip';
 import { pinTooltipToCursorPosition } from './pinTooltipToCursorPosition';
 
-async function fetchDynamicTooltipContent(type: string, id: string, context?: unknown) {
-  const contentResponse = await fetcher<{ html: string }>('/request/card.php', {
-    method: 'POST',
-    body: `type=${type}&id=${id}&context=${context}`,
-  });
-
-  return contentResponse.html;
-}
-
-function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string) {
-  renderTooltip(anchorEl, htmlContent);
-  pinTooltipToCursorPosition(anchorEl, store.tooltipEl, store.trackedMouseX, store.trackedMouseY);
-}
-
 export async function loadDynamicTooltip(
   anchorEl: HTMLElement,
   type: string,
@@ -61,4 +47,18 @@ export async function loadDynamicTooltip(
       }
     }
   }, 200);
+}
+
+async function fetchDynamicTooltipContent(type: string, id: string, context?: unknown) {
+  const contentResponse = await fetcher<{ html: string }>('/request/card.php', {
+    method: 'POST',
+    body: `type=${type}&id=${id}&context=${context}`,
+  });
+
+  return contentResponse.html;
+}
+
+function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string) {
+  renderTooltip(anchorEl, htmlContent);
+  pinTooltipToCursorPosition(anchorEl, store.tooltipEl, store.trackedMouseX, store.trackedMouseY);
 }
