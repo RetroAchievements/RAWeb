@@ -41,7 +41,7 @@ RenderContentStart("Supported Game Files - $gameTitle");
              "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
              "</b></p>";
 
-        echo "<p class='mt-4 mb-1'>There are currently <span class='font-bold'>" . count($hashes) . "</span> supported game file hashes registered for this game.</p>";
+        echo "<p class='mt-4 mb-1'>There " . (count($hashes) === 1 ? "is" : "are") . " currently <span class='font-bold'>" . count($hashes) . "</span> supported game file " . Str::plural('hash', count($hashes)) . " registered for this game.</p>";
 
         echo "<ul>";
         $hasUnlabeledHashes = false;
