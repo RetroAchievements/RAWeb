@@ -6,6 +6,7 @@ module.exports = {
     './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
     './storage/framework/views/*.php',
     './resources/views/**/*.blade.php',
+    './resources/js/**/*.ts',
     //  legacy
     './app_legacy/Helpers/render/*.php',
     './app_legacy/Helpers/util/*.php',
@@ -41,21 +42,13 @@ module.exports = {
       },
 
       animation: {
-        'fade-in': 'fade-in 300ms ease',
-        'fade-out': 'fade-out 200ms ease'
+        'fade-in': 'fade-in 150ms ease',
       },
       keyframes: {
         'fade-in': {
-          '0%': { opacity: 0, transform: 'translateY(1rem) scale(95%)' },
+          '0%': { opacity: 0, transform: 'translateY(0.5rem) scale(95%)' },
           '100%': { opacity: 1, transform: 'translateY(0) scale(100%)' }
-        },
-        'fade-out': {
-          '0%': { opacity: 1, transform: 'scale(100%)' },
-          '100%': { opacity: 0, transform: 'scale(95%)' }
         }
-      },
-      transition: {
-        leave: 'transition ease-out duration-300'
       }
     },
 

@@ -5,7 +5,9 @@ export function hideTooltip() {
   const tooltipEl = store.tooltipEl;
 
   if (tooltipEl) {
-    tooltipEl.style.transition = 'opacity 200ms ease, transform 200ms ease';
+    store.dynamicTimeoutId = null;
+
+    tooltipEl.style.transition = 'opacity 150ms ease, transform 150ms ease';
     tooltipEl.style.opacity = '0';
     tooltipEl.style.transform = 'scale(0.95)';
 
@@ -17,6 +19,6 @@ export function hideTooltip() {
         tooltipEl.style.removeProperty('transform');
         tooltipEl.style.removeProperty('opacity');
       }
-    }, 200);
+    }, 150);
   }
 }

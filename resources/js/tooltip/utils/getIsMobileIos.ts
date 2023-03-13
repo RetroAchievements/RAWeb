@@ -1,6 +1,6 @@
 import { UAParser } from 'ua-parser-js';
 
-export function detectMobileIos() {
+export function getIsMobileIos() {
   let wasMobileIosDetected = false;
 
   if ('userAgent' in navigator) {

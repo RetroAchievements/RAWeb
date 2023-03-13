@@ -3,12 +3,11 @@ import Alpine from 'alpinejs';
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
 import { attachTooltipToElement } from './tooltip';
-import { clipboard, mobileSafeTipEvents, themeChange } from './utils';
+import { clipboard, themeChange } from './utils';
 
 // livewire_hot_reload();
 
 window.attachTooltipToElement = attachTooltipToElement;
-window.mobileSafeTipEvents = mobileSafeTipEvents;
 
 window.Alpine = Alpine;
 Alpine.start();
