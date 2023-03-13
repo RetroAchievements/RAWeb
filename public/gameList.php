@@ -200,10 +200,10 @@ RenderContentStart($requestedConsole . " Games");
             } else {
                 $consoleIconName = str_replace("/", "", $consoleName); // Clean "Mega Drive / Genesis", etc.
                 $fallBackConsoleIcon = "assets/images/system/Unknown.png";
-                echo "<h2 class='flex'>";
-                echo " <img src='assets/images/system/$consoleIconName.png' class='mr-2' alt='Console icon' width='32' height='32'";
+                echo "<h2 class='flex gap-x-2'>";
+                echo " <img src='assets/images/system/$consoleIconName.png' alt='Console icon' width='32' height='32'";
                 echo " onerror='this.src=\"$fallBackConsoleIcon\"'></img>"; // fallback
-                echo " <div class=''>$consoleName</div>";
+                echo " <span>$consoleName</span>";
                 echo "</h2>";
 
                 echo "<div style='float:left'>$gamesCount Games</div>";

@@ -114,10 +114,10 @@ function RenderToolbar(): void
                 $systemName = $system['systemName'];
                 $listId = $system['listID'];
                 $iconName = $system['iconName'];
-                echo "<li><a href='/gameList.php?c=$listId'> <div class='flex items-center'>";
-                echo " <img src='assets/images/system/$iconName.png' class='mr-2' width='16' height='16' alt='mini console icon'>";
-                echo " <div>$systemName</div>";
-                echo "</div></a></li>";
+                echo "<li><a href='/gameList.php?c=$listId' class='!flex items-center gap-x-2' >"; // the flex class needs to be forced here
+                echo " <img src='assets/images/system/$iconName.png' width='16' height='16' alt='mini console icon'>";
+                echo " <span>$systemName</span>";
+                echo "</a></li>";
             }
         }
         echo "</ul>";
