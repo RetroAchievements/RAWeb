@@ -1,6 +1,10 @@
 function CreateCardIconDiv(type, id, title, icon, url) {
-  return '<div class=\'inline\' '
-    + 'onmouseover="mobileSafeTipEvents.mouseOver(loadCard(this, \'' + type + '\', \'' + id + '\'))" onmouseout="UnTip()" >'
+  let initDirective = `x-init="attachTooltipToElement($el, { dynamicType: '${type}', dynamicId: '${id}' })"`;
+  if (type === 'game') {
+    initDirective = `x-init="attachTooltipToElement($el, { staticHtmlContent: useCard('game', '${id}') })"`;
+  }
+
+  return `<div class=\'inline\' ${initDirective}>`
     + '<a href=\'' + url + '\'>'
     + '<img src=\'' + mediaAsset(icon) + '\' width=\'32\' height=\'32\' '
     + ' alt="' + title + '" title="' + title + '" class=\'badgeimg\' loading=\'lazy\' />'

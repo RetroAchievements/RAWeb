@@ -231,15 +231,6 @@ function RenderAward(array $award, int $imageSize, bool $clickable = true): void
 
     if ($clickable && !empty($linkdest)) {
         $displayable = "<a href=\"$linkdest\">$displayable</a>";
-        $tooltipImagePath = "$imagepath";
-        $tooltipImageSize = 96;
-        $tooltipTitle = "Site Award";
-
-        // $textWithTooltip = WrapWithTooltip($displayable, $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
-
-        // if ($awardButGameIsIncomplete) {
-        //     $newOverlayDiv = WrapWithTooltip("<a href=\"$linkdest\"><div class=\"trophyimageincomplete\"></div></a>", $tooltipImagePath, $tooltipImageSize, $tooltipTitle, $tooltip);
-        // }
     }
 
     echo "<div><div>$displayable</div>$newOverlayDiv</div>";

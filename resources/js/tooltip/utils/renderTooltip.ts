@@ -7,6 +7,10 @@ export function renderTooltip(anchorEl: HTMLElement, html: string) {
     store.tooltipEl = null;
   }
 
+  // If a dynamic tooltip is loading (eg: a user tooltip),
+  // prevent it from finishing.
+  store.dynamicTimeoutId = null;
+
   store.currentTooltipId = Math.random();
   store.tooltipEl = document.createElement('div');
 

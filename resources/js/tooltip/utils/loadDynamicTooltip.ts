@@ -18,7 +18,7 @@ export async function loadDynamicTooltip(anchorEl: HTMLElement, type: string, id
     `;
     renderTooltip(anchorEl, genericLoadingTemplate);
 
-    setTimeout(async () => {
+    store.dynamicTimeoutId = setTimeout(async () => {
       const cardResponse = await fetcher<{ html: string }>('/request/card.php', {
         method: 'POST',
         body: `type=${type}&id=${id}&context=${context}`,
@@ -27,8 +27,18 @@ export async function loadDynamicTooltip(anchorEl: HTMLElement, type: string, id
       if (cardResponse.html) {
         store.dynamicContentCache[cacheKey] = cardResponse.html;
 
-        renderTooltip(anchorEl, cardResponse.html);
-        pinTooltipToCursorPosition(anchorEl, store.tooltipEl, store.trackedMouseX, store.trackedMouseY);
+        // We don't want to continue on with displaying this dynamic tooltip
+        // if a static tooltip is opened while we're fetching data.
+        const wasTimeoutCleared = !store.dynamicTimeoutId;
+        if (!wasTimeoutCleared) {
+          renderTooltip(anchorEl, cardResponse.html);
+          pinTooltipToCursorPosition(
+            anchorEl,
+            store.tooltipEl,
+            store.trackedMouseX,
+            store.trackedMouseY
+          );
+        }
       }
     }, 200);
   } else {
