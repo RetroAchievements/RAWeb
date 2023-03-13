@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Site\Enums\Permissions;
 
@@ -7,12 +8,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required|integer',
     'video' => 'nullable|url',
 ]);
 
-if (updateAchievementEmbedVideo($input['achievement'], $input['video'])) {
+if (updateAchievementEmbedVideo((int) $input['achievement'], $input['video'])) {
     return response()->json(['message' => __('legacy.success.ok')]);
 }
 

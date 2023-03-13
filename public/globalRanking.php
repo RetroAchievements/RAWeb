@@ -146,7 +146,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         echo "<tr class='do-not-highlight'>";
 
         // Only show the rank when we actually know the rank
-        if ($sort < 10 && ($sort % 10) != 1) {
+        if ($sort < 10 && $sort % 10 != 1) {
             echo "<th>Rank</th>";
         }
 
@@ -247,7 +247,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 }
 
                 // Only show the rank when we actually know the rank
-                if ($sort < 10 && ($sort % 10) != 1) {
+                if ($sort < 10 && $sort % 10 != 1) {
                     echo "<td>" . $rank . "</td>";
                 }
                 echo "<td>";
@@ -288,11 +288,9 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         // Display the user if they are not in the list
         if ($user !== null) {
             if (!$userListed) {
-                $userData = null;
-
                 // Get and display the information for the logged in user if applicable
                 $userData = getGlobalRankingData($type, $sort, $date, $user, null, $untracked, 0, 1);
-                if (count($userData) > 0) {
+                if (!empty($userData)) {
                     // Add dummy row to seperate the user from the rest of the table
                     echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
                     echo "<tr style='outline: thin solid'>";
@@ -304,7 +302,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                         // Dont show rank on pages you are not actually ranked in. This would require rerunning the query just to find yourself
                         echo "<td></td>";
                     } else {
-                        if ($sort < 10 && ($sort % 10) != 1) {
+                        if ($sort < 10 && $sort % 10 != 1) {
                             if ($sort == 5) {
                                 echo "<td>" . getUserRank($user, RankType::Hardcore) . "</td>";
                             } elseif ($sort == 6) {

@@ -6,7 +6,7 @@ use LegacyApp\Site\Models\User;
 // see resources/views/layouts/app.blade.php
 // see resources/views/layouts/partials/head.blade.php
 
-function RenderContentStart($pageTitle = null): void
+function RenderContentStart(?string $pageTitle = null): void
 {
     // hijack view variables
     view()->share('pageTitle', $pageTitle);
@@ -19,7 +19,7 @@ function RenderContentEnd(): void
     // TBD add legacy content wrapper end
 }
 
-function RenderOpenGraphMetadata($title, $OGType, $imageURL, $description): void
+function RenderOpenGraphMetadata(string $title, ?string $OGType, string $imageURL, string $description): void
 {
     // hijack view variables
     view()->share('pageTitle', $title);
@@ -136,7 +136,7 @@ function RenderToolbar(): void
     echo "<ul>";
     echo "<li class='dropdown-header'>Miscellaneous</li>";
     echo "<li><a href='/gameList.php'>All Games</a></li>";
-    // echo "<li><a href='/popularGames.php'>Most Played</a></li>";
+    echo "<li><a href='/gameSearch.php?p=0'>Hardest Games</a></li>";
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "<li><a href='/claimlist.php?s=9&f=8109'>New Sets & Revisions</a></li>";
     echo "<li><a href='/claimlist.php'>Sets in Progress</a></li>";
@@ -158,7 +158,7 @@ function RenderToolbar(): void
     echo "<li class='divider'></li>";
     // echo "<li><a href='/awardedList.php'>Commonly Won Achievements</a></li>";
     echo "<li><a href='/achievementList.php?s=4&p=2'>Easy Achievements</a></li>";
-    echo "<li><a href='/gameSearch.php?p=0'>Hardest Achievements</a></li>";
+    echo "<li><a href='/achievementList.php?s=14&p=2'>Hardest Achievements</a></li>";
     echo "</ul>";
     echo "</div>";
     echo "</li>";
@@ -259,7 +259,7 @@ function RenderToolbar(): void
     echo "</form>";
 }
 
-function RenderPaginator($numItems, $perPage, $offset, $urlPrefix): void
+function RenderPaginator(int $numItems, int $perPage, int $offset, string $urlPrefix): void
 {
     // floor to current page
     $offset = floor($offset / $perPage) * $perPage;

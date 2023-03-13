@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Enums\RatingType;
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
 ]);
 

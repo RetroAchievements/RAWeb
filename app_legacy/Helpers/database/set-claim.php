@@ -135,11 +135,7 @@ function dropClaim(string $user, int $gameID): bool
             AND User = '$user'
             AND GameID = '$gameID'";
 
-    if (s_mysql_query($query)) {
-        return true;
-    }
-
-    return false;
+    return (bool) s_mysql_query($query);
 }
 
 /**
@@ -226,6 +222,8 @@ function getClaimData(int $gameID, bool $getFullData = true): array
  *
  * Results are configurable based on input parameters, allowing sorting on each of the
  * above stats and returning data for a specific user or game.
+ *
+ * @return Collection<int, array>
  */
 function getFilteredClaims(
     ?int $gameID = null,
@@ -478,11 +476,7 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
         WHERE
             ID = '$claimID'";
 
-    if (s_mysql_query($query)) {
-        return true;
-    }
-
-    return false;
+    return (bool) s_mysql_query($query);
 }
 
 /**
@@ -490,7 +484,6 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
  */
 function getExpiringClaim(string $user): array
 {
-    $retVal = [];
     sanitize_sql_inputs($user);
 
     $query = "
@@ -510,7 +503,7 @@ function getExpiringClaim(string $user): array
         return mysqli_fetch_assoc($dbResult);
     }
 
-    return $retVal;
+    return [];
 }
 
 /**

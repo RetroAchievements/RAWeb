@@ -7,6 +7,9 @@ namespace Database\Factories\Legacy;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use LegacyApp\Platform\Models\System;
 
+/**
+ * @extends Factory<System>
+ */
 class SystemFactory extends Factory
 {
     protected $model = System::class;
@@ -17,7 +20,7 @@ class SystemFactory extends Factory
     public function definition(): array
     {
         return [
-            'Name' => ucwords($this->faker->words(1, true)),
+            'Name' => ucwords(fake()->words(1, true)),
         ];
     }
 }

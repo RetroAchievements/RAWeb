@@ -9,6 +9,6 @@ if (!authenticateFromPassword($user, $pass)) {
     return back()->withErrors(__('legacy.error.credentials'));
 }
 
-postActivity($user, ActivityType::Login, null);
+postActivity($user, ActivityType::Login);
 
 return back();

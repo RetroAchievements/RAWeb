@@ -24,11 +24,17 @@ class PlayerAchievement extends BaseModel
         return PlayerAchievementFactory::new();
     }
 
+    /**
+     * @return BelongsTo<Achievement, PlayerAchievement>
+     */
     public function achievement(): BelongsTo
     {
         return $this->belongsTo(Achievement::class, 'AchievementID');
     }
 
+    /**
+     * @return BelongsTo<User, PlayerAchievement>
+     */
     public function player(): BelongsTo
     {
         return $this->belongsTo(User::class, 'User');

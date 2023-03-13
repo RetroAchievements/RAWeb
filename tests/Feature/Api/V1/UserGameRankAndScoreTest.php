@@ -35,7 +35,7 @@ class UserGameRankAndScoreTest extends TestCase
         $thirdAchievement = $publishedAchievements->get(2);
         /** @var User $user */
         $user = User::factory()->create();
-        $unlock = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
+        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
         $unlock2 = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user->User]);
 
         /** @var User $user2 */
@@ -64,7 +64,7 @@ class UserGameRankAndScoreTest extends TestCase
         $thirdAchievement = $publishedAchievements->get(2);
         /** @var User $user */
         $user = User::factory()->create(['Untracked' => true]);
-        $unlock = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
+        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
         $unlock2 = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user->User]);
 
         /** @var User $user2 */

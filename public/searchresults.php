@@ -83,11 +83,7 @@ RenderContentStart("Search");
                         $lastType = $nextType;
                     }
 
-                    if ($iter++ % 2 == 0) {
-                        echo "<tr>";
-                    } else {
-                        echo "<tr>";
-                    }
+                    echo "<tr>";
 
                     switch ($nextType) {
                         case SearchType::User:
@@ -100,7 +96,9 @@ RenderContentStart("Search");
                         case SearchType::Achievement:
                             echo "<td>Achievement</td>";
                             echo "<td colspan='2'>";
-                            echo achievementAvatar(Achievement::find($nextID));
+                            /** @var ?Achievement $achievement */
+                            $achievement = Achievement::find($nextID);
+                            echo achievementAvatar($achievement);
                             echo "</td>";
                             break;
 

@@ -3,27 +3,16 @@
 use LegacyApp\Community\Enums\ClaimStatus;
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
 
-function GetUserData($user): ?array
+function GetUserData(string $username): ?array
 {
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT * FROM UserAccounts WHERE User='$user'";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult || mysqli_num_rows($dbResult) != 1) {
-        log_sql_fail();
-
-        // failed: Achievement $id doesn't exist!
-        return null;
-    }
-
-    return mysqli_fetch_assoc($dbResult);
+    return User::firstWhere('User', $username)?->toArray();
 }
 
-function getAccountDetails(&$username, &$dataOut): bool
+function getAccountDetails(?string &$username = null, ?array &$dataOut = []): bool
 {
-    if (!isset($username) || mb_strlen($username) < 2) {
+    if (empty($username) || !isValidUsername($username)) {
         return false;
     }
 
@@ -49,8 +38,12 @@ function getAccountDetails(&$username, &$dataOut): bool
     return true;
 }
 
-function getUserIDFromUser($user): int
+function getUserIDFromUser(?string $user): int
 {
+    if (!$user) {
+        return 0;
+    }
+
     sanitize_sql_inputs($user);
 
     $query = "SELECT ID FROM UserAccounts WHERE User LIKE '$user'";
@@ -66,7 +59,7 @@ function getUserIDFromUser($user): int
     return 0;
 }
 
-function getUserMetadataFromID($userID): ?array
+function getUserMetadataFromID(int $userID): ?array
 {
     sanitize_sql_inputs($userID);
 
@@ -80,7 +73,7 @@ function getUserMetadataFromID($userID): ?array
     return null;
 }
 
-function getUserUnlockDates($user, $gameID, &$dataOut): int
+function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -112,7 +105,10 @@ function getUserUnlockDates($user, $gameID, &$dataOut): int
     return count($dataOut);
 }
 
-function getUserUnlocksDetailed($user, $gameID, &$dataOut): int
+/**
+ * @param array<string, mixed>|null $dataOut
+ */
+function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
 {
     sanitize_sql_inputs($user, $gameID);
 
@@ -135,9 +131,11 @@ function getUserUnlocksDetailed($user, $gameID, &$dataOut): int
     return count($dataOut);
 }
 
-function GetUserUnlocksData($user, $gameID, $hardcoreMode): array
+function GetUserUnlocksData(string $user, int $gameID, bool $hardcoreMode): array
 {
     sanitize_sql_inputs($user, $gameID);
+
+    $hardcoreMode = (int) $hardcoreMode;
 
     $query = "SELECT AchievementID
         FROM Achievements AS ach
@@ -148,14 +146,14 @@ function GetUserUnlocksData($user, $gameID, $hardcoreMode): array
 
     $retVal = [];
     while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        settype($db_entry['AchievementID'], 'integer');
+        $db_entry['AchievementID'] = (int) $db_entry['AchievementID'];
         $retVal[] = $db_entry['AchievementID'];
     }
 
     return $retVal;
 }
 
-function validateUsername($userIn): ?string
+function validateUsername(string $userIn): ?string
 {
     sanitize_sql_inputs($userIn);
 
@@ -165,12 +163,11 @@ function validateUsername($userIn): ?string
     if ($dbResult !== false) {
         $data = mysqli_fetch_assoc($dbResult);
 
-        return (string) $data['User'];
-    } else {
-        log_sql_fail();
-
-        return null;
+        return $data['User'];
     }
+    log_sql_fail();
+
+    return null;
 }
 
 /**
@@ -203,7 +200,8 @@ function getAccountAge(string $user): int
     return (int) $years;
 }
 
-function getUserActivityRange($user, &$firstLogin, &$lastLogin): bool
+// TODO replace with created and lastLogin timestamps on user
+function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$lastLogin): bool
 {
     sanitize_sql_inputs($user);
 
@@ -238,7 +236,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
     $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : $userInfo['RichPresenceMsg'];
     $libraryOut['LastGameID'] = $userInfo['LastGameID'];
     if ($userInfo['LastGameID']) {
-        $libraryOut['LastGame'] = getGameData($userInfo['LastGameID']);
+        $libraryOut['LastGame'] = getGameData((int) $userInfo['LastGameID']);
     }
     $libraryOut['ContribCount'] = $userInfo['ContribCount'];
     $libraryOut['ContribYield'] = $userInfo['ContribYield'];
@@ -262,7 +260,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
             $gameIDsCSV .= "," . $recentlyPlayedData[$i]['GameID'];
         }
 
-        $awardedData = getUserProgress($user, $gameIDsCSV);
+        $awardedData = getUserProgress($user, (string) $gameIDsCSV);
         $libraryOut['Awarded'] = $awardedData;
 
         $achievementData = getUsersRecentAwardedForGames($user, $gameIDsCSV, $numRecentAchievements);
@@ -272,7 +270,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
     return $libraryOut;
 }
 
-function getControlPanelUserInfo($user, &$libraryOut): bool
+function getControlPanelUserInfo(string $user, ?array &$libraryOut): bool
 {
     sanitize_sql_inputs($user);
 
@@ -310,27 +308,19 @@ function getControlPanelUserInfo($user, &$libraryOut): bool
     return true;
 }
 
-function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &$perms = null, $showUntracked = false): int
+function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
 {
-    sanitize_sql_inputs($offset, $count, $requestedBy, $perms);
-    settype($offset, 'integer');
-    settype($count, 'integer');
-    settype($showUntracked, 'boolean');
-
     $whereQuery = null;
     $permsFilter = null;
 
-    settype($perms, 'integer');
     if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
         $permsFilter = "ua.Permissions = $perms ";
     } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {
         $permsFilter = "ua.Permissions >= $perms ";
+    } elseif ($showUntracked) {
+        $whereQuery = "WHERE ua.Untracked ";
     } else {
-        if ($showUntracked) { // if reach this point, show only untracked users
-            $whereQuery = "WHERE ua.Untracked ";
-        } else { // perms invalid and do not show untracked? get outta here!
-            return 0;
-        }
+        return 0;
     }
 
     if ($showUntracked) {
@@ -338,10 +328,9 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
             $whereQuery = "WHERE $permsFilter ";
         }
     } else {
-        $whereQuery = "WHERE ( !ua.Untracked || ua.User = \"$requestedBy\" ) AND $permsFilter";
+        $whereQuery = "WHERE ( NOT ua.Untracked || ua.User = \"$requestedBy\" ) AND $permsFilter";
     }
 
-    settype($sortBy, 'integer');
     $orderBy = match ($sortBy) {
         1 => "ua.User ASC ",
         11 => "ua.User DESC ",
@@ -361,27 +350,14 @@ function getUserListByPerms($sortBy, $offset, $count, &$dataOut, $requestedBy, &
                 ORDER BY $orderBy
                 LIMIT $offset, $count";
 
-    $numFound = 0;
-    $dataOut = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numFound] = $db_entry;
-            $numFound++;
-        }
-    } else {
-        log_sql_fail();
-    }
+    $dataOut = legacyDbFetchAll($query)->toArray();
 
-    return $numFound;
+    return count($dataOut);
 }
 
-function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7): array
+function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): array
 {
     sanitize_sql_inputs($count, $sortBy, $devFilter);
-    settype($sortBy, 'integer');
-    settype($count, 'integer');
-    settype($devFilter, 'integer');
 
     $stateCond = match ($devFilter) {
         // Active
@@ -455,7 +431,7 @@ function GetDeveloperStatsFull($count, $sortBy, $devFilter = 7): array
     return $retVal;
 }
 
-function GetUserFields($username, $fields): ?array
+function GetUserFields(string $username, array $fields): ?array
 {
     sanitize_sql_inputs($username);
 

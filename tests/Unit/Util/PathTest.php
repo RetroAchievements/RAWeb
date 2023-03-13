@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 final class PathTest extends TestCase
 {
-    public function testPaths()
+    public function testPaths(): void
     {
         $this->assertStringStartsWith(base_path(), public_path());
 

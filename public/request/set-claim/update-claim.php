@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\ArticleType;
@@ -13,7 +14,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admi
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
     'claim' => 'required|integer|exists:mysql_legacy.SetClaim,ID',
     'claim_special' => ['required', 'integer', Rule::in(ClaimSpecial::cases())],

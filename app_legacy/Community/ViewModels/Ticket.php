@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LegacyApp\Community\ViewModels;
 
 // TODO refactor to legacy model
@@ -25,19 +27,19 @@ class Ticket
 
     public function __construct(array $ticketDbResult)
     {
-        $this->id = $ticketDbResult['ID'];
-        $this->achievementId = $ticketDbResult['AchievementID'];
+        $this->id = (int) $ticketDbResult['ID'];
+        $this->achievementId = (int) $ticketDbResult['AchievementID'];
         $this->achievementTitle = $this->sanitize($ticketDbResult['AchievementTitle']);
         $this->achievementDesc = $this->sanitize($ticketDbResult['AchievementDesc']);
-        $this->points = $ticketDbResult['Points'];
+        $this->points = (int) $ticketDbResult['Points'];
         $this->badgeName = $this->sanitize($ticketDbResult['BadgeName']);
         $this->authorName = $this->sanitize($ticketDbResult['AchievementAuthor']);
-        $this->gameId = $ticketDbResult['GameID'];
+        $this->gameId = (int) $ticketDbResult['GameID'];
         $this->consoleName = $this->sanitize($ticketDbResult['ConsoleName']);
         $this->gameTitle = $this->sanitize($ticketDbResult['GameTitle']);
         $this->createdOn = $this->sanitize($ticketDbResult['ReportedAt']);
-        $this->ticketType = $ticketDbResult['ReportType'];
-        $this->ticketState = $ticketDbResult['ReportState'];
+        $this->ticketType = (int) $ticketDbResult['ReportType'];
+        $this->ticketState = (int) $ticketDbResult['ReportState'];
         $this->notes = $this->sanitize($ticketDbResult['ReportNotes']);
         $this->createdBy = $this->sanitize($ticketDbResult['ReportedBy']);
         $this->closedOn = $this->sanitize($ticketDbResult['ResolvedAt']);
@@ -46,6 +48,6 @@ class Ticket
 
     private function sanitize(?string $input): string
     {
-        return htmlentities($input, ENT_COMPAT, null, false);
+        return empty($input) ? '' : htmlentities($input, ENT_COMPAT, null, false);
     }
 }

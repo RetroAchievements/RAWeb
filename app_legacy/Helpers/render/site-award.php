@@ -3,7 +3,7 @@
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Platform\Models\PlayerBadge;
 
-function SeparateAwards($userAwards): array
+function SeparateAwards(array $userAwards): array
 {
     $gameAwards = array_values(array_filter($userAwards, fn ($award) => $award['AwardType'] == AwardType::Mastery && $award['ConsoleName'] != 'Events'));
 
@@ -12,7 +12,7 @@ function SeparateAwards($userAwards): array
     $devEventsPrefix = "[Dev Events - ";
     $devEventsHub = "[Central - Developer Events]";
     $devEventAwards = [];
-    foreach ($eventAwards as $k => $eventAward) {
+    foreach ($eventAwards as $eventAward) {
         $related = getGameAlternatives($eventAward['AwardData']);
         foreach ($related as $hub) {
             if ($hub['Title'] == $devEventsHub || str_starts_with($hub['Title'], $devEventsPrefix)) {
@@ -79,16 +79,16 @@ function RenderSiteAwards(array $userAwards): void
     }
 }
 
-function RenderAwardGroup($awards, $title): void
+function RenderAwardGroup(array $awards, string $title): void
 {
-    $numItems = is_countable($awards) ? count($awards) : 0;
+    $numItems = count($awards);
     $numHidden = 0;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] < 0) {
             $numHidden++;
         }
     }
-    if ($numItems == $numHidden) {
+    if ($numItems === $numHidden) {
         // No items to show
         return;
     }
@@ -100,7 +100,8 @@ function RenderAwardGroup($awards, $title): void
     ];
     if ($title == "Game Awards") {
         // Count and show # of completed/mastered games
-        [$numCompleted, $numCompletedHidden] = [0, 0];
+        $numCompleted = 0;
+        $numCompletedHidden = 0;
         foreach ($awards as $award) {
             if ($award['AwardDataExtra'] != 1) {
                 $numCompleted++;
@@ -145,7 +146,7 @@ function RenderAwardGroup($awards, $title): void
     echo "</div>";
 }
 
-function RenderCounter($icon, $text, $numItems, $numHidden): string
+function RenderCounter(string $icon, string $text, int $numItems, int $numHidden): string
 {
     $tooltip = "$numItems $text";
     if ($numHidden > 0) {
@@ -159,16 +160,16 @@ function RenderCounter($icon, $text, $numItems, $numHidden): string
     return $counter;
 }
 
-function RenderAward($award, $imageSize, $clickable = true): void
+function RenderAward(array $award, int $imageSize, bool $clickable = true): void
 {
     $awardType = $award['AwardType'];
-    settype($awardType, 'integer');
+    $awardType = (int) $awardType;
     $awardData = $award['AwardData'];
     $awardDataExtra = $award['AwardDataExtra'];
     $awardGameTitle = $award['Title'];
     $awardGameConsole = $award['ConsoleName'];
     $awardGameImage = $award['ImageIcon'];
-    $awardDate = getNiceDate($award['AwardedAt']);
+    $awardDate = getNiceDate((int) $award['AwardedAt']);
     $awardButGameIsIncomplete = (isset($award['Incomplete']) && $award['Incomplete'] == 1);
     $imgclass = 'badgeimg siteawards';
 
@@ -188,12 +189,15 @@ function RenderAward($award, $imageSize, $clickable = true): void
         echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, context: 'mastery', iconClass: $imgclass) . "</div>";
 
         return;
-    } elseif ($awardType == AwardType::AchievementUnlocksYield) {
+    }
+
+    if ($awardType == AwardType::AchievementUnlocksYield) {
         // Developed a number of earned achievements
         $tooltip = "Awarded for being a hard-working developer and producing achievements that have been earned over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " times!";
         $imagepath = asset("/assets/images/badge/contribYield-$awardData.png");
         $imgclass = 'goldimage';
-        $linkdest = ''; // TBD: developer sets page?
+        $linkdest = '';
+        // TBD: developer sets page?
     } elseif ($awardType == AwardType::AchievementPointsYield) {
         // Yielded an amount of points earned by players
         $tooltip = "Awarded for producing many valuable achievements, providing over " . PlayerBadge::getBadgeThreshold($awardType, $awardData) . " points to the community!";
