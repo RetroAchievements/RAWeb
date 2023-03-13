@@ -192,7 +192,12 @@ RenderContentStart($requestedConsole . " Games");
                         echo "<br/>";
                     }
                 } else {
-                    echo "<h2>$consoleName</h2>";
+                    $fallBackConsoleIcon = "assets/images/systems/no-system-icon.png";
+                    echo "<h2 class='flex'>";
+                    echo " <img src='assets/images/systems/$consoleName.png' class='w-8 h-8 mr-2' alt='Console icon' ";
+                    echo " onerror='this.src=\"$fallBackConsoleIcon\"'></img>"; #fallback
+                    echo " <div class=''>$consoleName</div>";
+                    echo "</h2>";
 
                     echo "<div style='float:left'>$gamesCount Games</div>";
 
