@@ -53,9 +53,9 @@ function RenderToolbar(): void
                 ["systemName" => "Virtual Boy", "listID" => 28, "iconName" => "Virtual Boy"],
             ],
             "Sony" => [
-                ["systemName" => "Playstation", "listID" => 12, "iconName" => "PlayStation"],
+                ["systemName" => "PlayStation", "listID" => 12, "iconName" => "PlayStation"],
                 ["systemName" => "PlayStation 2", "listID" => 21, "iconName" => "PlayStation 2"],
-                ["systemName" => "Playstation Portable", "listID" => 41, "iconName" => "Playstation Portable"],
+                ["systemName" => "PlayStation Portable", "listID" => 41, "iconName" => "Playstation Portable"],
             ],
             "Atari" => [
                 ["systemName" => "Atari 2600", "listID" => 25, "iconName" => "Atari 2600"],
