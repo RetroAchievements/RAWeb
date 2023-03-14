@@ -34,6 +34,151 @@ class AchievementSetClaimTest extends TestCase
         $this->assertCount(51, $response->json());
     }
 
+    public function testGetCompletedClaims(): void
+    {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        insertClaim(
+            $this->user->User,
+            $game->ID,
+            ClaimType::Primary,
+            ClaimSetType::NewSet,
+            ClaimSpecial::None,
+            Permissions::Developer
+        );
+
+        completeClaim(
+            $this->user->User,
+            $game->ID,
+        );
+
+        $claim = AchievementSetClaim::first();
+
+        $this->get($this->apiUrl('GetClaims', ['k' => '1']))
+            ->assertSuccessful()
+            ->assertJson([
+                [
+                    'ClaimType' => ClaimType::Primary,
+                    'ConsoleName' => $system->Name,
+                    'Created' => $claim->Created->__toString(),
+                    'DoneTime' => $claim->Finished->__toString(),
+                    'Extension' => 0,
+                    'GameID' => $game->ID,
+                    'GameIcon' => '/Images/000001.png',
+                    'GameTitle' => $game->Title,
+                    'ID' => $claim->ID,
+                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
+                    'SetType' => ClaimSetType::NewSet,
+                    'Special' => ClaimSpecial::None,
+                    'Status' => ClaimStatus::Complete,
+                    'Updated' => $claim->Updated->__toString(),
+                    'User' => $this->user->User,
+                    'UserRole' => $this->user->Permissions,
+                ],
+            ]);
+    }
+
+    public function testGetDroppedClaims(): void
+    {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        insertClaim(
+            $this->user->User,
+            $game->ID,
+            ClaimType::Primary,
+            ClaimSetType::NewSet,
+            ClaimSpecial::None,
+            Permissions::Developer
+        );
+
+        dropClaim(
+            $this->user->User,
+            $game->ID,
+        );
+
+        $claim = AchievementSetClaim::first();
+
+        $this->get($this->apiUrl('GetClaims', ['k' => '2']))
+            ->assertSuccessful()
+            ->assertJson([
+                [
+                    'ClaimType' => ClaimType::Primary,
+                    'ConsoleName' => $system->Name,
+                    'Created' => $claim->Created->__toString(),
+                    'DoneTime' => $claim->Finished->__toString(),
+                    'Extension' => 0,
+                    'GameID' => $game->ID,
+                    'GameIcon' => '/Images/000001.png',
+                    'GameTitle' => $game->Title,
+                    'ID' => $claim->ID,
+                    'MinutesLeft' => Carbon::now()->diffInRealMinutes($claim->Finished),
+                    'SetType' => ClaimSetType::NewSet,
+                    'Special' => ClaimSpecial::None,
+                    'Status' => ClaimStatus::Dropped,
+                    'Updated' => $claim->Updated->__toString(),
+                    'User' => $this->user->User,
+                    'UserRole' => $this->user->Permissions,
+                ],
+            ]);
+    }
+
+    public function testGetExpiredClaims(): void
+    {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        insertClaim(
+            $this->user->User,
+            $game->ID,
+            ClaimType::Primary,
+            ClaimSetType::NewSet,
+            ClaimSpecial::None,
+            Permissions::Developer
+        );
+        Carbon::setTestNow(Carbon::now()->addYears(2));
+
+        $claim = AchievementSetClaim::first();
+
+        $this->get($this->apiUrl('GetClaims', ['k' => '3']))
+            ->assertSuccessful()
+            ->assertJsonFragment(
+                [
+                    'ClaimType' => ClaimType::Primary,
+                    'ConsoleName' => $system->Name,
+                    'Created' => $claim->Created->__toString(),
+                    'DoneTime' => $claim->Finished->__toString(),
+                    'Extension' => 0,
+                    'GameID' => $game->ID,
+                    'GameIcon' => '/Images/000001.png',
+                    'GameTitle' => $game->Title,
+                    'ID' => $claim->ID,
+                    'SetType' => ClaimSetType::NewSet,
+                    'Special' => ClaimSpecial::None,
+                    'Status' => ClaimStatus::Active,
+                    'Updated' => $claim->Updated->__toString(),
+                    'User' => $this->user->User,
+                    'UserRole' => $this->user->Permissions,
+                ]
+            );
+    }
+
     public function testGetUserClaims(): void
     {
         // Freeze time
@@ -73,6 +218,7 @@ class AchievementSetClaimTest extends TestCase
                     'Status' => ClaimStatus::Active,
                     'Updated' => $claim->Updated->__toString(),
                     'User' => $this->user->User,
+                    'UserRole' => $this->user->Permissions,
                 ],
             ]);
     }
