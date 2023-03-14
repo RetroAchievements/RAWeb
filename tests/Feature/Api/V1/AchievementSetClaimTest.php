@@ -175,7 +175,7 @@ class AchievementSetClaimTest extends TestCase
                     'Updated' => $claim->Updated->__toString(),
                     'User' => $this->user->User,
                     'UserRole' => $this->user->Permissions,
-                ]
+                ],
             ]);
     }
 
