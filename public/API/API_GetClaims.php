@@ -33,17 +33,17 @@ use LegacyApp\Community\Enums\ClaimFilters;
  $input = Validator::validate(Arr::wrap(request()->query()), [
     'k' => [
         'nullable',
-        Rule::in([1, 2, 3]),
+        Rule::in(['1', '2', '3']),
     ],
 ], [
     'k.in' => 'k must be set to one of the following values: :values',
 ]);
 
-$completedClaims = 1;
-$droppedClaims = 2;
-$expiredClaims = 3;
+$completedClaims = '1';
+$droppedClaims = '2';
+$expiredClaims = '3';
 
-$claimKind = (int) request()->query('k', $completedClaims);
+$claimKind = request()->query('k', $completedClaims);
 
 $claimFilter = ClaimFilters::AllCompletedPrimaryClaims;
 if ($claimKind === $droppedClaims) {
