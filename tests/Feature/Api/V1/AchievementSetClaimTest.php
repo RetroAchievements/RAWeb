@@ -158,7 +158,7 @@ class AchievementSetClaimTest extends TestCase
 
         $this->get($this->apiUrl('GetClaims', ['k' => '3']))
             ->assertSuccessful()
-            ->assertJsonFragment(
+            ->assertJson([
                 [
                     'ClaimType' => ClaimType::Primary,
                     'ConsoleName' => $system->Name,
@@ -176,7 +176,7 @@ class AchievementSetClaimTest extends TestCase
                     'User' => $this->user->User,
                     'UserRole' => $this->user->Permissions,
                 ]
-            );
+            ]);
     }
 
     public function testGetUserClaims(): void
