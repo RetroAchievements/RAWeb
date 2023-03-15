@@ -61,7 +61,9 @@ RenderContentStart("Hash List");
                     echo "<tr class=\"alt\">";
                 }
 
-                echo "<td>" . $hash['Hash'] . "</td>";
+                $gameID = $hash['GameID'];
+
+                echo "<td><a href='/managehashes.php?g=$gameID'>" . $hash['Hash'] . "</a></td>";
                 echo "<td>";
                 echo gameAvatar($hash);
                 echo "</td>";
