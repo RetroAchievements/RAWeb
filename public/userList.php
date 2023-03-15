@@ -109,7 +109,7 @@ RenderContentStart("Users");
             $nextUser = $userEntry['User'];
             $totalPoints = $userEntry['RAPoints'];
             $totalEarned = $userEntry['NumAwarded'];
-            $lastLogin = getNiceDate(strtotime($userEntry['LastLogin']));
+            $lastLogin = !empty($userEntry['LastLogin']) ? getNiceDate(strtotime($userEntry['LastLogin'])) : '';
 
             if ($sortBy == 2) {
                 echo "<td>";

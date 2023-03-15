@@ -19,15 +19,6 @@ $claimData = getFilteredClaims(
 );
 $activeClaimCount = getActiveClaimCount();
 
-if (!empty($gameID)) {
-    getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
-}
-
-sanitize_outputs(
-    $gameTitle,
-    $consoleName,
-);
-
 RenderContentStart("Expiring Claims");
 ?>
 <div id='mainpage'>
@@ -96,7 +87,7 @@ RenderContentStart("Expiring Claims");
             echo "<td>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
             echo "<td>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td>";
             $minutesLeft = $claim['MinutesLeft'];
-            settype($minutesLeft, "integer");
+            $minutesLeft = (int) $minutesLeft;
             if ($minutesLeft < 0) {
                 echo "<td><font color='red'>EXPIRED</font></td>";
             } else {

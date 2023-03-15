@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 class LocalValetDriver extends ValetDriver
 {
     private string $site_folder = '/public';

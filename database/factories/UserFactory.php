@@ -19,13 +19,13 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $username = mb_substr(str_replace('.', '', $this->faker->unique()->userName), 0, 20);
+        $username = mb_substr(str_replace('.', '', fake()->unique()->userName), 0, 20);
 
         return [
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => fake()->unique()->safeEmail,
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
-            'points_total' => $this->faker->numberBetween(0, 9999) * 10,
+            'points_total' => fake()->numberBetween(0, 9999) * 10,
             'remember_token' => Str::random(10),
             'username' => $username,
             'display_name' => $username,

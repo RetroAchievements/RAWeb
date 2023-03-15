@@ -9,10 +9,9 @@ use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 
-function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): array
+function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, bool $postMastery): array
 {
-    sanitize_sql_inputs($gameID, $user, $isHardcore);
-    settype($isHardcore, 'integer');
+    sanitize_sql_inputs($user);
 
     $query = "SELECT COUNT(DISTINCT ach.ID) AS NumAch,
                      COUNT(IF(aw.HardcoreMode=1,1,NULL)) AS NumAwardedHC,
@@ -31,10 +30,10 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
     $minToCompleteGame = 6;
     if ($postMastery && $data['NumAch'] >= $minToCompleteGame) {
         $awardBadge = null;
-        if ($isHardcore && $data['NumAwardedHC'] == $data['NumAch']) {
+        if ($isHardcore && $data['NumAwardedHC'] === $data['NumAch']) {
             // all hardcore achievements unlocked, award mastery
             $awardBadge = UnlockMode::Hardcore;
-        } elseif ($data['NumAwardedSC'] == $data['NumAch']) {
+        } elseif ($data['NumAwardedSC'] === $data['NumAch']) {
             if ($isHardcore && HasSiteAward($user, AwardType::Mastery, $gameID, UnlockMode::Softcore)) {
                 // when unlocking a hardcore achievement, don't update the completion
                 // date if the user already has a completion badge
@@ -52,7 +51,7 @@ function testFullyCompletedGame($gameID, $user, $isHardcore, $postMastery): arra
                 postActivity($user, ActivityType::CompleteGame, $gameID, $awardBadge);
             }
 
-            expireGameTopAchievers((int) $gameID);
+            expireGameTopAchievers($gameID);
         }
     }
 
@@ -102,7 +101,7 @@ function getUserProgress(string $user, string $gameIDsCSV): array
     $gameIDsArray = explode(',', $gameIDsCSV);
     $gameIDs = [];
     foreach ($gameIDsArray as $gameID) {
-        settype($gameID, "integer");
+        $gameID = (int) $gameID;
         $dataOut[$gameID]['NumPossibleAchievements'] = 0;
         $dataOut[$gameID]['PossibleScore'] = 0;
         $dataOut[$gameID]['NumAchieved'] = 0;
@@ -148,11 +147,10 @@ function getUserProgress(string $user, string $gameIDsCSV): array
     return $dataOut;
 }
 
-function GetAllUserProgress($user, $consoleID): array
+function GetAllUserProgress(string $user, int $consoleID): array
 {
     $retVal = [];
-    sanitize_sql_inputs($user, $consoleID);
-    settype($consoleID, 'integer');
+    sanitize_sql_inputs($user);
 
     // Title,
     $query = "SELECT ID, IFNULL( AchCounts.NumAch, 0 ) AS NumAch, IFNULL( MyAwards.NumIAchieved, 0 ) AS Earned, IFNULL( MyAwardsHC.NumIAchieved, 0 ) AS HCEarned
@@ -190,9 +188,9 @@ function GetAllUserProgress($user, $consoleID): array
             $nextID = $nextData['ID'];
             unset($nextData['ID']);
 
-            settype($nextData['NumAch'], 'integer');
-            settype($nextData['Earned'], 'integer');
-            settype($nextData['HCEarned'], 'integer');
+            $nextData['NumAch'] = (int) $nextData['NumAch'];
+            $nextData['Earned'] = (int) $nextData['Earned'];
+            $nextData['HCEarned'] = (int) $nextData['HCEarned'];
 
             $retVal[$nextID] = $nextData;
         }
@@ -201,7 +199,7 @@ function GetAllUserProgress($user, $consoleID): array
     return $retVal;
 }
 
-function getUsersGameList($user, &$dataOut): int
+function getUsersGameList(string $user, ?array &$dataOut): int
 {
     $dataOut = [];
 
@@ -281,7 +279,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     return legacyDbFetchAll($query)->toArray();
 }
 
-function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOnly = false, $achievementType = null): int
+function getTotalUniquePlayers(int $gameID, ?string $requestedBy = null, bool $hardcoreOnly = false, ?int $achievementType = null): int
 {
     $bindings = [
         'gameId' => $gameID,
@@ -293,16 +291,16 @@ function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOn
         $hardcoreStatement = ' AND aw.HardcoreMode = :unlockMode';
     }
 
-    $achievementStatement = "";
+    $achievementStatement = '';
     if ($achievementType !== null) {
         $bindings['achievementType'] = $achievementType;
-        $achievementStatement = "AND ach.Flags = :achievementType";
+        $achievementStatement = 'AND ach.Flags = :achievementType';
     }
 
-    $requestedByStatement = "";
+    $requestedByStatement = '';
     if ($requestedBy) {
         $bindings['requestedBy'] = $requestedBy;
-        $requestedByStatement = "OR ua.User = :requestedBy";
+        $requestedByStatement = 'OR ua.User = :requestedBy';
     }
 
     $query = "
@@ -315,14 +313,11 @@ function getTotalUniquePlayers($gameID, ?string $requestedBy = null, $hardcoreOn
         AND (NOT ua.Untracked $requestedByStatement)
     ";
 
-    return legacyDbFetch($query, $bindings)['UniquePlayers'] ?? 0;
+    return (int) (legacyDbFetch($query, $bindings)['UniquePlayers'] ?? 0);
 }
 
-function getGameRecentPlayers($gameID, $maximum_results = 0): array
+function getGameRecentPlayers(int $gameID, int $maximum_results = 0): array
 {
-    sanitize_sql_inputs($gameID, $maximum_results);
-    settype($gameID, 'integer');
-
     $retval = [];
 
     $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
@@ -374,10 +369,8 @@ function getGameTopAchievers(int $gameID): array
         WHERE GameID = $gameID AND Flags = " . AchievementType::OfficialCore;
     $dbResult = s_mysql_query($query);
 
-    if ($dbResult !== false) {
-        if ($data = mysqli_fetch_assoc($dbResult)) {
-            $numAchievementsInSet = $data['NumAchievementsInSet'];
-        }
+    if ($dbResult !== false && ($data = mysqli_fetch_assoc($dbResult))) {
+        $numAchievementsInSet = $data['NumAchievementsInSet'];
     }
 
     $query = "SELECT aw.User, COUNT(*) AS NumAchievements, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
@@ -427,11 +420,8 @@ function getGameTopAchievers(int $gameID): array
     return $retval;
 }
 
-function getMostPopularGames($offset, $count, $method): array
+function getMostPopularGames(int $offset, int $count, int $method): array
 {
-    sanitize_sql_inputs($offset, $count, $method);
-    settype($method, 'integer');
-
     $retval = [];
 
     if ($method == 0) {

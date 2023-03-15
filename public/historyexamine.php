@@ -13,7 +13,7 @@ if (!getAccountDetails($userPage, $userDetails)) {
     abort(404);
 }
 
-$dateInput = requestInputSanitized('d', 0, 'integer');
+$dateInput = (int) request()->input('d', 0);
 
 $userPageHardcorePoints = $userDetails['RAPoints'];
 $userPageSoftcorePoints = $userDetails['RASoftcorePoints'];

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Site\Models\User;
 
@@ -7,7 +8,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetails)) {
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'preferences' => 'required|integer',
 ]);
 

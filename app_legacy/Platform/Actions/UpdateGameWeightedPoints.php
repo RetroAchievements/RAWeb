@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LegacyApp\Platform\Actions;
 
 use LegacyApp\Platform\Enums\AchievementType;

@@ -3,12 +3,11 @@
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 
-function getCodeNotesData($gameID): array
+function getCodeNotesData(int $gameID): array
 {
     $codeNotesOut = [];
 
     sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
 
     $query = "SELECT ua.User, cn.Address, cn.Note
               FROM CodeNotes AS cn
@@ -30,10 +29,9 @@ function getCodeNotesData($gameID): array
     return $codeNotesOut;
 }
 
-function getCodeNotes($gameID, &$codeNotesOut): bool
+function getCodeNotes(int $gameID, ?array &$codeNotesOut): bool
 {
     sanitize_sql_inputs($gameID);
-    settype($gameID, 'integer');
 
     $query = "SELECT ua.User, cn.Address, cn.Note
               FROM CodeNotes AS cn
@@ -53,14 +51,13 @@ function getCodeNotes($gameID, &$codeNotesOut): bool
         }
 
         return true;
-    } else {
-        log_sql_fail();
-
-        return false;
     }
+    log_sql_fail();
+
+    return false;
 }
 
-function submitCodeNote2($user, $gameID, $address, $note): bool
+function submitCodeNote2(string $user, int $gameID, int $address, string $note): bool
 {
     // Prevent <= registered users from creating code notes.
     if (getUserPermissions($user) <= Permissions::Registered) {
@@ -68,10 +65,6 @@ function submitCodeNote2($user, $gameID, $address, $note): bool
     }
 
     $db = getMysqliConnection();
-
-    if (!isset($user) || !isset($gameID) || !isset($address)) {
-        return false;
-    }
 
     sanitize_sql_inputs($user, $gameID, $address, $note);
 

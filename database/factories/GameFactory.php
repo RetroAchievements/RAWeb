@@ -14,7 +14,7 @@ class GameFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => ucwords($this->faker->words(2, true)),
+            'title' => ucwords(fake()->words(2, true)),
         ];
     }
 }
