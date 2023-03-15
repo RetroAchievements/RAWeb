@@ -81,7 +81,7 @@ RenderContentStart("Hash List");
                     echo "<a href='/latesthasheslinked.php'>First</a> - ";
                     echo "<a href='/latesthasheslinked.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
                 }
-                if ($hashCount == $maxCount && $offset != ($totalHashes - $maxCount)) {
+                if ($hashCount == $maxCount && $offset != $totalHashes - $maxCount) {
                     $nextOffset = $offset + $maxCount;
                     echo "<a href='/latesthasheslinked.php?o=$nextOffset'>Next $maxCount &gt;</a>";
                     echo " - <a href='/latesthasheslinked.php?o=" . ($totalHashes - $maxCount) . "'>Last</a>";

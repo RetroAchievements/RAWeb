@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Site\Models\User;
 
@@ -10,7 +11,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetail)) {
 /** @var User $user */
 $user = request()->user();
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required|integer|exists:mysql_legacy.Achievements,ID',
     'mode' => 'required|boolean',
     'issue' => 'required|integer|min:1|max:2',

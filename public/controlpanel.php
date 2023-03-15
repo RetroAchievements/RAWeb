@@ -11,32 +11,35 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 
 // cookie only returns the most common account details. go get the rest
 getAccountDetails($user, $userDetails);
-$points = $userDetails['RAPoints'];
-$websitePrefs = $userDetails['websitePrefs'];
+$points = (int) $userDetails['RAPoints'];
+$websitePrefs = (int) $userDetails['websitePrefs'];
 $emailAddr = $userDetails['EmailAddress'];
-$permissions = $userDetails['Permissions'];
-$contribCount = $userDetails['ContribCount'];
-$contribYield = $userDetails['ContribYield'];
+$permissions = (int) $userDetails['Permissions'];
+$contribCount = (int) $userDetails['ContribCount'];
+$contribYield = (int) $userDetails['ContribYield'];
 $userWallActive = $userDetails['UserWallActive'];
 $apiKey = $userDetails['APIKey'];
 $userMotto = htmlspecialchars($userDetails['Motto']);
 
 RenderContentStart("My Settings");
 
-function RenderUserPref($websitePrefs, $userPref, $setIfTrue, $state = null): void
-{
+function RenderUserPref(
+    int $websitePrefs,
+    int $userPref,
+    bool $setIfTrue,
+    ?string $state = null
+): void {
     echo "<input id='UserPreference$userPref' type='checkbox' ";
     echo "onchange='DoChangeUserPrefs(); return false;' value='1'";
 
     if ($state) {
         echo " $state";
-    } elseif (BitSet($websitePrefs, $userPref) == $setIfTrue) {
+    } elseif (BitSet($websitePrefs, $userPref) === $setIfTrue) {
         echo " checked";
     }
 
     echo " />";
 }
-
 ?>
 <script>
 function DoChangeUserPrefs() {
@@ -336,22 +339,39 @@ function confirmEmailChange(event) {
                 var achievementSelect = document.getElementById('resetachievementscontainer');
 
                 function GetAllResettableGamesList() {
-                    gameSelect.setAttribute('disabled', 'disabled');
-                    achievementSelect.setAttribute('disabled', 'disabled');
+                    // Disable achievement select and clear game select
+                    achievementSelect.disabled = true;
                     gameSelect.replaceChildren();
+                    
+                    // Show loading icon
                     $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
-                    $.post('/request/user/list-games.php')
-                        .done(function (data) {
-                            var gameList = data;
-                            gameSelect.replaceChildren();
-                            gameSelect.innerHTML += '<option value=\'\'>--</option>';
-                            for (var i = 0; i < gameList.length; i++) {
-                                var game = gameList[i];
-                                gameSelect.innerHTML += '<option value=\'' + game.ID + '\'>' + htmlEntities(game.GameTitle) + ' (' + htmlEntities(game.ConsoleName) + ') (' + game.NumAwarded + ' / ' + game.NumPossible + ' won)</option>';
-                            }
-                            gameSelect.removeAttribute('disabled');
-                            $loadingIcon.delay(750).fadeTo('slow', 0.0);
-                        });
+                    
+                    // Make API call to get game list
+                    $.post('/request/user/list-games.php').done(data => {
+                        // Create a document fragment to hold the options
+                        const fragment = new DocumentFragment();
+
+                        // Create a default option
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = '--';
+                        fragment.appendChild(option);
+
+                        // Create an option for each game and append it to the fragment
+                        for (const game of data) {
+                            const option = document.createElement('option');
+                            option.value = game.ID;
+                            option.textContent = `${htmlEntities(game.GameTitle)} (${htmlEntities(game.ConsoleName)}) (${game.NumAwarded} / ${game.NumPossible} won)`;
+                            fragment.appendChild(option);
+                        }
+
+                        // Replace the game select's contents with the fragment and re-enable it
+                        gameSelect.replaceChildren(fragment);
+                        gameSelect.disabled = false;
+
+                        // Hide the loading icon after a delay
+                        $loadingIcon.delay(750).fadeTo('slow', 0.0);
+                    });
                 }
 
                 function ResetFetchAwarded() {

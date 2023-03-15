@@ -17,6 +17,10 @@ function ticketAvatar(
         $ticket = GetTicketModel($ticket);
     }
 
+    if ($ticket === null) {
+        return '';
+    }
+
     $ticketStateClass = match ($ticket->ticketState) {
         TicketState::Open => 'open',
         TicketState::Closed, TicketState::Resolved => 'closed',
@@ -41,6 +45,10 @@ function renderTicketCard(int|Ticket $ticket): string
 {
     if (is_int($ticket)) {
         $ticket = GetTicketModel($ticket);
+    }
+
+    if ($ticket === null) {
+        return '';
     }
 
     $ticketStateClass = match ($ticket->ticketState) {

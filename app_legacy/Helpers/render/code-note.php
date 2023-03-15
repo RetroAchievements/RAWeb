@@ -1,6 +1,6 @@
 <?php
 
-function RenderCodeNotes($codeNotes): void
+function RenderCodeNotes(array $codeNotes): void
 {
     echo "<table class='table-highlight'><tbody>";
 

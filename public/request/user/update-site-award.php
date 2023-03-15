@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Enums\AwardType;
 
@@ -7,7 +8,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'type' => 'required|integer',
     'data' => 'required|integer',
     'extra' => 'required|integer',

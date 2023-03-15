@@ -1,7 +1,7 @@
 <?php
 
 $page = request()->query('page');
-if (empty($page)) {
+if (empty($page) || !is_string($page)) {
     abort(400);
 }
 

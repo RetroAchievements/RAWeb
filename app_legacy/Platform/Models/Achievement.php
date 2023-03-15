@@ -31,11 +31,17 @@ class Achievement extends BaseModel
         return AchievementFactory::new();
     }
 
+    /**
+     * @return BelongsTo<Game, Achievement>
+     */
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'GameID');
     }
 
+    /**
+     * @return BelongsToMany<User>
+     */
     public function players(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'Awarded', 'AchievementID', 'User')
@@ -44,6 +50,8 @@ class Achievement extends BaseModel
 
     /**
      * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
+     *
+     * @return HasMany<PlayerAchievement>
      */
     public function rawUnlocks(): HasMany
     {
@@ -52,6 +60,8 @@ class Achievement extends BaseModel
 
     /**
      * Merge softcore with hardcore entries if the unlock mode is not specified
+     *
+     * @return HasMany<PlayerAchievement>
      */
     public function unlocks(int $mode = null): HasMany
     {
@@ -63,16 +73,28 @@ class Achievement extends BaseModel
             ->groupBy(['AchievementID', 'User']);
     }
 
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
     public function scopeType(Builder $query, int $type): Builder
     {
         return $query->where('Flags', $type);
     }
 
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
     public function scopePublished(Builder $query): Builder
     {
         return $this->scopeType($query, AchievementType::OfficialCore);
     }
 
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
     public function scopeUnpublished(Builder $query): Builder
     {
         return $this->scopeType($query, AchievementType::Unofficial);

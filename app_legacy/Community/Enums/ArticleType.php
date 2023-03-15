@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LegacyApp\Community\Enums;
 
 abstract class ArticleType
@@ -46,7 +48,7 @@ abstract class ArticleType
         ];
     }
 
-    public static function isValid($value): bool
+    public static function isValid(int $value): bool
     {
         return in_array($value, self::cases());
     }

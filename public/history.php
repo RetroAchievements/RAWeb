@@ -59,7 +59,7 @@ RenderContentStart("$userPage's Legacy");
             $nextYear = (int) $dayInfo['Year'];
             $nextDate = $dayInfo['Date'];
 
-            $dateStr = getNiceDate(strtotime($nextDate), true);
+            $dateStr = !empty($nextDate) ? getNiceDate(strtotime($nextDate), true) : '';
             $hardcoreValue = $dayInfo['CumulHardcoreScore'];
             $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
@@ -227,7 +227,8 @@ RenderContentStart("$userPage's Legacy");
         }
         echo "</b><br>";
 
-        echo "Member since: " . getNiceDate(strtotime($userSignedUp), true) . "<br>";
+        $memberSince = !empty($userSignedUp) ? getNiceDate(strtotime($userSignedUp), true) : '';
+        echo "Member since: " . $memberSince . "<br>";
         echo "<br>";
         echo "<br>";
         echo "<br>";

@@ -3,7 +3,7 @@
 use App\Support\Shortcode\Shortcode;
 
 $outbox = requestInputSanitized('s', 0, 'integer');
-$unreadOnly = requestInputSanitized('u', 0, 'integer');
+$unreadOnly = (bool) request()->input('u');
 $displayCount = requestInputSanitized('c', 10, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 

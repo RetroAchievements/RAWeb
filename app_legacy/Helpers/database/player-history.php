@@ -3,10 +3,9 @@
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 
-function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
+function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy): array
 {
-    sanitize_sql_inputs($user, $listOffset, $maxDays);
-    settype($sortBy, 'integer');
+    sanitize_sql_inputs($user);
 
     $retVal = [];
 
@@ -35,7 +34,7 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
                 AND aw.HardcoreMode = " . UnlockMode::Softcore . "
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
                 $orderCond
-                LIMIT $listOffset, $maxDays";
+                LIMIT $offset, $limit";
 
     $dbResult = s_mysql_query($query);
 
@@ -52,7 +51,7 @@ function getUserBestDaysList($user, $listOffset, $maxDays, $sortBy): array
     return $retVal;
 }
 
-function getAchievementsEarnedBetween($dateStart, $dateEnd, $username): array
+function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?string $username = null): array
 {
     if (!isValidUsername($username)) {
         return [];
@@ -87,17 +86,22 @@ function getAchievementsEarnedBetween($dateStart, $dateEnd, $username): array
         ->toArray();
 }
 
-function getAchievementsEarnedOnDay($dateInput, $user): array
+function getAchievementsEarnedOnDay(int $unixTimestamp, string $user): array
 {
-    $dateStrStart = date("Y-m-d 00:00:00", $dateInput);
-    $dateStrEnd = date("Y-m-d 23:59:59", $dateInput);
+    $dateStrStart = date("Y-m-d 00:00:00", $unixTimestamp);
+    $dateStrEnd = date("Y-m-d 23:59:59", $unixTimestamp);
 
     return getAchievementsEarnedBetween($dateStrStart, $dateStrEnd, $user);
 }
 
-function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom = null, $dateTo = null): array
-{
-    sanitize_sql_inputs($user, $listOffset, $maxToFetch, $dateFrom, $dateTo);
+function getAwardedList(
+    string $user,
+    ?int $offset = null,
+    int $limit = null,
+    ?string $dateFrom = null,
+    ?string $dateTo = null
+): array {
+    sanitize_sql_inputs($user, $dateFrom, $dateTo);
 
     $retVal = [];
 
@@ -113,8 +117,8 @@ function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom
     // }
 
     $limitCondition = "";
-    if (isset($listOffset) && isset($maxToFetch)) {
-        $limitCondition = "LIMIT $listOffset, $maxToFetch";
+    if (isset($offset) && isset($limit)) {
+        $limitCondition = "LIMIT $offset, $limit";
     }
 
     $dateCondition = "";
@@ -144,7 +148,7 @@ function getAwardedList($user, $listOffset = null, $maxToFetch = null, $dateFrom
         $daysCount = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             $cumulHardcoreScore += $db_entry['HardcorePoints'];
-            $cumulSoftcoreScore += intval($db_entry['SoftcorePoints']) - intval($db_entry['HardcorePoints']);
+            $cumulSoftcoreScore += (int) $db_entry['SoftcorePoints'] - (int) $db_entry['HardcorePoints'];
 
             $retVal[$daysCount] = $db_entry;
             $retVal[$daysCount]['CumulHardcoreScore'] = $cumulHardcoreScore;

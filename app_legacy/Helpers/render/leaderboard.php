@@ -4,9 +4,9 @@ use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Community\Enums\Rank;
 use LegacyApp\Platform\Enums\UnlockMode;
 
-function RenderGameLeaderboardsComponent($lbData): void
+function RenderGameLeaderboardsComponent(array $lbData): void
 {
-    $numLBs = is_countable($lbData) ? count($lbData) : 0;
+    $numLBs = count($lbData);
     echo "<div class='component'>";
     echo "<h2 class='text-h3'>Leaderboards</h2>";
 
@@ -102,7 +102,8 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
         // Create a tab for each of the 5 leaderboard types
         $id = uniqid();
         echo "<div class='tab'>";
-        for ($i = 0; $i < count($lbTypes); $i++) {
+        $lbTypesCount = count($lbTypes);
+        for ($i = 0; $i < $lbTypesCount; $i++) {
             if ($i == 0) {
                 echo "<button class='" . $tabClass . " active' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
             } else {
@@ -112,7 +113,8 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
         echo "</div>";
 
         // Populate the tabs contents with the leaderboard table
-        for ($j = 0; $j < count($lbTypes); $j++) {
+        $lbTypesCount = count($lbTypes);
+        for ($j = 0; $j < $lbTypesCount; $j++) {
             if ($j == 0) {
                 echo "<div id='" . $lbTypes[$j] . $id . "' class='tabcontent" . $tabClass . "' style=\"display:block\">";
             } else {
@@ -179,7 +181,7 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
             // Display the current user at the bottom of the list if they are not already included
             if ($user !== null && !$userListed) {
                 $userData = getGlobalRankingData($j, 5, $currentDate, $user, null, 0, 0, 1, 1);
-                if (count($userData) > 0) {
+                if (!empty($userData)) {
                     echo "<tr><td colspan='3'></td></tr>";
                     echo "<tr style='outline: thin solid'>";
 
@@ -218,8 +220,11 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
 /**
  * Creates the High scores tables on game pages
  */
-function RenderTopAchieversComponent($user, array $gameTopAchievers, array $gameLatestMasters): void
-{
+function RenderTopAchieversComponent(
+    ?string $user,
+    array $gameTopAchievers,
+    array $gameLatestMasters
+): void {
     echo "<div id='leaderboard' class='component' >";
 
     $numLatestMasters = count($gameLatestMasters);
@@ -336,7 +341,7 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
  *            9 - Mastered Awards
  * @param string $date Date to grab information from
  * @param string|null $user User to get data for
- * @param string $friendsOf User to get friends data for
+ * @param string|null $friendsOf User to get friends data for
  * @param int $untracked Option to include or exclude untracked users
  *            0 - Tracked users only
  *            1 - Untracked users only
@@ -348,11 +353,19 @@ function RenderTopAchieversComponent($user, array $gameTopAchievers, array $game
  *            1 - Just Hardcore Points and Retro Points. Used for the sidebar rankings.
  * @return array Leaderboard data to display
  */
-function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $untracked = 0, $offset = 0, $count = 50, $info = 0): array
-{
+function getGlobalRankingData(
+    int $lbType,
+    int $sort,
+    string $date,
+    ?string $user,
+    ?string $friendsOf = null,
+    int $untracked = 0,
+    int $offset = 0,
+    int $count = 50,
+    int $info = 0
+): array {
     $pointRequirement = "";
 
-    settype($lbType, 'integer');
     $unlockMode = UnlockMode::Hardcore;
 
     $typeCond = match ($lbType) {
@@ -369,7 +382,6 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
     $whereDateAward = "AND sa.AwardDate";
 
     // Determine ascending or descending order
-    settype($sort, 'integer');
     if ($sort < 10) {
         $sortOrder = "DESC";
     } else {
@@ -431,7 +443,6 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
             break;
     }
 
-    settype($untracked, 'integer');
     $untrackedCond = match ($untracked) {
         0 => "AND Untracked = 0",
         1 => "AND Untracked = 1",
@@ -498,7 +509,8 @@ function getGlobalRankingData($lbType, $sort, $date, $user, $friendsOf = null, $
             }
 
             // Get site award info for each user.
-            for ($i = 0; $i < count($users); $i++) {
+            $usersCount = count($users);
+            for ($i = 0; $i < $usersCount; $i++) {
                 $query2 = "SELECT $totalAwards AS TotalAwards FROM SiteAwards WHERE User = '" . $users[$i] . "' AND AwardType = " . AwardType::Mastery;
 
                 $dbResult2 = s_mysql_query($query2);

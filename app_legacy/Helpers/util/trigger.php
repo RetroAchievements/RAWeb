@@ -1,6 +1,8 @@
 <?php
 
-function parseOperand($mem)
+use Illuminate\Support\Str;
+
+function parseOperand(string $mem): array
 {
     $max = strlen($mem);
     if ($max == 0) {
@@ -153,7 +155,7 @@ function parseOperand($mem)
     return [$type, $size, $address, $mem];
 }
 
-function isScalerOperator($cmp)
+function isScalerOperator(string $cmp): bool
 {
     return match ($cmp) {
         '*', '/', '&' => true,
@@ -161,7 +163,7 @@ function isScalerOperator($cmp)
     };
 }
 
-function parseCondition($mem)
+function parseCondition(string $mem): array
 {
     $flag = '';
     $lType = '';
@@ -246,7 +248,7 @@ function parseCondition($mem)
     return [$flag, $lType, $lSize, $lMemory, $cmp, $rType, $rSize, $rMemVal, $hits];
 }
 
-function getNoteForAddress($memNotes, $address)
+function getNoteForAddress(array $memNotes, string $address): ?string
 {
     // $memNotes[x]['Address'] is formatted to 6 hex digits: "0x%06x"
     // regenerate whatever we pulled out of the logic to match this expectation
@@ -261,7 +263,7 @@ function getNoteForAddress($memNotes, $address)
     return null;
 }
 
-function getAchievementPatchReadableHTML($mem, $memNotes)
+function getAchievementPatchReadableHTML(string $mem, array $memNotes): string
 {
     $tableHeader = "
     <tr class='do-not-highlight'>
@@ -291,7 +293,8 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
         $codeNotes = [];
         // iterating through the requirements
         $reqs = explode('_', $groups[$i]);
-        for ($j = 0; $j < count($reqs); $j++) {
+        $reqsCount = count($reqs);
+        for ($j = 0; $j < $reqsCount; $j++) {
             if (empty($reqs[$j])) {
                 continue;
             }
@@ -350,7 +353,7 @@ function getAchievementPatchReadableHTML($mem, $memNotes)
 function ValueToTrigger(string $valueDef): string
 {
     // if it contains a colon, it's already in a trigger format (i.e. M:0xH001234)
-    if (str_contains($valueDef, ':')) {
+    if (Str::contains($valueDef, ':')) {
         return $valueDef;
     }
 
@@ -369,11 +372,12 @@ function ValueToTrigger(string $valueDef): string
 
         // convert addition chain to AddSource chain with Measured
         $clauses = explode('_', $part);
-        for ($i = 0; $i < count($clauses) - 1; $i++) {
+        $clausesCount = count($clauses);
+        for ($i = 0; $i < $clausesCount - 1; $i++) {
             $clause = preg_replace($float_replace_pattern, $float_replace_replacement, $clauses[$i]);
-            if (str_contains($clause, '*-')) {
+            if (Str::contains($clause, '*-')) {
                 $result .= 'B:' . str_replace('*-', '*', $clause) . '_';
-            } elseif (str_contains($clause, '*v-')) {
+            } elseif (Str::contains($clause, '*v-')) {
                 $result .= 'B:' . str_replace('*v-', '*', $clause) . '_';
             } else {
                 $result .= 'A:' . $clause . '_';
@@ -381,9 +385,9 @@ function ValueToTrigger(string $valueDef): string
         }
 
         $clause = preg_replace($float_replace_pattern, $float_replace_replacement, $clauses[count($clauses) - 1]);
-        if (str_contains($clause, '*-')) {
+        if (Str::contains($clause, '*-')) {
             $result .= 'B:' . str_replace('*-', '*', $clause) . '_M:0';
-        } elseif (str_contains($clause, '*v-')) {
+        } elseif (Str::contains($clause, '*v-')) {
             $result .= 'B:' . str_replace('*v-', '*', $clause) . '_M:0';
         } else {
             $result .= 'M:' . $clause;
