@@ -47,5 +47,5 @@ $updatedAwardsHTML = ob_get_clean();
 
 return response()->json([
     'message' => __('legacy.success.ok'),
-    'updatedAwardsHTML' => $updatedAwardsHTML
+    'updatedAwardsHTML' => $updatedAwardsHTML,
 ]);

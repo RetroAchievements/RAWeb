@@ -177,7 +177,7 @@ function updateDisplayOrderValues(dropTableId) {
                 echo "<td><input class='displayorderedit' data-award-type='$humanReadableAwardType' id='$counter' type='text' value='$awardDisplayOrder' size='3' /></td>";
                 echo "<input type='hidden' name='type' value='$awardType'>";
                 echo "<input type='hidden' name='data' value='$awardData'>";
-                echo "<input type='hidden' name='extra' value='$awardDataExtra'>";                
+                echo "<input type='hidden' name='extra' value='$awardDataExtra'>";
 
                 echo "</tr>\n";
                 $counter++;
