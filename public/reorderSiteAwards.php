@@ -10,6 +10,8 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 RenderContentStart("Reorder Site Awards");
 ?>
 <script>
+let currentGrabbedRow = null;
+
 function updateAllAwardsDisplayOrder() {
     showStatusMessage('Updating...');
 
@@ -39,6 +41,74 @@ function updateAllAwardsDisplayOrder() {
             showStatusMessage('Error updating awards');
         });
 }
+
+function handleRowDragStart(event) {
+    currentGrabbedRow = event.target;
+    event.target.style.opacity = '0.3';
+}
+
+function handleRowDragEnd(event) {
+    currentGrabbedRow = null;
+    event.target.style.opacity = '1';
+}
+
+function handleRowDragEnter(event) {
+    event.target.parentElement.classList.add('border');
+    event.target.parentElement.classList.add('border-white');
+}
+
+function handleRowDragOver(event) {
+    event.preventDefault();
+    return false;
+}
+
+function handleRowDragLeave(event) {
+    event.target.parentElement.classList.remove('border');
+    event.target.parentElement.classList.remove('border-white');
+}
+
+function handleRowDrop(event) {
+    event.preventDefault();
+
+    const dropTarget = event.target.closest('tr');
+
+    if (currentGrabbedRow && dropTarget) {
+        const draggedTable = currentGrabbedRow.closest('table');
+        const dropTargetTable = dropTarget.closest('table');
+
+        if (draggedTable === dropTargetTable) {
+            const draggedRowIndex = Array.from(currentGrabbedRow.parentNode.children).indexOf(currentGrabbedRow);
+            const dropTargetIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
+
+            if (draggedRowIndex < dropTargetIndex) {
+                dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget.nextSibling);
+            } else {
+                dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget);
+            }
+
+            const dropTableId = event.target.closest('table').id;
+            updateDisplayOrderValues(dropTableId);
+        }
+    }
+
+    dropTarget.classList.remove('border');
+    dropTarget.classList.remove('border-white');
+}
+
+function updateDisplayOrderValues(dropTableId) {
+    const tableRows = document.querySelectorAll(`#${dropTableId} tbody tr`);
+    let displayOrder = 0;
+
+    tableRows.forEach(row => {
+        const displayOrderInput = row.querySelector('.displayorderedit');
+        const currentValue = parseInt(displayOrderInput.value, 10);
+
+        if (currentValue !== -1) {
+            displayOrderInput.value = displayOrder * 10;
+            displayOrder++;
+        }
+    });
+}
 </script>
 <div id="mainpage">
     <div id="leftcontainer">
@@ -58,18 +128,21 @@ function updateAllAwardsDisplayOrder() {
 
         function RenderAwardOrderTable(string $title, array $awards, int &$counter): void
         {
-            echo "<br><h4>$title</h4>";
-            echo "<table class='table-highlight mb-2'><tbody>";
+            // "Game Awards" -> "game"
+            $humanReadableAwardType = strtolower(strtok($title, " "));
 
+            echo "<br><h4>$title</h4>";
+            echo "<table id='$humanReadableAwardType-reorder-table' class='table-highlight mb-2'>";
+
+            echo "<thead>";
             echo "<tr class='do-not-highlight'>";
             echo "<th>Badge</th>";
             echo "<th width=\"75%\">Site Award</th>";
             echo "<th width=\"25%\">Award Date</th>";
             echo "<th>Display Order</th>";
-            echo "</tr>\n";
-
-            // "Game Awards" -> "game"
-            $humanReadableAwardType = strtolower(strtok($title, " "));
+            echo "</tr>";
+            echo "</thead>";
+            echo "<tbody>";
 
             foreach ($awards as $award) {
                 $awardType = $award['AwardType'];
@@ -95,7 +168,7 @@ function updateAllAwardsDisplayOrder() {
                     $awardTitle = "Patreon Supporter";
                 }
 
-                echo "<tr>";
+                echo "<tr draggable='true' class='cursor-grab transition' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
                 echo "<td>";
                 RenderAward($award, 48, false);
                 echo "</td>";
