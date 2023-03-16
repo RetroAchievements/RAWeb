@@ -53,8 +53,11 @@ function handleRowDragEnd(event) {
 }
 
 function handleRowDragEnter(event) {
-    event.target.parentElement.classList.add('border');
-    event.target.parentElement.classList.add('border-white');
+    const targetRow = event.target.closest('tr');
+    if (targetRow && currentGrabbedRow.parentNode === targetRow.parentNode) {
+        targetRow.classList.add('border');
+        targetRow.classList.add('border-menu-link');
+    }
 }
 
 function handleRowDragOver(event) {
@@ -63,8 +66,11 @@ function handleRowDragOver(event) {
 }
 
 function handleRowDragLeave(event) {
-    event.target.parentElement.classList.remove('border');
-    event.target.parentElement.classList.remove('border-white');
+    const targetRow = event.target.closest('tr');
+    if (targetRow) {
+        targetRow.classList.remove('border');
+        targetRow.classList.remove('border-menu-link');
+    }
 }
 
 function handleRowDrop(event) {
@@ -92,7 +98,7 @@ function handleRowDrop(event) {
     }
 
     dropTarget.classList.remove('border');
-    dropTarget.classList.remove('border-white');
+    dropTarget.classList.remove('border-menu-link');
 }
 
 function updateDisplayOrderValues(dropTableId) {
