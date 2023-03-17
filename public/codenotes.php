@@ -14,8 +14,82 @@ sanitize_outputs(
 
 getCodeNotes($gameID, $codeNotes);
 
-RenderContentStart('Code Notes - ' . $gameData['Title']);
+RenderContentStart('Code Notes - ' . htmlspecialchars_decode($gameData['Title']));
 ?>
+<script>
+/**
+ * Toggle the editing state of a code note row and 
+ * show/hide the elements necessary to perform an edit.
+ * 
+ * @param {Element} rowEl - The row element to toggle editing state for.
+ * @param {boolean} isEditing - Whether the row is transitioning to edit mode or not.
+ */
+function setRowEditingEnabled(rowEl, isEditing) {
+    const rowElementVisibilities = [
+        { className: 'edit-btn', showWhen: !isEditing },
+        { className: 'note-display', showWhen: !isEditing },
+        { className: 'note-edit', showWhen: isEditing },
+        { className: 'save-btn', showWhen: isEditing },
+    ];
+
+    for (const visibility of rowElementVisibilities) {
+        const targetEl = rowEl.querySelector(`.${visibility.className}`);
+        
+        if (visibility.showWhen === true) {
+            targetEl.classList.remove('hidden');
+        } else {
+            targetEl.classList.add('hidden');
+        }
+    }
+}
+
+/**
+ * Enable edit mode for a specific row.
+ * 
+ * @param {number} rowIndex - The index of the row to enable edit mode for.
+ */
+function beginEditMode(rowIndex) {
+    const rowEl = document.getElementById(`row-${rowIndex}`);
+    setRowEditingEnabled(rowEl, true);
+
+    const noteEditEl = rowEl.querySelector('.note-edit');
+
+    // Calculate the number of rows based on the number of newline characters.
+    const rowCount = (noteEditEl.value.match(/\n/g) || []).length + 1;
+
+    // Set the textarea rows attribute, ensuring a minimum of 2 rows.
+    noteEditEl.rows = Math.max(rowCount, 2);
+}
+
+/**
+ * Save the updated note for a specific row and 
+ * go back to view mode.
+ * 
+ * @param {number} rowIndex - The index of the row to save the note for.
+ */
+function saveCodeNote(rowIndex) {
+    const rowEl = document.getElementById(`row-${rowIndex}`);
+    const noteDisplayEl = rowEl.querySelector('.note-display');
+    const noteEditEl = rowEl.querySelector('.note-edit');
+
+    const addressHex = rowEl.querySelector('td[data-address]').dataset.address;
+
+    showStatusMessage('Updating...');
+    $.post('/request/game/update-code-note.php', {
+        note: noteEditEl.value,
+        // Addresses are stored as base 10 numbers in the DB, not base 16.
+        address: parseInt(addressHex, 16),
+        gameId: <?= $gameID ?>,
+    }).done(() => {
+        showStatusSuccess('Done!');
+
+        const noteValueWithLineBreaks = noteEditEl.value.replace(/\n/g, '<br />');
+        noteDisplayEl.innerHTML = noteValueWithLineBreaks;
+
+        setRowEditingEnabled(rowEl, false);
+    });
+}
+</script>
 <div id='mainpage'>
     <div id="fullcontainer">
         <div class='navpath'>
@@ -32,7 +106,7 @@ RenderContentStart('Code Notes - ' . $gameData['Title']);
         <br/>
         <?php
         if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
-            RenderCodeNotes($codeNotes);
+            RenderCodeNotes($codeNotes, $permissions >= Permissions::JuniorDeveloper);
         }
         ?>
     </div>
