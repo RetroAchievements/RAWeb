@@ -299,7 +299,7 @@ function RenderMetadataTableRow(
         }
 
         echo "<div class='flex'>";
-        echo " <p class='tracking-tight w-[100px]'>$label</p>";
+        echo " <p class='tracking-tight w-[100px] min-w-[100px]'>$label</p>";
         echo " <p class='font-semibold'>" . implode(', ', $gameDataValues) . "</p>";
         echo "</div>";
     }
