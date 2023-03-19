@@ -701,9 +701,14 @@ sanitize_outputs(
 
             if ($isFullyFeaturedGame) {
                 echo <<<HTML
-                    <div class="mb-3 -mx-5 sm:px-5 grid sm:grid-cols-2 gap-y-1 sm:gap-x-4">
-                        <img class="w-full sm:rounded-sm sm:h-full sm:object-cover" src="$imageTitle" alt="Title screenshot">
-                        <img class="w-full sm:rounded-sm sm:h-full sm:object-cover" src="$imageIngame" alt="In-game screenshot">
+                    <div class="mb-3 -mx-5 sm:mx-0 grid sm:flex sm:justify-around sm:w-full gap-y-1 sm:gap-x-5">
+                        <div class="flex justify-center items-center">
+                            <img class="w-full sm:w-auto sm:rounded-sm" src="$imageTitle" alt="Title screenshot">
+                        </div>
+
+                        <div class="flex justify-center items-center">
+                            <img class="w-full sm:w-auto sm:rounded-sm" src="$imageIngame" alt="In-game screenshot">
+                        </div>
                     </div>
                 HTML;
             }
