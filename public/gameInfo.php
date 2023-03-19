@@ -1104,7 +1104,7 @@ sanitize_outputs(
                 if ($numAchievements > 0) {
                     $numAuthors = count($authorInfo);
 
-                    echo "<span class='font-bold'>" . __res('author', $numAuthors)  . ":</span> ";
+                    echo "<span class='font-bold'>" . __res('author', $numAuthors) . ":</span> ";
                     $i = 0;
                     foreach ($authorInfo as $author => $achievementCount) {
                         echo userAvatar($author, icon: false);
@@ -1125,8 +1125,6 @@ sanitize_outputs(
                         foreach ($claimData as $claim) {
                             $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
                             $claimExpiration = Carbon::parse($claim['Expiration']);
-                            $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
-                            $isAlreadyExpired = Carbon::parse($claim['Expiration'])->isPast();
                             echo userAvatar($claim['User'], icon: false) . $revisionText;
                             if ($claimListLength > 1) {
                                 echo ", ";
@@ -1134,14 +1132,19 @@ sanitize_outputs(
                             $claimListLength--;
                             $primaryClaim = 0;
                         }
-                        
-                        echo "<p>";
-                        if ($isAlreadyExpired) {
-                            echo "Expired on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
-                        } else {
-                            echo "Expires on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
+
+                        if ($claimExpiration) {
+                            $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
+                            $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast();
+
+                            echo "<p>";
+                            if ($isAlreadyExpired) {
+                                echo "Expired on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
+                            } else {
+                                echo "Expires on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
+                            }
+                            echo "</p>";
                         }
-                        echo "</p>";
                     } else {
                         if ($numAchievements < 1) {
                             echo "No Active Claims";
@@ -1157,7 +1160,7 @@ sanitize_outputs(
                 if ($flags == $unofficialFlag) {
                     echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
                 } else {
-                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible)  ."</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
+                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
                 }
 
                 if ($user !== null && $numAchievements > 0) {

@@ -65,7 +65,7 @@ return [
         'title' => __('account') . '|' . __('accounts'),
     ],
     'author' => [
-        'title' => __('author') . '|' . __('authors')
+        'title' => __('author') . '|' . __('authors'),
     ],
     'application' => [
         'title' => __('application') . '|' . __('applications'),
