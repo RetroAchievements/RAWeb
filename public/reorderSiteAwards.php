@@ -83,17 +83,21 @@ function handleRowDrop(event) {
         const dropTargetTable = dropTarget.closest('table');
 
         if (draggedTable === dropTargetTable) {
+            const dropTableId = event.target.closest('table').id;
+            const initialDisplayOrderValue = getInitialDisplayOrderValue(dropTableId);
+
             const draggedRowIndex = Array.from(currentGrabbedRow.parentNode.children).indexOf(currentGrabbedRow);
             const dropTargetIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
 
-            if (draggedRowIndex < dropTargetIndex) {
-                dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget.nextSibling);
-            } else {
-                dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget);
-            }
+            if (draggedRowIndex !== dropTargetIndex) {
+                if (draggedRowIndex < dropTargetIndex) {
+                    dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget.nextSibling);
+                } else {
+                    dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget);
+                }
 
-            const dropTableId = event.target.closest('table').id;
-            updateDisplayOrderValues(dropTableId);
+                updateDisplayOrderValues(dropTableId, initialDisplayOrderValue);
+            }
         }
     }
 
@@ -101,17 +105,27 @@ function handleRowDrop(event) {
     dropTarget.classList.remove('border-menu-link');
 }
 
-function updateDisplayOrderValues(dropTableId) {
-    const tableRows = document.querySelectorAll(`#${dropTableId} tbody tr`);
-    let displayOrder = 0;
+function getInitialDisplayOrderValue(dropTableId) {
+    let initialDisplayOrderValue = 0;
 
-    tableRows.forEach(row => {
+    const tableRows = document.querySelectorAll(`#${dropTableId} tbody tr`);
+    if (tableRows[0]) {
+        const firstRowOrderInput = tableRows[0].querySelector('.displayorderedit');
+        initialDisplayOrderValue = parseInt(firstRowOrderInput.value, 10);
+    }
+
+    return initialDisplayOrderValue;
+}
+
+function updateDisplayOrderValues(dropTableId, startingValue = 0) {
+    const tableRows = document.querySelectorAll(`#${dropTableId} tbody tr`);
+
+    tableRows.forEach((row,index) => {
         const displayOrderInput = row.querySelector('.displayorderedit');
         const currentValue = parseInt(displayOrderInput.value, 10);
 
         if (currentValue !== -1) {
-            displayOrderInput.value = displayOrder * 10;
-            displayOrder++;
+            displayOrderInput.value = startingValue + (10 * index);
         }
     });
 }
@@ -121,12 +135,24 @@ function updateDisplayOrderValues(dropTableId) {
         <?php
         echo "<h2>Reorder Site Awards</h2>";
 
-        echo "<p class='embedded'>";
-        echo "To rearrange your site awards, adjust the 'Display Order' value in the rightmost column of " .
-            "each award row. The awards will appear on your user page in ascending order according to their " .
-            "'Display Order' values. To hide an award, set its 'Display Order' value to -1. Don't forget to save " .
-            "your changes by clicking the 'Save' button. Your updates will be immediately reflected on your user page.";
-        echo "</p>";
+        echo <<<HTML
+            <div class="embedded grid gap-y-4">
+                <p>
+                    To rearrange your site awards, modify the 'Display Order' value in the rightmost 
+                    column of each award row. The awards will be displayed on your user page in 
+                    ascending order based on these values. To hide an award, change its 'Display Order' 
+                    value to -1. Remember to save your changes by clicking the 'Save' button, and 
+                    your updates will appear on your user page immediately.
+                </p>
+
+                <p>
+                    You can also reorder the award categories, such as 'Site Awards' and 'Game Awards'. 
+                    This is determined by the first 'Display Order' number within each category. 
+                    For example, to show 'Site Awards' before 'Game Awards', set the first 'Display Order' 
+                    value of 'Site Awards' to 0 and the first 'Display Order' value of 'Game Awards' to 1.
+                </p>
+            </div>
+        HTML;
 
         $userAwards = getUsersSiteAwards($user, true);
 
