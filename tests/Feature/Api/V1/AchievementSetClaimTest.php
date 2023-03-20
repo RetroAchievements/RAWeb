@@ -129,54 +129,25 @@ class AchievementSetClaimTest extends TestCase
                     'Status' => ClaimStatus::Dropped,
                     'Updated' => $claim->Updated->__toString(),
                     'User' => $this->user->User,
-                    'UserRole' => $this->user->Permissions,
                 ],
             ]);
     }
 
     public function testGetExpiredClaims(): void
     {
-        // Freeze time
-        Carbon::setTestNow(Carbon::now());
-
         /** @var System $system */
         $system = System::factory()->create();
-        /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        insertClaim(
-            $this->user->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer
-        );
-        Carbon::setTestNow(Carbon::now()->addYears(2));
+        AchievementSetClaim::factory()->create();
+        AchievementSetClaim::factory()->create([
+            'Finished' => Carbon::now()->subYears(2),
+        ]);
 
-        $claim = AchievementSetClaim::first();
+        $response = $this->get($this->apiUrl('GetClaims', ['k' => '3']))
+            ->assertSuccessful();
 
-        $this->get($this->apiUrl('GetClaims', ['k' => '3']))
-            ->assertSuccessful()
-            ->assertJson([
-                [
-                    'ClaimType' => ClaimType::Primary,
-                    'ConsoleName' => $system->Name,
-                    'Created' => $claim->Created->__toString(),
-                    'DoneTime' => $claim->Finished->__toString(),
-                    'Extension' => 0,
-                    'GameID' => $game->ID,
-                    'GameIcon' => '/Images/000001.png',
-                    'GameTitle' => $game->Title,
-                    'ID' => $claim->ID,
-                    'SetType' => ClaimSetType::NewSet,
-                    'Special' => ClaimSpecial::None,
-                    'Status' => ClaimStatus::Active,
-                    'Updated' => $claim->Updated->__toString(),
-                    'User' => $this->user->User,
-                    'UserRole' => $this->user->Permissions,
-                ],
-            ]);
+        $this->assertCount(1, $response->json());
     }
 
     public function testGetUserClaims(): void

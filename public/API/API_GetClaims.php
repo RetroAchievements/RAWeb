@@ -5,7 +5,7 @@ use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\ClaimFilters;
 
 /*
- *  API_GetClaims - returns information about 1000 max set claims.
+ *  API_GetClaims - returns information about 1000 max set claims, sorted by `Created` date.
  *    k : claim kind - 1 for completed, 2 for dropped, 3 for expired (default: 1)
  *
  *  array
@@ -53,8 +53,14 @@ if ($claimKind === $droppedClaims) {
     $claimFilter = ClaimFilters::AllActiveClaims;
 }
 
-return response()->json(
-    getFilteredClaims(
-        claimFilter: $claimFilter,
-    )
-);
+$claimsResults = getFilteredClaims(claimFilter: $claimFilter);
+
+if ($claimKind === $expiredClaims) {
+    $onlyFullyExpired = $claimsResults->filter(function ($claim) {
+        return $claim['MinutesLeft'] < 0;
+    })->toArray();
+
+    return response()->json($onlyFullyExpired);
+}
+
+return response()->json($claimsResults);
