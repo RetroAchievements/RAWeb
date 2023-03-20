@@ -1163,19 +1163,19 @@ sanitize_outputs(
 
                 echo "<div>";
                 if ($flags == $unofficialFlag) {
-                    echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
+                    echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 } else {
-                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
+                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 }
 
                 if ($user !== null && $numAchievements > 0) {
                     if ($numEarnedHardcore > 0) {
-                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>$totalEarnedHardcore</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points.<br>";
+                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>" . number_format($totalEarnedHardcore) . "</b> <span class='TrueRatio'>(" . number_format($totalEarnedTrueRatio) . ")</span> points.<br>";
                         if ($numEarnedCasual > 0) { // Some Hardcore earns
-                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
                         }
                     } elseif ($numEarnedCasual > 0) {
-                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
                     } else {
                         echo "You have not earned any achievements for this game.<br/>";
                     }
