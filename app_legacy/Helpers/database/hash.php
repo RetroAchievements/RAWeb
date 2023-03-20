@@ -179,7 +179,7 @@ function updateHashDetails(
         log_sql_fail();
     }
 
-    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
+    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " updated by " . $user . ". File Name: \"" . $name . "\". Label: \"" . $labels . "\"");
 
     return $dbResult != null;
 }
