@@ -5,7 +5,7 @@ use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\ClaimFilters;
 
 /*
- *  API_GetClaims - returns information about 1000 max set claims, sorted by `Created` date.
+ *  API_GetClaims - returns information about 1000 max set claims, sorted by latest `Created` date.
  *    k : claim kind - 1 for completed, 2 for dropped, 3 for expired (default: 1)
  *
  *  array
