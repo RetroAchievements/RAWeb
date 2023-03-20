@@ -382,8 +382,8 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     $numEarnedTotal = $numEarnedCasual + $numEarnedHardcore;
 
     $fullWidthClassName = "";
-    if (isset($fullWidthUntil)) {
-        $fullWidthClassName = $fullWidthUntil . ":w-40";
+    if (isset($fullWidthUntil) && $fullWidthUntil === "md") {
+        $fullWidthClassName = "md:w-40";
     }
 
     echo "<div class='w-full my-2 $fullWidthClassName'>";
