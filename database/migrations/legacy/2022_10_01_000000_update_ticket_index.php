@@ -23,7 +23,9 @@ return new class() extends Migration {
                 $table->dropUnique(['AchievementID', 'ReportedByUserID']);
             }
 
-            $table->index(['AchievementID', 'ReportedByUserID']);
+            if (!array_key_exists('ticket_achievementid_reportedbyuserid_index', $indexesFound)) {
+                $table->index(['AchievementID', 'ReportedByUserID']);
+            }
         });
     }
 
