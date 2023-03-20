@@ -9,7 +9,6 @@ use Illuminate\Support\Carbon;
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Community\Enums\TicketType;
 use LegacyApp\Community\Models\Ticket;
-use LegacyApp\Platform\Models\Achievement;
 
 /**
  * @extends Factory<Ticket>

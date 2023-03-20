@@ -470,6 +470,7 @@ function countOpenTicketsByAchievement(int $achievementID): int
         WHERE AchievementID = $achievementID AND ReportState IN (" . TicketState::Open . "," . TicketState::Request . ')';
 
     $results = legacyDbFetch($query);
+
     return ($results != null) ? $results['count'] : 0;
 }
 
@@ -573,6 +574,7 @@ function countOpenTickets(
         WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $reporterCond $resolverCond";
 
     $results = legacyDbFetch($query);
+
     return ($results != null) ? $results['count'] : 0;
 }
 

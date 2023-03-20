@@ -38,8 +38,8 @@ class AchievementOfTheWeekTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create(['GameID' => $game->ID]);
-        /** @var PlayerAchievement $unlock */
         $now = Carbon::now();
+        /** @var PlayerAchievement $unlock */
         $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User, 'Date' => $now]);
         /** @var PlayerAchievement $unlock2 */
         $unlock2 = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $user2->User, 'Date' => $now->copy()->subMinutes(5)]);
