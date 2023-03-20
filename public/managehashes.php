@@ -89,9 +89,9 @@ function UnlinkHash(user, gameID, hash, elem) {
         <?php
         echo gameAvatar($gameData, iconSize: 64);
 
-        echo "<div class='mt-2 flex flex-col sm:grid sm:grid-cols-2 gap-2'>";
-        echo "<a class='btn py-2 block' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>💾</span>Supported Game Files</a>";
-        echo "<a class='btn py-2 block' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
+        echo "<div class='mt-2 flex flex-col gap-1'>";
+        echo " <a href='/linkedhashes.php?g=$gameID'>Supported Game Files</a>";
+        echo " <a href='/viewtopic.php?t=$forumTopicID'>Official Forum Topic</a>";
         echo "</div>";
 
         echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
