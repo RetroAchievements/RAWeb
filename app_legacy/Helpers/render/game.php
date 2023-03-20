@@ -352,7 +352,7 @@ function RenderRecentGamePlayers(array $recentPlayerData): void
     echo "</div>";
 }
 
-function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore): void
+function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore, ?string $fullWidthUntil = null): void
 {
     $pctComplete = 0;
     $pctHardcore = 0;
@@ -381,7 +381,12 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     }
     $numEarnedTotal = $numEarnedCasual + $numEarnedHardcore;
 
-    echo "<div class='w-full my-2'>";
+    $fullWidthClassName = "";
+    if (isset($fullWidthUntil)) {
+        $fullWidthClassName = $fullWidthUntil . ":w-40";
+    }
+
+    echo "<div class='w-full my-2 $fullWidthClassName'>";
     echo "<div class='flex w-full items-center'>";
     echo "<div class='progressbar grow'>";
     echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
