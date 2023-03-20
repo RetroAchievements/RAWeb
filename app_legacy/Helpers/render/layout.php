@@ -55,7 +55,7 @@ function RenderToolbar(): void
             "Sony" => [
                 ["systemName" => "PlayStation", "listID" => 12, "iconName" => "PlayStation"],
                 ["systemName" => "PlayStation 2", "listID" => 21, "iconName" => "PlayStation 2"],
-                ["systemName" => "PlayStation Portable", "listID" => 41, "iconName" => "Playstation Portablee"],
+                ["systemName" => "PlayStation Portable", "listID" => 41, "iconName" => "PlayStation Portable"],
             ],
             "Atari" => [
                 ["systemName" => "Atari 2600", "listID" => 25, "iconName" => "Atari 2600"],
