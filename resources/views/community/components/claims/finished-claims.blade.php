@@ -3,15 +3,38 @@
 use LegacyApp\Community\Enums\ClaimFilters;
 use LegacyApp\Community\Enums\ClaimSorting;
 
-$claimData = getFilteredClaims(
-    gameID: null,
-    claimFilter: ClaimFilters::AllCompletedPrimaryClaims,
-    sortType: ClaimSorting::FinishedDateDescending,
-    getExpiringOnly: false,
-    username: null,
-    offset: 0,
-    limit: $count
-);
+$desiredClaimCount = $count;
+$claimData = [];
+$remainingClaimsToFetch = $desiredClaimCount;
+$currentOffset = 0;
+
+// Continue fetching claims until the desired number of claims
+// have been added to `$claimData`.
+while ($remainingClaimsToFetch > 0) {
+    $currentClaimsBatch = getFilteredClaims(
+        claimFilter: ClaimFilters::AllCompletedPrimaryClaims,
+        sortType: ClaimSorting::FinishedDateDescending,
+        offset: $currentOffset,
+        limit: $count,
+    );
+
+    if ($currentClaimsBatch->isEmpty()) {
+        break;
+    }
+
+    foreach ($currentClaimsBatch as $batchedClaim) {
+        if (isValidConsoleId($batchedClaim['ConsoleID'])) {
+            $claimData[] = $batchedClaim;
+            $remainingClaimsToFetch--;
+
+            if ($remainingClaimsToFetch === 0) {
+                break;
+            }
+        }
+    }
+
+    $currentOffset += $count;
+}
 
 $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescending . '&f=' . ClaimFilters::AllCompletedPrimaryClaims;
 ?>
@@ -38,9 +61,7 @@ $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescend
 
                 <tbody>
                     @foreach($claimData as $claim)
-                        @if (isValidConsoleId($claim['ConsoleID']))
-                            <x-claim-finished-table-row :claim="$claim" />
-                        @endif
+                        <x-claim-finished-table-row :claim="$claim" />
                     @endforeach
                 </tbody>
             </table>
