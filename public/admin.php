@@ -29,13 +29,7 @@ if ($action === 'unlocks') {
     $dateString = "";
     if (isset($achievementIDs)) {
         if (strtotime($startTime)) {
-            if (strtotime($endTime)) {
-                // valid start and end
-                $dateString = " between $startTime and $endTime";
-            } else {
-                // valid start, invalid end
-                $dateString = " since $startTime";
-            }
+            $dateString = strtotime($endTime) ? " between $startTime and $endTime" : " since $startTime";
         } else {
             if (strtotime($endTime)) {
                 // invalid start, valid end
@@ -46,7 +40,8 @@ if ($action === 'unlocks') {
         $winners = getUnlocksInDateRange(separateList($achievementIDs), $startTime, $endTime, $hardcoreMode);
 
         $keys = array_keys($winners);
-        for ($i = 0; $i < count($winners); $i++) {
+        $winnersCount = count($winners);
+        for ($i = 0; $i < $winnersCount; $i++) {
             $winnersCount = is_countable($winners[$keys[$i]]) ? count($winners[$keys[$i]]) : 0;
             $message .= "<strong>" . number_format($winnersCount) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
             $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";

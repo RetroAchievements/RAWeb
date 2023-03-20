@@ -3,6 +3,8 @@
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
+// TODO use Laravel Pint as convenient wrapper for PHP CS Fixer
+
 $rules = [
     /*
      * RuleSet cascades/overrides:
@@ -39,6 +41,8 @@ $rules = [
     'semicolon_after_instruction' => false,
     'single_quote' => false,
     'yoda_style' => false,
+
+    // 'declare_strict_types' => true, // TODO add as soon as php files in public have been fully ported
 ];
 
 $project_path = getcwd();
@@ -49,11 +53,14 @@ $finder = Finder::create()
         $project_path . '/config',
         $project_path . '/database',
         $project_path . '/lang',
-        $project_path . '/public',
-        $project_path . '/resources',
+        $project_path . '/public', // no strict types here
+        $project_path . '/resources', // no strict types here
         $project_path . '/tests',
     ])
-    ->name('*.php');
+    // ->filter(fn (SplFileInfo $filename) => !in_array($filename->getRealPath(), [
+    //     $project_path . '/app_legacy/Helpers/util/recaptcha.php',
+    // ]))
+        ->name('*.php');
 
 return (new Config())
     ->setFinder($finder)

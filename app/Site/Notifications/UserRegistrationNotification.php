@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Site\Notifications;
 
 use App\Site\Models\User;

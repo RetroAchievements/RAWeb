@@ -17,7 +17,7 @@ class UpdatePlayerMasteries extends Command
 
     protected $description = 'Recalculates masteries for a user';
 
-    private $gameAchievements = [];
+    private array $gameAchievements = [];
 
     public function handle(): void
     {

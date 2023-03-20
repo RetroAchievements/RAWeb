@@ -28,6 +28,9 @@ class Ticket extends BaseModel
         return TicketFactory::new();
     }
 
+    /**
+     * @return BelongsTo<Achievement, Ticket>
+     */
     public function achievement(): BelongsTo
     {
         return $this->belongsTo(Achievement::class, 'AchievementID');

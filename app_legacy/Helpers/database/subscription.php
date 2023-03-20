@@ -9,22 +9,18 @@ use LegacyApp\Community\Enums\SubscriptionSubjectType;
  */
 function updateSubscription(string $subjectType, int $subjectID, int $userID, bool $state): bool
 {
-    sanitize_sql_inputs($subjectType, $subjectID, $userID, $state);
-    settype($state, 'integer');
+    sanitize_sql_inputs($subjectType);
+    $state = (int) $state;
 
-    $stateInt = $state ? 1 : 0;
     $query = "
         INSERT INTO Subscription(SubjectType, SubjectID, UserID, State)
-        VALUES ('$subjectType', $subjectID, $userID, b'$stateInt')
-        ON DUPLICATE KEY UPDATE State = b'$stateInt'
+        VALUES ('$subjectType', $subjectID, $userID, '$state')
+        ON DUPLICATE KEY UPDATE State = '$state'
     ";
 
     $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return false;
-    }
 
-    return true;
+    return (bool) $dbResult;
 }
 
 /**
@@ -38,7 +34,7 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
     if (!$userID) {
         return false;
     }
-    sanitize_sql_inputs($subjectType, $subjectID, $userID);
+    sanitize_sql_inputs($subjectType);
 
     if ($implicitSubscriptionQry === null) {
         $query = "
@@ -105,7 +101,7 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
  */
 function getSubscribersOf(string $subjectType, int $subjectID, int $reqWebsitePrefs = null, string $implicitSubscriptionQry = null): array
 {
-    sanitize_sql_inputs($subjectType, $subjectID, $reqWebsitePrefs);
+    sanitize_sql_inputs($subjectType);
 
     $websitePrefsFilter = (
         $reqWebsitePrefs === null ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0"
@@ -160,6 +156,8 @@ function getSubscribersOf(string $subjectType, int $subjectID, int $reqWebsitePr
 
 /**
  * Merges two lists of subscribers as returned by `getSubscribersOf`.
+ *
+ * TODO replace with standard collection/array merge?
  */
 function mergeSubscribers(array $subscribersA, array $subscribersB): array
 {
@@ -182,12 +180,12 @@ function mergeSubscribers(array $subscribersA, array $subscribersB): array
     return $subscribersA;
 }
 
-function getSubscribersOfGameWall($gameID): array
+function getSubscribersOfGameWall(int $gameID): array
 {
     return getSubscribersOfArticle(1, $gameID, 1 << 1);
 }
 
-function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor): array
+function getSubscribersOfAchievement(int $achievementID, int $gameID, string $achievementAuthor): array
 {
     // users directly subscribed to the achievement
     $achievementSubs = getSubscribersOfArticle(2, $achievementID, 1 << 1, $achievementAuthor);
@@ -198,17 +196,17 @@ function getSubscribersOfAchievement($achievementID, $gameID, $achievementAuthor
     return mergeSubscribers($achievementSubs, $gameAchievementsSubs);
 }
 
-function getSubscribersOfUserWall($userID, $userName): array
+function getSubscribersOfUserWall(int $userID, string $userName): array
 {
     return getSubscribersOfArticle(3, $userID, 1 << 2, $userName);
 }
 
-function getSubscribersOfFeedActivity($activityID, $author): array
+function getSubscribersOfFeedActivity(int $activityID, string $author): array
 {
     return getSubscribersOfArticle(5, $activityID, 1 << 0, $author, true);
 }
 
-function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID): array
+function getSubscribersOfTicket(int $ticketID, string $ticketAuthor, int $gameID): array
 {
     // users directly subscribed to the ticket
     $ticketSubs = getSubscribersOfArticle(7, $ticketID, 1 << 1, $ticketAuthor, true);
@@ -220,14 +218,13 @@ function getSubscribersOfTicket($ticketID, $ticketAuthor, $gameID): array
 }
 
 function getSubscribersOfArticle(
-    $articleType,
-    $articleID,
-    $reqWebsitePrefs,
-    $subjectAuthor = null,
-    $noExplicitSubscriptions = false
+    int $articleType,
+    int $articleID,
+    int $reqWebsitePrefs,
+    ?string $subjectAuthor = null,
+    bool $noExplicitSubscriptions = false
 ): array {
-    $websitePrefsFilter = ($noExplicitSubscriptions !== true
-        ? "" : "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0");
+    $websitePrefsFilter = $noExplicitSubscriptions ? "AND (_ua.websitePrefs & $reqWebsitePrefs) != 0" : "";
 
     $authorQry = ($subjectAuthor === null ? "" : "
         UNION
@@ -271,10 +268,8 @@ function getSubscribersOfArticle(
     );
 }
 
-function isUserSubscribedToArticleComments($articleType, $articleID, $userID): bool
+function isUserSubscribedToArticleComments(int $articleType, int $articleID, int $userID): bool
 {
-    sanitize_sql_inputs($articleType, $articleID, $userID);
-
     $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
 
     if ($subjectType === null) {

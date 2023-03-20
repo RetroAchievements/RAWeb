@@ -8,9 +8,9 @@ use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 
-function playerHasUnlock(?string $user, $achievementId): array
+function playerHasUnlock(?string $user, int $achievementId): array
 {
-    sanitize_sql_inputs($user, $achievementId);
+    sanitize_sql_inputs($user);
 
     $retVal = [
         'HasRegular' => false,
@@ -41,11 +41,9 @@ function playerHasUnlock(?string $user, $achievementId): array
     return $retVal;
 }
 
-function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
+function unlockAchievement(string $user, int $achIDToAward, bool $isHardcore): array
 {
-    sanitize_sql_inputs($user, $achIDToAward, $isHardcore);
-    settype($achIDToAward, 'integer');
-    settype($isHardcore, 'integer');
+    sanitize_sql_inputs($user);
 
     $retVal = [
         'Success' => false,
@@ -70,7 +68,7 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
         return $retVal;
     }
 
-    $achData = GetAchievementMetadataJSON($achIDToAward);
+    $achData = GetAchievementData($achIDToAward);
     if (!$achData) {
         $retVal['Error'] = "Achievement data cannot be found for $achIDToAward";
 
@@ -105,7 +103,7 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     if (!$alreadyAwarded) {
         // testFullyCompletedGame could post a mastery notification. make sure to post
         // the achievement unlock notification first
-        postActivity($user, ActivityType::EarnedAchievement, $achIDToAward, $isHardcore);
+        postActivity($user, ActivityType::EarnedAchievement, $achIDToAward, (int) $isHardcore);
     }
 
     $completion = testFullyCompletedGame($achData['GameID'], $user, $isHardcore, !$alreadyAwarded);
@@ -129,8 +127,8 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
 
     $pointsToGive = $achData['Points'];
     $trueRatio = $achData['TrueRatio'];
-    settype($pointsToGive, 'integer');
-    settype($trueRatio, 'integer');
+    $pointsToGive = (int) $pointsToGive;
+    $trueRatio = (int) $trueRatio;
 
     if ($isHardcore) {
         if ($hasRegular) {
@@ -166,10 +164,11 @@ function unlockAchievement(string $user, $achIDToAward, $isHardcore): array
     return $retVal;
 }
 
-function insertAchievementUnlockIntoAwardedTable(string $user, $achIDToAward, $isHardcore): bool
+function insertAchievementUnlockIntoAwardedTable(string $user, int $achIDToAward, bool $isHardcore): bool
 {
-    sanitize_sql_inputs($user, $achIDToAward, $isHardcore);
-    settype($isHardcore, 'integer');
+    sanitize_sql_inputs($user);
+
+    $isHardcore = (int) $isHardcore;
 
     $query = "INSERT INTO Awarded ( User, AchievementID, Date, HardcoreMode )
               VALUES ( '$user', '$achIDToAward', NOW(), '$isHardcore' )
@@ -185,13 +184,14 @@ function resetAchievements(string $user, int $gameID): int
 {
     sanitize_sql_inputs($user);
 
+    $dataOut = [];
     getUserUnlocksDetailed($user, $gameID, $dataOut);
-    $resetCount = collect($dataOut)->unique('ID')->count();
+    $resetCount = (new Collection($dataOut))->unique('ID')->count();
     if ($resetCount == 0) {
         return 0;
     }
 
-    $achievementIDs = collect($dataOut)->unique('ID')->implode('ID', ',');
+    $achievementIDs = (new Collection($dataOut))->unique('ID')->implode('ID', ',');
 
     // delete the unlocks for the user
     $query = "DELETE FROM Awarded WHERE User='$user' AND AchievementID IN ($achievementIDs)";
@@ -227,10 +227,9 @@ function resetAchievements(string $user, int $gameID): int
     return $resetCount;
 }
 
-function resetSingleAchievement(string $user, $achID): bool
+function resetSingleAchievement(string $user, int $achID): bool
 {
-    sanitize_sql_inputs($user, $achID);
-    settype($achID, 'integer');
+    sanitize_sql_inputs($user);
 
     if (empty($achID)) {
         return false;
@@ -279,7 +278,7 @@ function getUsersRecentAwardedForGames(string $user, string $gameIDsCSV, int $nu
 
     $gameIDs = [];
     foreach ($gameIDsArray as $gameID) {
-        settype($gameID, "integer");
+        $gameID = (int) $gameID;
         $gameIDs[] = $gameID;
     }
     $gameIDs = implode(',', $gameIDs);
@@ -325,14 +324,30 @@ function getAchievementUnlockCount(int $achID): int
     return $data['NumEarned'] ?? 0;
 }
 
+/**
+ * @return Collection<int, array>
+ */
 function getAchievementUnlocksData(
-    $achievementId,
-    &$numWinners,
-    &$numPossibleWinners,
-    $username,
-    $offset = 0,
-    $limit = 50
+    int $achievementId,
+    ?int &$numWinners,
+    ?int &$numPossibleWinners,
+    ?string $username,
+    int $offset = 0,
+    int $limit = 50
 ): Collection {
+
+    $bindings = [
+        'unlockMode' => UnlockMode::Softcore,
+        'joinAchievementId' => $achievementId,
+        'achievementId' => $achievementId,
+    ];
+
+    $requestedByStatement = '';
+    if ($username) {
+        $bindings['username'] = $username;
+        $requestedByStatement = 'OR ua.User = :username';
+    }
+
     $query = "
         SELECT ach.GameID, COUNT(tracked_aw.AchievementID) AS NumEarned
         FROM Achievements AS ach
@@ -341,22 +356,30 @@ function getAchievementUnlocksData(
             FROM Awarded AS aw
             INNER JOIN UserAccounts AS ua ON ua.User = aw.User
             WHERE aw.AchievementID = :joinAchievementId AND aw.HardcoreMode = :unlockMode
-              AND (NOT ua.Untracked OR ua.User = :username)
+              AND (NOT ua.Untracked $requestedByStatement)
         ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
         WHERE ach.ID = :achievementId
     ";
 
-    $data = legacyDbFetch($query, [
-        'unlockMode' => UnlockMode::Softcore,
-        'joinAchievementId' => $achievementId,
-        'username' => $username,
-        'achievementId' => $achievementId,
-    ]);
+    $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers($data['GameID'], $username);
+    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $username);
 
-    // Get recent winners, and their most recent activity:
+    // Get recent winners, and their most recent activity
+    $bindings = [
+        'joinSoftcoreAchievementId' => $achievementId,
+        'joinHardcoreAchievementId' => $achievementId,
+        'offset' => $offset,
+        'limit' => $limit,
+    ];
+
+    $requestedByStatement = '';
+    if ($username) {
+        $bindings['username'] = $username;
+        $requestedByStatement = 'OR ua.User = :username';
+    }
+
     $query = "SELECT ua.User, ua.RAPoints,
                      IFNULL(aw_hc.Date, aw_sc.Date) AS DateAwarded,
                      CASE WHEN aw_hc.Date IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode
@@ -367,22 +390,21 @@ function getAchievementUnlocksData(
               LEFT JOIN
                      (SELECT User, Date FROM Awarded WHERE AchievementID = :joinHardcoreAchievementId AND HardcoreMode = 1) AS aw_hc
                      ON aw_hc.User = ua.User
-              WHERE (NOT ua.Untracked OR ua.User = :username)
+              WHERE (NOT ua.Untracked $requestedByStatement)
               ORDER BY DateAwarded DESC
               LIMIT :offset, :limit";
 
-    return legacyDbFetchAll($query, [
-        'joinSoftcoreAchievementId' => $achievementId,
-        'joinHardcoreAchievementId' => $achievementId,
-        'username' => $username,
-        'offset' => $offset,
-        'limit' => $limit,
-    ]);
+    return legacyDbFetchAll($query, $bindings);
 }
 
-function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = null, $friendsOnly = null): array
-{
-    sanitize_sql_inputs($achID, $offset, $count, $user, $friendsOnly);
+function getRecentUnlocksPlayersData(
+    int $achID,
+    int $offset,
+    int $count,
+    ?string $user = null,
+    bool $friendsOnly = false
+): array {
+    sanitize_sql_inputs($user);
 
     $retVal = [];
 
@@ -395,16 +417,14 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
     $dbResult = s_mysql_query($query);
     $data = mysqli_fetch_assoc($dbResult);
 
-    $retVal['NumEarned'] = $data['NumEarned'];
-    settype($retVal['NumEarned'], 'integer');
-    $retVal['GameID'] = $data['GameID'];
-    settype($retVal['GameID'], 'integer');
+    $retVal['NumEarned'] = (int) $data['NumEarned'];
+    $retVal['GameID'] = (int) $data['GameID'];
 
     // Fetch the total number of players for this game:
     $retVal['TotalPlayers'] = getUniquePlayersByUnlocks($retVal['GameID']);
 
     $extraWhere = "";
-    if (isset($friendsOnly) && $friendsOnly && isset($user) && $user) {
+    if ($friendsOnly && isset($user) && $user) {
         $friendSubquery = GetFriendsSubquery($user, false);
         $extraWhere = " AND aw.User IN ( $friendSubquery ) ";
     }
@@ -419,19 +439,16 @@ function getRecentUnlocksPlayersData($achID, $offset, $count, ?string $user = nu
 
     $dbResult = s_mysql_query($query);
     while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        // settype( $db_entry['HardcoreMode'], 'integer' );
-        settype($db_entry['RAPoints'], 'integer');
-        settype($db_entry['DateAwarded'], 'integer');
+        $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
+        $db_entry['DateAwarded'] = (int) $db_entry['DateAwarded'];
         $retVal['RecentWinner'][] = $db_entry;
     }
 
     return $retVal;
 }
 
-function getUniquePlayersByUnlocks($gameID): int
+function getUniquePlayersByUnlocks(int $gameID): int
 {
-    sanitize_sql_inputs($gameID);
-
     $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
               (
                   SELECT ach.ID, COUNT(*) AS MaxAwarded
@@ -453,9 +470,7 @@ function getUniquePlayersByUnlocks($gameID): int
  */
 function getUnlocksSince(int $id, string $date): array
 {
-    sanitize_sql_inputs($id, $date);
-    settype($id, "integer");
-    settype($date, "string");
+    sanitize_sql_inputs($date);
 
     $query = "
         SELECT
@@ -472,12 +487,12 @@ function getUnlocksSince(int $id, string $date): array
 
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
-    } else {
-        return [
-            'softcoreCount' => 0,
-            'hardcoreCount' => 0,
-        ];
     }
+
+    return [
+        'softcoreCount' => 0,
+        'hardcoreCount' => 0,
+    ];
 }
 
 /**
@@ -486,7 +501,7 @@ function getUnlocksSince(int $id, string $date): array
 function getRecentUnlocks(array $achievementIDs, int $offset = 0, int $count = 200): array
 {
     $achievementIDs = implode(",", $achievementIDs);
-    sanitize_sql_inputs($achievementIDs, $offset, $count);
+    sanitize_sql_inputs($achievementIDs);
 
     $retVal = [];
     $query = "SELECT aw.User, c.Name AS ConsoleName, aw.Date, aw.AchievementID, a.GameID, aw.HardcoreMode, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, gd.Title AS GameTitle, gd.ImageIcon as GameIcon
@@ -512,7 +527,7 @@ function getRecentUnlocks(array $achievementIDs, int $offset = 0, int $count = 2
 /**
  * Gets a list of users who have unlocked an achievement or list of achievements within a given time-range.
  */
-function getUnlocksInDateRange($achievementIDs, $startTime, $endTime, $hardcoreMode): array
+function getUnlocksInDateRange(array $achievementIDs, string $startTime, string $endTime, int $hardcoreMode): array
 {
     if (empty($achievementIDs)) {
         return [];
@@ -560,8 +575,12 @@ function getUnlocksInDateRange($achievementIDs, $startTime, $endTime, $hardcoreM
 /**
  * Gets the achievement distribution to display on the game page.
  */
-function getAchievementDistribution(int $gameID, int $hardcore, ?string $requestedBy = null, int $flags = AchievementType::OfficialCore): array
-{
+function getAchievementDistribution(
+    int $gameID,
+    int $hardcore,
+    ?string $requestedBy = null,
+    int $flags = AchievementType::OfficialCore
+): array {
     /** @var Game $game */
     $game = Game::withCount(['achievements' => fn ($query) => $query->type($flags)])
         ->find($gameID);
@@ -577,10 +596,10 @@ function getAchievementDistribution(int $gameID, int $hardcore, ?string $request
         'achievementType' => $flags,
     ];
 
-    $requestedByStatement = "";
+    $requestedByStatement = '';
     if ($requestedBy) {
         $bindings['requestedBy'] = $requestedBy;
-        $requestedByStatement = "OR ua.User = :requestedBy";
+        $requestedByStatement = 'OR ua.User = :requestedBy';
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.

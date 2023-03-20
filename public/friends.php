@@ -24,7 +24,7 @@ asort($blockedUsersList);
 
 $followersList = GetFollowers($user);
 
-function RenderUserList(string $header, array $users, int $friendshipType, array $followingList)
+function RenderUserList(string $header, array $users, int $friendshipType, array $followingList): void
 {
     if (count($users) == 0) {
         return;
@@ -47,7 +47,7 @@ function RenderUserList(string $header, array $users, int $friendshipType, array
         echo "<div class='flex justify-end gap-2'>";
         switch ($friendshipType) {
             case UserRelationship::Following:
-                if (array_search($user, array_column($followingList, 'User')) === false) {
+                if (!in_array($user, array_column($followingList, 'User'))) {
                     echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='user' value='$user'>";

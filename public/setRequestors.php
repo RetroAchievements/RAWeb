@@ -28,10 +28,8 @@ RenderContentStart("Set Requests");
         echo "<br><br>";
         echo "A set for this game has been requested by the following users:<br><br>";
         echo "<ul>";
-        if (!empty($requestors)) {
-            foreach ($requestors as $requestor) {
-                echo "<code><li>" . userAvatar($requestor['Requestor']) . "</code></li>";
-            }
+        foreach ($requestors as $requestor) {
+            echo "<code><li>" . userAvatar($requestor['Requestor']) . "</code></li>";
         }
         echo "</ul>";
         echo "<br>";

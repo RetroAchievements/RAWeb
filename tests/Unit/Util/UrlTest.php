@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 final class UrlTest extends TestCase
 {
-    public function testSeparateList()
+    public function testSeparateList(): void
     {
         $this->assertEquals('http://localhost/test.php', url('test.php'));
         $this->assertEquals('http://localhost/example.com/test', url('example.com/test'));

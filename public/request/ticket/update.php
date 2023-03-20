@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\TicketAction;
@@ -10,7 +11,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetail)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'ticket' => 'required|integer|exists:mysql_legacy.Ticket,ID',
     'action' => ['required', 'string', Rule::in(TicketAction::cases())],
 ]);

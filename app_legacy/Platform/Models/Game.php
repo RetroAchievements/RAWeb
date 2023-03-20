@@ -21,13 +21,27 @@ class Game extends BaseModel
         return GameFactory::new();
     }
 
+    /**
+     * @return HasMany<Achievement>
+     */
     public function achievements(): HasMany
     {
         return $this->hasMany(Achievement::class, 'GameID');
     }
 
-    public function console(): BelongsTo
+    /**
+     * @return BelongsTo<System, Game>
+     */
+    public function system(): BelongsTo
     {
         return $this->belongsTo(System::class, 'ConsoleID');
+    }
+
+    /**
+     * @return BelongsTo<System, Game>
+     */
+    public function console(): BelongsTo
+    {
+        return $this->system();
     }
 }

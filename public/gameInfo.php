@@ -52,6 +52,7 @@ $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
 $forumTopicID = $gameData['ForumTopicID'];
 $richPresenceData = $gameData['RichPresencePatch'];
+$guideURL = $gameData['GuideURL'];
 
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
 $isFullyFeaturedGame = $consoleName !== 'Hubs';
@@ -139,8 +140,8 @@ if ($v != 1 && $isFullyFeaturedGame) {
                     </form>
 
                     <?php if ($userWebsitePrefs): ?>
-                        <button 
-                            class='break-words whitespace-normal leading-normal' 
+                        <button
+                            class='break-words whitespace-normal leading-normal'
                             onclick='disableMatureContentWarningPreference()'
                         >
                             Yes. And never ask me again for games with mature content.
@@ -844,7 +845,7 @@ sanitize_outputs(
                         echo "<form class='mb-2' method='post' action='/request/game/update-title.php'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID' />";
-                        echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                        echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                         echo "<label for='game_title'>Name</label>";
                         echo "<input type='text' name='title' id='game_title' value='$escapedGameTitle' maxlength='80' class='w-full'>";
                         echo "<div class='text-right'><button class='btn'>Submit</button></div>";
@@ -855,7 +856,8 @@ sanitize_outputs(
                     echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<input type='hidden' name='guide_url' value='" . attributeEscape($guideURL) . "'>";
+                    echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='game_developer'>Developer</label><input type='text' name='developer' id='game_developer' value='" . attributeEscape($developer) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "<label for='game_publisher'>Publisher</label><input type='text' name='publisher' id='game_publisher' value='" . attributeEscape($publisher) . "' class='w-full'>";
@@ -872,9 +874,9 @@ sanitize_outputs(
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<input type='hidden' name='type' value='" . ImageType::GameTitle . "'>";
-                        echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                        echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                         echo "<label for='image_" . ImageType::GameTitle . "'>Title Screenshot</label>";
-                        echo "<input class='grow' type='file' name='file' id='image_" . ImageType::GameTitle . "'>";
+                        echo "<input type='file' name='file' id='image_" . ImageType::GameTitle . "' class='w-full'>";
                         echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                         echo "</div>";
                         echo "</form>";
@@ -883,9 +885,9 @@ sanitize_outputs(
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<input type='hidden' name='type' value='" . ImageType::GameInGame . "'>";
-                        echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                        echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                         echo "<label for='image_" . ImageType::GameInGame . "'>In-game Screenshot</label>";
-                        echo "<input type='file' name='file' id='image_" . ImageType::GameInGame . "'>";
+                        echo "<input type='file' name='file' id='image_" . ImageType::GameInGame . "' class='w-full'>";
                         echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                         echo "</div>";
                         echo "</form>";
@@ -895,9 +897,9 @@ sanitize_outputs(
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
                     echo "<input type='hidden' name='type' value='" . ImageType::GameIcon . "'>";
-                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='image_" . ImageType::GameIcon . "'>Icon</label>";
-                    echo "<input type='file' name='file' id='image_" . ImageType::GameIcon . "'>";
+                    echo "<input type='file' name='file' id='image_" . ImageType::GameIcon . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -907,9 +909,9 @@ sanitize_outputs(
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<input type='hidden' name='type' value='" . ImageType::GameBoxArt . "'>";
-                        echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                        echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                         echo "<label for='image_" . ImageType::GameBoxArt . "'>Box Art</label>";
-                        echo "<input type='file' name='file' id='image_" . ImageType::GameBoxArt . "'>";
+                        echo "<input type='file' name='file' id='image_" . ImageType::GameBoxArt . "' class='w-full'>";
                         echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                         echo "</div>";
                         echo "</form>";
@@ -917,12 +919,27 @@ sanitize_outputs(
                 }
 
                 if ($permissions >= Permissions::Admin) {
-                    echo "<form class='mb-2' method='post' action='/request/game/update-forum-topic.php' style='margin-bottom:10px'>";
+                    echo "<form class='mb-2' method='post' action='/request/game/update-forum-topic.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='game_forum_topic'>New Forum Topic ID</label>";
-                    echo "<input type='text' name='forum_topic' id='game_forum_topic' size='20'>";
+                    echo "<input type='text' name='forum_topic' id='game_forum_topic' class='w-full'>";
+                    echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                    echo "</div>";
+                    echo "</form>";
+                }
+
+                if ($hasMinimumDeveloperPermissions) {
+                    echo "<form class='mb-2' method='post' action='/request/game/update-meta.php'>";
+                    echo csrf_field();
+                    echo "<input type='hidden' name='game' value='$gameID'>";
+                    echo "<input type='hidden' name='developer' value='" . attributeEscape($developer) . "'>";
+                    echo "<input type='hidden' name='publisher' value='" . attributeEscape($publisher) . "'>";
+                    echo "<input type='hidden' name='genre' value='" . attributeEscape($genre) . "'>";
+                    echo "<input type='hidden' name='release' value='" . attributeEscape($released) . "'>";
+                    echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -932,9 +949,9 @@ sanitize_outputs(
                     echo "<form class='mb-2' method='post' action='/request/game-relation/create.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<div class='grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
+                    echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
                     echo "<label for='game_relation_add'>Add Related Games<br>(CSV of game IDs)</label>";
-                    echo "<input type='text' name='relations' id='game_relation_add' size='20'>";
+                    echo "<input type='text' name='relations' id='game_relation_add' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Add</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -1362,10 +1379,13 @@ sanitize_outputs(
             echo "<ul>";
             echo "<li>";
             RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+            if (!empty($guideURL)) {
+                echo "<a class='btn py-2 mb-2 block' href='" . attributeEscape($guideURL) . "'><span class='icon icon-md ml-1 mr-3'>📖</span>Guide</a>";
+            }
             echo "</li>";
             if (isset($user)) {
                 if ($permissions >= Permissions::Registered) {
-                    echo "<li><a class='btn py-2 mb-2 block' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🔗</span>Linked Hashes</a></li>";
+                    echo "<li><a class='btn py-2 mb-2 block' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>💾</span>Supported Game Files</a></li>";
                     echo "<li><a class='btn py-2 mb-2 block' href='/codenotes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📑</span>Code Notes</a></li>";
                     $numOpenTickets = countOpenTickets(
                         requestInputSanitized('f') == $unofficialFlag,
@@ -1386,17 +1406,18 @@ sanitize_outputs(
                 }
                 echo "</ul>";
             }
+
             echo "</div>";
 
-            if (count($gameSubsets) > 0) {
+            if (!empty($gameSubsets)) {
                 RenderGameAlts($gameSubsets, 'Subsets');
             }
 
-            if (count($gameAlts) > 0) {
+            if (!empty($gameAlts)) {
                 RenderGameAlts($gameAlts, 'Similar Games');
             }
 
-            if (count($gameHubs) > 0) {
+            if (!empty($gameHubs)) {
                 RenderGameAlts($gameHubs, 'Collections');
             }
 

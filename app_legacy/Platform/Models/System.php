@@ -20,6 +20,9 @@ class System extends BaseModel
         return SystemFactory::new();
     }
 
+    /**
+     * @return HasMany<Game>
+     */
     public function games(): HasMany
     {
         return $this->hasMany(Game::class, 'ConsoleID');

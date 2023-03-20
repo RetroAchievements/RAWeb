@@ -214,10 +214,10 @@ if (!empty($assignedToUser)) {
 // getting data for a specific game
 $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
-    if (getGameTitleFromID($gameIDGiven, $gameTitle, $consoleID, $consoleName, $forumTopicID, $allData)) {
+    if ($gameData = getGameData($gameIDGiven)) {
         $ticketData['GameID'] = $gameIDGiven;
-        $ticketData['GameTitle'] = $gameTitle;
-        $ticketData['ConsoleName'] = $consoleName;
+        $ticketData['GameTitle'] = $gameData['Title'];
+        $ticketData['ConsoleName'] = $gameData['ConsoleName'];
         $ticketData['OpenTickets'] = countOpenTickets(
             $gamesTableFlag == AchievementType::Unofficial,
             $defaultTicketFilter,

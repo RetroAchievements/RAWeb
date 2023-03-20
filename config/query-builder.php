@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @see https://github.com/spatie/laravel-query-builder
  */

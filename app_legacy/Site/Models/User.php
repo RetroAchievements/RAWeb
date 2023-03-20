@@ -12,9 +12,11 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Jenssegers\Optimus\Optimus;
+use LegacyApp\Community\Models\UserActivity;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 
@@ -103,6 +105,10 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
     }
 
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
     public function scopeHasAnyPoints(Builder $query): Builder
     {
         return $query->where('RAPoints', '>', 0)
@@ -128,5 +134,15 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function getEmailForVerification(): string
     {
         return $this->EmailAddress;
+    }
+
+    // Relationships
+
+    /**
+     * @return HasMany<UserActivity>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(UserActivity::class);
     }
 }

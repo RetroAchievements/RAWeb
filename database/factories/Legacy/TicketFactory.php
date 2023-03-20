@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Factories\Legacy;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Community\Enums\TicketType;
 use LegacyApp\Community\Models\Ticket;
 use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Support\Database\Eloquent\Factory;
 
 /**
  * @extends Factory<Ticket>

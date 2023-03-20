@@ -5,9 +5,9 @@ parameters:
         # - app
         - app_legacy
         - public
+        - resources/views
         - tests
-    # TODO v2 was at level 6
-    level: 5
+    level: 6
     checkMissingIterableValueType: false
     treatPhpDocTypesAsCertain: false
     # TODO figure out why github actions phpstan does not find the same

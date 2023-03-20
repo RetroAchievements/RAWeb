@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Community\Enums\ClaimSetType;
 use LegacyApp\Site\Enums\Permissions;
@@ -8,22 +9,22 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     abort(401);
 }
 
-$input = Validator::validate(request()->post(), [
+$input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required|integer',
     'number' => 'required|integer',
     'game' => 'required|integer',
 ]);
 
-$achievementId = $input['achievement'];
-$gameId = $input['game'];
-$number = $input['number'];
+$achievementId = (int) $input['achievement'];
+$gameId = (int) $input['game'];
+$number = (int) $input['number'];
 
 // Only allow jr. devs to update the display order if they are the sole author of the set or have the primary claim
 if ($permissions == Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($user, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))) {
     abort(403);
 }
 
-if (updateAchievementDisplayID((int) $achievementId, $number)) {
+if (updateAchievementDisplayID($achievementId, $number)) {
     return response()->json(['message' => __('legacy.success.ok')]);
 }
 

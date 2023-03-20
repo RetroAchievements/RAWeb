@@ -62,7 +62,7 @@ ${NPM_BIN} run build
 #${NPM_BIN} run apidoc
 
 ${PHP_BIN} artisan ra:storage:link --force
-#${PHP_BIN} artisan migrate
+${PHP_BIN} artisan migrate --force
 
 
 ### Release ###

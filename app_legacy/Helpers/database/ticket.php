@@ -12,7 +12,7 @@ use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Models\User;
 
-function isAllowedToSubmitTickets($user): bool
+function isAllowedToSubmitTickets(string $user): bool
 {
     if (!isValidUsername($user)) {
         return false;
@@ -43,8 +43,13 @@ function isAllowedToSubmitTickets($user): bool
     return $value;
 }
 
-function submitNewTicketsJSON($userSubmitter, $idsCSV, $reportType, $noteIn, $RAHash): array
-{
+function submitNewTicketsJSON(
+    string $userSubmitter,
+    string $idsCSV,
+    int $reportType,
+    string $noteIn,
+    string $RAHash
+): array {
     sanitize_sql_inputs($userSubmitter, $reportType, $noteIn, $RAHash);
 
     $returnMsg = [];
@@ -114,18 +119,15 @@ function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore,
 
 function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, string $note): int
 {
-    if (!GetAchievementMetadata($achID, $achData)) {
+    $achData = GetAchievementData($achID);
+    if (empty($achData)) {
         return 0;
     }
 
     $noteSanitized = $note;
     sanitize_sql_inputs($noteSanitized);
 
-    if ($hardcore === null) {
-        $hardcoreValue = 'NULL';
-    } else {
-        $hardcoreValue = strval($hardcore);
-    }
+    $hardcoreValue = $hardcore === null ? 'NULL' : (string) $hardcore;
 
     $userId = $user->ID;
     $username = $user->User;
@@ -262,7 +264,8 @@ function getAllTickets(
     $devActiveCond = getDevActiveCondition($ticketFilters);
     if ($devActiveCond === null) {
         return $retVal;
-    } elseif ($devActiveCond != "") {
+    }
+    if ($devActiveCond != "") {
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
@@ -272,7 +275,6 @@ function getAllTickets(
     // official/unofficial filter (ignore when a specific achievement is requested)
     $achFlagCond = '';
     if (!$givenAchievementID) {
-        settype($getUnofficial, 'boolean');
         $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
     }
 
@@ -310,10 +312,8 @@ function getTicket(int $ticketID): ?array
     return legacyDbFetch($query);
 }
 
-function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
+function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reason = null): bool
 {
-    sanitize_sql_inputs($ticketID, $ticketVal);
-
     $userID = getUserIDFromUser($user);
 
     // get the ticket data before updating so we know what the previous state was
@@ -376,6 +376,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
 
     addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
+    $reporterData = [];
     if (!getAccountDetails($userReporter, $reporterData)) {
         return true;
     }
@@ -400,7 +401,7 @@ function updateTicket($user, $ticketID, $ticketVal, $reason = null): bool
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function countRequestTicketsByUser($user): int
+function countRequestTicketsByUser(string $user): int
 {
     if ($user == null) {
         return 0;
@@ -424,7 +425,7 @@ function countRequestTicketsByUser($user): int
     return (int) mysqli_fetch_assoc($dbResult)['count'];
 }
 
-function countOpenTicketsByDev($dev): ?array
+function countOpenTicketsByDev(string $dev): ?array
 {
     if ($dev == null) {
         return null;
@@ -514,7 +515,8 @@ function countOpenTickets(
     $devActiveCond = getDevActiveCondition($ticketFilters);
     if ($devActiveCond === null) {
         return 0;
-    } elseif ($devActiveCond != "") {
+    }
+    if ($devActiveCond != "") {
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
@@ -628,7 +630,9 @@ function getStateCondition(int $ticketFilters): ?string
     if (count($states) == 4) {
         // all states selected, no need to filter
         return "";
-    } elseif (count($states) == 0) {
+    }
+
+    if (count($states) == 0) {
         // no states selected, can't matching anything
         return null;
     }
@@ -729,7 +733,9 @@ function getDevActiveCondition(int $ticketFilters): ?string
 
     if ($devInactive && $devActive && $devJunior) {
         return "";
-    } elseif ($devInactive || $devActive || $devJunior) {
+    }
+
+    if ($devInactive || $devActive || $devJunior) {
         $stateCond = " AND ua3.Permissions IN (";
         if ($devInactive) {
             $stateCond .= "-1,0,1";
@@ -751,9 +757,9 @@ function getDevActiveCondition(int $ticketFilters): ?string
         $stateCond .= ")";
 
         return $stateCond;
-    } else {
-        return null;
     }
+
+    return null;
 }
 
 /**
@@ -765,9 +771,9 @@ function getNotAuthorCondition(int $ticketFilters): string
 
     if ($notAuthorTickets) {
         return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author";
-    } else {
-        return "";
     }
+
+    return "";
 }
 
 /**
@@ -843,9 +849,9 @@ function getUserGameWithMostTickets(string $user): ?array
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
-    } else {
-        return null;
     }
+
+    return null;
 }
 
 /**
@@ -870,9 +876,9 @@ function getUserAchievementWithMostTickets(string $user): ?array
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
-    } else {
-        return null;
     }
+
+    return null;
 }
 
 /**
@@ -895,9 +901,9 @@ function getUserWhoCreatedMostTickets(string $user): ?array
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         return mysqli_fetch_assoc($dbResult);
-    } else {
-        return null;
     }
+
+    return null;
 }
 
 /**

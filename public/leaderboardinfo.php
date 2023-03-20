@@ -17,7 +17,7 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
-$lbData = GetLeaderboardData($lbID, $user, $count, $offset, $friendsOnly);
+$lbData = GetLeaderboardData($lbID, $user, $count, $offset);
 
 if (empty($lbData['LBID'] ?? null)) {
     abort(404);

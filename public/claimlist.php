@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Str;
 use LegacyApp\Community\Enums\ClaimFilters;
 use LegacyApp\Community\Enums\ClaimSetType;
 use LegacyApp\Community\Enums\ClaimSorting;
@@ -29,13 +30,14 @@ $totalClaims = getFilteredClaims($gameID, $claimFilters, $sortType, false, $user
 $activeClaimCount = getActiveClaimCount();
 
 if (!empty($gameID)) {
-    getGameTitleFromID($gameID, $gameTitle, $consoleID, $consoleName, $forumTopic, $gameData);
+    $gameData = getGameData($gameID);
+    $gameTitle = $gameData['Title'] ?? '';
+    $consoleName = $gameData['ConsoleName'] ?? '';
+    sanitize_outputs(
+        $gameTitle,
+        $consoleName,
+    );
 }
-
-sanitize_outputs(
-    $gameTitle,
-    $consoleName,
-);
 
 RenderContentStart("Claim List");
 ?>
@@ -50,7 +52,7 @@ RenderContentStart("Claim List");
             $appendParam = function (&$link, $param, $fallback, $default) use ($flag, $value, $flag2, $value2) {
                 $param_value = ($flag == $param) ? $value : (($flag2 == $param) ? $value2 : $fallback);
                 if ($param_value != $default) {
-                    $link .= str_contains($link, '?') ? '&' : '?';
+                    $link .= Str::contains($link, '?') ? '&' : '?';
                     $link .= $param . '=' . $param_value;
                 }
             };
@@ -67,9 +69,9 @@ RenderContentStart("Claim List");
         $linkFilter = function (string $label, int $claimFilter) use ($claimFilters, $createLink) {
             if ($claimFilters & $claimFilter) {
                 return "<b><a href='" . $createLink('f', $claimFilters & ~$claimFilter) . "'>*$label</a></b>";
-            } else {
-                return "<a href='" . $createLink('f', $claimFilters | $claimFilter) . "'>$label</a>";
             }
+
+            return "<a href='" . $createLink('f', $claimFilters | $claimFilter) . "'>$label</a>";
         };
 
         $linkSorting = function (string $label, int $sort1, int $sort2) use ($sortType, $createLink) {
@@ -200,7 +202,7 @@ RenderContentStart("Claim List");
 
         echo "<div class='float-right row'>";
         $baseLink = $createLink(null, null);
-        $baseLink .= (str_contains($baseLink, '?') ? '&' : '?');
+        $baseLink .= (Str::contains($baseLink, '?') ? '&' : '?');
         if ($totalClaims) {
             RenderPaginator($totalClaims, $maxCount, $offset, "{$baseLink}o=");
         }
