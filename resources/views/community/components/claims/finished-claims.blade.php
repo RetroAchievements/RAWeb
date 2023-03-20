@@ -4,13 +4,13 @@ use LegacyApp\Community\Enums\ClaimFilters;
 use LegacyApp\Community\Enums\ClaimSorting;
 
 $claimData = getFilteredClaims(
-    null,
-    ClaimFilters::AllCompletedPrimaryClaims,
-    ClaimSorting::FinishedDateDescending,
-    false,
-    null,
-    0,
-    $count
+    gameID: null,
+    claimFilter: ClaimFilters::AllCompletedPrimaryClaims,
+    sortType: ClaimSorting::FinishedDateDescending,
+    getExpiringOnly: false,
+    username: null,
+    offset: 0,
+    limit: $count
 );
 
 $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescending . '&f=' . ClaimFilters::AllCompletedPrimaryClaims;

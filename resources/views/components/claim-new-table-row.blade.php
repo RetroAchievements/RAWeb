@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Carbon;
 
-$startedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['DoneTime'])->diffForHumans();
+$startedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['Created'])->diffForHumans();
 ?>
 
 <tr>

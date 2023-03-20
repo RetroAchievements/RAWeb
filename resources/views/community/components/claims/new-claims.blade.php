@@ -3,7 +3,7 @@
 use LegacyApp\Community\Enums\ClaimFilters;
 
 $claimData = getFilteredClaims(
-    claimFilter: ClaimFilters::AllActiveClaims,
+    claimFilter: ClaimFilters::AllActiveClaims & ~ClaimFilters::CollaborationClaim,
     limit: $count
 )
 ?>
