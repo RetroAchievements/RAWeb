@@ -73,6 +73,19 @@ function cancelEditMode(rowIndex) {
 }
 
 /**
+ * Did the user change the contents of the note?
+ * 
+ * @param {string} originalNoteValue
+ * @param {string} currentNoteValue
+ */
+function isSavedNoteDifferent(originalNoteValue, newNoteValue) {
+    // The original note has invisible "<br>" tags for each line break.
+    const noteValueWithLineBreaks = newNoteValue.replace(/\n/g, '<br>\n');
+    
+    return originalNoteValue !== noteValueWithLineBreaks;
+}
+
+/**
  * Save the updated note for a specific row and 
  * go back to view mode.
  * 
@@ -85,6 +98,25 @@ function saveCodeNote(rowIndex) {
     const noteEditEl = rowEl.querySelector('.note-edit');
 
     const addressHex = rowEl.querySelector('td[data-address]').dataset.address;
+    const currentAuthor = rowEl.querySelector('td[data-current-author]').dataset.currentAuthor;
+
+    const currentUsername = '<?= $user ?>';
+
+    // If the user didn't actually change anything in the note but still
+    // pressed the Save button, treat this like it's a cancel.
+    if (!isSavedNoteDifferent(noteDisplayEl.innerHTML, noteEditEl.value)) {
+        cancelEditMode(rowIndex);
+        return;
+    }
+
+    // If the code note was authored by a different user, make sure the
+    // current user is fine with taking ownership of this note.
+    if (
+        currentAuthor !== currentUsername &&
+        !confirm('Are you sure you want to replace this note? You will become the author of this note.')
+    ) {
+        return;
+    }
 
     showStatusMessage('Updating...');
     $.post('/request/game/update-code-note.php', {
@@ -98,8 +130,6 @@ function saveCodeNote(rowIndex) {
         // Before bailing from edit mode, make sure all new values for
         // the note (the text content and author avatar) are properly
         // displayed in the UI.
-        const currentUsername = '<?= $user ?>';
-
         const noteValueWithLineBreaks = noteEditEl.value.replace(/\n/g, '<br />');
         noteDisplayEl.innerHTML = noteValueWithLineBreaks;
 

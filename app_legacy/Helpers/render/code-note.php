@@ -45,7 +45,7 @@ function RenderCodeNotes(array $codeNotes, bool $editable = false): void
         echo "<button class='save-btn hidden' onclick='saveCodeNote($rowIndex)'>Save</button>";
         echo "</td>";
 
-        echo "<td class='note-author-avatar'>";
+        echo "<td class='note-author-avatar' data-current-author='" . $nextCodeNote['User'] . "'>";
         echo userAvatar($nextCodeNote['User'], label: false, iconSize: 24);
         echo "</td>";
 
