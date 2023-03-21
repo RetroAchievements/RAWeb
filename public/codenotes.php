@@ -62,6 +62,11 @@ function beginEditMode(rowIndex) {
     noteEditEl.rows = Math.max(rowCount, 2);
 }
 
+/**
+ * Cancel edit mode for a specific row.
+ * 
+ * @param {number} rowIndex - The index of the row to cancel edit mode for.
+ */
 function cancelEditMode(rowIndex) {
     const rowEl = document.getElementById(`row-${rowIndex}`);
     setRowEditingEnabled(rowEl, false);
@@ -76,6 +81,7 @@ function cancelEditMode(rowIndex) {
 function saveCodeNote(rowIndex) {
     const rowEl = document.getElementById(`row-${rowIndex}`);
     const noteDisplayEl = rowEl.querySelector('.note-display');
+    const authorAvatarCellEl = rowEl.querySelector('.note-author-avatar');
     const noteEditEl = rowEl.querySelector('.note-edit');
 
     const addressHex = rowEl.querySelector('td[data-address]').dataset.address;
@@ -89,9 +95,26 @@ function saveCodeNote(rowIndex) {
     }).done(() => {
         showStatusSuccess('Done!');
 
+        // Before bailing from edit mode, make sure all new values for
+        // the note (the text content and author avatar) are properly
+        // displayed in the UI.
+        const currentUsername = '<?= $user ?>';
+
         const noteValueWithLineBreaks = noteEditEl.value.replace(/\n/g, '<br />');
         noteDisplayEl.innerHTML = noteValueWithLineBreaks;
 
+        const avatarImageEl = authorAvatarCellEl.querySelector('img');
+        avatarImageEl.src = mediaAsset(`/UserPic/${currentUsername}.png`);
+
+        const authorAvatarSpan = authorAvatarCellEl.querySelector('span.inline.whitespace-nowrap');
+        const tooltipOnMouseOverAttr = authorAvatarSpan.getAttribute('onmouseover');
+        const updatedOnMouseOverAttr = tooltipOnMouseOverAttr.replace(
+            /loadCard\(this, 'user', '([^']*)', ''\)/,
+            `loadCard(this, 'user', '${currentUsername}', '')`
+        );
+        authorAvatarSpan.setAttribute('onmouseover', updatedOnMouseOverAttr);
+
+        // Now it's safe to bail.
         setRowEditingEnabled(rowEl, false);
     });
 }
