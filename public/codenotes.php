@@ -30,6 +30,7 @@ function setRowEditingEnabled(rowEl, isEditing) {
         { className: 'note-display', showWhen: !isEditing },
         { className: 'note-edit', showWhen: isEditing },
         { className: 'save-btn', showWhen: isEditing },
+        { className: 'cancel-btn', showWhen: isEditing },
     ];
 
     for (const visibility of rowElementVisibilities) {
@@ -59,6 +60,11 @@ function beginEditMode(rowIndex) {
 
     // Set the textarea rows attribute, ensuring a minimum of 2 rows.
     noteEditEl.rows = Math.max(rowCount, 2);
+}
+
+function cancelEditMode(rowIndex) {
+    const rowEl = document.getElementById(`row-${rowIndex}`);
+    setRowEditingEnabled(rowEl, false);
 }
 
 /**
