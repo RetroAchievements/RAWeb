@@ -81,7 +81,7 @@ function cancelEditMode(rowIndex) {
 function isSavedNoteDifferent(originalNoteValue, newNoteValue) {
     // The original note has invisible "<br>" tags for each line break.
     const noteValueWithLineBreaks = newNoteValue.replace(/\n/g, '<br>\n');
-    
+
     return originalNoteValue !== noteValueWithLineBreaks;
 }
 
@@ -135,6 +135,8 @@ function saveCodeNote(rowIndex) {
 
         const avatarImageEl = authorAvatarCellEl.querySelector('img');
         avatarImageEl.src = mediaAsset(`/UserPic/${currentUsername}.png`);
+
+        rowEl.querySelector('td[data-current-author]').dataset.currentAuthor = currentUsername;
 
         const authorAvatarSpan = authorAvatarCellEl.querySelector('span.inline.whitespace-nowrap');
         const tooltipOnMouseOverAttr = authorAvatarSpan.getAttribute('onmouseover');
