@@ -148,6 +148,8 @@ function saveCodeNote(rowIndex) {
 
         // Now it's safe to bail.
         setRowEditingEnabled(rowEl, false);
+    }).fail(() => {
+        showStatusFailure('There was a problem updating the code note.');
     });
 }
 </script>
@@ -167,7 +169,14 @@ function saveCodeNote(rowIndex) {
         <br/>
         <?php
         if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
-            RenderCodeNotes($codeNotes, $permissions >= Permissions::JuniorDeveloper);
+            $editMode = null;
+            if ($permissions === Permissions::JuniorDeveloper) {
+                $editMode = 'jr-dev';
+            } elseif ($permissions >= Permissions::Developer) {
+                $editMode = 'all';
+            }
+
+            RenderCodeNotes($codeNotes, $editMode, $user);
         }
         ?>
     </div>

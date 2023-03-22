@@ -4,7 +4,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use LegacyApp\Site\Enums\Permissions;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
