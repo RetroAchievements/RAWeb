@@ -11,36 +11,15 @@ RenderContentStart("Reorder Site Awards");
 ?>
 <script>
 let currentGrabbedRow = null;
+let isFormDirty = false;
 
-function updateAllAwardsDisplayOrder() {
-    showStatusMessage('Updating...');
-
-    const awards = [];
-
-    $('.displayorderedit').each(function (index, element) {
-        const row = $(element).closest('tr');
-        const awardType = row.find("input[type='hidden'][name='type']").val();
-        const awardData = row.find("input[type='hidden'][name='data']").val();
-        const awardDataExtra = row.find("input[type='hidden'][name='extra']").val();
-        const displayOrder = parseInt($(element).val(), 10);
-
-        awards.push({
-            type: awardType,
-            data: awardData,
-            extra: awardDataExtra,
-            number: displayOrder
-        });
-    });
-
-    $.post('/request/user/update-site-awards.php', { awards })
-        .done(function (response) {
-            showStatusMessage('Awards updated successfully');
-            $('#rightcontainer').html(response.updatedAwardsHTML);
-        })
-        .fail(function () {
-            showStatusMessage('Error updating awards');
-        });
-}
+window.addEventListener('beforeunload', function (event) {
+    if (isFormDirty) {
+        event.preventDefault();
+        // Most browsers will override this with their own "unsaved changes" message.
+        event.returnValue = 'You have unsaved changes. Do you still want to leave?';
+    }
+});
 
 function handleRowDragStart(event) {
     currentGrabbedRow = event.target;
@@ -76,6 +55,8 @@ function handleRowDragLeave(event) {
 function handleRowDrop(event) {
     event.preventDefault();
 
+    isFormDirty = true;
+
     const dropTarget = event.target.closest('tr');
 
     if (currentGrabbedRow && dropTarget) {
@@ -84,7 +65,6 @@ function handleRowDrop(event) {
 
         if (draggedTable === dropTargetTable) {
             const dropTableId = event.target.closest('table').id;
-            const initialDisplayOrderValue = getInitialDisplayOrderValue(dropTableId);
 
             const draggedRowIndex = Array.from(currentGrabbedRow.parentNode.children).indexOf(currentGrabbedRow);
             const dropTargetIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
@@ -95,8 +75,6 @@ function handleRowDrop(event) {
                 } else {
                     dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget);
                 }
-
-                updateDisplayOrderValues(dropTableId, initialDisplayOrderValue);
             }
         }
     }
@@ -105,29 +83,149 @@ function handleRowDrop(event) {
     dropTarget.classList.remove('border-menu-link');
 }
 
-function getInitialDisplayOrderValue(dropTableId) {
-    let initialDisplayOrderValue = 0;
+function handleSaveAllClick() {
+    const mappedTableRows = [];
 
-    const tableRows = document.querySelectorAll(`#${dropTableId} tbody tr`);
-    if (tableRows[0]) {
-        const firstRowOrderInput = tableRows[0].querySelector('.displayorderedit');
-        initialDisplayOrderValue = parseInt(firstRowOrderInput.value, 10);
-    }
+    // Query and iterate over each table row on the page.
+    // We'll invisibly compute the correct Display Order and
+    // then send the values off to the back-end.
+    $('.award-table-row').each(function (index, element) {
+        const rowTableEl = $(element).closest('table');
+        const rowParentTableId = rowTableEl.attr('id');
 
-    return initialDisplayOrderValue;
+        const rowEl = $(element).closest('tr');
+        const awardType = rowEl.find("input[type='hidden'][name='type']").val();
+        const awardData = rowEl.find("input[type='hidden'][name='data']").val();
+        const awardDataExtra = rowEl.find("input[type='hidden'][name='extra']").val();
+        const awardKind = $(rowEl).data('awardKind');
+        const isHidden = rowEl.find('input[type="checkbox"]').prop('checked');
+
+        mappedTableRows.push({
+            isHidden,
+            type: awardType,
+            data: awardData,
+            extra: awardDataExtra,
+            kind: awardKind,
+        });
+    });
+
+    const withComputedDisplayOrderValues = computeDisplayOrderValues(mappedTableRows);
+
+    postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
+    moveHiddenRowsToTop();
 }
 
-function updateDisplayOrderValues(dropTableId, startingValue = 0) {
-    const tableRows = document.querySelectorAll(`#${dropTableId} tbody tr`);
+function moveHiddenRowsToTop() {
+    const tableEls = document.querySelectorAll('table');
 
-    tableRows.forEach((row,index) => {
-        const displayOrderInput = row.querySelector('.displayorderedit');
-        const currentValue = parseInt(displayOrderInput.value, 10);
+    tableEls.forEach(tableEl => {
+        const tbodyEl = tableEl.querySelector('tbody') || tableEl;
+        const rowEls = tableEl.querySelectorAll('tr');
+        const hiddenRows = [];
+        const visibleRows = [];
 
-        if (currentValue !== -1) {
-            displayOrderInput.value = startingValue + (10 * index);
+        rowEls.forEach(rowEl => {
+            const checkboxEl = rowEl.querySelector('input[name$="-is-hidden"]');
+            if (checkboxEl && checkboxEl.checked) {
+                hiddenRows.push(rowEl);
+            } else {
+                visibleRows.push(rowEl);
+            }
+        });
+
+        if (visibleRows.length > 0) {
+            const firstVisibleRowParent = visibleRows[1].parentNode;
+            hiddenRows.forEach(hiddenRow => {
+                firstVisibleRowParent.insertBefore(hiddenRow, visibleRows[1]);
+            });
         }
     });
+}
+
+function computeDisplayOrderValues(mappedTableRows) {
+    // TODO: This needs to be dynamic, decided by the user.
+    const sectionsOrder = ['game', 'site'];
+
+    const sortedBySectionsOrder = [];
+    for (const targetSection of sectionsOrder) {
+        const sectionRows = mappedTableRows.filter(row => row.kind === targetSection);
+        sortedBySectionsOrder.push(...sectionRows);
+    }
+
+    const withDisplayOrderValues = sortedBySectionsOrder.map((row, rowIndex) => {
+        let displayOrder = -1; // Hidden by default
+
+        if (!row.isHidden) {
+            // The first group will have an offset of 0.
+            // The second group will have an offset of 3000.
+            // The third group will have an offset of 6000.
+            // etc...
+            const groupOffsetBoost = sectionsOrder.findIndex(sectionName => sectionName === row.kind) * 3000;
+
+            // Arbitrarily shift by 20 to account for group ordering.
+            displayOrder = (rowIndex + 20) + groupOffsetBoost;
+        }
+
+        return {
+            kind: row.kind,
+            type: row.type,
+            data: row.data,
+            extra: row.extra,
+            number: displayOrder,
+        }
+    });
+
+    // Now properly order the sections by fixing the displayOrder value
+    // of the first `number` for each visible section row.
+    for (let i = 0; i < sectionsOrder.length; i += 1) {
+        const currentSectionKind = sectionsOrder[i];
+
+        for (const row of withDisplayOrderValues) {
+            if (row.number !== -1 && row.kind === currentSectionKind) {
+                row.number = i;
+                break;
+            }
+        }
+    }
+
+    return withDisplayOrderValues;
+}
+
+
+function postAllAwardsDisplayOrder(awards) {
+    showStatusMessage('Updating...');
+
+    $.post('/request/user/update-site-awards.php', { awards })
+        .done(function (response) {
+            showStatusMessage('Awards updated successfully');
+            $('#rightcontainer').html(response.updatedAwardsHTML);
+
+            isFormDirty = false;
+        })
+        .fail(function () {
+            showStatusMessage('Error updating awards');
+        });
+}
+
+function handleRowHiddenCheckedChange(event, rowIndex) {
+    const isHiddenChecked = event.target.checked;
+
+    const targetRowEl = document.querySelector(`tr[data-row-index="${rowIndex}"]`);
+    if (targetRowEl) {
+        const allTdEls = targetRowEl.querySelectorAll('td');
+
+        allTdEls.forEach(tdEl => {
+            if (isHiddenChecked && !tdEl.classList.contains('!opacity-100')) {
+                tdEl.classList.add('opacity-40');
+            } else {
+                tdEl.classList.remove('opacity-40');
+            }
+        });
+    } 
+}
+
+function handleDisplayOrderChange() {
+    isFormDirty = true;
 }
 </script>
 <div id="mainpage">
@@ -152,6 +250,10 @@ function updateDisplayOrderValues(dropTableId, startingValue = 0) {
                     value of 'Site Awards' to 0 and the first 'Display Order' value of 'Game Awards' to 1.
                 </p>
             </div>
+
+            <div class="flex w-full justify-end">
+                <button onclick='handleSaveAllClick()' class='my-2 text-base'>Save all changes</button>
+            </div>
         HTML;
 
         $userAwards = getUsersSiteAwards($user, true);
@@ -161,17 +263,18 @@ function updateDisplayOrderValues(dropTableId, startingValue = 0) {
         function RenderAwardOrderTable(string $title, array $awards, int &$counter): void
         {
             // "Game Awards" -> "game"
-            $humanReadableAwardType = strtolower(strtok($title, " "));
+            $humanReadableAwardKind = strtolower(strtok($title, " "));
 
             echo "<br><h4>$title</h4>";
-            echo "<table id='$humanReadableAwardType-reorder-table' class='table-highlight mb-2'>";
+            echo "<table id='$humanReadableAwardKind-reorder-table' class='table-highlight mb-4'>";
 
             echo "<thead>";
             echo "<tr class='do-not-highlight'>";
             echo "<th>Badge</th>";
             echo "<th width=\"75%\">Site Award</th>";
             echo "<th width=\"25%\">Award Date</th>";
-            echo "<th>Display Order</th>";
+            echo "<th class='hidden sm:table-cell'>Hidden</th>";
+            echo "<th class='sm:hidden'>Display Order</th>";
             echo "</tr>";
             echo "</thead>";
             echo "<tbody>";
@@ -200,13 +303,17 @@ function updateDisplayOrderValues(dropTableId, startingValue = 0) {
                     $awardTitle = "Patreon Supporter";
                 }
 
-                echo "<tr draggable='true' class='cursor-grab transition' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
-                echo "<td>";
+                $isHiddenPreChecked = $awardDisplayOrder === '-1';
+                $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
+
+                echo "<tr data-row-index='$counter' data-award-kind='$humanReadableAwardKind' draggable='true' class='award-table-row cursor-grab transition' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
+                echo "<td class='$subduedOpacityClassName transition'>";
                 RenderAward($award, 48, false);
                 echo "</td>";
-                echo "<td>$awardTitle</td>";
-                echo "<td style=\"white-space: nowrap\"><span class='smalldate'>$awardDate</span><br></td>";
-                echo "<td><input class='displayorderedit' data-award-type='$humanReadableAwardType' id='$counter' type='text' value='$awardDisplayOrder' size='3' /></td>";
+                echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
+                echo "<td class='$subduedOpacityClassName whitespace-nowrap transition'><span class='smalldate'>$awardDate</span><br></td>";
+                echo "<td class='hidden sm:table-cell text-center !opacity-100'><input name='$counter-is-hidden' onchange='handleRowHiddenCheckedChange(event, $counter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
+                echo "<td class='sm:hidden'><input class='displayorderedit' data-award-type='$humanReadableAwardKind' id='$counter' type='text' value='$awardDisplayOrder' size='3' onchange='handleDisplayOrderChange()' /></td>";
                 echo "<input type='hidden' name='type' value='$awardType'>";
                 echo "<input type='hidden' name='data' value='$awardData'>";
                 echo "<input type='hidden' name='extra' value='$awardDataExtra'>";
@@ -214,11 +321,7 @@ function updateDisplayOrderValues(dropTableId, startingValue = 0) {
                 echo "</tr>\n";
                 $counter++;
             }
-            echo "</tbody></table>\n";
-
-            echo "<div class='flex w-full justify-end'>";
-            echo "<button onclick='updateAllAwardsDisplayOrder()'>Save</button>";
-            echo "</div>";
+            echo "</tbody></table>";
         }
 
         $counter = 0;
