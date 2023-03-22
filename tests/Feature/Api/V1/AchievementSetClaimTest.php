@@ -14,6 +14,7 @@ use LegacyApp\Community\Models\AchievementSetClaim;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\System;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class AchievementSetClaimTest extends TestCase
@@ -43,9 +44,11 @@ class AchievementSetClaimTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::Developer]);
 
         insertClaim(
-            $this->user->User,
+            $user->User,
             $game->ID,
             ClaimType::Primary,
             ClaimSetType::NewSet,
@@ -54,7 +57,7 @@ class AchievementSetClaimTest extends TestCase
         );
 
         completeClaim(
-            $this->user->User,
+            $user->User,
             $game->ID,
         );
 
@@ -78,8 +81,8 @@ class AchievementSetClaimTest extends TestCase
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Complete,
                     'Updated' => $claim->Updated->__toString(),
-                    'User' => $this->user->User,
-                    'UserRole' => $this->user->Permissions,
+                    'User' => $user->User,
+                    'UserIsJrDev' => 0,
                 ],
             ]);
     }
@@ -93,18 +96,20 @@ class AchievementSetClaimTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::JuniorDeveloper]);
 
         insertClaim(
-            $this->user->User,
+            $user->User,
             $game->ID,
             ClaimType::Primary,
             ClaimSetType::NewSet,
             ClaimSpecial::None,
-            Permissions::Developer
+            Permissions::JuniorDeveloper
         );
 
         dropClaim(
-            $this->user->User,
+            $user->User,
             $game->ID,
         );
 
@@ -128,7 +133,8 @@ class AchievementSetClaimTest extends TestCase
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Dropped,
                     'Updated' => $claim->Updated->__toString(),
-                    'User' => $this->user->User,
+                    'User' => $user->User,
+                    'UserIsJrDev' => 1,
                 ],
             ]);
     }
@@ -159,9 +165,11 @@ class AchievementSetClaimTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::Developer]);
 
         insertClaim(
-            $this->user->User,
+            $user->User,
             $game->ID,
             ClaimType::Primary,
             ClaimSetType::NewSet,
@@ -170,7 +178,7 @@ class AchievementSetClaimTest extends TestCase
         );
         $claim = AchievementSetClaim::first();
 
-        $this->get($this->apiUrl('GetUserClaims', ['u' => $this->user->User]))
+        $this->get($this->apiUrl('GetUserClaims', ['u' => $user->User]))
             ->assertSuccessful()
             ->assertJson([
                 [
@@ -188,8 +196,8 @@ class AchievementSetClaimTest extends TestCase
                     'Special' => ClaimSpecial::None,
                     'Status' => ClaimStatus::Active,
                     'Updated' => $claim->Updated->__toString(),
-                    'User' => $this->user->User,
-                    'UserRole' => $this->user->Permissions,
+                    'User' => $user->User,
+                    'UserIsJrDev' => 0,
                 ],
             ]);
     }

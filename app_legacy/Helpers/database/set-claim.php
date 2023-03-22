@@ -370,6 +370,7 @@ function getFilteredClaims(
         sc.Created AS Created,
         sc.Finished AS DoneTime,
         sc.Updated AS Updated,
+        CASE WHEN ua.Permissions <= 2 THEN true ELSE false END AS UserIsJrDev,
     ";
     $selectCondition .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft');
 
