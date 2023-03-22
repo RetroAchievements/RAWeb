@@ -9,7 +9,7 @@
     <meta name="copyright" content="Copyright 2014-{{ date('Y') }}">
     <meta name="description" content="{{ $pageDescription ?? __('app.description') }}">
     <meta name="keywords" content="games, achievements, retro, emulator">
-    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="telephone=no">
     @if(config('services.facebook.client_id'))
         <meta property="fb:app_id" content="{{ config('services.facebook.client_id') }}">
     @endif
