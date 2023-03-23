@@ -7,6 +7,52 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     abort(401);
 }
 
+function getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards) {
+    $awardsArrays = [
+        'gameAwards' => $gameAwards,
+        'eventAwards' => $eventAwards,
+        'siteAwards' => $siteAwards,
+    ];
+
+    $firstDisplayOrders = [];
+
+    foreach ($awardsArrays as $key => $awardsArray) {
+        $firstDisplayOrder = null;
+
+        foreach ($awardsArray as $award) {
+            if ($award['DisplayOrder'] >= 0) {
+                $firstDisplayOrder = $award['DisplayOrder'];
+                break;
+            }
+        }
+
+        $firstDisplayOrders[$key] = $firstDisplayOrder;
+    }
+
+    asort($firstDisplayOrders); // Sort the array while maintaining the key association
+
+    // Assign unique order values
+    $order = 1;
+    foreach ($firstDisplayOrders as $key => $value) {
+        if ($value !== null) {
+            $firstDisplayOrders[$key] = $order++;
+        }
+    }     
+
+    // Replace null values with unique incrementing values, unless the array is empty
+    foreach ($firstDisplayOrders as $key => $value) {
+        if ($value === null && count($awardsArrays[$key]) > 0) {
+            $firstDisplayOrders[$key] = $order++;
+        }
+    }
+
+    return [
+        $firstDisplayOrders['gameAwards'],
+        $firstDisplayOrders['eventAwards'],
+        $firstDisplayOrders['siteAwards'],
+    ];
+}
+
 RenderContentStart("Reorder Site Awards");
 ?>
 <script>
@@ -109,10 +155,14 @@ function handleSaveAllClick() {
         });
     });
 
-    const withComputedDisplayOrderValues = computeDisplayOrderValues(mappedTableRows);
+    try {
+        const withComputedDisplayOrderValues = computeDisplayOrderValues(mappedTableRows);
 
-    postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
-    moveHiddenRowsToTop();
+        postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
+        moveHiddenRowsToTop();
+    } catch (error) {
+        showStatusFailure(error);
+    }
 }
 
 function moveHiddenRowsToTop() {
@@ -134,17 +184,48 @@ function moveHiddenRowsToTop() {
         });
 
         if (visibleRows.length > 0) {
-            const firstVisibleRowParent = visibleRows[1].parentNode;
-            hiddenRows.forEach(hiddenRow => {
-                firstVisibleRowParent.insertBefore(hiddenRow, visibleRows[1]);
-            });
+            const firstVisibleRowParent = visibleRows[1]?.parentNode;
+            if (firstVisibleRowParent) {
+                hiddenRows.forEach(hiddenRow => {
+                    firstVisibleRowParent.insertBefore(hiddenRow, visibleRows[1]);
+                });
+            }
         }
     });
 }
 
+function buildSectionsOrderList() {
+    const sectionOrderSelectEls = document.querySelectorAll('select[data-award-kind]');
+    const selectedValues = {};
+
+    let hasDuplicates = false;
+    let orderedArray = [];
+
+    for (const sectionOrderSelectEl of sectionOrderSelectEls) {
+        const awardKind = sectionOrderSelectEl.getAttribute('data-award-kind');
+        const currentValue = sectionOrderSelectEl.value;
+
+        if (selectedValues[currentValue]) {
+            hasDuplicates = true;
+        } else {
+            selectedValues[currentValue] = awardKind;
+        }
+    }
+
+    if (hasDuplicates) {
+        throw new Error('Please ensure each section has a unique order number.')
+    }
+
+    // Build the order list.
+    Object.keys(selectedValues).sort().forEach((key) => {
+        orderedArray.push(selectedValues[key]);
+    });
+
+    return orderedArray;
+}
+
 function computeDisplayOrderValues(mappedTableRows) {
-    // TODO: This needs to be dynamic, decided by the user.
-    const sectionsOrder = ['game', 'site'];
+    const sectionsOrder = buildSectionsOrderList();
 
     const sortedBySectionsOrder = [];
     for (const targetSection of sectionsOrder) {
@@ -252,7 +333,7 @@ function handleDisplayOrderChange() {
             </div>
 
             <div class="flex w-full justify-end">
-                <button onclick='handleSaveAllClick()' class='my-2 text-base'>Save all changes</button>
+                <button onclick='handleSaveAllClick()' class='mt-2 mb-6 text-base'>Save all changes</button>
             </div>
         HTML;
 
@@ -260,13 +341,25 @@ function handleDisplayOrderChange() {
 
         [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
-        function RenderAwardOrderTable(string $title, array $awards, int &$counter): void
+        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, int $initialSectionOrder): void
         {
             // "Game Awards" -> "game"
             $humanReadableAwardKind = strtolower(strtok($title, " "));
 
-            echo "<br><h4>$title</h4>";
-            echo "<table id='$humanReadableAwardKind-reorder-table' class='table-highlight mb-4'>";
+            echo "<div class='flex w-full items-center justify-between'>";
+            echo "<h4>$title</h4>";
+            echo "<select data-award-kind='$humanReadableAwardKind'>";
+            for ($i = 1; $i <= $renderedSectionCount; $i++) {
+                if ($initialSectionOrder === $i) {
+                    echo "<option value='$i' selected>$i</option>";
+                } else {
+                    echo "<option value='$i'>$i</option>";
+                }
+            }
+            echo "</select>";
+            echo "</div>";
+
+            echo "<table id='$humanReadableAwardKind-reorder-table' class='table-highlight mb-8'>";
 
             echo "<thead>";
             echo "<tr class='do-not-highlight'>";
@@ -306,35 +399,43 @@ function handleDisplayOrderChange() {
                 $isHiddenPreChecked = $awardDisplayOrder === '-1';
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
 
-                echo "<tr data-row-index='$counter' data-award-kind='$humanReadableAwardKind' draggable='true' class='award-table-row cursor-grab transition' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
+                echo "<tr data-row-index='$awardCounter' data-award-kind='$humanReadableAwardKind' draggable='true' class='award-table-row cursor-grab transition' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
                 echo "<td class='$subduedOpacityClassName transition'>";
                 RenderAward($award, 48, false);
                 echo "</td>";
                 echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
                 echo "<td class='$subduedOpacityClassName whitespace-nowrap transition'><span class='smalldate'>$awardDate</span><br></td>";
-                echo "<td class='hidden sm:table-cell text-center !opacity-100'><input name='$counter-is-hidden' onchange='handleRowHiddenCheckedChange(event, $counter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
-                echo "<td class='sm:hidden'><input class='displayorderedit' data-award-type='$humanReadableAwardKind' id='$counter' type='text' value='$awardDisplayOrder' size='3' onchange='handleDisplayOrderChange()' /></td>";
+                echo "<td class='hidden sm:table-cell text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
+                echo "<td class='sm:hidden'><input class='displayorderedit' data-award-type='$humanReadableAwardKind' id='$awardCounter' type='text' value='$awardDisplayOrder' size='3' onchange='handleDisplayOrderChange()' /></td>";
                 echo "<input type='hidden' name='type' value='$awardType'>";
                 echo "<input type='hidden' name='data' value='$awardData'>";
                 echo "<input type='hidden' name='extra' value='$awardDataExtra'>";
 
                 echo "</tr>\n";
-                $counter++;
+                $awardCounter++;
             }
             echo "</tbody></table>";
         }
 
-        $counter = 0;
+        $awardCounter = 0;
+        $renderedSectionCount = 0;
+
+        $renderedSectionCount += (!empty($gameAwards)) ? 1 : 0;
+        $renderedSectionCount += (!empty($eventAwards)) ? 1 : 0;
+        $renderedSectionCount += (!empty($siteAwards)) ? 1 : 0;
+
+        $initialSectionOrders = getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards);
+
         if (!empty($gameAwards)) {
-            RenderAwardOrderTable("Game Awards", $gameAwards, $counter);
+            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[0]);
         }
 
         if (!empty($eventAwards)) {
-            RenderAwardOrderTable("Event Awards", $eventAwards, $counter);
+            RenderAwardOrderTable("Event Awards", $eventAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[1]);
         }
 
         if (!empty($siteAwards)) {
-            RenderAwardOrderTable("Site Awards", $siteAwards, $counter);
+            RenderAwardOrderTable("Site Awards", $siteAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[2]);
         }
         ?>
     </div>
