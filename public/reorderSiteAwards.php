@@ -37,7 +37,7 @@ function getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards) {
         if ($value !== null) {
             $firstDisplayOrders[$key] = $order++;
         }
-    }     
+    }
 
     // Replace null values with unique incrementing values, unless the array is empty
     foreach ($firstDisplayOrders as $key => $value) {
