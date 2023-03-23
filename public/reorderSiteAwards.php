@@ -78,10 +78,15 @@ function handleRowDragEnd(event) {
 }
 
 function handleRowDragEnter(event) {
-    const targetRow = event.target.closest('tr');
-    if (targetRow && currentGrabbedRow.parentNode === targetRow.parentNode) {
-        targetRow.classList.add('border');
-        targetRow.classList.add('border-menu-link');
+    const targetRowEl = event.target.closest('tr');
+    const isHiddenCheckboxEl = targetRowEl.querySelector('input[type="checkbox"]');
+
+    const isHoveredRowInSameTable = currentGrabbedRow.parentNode === targetRowEl.parentNode;
+    const isAwardHiddenChecked = isHiddenCheckboxEl.checked;
+
+    if (targetRowEl && isHoveredRowInSameTable && !isAwardHiddenChecked) {
+        targetRowEl.classList.add('border');
+        targetRowEl.classList.add('border-menu-link');
     }
 }
 
@@ -104,12 +109,13 @@ function handleRowDrop(event) {
     isFormDirty = true;
 
     const dropTarget = event.target.closest('tr');
+    const isHiddenCheckboxEl = dropTarget.querySelector('input[type="checkbox"]');
 
     if (currentGrabbedRow && dropTarget) {
         const draggedTable = currentGrabbedRow.closest('table');
         const dropTargetTable = dropTarget.closest('table');
 
-        if (draggedTable === dropTargetTable) {
+        if (draggedTable === dropTargetTable && !isHiddenCheckboxEl.checked) {
             const dropTableId = event.target.closest('table').id;
 
             const draggedRowIndex = Array.from(currentGrabbedRow.parentNode.children).indexOf(currentGrabbedRow);
@@ -293,8 +299,15 @@ function handleRowHiddenCheckedChange(event, rowIndex) {
 
     const targetRowEl = document.querySelector(`tr[data-row-index="${rowIndex}"]`);
     if (targetRowEl) {
-        const allTdEls = targetRowEl.querySelectorAll('td');
+        if (isHiddenChecked) {
+            targetRowEl.classList.remove('cursor-grab');
+            targetRowEl.setAttribute('draggable', false);
+        } else {
+            targetRowEl.classList.add('cursor-grab');
+            targetRowEl.setAttribute('draggable', true);
+        }
 
+        const allTdEls = targetRowEl.querySelectorAll('td');
         allTdEls.forEach(tdEl => {
             if (isHiddenChecked && !tdEl.classList.contains('!opacity-100')) {
                 tdEl.classList.add('opacity-40');
@@ -366,8 +379,7 @@ function handleDisplayOrderChange() {
             echo "<th>Badge</th>";
             echo "<th width=\"75%\">Site Award</th>";
             echo "<th width=\"25%\">Award Date</th>";
-            echo "<th class='hidden sm:table-cell'>Hidden</th>";
-            echo "<th class='sm:hidden'>Display Order</th>";
+            echo "<th>Hidden</th>";
             echo "</tr>";
             echo "</thead>";
             echo "<tbody>";
@@ -399,14 +411,13 @@ function handleDisplayOrderChange() {
                 $isHiddenPreChecked = $awardDisplayOrder === '-1';
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
 
-                echo "<tr data-row-index='$awardCounter' data-award-kind='$humanReadableAwardKind' draggable='true' class='award-table-row cursor-grab transition' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
+                echo "<tr data-row-index='$awardCounter' data-award-kind='$humanReadableAwardKind' draggable='" . ($isHiddenPreChecked ? 'false' : 'true') . "' class='award-table-row select-none transition " . ($isHiddenPreChecked ? '' : 'cursor-grab') . "' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
                 echo "<td class='$subduedOpacityClassName transition'>";
                 RenderAward($award, 48, false);
                 echo "</td>";
                 echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
                 echo "<td class='$subduedOpacityClassName whitespace-nowrap transition'><span class='smalldate'>$awardDate</span><br></td>";
-                echo "<td class='hidden sm:table-cell text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
-                echo "<td class='sm:hidden'><input class='displayorderedit' data-award-type='$humanReadableAwardKind' id='$awardCounter' type='text' value='$awardDisplayOrder' size='3' onchange='handleDisplayOrderChange()' /></td>";
+                echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
                 echo "<input type='hidden' name='type' value='$awardType'>";
                 echo "<input type='hidden' name='data' value='$awardData'>";
                 echo "<input type='hidden' name='extra' value='$awardDataExtra'>";
