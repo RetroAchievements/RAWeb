@@ -8,18 +8,18 @@
  *
  *  array
  *   object     [value]
- *    string     GameID                   unique identifier of the game
+ *    int        GameID                   unique identifier of the game
  *    string     Title                    name of the game
- *    string     NumPossibleAchievements  count of core achievements associated to the game
+ *    int        NumPossibleAchievements  count of core achievements associated to the game
  *    string     PossibleScore            total points the game's achievements are worth
  *    int        ConsoleID                unique identifier of the console associated to the game
  *    string     ConsoleName              name of the console associated to the game
  *    string     ImageIcon                site-relative path to the game's icon image
  *    datetime   LastPlayed               when the user last played the game
  *    int        NumAchieved              number of achievements earned by the user in softcore
- *    int        ScoreAchieved            number of points earned by the user in softcore
+ *    string     ScoreAchieved            number of points earned by the user in softcore
  *    int        NumAchievedHardcore      number of achievements earned by the user in hardcore
- *    int        ScoreAchievedHardcore    number of points earned by the user in hardcore
+ *    string     ScoreAchievedHardcore    number of points earned by the user in hardcore
  */
 
 use App\Support\Rules\CtypeAlnum;
