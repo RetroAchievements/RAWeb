@@ -18,7 +18,7 @@ trait TestsPlayerAchievements
         $needsHardcore = ($hardcoreUnlockTime !== null);
         $needsSoftcore = true;
 
-        $unlocks = $user->playerAchievements()->where('AchievementID', $achievement->id);
+        $unlocks = $user->playerAchievements()->where('AchievementID', $achievement->id)->get();
         foreach ($unlocks as $unlock) {
             if ($unlock['HardcoreMode'] === UnlockMode::Hardcore) {
                 $needsHardcore = false;
@@ -96,7 +96,6 @@ trait TestsPlayerAchievements
             if ($unlock->HardcoreMode === $mode) {
                 $this->fail("Found " . UnlockMode::toString($mode) . " unlock for achievement " .
                             $achievement->ID . "/user " . $user->ID);
-                break;
             }
         }
 
@@ -120,7 +119,6 @@ trait TestsPlayerAchievements
         {
             $this->fail("Found " . UnlockMode::toString($unlock->HardcoreMode) . " unlock for achievement " .
                         $achievement->ID . "/user " . $user->ID);
-            break;
         }
 
         $this->assertTrue(true);

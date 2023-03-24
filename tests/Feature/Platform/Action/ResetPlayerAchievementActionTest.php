@@ -181,6 +181,7 @@ class ResetPlayerAchievementActionTest extends TestCase
         $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
 
         // normally, a user can only have an unofficial unlock if the achievement was demoted after it was unlocked
+        /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($user, $unofficialAchievement);
 
@@ -208,9 +209,11 @@ class ResetPlayerAchievementActionTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create();
         $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
+        /** @var Achievement $game2Achievement */
         $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID]);
 
         $this->addHardcoreUnlock($user, $achievements->get(0));
@@ -276,9 +279,11 @@ class ResetPlayerAchievementActionTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create();
         $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
+        /** @var Achievement $game2Achievement */
         $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $author->User]);
 
         $this->addHardcoreUnlock($user, $achievements->get(0));
@@ -346,6 +351,7 @@ class ResetPlayerAchievementActionTest extends TestCase
         $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
+        /** @var Achievement $game2Achievement */
         $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $author2->User]);
 
         $this->addHardcoreUnlock($user, $achievements->get(0));

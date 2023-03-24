@@ -90,11 +90,21 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return app(Optimus::class)->encode($this->getAttribute('ID'));
     }
 
+    /**
+     * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
+     *
+     * @return HasMany<PlayerAchievement>
+     */
     public function playerAchievements(): HasMany
     {
         return $this->hasMany(PlayerAchievement::class, 'User', 'User');
     }
 
+    /**
+     * Return badges earned by the user
+     *
+     * @return HasMany<PlayerBadge>
+     */
     public function playerBadges(): HasMany
     {
         return $this->hasMany(PlayerBadge::class, 'User', 'User');
