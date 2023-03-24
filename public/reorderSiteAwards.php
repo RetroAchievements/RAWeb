@@ -7,7 +7,8 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     abort(401);
 }
 
-function getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards) {
+function getInitialSectionOrders(array $gameAwards, array $eventAwards, array $siteAwards): array
+{
     $awardsArrays = [
         'gameAwards' => $gameAwards,
         'eventAwards' => $eventAwards,
@@ -53,88 +54,38 @@ function getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards) {
     ];
 }
 
+function generateManualMoveButtons(
+    int $awardCounter,
+    int $upValue,
+    int $downValue,
+    int $arrowCount = 1,
+    bool $autoScroll = false,
+    string $orientation = 'vertical',
+): string {
+    $arrowUp = '↑';
+    $arrowDown = '↓';
+
+    if ($arrowCount === 2) {
+        $arrowUp = '↑↑';
+        $arrowDown = '↓↓';
+    } elseif ($arrowCount === 3) {
+        $arrowUp = '↑↑↑';
+        $arrowDown = '↓↓↓';
+    }
+
+    $containerClassNames = $orientation === 'vertical' ? 'flex flex-col' : 'flex';
+
+    return <<<HTML
+        <div class="$containerClassNames">
+            <button onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)">$arrowUp</button>
+            <button onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)">$arrowDown</button>
+        </div>
+    HTML;
+}
+
 RenderContentStart("Reorder Site Awards");
 ?>
 <script>
-let currentGrabbedRow = null;
-let isFormDirty = false;
-
-window.addEventListener('beforeunload', function (event) {
-    if (isFormDirty) {
-        event.preventDefault();
-        // Most browsers will override this with their own "unsaved changes" message.
-        event.returnValue = 'You have unsaved changes. Do you still want to leave?';
-    }
-});
-
-function handleRowDragStart(event) {
-    currentGrabbedRow = event.target;
-    event.target.style.opacity = '0.3';
-}
-
-function handleRowDragEnd(event) {
-    currentGrabbedRow = null;
-    event.target.style.opacity = '1';
-}
-
-function handleRowDragEnter(event) {
-    const targetRowEl = event.target.closest('tr');
-    const isHiddenCheckboxEl = targetRowEl.querySelector('input[type="checkbox"]');
-
-    const isHoveredRowInSameTable = currentGrabbedRow.parentNode === targetRowEl.parentNode;
-    const isAwardHiddenChecked = isHiddenCheckboxEl.checked;
-
-    if (targetRowEl && isHoveredRowInSameTable && !isAwardHiddenChecked) {
-        targetRowEl.classList.add('border');
-        targetRowEl.classList.add('border-menu-link');
-    }
-}
-
-function handleRowDragOver(event) {
-    event.preventDefault();
-    return false;
-}
-
-function handleRowDragLeave(event) {
-    const targetRow = event.target.closest('tr');
-    if (targetRow) {
-        targetRow.classList.remove('border');
-        targetRow.classList.remove('border-menu-link');
-    }
-}
-
-function handleRowDrop(event) {
-    event.preventDefault();
-
-    isFormDirty = true;
-
-    const dropTarget = event.target.closest('tr');
-    const isHiddenCheckboxEl = dropTarget.querySelector('input[type="checkbox"]');
-
-    if (currentGrabbedRow && dropTarget) {
-        const draggedTable = currentGrabbedRow.closest('table');
-        const dropTargetTable = dropTarget.closest('table');
-
-        if (draggedTable === dropTargetTable && !isHiddenCheckboxEl.checked) {
-            const dropTableId = event.target.closest('table').id;
-
-            const draggedRowIndex = Array.from(currentGrabbedRow.parentNode.children).indexOf(currentGrabbedRow);
-            const dropTargetIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
-
-            if (draggedRowIndex !== dropTargetIndex) {
-                if (draggedRowIndex < dropTargetIndex) {
-                    dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget.nextSibling);
-                } else {
-                    dropTarget.parentNode.insertBefore(currentGrabbedRow, dropTarget);
-                }
-            }
-        }
-    }
-
-    dropTarget.classList.remove('border');
-    dropTarget.classList.remove('border-menu-link');
-}
-
 function handleSaveAllClick() {
     const mappedTableRows = [];
 
@@ -162,122 +113,14 @@ function handleSaveAllClick() {
     });
 
     try {
-        const withComputedDisplayOrderValues = computeDisplayOrderValues(mappedTableRows);
+        const withComputedDisplayOrderValues = reorderSiteAwards.computeDisplayOrderValues(mappedTableRows);
 
-        postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
-        moveHiddenRowsToTop();
+        reorderSiteAwards.postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
+        reorderSiteAwards.moveHiddenRowsToTop();
     } catch (error) {
         showStatusFailure(error);
     }
 }
-
-function moveHiddenRowsToTop() {
-    const tableEls = document.querySelectorAll('table');
-
-    tableEls.forEach(tableEl => {
-        const tbodyEl = tableEl.querySelector('tbody') || tableEl;
-        const rowEls = tableEl.querySelectorAll('tr');
-        const hiddenRows = [];
-        const visibleRows = [];
-
-        rowEls.forEach(rowEl => {
-            const checkboxEl = rowEl.querySelector('input[name$="-is-hidden"]');
-            if (checkboxEl && checkboxEl.checked) {
-                hiddenRows.push(rowEl);
-            } else {
-                visibleRows.push(rowEl);
-            }
-        });
-
-        if (visibleRows.length > 0) {
-            const firstVisibleRowParent = visibleRows[1]?.parentNode;
-            if (firstVisibleRowParent) {
-                hiddenRows.forEach(hiddenRow => {
-                    firstVisibleRowParent.insertBefore(hiddenRow, visibleRows[1]);
-                });
-            }
-        }
-    });
-}
-
-function buildSectionsOrderList() {
-    const sectionOrderSelectEls = document.querySelectorAll('select[data-award-kind]');
-    const selectedValues = {};
-
-    let hasDuplicates = false;
-    let orderedArray = [];
-
-    for (const sectionOrderSelectEl of sectionOrderSelectEls) {
-        const awardKind = sectionOrderSelectEl.getAttribute('data-award-kind');
-        const currentValue = sectionOrderSelectEl.value;
-
-        if (selectedValues[currentValue]) {
-            hasDuplicates = true;
-        } else {
-            selectedValues[currentValue] = awardKind;
-        }
-    }
-
-    if (hasDuplicates) {
-        throw new Error('Please ensure each section has a unique order number.')
-    }
-
-    // Build the order list.
-    Object.keys(selectedValues).sort().forEach((key) => {
-        orderedArray.push(selectedValues[key]);
-    });
-
-    return orderedArray;
-}
-
-function computeDisplayOrderValues(mappedTableRows) {
-    const sectionsOrder = buildSectionsOrderList();
-
-    const sortedBySectionsOrder = [];
-    for (const targetSection of sectionsOrder) {
-        const sectionRows = mappedTableRows.filter(row => row.kind === targetSection);
-        sortedBySectionsOrder.push(...sectionRows);
-    }
-
-    const withDisplayOrderValues = sortedBySectionsOrder.map((row, rowIndex) => {
-        let displayOrder = -1; // Hidden by default
-
-        if (!row.isHidden) {
-            // The first group will have an offset of 0.
-            // The second group will have an offset of 3000.
-            // The third group will have an offset of 6000.
-            // etc...
-            const groupOffsetBoost = sectionsOrder.findIndex(sectionName => sectionName === row.kind) * 3000;
-
-            // Arbitrarily shift by 20 to account for group ordering.
-            displayOrder = (rowIndex + 20) + groupOffsetBoost;
-        }
-
-        return {
-            kind: row.kind,
-            type: row.type,
-            data: row.data,
-            extra: row.extra,
-            number: displayOrder,
-        }
-    });
-
-    // Now properly order the sections by fixing the displayOrder value
-    // of the first `number` for each visible section row.
-    for (let i = 0; i < sectionsOrder.length; i += 1) {
-        const currentSectionKind = sectionsOrder[i];
-
-        for (const row of withDisplayOrderValues) {
-            if (row.number !== -1 && row.kind === currentSectionKind) {
-                row.number = i;
-                break;
-            }
-        }
-    }
-
-    return withDisplayOrderValues;
-}
-
 
 function postAllAwardsDisplayOrder(awards) {
     showStatusMessage('Updating...');
@@ -287,45 +130,17 @@ function postAllAwardsDisplayOrder(awards) {
             showStatusMessage('Awards updated successfully');
             $('#rightcontainer').html(response.updatedAwardsHTML);
 
-            isFormDirty = false;
+            reorderSiteAwards.isFormDirty = false;
         })
         .fail(function () {
             showStatusMessage('Error updating awards');
         });
 }
-
-function handleRowHiddenCheckedChange(event, rowIndex) {
-    const isHiddenChecked = event.target.checked;
-
-    const targetRowEl = document.querySelector(`tr[data-row-index="${rowIndex}"]`);
-    if (targetRowEl) {
-        if (isHiddenChecked) {
-            targetRowEl.classList.remove('cursor-grab');
-            targetRowEl.setAttribute('draggable', false);
-        } else {
-            targetRowEl.classList.add('cursor-grab');
-            targetRowEl.setAttribute('draggable', true);
-        }
-
-        const allTdEls = targetRowEl.querySelectorAll('td');
-        allTdEls.forEach(tdEl => {
-            if (isHiddenChecked && !tdEl.classList.contains('!opacity-100')) {
-                tdEl.classList.add('opacity-40');
-            } else {
-                tdEl.classList.remove('opacity-40');
-            }
-        });
-    } 
-}
-
-function handleDisplayOrderChange() {
-    isFormDirty = true;
-}
 </script>
 <div id="mainpage">
     <div id="leftcontainer">
         <?php
-        echo "<h2>Reorder Site Awards</h2>";
+        echo "<h2 id='reorder-site-awards-header'>Reorder Site Awards</h2>";
 
         echo <<<HTML
             <div class="embedded grid gap-y-4">
@@ -377,9 +192,9 @@ function handleDisplayOrderChange() {
             echo "<thead>";
             echo "<tr class='do-not-highlight'>";
             echo "<th>Badge</th>";
-            echo "<th width=\"75%\">Site Award</th>";
-            echo "<th width=\"25%\">Award Date</th>";
-            echo "<th>Hidden</th>";
+            echo "<th width=\"60%\">Site Award</th>";
+            echo "<th class='text-center'>Hidden</th>";
+            echo "<th class='text-right' width=\"20%\">Manual Move</th>";
             echo "</tr>";
             echo "</thead>";
             echo "<tbody>";
@@ -390,7 +205,6 @@ function handleDisplayOrderChange() {
                 $awardDataExtra = $award['AwardDataExtra'];
                 $awardTitle = $award['Title'];
                 $awardDisplayOrder = $award['DisplayOrder'];
-                $awardDate = getNiceDate($award['AwardedAt']);
 
                 sanitize_outputs(
                     $awardTitle,
@@ -411,13 +225,28 @@ function handleDisplayOrderChange() {
                 $isHiddenPreChecked = $awardDisplayOrder === '-1';
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
 
-                echo "<tr data-row-index='$awardCounter' data-award-kind='$humanReadableAwardKind' draggable='" . ($isHiddenPreChecked ? 'false' : 'true') . "' class='award-table-row select-none transition " . ($isHiddenPreChecked ? '' : 'cursor-grab') . "' ondragstart='handleRowDragStart(event)' ondragenter='handleRowDragEnter(event)' ondragleave='handleRowDragLeave(event)' ondragover='handleRowDragOver(event)' ondragend='handleRowDragEnd(event)' ondrop='handleRowDrop(event)'>";
+                echo "<tr data-row-index='$awardCounter' data-award-kind='$humanReadableAwardKind' draggable='" . ($isHiddenPreChecked ? 'false' : 'true') . "' class='award-table-row select-none transition " . ($isHiddenPreChecked ? '' : 'cursor-grab') . "' ondragstart='reorderSiteAwards.handleRowDragStart(event)' ondragenter='reorderSiteAwards.handleRowDragEnter(event)' ondragleave='reorderSiteAwards.handleRowDragLeave(event)' ondragover='reorderSiteAwards.handleRowDragOver(event)' ondragend='reorderSiteAwards.handleRowDragEnd(event)' ondrop='reorderSiteAwards.handleRowDrop(event)'>";
                 echo "<td class='$subduedOpacityClassName transition'>";
                 RenderAward($award, 48, false);
                 echo "</td>";
                 echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
-                echo "<td class='$subduedOpacityClassName whitespace-nowrap transition'><span class='smalldate'>$awardDate</span><br></td>";
-                echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
+                echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
+
+                echo "<td>";
+                echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
+                if (count($awards) > 15) {
+                    echo generateManualMoveButtons($awardCounter, -99999, 99999, arrowCount: 3);
+                    echo generateManualMoveButtons($awardCounter, -50, 50, arrowCount: 2, autoScroll: true);
+                    echo generateManualMoveButtons($awardCounter, -1, 1);
+                } elseif (count($awards) > 10) {
+                    echo generateManualMoveButtons($awardCounter, -10, 10, arrowCount: 2);
+                    echo generateManualMoveButtons($awardCounter, -1, 1);
+                } else {
+                    echo generateManualMoveButtons($awardCounter, -1, 1, orientation: 'horizontal');
+                }
+                echo "</div>";
+                echo "</td>";
+
                 echo "<input type='hidden' name='type' value='$awardType'>";
                 echo "<input type='hidden' name='data' value='$awardData'>";
                 echo "<input type='hidden' name='extra' value='$awardDataExtra'>";
