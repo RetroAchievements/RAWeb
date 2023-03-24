@@ -17,11 +17,16 @@ getCodeNotes($gameID, $codeNotes);
 RenderContentStart('Code Notes - ' . htmlspecialchars_decode($gameData['Title']));
 ?>
 <script>
+// If the user types some changes in for a note but cancels,
+// revert the input field's value to the note's original contents.
+/** @type Record<number, string> */
+const cachedInitialEditValues = {};
+
 /**
  * Toggle the editing state of a code note row and 
  * show/hide the elements necessary to perform an edit.
  * 
- * @param {Element} rowEl - The row element to toggle editing state for.
+ * @param {HTMLTableRowElement} rowEl - The row element to toggle editing state for.
  * @param {boolean} isEditing - Whether the row is transitioning to edit mode or not.
  */
 function setRowEditingEnabled(rowEl, isEditing) {
@@ -53,7 +58,11 @@ function beginEditMode(rowIndex) {
     const rowEl = document.getElementById(`row-${rowIndex}`);
     setRowEditingEnabled(rowEl, true);
 
+    // In the event the user cancels their edit, we'll restore whatever
+    // the original note value is to the input field. We use this cache
+    // in order to do so.
     const noteEditEl = rowEl.querySelector('.note-edit');
+    cachedInitialEditValues[rowIndex] = noteEditEl.value;
 
     // Calculate the number of rows based on the number of newline characters.
     const rowCount = (noteEditEl.value.match(/\n/g) || []).length + 1;
@@ -69,6 +78,11 @@ function beginEditMode(rowIndex) {
  */
 function cancelEditMode(rowIndex) {
     const rowEl = document.getElementById(`row-${rowIndex}`);
+
+    // Restore the cached value so unsaved edits are not persisted.
+    const noteEditEl = rowEl.querySelector('.note-edit');
+    noteEditEl.value = cachedInitialEditValues[rowIndex];
+
     setRowEditingEnabled(rowEl, false);
 }
 
