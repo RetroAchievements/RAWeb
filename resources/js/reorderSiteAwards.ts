@@ -11,13 +11,20 @@ export function handleRowDragEnd(event: DragEvent) {
   (event.target as HTMLTableRowElement).style.opacity = '1';
 }
 
+/**
+ * Handles the row drag enter event, which occurs when a dragged row enters
+ * another row's boundary.
+ * @param {DragEvent} event
+ */
 export function handleRowDragEnter(event: DragEvent) {
   const targetRowEl = (event.target as HTMLTableRowElement).closest('tr');
 
+  // For type-safety, assert that both rows actually exist.
   if (currentGrabbedRowEl && targetRowEl) {
     const isHoveredRowInSameTable = currentGrabbedRowEl.parentNode === targetRowEl?.parentNode;
     const isAwardHiddenChecked = isRowHidden(targetRowEl);
 
+    // Add border styling to the target row if it's in the same table and not hidden.
     if (isHoveredRowInSameTable && !isAwardHiddenChecked) {
       targetRowEl.classList.add('border');
       targetRowEl.classList.add('border-menu-link');
@@ -38,29 +45,37 @@ export function handleRowDragLeave(event: DragEvent) {
   }
 }
 
+/**
+ * Handles the row drop event during a drag and drop operation on a table row.
+ * @param {DragEvent} event
+ */
 export function handleRowDrop(event: DragEvent) {
   event.preventDefault();
   const targetEl = event.target as HTMLTableRowElement;
 
-  isFormDirty = true;
-
   const dropTargetEl = targetEl.closest('tr');
   const isDropTargetHidden = isRowHidden(dropTargetEl);
 
-  if (currentGrabbedRowEl && dropTargetEl) {
+  if (currentGrabbedRowEl && dropTargetEl && !isDropTargetHidden) {
     const draggedTableEl = currentGrabbedRowEl.closest('table');
     const dropTargetTableEl = dropTargetEl.closest('table');
 
-    if (draggedTableEl === dropTargetTableEl && !isDropTargetHidden) {
+    // Ensure both rows belong to the same table.
+    if (draggedTableEl === dropTargetTableEl) {
       const draggedRowIndex = Array.from(currentGrabbedRowEl.parentNode?.children ?? []).indexOf(currentGrabbedRowEl);
       const dropTargetIndex = Array.from(dropTargetEl.parentNode?.children ?? []).indexOf(dropTargetEl);
 
+      // Don't do anything if the user drops the row back into place.
       if (draggedRowIndex !== dropTargetIndex) {
         if (draggedRowIndex < dropTargetIndex) {
           dropTargetEl.parentNode?.insertBefore(currentGrabbedRowEl, dropTargetEl.nextSibling);
         } else {
           dropTargetEl.parentNode?.insertBefore(currentGrabbedRowEl, dropTargetEl);
         }
+
+        // When this flag is raised, the browser will notify the user if
+        // they attempt to leave the page with any unsaved changes.
+        isFormDirty = true;
       }
     }
   }
