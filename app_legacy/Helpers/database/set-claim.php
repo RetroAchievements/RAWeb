@@ -356,7 +356,6 @@ function getFilteredClaims(
     $selectCondition = "
         sc.ID AS ID,
         sc.User AS User,
-        ua.Permissions AS UserRole,
         sc.GameID AS GameID,
         gd.Title AS GameTitle,
         gd.ImageIcon AS GameIcon,
