@@ -113,9 +113,6 @@ function clearAccountData(User $user): void
     // TODO $user->subscriptions()->delete();
     legacyDbStatement('DELETE FROM Subscription WHERE UserID = :userId', ['userId' => $user->ID]);
 
-    // Cap permissions to 0 - negative values may stay
-    $permission = min($user['Permissions'], 0);
-
     legacyDbStatement("UPDATE UserAccounts u SET
         u.Password = null,
         u.SaltedPass = '',
