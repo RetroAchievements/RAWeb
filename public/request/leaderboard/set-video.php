@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'user' => 'required|string|exists:mysql_legacy.UserAccounts,User',
     'leaderboard' => 'required|integer|exists:mysql_legacy.LeaderboardDef,ID',
-    'video' => 'nullable|string|max:50',
+    'video' => 'nullable|active_url',
 ]);
 
 $leaderboardId = (int) $input['leaderboard'];
