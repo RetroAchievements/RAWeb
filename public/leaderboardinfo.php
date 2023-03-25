@@ -262,17 +262,16 @@ RenderContentStart('Leaderboard');
                     echo "<span onclick=\"$('#vidboxcontent').toggle(); return false;\">Video ▼</span>";
                     echo "<div id='vidboxcontent' style='display: none'>";
                     echo "Video Link";
-                    echo "<div>";
                     echo "<tr><td>";
                     echo "<form method='post' action='/request/leaderboard/set-video.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='leaderboard' value='$lbID' />";
                     echo "Set Video:";
                     echo "<input type='text' name='video' maxlength='50' style='width: 50%;' placeholder='Please provide video link'>";
-                    echo "<button class='btn btn-danger'>Submit</button>";
+                    echo "<button class='btn'>Submit</button>";
                     echo "</form>";
                     echo "</td></tr>";
-                    echo "</div>";
+                    echo "</div></div>";
                 }
                 
                 echo "</td>";
