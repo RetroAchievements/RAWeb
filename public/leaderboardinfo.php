@@ -267,9 +267,12 @@ RenderContentStart('Leaderboard');
                     echo csrf_field();
                     echo "<input type='hidden' name='leaderboard' value='$lbID' />";
                     echo "Set Video:";
-                    echo "<input type='text' name='video' maxlength='50' style='width: 50%;' placeholder='Please provide video link'";
-                    if (!is_null($nextVideo)) {
-                        echo " value='$nextVideo'";
+                    echo "<input type='text' name='video' maxlength='50' style='width: 50%;' ";
+                    if (is_null($nextVideo)) {
+                        echo "placeholder='Please provide video link'";
+                    }
+                    else {
+                        echo "value='$nextVideo'";
                     }
                     echo ">";
                     echo "<button class='btn'>Submit</button>";
