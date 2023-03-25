@@ -4,19 +4,15 @@
  *
  * @param {Object} options - Configuration options for the lazy loading process.
  * @param {string} options.elementId - The `id` attribute value of the DOM element that triggers the import when found.
- * @param {string} options.codePath - The relative path to the JavaScript module that should be imported.
+ * @param {string} options.codeFileName - The name of the file in the dynamic folder to lazy load.
  * @param {string} options.moduleName - The name under which the imported module will be attached to the window object.
  */
-export const lazyLoadModuleOnIdFound = (options: {
-  elementId: string;
-  codePath: string;
-  moduleName: string;
-}) => {
-  const { elementId, codePath, moduleName } = options;
+export const lazyLoadModuleOnIdFound = (options: { elementId: string; codeFileName: string; moduleName: string }) => {
+  const { elementId, codeFileName, moduleName } = options;
 
   document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector(`#${elementId}`)) {
-      import(codePath).then((lazyLoadedModule) => {
+      import(`./dynamic/${codeFileName}.ts`).then((lazyLoadedModule) => {
         (window as any)[moduleName] = lazyLoadedModule;
       });
     }

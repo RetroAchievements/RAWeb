@@ -9,7 +9,7 @@ import { clipboard, mobileSafeTipEvents, themeChange } from './utils';
 
 lazyLoadModuleOnIdFound({
   elementId: 'reorder-site-awards-header',
-  codePath: './reorderSiteAwards',
+  codeFileName: 'reorderSiteAwards',
   moduleName: 'reorderSiteAwards',
 });
 

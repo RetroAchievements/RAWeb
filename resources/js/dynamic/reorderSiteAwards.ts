@@ -1,13 +1,20 @@
-let currentGrabbedRowEl: HTMLTableRowElement | null = null;
-let isFormDirty = false;
+interface ReorderSiteAwardsState {
+  currentGrabbedRowEl: HTMLTableRowElement | null;
+  isFormDirty: boolean;
+}
+
+export const state: ReorderSiteAwardsState = {
+  currentGrabbedRowEl: null,
+  isFormDirty: false,
+};
 
 export function handleRowDragStart(event: DragEvent) {
-  currentGrabbedRowEl = event.target as HTMLTableRowElement;
-  currentGrabbedRowEl.style.opacity = '0.3';
+  state.currentGrabbedRowEl = event.target as HTMLTableRowElement;
+  state.currentGrabbedRowEl.style.opacity = '0.3';
 }
 
 export function handleRowDragEnd(event: DragEvent) {
-  currentGrabbedRowEl = null;
+  state.currentGrabbedRowEl = null;
   (event.target as HTMLTableRowElement).style.opacity = '1';
 }
 
@@ -20,8 +27,8 @@ export function handleRowDragEnter(event: DragEvent) {
   const targetRowEl = (event.target as HTMLTableRowElement).closest('tr');
 
   // For type-safety, assert that both rows actually exist.
-  if (currentGrabbedRowEl && targetRowEl) {
-    const isHoveredRowInSameTable = currentGrabbedRowEl.parentNode === targetRowEl?.parentNode;
+  if (state.currentGrabbedRowEl && targetRowEl) {
+    const isHoveredRowInSameTable = state.currentGrabbedRowEl.parentNode === targetRowEl?.parentNode;
     const isAwardHiddenChecked = isRowHidden(targetRowEl);
 
     // Add border styling to the target row if it's in the same table and not hidden.
@@ -56,26 +63,28 @@ export function handleRowDrop(event: DragEvent) {
   const dropTargetEl = targetEl.closest('tr');
   const isDropTargetHidden = isRowHidden(dropTargetEl);
 
-  if (currentGrabbedRowEl && dropTargetEl && !isDropTargetHidden) {
-    const draggedTableEl = currentGrabbedRowEl.closest('table');
+  if (state.currentGrabbedRowEl && dropTargetEl && !isDropTargetHidden) {
+    const draggedTableEl = state.currentGrabbedRowEl.closest('table');
     const dropTargetTableEl = dropTargetEl.closest('table');
 
     // Ensure both rows belong to the same table.
     if (draggedTableEl === dropTargetTableEl) {
-      const draggedRowIndex = Array.from(currentGrabbedRowEl.parentNode?.children ?? []).indexOf(currentGrabbedRowEl);
+      const draggedRowIndex = Array.from(state.currentGrabbedRowEl.parentNode?.children ?? []).indexOf(
+        state.currentGrabbedRowEl,
+      );
       const dropTargetIndex = Array.from(dropTargetEl.parentNode?.children ?? []).indexOf(dropTargetEl);
 
       // Don't do anything if the user drops the row back into place.
       if (draggedRowIndex !== dropTargetIndex) {
         if (draggedRowIndex < dropTargetIndex) {
-          dropTargetEl.parentNode?.insertBefore(currentGrabbedRowEl, dropTargetEl.nextSibling);
+          dropTargetEl.parentNode?.insertBefore(state.currentGrabbedRowEl, dropTargetEl.nextSibling);
         } else {
-          dropTargetEl.parentNode?.insertBefore(currentGrabbedRowEl, dropTargetEl);
+          dropTargetEl.parentNode?.insertBefore(state.currentGrabbedRowEl, dropTargetEl);
         }
 
         // When this flag is raised, the browser will notify the user if
         // they attempt to leave the page with any unsaved changes.
-        isFormDirty = true;
+        state.isFormDirty = true;
       }
     }
   }
@@ -297,7 +306,7 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
 }
 
 export function handleDisplayOrderChange() {
-  isFormDirty = true;
+  state.isFormDirty = true;
 }
 
 /**
@@ -340,7 +349,7 @@ export function moveHiddenRowsToTop() {
  * @param {boolean} scrollToRow - Whether to scroll the view to the moved row.
  */
 export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
-  isFormDirty = true;
+  state.isFormDirty = true;
 
   const targetRowEl = document.querySelector<HTMLTableRowElement>(`tr[data-row-index="${rowIndex}"]`);
 
@@ -376,7 +385,7 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
 
 function onMount() {
   window.addEventListener('beforeunload', function (event) {
-    if (isFormDirty) {
+    if (state.isFormDirty) {
       event.preventDefault();
       // Most browsers will override this with their own "unsaved changes" message.
       event.returnValue = 'You have unsaved changes. Do you still want to leave?';

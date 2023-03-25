@@ -56,32 +56,62 @@ function getInitialSectionOrders(array $gameAwards, array $eventAwards, array $s
 
 function generateManualMoveButtons(
     int $awardCounter,
-    int $upValue,
-    int $downValue,
-    int $arrowCount = 1,
+    int $moveValue,
+    string $upLabel = '',
+    string $downLabel = '',
     bool $autoScroll = false,
     string $orientation = 'vertical',
 ): string {
-    $arrowUp = '↑';
-    $arrowDown = '↓';
-
-    if ($arrowCount === 2) {
-        $arrowUp = '↑↑';
-        $arrowDown = '↓↓';
-    } elseif ($arrowCount === 3) {
-        $arrowUp = '↑↑↑';
-        $arrowDown = '↓↓↓';
-    }
+    $downValue = $moveValue;
+    $upValue = $moveValue * -1;
 
     $containerClassNames = $orientation === 'vertical' ? 'flex flex-col' : 'flex';
 
+    $rowsPlural = $moveValue === 1 ? "row" : "rows";
+    $upA11yLabel = "Move up $moveValue $rowsPlural";
+    $downA11yLabel = "Move down $moveValue $rowsPlural";
+
+    if ($moveValue > 10000) {
+        $upA11yLabel = "Move to top";
+        $downA11yLabel = "Move to bottom";
+    }
+
     return <<<HTML
         <div class="$containerClassNames">
-            <button onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)">$arrowUp</button>
-            <button onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)">$arrowDown</button>
+            <button
+                title="$upA11yLabel" 
+                aria-label="$upA11yLabel" 
+                class="text-2xs"
+                onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)"
+            >
+                ↑$upLabel
+            </button>
+
+            <button
+                title="$downA11yLabel"
+                aria-label="$downA11yLabel"
+                class="text-2xs"
+                onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)"
+            >
+                ↓$downLabel
+            </button>
         </div>
     HTML;
 }
+
+$userAwards = getUsersSiteAwards($user, true);
+[$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
+
+$hasSomeAwards = !empty($gameAwards) || !empty($eventAwards) || !empty($siteAwards);
+
+$awardCounter = 0;
+$renderedSectionCount = 0;
+
+$renderedSectionCount += (!empty($gameAwards)) ? 1 : 0;
+$renderedSectionCount += (!empty($eventAwards)) ? 1 : 0;
+$renderedSectionCount += (!empty($siteAwards)) ? 1 : 0;
+
+$initialSectionOrders = getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards);
 
 RenderContentStart("Reorder Site Awards");
 ?>
@@ -89,19 +119,21 @@ RenderContentStart("Reorder Site Awards");
 function handleSaveAllClick() {
     const mappedTableRows = [];
 
+    const awardTableRowEls = document.querySelectorAll('.award-table-row');
+
     // Query and iterate over each table row on the page.
     // We'll invisibly compute the correct Display Order and
     // then send the values off to the back-end.
-    $('.award-table-row').each(function (index, element) {
-        const rowTableEl = $(element).closest('table');
-        const rowParentTableId = rowTableEl.attr('id');
+    awardTableRowEls.forEach((element) => {
+        const parentTableEl = element.closest('table');
+        const parentTableId = parentTableEl.getAttribute('id');
 
-        const rowEl = $(element).closest('tr');
-        const awardType = rowEl.find("input[type='hidden'][name='type']").val();
-        const awardData = rowEl.find("input[type='hidden'][name='data']").val();
-        const awardDataExtra = rowEl.find("input[type='hidden'][name='extra']").val();
-        const awardKind = $(rowEl).data('awardKind');
-        const isHidden = rowEl.find('input[type="checkbox"]').prop('checked');
+        const rowEl = element.closest('tr');
+        const awardType = rowEl.querySelector("input[type='hidden'][name='type']").value;
+        const awardData = rowEl.querySelector("input[type='hidden'][name='data']").value;
+        const awardDataExtra = rowEl.querySelector("input[type='hidden'][name='extra']").value;
+        const awardKind = rowEl.dataset.awardKind;
+        const isHidden = rowEl.querySelector('input[type="checkbox"]').checked;
 
         mappedTableRows.push({
             isHidden,
@@ -115,7 +147,7 @@ function handleSaveAllClick() {
     try {
         const withComputedDisplayOrderValues = reorderSiteAwards.computeDisplayOrderValues(mappedTableRows);
 
-        reorderSiteAwards.postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
+        postAllAwardsDisplayOrder(withComputedDisplayOrderValues);
         reorderSiteAwards.moveHiddenRowsToTop();
     } catch (error) {
         showStatusFailure(error);
@@ -130,7 +162,7 @@ function postAllAwardsDisplayOrder(awards) {
             showStatusMessage('Awards updated successfully');
             $('#rightcontainer').html(response.updatedAwardsHTML);
 
-            reorderSiteAwards.isFormDirty = false;
+            reorderSiteAwards.state.isFormDirty = false;
         })
         .fail(function () {
             showStatusMessage('Error updating awards');
@@ -138,37 +170,8 @@ function postAllAwardsDisplayOrder(awards) {
 }
 </script>
 <div id="mainpage">
-    <div id="leftcontainer">
+    <div id="<?= $hasSomeAwards ? 'leftcontainer' : 'fullcontainer' ?>">
         <?php
-        echo "<h2 id='reorder-site-awards-header'>Reorder Site Awards</h2>";
-
-        echo <<<HTML
-            <div class="embedded grid gap-y-4">
-                <p>
-                    To rearrange your site awards, modify the 'Display Order' value in the rightmost 
-                    column of each award row. The awards will be displayed on your user page in 
-                    ascending order based on these values. To hide an award, change its 'Display Order' 
-                    value to -1. Remember to save your changes by clicking the 'Save' button, and 
-                    your updates will appear on your user page immediately.
-                </p>
-
-                <p>
-                    You can also reorder the award categories, such as 'Site Awards' and 'Game Awards'. 
-                    This is determined by the first 'Display Order' number within each category. 
-                    For example, to show 'Site Awards' before 'Game Awards', set the first 'Display Order' 
-                    value of 'Site Awards' to 0 and the first 'Display Order' value of 'Game Awards' to 1.
-                </p>
-            </div>
-
-            <div class="flex w-full justify-end">
-                <button onclick='handleSaveAllClick()' class='mt-2 mb-6 text-base'>Save all changes</button>
-            </div>
-        HTML;
-
-        $userAwards = getUsersSiteAwards($user, true);
-
-        [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
-
         function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, int $initialSectionOrder): void
         {
             // "Game Awards" -> "game"
@@ -234,15 +237,15 @@ function postAllAwardsDisplayOrder(awards) {
 
                 echo "<td>";
                 echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
-                if (count($awards) > 15) {
-                    echo generateManualMoveButtons($awardCounter, -99999, 99999, arrowCount: 3);
-                    echo generateManualMoveButtons($awardCounter, -50, 50, arrowCount: 2, autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, -1, 1);
-                } elseif (count($awards) > 10) {
-                    echo generateManualMoveButtons($awardCounter, -10, 10, arrowCount: 2);
-                    echo generateManualMoveButtons($awardCounter, -1, 1);
+                if (count($awards) > 50) {
+                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom');
+                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50');
+                    echo generateManualMoveButtons($awardCounter, 1);
+                } elseif (count($awards) > 15) {
+                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10');
+                    echo generateManualMoveButtons($awardCounter, 1);
                 } else {
-                    echo generateManualMoveButtons($awardCounter, -1, 1, orientation: 'horizontal');
+                    echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');
                 }
                 echo "</div>";
                 echo "</td>";
@@ -257,14 +260,29 @@ function postAllAwardsDisplayOrder(awards) {
             echo "</tbody></table>";
         }
 
-        $awardCounter = 0;
-        $renderedSectionCount = 0;
+        if ($hasSomeAwards) {
+            echo "<h2 id='reorder-site-awards-header'>Reorder Site Awards</h2>";
 
-        $renderedSectionCount += (!empty($gameAwards)) ? 1 : 0;
-        $renderedSectionCount += (!empty($eventAwards)) ? 1 : 0;
-        $renderedSectionCount += (!empty($siteAwards)) ? 1 : 0;
+            echo <<<HTML
+                <div class="embedded grid gap-y-4">
+                    <p>
+                        To rearrange your site awards, drag and drop the award rows or use
+                        the buttons within each row to move them up or down. Award categories
+                        can be reordered using the dropdown menus next to each category name.
+                        Remember to save your changes before leaving by clicking the 
+                        "Save All Changes" button.
+                    </p>
+                </div>
 
-        $initialSectionOrders = getInitialSectionOrders($gameAwards, $eventAwards, $siteAwards);
+                <div class="flex w-full">
+                    <button onclick='handleSaveAllClick()' class='mt-2 mb-6 text-base'>Save All Changes</button>
+                </div>
+            HTML;
+        } else {
+            echo <<<HTML
+                <p>You don't have any awards. Earn your first by <a href="/game/1">mastering a game</a>!</p>
+            HTML;
+        }
 
         if (!empty($gameAwards)) {
             RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[0]);
@@ -279,8 +297,11 @@ function postAllAwardsDisplayOrder(awards) {
         }
         ?>
     </div>
+
+    <?php if ($hasSomeAwards): ?>
     <div id="rightcontainer">
         <?php RenderSiteAwards(getUsersSiteAwards($user)) ?>
     </div>
+    <?php endif ?>
 </div>
 <?php RenderContentEnd(); ?>
