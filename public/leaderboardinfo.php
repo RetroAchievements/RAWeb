@@ -216,6 +216,7 @@ RenderContentStart('Leaderboard');
                 $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
                 $nextSubmitAt = $nextEntry['DateSubmitted'];
                 $nextSubmitAtNice = getNiceDate($nextSubmitAt);
+                $nextVideo = $nextEntry['Video'];
 
                 $isLocal = (strcmp($nextUser, $user) == 0);
                 $lastEntry = ($resultsDrawn + 1 == $numEntries);
@@ -250,6 +251,12 @@ RenderContentStart('Leaderboard');
 
                 echo "<td class='lb_date'>$injectFmt1$nextSubmitAtNice$injectFmt2</td>";
 
+                echo "<td class='lb_video'>";
+                if (!is_null($nextVideo)) {
+                    echo "<a href='$nextVideo' target='_new'>link</a>";
+                }
+                echo "</td>";
+                
                 echo "</tr>";
 
                 $resultsDrawn++;
