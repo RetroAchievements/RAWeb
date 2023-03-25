@@ -121,6 +121,25 @@ function removeLeaderboardEntry(string $user, int $lbID, ?int &$score): bool
     return mysqli_affected_rows($db) != 0;
 }
 
+function SetLeaderboardEntryVideo(string $user, int $lbID, string $video): bool
+{
+    sanitize_sql_inputs($user);
+    $userID = getUserIDFromUser($user);
+    if ($userID === 0) {
+        return false;
+    }
+    
+    $query = "UPDATE LeaderboardEntry
+              SET Video = '$video'
+              WHERE ( LeaderboardID = $lbID AND UserID = $userID )";
+
+    s_mysql_query($query);
+
+    $db = getMysqliConnection();
+
+    return mysqli_affected_rows($db) != 0;
+}
+
 function GetLeaderboardRankingJSON(string $user, int $lbID, bool $lowerIsBetter): array
 {
     sanitize_sql_inputs($user);
