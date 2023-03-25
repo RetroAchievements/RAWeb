@@ -24,7 +24,7 @@ if ($user !== $targetUser) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (setLeaderboardEntryVideo($targetUser, $leaderboardId, $video)) {
+if (SetLeaderboardEntryVideo($targetUser, $leaderboardId, $video)) {
     return back()->with('success', __('legacy.success.ok'));
 }
 
