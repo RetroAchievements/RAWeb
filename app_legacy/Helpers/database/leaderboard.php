@@ -129,9 +129,9 @@ function SetLeaderboardEntryVideo(string $user, int $lbID, string $video): bool
         return false;
     }
     
-    const VIDEO_MAX_LENGTH = 50;
+    $videoMaxLength = 50;
     sanitize_sql_inputs($video);
-    $video = substr($video,0,VIDEO_MAX_LENGTH);
+    $video = substr($video,0,$videoMaxLength);
     
     $query = "UPDATE LeaderboardEntry
               SET Video = '$video'
