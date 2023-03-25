@@ -292,6 +292,8 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
       }
     }
 
+    state.isFormDirty = true;
+
     // Update the opacity of the row's cells based on
     // the hidden checkbox status.
     const allTdEls = targetRowEl.querySelectorAll('td');
