@@ -343,7 +343,7 @@ function GetLeaderboardData(
         }
 
         // Now get entries:
-        $query = "SELECT ua.User, le.Score, le.DateSubmitted,
+        $query = "SELECT ua.User, le.Score, le.DateSubmitted, le.Video,
                   CASE WHEN !lbd.LowerIsBetter
                   THEN RANK() OVER(ORDER BY le.Score DESC)
                   ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
@@ -369,6 +369,7 @@ function GetLeaderboardData(
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                 $db_entry['Score'] = (int) $db_entry['Score'];
+                $db_entry['Video'] = (string) $db_entry['Video'];
                 $db_entry['Rank'] = (int) $db_entry['UserRank'];
                 unset($db_entry['UserRank']);
                 $db_entry['Index'] = (int) $db_entry['UserIndex'];
@@ -387,7 +388,7 @@ function GetLeaderboardData(
             if ($userFound == false && !$nearby) {
                 // Go find user's score in this table, if it exists!
                 $query = "SELECT User, Score, DateSubmitted, UserRank, UserIndex FROM
-                         (SELECT ua.User, le.Score, le.DateSubmitted,
+                         (SELECT ua.User, le.Score, le.DateSubmitted, le.Video,
                           CASE WHEN !lbd.LowerIsBetter
                           THEN RANK() OVER(ORDER BY le.Score DESC)
                           ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
@@ -407,6 +408,7 @@ function GetLeaderboardData(
                         $db_entry = mysqli_fetch_assoc($dbResult);
                         $db_entry['DateSubmitted'] = strtotime($db_entry['DateSubmitted']);
                         $db_entry['Score'] = (int) $db_entry['Score'];
+                        $db_entry['Video'] = (string) $db_entry['Video'];
                         $db_entry['Rank'] = (int) $db_entry['UserRank'];
                         // @phpstan-ignore-next-line
                         unset($db_entry['UserRank']);
