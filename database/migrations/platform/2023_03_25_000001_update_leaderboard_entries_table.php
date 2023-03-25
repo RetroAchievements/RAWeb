@@ -9,17 +9,17 @@ return new class() extends Migration {
 
     public function up()
     {
-        if (!Schema::hasColumns('leaderboard_entries', ['video'])) {
-            Schema::table('LeaderboardEntries', function (Blueprint $table) {
-                $table->string('video')->nullable()->after('score');
+        if (!Schema::hasColumns('LeaderboardEntry', ['Video'])) {
+            Schema::table('LeaderboardEntry', function (Blueprint $table) {
+                $table->string('Video')->nullable()->after('Score');
             });
         }
     }
 
     public function down()
     {
-        Schema::table('leaderboard_entries', function (Blueprint $table) {
-            $table->dropColumn('video');
+        Schema::table('LeaderboardEntry', function (Blueprint $table) {
+            $table->dropColumn('Video');
         });
     }
 };
