@@ -190,6 +190,41 @@ function renderGameCard(int|array $game): string
     return $tooltip;
 }
 
+function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy) : void
+{
+    echo "<div class='py-3'><span>";
+    echo "Sort: ";
+
+    $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
+
+    $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
+
+    $sort1 = ($sortBy == 1) ? 11 : 1;
+    $sort2 = ($sortBy == 2) ? 12 : 2;
+    $sort3 = ($sortBy == 3) ? 13 : 3;
+    $sort4 = ($sortBy == 4) ? 14 : 4;
+    $sort5 = ($sortBy == 5) ? 15 : 5;
+
+    $mark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortType" : "";
+    $mark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortType" : "";
+    $mark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortType" : "";
+    $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
+    $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
+
+    echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
+    if ($isFullyFeaturedGame) {
+        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
+        // TODO sorting by "date won" isn't implemented yet.
+        // if(isset($user)) {
+        //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
+        // }
+    }
+    echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
+    echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
+
+    echo "<sup>&nbsp;</sup></span></div>";
+}
+
 function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
 {
     echo "<div class='component gamealts'>";
