@@ -41,64 +41,64 @@ function RenderToolbar(): void
     $menuSystemsList = [
         [
             "Nintendo" => [
-                ["systemName" => "Game Boy", "listID" => 4, "iconName" => "Game Boy"],
-                ["systemName" => "Game Boy Color", "listID" => 6, "iconName" => "Game Boy Color"],
-                ["systemName" => "Game Boy Advance", "listID" => 5, "iconName" => "Game Boy Advance"],
-                ["systemName" => "NES/Famicom", "listID" => 7, "iconName" => "NES"],
-                ["systemName" => "SNES/Super Famicom", "listID" => 3, "iconName" => "SNES"],
-                ["systemName" => "Nintendo 64", "listID" => 2, "iconName" => "Nintendo 64"],
-                ["systemName" => "Nintendo DS", "listID" => 18, "iconName" => "DS"],
+                ["systemName" => "Game Boy", "listID" => 4],
+                ["systemName" => "Game Boy Color", "listID" => 6],
+                ["systemName" => "Game Boy Advance", "listID" => 5],
+                ["systemName" => "NES/Famicom", "listID" => 7],
+                ["systemName" => "SNES/Super Famicom", "listID" => 3],
+                ["systemName" => "Nintendo 64", "listID" => 2],
+                ["systemName" => "Nintendo DS", "listID" => 18],
                 // ["systemName" => "Nintendo DSi", "listID"=>78, "iconName" => "Nintendo DSi"],
-                ["systemName" => "Pokemon Mini", "listID" => 24, "iconName" => "Pokemon Mini"],
-                ["systemName" => "Virtual Boy", "listID" => 28, "iconName" => "Virtual Boy"],
+                ["systemName" => "Pokemon Mini", "listID" => 24],
+                ["systemName" => "Virtual Boy", "listID" => 28],
             ],
             "Sony" => [
-                ["systemName" => "PlayStation", "listID" => 12, "iconName" => "PlayStation"],
-                ["systemName" => "PlayStation 2", "listID" => 21, "iconName" => "PlayStation 2"],
-                ["systemName" => "PlayStation Portable", "listID" => 41, "iconName" => "Playstation Portable"],
+                ["systemName" => "PlayStation", "listID" => 12],
+                ["systemName" => "PlayStation 2", "listID" => 21],
+                ["systemName" => "PlayStation Portable", "listID" => 41],
             ],
             "Atari" => [
-                ["systemName" => "Atari 2600", "listID" => 25, "iconName" => "Atari 2600"],
-                ["systemName" => "Atari 7800", "listID" => 51, "iconName" => "Atari 7800"],
-                ["systemName" => "Atari Jaguar", "listID" => 17, "iconName" => "Jaguar"],
-                // ["systemName" => "Atari Jaguar CD", "listID"=>77, "iconName" => "Jaguar CD"],
-                ["systemName" => "Atari Lynx", "listID" => 13, "iconName" => "Lynx"],
+                ["systemName" => "Atari 2600", "listID" => 25],
+                ["systemName" => "Atari 7800", "listID" => 51],
+                ["systemName" => "Atari Jaguar", "listID" => 17],
+                // ["systemName" => "Atari Jaguar CD", "listID"=>77],
+                ["systemName" => "Atari Lynx", "listID" => 13],
             ],
             "NEC" => [
-                ["systemName" => "PC Engine/TurboGrafx-16", "listID" => 8, "iconName" => "PC Engine  TurboGrafx"],
-                ["systemName" => "PC Engine CD/TurboGrafx-CD", "listID" => 76, "iconName" => "PC Engine CD"],
-                ["systemName" => "PC-8000/8800", "listID" => 47, "iconName" => "PC-80008800"],
-                ["systemName" => "PC-FX", "listID" => 49, "iconName" => "PC-FX"],
+                ["systemName" => "PC Engine/TurboGrafx-16", "listID" => 8],
+                ["systemName" => "PC Engine CD/TurboGrafx-CD", "listID" => 76],
+                ["systemName" => "PC-8000/8800", "listID" => 47],
+                ["systemName" => "PC-FX", "listID" => 49],
             ],
         ],
         [
             "Sega" => [
-                ["systemName" => "SG-1000", "listID" => 33, "iconName" => "SG-1000"],
-                ["systemName" => "Master System", "listID" => 11, "iconName" => "Master System"],
-                ["systemName" => "Game Gear", "listID" => 15, "iconName" => "Game Gear"],
-                ["systemName" => "Genesis/Mega Drive", "listID" => 1, "iconName" => "Mega Drive  Genesis"],
-                ["systemName" => "Sega CD", "listID" => 9, "iconName" => "Sega CD"],
-                ["systemName" => "Sega 32X", "listID" => 10, "iconName" => "32X"],
-                ["systemName" => "Sega Saturn", "listID" => 39, "iconName" => "Saturn"],
-                ["systemName" => "Sega Dreamcast", "listID" => 40, "iconName" => "Dreamcast"],
+                ["systemName" => "SG-1000", "listID" => 33],
+                ["systemName" => "Master System", "listID" => 11],
+                ["systemName" => "Game Gear", "listID" => 15],
+                ["systemName" => "Genesis/Mega Drive", "listID" => 1],
+                ["systemName" => "Sega CD", "listID" => 9],
+                ["systemName" => "Sega 32X", "listID" => 10],
+                ["systemName" => "Sega Saturn", "listID" => 39],
+                ["systemName" => "Sega Dreamcast", "listID" => 40],
             ],
             "Other" => [
-                ["systemName" => "3DO Interactive Multiplayer", "listID" => 43, "iconName" => "3DO Interactive Multiplayer"],
-                ["systemName" => "Amstrad CPC", "listID" => 37, "iconName" => "CPC"],
-                ["systemName" => "Apple II", "listID" => 38, "iconName" => "Apple II"],
-                ["systemName" => "Arcade", "listID" => 27, "iconName" => "Arcade"],
-                ["systemName" => "Arduboy", "listID" => 71, "iconName" => "Arduboy"],
-                ["systemName" => "ColecoVision", "listID" => 44, "iconName" => "ColecoVision"],
-                ["systemName" => "Fairchild Channel F", "listID" => 57, "iconName" => "Channel F"],
-                ["systemName" => "Intellivision", "listID" => 45, "iconName" => "Intellivision"],
-                ["systemName" => "Magnavox Odyssey 2", "listID" => 23, "iconName" => "Odyssey 2"],
-                ["systemName" => "Mega Duck", "listID" => 69, "iconName" => "Mega Duck"],
-                ["systemName" => "MSX", "listID" => 29, "iconName" => "MSX"],
-                ["systemName" => "Neo Geo Pocket", "listID" => 14, "iconName" => "Neo Geo Pocket"],
-                ["systemName" => "Vectrex", "listID" => 46, "iconName" => "Vectrex"],
-                ["systemName" => "WASM-4", "listID" => 72, "iconName" => "WASM-4"],
-                ["systemName" => "Watara Supervision", "listID" => 63, "iconName" => "Supervision"],
-                ["systemName" => "WonderSwan", "listID" => 53, "iconName" => "WonderSwan"],
+                ["systemName" => "3DO Interactive Multiplayer", "listID" => 43],
+                ["systemName" => "Amstrad CPC", "listID" => 37],
+                ["systemName" => "Apple II", "listID" => 38],
+                ["systemName" => "Arcade", "listID" => 27],
+                ["systemName" => "Arduboy", "listID" => 71],
+                ["systemName" => "ColecoVision", "listID" => 44],
+                ["systemName" => "Fairchild Channel F", "listID" => 57],
+                ["systemName" => "Intellivision", "listID" => 45],
+                ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
+                ["systemName" => "Mega Duck", "listID" => 69],
+                ["systemName" => "MSX", "listID" => 29],
+                ["systemName" => "Neo Geo Pocket", "listID" => 14],
+                ["systemName" => "Vectrex", "listID" => 46],
+                ["systemName" => "WASM-4", "listID" => 72],
+                ["systemName" => "Watara Supervision", "listID" => 63],
+                ["systemName" => "WonderSwan", "listID" => 53],
             ],
 
         ],
@@ -111,11 +111,13 @@ function RenderToolbar(): void
         foreach ($column as $brand => $systems) {
             echo "<li class='dropdown-header'>$brand</li>";
             foreach ($systems as $system){
+
                 $systemName = $system['systemName'];
                 $listId = $system['listID'];
-                $iconName = $system['iconName'];
+                $cleanSystemShortName = Str::lower( str_replace("/", "", config("systems.$listId.name_short")));
+                $iconName = Str::kebab($cleanSystemShortName);
                 echo "<li><a href='/gameList.php?c=$listId' class='!flex items-center gap-x-2' >"; // the flex class needs to be forced here
-                echo " <img src='assets/images/system/$iconName.png' width='16' height='16' alt='mini console icon'>";
+                echo " <img src='assets/images/system/$iconName.png' width='16' height='16' alt=''>";
                 echo " <span>$systemName</span>";
                 echo "</a></li>";
             }
