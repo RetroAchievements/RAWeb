@@ -190,7 +190,7 @@ function renderGameCard(int|array $game): string
     return $tooltip;
 }
 
-function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy) : void
+function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy): void
 {
     echo "<div class='py-3'><span>";
     echo "Sort: ";
