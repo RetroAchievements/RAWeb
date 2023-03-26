@@ -199,7 +199,7 @@ RenderContentStart($requestedConsole . " Games");
                 }
             } else {
                 $fallBackConsoleIcon = "assets/images/system/unknown.png";
-                $cleanSystemShortName = Str::lower( str_replace("/", "", config("systems.$consoleIDInput.name_short")));
+                $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleIDInput.name_short")));
                 $iconName = Str::kebab($cleanSystemShortName);
 
                 echo "<h2 class='flex gap-x-2'>";
