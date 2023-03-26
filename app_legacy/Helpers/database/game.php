@@ -191,7 +191,7 @@ function getGameMetadata(
     return $numAchievements;
 }
 
-function getGameAlternatives(int $gameID, $sortBy = null): array
+function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 {
     $orderBy = match ($sortBy) {
         11 => "ORDER BY HasAchievements ASC, gd.Title ",

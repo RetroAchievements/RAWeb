@@ -219,8 +219,10 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
         //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
         // }
     }
-    echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
-    echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
+    echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a>";
+    if ($isFullyFeaturedGame) {
+        echo " - <a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
+    }
 
     echo "<sup>&nbsp;</sup></span></div>";
 }
