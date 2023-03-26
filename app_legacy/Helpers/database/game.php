@@ -194,11 +194,9 @@ function getGameMetadata(
 function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 {
     $orderBy = match ($sortBy) {
-        11 => "ORDER BY HasAchievements ASC, gd.Title ",
-        4 => "ORDER BY gd.TotalTruePoints, gd.ID ASC ",
-        14 => "ORDER BY gd.TotalTruePoints DESC, gd.ID DESC ",
-        5 => "ORDER BY gd.Title, gd.ID ASC ",
-        15 => "ORDER BY gd.Title DESC, gd.ID DESC ",
+        11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
+        2 => "ORDER BY gd.TotalTruePoints, gd.ID ASC ",
+        12 => "ORDER BY gd.TotalTruePoints DESC, gd.ID DESC ",
         // 1 or unspecified
         default => "ORDER BY HasAchievements DESC, gd.Title ",
     };
