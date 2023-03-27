@@ -170,36 +170,6 @@ function validateUsername(string $userIn): ?string
     return null;
 }
 
-/**
- * Gets the account age in years for the input user.
- */
-function getAccountAge(string $user): int
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ua.Created
-              FROM UserAccounts AS ua
-              WHERE ua.User='$user'";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $result = mysqli_fetch_assoc($dbResult);
-    if (!$result) {
-        return 0;
-    }
-
-    $created = strtotime($result['Created']);
-    $curDate = strtotime(date('Y-m-d H:i:s'));
-    $diff = $curDate - $created;
-
-    $years = floor($diff / (365 * 60 * 60 * 24));
-
-    return (int) $years;
-}
-
 // TODO replace with created and lastLogin timestamps on user
 function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$lastLogin): bool
 {
