@@ -7,6 +7,7 @@ namespace Tests\Feature\Platform\Action;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use LegacyApp\Community\Actions\AddGameToListAction;
+use LegacyApp\Community\Actions\RemoveGameFromListAction;
 use LegacyApp\Community\Controllers\UserGameListController;
 use LegacyApp\Community\Enums\UserGameListType;
 use LegacyApp\Community\Models\UserGameListEntry;
@@ -117,7 +118,7 @@ class UserGameListTest extends TestCase
         ]);
     }
 
-    public function testSetRequestAddSeveral(): void
+    public function testSetRequestAddAndRemove(): void
     {
         // Freeze time
         Carbon::setTestNow(Carbon::now()->startOfSecond());
@@ -137,6 +138,25 @@ class UserGameListTest extends TestCase
         $this->assertTrue($action->execute($user, $game2, UserGameListType::SetRequest));
         $this->assertTrue($action->execute($user, $game3, UserGameListType::SetRequest));
 
+        $this->assertEquals($user->gameList(UserGameListType::SetRequest)->get()->toArray(), [
+            ['User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now],
+            ['User' => $user->User, 'GameID' => $game2->ID, 'Updated' => $now],
+            ['User' => $user->User, 'GameID' => $game3->ID, 'Updated' => $now],
+        ]);
+
+        $deleteAction = new RemoveGameFromListAction();
+        $this->assertTrue($deleteAction->execute($user, $game2, UserGameListType::SetRequest));
+
+        $this->assertEquals($user->gameList(UserGameListType::SetRequest)->get()->toArray(), [
+            ['User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now],
+            ['User' => $user->User, 'GameID' => $game3->ID, 'Updated' => $now],
+        ]);
+
+        // no longer present, delete should fail
+        $this->assertFalse($deleteAction->execute($user, $game2, UserGameListType::SetRequest));
+
+        // re-add. should appear at end
+        $this->assertTrue($action->execute($user, $game2, UserGameListType::SetRequest));
         $this->assertEquals($user->gameList(UserGameListType::SetRequest)->get()->toArray(), [
             ['User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now],
             ['User' => $user->User, 'GameID' => $game2->ID, 'Updated' => $now],
