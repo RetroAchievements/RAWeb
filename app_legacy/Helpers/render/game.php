@@ -211,7 +211,6 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
     $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
     $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
 
-    
     if ($isFullyFeaturedGame) {
         echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
         echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
