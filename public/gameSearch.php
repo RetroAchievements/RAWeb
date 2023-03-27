@@ -7,7 +7,19 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $maxCount = 50;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+
+// Remove 'Hubs' and 'Events' and store their values.
+$hubsKey = $consoleList->search('Hubs');
+$eventsKey = $consoleList->search('Events');
+$eventsElement = $consoleList->pull($eventsKey);
+$hubsElement = $consoleList->pull($hubsKey);
+
+$consoleList = $consoleList->sort();
 $consoleList->prepend('All Consoles', 0);
+
+// Add 'Hubs' and 'Events' back to the end of the list.
+$consoleList->put($hubsKey, $hubsElement);
+$consoleList->put($eventsKey, $eventsElement);
 
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -29,7 +41,7 @@ RenderContentStart("Game Search");
 
         echo "<h3>Game Search</h3>";
 
-        echo "<p class='embedded'>Showing: games by largest RetroRatio:</p>";
+        echo "<p class='embedded'>Showing games by largest Retro Ratio</p>";
 
         echo "<p class='embedded'>Show: ";
 
