@@ -10,6 +10,7 @@ use LegacyApp\Community\Actions\AddGameToListAction;
 use LegacyApp\Community\Controllers\UserGameListController;
 use LegacyApp\Community\Enums\UserGameListType;
 use LegacyApp\Community\Models\UserGameListEntry;
+use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Site\Models\User;
 use Tests\TestCase;
@@ -123,7 +124,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->create(['RAPoints' => 10000]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
@@ -150,7 +151,7 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->create(['RAPoints' => 10000]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
@@ -175,21 +176,46 @@ class UserGameListTest extends TestCase
         $now = Carbon::now()->toISOString();
 
         /** @var User $user */
-        $user = User::factory()->create(['RAPoints' => 1234, 'RASoftcorePoints' => 0]);
-
-        /** @var User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->create(['RAPoints' => 2345, 'RASoftcorePoints' => 0]);
         /** @var Game $game1 */
         $game1 = Game::factory()->create();
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
 
-        // 1234 points should only grant one request
+        // 2345 points should only grant one request
         $action = new AddGameToListAction();
         $this->assertTrue($action->execute($user, $game1, UserGameListType::SetRequest));
         $this->assertFalse($action->execute($user, $game2, UserGameListType::SetRequest));
 
         $this->assertEquals($user->gameList(UserGameListType::SetRequest)->get()->toArray(), [
+            ['User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now],
+        ]);
+    }
+
+    public function testSetRequestScopeWithoutAchievements(): void
+    {
+        // Freeze time
+        Carbon::setTestNow(Carbon::now()->startOfSecond());
+        $now = Carbon::now()->toISOString();
+
+        /** @var User $user */
+        $user = User::factory()->create(['RAPoints' => 10000]);
+        /** @var Game $game1 */
+        $game1 = Game::factory()->create();
+        /** @var Game $game2 */
+        $game2 = Game::factory()->create();
+        Achievement::factory()->published()->create(['GameID' => $game2->ID]);
+
+        $action = new AddGameToListAction();
+        $this->assertTrue($action->execute($user, $game1, UserGameListType::SetRequest));
+        $this->assertTrue($action->execute($user, $game2, UserGameListType::SetRequest));
+
+        $this->assertEquals($user->gameList(UserGameListType::SetRequest)->get()->toArray(), [
+            ['User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now],
+            ['User' => $user->User, 'GameID' => $game2->ID, 'Updated' => $now],
+        ]);
+
+        $this->assertEquals($user->gameList(UserGameListType::SetRequest)->withoutAchievements()->get()->toArray(), [
             ['User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now],
         ]);
     }

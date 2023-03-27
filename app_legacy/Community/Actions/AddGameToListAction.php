@@ -12,16 +12,17 @@ class AddGameToListAction
 {
     public function execute(User &$user, Game &$game, int $type): bool
     {
-        $gameList = $user->gameList($type);
-
-        if ($gameList->where('GameID', $game->ID)->exists()) {
+        if ($user->gameList($type)->where('GameID', $game->ID)->exists()) {
             return false;
         }
 
-        $count = $gameList->count();
-        $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
-        if ($count >= $requestInfo['total']) {
-            return false;
+        if ($type === UserGameListType::SetRequest) {
+            $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+
+            $count = $user->gameList($type)->withoutAchievements()->count();
+            if ($count >= $requestInfo['total']) {
+                return false;
+            }
         }
 
         $entry = new UserGameListEntry([
@@ -29,7 +30,7 @@ class AddGameToListAction
             'GameID' => $game->ID,
         ]);
 
-        $gameList->save($entry);
+        $user->gameList($type)->save($entry);
 
         return true;
     }

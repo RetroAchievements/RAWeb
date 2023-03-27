@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LegacyApp\Community\Models;
 
 use Database\Factories\Legacy\UserGameListEntryFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use LegacyApp\Site\Models\User;
@@ -47,5 +48,18 @@ class UserGameListEntry extends BaseModel
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'GameID');
+    }
+
+    /**
+     * @param Builder<UserGameListEntry> $query
+     * @return Builder<UserGameListEntry>
+     */
+    public function scopeWithoutAchievements(Builder $query): Builder
+    {
+        return $query
+            ->select('SetRequest.*')
+            ->leftJoin('Achievements', 'SetRequest.GameID', '=', 'Achievements.GameID')
+            ->groupBy('Achievements.GameID')
+            ->havingRaw('count(Achievements.ID) = 0');
     }
 }
