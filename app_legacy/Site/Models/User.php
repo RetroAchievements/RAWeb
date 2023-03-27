@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Jenssegers\Optimus\Optimus;
-use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Community\Models\UserActivity;
+use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 

@@ -8,6 +8,7 @@ use Database\Factories\Legacy\UserGameListEntryFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use LegacyApp\Platform\Models\Game;
 use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 

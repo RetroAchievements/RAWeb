@@ -79,6 +79,7 @@ function getUserRequestList(string $user = null): array
  */
 function getUserRequestsInformation(string $user, array $list, int $gameID = -1): array
 {
+    /** @var User $userModel */
     $userModel = User::firstWhere('User', $user);
     $requests = UserGameListController::getUserSetRequestsInformation($userModel);
 
