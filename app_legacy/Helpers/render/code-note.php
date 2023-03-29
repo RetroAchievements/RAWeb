@@ -4,7 +4,7 @@ use LegacyApp\Site\Enums\Permissions;
 
 function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $editingPermissions = null): void
 {
-    $isEditable = ($editingUser && $editingPermissions >= Permissions::JuniorDeveloper) ?? false;
+    $isEditable = $editingUser && $editingPermissions >= Permissions::JuniorDeveloper;
 
     echo "<table class='table-highlight'>";
 
