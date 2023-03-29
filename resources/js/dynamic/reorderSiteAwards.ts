@@ -1,11 +1,28 @@
+/**
+ * Sets if a row should have an outline surrounding it.
+ * @param {HTMLTableRowElement} rowEl The row to add or remove an outline from.
+ * @param {boolean} isOutlineVisible Whether the outline should be added or removed.
+ */
+function setRowOutlineVisibility(rowEl: HTMLTableRowElement, isOutlineVisible: boolean) {
+  const outlineClassNames = ['outline', 'outline-menu-link', 'outline-offset-2'];
+
+  if (isOutlineVisible) {
+    rowEl.classList.add(...outlineClassNames);
+  } else {
+    rowEl.classList.remove(...outlineClassNames);
+  }
+}
+
 interface ReorderSiteAwardsState {
   currentGrabbedRowEl: HTMLTableRowElement | null;
   isFormDirty: boolean;
+  manualMoveTimeoutId: NodeJS.Timeout | null;
 }
 
 export const state: ReorderSiteAwardsState = {
   currentGrabbedRowEl: null,
   isFormDirty: false,
+  manualMoveTimeoutId: null,
 };
 
 export function handleRowDragStart(event: DragEvent) {
@@ -33,8 +50,7 @@ export function handleRowDragEnter(event: DragEvent) {
 
     // Add border styling to the target row if it's in the same table and not hidden.
     if (isHoveredRowInSameTable && !isAwardHiddenChecked) {
-      targetRowEl.classList.add('border');
-      targetRowEl.classList.add('border-menu-link');
+      setRowOutlineVisibility(targetRowEl, true);
     }
   }
 }
@@ -45,10 +61,18 @@ export function handleRowDragOver(event: DragEvent) {
 }
 
 export function handleRowDragLeave(event: DragEvent) {
-  const targetRowEl = (event.target as HTMLTableRowElement).closest('tr');
+  const targetRowEl = (event.currentTarget as HTMLTableRowElement).closest('tr');
+  const relatedTarget = event.relatedTarget as HTMLElement;
+
+  // Ignore the event if the related target is a child of the current target.
+  // This prevents an issue where the drag outline disappears when dragging
+  // over a cell in the table row.
+  if (targetRowEl && relatedTarget && targetRowEl.contains(relatedTarget)) {
+    return;
+  }
+
   if (targetRowEl) {
-    targetRowEl.classList.remove('border');
-    targetRowEl.classList.remove('border-menu-link');
+    setRowOutlineVisibility(targetRowEl, false);
   }
 }
 
@@ -89,8 +113,9 @@ export function handleRowDrop(event: DragEvent) {
     }
   }
 
-  dropTargetEl?.classList.remove('border');
-  dropTargetEl?.classList.remove('border-menu-link');
+  if (dropTargetEl) {
+    setRowOutlineVisibility(dropTargetEl, false);
+  }
 }
 
 /**
@@ -261,7 +286,13 @@ export function computeDisplayOrderValues(mappedTableRows: MappedTableRow[]) {
     }
   }
 
-  return withDisplayOrderValues;
+  // Remove all unneeded fields to minimize the size of the upcoming POST call.
+  return withDisplayOrderValues.map((award) => ({
+    type: award.type,
+    data: award.data,
+    extra: award.extra,
+    number: award.number,
+  }));
 }
 
 /**
@@ -364,6 +395,12 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
       const currentIndex = Array.prototype.indexOf.call(tbodyEl.children, targetRowEl);
       let newIndex = currentIndex + moveBy;
 
+      // If we're moving the first row up or the last row down,
+      // the move is redundant and we can bail.
+      if ((currentIndex === 0 && moveBy < 0) || (currentIndex === tbodyEl.children.length - 1 && moveBy > 1)) {
+        return;
+      }
+
       // Get the index of the last hidden row in the table.
       const lastHiddenRowIndex = getLastHiddenRowIndex(tbodyEl);
 
@@ -375,7 +412,18 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
 
       // Scroll the view to the moved row if scrollToRow is true.
       if (scrollToRow) {
-        targetRowEl.scrollIntoView({ behavior: 'smooth' });
+        const scrollPosition = targetRowEl.getBoundingClientRect().top + window.scrollY - 64;
+        window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+
+        if (state.manualMoveTimeoutId) {
+          clearTimeout(state.manualMoveTimeoutId);
+        }
+
+        setRowOutlineVisibility(targetRowEl, true);
+
+        state.manualMoveTimeoutId = setTimeout(() => {
+          setRowOutlineVisibility(targetRowEl, false);
+        }, 1500);
       }
     }
   }

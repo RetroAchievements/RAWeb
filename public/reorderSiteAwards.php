@@ -157,7 +157,10 @@ function handleSaveAllClick() {
 function postAllAwardsDisplayOrder(awards) {
     showStatusMessage('Updating...');
 
-    $.post('/request/user/update-site-awards.php', { awards })
+    // We want each award to only take up a single variable in the form POST payload.
+    const compressedAwards = awards.map((award) => [award.type, award.data, award.extra, award.number].join(','));
+
+    $.post('/request/user/update-site-awards.php', { awards: compressedAwards })
         .done(function (response) {
             showStatusMessage('Awards updated successfully');
             $('#rightcontainer').html(response.updatedAwardsHTML);
@@ -190,7 +193,7 @@ function postAllAwardsDisplayOrder(awards) {
             echo "</select>";
             echo "</div>";
 
-            echo "<table id='$humanReadableAwardKind-reorder-table' class='table-highlight mb-8'>";
+            echo "<table id='$humanReadableAwardKind-reorder-table' class='mb-8'>";
 
             echo "<thead>";
             echo "<tr class='do-not-highlight'>";
@@ -239,7 +242,7 @@ function postAllAwardsDisplayOrder(awards) {
                 echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
                 if (count($awards) > 50) {
                     echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom');
-                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50');
+                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true);
                     echo generateManualMoveButtons($awardCounter, 1);
                 } elseif (count($awards) > 15) {
                     echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10');

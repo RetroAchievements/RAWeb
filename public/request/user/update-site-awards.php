@@ -9,13 +9,25 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'awards.*.type' => 'required|integer',
-    'awards.*.data' => 'required|integer',
-    'awards.*.extra' => 'required|integer',
-    'awards.*.number' => 'required|integer',
+    'awards.*' => ['required', 'string', 'regex:/^(\d+),(\d+),(\d+),(\d+)$/'],
+], [
+    'awards.*.regex' => 'The :attribute must be 4 comma-separated integers.',
 ]);
 
-$awards = $input['awards'];
+$compressedAwards = $input['awards'];
+
+// The awards this endpoint receives are compressed to save on variable space.
+// Before doing any more work, we'll decompress the awards.
+$awards = array_map(function ($award) {
+    $decoded = explode(',', $award);
+
+    return [
+        'type' => intval($decoded[0]),
+        'data' => intval($decoded[1]),
+        'extra' => intval($decoded[2]),
+        'number' => intval($decoded[3]),
+    ];
+}, $compressedAwards);
 
 foreach ($awards as $award) {
     $awardType = $award['type'];
