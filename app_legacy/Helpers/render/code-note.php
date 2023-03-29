@@ -1,13 +1,10 @@
 <?php
 
-function RenderCodeNotes(array $codeNotes, ?string $editMode = null, ?string $user = null): void
-{
-    $allowedEditModeValues = ['all', 'jr-dev', null];
+use LegacyApp\Site\Enums\Permissions;
 
-    // Validate the $editMode input.
-    if (!in_array($editMode, $allowedEditModeValues, true)) {
-        throw new InvalidArgumentException('Invalid value for $editMode');
-    }
+function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $editingPermissions = null): void
+{
+    $isEditable = ($editingUser && $editingPermissions >= Permissions::JuniorDeveloper) ?? false;
 
     echo "<table class='table-highlight'>";
 
@@ -16,7 +13,7 @@ function RenderCodeNotes(array $codeNotes, ?string $editMode = null, ?string $us
     echo "<th style='font-size:100%;'>Mem</th>";
     echo "<th style='font-size:100%;'>Note</th>";
     echo "<th style='font-size:100%;'>Author</th>";
-    if ($editMode !== null) {
+    if ($isEditable) {
         echo "<th>Dev</th>";
     }
     echo "</tr>";
@@ -31,8 +28,8 @@ function RenderCodeNotes(array $codeNotes, ?string $editMode = null, ?string $us
         }
 
         $canEditNote = (
-            $editMode === 'all'
-            || ($editMode === 'jr-dev' && $nextCodeNote['User'] === $user)
+            $editingPermissions >= Permissions::Developer
+            || ($editingPermissions === Permissions::JuniorDeveloper && $nextCodeNote['User'] === $editingUser)
         );
 
         echo "<tr id='row-$rowIndex'>";
@@ -66,7 +63,7 @@ function RenderCodeNotes(array $codeNotes, ?string $editMode = null, ?string $us
             echo "<button class='edit-btn inline' onclick='beginEditMode($rowIndex)'>Edit</button>";
             echo "<button class='cancel-btn hidden' onclick='cancelEditMode($rowIndex)'>Cancel</button>";
             echo "</td>";
-        } elseif ($editMode !== null) {
+        } elseif ($isEditable) {
             echo "<td></td>";
         }
 

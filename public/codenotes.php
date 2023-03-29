@@ -7,21 +7,11 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
 
-sanitize_outputs(
-    $gameData['Title'],
-    $gameData['ConsoleName'],
-);
-
 getCodeNotes($gameID, $codeNotes);
 
-RenderContentStart('Code Notes - ' . htmlspecialchars_decode($gameData['Title']));
+RenderContentStart('Code Notes - ' . $gameData['Title']);
 ?>
 <script>
-// If the user types some changes in for a note but cancels,
-// revert the input field's value to the note's original contents.
-/** @type Record<number, string> */
-const cachedInitialEditValues = {};
-
 /**
  * Toggle the editing state of a code note row and 
  * show/hide the elements necessary to perform an edit.
@@ -58,11 +48,7 @@ function beginEditMode(rowIndex) {
     const rowEl = document.getElementById(`row-${rowIndex}`);
     setRowEditingEnabled(rowEl, true);
 
-    // In the event the user cancels their edit, we'll restore whatever
-    // the original note value is to the input field. We use this cache
-    // in order to do so.
     const noteEditEl = rowEl.querySelector('.note-edit');
-    cachedInitialEditValues[rowIndex] = noteEditEl.value;
 
     // Calculate the number of rows based on the number of newline characters.
     const rowCount = (noteEditEl.value.match(/\n/g) || []).length + 1;
@@ -79,9 +65,11 @@ function beginEditMode(rowIndex) {
 function cancelEditMode(rowIndex) {
     const rowEl = document.getElementById(`row-${rowIndex}`);
 
-    // Restore the cached value so unsaved edits are not persisted.
+    // Restore the original value so unsaved edits are not persisted.
+    const noteDisplayEl = rowEl.querySelector('.note-display');
     const noteEditEl = rowEl.querySelector('.note-edit');
-    noteEditEl.value = cachedInitialEditValues[rowIndex];
+    const originalValue = noteDisplayEl.innerHTML.replace(/<br>\n/g, '\n');
+    noteEditEl.value = originalValue;
 
     setRowEditingEnabled(rowEl, false);
 }
@@ -89,10 +77,16 @@ function cancelEditMode(rowIndex) {
 /**
  * Did the user change the contents of the note?
  * 
- * @param {string} originalNoteValue
- * @param {string} currentNoteValue
+ * @param {number} rowIndex - The index of the row to compare view and edit values.
+ * @param {string} currentNoteValue - The new note value given by the user.
  */
-function isSavedNoteDifferent(originalNoteValue, newNoteValue) {
+function isSavedNoteDifferent(rowIndex, newNoteValue) {
+    // Get the original value from the view-mode DOM content,
+    // which we'll compare against the user's editable content.
+    const rowEl = document.getElementById(`row-${rowIndex}`);
+    const noteDisplayEl = rowEl.querySelector('.note-display');
+    const originalNoteValue = noteDisplayEl.innerHTML;
+
     // The original note has invisible "<br>" tags for each line break.
     const noteValueWithLineBreaks = newNoteValue.replace(/\n/g, '<br>\n');
 
@@ -118,7 +112,7 @@ function saveCodeNote(rowIndex) {
 
     // If the user didn't actually change anything in the note but still
     // pressed the Save button, treat this like it's a cancel.
-    if (!isSavedNoteDifferent(noteDisplayEl.innerHTML, noteEditEl.value)) {
+    if (!isSavedNoteDifferent(rowIndex, noteEditEl.value)) {
         cancelEditMode(rowIndex);
         return;
     }
@@ -183,14 +177,7 @@ function saveCodeNote(rowIndex) {
         <br/>
         <?php
         if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
-            $editMode = null;
-            if ($permissions === Permissions::JuniorDeveloper) {
-                $editMode = 'jr-dev';
-            } elseif ($permissions >= Permissions::Developer) {
-                $editMode = 'all';
-            }
-
-            RenderCodeNotes($codeNotes, $editMode, $user);
+            RenderCodeNotes($codeNotes, $user, $permissions);
         }
         ?>
     </div>
