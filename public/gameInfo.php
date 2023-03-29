@@ -60,7 +60,7 @@ $isEventGame = $consoleName == 'Events';
 
 $pageTitle = "$gameTitle ($consoleName)";
 
-$relatedGames = getGameAlternatives($gameID, $sortBy);
+$relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
 $gameAlts = [];
 $gameHubs = [];
 $gameSubsets = [];
