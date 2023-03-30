@@ -21,6 +21,11 @@ $menu = collect([
                 'url' => 'https://docs.retroachievements.org/FAQ',
                 'visible' => true,
             ],
+            [
+                'label' => __('JavaScript API'),
+                'url' => 'https://retroachievements-api-js.vercel.app',
+                'visible' => true,
+            ],
             // [
             //     'active' => Route::is('docs.api'),
             //     'label' => __('API'),
