@@ -12,7 +12,6 @@ use LegacyApp\Community\Enums\ClaimFilters;
  *   object     [value]
  *    int        ID                 unique ID of the claim
  *    string     User               user who made the claim
- *    int        UserRole           role of the user who made the claim
  *    int        GameID             id of the claimed game
  *    string     GameTitle          title of the claimed game
  *    string     GameIcon           site-relative path to the game's icon image
