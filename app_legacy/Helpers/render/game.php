@@ -199,7 +199,7 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
 
     $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
     // Used for options which sort in Descending order on first click
-    $sortReverseType = ($sortBy >= 10) ? "^" : "<sup>v</sup>";   
+    $sortReverseType = ($sortBy >= 10) ? "^" : "<sup>v</sup>"; 
 
     $sort1 = ($sortBy == 1) ? 11 : 1;
     $sort2 = ($sortBy == 2) ? 12 : 2;
