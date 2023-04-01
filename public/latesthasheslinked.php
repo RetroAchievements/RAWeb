@@ -10,7 +10,7 @@ $maxCount = 50;
 
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
-$searchedHash = requestInputSanitized('h', '');
+$searchedHash = requestInputSanitized('h');
 if ($offset < 0) {
     $offset = 0;
 }
