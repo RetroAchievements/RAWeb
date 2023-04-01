@@ -198,6 +198,8 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
     $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
 
     $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
+    // Used for options which sort in Descending order on first click
+    $sortReverseType = ($sortBy >= 10) ? "^" : "<sup>v</sup>";   
 
     $sort1 = ($sortBy == 1) ? 11 : 1;
     $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -211,6 +213,12 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
     $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
     $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
 
+    $reverseMark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortType" : "";
+    $reverseMark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortType" : "";
+    $reverseMark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortType" : "";
+    $reverseMark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
+    $reverseMark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
+
     if ($isFullyFeaturedGame) {
         echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
         echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
@@ -223,7 +231,7 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
     }
     else {
         echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
-        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Retro Points$mark2</a>";
+        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Retro Points$reverseMark2</a>";
     }
 
     echo "<sup>&nbsp;</sup></span></div>";
