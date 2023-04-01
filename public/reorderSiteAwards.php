@@ -241,11 +241,11 @@ function postAllAwardsDisplayOrder(awards) {
                 echo "<td>";
                 echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
                 if (count($awards) > 50) {
-                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom');
+                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom', autoScroll: true);
                     echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true);
                     echo generateManualMoveButtons($awardCounter, 1);
                 } elseif (count($awards) > 15) {
-                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10');
+                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10', autoScroll: true);
                     echo generateManualMoveButtons($awardCounter, 1);
                 } else {
                     echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');

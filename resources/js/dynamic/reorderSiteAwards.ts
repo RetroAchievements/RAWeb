@@ -144,40 +144,20 @@ export function getLastHiddenRowIndex(tbodyEl: HTMLTableSectionElement) {
 /**
  * Adjusts the newIndex based on hidden rows and moveBy value.
  * Ensures that the target row cannot move above the hidden rows.
- * When moving down, it skips hidden rows and places the target row in the desired position.
  *
  * @param {number} newIndex - The calculated new index after moving the row.
  * @param {number} lastHiddenRowIndex - The index of the last hidden row.
- * @param {number} totalRowCount - The total number of rows in the table.
  * @param {number} moveBy - The number of rows the target row should move.
- * @param {Element} tbodyEl - The tbody element containing the rows.
  * @returns {number} - The adjusted new index for the target row.
  */
 export function adjustNewIndex(
   newIndex: number,
   lastHiddenRowIndex: number,
-  totalRowCount: number,
   moveBy: number,
-  tbodyEl: HTMLTableSectionElement,
 ) {
   // Prevent the row from moving above hidden rows when moving upwards
   if (moveBy < 0 && newIndex <= lastHiddenRowIndex) {
     newIndex = lastHiddenRowIndex + 1;
-  } else if (moveBy > 0) {
-    let steps = moveBy;
-
-    // When moving down, skip hidden rows and adjust the newIndex accordingly
-    while (steps > 0 && newIndex < totalRowCount - 1) {
-      newIndex += 1;
-      if (!isRowHidden(tbodyEl.children[newIndex] as HTMLTableRowElement)) {
-        steps -= 1;
-      }
-    }
-
-    // If there are no more steps left, move the row up by one index to get the correct position
-    if (steps === 0) {
-      newIndex -= 1;
-    }
   }
 
   return newIndex;
@@ -390,8 +370,6 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
     const tbodyEl = targetRowEl.closest('tbody');
 
     if (tbodyEl) {
-      const totalRowCount = tbodyEl.children.length;
-
       const currentIndex = Array.prototype.indexOf.call(tbodyEl.children, targetRowEl);
       let newIndex = currentIndex + moveBy;
 
@@ -405,7 +383,7 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
       const lastHiddenRowIndex = getLastHiddenRowIndex(tbodyEl);
 
       // Adjust the new index based on hidden rows and table boundaries.
-      newIndex = adjustNewIndex(newIndex, lastHiddenRowIndex, totalRowCount, moveBy, tbodyEl);
+      newIndex = adjustNewIndex(newIndex, lastHiddenRowIndex, moveBy);
 
       // Move the row to the new index.
       tbodyEl.insertBefore(targetRowEl, tbodyEl.children[newIndex + (moveBy > 0 ? 1 : 0)]);

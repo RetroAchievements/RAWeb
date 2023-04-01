@@ -9,9 +9,9 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'awards.*' => ['required', 'string', 'regex:/^(\d+),(\d+),(\d+),(\d+)$/'],
+    'awards.*' => ['required', 'string', 'regex:/^(\d+),(\d+),(\d+),(-?\d+)$/'],
 ], [
-    'awards.*.regex' => 'The :attribute must be 4 comma-separated integers.',
+    'awards.*.regex' => 'The :attribute must be 4 comma-separated integers, with the 4th value allowing a negative integer.',
 ]);
 
 $compressedAwards = $input['awards'];
