@@ -386,7 +386,9 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
       newIndex = adjustNewIndex(newIndex, lastHiddenRowIndex, moveBy);
 
       // Move the row to the new index.
+      const currentScrollPosition = window.scrollY;
       tbodyEl.insertBefore(targetRowEl, tbodyEl.children[newIndex + (moveBy > 0 ? 1 : 0)]);
+      window.scrollTo({ top: currentScrollPosition, behavior: 'auto' });
 
       // Scroll the view to the moved row if scrollToRow is true.
       if (scrollToRow) {
