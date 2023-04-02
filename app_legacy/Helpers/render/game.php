@@ -213,11 +213,11 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
     $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
     $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
 
-    $reverseMark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortType" : "";
-    $reverseMark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortType" : "";
-    $reverseMark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortType" : "";
-    $reverseMark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
-    $reverseMark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
+    $reverseMark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortReverseType" : "";
 
     if ($isFullyFeaturedGame) {
         echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
