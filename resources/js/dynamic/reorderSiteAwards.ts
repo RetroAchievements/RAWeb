@@ -385,7 +385,11 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
       // Adjust the new index based on hidden rows and table boundaries.
       newIndex = adjustNewIndex(newIndex, lastHiddenRowIndex, moveBy);
 
-      // Move the row to the new index.
+      // Move to the row the new index. We'll also save the current scroll position
+      // before the move and restore it immediately after the move. If we don't do this,
+      // there is a rare circumstance where the browser will automatically adjust the
+      // scroll position, leading to an undesired scroll jump.
+      /** @see https://github.com/RetroAchievements/RAWeb/pull/1439#issuecomment-1493380833 */
       const currentScrollPosition = window.scrollY;
       tbodyEl.insertBefore(targetRowEl, tbodyEl.children[newIndex + (moveBy > 0 ? 1 : 0)]);
       window.scrollTo({ top: currentScrollPosition, behavior: 'auto' });
