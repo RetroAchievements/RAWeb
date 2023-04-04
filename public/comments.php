@@ -124,13 +124,13 @@ switch ($articleTypeID)
         if ($permissions < Permissions::Admin) {
             abort(403);
         }
-        /** @var User $user */
-        $user = User::findOrFail($articleID);
-        $pageTitle = $user->User;
+        /** @var User $pageUser */
+        $pageUser = User::findOrFail($articleID);
+        $pageTitle = $pageUser->User;
         $commentsLabel = "Moderation Comments";
         $navPath = [
             'All Users' => '/userList.php',
-            $user->User => '/user/' . $user->User,
+            $pageUser->User => '/user/' . $pageUser->User,
         ];
         break;
 
