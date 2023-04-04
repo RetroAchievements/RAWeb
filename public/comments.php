@@ -111,12 +111,12 @@ switch ($articleTypeID)
         break;
 
     case ArticleType::User:
-        /** @var User $user */
-        $user = User::findOrFail($articleID);
-        $pageTitle = $user->User;
+        /** @var User $pageUser */
+        $pageUser = User::findOrFail($articleID);
+        $pageTitle = $pageUser->User;
         $navPath = [
             'All Users' => '/userList.php',
-            $user->User => '/user/' . $user->User,
+            $pageUser->User => '/user/' . $pageUser->User,
         ];
         break;
 
