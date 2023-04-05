@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        if (Schema::hasTable('jobs')) {
+        if (Schema::hasTable('queue_jobs')) {
             return;
         }
 
-        Schema::create('jobs', function (Blueprint $table) {
+        Schema::create('queue_jobs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('queue')->index();
             $table->longText('payload');
@@ -26,6 +26,6 @@ return new class() extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('jobs');
+        Schema::dropIfExists('queue_jobs');
     }
 };

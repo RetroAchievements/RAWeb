@@ -110,7 +110,6 @@
             "dont-discover": [
                 "beyondcode/laravel-websockets",
                 "laravel/fortify",
-                "laravel/horizon",
                 "laravel/passport"
             ]
         }

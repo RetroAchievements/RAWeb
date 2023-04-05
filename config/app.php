@@ -264,7 +264,7 @@ return [
         // App\Site\BroadcastServiceProvider::class,
         App\Site\EventServiceProvider::class,
         // App\Site\FortifyServiceProvider::class,
-        // App\Site\HorizonServiceProvider::class,
+        App\Site\HorizonServiceProvider::class,
         App\Site\RouteServiceProvider::class,
     ],
 

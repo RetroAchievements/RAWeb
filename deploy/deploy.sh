@@ -74,7 +74,7 @@ sed -i "s/APP_VERSION=.*/APP_VERSION=${VERSION}/g" .env
 ${PHP_BIN} artisan config:cache
 #${PHP_BIN} artisan route:cache
 #${PHP_BIN} artisan octane:reload
-#${PHP_BIN} artisan horizon:terminate
+${PHP_BIN} artisan horizon:terminate
 
 sudo -S service ${PHP_FPM} reload
 
