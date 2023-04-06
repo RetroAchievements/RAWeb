@@ -10,6 +10,8 @@ class UpdateGameWeightedPoints
 {
     public function run(int $gameId): bool
     {
+        // TODO pass game model
+
         $query = "SELECT ach.ID, ach.Points, SUM(aw.HardcoreMode) AS NumAchieved
               FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID

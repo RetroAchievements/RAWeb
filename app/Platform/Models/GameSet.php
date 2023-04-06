@@ -6,10 +6,9 @@ namespace App\Platform\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 
-class GameRelation extends BaseModel
+class GameSet extends BaseModel
 {
-    // TODO drop GameAlternatives, migrate to game_sets
-    protected $table = 'GameAlternatives';
+    protected $table = 'games_sets';
 
     // == accessors
 

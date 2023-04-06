@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
+        if (Schema::hasTable('player_achievements')) {
+            return;
+        }
+
         // sync target for Awarded
         Schema::create('player_achievements', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -58,14 +62,11 @@ return new class() extends Migration {
              */
 
             /*
-             * should not to be unique -> a user might want to unlock it in a different version to try it
-             */
-            $table->index(['user_id', 'achievement_id']);
-
-            /*
              * an achievement should only trigger once by a user
              */
-            $table->unique(['user_id', 'trigger_id']);
+            $table->unique(['user_id', 'achievement_id']);
+
+            $table->index('unlocked_at');
 
             $table->foreign('achievement_id')->references('ID')->on('Achievements')->onDelete('cascade');
             $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
@@ -78,22 +79,5 @@ return new class() extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('player_achievements');
-
-        // Schema::table('Awarded', function (Blueprint $table) {
-        //     $table->dropForeign('player_achievements_achievement_id_foreign');
-        //     $table->dropForeign('player_achievements_user_id_foreign');
-        //     $table->dropForeign('player_achievements_trigger_id_foreign');
-        //     $table->dropForeign('player_achievements_player_session_id_foreign');
-        //     $table->dropForeign('player_achievements_unlocker_id_foreign');
-        //     $table->dropUnique('player_achievements_user_id_trigger_id_foreign');
-        //     $table->dropIndex('player_achievements_user_id_achievement_id_index');
-        //
-        //     $table->dropColumn('id');
-        //     $table->dropColumn('user_id');
-        //     $table->dropColumn('trigger_id');
-        //     $table->dropColumn('player_session_id');
-        //     $table->dropColumn('unlocked_hardcore_at');
-        //     $table->dropColumn('unlocker_id');
-        // });
     }
 };

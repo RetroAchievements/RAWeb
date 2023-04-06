@@ -16,6 +16,9 @@ class Rating extends BaseModel
     // TODO drop ratings_user_rating_unique index, use ratable morph instead
     protected $table = 'Rating';
 
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     // == accessors
 
     // == mutators

@@ -57,15 +57,15 @@ class Game extends BaseModel implements HasComments, HasMedia
     // TODO drop IsFinal
     protected $table = 'GameData';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     protected $fillable = [
         'system_id',
         'release',
         'Title',
-    ];
-
-    protected $with = [
-        'system',
-        // TODO 'media',
     ];
 
     protected $visible = [

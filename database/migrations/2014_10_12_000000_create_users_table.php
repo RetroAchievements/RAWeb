@@ -17,8 +17,6 @@ return new class() extends Migration {
              */
             $table->string('display_name')->after('User')->nullable();
 
-            $table->timestampTz('last_activity_at')->nullable()->after('LastActivityID');
-
             /*
              * nullable email -> there is some legacy here...
              */
@@ -88,7 +86,6 @@ return new class() extends Migration {
             $table->dropIndex('users_points_weighted_unranked_at_index');
 
             $table->dropColumn('display_name');
-            $table->dropColumn('last_activity_at');
             $table->dropColumn('email_verified_at');
             $table->dropRememberToken();
             $table->dropColumn('preferences');

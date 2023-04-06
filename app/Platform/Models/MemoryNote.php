@@ -22,6 +22,9 @@ class MemoryNote extends BaseModel
     // TODO drop GameID, migrate to game_hash_set_id
     protected $table = 'CodeNotes';
 
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     protected $visible = [
         'GameID',
         'Address',

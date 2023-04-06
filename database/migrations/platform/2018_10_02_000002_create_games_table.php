@@ -17,6 +17,7 @@ return new class() extends Migration {
 
             /*
              * metrics (all sets)
+             * should match achievement_sets
              */
             $table->unsignedInteger('players_total')->nullable()->after('RichPresencePatch');
             $table->unsignedInteger('achievements_published')->nullable()->after('players_total');
@@ -29,6 +30,7 @@ return new class() extends Migration {
 
             // Alphabetic sort
             $table->index('title', 'games_title_index');
+            $table->index('released_at', 'games_released_at_index');
 
             $table->foreign('ConsoleID', 'games_systems_id_foreign')->references('ID')->on('Console')->onDelete('set null');
         });

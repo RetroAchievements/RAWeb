@@ -12,6 +12,7 @@ return new class() extends Migration {
         if (Schema::hasTable('sync_status')) {
             return;
         }
+
         Schema::create('sync_status', function (Blueprint $table) {
             $table->string('kind');
             $table->string('reference')->nullable();
@@ -23,6 +24,6 @@ return new class() extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('sync_status');
+        // no
     }
 };

@@ -83,6 +83,7 @@ return new class() extends Migration {
 
             /*
              * metrics (all latest versions)
+             * should match achievement_set_versions
              */
             $table->unsignedInteger('players_total')->nullable();
             $table->unsignedInteger('achievements_published')->nullable();
@@ -146,6 +147,9 @@ return new class() extends Migration {
              */
             $table->mediumText('definition')->nullable();
 
+            /**
+             * Metrics should match achievements_sets
+             */
             $table->unsignedInteger('players_total')->nullable();
             $table->unsignedInteger('achievements_published')->nullable();
             $table->unsignedInteger('achievements_unpublished')->nullable();

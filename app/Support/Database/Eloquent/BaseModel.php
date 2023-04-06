@@ -10,9 +10,4 @@ use Illuminate\Database\Eloquent\Model;
 abstract class BaseModel extends Model
 {
     use HasFullTableName;
-
-    protected $primaryKey = 'ID';
-
-    public const CREATED_AT = 'Created';
-    public const UPDATED_AT = 'Updated';
 }

@@ -24,6 +24,11 @@ class ForumTopicComment extends BaseModel
     // TODO drop Authorised, migrate to authorized_at
     protected $table = 'ForumTopicComment';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'DateCreated';
+    public const UPDATED_AT = 'DateModified';
+
     public function getEditLinkAttribute(): string
     {
         return route('forum-topic-comment.edit', $this);

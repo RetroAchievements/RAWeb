@@ -11,6 +11,8 @@ class UserActivityLegacy extends BaseModel
     // TODO drop Activity table, migrate to UserActivity/user_activities model
     protected $table = 'Activity';
 
+    protected $primaryKey = 'ID';
+
     public const CREATED_AT = 'timestamp';
     public const UPDATED_AT = 'lastupdate';
 
@@ -21,9 +23,5 @@ class UserActivityLegacy extends BaseModel
         'activitytype',
         'data',
         'data2',
-    ];
-
-    protected $with = [
-        'user',
     ];
 }

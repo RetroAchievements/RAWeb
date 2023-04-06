@@ -29,6 +29,15 @@ class Ticket extends BaseModel
     // TODO drop Hardcore, derived from player_session
     protected $table = 'Ticket';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'ReportedAt';
+    public const UPDATED_AT = 'Updated';
+
+    protected $casts = [
+        'ResolvedAt' => 'datetime',
+    ];
+
     // == search
 
     public function toSearchableArray(): array

@@ -51,24 +51,20 @@ class Achievement extends BaseModel implements HasComments
     // TODO drop BadgeName, derived from badge set
     protected $table = 'Achievements';
 
-    public const CREATED_AT = 'DateCreated';
+    protected $primaryKey = 'ID';
 
-    // published = core
-    // const Core = 3; # published = core
-    // const Unofficial = 5; # unpublished ... doesn't matter. anything that is not 3 is unpublished/unofficial
-    public const PUBLISHED = 3;
+    public const CREATED_AT = 'DateCreated';
+    public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
         'Title',
         'Description',
     ];
 
-    protected $dates = [
-        'DateModified',
-    ];
-
-    protected $with = [
-        // 'media',
+    protected $casts = [
+        'DateModified' => 'datetime',
+        'Points' => 'integer',
+        'TrueRatio' => 'integer',
     ];
 
     protected $visible = [

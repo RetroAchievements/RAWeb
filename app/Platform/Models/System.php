@@ -43,6 +43,11 @@ class System extends BaseModel implements HasMedia
     // $table->unsignedInteger('achievements_unpublished')->nullable();
     protected $table = 'Console';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     protected static function newFactory(): SystemFactory
     {
         return SystemFactory::new();
@@ -55,10 +60,6 @@ class System extends BaseModel implements HasMedia
         'manufacturer',
         'order_column',
         'active',
-    ];
-
-    protected $with = [
-        // 'media',
     ];
 
     protected $visible = [

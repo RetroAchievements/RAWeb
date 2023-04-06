@@ -16,6 +16,8 @@ class UnlockPlayerAchievementAction
 {
     public function execute(User $user, Achievement $achievement, bool $hardcore, ?User $unlockedBy = null): array
     {
+        // TODO refactor to new schema
+
         $alreadyUnlocked = false;
         $response = ['achievementId' => $achievement->id];
 

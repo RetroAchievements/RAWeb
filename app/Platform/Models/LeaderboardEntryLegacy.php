@@ -12,6 +12,9 @@ class LeaderboardEntryLegacy extends BaseModel
     // TODO drop LeaderboardEntry table, migrate to LeaderboardEntry/leaderboard_entries
     protected $table = 'LeaderboardEntry';
 
+    public const CREATED_AT = 'DateSubmitted';
+    public const UPDATED_AT = 'Updated';
+
     // == accessors
 
     // == mutators

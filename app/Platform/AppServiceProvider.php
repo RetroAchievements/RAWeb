@@ -6,6 +6,16 @@ namespace App\Platform;
 
 use App\Platform\Commands\DeleteOrphanedLeaderboardEntries;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\SyncAchievements;
+use App\Platform\Commands\SyncGameHashes;
+use App\Platform\Commands\SyncGames;
+use App\Platform\Commands\SyncGameSets;
+use App\Platform\Commands\SyncLeaderboardEntries;
+use App\Platform\Commands\SyncLeaderboards;
+use App\Platform\Commands\SyncMemoryNotes;
+use App\Platform\Commands\SyncPlayerAchievements;
+use App\Platform\Commands\SyncPlayerBadges;
+use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAllAchievementsMetrics;
 use App\Platform\Commands\UpdateAllGamesMetrics;
@@ -28,6 +38,8 @@ use App\Platform\Models\Game;
 use App\Platform\Models\GameHash;
 use App\Platform\Models\GameHashSet;
 use App\Platform\Models\GameHashSetHash;
+use App\Platform\Models\GameSet;
+use App\Platform\Models\GameSetGame;
 use App\Platform\Models\IntegrationRelease;
 use App\Platform\Models\Leaderboard;
 use App\Platform\Models\LeaderboardEntry;
@@ -77,6 +89,20 @@ class AppServiceProvider extends ServiceProvider
 
                 UpdatePlayerGameMetrics::class,
                 UpdateAllPlayerGamesMetrics::class,
+
+                /*
+                 * Sync
+                 */
+                SyncAchievements::class,
+                SyncGameSets::class,
+                SyncGames::class,
+                SyncLeaderboards::class,
+                SyncLeaderboardEntries::class,
+                SyncMemoryNotes::class,
+                SyncPlayerAchievements::class,
+                SyncPlayerBadges::class,
+                SyncPlayerRichPresence::class,
+                SyncGameHashes::class,
             ]);
         }
 
@@ -103,6 +129,8 @@ class AppServiceProvider extends ServiceProvider
             'game-hash' => GameHash::class,
             'game-hash-set' => GameHashSet::class,
             'game-hash-set.game-hash' => GameHashSetHash::class,
+            'game-set' => GameSet::class,
+            'game-set.game' => GameSetGame::class,
             'integration.release' => IntegrationRelease::class,
             'leaderboard' => Leaderboard::class,
             // TODO 'leaderboard-entry' => LeaderboardEntry::class,

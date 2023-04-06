@@ -27,7 +27,10 @@ class Message extends BaseModel
     // TODO drop Type
     protected $table = 'Message';
 
+    protected $primaryKey = 'ID';
+
     public const CREATED_AT = 'TimeSent';
+    public const UPDATED_AT = null;
 
     protected $casts = [
         'read_at' => 'datetime',

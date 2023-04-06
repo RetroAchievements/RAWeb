@@ -49,10 +49,8 @@ return new class() extends Migration {
         });
 
         Schema::table('Friends', function (Blueprint $table) {
-            if (DB::connection()->getDriverName() === 'sqlite') {
+            if (DB::connection()->getDriverName() !== 'sqlite') {
                 // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
-                $table->bigInteger('id')->first();
-            } else {
                 $table->bigIncrements('id')->first();
             }
             $table->unsignedBigInteger('user_id')->nullable()->after('id');

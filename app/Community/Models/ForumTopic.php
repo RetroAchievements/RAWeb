@@ -31,15 +31,13 @@ class ForumTopic extends BaseModel
     // TODO drop Author -> derived
     protected $table = 'ForumTopic';
 
+    protected $primaryKey = 'ID';
+
     public const CREATED_AT = 'DateCreated';
+    public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
         'Title',
-    ];
-
-    protected $with = [
-        'user',
-        'forum',
     ];
 
     protected $dispatchesEvents = [

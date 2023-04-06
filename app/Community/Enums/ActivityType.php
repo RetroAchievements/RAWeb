@@ -6,6 +6,7 @@ namespace App\Community\Enums;
 
 abstract class ActivityType
 {
+    // TODO remove - activity types can be derived from respective tables; user activity log will work differently
     public const UnlockedAchievement = 1;
 
     public const Login = 2;

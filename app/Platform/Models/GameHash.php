@@ -29,6 +29,11 @@ class GameHash extends BaseModel
     // TODO drop game_hashes_md5_unique
     protected $table = 'GameHashLibrary';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     protected $fillable = [
         'hash',
         'MD5',

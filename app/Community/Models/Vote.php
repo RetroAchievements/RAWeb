@@ -17,6 +17,9 @@ class Vote extends BaseModel
     // TODO drop votes_user_achievement_id_unique
     protected $table = 'Votes';
 
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     // == accessors
 
     // == mutators

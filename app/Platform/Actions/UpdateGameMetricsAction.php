@@ -43,9 +43,6 @@ class UpdateGameMetricsAction
 
         // $this->attributes['players_total'] = $this->players()->count();
 
-        /*
-         * TODO: update players metrics
-         */
         // $game->save();
     }
 }

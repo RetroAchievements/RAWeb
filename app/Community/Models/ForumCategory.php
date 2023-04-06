@@ -24,6 +24,11 @@ class ForumCategory extends BaseModel
     // TODO rename Updated column to updated_at
     protected $table = 'ForumCategory';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     protected $fillable = [
         'Name',
         'Description',

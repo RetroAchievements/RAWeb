@@ -428,6 +428,8 @@ function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
     // {$RatingType::Game}
 
     // TODO slow query (15)
+    // $games = User::find($user->ID)->playerGames()->orderByDesc('last_played_at')->get();
+    // $games = User::find($user->ID)->achievementSets()->get();
     $query = "
         SELECT MAX(act.ID) as ActivityID, MAX(act.lastupdate) AS LastPlayed, act.data as GameID
         FROM Activity AS act

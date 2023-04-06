@@ -80,7 +80,6 @@ class SyncComments extends Command
         // [
         //     'commentable_id' => $origin->id,
         //     'commentable_type' => $commentableType,
-        //     'origin_id' => $commentableType . '_' . $origin->ID,
         //     'user_id' => $origin->ExistingAuthorID,
         // ];
 
@@ -89,7 +88,6 @@ class SyncComments extends Command
         //     ->insertUpdate([
         //         'commentable_id' => $transformed->ArticleID,
         //         'commentable_type' => $commentableType,
-        //         'origin_id' => $commentableType . '_' . $transformed->ID,
         //         'user_id' => $transformed->AuthorID,
         //         'body' => $payload,
         //         'created_at' => $transformed->DateCreated,

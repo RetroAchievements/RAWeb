@@ -28,17 +28,13 @@ class Comment extends BaseModel
     // TODO rename Edited to updated_at
     protected $table = 'Comment';
 
+    protected $primaryKey = 'ID';
+
     public const CREATED_AT = 'Submitted';
     public const UPDATED_AT = 'Edited';
 
     protected $fillable = [
         'Payload',
-    ];
-
-    protected $with = [
-        // NOTE do not over-fetch here
-        // 'commentable',
-        // 'user',
     ];
 
     // == search

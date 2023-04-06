@@ -18,12 +18,13 @@ return new class() extends Migration {
             if (DB::connection()->getDriverName() !== 'sqlite') {
                 $table->bigIncrements('id')->first();
             }
-            $table->unsignedBigInteger('user_id')->nullable()->after('id');
 
             // nullable morphs
-            $table->string('votable_model')->nullable()->after('ID');
+            $table->string('votable_model')->nullable()->after('id');
             $table->unsignedBigInteger('votable_id')->nullable()->after('votable_model');
             $table->index(['votable_model', 'votable_id'], 'votes_votable_index');
+
+            $table->unsignedBigInteger('user_id')->nullable()->after('votable_id');
 
             // drop this in favor of ratable morph
             // kept to make sure only unique ratings exist

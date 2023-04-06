@@ -10,4 +10,7 @@ class Subscription extends BaseModel
 {
     // TODO rename Subscription to subscriptions
     protected $table = 'Subscription';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
 }

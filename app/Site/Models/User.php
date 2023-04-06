@@ -86,7 +86,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     // TODO rename User column to username
     // TODO rename Password column to password
     // TODO rename EmailAddress column to email
-    // TODO rename LastLogin column to last_login_at
+    // TODO rename LastLogin column to last_activity_at
     // TODO rename appToken column to connect_token or to passport
     // TODO rename appTokenExpiry column to connect_token_expires_at or to passport
     // TODO rename APIKey column to api_token or to passport
@@ -119,7 +119,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'email_verified_at',
         'appToken',
         'appTokenExpiry',
-        // 'last_activity_at',
         'LastLogin',
         'locale',
         'locale_date',
@@ -155,21 +154,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'avatarUrl',
     ];
 
-    protected $with = [
-        // TODO 'media',
-        // TODO 'roles',
-    ];
-
     protected $casts = [
         'DeleteRequested' => 'datetime',
         'LastLogin' => 'datetime',
         'RichPresenceMsgDate' => 'datetime',
-
-        // TODO merge
         'banned_at' => 'datetime',
-        'connect_token_expires_at' => 'datetime',
+        'appTokenExpiry' => 'datetime',
         'email_verified_at' => 'datetime',
-        'last_activity_at' => 'datetime',
         'muted_until' => 'datetime',
         'unranked_at' => 'datetime',
     ];

@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Community\Models;
+namespace App\Platform\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 
-class UserRelation extends BaseModel
+class GameAlternative extends BaseModel
 {
-    // TODO rename Friends table to user_relations
-    // TODO migrate Friendship column to status
-    protected $table = 'Friends';
+    // TODO drop GameAlternatives, migrate to game_sets
+    protected $table = 'GameAlternatives';
 
     public const CREATED_AT = 'Created';
     public const UPDATED_AT = 'Updated';

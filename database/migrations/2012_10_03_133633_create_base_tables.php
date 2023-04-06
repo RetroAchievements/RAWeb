@@ -292,6 +292,11 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('Friends')) {
             Schema::create('Friends', function (Blueprint $table) {
+                if (DB::connection()->getDriverName() === 'sqlite') {
+                    // SQLite does not allow changing a primary key after a table has been created so it has to be done here
+                    $table->bigIncrements('id')->first();
+                }
+
                 $table->string('User', 32)->index();
                 $table->string('Friend', 32)->index();
                 $table->tinyInteger('Friendship');
@@ -375,7 +380,12 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('GameHashLibrary')) {
             Schema::create('GameHashLibrary', function (Blueprint $table) {
-                $table->string('MD5', 32)->primary();
+                if (DB::connection()->getDriverName() === 'sqlite') {
+                    // SQLite does not allow changing a primary key after a table has been created so it has to be done here
+                    $table->bigIncrements('id')->first();
+                } else {
+                    $table->string('MD5', 32)->primary();
+                }
                 $table->unsignedInteger('GameID');
             });
         }
@@ -568,7 +578,12 @@ return new class() extends Migration {
                 $table->unsignedInteger('GameID');
                 $table->timestampTz('Updated')->useCurrent();
 
-                $table->primary(['User', 'GameID']);
+                if (DB::connection()->getDriverName() === 'sqlite') {
+                    // SQLite does not allow changing a primary key after a table has been created so it has to be done here
+                    $table->bigIncrements('id')->first();
+                } else {
+                    $table->primary(['User', 'GameID']);
+                }
             });
         }
 

@@ -28,9 +28,30 @@ php artisan migrate:rollback
 
 3. Migrate data
 
-Run the sync command below to populate the new columns and tables: 
+Run the following queries and sync commands below to populate the new columns and tables:
+
+> **Note**
+> Depending on the Awarded table size those queries can take several hours.
+
+- [01-player-achievements.sql](upgrade-v2-to-v3-01-player-achievements.sql)
+- [02-player-games.sql](upgrade-v2-to-v3-02-player-games.sql)
+- [03-leaderboard-entries.sql](upgrade-v2-to-v3-03-leaderboard-entries.sql)
+
+```shell
+php artisan ra:sync:status
+```
+
+If you imported or prepared any data prior you can update the sync_status to save time. 
+
+```sql
+UPDATE sync_status SET reference = '2023-02-01 00:00:00' WHERE kind = 'leaderboard_entries';
+UPDATE sync_status SET reference = '2023-02-01 00:00:00' WHERE kind = 'player_achievements';
+```
+
+Run sync commands:
 
 ```shell
 # TODO
+php artisan ra:platform:...
 php artisan ra:sync:...
 ```

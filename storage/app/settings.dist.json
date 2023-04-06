@@ -1,0 +1,11 @@
+{
+    "sync": false,
+    "queuedConnect": false,
+    "tools": [
+        {
+            "label": "Demo",
+            "url": "demo",
+            "abilities": "tool"
+        }
+    ]
+}

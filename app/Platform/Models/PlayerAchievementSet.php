@@ -8,13 +8,10 @@ use App\Site\Models\User;
 use App\Support\Database\Eloquent\BasePivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PlayerGame extends BasePivot
+class PlayerAchievementSet extends BasePivot
 {
-    use SoftDeletes;
-
-    protected $table = 'player_games';
+    protected $table = 'player_achievement_sets';
 
     protected $casts = [
         'last_played_at' => 'datetime',
@@ -36,31 +33,32 @@ class PlayerGame extends BasePivot
     // == relations
 
     /**
-     * @return HasMany<Achievement>
+     * @return HasMany<PlayerAchievement>
      */
-    public function achievements(): HasMany
+    public function playerAchievements(): HasMany
     {
-        return $this->hasMany(Achievement::class, 'game_id', 'game_id');
+        return $this->hasMany(PlayerAchievement::class, 'game_id', 'game_id')
+            ->where('player_games.user_id', '=', 'player_achievements.user_id');
     }
 
     /**
-     * @return BelongsTo<Game, PlayerGame>
+     * @return BelongsTo<AchievementSet, PlayerAchievementSet>
      */
-    public function game(): BelongsTo
+    public function achievementSet(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'game_id');
+        return $this->belongsTo(AchievementSet::class, 'achievement_set_id');
     }
 
     /**
-     * @return BelongsTo<User, PlayerGame>
+     * @return BelongsTo<User, PlayerAchievementSet>
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * @return BelongsTo<User, PlayerGame>
+     * @return BelongsTo<User, PlayerAchievementSet>
      */
     public function player(): BelongsTo
     {

@@ -7,13 +7,11 @@ namespace App\Site\Commands;
 use App\Site\Actions\DeleteAvatarAction;
 use App\Site\Actions\UpdateAvatarAction;
 use App\Site\Models\User;
-use App\Site\Notifications\UserRegistrationNotification;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class SyncUsers extends Command
@@ -79,14 +77,6 @@ class SyncUsers extends Command
             } else {
                 $this->deleteAvatarAction->execute($user);
             }
-        }
-
-        /*
-         * fake a registration even for users that were created within the last minute
-         */
-        if ($user->created_at && $user->created_at->diffInSeconds() < 61) {
-            Notification::route('webhook', config('services.discord.webhook.users'))
-                ->notify(new UserRegistrationNotification($user));
         }
 
         /*

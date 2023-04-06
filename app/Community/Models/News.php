@@ -40,7 +40,10 @@ class News extends BaseModel implements HasComments, HasMedia
     // TODO drop Image, migrate to media
     protected $table = 'News';
 
+    protected $primaryKey = 'ID';
+
     public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
         'Title',
@@ -56,11 +59,6 @@ class News extends BaseModel implements HasComments, HasMedia
     protected $casts = [
         'publish_at' => 'datetime',
         'unpublish_at' => 'datetime',
-    ];
-
-    protected $with = [
-        // TODO 'user',
-        // TODO 'media',
     ];
 
     // == search

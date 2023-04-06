@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, bool $postMastery): array
 {
-    // TODO remove, use player-game relation
+    // TODO remove, implement in UpdatePlayerGameMetricsAction instead
 
     sanitize_sql_inputs($user);
 

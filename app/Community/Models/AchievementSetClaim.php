@@ -15,8 +15,13 @@ class AchievementSetClaim extends BaseModel
     // TODO rename SetClaim to achievement_set_claims
     protected $table = 'SetClaim';
 
-    protected $dates = [
-        'Finished',
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
+    protected $casts = [
+        'Finished' => 'datetime',
     ];
 
     protected static function newFactory(): AchievementSetClaimFactory

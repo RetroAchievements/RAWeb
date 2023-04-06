@@ -9,6 +9,7 @@ use App\Site\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Site\Commands\DeleteOverdueUserAccounts;
 use App\Site\Commands\DeleteUsers;
 use App\Site\Commands\LogUsersOnlineCount;
+use App\Site\Commands\SyncUsers;
 use App\Site\Commands\SystemAlert;
 use App\Site\Commands\UpdateUserTimestamps;
 use App\Site\Models\User;
@@ -36,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
                  */
                 CleanupAvatars::class,
                 DeleteUsers::class,
+                SyncUsers::class,
 
                 /*
                  * Settings

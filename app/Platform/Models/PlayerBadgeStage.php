@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Models;
 
-class PlayerBadgeStage
+use App\Support\Database\Eloquent\BaseModel;
+
+class PlayerBadgeStage extends BaseModel
 {
 }

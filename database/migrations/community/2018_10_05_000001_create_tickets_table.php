@@ -33,7 +33,7 @@ return new class() extends Migration {
 
             $table->softDeletesTz();
 
-            $table->foreign('game_hash_set_id', 'tickets_game_hash_set_id_foreign')->references('ID')->on('GameHashLibrary')->onDelete('set null');
+            $table->foreign('game_hash_set_id', 'tickets_game_hash_set_id_foreign')->references('id')->on('game_hash_sets')->onDelete('set null');
             $table->foreign('player_session_id', 'tickets_player_session_id_foreign')->references('id')->on('player_sessions')->onDelete('set null');
         });
     }

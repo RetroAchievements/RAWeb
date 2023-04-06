@@ -14,7 +14,13 @@ use Illuminate\Support\Carbon;
 class UserGameListEntry extends BaseModel
 {
     // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
+    // TODO rename GameID to game_id
+    // TODO drop User, migrate to user_id
+    // TODO drop user_game_list_entry_username_game_id_type_unique
     protected $table = 'SetRequest';
+
+    public const CREATED_AT = 'Updated';
+    public const UPDATED_AT = null;
 
     protected $fillable = [
         'User',
@@ -24,9 +30,6 @@ class UserGameListEntry extends BaseModel
     protected $casts = [
         'GameID' => 'integer',
     ];
-
-    public const CREATED_AT = 'Updated';
-    public const UPDATED_AT = null;
 
     /**
      * @return BelongsTo<User, UserGameListEntry>

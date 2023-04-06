@@ -585,7 +585,7 @@ trait SyncTrait
         $userId = $this->userIds[$username] ?? null;
         if ($userId === null) {
             /** @var ?User $user */
-            $user = User::where('username', Str::lower($username))->first();
+            $user = User::where('User', Str::lower($username))->first();
             if (!$user) {
                 $this->userIds[$username] = 0;
                 $this->warn("unknown user: {$username}");
@@ -593,7 +593,7 @@ trait SyncTrait
                 return null;
             }
 
-            $this->userIds[$username] = $userId = $user->id;
+            $this->userIds[$username] = $userId = $user->ID;
         }
 
         return ($userId > 0) ? $userId : null;

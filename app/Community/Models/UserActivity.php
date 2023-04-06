@@ -30,10 +30,6 @@ class UserActivity extends BaseModel
         return UserActivityFactory::new();
     }
 
-    protected $with = [
-        'user',
-    ];
-
     // == accessors
 
     /**

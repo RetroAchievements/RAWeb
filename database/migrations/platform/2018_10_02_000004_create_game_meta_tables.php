@@ -51,10 +51,8 @@ return new class() extends Migration {
         });
 
         Schema::table('GameHashLibrary', function (Blueprint $table) {
-            if (DB::connection()->getDriverName() === 'sqlite') {
-                // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
-                $table->bigInteger('id')->first();
-            } else {
+            // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+            if (DB::connection()->getDriverName() !== 'sqlite') {
                 $table->bigIncrements('id')->first();
             }
             $table->unsignedInteger('system_id')->nullable()->after('id');
@@ -134,7 +132,7 @@ return new class() extends Migration {
             $table->unique(['game_hash_set_id', 'game_hash_id']);
 
             $table->foreign('game_hash_set_id')->references('id')->on('game_hash_sets')->onDelete('cascade');
-            $table->foreign('game_hash_id')->references('ID')->on('GameHashLibrary')->onDelete('cascade');
+            $table->foreign('game_hash_id')->references('id')->on('GameHashLibrary')->onDelete('cascade');
         });
 
         /*

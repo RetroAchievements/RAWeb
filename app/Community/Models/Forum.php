@@ -28,13 +28,14 @@ class Forum extends BaseModel
     // TODO drop LatestCommentID -> derived
     protected $table = 'Forum';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     protected $fillable = [
         'Title',
         'Description',
-    ];
-
-    protected $with = [
-        'category',
     ];
 
     // == search

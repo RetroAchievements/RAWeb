@@ -30,7 +30,7 @@ class SyncPlayerRichPresence extends Command
      */
     public function handle(): void
     {
-        $this->sync('user_rich_presence');
+        $this->sync('player_rich_presence');
     }
 
     protected function query(): Builder

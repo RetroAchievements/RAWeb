@@ -27,6 +27,11 @@ class Leaderboard extends BaseModel
     // TODO drop Author, migrate to triggerable morph author
     protected $table = 'LeaderboardDef';
 
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     // == search
 
     public function toSearchableArray(): array
