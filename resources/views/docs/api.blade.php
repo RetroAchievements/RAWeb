@@ -1,6 +1,6 @@
 <x-app-layout :page-title="__('API')">
     <x-section class="mb-8">
-        <h2>RetroAchievements Official API</h2>
+        <h2>RetroAchievements API</h2>
 
         <div class="grid gap-y-2">
             <p>
