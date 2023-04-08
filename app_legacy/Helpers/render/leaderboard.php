@@ -109,9 +109,9 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
         $lbTypesCount = count($lbTypes);
         for ($i = 0; $i < $lbTypesCount; $i++) {
             if ($i == 0) {
-                echo "<button class='" . $tabClass . " active' onclick='tabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
+                echo "<button class='" . $tabClass . " active' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
             } else {
-                echo "<button class='" . $tabClass . "' onclick='tabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
+                echo "<button class='" . $tabClass . "' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
             }
         }
         echo "</div>";
@@ -237,8 +237,8 @@ function RenderTopAchieversComponent(
 
     echo "<h2 class='text-h3'>High Scores</h2>";
     echo "<div class='tab'>";
-    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='tabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
-    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='tabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='handleLeaderboardTabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='handleLeaderboardTabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
     echo "</div>";
 
     // Latest Masters Tab
