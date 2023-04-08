@@ -48,7 +48,7 @@ $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescend
             <p>Couldn't find any new sets/revisions.</p>
         </div>
     @else
-        <div>
+        <div class="overflow-x-auto sm:overflow-x-hidden">
             <table class="table-highlight mb-1">
                 <thead>
                     <tr class="do-not-highlight">
@@ -61,7 +61,7 @@ $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescend
 
                 <tbody>
                     @foreach($claimData as $claim)
-                        <x-claim-finished-table-row :claim="$claim" />
+                        <x-claims.finished-claim-table-row :claim="$claim" />
                     @endforeach
                 </tbody>
             </table>

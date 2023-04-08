@@ -6,16 +6,16 @@
     <x-news.carousel />
     <x-claims.finished-claims count="6" />
 
-    @php
+    <?php
         RenderActivePlayersComponent();
-    @endphp
+    ?>
 
     <x-user.online-count-chart />
     <x-claims.new-claims count="5" />
 
-    @php
+    <?php
         RenderRecentForumPostsComponent();
-    @endphp
+    ?>
 
     @slot('sidebar')
         @include('content.top-links')

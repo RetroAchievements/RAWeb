@@ -17,7 +17,7 @@ $claimData = getFilteredClaims(
             <p>Couldn't find any sets in progress.</p>
         </div>
     @else
-        <div>
+        <div class="overflow-x-auto sm:overflow-x-hidden">
             <table class="table-highlight mb-1">
                 <thead>
                     <tr class="do-not-highlight">
@@ -29,7 +29,7 @@ $claimData = getFilteredClaims(
 
                 <tbody>
                     @foreach($claimData as $claim)
-                        <x-claim-new-table-row :claim="$claim" />
+                        <x-claims.new-claim-table-row :claim="$claim" />
                     @endforeach
                 </tbody>
             </table>
