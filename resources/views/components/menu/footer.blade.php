@@ -22,8 +22,9 @@ $menu = collect([
                 'visible' => true,
             ],
             [
+                'active' => Route::is('docs.api'),
                 'label' => __('API'),
-                'url' => url('docs/api'),
+                'url' => route('docs.api'),
                 'visible' => true,
             ],
         ],
