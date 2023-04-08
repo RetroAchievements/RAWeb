@@ -22,17 +22,10 @@ $menu = collect([
                 'visible' => true,
             ],
             [
-                'label' => __('JavaScript API'),
-                'url' => 'https://retroachievements-api-js.vercel.app',
+                'label' => __('API'),
+                'url' => url('docs/api'),
                 'visible' => true,
             ],
-            // [
-            //     'active' => Route::is('docs.api'),
-            //     'label' => __('API'),
-            //     'url' => url('APIDemo.php'),
-            //     // 'url' => route('docs.api'),
-            //     'visible' => true,
-            // ],
         ],
     ],
     [
