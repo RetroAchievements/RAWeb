@@ -12,8 +12,11 @@ use LegacyApp\Site\Models\User;
 
 trait TestsPlayerAchievements
 {
-    protected function addPlayerAchievement(User $user, Achievement $achievement,
-        ?Carbon $hardcoreUnlockTime, Carbon $softcoreUnlockTime): void
+    protected function addPlayerAchievement(
+        User $user,
+        Achievement $achievement,
+        ?Carbon $hardcoreUnlockTime,
+        Carbon $softcoreUnlockTime): void
     {
         $needsHardcore = ($hardcoreUnlockTime !== null);
         $needsSoftcore = true;
