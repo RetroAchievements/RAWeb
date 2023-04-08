@@ -2,13 +2,13 @@
   overflow: hidden;
   height: 6px;
   border: 1px solid var(--embed-highlight-color);
-  border-radius: .5em 0 0 .5em;
+  border-radius: 0.5em 0 0 0.5em;
   border-right: 0 none;
   background-color: var(--embed-color);
 }
 
 .achievementlist .progressbar {
-  border-radius: .5em;
+  border-radius: 0.5em;
   border-right: 1px solid var(--embed-highlight-color);
 }
 
