@@ -6,19 +6,19 @@
  *    g : number of recent games to return (default: 5)
  *    a : number of recent achievements to return (default: 10)
  *
- *  string     ID                      unique identifier of the user
- *  string     TotalPoints             number of hardcore points the user has
- *  string     TotalSoftcorePoints     number of softcore points the user has
- *  string     TotalTruePoints         number of "white" points the user has
- *  string     Permissions             unique identifier of user's account type
+ *  int        ID                      unique identifier of the user
+ *  int        TotalPoints             number of hardcore points the user has
+ *  int        TotalSoftcorePoints     number of softcore points the user has
+ *  int        TotalTruePoints         number of "white" points the user has
+ *  int        Permissions             unique identifier of user's account type
  *  datetime   MemberSince             when the user joined the site
  *  int?       Rank                    user's site rank
- *  string     Untracked               "1" if the user is untracked, otherwise "0"
+ *  int        Untracked               "1" if the user is untracked, otherwise "0"
  *  string     UserPic                 site-relative path to the user's profile picture
  *  string     Motto                   the user's motto
- *  string     UserWallActive          "1" if the user allows comments to be posted to their wall, otherwise "0"
- *  string     TotalRanked             total number of ranked users
- *  string     LastGameID              unique identifier of the last game the user played
+ *  int        UserWallActive          "1" if the user allows comments to be posted to their wall, otherwise "0"
+ *  int        TotalRanked             total number of ranked users
+ *  int        LastGameID              unique identifier of the last game the user played
  *  object     LastGame                information about the last game the user played
  *   int        ID                     unique identifier of the game
  *   string     Title                  name of the game
@@ -34,48 +34,48 @@
  *   string     Developer              developer information for the game
  *   string     Genre                  genre information for the game
  *   string     Released               release date information for the game
- *   bool       IsFinal
+ *   int        IsFinal
  *  string     RichPresenceMsg         activity information about the last game the user played
  *  int        RecentlyPlayedCount     number of items in the RecentlyPlayed array
  *  array      RecentlyPlayed
- *   string     GameID                 unique identifier of the game
+ *   int        GameID                 unique identifier of the game
  *   string     Title                  name of the game
- *   string     ConsoleID              unique identifier of the console associated to the game
+ *   int        ConsoleID              unique identifier of the console associated to the game
  *   string     ConsoleName            name of the console associated to the game
  *   string     ImageIcon              site-relative path to te game's icon
  *   datetime   LastPlayed             when the user last played the game
  *  object     LastActivity
- *   string     ID                     unique identifier of the activity
+ *   int        ID                     unique identifier of the activity
  *   datetime   timestamp              when the activity occurred
  *   datetime   lastupdate             when the activity was last modified
- *   string     activitytype           the type of activity
+ *   int        activitytype           the type of activity
  *   string     User                   the user associated to the activity
  *   string     data                   additional information about the activity
  *   string     data2                  additional information about the activity
  *  string     Status                  "Offline" if the last activity is more than 10 minute ago, otherwise "Online"
  *  map        Awarded
  *   string     [key]                  unique identifier of the game
- *    string     NumAchieved           count of Core achievements unlocked by the user
- *    string     NumAchievedHardcore   count of Core achievements unlocked by the user in Hardcore mode
- *    string     NumPossibleAchievements count of Core achievements for the game
+ *    int        NumAchieved           count of Core achievements unlocked by the user
+ *    int        NumAchievedHardcore   count of Core achievements unlocked by the user in Hardcore mode
+ *    int        NumPossibleAchievements count of Core achievements for the game
  *    string     ScoreAchieved         points earned by the user from the game
  *    string     ScoreAchievedHardcore additional points earned by the user from the game for playing in Hardcore mode
  *    string     PossibleScore         maximum points attainable from the game
  *  map        RecentAchievements
  *   string     [key]                  unique identifier of the game
  *    string     [key]                 unique identifier of the achievement
- *     string     ID                   unique identifier of the achievement
+ *     int        ID                   unique identifier of the achievement
  *     string     Title                title of the achievement
  *     string     Description          description of the achievement
- *     string     Points               number of points the achievement is worth
+ *     int        Points               number of points the achievement is worth
  *     string     BadgeName            unique identifier of the badge image for the achievement
- *     string     GameID               unique identifier of the game
+ *     int        GameID               unique identifier of the game
  *     string     GameTitle            name of the game
  *     string     IsAwarded            always "1"
  *     datetime   DateAwarded          when the user earned the achievement
- *     string     HardcoreAchieved     "1" for hardcore award, "0" for non-hardcore award, null if not achieved
- *  string     ContribCount            achievements won by others
- *  string     ContribYield            points awarded to others
+ *     int?       HardcoreAchieved     1 for hardcore award, 0 for non-hardcore award, null if not achieved
+ *  int        ContribCount            achievements won by others
+ *  int        ContribYield            points awarded to others
  */
 
 use App\Support\Rules\CtypeAlnum;

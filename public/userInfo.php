@@ -529,7 +529,7 @@ RenderContentStart($userPage);
                 }
                 echo "</div>";
 
-                RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore);
+                RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore, fullWidthUntil: 'md');
                 echo "</div>";
 
                 echo "<div class='mb-5'>";

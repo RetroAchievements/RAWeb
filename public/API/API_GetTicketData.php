@@ -4,23 +4,23 @@
  *  API_GetTicketData - returns details for a specific ticket
  *    i : ticket id
  *
- *  string     ID                      unique identifier of the ticket
- *  string     AchievementID           unique identifier of the achievement associated to the ticket
+ *  int        ID                      unique identifier of the ticket
+ *  int        AchievementID           unique identifier of the achievement associated to the ticket
  *  string     AchievementTitle        title of the achievement
  *  string     AchievementDesc         description of the achievement
- *  string     Points                  number of points the achievement
+ *  int        Points                  number of points the achievement
  *  string     BadgeName               unique identifier of the badge image for the achievement
  *  string     AchievementAuthor       user who originally created the achievement
- *  string     GameID                  unique identifier of the game associated to the achievement
+ *  int        GameID                  unique identifier of the game associated to the achievement
  *  string     GameTitle               title of the game
  *  string     GameIcon                site-relative path to the game's icon image
  *  string     ConsoleName             name of the console associated to the game
  *  datetime   ReportedAt              when the ticket was created
- *  string     ReportType              unique identifier of the ticket type
+ *  int        ReportType              unique identifier of the ticket type
  *  string     ReportTypeDescription   text description of the ticket type
- *  string     ReportState             unique identifier of the ticket state
+ *  int        ReportState             unique identifier of the ticket state
  *  string     ReportStateDescription  text description of the ticket state
- *  string     Hardcore                "1"=Hardcore, "0"=not Hardcore, null=unknown
+ *  int?       Hardcore                1=Hardcore, 0=not Hardcore, null=unknown
  *  string     ReportNotes             summary of the problem as reported by the user
  *  string     ReportedBy              user that created the ticket
  *  datetime   ResolvedAt              when the ticket was closed
@@ -34,28 +34,28 @@
  *    c : count - number of entries to return (default: 10, max: 100)
  *
  *  array      RecentTickets
- *   string     ID                     unique identifier of the ticket
- *   string     AchievementID          unique identifier of the achievement associated to the ticket
+ *   int        ID                     unique identifier of the ticket
+ *   int        AchievementID          unique identifier of the achievement associated to the ticket
  *   string     AchievementTitle       title of the achievement
  *   string     AchievementDesc        description of the achievement
- *   string     Points                 number of points the achievement
+ *   int        Points                 number of points the achievement
  *   string     BadgeName              unique identifier of the badge image for the achievement
  *   string     AchievementAuthor      user who originally created the achievement
- *   string     GameID                 unique identifier of the game associated to the achievement
+ *   int        GameID                 unique identifier of the game associated to the achievement
  *   string     GameTitle              title of the game
  *   string     GameIcon               site-relative path to the game's icon image
  *   string     ConsoleName            name of the console associated to the game
  *   datetime   ReportedAt             when the ticket was created
- *   string     ReportType             unique identifier of the ticket type
+ *   int        ReportType             unique identifier of the ticket type
  *   string     ReportTypeDescription  text description of the ticket type
- *   string     ReportState            unique identifier of the ticket state
+ *   int        ReportState            unique identifier of the ticket state
  *   string     ReportStateDescription text description of the ticket state
- *   string     Hardcore               "1"=Hardcore, "0"=not Hardcore, null=unknown
+ *   int?       Hardcore               1=Hardcore, 0=not Hardcore, null=unknown
  *   string     ReportNotes            summary of the problem as reported by the user
  *   string     ReportedBy             user that created the ticket
  *   datetime   ResolvedAt             when the ticket was closed
  *   string     ResolvedBy             user that closed the ticket
- *  string     OpenTickets             number of open tickets
+ *  int        OpenTickets             number of open tickets
  *  string     URL                     URL to the list of open tickets
  */
 
@@ -66,11 +66,11 @@
  *    c : count - number of entries to return (default: 10, max: 100)
  *
  *  array      MostReportedGames
- *   string     GameID                 unique identifier of the game
+ *   int        GameID                 unique identifier of the game
  *   string     GameTitle              title of the game
  *   string     GameIcon               site-relative path to the game's icon image
  *   string     Console                name of the console associated to the game
- *   string     OpenTickets            number of open tickets associated to the game
+ *   int        OpenTickets            number of open tickets associated to the game
  *  string     URL                     URL to the list of games with the most tickets
  */
 
@@ -95,26 +95,26 @@
  *  int        GameID                  unique identifier of the game
  *  string     GameTitle               title of the game
  *  string     ConsoleName             name of the console associated to the game
- *  string     OpenTickets             number of open tickets
+ *  int        OpenTickets             number of open tickets
  *  string     URL                     URL to the list of tickets associated to the game
  *  array      Tickets                 more details on open tickets (only present if requested)
- *   string     ID                     unique identifier of the ticket
- *   string     AchievementID          unique identifier of the achievement associated to the ticket
+ *   int        ID                     unique identifier of the ticket
+ *   int        AchievementID          unique identifier of the achievement associated to the ticket
  *   string     AchievementTitle       title of the achievement
  *   string     AchievementDesc        description of the achievement
- *   string     Points                 number of points the achievement
+ *   int        Points                 number of points the achievement
  *   string     BadgeName              unique identifier of the badge image for the achievement
  *   string     AchievementAuthor      user who originally created the achievement
- *   string     GameID                 unique identifier of the game associated to the achievement
+ *   int        GameID                 unique identifier of the game associated to the achievement
  *   string     GameTitle              title of the game
  *   string     GameIcon               site-relative path to the game's icon image
  *   string     ConsoleName            name of the console associated to the game
  *   datetime   ReportedAt             when the ticket was created
- *   string     ReportType             unique identifier of the ticket type
+ *   int        ReportType             unique identifier of the ticket type
  *   string     ReportTypeDescription  text description of the ticket type
- *   string     ReportState            unique identifier of the ticket state
+ *   int        ReportState            unique identifier of the ticket state
  *   string     ReportStateDescription text description of the ticket state
- *   string     Hardcore               "1"=Hardcore, "0"=not Hardcore, null=unknown
+ *   int?       Hardcore               1=Hardcore, 0=not Hardcore, null=unknown
  *   string     ReportNotes            summary of the problem as reported by the user
  *   string     ReportedBy             user that created the ticket
  *   datetime   ResolvedAt             when the ticket was closed
@@ -128,7 +128,7 @@
  *  int        AchievementID           unique identifier of the achievement
  *  string     AchievementTitle        title of the achievement
  *  string     AchievementDescription  description of the achievement
- *  string     OpenTickets             number of open tickets
+ *  int        OpenTickets             number of open tickets
  *  string     URL                     URL to the list of tickets associated to the game
  */
 
