@@ -500,16 +500,15 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $query = "SELECT ua.User, ua.RAPoints, ua.RASoftcorePoints, ua.RichPresenceMsg,
-                     gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
+    $query = "SELECT ua.User, IF(ua.Untracked, 0, ua.RAPoints) as RAPoints, IF(ua.Untracked, 0, ua.RASoftcorePoints) as RASoftcorePoints, 
+                     ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
                 AND ua.LastGameID != 0
                 AND ua.Permissions >= $permissionsCutoff
-                AND NOT ua.Untracked
-              ORDER BY ua.RAPoints DESC";
+              ORDER BY RAPoints DESC";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
