@@ -23,6 +23,7 @@ $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
 $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
+$forumTopicID = $gameData['ForumTopicID'];
 
 sanitize_outputs(
     $consoleName,
@@ -47,7 +48,7 @@ function UpdateHashDetails(user, hash) {
             var date = new Date();
             var dateStr = date.getUTCDate() + ' ' + shortMonths[date.getUTCMonth()] + ' ' + date.getUTCFullYear() + ' ' + date.getUTCHours() + ':' + ('0' + date.getUTCMinutes()).slice(-2);
 
-            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td></td><td class="w-full" colspan="3"><div><span class="smalldate">' + dateStr + '</span></div><div style="word-break: break-word">' + hash + ' updated by ' + user + '. Description: "' + name + '". Label: "' + labels + '"</div></td></tr>');
+            $('.comment-textarea').parents('tr').before('<tr class="comment system"><td></td><td class="w-full" colspan="3"><div><span class="smalldate">' + dateStr + '</span></div><div style="word-break: break-word">' + hash + ' updated by ' + user + '. File Name: "' + name + '". Label: "' + labels + '"</div></td></tr>');
         });
 }
 
@@ -88,6 +89,13 @@ function UnlinkHash(user, gameID, hash, elem) {
         <?php
         echo gameAvatar($gameData, iconSize: 64);
 
+        echo "<div class='mt-2 flex flex-col gap-1'>";
+        echo " <a href='/linkedhashes.php?g=$gameID'>Supported Game Files</a>";
+        if (isset($forumTopicID)) {
+            echo " <a href='/viewtopic.php?t=$forumTopicID'>Official Forum Topic</a>";
+        }
+        echo "</div>";
+
         echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
 
         echo "<br/><div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div>";
@@ -95,7 +103,7 @@ function UnlinkHash(user, gameID, hash, elem) {
         echo "<div class='table-wrapper'><table id='hashTable' class='table-highlight'><tbody>";
 
         echo "<tr class='do-not-highlight'>";
-        echo "<th>RetroAchievements Hash</th><th>Linked By</th><th>Description</th><th>Labels</th><th>Actions</th><th></th>\n";
+        echo "<th>RetroAchievements Hash</th><th>Linked By</th><th>File Name</th><th>Labels</th><th>Actions</th><th></th>\n";
         echo "</tr>";
 
         foreach ($hashes as $hashData) {
