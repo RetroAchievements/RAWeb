@@ -508,7 +508,7 @@ function getLatestRichPresenceUpdates(): array
               WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
                 AND ua.LastGameID != 0
                 AND ua.Permissions >= $permissionsCutoff
-              ORDER BY RAPoints DESC";
+              ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.User ASC";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
