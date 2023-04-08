@@ -32,6 +32,7 @@ function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy)
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE User='$user'
                 AND aw.HardcoreMode = " . UnlockMode::Softcore . "
+                AND ach.Flags = " . AchievementType::OfficialCore . "
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
                 $orderCond
                 LIMIT $offset, $limit";
