@@ -103,7 +103,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
     $consoleName = $data['ConsoleName'];
 
     // Return next crumb (i.e `» text`), either as a link or not
-    $nextCrumb = fn ($text, $href = ''): string => " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
+    $nextCrumb = fn ($text, $href = ''): string => " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<span class='font-bold'>$text</span>");
 
     // Retrieve separate IDs and titles for main game and subset (if any)
     $getSplitData = function ($data) use ($consoleID): array {
@@ -345,10 +345,10 @@ function RenderMetadataTableRow(
             sanitize_outputs($gameDataValues[$key]);
         }
 
-        echo "<tr>";
-        echo "<td>$label</td>";
-        echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
-        echo "</tr>";
+        echo "<div class='flex'>";
+        echo " <p class='tracking-tight w-[100px] min-w-[100px]'>$label</p>";
+        echo " <p class='font-semibold'>" . implode(', ', $gameDataValues) . "</p>";
+        echo "</div>";
     }
 }
 
@@ -399,7 +399,7 @@ function RenderRecentGamePlayers(array $recentPlayerData): void
     echo "</div>";
 }
 
-function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore): void
+function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore, ?string $fullWidthUntil = null): void
 {
     $pctComplete = 0;
     $pctHardcore = 0;
@@ -428,7 +428,12 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     }
     $numEarnedTotal = $numEarnedCasual + $numEarnedHardcore;
 
-    echo "<div class='w-40 my-2'>";
+    $fullWidthClassName = "";
+    if (isset($fullWidthUntil) && $fullWidthUntil === "md") {
+        $fullWidthClassName = "md:w-40";
+    }
+
+    echo "<div class='w-full my-2 $fullWidthClassName'>";
     echo "<div class='flex w-full items-center'>";
     echo "<div class='progressbar grow'>";
     echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
@@ -437,7 +442,7 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     echo "</div>";
     echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
     echo "</div>";
-    echo "<div class='progressbar-label pr-5 -mt-1'>";
+    echo "<div class='progressbar-label -mt-1'>";
     if ($pctHardcore >= 100.0) {
         echo "Mastered";
     } else {
