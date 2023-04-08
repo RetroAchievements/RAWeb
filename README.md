@@ -188,3 +188,5 @@ See [Contribution Guidelines](docs/CONTRIBUTING.md) and [Code of Conduct](docs/C
 ## License
 
 RAWeb is open-sourced software licensed under the [GPL-3.0 License](LICENSE).
+
+Console Icons by [yspixel.jpn.org](http://yspixel.jpn.org/icon/game/index.htm) and [Tatohead](https://github.com/Tatohead/Console-Iconset).
