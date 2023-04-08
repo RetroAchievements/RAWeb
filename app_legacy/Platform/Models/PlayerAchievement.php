@@ -16,6 +16,18 @@ class PlayerAchievement extends BaseModel
 
     protected $table = 'Awarded';
 
+    protected $fillable = [
+        'User',
+        'AchievementID',
+        'HardcoreMode',
+        'Date',
+    ];
+
+    protected $casts = [
+        'AchievementID' => 'int',
+        'HardcoreMode' => 'int',
+    ];
+
     public const CREATED_AT = 'Date';
     public const UPDATED_AT = null;
 
@@ -37,6 +49,6 @@ class PlayerAchievement extends BaseModel
      */
     public function player(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'User');
+        return $this->belongsTo(User::class, 'User', 'User');
     }
 }
