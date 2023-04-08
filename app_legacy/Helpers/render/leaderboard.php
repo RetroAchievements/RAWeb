@@ -17,8 +17,6 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
             echo "No leaderboards found: why not suggest some for this game? ";
         }
     } else {
-        echo "<table class='table-highlight'><tbody>";
-
         $count = 0;
         foreach ($lbData as $lbItem) {
             if ($lbItem['DisplayOrder'] < 0) {
@@ -34,20 +32,13 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
 
             sanitize_outputs($lbTitle, $lbDesc);
 
-            // Title
-            echo "<tr>";
-            echo "<td colspan='2'>";
-            echo "<div><a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a></div>";
-            echo "<div>$lbDesc</div>";
-            echo "</td>";
-            echo "</tr>";
-
-            // Score/Best entry
-            echo "<tr class='altdark'>";
-            echo "<td>";
+            echo "<div class='even:bg-embed flex flex-col gap-y-1 p-2'>";
+            echo "<div>";
+            echo "<a href='/leaderboardinfo.php?i=$lbID' class='leading-3'>$lbTitle</a>";
+            echo "<p>$lbDesc</p>";
+            echo "</div>";
+            echo "<div class='flex justify-between'>";
             echo userAvatar($bestScoreUser, iconSize: 16);
-            echo "</td>";
-            echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
             if ($bestScoreUser == '') {
                 echo "No entries";
@@ -55,13 +46,12 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
                 echo GetFormattedLeaderboardEntry($scoreFormat, $bestScore);
             }
             echo "</a>";
-            echo "</td>";
-            echo "</tr>";
+            echo "</div>";
+            echo "</div>";
 
             $count++;
         }
 
-        echo "</tbody></table>";
     }
 
     // echo "<div class='float-right'><a href='/forumposthistory.php'>more...</a></div>";
