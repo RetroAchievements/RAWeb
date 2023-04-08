@@ -206,25 +206,24 @@ function getAllTickets(
     ?string $resolvedByUser = null,
     ?int $givenGameID = null,
     ?int $givenAchievementID = null,
-    ?int $ticketFilters = TicketFilters::Default,
+    int $ticketFilters = TicketFilters::Default,
     bool $getUnofficial = false
 ): array {
-    sanitize_sql_inputs($assignedToUser);
-
     $retVal = [];
-    $givenGameID = (int) $givenGameID;
-    $ticketFilters = (int) $ticketFilters;
-    $givenAchievementID = (int) $givenAchievementID;
+    $bindings = [];
 
     $innerCond = "TRUE";
     if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
-        $innerCond .= " AND ach.Author = '$assignedToUser'";
+        $innerCond .= " AND ach.Author = :assignedToUsername";
+        $bindings['assignedToUsername'] = $assignedToUser;
     }
     if (!empty($reportedByUser) && isValidUsername($reportedByUser)) {
-        $innerCond .= " AND ua.User = '$reportedByUser'";
+        $innerCond .= " AND ua.User = :reportedByUsername";
+        $bindings['reportedByUsername'] = $reportedByUser;
     }
     if (!empty($resolvedByUser) && isValidUsername($resolvedByUser)) {
-        $innerCond .= " AND ua2.User = '$resolvedByUser'";
+        $innerCond .= " AND ua2.User = :resolvedByUsername";
+        $bindings['resolvedByUsername'] = $resolvedByUser;
     }
     if ($givenGameID != 0) {
         $innerCond .= " AND gd.ID = $givenGameID";
@@ -293,14 +292,7 @@ function getAllTickets(
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query, $bindings)->toArray();
 }
 
 function getTicket(int $ticketID): ?array
@@ -477,13 +469,9 @@ function countOpenTicketsByAchievement(int $achievementID): int
         FROM Ticket
         WHERE AchievementID = $achievementID AND ReportState IN (" . TicketState::Open . "," . TicketState::Request . ')';
 
-    $dbResult = s_mysql_query($query);
+    $results = legacyDbFetch($query);
 
-    if ($dbResult !== false) {
-        return (int) mysqli_fetch_assoc($dbResult)['count'];
-    }
-
-    return 0;
+    return ($results != null) ? $results['count'] : 0;
 }
 
 function countOpenTickets(
@@ -495,7 +483,7 @@ function countOpenTickets(
     ?int $gameID = null,
     ?int $achievementID = null
 ): int {
-    sanitize_sql_inputs($assignedToUser, $reportedByUser, $resolvedByUser);
+    $bindings = [];
 
     // State condition
     $stateCond = getStateCondition($ticketFilters);
@@ -543,7 +531,8 @@ function countOpenTickets(
     // Author condition
     $authorCond = "";
     if ($assignedToUser != null) {
-        $authorCond = " AND ach.Author LIKE '$assignedToUser'";
+        $authorCond = " AND ach.Author = :assignedToUser";
+        $bindings['assignedToUsername'] = $assignedToUser;
     }
 
     // Reporter condition
@@ -551,16 +540,16 @@ function countOpenTickets(
     $reporterJoin = "";
     if ($reportedByUser != null) {
         $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID";
-        $reporterCond = " AND ua.User LIKE '$reportedByUser'";
+        $reporterCond = " AND ua.User = :reportedByUsername";
+        $bindings['reportedByUsername'] = $reportedByUser;
     }
 
     // Resolver condition
     $resolverCond = "";
     if ($resolvedByUser != null) {
-        $resolverCond = " AND ua2.User LIKE '$resolvedByUser'";
-        if ($resolverJoin == "") {
-            $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
-        }
+        $resolverCond = " AND ua2.User = :resolvedByUsername";
+        $bindings['resolvedByUsername'] = $resolvedByUser;
+        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
 
     // Game condition
@@ -584,18 +573,14 @@ function countOpenTickets(
         $devJoin
         WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $reporterCond $resolverCond";
 
-    $dbResult = s_mysql_query($query);
+    $results = legacyDbFetch($query);
 
-    if (!$dbResult) {
-        return 0;
-    }
-
-    return (int) mysqli_fetch_assoc($dbResult)['count'];
+    return ($results != null) ? $results['count'] : 0;
 }
 
 function gamesSortedByOpenTickets(int $count): array
 {
-    if (empty($count)) {
+    if ($count < 1) {
         $count = 20;
     }
 
@@ -615,22 +600,14 @@ function gamesSortedByOpenTickets(int $count): array
         LEFT JOIN
             Console AS cons ON cons.ID = gd.ConsoleID
         WHERE
-            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = 3
+            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementType::OfficialCore . "
         GROUP BY
             gd.ID
         ORDER BY
             OpenTickets DESC
         LIMIT 0, $count";
 
-    $retVal = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query)->toArray();
 }
 
 /**
@@ -841,24 +818,15 @@ function getEmulatorCondition(int $ticketFilters): string
  */
 function getTicketsForUser(string $user): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [];
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = '$user' AND a.Flags = '3'
+              WHERE a.Author = :username AND a.Flags = " . AchievementType::OfficialCore . "
               GROUP BY t.AchievementID, ReportState
               ORDER BY t.AchievementID";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query, ['username' => $user])->toArray();
 }
 
 /**
