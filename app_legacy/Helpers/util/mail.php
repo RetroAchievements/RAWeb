@@ -412,3 +412,19 @@ function sendSetRequestEmail(string $user, string $email, int $gameID, string $g
 
     return mail_utf8($email, $emailTitle, $msg);
 }
+
+/**
+ * Sends an email to all users who have mastered a set when a revision set claim has been marked as complete.
+ */
+function sendSetRevisionEmail(string $user, string $email, int $gameID, string $gameTitle): bool
+{
+    $emailTitle = "Revision Completed for " . $gameTitle;
+    $link = "<a href='" . config('app.url') . "/game/$gameID'>$gameTitle</a>";
+
+    $msg = "Hello $user,<br>" .
+        "A set that you have previously mastered has been revised. Check out the changes to $link.<br><br>" .
+        "Thanks!<br>" .
+        "-- Your friends at RetroAchievements.org<br>";
+
+    return mail_utf8($email, $emailTitle, $msg);
+}
