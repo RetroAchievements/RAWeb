@@ -7,6 +7,14 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $maxCount = 50;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+
+// Remove 'Hubs' and 'Events' from the collection.
+$consolesToRemove = ['Hubs', 'Events'];
+$consoleList = $consoleList->filter(function ($value, $key) use ($consolesToRemove) {
+    return !in_array($value, $consolesToRemove);
+});
+
+$consoleList = $consoleList->sort();
 $consoleList->prepend('All Consoles', 0);
 
 $count = requestInputSanitized('c', $maxCount, 'integer');
@@ -16,38 +24,36 @@ $consoleID = requestInputSanitized('i', 0, 'integer');
 
 $gameData = getGameListSearch($offset, $count, $method, $consoleID);
 
-RenderContentStart("Game Search");
+RenderContentStart("Hardest Games");
 ?>
 <div id="mainpage">
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
-        echo "<b>Game Search</b>";    // NB. This will be a stub page
+        echo "<b>Hardest Games</b>";    // NB. This will be a stub page
         echo "</div>";
 
         echo "<div class='detaillist'>";
 
-        echo "<h3>Game Search</h3>";
+        echo "<h3>Hardest Games</h3>";
 
-        echo "<p class='embedded'>Showing: games by largest RetroRatio:</p>";
+        echo "<div class='w-full flex flex-col sm:flex-row sm:items-center lg:items-start gap-2 justify-between'>";
+        echo "<p>Showing games by largest Retro Ratio</p>";
 
-        echo "<p class='embedded'>Show: ";
-
+        echo "<div class='flex items-center gap-x-2'>";
+        echo "<p>Show:</p>";
+        echo "<select class='w-full sm:w-auto' onchange='window.location = \"/gameSearch.php?o=0&p=$method&i=\" + this.options[this.selectedIndex].value'>";
         foreach ($consoleList as $nextConsoleID => $nextConsoleName) {
-            if ($nextConsoleID > 0) {
-                echo " | ";
-            }
-
-            sanitize_outputs($nextConsoleName);
-
-            if ($nextConsoleID == $consoleID) {
-                echo "<b>$nextConsoleName</b>";
-            } else {
-                echo "<a href='gameSearch.php?o=0&amp;p=$method&amp;i=$nextConsoleID'>$nextConsoleName</a>";
+            // 0 is "All Consoles". Don't show consoles that haven't been rolled out yet.
+            if ($nextConsoleID == 0 || isValidConsoleId($nextConsoleID)) {
+                sanitize_outputs($nextConsoleName);
+                echo "<option value='$nextConsoleID' " . ($nextConsoleID == $consoleID ? "selected" : "") . ">$nextConsoleName</option>";
             }
         }
+        echo "</select>";
+        echo "</div>";
 
-        echo "</p>";
+        echo "</div>";
 
         // echo "Show: | ";
 

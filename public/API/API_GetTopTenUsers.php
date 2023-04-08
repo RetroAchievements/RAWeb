@@ -6,8 +6,8 @@
  *  array
  *   object     [value]
  *    string     1                     name of the user
- *    string     2                     total points earned by the user
- *    string     3                     total "white" points earned by the user
+ *    int        2                     total points earned by the user
+ *    int        3                     total "white" points earned by the user
  */
 
 $dataOut = getTopUsersByScore(10);

@@ -8,30 +8,30 @@ use LegacyApp\Site\Models\StaticData;
  *   (no inputs)
  *
  *  object     Achievement     information about the achievement
- *   string     ID             unique identifier of the achievement
+ *   int        ID             unique identifier of the achievement
  *   string     Title          title of the achievement
  *   string     Description    description of the achievement
- *   string     Points         number of points the achievement is worth
- *   string     TrueRatio      number of "white" points the achievement is worth
+ *   int        Points         number of points the achievement is worth
+ *   int        TrueRatio      number of "white" points the achievement is worth
  *   string     Author         user who first created the achievement
  *   datetime   DateCreated    when the achievement was created
  *   datetime   DateModified   when the achievement was last modified
  *  object     Console         information about the console associated to the game associated to the achievemnt
- *   string     ID             unique identifier of the console
+ *   int        ID             unique identifier of the console
  *   string     Title          name of the console
  *  object     Game            information about the game associated to the achievement
- *   string     ID             unique identifier of the game
+ *   int        ID             unique identifier of the game
  *   string     Title          name of the game
  *  object     ForumTopic      information about the game's official forum topic
- *   string     ID             unique identifier of the game's official forum topic
+ *   int        ID             unique identifier of the game's official forum topic
  *  datetime   StartAt         when the achievement was set as the achievement of the week
  *  int        UnlocksCount    number of times the achievement has been unlocked
  *  int        TotalPlayers    number of players who have played the game associated to the achievement
  *  array      Unlocks         requested unlock information
  *   string     User           user who unlocked the achievement
- *   string     RAPoints       number of points the user has
+ *   int        RAPoints       number of points the user has
  *   datetime   DateAwarded    when the achievement was unlocked
- *   string     HardcoreMode   "1" if unlocked in hardcore, otherwise "0"
+ *   int        HardcoreMode   1 if unlocked in hardcore, otherwise 0
  */
 
 /*

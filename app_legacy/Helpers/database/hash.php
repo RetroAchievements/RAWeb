@@ -70,9 +70,9 @@ function getGameIDFromMD5(string $md5): int
 /**
  * Gets the list of hashes and hash information from the databased using the input offset and count.
  */
-function getHashList(int $offset, int $count, string $searchedHash): array
+function getHashList(int $offset, int $count, ?string $searchedHash): array
 {
-    sanitize_sql_inputs($offset, $count, $searchedHash);
+    sanitize_sql_inputs($searchedHash);
 
     $searchQuery = "";
     if (!empty($searchedHash)) {
@@ -179,7 +179,7 @@ function updateHashDetails(
         log_sql_fail();
     }
 
-    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " updated by " . $user . ". Description: \"" . $name . "\". Label: \"" . $labels . "\"");
+    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " updated by " . $user . ". File Name: \"" . $name . "\". Label: \"" . $labels . "\"");
 
     return $dbResult != null;
 }

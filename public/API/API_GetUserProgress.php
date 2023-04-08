@@ -7,11 +7,11 @@
  *
  *  map
  *   string     [key]                       unique identifier of the game
- *    string     NumPossibleAchievements    number of core achievements for the game
+ *    int        NumPossibleAchievements    number of core achievements for the game
  *    string     PossibleScore              maximum number of points that can be earned from the game
- *    string     NumAchieved                number of achievements earned by the user in softcore
+ *    int        NumAchieved                number of achievements earned by the user in softcore
  *    string     ScoreAchieved              number of points earned by the user in softcore
- *    string     NumAchievedHardcore        number of achievements earned by the user in hardcore
+ *    int        NumAchievedHardcore        number of achievements earned by the user in hardcore
  *    string     ScoreAchievedHardcore      number of points earned by the user in hardcore
  */
 
