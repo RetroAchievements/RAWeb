@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use LegacyApp\Community\Enums\ArticleType;
 use LegacyApp\Community\Enums\ClaimFilters;
 use LegacyApp\Community\Enums\ClaimSetType;
@@ -60,7 +61,7 @@ $isEventGame = $consoleName == 'Events';
 
 $pageTitle = "$gameTitle ($consoleName)";
 
-$relatedGames = getGameAlternatives($gameID);
+$relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
 $gameAlts = [];
 $gameHubs = [];
 $gameSubsets = [];
@@ -655,7 +656,7 @@ sanitize_outputs(
             <?php
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='navpath'>";
+                echo "<div class='navpath leading-4'>";
                 echo renderGameBreadcrumb($gameData, addLinkToLastCrumb: $flags === $unofficialFlag);
                 if ($flags === $unofficialFlag) {
                     echo " &raquo; <b>Unofficial Achievements</b>";
@@ -664,7 +665,8 @@ sanitize_outputs(
             }
 
             $escapedGameTitle = attributeEscape($gameTitle);
-            $renderedTitle = renderGameTitle($pageTitle);
+            $renderedTitle = renderGameTitle($gameTitle);
+            $consoleName = $gameData['ConsoleName'] ?? null;
             $developer = $gameData['Developer'] ?? null;
             $publisher = $gameData['Publisher'] ?? null;
             $genre = $gameData['Genre'] ?? null;
@@ -674,10 +676,15 @@ sanitize_outputs(
             $imageIngame = media_asset($gameData['ImageIngame']);
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            echo "<h1 class='text-h3'>$renderedTitle</h1>";
-            echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
-            echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
-            echo "<table class='table-highlight'><colgroup><col class='w-48'></colgroup><tbody>";
+            echo "<h1 class='text-h3'>";
+            echo " <span class='block'>$renderedTitle</span>";
+            echo " <span class='block text-sm tracking-tighter'>$consoleName</span>";
+            echo "</h1>";
+
+            echo "<div class='flex flex-col sm:flex-row sm:w-full gap-x-4 gap-y-2 items-center mb-4'>";
+            echo "<img class='aspect-1 object-cover rounded-sm w-[96px] h-[96px]' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
+
+            echo "<div class='flex flex-col w-full gap-1'>";
             if ($isFullyFeaturedGame) {
                 RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
                 RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
@@ -688,18 +695,22 @@ sanitize_outputs(
                 RenderMetadataTableRow('Genre', $genre);
             }
             RenderMetadataTableRow('Released', $released);
-            echo "</tbody></table>";
+            echo "</div>";
+
             echo "</div>";
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='sm:flex justify-around items-center mb-3 gap-5'>";
-                echo "<div>";
-                echo "<img class='w-full' src='$imageTitle' alt='Title Screenhot'>";
-                echo "</div>";
-                echo "<div>";
-                echo "<img class='w-full' src='$imageIngame' alt='In-game Screenshot'>";
-                echo "</div>";
-                echo "</div>";
+                echo <<<HTML
+                    <div class="mb-3 -mx-5 sm:mx-0 grid sm:flex sm:justify-around sm:w-full gap-y-1 sm:gap-x-5">
+                        <div class="flex justify-center items-center">
+                            <img class="w-full sm:w-auto sm:rounded-sm" src="$imageTitle" alt="Title screenshot">
+                        </div>
+
+                        <div class="flex justify-center items-center">
+                            <img class="w-full sm:w-auto sm:rounded-sm" src="$imageIngame" alt="In-game screenshot">
+                        </div>
+                    </div>
+                HTML;
             }
 
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
@@ -1002,7 +1013,7 @@ sanitize_outputs(
                 $renderRatingControl = function ($label, $containername, $labelname, $ratingData) use ($minimumNumberOfRatingsToDisplay) {
                     echo "<div>";
 
-                    echo "<h2 class='text-h4'>$label</h2>";
+                    echo "<h2 class='text-h4 mb-0'>$label</h2>";
 
                     $yourRating = ($ratingData['UserRating'] > 0) ? $ratingData['UserRating'] : 'not rated';
 
@@ -1061,8 +1072,8 @@ sanitize_outputs(
                     echo "</div>";
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
-                    echo "<div style='float: left; clear: left' onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
-                    echo "<span class='$labelname'>$labelcontent</span>";
+                    echo "<div class='mt-1' style='float: left; clear: left' onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
+                    echo "<span class='$labelname text-2xs'>$labelcontent</span>";
                     echo "</div>";
 
                     echo "</div>";
@@ -1094,15 +1105,16 @@ sanitize_outputs(
                     echo "<h2 class='text-h4'>Achievements</h2>";
                 }
 
-                echo "<div class='mb-12'>";
+                echo "<div class='lg:mb-0'>";
                 if ($numAchievements > 0) {
-                    echo "<b>Authors:</b> ";
-                    $numItems = count($authorInfo);
+                    $numAuthors = count($authorInfo);
+
+                    echo "<span class='font-bold'>" . __res('author', $numAuthors) . ":</span> ";
                     $i = 0;
                     foreach ($authorInfo as $author => $achievementCount) {
                         echo userAvatar($author, icon: false);
                         echo " (" . $achievementCount . ")";
-                        if (++$i !== $numItems) {
+                        if (++$i !== $numAuthors) {
                             echo ', ';
                         }
                     }
@@ -1117,7 +1129,7 @@ sanitize_outputs(
                         echo "Claimed by: ";
                         foreach ($claimData as $claim) {
                             $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
-                            $claimExpiration = getNiceDate(strtotime($claim['Expiration']));
+                            $claimExpiration = Carbon::parse($claim['Expiration']);
                             echo userAvatar($claim['User'], icon: false) . $revisionText;
                             if ($claimListLength > 1) {
                                 echo ", ";
@@ -1125,7 +1137,19 @@ sanitize_outputs(
                             $claimListLength--;
                             $primaryClaim = 0;
                         }
-                        echo "<div>Expires on: $claimExpiration</div>";
+
+                        if ($claimExpiration) {
+                            $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
+                            $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast();
+
+                            echo "<p>";
+                            if ($isAlreadyExpired) {
+                                echo "Expired on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
+                            } else {
+                                echo "Expires on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
+                            }
+                            echo "</p>";
+                        }
                     } else {
                         if ($numAchievements < 1) {
                             echo "No Active Claims";
@@ -1135,27 +1159,23 @@ sanitize_outputs(
                 }
                 echo "</div>";
 
-                echo "<div class='my-8'>";
-                if (isset($user) && $numAchievements > 0) {
-                    echo "<div class='md:float-right'>";
-                    RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
-                    echo "</div>";
-                }
+                echo "<div class='my-8 lg:my-4 lg:flex justify-between w-full gap-x-4'>";
 
+                echo "<div>";
                 if ($flags == $unofficialFlag) {
-                    echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
+                    echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 } else {
-                    echo "There are <b>$numAchievements</b> achievements worth <b>$totalPossible</b> <span class='TrueRatio'>($totalPossibleTrueRatio)</span> points.<br>";
+                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 }
 
                 if ($user !== null && $numAchievements > 0) {
                     if ($numEarnedHardcore > 0) {
-                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>$totalEarnedHardcore</b> <span class='TrueRatio'>($totalEarnedTrueRatio)</span> points.<br>";
+                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>" . number_format($totalEarnedHardcore) . "</b> <span class='TrueRatio'>(" . number_format($totalEarnedTrueRatio) . ")</span> points.<br>";
                         if ($numEarnedCasual > 0) { // Some Hardcore earns
-                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
                         }
                     } elseif ($numEarnedCasual > 0) {
-                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>$totalEarnedCasual</b> points.<br>";
+                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
                     } else {
                         echo "You have not earned any achievements for this game.<br/>";
                     }
@@ -1170,6 +1190,13 @@ sanitize_outputs(
                         echo "</div></div>";
                     }
                 }
+                echo "</div>";
+
+                if (isset($user) && $numAchievements > 0 && ($numEarnedCasual > 0 || $numEarnedHardcore > 0)) {
+                    echo "<div class='mb-2 w-full md:mb-4 lg:max-w-[160px]'>";
+                    RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
+                    echo "</div>";
+                }
 
                 echo "</div>";
 
@@ -1180,35 +1207,7 @@ sanitize_outputs(
                 */
 
                 if ($numAchievements > 1) {
-                    echo "<div class='py-3'><span>";
-                    echo "Sort: ";
-
-                    $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
-
-                    $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
-
-                    $sort1 = ($sortBy == 1) ? 11 : 1;
-                    $sort2 = ($sortBy == 2) ? 12 : 2;
-                    $sort3 = ($sortBy == 3) ? 13 : 3;
-                    $sort4 = ($sortBy == 4) ? 14 : 4;
-                    $sort5 = ($sortBy == 5) ? 15 : 5;
-
-                    $mark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortType" : "";
-                    $mark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortType" : "";
-                    $mark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortType" : "";
-                    $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
-                    $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
-
-                    echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
-                    echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
-                    // TODO sorting by "date won" isn't implemented yet.
-                    // if(isset($user)) {
-                    //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
-                    // }
-                    echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
-                    echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
-
-                    echo "<sup>&nbsp;</sup></span></div>";
+                    RenderGameSort($isFullyFeaturedGame, $flags, $officialFlag, $gameID, $sortBy);
                 }
 
                 echo "<table class='achievementlist table-highlight'><tbody>";
@@ -1321,18 +1320,19 @@ sanitize_outputs(
                             }
                             echo "</div>";
 
-                            echo "<div class='my-2'>";
-                            echo "<div class='progressbar w-40'>";
+                            echo "<div class='my-2 flex flex-col items-center text-center whitespace-nowrap'>";
+                            echo "<div class='progressbar w-full md:w-60 lg:w-40'>";
                             echo "<div class='completion' style='width:$pctAwardedCasual%'>";
                             echo "<div class='completion-hardcore' style='width:$pctAwardedHardcore%'></div>";
                             echo "</div>";
                             echo "</div>";
-                            echo "<div class='progressbar-label mt-1'>";
+                            echo "<div class='mt-1 text-2xs'>";
                             if ($wonByHardcore > 0) {
-                                echo "$wonBy <strong>($wonByHardcore)</strong> of $numDistinctPlayersCasual<br/>($pctAwardedCasual%) players";
+                                echo "<p>" . number_format($wonBy) . " <strong>(" . number_format($wonByHardcore) . ")</strong> of " . number_format($numDistinctPlayersCasual) . "</p>";
                             } else {
-                                echo "$wonBy of $numDistinctPlayersCasual<br>($pctAwardedCasual%) players";
+                                echo "<p>" . number_format($wonBy) . " of " . number_format($numDistinctPlayersCasual) . "<br>($pctAwardedCasual%)</p>";
                             }
+                            echo "<p class='text-2xs'>$pctAwardedCasual% earn rate</p>";
                             echo "</div>";
                             echo "</div>";
 
@@ -1349,6 +1349,7 @@ sanitize_outputs(
 
             if (!$isFullyFeaturedGame) {
                 if (!empty($relatedGames)) {
+                    RenderGameSort($isFullyFeaturedGame, $flags, $officialFlag, $gameID, $sortBy);
                     RenderGameAlts($relatedGames);
                 }
             }
@@ -1372,7 +1373,7 @@ sanitize_outputs(
         <div id="rightcontainer">
             <?php
             echo "<div class='component text-center mb-6'>";
-            echo "<img class='max-w-full' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
+            echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
             echo "</div>";
 
             echo "<div class='component'>";
@@ -1434,7 +1435,7 @@ sanitize_outputs(
                 RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
             }
 
-            RenderGameLeaderboardsComponent($lbData);
+            RenderGameLeaderboardsComponent($lbData, $forumTopicID);
             ?>
         </div>
     <?php endif ?>
