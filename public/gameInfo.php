@@ -676,14 +676,14 @@ sanitize_outputs(
             $imageIngame = media_asset($gameData['ImageIngame']);
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            $fallBackConsoleIcon = "assets/images/system/unknown.png";
+            $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
             $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
             $iconName = Str::kebab($cleanSystemShortName);
 
             echo "<h1 class='text-h3'>";
             echo " <span class='block mb-1'>$renderedTitle</span>";
-            echo " <div class='flex items-center gap-x-2'>";
-            echo "  <img src='" . asset("assets/images/system/$iconName.png") . "' width='24' height='24' alt='Console icon'>";
+            echo " <div class='flex items-center gap-x-1'>";
+            echo "  <img src='" . asset("assets/images/system/$iconName.png") . "' width='24' height='24' alt='Console icon' onerror='this.src=\"$fallBackConsoleIcon\"'>";
             echo "  <span class='block text-sm tracking-tighter'>$consoleName</span>";
             echo " </div>";
             echo "</h1>";
