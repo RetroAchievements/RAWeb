@@ -6,6 +6,7 @@ module.exports = {
     './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
     './storage/framework/views/*.php',
     './resources/views/**/*.blade.php',
+    './resources/js/**/*.ts',
     //  legacy
     './app_legacy/Helpers/render/*.php',
     './app_legacy/Helpers/util/*.php',
@@ -36,8 +37,8 @@ module.exports = {
         'menu-link-hover': 'var(--menu-link-hover-color)',
         text: 'var(--text-color)',
         'text-danger': 'var(--text-color-danger)',
-        'text-muted': 'var(--text-color-muted)'
-      }
+        'text-muted': 'var(--text-color-muted)',
+      },
     },
     fontSize: {
       '2xs': '.70rem',
@@ -59,7 +60,7 @@ module.exports = {
       lg: '1024px',
       xl: '1280px',
       '2xl': '1536px',
-    }
+    },
   },
 
   plugins: [
