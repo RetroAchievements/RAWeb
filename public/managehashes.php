@@ -91,7 +91,9 @@ function UnlinkHash(user, gameID, hash, elem) {
 
         echo "<div class='mt-2 flex flex-col gap-1'>";
         echo " <a href='/linkedhashes.php?g=$gameID'>Supported Game Files</a>";
-        echo " <a href='/viewtopic.php?t=$forumTopicID'>Official Forum Topic</a>";
+        if (isset($forumTopicID)) {
+            echo " <a href='/viewtopic.php?t=$forumTopicID'>Official Forum Topic</a>";
+        }
         echo "</div>";
 
         echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='/createmessage.php?t=RAdmin&s=Attempt to Unlink $gameTitle'>leave a message for admins</a> and they'll help sort it.</div>";
