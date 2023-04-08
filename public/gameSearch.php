@@ -7,6 +7,13 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $maxCount = 50;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+
+// Remove 'Hubs' and 'Events' from the collection.
+$consolesToRemove = ['Hubs', 'Events'];
+$consoleList = $consoleList->filter(function ($value, $key) use ($consolesToRemove) {
+    return !in_array($value, $consolesToRemove);
+});
+
 $consoleList = $consoleList->sort();
 $consoleList->prepend('All Consoles', 0);
 
