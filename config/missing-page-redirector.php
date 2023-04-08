@@ -119,12 +119,6 @@ return [
          * rss
          */
         '/rss.php' => '/rss',
-        '/rss-activity' => '/rss/activity',
-        '/rss-activity.xml.php' => '/rss/activity',
-        '/rss-forum' => '/rss/forum',
-        '/rss-forum.xml.php' => '/rss/forum',
-        '/rss-newachievements' => '/rss/achievements',
-        '/rss-newachievements.xml.php' => '/rss/achievements',
         '/rss-news.xml.php' => '/rss/news',
 
     /*

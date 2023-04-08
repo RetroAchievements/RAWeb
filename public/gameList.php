@@ -198,7 +198,7 @@ RenderContentStart($requestedConsole . " Games");
                     echo "<br/>";
                 }
             } else {
-                $fallBackConsoleIcon = "assets/images/system/unknown.png";
+                $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
                 $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleIDInput.name_short")));
                 $iconName = Str::kebab($cleanSystemShortName);
 
