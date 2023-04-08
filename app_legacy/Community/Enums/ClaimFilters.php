@@ -41,6 +41,8 @@ abstract class ClaimFilters
     // Default filter is everything except Complete and Dropped claims
     public const AllActiveClaims = self::AllFilters & ~self::CompleteClaim & ~self::DroppedClaim;
 
+    public const AllDroppedClaims = self::AllFilters & ~self::CompleteClaim & ~self::ActiveClaim;
+
     public static function cases(): array
     {
         return [
@@ -60,6 +62,7 @@ abstract class ClaimFilters
             self::AllFilters,
             self::AllCompletedPrimaryClaims,
             self::AllActiveClaims,
+            self::AllDroppedClaims,
         ];
     }
 }
