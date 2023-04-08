@@ -1,9 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use LegacyApp\Community\Enums\ClaimFilters;
 
 /*
- *  API_GetActiveClaims - returns information about all (1000 max) active set claims.
+ *  API_GetClaims - returns information about 1000 max set claims, sorted by latest `Created` date.
+ *    k : claim kind - 1 for completed, 2 for dropped, 3 for expired (default: 1)
  *
  *  array
  *   object     [value]
@@ -12,7 +15,6 @@ use LegacyApp\Community\Enums\ClaimFilters;
  *    int        GameID             id of the claimed game
  *    string     GameTitle          title of the claimed game
  *    string     GameIcon           site-relative path to the game's icon image
- *    int        ConsoleID          console id of the claimed game
  *    string     ConsoleName        console name of the claimed game
  *    int        ClaimType          claim type: 0 - primary, 1 - collaboration
  *    int        SetType            set type claimed: 0 - new set, 1 - revision
@@ -29,8 +31,36 @@ use LegacyApp\Community\Enums\ClaimFilters;
  *    int        MinutesLeft        time in minutes left until the claim expires
  */
 
-return response()->json(
-    getFilteredClaims(
-        claimFilter: ClaimFilters::AllActiveClaims,
-    )
-);
+ $input = Validator::validate(Arr::wrap(request()->query()), [
+    'k' => [
+        'nullable',
+        Rule::in(['1', '2', '3']),
+    ],
+], [
+    'k.in' => 'k must be set to one of the following values: :values',
+]);
+
+$completedClaims = '1';
+$droppedClaims = '2';
+$expiredClaims = '3';
+
+$claimKind = request()->query('k', $completedClaims);
+
+$claimFilter = ClaimFilters::AllCompletedPrimaryClaims;
+if ($claimKind === $droppedClaims) {
+    $claimFilter = ClaimFilters::AllDroppedClaims;
+} elseif ($claimKind === $expiredClaims) {
+    $claimFilter = ClaimFilters::AllActiveClaims;
+}
+
+$claimsResults = getFilteredClaims(claimFilter: $claimFilter);
+
+if ($claimKind === $expiredClaims) {
+    $onlyFullyExpired = $claimsResults->filter(function ($claim) {
+        return $claim['MinutesLeft'] < 0;
+    })->toArray();
+
+    return response()->json($onlyFullyExpired);
+}
+
+return response()->json($claimsResults);
