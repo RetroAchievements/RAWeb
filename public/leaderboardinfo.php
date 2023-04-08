@@ -294,7 +294,7 @@ RenderContentStart('Leaderboard');
     </div>
     <div id="rightcontainer">
         <?php
-        RenderGameLeaderboardsComponent($allGameLBData);
+        RenderGameLeaderboardsComponent($allGameLBData, null);
         ?>
     </div>
 

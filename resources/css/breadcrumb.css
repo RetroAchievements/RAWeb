@@ -11,3 +11,7 @@
   margin-bottom: 8px;
   clear: both;
 }
+
+.navpath > * {
+  display: inline-block;
+}
