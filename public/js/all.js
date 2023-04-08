@@ -311,10 +311,12 @@ function showStatusSuccess(message) {
 }
 
 function showStatusFailure(message) {
-  var status = $('#status');
-  status.addClass('failure');
-  status.html(message);
-  status.show();
+  const status = document.getElementById('status');
+  if (status) {
+    status.classList.add('failure');
+    status.innerHTML = message;
+    status.style.display = 'block';
+  }
 }
 
 function hideStatusMessage() {
