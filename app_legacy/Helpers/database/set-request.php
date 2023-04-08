@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Community\Enums\ClaimStatus;
+use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Site\Models\User;
 

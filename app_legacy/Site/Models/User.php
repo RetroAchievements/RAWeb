@@ -150,7 +150,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     /**
      * @return HasMany<UserGameListEntry>
      */
-    public function gameList(int $type): HasMany
+    public function gameList(string $type): HasMany
     {
         return $this->hasMany(UserGameListEntry::class, 'User', 'User');
     }

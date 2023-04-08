@@ -6,11 +6,11 @@ namespace LegacyApp\Community\Enums;
 
 abstract class UserGameListType
 {
-    public const SetRequest = 1;
+    public const SetRequest = 'set-request';
 
-    public const WantToPlay = 2;
+    public const WantToPlay = 'want-to-play';
 
-    public const WantToDev = 3;
+    public const WantToDev = 'want-to-dev';
 
     public static function cases(): array
     {
@@ -21,7 +21,7 @@ abstract class UserGameListType
         ];
     }
 
-    public static function isValid(int $type): bool
+    public static function isValid(string $type): bool
     {
         return in_array($type, self::cases());
     }

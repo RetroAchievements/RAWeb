@@ -9,8 +9,12 @@ use LegacyApp\Site\Models\User;
 
 class AddGameToListAction
 {
-    public function execute(User &$user, Game &$game, int $type): bool
+    public function execute(User &$user, Game &$game, string $type): bool
     {
+        if (!UserGameListType::isValid($type)) {
+            return false;
+        }
+
         if ($user->gameList($type)->where('GameID', $game->ID)->exists()) {
             return false;
         }

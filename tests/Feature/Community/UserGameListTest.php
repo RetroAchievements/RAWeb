@@ -19,18 +19,6 @@ class UserGameListTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function addList(User &$user, Game &$game, int $type): void
-    {
-        $gameList = $user->gameList($type);
-
-        $entry = new UserGameListEntry([
-            'User' => $user->User,
-            'GameID' => $game->ID,
-        ]);
-
-        $gameList->save($entry);
-    }
-
     public function testSetRequestLimitNewUser(): void
     {
         /** @var User $user */
