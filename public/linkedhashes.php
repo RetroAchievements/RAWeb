@@ -41,7 +41,18 @@ RenderContentStart("Supported Game Files - $gameTitle");
              "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
              "</b></p>";
 
-        echo "<p class='mt-4 mb-1'>There are currently <span class='font-bold'>" . count($hashes) . "</span> supported game file hashes registered for this game.</p>";
+        echo "<div class='mt-4 mb-1'>";
+        if ($permissions >= Permissions::Developer) {
+            echo "<div class='devbox mb-3'>";
+            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
+            echo "<div id='devboxcontent' style='display: none'>";
+            echo "<a href='/managehashes.php?g=$gameID'>Manage Hashes</a>";
+            echo "</div>";
+            echo "</div>";
+        }
+
+        echo "<p>There are currently <span class='font-bold'>" . count($hashes) . "</span> supported game file hashes registered for this game.</p>";
+        echo "</div>";
 
         echo "<ul>";
         $hasUnlabeledHashes = false;
