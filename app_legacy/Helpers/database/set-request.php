@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Community\Controllers\UserGameListController;
+use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Community\Enums\ClaimStatus;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Site\Models\User;
@@ -81,7 +81,7 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
 {
     /** @var User $userModel */
     $userModel = User::firstWhere('User', $user);
-    $requests = UserGameListController::getUserSetRequestsInformation($userModel);
+    $requests = UserGameListEntry::getUserSetRequestsInformation($userModel);
 
     $requests['used'] = 0;
     $requests['requestedThisGame'] = 0;

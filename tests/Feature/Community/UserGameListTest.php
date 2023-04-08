@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use LegacyApp\Community\Actions\AddGameToListAction;
 use LegacyApp\Community\Actions\RemoveGameFromListAction;
-use LegacyApp\Community\Controllers\UserGameListController;
 use LegacyApp\Community\Enums\UserGameListType;
 use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Platform\Models\Achievement;
@@ -37,7 +36,7 @@ class UserGameListTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
 
-        $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+        $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
         $this->assertEquals($requestInfo, [
             'total' => 0,
@@ -53,7 +52,7 @@ class UserGameListTest extends TestCase
             'Created' => Carbon::now()->subDays(370),
         ]);
 
-        $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+        $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
         $this->assertEquals($requestInfo, [
             'total' => 1,
@@ -67,7 +66,7 @@ class UserGameListTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['RAPoints' => 123456, 'RASoftcorePoints' => 0]);
 
-        $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+        $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
         $this->assertEquals($requestInfo, [
             'total' => 25,
@@ -81,7 +80,7 @@ class UserGameListTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['RAPoints' => 12345678, 'RASoftcorePoints' => 0]);
 
-        $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+        $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
         $this->assertEquals($requestInfo, [
             'total' => 1247,
@@ -95,7 +94,7 @@ class UserGameListTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['RAPoints' => 23456, 'RASoftcorePoints' => 1111]);
 
-        $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+        $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
         $this->assertEquals($requestInfo, [
             'total' => 7, // 1250, 2500, 5000, 7500, 10000, 15000, 20000
@@ -109,7 +108,7 @@ class UserGameListTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['RAPoints' => 1234, 'RASoftcorePoints' => 11111]);
 
-        $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+        $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
         $this->assertEquals($requestInfo, [
             'total' => 5,

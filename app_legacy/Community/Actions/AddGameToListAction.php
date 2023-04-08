@@ -2,7 +2,6 @@
 
 namespace LegacyApp\Community\Actions;
 
-use LegacyApp\Community\Controllers\UserGameListController;
 use LegacyApp\Community\Enums\UserGameListType;
 use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Platform\Models\Game;
@@ -17,7 +16,7 @@ class AddGameToListAction
         }
 
         if ($type === UserGameListType::SetRequest) {
-            $requestInfo = UserGameListController::getUserSetRequestsInformation($user);
+            $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
             $count = $user->gameList($type)->withoutAchievements()->count();
             if ($count >= $requestInfo['total']) {
