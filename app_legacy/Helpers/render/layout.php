@@ -221,8 +221,10 @@ function RenderToolbar(): void
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
         echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
-        echo "<li class='divider'></li>";
-        echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
+        if ($permissions >= Permissions::Developer) {
+            echo "<li class='divider'></li>";
+            echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
+        }
         // Admin
         if ($permissions >= Permissions::Admin) {
             echo "<li class='divider'></li>";
