@@ -43,7 +43,6 @@ RenderContentStart("Supported Game Files - $gameTitle");
              "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
              "</b></p>";
 
-
         echo "<div class='mt-4 mb-1'>";
         if ($permissions >= Permissions::Developer) {
             echo "<div class='devbox mb-3'>";
