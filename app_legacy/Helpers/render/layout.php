@@ -117,7 +117,7 @@ function RenderToolbar(): void
                 $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listId.name_short")));
                 $iconName = Str::kebab($cleanSystemShortName);
                 echo "<li><a href='/gameList.php?c=$listId' class='!flex items-center gap-x-2' >"; // the flex class needs to be forced here
-                echo " <img src='" . asset("assets/images/system/$iconName.png") ."' width='16' height='16' alt=''>";
+                echo " <img src='" . asset("assets/images/system/$iconName.png") . "' width='16' height='16' alt=''>";
                 echo " <span>$systemName</span>";
                 echo "</a></li>";
             }
