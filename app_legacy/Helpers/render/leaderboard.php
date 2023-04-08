@@ -4,14 +4,18 @@ use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Community\Enums\Rank;
 use LegacyApp\Platform\Enums\UnlockMode;
 
-function RenderGameLeaderboardsComponent(array $lbData): void
+function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void
 {
     $numLBs = count($lbData);
     echo "<div class='component'>";
     echo "<h2 class='text-h3'>Leaderboards</h2>";
 
     if ($numLBs == 0) {
-        echo "No leaderboards found: why not suggest some for this game? ";
+        if (!empty($forumTopicID) && getTopicDetails($forumTopicID)) {
+            echo "No leaderboards found: why not <a href='/viewtopic.php?t=$forumTopicID'>suggest some</a> for this game? ";
+        } else {
+            echo "No leaderboards found: why not suggest some for this game? ";
+        }
     } else {
         echo "<table class='table-highlight'><tbody>";
 

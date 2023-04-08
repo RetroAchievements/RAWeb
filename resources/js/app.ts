@@ -9,8 +9,15 @@ import {
   mobileSafeTipEvents,
   themeChange
 } from './utils';
+import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 
 // livewire_hot_reload();
+
+lazyLoadModuleOnIdFound({
+  elementId: 'reorder-site-awards-header',
+  codeFileName: 'reorderSiteAwards',
+  moduleName: 'reorderSiteAwards',
+});
 
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
