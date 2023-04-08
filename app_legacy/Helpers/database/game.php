@@ -191,8 +191,16 @@ function getGameMetadata(
     return $numAchievements;
 }
 
-function getGameAlternatives(int $gameID): array
+function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 {
+    $orderBy = match ($sortBy) {
+        11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
+        2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
+        12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
+        // 1 or unspecified
+        default => "ORDER BY HasAchievements DESC, gd.Title ",
+    };
+
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
               CASE
                 WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") > 0 THEN 1
@@ -205,7 +213,7 @@ function getGameAlternatives(int $gameID): array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE ga.gameID = $gameID
               GROUP BY gd.ID, gd.Title
-              ORDER BY HasAchievements DESC, gd.Title";
+              $orderBy";
 
     $dbResult = s_mysql_query($query);
 
