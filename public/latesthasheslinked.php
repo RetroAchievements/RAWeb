@@ -10,7 +10,7 @@ $maxCount = 50;
 
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
-$searchedHash = requestInputSanitized('h', null);
+$searchedHash = requestInputSanitized('h');
 if ($offset < 0) {
     $offset = 0;
 }
@@ -61,7 +61,9 @@ RenderContentStart("Hash List");
                     echo "<tr class=\"alt\">";
                 }
 
-                echo "<td>" . $hash['Hash'] . "</td>";
+                $gameID = $hash['GameID'];
+
+                echo "<td><a href='/managehashes.php?g=$gameID'>" . $hash['Hash'] . "</a></td>";
                 echo "<td>";
                 echo gameAvatar($hash);
                 echo "</td>";
