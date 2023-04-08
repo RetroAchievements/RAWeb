@@ -7,7 +7,7 @@
  *  int        Score           number of hardcore points the user has
  *  int        SoftcoreScore   number of softcore points the user has
  *  int?       Rank            user's site rank
- *  string     TotalRanked     total number of ranked users
+ *  int        TotalRanked     total number of ranked users
  */
 
 $user = request()->query('u');
