@@ -103,7 +103,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
     $consoleName = $data['ConsoleName'];
 
     // Return next crumb (i.e `» text`), either as a link or not
-    $nextCrumb = fn ($text, $href = ''): string => " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<b>$text</b>");
+    $nextCrumb = fn ($text, $href = ''): string => " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<span class='font-bold'>$text</span>");
 
     // Retrieve separate IDs and titles for main game and subset (if any)
     $getSplitData = function ($data) use ($consoleID): array {
@@ -188,6 +188,53 @@ function renderGameCard(int|array $game): string
     $tooltip .= "</div>";
 
     return $tooltip;
+}
+
+function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy): void
+{
+    echo "<div class='py-3'><span>";
+    echo "Sort: ";
+
+    $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
+
+    $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
+    // Used for options which sort in Descending order on first click
+    $sortReverseType = ($sortBy >= 10) ? "^" : "<sup>v</sup>";
+
+    $sort1 = ($sortBy == 1) ? 11 : 1;
+    $sort2 = ($sortBy == 2) ? 12 : 2;
+    $sort3 = ($sortBy == 3) ? 13 : 3;
+    $sort4 = ($sortBy == 4) ? 14 : 4;
+    $sort5 = ($sortBy == 5) ? 15 : 5;
+
+    $mark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortType" : "";
+    $mark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortType" : "";
+    $mark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortType" : "";
+    $mark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortType" : "";
+    $mark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortType" : "";
+
+    $reverseMark1 = ($sortBy % 10 == 1) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark2 = ($sortBy % 10 == 2) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark3 = ($sortBy % 10 == 3) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark4 = ($sortBy % 10 == 4) ? "&nbsp;$sortReverseType" : "";
+    $reverseMark5 = ($sortBy % 10 == 5) ? "&nbsp;$sortReverseType" : "";
+
+    if ($isFullyFeaturedGame) {
+        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Normal$mark1</a> - ";
+        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Won By$mark2</a> - ";
+        // TODO sorting by "date won" isn't implemented yet.
+        // if(isset($user)) {
+        //    echo "<a href='/game/$gameID?$flagParam&s=$sort3'>Date Won$mark3</a> - ";
+        // }
+        echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
+        echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
+    }
+    else {
+        echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
+        echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Retro Points$reverseMark2</a>";
+    }
+
+    echo "<sup>&nbsp;</sup></span></div>";
 }
 
 function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
@@ -298,10 +345,10 @@ function RenderMetadataTableRow(
             sanitize_outputs($gameDataValues[$key]);
         }
 
-        echo "<tr>";
-        echo "<td>$label</td>";
-        echo "<td><b>" . implode(', ', $gameDataValues) . "</b></td>";
-        echo "</tr>";
+        echo "<div class='flex'>";
+        echo " <p class='tracking-tight w-[100px] min-w-[100px]'>$label</p>";
+        echo " <p class='font-semibold'>" . implode(', ', $gameDataValues) . "</p>";
+        echo "</div>";
     }
 }
 
@@ -352,7 +399,7 @@ function RenderRecentGamePlayers(array $recentPlayerData): void
     echo "</div>";
 }
 
-function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore): void
+function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore, ?string $fullWidthUntil = null): void
 {
     $pctComplete = 0;
     $pctHardcore = 0;
@@ -381,7 +428,12 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     }
     $numEarnedTotal = $numEarnedCasual + $numEarnedHardcore;
 
-    echo "<div class='w-40 my-2'>";
+    $fullWidthClassName = "";
+    if (isset($fullWidthUntil) && $fullWidthUntil === "md") {
+        $fullWidthClassName = "md:w-40";
+    }
+
+    echo "<div class='w-full my-2 $fullWidthClassName'>";
     echo "<div class='flex w-full items-center'>";
     echo "<div class='progressbar grow'>";
     echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
@@ -390,7 +442,7 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
     echo "</div>";
     echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
     echo "</div>";
-    echo "<div class='progressbar-label pr-5 -mt-1'>";
+    echo "<div class='progressbar-label -mt-1'>";
     if ($pctHardcore >= 100.0) {
         echo "Mastered";
     } else {
