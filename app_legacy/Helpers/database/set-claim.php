@@ -93,24 +93,22 @@ function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = fal
  */
 function completeClaim(string $user, int $gameID): bool
 {
-    sanitize_sql_inputs($gameID);
-
     // Only allow primary claim user to mark a claim as complete
     if (hasSetClaimed($user, $gameID, true)) {
+        $now = Carbon::now();
+
         $query = "
             UPDATE
                 SetClaim
             SET
                 Status = " . ClaimStatus::Complete . ",
-                Finished = NOW(),
-                Updated = NOW()
+                Finished = '$now',
+                Updated = '$now'
             WHERE
                 Status = " . ClaimStatus::Active . "
                 AND GameID = '$gameID'";
 
-        if (s_mysql_query($query)) {
-            return true;
-        }
+        return legacyDbStatement($query);
     }
 
     return false;
@@ -121,21 +119,21 @@ function completeClaim(string $user, int $gameID): bool
  */
 function dropClaim(string $user, int $gameID): bool
 {
-    sanitize_sql_inputs($user, $gameID);
+    $now = Carbon::now();
 
     $query = "
         UPDATE
             SetClaim
         SET
             Status =  " . ClaimStatus::Dropped . ",
-            Finished = NOW(),
-            Updated = NOW()
+            Finished = '$now',
+            Updated = '$now'
         WHERE
             Status = " . ClaimStatus::Active . "
             AND User = '$user'
             AND GameID = '$gameID'";
 
-    return (bool) s_mysql_query($query);
+    return legacyDbStatement($query);
 }
 
 /**
@@ -371,6 +369,7 @@ function getFilteredClaims(
         sc.Created AS Created,
         sc.Finished AS DoneTime,
         sc.Updated AS Updated,
+        CASE WHEN ua.Permissions <= 2 THEN true ELSE false END AS UserIsJrDev,
     ";
     $selectCondition .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft');
 
@@ -480,7 +479,7 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
 }
 
 /**
- * Gets the number of expiring and expired claims for a  specific user.
+ * Gets the number of expiring and expired claims for a specific user.
  */
 function getExpiringClaim(string $user): array
 {
