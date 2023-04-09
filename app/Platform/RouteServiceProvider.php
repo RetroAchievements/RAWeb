@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
+use App\Platform\Controllers\ApiDocsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -56,7 +57,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
 
-            // Route::get('docs/api', [ApiDocsController::class, 'index'])->name('docs.api');
+            Route::get('docs/api', [ApiDocsController::class, 'index'])->name('docs.api');
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
             // Route::resource('game-hash', GameHashController::class)->only('show')->names(['show' => 'game-hash.show']);
