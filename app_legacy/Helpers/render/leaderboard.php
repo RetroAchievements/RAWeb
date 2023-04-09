@@ -32,7 +32,7 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
 
             sanitize_outputs($lbTitle, $lbDesc);
 
-            echo "<div class='even:bg-embed flex flex-col gap-y-1 p-2'>";
+            echo "<div class='odd:bg-embed hover:bg-embed-highlight border border-transparent hover:border-[rgba(128,128,128,.3)] flex flex-col gap-y-1 p-2'>";
             echo "<div>";
             echo "<a href='/leaderboardinfo.php?i=$lbID' class='leading-3'>$lbTitle</a>";
             echo "<p>$lbDesc</p>";
