@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Jenssegers\Optimus\Optimus;
 use LegacyApp\Community\Models\UserActivity;
+use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Platform\Models\PlayerAchievement;
 use LegacyApp\Platform\Models\PlayerBadge;
 use LegacyApp\Site\Enums\Permissions;
@@ -166,5 +167,13 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     public function activities(): HasMany
     {
         return $this->hasMany(UserActivity::class);
+    }
+
+    /**
+     * @return HasMany<UserGameListEntry>
+     */
+    public function gameList(string $type): HasMany
+    {
+        return $this->hasMany(UserGameListEntry::class, 'User', 'User');
     }
 }

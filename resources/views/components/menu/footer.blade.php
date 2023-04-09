@@ -21,13 +21,12 @@ $menu = collect([
                 'url' => 'https://docs.retroachievements.org/FAQ',
                 'visible' => true,
             ],
-            // [
-            //     'active' => Route::is('docs.api'),
-            //     'label' => __('API'),
-            //     'url' => url('APIDemo.php'),
-            //     // 'url' => route('docs.api'),
-            //     'visible' => true,
-            // ],
+            [
+                'active' => Route::is('docs.api'),
+                'label' => __('API'),
+                'url' => route('docs.api'),
+                'visible' => true,
+            ],
         ],
     ],
     [
