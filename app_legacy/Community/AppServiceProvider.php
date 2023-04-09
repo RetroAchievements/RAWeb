@@ -7,7 +7,6 @@ namespace LegacyApp\Community;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use LegacyApp\Community\Models\AchievementSetClaim;
-use LegacyApp\Community\Models\AchievementSetRequest;
 use LegacyApp\Community\Models\Comment;
 use LegacyApp\Community\Models\Forum;
 use LegacyApp\Community\Models\ForumCategory;
@@ -18,6 +17,7 @@ use LegacyApp\Community\Models\News;
 use LegacyApp\Community\Models\Rating;
 use LegacyApp\Community\Models\Ticket;
 use LegacyApp\Community\Models\UserActivity;
+use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Community\Models\UserRelation;
 
 class AppServiceProvider extends ServiceProvider
@@ -40,10 +40,10 @@ class AppServiceProvider extends ServiceProvider
             'news' => News::class,
             'rating' => Rating::class,
             'user-activity' => UserActivity::class,
+            'user-game-list-entry' => UserGameListEntry::class,
             'user-relation' => UserRelation::class,
 
             'achievement-set-claim' => AchievementSetClaim::class,
-            'achievement-set-request' => AchievementSetRequest::class,
             // 'achievement.comment' => AchievementComment::class,
             // 'game.comment' => GameComment::class,
             // 'news.comment' => NewsComment::class,
