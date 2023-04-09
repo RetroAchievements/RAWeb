@@ -1337,7 +1337,7 @@ sanitize_outputs(
                             if ($wonByHardcore > 0) {
                                 echo "<p>" . number_format($wonBy) . " <strong>(" . number_format($wonByHardcore) . ")</strong> of " . number_format($numDistinctPlayersCasual) . "</p>";
                             } else {
-                                echo "<p>" . number_format($wonBy) . " of " . number_format($numDistinctPlayersCasual) . "<br>($pctAwardedCasual%)</p>";
+                                echo "<p>" . number_format($wonBy) . " of " . number_format($numDistinctPlayersCasual) . "</p>";
                             }
                             echo "<p class='text-2xs'>$pctAwardedCasual% earn rate</p>";
                             echo "</div>";
