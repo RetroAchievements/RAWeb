@@ -84,8 +84,12 @@ function ListGames(
         $totalAchievements = null;
         if ($dev == null) {
             $numAchievements = $gameEntry['NumAchievements'];
+            $numPoints = $maxPoints;
+            $numTrueRatio = $totalTrueRatio;
         } else {
             $numAchievements = $gameEntry['MyAchievements'];
+            $numPoints = $gameEntry['MyPoints'];
+            $numTrueRatio = $gameEntry['MyTrueRatio'];
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
         }
         $numLBs = $gameEntry['NumLBs'];
@@ -105,10 +109,11 @@ function ListGames(
 
         if ($dev == null) {
             echo "<td>$numAchievements</td>";
+            echo "<td class='whitespace-nowrap'>$maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
         } else {
             echo "<td>$numAchievements of $totalAchievements</td>";
+            echo "<td class='whitespace-nowrap'>$numPoints of $maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
         }
-        echo "<td class='whitespace-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
 
         if ($gameEntry['DateModified'] != null) {
             $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
@@ -137,9 +142,9 @@ function ListGames(
         echo "</tr>";
 
         $gameCount++;
-        $pointsTally += $maxPoints;
+        $pointsTally += $numPoints;
         $achievementsTally += $numAchievements;
-        $truePointsTally += $totalTrueRatio;
+        $truePointsTally += $numTrueRatio;
     }
 
     if ($showTotals) {
