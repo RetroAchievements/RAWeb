@@ -1339,7 +1339,7 @@ sanitize_outputs(
                             } else {
                                 echo "<p>" . number_format($wonBy) . " of " . number_format($numDistinctPlayersCasual) . "</p>";
                             }
-                            echo "<p class='text-2xs'>$pctAwardedCasual% earn rate</p>";
+                            echo "<p class='text-2xs'>$pctAwardedCasual% unlock rate</p>";
                             echo "</div>";
                             echo "</div>";
 
