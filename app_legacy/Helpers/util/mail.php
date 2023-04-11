@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Shortcode\ExternalShortcode;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
@@ -359,7 +360,8 @@ function SendPrivateMessageEmail(
     $msg = "Hello $user!<br>" .
         "You have received a new private message from $fromUser.<br><br>" .
         "Title: $title<br>" .
-        "$content<br><br>" .
+        ExternalShortcode::render($content) .
+        "<br><br>" .
         "Click $link to reply!<br>" .
         "Thanks! And hope to see you on the forums!<br>" .
         "<br>" .

@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Shortcode\ExternalShortcode;
 use Illuminate\Support\Carbon;
 
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -82,7 +83,9 @@ RenderContentStart("Forum Recent Posts");
             echo "<td>";
             echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID#$commentID'>$forumTopicTitle</a>";
             echo " <span class='smalldate'>$postedAt</span>";
-            echo "<div class='comment text-overflow-wrap'>$postMessage</div>";
+            echo "<div class='comment text-overflow-wrap'>";
+            echo ExternalShortcode::render($postMessage);
+            echo "</div>";
             echo "</td>";
 
             echo "<td>";
