@@ -113,6 +113,11 @@ switch ($articleTypeID)
     case ArticleType::User:
         /** @var User $pageUser */
         $pageUser = User::findOrFail($articleID);
+
+        if (!$pageUser->UserWallActive) {
+            abort(401);
+        }
+
         $pageTitle = $pageUser->User;
         $navPath = [
             'All Users' => '/userList.php',
