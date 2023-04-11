@@ -44,6 +44,18 @@ function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra =
     return isset($dbData['AwardDate']);
 }
 
+function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): array
+{
+    $query = "SELECT u.User, u.EmailAddress FROM SiteAwards saw
+              LEFT JOIN UserAccounts u ON u.User=saw.User
+              WHERE saw.AwardType=$awardType AND saw.AwardData=$data";
+    if ($dataExtra != null) {
+        $query .= " AND saw.AwardDataExtra=$dataExtra";
+    }
+
+    return legacyDbFetchAll($query)->toArray();
+}
+
 function getUsersSiteAwards(string $user, bool $showHidden = false): array
 {
     sanitize_sql_inputs($user);

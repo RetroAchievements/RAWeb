@@ -191,8 +191,16 @@ function getGameMetadata(
     return $numAchievements;
 }
 
-function getGameAlternatives(int $gameID): array
+function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 {
+    $orderBy = match ($sortBy) {
+        11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
+        2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
+        12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
+        // 1 or unspecified
+        default => "ORDER BY HasAchievements DESC, gd.Title ",
+    };
+
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
               CASE
                 WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") > 0 THEN 1
@@ -205,7 +213,7 @@ function getGameAlternatives(int $gameID): array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE ga.gameID = $gameID
               GROUP BY gd.ID, gd.Title
-              ORDER BY HasAchievements DESC, gd.Title";
+              $orderBy";
 
     $dbResult = s_mysql_query($query);
 
@@ -270,6 +278,8 @@ function getGamesListByDev(
 
     if ($dev != null) {
         $moreSelectCond = "SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyAchievements,
+                           SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.Points ELSE 0 END) AS MyPoints,
+                           SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
                            SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,";
         $havingCond = "HAVING MyAchievements > 0 ";
     } else {

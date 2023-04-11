@@ -4,17 +4,19 @@ use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Community\Enums\Rank;
 use LegacyApp\Platform\Enums\UnlockMode;
 
-function RenderGameLeaderboardsComponent(array $lbData): void
+function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void
 {
     $numLBs = count($lbData);
     echo "<div class='component'>";
     echo "<h2 class='text-h3'>Leaderboards</h2>";
 
     if ($numLBs == 0) {
-        echo "No leaderboards found: why not suggest some for this game? ";
+        if (!empty($forumTopicID) && getTopicDetails($forumTopicID)) {
+            echo "No leaderboards found: why not <a href='/viewtopic.php?t=$forumTopicID'>suggest some</a> for this game? ";
+        } else {
+            echo "No leaderboards found: why not suggest some for this game? ";
+        }
     } else {
-        echo "<table class='table-highlight'><tbody>";
-
         $count = 0;
         foreach ($lbData as $lbItem) {
             if ($lbItem['DisplayOrder'] < 0) {
@@ -30,20 +32,13 @@ function RenderGameLeaderboardsComponent(array $lbData): void
 
             sanitize_outputs($lbTitle, $lbDesc);
 
-            // Title
-            echo "<tr>";
-            echo "<td colspan='2'>";
-            echo "<div><a href='/leaderboardinfo.php?i=$lbID'>$lbTitle</a></div>";
-            echo "<div>$lbDesc</div>";
-            echo "</td>";
-            echo "</tr>";
-
-            // Score/Best entry
-            echo "<tr class='altdark'>";
-            echo "<td>";
+            echo "<div class='odd:bg-embed hover:bg-embed-highlight border border-transparent hover:border-[rgba(128,128,128,.3)] flex flex-col gap-y-1 p-2'>";
+            echo "<div>";
+            echo "<a href='/leaderboardinfo.php?i=$lbID' class='leading-3'>$lbTitle</a>";
+            echo "<p>$lbDesc</p>";
+            echo "</div>";
+            echo "<div class='flex justify-between'>";
             echo userAvatar($bestScoreUser, iconSize: 16);
-            echo "</td>";
-            echo "<td>";
             echo "<a href='/leaderboardinfo.php?i=$lbID'>";
             if ($bestScoreUser == '') {
                 echo "No entries";
@@ -51,13 +46,12 @@ function RenderGameLeaderboardsComponent(array $lbData): void
                 echo GetFormattedLeaderboardEntry($scoreFormat, $bestScore);
             }
             echo "</a>";
-            echo "</td>";
-            echo "</tr>";
+            echo "</div>";
+            echo "</div>";
 
             $count++;
         }
 
-        echo "</tbody></table>";
     }
 
     // echo "<div class='float-right'><a href='/forumposthistory.php'>more...</a></div>";
@@ -105,9 +99,9 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
         $lbTypesCount = count($lbTypes);
         for ($i = 0; $i < $lbTypesCount; $i++) {
             if ($i == 0) {
-                echo "<button class='" . $tabClass . " active' onclick='tabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
+                echo "<button class='" . $tabClass . " active' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
             } else {
-                echo "<button class='" . $tabClass . "' onclick='tabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
+                echo "<button class='" . $tabClass . "' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
             }
         }
         echo "</div>";
@@ -233,8 +227,8 @@ function RenderTopAchieversComponent(
 
     echo "<h2 class='text-h3'>High Scores</h2>";
     echo "<div class='tab'>";
-    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='tabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
-    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='tabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='handleLeaderboardTabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
+    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='handleLeaderboardTabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
     echo "</div>";
 
     // Latest Masters Tab

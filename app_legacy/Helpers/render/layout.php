@@ -38,73 +38,92 @@ function RenderToolbar(): void
     $username = $user?->getAttribute('User');
     $permissions = $user?->getAttribute('Permissions') ?? 0;
 
-    echo "<ul class='flex-1'>";
+    $menuSystemsList = [
+        [
+            "Nintendo" => [
+                ["systemName" => "Game Boy", "listID" => 4],
+                ["systemName" => "Game Boy Color", "listID" => 6],
+                ["systemName" => "Game Boy Advance", "listID" => 5],
+                ["systemName" => "NES/Famicom", "listID" => 7],
+                ["systemName" => "SNES/Super Famicom", "listID" => 3],
+                ["systemName" => "Nintendo 64", "listID" => 2],
+                ["systemName" => "Nintendo DS", "listID" => 18],
+                // ["systemName" => "Nintendo DSi", "listID"=>78, "iconName" => "Nintendo DSi"],
+                ["systemName" => "Pokemon Mini", "listID" => 24],
+                ["systemName" => "Virtual Boy", "listID" => 28],
+            ],
+            "Sony" => [
+                ["systemName" => "PlayStation", "listID" => 12],
+                ["systemName" => "PlayStation 2", "listID" => 21],
+                ["systemName" => "PlayStation Portable", "listID" => 41],
+            ],
+            "Atari" => [
+                ["systemName" => "Atari 2600", "listID" => 25],
+                ["systemName" => "Atari 7800", "listID" => 51],
+                ["systemName" => "Atari Jaguar", "listID" => 17],
+                // ["systemName" => "Atari Jaguar CD", "listID"=>77],
+                ["systemName" => "Atari Lynx", "listID" => 13],
+            ],
+            "NEC" => [
+                ["systemName" => "PC Engine/TurboGrafx-16", "listID" => 8],
+                ["systemName" => "PC Engine CD/TurboGrafx-CD", "listID" => 76],
+                ["systemName" => "PC-8000/8800", "listID" => 47],
+                ["systemName" => "PC-FX", "listID" => 49],
+            ],
+        ],
+        [
+            "Sega" => [
+                ["systemName" => "SG-1000", "listID" => 33],
+                ["systemName" => "Master System", "listID" => 11],
+                ["systemName" => "Game Gear", "listID" => 15],
+                ["systemName" => "Genesis/Mega Drive", "listID" => 1],
+                ["systemName" => "Sega CD", "listID" => 9],
+                ["systemName" => "Sega 32X", "listID" => 10],
+                ["systemName" => "Sega Saturn", "listID" => 39],
+                ["systemName" => "Sega Dreamcast", "listID" => 40],
+            ],
+            "Other" => [
+                ["systemName" => "3DO Interactive Multiplayer", "listID" => 43],
+                ["systemName" => "Amstrad CPC", "listID" => 37],
+                ["systemName" => "Apple II", "listID" => 38],
+                ["systemName" => "Arcade", "listID" => 27],
+                ["systemName" => "Arduboy", "listID" => 71],
+                ["systemName" => "ColecoVision", "listID" => 44],
+                ["systemName" => "Fairchild Channel F", "listID" => 57],
+                ["systemName" => "Intellivision", "listID" => 45],
+                ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
+                ["systemName" => "Mega Duck", "listID" => 69],
+                ["systemName" => "MSX", "listID" => 29],
+                ["systemName" => "Neo Geo Pocket", "listID" => 14],
+                ["systemName" => "Vectrex", "listID" => 46],
+                ["systemName" => "WASM-4", "listID" => 72],
+                ["systemName" => "Watara Supervision", "listID" => 63],
+                ["systemName" => "WonderSwan", "listID" => 53],
+            ],
 
+        ],
+    ];
+    echo "<ul class='flex-1'>";
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
-    echo "<ul>";
-    // Nintendo
-    echo "<li class='dropdown-header'>Nintendo</li>";
-    echo "<li><a href='/gameList.php?c=4'>Game Boy</a></li>";
-    echo "<li><a href='/gameList.php?c=6'>Game Boy Color</a></li>";
-    echo "<li><a href='/gameList.php?c=5'>Game Boy Advance</a></li>";
-    echo "<li><a href='/gameList.php?c=7'>NES/Famicom</a></li>";
-    echo "<li><a href='/gameList.php?c=3'>SNES/Super Famicom</a></li>";
-    echo "<li><a href='/gameList.php?c=2'>Nintendo 64</a></li>";
-    echo "<li><a href='/gameList.php?c=18'>Nintendo DS</a></li>";
-    // echo "<li><a href='/gameList.php?c=78'>Nintendo DSi</a></li>";
-    echo "<li><a href='/gameList.php?c=24'>Pokemon Mini</a></li>";
-    echo "<li><a href='/gameList.php?c=28'>Virtual Boy</a></li>";
-    // Sony
-    echo "<li class='dropdown-header'>Sony</li>";
-    echo "<li><a href='/gameList.php?c=12'>PlayStation</a></li>";
-    echo "<li><a href='/gameList.php?c=21'>PlayStation 2</a></li>";
-    echo "<li><a href='/gameList.php?c=41'>PlayStation Portable</a></li>";
-    // Atari
-    echo "<li class='dropdown-header'>Atari</li>";
-    echo "<li><a href='/gameList.php?c=25'>Atari 2600</a></li>";
-    echo "<li><a href='/gameList.php?c=51'>Atari 7800</a></li>";
-    echo "<li><a href='/gameList.php?c=17'>Atari Jaguar</a></li>";
-    // echo "<li><a href='/gameList.php?c=77'>Atari Jaguar CD</a></li>";
-    echo "<li><a href='/gameList.php?c=13'>Atari Lynx</a></li>";
-    // NEC
-    echo "<li class='dropdown-header'>NEC</li>";
-    echo "<li><a href='/gameList.php?c=8'>PC Engine/TurboGrafx-16</a></li>";
-    echo "<li><a href='/gameList.php?c=76'>PC Engine CD/TurboGrafx-CD</a></li>";
-    echo "<li><a href='/gameList.php?c=47'>PC-8000/8800</a></li>";
-    echo "<li><a href='/gameList.php?c=49'>PC-FX</a></li>";
-    echo "</ul>";
+    foreach ($menuSystemsList as $column){
+        echo "<ul>";
+        foreach ($column as $brand => $systems) {
+            echo "<li class='dropdown-header'>$brand</li>";
+            foreach ($systems as $system){
 
-    echo "<ul>";
-    // Sega
-    echo "<li class='dropdown-header'>Sega</li>";
-    echo "<li><a href='/gameList.php?c=33'>SG-1000</a></li>";
-    echo "<li><a href='/gameList.php?c=11'>Master System</a></li>";
-    echo "<li><a href='/gameList.php?c=15'>Game Gear</a></li>";
-    echo "<li><a href='/gameList.php?c=1'>Genesis/Mega Drive</a></li>";
-    echo "<li><a href='/gameList.php?c=9'>Sega CD</a></li>";
-    echo "<li><a href='/gameList.php?c=10'>Sega 32X</a></li>";
-    echo "<li><a href='/gameList.php?c=39'>Sega Saturn</a></li>";
-    echo "<li><a href='/gameList.php?c=40'>Sega Dreamcast</a></li>";
-    // Other
-    echo "<li class='dropdown-header'>Other</li>";
-    echo "<li><a href='/gameList.php?c=43'>3DO Interactive Multiplayer</a></li>";
-    echo "<li><a href='/gameList.php?c=37'>Amstrad CPC</a></li>";
-    echo "<li><a href='/gameList.php?c=38'>Apple II</a></li>";
-    echo "<li><a href='/gameList.php?c=27'>Arcade</a></li>";
-    echo "<li><a href='/gameList.php?c=71'>Arduboy</a></li>";
-    echo "<li><a href='/gameList.php?c=44'>ColecoVision</a></li>";
-    echo "<li><a href='/gameList.php?c=57'>Fairchild Channel F</a><li>";
-    echo "<li><a href='/gameList.php?c=45'>Intellivision</a></li>";
-    echo "<li><a href='/gameList.php?c=23'>Magnavox Odyssey 2</a></li>";
-    echo "<li><a href='/gameList.php?c=69'>Mega Duck</a></li>";
-    echo "<li><a href='/gameList.php?c=29'>MSX</a></li>";
-    echo "<li><a href='/gameList.php?c=14'>Neo Geo Pocket</a></li>";
-    echo "<li><a href='/gameList.php?c=46'>Vectrex</a></li>";
-    echo "<li><a href='/gameList.php?c=72'>WASM-4</a></li>";
-    echo "<li><a href='/gameList.php?c=63'>Watara Supervision</a></li>";
-    echo "<li><a href='/gameList.php?c=53'>WonderSwan</a></li>";
-    echo "</ul>";
+                $systemName = $system['systemName'];
+                $listId = $system['listID'];
+                $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listId.name_short")));
+                $iconName = Str::kebab($cleanSystemShortName);
+                echo "<li><a href='/gameList.php?c=$listId' class='!flex items-center gap-x-2' >"; // the flex class needs to be forced here
+                echo " <img src='" . asset("assets/images/system/$iconName.png") . "' width='16' height='16' alt=''>";
+                echo " <span>$systemName</span>";
+                echo "</a></li>";
+            }
+        }
+        echo "</ul>";
+    }
 
     echo "<ul>";
     echo "<li class='dropdown-header'>Miscellaneous</li>";
@@ -202,8 +221,10 @@ function RenderToolbar(): void
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
         echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
-        echo "<li class='divider'></li>";
-        echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
+        if ($permissions >= Permissions::Developer) {
+            echo "<li class='divider'></li>";
+            echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
+        }
         // Admin
         if ($permissions >= Permissions::Admin) {
             echo "<li class='divider'></li>";
