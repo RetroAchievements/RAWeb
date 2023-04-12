@@ -242,7 +242,7 @@ switch ($requestType) {
         break;
 
     case "submitcodenote":
-        $note = request()->input('n');
+        $note = request()->input('n') ?? '';
         $address = (int) request()->input('m', 0);
         $response['Success'] = submitCodeNote2($user, $gameID, $address, $note);
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
