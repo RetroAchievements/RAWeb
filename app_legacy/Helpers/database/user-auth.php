@@ -6,7 +6,7 @@ use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 
-function authenticateFromPasswordOrAppToken(string $user, ?string $pass = null, ?string $token = null): array
+function authenticateFromPasswordOrAppToken(?string $user, ?string $pass = null, ?string $token = null): array
 {
     sanitize_sql_inputs($user, $token);
 
