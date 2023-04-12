@@ -28,6 +28,11 @@ export const state: ReorderSiteAwardsState = {
 export function handleRowDragStart(event: DragEvent) {
   state.currentGrabbedRowEl = event.target as HTMLTableRowElement;
   state.currentGrabbedRowEl.style.opacity = '0.3';
+
+  const openTooltipEl = document.querySelector('.tooltip-body');
+  if (openTooltipEl) {
+    openTooltipEl.remove();
+  }
 }
 
 export function handleRowDragEnd(event: DragEvent) {
@@ -43,9 +48,11 @@ export function handleRowDragEnd(event: DragEvent) {
 export function handleRowDragEnter(event: DragEvent) {
   const targetRowEl = (event.target as HTMLTableRowElement).closest('tr');
 
+  const grabbedRowEl = state.currentGrabbedRowEl ? state.currentGrabbedRowEl.closest('tr') : null;
+
   // For type-safety, assert that both rows actually exist.
-  if (state.currentGrabbedRowEl && targetRowEl) {
-    const isHoveredRowInSameTable = state.currentGrabbedRowEl.parentNode === targetRowEl?.parentNode;
+  if (grabbedRowEl && targetRowEl) {
+    const isHoveredRowInSameTable = grabbedRowEl.parentNode === targetRowEl?.parentNode;
     const isAwardHiddenChecked = isRowHidden(targetRowEl);
 
     // Add border styling to the target row if it's in the same table and not hidden.
@@ -87,23 +94,23 @@ export function handleRowDrop(event: DragEvent) {
   const dropTargetEl = targetEl.closest('tr');
   const isDropTargetHidden = isRowHidden(dropTargetEl);
 
-  if (state.currentGrabbedRowEl && dropTargetEl && !isDropTargetHidden) {
-    const draggedTableEl = state.currentGrabbedRowEl.closest('table');
+  const grabbedRowEl = state.currentGrabbedRowEl ? state.currentGrabbedRowEl.closest('tr') : null;
+
+  if (grabbedRowEl && dropTargetEl && !isDropTargetHidden) {
+    const draggedTableEl = grabbedRowEl.closest('table');
     const dropTargetTableEl = dropTargetEl.closest('table');
 
     // Ensure both rows belong to the same table.
     if (draggedTableEl === dropTargetTableEl) {
-      const draggedRowIndex = Array.from(state.currentGrabbedRowEl.parentNode?.children ?? []).indexOf(
-        state.currentGrabbedRowEl,
-      );
+      const draggedRowIndex = Array.from(grabbedRowEl.parentNode?.children ?? []).indexOf(grabbedRowEl);
       const dropTargetIndex = Array.from(dropTargetEl.parentNode?.children ?? []).indexOf(dropTargetEl);
 
       // Don't do anything if the user drops the row back into place.
       if (draggedRowIndex !== dropTargetIndex) {
         if (draggedRowIndex < dropTargetIndex) {
-          dropTargetEl.parentNode?.insertBefore(state.currentGrabbedRowEl, dropTargetEl.nextSibling);
+          dropTargetEl.parentNode?.insertBefore(grabbedRowEl, dropTargetEl.nextSibling);
         } else {
-          dropTargetEl.parentNode?.insertBefore(state.currentGrabbedRowEl, dropTargetEl);
+          dropTargetEl.parentNode?.insertBefore(grabbedRowEl, dropTargetEl);
         }
 
         // When this flag is raised, the browser will notify the user if
