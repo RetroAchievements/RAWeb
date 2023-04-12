@@ -277,7 +277,7 @@ function GetLeaderboardEntriesDataJSON(int $lbID, string $user, int $numToFetch,
 
 function GetLeaderboardData(
     int $lbID,
-    string $user,
+    ?string $user,
     int $numToFetch,
     int $offset,
     bool $nearby = false
