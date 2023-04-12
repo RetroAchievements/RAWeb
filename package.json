@@ -34,6 +34,7 @@
         "eslint": "^8.4.1",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "^2.20.2",
+        "jsdom": "^21.1.1",
         "laravel-echo": "^1.4.0",
         "laravel-vite-plugin": "^0.7.0",
         "postcss": "^8.4.14",

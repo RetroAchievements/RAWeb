@@ -1,10 +1,10 @@
 import { UAParser } from 'ua-parser-js';
 
-export function getIsMobileIos() {
+export function getIsMobileIos(userAgent?: string) {
   let wasMobileIosDetected = false;
 
-  if ('userAgent' in navigator) {
-    const { getOS, getDevice } = new UAParser(navigator.userAgent);
+  if (userAgent || 'userAgent' in navigator) {
+    const { getOS, getDevice } = new UAParser(userAgent ?? navigator.userAgent);
 
     const { name: osName } = getOS();
     const { type: deviceType } = getDevice();

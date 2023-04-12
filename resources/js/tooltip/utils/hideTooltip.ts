@@ -6,6 +6,7 @@ export function hideTooltip() {
 
   if (store.dynamicTimeoutId) {
     clearTimeout(store.dynamicTimeoutId);
+    store.dynamicTimeoutId = null;
   }
 
   if (tooltipEl) {
