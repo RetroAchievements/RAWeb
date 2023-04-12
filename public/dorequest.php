@@ -115,7 +115,7 @@ switch ($requestType) {
         $response['GameID'] = $gameID;
         break;
     case "gameid":
-        $md5 = request()->input('m');
+        $md5 = request()->input('m', '');
         $response['GameID'] = getGameIDFromMD5($md5);
         break;
 
