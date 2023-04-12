@@ -2,8 +2,8 @@
 
 use LegacyApp\Community\Enums\ActivityType;
 
-$user = request()->post('u');
-$pass = request()->post('p');
+$user = request()->post('u', '');
+$pass = request()->post('p', '');
 
 if (!authenticateFromPassword($user, $pass)) {
     return back()->withErrors(__('legacy.error.credentials'));
