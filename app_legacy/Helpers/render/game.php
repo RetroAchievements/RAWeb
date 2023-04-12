@@ -433,23 +433,25 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
         $fullWidthClassName = "md:w-40";
     }
 
-    echo "<div class='w-full my-2 $fullWidthClassName'>";
-    echo "<div class='flex w-full items-center'>";
-    echo "<div class='progressbar grow'>";
-    echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
-    echo "<div class='completion-hardcore' style='width:$pctHardcoreProportion%'></div>";
-    echo "</div>";
-    echo "</div>";
-    echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
-    echo "</div>";
-    echo "<div class='progressbar-label -mt-1'>";
-    if ($pctHardcore >= 100.0) {
-        echo "Mastered";
-    } else {
-        echo "$pctComplete% complete";
+    if ($numAchievements) {
+        echo "<div class='w-full my-2 $fullWidthClassName'>";
+        echo "<div class='flex w-full items-center'>";
+        echo "<div class='progressbar grow'>";
+        echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
+        echo "<div class='completion-hardcore' style='width:$pctHardcoreProportion%'></div>";
+        echo "</div>";
+        echo "</div>";
+        echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
+        echo "</div>";
+        echo "<div class='progressbar-label -mt-1'>";
+        if ($pctHardcore >= 100.0) {
+            echo "Mastered";
+        } else {
+            echo "$pctComplete% complete";
+        }
+        echo "</div>";
+        echo "</div>";
     }
-    echo "</div>";
-    echo "</div>";
 }
 
 /**
