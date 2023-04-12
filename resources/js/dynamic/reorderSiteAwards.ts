@@ -43,9 +43,11 @@ export function handleRowDragEnd(event: DragEvent) {
 export function handleRowDragEnter(event: DragEvent) {
   const targetRowEl = (event.target as HTMLTableRowElement).closest('tr');
 
+  const grabbedRowEl = state.currentGrabbedRowEl ? state.currentGrabbedRowEl.closest('tr') : null;
+
   // For type-safety, assert that both rows actually exist.
-  if (state.currentGrabbedRowEl && targetRowEl) {
-    const isHoveredRowInSameTable = state.currentGrabbedRowEl.parentNode === targetRowEl?.parentNode;
+  if (grabbedRowEl && targetRowEl) {
+    const isHoveredRowInSameTable = grabbedRowEl.parentNode === targetRowEl?.parentNode;
     const isAwardHiddenChecked = isRowHidden(targetRowEl);
 
     // Add border styling to the target row if it's in the same table and not hidden.
