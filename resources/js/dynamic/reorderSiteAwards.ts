@@ -28,6 +28,11 @@ export const state: ReorderSiteAwardsState = {
 export function handleRowDragStart(event: DragEvent) {
   state.currentGrabbedRowEl = event.target as HTMLTableRowElement;
   state.currentGrabbedRowEl.style.opacity = '0.3';
+
+  const openTooltipEl = document.querySelector('.tooltip-body');
+  if (openTooltipEl) {
+    openTooltipEl.remove();
+  }
 }
 
 export function handleRowDragEnd(event: DragEvent) {
