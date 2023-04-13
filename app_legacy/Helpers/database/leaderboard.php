@@ -318,6 +318,10 @@ function GetLeaderboardData(
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $retVal = mysqli_fetch_assoc($dbResult);
+        if ($retVal === null) {
+            return [];
+        }
+
         $retVal['LBID'] = (int) $retVal['LBID'];
         $retVal['GameID'] = (int) $retVal['GameID'];
         $retVal['LowerIsBetter'] = (int) $retVal['LowerIsBetter'];
