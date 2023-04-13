@@ -327,8 +327,6 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
 
 function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): array
 {
-    sanitize_sql_inputs($count, $sortBy, $devFilter);
-
     $stateCond = match ($devFilter) {
         // Active
         1 => " AND ua.Permissions >= " . Permissions::Developer,
@@ -388,17 +386,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         OpenTickets ASC";
     // LIMIT 0, $count";
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    $retVal = [];
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query)->toArray();
 }
 
 function GetUserFields(string $username, array $fields): ?array
