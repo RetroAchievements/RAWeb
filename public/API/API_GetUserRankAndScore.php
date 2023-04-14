@@ -10,6 +10,14 @@
  *  int        TotalRanked     total number of ranked users
  */
 
+ use App\Support\Rules\CtypeAlnum;
+ use Illuminate\Support\Arr;
+ use Illuminate\Support\Facades\Validator;
+ 
+ $input = Validator::validate(Arr::wrap(request()->query()), [
+     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+ ]);
+
 $user = request()->query('u');
 
 $points = 0;
