@@ -48,7 +48,7 @@ function RenderToolbar(): void
                 ["systemName" => "SNES/Super Famicom", "listID" => 3],
                 ["systemName" => "Nintendo 64", "listID" => 2],
                 ["systemName" => "Nintendo DS", "listID" => 18],
-                // ["systemName" => "Nintendo DSi", "listID"=>78, "iconName" => "Nintendo DSi"],
+                ["systemName" => "Nintendo DSi", "listID"=>78, "iconName" => "Nintendo DSi"],
                 ["systemName" => "Pokemon Mini", "listID" => 24],
                 ["systemName" => "Virtual Boy", "listID" => 28],
             ],
