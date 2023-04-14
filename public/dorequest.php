@@ -317,7 +317,7 @@ switch ($requestType) {
     case "uploadleaderboard":
         $leaderboardID = (int) request()->input('i', 0);
         $newTitle = request()->input('n');
-        $newDesc = request()->input('d');
+        $newDesc = request()->input('d') ?? '';
         $newStartMemString = request()->input('s');
         $newSubmitMemString = request()->input('b');
         $newCancelMemString = request()->input('c');
