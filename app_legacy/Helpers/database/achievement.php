@@ -429,7 +429,7 @@ function updateAchievementDisplayID(int $achID, int $newID): bool
     return $dbResult !== false;
 }
 
-function updateAchievementEmbedVideo(int $achID, string $newURL): bool
+function updateAchievementEmbedVideo(int $achID, ?string $newURL): bool
 {
     $newURL = strip_tags($newURL);
     sanitize_sql_inputs($newURL);
