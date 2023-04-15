@@ -19,8 +19,8 @@ class UserGameListEntry extends BaseModel
     // TODO drop user_game_list_entry_username_game_id_type_unique
     protected $table = 'SetRequest';
 
-    public const CREATED_AT = 'Updated';
-    public const UPDATED_AT = null;
+    public const CREATED_AT = 'created_at';
+    public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
         'User',

@@ -9,14 +9,14 @@ use App\Site\Models\User;
 
 class AddGameToListAction
 {
-    public function execute(User $user, Game $game, string $type): bool
+    public function execute(User $user, Game $game, string $type): ?UserGameListEntry
     {
         if (!UserGameListType::isValid($type)) {
-            return false;
+            return null;
         }
 
         if ($user->gameList($type)->where('GameID', $game->ID)->exists()) {
-            return false;
+            return null;
         }
 
         if ($type === UserGameListType::SetRequest) {
@@ -24,7 +24,7 @@ class AddGameToListAction
 
             $count = $user->gameList($type)->withoutAchievements()->count();
             if ($count >= $requestInfo['total']) {
-                return false;
+                return null;
             }
         }
 
@@ -35,6 +35,6 @@ class AddGameToListAction
 
         $user->gameList($type)->save($entry);
 
-        return true;
+        return $entry;
     }
 }
