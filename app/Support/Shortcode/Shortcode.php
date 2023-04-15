@@ -119,7 +119,7 @@ final class Shortcode
 
     private function renderSpoiler(ShortcodeInterface $shortcode): string
     {
-        $content = $shortcode->getContent();
+        $content = $shortcode->getContent() ?? '';
 
         $id = uniqid((string) random_int(10000, 99999));
 
