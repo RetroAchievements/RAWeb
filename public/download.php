@@ -79,7 +79,6 @@ RenderContentStart("Download a client");
             </div>
         <?php endforeach ?>
 
-        <?= view('content.source-code')->render() ?>
         <?= view('content.legal')->render() ?>
     </div>
 </div>
