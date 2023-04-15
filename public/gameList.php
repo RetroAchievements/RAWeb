@@ -89,9 +89,9 @@ function ListGames(
             $numPoints = $gameEntry['MyPoints'];
             $numTrueRatio = $gameEntry['MyTrueRatio'];
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
+            $myLBs = $gameEntry['MyLBs'];
         }
         $numLBs = $gameEntry['NumLBs'];
-        $myLBs = $gameEntry['MyLBs'];
 
         sanitize_outputs($title);
 
@@ -123,8 +123,13 @@ function ListGames(
 
         echo "<td class=''>";
         if ($numLBs > 0) {
-            echo "<a href=\"game/$gameID\">$myLBs of $numLBs</a>";
-            $lbCount += $myLBs;
+            if ($dev == null) {
+                echo "<a href=\"game/$gameID\">$numLBs</a>";
+                $lbCount += $numLBs;
+            } else {
+                echo "<a href=\"game/$gameID\">$myLBs of $numLBs</a>";
+                $lbCount += $myLBs;
+            }
         }
         echo "</td>";
 
