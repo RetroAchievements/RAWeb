@@ -6,7 +6,7 @@ use LegacyApp\Platform\Enums\Emulators;
 return [
     'integration' => [
         'minimum_version' => '1.0.4',
-        'latest_version' => '1.1.0',
+        'latest_version' => '1.2.0',
         'latest_version_url' => 'bin/RA_Integration.dll',
         'latest_version_url_x64' => 'bin/RA_Integration-x64.dll',
     ],
@@ -66,8 +66,8 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             ],
         ],
         Emulators::RALibretro => [
-            'minimum_version' => '1.3.8',
-            'latest_version' => '1.4.0',
+            'minimum_version' => '1.3.9',
+            'latest_version' => '1.5.0',
             'latest_version_url' => 'bin/RALibretro.zip',
             'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
             'name' => 'LibRetro',
@@ -120,6 +120,44 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 76, // PC Engine CD
             ],
         ],
+        Emulators::Bizhawk => [
+            'name' => 'Bizhawk',
+            'handle' => 'Bizhawk',
+            'active' => true,
+            'link' => 'https://tasvideos.org/Bizhawk/FAQ',
+            'description' => 'Download from <a href="https://tasvideos.org/BizHawk/ReleaseHistory">tasvideos.org</a>.',
+            'systems' => [
+                1, // Genesis/Mega Drive
+                2, // Nintendo 64
+                3, // SNES
+                4, // Game Boy
+                5, // Game Boy Advance
+                6, // Game Boy Color
+                7, // NES
+                8, // PC Engine
+                9, // Sega CD
+                10, // 32X
+                11, // Master System
+                12, // PlayStation
+                13, // Atari Lynx
+                14, // Neo Geo Pocket
+                17, // Atari Jaguar
+                18, // Nintendo DS
+                23, // Magnavox Odyssey 2
+                25, // Atari 2600
+                28, // Virtual Boy
+                29, // MSX
+                33, // SG-1000
+                39, // Saturn
+                44, // ColecoVision
+                45, // IntelliVision
+                46, // Vectrex
+                49, // PC-FX
+                51, // Atari 7800
+                53, // WonderSwan
+                78, // Nintendo DSi
+            ],
+        ],
         Emulators::PCSX2 => [
             'name' => 'PCSX2',
             'handle' => 'PCSX2',
@@ -130,9 +168,19 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
                 21, // PlayStation 2
             ],
         ],
+        Emulators::DuckStation => [
+            'name' => 'DuckStation',
+            'handle' => 'DuckStation',
+            'active' => true,
+            'link' => 'https://www.duckstation.org/wiki/Main_Page',
+            'description' => 'Download from <a href="https://www.duckstation.org/">duckstation.org</a>.',
+            'systems' => [
+                12, // PlayStation
+            ],
+        ],
         Emulators::RAppleWin => [
             'minimum_version' => '1.1.1',
-            'latest_version' => '1.2.0',
+            'latest_version' => '1.3.0',
             'latest_version_url' => 'bin/RAppleWin.zip',
             // 'latest_version_url_x64' => 'bin/RAppleWin-x64.zip',
             'name' => 'AppleWin',
@@ -221,7 +269,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
         ],
         Emulators::RAP64 => [
             'minimum_version' => '0.060',
-            'latest_version' => '0.060',
+            'latest_version' => '1.0',
             'latest_version_url' => 'bin/RAP64.zip',
             // 'latest_version_url_x64' => 'bin/RAP64-x64.zip',
             'name' => 'Project64',
