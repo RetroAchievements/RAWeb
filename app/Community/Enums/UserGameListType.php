@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LegacyApp\Community\Enums;
+namespace App\Community\Enums;
 
 abstract class UserGameListType
 {

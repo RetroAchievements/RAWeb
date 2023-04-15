@@ -1,9 +1,9 @@
 <?php
 
+use App\Platform\Actions\ResetPlayerAchievementAction;
+use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Platform\Actions\ResetPlayerAchievementAction;
-use LegacyApp\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);

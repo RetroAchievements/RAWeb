@@ -6,12 +6,15 @@ namespace App\Community\Models;
 
 use App\Platform\Models\Achievement;
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\TicketFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class Ticket extends BaseModel
 {
+    use HasFactory;
     use Searchable;
     use SoftDeletes;
 
@@ -37,6 +40,11 @@ class Ticket extends BaseModel
     protected $casts = [
         'ResolvedAt' => 'datetime',
     ];
+
+    protected static function newFactory(): TicketFactory
+    {
+        return TicketFactory::new();
+    }
 
     // == search
 

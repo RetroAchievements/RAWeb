@@ -20,11 +20,6 @@ class PlayerAchievementLegacy extends BasePivot
     public const CREATED_AT = 'Date';
     public const UPDATED_AT = null;
 
-    protected static function newFactory(): PlayerAchievementLegacyFactory
-    {
-        return PlayerAchievementLegacyFactory::new();
-    }
-
     protected $fillable = [
         'User',
         'AchievementID',
@@ -34,7 +29,14 @@ class PlayerAchievementLegacy extends BasePivot
 
     protected $casts = [
         'Date' => 'datetime',
+        'AchievementID' => 'int',
+        'HardcoreMode' => 'int',
     ];
+
+    protected static function newFactory(): PlayerAchievementLegacyFactory
+    {
+        return PlayerAchievementLegacyFactory::new();
+    }
 
     // == accessors
 
@@ -53,17 +55,9 @@ class PlayerAchievementLegacy extends BasePivot
     /**
      * @return BelongsTo<User, PlayerAchievementLegacy>
      */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'User');
-    }
-
-    /**
-     * @return BelongsTo<User, PlayerAchievementLegacy>
-     */
     public function player(): BelongsTo
     {
-        return $this->player();
+        return $this->belongsTo(User::class, 'User', 'User');
     }
 
     // == scopes

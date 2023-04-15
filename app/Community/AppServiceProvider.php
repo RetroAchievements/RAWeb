@@ -30,7 +30,6 @@ use App\Community\Models\Subscription;
 use App\Community\Models\Ticket;
 use App\Community\Models\TriggerTicket;
 use App\Community\Models\TriggerTicketComment;
-use App\Community\Models\UserActivity;
 use App\Community\Models\UserActivityLegacy;
 use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;

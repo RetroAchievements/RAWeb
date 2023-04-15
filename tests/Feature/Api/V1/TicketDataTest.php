@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
+use App\Community\Models\Ticket;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Community\Enums\TicketType;
-use LegacyApp\Community\Models\Ticket;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class TicketDataTest extends TestCase

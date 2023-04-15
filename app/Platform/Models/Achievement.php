@@ -188,7 +188,15 @@ class Achievement extends BaseModel implements HasComments
     public function players(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'Awarded', 'AchievementID', 'User')
-            ->using(PlayerAchievement::class);
+            ->using(PlayerAchievementLegacy::class);
+    }
+
+    /**
+     * @return HasMany<PlayerAchievementLegacy>
+     */
+    public function playerAchievementsLegacy(): HasMany
+    {
+        return $this->hasMany(PlayerAchievementLegacy::class);
     }
 
     /**
@@ -202,17 +210,17 @@ class Achievement extends BaseModel implements HasComments
     /**
      * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
      *
-     * @return HasMany<PlayerAchievement>
+     * @return HasMany<PlayerAchievementLegacy>
      */
     public function rawUnlocks(): HasMany
     {
-        return $this->hasMany(PlayerAchievement::class, 'AchievementID');
+        return $this->hasMany(PlayerAchievementLegacy::class, 'AchievementID');
     }
 
     /**
      * Merge softcore with hardcore entries if the unlock mode is not specified
      *
-     * @return HasMany<PlayerAchievement>
+     * @return HasMany<PlayerAchievementLegacy>
      */
     public function unlocks(int $mode = null): HasMany
     {

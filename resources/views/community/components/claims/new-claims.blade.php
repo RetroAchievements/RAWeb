@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimFilters;
 
 $claimData = getFilteredClaims(
     claimFilter: ClaimFilters::AllActiveClaims & ~ClaimFilters::CollaborationClaim,

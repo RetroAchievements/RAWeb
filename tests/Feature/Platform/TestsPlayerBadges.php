@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform;
 
+use App\Community\Enums\AwardType;
+use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerBadge;
+use App\Site\Models\User;
 use Carbon\Carbon;
-use LegacyApp\Community\Enums\AwardType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerBadge;
-use LegacyApp\Site\Models\User;
 
 trait TestsPlayerBadges
 {

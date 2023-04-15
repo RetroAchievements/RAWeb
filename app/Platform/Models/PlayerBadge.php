@@ -15,6 +15,20 @@ class PlayerBadge extends BaseModel
     public const CREATED_AT = 'AwardDate';
     public const UPDATED_AT = null;
 
+    protected $fillable = [
+        'User',
+        'AwardType',
+        'AwardData',
+        'AwardDataExtra',
+        'AwardDate',
+    ];
+
+    protected $casts = [
+        'AwardType' => 'int',
+        'AwardData' => 'int',
+        'AwardDataExtra' => 'int',
+    ];
+
     private const DEVELOPER_COUNT_BOUNDARIES = [
         100,
         250,

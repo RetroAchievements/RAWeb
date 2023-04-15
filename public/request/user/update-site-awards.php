@@ -1,8 +1,8 @@
 <?php
 
+use App\Community\Enums\AwardType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Enums\AwardType;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);

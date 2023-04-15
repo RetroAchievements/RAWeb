@@ -8,7 +8,7 @@ use App\Site\Models\User;
 
 class ResetPlayerAchievementAction
 {
-    public function execute(User &$user, ?int $achievementID = null, ?int $gameID = null): bool
+    public function execute(User $user, ?int $achievementID = null, ?int $gameID = null): bool
     {
         $clause = '';
         if ($achievementID !== null) {

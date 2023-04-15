@@ -6,7 +6,7 @@ namespace App\Platform\Commands;
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
 use Illuminate\Console\Command;
@@ -53,7 +53,7 @@ class UpdateDeveloperContributionYield extends Command
         $nextCountThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $countLevel);
 
         // get all unlocks for achievements created by the user ordered by date
-        $unlocks = PlayerAchievement::select('Awarded.Date', DB::raw('MAX(Awarded.HardcoreMode)'), 'Achievements.Points')
+        $unlocks = PlayerAchievementLegacy::select('Awarded.Date', DB::raw('MAX(Awarded.HardcoreMode)'), 'Achievements.Points')
             ->leftJoin('Achievements', 'Achievements.ID', '=', 'Awarded.AchievementID')
             ->where('Achievements.Author', '=', $username)
             ->where('Awarded.User', '!=', $username)
@@ -62,7 +62,7 @@ class UpdateDeveloperContributionYield extends Command
             ->orderBy('Awarded.Date')
             ->get();
 
-        /** @var PlayerAchievement $unlock */
+        /** @var PlayerAchievementLegacy $unlock */
         foreach ($unlocks as $unlock) {
             // when a threshold is crossed, award a badge
             $count++;

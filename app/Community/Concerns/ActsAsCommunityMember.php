@@ -6,7 +6,9 @@ namespace App\Community\Concerns;
 
 use App\Community\Models\Message;
 use App\Community\Models\UserActivity;
+use App\Community\Models\UserActivityLegacy;
 use App\Community\Models\UserComment;
+use App\Community\Models\UserGameListEntry;
 use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,7 +27,16 @@ trait ActsAsCommunityMember
      */
     public function activities(): HasMany
     {
-        return $this->hasMany(UserActivity::class);
+        // TODO return $this->hasMany(UserActivity::class);
+        return $this->hasMany(UserActivityLegacy::class, 'User', 'User');
+    }
+
+    /**
+     * @return HasMany<UserGameListEntry>
+     */
+    public function gameList(string $type): HasMany
+    {
+        return $this->hasMany(UserGameListEntry::class, 'User', 'User');
     }
 
     /**

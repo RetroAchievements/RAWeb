@@ -1,8 +1,8 @@
 <?php
 
+use App\Community\Enums\ClaimFilters;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use LegacyApp\Community\Enums\ClaimFilters;
 
 /*
  *  API_GetClaims - returns information about 1000 max set claims, sorted by latest `Created` date.

@@ -1,15 +1,15 @@
 <?php
 
-namespace LegacyApp\Community\Actions;
+namespace App\Community\Actions;
 
-use LegacyApp\Community\Enums\UserGameListType;
-use LegacyApp\Community\Models\UserGameListEntry;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Site\Models\User;
+use App\Community\Enums\UserGameListType;
+use App\Community\Models\UserGameListEntry;
+use App\Platform\Models\Game;
+use App\Site\Models\User;
 
 class AddGameToListAction
 {
-    public function execute(User &$user, Game &$game, string $type): bool
+    public function execute(User $user, Game $game, string $type): bool
     {
         if (!UserGameListType::isValid($type)) {
             return false;

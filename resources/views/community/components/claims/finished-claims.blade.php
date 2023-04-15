@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSorting;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSorting;
 
 $desiredClaimCount = $count;
 $claimData = [];
