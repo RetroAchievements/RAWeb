@@ -14,7 +14,7 @@ RenderContentStart("Download a client");
 <div id="mainpage">
     <div id='fullcontainer'>
 
-        <h2>Emulators supporting RetroAchievements</h2>
+        <h2 class="mb-6">Emulators supporting RetroAchievements</h2>
 
         <?php foreach ($emulators as $emulator): ?>
             <h2 class="longheader" id="<?= mb_strtolower($emulator['handle'] ?? null) ?>">
@@ -23,8 +23,8 @@ RenderContentStart("Download a client");
                     <small>(<?= $emulator['name'] ?? null ?>)</small>
                 <?php endif ?>
             </h2>
-            <div class="flex flex-col lg:flex-row justify-between items-start">
-                <div class="mb-3">
+            <div class="flex flex-col lg:flex-row justify-between items-start mb-6">
+                <div class="mb-3 w-full">
                     <?php if ($emulator['description'] ?? false): ?>
                         <div class="mb-2"><?= nl2br($emulator['description']) ?></div>
                     <?php endif ?>
