@@ -152,7 +152,6 @@ function RenderCompletedGamesList(array $userCompletedGamesList): void
     echo "<div id='completedgames' class='component' >";
 
     echo "<h3>Completion Progress</h3>";
-    echo "<div id='usercompletedgamescomponent'>";
 
     echo <<<HTML
         <label class="flex items-center gap-x-1 mb-2">
@@ -165,6 +164,8 @@ function RenderCompletedGamesList(array $userCompletedGamesList): void
             </input>
         </label>
     HTML;
+
+    echo "<div id='usercompletedgamescomponent'>";
 
     echo "<table class='table-highlight'><tbody>";
 
