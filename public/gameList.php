@@ -91,6 +91,7 @@ function ListGames(
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
         }
         $numLBs = $gameEntry['NumLBs'];
+        $myLBs = $gameEntry['MyLBs'];
 
         sanitize_outputs($title);
 
@@ -122,8 +123,8 @@ function ListGames(
 
         echo "<td class=''>";
         if ($numLBs > 0) {
-            echo "<a href=\"game/$gameID\">$numLBs</a>";
-            $lbCount += $numLBs;
+            echo "<a href=\"game/$gameID\">$myLBs of $numLBs</a>";
+            $lbCount += $myLBs;
         }
         echo "</td>";
 
