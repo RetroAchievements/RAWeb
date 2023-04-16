@@ -1,6 +1,5 @@
 {
     "sync": false,
-    "queuedConnect": false,
     "tools": [
         {
             "label": "Demo",
