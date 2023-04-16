@@ -371,7 +371,7 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
     }
 }
 
-function RenderRecentGamePlayers(array $recentPlayerData): void
+function RenderRecentGamePlayers(array $recentPlayerData, string $gameTitle): void
 {
     echo "<div class='component'>Recent Players:";
     echo "<table class='table-highlight'><tbody>";
@@ -385,6 +385,18 @@ function RenderRecentGamePlayers(array $recentPlayerData): void
             $userName,
             $activity
         );
+
+        // Check if $activity contains a message about an "Unknown macro", and
+        // if so, strip the RP and replace it with an outdated emulator warning.
+        if (mb_strpos($activity, 'Unknown macro') !== false) {
+            $activity = <<<HTML
+                <div class="flex items-center gap-x-1" title="Outdated emulator detected!">
+                    <span>⚠️</span>
+                    <span>Playing $gameTitle</span>
+                </div>
+            HTML;
+        }
+
         echo "<td>";
         echo userAvatar($userName, label: false);
         echo "</td>";

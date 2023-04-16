@@ -69,7 +69,7 @@ var ActivePlayersViewModel = function () {
           && (player.username().toLowerCase().includes(lowercaseFilterText)
             || player.gameTitle().toLowerCase().includes(lowercaseFilterText)
             || player.consoleName().toLowerCase().includes(lowercaseFilterText)
-            || player.richPresence().toLowerCase().includes(lowercaseFilterText));
+            || player.richPresenceDisplay().toLowerCase().includes(lowercaseFilterText));
       });
       return this.playerFilterText() === '' || matchFound;
     });
@@ -91,12 +91,25 @@ var ActivePlayersViewModel = function () {
 
   this.ConvertToObservablePlayer = function (player) {
     CacheCardDiv('game', player.GameID, player.GameTitle, player.ConsoleName, player.GameIcon);
+
+    // Check if RichPresenceMsg contains a message about an "Unknown macro", and
+    // if so, strip the RP and replace it with an outdated emulator warning.
+    const rawRichPresence = ko.observable(player.RichPresenceMsg);
+    const richPresenceDisplay = ko.pureComputed(function () {
+      if (rawRichPresence().includes('Unknown macro')) {
+        return `⚠️ Playing ${player.GameTitle} with an outdated emulator`;
+      }
+
+      return rawRichPresence();
+    });
+
     return {
+      richPresenceDisplay,
+      richPresence: rawRichPresence,
       username: ko.observable(player.User),
       points: ko.observable(player.RAPoints),
       gameTitle: ko.observable(player.GameTitle),
       consoleName: ko.observable(player.ConsoleName),
-      richPresence: ko.observable(player.RichPresenceMsg),
       playerHtml: ko.observable(CreateCardIconDiv('user', player.User, player.User, '/UserPic/' + player.User + '.png', '/user/' + player.User)),
       gameHtml: ko.observable(CreateCardIconDiv('game', player.GameID, player.GameTitle, player.GameIcon, '/game/' + player.GameID))
     };
