@@ -24,6 +24,15 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'd' => ['required', 'date'],
+]);
+
 $user = request()->query('u');
 $dateInput = request()->query('d');
 

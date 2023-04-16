@@ -532,7 +532,7 @@ function countOpenTickets(
     $authorCond = "";
     if ($assignedToUser != null) {
         $authorCond = " AND ach.Author = :assignedToUser";
-        $bindings['assignedToUsername'] = $assignedToUser;
+        $bindings['assignedToUser'] = $assignedToUser;
     }
 
     // Reporter condition
@@ -573,7 +573,7 @@ function countOpenTickets(
         $devJoin
         WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $reporterCond $resolverCond";
 
-    $results = legacyDbFetch($query);
+    $results = legacyDbFetch($query, $bindings);
 
     return ($results != null) ? $results['count'] : 0;
 }

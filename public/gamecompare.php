@@ -12,6 +12,9 @@ $user2 = requestInputSanitized('f');
 $totalFriends = getAllFriendsProgress($user, $gameID, $friendScores);
 
 $numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, 0, $user2);
+if ($gameData === null) {
+    abort(404);
+}
 
 $consoleID = $gameData['ConsoleID'];
 $consoleName = $gameData['ConsoleName'];

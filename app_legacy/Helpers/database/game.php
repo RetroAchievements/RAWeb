@@ -678,10 +678,10 @@ function createNewGame(string $title, int $consoleID): ?array
 function submitNewGameTitleJSON(
     string $user,
     string $md5,
-    int $gameIDin,
+    ?int $gameIDin,
     string $titleIn,
     int $consoleID,
-    string $description
+    ?string $description
 ): array {
     $unsanitizedDescription = $description;
     sanitize_sql_inputs($user, $md5, $description);
