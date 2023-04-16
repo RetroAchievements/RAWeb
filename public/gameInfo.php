@@ -1146,8 +1146,7 @@ sanitize_outputs(
                         }
 
                         if ($claimExpiration) {
-                            $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast();
-                            $isAlreadyExpiredCopy = $isAlreadyExpired ? "Expired" : "Expires";
+                            $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast() ? "Expired" : "Expires";
 
                             $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
                             $claimTimeAgoDate = $permissions >= Permissions::JuniorDeveloper
@@ -1155,7 +1154,7 @@ sanitize_outputs(
                                 : null;
 
                             // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
-                            echo "<p>$isAlreadyExpiredCopy on: $claimFormattedDate $claimTimeAgoDate</p>";
+                            echo "<p>$isAlreadyExpired on: $claimFormattedDate $claimTimeAgoDate</p>";
                         }
                     } else {
                         if ($numAchievements < 1) {
