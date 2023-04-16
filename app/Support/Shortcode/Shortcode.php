@@ -114,7 +114,7 @@ final class Shortcode
 
     private function renderCode(ShortcodeInterface $shortcode): string
     {
-        return '<pre class="codetags">' . str_replace('<br>', '', $shortcode->getContent()) . '</pre>';
+        return '<pre class="codetags">' . str_replace('<br>', '', $shortcode->getContent() ?? '') . '</pre>';
     }
 
     private function renderSpoiler(ShortcodeInterface $shortcode): string
