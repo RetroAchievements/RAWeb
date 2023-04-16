@@ -172,7 +172,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'name' => 'DuckStation',
             'handle' => 'DuckStation',
             'active' => true,
-            'link' => 'https://www.duckstation.org/wiki/Main_Page',
+            'link' => 'https://github.com/stenzek/duckstation/wiki',
             'description' => 'Download from <a href="https://www.duckstation.org/">duckstation.org</a>.',
             'systems' => [
                 12, // PlayStation
