@@ -1151,7 +1151,7 @@ sanitize_outputs(
                             $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
                             $claimTimeAgoDate = $permissions >= Permissions::JuniorDeveloper
                                 ? "(" . $claimExpiration->diffForHumans() . ")"
-                                : null;
+                                : "";
 
                             // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
                             echo "<p>$isAlreadyExpired on: $claimFormattedDate $claimTimeAgoDate</p>";
