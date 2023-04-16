@@ -31,7 +31,7 @@ $parseCsv = function ($csv) {
 
     $decoded = explode(',', $csv);
     $awards = [];
-    
+
     for ($i = 0; $i < count($decoded); $i += 4) {
         $awards[] = [
             'type' => intval($decoded[$i]),
