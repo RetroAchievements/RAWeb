@@ -10,11 +10,11 @@ class UpdateGameWeightedPoints
 {
     public function run(int $gameId): bool
     {
-        $query = "SELECT ach.ID, ach.Points, SUM(aw.HardcoreMode) AS NumAchieved
+        $query = "SELECT ach.ID, ach.Points, SUM(CASE WHEN ua.Untracked IS NULL OR NOT ua.Untracked THEN aw.HardcoreMode ELSE 0 END) AS NumAchieved
               FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE ach.GameID = $gameId AND NOT ua.Untracked
+              WHERE ach.GameID = $gameId
               AND ach.Flags = " . AchievementType::OfficialCore . "
               GROUP BY ach.ID";
 
