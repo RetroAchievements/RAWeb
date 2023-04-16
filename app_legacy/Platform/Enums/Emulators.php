@@ -35,13 +35,15 @@ abstract class Emulators
 
     public const RAOricutron = 11;
 
-    public const RAMelonDS = 12;
-
     // Third Party Standalone
 
     public const RetroArch = 'retroarch';
 
     public const PCSX2 = 'pcsx2';
+
+    public const DuckStation = 'duckstation';
+
+    public const Bizhawk = 'bizhawk';
 
     public static function cases(): array
     {
@@ -58,7 +60,6 @@ abstract class Emulators
             self::RAQUASI88,
             self::RAppleWin,
             self::RAOricutron,
-            self::RAMelonDS,
         ];
     }
 }
