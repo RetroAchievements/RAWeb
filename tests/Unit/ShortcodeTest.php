@@ -41,4 +41,12 @@ final class ShortcodeTest extends TestCase
             Shortcode::render('http://retroachievements.org/.')
         );
     }
+
+    public function testUnclosedCodeTag(): void
+    {
+        $this->assertSame(
+            '<pre class="codetags"></pre>test',
+            Shortcode::render('[code]test')
+        );
+    }
 }
