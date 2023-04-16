@@ -28,7 +28,7 @@ return new class() extends Migration {
             $table->unsignedBigInteger('leaderboard_id');
             $table->unsignedBigInteger('user_id');
 
-            $table->unsignedBigInteger('score');
+            $table->bigInteger('score');
 
             $table->unsignedBigInteger('trigger_id')->nullable();
             $table->unsignedBigInteger('player_session_id')->nullable();

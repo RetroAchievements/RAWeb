@@ -348,20 +348,21 @@ trait SyncTrait
                 } elseif ($this->keyMap[$key]['fixEncoding'] ?? false) {
                     $value = $this->fixEncoding($value);
                 }
-                // switch ($this->keyMap[$key]['type'] ?? false) {
-                // case 'integer':
-                //     $value = (int)$value;
-                //     break;
-                // case 'timestamp':
-                //     $value = Carbon::parse($value)->format('j M Y G:i:s.u');
-                //     break;
-                // }
 
                 /*
                  * anything empty should be null
                  */
                 if (empty($value)) {
                     $value = null;
+                }
+
+                switch ($this->keyMap[$key]['type'] ?? false) {
+                    case 'integer':
+                        $value = (int) $value;
+                        break;
+                    case 'timestamp':
+                        $value = Carbon::parse($value)->format('j M Y G:i:s.u');
+                        break;
                 }
 
                 return [

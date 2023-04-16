@@ -218,11 +218,27 @@ return [
             'model' => LeaderboardEntry::class,
             'strategy' => SyncStrategy::UPSERT,
             'reference_model' => LeaderboardEntryLegacy::class,
-            'reference_key' => 'DateSubmitted',
-            'unique_key' => 'id',
+            'reference_key' => LeaderboardEntryLegacy::UPDATED_AT,
+            'unique_key' => ['leaderboard_id', 'user_id'],
             'require' => [
             ],
             'map' => [
+                'LeaderboardID' => [
+                    'key' => 'leaderboard_id',
+                ],
+                'UserID' => [
+                    'key' => 'user_id',
+                ],
+                'Score' => [
+                    'key' => 'score',
+                    'type' => 'integer',
+                ],
+                'Created' => [
+                    'key' => 'created_at',
+                ],
+                'DateSubmitted' => [
+                    'key' => 'updated_at',
+                ],
             ],
         ],
 

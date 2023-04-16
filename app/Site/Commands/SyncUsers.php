@@ -12,7 +12,6 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class SyncUsers extends Command
 {
@@ -49,8 +48,7 @@ class SyncUsers extends Command
             $transformed['motto'] = null;
         }
 
-        $transformed['display_name'] = $transformed['username'];
-        $transformed['username'] = Str::lower($transformed['username']);
+        $transformed['display_name'] = $transformed['User'];
 
         return $transformed;
     }

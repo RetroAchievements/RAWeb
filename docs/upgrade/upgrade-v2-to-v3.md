@@ -32,10 +32,18 @@ Run the following queries and sync commands below to populate the new columns an
 
 > **Note**
 > Depending on the Awarded table size those queries can take several hours.
+> If you had production dumps imported prior you should use the dumps to speed up the process.
+> Note that those only include data up to 2023-02-01 00:00:00. 
+> Any remaining entries have to be synced manually - see sync commands below.
 
 - [01-player-achievements.sql](upgrade-v2-to-v3-01-player-achievements.sql)
+  - Import https://files.retroachievements.org/db/ra-web-player_achievements.gz
+
 - [02-player-games.sql](upgrade-v2-to-v3-02-player-games.sql)
+  - Import https://files.retroachievements.org/db/ra-web-player_games.gz
+
 - [03-leaderboard-entries.sql](upgrade-v2-to-v3-03-leaderboard-entries.sql)
+  - Import https://files.retroachievements.org/db/ra-web-leaderboard_entries.gz
 
 ```shell
 php artisan ra:sync:status
