@@ -25,7 +25,7 @@ export async function loadDynamicTooltip(
       </div>
     </div>
   `;
-  renderTooltip(anchorEl, genericLoadingTemplate);
+  renderTooltip(anchorEl, genericLoadingTemplate, { isBorderless: true });
 
   store.dynamicTimeoutId = setTimeout(async () => {
     const fetchedDynamicContent = await fetchDynamicTooltipContent(type, id, context);
