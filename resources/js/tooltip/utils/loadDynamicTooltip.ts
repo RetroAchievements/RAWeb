@@ -42,7 +42,7 @@ export async function loadDynamicTooltip(
           anchorEl,
           store.tooltipEl,
           store.trackedMouseX,
-          store.trackedMouseY
+          (store.trackedMouseY ?? 0) - 12 // The tooltip appears to jump if we don't do this subtraction.
         );
       }
     }
