@@ -21,11 +21,8 @@ function gameAvatar(
         if ($label !== false) {
             $title = $game['GameTitle'] ?? $game['Title'] ?? null;
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
-            if ($consoleName) {
-                $title .= " ($consoleName)";
-            }
             sanitize_outputs($title);   // sanitize before rendering HTML
-            $label = renderGameTitle($title);
+            $label = renderGameTitle($title, console: $consoleName);
         }
 
         if ($icon === null) {
@@ -56,16 +53,27 @@ function gameAvatar(
 /**
  * Render game title, wrapping categories for styling
  */
-function renderGameTitle(?string $title = null, bool $tags = true): string
+function renderGameTitle(
+    ?string $title = null, bool $tags = true, ?string $console = null
+): string
 {
-    $title ??= '';
-
     // Update $html by appending text
     $updateHtml = function (&$html, $text, $append) {
         $html = trim(str_replace($text, '', $html) . $append);
     };
 
+    $title ??= '';
     $html = $title;
+
+    if ($console) {
+        $iconSrc = asset("assets/images/system/nes.png");
+        $span = "<span class='tag console'>"
+            . "<img src='$iconSrc' alt=''>"
+            . "<span>$console</span>"
+            . "</span>";
+        $html .= " $span";
+    }
+
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {

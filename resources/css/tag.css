@@ -31,6 +31,22 @@
   border-right-width: 0;
 }
 
+.tag.console {
+  padding: 0 .2em;
+  border-radius: 1em;
+  background-color: rgba(255, 255, 255, .1);
+}
+
+.tag.console > img {
+  width: 20px;
+  padding-right: .3em;
+}
+
+.tag.console > span {
+  padding-left: .3em;
+  color: var(--menu-link-color);
+}
+
 .tag.missable {
   opacity: .8;
 }
