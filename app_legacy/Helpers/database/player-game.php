@@ -358,8 +358,6 @@ function getGameTopAchievers(int $gameID): array
         return $retval;
     }
 
-    sanitize_sql_inputs($gameID);
-
     $high_scores = [];
     $masters = [];
     $numAchievementsInSet = 0;
@@ -367,9 +365,8 @@ function getGameTopAchievers(int $gameID): array
     $query = "SELECT COUNT(*) AS NumAchievementsInSet
         FROM Achievements
         WHERE GameID = $gameID AND Flags = " . AchievementType::OfficialCore;
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false && ($data = mysqli_fetch_assoc($dbResult))) {
+    $data = legacyDbFetch($query);
+    if ($data !== null) {
         $numAchievementsInSet = $data['NumAchievementsInSet'];
     }
 
@@ -378,31 +375,30 @@ function getGameTopAchievers(int $gameID): array
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE !ua.Untracked
+                WHERE NOT ua.Untracked
                   AND ach.Flags = " . AchievementType::OfficialCore . "
                   AND gd.ID = $gameID
                   AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
                 GROUP BY aw.User
                 ORDER BY TotalScore DESC, LastAward";
 
-    $dbResult = s_mysql_query($query);
+    $mastersCounter = 0;
+    foreach (legacyDbFetchAll($query) as $data) {
+        settype($data['NumAchievements'], 'integer');
+        settype($data['TotalScore'], 'integer');
 
-    if ($dbResult !== false) {
-        $mastersCounter = 0;
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            if (count($high_scores) < 10) {
-                $high_scores[] = $data;
-            }
+        if (count($high_scores) < 10) {
+            $high_scores[] = $data;
+        }
 
-            if ($data['NumAchievements'] == $numAchievementsInSet) {
-                if (count($masters) == 10) {
-                    array_shift($masters);
-                }
-                $data['Rank'] = ++$mastersCounter;
-                $masters[] = $data;
-            } elseif (count($high_scores) == 10) {
-                break;
+        if ($data['NumAchievements'] == $numAchievementsInSet) {
+            if (count($masters) == 10) {
+                array_shift($masters);
             }
+            $data['Rank'] = ++$mastersCounter;
+            $masters[] = $data;
+        } elseif (count($high_scores) == 10) {
+            break;
         }
     }
 
