@@ -1,5 +1,3 @@
-// @vitest-environment jsdom
-
 import {
   describe,
   expect,

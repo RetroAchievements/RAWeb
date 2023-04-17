@@ -49,7 +49,11 @@ export async function loadDynamicTooltip(
   }, 200);
 }
 
-async function fetchDynamicTooltipContent(type: string, id: string, context?: unknown) {
+async function fetchDynamicTooltipContent(
+  type: string,
+  id: string,
+  context?: unknown
+) {
   const contentResponse = await fetcher<{ html: string }>('/request/card.php', {
     method: 'POST',
     body: `type=${type}&id=${id}&context=${context}`,
@@ -60,5 +64,10 @@ async function fetchDynamicTooltipContent(type: string, id: string, context?: un
 
 function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string) {
   renderTooltip(anchorEl, htmlContent);
-  pinTooltipToCursorPosition(anchorEl, store.tooltipEl, store.trackedMouseX, store.trackedMouseY);
+  pinTooltipToCursorPosition(
+    anchorEl,
+    store.tooltipEl,
+    store.trackedMouseX,
+    store.trackedMouseY
+  );
 }
