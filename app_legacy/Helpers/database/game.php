@@ -126,7 +126,9 @@ function getGameMetadata(
             if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
                 $achievementDataOut[$achID]['DateEarnedFriendHardcore'] = $friendUnlock['DateEarnedHardcore'];
             }
-            $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
+            if (array_key_exists('DateEarned', $friendUnlock)) {
+                $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
+            }
         }
     }
 
