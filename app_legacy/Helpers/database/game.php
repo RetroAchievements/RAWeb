@@ -109,44 +109,24 @@ function getGameMetadata(
     $numAchievements = count($achievementDataOut);
 
     if (isset($user)) {
-        $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
-                  FROM Awarded AS aw
-                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                  WHERE ach.GameID = :gameId AND ach.Flags = :achievementType AND aw.User = :username";
-
-        $userUnlocks = legacyDbFetchAll($query, [
-            'gameId' => $gameID,
-            'achievementType' => $flags,
-            'username' => $user,
-        ]);
-
-        foreach ($userUnlocks as $userUnlock) {
-            if (isset($userUnlock['HardcoreMode']) && $userUnlock['HardcoreMode'] == UnlockMode::Hardcore) {
-                $achievementDataOut[$userUnlock['ID']]['DateEarnedHardcore'] = $userUnlock['Date'];
-            } else {
-                $achievementDataOut[$userUnlock['ID']]['DateEarned'] = $userUnlock['Date'];
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $flags);
+        foreach ($userUnlocks as $achID => $userUnlock) {
+            if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
+                $achievementDataOut[$achID]['DateEarnedHardcore'] = $userUnlock['DateEarnedHardcore'];
+            }
+            if (array_key_exists('DateEarned', $userUnlock)) {
+                $achievementDataOut[$achID]['DateEarned'] = $userUnlock['DateEarned'];
             }
         }
     }
 
     if (isset($user2)) {
-        $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
-                  FROM Awarded AS aw
-                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                  WHERE ach.GameID = :gameId AND ach.Flags = :achievementType AND aw.User = :username";
-
-        $userUnlocks = legacyDbFetchAll($query, [
-            'gameId' => $gameID,
-            'achievementType' => $flags,
-            'username' => $user2,
-        ]);
-
-        foreach ($userUnlocks as $userUnlock) {
-            if (isset($userUnlock['HardcoreMode']) && $userUnlock['HardcoreMode'] == UnlockMode::Hardcore) {
-                $achievementDataOut[$userUnlock['ID']]['DateEarnedFriendHardcore'] = $userUnlock['Date'];
-            } else {
-                $achievementDataOut[$userUnlock['ID']]['DateEarnedFriend'] = $userUnlock['Date'];
+        $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $flags);
+        foreach ($friendUnlocks as $achID => $friendUnlock) {
+            if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
+                $achievementDataOut[$achID]['DateEarnedFriendHardcore'] = $friendUnlock['DateEarnedHardcore'];
             }
+            $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
         }
     }
 

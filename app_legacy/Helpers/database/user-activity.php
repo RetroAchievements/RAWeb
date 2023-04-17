@@ -380,6 +380,11 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
             $recentlyPlayedGameIDs[] = $recentlyPlayedGame['GameID'];
         }
 
+        // cache may remember more than was asked for
+        if ($count < count($recentlyPlayedGameIDs)) {
+            $recentlyPlayedGameIDs = array_slice($recentlyPlayedGameIDs, 0, $count);
+        }
+
         // discard anything that's not numeric or the query will fail
         $recentlyPlayedGameIDs = collect($recentlyPlayedGameIDs)
             ->filter(fn ($id) => is_int($id) || is_numeric($id))
@@ -391,6 +396,8 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
         $gameData = [];
         $dbResult = legacyDbFetchAll($query);
         foreach ($dbResult as $data) {
+            settype($data['GameID'], 'integer');
+            settype($data['ConsoleID'], 'integer');
             $gameData[$data['GameID']] = $data;
         }
 
