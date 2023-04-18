@@ -14,6 +14,10 @@ export async function loadDynamicTooltip(
 ): Promise<void> {
   const cacheKey = `${type}_${id}`;
 
+  // Store the current anchorEl. This helps us avoid potential race
+  // conditions if the user quickly moves over multiple dynamic tooltips.
+  store.activeAnchorEl = anchorEl;
+
   if (store.dynamicContentCache[cacheKey]) {
     displayDynamicTooltip(anchorEl, store.dynamicContentCache[cacheKey], givenY);
     return;
@@ -27,7 +31,9 @@ export async function loadDynamicTooltip(
       </div>
     </div>
   `;
-  renderTooltip(anchorEl, genericLoadingTemplate, givenX, givenY, { isBorderless: true });
+  renderTooltip(anchorEl, genericLoadingTemplate, (givenX ?? 0) + 12, (givenY ?? 0) + 12, {
+    isBorderless: true,
+  });
 
   store.dynamicTimeoutId = setTimeout(async () => {
     const fetchedDynamicContent = await fetchDynamicTooltipContent(type, id, context);
@@ -38,7 +44,7 @@ export async function loadDynamicTooltip(
       // We don't want to continue on with displaying this dynamic tooltip
       // if a static tooltip is opened while we're fetching data.
       const wasTimeoutCleared = !store.dynamicTimeoutId;
-      if (!wasTimeoutCleared) {
+      if (anchorEl === store.activeAnchorEl && !wasTimeoutCleared) {
         renderTooltip(anchorEl, fetchedDynamicContent, givenX, givenY);
         pinTooltipToCursorPosition(
           anchorEl,

@@ -1,4 +1,5 @@
 interface TooltipState {
+  activeAnchorEl: HTMLElement | null;
   currentTooltipId: number | null;
   dynamicContentCache: Record<string, string>;
   dynamicTimeoutId: NodeJS.Timeout | null;
@@ -8,10 +9,11 @@ interface TooltipState {
 }
 
 export const tooltipStore: TooltipState = {
+  activeAnchorEl: null,
   currentTooltipId: null,
   dynamicContentCache: {},
   dynamicTimeoutId: null,
   tooltipEl: null,
   trackedMouseX: null,
-  trackedMouseY: null
+  trackedMouseY: null,
 };
