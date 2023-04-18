@@ -24,12 +24,14 @@
 
 $gameID = (int) request()->query('i');
 
-$game = getGameData($gameID);
-
 $gameData = [];
-$gameData['GameTitle'] = $game['Title'];
-$gameData['ConsoleID'] = $game['ConsoleID'];
-$gameData['Console'] = $game['ConsoleName'];
-$gameData['ForumTopicID'] = $game['ForumTopicID'];
+
+$game = getGameData($gameID);
+if ($game != null) {
+    $gameData['GameTitle'] = $game['Title'];
+    $gameData['ConsoleID'] = $game['ConsoleID'];
+    $gameData['Console'] = $game['ConsoleName'];
+    $gameData['ForumTopicID'] = $game['ForumTopicID'];
+}
 
 return response()->json($gameData);

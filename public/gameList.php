@@ -5,11 +5,9 @@ use LegacyApp\Site\Enums\Permissions;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
-$showCompleteGames = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
-
+$filter = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
-$filter = requestInputSanitized('f');
 
 if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
     $maxCount = 50;

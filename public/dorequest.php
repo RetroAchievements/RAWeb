@@ -115,7 +115,7 @@ switch ($requestType) {
         $response['GameID'] = $gameID;
         break;
     case "gameid":
-        $md5 = request()->input('m');
+        $md5 = request()->input('m') ?? '';
         $response['GameID'] = getGameIDFromMD5($md5);
         break;
 
@@ -242,7 +242,7 @@ switch ($requestType) {
         break;
 
     case "submitcodenote":
-        $note = request()->input('n');
+        $note = request()->input('n') ?? '';
         $address = (int) request()->input('m', 0);
         $response['Success'] = submitCodeNote2($user, $gameID, $address, $note);
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
@@ -317,7 +317,7 @@ switch ($requestType) {
     case "uploadleaderboard":
         $leaderboardID = (int) request()->input('i', 0);
         $newTitle = request()->input('n');
-        $newDesc = request()->input('d');
+        $newDesc = request()->input('d') ?? '';
         $newStartMemString = request()->input('s');
         $newSubmitMemString = request()->input('b');
         $newCancelMemString = request()->input('c');
