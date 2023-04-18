@@ -4,6 +4,8 @@ import { updateTooltipPosition } from './updateTooltipPosition';
 export function renderTooltip(
   anchorEl: HTMLElement,
   html: string,
+  givenX?: number,
+  givenY?: number,
   options?: Partial<{ isBorderless: boolean }>
 ) {
   if (store.tooltipEl !== null) {
@@ -39,5 +41,5 @@ export function renderTooltip(
 
   store.tooltipEl.style.display = 'block';
 
-  updateTooltipPosition(anchorEl, store.tooltipEl);
+  updateTooltipPosition(anchorEl, store.tooltipEl, givenX, givenY);
 }

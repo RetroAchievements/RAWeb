@@ -11,11 +11,34 @@ interface TooltipOptions {
   dynamicContext: unknown;
 }
 
-function attachTooltipListeners(anchorEl: HTMLElement, showFn: () => void) {
+function attachTooltipListeners(anchorEl: HTMLElement, showFn: (givenX: number, givenY: number) => void) {
+  let showTimeout: number | null = null;
+  let lastMouseCoords: { x: number; y: number } | null = null;
+
+  const handleMouseOver = () => {
+    showTimeout = window.setTimeout(() => {
+      showFn(lastMouseCoords?.x ?? 0, lastMouseCoords?.y ?? 0);
+    }, 70);
+  };
+
+  const handleMouseLeave = () => {
+    if (showTimeout) {
+      clearTimeout(showTimeout);
+      showTimeout = null;
+    }
+
+    hideTooltip();
+  };
+
+  const handleMouseMove = (event: MouseEvent) => {
+    lastMouseCoords = { x: event.pageX, y: event.pageY };
+    trackTooltipMouseMovement(anchorEl, event);
+  };
+
   const tooltipListeners = [
-    ['mouseover', showFn],
-    ['mouseleave', hideTooltip],
-    ['mousemove', (event: MouseEvent) => trackTooltipMouseMovement(anchorEl, event)],
+    ['mouseover', handleMouseOver],
+    ['mouseleave', handleMouseLeave],
+    ['mousemove', handleMouseMove],
   ];
 
   tooltipListeners.forEach(([event, listenerFn]) => {
@@ -34,13 +57,16 @@ export function attachTooltipToElement(
 
   // Do we need to dynamically fetch this tooltip's contents?
   if (options.dynamicType && options.dynamicId) {
-    const showDynamicTooltip = () => (
-      loadDynamicTooltip(anchorEl, options.dynamicType as string, options.dynamicId as string, options?.dynamicContext)
+    const showDynamicTooltip = (windowX: number, windowY: number) => (
+      loadDynamicTooltip(anchorEl, options.dynamicType as string, options.dynamicId as string, options?.dynamicContext, windowX, windowY)
     );
 
     attachTooltipListeners(anchorEl, showDynamicTooltip);
   } else if (options.staticHtmlContent) {
-    const showStaticTooltip = () => renderTooltip(anchorEl, options.staticHtmlContent as string);
+    const showStaticTooltip = (windowX: number, windowY: number) => (
+      renderTooltip(anchorEl, options.staticHtmlContent as string, windowX + 8, windowY + 6)
+    );
+
     attachTooltipListeners(anchorEl, showStaticTooltip);
   }
 }

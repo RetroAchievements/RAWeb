@@ -8,24 +8,26 @@ export async function loadDynamicTooltip(
   anchorEl: HTMLElement,
   type: string,
   id: string,
-  context?: unknown
+  context?: unknown,
+  givenX?: number,
+  givenY?: number
 ): Promise<void> {
   const cacheKey = `${type}_${id}`;
 
   if (store.dynamicContentCache[cacheKey]) {
-    displayDynamicTooltip(anchorEl, store.dynamicContentCache[cacheKey]);
+    displayDynamicTooltip(anchorEl, store.dynamicContentCache[cacheKey], givenY);
     return;
   }
 
   // Temporarily show a loading spinner.
-  const genericLoadingTemplate = /** @html */`
+  const genericLoadingTemplate = /** @html */ `
     <div>
       <div class="flex justify-center items-center w-8 h-8 p-5">
         <img src="${asset('/assets/images/icon/loading.gif')}" alt="Loading">
       </div>
     </div>
   `;
-  renderTooltip(anchorEl, genericLoadingTemplate, { isBorderless: true });
+  renderTooltip(anchorEl, genericLoadingTemplate, givenX, givenY, { isBorderless: true });
 
   store.dynamicTimeoutId = setTimeout(async () => {
     const fetchedDynamicContent = await fetchDynamicTooltipContent(type, id, context);
@@ -37,7 +39,7 @@ export async function loadDynamicTooltip(
       // if a static tooltip is opened while we're fetching data.
       const wasTimeoutCleared = !store.dynamicTimeoutId;
       if (!wasTimeoutCleared) {
-        renderTooltip(anchorEl, fetchedDynamicContent);
+        renderTooltip(anchorEl, fetchedDynamicContent, givenX, givenY);
         pinTooltipToCursorPosition(
           anchorEl,
           store.tooltipEl,
@@ -49,11 +51,7 @@ export async function loadDynamicTooltip(
   }, 200);
 }
 
-async function fetchDynamicTooltipContent(
-  type: string,
-  id: string,
-  context?: unknown
-) {
+async function fetchDynamicTooltipContent(type: string, id: string, context?: unknown) {
   const contentResponse = await fetcher<{ html: string }>('/request/card.php', {
     method: 'POST',
     body: `type=${type}&id=${id}&context=${context}`,
@@ -62,12 +60,14 @@ async function fetchDynamicTooltipContent(
   return contentResponse.html;
 }
 
-function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string) {
+function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string, givenY?: number) {
+  const setX = store.trackedMouseX;
+  let setY = store.trackedMouseY;
+
+  if (givenY) {
+    setY = givenY - 10;
+  }
+
   renderTooltip(anchorEl, htmlContent);
-  pinTooltipToCursorPosition(
-    anchorEl,
-    store.tooltipEl,
-    store.trackedMouseX,
-    store.trackedMouseY
-  );
+  pinTooltipToCursorPosition(anchorEl, store.tooltipEl, setX, setY);
 }

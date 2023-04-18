@@ -11,7 +11,11 @@ export function updateTooltipPosition(
 ) {
   computePosition(anchorEl, tooltipEl, {
     placement: 'bottom-end',
-    middleware: [offsetMiddleware(6), cursorFlipMiddleware(), cursorShiftMiddleware(givenX, givenY)],
+    middleware: [
+      offsetMiddleware(6),
+      cursorFlipMiddleware(),
+      cursorShiftMiddleware(givenX, givenY),
+    ],
   }).then(async ({ x, y, middlewareData }) => {
     const setX = middlewareData.cursorShift.x ?? givenX ?? x;
     let setY = givenY ?? y;

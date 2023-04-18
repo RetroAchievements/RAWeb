@@ -38,18 +38,18 @@ module.exports = {
         'menu-link-hover': 'var(--menu-link-hover-color)',
         text: 'var(--text-color)',
         'text-danger': 'var(--text-color-danger)',
-        'text-muted': 'var(--text-color-muted)'
+        'text-muted': 'var(--text-color-muted)',
       },
 
       animation: {
-        'fade-in': 'fade-in 150ms ease',
+        'fade-in': 'fade-in 100ms ease',
       },
       keyframes: {
         'fade-in': {
           '0%': { opacity: 0, transform: 'translateY(0.25rem) scale(98%)' },
-          '100%': { opacity: 1, transform: 'translateY(0) scale(100%)' }
-        }
-      }
+          '100%': { opacity: 1, transform: 'translateY(0) scale(100%)' },
+        },
+      },
     },
 
     fontSize: {

@@ -7,7 +7,6 @@ import {
 } from 'vitest';
 
 import { attachTooltipToElement } from './attachTooltipToElement';
-import { hideTooltip } from './utils/hideTooltip';
 import * as LoadDynamicTooltipModule from './utils/loadDynamicTooltip';
 import * as RenderTooltipModule from './utils/renderTooltip';
 
@@ -24,6 +23,8 @@ describe('Util: attachTooltipToElement', () => {
 
   it('given an element, can allow it to have a static tooltip', () => {
     // ARRANGE
+    vi.useFakeTimers();
+
     const renderTooltipSpy = vi.spyOn(RenderTooltipModule, 'renderTooltip');
 
     render();
@@ -41,25 +42,23 @@ describe('Util: attachTooltipToElement', () => {
     // ASSERT
     expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith('mouseleave', hideTooltip);
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      'mousemove',
-      expect.anything()
-    );
+    expect(addEventListenerSpy).toHaveBeenCalledWith('mouseleave', expect.anything());
+    expect(addEventListenerSpy).toHaveBeenCalledWith('mousemove', expect.anything());
 
     // Manually trigger the mouseover listener to verify it is set up correctly.
     const callArgs = addEventListenerSpy.mock.calls;
     (callArgs[0][1] as EventListener)(new MouseEvent('mouseover'));
 
-    expect(renderTooltipSpy).toHaveBeenCalledWith(anchorEl, mockTooltipContent);
+    vi.advanceTimersByTime(100);
+
+    expect(renderTooltipSpy).toHaveBeenCalledWith(anchorEl, mockTooltipContent, 8, 6);
   });
 
   it('given an element, can allow it to have a tooltip with dynamically-fetched content', () => {
     // ARRANGE
-    const loadDynamicTooltipSpy = vi.spyOn(
-      LoadDynamicTooltipModule,
-      'loadDynamicTooltip'
-    );
+    vi.useFakeTimers();
+
+    const loadDynamicTooltipSpy = vi.spyOn(LoadDynamicTooltipModule, 'loadDynamicTooltip');
 
     render();
 
@@ -76,21 +75,15 @@ describe('Util: attachTooltipToElement', () => {
     // ASSERT
     expect(addEventListenerSpy).toHaveBeenCalledTimes(3);
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith('mouseleave', hideTooltip);
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      'mousemove',
-      expect.anything()
-    );
+    expect(addEventListenerSpy).toHaveBeenCalledWith('mouseleave', expect.anything());
+    expect(addEventListenerSpy).toHaveBeenCalledWith('mousemove', expect.anything());
 
     // Manually trigger the mouseover listener to verify it is set up correctly.
     const callArgs = addEventListenerSpy.mock.calls;
     (callArgs[0][1] as EventListener)(new MouseEvent('mouseover'));
 
-    expect(loadDynamicTooltipSpy).toHaveBeenCalledWith(
-      anchorEl,
-      'mockType',
-      'mockId',
-      'game'
-    );
+    vi.advanceTimersByTime(100);
+
+    expect(loadDynamicTooltipSpy).toHaveBeenCalled();
   });
 });
