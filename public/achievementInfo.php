@@ -170,8 +170,8 @@ RenderContentStart($pageTitle);
 
         echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
 
-        $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
-        $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
+        $imgClass = ($user == "" || !$achievedLocal) ? 'grayscale blur-[0.8px] contrast-[0.65] hover:grayscale-0 hover:contrast-100 hover:blur-0 transition duration-300' : '';
+        $badgeFullPath = media_asset("Badge/$badgeName.png");
 
         echo "<table class='nicebox'><tbody>";
 
@@ -179,7 +179,7 @@ RenderContentStart($pageTitle);
         echo "<tr>";
         echo "<td style='width:70px'>";
         echo "<div id='achievemententryicon'>";
-        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
+        echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" class=\"$imgClass\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
         echo "</div>"; // achievemententryicon
         echo "</td>";
 

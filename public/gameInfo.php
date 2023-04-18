@@ -1254,8 +1254,6 @@ sanitize_outputs(
 
                             $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
 
-                            $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
-
                             $wonBy = $nextAch['NumAwarded'];
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];
                             if ($numDistinctPlayersCasual == 0) {
@@ -1266,8 +1264,11 @@ sanitize_outputs(
                                 $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
                             }
 
+                            $imgFadeClasses = 'grayscale blur-[0.8px] contrast-[0.65] hover:grayscale-0 hover:contrast-100 hover:blur-0 transition duration-300';
+                            $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
+
                             if ($user == "" || !$achieved) {
-                                $achBadgeName .= "_lock";
+                                $imgClass .= " $imgFadeClasses";
                             }
 
                             echo "<tr>";
