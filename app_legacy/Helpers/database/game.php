@@ -243,13 +243,12 @@ function getGamesListByDev(
     int $offset = 0,
     int $count = 0
 ): int {
-    sanitize_sql_inputs($dev);
-
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
     $whereCond = '';
     $moreSelectCond = '';
     $havingCond = '';
+    $bindings = [];
 
     if ($ticketsFlag) {
         $selectTickets = ", ticks.OpenTickets";
@@ -277,10 +276,14 @@ function getGamesListByDev(
     }
 
     if ($dev != null) {
-        $moreSelectCond = "SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyAchievements,
-                           SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.Points ELSE 0 END) AS MyPoints,
-                           SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
-                           SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,";
+        $bindings['myAchDev'] = $dev;
+        $bindings['myPtsDev'] = $dev;
+        $bindings['myRRDev'] = $dev;
+        $bindings['notMyAchDev'] = $dev;
+        $moreSelectCond = "SUM(CASE WHEN ach.Author = :myAchDev THEN 1 ELSE 0 END) AS MyAchievements,
+                           SUM(CASE WHEN ach.Author = :myPtsDev THEN ach.Points ELSE 0 END) AS MyPoints,
+                           SUM(CASE WHEN ach.Author = :myRRDev THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
+                           SUM(CASE WHEN ach.Author != :notMyAchDev THEN 1 ELSE 0 END) AS NotMyAchievements,";
         $havingCond = "HAVING MyAchievements > 0 ";
     } else {
         if ($filter == 0) { // only with achievements
@@ -309,8 +312,8 @@ function getGamesListByDev(
     }
 
     $orderBy = match ($sortBy) {
-        1 => "Title",
-        11 => "Title DESC",
+        1 => "gd.Title",
+        11 => "gd.Title DESC",
         2 => "NumAchievements DESC, MaxPointsAvailable DESC",
         12 => "NumAchievements, MaxPointsAvailable",
         3 => "MaxPointsAvailable DESC, NumAchievements DESC",
@@ -318,10 +321,10 @@ function getGamesListByDev(
         4 => "NumLBs DESC, MaxPointsAvailable DESC",
         14 => "NumLBs, MaxPointsAvailable",
         5 => $ticketsFlag
-                ? "OpenTickets DESC "
+                ? "ticks.OpenTickets DESC "
                 : "",
         15 => $ticketsFlag
-                ? "OpenTickets"
+                ? "ticks.OpenTickets"
                 : "",
         6 => "DateModified DESC",
         16 => "DateModified",
@@ -352,27 +355,20 @@ function getGamesListByDev(
         $query .= " LIMIT $offset, $count";
     }
 
-    $dataOut = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            if ($db_entry['ForumTopicID'] != null) {
-                $db_entry['ForumTopicID'] = (int) $db_entry['ForumTopicID'];
-            }
-            $dataOut[] = $db_entry;
+    $dataOut = legacyDbFetchAll($query, $bindings)->toArray();
+    foreach ($dataOut as &$row) {
+        settype($row['ID'], 'integer');
+        settype($row['ConsoleID'], 'integer');
+        if ($row['ForumTopicID'] !== null) {
+            settype($row['ForumTopicID'], 'integer');
         }
-    } else {
-        log_sql_fail();
     }
 
     $numGamesFound = count($dataOut);
     if ($count > 0) {
         if ($numGamesFound == $count) {
             $query = "SELECT FOUND_ROWS() AS NumGames";
-            $dbResult = s_mysql_query($query);
-            if ($dbResult !== false) {
-                $numGamesFound = mysqli_fetch_assoc($dbResult)['NumGames'];
-            }
+            $numGamesFound = legacyDbFetch($query)['NumGames'];
         } else {
             $numGamesFound += $offset;
         }

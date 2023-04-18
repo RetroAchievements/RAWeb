@@ -23,6 +23,14 @@ class Game extends BaseModel
     }
 
     /**
+     * @return HasMany<GameHash>
+     */
+    public function hashes(): HasMany
+    {
+        return $this->hasMany(GameHash::class, 'GameID');
+    }
+
+    /**
      * @return HasMany<Achievement>
      */
     public function achievements(): HasMany
