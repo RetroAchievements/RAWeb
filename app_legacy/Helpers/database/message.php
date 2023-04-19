@@ -227,6 +227,10 @@ function DeleteMessage(string $user, int $messageID): bool
         return false;
     }
 
+    // If an unread message is deleted by the user, the total unread
+    // messages count displayed on the site will not be updated correctly.
+    markMessageAsRead($user, $messageID);
+
     $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
