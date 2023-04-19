@@ -1146,16 +1146,15 @@ sanitize_outputs(
                         }
 
                         if ($claimExpiration) {
-                            $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
-                            $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast();
+                            $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast() ? "Expired" : "Expires";
 
-                            echo "<p>";
-                            if ($isAlreadyExpired) {
-                                echo "Expired on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
-                            } else {
-                                echo "Expires on: $claimFormattedDate (" . $claimExpiration->diffForHumans() . ")";
-                            }
-                            echo "</p>";
+                            $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
+                            $claimTimeAgoDate = $permissions >= Permissions::JuniorDeveloper
+                                ? "(" . $claimExpiration->diffForHumans() . ")"
+                                : "";
+
+                            // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
+                            echo "<p>$isAlreadyExpired on: $claimFormattedDate $claimTimeAgoDate</p>";
                         }
                     } else {
                         if ($numAchievements < 1) {

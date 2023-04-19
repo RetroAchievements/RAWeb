@@ -24,14 +24,27 @@
 
 $gameID = (int) request()->query('i');
 
-$gameData = [];
-
 $game = getGameData($gameID);
-if ($game != null) {
-    $gameData['GameTitle'] = $game['Title'];
-    $gameData['ConsoleID'] = $game['ConsoleID'];
-    $gameData['Console'] = $game['ConsoleName'];
-    $gameData['ForumTopicID'] = $game['ForumTopicID'];
+
+if ($game === null) {
+    return response()->json();
 }
 
-return response()->json($gameData);
+return response()->json([
+    'Title' => $game['Title'],
+    'GameTitle' => $game['Title'],
+    'ConsoleID' => $game['ConsoleID'],
+    'ConsoleName' => $game['ConsoleName'],
+    'Console' => $game['ConsoleName'],
+    'ForumTopicID' => $game['ForumTopicID'],
+    'Flags' => (int) $game['Flags'],
+    'GameIcon' => $game['ImageIcon'],
+    'ImageIcon' => $game['ImageIcon'],
+    'ImageTitle' => $game['ImageTitle'],
+    'ImageIngame' => $game['ImageIngame'],
+    'ImageBoxArt' => $game['ImageBoxArt'],
+    'Publisher' => $game['Publisher'],
+    'Developer' => $game['Developer'],
+    'Genre' => $game['Genre'],
+    'Released' => $game['Released'],
+]);
