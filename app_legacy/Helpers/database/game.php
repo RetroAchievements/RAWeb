@@ -280,7 +280,8 @@ function getGamesListByDev(
         $moreSelectCond = "SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyAchievements,
                            SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.Points ELSE 0 END) AS MyPoints,
                            SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
-                           SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,";
+                           SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,
+                           lbdi.MyLBs,";
         $havingCond = "HAVING MyAchievements > 0 ";
     } else {
         if ($filter == 0) { // only with achievements
@@ -298,7 +299,10 @@ function getGamesListByDev(
                 FROM GameData AS gd
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID
                 LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = " . AchievementType::OfficialCore . "
-                LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs FROM LeaderboardDef AS lbd GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
+                LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs,
+                                   SUM(CASE WHEN lbd.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyLBs
+                            FROM LeaderboardDef AS lbd
+                            GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
                 $joinTicketsTable
                 $whereCond
                 GROUP BY gd.ID
