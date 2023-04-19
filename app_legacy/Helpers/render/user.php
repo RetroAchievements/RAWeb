@@ -152,6 +152,19 @@ function RenderCompletedGamesList(array $userCompletedGamesList): void
     echo "<div id='completedgames' class='component' >";
 
     echo "<h3>Completion Progress</h3>";
+
+    echo <<<HTML
+        <label class="flex items-center gap-x-1 mb-2">
+            <input 
+                type="checkbox" 
+                id="hide-user-completed-sets-checkbox" 
+                onchange="toggleUserCompletedSetsVisibility.toggleUserCompletedSetsVisibility()"
+            >
+                Hide completed sets
+            </input>
+        </label>
+    HTML;
+
     echo "<div id='usercompletedgamescomponent'>";
 
     echo "<table class='table-highlight'><tbody>";
@@ -175,7 +188,9 @@ function RenderCompletedGamesList(array $userCompletedGamesList): void
             continue;
         }
 
-        echo "<tr>";
+        $isCompletedClassName = ($pctAwardedNormal == 100) ? 'completion-progress-completed-row' : '';
+
+        echo "<tr class='$isCompletedClassName'>";
 
         echo "<td>";
         echo gameAvatar($userCompletedGamesList[$i], label: false);
