@@ -373,7 +373,7 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
 
 function RenderRecentGamePlayers(array $recentPlayerData, string $gameTitle): void
 {
-    echo "<div class='component'>Recent Players:";
+    echo "<div class='component overflow-x-auto sm:overflow-x-hidden'>Recent Players:";
     echo "<table class='table-highlight'><tbody>";
     echo "<tr><th></th><th>User</th><th>When</th><th class='w-full'>Activity</th>";
     foreach ($recentPlayerData as $recentPlayer) {
