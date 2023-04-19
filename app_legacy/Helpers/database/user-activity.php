@@ -346,13 +346,17 @@ function addArticleComment(
         return false;
     }
 
+    $query = "SELECT MAX(ID) AS CommentID FROM Comment
+              WHERE ArticleType=$articleType AND ArticleID=$articleID AND UserID=$userID";
+    $commentID = legacyDbFetch($query)['CommentID'];
+
     // Inform Subscribers of this comment:
     if (is_array($articleID)) {
         foreach ($articleID as $id) {
-            informAllSubscribersAboutActivity($articleType, $id, $user, $onBehalfOfUser);
+            informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
         }
     } else {
-        informAllSubscribersAboutActivity($articleType, $articleID, $user, $onBehalfOfUser);
+        informAllSubscribersAboutActivity($articleType, $articleID, $user, $commentID, $onBehalfOfUser);
     }
 
     return true;
