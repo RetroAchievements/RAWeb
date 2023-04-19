@@ -28,7 +28,7 @@ class GameListTest extends TestCase
     {
         /** @var System $system1 */
         $system1 = System::factory()->create();
-        /** @var System $system1 */
+        /** @var System $system2 */
         $system2 = System::factory()->create();
         /** @var Game $game1 */
         $game1 = Game::factory()->create([
