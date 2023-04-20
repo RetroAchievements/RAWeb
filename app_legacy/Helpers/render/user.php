@@ -147,23 +147,52 @@ function renderUserCard(string|array $user): string
     return $tooltip;
 }
 
+function getCompletedAndIncompletedSetsCounts(array $userCompletedGamesList): array
+{
+    $completedSetsCount = 0;
+    $incompletedSetsCount = 0;
+
+    $numItems = count($userCompletedGamesList);
+    for ($i = 0; $i < $numItems; $i++) {
+        $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
+        $nextNumAwarded = $userCompletedGamesList[$i]['NumAwarded'];
+
+        // Don't divide by 0.
+        if ($nextNumAwarded == 0 || $nextMaxPossible == 0) {
+            continue;
+        }
+
+        $pctAwardedNormal = ($nextNumAwarded / $nextMaxPossible) * 100.0;
+        if ($pctAwardedNormal == 100) {
+            $completedSetsCount++;
+        } else {
+            $incompletedSetsCount++;
+        }
+    }
+
+    return ['completedSetsCount' => $completedSetsCount, 'incompletedSetsCount' => $incompletedSetsCount];
+}
+
 function RenderCompletedGamesList(array $userCompletedGamesList): void
 {
     echo "<div id='completedgames' class='component' >";
 
     echo "<h3>Completion Progress</h3>";
 
-    echo <<<HTML
-        <label class="flex items-center gap-x-1 mb-2">
-            <input 
-                type="checkbox" 
-                id="hide-user-completed-sets-checkbox" 
-                onchange="toggleUserCompletedSetsVisibility.toggleUserCompletedSetsVisibility()"
-            >
-                Hide completed sets
-            </input>
-        </label>
-    HTML;
+    $setsCounts = getCompletedAndIncompletedSetsCounts($userCompletedGamesList);
+    if ($setsCounts['completedSetsCount'] > 0 && $setsCounts['incompletedSetsCount'] > 0) {
+        echo <<<HTML
+            <label class="flex items-center gap-x-1 mb-2">
+                <input 
+                    type="checkbox" 
+                    id="hide-user-completed-sets-checkbox" 
+                    onchange="toggleUserCompletedSetsVisibility.toggleUserCompletedSetsVisibility()"
+                >
+                    Hide completed sets
+                </input>
+            </label>
+        HTML;
+    }
 
     echo "<div id='usercompletedgamescomponent'>";
 
