@@ -161,8 +161,8 @@ function postAllAwardsDisplayOrder(awards) {
     const compressAwards = (award) => ([award.type, award.data, award.extra, award.number].join(','));
 
     // Pass both sets of awards as CSVs rather than array elements.
-    const sortedAwards = awards.filter(award => award.number !== -1).map(compressAwards).join(',');
-    const hiddenAwards = awards.filter(award => award.number === -1).map(compressAwards).join(',');
+    const sortedAwards = awards.filter(award => award.number !== -1).map(compressAwards).join('|');
+    const hiddenAwards = awards.filter(award => award.number === -1).map(compressAwards).join('|');
 
     $.post('/request/user/update-site-awards.php', { sortedAwards, hiddenAwards })
         .done(function (response) {

@@ -9,7 +9,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 Validator::extend('awards_csv_format', function ($attribute, $value) {
-    $pattern = '/^(\d+,\d+,\d+,-?\d+(,|$))+$/';
+    $pattern = '/^(\d+,\d+,\d+,-?\d+)(\|\d+,\d+,\d+,-?\d+)*$/';
 
     return preg_match($pattern, $value);
 }, 'The :attribute must contain groups of 4 comma-separated integers, with the 4th value allowing a negative integer.');
@@ -29,15 +29,17 @@ $parseCsv = function ($csv) {
         return [];
     }
 
-    $decoded = explode(',', $csv);
+    $awardStrings = explode('|', $csv);
     $awards = [];
 
-    for ($i = 0; $i < count($decoded); $i += 4) {
+    foreach ($awardStrings as $awardString) {
+        $decoded = explode(',', $awardString);
+
         $awards[] = [
-            'type' => intval($decoded[$i]),
-            'data' => intval($decoded[$i + 1]),
-            'extra' => intval($decoded[$i + 2]),
-            'number' => intval($decoded[$i + 3]),
+            'type' => intval($decoded[0]),
+            'data' => intval($decoded[1]),
+            'extra' => intval($decoded[2]),
+            'number' => intval($decoded[3]),
         ];
     }
 
