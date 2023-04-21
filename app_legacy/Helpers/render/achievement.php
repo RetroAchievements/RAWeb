@@ -101,10 +101,11 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
     $unlock = $data['Unlock'] ?? null;
+    $badgeImgSrc = media_asset("Badge/{$badgeName}" . ($unlock ? '' : '_lock') . ".png");
     $gameTitle = renderGameTitle($data['GameTitle'] ?? null);
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
-    $tooltip .= "<img src='" . media_asset("Badge/$badgeName.png") . "' width='64' height='64' />";
+    $tooltip .= "<img src='$badgeImgSrc' width='64' height='64' />";
     $tooltip .= "<div>";
     $tooltip .= "<div><b>$title</b></div>";
     $tooltip .= "<div class='mb-1'>$description</div>";
