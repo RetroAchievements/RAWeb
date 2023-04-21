@@ -26,7 +26,7 @@ function gameAvatar(
             $label = "<div class='inline-flex flex-col gap-0.5'>";
             $label .= renderGameTitle($title);
             if ($consoleName) {
-                $consoleID = $game['ConsoleID'] ?? 1;
+                $consoleID = $game['ConsoleID'];
                 $label .= renderGameConsole($consoleName, $consoleID, size: 14, avatar: true);
             }
             $label .= "</div>";
@@ -292,6 +292,7 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
             'Title' => $nextGame['Title'],
             'ImageIcon' => $nextGame['ImageIcon'],
             'ConsoleName' => $consoleName,
+            'ConsoleID' => $nextGame['ConsoleID'],
         ];
 
         echo "<td>";
