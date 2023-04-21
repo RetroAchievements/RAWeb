@@ -27,7 +27,7 @@ function gameAvatar(
             $label .= renderGameTitle($title);
             if ($consoleName) {
                 $consoleID = $game['ConsoleID'] ?? 1;
-                $label .= renderGameConsole($consoleName, $consoleID, size: 16, avatar: true);
+                $label .= renderGameConsole($consoleName, $consoleID, size: 14, avatar: true);
             }
             $label .= "</div>";
         }
@@ -109,7 +109,7 @@ function renderGameConsole(
     $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
     $iconSrc = $getConsoleIconSrc($consoleID);
     $class = $avatar ? ' avatar' : '';
-    $textSize = round(.6 * $size);
+    $textSize = round(($avatar ? .7 : .6) * $size);
 
     return "<div class='console$class'>"
         . "<img src='$iconSrc' width='$size' height='$size' alt='' onerror='this.src=\"$fallBackConsoleIcon\"'>"
