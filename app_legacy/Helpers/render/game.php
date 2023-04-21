@@ -390,7 +390,7 @@ function RenderRecentGamePlayers(array $recentPlayerData, string $gameTitle): vo
         // if so, strip the RP and replace it with an outdated emulator warning.
         if (mb_strpos($activity, 'Unknown macro') !== false) {
             $activity = <<<HTML
-                <div class="cursor-help flex items-center gap-x-1" title="$activity">
+                <div class="cursor-help" title="$activity">
                     <span>⚠️</span>
                     <span>Playing $gameTitle</span>
                 </div>
