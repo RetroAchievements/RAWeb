@@ -15,16 +15,12 @@ export function injectShortcode(start: string, end = ''): void {
 
   const startPosition = commentTextarea.selectionStart;
   const endPosition = commentTextarea.selectionEnd;
-  const selectedText = commentTextarea.value.substring(
-    startPosition,
-    endPosition,
-  );
+  const selectedText = commentTextarea.value.substring(startPosition, endPosition);
 
-  const newText = (
-    selectedText === ''
-      ? `${commentTextarea.value}${start}${end}`
-      : `${commentTextarea.value.slice(0, startPosition)}${start}${selectedText}${end}${commentTextarea.value.slice(endPosition)}`
-  );
+  const beforeSelectedText = commentTextarea.value.slice(0, startPosition);
+  const afterSelectedText = commentTextarea.value.slice(endPosition);
+
+  const newText = [beforeSelectedText, start, selectedText, end, afterSelectedText].join('');
 
   commentTextarea.value = newText;
   commentTextarea.focus();
