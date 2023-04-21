@@ -1,15 +1,16 @@
 .console {
   display: flex;
   align-items: center;
-  margin: .1em .05em;
   background: none;
 }
 
 .console.avatar {
+  margin-left: .05em;
   border-left: solid 2px #fff3;
 }
 
 .console > img {
+  padding: .15em 0;
   margin: 0 .5em;
 }
 
