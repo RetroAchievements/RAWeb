@@ -113,7 +113,7 @@ function renderGameConsole(
 
     return "<div class='console$class'>"
         . "<img src='$iconSrc' width='$size' height='$size' alt='' onerror='this.src=\"$fallBackConsoleIcon\"'>"
-        . "<span style='font-size: ${textSize}px'>$consoleName</span>"
+        . "<span style='font-size: {$textSize}px'>$consoleName</span>"
         . "</div>";
 }
 
