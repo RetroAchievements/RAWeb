@@ -208,14 +208,8 @@ RenderContentStart($requestedConsole . " Games");
                     echo "<br/>";
                 }
             } else {
-                $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
-                $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleIDInput.name_short")));
-                $iconName = Str::kebab($cleanSystemShortName);
-
                 echo "<h2 class='flex gap-x-2'>";
-                echo " <img src='" . asset("assets/images/system/$iconName.png") . "' alt='' width='32' height='32'";
-                echo " onerror='this.src=\"$fallBackConsoleIcon\"'></img>"; // fallback
-                echo " <span>$consoleName</span>";
+                echo renderGameConsole($consoleName, $consoleIDInput, size: 30);
                 echo "</h2>";
 
                 echo "<div style='float:left'>$gamesCount Games</div>";

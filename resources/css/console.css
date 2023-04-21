@@ -1,30 +1,18 @@
 .console {
   display: flex;
   align-items: center;
-  padding: 0 .2em;
+  margin: .1em .05em;
   background: none;
 }
 
 .console.avatar {
-  margin: 0 .1em;
-  padding-left: .45em;
   border-left: solid 2px #fff3;
-  font-size: .8em;
-}
-
-.console:not(.avatar) {
-  font-size: .7em;
 }
 
 .console > img {
-  padding: .3em;
-}
-
-.console:not(.avatar) > img {
-  padding: .3em .15em;
+  margin: 0 .5em;
 }
 
 .console > span {
-  padding-left: .3em;
   color: var(--menu-link-color);
 }

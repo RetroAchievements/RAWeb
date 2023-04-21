@@ -27,7 +27,7 @@ function gameAvatar(
             $label .= renderGameTitle($title);
             if ($consoleName) {
                 $consoleID = $game['ConsoleID'] ?? 1;
-                $label .= renderGameConsole($consoleName, $consoleID, size: 22, avatar: true);
+                $label .= renderGameConsole($consoleName, $consoleID, size: 15, avatar: true);
             }
             $label .= "</div>";
         }
@@ -92,29 +92,29 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 }
 
 /**
- * Render game console with icon of specified size
+ * Render game console with icon of specified size.
+ * Font size is calculated dynamically from icon size.
  */
 function renderGameConsole(
     string $consoleName, int $consoleID, int $size, bool $avatar = false
 ): string {
-    $iconSrc = getConsoleIconSrc($consoleID);
+    // Get console icon URL path based on given ID
+    $getConsoleIconSrc = function ($consoleID) {
+        $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
+        $iconName = Str::kebab($cleanSystemShortName);
+
+        return asset("assets/images/system/$iconName.png");
+    };
+
+    $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
+    $iconSrc = $getConsoleIconSrc($consoleID);
     $class = $avatar ? ' avatar' : '';
+    $textSize = round(.65 * $size);
 
     return "<div class='console$class'>"
-        . "<img src='$iconSrc' width='$size' height='$size' alt=''>"
-        . "<span>$consoleName</span>"
+        . "<img src='$iconSrc' width='$size' height='$size' alt='' onerror='this.src=\"$fallBackConsoleIcon\"'>"
+        . "<span style='font-size: ${textSize}px'>$consoleName</span>"
         . "</div>";
-}
-
-/**
- * Get console icon URL path based on given ID
- */
-function getConsoleIconSrc(int $consoleID): string
-{
-    $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
-    $iconName = Str::kebab($cleanSystemShortName);
-
-    return asset("assets/images/system/$iconName.png");
 }
 
 /**
