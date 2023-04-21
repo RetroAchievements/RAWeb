@@ -29,6 +29,7 @@ if ((int) $userMassData['Permissions'] < Permissions::Unregistered && $permissio
     abort(404);
 }
 
+$userPage = $userMassData['User'];
 $userMotto = $userMassData['Motto'];
 $userPageID = $userMassData['ID'];
 $setRequestList = getUserRequestList($userPage);

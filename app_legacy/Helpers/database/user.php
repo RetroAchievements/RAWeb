@@ -199,6 +199,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
 
     $libraryOut = [];
 
+    $libraryOut['User'] = $userInfo['User'];
     $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
     $libraryOut['MemberSince'] = $userInfo['Created'];
