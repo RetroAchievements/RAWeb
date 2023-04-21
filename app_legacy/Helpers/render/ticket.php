@@ -52,14 +52,10 @@ function renderTicketCard(int|Ticket $ticket): string
     }
 
     $ticketStateClass = match ($ticket->ticketState) {
-        TicketState::Open => 'open',
+        TicketState::Open, TicketState::Request => 'open',
         TicketState::Closed, TicketState::Resolved => 'closed',
         default => '',
     };
-
-    $closedByInfo = $ticket->closedBy
-        ? "<div class='tooltip-closer'>Closed by $ticket->closedBy, " . getNiceDate(strtotime($ticket->closedOn)) . "</div>"
-        : '';
 
     return "<div class='tooltip-body flex items-start' style='max-width: 400px'>" .
         "<img style='margin-right:5px' src='" . media_asset('/Badge/' . $ticket->badgeName . '.png') . "' width='64' height='64' />" .
@@ -67,7 +63,7 @@ function renderTicketCard(int|Ticket $ticket): string
         "<div><b>" . $ticket->achievementTitle . "</b> <i>(" . $ticket->gameTitle . ")</i></div>" .
         "<div>Reported by $ticket->createdBy</div>" .
         "<div>Issue: " . TicketType::toString($ticket->ticketType) . "</div>" .
-        $closedByInfo .
+        "<div class='tooltip-closer'>Closed by $ticket->closedBy, " . getNiceDate(strtotime($ticket->closedOn)) . "</div>" .
         "<div class='tooltip-opened-date'> Opened " . getNiceDate(strtotime($ticket->createdOn)) . "</div>" .
         "</div>" .
         "<div class='ticket-tooltip-state'>" . TicketState::toString($ticket->ticketState) . "</div>" .
