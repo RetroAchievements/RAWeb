@@ -8,12 +8,12 @@
  *
  *  array
  *   object     [value]
- *    string     GameID           unique identifier of the game
+ *    int        GameID           unique identifier of the game
  *    string     Title            title of the game
  *    string     ImageIcon        site-relative path to the game's image icon
- *    string     ConsoleID        unique identifier of the console associated to the game
+ *    int        ConsoleID        unique identifier of the console associated to the game
  *    string     ConsoleName      name of the console associated to the game
- *    string     MaxPossible      number of core achievements associated to the game
+ *    int        MaxPossible      number of core achievements associated to the game
  *    string     NumAwarded       number of achievements earned by the user
  *    string     PctWon           NumAwarded divided by MaxPossible
  *    string     HardcoreMode     "1" if the data is for hardcore, otherwise "0"

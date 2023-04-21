@@ -48,7 +48,7 @@ function RenderToolbar(): void
                 ["systemName" => "SNES/Super Famicom", "listID" => 3],
                 ["systemName" => "Nintendo 64", "listID" => 2],
                 ["systemName" => "Nintendo DS", "listID" => 18],
-                // ["systemName" => "Nintendo DSi", "listID"=>78, "iconName" => "Nintendo DSi"],
+                ["systemName" => "Nintendo DSi", "listID" => 78],
                 ["systemName" => "Pokemon Mini", "listID" => 24],
                 ["systemName" => "Virtual Boy", "listID" => 28],
             ],
@@ -117,7 +117,7 @@ function RenderToolbar(): void
                 $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listId.name_short")));
                 $iconName = Str::kebab($cleanSystemShortName);
                 echo "<li><a href='/gameList.php?c=$listId' class='!flex items-center gap-x-2' >"; // the flex class needs to be forced here
-                echo " <img src='assets/images/system/$iconName.png' width='16' height='16' alt=''>";
+                echo " <img src='" . asset("assets/images/system/$iconName.png") . "' width='16' height='16' alt=''>";
                 echo " <span>$systemName</span>";
                 echo "</a></li>";
             }
@@ -221,8 +221,10 @@ function RenderToolbar(): void
         echo "<li><a href='/ticketmanager.php?f=1'>Most Reported Games</a></li>";
         echo "<li><a href='/achievementinspector.php'>Achievement Inspector</a></li>";
         echo "<li><a href='/expiringclaims.php?'>Expiring Claims</a></li>";
-        echo "<li class='divider'></li>";
-        echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
+        if ($permissions >= Permissions::Developer) {
+            echo "<li class='divider'></li>";
+            echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
+        }
         // Admin
         if ($permissions >= Permissions::Admin) {
             echo "<li class='divider'></li>";

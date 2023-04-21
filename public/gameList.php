@@ -5,11 +5,9 @@ use LegacyApp\Site\Enums\Permissions;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
-$showCompleteGames = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
-
+$filter = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
-$filter = requestInputSanitized('f');
 
 if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
     $maxCount = 50;
@@ -82,11 +80,17 @@ function ListGames(
         $maxPoints = $gameEntry['MaxPointsAvailable'] ?? 0;
         $totalTrueRatio = $gameEntry['TotalTruePoints'];
         $totalAchievements = null;
+        $devLeaderboards = null;
         if ($dev == null) {
             $numAchievements = $gameEntry['NumAchievements'];
+            $numPoints = $maxPoints;
+            $numTrueRatio = $totalTrueRatio;
         } else {
             $numAchievements = $gameEntry['MyAchievements'];
+            $numPoints = $gameEntry['MyPoints'];
+            $numTrueRatio = $gameEntry['MyTrueRatio'];
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
+            $devLeaderboards = $gameEntry['MyLBs'];
         }
         $numLBs = $gameEntry['NumLBs'];
 
@@ -105,10 +109,11 @@ function ListGames(
 
         if ($dev == null) {
             echo "<td>$numAchievements</td>";
+            echo "<td class='whitespace-nowrap'>$maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
         } else {
             echo "<td>$numAchievements of $totalAchievements</td>";
+            echo "<td class='whitespace-nowrap'>$numPoints of $maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
         }
-        echo "<td class='whitespace-nowrap'>$maxPoints <span class='TrueRatio'>($totalTrueRatio)</span></td>";
 
         if ($gameEntry['DateModified'] != null) {
             $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
@@ -119,8 +124,13 @@ function ListGames(
 
         echo "<td class=''>";
         if ($numLBs > 0) {
-            echo "<a href=\"game/$gameID\">$numLBs</a>";
-            $lbCount += $numLBs;
+            if ($dev == null) {
+                echo "<a href=\"game/$gameID\">$numLBs</a>";
+                $lbCount += $numLBs;
+            } else {
+                echo "<a href=\"game/$gameID\">$devLeaderboards of $numLBs</a>";
+                $lbCount += $devLeaderboards;
+            }
         }
         echo "</td>";
 
@@ -137,9 +147,9 @@ function ListGames(
         echo "</tr>";
 
         $gameCount++;
-        $pointsTally += $maxPoints;
+        $pointsTally += $numPoints;
         $achievementsTally += $numAchievements;
-        $truePointsTally += $totalTrueRatio;
+        $truePointsTally += $numTrueRatio;
     }
 
     if ($showTotals) {
@@ -198,12 +208,12 @@ RenderContentStart($requestedConsole . " Games");
                     echo "<br/>";
                 }
             } else {
-                $fallBackConsoleIcon = "assets/images/system/unknown.png";
+                $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
                 $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleIDInput.name_short")));
                 $iconName = Str::kebab($cleanSystemShortName);
 
                 echo "<h2 class='flex gap-x-2'>";
-                echo " <img src='assets/images/system/$iconName.png' alt='' width='32' height='32'";
+                echo " <img src='" . asset("assets/images/system/$iconName.png") . "' alt='' width='32' height='32'";
                 echo " onerror='this.src=\"$fallBackConsoleIcon\"'></img>"; // fallback
                 echo " <span>$consoleName</span>";
                 echo "</h2>";

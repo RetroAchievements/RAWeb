@@ -404,7 +404,7 @@ RenderContentStart($pageTitle);
         if ($user !== null) {
             RenderScoreLeaderboardComponent($user, true);
         }
-        RenderGameLeaderboardsComponent($lbData);
+        RenderGameLeaderboardsComponent($lbData, null);
         ?>
     </div>
 </div>

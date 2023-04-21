@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use LegacyApp\Platform\Actions\ResetPlayerAchievementAction;
+use LegacyApp\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -12,11 +14,18 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required_without:game|integer|exists:mysql_legacy.Achievements,ID',
 ]);
 
-if (!empty($input['achievement']) && resetSingleAchievement($user, (int) $input['achievement'])) {
+$userModel = User::firstWhere('User', $user);
+$action = new ResetPlayerAchievementAction();
+
+if (!empty($input['achievement'])) {
+    $action->execute($userModel, achievementID: (int) $input['achievement']);
+
     return response()->json(['message' => __('legacy.success.reset')]);
 }
 
-if (!empty($input['game']) && resetAchievements($user, (int) $input['game']) > 0) {
+if (!empty($input['game'])) {
+    $action->execute($userModel, gameID: (int) $input['game']);
+
     return response()->json(['message' => __('legacy.success.reset')]);
 }
 

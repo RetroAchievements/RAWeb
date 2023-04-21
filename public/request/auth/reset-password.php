@@ -21,8 +21,9 @@ RemovePasswordResetToken($user);
 
 if (changePassword($user, $newPass)) {
     // Perform auto-login:
-    authenticateFromCookie($user, $permissions, $userDetails);
-    generateAppToken($user, $tokenInOut);
+    if (authenticateFromCookie($user, $permissions, $userDetails)) {
+        generateAppToken($user, $tokenInOut);
+    }
 
     return back()->with('success', __('legacy.success.password_change'));
 }

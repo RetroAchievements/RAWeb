@@ -191,8 +191,16 @@ function getGameMetadata(
     return $numAchievements;
 }
 
-function getGameAlternatives(int $gameID): array
+function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 {
+    $orderBy = match ($sortBy) {
+        11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
+        2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
+        12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
+        // 1 or unspecified
+        default => "ORDER BY HasAchievements DESC, gd.Title ",
+    };
+
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
               CASE
                 WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementType::OfficialCore . ") > 0 THEN 1
@@ -205,7 +213,7 @@ function getGameAlternatives(int $gameID): array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE ga.gameID = $gameID
               GROUP BY gd.ID, gd.Title
-              ORDER BY HasAchievements DESC, gd.Title";
+              $orderBy";
 
     $dbResult = s_mysql_query($query);
 
@@ -270,7 +278,10 @@ function getGamesListByDev(
 
     if ($dev != null) {
         $moreSelectCond = "SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyAchievements,
-                           SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,";
+                           SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.Points ELSE 0 END) AS MyPoints,
+                           SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
+                           SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,
+                           lbdi.MyLBs,";
         $havingCond = "HAVING MyAchievements > 0 ";
     } else {
         if ($filter == 0) { // only with achievements
@@ -288,7 +299,10 @@ function getGamesListByDev(
                 FROM GameData AS gd
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID
                 LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = " . AchievementType::OfficialCore . "
-                LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs FROM LeaderboardDef AS lbd GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
+                LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs,
+                                   SUM(CASE WHEN lbd.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyLBs
+                            FROM LeaderboardDef AS lbd
+                            GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
                 $joinTicketsTable
                 $whereCond
                 GROUP BY gd.ID
@@ -668,10 +682,10 @@ function createNewGame(string $title, int $consoleID): ?array
 function submitNewGameTitleJSON(
     string $user,
     string $md5,
-    int $gameIDin,
+    ?int $gameIDin,
     string $titleIn,
     int $consoleID,
-    string $description
+    ?string $description
 ): array {
     $unsanitizedDescription = $description;
     sanitize_sql_inputs($user, $md5, $description);

@@ -170,36 +170,6 @@ function validateUsername(string $userIn): ?string
     return null;
 }
 
-/**
- * Gets the account age in years for the input user.
- */
-function getAccountAge(string $user): int
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ua.Created
-              FROM UserAccounts AS ua
-              WHERE ua.User='$user'";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $result = mysqli_fetch_assoc($dbResult);
-    if (!$result) {
-        return 0;
-    }
-
-    $created = strtotime($result['Created']);
-    $curDate = strtotime(date('Y-m-d H:i:s'));
-    $diff = $curDate - $created;
-
-    $years = floor($diff / (365 * 60 * 60 * 24));
-
-    return (int) $years;
-}
-
 // TODO replace with created and lastLogin timestamps on user
 function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$lastLogin): bool
 {
@@ -357,8 +327,6 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
 
 function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): array
 {
-    sanitize_sql_inputs($count, $sortBy, $devFilter);
-
     $stateCond = match ($devFilter) {
         // Active
         1 => " AND ua.Permissions >= " . Permissions::Developer,
@@ -418,17 +386,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         OpenTickets ASC";
     // LIMIT 0, $count";
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    $retVal = [];
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query)->toArray();
 }
 
 function GetUserFields(string $username, array $fields): ?array

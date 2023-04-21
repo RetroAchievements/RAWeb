@@ -227,7 +227,9 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
             }
 
             if ($dataPoint['Points'] != $rankPoints) {
-                if ($rankPoints === null && $friends !== 1) {
+                if ($rankPoints === null && $friends === 0 && $type === 2 && $offset > 0) {
+                    // first rank of subsequent pages for all users / all time should be calculated
+                    // as it might be shared with users on the previous page
                     $rankType = ($unlockMode == UnlockMode::Hardcore) ? RankType::Hardcore : RankType::Softcore;
                     $rank = getUserRank($dataPoint['User'], $rankType);
                 } else {

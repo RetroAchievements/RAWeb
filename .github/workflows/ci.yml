@@ -79,3 +79,20 @@ jobs:
         run: npm install
       - name: Lint
         run: npm run lint
+
+  vitest:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+    name: vitest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install
+        run: npm install
+      - name: Test
+        run: npm run test:ci
+        env:
+          VITE_BUILD_PATH: dist
+          APP_URL: https://raweb.test
+          LARAVEL_BYPASS_ENV_CHECK: 1
