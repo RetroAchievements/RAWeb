@@ -27,7 +27,7 @@ function gameAvatar(
             $label .= renderGameTitle($title);
             if ($consoleName) {
                 $consoleID = $game['ConsoleID'] ?? 1;
-                $label .= renderGameConsole($consoleName, $consoleID);
+                $label .= renderGameConsole($consoleName, $consoleID, size: 22, avatar: true);
             }
             $label .= "</div>";
         }
@@ -91,20 +91,22 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
     return "<div>$html</div>";
 }
 
-function renderGameConsole(string $consoleName, int $consoleID): string
-{
+function renderGameConsole(
+    string $consoleName, int $consoleID, int $size, bool $avatar = false
+): string {
     $iconSrc = getConsoleIconSrc($consoleID);
+    $class = $avatar ? 'avatar' : '';
 
-    return "<div class='console'>"
-        . "<img src='$iconSrc' width='22' height='22' alt=''>"
+    return "<div class='console $class'>"
+        . "<img src='$iconSrc' width='$size' height='$size' alt=''>"
         . "<span>$consoleName</span>"
         . "</div>";
 }
 
 function getConsoleIconSrc(int $consoleID): string
 {
-    $cleanConsoleShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
-    $iconName = Str::kebab($cleanConsoleShortName);
+    $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
+    $iconName = Str::kebab($cleanSystemShortName);
 
     return asset("assets/images/system/$iconName.png");
 }

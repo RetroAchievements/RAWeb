@@ -1,16 +1,23 @@
 .console {
   display: flex;
   align-items: center;
-  margin: 0 .15em;
   padding: 0 .2em;
-  border-left: solid 2px #fff3;
   background: none;
   font-size: .8em;
 }
 
+.console.avatar {
+  margin: 0 .1em;
+  padding-left: .45em;
+  border-left: solid 2px #fff3;
+}
+
 .console > img {
   padding: .3em;
-  padding-left: .45em;
+}
+
+.console:not(.avatar) > img {
+  padding: .3em .15em;
 }
 
 .console > span {
