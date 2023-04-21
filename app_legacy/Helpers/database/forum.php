@@ -248,7 +248,7 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 
 function autoInjectShortcodes(string $originalText): string {
     $maybeModifiedText = $originalText;
-    
+
     /**
      * Mapping of URL patterns to their corresponding forum shortcodes
      * @see app/Support/Shortcode/Shortcode.php Implementation for shortcodes.
@@ -257,7 +257,7 @@ function autoInjectShortcodes(string $originalText): string {
         '#https://retroachievements\.org/user/(\w+)#' => '[user=$1]',
         '#https://retroachievements\.org/game/(\d+)#' => '[game=$1]',
         '#https://retroachievements\.org/achievement/(\d+)#' => '[ach=$1]',
-        '#https://retroachievements\.org/ticketmanager\.php\?i=(\d+)#' => '[ticket=$1]'
+        '#https://retroachievements\.org/ticketmanager\.php\?i=(\d+)#' => '[ticket=$1]',
     ];
 
     foreach ($urlToShortcodeMap as $pattern => $replacement) {
