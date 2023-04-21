@@ -91,18 +91,24 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
     return "<div>$html</div>";
 }
 
+/**
+ * Render game console with icon of specified size.
+ */
 function renderGameConsole(
     string $consoleName, int $consoleID, int $size, bool $avatar = false
 ): string {
     $iconSrc = getConsoleIconSrc($consoleID);
-    $class = $avatar ? 'avatar' : '';
+    $class = $avatar ? ' avatar' : '';
 
-    return "<div class='console $class'>"
+    return "<div class='console$class'>"
         . "<img src='$iconSrc' width='$size' height='$size' alt=''>"
         . "<span>$consoleName</span>"
         . "</div>";
 }
 
+/**
+ * Get console icon URL path based on given ID.
+ */
 function getConsoleIconSrc(int $consoleID): string
 {
     $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
