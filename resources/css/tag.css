@@ -31,24 +31,6 @@
   border-right-width: 0;
 }
 
-.tag.console {
-  opacity: 1;
-  width: fit-content;
-  padding: 0 .2em;
-  background: none;
-  border-left: solid 2px #fff3;
-}
-
-.tag.console > img {
-  padding: .3em;
-  padding-left: .45em;
-}
-
-.tag.console > span {
-  padding-left: .3em;
-  color: var(--menu-link-color);
-}
-
 .tag.missable {
   opacity: .8;
 }

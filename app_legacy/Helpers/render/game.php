@@ -95,10 +95,18 @@ function renderGameConsole(string $consoleName, int $consoleID): string
 {
     $iconSrc = getConsoleIconSrc($consoleID);
 
-    return "<div class='tag console'>"
+    return "<div class='console'>"
         . "<img src='$iconSrc' width='22' height='22' alt=''>"
         . "<span>$consoleName</span>"
         . "</div>";
+}
+
+function getConsoleIconSrc(int $consoleID): string
+{
+    $cleanConsoleShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
+    $iconName = Str::kebab($cleanConsoleShortName);
+
+    return asset("assets/images/system/$iconName.png");
 }
 
 /**
@@ -489,12 +497,4 @@ function renderCompletionIcon(
     }
 
     return "<div class='$class' title='$tooltipText'>$icon</div>";
-}
-
-function getConsoleIconSrc(int $consoleID): string
-{
-    $cleanConsoleShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
-    $iconName = Str::kebab($cleanConsoleShortName);
-
-    return asset("assets/images/system/$iconName.png");
 }
