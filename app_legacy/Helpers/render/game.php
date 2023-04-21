@@ -23,11 +23,10 @@ function gameAvatar(
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
             sanitize_outputs($title);   // sanitize before rendering HTML
 
-            $label = "<div class='inline-flex flex-col gap-0.5'>";
+            $label = "<div class='inline-flex flex-col gap-1'>";
             $label .= renderGameTitle($title);
             if ($consoleName) {
-                $consoleID = $game['ConsoleID'];
-                $label .= renderGameConsole($consoleName, $consoleID, size: 14, avatar: true);
+                $label .= "<div class='console'>$consoleName</div>";
             }
             $label .= "</div>";
         }
@@ -92,30 +91,14 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 }
 
 /**
- * Render game console with icon of specified size.
- * Font size is calculated dynamically from icon size.
+ * Render console icon based on given system ID
  */
-function renderGameConsole(
-    string $consoleName, int $consoleID, int $size, bool $avatar = false
-): string {
-    // Get console icon URL path based on given ID
-    $getConsoleIconSrc = function ($consoleID) {
-        $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
-        $iconName = Str::kebab($cleanSystemShortName);
+function renderConsoleIcon(string $consoleName, int $consoleID, int $size) {
+    $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
+    $iconName = Str::kebab($cleanSystemShortName);
 
-        return asset("assets/images/system/$iconName.png");
-    };
-
-    $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
-    $iconSrc = $getConsoleIconSrc($consoleID);
-    $class = $avatar ? ' avatar' : '';
-    $textSize = round(($avatar ? .75 : .6) * $size);
-
-    return "<div class='console$class'>"
-        . "<img src='$iconSrc' width='$size' height='$size' alt='' onerror='this.src=\"$fallBackConsoleIcon\"'>"
-        . "<span style='font-size: {$textSize}px'>$consoleName</span>"
-        . "</div>";
-}
+    return asset("assets/images/system/$iconName.png");
+};
 
 /**
  * Render game breadcrumb prefix, with optional link on last crumb
