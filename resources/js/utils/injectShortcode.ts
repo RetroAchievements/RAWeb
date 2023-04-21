@@ -23,5 +23,9 @@ export function injectShortcode(start: string, end = ''): void {
   const newText = [beforeSelectedText, start, selectedText, end, afterSelectedText].join('');
 
   commentTextarea.value = newText;
+
+  // Restore the cursor position.
+  commentTextarea.selectionStart = startPosition + start.length;
+  commentTextarea.selectionEnd = endPosition + start.length;
   commentTextarea.focus();
 }
