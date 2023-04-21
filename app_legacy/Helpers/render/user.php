@@ -152,18 +152,11 @@ function getCompletedAndIncompletedSetsCounts(array $userCompletedGamesList): ar
     $completedSetsCount = 0;
     $incompletedSetsCount = 0;
 
-    $numItems = count($userCompletedGamesList);
-    for ($i = 0; $i < $numItems; $i++) {
-        $nextMaxPossible = $userCompletedGamesList[$i]['MaxPossible'];
-        $nextNumAwarded = $userCompletedGamesList[$i]['NumAwarded'];
+    foreach ($userCompletedGamesList as $game) {
+        $nextMaxPossible = $game['MaxPossible'];
+        $nextNumAwarded = $game['NumAwarded'];
 
-        // Don't divide by 0.
-        if ($nextNumAwarded == 0 || $nextMaxPossible == 0) {
-            continue;
-        }
-
-        $pctAwardedNormal = ($nextNumAwarded / $nextMaxPossible) * 100.0;
-        if ($pctAwardedNormal == 100) {
+        if ($nextNumAwarded == $nextMaxPossible) {
             $completedSetsCount++;
         } else {
             $incompletedSetsCount++;
