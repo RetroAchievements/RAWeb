@@ -121,7 +121,10 @@ if ($v != 1 && $isFullyFeaturedGame) {
             <div class='navpath'>
                 <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
             </div>
-            <h1 class="text-h3"><?= renderGameTitle($pageTitle) ?></h1>
+            <h1 class="text-h3">
+                <?= renderGameTitle($gameTitle) ?>
+                <?= renderGameConsole($consoleName, $consoleID, size: 26) ?>
+            </h1>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
             <div id="confirmation">
