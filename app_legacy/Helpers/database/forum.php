@@ -246,11 +246,34 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
     return true;
 }
 
+function autoInjectShortcodes(string $originalText): string {
+    $maybeModifiedText = $originalText;
+    
+    /**
+     * Mapping of URL patterns to their corresponding forum shortcodes
+     * @see app/Support/Shortcode/Shortcode.php Implementation for shortcodes.
+     */
+    $urlToShortcodeMap = [
+        '#https://retroachievements\.org/user/(\w+)#' => '[user=$1]',
+        '#https://retroachievements\.org/game/(\d+)#' => '[game=$1]',
+        '#https://retroachievements\.org/achievement/(\d+)#' => '[ach=$1]',
+        '#https://retroachievements\.org/ticketmanager\.php\?i=(\d+)#' => '[ticket=$1]'
+    ];
+
+    foreach ($urlToShortcodeMap as $pattern => $replacement) {
+        $maybeModifiedText = preg_replace($pattern, $replacement, $maybeModifiedText);
+    }
+
+    return $maybeModifiedText;
+}
+
 function editTopicComment(int $commentID, string $newPayload): bool
 {
     $newPayload = str_replace("'", "''", $newPayload);
     $newPayload = str_replace("<", "&lt;", $newPayload);
     $newPayload = str_replace(">", "&gt;", $newPayload);
+
+    $newPayload = autoInjectShortcodes($newPayload);
 
     $query = "UPDATE ForumTopicComment SET Payload = '$newPayload' WHERE ID=$commentID";
 
@@ -279,6 +302,8 @@ function submitTopicComment(
     $commentPayload = str_replace("<", "&lt;", $commentPayload);
     $commentPayload = str_replace(">", "&gt;", $commentPayload);
     // $commentPayload = strip_tags( $commentPayload );
+
+    $commentPayload = autoInjectShortcodes($commentPayload);
 
     $authFlags = getUserForumPostAuth($user) ? 1 : 0;
 
