@@ -92,7 +92,7 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 }
 
 /**
- * Render game console with icon of specified size.
+ * Render game console with icon of specified size
  */
 function renderGameConsole(
     string $consoleName, int $consoleID, int $size, bool $avatar = false
@@ -107,7 +107,7 @@ function renderGameConsole(
 }
 
 /**
- * Get console icon URL path based on given ID.
+ * Get console icon URL path based on given ID
  */
 function getConsoleIconSrc(int $consoleID): string
 {

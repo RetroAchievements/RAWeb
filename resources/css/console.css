@@ -3,13 +3,17 @@
   align-items: center;
   padding: 0 .2em;
   background: none;
-  font-size: .8em;
 }
 
 .console.avatar {
   margin: 0 .1em;
   padding-left: .45em;
   border-left: solid 2px #fff3;
+  font-size: .8em;
+}
+
+.console:not(.avatar) {
+  font-size: .7em;
 }
 
 .console > img {

@@ -168,7 +168,10 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
         echo "</div>";
 
-        echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
+        echo "<h1 class='text-h3'>";
+        echo renderGameTitle("$gameTitle");
+        echo renderGameConsole($consoleName, $consoleID, size: 26);
+        echo "</h1>";
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
