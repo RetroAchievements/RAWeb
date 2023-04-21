@@ -32,14 +32,16 @@
 }
 
 .tag.console {
+  opacity: 1;
+  width: fit-content;
   padding: 0 .2em;
-  border-radius: 1em;
-  background-color: rgba(255, 255, 255, .1);
+  background: none;
+  border-left: solid 2px #fff3;
 }
 
 .tag.console > img {
-  width: 20px;
-  padding-right: .3em;
+  padding: .3em;
+  padding-left: .45em;
 }
 
 .tag.console > span {

@@ -22,7 +22,14 @@ function gameAvatar(
             $title = $game['GameTitle'] ?? $game['Title'] ?? null;
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
             sanitize_outputs($title);   // sanitize before rendering HTML
-            $label = renderGameTitle($title, console: $consoleName);
+
+            $label = "<div class='inline-flex flex-col gap-0.5'>";
+            $label .= renderGameTitle($title);
+            if ($consoleName) {
+                $consoleID = $game['ConsoleID'] ?? 1;
+                $label .= renderGameConsole($consoleName, $consoleID);
+            }
+            $label .= "</div>";
         }
 
         if ($icon === null) {
@@ -53,9 +60,7 @@ function gameAvatar(
 /**
  * Render game title, wrapping categories for styling
  */
-function renderGameTitle(
-    ?string $title = null, bool $tags = true, ?string $console = null
-): string
+function renderGameTitle(?string $title = null, bool $tags = true): string
 {
     // Update $html by appending text
     $updateHtml = function (&$html, $text, $append) {
@@ -64,15 +69,6 @@ function renderGameTitle(
 
     $title ??= '';
     $html = $title;
-
-    if ($console) {
-        $iconSrc = asset("assets/images/system/nes.png");
-        $span = "<span class='tag console'>"
-            . "<img src='$iconSrc' alt=''>"
-            . "<span>$console</span>"
-            . "</span>";
-        $html .= " $span";
-    }
 
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
@@ -92,7 +88,17 @@ function renderGameTitle(
         $updateHtml($html, $matches[0], $tags ? " $span" : '');
     }
 
-    return $html;
+    return "<div>$html</div>";
+}
+
+function renderGameConsole(string $consoleName, int $consoleID): string
+{
+    $iconSrc = getConsoleIconSrc($consoleID);
+
+    return "<div class='tag console'>"
+        . "<img src='$iconSrc' width='22' height='22' alt=''>"
+        . "<span>$consoleName</span>"
+        . "</div>";
 }
 
 /**
@@ -483,4 +489,12 @@ function renderCompletionIcon(
     }
 
     return "<div class='$class' title='$tooltipText'>$icon</div>";
+}
+
+function getConsoleIconSrc(int $consoleID): string
+{
+    $cleanConsoleShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
+    $iconName = Str::kebab($cleanConsoleShortName);
+
+    return asset("assets/images/system/$iconName.png");
 }
