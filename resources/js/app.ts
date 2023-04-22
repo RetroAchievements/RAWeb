@@ -7,7 +7,7 @@ import {
   copyToClipboard,
   handleLeaderboardTabClick,
   injectShortcode,
-  themeChange
+  themeChange,
 } from './utils';
 import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 
@@ -16,7 +16,13 @@ import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 lazyLoadModuleOnIdFound({
   elementId: 'reorder-site-awards-header',
   codeFileName: 'reorderSiteAwards',
-  moduleName: 'reorderSiteAwards',
+  moduleNameToAttachToWindow: 'reorderSiteAwards',
+});
+
+lazyLoadModuleOnIdFound({
+  elementId: 'hide-user-completed-sets-checkbox',
+  codeFileName: 'toggleUserCompletedSetsVisibility',
+  moduleNameToAttachToWindow: 'toggleUserCompletedSetsVisibility',
 });
 
 window.copyToClipboard = copyToClipboard;
