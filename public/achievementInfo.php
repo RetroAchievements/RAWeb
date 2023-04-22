@@ -171,7 +171,7 @@ RenderContentStart($pageTitle);
         echo "<h1 class='text-h3 flex items-center'>";
         echo renderConsoleIcon($consoleName, $consoleID);
         echo " <div>";
-        echo "  <span class='block'>$gameTitle</span>";
+        echo "  <span class='block'>" . renderGameTitle($gameTitle) . "</span>";
         echo "  <span class='console-name'>$consoleName</span>";
         echo " </div>";
         echo "</h1>";
