@@ -99,7 +99,16 @@ function renderConsoleIcon(string $consoleName, int $consoleID): string {
     $iconName = Str::kebab($cleanSystemShortName);
     $iconSrc = asset("assets/images/system/$iconName.png");
 
-    return "<img class='console-icon' src='$iconSrc' alt='$consoleName icon' onerror='this.src=\"$fallBackConsoleIcon\"'>";
+    return <<<HTML
+        <img class='console-icon'
+            src='$iconSrc'
+            alt='$consoleName icon'
+            onerror='this.src="$fallBackConsoleIcon"'>
+    HTML;
+}
+
+function renderGameTitleAndConsole(string $gameTitle, string $consoleName, int $consoleID): string {
+
 }
 
 /**

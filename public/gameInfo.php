@@ -121,9 +121,12 @@ if ($v != 1 && $isFullyFeaturedGame) {
             <div class='navpath'>
                 <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
             </div>
-            <h1 class="text-h3">
-                <?= renderGameTitle($gameTitle) ?>
+            <h1 class="text-h3 flex items-center">
                 <?= renderConsoleIcon($consoleName, $consoleID) ?>
+                <div>
+                    <?= renderGameTitle($gameTitle) ?>
+                    <div class='console-name'><?= $consoleName ?></div>
+                </div>
             </h1>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
@@ -683,8 +686,8 @@ sanitize_outputs(
             echo "<h1 class='text-h3 flex items-center'>";
             echo renderConsoleIcon($consoleName, $consoleID);
             echo " <div>";
-            echo "  <span class='block'>$renderedTitle</span>";
-            echo "  <span class='console-name'>$consoleName</span>";
+            echo "  <div>$renderedTitle</div>";
+            echo "  <div class='console-name'>$consoleName</div>";
             echo " </div>";
             echo "</h1>";
 

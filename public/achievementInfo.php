@@ -168,9 +168,12 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
         echo "</div>";
 
-        echo "<h1 class='text-h3'>";
-        echo renderGameTitle("$gameTitle");
-        echo renderGameConsole($consoleName, $consoleID, size: 26);
+        echo "<h1 class='text-h3 flex items-center'>";
+        echo renderConsoleIcon($consoleName, $consoleID);
+        echo " <div>";
+        echo "  <span class='block'>$gameTitle</span>";
+        echo "  <span class='console-name'>$consoleName</span>";
+        echo " </div>";
         echo "</h1>";
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';

@@ -208,8 +208,9 @@ RenderContentStart($requestedConsole . " Games");
                     echo "<br/>";
                 }
             } else {
-                echo "<h2 class='flex gap-x-2'>";
+                echo "<h2 class='flex'>";
                 echo renderConsoleIcon($consoleName, $consoleIDInput);
+                echo " <div class='console-name'>$consoleName</div>";
                 echo "</h2>";
 
                 echo "<div style='float:left'>$gamesCount Games</div>";

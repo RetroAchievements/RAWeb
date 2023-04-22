@@ -114,8 +114,9 @@ function RenderToolbar(): void
                 $systemName = $system['systemName'];
                 $listID = $system['listID'];
 
-                echo "<li><a href='/gameList.php?c=$listID' class='!flex items-center gap-x-2' >"; // the flex class needs to be forced here
-                echo renderGameConsole($systemName, $listID, size: 16);
+                echo "<li><a href='/gameList.php?c=$listID' class='!flex items-center gap-x-2'>"; // the flex class needs to be forced here
+                echo renderConsoleIcon($systemName, $listID);
+                echo "<span class='console-name'>$systemName</span>";
                 echo "</a></li>";
             }
         }
