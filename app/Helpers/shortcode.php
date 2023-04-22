@@ -326,7 +326,7 @@ function normalize_achievement_shortcodes(string $value): string
         "~\<a [^/>]*retroachievements\.org/achievement/(\d+)[^/>]*\][^</a>]*</a>~si",
         "~\[url[^\]]*retroachievements\.org/achievement/(\d+)[^\]]*\][^\[]*\[/url\]~si",
         "~https?://(?:[\w\-]+\.)?retroachievements\.org/achievement/(\d+)~si",
-        "~https?://localhost(?::\d{1,5})?/achievement/(\d+)~si",    
+        "~https?://localhost(?::\d{1,5})?/achievement/(\d+)~si",
     ];
     $replace = '[ach=$1]';
 
@@ -339,7 +339,7 @@ function normalize_ticket_shortcodes(string $value): string
         "~\<a [^/>]*retroachievements\.org/ticketmanager\.php\?i=(\d+)[^/>]*\][^</a>]*</a>~si",
         "~\[url[^\]]*retroachievements\.org/ticketmanager\.php\?i=(\d+)[^\]]*\][^\[]*\[/url\]~si",
         "~https?://(?:[\w\-]+\.)?retroachievements\.org/ticketmanager\.php\?i=(\d+)~si",
-        "~https?://localhost(?::\d{1,5})?/ticketmanager\.php\?i=(\d+)~si",    
+        "~https?://localhost(?::\d{1,5})?/ticketmanager\.php\?i=(\d+)~si",
     ];
     $replace = '[ticket=$1]';
 
