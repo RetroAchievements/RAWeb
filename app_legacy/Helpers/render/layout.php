@@ -114,9 +114,13 @@ function RenderToolbar(): void
                 $systemName = $system['systemName'];
                 $listID = $system['listID'];
 
+                $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listID.name_short")));
+                $iconName = Str::kebab($cleanSystemShortName);
+                $iconSrc = asset("assets/images/system/$iconName.png");
+
                 echo "<li><a href='/gameList.php?c=$listID' class='!flex items-center gap-x-2'>"; // the flex class needs to be forced here
-                echo renderConsoleIcon($systemName, $listID);
-                echo "<span class='console-name'>$systemName</span>";
+                echo " <img src='$iconSrc' width='16' height='16' alt='$systemName icon'>";
+                echo " <span class='console-name' style='font-size: 1em'>$systemName</span>";
                 echo "</a></li>";
             }
         }
