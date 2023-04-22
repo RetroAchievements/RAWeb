@@ -41,7 +41,10 @@ export default defineConfig(({ mode }) => {
         '@': resolve(__dirname, './resources/js'),
       },
     },
-    test: {},
+    test: {
+      environment: 'jsdom',
+      setupFiles: 'resources/js/setupTests.ts'
+    },
     // @ see https://vitejs.dev/config/#server-options
     server: detectServerConfig(env),
   };

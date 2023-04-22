@@ -91,60 +91,193 @@ function getGameRankAndScore(int $gameID, string $username): array
     return legacyDbFetchAll($query, ['username' => $username])->toArray();
 }
 
-function getUserProgress(string $user, string $gameIDsCSV): array
+function getUserProgress(string $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
 {
-    if (empty($gameIDsCSV) || !isValidUsername($user)) {
-        return [];
-    }
+    $libraryOut = [];
 
-    // Create null entries so that we pass 'something' back.
-    $gameIDsArray = explode(',', $gameIDsCSV);
-    $gameIDs = [];
-    foreach ($gameIDsArray as $gameID) {
-        $gameID = (int) $gameID;
-        $dataOut[$gameID]['NumPossibleAchievements'] = 0;
-        $dataOut[$gameID]['PossibleScore'] = 0;
-        $dataOut[$gameID]['NumAchieved'] = 0;
-        $dataOut[$gameID]['ScoreAchieved'] = 0;
-        $dataOut[$gameID]['NumAchievedHardcore'] = 0;
-        $dataOut[$gameID]['ScoreAchievedHardcore'] = 0;
-        $gameIDs[] = $gameID;
-    }
-    $gameIDs = implode(',', $gameIDs);
+    $awardedData = [];
+    $gameInfo = [];
+    $unlockedAchievements = [];
+    $lockedAchievements = [];
 
-    // Count num possible achievements
-    $query = "SELECT GameID, COUNT(*) AS AchCount, SUM(ach.Points) AS PointCount FROM Achievements AS ach
-              WHERE ach.Flags = " . AchievementType::OfficialCore . " AND ach.GameID IN ( $gameIDs )
-              GROUP BY ach.GameID
-              HAVING COUNT(*)>0 ";
+    foreach ($gameIDs as $gameID) {
+        $numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData);
 
-    $dbResult = legacyDbFetchAll($query);
-    foreach ($dbResult as $data) {
-        $dataOut[$data['GameID']]['NumPossibleAchievements'] = $data['AchCount'];
-        $dataOut[$data['GameID']]['PossibleScore'] = $data['PointCount'];
-    }
+        $possibleScore = 0;
+        $numAchieved = 0;
+        $scoreAchieved = 0;
+        $numAchievedHardcore = 0;
+        $scoreAchievedHardcore = 0;
 
-    // Foreach return value from this, cross-reference with 'earned' achievements. If not found, assume 0.
-    // Count earned achievements
-    $query = "SELECT GameID, COUNT(*) AS AchCount, SUM( ach.Points ) AS PointCount, aw.HardcoreMode
-              FROM Awarded AS aw
-              LEFT JOIN Achievements AS ach ON aw.AchievementID = ach.ID
-              WHERE ach.GameID IN ( $gameIDs ) AND ach.Flags = " . AchievementType::OfficialCore . "
-              AND aw.User = :username
-              GROUP BY aw.HardcoreMode, ach.GameID";
+        foreach ($achievementData as $achievement) {
+            $points = $achievement['Points'];
+            $possibleScore += $points;
 
-    $dbResult = legacyDbFetchAll($query, ['username' => $user]);
-    foreach ($dbResult as $data) {
-        if ($data['HardcoreMode'] == 0) {
-            $dataOut[$data['GameID']]['NumAchieved'] = $data['AchCount'];
-            $dataOut[$data['GameID']]['ScoreAchieved'] = $data['PointCount'];
-        } else {
-            $dataOut[$data['GameID']]['NumAchievedHardcore'] = $data['AchCount'];
-            $dataOut[$data['GameID']]['ScoreAchievedHardcore'] = $data['PointCount'];
+            $dateEarned = $achievement['DateEarned'] ?? null;
+            $dateEarnedHardcore = $achievement['DateEarnedHardcore'] ?? null;
+
+            if ($dateEarned !== null) {
+                $numAchieved++;
+                $scoreAchieved += $points;
+            }
+
+            if ($dateEarnedHardcore !== null) {
+                $numAchievedHardcore++;
+                $scoreAchievedHardcore += $points;
+            }
+
+            if ($numRecentAchievements >= 0) {
+                if ($dateEarnedHardcore !== null) {
+                    $unlockedAchievements[] = [
+                        'Achievement' => $achievement,
+                        'When' => $dateEarnedHardcore,
+                        'Hardcore' => 1,
+                        'Game' => $gameData,
+                    ];
+                } elseif ($dateEarned !== null) {
+                    $unlockedAchievements[] = [
+                        'Achievement' => $achievement,
+                        'When' => $dateEarned,
+                        'Hardcore' => 0,
+                        'Game' => $gameData,
+                    ];
+                } else {
+                    $lockedAchievements[] = [
+                        'Achievement' => $achievement,
+                        'Game' => $gameData,
+                    ];
+                }
+            }
+        }
+
+        $awardedData[$gameID] = [
+            'NumPossibleAchievements' => $numAchievements,
+            'PossibleScore' => $possibleScore,
+            'NumAchieved' => $numAchieved,
+            'ScoreAchieved' => $scoreAchieved,
+            'NumAchievedHardcore' => $numAchievedHardcore,
+            'ScoreAchievedHardcore' => $scoreAchievedHardcore,
+        ];
+
+        if ($withGameInfo) {
+            $gameInfo[$gameID] = [
+                'ID' => (int) $gameData['ID'],
+                'Title' => $gameData['Title'],
+                'ConsoleID' => (int) $gameData['ConsoleID'],
+                'ConsoleName' => $gameData['ConsoleName'],
+                'ForumTopicID' => (int) $gameData['ForumTopicID'],
+                'Flags' => (int) $gameData['Flags'],
+                'ImageIcon' => $gameData['ImageIcon'],
+                'ImageTitle' => $gameData['ImageTitle'],
+                'ImageIngame' => $gameData['ImageIngame'],
+                'ImageBoxArt' => $gameData['ImageBoxArt'],
+                'Publisher' => $gameData['Publisher'],
+                'Developer' => $gameData['Developer'],
+                'Genre' => $gameData['Genre'],
+                'Released' => $gameData['Released'],
+                'IsFinal' => (int) $gameData['IsFinal'],
+            ];
         }
     }
+    $libraryOut['Awarded'] = $awardedData;
 
-    return $dataOut;
+    if ($withGameInfo) {
+        $libraryOut['GameInfo'] = $gameInfo;
+    }
+
+    if ($numRecentAchievements >= 0) {
+        usort($unlockedAchievements, function ($a, $b) {
+            if ($a['When'] == $b['When'])
+                return $a['Achievement']['ID'] <=> $b['Achievement']['ID'];
+
+            return -($a['When'] <=> $b['When']);
+        });
+
+        if ($numRecentAchievements !== 0) {
+            $unlockedAchievements = array_slice($unlockedAchievements, 0, $numRecentAchievements);
+        }
+
+        $recentAchievements = [];
+
+        foreach ($unlockedAchievements as $unlockedAchievement) {
+            $gameData = $unlockedAchievement['Game'];
+            $gameID = (int) $gameData['ID'];
+            $achievementData = $unlockedAchievement['Achievement'];
+            $achievementID = (int) $achievementData['ID'];
+
+            $recentAchievements[$gameID][$achievementID] = [
+                'ID' => $achievementID,
+                'GameID' => $gameID,
+                'GameTitle' => $gameData['Title'],
+                'Title' => $achievementData['Title'],
+                'Description' => $achievementData['Description'],
+                'Points' => (int) $achievementData['Points'],
+                'BadgeName' => $achievementData['BadgeName'],
+                'IsAwarded' => '1',
+                'DateAwarded' => $unlockedAchievement['When'],
+                'HardcoreAchieved' => (int) $unlockedAchievement['Hardcore'],
+            ];
+        }
+
+        foreach ($lockedAchievements as $lockedAchievement) {
+            $gameData = $lockedAchievement['Game'];
+            $gameID = (int) $gameData['ID'];
+            $achievementData = $lockedAchievement['Achievement'];
+            $achievementID = (int) $achievementData['ID'];
+
+            $recentAchievements[$gameID][$achievementID] = [
+                'ID' => $achievementID,
+                'GameID' => $gameID,
+                'GameTitle' => $gameData['Title'],
+                'Title' => $achievementData['Title'],
+                'Description' => $achievementData['Description'],
+                'Points' => (int) $achievementData['Points'],
+                'BadgeName' => $achievementData['BadgeName'],
+                'IsAwarded' => '0',
+                'DateAwarded' => null,
+                'HardcoreAchieved' => null,
+            ];
+        }
+
+        $libraryOut['RecentAchievements'] = $recentAchievements;
+    }
+
+    return $libraryOut;
+}
+
+function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
+{
+    Cache::forget("user:$user:gameUnlocks:$gameID:" . AchievementType::OfficialCore);
+    Cache::forget("user:$user:gameUnlocks:$gameID:" . AchievementType::Unofficial);
+}
+
+function getUserAchievementUnlocksForGame(string $user, int $gameID, int $flags = AchievementType::OfficialCore): array
+{
+    return Cache::remember("user:$user:gameUnlocks:$gameID:$flags",
+        Carbon::now()->addDays(7),
+        function () use ($user, $gameID, $flags) {
+            $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
+                      FROM Awarded AS aw
+                      LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                      WHERE ach.GameID = :gameId AND ach.Flags = :achievementType AND aw.User = :username";
+
+            $userUnlocks = legacyDbFetchAll($query, [
+                'gameId' => $gameID,
+                'achievementType' => $flags,
+                'username' => $user,
+            ]);
+
+            $achievementUnlocks = [];
+            foreach ($userUnlocks as $userUnlock) {
+                if ($userUnlock['HardcoreMode'] == UnlockMode::Hardcore) {
+                    $achievementUnlocks[$userUnlock['ID']]['DateEarnedHardcore'] = $userUnlock['Date'];
+                } else {
+                    $achievementUnlocks[$userUnlock['ID']]['DateEarned'] = $userUnlock['Date'];
+                }
+            }
+
+            return $achievementUnlocks;
+        });
 }
 
 function GetAllUserProgress(string $user, int $consoleID): array
@@ -380,7 +513,7 @@ function getGameTopAchievers(int $gameID): array
                   AND gd.ID = $gameID
                   AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
                 GROUP BY aw.User
-                ORDER BY TotalScore DESC, LastAward";
+                ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
 
     $mastersCounter = 0;
     foreach (legacyDbFetchAll($query) as $data) {

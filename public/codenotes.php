@@ -128,7 +128,10 @@ function saveCodeNote(rowIndex) {
 
     showStatusMessage('Updating...');
     $.post('/request/game/update-code-note.php', {
-        note: noteEditEl.value,
+        // Make sure line endings are normalized to "\r\n" before storing in the DB.
+        // Otherwise they'll look correct in the web UI, but won't look correct
+        // in the RAIntegration tooling.
+        note: noteEditEl.value.replace(/\n/g, '\r\n'),
         // Addresses are stored as base 10 numbers in the DB, not base 16.
         address: parseInt(addressHex, 16),
         gameId: <?= $gameID ?>,

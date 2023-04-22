@@ -371,9 +371,9 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
     }
 }
 
-function RenderRecentGamePlayers(array $recentPlayerData): void
+function RenderRecentGamePlayers(array $recentPlayerData, string $gameTitle): void
 {
-    echo "<div class='component'>Recent Players:";
+    echo "<div class='component overflow-x-auto sm:overflow-x-hidden'>Recent Players:";
     echo "<table class='table-highlight'><tbody>";
     echo "<tr><th></th><th>User</th><th>When</th><th class='w-full'>Activity</th>";
     foreach ($recentPlayerData as $recentPlayer) {
@@ -385,6 +385,18 @@ function RenderRecentGamePlayers(array $recentPlayerData): void
             $userName,
             $activity
         );
+
+        // Check if $activity contains a message about an "Unknown macro", and
+        // if so, strip the RP and replace it with an outdated emulator warning.
+        if (mb_strpos($activity, 'Unknown macro') !== false) {
+            $activity = <<<HTML
+                <div class="cursor-help" title="$activity">
+                    <span>⚠️</span>
+                    <span>Playing $gameTitle</span>
+                </div>
+            HTML;
+        }
+
         echo "<td>";
         echo userAvatar($userName, label: false);
         echo "</td>";
