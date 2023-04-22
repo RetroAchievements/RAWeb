@@ -61,24 +61,28 @@ function recalculatePlayerPoints(string $user): bool
 
 function countRankedUsers(int $type = RankType::Hardcore): int
 {
-    $query = "SELECT COUNT(*) AS count FROM UserAccounts ";
-    switch ($type) {
-        case RankType::Hardcore:
-            $query .= "WHERE RAPoints >= " . Rank::MIN_POINTS;
-            break;
+    return Cache::remember("rankedUserCount:$type",
+        60, // expire once a minute
+        function () use ($type) {
+            $query = "SELECT COUNT(*) AS count FROM UserAccounts ";
+            switch ($type) {
+                case RankType::Hardcore:
+                    $query .= "WHERE RAPoints >= " . Rank::MIN_POINTS;
+                    break;
 
-        case RankType::Softcore:
-            $query .= "WHERE RASoftcorePoints >= " . Rank::MIN_POINTS;
-            break;
+                case RankType::Softcore:
+                    $query .= "WHERE RASoftcorePoints >= " . Rank::MIN_POINTS;
+                    break;
 
-        case RankType::TruePoints:
-            $query .= "WHERE TrueRAPoints >= " . Rank::MIN_TRUE_POINTS;
-            break;
-    }
+                case RankType::TruePoints:
+                    $query .= "WHERE TrueRAPoints >= " . Rank::MIN_TRUE_POINTS;
+                    break;
+            }
 
-    $query .= " AND NOT Untracked";
+            $query .= " AND NOT Untracked";
 
-    return (int) legacyDbFetch($query)['count'];
+            return (int) legacyDbFetch($query)['count'];
+        });
 }
 
 function getTopUsersByScore(int $count): array
