@@ -516,7 +516,7 @@ function getGameTopAchievers(int $gameID): array
                   AND gd.ID = $gameID
                   AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
                 GROUP BY aw.User
-                ORDER BY TotalScore DESC, LastAward";
+                ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
 
     $dbResult = s_mysql_query($query);
 

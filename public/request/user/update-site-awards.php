@@ -8,26 +8,48 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
+Validator::extend('awards_csv_format', function ($attribute, $value) {
+    $pattern = '/^(\d+,\d+,\d+,-?\d+)(\|\d+,\d+,\d+,-?\d+)*$/';
+
+    return preg_match($pattern, $value);
+}, 'The :attribute must contain groups of 4 comma-separated integers, with the 4th value allowing a negative integer.');
+
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'awards.*' => ['required', 'string', 'regex:/^(\d+),(\d+),(\d+),(-?\d+)$/'],
-], [
-    'awards.*.regex' => 'The :attribute must be 4 comma-separated integers, with the 4th value allowing a negative integer.',
+    'hiddenAwards' => ['nullable', 'string', 'awards_csv_format'],
+    'sortedAwards' => ['nullable', 'string', 'awards_csv_format'],
 ]);
 
-$compressedAwards = $input['awards'];
+$hiddenCsv = $input['hiddenAwards'];
+$sortedCsv = $input['sortedAwards'];
 
 // The awards this endpoint receives are compressed to save on variable space.
-// Before doing any more work, we'll decompress the awards.
-$awards = array_map(function ($award) {
-    $decoded = explode(',', $award);
+// This function is responsible for decompressing/parsing the awards.
+$parseCsv = function ($csv) {
+    if (empty($csv)) {
+        return [];
+    }
 
-    return [
-        'type' => intval($decoded[0]),
-        'data' => intval($decoded[1]),
-        'extra' => intval($decoded[2]),
-        'number' => intval($decoded[3]),
-    ];
-}, $compressedAwards);
+    $awardStrings = explode('|', $csv);
+    $awards = [];
+
+    foreach ($awardStrings as $awardString) {
+        $decoded = explode(',', $awardString);
+
+        $awards[] = [
+            'type' => intval($decoded[0]),
+            'data' => intval($decoded[1]),
+            'extra' => intval($decoded[2]),
+            'number' => intval($decoded[3]),
+        ];
+    }
+
+    return $awards;
+};
+
+$hiddenAwards = $parseCsv($hiddenCsv);
+$sortedAwards = $parseCsv($sortedCsv);
+
+$awards = array_merge($hiddenAwards, $sortedAwards);
 
 foreach ($awards as $award) {
     $awardType = $award['type'];
