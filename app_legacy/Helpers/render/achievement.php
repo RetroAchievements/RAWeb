@@ -50,7 +50,7 @@ function achievementAvatar(
         label: $label !== false && ($label || !$icon) ? $label : null,
         link: route('achievement.show', $id),
         tooltip: is_array($tooltip)
-            ? renderAchievementCard($tooltip, shouldForceLockedImage: str_contains($icon, '_lock'))
+            ? renderAchievementCard($tooltip, iconUrl: $icon)
             : $tooltip,
         iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
         iconSize: $iconSize,
@@ -81,7 +81,7 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
     return trim(str_replace('[m]', $span, $title));
 }
 
-function renderAchievementCard(int|string|array $achievement, ?string $context = null, bool $shouldForceLockedImage = false): string
+function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
 {
     $id = is_int($achievement) || is_string($achievement) ? (int) $achievement : ($achievement['AchievementID'] ?? $achievement['ID'] ?? null);
 
@@ -103,7 +103,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
     $unlock = $data['Unlock'] ?? null;
-    $badgeImgSrc = media_asset("Badge/{$badgeName}" . ($shouldForceLockedImage ? '_lock' : '') . ".png");
+    $badgeImgSrc = $iconUrl ?? media_asset("Badge/{$badgeName}.png");
     $gameTitle = renderGameTitle($data['GameTitle'] ?? null);
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
