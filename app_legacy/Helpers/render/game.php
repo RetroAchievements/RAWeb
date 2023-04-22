@@ -23,7 +23,7 @@ function gameAvatar(
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
             sanitize_outputs($title);   // sanitize before rendering HTML
 
-            $label = "<div class='inline-flex flex-col gap-1'>";
+            $label = "<div class='flex flex-col items-start gap-1'>";
             $label .= renderGameTitle($title);
             if ($consoleName) {
                 $label .= "<div class='console-name'>$consoleName</div>";
