@@ -26,7 +26,7 @@ function gameAvatar(
             $label = "<div class='inline-flex flex-col gap-1'>";
             $label .= renderGameTitle($title);
             if ($consoleName) {
-                $label .= "<div class='console'>$consoleName</div>";
+                $label .= "<div class='console-name'>$consoleName</div>";
             }
             $label .= "</div>";
         }
@@ -93,12 +93,14 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 /**
  * Render console icon based on given system ID
  */
-function renderConsoleIcon(string $consoleName, int $consoleID, int $size) {
+function renderConsoleIcon(string $consoleName, int $consoleID): string {
+    $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
     $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
     $iconName = Str::kebab($cleanSystemShortName);
+    $iconSrc = asset("assets/images/system/$iconName.png");
 
-    return asset("assets/images/system/$iconName.png");
-};
+    return "<img class='console-icon' src='$iconSrc' alt='$consoleName icon' onerror='this.src=\"$fallBackConsoleIcon\"'>";
+}
 
 /**
  * Render game breadcrumb prefix, with optional link on last crumb

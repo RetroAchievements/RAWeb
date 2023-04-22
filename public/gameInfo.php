@@ -123,7 +123,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
             </div>
             <h1 class="text-h3">
                 <?= renderGameTitle($gameTitle) ?>
-                <?= renderGameConsole($consoleName, $consoleID, size: 26) ?>
+                <?= renderConsoleIcon($consoleName, $consoleID) ?>
             </h1>
             <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
@@ -680,9 +680,12 @@ sanitize_outputs(
             $pageTitleAttr = attributeEscape($pageTitle);
             // $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
 
-            echo "<h1 class='text-h3'>";
-            echo " <span class='block'>$renderedTitle</span>";
-            echo renderGameConsole($consoleName, $consoleID, size: 26);
+            echo "<h1 class='text-h3 flex items-center'>";
+            echo renderConsoleIcon($consoleName, $consoleID);
+            echo " <div>";
+            echo "  <span class='block'>$renderedTitle</span>";
+            echo "  <span class='console-name'>$consoleName</span>";
+            echo " </div>";
             echo "</h1>";
 
             echo "<div class='flex flex-col sm:flex-row sm:w-full gap-x-4 gap-y-2 items-center mb-4'>";

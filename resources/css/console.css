@@ -1,19 +1,12 @@
-.console {
-  display: flex;
-  align-items: center;
-  background: none;
-}
-
-.console.avatar {
+.console-name {
   margin-left: .05em;
-  border-left: solid 2px #fff3;
-}
-
-.console > img {
-  padding: .15em 0;
-  margin: 0 .5em;
-}
-
-.console > span {
   color: var(--menu-link-color);
+  font-size: .8em;
+}
+
+.console-icon {
+  margin: 0 .5em;
+  object-fit: cover;
+  height: 36px;
+  image-rendering: pixelated;
 }
