@@ -26,7 +26,11 @@ function RenderActivePlayersComponent(): void
                         <tr>
                             <td data-bind='html: playerHtml'></td>
                             <td data-bind='html: gameHtml'></td>
-                            <td data-bind='text: richPresence' class="w-full" style="word-break: normal; overflow-wrap: anywhere;"></td>
+                            <td 
+                                data-bind="text: richPresenceDisplay, conditionalTitle: {richPresence}, conditionalClass: {richPresence, className: 'cursor-help'}"
+                                class="w-full"
+                                style="word-break: normal; overflow-wrap: anywhere;"
+                            ></td>
                         </tr>
                         <!-- /ko -->
 
