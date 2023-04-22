@@ -54,6 +54,7 @@ If you imported or prepared any data prior you can update the sync_status to sav
 ```sql
 UPDATE sync_status SET reference = '2023-02-01 00:00:00' WHERE kind = 'leaderboard_entries';
 UPDATE sync_status SET reference = '2023-02-01 00:00:00' WHERE kind = 'player_achievements';
+UPDATE sync_status SET reference = '2023-02-01 00:00:00' WHERE kind = 'player_games';
 ```
 
 Run sync commands:

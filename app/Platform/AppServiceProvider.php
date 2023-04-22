@@ -15,6 +15,7 @@ use App\Platform\Commands\SyncLeaderboards;
 use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerAchievements;
 use App\Platform\Commands\SyncPlayerBadges;
+use App\Platform\Commands\SyncPlayerGames;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAllAchievementsMetrics;
@@ -42,10 +43,8 @@ use App\Platform\Models\GameSet;
 use App\Platform\Models\GameSetGame;
 use App\Platform\Models\IntegrationRelease;
 use App\Platform\Models\Leaderboard;
-use App\Platform\Models\LeaderboardEntry;
 use App\Platform\Models\LeaderboardEntryLegacy;
 use App\Platform\Models\MemoryNote;
-use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerBadgeStage;
@@ -100,6 +99,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncLeaderboardEntries::class,
                 SyncMemoryNotes::class,
                 SyncPlayerAchievements::class,
+                SyncPlayerGames::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,
                 SyncGameHashes::class,

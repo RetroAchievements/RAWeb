@@ -22,6 +22,7 @@ use App\Platform\Models\MemoryNote;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
+use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
 use App\Site\Models\User;
@@ -315,7 +316,24 @@ return [
             'strategy' => SyncStrategy::UPSERT,
             'reference_model' => PlayerAchievementLegacy::class,
             'reference_key' => 'Date',
-            'unique_key' => 'id',
+            'unique_key' => ['user_id', 'achievement_id'],
+            'require' => [
+            ],
+            'map' => [
+                /* no map. everything is handled in preProcessEntity */
+            ],
+        ],
+
+        /*
+         * syncing from Activity (type 3 = started playing) is too expensive
+         * sync from player achievements instead
+         */
+        'player_games' => [
+            'model' => PlayerGame::class,
+            'strategy' => SyncStrategy::UPSERT,
+            'reference_model' => PlayerAchievement::class,
+            'reference_key' => PlayerAchievement::CREATED_AT,
+            'unique_key' => ['user_id', 'game_id'],
             'require' => [
             ],
             'map' => [

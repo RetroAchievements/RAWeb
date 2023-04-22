@@ -71,6 +71,10 @@ class UpdatePlayerGameMetricsAction
             ? min($firstUnlockAt, $playerGame->created_at)
             : $firstUnlockAt;
 
+        $createdAt = $playerGame->created_at !== null
+            ? $playerGame->created_at
+            : $startedAt;
+
         $lastPlayedAt = $playerAchievements->pluck('unlocked_at')
             ->merge($playerAchievementsHardcore->pluck('unlocked_hardcore_at'))
             ->add($playerGame->last_played_at)
@@ -102,6 +106,7 @@ class UpdatePlayerGameMetricsAction
             'points' => $points,
             'points_weighted_total' => $pointsWeightedTotal,
             'points_weighted' => $pointsWeighted,
+            'created_at' => $createdAt,
         ];
 
         $playerGame->update($metrics);

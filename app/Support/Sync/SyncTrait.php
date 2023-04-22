@@ -50,7 +50,7 @@ trait SyncTrait
     /**
      * @throws Exception
      */
-    protected function sync(string $kind, bool $direct = false): void
+    protected function sync(string $kind): void
     {
         $this->kind($kind);
 
@@ -63,48 +63,6 @@ trait SyncTrait
             }
         }
 
-        if ($direct) {
-            $this->directSync();
-
-            return;
-        }
-
-        $this->incrementalSync($syncTime);
-    }
-
-    protected function directSync(): void
-    {
-        $start = microtime(true);
-
-        $message = 'Syncing ' . $this->kind . ' directly to table "' . $this->table . '" (no pre-/post-processing)';
-        $this->line($message);
-
-        $targetFields = collect($this->keyMap)->pluck('key')->map(fn ($key) => '`' . $key . '`')->implode(',');
-        $sourceFields = collect($this->keyMap)->keys()->map(fn ($key) => $this->referenceTable . '.`' . $key . '`')->implode(',');
-
-        dump($targetFields);
-        dump($sourceFields);
-
-        $this->model->getConnection()->getPdo()->exec(
-            "INSERT IGNORE INTO {$this->table} ($targetFields)
-                SELECT $sourceFields
-                FROM {$this->referenceTable}
-            "
-        );
-        // ON DUPLICATE KEY UPDATE
-        //             username = LOWER(ua . User), display_name = ua . User, `password` = ua . `Password`, created_at = ua . Created
-
-        $entitiesStoredTotal = 0;
-
-        $time_elapsed_secs = microtime(true) - $start;
-        $message = 'Synced all ' . $this->kind . ' entities '
-            . 'directly '
-            . 'in ' . $time_elapsed_secs . ' seconds';
-        $this->info($message);
-    }
-
-    protected function incrementalSync(Carbon $syncTime): void
-    {
         $start = microtime(true);
 
         $message = 'Syncing ' . $this->kind . ' older than ' . $syncTime . ' with ' . $this->strategy . ' strategy';
@@ -203,7 +161,7 @@ trait SyncTrait
         }
 
         if ($entitiesSkippedTotal) {
-            $message = ' ' . number_format($entitiesSkippedTotal) . ' ' . $this->kind . ' entities could not be synced.';
+            $message = ' ' . number_format($entitiesSkippedTotal) . ' ' . $this->kind . ' entities were skipped.';
             $this->info($message);
             Log::debug($message);
         }
@@ -345,7 +303,8 @@ trait SyncTrait
             ->mapWithKeys(function ($value, $key) {
                 if ($key == 'user_id') {
                     $value = $this->getUserId($value);
-                } elseif ($this->keyMap[$key]['fixEncoding'] ?? false) {
+                }
+                if ($this->keyMap[$key]['fixEncoding'] ?? false) {
                     $value = $this->fixEncoding($value);
                 }
 
@@ -450,12 +409,9 @@ trait SyncTrait
     private function storeByStrategy(array $data): void
     {
         switch ($this->strategy) {
-            // case SyncStrategy::INSERT_IGNORE:
-            //     $this->model->getConnection()->table($this->model->getTable())->insertIgnore($data, $this->uniqueKey);
-            //     break;
-            // case SyncStrategy::REPLACE:
-            //     $this->model->getConnection()->table($this->model->getTable())->replace($data);
-            //     break;
+            case SyncStrategy::INSERT_IGNORE:
+                $this->model->getConnection()->table($this->model->getTable())->insertOrIgnore($data);
+                break;
             case SyncStrategy::UPSERT:
             default:
                 $this->model->getConnection()->table($this->model->getTable())->upsert($data, $this->uniqueKey);
@@ -589,7 +545,6 @@ trait SyncTrait
             $user = User::where('User', Str::lower($username))->first();
             if (!$user) {
                 $this->userIds[$username] = 0;
-                $this->warn("unknown user: {$username}");
 
                 return null;
             }
