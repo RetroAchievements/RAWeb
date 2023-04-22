@@ -65,6 +65,9 @@ class ResetPlayerAchievementAction
 
             // force the top achievers for the game to be recalculated
             expireGameTopAchievers($affectedGameID);
+
+            // expire the cached unlocks for the game for the user
+            expireUserAchievementUnlocksForGame($user->User, $affectedGameID);
         }
 
         $user->save();
