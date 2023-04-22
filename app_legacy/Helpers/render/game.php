@@ -107,10 +107,6 @@ function renderConsoleIcon(string $consoleName, int $consoleID): string {
     HTML;
 }
 
-function renderGameTitleAndConsole(string $gameTitle, string $consoleName, int $consoleID): string {
-
-}
-
 /**
  * Render game breadcrumb prefix, with optional link on last crumb
  *
