@@ -147,23 +147,45 @@ function renderUserCard(string|array $user): string
     return $tooltip;
 }
 
+function getCompletedAndIncompletedSetsCounts(array $userCompletedGamesList): array
+{
+    $completedSetsCount = 0;
+    $incompletedSetsCount = 0;
+
+    foreach ($userCompletedGamesList as $game) {
+        $nextMaxPossible = $game['MaxPossible'];
+        $nextNumAwarded = $game['NumAwarded'];
+
+        if ($nextNumAwarded == $nextMaxPossible) {
+            $completedSetsCount++;
+        } else {
+            $incompletedSetsCount++;
+        }
+    }
+
+    return ['completedSetsCount' => $completedSetsCount, 'incompletedSetsCount' => $incompletedSetsCount];
+}
+
 function RenderCompletedGamesList(array $userCompletedGamesList): void
 {
     echo "<div id='completedgames' class='component' >";
 
     echo "<h3>Completion Progress</h3>";
 
-    echo <<<HTML
-        <label class="flex items-center gap-x-1 mb-2">
-            <input 
-                type="checkbox" 
-                id="hide-user-completed-sets-checkbox" 
-                onchange="toggleUserCompletedSetsVisibility.toggleUserCompletedSetsVisibility()"
-            >
-                Hide completed sets
-            </input>
-        </label>
-    HTML;
+    $setsCounts = getCompletedAndIncompletedSetsCounts($userCompletedGamesList);
+    if ($setsCounts['completedSetsCount'] > 0 && $setsCounts['incompletedSetsCount'] > 0) {
+        echo <<<HTML
+            <label class="flex items-center gap-x-1 mb-2">
+                <input 
+                    type="checkbox" 
+                    id="hide-user-completed-sets-checkbox" 
+                    onchange="toggleUserCompletedSetsVisibility.toggleUserCompletedSetsVisibility()"
+                >
+                    Hide completed sets
+                </input>
+            </label>
+        HTML;
+    }
 
     echo "<div id='usercompletedgamescomponent'>";
 
