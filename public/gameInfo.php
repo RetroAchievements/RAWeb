@@ -1367,7 +1367,7 @@ sanitize_outputs(
             if ($isFullyFeaturedGame) {
                 $recentPlayerData = getGameRecentPlayers($gameID, 10);
                 if (!empty($recentPlayerData)) {
-                    RenderRecentGamePlayers($recentPlayerData);
+                    RenderRecentGamePlayers($recentPlayerData, $gameTitle);
                 }
 
                 RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\PlayerAchievement;
+use LegacyApp\Platform\Models\System;
 use Tests\TestCase;
 
 class UserProgressTest extends TestCase
@@ -24,16 +25,18 @@ class UserProgressTest extends TestCase
 
     public function testGetUserProgress(): void
     {
+        /** @var System $system */
+        $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create();
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
         PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(0)->ID, 'User' => $this->user->User]);
         PlayerAchievement::factory()->create(['AchievementID' => $publishedAchievements->get(1)->ID, 'User' => $this->user->User]);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create();
+        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->ID]);
         /** @var Game $game3 */
-        $game3 = Game::factory()->create();
+        $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
 
         $csv = $game->ID . ',' . $game2->ID . ',' . $game3->ID . ',15934';
 
