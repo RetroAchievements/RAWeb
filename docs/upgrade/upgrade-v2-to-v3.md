@@ -60,7 +60,7 @@ UPDATE sync_status SET reference = '2023-02-01 00:00:00' WHERE kind = 'player_ga
 Run sync commands:
 
 ```shell
-# TODO
-php artisan ra:platform:...
-php artisan ra:sync:...
+php artisan ra:sync:leaderboard-entries
+php artisan ra:sync:player-achievements
+php artisan ra:sync:player-games
 ```
