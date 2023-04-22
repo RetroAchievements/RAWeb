@@ -65,14 +65,18 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?strin
         'achievementType' => AchievementType::OfficialCore,
     ];
 
-    $query = "SELECT aw.Date, aw.HardcoreMode, ach.ID AS AchievementID, ach.Title, ach.Description, ach.BadgeName, ach.Points, ach.Author, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID, c.Name AS ConsoleName
+    $query = "SELECT aw.Date, aw.HardcoreMode,
+                     ach.ID AS AchievementID, ach.Title, ach.Description,
+                     ach.BadgeName, ach.Points, ach.Author,
+                     gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID,
+                     c.Name AS ConsoleName
               FROM Awarded AS aw
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE User = :username AND ach.Flags = :achievementType
               AND Date BETWEEN :dateStart AND :dateEnd
-              ORDER BY aw.Date
+              ORDER BY aw.Date, aw.HardcoreMode DESC
               LIMIT 500";
 
     $cumulativeScore = 0;
@@ -81,6 +85,11 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?strin
         ->map(function ($entry) use (&$cumulativeScore) {
             $cumulativeScore += (int) $entry['Points'];
             $entry['CumulScore'] = $cumulativeScore;
+
+            settype($entry['AchievementID'], 'integer');
+            settype($entry['Points'], 'integer');
+            settype($entry['HardcoreMode'], 'integer');
+            settype($entry['GameID'], 'integer');
 
             return $entry;
         })
