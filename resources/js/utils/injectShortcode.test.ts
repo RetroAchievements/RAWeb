@@ -23,7 +23,7 @@ describe('Util: injectShortcode', () => {
     expect(screen.getByRole('button', { name: /insert shortcode/i })).toBeVisible();
   });
 
-  it('given the user has no cursor position and no text selection', async () => {
+  it('given the user has no cursor position and no text selection, can insert a shortcode', async () => {
     // ARRANGE
     render('[shortcode]', '[/shortcode]');
 
