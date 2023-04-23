@@ -74,9 +74,11 @@ foreach ($awards as $award) {
 }
 
 $userAwards = getUsersSiteAwards($user);
+$userCompletedGamesList = getUsersCompletedGamesAndMax($user);
+
 $updatedAwardsHTML = '';
 ob_start();
-RenderSiteAwards($userAwards);
+RenderSiteAwards($userAwards, $userCompletedGamesList);
 $updatedAwardsHTML = ob_get_clean();
 
 return response()->json([

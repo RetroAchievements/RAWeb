@@ -100,6 +100,8 @@ function generateManualMoveButtons(
 }
 
 $userAwards = getUsersSiteAwards($user, true);
+$userCompletedGamesList = getUsersCompletedGamesAndMax($user);
+
 [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
 $hasSomeAwards = !empty($gameAwards) || !empty($eventAwards) || !empty($siteAwards);
@@ -179,7 +181,7 @@ function postAllAwardsDisplayOrder(awards) {
 <div id="mainpage">
     <div id="<?= $hasSomeAwards ? 'leftcontainer' : 'fullcontainer' ?>">
         <?php
-        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, int $initialSectionOrder): void
+        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, int $initialSectionOrder, ?array $userCompletedGamesList = null): void
         {
             // "Game Awards" -> "game"
             $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -208,6 +210,10 @@ function postAllAwardsDisplayOrder(awards) {
             echo "</tr>";
             echo "</thead>";
             echo "<tbody>";
+
+            if (isset($userCompletedGamesList)) {
+                $awards = markIncompleteAwards($awards, $userCompletedGamesList);
+            }
 
             foreach ($awards as $award) {
                 $awardType = $award['AwardType'];
@@ -292,7 +298,7 @@ function postAllAwardsDisplayOrder(awards) {
         }
 
         if (!empty($gameAwards)) {
-            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[0]);
+            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[0], $userCompletedGamesList);
         }
 
         if (!empty($eventAwards)) {
@@ -307,7 +313,7 @@ function postAllAwardsDisplayOrder(awards) {
 
     <?php if ($hasSomeAwards): ?>
     <div id="rightcontainer">
-        <?php RenderSiteAwards(getUsersSiteAwards($user)) ?>
+        <?php RenderSiteAwards(getUsersSiteAwards($user), $userCompletedGamesList) ?>
     </div>
     <?php endif ?>
 </div>

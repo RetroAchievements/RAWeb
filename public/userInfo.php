@@ -603,7 +603,7 @@ RenderContentStart($userPage);
     </div>
     <div id="rightcontainer">
         <?php
-        RenderSiteAwards(getUsersSiteAwards($userPage));
+        RenderSiteAwards(getUsersSiteAwards($userPage), $userCompletedGamesList);
         RenderCompletedGamesList($userCompletedGamesList);
 
         echo "<div id='achdistribution' class='component'>";

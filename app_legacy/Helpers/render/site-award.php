@@ -31,7 +31,34 @@ function SeparateAwards(array $userAwards): array
     return [$gameAwards, $eventAwards, $siteAwards];
 }
 
-function RenderSiteAwards(array $userAwards): void
+function findGameInUserCompletedGames(array $userCompletedGamesList, int $gameId): ?array
+{
+    $index = array_search($gameId, array_column($userCompletedGamesList, 'GameID'));
+
+    return $index !== false ? $userCompletedGamesList[$index] : null;
+}
+
+function markIncompleteAwards(array $awards, array $userCompletedGamesList): array
+{
+    foreach ($awards as &$award) {
+        $award['Incomplete'] = 0;
+        $awardGameId = $award['AwardData'];
+
+        $foundGameInCompletedGamesList = findGameInUserCompletedGames($userCompletedGamesList, $awardGameId);
+        if ($foundGameInCompletedGamesList) {
+            $isMasteryAward = $award['AwardDataExtra'] == 1;
+
+            $pctWon = $isMasteryAward ? $foundGameInCompletedGamesList['PctWonHC'] : $foundGameInCompletedGamesList['PctWon'];
+            if ($pctWon < 1.0) {
+                $award['Incomplete'] = 1;
+            }
+        }
+    }
+
+    return $awards;
+}
+
+function RenderSiteAwards(array $userAwards, ?array $userCompletedGamesList = null): void
 {
     [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
@@ -50,6 +77,10 @@ function RenderSiteAwards(array $userAwards): void
     if (!empty($gameAwards)) {
         $firstGameAward = $firstVisibleIndex($gameAwards);
         if ($firstGameAward >= 0) {
+            if (isset($userCompletedGamesList)) {
+                $gameAwards = markIncompleteAwards($gameAwards, $userCompletedGamesList);
+            }
+            
             $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
         }
     }
@@ -82,46 +113,54 @@ function RenderSiteAwards(array $userAwards): void
 function RenderAwardGroup(array $awards, string $title): void
 {
     $numItems = count($awards);
-    $numHidden = 0;
-    foreach ($awards as $award) {
-        if ($award['DisplayOrder'] < 0) {
-            $numHidden++;
-        }
-    }
+    $numHidden = count(array_filter($awards, function ($award) { return $award['DisplayOrder'] < 0; }));
+    $iconCount = 0;
+
     if ($numItems === $numHidden) {
         // No items to show
         return;
     }
 
     $icons = [
-        "Game Awards" => "👑🎖️",
+        "Game Awards" => "👑🎖️💡",
         "Event Awards" => "🌱",
         "Site Awards" => "🌐",
     ];
+
+    $counters = "";
+
     if ($title == "Game Awards") {
-        // Count and show # of completed/mastered games
-        $numCompleted = 0;
-        $numCompletedHidden = 0;
-        foreach ($awards as $award) {
-            if ($award['AwardDataExtra'] != 1) {
-                $numCompleted++;
-                if ($award['DisplayOrder'] < 0) {
-                    $numCompletedHidden++;
-                }
-            }
-        }
+        $awardKindCounts = array_reduce($awards, function ($carry, $award) {
+            $carry['numCompleted'] += ($award['AwardDataExtra'] != 1);
+            $carry['numCompletedHidden'] += ($award['AwardDataExtra'] != 1 && $award['DisplayOrder'] < 0);
+            $carry['numOutdated'] += (isset($award['Incomplete']) && $award['Incomplete'] == 1);
+            $carry['numOutdatedHidden'] += (isset($award['Incomplete']) && $award['Incomplete'] == 1 && $award['DisplayOrder'] < 0);
+
+            return $carry;
+        }, ['numCompleted' => 0, 'numCompletedHidden' => 0, 'numOutdated' => 0, 'numOutdatedHidden' => 0]);
+
+        $numCompleted = $awardKindCounts['numCompleted'];
+        $numCompletedHidden = $awardKindCounts['numCompletedHidden'];
+        $numOutdated = $awardKindCounts['numOutdated'];
+        $numOutdatedHidden = $awardKindCounts['numOutdatedHidden'];
         $numMastered = $numItems - $numCompleted;
         $numMasteredHidden = $numHidden - $numCompletedHidden;
-        $counters = "";
-        if ($numMastered > 0) {
-            $icon = mb_substr($icons[$title], 0, 1);
-            $text = ($numMastered > 1 ? "games" : "game") . " mastered";
-            $counters .= RenderCounter($icon, $text, $numMastered, $numMasteredHidden);
-        }
-        if ($numCompleted > 0) {
-            $icon = mb_substr($icons[$title], 1, 1);
-            $text = ($numCompleted > 1 ? "games" : "game") . " completed";
-            $counters .= RenderCounter($icon, $text, $numCompleted, $numCompletedHidden);
+
+        $counterData = [
+            ["text" => "games mastered", "count" => $numMastered, "hiddenCount" => $numMasteredHidden],
+            ["text" => "games completed", "count" => $numCompleted, "hiddenCount" => $numCompletedHidden],
+            ["text" => "games with new achievements", "count" => $numOutdated, "hiddenCount" => $numOutdatedHidden],
+        ];
+
+        foreach ($counterData as $index => $data) {
+            if ($data['count'] > 0) {
+                $iconCount++;
+                // Use the correct position for the emoji within the string, accounting for the light bulb emoji's 2 character length.
+                $iconOffset = $index == 2 ? 1 : 0;
+                $icon = mb_substr($icons[$title], $index + $iconOffset, 1);
+                $text = ($data['count'] > 1 ? $data['text'] : str_replace("games", "game", $data['text']));
+                $counters .= RenderCounter($icon, $text, $data['count'], $data['hiddenCount']);
+            }
         }
     } else {
         $icon = $icons[$title];
@@ -133,8 +172,13 @@ function RenderAwardGroup(array $awards, string $title): void
         $counters = RenderCounter($icon, $text, $numItems, $numHidden);
     }
 
-    echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
-    echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
+    // Now that all the necessary values for the award group have been calculated,
+    // we can finally render the award group.
+    $awardGroupId = strtolower(str_replace(' ', '', $title));
+    $fontSizeStyle = $iconCount > 2 ? "style='font-size: 0.8em'" : "";
+
+    echo "<div id={$awardGroupId}'>";
+    echo "<h3 class='flex justify-between gap-2'><span class='grow' {$fontSizeStyle}>{$title}</span>{$counters}</h3>";
     echo "<div class='component flex flex-wrap justify-start gap-2'>";
     $imageSize = 48;
     foreach ($awards as $award) {
@@ -173,16 +217,20 @@ function RenderAward(array $award, int $imageSize, bool $clickable = true): void
     $awardButGameIsIncomplete = (isset($award['Incomplete']) && $award['Incomplete'] == 1);
     $imgclass = 'badgeimg siteawards';
 
+    $awarded = $awardDataExtra == '1' ? "Mastered on $awardDate" : "Completed on $awardDate";
+
     if ($awardType == AwardType::Mastery) {
         if ($awardDataExtra == '1') {
-            $awarded = "Mastered on $awardDate";
-            $imgclass = 'goldimage';
-        } else {
-            $awarded = "Completed on $awardDate";
+            $imgclass = 'goldimage' . ($awardButGameIsIncomplete ? ' border-dashed' : '');
+        } elseif ($awardButGameIsIncomplete) {
+            // TODO: Add a Tailwind palette variable for #0B71C1. It is the global "softcore" color.
+            $imgclass = 'badgeimg !border-[#0B71C1] !border-dashed';
         }
+
         if ($awardButGameIsIncomplete) {
-            $awarded .= "...<br>but more achievements have been added!<br>Click here to find out what you're missing!";
+            $awarded .= ",<br>but more achievements have been added!";
         }
+
         $award['GameID'] = $award['AwardData'];
         $award['Mastery'] = "<br clear=all>$awarded";
 
