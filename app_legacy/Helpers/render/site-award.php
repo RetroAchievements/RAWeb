@@ -80,7 +80,7 @@ function RenderSiteAwards(array $userAwards, ?array $userCompletedGamesList = nu
             if (isset($userCompletedGamesList)) {
                 $gameAwards = markIncompleteAwards($gameAwards, $userCompletedGamesList);
             }
-            
+
             $groups[] = [$firstGameAward, $gameAwards, "Game Awards"];
         }
     }
