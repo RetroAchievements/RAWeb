@@ -289,8 +289,12 @@ function getGamesListByDev(
                 $whereCond
                 GROUP BY gd.ID
                 $havingCond";
+    $query = "SELECT *, 
+              CASE WHEN gl.MaxPointsAvailable > 0 THEN ROUND(gl.TotalTruePoints/gl.MaxPointsAvailable, 2) ELSE 0.00 END AS RetroRatio
+              FROM ($query) as gl
+             ";
 
-    if ($sortBy < 1 || $sortBy > 16) {
+    if ($sortBy < 1 || $sortBy > 17) {
         $sortBy = 1;
     }
 
@@ -311,6 +315,8 @@ function getGamesListByDev(
                 : "",
         6 => "DateModified DESC",
         16 => "DateModified",
+        7 => "RetroRatio DESC, MaxPointsAvailable DESC",
+        17 => "RetroRatio ASC, MaxPointsAvailable ASC",
         default => "",
     };
 
