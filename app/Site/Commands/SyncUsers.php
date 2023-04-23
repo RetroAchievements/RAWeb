@@ -17,7 +17,7 @@ class SyncUsers extends Command
 {
     use SyncTrait;
 
-    protected $signature = 'ra:sync:users {id?} {--d|direct} {--f|full} {--p|no-post} {--m|no-media}';
+    protected $signature = 'ra:sync:users {id?} {--f|full} {--p|no-post} {--m|no-media}';
     protected $description = 'Sync users';
 
     public function __construct(
@@ -34,7 +34,7 @@ class SyncUsers extends Command
     {
         User::disableSearchSyncing();
 
-        $this->sync('users', $this->option('direct'));
+        $this->sync('users');
     }
 
     protected function query(): Builder

@@ -23,7 +23,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<UserActivity>
+     * @return HasMany<UserActivityUserActivityLegacy>
      */
     public function activities(): HasMany
     {
