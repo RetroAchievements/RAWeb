@@ -81,6 +81,7 @@ function ListGames(
         $totalTrueRatio = $gameEntry['TotalTruePoints'];
         $totalAchievements = null;
         $devLeaderboards = null;
+        $devTickets = null;
         if ($dev == null) {
             $numAchievements = $gameEntry['NumAchievements'];
             $numPoints = $maxPoints;
@@ -91,6 +92,7 @@ function ListGames(
             $numTrueRatio = $gameEntry['MyTrueRatio'];
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
             $devLeaderboards = $gameEntry['MyLBs'];
+            $devTickets = $gameEntry['MyOpenTickets'];
         }
         $numLBs = $gameEntry['NumLBs'];
 
@@ -138,8 +140,13 @@ function ListGames(
             $openTickets = $gameEntry['OpenTickets'];
             echo "<td class=''>";
             if ($openTickets > 0) {
-                echo "<a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
-                $ticketsCount += $openTickets;
+                if ($dev == null) {
+                    echo "<a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
+                    $ticketsCount += $openTickets;
+                } else {
+                    echo "<a href='ticketmanager.php?g=$gameID&u=$dev'>$devTickets</a> of <a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
+                    $ticketsCount += $devTickets;
+                }
             }
             echo "</td>";
         }

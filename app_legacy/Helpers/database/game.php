@@ -239,7 +239,8 @@ function getGamesListByDev(
         LEFT JOIN (
             SELECT
                 ach.GameID,
-                count( DISTINCT tick.ID ) AS OpenTickets
+                count( DISTINCT tick.ID ) AS OpenTickets,
+                SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyOpenTickets
             FROM
                 Ticket AS tick
             LEFT JOIN
@@ -263,7 +264,8 @@ function getGamesListByDev(
                            SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.Points ELSE 0 END) AS MyPoints,
                            SUM(CASE WHEN ach.Author LIKE '$dev' THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
                            SUM(CASE WHEN ach.Author NOT LIKE '$dev' THEN 1 ELSE 0 END) AS NotMyAchievements,
-                           lbdi.MyLBs,";
+                           lbdi.MyLBs,
+                           ticks.MyOpenTickets,";
         $havingCond = "HAVING MyAchievements > 0 ";
     } else {
         if ($filter == 0) { // only with achievements
