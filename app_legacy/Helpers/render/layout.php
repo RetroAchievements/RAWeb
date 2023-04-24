@@ -185,6 +185,7 @@ function RenderToolbar(): void
         echo "<ul>";
         echo "<li><a href='/user/$username'>Profile</a></li>";
         echo "<li><a href='/gameList.php?d=$username'>My Sets</a></li>";
+        echo "<li><a href='/individualdevstats.php?u=$username'>My Dev Stats</a></li>";
         echo "<li><a href='/ticketmanager.php?u=$username'>My Tickets</a></li>";
         echo "<li><a href='/claimlist.php?u=$username'>My Claims</a></li>";
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
