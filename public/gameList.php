@@ -80,6 +80,7 @@ function ListGames(
         $maxPoints = $gameEntry['MaxPointsAvailable'] ?? 0;
         $totalTrueRatio = $gameEntry['TotalTruePoints'];
         $totalAchievements = null;
+        $devLeaderboards = null;
         if ($dev == null) {
             $numAchievements = $gameEntry['NumAchievements'];
             $numPoints = $maxPoints;
@@ -89,6 +90,7 @@ function ListGames(
             $numPoints = $gameEntry['MyPoints'];
             $numTrueRatio = $gameEntry['MyTrueRatio'];
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
+            $devLeaderboards = $gameEntry['MyLBs'];
         }
         $numLBs = $gameEntry['NumLBs'];
 
@@ -122,8 +124,13 @@ function ListGames(
 
         echo "<td class=''>";
         if ($numLBs > 0) {
-            echo "<a href=\"game/$gameID\">$numLBs</a>";
-            $lbCount += $numLBs;
+            if ($dev == null) {
+                echo "<a href=\"game/$gameID\">$numLBs</a>";
+                $lbCount += $numLBs;
+            } else {
+                echo "<a href=\"game/$gameID\">$devLeaderboards of $numLBs</a>";
+                $lbCount += $devLeaderboards;
+            }
         }
         echo "</td>";
 
