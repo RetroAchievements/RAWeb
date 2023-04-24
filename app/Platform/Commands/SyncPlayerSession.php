@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Models\Achievement;
 use App\Platform\Models\GameHashSet;
-use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
 use App\Support\Sync\SyncTrait;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
 
@@ -39,6 +36,12 @@ class SyncPlayerSession extends Command
 
     protected function preProcessEntity(object $origin, array $transformed): array
     {
+        // TODO
+        $userId = $origin->user_id;
+        $achievementId = $origin->achievement_id;
+        $unlockDate = $origin->unlocked_at;
+        $gameId = null;
+
         // find the most relevant player_session entry for the achievement
         $lastPlayerSession = $this->playerSessions[$userId] ?? null;
         if ($lastPlayerSession == null || $lastPlayerSession->game_id != $gameId) {
