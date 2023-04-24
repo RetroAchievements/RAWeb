@@ -199,7 +199,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
         ],
         Emulators::RAQUASI88 => [
             'minimum_version' => '1.1.3',
-            'latest_version' => '1.1.3',
+            'latest_version' => '1.2.0',
             'latest_version_url' => 'bin/RAQUASI88.zip',
             // 'latest_version_url_x64' => 'bin/RAQUASI88-x64.zip',
             'name' => 'Quasi88',
