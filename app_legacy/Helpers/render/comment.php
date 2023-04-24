@@ -122,8 +122,7 @@ function RenderArticleComment(
         $class .= ' system';
     }
 
-    $artCommentID = "artcomment_{$articleTypeID}_{$articleID}_{$commentID}";
-    echo "<tr class='comment$class' id='$artCommentID'>";
+    echo "<tr class='comment$class' id='comment_$commentID'>";
 
     $niceDate = date("j M Y ", $submittedDate);
     $niceDate .= date("H:i", $submittedDate);
