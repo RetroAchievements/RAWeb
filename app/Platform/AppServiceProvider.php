@@ -17,6 +17,7 @@ use App\Platform\Commands\SyncPlayerAchievements;
 use App\Platform\Commands\SyncPlayerBadges;
 use App\Platform\Commands\SyncPlayerGames;
 use App\Platform\Commands\SyncPlayerRichPresence;
+use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAllAchievementsMetrics;
 use App\Platform\Commands\UpdateAllGamesMetrics;
@@ -102,6 +103,7 @@ class AppServiceProvider extends ServiceProvider
                 SyncPlayerGames::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,
+                SyncPlayerSession::class,
                 SyncGameHashes::class,
             ]);
         }
