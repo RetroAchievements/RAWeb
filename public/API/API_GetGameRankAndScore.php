@@ -8,8 +8,8 @@
  *  array
  *   object     [value]
  *    string     User                name of user
- *    string     NumAchievements     number of achievements earned by the user for the game
- *    string     TotalScore          number of points earned by the user for the game
+ *    int        NumAchievements     number of achievements earned by the user for the game
+ *    int        TotalScore          number of points earned by the user for the game
  *    datetime   LastAward           when the user's latest achievement for the game was unlocked
  */
 
