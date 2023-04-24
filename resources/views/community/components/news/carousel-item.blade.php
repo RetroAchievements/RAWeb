@@ -7,7 +7,7 @@
 >
     <div 
         class="z-10 py-4 px-8 absolute top-0 left-0 w-full h-full"
-        style="background: linear-gradient(180deg, #00000066 40%, #ffffff01 100%)"
+        style="background: linear-gradient(180deg, #00000066 20%, #ffffff01 100%)"
     >
         <h4 class="shadowoutline lg:opacity-0 transition delay-100 duration-300 subpixel-antialiased {{ $index === 0 ? '!opacity-100' : '' }}">
             <a href="{{ $news->Link }}">{{ $news->Title }}</a>
