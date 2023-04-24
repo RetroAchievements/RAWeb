@@ -134,6 +134,7 @@ function RenderToolbar(): void
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "<li><a href='/claimlist.php?s=9&f=8109'>New Sets & Revisions</a></li>";
     echo "<li><a href='/claimlist.php'>Sets in Progress</a></li>";
+    echo "<li><a href='/random.php'>Random Set</a></li>";
     echo "<li class='dropdown-header'>Hubs</li>";
     echo "<li><a href='/gameList.php?s=6&c=100&f=1'>Hub List</a></li>";
     echo "<li><a href='/game/6914'>Central Hub</a></li>";
