@@ -443,6 +443,11 @@ $prevID = 0;
 $userTicketInfo = getTicketsForUser($dev);
 $counted = false;
 foreach ($userTicketInfo as $ticketData) {
+    if ($prevID != $ticketData['AchievementID']) { // relies on getTicketsForUser sorting by ID
+        $prevID = $ticketData['AchievementID'];
+        $userTickets['uniqueTotal']++;
+        $counted = false;
+    }
     switch ($ticketData['ReportState']) {
         case TicketState::Closed:
             $userTickets['closed'] += $ticketData['TicketCount'];
@@ -472,11 +477,6 @@ foreach ($userTicketInfo as $ticketData) {
             $userTickets['total'] += $ticketData['TicketCount'];
             $userTickets['uniqueRequest']++;
             break;
-    }
-    if ($prevID != $ticketData['AchievementID']) { // relies on getTicketsForUser sorting by ID
-        $prevID = $ticketData['AchievementID'];
-        $userTickets['uniqueTotal']++;
-        $counted = false;
     }
 }
 
