@@ -13,7 +13,8 @@ const RESET_DELAY = 200;
 
 /** These may be consumed by the AlpineJS component, but they are hidden from the outside world. */
 const privateUtils = {
-  getImageListElement: (): HTMLDivElement | null => document.querySelector<HTMLDivElement>('#news-carousel-image-list'),
+  getImageListElement: (): HTMLDivElement | null =>
+    document.querySelector<HTMLDivElement>('#news-carousel-image-list'),
   getIndicatorsCount: () => document.querySelectorAll('.carousel-indicator').length,
 
   /**
@@ -200,8 +201,14 @@ const newsCarouselStore = {
     if (imageListEl) {
       this.pause();
 
+      const absoluteDistance = Math.abs(index - this.activeIndex);
+
       this.activeIndex = index;
-      privateUtils.scrollToIndex(imageListEl, index);
+      if (absoluteDistance > 2) {
+        this.resetCarouselToIndex(imageListEl, index);
+      } else {
+        privateUtils.scrollToIndex(imageListEl, index);
+      }
 
       this.resume();
       this.updateActiveSlideTextVisibility();
