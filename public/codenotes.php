@@ -6,6 +6,9 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
+if (empty($gameData)) {
+    abort(404);
+}
 
 getCodeNotes($gameID, $codeNotes);
 
@@ -179,7 +182,7 @@ function saveCodeNote(rowIndex) {
         displayed below may not directly correspond to the addresses on the real hardware.</p>
         <br/>
         <?php
-        if (isset($gameData) && isset($user) && $permissions >= Permissions::Registered) {
+        if (isset($user) && $permissions >= Permissions::Registered) {
             RenderCodeNotes($codeNotes, $user, $permissions);
         }
         ?>
