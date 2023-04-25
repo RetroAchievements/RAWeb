@@ -250,11 +250,14 @@ RenderContentStart($userPage);
             if ($areTheyFollowingMe) {
                 echo "<span class='hidden sm:block px-3'>Follows you</span>";
             }
-            echo "</div>";
-        }
 
-        if ($areTheyFollowingMe) {
-            echo "<p class='sm:hidden'>Follows you</p>";
+            echo "</div>";
+
+            // This needs to be a sibling to the user relationship div to prevent spacing
+            // issues with the user avatar.
+            if ($areTheyFollowingMe) {
+                echo "<p class='sm:hidden'>Follows you</p>";
+            }
         }
 
         echo "<br>";
