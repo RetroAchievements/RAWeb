@@ -13,8 +13,7 @@ const RESET_DELAY = 200;
 
 /** These may be consumed by the AlpineJS component, but they are hidden from the outside world. */
 const privateUtils = {
-  getImageListElement: (): HTMLDivElement | null =>
-    document.querySelector<HTMLDivElement>('#news-carousel-image-list'),
+  getImageListElement: (): HTMLDivElement | null => document.querySelector<HTMLDivElement>('#news-carousel-image-list'),
   getIndicatorsCount: () => document.querySelectorAll('.carousel-indicator').length,
 
   /**
