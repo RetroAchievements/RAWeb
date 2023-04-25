@@ -9,4 +9,11 @@ use LegacyApp\Support\Database\Eloquent\BaseModel;
 class Rating extends BaseModel
 {
     protected $table = 'Rating';
+
+    protected $fillable = [
+        'User',
+        'RatingObjectType',
+        'RatingID',
+        'RatingValue',
+    ];
 }
