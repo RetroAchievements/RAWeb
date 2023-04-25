@@ -8,6 +8,7 @@ use Database\Factories\Legacy\GameFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use LegacyApp\Community\Models\Rating;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 
 class Game extends BaseModel
@@ -22,11 +23,27 @@ class Game extends BaseModel
     }
 
     /**
+     * @return HasMany<GameHash>
+     */
+    public function hashes(): HasMany
+    {
+        return $this->hasMany(GameHash::class, 'GameID');
+    }
+
+    /**
      * @return HasMany<Achievement>
      */
     public function achievements(): HasMany
     {
         return $this->hasMany(Achievement::class, 'GameID');
+    }
+
+    /**
+     * @return HasMany<Rating>
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class, 'RatingID');
     }
 
     /**
