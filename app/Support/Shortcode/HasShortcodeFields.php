@@ -30,7 +30,7 @@ trait HasShortcodeFields
                 $value = $model->getAttribute($shortcodeField);
 
                 if ($value !== null) {
-                    $model->setAttribute($shortcodeField, normalize_user_shortcodes($value));
+                    $model->setAttribute($shortcodeField, normalize_shortcodes($value));
                 }
             }
         });
