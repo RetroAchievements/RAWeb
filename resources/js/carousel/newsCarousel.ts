@@ -201,9 +201,12 @@ const newsCarouselStore = {
     if (imageListEl) {
       this.pause();
 
-      const absoluteDistance = Math.abs(index - this.activeIndex);
-
       this.activeIndex = index;
+
+      // We don't want the user to see us rapidly scrolling through
+      // lots of images. That can be disorienting. If they're moving
+      // to a position far away, just animate them there.
+      const absoluteDistance = Math.abs(index - this.activeIndex);
       if (absoluteDistance > 2) {
         this.resetCarouselToIndex(imageListEl, index);
       } else {
