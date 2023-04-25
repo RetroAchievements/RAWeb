@@ -217,7 +217,7 @@ RenderContentStart($userPage);
                     echo csrf_field();
                     echo "<input type='hidden' name='user' value='$userPage'>";
                     echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
-                    echo "<button class='btn btn-link' style='padding-left: 0;'>Unfollow</button>";
+                    echo "<button class='btn btn-link !pl-0'>Unfollow</button>";
                     echo "</form>";
                     break;
                 case UserRelationship::NotFollowing:
@@ -225,7 +225,7 @@ RenderContentStart($userPage);
                     echo csrf_field();
                     echo "<input type='hidden' name='user' value='$userPage'>";
                     echo "<input type='hidden' name='action' value='" . UserRelationship::Following . "'>";
-                    echo "<button class='btn btn-link' style='padding-left: 0;'>Follow" . ($areTheyFollowingMe ? ' Back' : '') . "</button>";
+                    echo "<button class='btn btn-link !pl-0'>Follow" . ($areTheyFollowingMe ? ' Back' : '') . "</button>";
                     echo "</form>";
                     break;
             }
