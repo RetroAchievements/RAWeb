@@ -225,6 +225,11 @@ jQuery(document).ready(function onReady($) {
     $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
     return false;
   });
+
+  var $anchor = window.location.hash;
+  if ($anchor.startsWith('#comment_')) {
+    $($anchor).addClass('highlight');
+  }
 });
 
 $(function () {
@@ -247,7 +252,7 @@ function removeComment(artTypeID, artID, commentID) {
     comment: commentID
   })
     .done(function () {
-      $('#artcomment_' + artTypeID + '_' + artID + '_' + commentID).hide();
+      $('#comment_' + commentID).hide();
     });
   return true;
 }
