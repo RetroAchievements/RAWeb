@@ -166,12 +166,13 @@ function getCompletedAndIncompletedSetsCounts(array $userCompletedGamesList): ar
     return ['completedSetsCount' => $completedSetsCount, 'incompletedSetsCount' => $incompletedSetsCount];
 }
 
-function RenderCompletedGamesList(array $userCompletedGamesList): void
+function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitiallyHidingCompletedSets = false): void
 {
     echo "<div id='completedgames' class='component' >";
 
     echo "<h3>Completion Progress</h3>";
 
+    $checkedAttribute = $isInitiallyHidingCompletedSets ? 'checked' : '';
     $setsCounts = getCompletedAndIncompletedSetsCounts($userCompletedGamesList);
     if ($setsCounts['completedSetsCount'] > 0 && $setsCounts['incompletedSetsCount'] > 0) {
         echo <<<HTML
@@ -179,7 +180,8 @@ function RenderCompletedGamesList(array $userCompletedGamesList): void
                 <input 
                     type="checkbox" 
                     id="hide-user-completed-sets-checkbox" 
-                    onchange="toggleUserCompletedSetsVisibility.toggleUserCompletedSetsVisibility()"
+                    onchange="toggleUserCompletedSetsVisibility()"
+                    $checkedAttribute
                 >
                     Hide completed sets
                 </input>
@@ -210,7 +212,9 @@ function RenderCompletedGamesList(array $userCompletedGamesList): void
             continue;
         }
 
-        $isCompletedClassName = ($pctAwardedNormal == 100) ? 'completion-progress-completed-row' : '';
+        $isCompletedClassName = ($pctAwardedNormal == 100)
+            ? "completion-progress-completed-row" . ($isInitiallyHidingCompletedSets ? " hidden" : "")
+            : '';
 
         echo "<tr class='$isCompletedClassName'>";
 
