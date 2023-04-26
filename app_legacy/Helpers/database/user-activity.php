@@ -324,6 +324,7 @@ function addArticleComment(
     // $commentPayload = str_replace( "'", "''", $commentPayload );
 
     if (is_array($articleID)) {
+        $articleIDs = $articleID;
         $arrayCount = count($articleID);
         $count = 0;
         $query = "INSERT INTO Comment VALUES";
@@ -335,6 +336,7 @@ function addArticleComment(
         }
     } else {
         $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
+        $articleIDs = [$articleID];
     }
 
     $db = getMysqliConnection();
@@ -346,17 +348,13 @@ function addArticleComment(
         return false;
     }
 
-    $query = "SELECT MAX(ID) AS CommentID FROM Comment
-              WHERE ArticleType=$articleType AND ArticleID=$articleID AND UserID=$userID";
-    $commentID = legacyDbFetch($query)['CommentID'];
-
     // Inform Subscribers of this comment:
-    if (is_array($articleID)) {
-        foreach ($articleID as $id) {
-            informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
-        }
-    } else {
-        informAllSubscribersAboutActivity($articleType, $articleID, $user, $commentID, $onBehalfOfUser);
+    foreach ($articleIDs as $id) {
+        $query = "SELECT MAX(ID) AS CommentID FROM Comment
+                  WHERE ArticleType=$articleType AND ArticleID=$id AND UserID=$userID";
+        $commentID = legacyDbFetch($query)['CommentID'];
+
+        informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
     }
 
     return true;
