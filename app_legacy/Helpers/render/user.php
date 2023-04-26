@@ -183,7 +183,7 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
                     onchange="toggleUserCompletedSetsVisibility()"
                     $checkedAttribute
                 >
-                    Hide completed sets
+                    Hide completed games
                 </input>
             </label>
         HTML;
