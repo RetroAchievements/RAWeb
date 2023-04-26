@@ -111,11 +111,13 @@ function getGameMetadata(
     if (isset($user)) {
         $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $flags);
         foreach ($userUnlocks as $achID => $userUnlock) {
-            if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
-                $achievementDataOut[$achID]['DateEarnedHardcore'] = $userUnlock['DateEarnedHardcore'];
-            }
-            if (array_key_exists('DateEarned', $userUnlock)) {
-                $achievementDataOut[$achID]['DateEarned'] = $userUnlock['DateEarned'];
+            if (array_key_exists($achID, $achievementDataOut)) {
+                if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
+                    $achievementDataOut[$achID]['DateEarnedHardcore'] = $userUnlock['DateEarnedHardcore'];
+                }
+                if (array_key_exists('DateEarned', $userUnlock)) {
+                    $achievementDataOut[$achID]['DateEarned'] = $userUnlock['DateEarned'];
+                }
             }
         }
     }
@@ -123,11 +125,13 @@ function getGameMetadata(
     if (isset($user2)) {
         $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $flags);
         foreach ($friendUnlocks as $achID => $friendUnlock) {
-            if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
-                $achievementDataOut[$achID]['DateEarnedFriendHardcore'] = $friendUnlock['DateEarnedHardcore'];
-            }
-            if (array_key_exists('DateEarned', $friendUnlock)) {
-                $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
+            if (array_key_exists($achID, $achievementDataOut)) {
+                if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
+                    $achievementDataOut[$achID]['DateEarnedFriendHardcore'] = $friendUnlock['DateEarnedHardcore'];
+                }
+                if (array_key_exists('DateEarned', $friendUnlock)) {
+                    $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
+                }
             }
         }
     }
