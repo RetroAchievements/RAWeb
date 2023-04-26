@@ -391,7 +391,7 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
         $recentlyPlayedGameIDs = collect($recentlyPlayedGameIDs)
             ->filter(fn ($id) => is_int($id) || is_numeric($id))
             ->implode(',');
-        if ($recentlyPlayedGameIDs === '') {
+        if (empty($recentlyPlayedGameIDs)) {
             return 0;
         }
 
