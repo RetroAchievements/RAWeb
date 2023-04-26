@@ -391,6 +391,10 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
         $recentlyPlayedGameIDs = collect($recentlyPlayedGameIDs)
             ->filter(fn ($id) => is_int($id) || is_numeric($id))
             ->implode(',');
+        if ($recentlyPlayedGameIDs === '') {
+            return 0;
+        }
+
         $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon
                   FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                   WHERE gd.ID IN ($recentlyPlayedGameIDs)";
