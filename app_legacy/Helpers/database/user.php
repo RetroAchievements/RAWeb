@@ -235,7 +235,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
 
         $libraryOut['Awarded'] = $userProgress['Awarded'];
         $libraryOut['RecentAchievements'] = $userProgress['RecentAchievements'];
-        if (in_array($userInfo['LastGameID'], $userProgress['GameInfo'])) {
+        if (array_key_exists($userInfo['LastGameID'], $userProgress['GameInfo'])) {
             $libraryOut['LastGame'] = $userProgress['GameInfo'][$userInfo['LastGameID']];
         }
     }
