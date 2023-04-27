@@ -34,7 +34,7 @@ if (
     abort(401);
 }
 
-function buildAuditLogMessage($user, $currentVideoUrl, $embedUrl) {
+function buildAuditLogMessage(string $user, ?string $currentVideoUrl, ?string $embedUrl): string {
     if ($currentVideoUrl && $embedUrl) {
         return "$user changed this achievement's embed URL from $currentVideoUrl to $embedUrl.";
     } elseif ($currentVideoUrl && !$embedUrl) {
