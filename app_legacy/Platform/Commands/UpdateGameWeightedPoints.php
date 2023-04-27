@@ -31,15 +31,15 @@ class UpdateGameWeightedPoints extends Command
 
         $staticData = StaticData::first();
 
-        $gameID = $staticData['NextGameToScan'];
+        $gameId = $staticData['NextGameToScan'];
         for ($i = 0; $i < 3; $i++) {
             $this->updateGameWeightedPointsAction->run($gameId);
             // get next highest game ID
-            $gameID = Game::where('ID', '>', $gameID)->min('ID') ?? 1;
+            $gameId = Game::where('ID', '>', $gameId)->min('ID') ?? 1;
         }
 
         StaticData::first()->update([
-            'NextGameToScan' => $gameID,
+            'NextGameToScan' => $gameId,
         ]);
     }
 }
