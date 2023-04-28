@@ -510,7 +510,7 @@ RenderContentStart($userPage);
                 echo "<div class='md:flex justify-between mb-3'>";
 
                 echo "<div>";
-                echo gameAvatar($userMassData['RecentlyPlayed'][$i], iconSize: 32);
+                echo gameAvatar($userMassData['RecentlyPlayed'][$i], iconSize: 42);
                 echo "<br>";
                 echo "Last played $gameLastPlayed<br>";
                 if ($numPossibleAchievements) {
