@@ -9,8 +9,10 @@
 }
 
 .console-icon {
-  margin: 0 .5em;
-  object-fit: cover;
-  height: 36px;
-  image-rendering: pixelated;
+  margin: 0 .55em;
+  height: 26px;
+}
+
+.console-icon + * .console-name {
+  font-size: .8em;
 }
