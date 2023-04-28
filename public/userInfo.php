@@ -482,7 +482,7 @@ RenderContentStart($userPage);
 
         if ($recentlyPlayedCount == 1) {
             echo "<h4>Last game played:</h4>";
-        } else if ($recentlyPlayedCount > 1) {
+        } elseif ($recentlyPlayedCount > 1) {
             echo "<h4>Last $recentlyPlayedCount games played:</h4>";
         }
         for ($i = 0; $i < $recentlyPlayedCount; $i++) {
