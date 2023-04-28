@@ -99,7 +99,7 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 
 /**
  * Render console icon based on given system ID
- * 
+ *
  * Fallback to a default image if icon not found on server
  */
 function renderConsoleIcon(string $consoleName, int $consoleID): string {
