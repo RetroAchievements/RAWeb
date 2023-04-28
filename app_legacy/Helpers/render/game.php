@@ -99,16 +99,19 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 
 /**
  * Render console icon based on given system ID
+ * 
+ * Fallback to a default image if icon not found on server
  */
 function renderConsoleIcon(string $consoleName, int $consoleID): string {
     $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
     $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
     $iconName = Str::kebab($cleanSystemShortName);
-    $iconSrc = asset("assets/images/system/$iconName.png");
+    $iconPath = public_path("assets/images/system/$iconName.png");
+    $iconUrl = file_exists($iconPath) ? asset("assets/images/system/$iconName.png") : $fallBackConsoleIcon;
 
     return <<<HTML
         <img class='console-icon'
-            src='$iconSrc'
+            src='$iconUrl'
             alt='$consoleName icon'
             onerror='this.src="$fallBackConsoleIcon"'>
     HTML;
