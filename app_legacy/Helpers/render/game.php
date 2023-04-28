@@ -23,16 +23,19 @@ function gameAvatar(
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
             sanitize_outputs($title);   // sanitize before rendering HTML
 
-            if ($iconSize > 24) {
-                $label = "<div class='flex flex-col items-start gap-1'>";
-                $label .= renderGameTitle($title);
-                if ($consoleName) {
-                    $label .= "<div class='console-name'>$consoleName</div>";
+            $flexDirection = $iconSize >= 32 ? 'col' : 'row';
+            $alignItems = $flexDirection == 'col' ? 'start' : 'center';
+            
+            $label = "<div class='flex flex-$flexDirection items-$alignItems gap-1'>";
+            $label .= renderGameTitle($title);
+            if ($consoleName) {
+                $label .= "<div class='console-name";
+                if ($flexDirection == 'row') {
+                    $label .= " mx-0.5 border-l-2 border-white/[.25] pl-1.5";
                 }
-                $label .= "</div>";
-            } else {
-                $label = renderGameTitle($title . ($consoleName ? " ($consoleName)" : ''));
+                $label .= "'>$consoleName</div>";
             }
+            $label .= "</div>";
         }
 
         if ($icon === null) {
