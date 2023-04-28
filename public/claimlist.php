@@ -192,7 +192,11 @@ RenderContentStart("Claim List");
             echo gameAvatar($claim);
             echo "</td>";
             echo "<td>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
-            echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+            echo "<td class='text-2xs whitespace-nowrap'>"
+                . ($claim['SetType'] == ClaimSetType::NewSet ?
+                    ('💡 <b>' . ClaimSetType::toString(ClaimSetType::NewSet) . '</b>') :
+                    ('🗒️ ' . ClaimSetType::toString(ClaimSetType::Revision)))
+                . "</td>";
             echo "<td>" . ClaimStatus::toString($claim['Status']) . "</td>";
             echo "<td>" . ClaimSpecial::toString($claim['Special']) . "</td>";
             echo "<td>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
