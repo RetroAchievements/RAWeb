@@ -475,7 +475,7 @@ function confirmEmailChange(event) {
             <div class='component'>
                 <h3>Site Awards</h3>
                 <div style="margin-bottom: 10px">
-                    You can manually set the display order for badges in the sidebar "Awards" sections.
+                    You can manually set the display order for your earned awards.
                 </div>
                 <a class="btn btn-link" href="reorderSiteAwards.php">Reorder Site Awards</a>
             </div>
