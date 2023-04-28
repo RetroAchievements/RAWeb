@@ -2,7 +2,16 @@
 # exit on error
 set -e
 
-modifiedPhpFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.php')"
+compareBranch="master"
+currentBranch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$currentBranch" = "master" ]; then
+    remoteMaster="$(git remote -v | grep 'RetroAchievements/RAWeb.git' | head -1 | cut -f1)"
+    if [ "$remoteMaster" != "" ]; then
+       compareBranch="$remoteMaster/master"
+    fi
+fi
+
+modifiedPhpFiles="$(git diff ${compareBranch}...HEAD --diff-filter=d --name-only '**/*.php')"
 if [ ${#modifiedPhpFiles} -gt 0 ]; then
     printf "\n⏳ composer lint\n"
     PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php ${modifiedPhpFiles}
