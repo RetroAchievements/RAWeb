@@ -25,7 +25,7 @@ function gameAvatar(
 
             $flexDirection = $iconSize >= 32 ? 'col' : 'row';
             $alignItems = $flexDirection == 'col' ? 'start' : 'center';
-            
+
             $label = "<div class='flex flex-$flexDirection items-$alignItems gap-1'>";
             $label .= renderGameTitle($title);
             if ($consoleName) {
