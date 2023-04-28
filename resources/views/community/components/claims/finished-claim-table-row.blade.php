@@ -18,6 +18,6 @@ $finishedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['DoneTime'])->
     <td class="w-full">{!! gameAvatar($claim, icon: false, tooltip: false) !!}</td>
     <td class="pr-0">{!! userAvatar($claim['User'], label: false) !!}</td>
     <td>{!! userAvatar($claim['User'], icon: false) !!}</td>
-    <td class="text-xs whitespace-nowrap">{!! $claimSetTypeCopy !!}</td>
+    <td class="text-xs whitespace-nowrap [word-spacing:.2em]">{!! $claimSetTypeCopy !!}</td>
     <td class="smalldate">{{ $finishedTimeAgo }}</td>
 </tr>
