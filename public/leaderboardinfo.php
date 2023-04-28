@@ -88,8 +88,14 @@ RenderContentStart('Leaderboard');
             echo " &raquo; <b>$lbTitle</b>";
             echo "</div>";
 
-            $renderedTitle = renderGameTitle("$gameTitle ($consoleName)");
-            echo "<h3>$renderedTitle</h3>";
+            $renderedTitle = renderGameTitle($gameTitle);
+            echo "<h1 class='text-h3 flex items-center'>";
+            echo renderConsoleIcon($consoleName, $consoleID);
+            echo " <div>";
+            echo "  <div>$renderedTitle</div>";
+            echo "  <div class='console-name'>$consoleName</div>";
+            echo " </div>";
+            echo "</h1>";
 
             echo "<table class='nicebox'><tbody>";
 
