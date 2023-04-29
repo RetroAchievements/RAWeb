@@ -67,7 +67,7 @@ $pageTitle = "Topic: $thisTopicForum - $thisTopicTitle";
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
-function formatDateToHumanReadable(string $rawDate): string
+function formatPostDate(string $rawDate): string
 {
     $rawPostDateFormat = 'd M, Y H:i';
     $givenDate = Carbon::createFromFormat($rawPostDateFormat, $rawDate);
@@ -77,9 +77,16 @@ function formatDateToHumanReadable(string $rawDate): string
         // "5 minutes ago"
         return $givenDate->diffForHumans();
     } else {
-        // "January 4, 2012"
-        return $givenDate->format('F j, Y');
+        // "January 4 2012, 8:05am"
+        return $givenDate->format('F j Y, g:ia');
     }
+}
+
+function formatUserJoinedDate(string $rawDate): string
+{
+    $givenDate = Carbon::parse($rawDate);
+    // "January 4, 2012"
+    return $givenDate->format('F j, Y');
 }
 
 RenderContentStart($pageTitle);
@@ -173,6 +180,7 @@ RenderContentStart($pageTitle);
             $nextCommentPayload = $commentData['Payload'];
             $nextCommentAuthor = $commentData['Author'];
             $nextCommentAuthorID = $commentData['AuthorID'];
+            $nextCommentAuthorJoinDate = $commentData['AuthorJoined'];
             $nextCommentAuthorPermissions = $commentData['AuthorPermissions'];
             $nextCommentDateCreated = $commentData['DateCreated'];
             $nextCommentDateModified = $commentData['DateModified'];
@@ -224,10 +232,12 @@ RenderContentStart($pageTitle);
 
             echo userAvatar($nextCommentAuthor, icon: false);
             echo "<p class='smalltext text-muted !leading-[14px]'>" . Permissions::toString($nextCommentAuthorPermissions) . "</p>";
-            echo "<p class='smalltext text-muted !leading-[14px]'>" . formatDateToHumanReadable($nextCommentDateCreatedNiceDate) . "</p>";
-            if ($nextCommentDateModified !== null) {
-                echo "<p class='smalltext italic !leading-[14px]'>Edited " . formatDateToHumanReadable($nextCommentDateModifiedNiceDate) . "</p>";
-            }
+            echo "<p class='smalltext text-muted !leading-[14px]'>Joined " . formatUserJoinedDate($nextCommentAuthorJoinDate) . "</p>";
+
+            // echo "<p class='smalltext text-muted !leading-[14px]'>" . formatDateToHumanReadable($nextCommentDateCreatedNiceDate) . "</p>";
+            // if ($nextCommentDateModified !== null) {
+            //     echo "<p class='smalltext italic !leading-[14px]'>Edited " . formatDateToHumanReadable($nextCommentDateModifiedNiceDate) . "</p>";
+            // }
             echo "</div>";
 
             echo "<button class='btn p-1 absolute text-xs -top-1 right-0' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>#$nextCommentIndex</button>";
