@@ -206,11 +206,12 @@ RenderContentStart($userPage);
         }
 
         if (isset($user) && ($user !== $userPage)) {
-            echo "<div class='flex items-center sm:gap-1'>";
+            echo "<div class='flex flex-col sm:flex-row justify-center sm:justify-start sm:gap-1'>";
 
             $myFriendshipType = GetFriendship($user, $userPage);
             $areTheyFollowingMe = GetFriendship($userPage, $user) == UserRelationship::Following;
 
+            echo "<div class='flex'>";
             switch ($myFriendshipType) {
                 case UserRelationship::Following:
                     echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
@@ -246,18 +247,13 @@ RenderContentStart($userPage);
                 echo "</form>";
             }
             echo "<a class='btn btn-link' href='/createmessage.php?t=$userPage'>Message</a>";
+            echo "</div>";
 
             if ($areTheyFollowingMe) {
-                echo "<span class='hidden sm:block px-3'>Follows you</span>";
+                echo "<p class='sm:px-3'>Follows you</p>";
             }
 
             echo "</div>";
-
-            // This needs to be a sibling to the user relationship div to prevent spacing
-            // issues with the user avatar.
-            if ($areTheyFollowingMe) {
-                echo "<p class='sm:hidden'>Follows you</p>";
-            }
         }
 
         echo "<br>";
