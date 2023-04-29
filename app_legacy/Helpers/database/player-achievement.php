@@ -201,10 +201,10 @@ function getAchievementUnlockCount(int $achID): int
  */
 function getAchievementUnlocksData(
     int $achievementId,
-    ?int $parentGameId = null,
+    ?string $username,
     ?int &$numWinners,
     ?int &$numPossibleWinners,
-    ?string $username,
+    ?int $parentGameId = null,
     int $offset = 0,
     int $limit = 50
 ): Collection {

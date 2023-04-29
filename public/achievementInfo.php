@@ -53,7 +53,7 @@ $parentGameID = getParentGameIdFromGameTitle($gameTitle);
 $numWinners = 0;
 $numPossibleWinners = 0;
 
-$unlocks = getAchievementUnlocksData($achievementID, $parentGameID, $numWinners, $numPossibleWinners, $user, 0, 50);
+$unlocks = getAchievementUnlocksData($achievementID, $user, $numWinners, $numPossibleWinners, $parentGameID, 0, 50);
 
 $dateWonLocal = "";
 foreach ($unlocks as $userObject) {
