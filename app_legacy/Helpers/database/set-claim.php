@@ -170,48 +170,20 @@ function extendClaim(string $user, int $gameID): bool
  */
 function getClaimData(int $gameID, bool $getFullData = true): array
 {
-    sanitize_sql_inputs($gameID);
+    $query = "SELECT sc.User as User, sc.SetType as SetType,
+        sc.ClaimType as ClaimType, sc.Created as Created, sc.Finished as Expiration";
 
-    $retVal = [];
     if ($getFullData) {
-        $query = "
-        SELECT
-            sc.User as User,
-            sc.SetType as SetType,
-            sc.ClaimType as ClaimType,
-            sc.Created as Created,
-            sc.Finished as Expiration,
-            sc.Status as Status,
-        ";
+        $query .= ", sc.Status as Status, ";
         $query .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft') . ",";
         $query .= diffMinutesPassedStatement('sc.Created', 'MinutesActive');
-    } else {
-        $query = "
-        SELECT
-            sc.User as User,
-            sc.SetType as SetType,
-            sc.ClaimType as ClaimType,
-            sc.Created as Created,
-            sc.Finished as Expiration";
-    }
-    $query .= "
-        FROM
-            SetClaim sc
-        WHERE
-            sc.GameID = '$gameID'
-            AND sc.Status = " . ClaimStatus::Active . "
-        ORDER BY
-            sc.ClaimType ASC";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
     }
 
-    return $retVal;
+    $query .= " FROM SetClaim sc WHERE sc.GameID = '$gameID'
+                 AND sc.Status = " . ClaimStatus::Active . "
+               ORDER BY sc.ClaimType ASC";
+
+    return legacyDbFetchAll($query)->toArray();
 }
 
 /**

@@ -21,6 +21,7 @@ class Achievement extends BaseModel
     protected $table = 'Achievements';
 
     public const CREATED_AT = 'DateCreated';
+    public const UPDATED_AT = 'DateModified';
 
     protected $dates = [
         'DateModified',

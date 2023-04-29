@@ -8,20 +8,20 @@
  *  string     Title                      name of the game
  *  int        ConsoleID                  unique identifier of the console associated to the game
  *  string     ConsoleName                name of the console associated to the game
- *  string     NumDistinctPlayersCasual   number of unique players who have earned achievements for the game
- *  string     NumDistinctPlayersHardcore number of unique players who have earned achievements for the game in hardcore
+ *  int        NumDistinctPlayersCasual   number of unique players who have earned achievements for the game
+ *  int        NumDistinctPlayersHardcore number of unique players who have earned achievements for the game in hardcore
  *  int        NumAchievements            count of core achievements associated to the game
  *  map        Achievements
  *   string     [key]                     unique identifier of the achievement
- *    string     ID                       unique identifier of the achievement
+ *    int        ID                       unique identifier of the achievement
  *    string     Title                    title of the achievement
  *    string     Description              description of the achievement
- *    string     Points                   number of points the achievement is worth
- *    string     TrueRatio                number of "white" points the achievement is worth
+ *    int        Points                   number of points the achievement is worth
+ *    int        TrueRatio                number of "white" points the achievement is worth
  *    string     BadgeName                unique identifier of the badge image for the achievement
- *    string     NumAwarded               number of times the achievement has been awarded
- *    string     NumAwardedHardcore       number of times the achievement has been awarded in hardcore
- *    string     DisplayOrder             field used for determining which order to display the achievements
+ *    int        NumAwarded               number of times the achievement has been awarded
+ *    int        NumAwardedHardcore       number of times the achievement has been awarded in hardcore
+ *    int        DisplayOrder             field used for determining which order to display the achievements
  *    string     Author                   user who originally created the achievement
  *    datetime   DateCreated              when the achievement was created
  *    datetime   DateModified             when the achievement was last modified
@@ -41,8 +41,8 @@
  *  array      Claims
  *   object    [value]
  *    string    User                      user holding the claim
- *    string    SetType                   set type claimed: 0 - new set, 1 - revision
- *    string    ClaimType                 claim type: 0 - primary, 1 - collaboration
+ *    int       SetType                   set type claimed: 0 - new set, 1 - revision
+ *    int       ClaimType                 claim type: 0 - primary, 1 - collaboration
  *    string    Created                   date the claim was made
  *    string    Expiration                date the claim will expire
  */
