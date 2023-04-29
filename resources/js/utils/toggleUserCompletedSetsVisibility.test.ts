@@ -1,8 +1,15 @@
 import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi
+} from 'vitest';
 
-import { toggleUserCompletedSetsVisibility } from './toggleUserCompletedSetsVisibility';
+import * as CookieModule from '@/utils/cookie';
+
+import { cookieName, toggleUserCompletedSetsVisibility } from './toggleUserCompletedSetsVisibility';
 
 function render() {
   (document as any).toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
@@ -30,9 +37,7 @@ describe('Util: toggleUserCompletedSetsVisibility', () => {
   it('renders without crashing #sanity', () => {
     render();
 
-    expect(
-      screen.getByRole('checkbox', { name: /hide user completed sets/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /hide user completed sets/i })).toBeInTheDocument();
   });
 
   it('given the checkbox is checked, hides completed rows', async () => {
@@ -44,9 +49,22 @@ describe('Util: toggleUserCompletedSetsVisibility', () => {
 
     // ASSERT
     const allRows = screen.getAllByRole('row');
-    const visibleRows = allRows.filter((row) => row.style.display !== 'none');
+    const visibleRows = allRows.filter((row) => !row.classList.contains('hidden'));
 
     expect(visibleRows.length).toEqual(1);
+  });
+
+  it('given the checkbox is checked, sets a cookie value to "true"', async () => {
+    // ARRANGE
+    const setCookieSpy = vi.spyOn(CookieModule, 'setCookie');
+
+    render();
+
+    // ACT
+    await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
+
+    // ASSERT
+    expect(setCookieSpy).toHaveBeenCalledWith(cookieName, 'true');
   });
 
   it('given the checkbox is unchecked, causes the completed rows to reappear', async () => {
@@ -59,8 +77,22 @@ describe('Util: toggleUserCompletedSetsVisibility', () => {
 
     // ASSERT
     const allRows = screen.getAllByRole('row');
-    const visibleRows = allRows.filter((row) => row.style.display !== 'none');
+    const visibleRows = allRows.filter((row) => !row.classList.contains('hidden'));
 
     expect(visibleRows.length).toEqual(3);
+  });
+
+  it('given the checkbox is unchecked, sets a cookie value to "false"', async () => {
+    // ARRANGE
+    const setCookieSpy = vi.spyOn(CookieModule, 'setCookie');
+
+    render();
+
+    // ACT
+    await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
+    await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
+
+    // ASSERT
+    expect(setCookieSpy).toHaveBeenNthCalledWith(2, cookieName, 'false');
   });
 });
