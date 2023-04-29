@@ -16,6 +16,8 @@ $listOffset = requestInputSanitized('o', 0, 'integer');
 $sortBy = requestInputSanitized('s', 3, 'integer');
 $maxDays = requestInputSanitized('c', 15, 'integer');
 $userBestDaysList = getUserBestDaysList($userPage, $listOffset, $maxDays, $sortBy);
+$date = requestInputSanitized('d', date("Y-m-d"));
+$dateUnix = strtotime("$date");
 
 $sortByGraphName = 'Total Points';
 if ($sortBy == 2 || $sortBy == 12) {
@@ -187,6 +189,15 @@ RenderContentStart("$userPage's Legacy");
   }
 </script>
 
+<script>
+  function convertDate() {
+    const { dateinput, d } = document.gotodateform;
+    const timestamp = new Date(dateinput.value).getTime() / 1000;
+    d.value = timestamp;
+    return true;
+  }
+</script>
+
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
@@ -230,8 +241,13 @@ RenderContentStart("$userPage's Legacy");
         $memberSince = !empty($userSignedUp) ? getNiceDate(strtotime($userSignedUp), true) : '';
         echo "Member since: " . $memberSince . "<br>";
         echo "<br>";
-        echo "<br>";
-        echo "<br>";
+        echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
+        echo "<label for='d' class='font-bold'>Jump to Date: </label>";
+        echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateUnix) . "' />";
+        echo "<input type='hidden' name='d' value='$dateUnix' />";
+        echo "<input type='hidden' name='u' value='$userPage' />";
+        echo "<input type='submit' value='Goto Date' class='ml-1' />";
+        echo "</form>";
 
         echo "</div>";
 
