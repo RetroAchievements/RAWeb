@@ -160,7 +160,7 @@ function getGameMetadata(
         $requestedByStatement = '';
         if ($user) {
             $bindings['username'] = $user;
-            $requestedByStatement = 'OR uab.User = :username';
+            $requestedByStatement = 'OR ua.User = :username';
         }
 
         $gameIdStatement = 'ach.GameID = :gameId';
@@ -171,12 +171,12 @@ function getGameMetadata(
 
         $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
                 FROM (
-                  SELECT awb.User, awb.HardcoreMode
-                  FROM Awarded AS awb
-                  LEFT JOIN Achievements AS ach ON ach.ID = awb.AchievementID
-                  LEFT JOIN UserAccounts AS uab ON uab.User = awb.User
+                  SELECT aw.User, aw.HardcoreMode
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
                   WHERE $gameIdStatement AND ach.Flags = :achievementType
-                  AND (NOT uab.Untracked $requestedByStatement)
+                  AND (NOT ua.Untracked $requestedByStatement)
                 ) AS aw
                 GROUP BY aw.HardcoreMode";
 
