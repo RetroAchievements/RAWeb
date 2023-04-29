@@ -18,7 +18,7 @@ class GameTest extends TestCase
     {
         $this->get($this->apiUrl('GetGame', ['i' => 999999]))
             ->assertSuccessful()
-            ->assertJson([]);
+            ->assertExactJson([]);
     }
 
     public function testGetGame(): void

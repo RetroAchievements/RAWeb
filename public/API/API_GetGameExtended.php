@@ -50,11 +50,19 @@
 $gameID = (int) request()->query('i');
 getGameMetadata($gameID, null, $achData, $gameData, metrics: true);
 
-foreach ($achData as &$achievement) {
-    $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
+if ($gameData === null) {
+    return response()->json();
+}
+
+if (empty($achData)) {
+    $gameData['Achievements'] = new ArrayObject(); // issue #484 - force serialization to {}
+} else {
+    foreach ($achData as &$achievement) {
+        $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
+    }
+    $gameData['Achievements'] = $achData;
 }
 $gameData['Claims'] = getClaimData($gameID, false);
-$gameData['Achievements'] = $achData;
 $gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 
 return response()->json($gameData);

@@ -5,32 +5,27 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimSpecial;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Models\AchievementSetClaim;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 
-class GameExtendedTest extends TestCase
+class GameInfoAndUserProgressTest extends TestCase
 {
     use RefreshDatabase;
     use BootstrapsApiV1;
     use TestsPlayerAchievements;
 
-    public function testGetGameExtendedUnknownGame(): void
+    public function testGetGameInfoAndUserProgressUnknownGame(): void
     {
-        $this->get($this->apiUrl('GetGameExtended', ['i' => 999999]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => 999999, 'u' => $this->user->User]))
             ->assertSuccessful()
             ->assertExactJson([]);
     }
 
-    public function testGetGame(): void
+    public function testGetGameInfoAndUserProgress(): void
     {
         /** @var System $system */
         $system = System::factory()->create();
@@ -80,7 +75,7 @@ class GameExtendedTest extends TestCase
         $this->addHardcoreUnlock($user4, $achievement1);
         $this->addHardcoreUnlock($user4, $achievement2);
 
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $user3->User]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->ID,
@@ -100,7 +95,11 @@ class GameExtendedTest extends TestCase
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
                 'NumDistinctPlayersCasual' => 4,
-                'NumDistinctPlayersHardcore' => 3, // user2 has no hardcore unlocks
+                'NumDistinctPlayersHardcore' => 3,
+                'NumAwardedToUser' => 3,
+                'NumAwardedToUserHardcore' => 1,
+                'UserCompletion' => '100.00%',
+                'UserCompletionHardcore' => '33.33%',
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,
@@ -148,7 +147,7 @@ class GameExtendedTest extends TestCase
             ]);
     }
 
-    public function testGetGameClaimed(): void
+    public function testGetGameInfoAndUserProgressNoAchievements(): void
     {
         /** @var System $system */
         $system = System::factory()->create();
@@ -166,13 +165,8 @@ class GameExtendedTest extends TestCase
             'Released' => 'Jan 1989',
         ]);
 
-        /** @var User $user2 */
-        $user2 = User::factory()->create();
-        insertClaim($user2->User, $game->ID, ClaimType::Primary, ClaimSetType::NewSet,
-                    ClaimSpecial::None, Permissions::Developer);
-        $claim = AchievementSetClaim::first();
-
-        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))
+        // issue #484: empty associative array should still return {}, not []
+        $this->get($this->apiUrl('GetGameInfoAndUserProgress', ['g' => $game->ID, 'u' => $this->user->User]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->ID,
@@ -190,16 +184,14 @@ class GameExtendedTest extends TestCase
                 'Genre' => $game->Genre,
                 'Released' => $game->Released,
                 'IsFinal' => 0,
-                'Achievements' => [],
-                'Claims' => [
-                    [
-                        'User' => $claim->User,
-                        'SetType' => $claim->SetType,
-                        'ClaimType' => $claim->ClaimType,
-                        'Created' => $claim->Created->__toString(),
-                        'Expiration' => $claim->Finished->__toString(),
-                    ],
-                ],
-            ]);
+                'NumAchievements' => 0,
+                'NumDistinctPlayersCasual' => 0,
+                'NumDistinctPlayersHardcore' => 0,
+                'NumAwardedToUser' => 0,
+                'NumAwardedToUserHardcore' => 0,
+                'UserCompletion' => '0.00%',
+                'UserCompletionHardcore' => '0.00%',
+            ])
+            ->assertSee('"Achievements":{},', false);
     }
 }
