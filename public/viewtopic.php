@@ -220,48 +220,40 @@ RenderContentStart($pageTitle);
                 }
             }
 
-            // TODO: Make sure highlights still work.
-            echo "<div class='w-[calc(100%+16px)] rounded mt-3 even:bg-embed even:border-embed bg-embed-highlight border border-embed-highlight -mx-2 px-1 pb-3 pt-2' id='$nextCommentID'>";
-            
-            echo "<div class='pb-1 border-b border-text'>";
+            $userAvatarWithLabel = userAvatar($nextCommentAuthor, label: false, iconSize: 72);
+            $userAvatarWithoutIcon = userAvatar($nextCommentAuthor, icon: false);
+            $permissionsString = Permissions::toString($nextCommentAuthorPermissions);
+            $joinedDate = formatUserJoinedDate($nextCommentAuthorJoinDate);
+            $nextCommentURL = config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID";
+            $postDate = formatPostDate($nextCommentDateCreated);
+            $nextCommentModifiedBlock = ($nextCommentDateModified !== null) ? "<p class='italic smalltext !leading-[14px]'>Last edited " . formatPostDate($nextCommentDateModified) . "</p>" : "";
+            $nextCommentPayloadRendered = Shortcode::render($nextCommentPayload);
 
-            echo "<div class='flex items-center relative w-full'>";
-            echo userAvatar($nextCommentAuthor, label: false, iconSize: 72);
-            echo "<div class='ml-2'>";
-
-            echo "<div class='mb-[2px]'>";
-            echo userAvatar($nextCommentAuthor, icon: false);
-            echo "</div>";
-            echo "<p class='smalltext !leading-4 !text-xs'>" . Permissions::toString($nextCommentAuthorPermissions) . "</p>";
-            echo "<p class='smalltext !leading-4 !text-xs'>1,129 Posts</p>";
-            echo "<p class='smalltext !leading-4 !text-xs'>Joined " . formatUserJoinedDate($nextCommentAuthorJoinDate) . "</p>";
-
-            // echo "<p class='smalltext text-muted !leading-[14px]'>" . formatDateToHumanReadable($nextCommentDateCreatedNiceDate) . "</p>";
-            // if ($nextCommentDateModified !== null) {
-            //     echo "<p class='smalltext italic !leading-[14px]'>Edited " . formatDateToHumanReadable($nextCommentDateModifiedNiceDate) . "</p>";
-            // }
-            echo "</div>";
-
-            echo "<button class='btn p-1 absolute text-xs -top-1 right-0' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>#$nextCommentIndex</button>";
-
-            echo "</div>";
-
-            echo "</div>";
-
-            echo "<div class='comment pt-2 pb-4 px-1'>";
-
-            echo "<div class='mb-4'>";
-            echo "<p class='smalltext !leading-[14px]'>" . formatPostDate($nextCommentDateCreated) . "</p>";
-            if ($nextCommentDateModified !== null) {
-                echo "<p class='italic smalltext !leading-[14px]'>Last edited " . formatPostDate($nextCommentDateModified) . "</p>";
-            }
-            echo "</div>";
-
-            echo Shortcode::render($nextCommentPayload);
-
-            echo "</div>";
-
-            echo "</div>";
+            echo <<<HTML
+                <div class='w-[calc(100%+16px)] lg:flex rounded mt-3 even:bg-embed even:border-embed bg-embed-highlight border border-embed-highlight -mx-2 px-1 pb-3 pt-2' id='$nextCommentID'>
+                    <div class='pb-1 border-b border-text'>
+                        <div class='flex items-center relative w-full'>
+                            $userAvatarWithLabel
+                            <div class='ml-2'>
+                                <div class='mb-[2px]'>
+                                    $userAvatarWithoutIcon
+                                </div>
+                                <p class='smalltext !leading-4 !text-xs'>$permissionsString</p>
+                                <p class='smalltext !leading-4 !text-xs'>1,129 Posts</p>
+                                <p class='smalltext !leading-4 !text-xs'>Joined $joinedDate</p>
+                            </div>
+                            <button class='btn p-1 absolute text-xs -top-1 right-0' onclick='copyToClipboard("$nextCommentURL");showStatusSuccess("Copied")'>#$nextCommentIndex</button>
+                        </div>
+                    </div>
+                    <div class='comment pt-2 pb-4 px-1'>
+                        <div class='mb-4'>
+                            <p class='smalltext !leading-[14px]'>$postDate</p>
+                            $nextCommentModifiedBlock
+                        </div>
+                        $nextCommentPayloadRendered
+                    </div>
+                </div>
+            HTML;
 
             //     if (isset($gotoCommentID) && $nextCommentID == $gotoCommentID) {
             //         echo "<tr class='highlight'>";
