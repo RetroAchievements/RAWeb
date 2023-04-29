@@ -201,6 +201,7 @@ function getAchievementUnlockCount(int $achID): int
  */
 function getAchievementUnlocksData(
     int $achievementId,
+    ?int $parentGameId = null,
     ?int &$numWinners,
     ?int &$numPossibleWinners,
     ?string $username,
@@ -236,7 +237,7 @@ function getAchievementUnlocksData(
     $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], requestedBy: $username);
+    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username, achievementType: AchievementType::OfficialCore);
 
     // Get recent winners, and their most recent activity
     $bindings = [
