@@ -144,7 +144,7 @@ function ListGames(
                     echo "<a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
                     $ticketsCount += $openTickets;
                 } else {
-                    echo "<a href='ticketmanager.php?g=$gameID&u=$dev'>$devTickets</a> of <a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
+                    echo "<a href='ticketmanager.php?g=$gameID'>$devTickets of $openTickets</a>";
                     $ticketsCount += $devTickets;
                 }
             }
