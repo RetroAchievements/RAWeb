@@ -5,3 +5,5 @@ export * from './handleLeaderboardTabClick';
 export * from './helpers';
 export * from './injectShortcode';
 export * from './theme';
+export * from './toggleUserCompletedSetsVisibility';
+export * from './tooltip';

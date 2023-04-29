@@ -8,6 +8,7 @@ import {
   handleLeaderboardTabClick,
   injectShortcode,
   themeChange,
+  toggleUserCompletedSetsVisibility,
 } from './utils';
 import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 
@@ -19,16 +20,11 @@ lazyLoadModuleOnIdFound({
   moduleNameToAttachToWindow: 'reorderSiteAwards',
 });
 
-lazyLoadModuleOnIdFound({
-  elementId: 'hide-user-completed-sets-checkbox',
-  codeFileName: 'toggleUserCompletedSetsVisibility',
-  moduleNameToAttachToWindow: 'toggleUserCompletedSetsVisibility',
-});
-
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.injectShortcode = injectShortcode;
 window.attachTooltipToElement = attachTooltipToElement;
+window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
 // Alpine needs to be placed after all `window` injection
 // or race conditions could occur.

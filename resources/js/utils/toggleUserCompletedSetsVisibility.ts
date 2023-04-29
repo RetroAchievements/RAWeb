@@ -1,3 +1,7 @@
+import { setCookie } from '@/utils/cookie';
+
+export const cookieName = 'prefers_hidden_user_completed_sets';
+
 /**
  * Toggles the visibility of user completed sets in a table based on the
  * state of the "Hide user completed sets" checkbox. When the checkbox is
@@ -12,13 +16,20 @@ export function toggleUserCompletedSetsVisibility() {
     'hide-user-completed-sets-checkbox'
   ) as HTMLInputElement | null;
 
-  const completionProgressRows = document.querySelectorAll<HTMLTableRowElement>(
+  const completionProgressRowEls = document.querySelectorAll<HTMLTableRowElement>(
     '#usercompletedgamescomponent tr.completion-progress-completed-row'
   );
 
-  if (checkboxEl && completionProgressRows) {
-    completionProgressRows.forEach((row) => {
-      row.style.display = checkboxEl.checked ? 'none' : '';
+  if (checkboxEl && completionProgressRowEls) {
+    const isChecked = checkboxEl.checked;
+    setCookie(cookieName, isChecked ? 'true' : 'false');
+
+    completionProgressRowEls.forEach((rowEl) => {
+      if (isChecked) {
+        rowEl.classList.add('hidden');
+      } else {
+        rowEl.classList.remove('hidden');
+      }
     });
   }
 }
