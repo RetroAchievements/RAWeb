@@ -80,7 +80,7 @@ $forumTopic = [
 
 $parentGameID = getParentGameIdFromGameTitle($game['Title']);
 
-$unlocks = getAchievementUnlocksData((int) $achievementID, $parentGameID, $numWinners, $numPossibleWinners, null, 0, 500);
+$unlocks = getAchievementUnlocksData((int) $achievementID, null, $numWinners, $numPossibleWinners, null, 0, 500);
 
 /*
  * reset unlocks if there is no start date to prevent listing invalid entries

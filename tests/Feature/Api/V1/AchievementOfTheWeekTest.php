@@ -6,6 +6,7 @@ namespace Tests\Feature\Api\V1;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\PlayerAchievement;
@@ -37,7 +38,7 @@ class AchievementOfTheWeekTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->create(['GameID' => $game->ID]);
+        $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'Flags' => AchievementType::OfficialCore]);
         $now = Carbon::now();
         /** @var PlayerAchievement $unlock */
         $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User, 'Date' => $now]);
