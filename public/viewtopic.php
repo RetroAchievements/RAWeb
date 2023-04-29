@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Carbon;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Community\Enums\UserAction;
 use LegacyApp\Site\Enums\Permissions;
@@ -65,6 +66,21 @@ sanitize_outputs(
 $pageTitle = "Topic: $thisTopicForum - $thisTopicTitle";
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
+
+function formatDateToHumanReadable(string $rawDate): string
+{
+    $rawPostDateFormat = 'd M, Y H:i';
+    $givenDate = Carbon::createFromFormat($rawPostDateFormat, $rawDate);
+    $now = Carbon::now();
+
+    if ($givenDate->gt($now->subHours(24))) {
+        // "5 minutes ago"
+        return $givenDate->diffForHumans();
+    } else {
+        // "January 4, 2012"
+        return $givenDate->format('F j, Y');
+    }
+}
 
 RenderContentStart($pageTitle);
 ?>
@@ -150,18 +166,18 @@ RenderContentStart($pageTitle);
         echo "</div>";
         echo "</div>";
 
-        echo "<div class='table-wrapper'>";
-        echo "<table class='table-highlight'><tbody>";
         // Output all topics, and offer 'prev/next page'
-        foreach ($commentList as $commentData) {
+        foreach ($commentList as $index => $commentData) {
             // Output one forum, then loop
             $nextCommentID = $commentData['ID'];
             $nextCommentPayload = $commentData['Payload'];
             $nextCommentAuthor = $commentData['Author'];
             $nextCommentAuthorID = $commentData['AuthorID'];
+            $nextCommentAuthorPermissions = $commentData['AuthorPermissions'];
             $nextCommentDateCreated = $commentData['DateCreated'];
             $nextCommentDateModified = $commentData['DateModified'];
             $nextCommentAuthorised = $commentData['Authorised'];
+            $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
 
             if ($nextCommentDateCreated !== null) {
                 $nextCommentDateCreatedNiceDate = date("d M, Y H:i", strtotime($nextCommentDateCreated));
@@ -197,67 +213,98 @@ RenderContentStart($pageTitle);
                 }
             }
 
-            if (isset($gotoCommentID) && $nextCommentID == $gotoCommentID) {
-                echo "<tr class='highlight'>";
-            } else {
-                echo "<tr>";
-            }
+            // TODO: Make sure highlights still work.
+            echo "<div class='w-[calc(100%+16px)] rounded mt-3 even:bg-embed even:border-embed bg-embed-highlight border border-embed-highlight -mx-2 px-1 pb-3 pt-2' id='$nextCommentID'>";
+            
+            echo "<div class='border-b border-text'>";
 
-            echo "<td class='align-top py-3'>";
-            echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
-            echo "</td>";
+            echo "<div class='flex relative w-full'>";
+            echo userAvatar($nextCommentAuthor, label: false, iconSize: 72);
+            echo "<div class='ml-2'>";
 
-            echo "<td class='w-full py-3 break-all' id='$nextCommentID'>";
-
-            echo "<div class='flex justify-between mb-2'>";
-            echo "<div>";
             echo userAvatar($nextCommentAuthor, icon: false);
-            if ($showDisclaimer) {
-                echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
-            }
-            echo "<span class='smalltext text-muted ml-2'>$nextCommentDateCreatedNiceDate</span>";
+            echo "<p class='smalltext text-muted !leading-[14px]'>" . Permissions::toString($nextCommentAuthorPermissions) . "</p>";
+            echo "<p class='smalltext text-muted !leading-[14px]'>" . formatDateToHumanReadable($nextCommentDateCreatedNiceDate) . "</p>";
             if ($nextCommentDateModified !== null) {
-                echo "<i class='smalltext ml-3'>(Edited $nextCommentDateModifiedNiceDate)</i>";
+                echo "<p class='smalltext italic !leading-[14px]'>Edited " . formatDateToHumanReadable($nextCommentDateModifiedNiceDate) . "</p>";
             }
-            echo "</div>";
-            echo "<div class='flex gap-1'>";
-            if ($showAuthoriseTools) {
-                echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Authorise this user and all their posts?\')'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
-                echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
-                echo "<input type='hidden' name='value' value='1' />";
-                echo "<button class='btn py-1'>Authorise</button>";
-                echo "</form>";
-                echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Permanently Block (spam)?\')'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
-                echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
-                echo "<input type='hidden' name='value' value='0' />";
-                echo "<button class='btn btn-danger py-1'>Block</button>";
-                echo "</form>";
-            }
-            if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
-                echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
-            }
-            echo "<span class='btn py-1' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>";
-            echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
-            echo "</span>";
-            echo "</div>";
             echo "</div>";
 
-            echo "<div class='comment' style='word-break: normal; overflow-wrap: anywhere;'>";
+            echo "<button class='btn p-1 absolute text-xs -top-1 right-0' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>#$nextCommentIndex</button>";
+
+            echo "</div>";
+
+            echo "</div>";
+
+            echo "<div class='comment py-4 px-1'>";
             echo Shortcode::render($nextCommentPayload);
             echo "</div>";
 
-            echo "</td>";
-            echo "</tr>";
+            echo "</div>";
+
+            //     if (isset($gotoCommentID) && $nextCommentID == $gotoCommentID) {
+            //         echo "<tr class='highlight'>";
+            //     } else {
+            //         echo "<tr>";
+            //     }
+
+            //     echo "<td class='align-top py-3'>";
+            //     echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
+            //     echo "</td>";
+
+            //     echo "<td class='w-full py-3 break-all' id='$nextCommentID'>"; // used for highlights MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            //     echo "<div class='flex justify-between mb-2'>";
+            //     echo "<div>";
+            //     echo userAvatar($nextCommentAuthor, icon: false);
+            
+            //     if ($showDisclaimer) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            //         echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
+            //     }
+            //     echo "<span class='smalltext text-muted ml-2'>$nextCommentDateCreatedNiceDate</span>";
+            //     if ($nextCommentDateModified !== null) {
+            //         echo "<i class='smalltext ml-3'>(Edited $nextCommentDateModifiedNiceDate)</i>";
+            //     }
+            //     echo "</div>";
+            //     echo "<div class='flex gap-1'>";
+            //     if ($showAuthoriseTools) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //         echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Authorise this user and all their posts?\')'>";
+            //         echo csrf_field();
+            //         echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
+            //         echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
+            //         echo "<input type='hidden' name='value' value='1' />";
+            //         echo "<button class='btn py-1'>Authorise</button>";
+            //         echo "</form>";
+            //         echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Permanently Block (spam)?\')'>";
+            //         echo csrf_field();
+            //         echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
+            //         echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
+            //         echo "<input type='hidden' name='value' value='0' />";
+            //         echo "<button class='btn btn-danger py-1'>Block</button>";
+            //         echo "</form>";
+            //     }
+            //     if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //         echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
+            //     }
+            //     echo "<span class='btn py-1' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>";
+            //     echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
+            //     echo "</span>";
+            //     echo "</div>";
+            //     echo "</div>";
+
+            //     echo "<div class='comment' style='word-break: normal; overflow-wrap: anywhere;'>";
+            //     echo Shortcode::render($nextCommentPayload);
+            //     echo "</div>";
+
+            //     echo "</td>";
+            //     echo "</tr>";
         }
 
-        if (count($commentList) % 2 == 1) {
-            echo "<tr><td colspan=2 class='smalltext'></td></tr>";
-        }
-        echo "</tbody></table></div>";
+
+        // if (count($commentList) % 2 == 1) {
+        //     echo "<tr><td colspan=2 class='smalltext'></td></tr>";
+        // }
 
         if ($numTotalComments > $count) {
             echo "<div class='mb-3'>";
