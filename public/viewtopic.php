@@ -69,8 +69,7 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
 function formatPostDate(string $rawDate): string
 {
-    $rawPostDateFormat = 'd M, Y H:i';
-    $givenDate = Carbon::createFromFormat($rawPostDateFormat, $rawDate);
+    $givenDate = Carbon::parse($rawDate);
     $now = Carbon::now();
 
     if ($givenDate->gt($now->subHours(24))) {
@@ -224,15 +223,18 @@ RenderContentStart($pageTitle);
             // TODO: Make sure highlights still work.
             echo "<div class='w-[calc(100%+16px)] rounded mt-3 even:bg-embed even:border-embed bg-embed-highlight border border-embed-highlight -mx-2 px-1 pb-3 pt-2' id='$nextCommentID'>";
             
-            echo "<div class='border-b border-text'>";
+            echo "<div class='pb-1 border-b border-text'>";
 
-            echo "<div class='flex relative w-full'>";
+            echo "<div class='flex items-center relative w-full'>";
             echo userAvatar($nextCommentAuthor, label: false, iconSize: 72);
             echo "<div class='ml-2'>";
 
+            echo "<div class='mb-[2px]'>";
             echo userAvatar($nextCommentAuthor, icon: false);
-            echo "<p class='smalltext text-muted !leading-[14px]'>" . Permissions::toString($nextCommentAuthorPermissions) . "</p>";
-            echo "<p class='smalltext text-muted !leading-[14px]'>Joined " . formatUserJoinedDate($nextCommentAuthorJoinDate) . "</p>";
+            echo "</div>";
+            echo "<p class='smalltext !leading-4 !text-xs'>" . Permissions::toString($nextCommentAuthorPermissions) . "</p>";
+            echo "<p class='smalltext !leading-4 !text-xs'>1,129 Posts</p>";
+            echo "<p class='smalltext !leading-4 !text-xs'>Joined " . formatUserJoinedDate($nextCommentAuthorJoinDate) . "</p>";
 
             // echo "<p class='smalltext text-muted !leading-[14px]'>" . formatDateToHumanReadable($nextCommentDateCreatedNiceDate) . "</p>";
             // if ($nextCommentDateModified !== null) {
@@ -246,8 +248,17 @@ RenderContentStart($pageTitle);
 
             echo "</div>";
 
-            echo "<div class='comment py-4 px-1'>";
+            echo "<div class='comment pt-2 pb-4 px-1'>";
+
+            echo "<div class='mb-4'>";
+            echo "<p class='smalltext !leading-[14px]'>" . formatPostDate($nextCommentDateCreated) . "</p>";
+            if ($nextCommentDateModified !== null) {
+                echo "<p class='italic smalltext !leading-[14px]'>Last edited " . formatPostDate($nextCommentDateModified) . "</p>";
+            }
+            echo "</div>";
+
             echo Shortcode::render($nextCommentPayload);
+
             echo "</div>";
 
             echo "</div>";
