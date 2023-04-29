@@ -8,7 +8,7 @@ use LegacyApp\Platform\Enums\AchievementType;
 
 class UpdateGameWeightedPoints
 {
-    public function run(int $gameId): bool
+    public function run(int $gameId, ?int $parentGameId): bool
     {
         $query = "SELECT ach.ID, ach.Points, SUM(CASE WHEN NOT ua.Untracked THEN aw.HardcoreMode ELSE 0 END) AS NumAchieved
               FROM Achievements AS ach
@@ -21,7 +21,7 @@ class UpdateGameWeightedPoints
         $dbResult = s_mysql_query($query);
 
         if ($dbResult !== false) {
-            $numHardcoreWinners = getTotalUniquePlayers($gameId, null, true, AchievementType::OfficialCore);
+            $numHardcoreWinners = getTotalUniquePlayers((int) $gameId, $parentGameId, null, true, AchievementType::OfficialCore);
 
             if ($numHardcoreWinners == 0) { // force all unachieved to be 1
                 $numHardcoreWinners = 1;

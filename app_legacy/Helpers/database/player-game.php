@@ -412,38 +412,65 @@ function getUsersCompletedGamesAndMax(string $user): array
     return legacyDbFetchAll($query)->toArray();
 }
 
-function getTotalUniquePlayers(int $gameID, ?string $requestedBy = null, bool $hardcoreOnly = false, ?int $achievementType = null): int
+function getTotalUniquePlayers(int $gameID, ?int $parentGameID = null, ?string $requestedBy = null, bool $hardcoreOnly = false, ?int $achievementType = null): int
 {
     $bindings = [
         'gameId' => $gameID,
     ];
 
-    $hardcoreStatement = '';
+    $hardcoreStatement1 = '';
+    $hardcoreStatement2 = '';
     if ($hardcoreOnly) {
         $bindings['unlockMode'] = UnlockMode::Hardcore;
-        $hardcoreStatement = ' AND aw.HardcoreMode = :unlockMode';
+        $hardcoreStatement1 = ' AND awh.HardcoreMode = :unlockMode';
     }
 
-    $achievementStatement = '';
+    $achievementStatement1 = '';
+    $achievementStatement2 = '';
     if ($achievementType !== null) {
         $bindings['achievementType'] = $achievementType;
-        $achievementStatement = 'AND ach.Flags = :achievementType';
+        $achievementStatement1 = 'AND achh.Flags = :achievementType';
     }
 
     $requestedByStatement = '';
     if ($requestedBy) {
         $bindings['requestedBy'] = $requestedBy;
-        $requestedByStatement = 'OR ua.User = :requestedBy';
+        $requestedByStatement = 'OR uah.User = :requestedBy';
+    }
+
+    $parentGameIdStatement = '';
+    if ($parentGameID !== null) {
+        $bindings['parentGameId'] = $parentGameID;
+        $bindings['unlockMode2'] = UnlockMode::Hardcore;
+        $bindings['achievementType2'] = $achievementType;
+
+        $hardcoreStatement2 = ' AND awb.HardcoreMode = :unlockMode2';
+        $achievementStatement2 = 'AND achb.Flags = :achievementType2';
+
+        $parentGameIdStatement = "
+            UNION ALL
+            SELECT awb.User, awb.HardcoreMode
+            FROM Awarded AS awb
+            LEFT JOIN Achievements AS achb ON achb.ID = awb.AchievementID
+            LEFT JOIN UserAccounts AS uab ON uab.User = awb.User
+            WHERE achb.GameID = :parentGameId
+            $hardcoreStatement2 $achievementStatement2
+            AND (NOT uab.Untracked)
+        ";
     }
 
     $query = "
         SELECT COUNT(DISTINCT aw.User) As UniquePlayers
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ach.GameID = :gameId
-        $hardcoreStatement $achievementStatement
-        AND (NOT ua.Untracked $requestedByStatement)
+        FROM (
+            SELECT awh.User, awh.HardcoreMode
+            FROM Awarded AS awh
+            LEFT JOIN Achievements AS achh ON achh.ID = awh.AchievementID
+            LEFT JOIN UserAccounts AS uah ON uah.User = awh.User
+            WHERE achh.GameID = :gameId
+            $hardcoreStatement1 $achievementStatement1
+            AND (NOT uah.Untracked $requestedByStatement)
+            $parentGameIdStatement
+        ) AS aw
     ";
 
     return (int) (legacyDbFetch($query, $bindings)['UniquePlayers'] ?? 0);

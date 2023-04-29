@@ -236,7 +236,7 @@ function getAchievementUnlocksData(
     $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $username);
+    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], requestedBy: $username);
 
     // Get recent winners, and their most recent activity
     $bindings = [
