@@ -1,6 +1,6 @@
 import type { Alpine } from 'alpinejs';
 
-import type { attachTooltipToElement as AttachTooltipToElement } from '../tooltip';
+import type { attachTooltipToElement as AttachTooltipToElement } from '@/tooltip';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
