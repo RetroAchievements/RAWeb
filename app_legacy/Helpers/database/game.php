@@ -235,31 +235,8 @@ function getGamesListByDev(
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
-
-    if ($ticketsFlag) {
-        $selectTickets = ", ticks.OpenTickets";
-        $joinTicketsTable = "
-        LEFT JOIN (
-            SELECT
-                ach.GameID,
-                count( DISTINCT tick.ID ) AS OpenTickets
-            FROM
-                Ticket AS tick
-            LEFT JOIN
-                Achievements AS ach ON ach.ID = tick.AchievementID
-            WHERE
-                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
-            GROUP BY
-                ach.GameID
-        ) as ticks ON ticks.GameID = gd.ID ";
-    } else {
-        $selectTickets = null;
-        $joinTicketsTable = null;
-    }
-
-    if ($consoleID != 0) {
-        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
-    }
+    $selectTickets = null;
+    $joinTicketsTable = null;
 
     if ($dev != null) {
         $bindings['myAchDev'] = $dev;
@@ -278,6 +255,30 @@ function getGamesListByDev(
         } elseif ($filter == 1) { // only without achievements
             $havingCond = "HAVING NumAchievements = 0 ";
         }
+    }
+
+    if ($ticketsFlag) {
+        $selectTickets = ", ticks.OpenTickets";
+        $joinTicketsTable = "
+        LEFT JOIN (
+            SELECT
+                ach.GameID,
+                count( DISTINCT tick.ID ) AS OpenTickets,
+                SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyOpenTickets
+            FROM
+                Ticket AS tick
+            LEFT JOIN
+                Achievements AS ach ON ach.ID = tick.AchievementID
+            WHERE
+                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
+            GROUP BY
+                ach.GameID
+        ) as ticks ON ticks.GameID = gd.ID ";
+        $moreSelectCond .= "ticks.MyOpenTickets,";
+    }
+
+    if ($consoleID != 0) {
+        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
     }
 
     $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName,
