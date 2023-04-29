@@ -85,7 +85,7 @@ function formatUserJoinedDate(string $rawDate): string
 {
     $givenDate = Carbon::parse($rawDate);
     // "January 4, 2012"
-    return $givenDate->format('F j, Y');
+    return $givenDate->format('M j, Y');
 }
 
 RenderContentStart($pageTitle);
@@ -220,36 +220,38 @@ RenderContentStart($pageTitle);
                 }
             }
 
-            $userAvatarWithLabel = userAvatar($nextCommentAuthor, label: false, iconSize: 72);
+            $userAvatarWithoutLabel = userAvatar($nextCommentAuthor, label: false, iconSize: 72, iconClass: 'rounded-sm');
             $userAvatarWithoutIcon = userAvatar($nextCommentAuthor, icon: false);
             $permissionsString = Permissions::toString($nextCommentAuthorPermissions);
             $joinedDate = formatUserJoinedDate($nextCommentAuthorJoinDate);
             $nextCommentURL = config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID";
             $postDate = formatPostDate($nextCommentDateCreated);
-            $nextCommentModifiedBlock = ($nextCommentDateModified !== null) ? "<p class='italic smalltext !leading-[14px]'>Last edited " . formatPostDate($nextCommentDateModified) . "</p>" : "";
+            $nextCommentModifiedBlock = ($nextCommentDateModified !== null) ? "<span class='italic smalltext !leading-[14px]'>last edited " . formatPostDate($nextCommentDateModified) . "</span>" : "";
             $nextCommentPayloadRendered = Shortcode::render($nextCommentPayload);
+            $postDateWithOptionalModifiedBlock = $postDate . ($nextCommentModifiedBlock !== '' ? ', ' : '') . $nextCommentModifiedBlock;
 
             echo <<<HTML
-                <div class='w-[calc(100%+16px)] lg:flex rounded mt-3 even:bg-embed even:border-embed bg-embed-highlight border border-embed-highlight -mx-2 px-1 pb-3 pt-2' id='$nextCommentID'>
-                    <div class='pb-1 border-b border-text'>
-                        <div class='flex items-center relative w-full'>
-                            $userAvatarWithLabel
-                            <div class='ml-2'>
-                                <div class='mb-[2px]'>
-                                    $userAvatarWithoutIcon
-                                </div>
-                                <p class='smalltext !leading-4 !text-xs'>$permissionsString</p>
-                                <p class='smalltext !leading-4 !text-xs'>1,129 Posts</p>
-                                <p class='smalltext !leading-4 !text-xs'>Joined $joinedDate</p>
+                <div class='w-[calc(100%+16px)] sm:w-full -mx-2 sm:mx-0 lg:flex rounded-lg mt-3 even:bg-embed bg-embed-highlight px-1 pb-3 pt-2' id='$nextCommentID'>
+                    <div class='pb-2 lg:py-2 px-0.5 border-b lg:border-b-0 lg:border-r border-neutral-700'>
+                        <div class='flex lg:flex-col lg:text-center items-center relative w-full lg:w-44'>
+                            $userAvatarWithoutLabel
+                            <div class='ml-2 lg:ml-0'>
+                                <div class='mb-[2px] lg:mt-1'>$userAvatarWithoutIcon</div>
+                                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>$permissionsString</p>
+                                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>1,129 Posts</p>
+                                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>Joined $joinedDate</p>
                             </div>
                             <button class='btn p-1 absolute text-xs -top-1 right-0' onclick='copyToClipboard("$nextCommentURL");showStatusSuccess("Copied")'>#$nextCommentIndex</button>
                         </div>
                     </div>
-                    <div class='comment pt-2 pb-4 px-1'>
-                        <div class='mb-4'>
-                            <p class='smalltext !leading-[14px]'>$postDate</p>
-                            $nextCommentModifiedBlock
+
+                    <div class='comment pt-2 pb-4 lg:py-0 px-1 lg:px-6'>
+                        <div class='mb-4 lg:mb-3'>
+                            <p class='smalltext !leading-[14px]'>
+                                $postDateWithOptionalModifiedBlock
+                            </p>
                         </div>
+
                         $nextCommentPayloadRendered
                     </div>
                 </div>
