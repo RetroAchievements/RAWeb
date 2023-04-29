@@ -20,9 +20,6 @@ $achievementId = (int) $input['achievement'];
 $embedUrl = $input['video'];
 
 $achievement = Achievement::find($achievementId);
-if (!$achievement) {
-    abort(400);
-}
 
 $currentVideoUrl = $achievement['AssocVideo'];
 
@@ -34,18 +31,10 @@ if (
     abort(401);
 }
 
-function buildAuditLogMessage(string $user, ?string $currentVideoUrl, ?string $embedUrl): string {
-    if ($currentVideoUrl && $embedUrl) {
-        return "$user changed this achievement's embed URL from $currentVideoUrl to $embedUrl.";
-    } elseif ($currentVideoUrl && !$embedUrl) {
-        return "$user changed this achievement's embed URL from $currentVideoUrl to no embed URL.";
-    }
-
-    return "$user set this achievement's embed URL to $embedUrl.";
-}
-
 if (updateAchievementEmbedVideo($achievementId, $embedUrl)) {
-    $auditLog = buildAuditLogMessage($user, $currentVideoUrl, $embedUrl);
+    $embedUrlText = $embedUrl === null ? 'null' : $embedUrl;
+    $auditLog = "$user set this achievement's embed URL to $embedUrlText.";
+
     addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $user);
 
     return response()->json(['message' => __('legacy.success.ok')]);
