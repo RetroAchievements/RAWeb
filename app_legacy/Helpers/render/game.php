@@ -100,7 +100,7 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 /**
  * Render console icon based on given system ID
  *
- * Fallback to a default image if icon not found on server
+ * Fallback to a default image if icon fails to be found on server
  */
 function renderConsoleIcon(string $consoleName, int $consoleID): string {
     $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
@@ -109,12 +109,7 @@ function renderConsoleIcon(string $consoleName, int $consoleID): string {
     $iconPath = public_path("assets/images/system/$iconName.png");
     $iconUrl = file_exists($iconPath) ? asset("assets/images/system/$iconName.png") : $fallBackConsoleIcon;
 
-    return <<<HTML
-        <img class='console-icon'
-            src='$iconUrl'
-            alt='$consoleName icon'
-            onerror='this.src="$fallBackConsoleIcon"'>
-    HTML;
+    return "<img class='console-icon' src='$iconUrl' alt='$consoleName icon'>";
 }
 
 /**
