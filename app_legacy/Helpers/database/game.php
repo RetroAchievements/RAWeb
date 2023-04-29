@@ -25,7 +25,7 @@ function getGameData(int $gameID): ?array
 // If the game is a subset, identify its parent game ID.
 function getParentGameIdFromGameTitle(string $title): ?int {
     if (preg_match('/^(.*)\[Subset - Bonus\]$/', $title, $matches)) {
-        $baseSetTitle = $matches[1];
+        $baseSetTitle = trim($matches[1]);
         $query = "SELECT ID FROM GameData WHERE Title = :title";
         $result = legacyDbFetch($query, ['title' => $baseSetTitle]);
 
