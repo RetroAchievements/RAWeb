@@ -418,16 +418,16 @@ function getTotalUniquePlayers(int $gameID, ?int $parentGameID = null, ?string $
         'gameId' => $gameID,
     ];
 
-    $baseUnlockModeStatement = '';
+    $unlockModeStatement = '';
     if ($hardcoreOnly) {
-        $bindings['baseUnlockMode'] = UnlockMode::Hardcore;
-        $baseUnlockModeStatement = ' AND aw.HardcoreMode = :baseUnlockMode';
+        $bindings['unlockMode'] = UnlockMode::Hardcore;
+        $unlockModeStatement = ' AND aw.HardcoreMode = :unlockMode';
     }
 
-    $baseAchievementFlagsStatement = '';
+    $achievementFlagsStatement = '';
     if ($achievementType !== null) {
-        $bindings['baseAchievementType'] = $achievementType;
-        $baseAchievementFlagsStatement = 'AND ach.Flags = :baseAchievementType';
+        $bindings['achievementType'] = $achievementType;
+        $achievementFlagsStatement = 'AND ach.Flags = :achievementType';
     }
 
     $requestedByStatement = '';
@@ -448,7 +448,7 @@ function getTotalUniquePlayers(int $gameID, ?int $parentGameID = null, ?string $
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
         WHERE $gameIdStatement
-        $baseUnlockModeStatement $baseAchievementFlagsStatement
+        $unlockModeStatement $achievementFlagsStatement
         AND (NOT ua.Untracked $requestedByStatement)
     ";
 
