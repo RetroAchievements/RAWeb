@@ -75,12 +75,11 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
 
     $missableTag = '';
     if ($tags) {
-        $missableTag = "<span class='tag missable' title='Missable'><abbr>[<span>m</span>]</abbr></span>";
+        $missableTag = " <span class='tag missable' title='Missable'><abbr>[<span>m</span>]</abbr></span>";
     }
     $title = str_replace('[m]', '', $title);
-    $title = str_replace('  ', ' ', $title);
 
-    return "$title $missableTag";
+    return "$title$missableTag";
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
