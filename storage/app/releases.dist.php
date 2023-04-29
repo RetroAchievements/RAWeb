@@ -176,7 +176,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
             'handle' => 'DuckStation',
             'active' => true,
             'link' => 'https://github.com/stenzek/duckstation/wiki',
-            'download_url' => 'duckstation.org',
+            'download_url' => 'https://duckstation.org',
             'systems' => [
                 12, // PlayStation
             ],
