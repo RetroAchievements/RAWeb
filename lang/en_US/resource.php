@@ -202,4 +202,10 @@ return [
             'title' => __('timezone') . '|' . __('timezones'),
         ],
     ],
+    'vote' => [
+        'title' => __('vote') . '|' . __('votes'),
+        'star' => [
+            'title' => __('star') . '|' . __('stars'),
+        ],
+    ],
 ];
