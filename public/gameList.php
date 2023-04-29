@@ -208,7 +208,7 @@ RenderContentStart($requestedConsole . " Games");
                     echo "<br/>";
                 }
             } else {
-                echo "<h2 class='flex'>";
+                echo "<h2 class='flex items-center'>";
                 echo renderConsoleIcon($consoleName, $consoleIDInput);
                 echo " <div class='console-name'>$consoleName</div>";
                 echo "</h2>";
