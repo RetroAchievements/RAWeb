@@ -59,6 +59,7 @@ function ListGames(
         echo "<th>Title</th>";
         echo "<th>Achievements</th>";
         echo "<th>Points</th>";
+        echo "<th>Retro Ratio</th>";
         echo "<th style='white-space: nowrap'>Last Updated</th>";
         echo "<th>Leaderboards</th>";
 
