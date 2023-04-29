@@ -231,6 +231,27 @@ function getGamesListByDev(
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
+    $selectTickets = null;
+    $joinTicketsTable = null;
+
+    if ($dev != null) {
+        $bindings['myAchDev'] = $dev;
+        $bindings['myPtsDev'] = $dev;
+        $bindings['myRRDev'] = $dev;
+        $bindings['notMyAchDev'] = $dev;
+        $moreSelectCond = "SUM(CASE WHEN ach.Author = :myAchDev THEN 1 ELSE 0 END) AS MyAchievements,
+                           SUM(CASE WHEN ach.Author = :myPtsDev THEN ach.Points ELSE 0 END) AS MyPoints,
+                           SUM(CASE WHEN ach.Author = :myRRDev THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
+                           SUM(CASE WHEN ach.Author != :notMyAchDev THEN 1 ELSE 0 END) AS NotMyAchievements,
+                           lbdi.MyLBs,";
+        $havingCond = "HAVING MyAchievements > 0 ";
+    } else {
+        if ($filter == 0) { // only with achievements
+            $havingCond = "HAVING NumAchievements > 0 ";
+        } elseif ($filter == 1) { // only without achievements
+            $havingCond = "HAVING NumAchievements = 0 ";
+        }
+    }
 
     if ($ticketsFlag) {
         $selectTickets = ", ticks.OpenTickets";
@@ -249,33 +270,11 @@ function getGamesListByDev(
             GROUP BY
                 ach.GameID
         ) as ticks ON ticks.GameID = gd.ID ";
-    } else {
-        $selectTickets = null;
-        $joinTicketsTable = null;
+        $moreSelectCond .= "ticks.MyOpenTickets,";
     }
 
     if ($consoleID != 0) {
         $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
-    }
-
-    if ($dev != null) {
-        $bindings['myAchDev'] = $dev;
-        $bindings['myPtsDev'] = $dev;
-        $bindings['myRRDev'] = $dev;
-        $bindings['notMyAchDev'] = $dev;
-        $moreSelectCond = "SUM(CASE WHEN ach.Author = :myAchDev THEN 1 ELSE 0 END) AS MyAchievements,
-                           SUM(CASE WHEN ach.Author = :myPtsDev THEN ach.Points ELSE 0 END) AS MyPoints,
-                           SUM(CASE WHEN ach.Author = :myRRDev THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
-                           SUM(CASE WHEN ach.Author != :notMyAchDev THEN 1 ELSE 0 END) AS NotMyAchievements,
-                           lbdi.MyLBs,
-                           ticks.MyOpenTickets,";
-        $havingCond = "HAVING MyAchievements > 0 ";
-    } else {
-        if ($filter == 0) { // only with achievements
-            $havingCond = "HAVING NumAchievements > 0 ";
-        } elseif ($filter == 1) { // only without achievements
-            $havingCond = "HAVING NumAchievements = 0 ";
-        }
     }
 
     $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName,
