@@ -40,6 +40,7 @@ function ListGames(
     $sort4 = ($sortBy == 4) ? 14 : 4;
     $sort5 = ($sortBy == 5) ? 15 : 5;
     $sort6 = ($sortBy == 6) ? 16 : 6;
+    $sort7 = ($sortBy == 7) ? 17 : 7;
 
     echo "<tr class='do-not-highlight'>";
     echo "<th class='pr-0'></th>";
@@ -47,6 +48,7 @@ function ListGames(
         echo "<th><a href='/gameList.php?s=$sort1&$queryParams'>Title</a></th>";
         echo "<th><a href='/gameList.php?s=$sort2&$queryParams'>Achievements</a></th>";
         echo "<th><a href='/gameList.php?s=$sort3&$queryParams'>Points</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort7&$queryParams'>Retro Ratio</a></th>";
         echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6&$queryParams'>Last Updated</a></th>";
         echo "<th><a href='/gameList.php?s=$sort4&$queryParams'>Leaderboards</a></th>";
 
@@ -79,6 +81,7 @@ function ListGames(
         $gameID = $gameEntry['ID'];
         $maxPoints = $gameEntry['MaxPointsAvailable'] ?? 0;
         $totalTrueRatio = $gameEntry['TotalTruePoints'];
+        $retroRatio = $gameEntry['RetroRatio'];
         $totalAchievements = null;
         $devLeaderboards = null;
         $devTickets = null;
@@ -116,6 +119,8 @@ function ListGames(
             echo "<td>$numAchievements of $totalAchievements</td>";
             echo "<td class='whitespace-nowrap'>$numPoints of $maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
         }
+
+        echo "<td>$retroRatio</td>";
 
         if ($gameEntry['DateModified'] != null) {
             $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
