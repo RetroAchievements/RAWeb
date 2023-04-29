@@ -227,11 +227,17 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
             $gameIDs[] = $recentlyPlayed['GameID'];
         }
 
+        if (!in_array($userInfo['LastGameID'], $gameIDs)) {
+            $gameIDs[] = $userInfo['LastGameID'];
+        }
+
         $userProgress = getUserProgress($user, $gameIDs, $numRecentAchievements, withGameInfo: true);
 
         $libraryOut['Awarded'] = $userProgress['Awarded'];
         $libraryOut['RecentAchievements'] = $userProgress['RecentAchievements'];
-        $libraryOut['LastGame'] = $userProgress['GameInfo'][$userInfo['LastGameID']];
+        if (array_key_exists($userInfo['LastGameID'], $userProgress['GameInfo'])) {
+            $libraryOut['LastGame'] = $userProgress['GameInfo'][$userInfo['LastGameID']];
+        }
     }
 
     return $libraryOut;

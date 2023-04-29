@@ -159,7 +159,7 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
             'ScoreAchievedHardcore' => $scoreAchievedHardcore,
         ];
 
-        if ($withGameInfo) {
+        if ($withGameInfo && $gameData !== null) {
             $gameInfo[$gameID] = [
                 'ID' => (int) $gameData['ID'],
                 'Title' => $gameData['Title'],
