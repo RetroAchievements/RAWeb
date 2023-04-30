@@ -168,21 +168,21 @@ RenderContentStart($pageTitle);
                     :commentData="$commentData"
                     :currentUser="$user"
                     :currentUserPermissions="$permissions"
-                    :isHighlighted="$isHighlighted"
-                    :threadPostNumber="$nextCommentIndex"
                     :forumTopicId="$thisTopicID"
+                    :isHighlighted="$isHighlighted"
                     :isOriginalPoster="$isOriginalPoster"
                     :parsedPostContent="$parsedPostContent"
+                    :threadPostNumber="$nextCommentIndex"
                 />
             ', [
                 'commentData' => $commentData,
                 'isHighlighted' => $isHighlighted,
                 'isOriginalPoster' => $isOriginalPoster,
                 'nextCommentIndex' => $nextCommentIndex,
+                'parsedPostContent' => $parsedPostContent,
                 'permissions' => $permissions,
                 'thisTopicID' => $thisTopicID,
                 'user' => $user,
-                'parsedPostContent' => $parsedPostContent
             ]);
         }
         echo "</div>";
