@@ -1,3 +1,7 @@
+<?php
+use LegacyApp\Community\Enums\UserAction;
+?>
+
 @props([
     'commentAuthor',
 ])
