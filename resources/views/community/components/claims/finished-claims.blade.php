@@ -15,9 +15,9 @@ function createClaimKey(string $gameTitle, string $user): string
 }
 
 /**
- * Compares the created timestamps of two claims to 
+ * Compares the created timestamps of two claims to
  * determine their chronological order.
- */ 
+ */
 function isOlderClaim(array $claim1, array $claim2): bool
 {
     return strtotime($claim1['Created']) < strtotime($claim2['Created']);
