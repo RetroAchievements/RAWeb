@@ -207,6 +207,8 @@ RenderContentStart($pageTitle);
                 echo Blade::render('
                     <x-forum.post
                         :commentData="$commentData"
+                        :currentUser="$user"
+                        :currentUserPermissions="$permissions"
                         :isHighlighted="$isHighlighted"
                         :threadPostNumber="$nextCommentIndex"
                         :forumTopicId="$thisTopicID"
@@ -215,17 +217,14 @@ RenderContentStart($pageTitle);
                 ', [
                     'commentData' => $commentData,
                     'isHighlighted' => $isHighlighted,
+                    'isOriginalPoster' => $isOriginalPoster,
                     'nextCommentIndex' => $nextCommentIndex,
+                    'permissions' => $permissions,
                     'thisTopicID' => $thisTopicID,
-                    'isOriginalPoster' => $isOriginalPoster
+                    'user' => $user,
                 ]);
             }
             
-            //     if ($showDisclaimer) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            
-            //         echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
-            //     }
-
             //     if ($showAuthoriseTools) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //         echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Authorise this user and all their posts?\')'>";
             //         echo csrf_field();
@@ -247,11 +246,6 @@ RenderContentStart($pageTitle);
             //         echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
             //     }
         }
-
-
-        // if (count($commentList) % 2 == 1) {
-        //     echo "<tr><td colspan=2 class='smalltext'></td></tr>";
-        // }
 
         if ($numTotalComments > $count) {
             echo "<div class='mb-3'>";

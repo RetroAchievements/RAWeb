@@ -1,8 +1,11 @@
 @props([
     'commentData',
+    'currentUser',
+    'currentUserPermissions',
     'forumTopicId',
     'isHighlighted',
     'isOriginalPoster',
+    'isUnverified',
     'threadPostNumber',
 ])
 
@@ -17,6 +20,8 @@ $commentAuthorPermissions = $commentData['AuthorPermissions'];
 $commentAuthorJoinDate = $commentData['AuthorJoined'];
 $commentDateCreated = $commentData['DateCreated'];
 $commentDateModified = $commentData['DateModified'];
+$commentIsAuthorised = $commentData['Authorised'];
+
 $parsedPostContent = Shortcode::render(e($commentData['Payload']));
 
 $postUrl = config('app.url') . "/viewtopic.php?t=$forumTopicId&c=$commentId#$commentId";
@@ -35,13 +40,14 @@ $formatPostDate = function(string $rawDate): string {
 };
 
 $formattedPostTimestamp = $formatPostDate($commentDateCreated);
-$formattedEditTimestamp = '';
-if ($commentDateModified) {
-    $formattedEditTimestamp = $formatPostDate($commentDateModified);
-}
+$formattedEditTimestamp = $commentDateModified ? $formatPostDate($commentDateModified) : '';
 
 // "January 4, 2012"
 $formattedUserJoinDate = Carbon::parse($commentAuthorJoinDate)->format('M j, Y');
+
+$isCurrentUserAdmin = $currentUserPermissions >= Permissions::Admin;
+$showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserAdmin || $currentUser === $commentAuthor);
+$showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserAdmin;
 
 ?>
 
@@ -75,8 +81,12 @@ $formattedUserJoinDate = Carbon::parse($commentAuthorJoinDate)->format('M j, Y')
 
     <div class='comment pt-2 pb-4 lg:py-0 px-1 lg:px-6'>
         <div class='mb-4 lg:mb-3 flex items-center gap-x-2'>
+            @if($showUnverifiedDisclaimer)
+                <x-forum.post-title-chip tooltip="Not yet visible to the public. Please wait for a moderator to authorize this comment.">Unverified</x-forum.post-title-chip>
+            @endif
+
             @if($isOriginalPoster)
-                <span title='Original poster' class='cursor-help px-1 text-2xs font-semibold border border-text rounded-full'>OP</span>
+                <x-forum.post-title-chip tooltip="Original poster">OP</x-forum.post-title-chip>
             @endif
 
             <p class='smalltext !leading-[14px]'>
