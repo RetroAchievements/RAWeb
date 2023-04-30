@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Carbon;
 use LegacyApp\Site\Enums\Permissions;
 
 ?>
@@ -11,7 +12,12 @@ use LegacyApp\Site\Enums\Permissions;
 ])
 
 <?php
+// If the user is banned or flagged as a spammer, don't show any of their
+// meta, strike through their username, and don't link to their profile.
 $canShowUserTooltip = $authorPermissions >= Permissions::Unregistered;
+
+// "January 4, 2012"
+$formattedUserJoinDate = Carbon::parse($authorJoinDate)->format('M j, Y');
 ?>
 
 <div class='pb-2 lg:py-2 px-0.5 border-b lg:border-b-0 lg:border-r border-neutral-700'>
@@ -30,14 +36,22 @@ $canShowUserTooltip = $authorPermissions >= Permissions::Unregistered;
             </div>
 
             @if($authorPermissions != Permissions::Registered)
-                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>{{ Permissions::toString($authorPermissions) }}</p>
+                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>
+                    {{ Permissions::toString($authorPermissions) }}
+                </p>
             @endif
 
             @if($canShowUserTooltip)
-                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>{{ localized_number($authorPostCount) }} {{ __res('user.post', $authorPostCount) }}</p>
+                {{-- "1,464 Posts" --}}
+                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>
+                    {{ localized_number($authorPostCount) }}
+                    {{ __res('user.post', $authorPostCount) }}
+                </p>
 
                 @if($authorJoinDate)
-                    <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>Joined {{ $authorJoinDate }}</p>
+                    <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>
+                        Joined {{ $formattedUserJoinDate }}
+                    </p>
                 @endif
             @endif
         </div>

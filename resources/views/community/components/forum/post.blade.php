@@ -11,7 +11,6 @@
 ])
 
 <?php
-use Illuminate\Support\Carbon;
 use LegacyApp\Site\Enums\Permissions;
 
 $commentId = $commentData['ID'];
@@ -23,22 +22,18 @@ $commentDateCreated = $commentData['DateCreated'];
 $commentDateModified = $commentData['DateModified'];
 $commentIsAuthorised = $commentData['Authorised'];
 
-// "January 4, 2012"
-$formattedUserJoinDate = Carbon::parse($commentAuthorJoinDate)->format('M j, Y');
-
 $isCurrentUserAdmin = $currentUserPermissions >= Permissions::Admin;
 $isCurrentUserAuthor = $currentUser === $commentAuthor;
 
 $showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserAdmin || $isCurrentUserAuthor);
 $showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserAdmin;
 $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
-
 ?>
 
 <x-forum.post-container :commentId="$commentId" :isHighlighted="$isHighlighted">
     <x-forum.post-author-box
         :authorUserName="$commentAuthor"
-        :authorJoinDate="$formattedUserJoinDate"
+        :authorJoinDate="$commentAuthorJoinDate"
         :authorPermissions="$commentAuthorPermissions"
         :authorPostCount="$commentAuthorPostCount"
     />

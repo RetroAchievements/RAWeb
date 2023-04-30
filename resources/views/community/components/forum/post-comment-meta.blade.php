@@ -26,13 +26,20 @@ $formattedEditTimestamp = $postEditedTimestamp ? $formatMetaTimestamp($postEdite
 ?>
 
 @if($showUnverifiedDisclaimer)
-    <x-forum.post-title-chip tooltip="Not yet visible to the public. Please wait for a moderator to authorize this comment.">Unverified</x-forum.post-title-chip>
+    <x-forum.post-title-chip
+        tooltip="Not yet visible to the public. Please wait for a moderator to authorize this comment."
+    >
+        Unverified
+    </x-forum.post-title-chip>
 @endif
 
 @if($isOriginalPoster)
-    <x-forum.post-title-chip tooltip="Original poster">OP</x-forum.post-title-chip>
+    <x-forum.post-title-chip tooltip="Original poster">
+        OP
+    </x-forum.post-title-chip>
 @endif
 
 <p class='smalltext !leading-[14px]'>
+    {{-- Keep this all on a single line so white space isn't added before the comma --}}
     {{ $formattedPostTimestamp }}@if($formattedEditTimestamp)<span class='italic smalltext !leading-[14px]'>, last edited {{ $formattedEditTimestamp }}</span> @endif
 </p>
