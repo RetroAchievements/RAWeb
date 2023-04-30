@@ -46,7 +46,7 @@ function getGameMetadata(
         14 => "ORDER BY ach.Points DESC, ach.ID DESC ",
         5 => "ORDER BY ach.Title, ach.ID ASC ",
         15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
-        // 1
+            // 1
         default => "ORDER BY ach.DisplayOrder, ach.ID ASC ",
     };
 
@@ -183,7 +183,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
-        // 1 or unspecified
+            // 1 or unspecified
         default => "ORDER BY HasAchievements DESC, gd.Title ",
     };
 
@@ -235,31 +235,8 @@ function getGamesListByDev(
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
-
-    if ($ticketsFlag) {
-        $selectTickets = ", ticks.OpenTickets";
-        $joinTicketsTable = "
-        LEFT JOIN (
-            SELECT
-                ach.GameID,
-                count( DISTINCT tick.ID ) AS OpenTickets
-            FROM
-                Ticket AS tick
-            LEFT JOIN
-                Achievements AS ach ON ach.ID = tick.AchievementID
-            WHERE
-                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
-            GROUP BY
-                ach.GameID
-        ) as ticks ON ticks.GameID = gd.ID ";
-    } else {
-        $selectTickets = null;
-        $joinTicketsTable = null;
-    }
-
-    if ($consoleID != 0) {
-        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
-    }
+    $selectTickets = null;
+    $joinTicketsTable = null;
 
     if ($dev != null) {
         $bindings['myAchDev'] = $dev;
@@ -280,11 +257,36 @@ function getGamesListByDev(
         }
     }
 
+    if ($ticketsFlag) {
+        $selectTickets = ", ticks.OpenTickets";
+        $joinTicketsTable = "
+        LEFT JOIN (
+            SELECT
+                ach.GameID,
+                count( DISTINCT tick.ID ) AS OpenTickets,
+                SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyOpenTickets
+            FROM
+                Ticket AS tick
+            LEFT JOIN
+                Achievements AS ach ON ach.ID = tick.AchievementID
+            WHERE
+                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
+            GROUP BY
+                ach.GameID
+        ) as ticks ON ticks.GameID = gd.ID ";
+        $moreSelectCond .= "ticks.MyOpenTickets,";
+    }
+
+    if ($consoleID != 0) {
+        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
+    }
+
     $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName,
                 COUNT( ach.ID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable,
                 lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints, gd.ForumTopicID $selectTickets,
                 $moreSelectCond
-                CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
+                CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence,
+                CASE WHEN SUM(ach.Points) > 0 THEN ROUND(gd.TotalTruePoints/SUM(ach.Points), 2) ELSE 0.00 END AS RetroRatio
                 FROM GameData AS gd
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID
                 LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = " . AchievementType::OfficialCore . "
@@ -297,7 +299,7 @@ function getGamesListByDev(
                 GROUP BY gd.ID
                 $havingCond";
 
-    if ($sortBy < 1 || $sortBy > 16) {
+    if ($sortBy < 1 || $sortBy > 17) {
         $sortBy = 1;
     }
 
@@ -318,6 +320,8 @@ function getGamesListByDev(
                 : "",
         6 => "DateModified DESC",
         16 => "DateModified",
+        7 => "RetroRatio DESC, MaxPointsAvailable DESC",
+        17 => "RetroRatio ASC, MaxPointsAvailable ASC",
         default => "",
     };
 
