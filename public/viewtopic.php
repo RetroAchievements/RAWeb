@@ -67,27 +67,6 @@ $pageTitle = "Topic: $thisTopicForum - $thisTopicTitle";
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
-function formatPostDate(string $rawDate): string
-{
-    $givenDate = Carbon::parse($rawDate);
-    $now = Carbon::now();
-
-    if ($givenDate->gt($now->subHours(24))) {
-        // "5 minutes ago"
-        return $givenDate->diffForHumans();
-    } else {
-        // "January 4 2012, 8:05am"
-        return $givenDate->format('F j Y, g:ia');
-    }
-}
-
-function formatUserJoinedDate(string $rawDate): string
-{
-    $givenDate = Carbon::parse($rawDate);
-    // "January 4, 2012"
-    return $givenDate->format('M j, Y');
-}
-
 RenderContentStart($pageTitle);
 ?>
 <div id="mainpage">
@@ -220,74 +199,33 @@ RenderContentStart($pageTitle);
                 }
             }
 
-            $userAvatarWithoutLabel = userAvatar($nextCommentAuthor, label: false, iconSize: 72, iconClass: 'rounded-sm');
-            $userAvatarWithoutIcon = userAvatar($nextCommentAuthor, icon: false);
-            $permissionsString = Permissions::toString($nextCommentAuthorPermissions);
-            $joinedDate = formatUserJoinedDate($nextCommentAuthorJoinDate);
-            $nextCommentURL = config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID";
-            $postDate = formatPostDate($nextCommentDateCreated);
-            $nextCommentModifiedBlock = ($nextCommentDateModified !== null) ? "<span class='italic smalltext !leading-[14px]'>last edited " . formatPostDate($nextCommentDateModified) . "</span>" : "";
-            $nextCommentPayloadRendered = Shortcode::render($nextCommentPayload);
-            $postDateWithOptionalModifiedBlock = $postDate . ($nextCommentModifiedBlock !== '' ? ', ' : '') . $nextCommentModifiedBlock;
-            $originalPosterBlock = $nextCommentAuthor === $thisTopicAuthor ? "<span title='Original poster' class='cursor-help px-1 text-2xs font-semibold border border-text rounded-full'>OP</span>" : "";
+            $isOriginalPoster = $nextCommentAuthor === $thisTopicAuthor;
+            $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
 
-            echo <<<HTML
-                <div class='relative w-[calc(100%+16px)] sm:w-full -mx-2 sm:mx-0 lg:flex rounded-lg mt-3 even:bg-embed bg-embed-highlight px-1 pb-3 pt-2' id='$nextCommentID'>
-                    <button class='btn p-1 absolute text-xs top-1 right-1' onclick='copyToClipboard("$nextCommentURL");showStatusSuccess("Copied")'>#$nextCommentIndex</button>
-                
-                    <div class='pb-2 lg:py-2 px-0.5 border-b lg:border-b-0 lg:border-r border-neutral-700'>
-                        <div class='flex lg:flex-col lg:text-center items-center w-full lg:w-44'>
-                            $userAvatarWithoutLabel
-                            <div class='ml-2 lg:ml-0'>
-                                <div class='mb-[2px] lg:mt-1'>
-                                    $userAvatarWithoutIcon
-                                </div>
-                                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>$permissionsString</p>
-                                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>1,129 Posts</p>
-                                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>Joined $joinedDate</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class='comment pt-2 pb-4 lg:py-0 px-1 lg:px-6'>
-                        <div class='mb-4 lg:mb-3 flex items-center gap-x-2'>
-                            $originalPosterBlock
-                            <p class='smalltext !leading-[14px]'>
-                                $postDateWithOptionalModifiedBlock
-                            </p>
-                        </div>
-
-                        $nextCommentPayloadRendered
-                    </div>
-                </div>
-            HTML;
-
-            //     if (isset($gotoCommentID) && $nextCommentID == $gotoCommentID) {
-            //         echo "<tr class='highlight'>";
-            //     } else {
-            //         echo "<tr>";
-            //     }
-
-            //     echo "<td class='align-top py-3'>";
-            //     echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
-            //     echo "</td>";
-
-            //     echo "<td class='w-full py-3 break-all' id='$nextCommentID'>"; // used for highlights MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            //     echo "<div class='flex justify-between mb-2'>";
-            //     echo "<div>";
-            //     echo userAvatar($nextCommentAuthor, icon: false);
+            if (isset($commentData)) {
+            // TODO: post count can live inside component
+                echo Blade::render('
+                    <x-forum.post
+                        :commentData="$commentData"
+                        :isHighlighted="$isHighlighted"
+                        :threadPostNumber="$nextCommentIndex"
+                        :forumTopicId="$thisTopicID"
+                        :isOriginalPoster="$isOriginalPoster"
+                    />
+                ', [
+                    'commentData' => $commentData,
+                    'isHighlighted' => $isHighlighted,
+                    'nextCommentIndex' => $nextCommentIndex,
+                    'thisTopicID' => $thisTopicID,
+                    'isOriginalPoster' => $isOriginalPoster
+                ]);
+            }
             
             //     if ($showDisclaimer) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
             //         echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
             //     }
-            //     echo "<span class='smalltext text-muted ml-2'>$nextCommentDateCreatedNiceDate</span>";
-            //     if ($nextCommentDateModified !== null) {
-            //         echo "<i class='smalltext ml-3'>(Edited $nextCommentDateModifiedNiceDate)</i>";
-            //     }
-            //     echo "</div>";
-            //     echo "<div class='flex gap-1'>";
+
             //     if ($showAuthoriseTools) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //         echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Authorise this user and all their posts?\')'>";
             //         echo csrf_field();
@@ -304,21 +242,10 @@ RenderContentStart($pageTitle);
             //         echo "<button class='btn btn-danger py-1'>Block</button>";
             //         echo "</form>";
             //     }
+
             //     if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //         echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
             //     }
-            //     echo "<span class='btn py-1' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>";
-            //     echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
-            //     echo "</span>";
-            //     echo "</div>";
-            //     echo "</div>";
-
-            //     echo "<div class='comment' style='word-break: normal; overflow-wrap: anywhere;'>";
-            //     echo Shortcode::render($nextCommentPayload);
-            //     echo "</div>";
-
-            //     echo "</td>";
-            //     echo "</tr>";
         }
 
 
