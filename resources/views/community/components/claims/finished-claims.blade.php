@@ -35,12 +35,12 @@ $updateClaimData = function (array &$claimData, array $existingClaim, array $new
     }
 };
 
-/**
- * Processes a batch of claims and updates the unique claims and claim
- * data arrays. This function is responsible for filtering out duplicate
- * claims and claims belonging to consoles that haven't been rolled out yet.
- * Ideally, if duplicates are detected, we want to keep the oldest duplicate.
- */
+ /**
+  * Processes a batch of claims and updates the unique claims and claim
+  * data arrays. This function is responsible for filtering out duplicate
+  * claims and claims belonging to consoles that haven't been rolled out yet.
+  * Ideally, if duplicates are detected, we want to keep the oldest duplicate.
+  */
  $processClaimsBatch = function (
     array &$uniqueClaims,
     array &$claimData,
