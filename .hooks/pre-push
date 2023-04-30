@@ -14,6 +14,9 @@ vendor/bin/deptrac analyse
 printf "\n⏳ npm run lint:eslint\n"
 npx eslint --quiet
 
+printf "\n⏳ npm run test\n"
+npm run test
+
 printf "\n⏳ composer test\n"
 vendor/bin/phpunit
 
