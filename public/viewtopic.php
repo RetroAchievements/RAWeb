@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Shortcode\Shortcode;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
 use LegacyApp\Site\Enums\Permissions;
 
@@ -152,13 +153,15 @@ RenderContentStart($pageTitle);
         // Output all posts, and offer 'prev/next page'
         foreach ($commentList as $index => $commentData) {
             $nextCommentID = $commentData['ID'];
+            $nextCommentPayload = $commentData['Payload'];
             $nextCommentAuthor = $commentData['Author'];
             $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
 
-            sanitize_outputs($nextCommentAuthor);
+            sanitize_outputs($nextCommentPayload, $nextCommentAuthor);
 
             $isOriginalPoster = $nextCommentAuthor === $thisTopicAuthor;
             $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
+            $parsedPostContent = Shortcode::render($nextCommentPayload);
 
             echo Blade::render('
                 <x-forum.post
@@ -169,6 +172,7 @@ RenderContentStart($pageTitle);
                     :threadPostNumber="$nextCommentIndex"
                     :forumTopicId="$thisTopicID"
                     :isOriginalPoster="$isOriginalPoster"
+                    :parsedPostContent="$parsedPostContent"
                 />
             ', [
                 'commentData' => $commentData,
@@ -178,6 +182,7 @@ RenderContentStart($pageTitle);
                 'permissions' => $permissions,
                 'thisTopicID' => $thisTopicID,
                 'user' => $user,
+                'parsedPostContent' => $parsedPostContent
             ]);
         }
         echo "</div>";

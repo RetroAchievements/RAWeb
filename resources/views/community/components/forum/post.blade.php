@@ -6,11 +6,11 @@
     'isHighlighted',
     'isOriginalPoster',
     'isUnverified',
+    'parsedPostContent',
     'threadPostNumber',
 ])
 
 <?php
-use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 use LegacyApp\Site\Enums\Permissions;
 
@@ -22,8 +22,6 @@ $commentAuthorPostCount = $commentData['AuthorPostCount'];
 $commentDateCreated = $commentData['DateCreated'];
 $commentDateModified = $commentData['DateModified'];
 $commentIsAuthorised = $commentData['Authorised'];
-
-$parsedPostContent = Shortcode::render(e($commentData['Payload']));
 
 // "January 4, 2012"
 $formattedUserJoinDate = Carbon::parse($commentAuthorJoinDate)->format('M j, Y');
