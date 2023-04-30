@@ -2,6 +2,7 @@
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use LegacyApp\Community\Enums\ActivityType;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
@@ -61,6 +62,7 @@ $credentialsOK = match ($requestType) {
     "patch",
     "postactivity",
     "richpresencepatch",
+    "startsession",
     "submitcodenote",
     "submitgametitle",
     "submitlbentry",
@@ -253,6 +255,28 @@ switch ($requestType) {
     case "richpresencepatch":
         $response['Success'] = getRichPresencePatch($gameID, $richPresenceData);
         $response['RichPresencePatch'] = $richPresenceData;
+        break;
+
+    case "startsession":
+        if (!postActivity($user, ActivityType::StartedPlaying, $gameID)) {
+            return DoRequestError("Unknown game");
+        }
+        $response['Success'] = true;
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID);
+        foreach ($userUnlocks as $achId => $unlock) {
+            if (array_key_exists('DateEarnedHardcore', $unlock)) {
+                $response['HardcoreUnlocks'][] = [
+                    'ID' => $achId,
+                    'When' => strtotime($unlock['DateEarnedHardcore']),
+                ];
+            } else {
+                $response['Unlocks'][] = [
+                    'ID' => $achId,
+                    'When' => strtotime($unlock['DateEarned']),
+                ];
+            }
+        }
+        $response['ServerNow'] = Carbon::now()->timestamp;
         break;
 
     case "submitcodenote":
