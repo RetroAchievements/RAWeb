@@ -195,6 +195,9 @@ return [
         'comment' => [
             'title' => __('comment') . '|' . __('comments'),
         ],
+        'post' => [
+            'title' => __('post') . "|" . __('posts'),
+        ],
         'motto' => [
             'title' => __('motto') . '|' . __('mottos'),
         ],

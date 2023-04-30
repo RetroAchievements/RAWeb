@@ -1,9 +1,6 @@
 <?php
 
-use App\Support\Shortcode\Shortcode;
-use Illuminate\Support\Carbon;
 use LegacyApp\Community\Enums\SubscriptionSubjectType;
-use LegacyApp\Community\Enums\UserAction;
 use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -155,75 +152,33 @@ RenderContentStart($pageTitle);
         // Output all posts, and offer 'prev/next page'
         foreach ($commentList as $index => $commentData) {
             $nextCommentID = $commentData['ID'];
-            $nextCommentPayload = $commentData['Payload'];
             $nextCommentAuthor = $commentData['Author'];
-            $nextCommentAuthorID = $commentData['AuthorID'];
-            $nextCommentAuthorJoinDate = $commentData['AuthorJoined'];
-            $nextCommentAuthorPermissions = $commentData['AuthorPermissions'];
-            $nextCommentDateCreated = $commentData['DateCreated'];
-            $nextCommentDateModified = $commentData['DateModified'];
-            $nextCommentAuthorised = $commentData['Authorised'];
             $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
 
-            if ($nextCommentDateCreated !== null) {
-                $nextCommentDateCreatedNiceDate = date("d M, Y H:i", strtotime($nextCommentDateCreated));
-            } else {
-                $nextCommentDateCreatedNiceDate = "None";
-            }
-
-            if ($nextCommentDateModified !== null) {
-                $nextCommentDateModifiedNiceDate = date("d M, Y H:i", strtotime($nextCommentDateModified));
-            } else {
-                $nextCommentDateModifiedNiceDate = "None";
-            }
-
-            sanitize_outputs(
-                $nextCommentPayload,
-                $nextCommentAuthor,
-            );
-
-            $showDisclaimer = false;
-            $showAuthoriseTools = false;
-
-            if ($nextCommentAuthorised == 0) {
-                // Allow, only if this is MY comment (disclaimer: unofficial), or if I'm admin (disclaimer: unofficial, verify user?)
-                if ($permissions >= Permissions::Admin) {
-                    // Allow with disclaimer
-                    $showDisclaimer = true;
-                    $showAuthoriseTools = true;
-                } elseif ($nextCommentAuthor == $user) {
-                    // Allow with disclaimer
-                    $showDisclaimer = true;
-                } else {
-                    continue;    // Ignore this comment for the rest
-                }
-            }
+            sanitize_outputs($nextCommentAuthor);
 
             $isOriginalPoster = $nextCommentAuthor === $thisTopicAuthor;
             $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
 
-            if (isset($commentData)) {
-            // TODO: post count can live inside component
-                echo Blade::render('
-                    <x-forum.post
-                        :commentData="$commentData"
-                        :currentUser="$user"
-                        :currentUserPermissions="$permissions"
-                        :isHighlighted="$isHighlighted"
-                        :threadPostNumber="$nextCommentIndex"
-                        :forumTopicId="$thisTopicID"
-                        :isOriginalPoster="$isOriginalPoster"
-                    />
-                ', [
-                    'commentData' => $commentData,
-                    'isHighlighted' => $isHighlighted,
-                    'isOriginalPoster' => $isOriginalPoster,
-                    'nextCommentIndex' => $nextCommentIndex,
-                    'permissions' => $permissions,
-                    'thisTopicID' => $thisTopicID,
-                    'user' => $user,
-                ]);
-            }
+            echo Blade::render('
+                <x-forum.post
+                    :commentData="$commentData"
+                    :currentUser="$user"
+                    :currentUserPermissions="$permissions"
+                    :isHighlighted="$isHighlighted"
+                    :threadPostNumber="$nextCommentIndex"
+                    :forumTopicId="$thisTopicID"
+                    :isOriginalPoster="$isOriginalPoster"
+                />
+            ', [
+                'commentData' => $commentData,
+                'isHighlighted' => $isHighlighted,
+                'isOriginalPoster' => $isOriginalPoster,
+                'nextCommentIndex' => $nextCommentIndex,
+                'permissions' => $permissions,
+                'thisTopicID' => $thisTopicID,
+                'user' => $user,
+            ]);
         }
         echo "</div>";
 
