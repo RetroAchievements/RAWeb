@@ -2,6 +2,7 @@
 
 use Illuminate\Http\JsonResponse;
 use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Support\Media\FilenameIterator;
 
@@ -30,12 +31,14 @@ if (!empty($token)) {
     $validLogin = authenticateFromAppToken($user, $token, $permissions);
 }
 
-function DoRequestError(string $error): JsonResponse
-{
-    return response()->json([
-        'Success' => false,
-        'Error' => $error,
-    ]);
+if (!function_exists('DoRequestError')) {
+    function DoRequestError(string $error): JsonResponse
+    {
+        return response()->json([
+            'Success' => false,
+            'Error' => $error,
+        ]);
+    }
 }
 
 /**
@@ -287,8 +290,15 @@ switch ($requestType) {
         break;
 
     case "unlocks":
-        $hardcoreMode = (bool) request()->input('h', 0);
-        $response['UserUnlocks'] = GetUserUnlocksData($user, $gameID, $hardcoreMode);
+        $hardcoreMode = request()->input('h', 0) == UnlockMode::Hardcore;
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID);
+        if ($hardcoreMode) {
+            $response['UserUnlocks'] = collect($userUnlocks)
+                ->filter(fn ($value, $key) => array_key_exists('DateEarnedHardcore', $value))
+                ->keys();
+        } else {
+            $response['UserUnlocks'] = array_keys($userUnlocks);
+        }
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
         $response['HardcoreMode'] = $hardcoreMode;
         break;

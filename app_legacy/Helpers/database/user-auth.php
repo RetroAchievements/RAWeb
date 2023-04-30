@@ -243,8 +243,6 @@ function authenticateFromAppToken(
         return false;
     }
 
-    sanitize_sql_inputs($userOut);
-
     /** @var ?User $user */
     $user = auth('connect-token-legacy')->user();
 
