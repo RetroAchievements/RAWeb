@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use LegacyApp\Site\Models\StaticData;
 
 $staticData = StaticData::first();
