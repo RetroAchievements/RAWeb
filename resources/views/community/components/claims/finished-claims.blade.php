@@ -9,34 +9,31 @@ use LegacyApp\Community\Enums\ClaimSorting;
  * Creates a unique key based on the given game title and user.
  * This key can then be used for convenient comparison of potential duplicates.
  */
-function createClaimKey(string $gameTitle, string $user): string
-{
+$createClaimKey = function (string $gameTitle, string $user): string {
     return $gameTitle . '_' . $user;
-}
+};
 
 /**
  * Compares the created timestamps of two claims to
  * determine their chronological order.
  */
-function isOlderClaim(array $claim1, array $claim2): bool
-{
+$isOlderClaim = function (array $claim1, array $claim2): bool {
     return strtotime($claim1['Created']) < strtotime($claim2['Created']);
-}
+};
 
 /**
  * Replaces an existing claim in the claim data array that is to
  * be rendered in the UI with a new claim. This function is used when
  * a new claim is found to be older than the existing claim (ie- a duplicate).
  */
-function updateClaimData(array &$claimData, array $existingClaim, array $newClaim): void
-{
+$updateClaimData = function (array &$claimData, array $existingClaim, array $newClaim): void {
     foreach ($claimData as $index => $claim) {
         if ($claim['ID'] === $existingClaim['ID']) {
             $claimData[$index] = $newClaim;
             break;
         }
     }
-}
+};
 
 /**
  * Processes a batch of claims and updates the unique claims and claim
@@ -44,10 +41,19 @@ function updateClaimData(array &$claimData, array $existingClaim, array $newClai
  * claims and claims belonging to consoles that haven't been rolled out yet.
  * Ideally, if duplicates are detected, we want to keep the oldest duplicate.
  */
-function processClaimsBatch(&$uniqueClaims, &$claimData, $claimsBatch, &$remainingClaimsToFetch) {
+ $processClaimsBatch = function (
+    array &$uniqueClaims,
+    array &$claimData,
+    array $claimsBatch,
+    int &$remainingClaimsToFetch
+) use (
+    $createClaimKey,
+    $isOlderClaim,
+    $updateClaimData
+): void {
     foreach ($claimsBatch as $batchedClaim) {
         if (isValidConsoleId($batchedClaim['ConsoleID'])) {
-            $claimKey = createClaimKey($batchedClaim['GameTitle'], $batchedClaim['User']);
+            $claimKey = $createClaimKey($batchedClaim['GameTitle'], $batchedClaim['User']);
 
             if (!isset($uniqueClaims[$claimKey])) {
                 $uniqueClaims[$claimKey] = $batchedClaim;
@@ -56,9 +62,9 @@ function processClaimsBatch(&$uniqueClaims, &$claimData, $claimsBatch, &$remaini
             } else {
                 $existingClaim = $uniqueClaims[$claimKey];
 
-                if (isOlderClaim($batchedClaim, $existingClaim)) {
+                if ($isOlderClaim($batchedClaim, $existingClaim)) {
                     $uniqueClaims[$claimKey] = $batchedClaim;
-                    updateClaimData($claimData, $existingClaim, $batchedClaim);
+                    $updateClaimData($claimData, $existingClaim, $batchedClaim);
                 }
             }
 
@@ -67,11 +73,11 @@ function processClaimsBatch(&$uniqueClaims, &$claimData, $claimsBatch, &$remaini
             }
         }
     }
-}
+};
 
-$desiredClaimCount = $count;
+$desiredClaimCount = (int) $count;
 $claimData = [];
-$remainingClaimsToFetch = $desiredClaimCount;
+$remainingClaimsToFetch = (int) $desiredClaimCount;
 $currentOffset = 0;
 
 $uniqueClaims = [];
@@ -92,7 +98,7 @@ while ($remainingClaimsToFetch > 0) {
         break;
     }
 
-    processClaimsBatch($uniqueClaims, $claimData, $currentClaimsBatch, $remainingClaimsToFetch);
+    $processClaimsBatch($uniqueClaims, $claimData, $currentClaimsBatch->toArray(), $remainingClaimsToFetch);
     $currentOffset += $count;
 }
 
