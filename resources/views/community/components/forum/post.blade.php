@@ -17,8 +17,9 @@ use LegacyApp\Site\Enums\Permissions;
 
 $commentId = $commentData['ID'];
 $commentAuthor = e($commentData['Author']);
-$commentAuthorPermissions = $commentData['AuthorPermissions'];
 $commentAuthorJoinDate = $commentData['AuthorJoined'];
+$commentAuthorPermissions = $commentData['AuthorPermissions'];
+$commentAuthorPostCount = $commentData['AuthorPostCount'];
 $commentDateCreated = $commentData['DateCreated'];
 $commentDateModified = $commentData['DateModified'];
 $commentIsAuthorised = $commentData['Authorised'];
@@ -72,7 +73,7 @@ $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
                 @if($commentAuthorPermissions >= Permissions::JuniorDeveloper)
                     <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>{{ Permissions::toString($commentAuthorPermissions) }}</p>
                 @endif
-                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>1,129 Posts</p>
+                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>{{ localized_number($commentAuthorPostCount) }} Posts</p>
                 <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>Joined {{ $formattedUserJoinDate }}</p>
             </div>
         </div>
@@ -119,10 +120,12 @@ $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
                 @endif
 
                 <button
-                    class='btn p-1 absolute lg:static text-xs top-1 right-1'
+                    class='btn p-1 absolute lg:static text-xs top-1 right-1 flex items-center gap-x-1'
                     onclick='copyToClipboard("{{ $postUrl }}"); showStatusSuccess("Copied")'
+                    aria-label="Copy post number {{ $threadPostNumber }}"
                 >
                     #{{ $threadPostNumber }}
+                    <x-pixelarticons-link class='w-3 h-3' />
                 </button>
             </div>
         </div>

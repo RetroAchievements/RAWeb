@@ -154,7 +154,6 @@ RenderContentStart($pageTitle);
         echo "<div class='mb-4'>";
         // Output all posts, and offer 'prev/next page'
         foreach ($commentList as $index => $commentData) {
-            // Output one forum, then loop
             $nextCommentID = $commentData['ID'];
             $nextCommentPayload = $commentData['Payload'];
             $nextCommentAuthor = $commentData['Author'];
