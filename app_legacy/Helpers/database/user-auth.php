@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LegacyApp\Community\Enums\ActivityType;
@@ -210,7 +211,9 @@ function authenticateFromCookie(
     }
 
     // valid active account. update the last activity timestamp
-    userActivityPing($userOut);
+    $user->LastLogin = Carbon::now();
+    $user->timestamps = false;
+    $user->save();
 
     // validate permissions for the current page if required
     if (isset($minPermissions) && $permissionsOut < $minPermissions) {

@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Site\Enums\Permissions;
+use LegacyApp\Site\Models\User;
 use LegacyApp\Support\Media\FilenameIterator;
 
 /**
@@ -176,11 +178,20 @@ switch ($requestType) {
             : 'http://retroachievements.org/bin/RA_Integration-x64.dll';
         break;
     case "ping":
-        $activityMessage = request()->post('m');
-        $response['Success'] = userActivityPing($user);
+        $userModel = User::firstWhere('User', $user);
+        if ($userModel === null) {
+            $response['Success'] = false;
+        } else {
+            $response['Success'] = true;
 
-        if (isset($activityMessage)) {
-            UpdateUserRichPresence($user, $gameID, $activityMessage);
+            $activityMessage = request()->post('m');
+            if (isset($activityMessage)) {
+                UpdateUserRichPresence($userModel, $gameID, $activityMessage);
+            }
+
+            $userModel->LastLogin = Carbon::now();
+            $userModel->timestamps = false;
+            $userModel->save();
         }
         break;
 

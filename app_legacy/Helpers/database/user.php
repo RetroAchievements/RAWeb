@@ -133,19 +133,9 @@ function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): in
 
 function validateUsername(string $userIn): ?string
 {
-    sanitize_sql_inputs($userIn);
+    $user = User::firstWhere('User', $userIn);
 
-    $query = "SELECT uc.User FROM UserAccounts AS uc WHERE uc.User LIKE '$userIn'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return $data['User'];
-    }
-    log_sql_fail();
-
-    return null;
+    return ($user !== null) ? $user->User : null;
 }
 
 // TODO replace with created and lastLogin timestamps on user
