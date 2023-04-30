@@ -151,7 +151,8 @@ RenderContentStart($pageTitle);
         echo "</div>";
         echo "</div>";
 
-        // Output all topics, and offer 'prev/next page'
+        echo "<div class='mb-4'>";
+        // Output all posts, and offer 'prev/next page'
         foreach ($commentList as $index => $commentData) {
             // Output one forum, then loop
             $nextCommentID = $commentData['ID'];
@@ -241,11 +242,8 @@ RenderContentStart($pageTitle);
             //         echo "<button class='btn btn-danger py-1'>Block</button>";
             //         echo "</form>";
             //     }
-
-            //     if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //         echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
-            //     }
         }
+        echo "</div>";
 
         if ($numTotalComments > $count) {
             echo "<div class='mb-3'>";
