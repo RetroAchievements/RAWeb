@@ -2,40 +2,19 @@
 # exit on error
 set -e
 
-compareBranch="master"
-currentBranch="$(git rev-parse --abbrev-ref HEAD)"
-if [ "$currentBranch" = "master" ]; then
-    remoteMaster="$(git remote -v | grep 'RetroAchievements/RAWeb.git' | head -1 | cut -f1)"
-    if [ "$remoteMaster" != "" ]; then
-       compareBranch="$remoteMaster/master"
-    fi
-fi
+printf "\n⏳ composer lint\n"
+PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php
 
-modifiedPhpFiles="$(git diff ${compareBranch}...HEAD --diff-filter=d --name-only '**/*.php')"
-if [ ${#modifiedPhpFiles} -gt 0 ]; then
-    printf "\n⏳ composer lint\n"
-    PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php ${modifiedPhpFiles}
+printf "\n⏳ composer analyse\n"
+vendor/bin/phpstan analyse --memory-limit 512M
 
-    printf "\n⏳ composer analyse\n"
-    vendor/bin/phpstan analyse --memory-limit 512M
+printf "\n⏳ composer deptrac\n"
+vendor/bin/deptrac analyse
 
-    printf "\n⏳ composer deptrac\n"
-    vendor/bin/deptrac analyse
+printf "\n⏳ npm run lint:eslint\n"
+npx eslint --quiet
 
-    printf "\n⏳ composer test\n"
-    vendor/bin/phpunit
-fi
-
-modifiedJsFiles="$(git diff ${compareBranch}...HEAD --diff-filter=d --name-only '**/*.js')"
-if [ ${#modifiedJsFiles} -gt 0 ]; then
-    printf "\n⏳ npm run lint:eslint\n"
-    npx eslint --quiet ${modifiedJsFiles}
-fi
-
-#modifiedCssFiles="$(git diff ${compareBranch}...HEAD --diff-filter=d --name-only '**/*.css')"
-#if [ ${#modifiedCssFiles} -gt 0 ]; then
-#    printf "\n⏳ npm run lint:stylelint\n"
-#    npx stylelint --syntax scss ${modifiedCssFiles}
-#fi
+printf "\n⏳ composer test\n"
+vendor/bin/phpunit
 
 printf "\n✅ pre-push OK\n\n"
