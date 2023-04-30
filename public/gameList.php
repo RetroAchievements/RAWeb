@@ -97,7 +97,6 @@ function ListGames(
             $totalAchievements = $numAchievements + $gameEntry['NotMyAchievements'];
             $devLeaderboards = $gameEntry['MyLBs'];
             $devTickets = $showTickets == true ? $gameEntry['MyOpenTickets'] : null;
-
         }
         $numLBs = $gameEntry['NumLBs'];
 
