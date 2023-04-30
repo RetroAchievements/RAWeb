@@ -225,23 +225,6 @@ RenderContentStart($pageTitle);
                     'user' => $user,
                 ]);
             }
-            
-            //     if ($showAuthoriseTools) { // TODO: MAKE SURE THIS STILL WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //         echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Authorise this user and all their posts?\')'>";
-            //         echo csrf_field();
-            //         echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
-            //         echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
-            //         echo "<input type='hidden' name='value' value='1' />";
-            //         echo "<button class='btn py-1'>Authorise</button>";
-            //         echo "</form>";
-            //         echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Permanently Block (spam)?\')'>";
-            //         echo csrf_field();
-            //         echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
-            //         echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
-            //         echo "<input type='hidden' name='value' value='0' />";
-            //         echo "<button class='btn btn-danger py-1'>Block</button>";
-            //         echo "</form>";
-            //     }
         }
         echo "</div>";
 

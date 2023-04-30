@@ -13,7 +13,7 @@ $encodedTooltip = $tooltip ? 'title=' . json_encode($tooltip) : '';
 
 <span
     {!! $encodedTooltip !!}
-    class='{{ $tooltip ? 'cursor-help' : '' }} px-1 text-2xs font-semibold border border-text rounded-full'
+    class='{{ $tooltip ? 'cursor-help' : '' }} px-1 text-2xs font-semibold border border-text rounded-full min-w-max'
 >
     {{ $slot }}
 </span>

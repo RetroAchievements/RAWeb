@@ -79,7 +79,7 @@ $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
     </div>
 
     <div class='comment w-full pt-2 pb-4 lg:py-0 px-1 lg:px-6'>
-        <div class='w-full mb-4 lg:mb-3 gap-x-2 flex items-center justify-between'>
+        <div class='w-full mb-4 lg:mb-3 gap-x-2 flex justify-between {{ $showAuthoriseTools ? 'flex-col sm:flex-row items-start gap-y-2' : 'items-center' }}'>
             <!-- This area should be a component -->
             <div class='flex gap-x-2 items-center'>
                 @if($showUnverifiedDisclaimer)
@@ -98,13 +98,20 @@ $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
             <div class='flex gap-x-1 items-center lg:-mx-4 lg:pl-4 lg:w-[calc(100% + 32px)]'>
                 @if($showAuthoriseTools)
                     <form action='/request/user/update.php' method='post' onsubmit="return confirm('Authorise this user and all their posts?')">
+                        {{ csrf_field() }}
                         <input type='hidden' name='property' value="{{ UserAction::UpdateForumPostPermissions }}" />
                         <input type='hidden' name='target' value="{{ $commentAuthor }}" />
                         <input type='hidden' name='value' value='1' />
                         <button class='btn p-1 lg:text-xs'>Authorise</button>
                     </form>
 
-                    <button class='btn btn-danger p-1 lg:text-xs'>Block</button>
+                    <form action='/request/user/update.php' method='post' onsubmit="return confirm('Permanently Block (spam)?')">
+                        {{ csrf_field() }}
+                        <input type='hidden' name='property' value="{{ UserAction::UpdateForumPostPermissions }}" />
+                        <input type='hidden' name='target' value="{{ $commentAuthor }}" />
+                        <input type='hidden' name='value' value='0' />
+                        <button class='btn btn-danger p-1 lg:text-xs'>Block</button>
+                    </form>
                 @endif
 
                 @if($showEditButton)
