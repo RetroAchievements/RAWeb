@@ -182,7 +182,7 @@ RenderContentStart("Claim List");
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
             $claimSetType = $claim['SetType'];
-            
+
             echo "<tr>";
             echo "<td>";
             echo userAvatar($claimUser, label: false);

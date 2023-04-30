@@ -1,7 +1,6 @@
-<?php
-
+@php
 use LegacyApp\Community\Enums\ClaimSetType;
-?>
+@endphp
 
 <div class="flex items-center gap-1 text-xs">
 @if ($claimSetType == ClaimSetType::NewSet)
