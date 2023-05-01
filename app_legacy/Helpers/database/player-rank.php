@@ -66,8 +66,8 @@ function countUserAchievements(?string $user, ?array &$dataOut): bool
     }
 
     $query = "SELECT User, 
-                SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", 1, 0)) AS RAAchievements,
-                SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", 1, 0)) AS TotalAchievements
+                SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END) AS RAAchievements,
+                SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END) AS TotalAchievements
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE aw.User =:username AND ach.Flags = " . AchievementType::OfficialCore;
