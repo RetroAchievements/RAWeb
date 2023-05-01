@@ -61,6 +61,7 @@ function generateManualMoveButtons(
     string $downLabel = '',
     bool $autoScroll = false,
     string $orientation = 'vertical',
+    bool $isHiddenPreChecked = false,
 ): string {
     $downValue = $moveValue;
     $upValue = $moveValue * -1;
@@ -83,6 +84,7 @@ function generateManualMoveButtons(
                 aria-label="$upA11yLabel" 
                 class="text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)"
+                disabled="$isHiddenPreChecked"
             >
                 ↑$upLabel
             </button>
@@ -92,12 +94,15 @@ function generateManualMoveButtons(
                 aria-label="$downA11yLabel"
                 class="text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)"
+                disabled="$isHiddenPreChecked"
             >
                 ↓$downLabel
             </button>
         </div>
     HTML;
 }
+
+$prefersSeeingNoSavedHiddenRows = request()->cookie('prefers_no_saved_hidden_rows_when_reordering') === 'true';
 
 $userAwards = getUsersSiteAwards($user, true);
 [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
@@ -179,7 +184,7 @@ function postAllAwardsDisplayOrder(awards) {
 <div id="mainpage">
     <div id="<?= $hasSomeAwards ? 'leftcontainer' : 'fullcontainer' ?>">
         <?php
-        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, int $initialSectionOrder): void
+        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount,  bool $prefersSeeingNoSavedHiddenRows, int $initialSectionOrder): void
         {
             // "Game Awards" -> "game"
             $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -235,12 +240,13 @@ function postAllAwardsDisplayOrder(awards) {
                 $isHiddenPreChecked = $awardDisplayOrder === '-1';
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
                 $isDraggable = $isHiddenPreChecked ? 'false' : 'true';
-
-                $rowClassNames = "award-table-row select-none transition";
-                if (!$isHiddenPreChecked) {
-                    $rowClassNames .= " cursor-grab";
-                }
-
+                
+                $cursorGrabClass = $isHiddenPreChecked ? '' : 'cursor-grab';
+                $savedHiddenClass = $isHiddenPreChecked ? 'saved-hidden' : '';
+                $hiddenClass = ($prefersSeeingNoSavedHiddenRows && $isHiddenPreChecked) ? 'hidden' : '';
+                
+                $rowClassNames = "award-table-row select-none transition {$cursorGrabClass} {$savedHiddenClass} {$hiddenClass}";
+                
                 echo <<<HTML
                     <tr 
                         data-row-index='$awardCounter'
@@ -265,14 +271,14 @@ function postAllAwardsDisplayOrder(awards) {
                 echo "<td>";
                 echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
                 if (count($awards) > 50) {
-                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 1);
+                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom', autoScroll: true, isHiddenPreChecked: $isHiddenPreChecked);
+                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true, isHiddenPreChecked: $isHiddenPreChecked);
+                    echo generateManualMoveButtons($awardCounter, 1, isHiddenPreChecked: $isHiddenPreChecked);
                 } elseif (count($awards) > 15) {
-                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 1);
+                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10', autoScroll: true, isHiddenPreChecked: $isHiddenPreChecked);
+                    echo generateManualMoveButtons($awardCounter, 1, isHiddenPreChecked: $isHiddenPreChecked);
                 } else {
-                    echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');
+                    echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal', isHiddenPreChecked: $isHiddenPreChecked);
                 }
                 echo "</div>";
                 echo "</td>";
@@ -288,9 +294,11 @@ function postAllAwardsDisplayOrder(awards) {
         }
 
         if ($hasSomeAwards) {
-            echo "<h2 id='reorder-site-awards-header'>Reorder Site Awards</h2>";
+            $hideSavedHiddenRowsCheckedAttribute = $prefersSeeingNoSavedHiddenRows ? 'checked' : '';
 
             echo <<<HTML
+                <h2 id='reorder-site-awards-header'>Reorder Site Awards</h2>
+
                 <div class="embedded grid gap-y-4">
                     <p>
                         To rearrange your site awards, drag and drop the award rows or use
@@ -301,8 +309,20 @@ function postAllAwardsDisplayOrder(awards) {
                     </p>
                 </div>
 
-                <div class="flex w-full">
-                    <button onclick='handleSaveAllClick()' class='mt-2 mb-6 text-base'>Save All Changes</button>
+                <div class="flex w-full items-center justify-between mt-3 mb-6">
+                    <div class="flex items-center gap-x-1">
+                        <label class="flex items-center gap-x-1">
+                            <input
+                                type="checkbox"
+                                onchange="reorderSiteAwards.handleHideSavedHiddenRowsChange(event)"
+                                $hideSavedHiddenRowsCheckedAttribute
+                            >
+                                Hide saved hidden rows
+                            </input>
+                        </label>
+                    </div>
+
+                    <button onclick='handleSaveAllClick()' class='text-base'>Save All Changes</button>
                 </div>
             HTML;
         } else {
@@ -312,15 +332,15 @@ function postAllAwardsDisplayOrder(awards) {
         }
 
         if (!empty($gameAwards)) {
-            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[0]);
+            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $prefersSeeingNoSavedHiddenRows, $initialSectionOrders[0]);
         }
 
         if (!empty($eventAwards)) {
-            RenderAwardOrderTable("Event Awards", $eventAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[1]);
+            RenderAwardOrderTable("Event Awards", $eventAwards, $awardCounter, $renderedSectionCount, $prefersSeeingNoSavedHiddenRows, $initialSectionOrders[1]);
         }
 
         if (!empty($siteAwards)) {
-            RenderAwardOrderTable("Site Awards", $siteAwards, $awardCounter, $renderedSectionCount, $initialSectionOrders[2]);
+            RenderAwardOrderTable("Site Awards", $siteAwards, $awardCounter, $renderedSectionCount, $prefersSeeingNoSavedHiddenRows, $initialSectionOrders[2]);
         }
         ?>
     </div>

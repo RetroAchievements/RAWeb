@@ -336,10 +336,20 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
         targetRowEl.classList.remove('cursor-grab');
         targetRowEl.setAttribute('draggable', 'false');
         buttonsContainerEl.style.opacity = '0';
+
+        // The buttons are invisible, but make sure they are also disabled.
+        buttonsContainerEl.querySelectorAll('button').forEach((buttonEl) => {
+          buttonEl.disabled = true;
+        });
       } else {
         targetRowEl.classList.add('cursor-grab');
         targetRowEl.setAttribute('draggable', 'true');
         buttonsContainerEl.style.opacity = '100';
+
+        // Re-enable the buttons so they can be used again.
+        buttonsContainerEl.querySelectorAll('button').forEach((buttonEl) => {
+          buttonEl.removeAttribute('disabled');
+        });
       }
     }
 
