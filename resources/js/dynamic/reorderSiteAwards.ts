@@ -313,7 +313,7 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
         buttonsContainerEl.style.opacity = '100';
 
         buttonsContainerEl.querySelectorAll('button').forEach((buttonEl) => {
-          buttonEl.disabled = false;
+          buttonEl.removeAttribute('disabled');
         });
       }
     }

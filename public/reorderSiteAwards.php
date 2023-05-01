@@ -61,6 +61,7 @@ function generateManualMoveButtons(
     string $downLabel = '',
     bool $autoScroll = false,
     string $orientation = 'vertical',
+    bool $isHiddenPreChecked = false,
 ): string {
     $downValue = $moveValue;
     $upValue = $moveValue * -1;
@@ -83,6 +84,7 @@ function generateManualMoveButtons(
                 aria-label="$upA11yLabel" 
                 class="text-2xs"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)"
+                disabled="$isHiddenPreChecked"
             >
                 ↑$upLabel
             </button>
@@ -92,6 +94,7 @@ function generateManualMoveButtons(
                 aria-label="$downA11yLabel"
                 class="text-2xs"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)"
+                disabled="$isHiddenPreChecked"
             >
                 ↓$downLabel
             </button>
@@ -245,14 +248,14 @@ function postAllAwardsDisplayOrder(awards) {
                 echo "<td>";
                 echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
                 if (count($awards) > 50) {
-                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 1);
+                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom', autoScroll: true, isHiddenPreChecked: $isHiddenPreChecked);
+                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true, isHiddenPreChecked: $isHiddenPreChecked);
+                    echo generateManualMoveButtons($awardCounter, 1, isHiddenPreChecked: $isHiddenPreChecked);
                 } elseif (count($awards) > 15) {
-                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 1);
+                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10', autoScroll: true, isHiddenPreChecked: $isHiddenPreChecked);
+                    echo generateManualMoveButtons($awardCounter, 1, isHiddenPreChecked: $isHiddenPreChecked);
                 } else {
-                    echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');
+                    echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal', isHiddenPreChecked: $isHiddenPreChecked);
                 }
                 echo "</div>";
                 echo "</td>";
