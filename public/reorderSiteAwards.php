@@ -184,7 +184,7 @@ function postAllAwardsDisplayOrder(awards) {
 <div id="mainpage">
     <div id="<?= $hasSomeAwards ? 'leftcontainer' : 'fullcontainer' ?>">
         <?php
-        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount,  bool $prefersSeeingNoSavedHiddenRows, int $initialSectionOrder): void
+        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, bool $prefersSeeingNoSavedHiddenRows, int $initialSectionOrder): void
         {
             // "Game Awards" -> "game"
             $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -240,13 +240,13 @@ function postAllAwardsDisplayOrder(awards) {
                 $isHiddenPreChecked = $awardDisplayOrder === '-1';
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
                 $isDraggable = $isHiddenPreChecked ? 'false' : 'true';
-                
+
                 $cursorGrabClass = $isHiddenPreChecked ? '' : 'cursor-grab';
                 $savedHiddenClass = $isHiddenPreChecked ? 'saved-hidden' : '';
                 $hiddenClass = ($prefersSeeingNoSavedHiddenRows && $isHiddenPreChecked) ? 'hidden' : '';
-                
+
                 $rowClassNames = "award-table-row select-none transition {$cursorGrabClass} {$savedHiddenClass} {$hiddenClass}";
-                
+
                 echo <<<HTML
                     <tr 
                         data-row-index='$awardCounter'
