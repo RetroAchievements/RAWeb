@@ -59,6 +59,30 @@ function recalculatePlayerPoints(string $user): bool
     return (bool) $dbResult;
 }
 
+function countUserAchievements(?string $user, ?array &$dataOut): bool
+{
+    if (empty($user) || !isValidUsername($user)) {
+        return false;
+    }
+
+    $query = "SELECT User, 
+                SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", 1, 0)) AS RAAchievements,
+                SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", 1, 0)) AS TotalAchievements
+                FROM Awarded AS aw
+                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                WHERE aw.User =:username AND ach.Flags = " . AchievementType::OfficialCore;
+
+    $dataOut = legacyDbFetch($query, ['username' => $user]);
+    if ($dataOut) {
+        $dataOut['RAAchievements'] = (int) $dataOut['RAAchievements'];
+        $dataOut['TotalAchievements'] = (int) $dataOut['TotalAchievements'];
+
+        return true;
+    }
+
+    return false;
+}
+
 function countRankedUsers(int $type = RankType::Hardcore): int
 {
     return Cache::remember("rankedUserCount:$type",

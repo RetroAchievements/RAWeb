@@ -265,11 +265,13 @@ RenderContentStart($userPage);
         echo "<br>";
 
         $totalHardcorePoints = $userMassData['TotalPoints'];
+        $totalHardcoreachievements = $userMassData['TotalAchievements'];
         if ($totalHardcorePoints > 0) {
             $totalTruePoints = $userMassData['TotalTruePoints'];
 
             $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
-            echo "Hardcore Points: $totalHardcorePoints points<span class='TrueRatio'> ($totalTruePoints)</span></span><br>";
+            echo "Hardcore Points: $totalHardcorePoints <span class='TrueRatio'> ($totalTruePoints)</span></span><br>";
+            echo "Hardcore Achievements: $totalHardcoreachievements<br>";
 
             echo "Site Rank: ";
             if ($userIsUntracked) {
@@ -290,8 +292,10 @@ RenderContentStart($userPage);
         }
 
         $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
+        $totalSoftcoreachievements = $userMassData['TotalSoftcoreAchievements'];
         if ($totalSoftcorePoints > 0) {
-            echo "Softcore Points: $totalSoftcorePoints points<br>";
+            echo "Softcore Points: $totalSoftcorePoints<br>";
+            echo "Softcore Achievements: $totalSoftcoreachievements<br>";
 
             echo "Softcore Rank: ";
             if ($userIsUntracked) {
