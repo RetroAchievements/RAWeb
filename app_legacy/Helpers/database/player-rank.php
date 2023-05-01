@@ -70,7 +70,10 @@ function countUserAchievements(?string $user, ?array &$dataOut): bool
                 SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END) AS TotalAchievements
                 FROM Awarded AS aw
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                WHERE aw.User =:username AND ach.Flags = " . AchievementType::OfficialCore;
+                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                WHERE aw.User =:username 
+                AND ach.Flags = " . AchievementType::OfficialCore . "
+                AND gd.ConsoleID NOT IN (100, 101)";
 
     $dataOut = legacyDbFetch($query, ['username' => $user]);
     if ($dataOut) {
