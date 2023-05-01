@@ -81,7 +81,7 @@ function generateManualMoveButtons(
             <button
                 title="$upA11yLabel" 
                 aria-label="$upA11yLabel" 
-                class="text-2xs"
+                class="text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)"
             >
                 ↑$upLabel
@@ -90,7 +90,7 @@ function generateManualMoveButtons(
             <button
                 title="$downA11yLabel"
                 aria-label="$downA11yLabel"
-                class="text-2xs"
+                class="text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)"
             >
                 ↓$downLabel
@@ -257,14 +257,23 @@ function postAllAwardsDisplayOrder(awards) {
                 HTML;
 
                 echo "<td class='$subduedOpacityClassName transition'>";
-                RenderAward($award, 24, false);
+                RenderAward($award, 32, false);
                 echo "</td>";
                 echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
                 echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
 
                 echo "<td>";
                 echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
-                echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');
+                if (count($awards) > 50) {
+                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom', autoScroll: true);
+                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true);
+                    echo generateManualMoveButtons($awardCounter, 1);
+                } elseif (count($awards) > 15) {
+                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10', autoScroll: true);
+                    echo generateManualMoveButtons($awardCounter, 1);
+                } else {
+                    echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');
+                }
                 echo "</div>";
                 echo "</td>";
 
