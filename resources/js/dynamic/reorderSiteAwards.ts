@@ -102,8 +102,12 @@ export function handleRowDrop(event: DragEvent) {
 
     // Ensure both rows belong to the same table.
     if (draggedTableEl === dropTargetTableEl) {
-      const draggedRowIndex = Array.from(grabbedRowEl.parentNode?.children ?? []).indexOf(grabbedRowEl);
-      const dropTargetIndex = Array.from(dropTargetEl.parentNode?.children ?? []).indexOf(dropTargetEl);
+      const draggedRowIndex = Array.from(grabbedRowEl.parentNode?.children ?? []).indexOf(
+        grabbedRowEl
+      );
+      const dropTargetIndex = Array.from(dropTargetEl.parentNode?.children ?? []).indexOf(
+        dropTargetEl
+      );
 
       // Don't do anything if the user drops the row back into place.
       if (draggedRowIndex !== dropTargetIndex) {
@@ -157,11 +161,7 @@ export function getLastHiddenRowIndex(tbodyEl: HTMLTableSectionElement) {
  * @param {number} moveBy - The number of rows the target row should move.
  * @returns {number} - The adjusted new index for the target row.
  */
-export function adjustNewIndex(
-  newIndex: number,
-  lastHiddenRowIndex: number,
-  moveBy: number,
-) {
+export function adjustNewIndex(newIndex: number, lastHiddenRowIndex: number, moveBy: number) {
   // Prevent the row from moving above hidden rows when moving upwards
   if (moveBy < 0 && newIndex <= lastHiddenRowIndex) {
     newIndex = lastHiddenRowIndex + 1;
@@ -188,6 +188,7 @@ export function isRowHidden(rowEl: HTMLTableRowElement | null) {
  * @returns {string[]} - An ordered array of award kinds, eg `["game", "event"]`
  */
 export function buildSectionsOrderList(): string[] {
+  // prettier-ignore
   const sectionOrderSelectEls = document.querySelectorAll<HTMLSelectElement>('select[data-award-kind]');
   const selectedValues: Record<string, string> = {};
 
@@ -221,7 +222,13 @@ export function buildSectionsOrderList(): string[] {
   return sectionsOrderList;
 }
 
-type MappedTableRow = { isHidden: boolean; type: string; data: string; extra: string; kind: string };
+type MappedTableRow = {
+  isHidden: boolean;
+  type: string;
+  data: string;
+  extra: string;
+  kind: string;
+};
 
 /**
  * Compute display order values for an array of mapped table rows based on the user-defined award ordering.
@@ -247,6 +254,7 @@ export function computeDisplayOrderValues(mappedTableRows: MappedTableRow[]) {
       // The second group will have an offset of 3000.
       // The third group will have an offset of 6000.
       // etc...
+      // prettier-ignore
       const groupOffsetBoost = sectionsOrder.findIndex((sectionName) => sectionName === row.kind) * 3000;
 
       // Set the display order value considering the row index, offset, and an arbitrary shift of 20.
@@ -291,7 +299,9 @@ export function computeDisplayOrderValues(mappedTableRows: MappedTableRow[]) {
 export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number) {
   const isHiddenChecked = (event.target as HTMLInputElement).checked;
 
-  const targetRowEl = document.querySelector<HTMLTableRowElement>(`tr[data-row-index="${rowIndex}"]`);
+  const targetRowEl = document.querySelector<HTMLTableRowElement>(
+    `tr[data-row-index="${rowIndex}"]`
+  );
 
   if (targetRowEl) {
     const buttonsContainerEl = targetRowEl.querySelector<HTMLDivElement>('.award-movement-buttons');
@@ -371,7 +381,9 @@ export function moveHiddenRowsToTop() {
 export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
   state.isFormDirty = true;
 
-  const targetRowEl = document.querySelector<HTMLTableRowElement>(`tr[data-row-index="${rowIndex}"]`);
+  const targetRowEl = document.querySelector<HTMLTableRowElement>(
+    `tr[data-row-index="${rowIndex}"]`
+  );
 
   if (targetRowEl) {
     const tbodyEl = targetRowEl.closest('tbody');
@@ -382,7 +394,11 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
 
       // If we're moving the first row up or the last row down,
       // the move is redundant and we can bail.
-      if ((currentIndex === 0 && moveBy < 0) || (currentIndex === tbodyEl.children.length - 1 && moveBy > 1)) {
+      if (
+        // prettier-ignore
+        (currentIndex === 0 && moveBy < 0)
+        || (currentIndex === tbodyEl.children.length - 1 && moveBy > 1)
+      ) {
         return;
       }
 

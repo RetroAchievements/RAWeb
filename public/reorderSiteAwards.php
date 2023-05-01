@@ -234,26 +234,37 @@ function postAllAwardsDisplayOrder(awards) {
 
                 $isHiddenPreChecked = $awardDisplayOrder === '-1';
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
+                $isDraggable = $isHiddenPreChecked ? 'false' : 'true';
 
-                echo "<tr data-row-index='$awardCounter' data-award-kind='$humanReadableAwardKind' draggable='" . ($isHiddenPreChecked ? 'false' : 'true') . "' class='award-table-row select-none transition " . ($isHiddenPreChecked ? '' : 'cursor-grab') . "' ondragstart='reorderSiteAwards.handleRowDragStart(event)' ondragenter='reorderSiteAwards.handleRowDragEnter(event)' ondragleave='reorderSiteAwards.handleRowDragLeave(event)' ondragover='reorderSiteAwards.handleRowDragOver(event)' ondragend='reorderSiteAwards.handleRowDragEnd(event)' ondrop='reorderSiteAwards.handleRowDrop(event)'>";
+                $rowClassNames = "award-table-row select-none transition";
+                if (!$isHiddenPreChecked) {
+                    $rowClassNames .= " cursor-grab";
+                }
+
+                echo <<<HTML
+                    <tr 
+                        data-row-index='$awardCounter'
+                        data-award-kind='$humanReadableAwardKind'
+                        draggable='$isDraggable'
+                        class='$rowClassNames'
+                        ondragstart='reorderSiteAwards.handleRowDragStart(event)'
+                        ondragenter='reorderSiteAwards.handleRowDragEnter(event)'
+                        ondragleave='reorderSiteAwards.handleRowDragLeave(event)'
+                        ondragover='reorderSiteAwards.handleRowDragOver(event)'
+                        ondragend='reorderSiteAwards.handleRowDragEnd(event)'
+                        ondrop='reorderSiteAwards.handleRowDrop(event)'
+                    >
+                HTML;
+
                 echo "<td class='$subduedOpacityClassName transition'>";
-                RenderAward($award, 48, false);
+                RenderAward($award, 24, false);
                 echo "</td>";
                 echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
                 echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
 
                 echo "<td>";
                 echo "<div class='award-movement-buttons flex justify-end transition " . ($isHiddenPreChecked ? 'opacity-0' : 'opacity-100') . "'>";
-                if (count($awards) > 50) {
-                    echo generateManualMoveButtons($awardCounter, 99999, upLabel: ' Top', downLabel: ' Bottom', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 50, upLabel: '50', downLabel: '50', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 1);
-                } elseif (count($awards) > 15) {
-                    echo generateManualMoveButtons($awardCounter, 10, upLabel: '10', downLabel: '10', autoScroll: true);
-                    echo generateManualMoveButtons($awardCounter, 1);
-                } else {
-                    echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');
-                }
+                echo generateManualMoveButtons($awardCounter, 1, orientation: 'horizontal');
                 echo "</div>";
                 echo "</td>";
 
