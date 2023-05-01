@@ -11,6 +11,7 @@ if (empty($gameData)) {
 }
 
 getCodeNotes($gameID, $codeNotes);
+$codeNoteCount = sizeof($codeNotes);
 
 RenderContentStart('Code Notes - ' . $gameData['Title']);
 ?>
@@ -181,6 +182,7 @@ function saveCodeNote(rowIndex) {
         at address $00000000, immediately followed by the cartridge memory. As such, the addresses
         displayed below may not directly correspond to the addresses on the real hardware.</p>
         <br/>
+        <p>There are currently <b><?= $codeNoteCount?></b> code notes for this game.
         <?php
         if (isset($user) && $permissions >= Permissions::Registered) {
             RenderCodeNotes($codeNotes, $user, $permissions);
