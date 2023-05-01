@@ -303,10 +303,18 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
         targetRowEl.classList.remove('cursor-grab');
         targetRowEl.setAttribute('draggable', 'false');
         buttonsContainerEl.style.opacity = '0';
+
+        buttonsContainerEl.querySelectorAll('button').forEach((buttonEl) => {
+          buttonEl.disabled = true;
+        });
       } else {
         targetRowEl.classList.add('cursor-grab');
         targetRowEl.setAttribute('draggable', 'true');
         buttonsContainerEl.style.opacity = '100';
+
+        buttonsContainerEl.querySelectorAll('button').forEach((buttonEl) => {
+          buttonEl.disabled = false;
+        });
       }
     }
 
