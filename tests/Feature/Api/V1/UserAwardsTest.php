@@ -45,7 +45,7 @@ class UserAwardsTest extends TestCase
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
             ->assertSuccessful()
             ->assertJson([
-                'TotalAwardsCount' => 3
+                'TotalAwardsCount' => 3,
             ]);
     }
 
@@ -72,7 +72,7 @@ class UserAwardsTest extends TestCase
                         'AwardData' => $visibleAward['AwardData'],
                         'AwardDataExtra' => $visibleAward['AwardDataExtra'],
                     ],
-                ]
+                ],
             ]);
     }
 
@@ -139,7 +139,7 @@ class UserAwardsTest extends TestCase
                         'Flags' => $game['Flags'],
                         'ImageIcon' => $game['ImageIcon'],
                     ],
-                ]
+                ],
             ]);
     }
 }
