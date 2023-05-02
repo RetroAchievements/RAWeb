@@ -104,7 +104,7 @@ RenderContentStart("Claim List");
 
         // Claim Status filter
         echo "<div>";
-        echo "<b>Claim Status:</b> ";
+        echo "<b>Status:</b> ";
         echo $linkFilter(ClaimStatus::toString(ClaimStatus::Active), ClaimFilters::ActiveClaim) . ' | ';
         echo $linkFilter(ClaimStatus::toString(ClaimStatus::Complete), ClaimFilters::CompleteClaim) . ' | ';
         echo $linkFilter(ClaimStatus::toString(ClaimStatus::Dropped), ClaimFilters::DroppedClaim);

@@ -95,7 +95,7 @@ abstract class ClaimSorting
             self::GameDescending => "Game",
             self::ClaimTypeDescending => "Claim Type",
             self::SetTypeDescending => "Set Type",
-            self::ClaimStatusDescending => "Claim Status",
+            self::ClaimStatusDescending => "Status",
             self::SpecialDescending => "Special",
             self::ClaimDateDescending => "Claim Date",
             self::FinishedDateDescending => "Expiration Date",
