@@ -480,7 +480,11 @@ RenderContentStart($userPage);
 
         $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
 
-        echo "<h4>Last $recentlyPlayedCount games played:</h4>";
+        if ($recentlyPlayedCount == 1) {
+            echo "<h4>Last game played:</h4>";
+        } elseif ($recentlyPlayedCount > 1) {
+            echo "<h4>Last $recentlyPlayedCount games played:</h4>";
+        }
         for ($i = 0; $i < $recentlyPlayedCount; $i++) {
             $gameID = $userMassData['RecentlyPlayed'][$i]['GameID'];
             $consoleID = $userMassData['RecentlyPlayed'][$i]['ConsoleID'];
