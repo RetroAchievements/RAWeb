@@ -182,7 +182,7 @@ function saveCodeNote(rowIndex) {
         at address $00000000, immediately followed by the cartridge memory. As such, the addresses
         displayed below may not directly correspond to the addresses on the real hardware.</p>
         <br/>
-        <p>There are currently <b><?= $codeNoteCount?></b> code notes for this game.
+        <p>There are currently <span class='font-bold'><?= $codeNoteCount ?></span> code notes for this game.</p>
         <?php
         if (isset($user) && $permissions >= Permissions::Registered) {
             RenderCodeNotes($codeNotes, $user, $permissions);
