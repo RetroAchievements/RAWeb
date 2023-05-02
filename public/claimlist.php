@@ -184,6 +184,11 @@ RenderContentStart("Claim List");
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
+            $fieldSpecial = ClaimSpecial::toString($claim['Special']);
+            if ($fieldSpecial === 'None') {
+                $fieldSpecial = '--';
+            }
+
             echo "<tr>";
             echo "<td>";
             echo userAvatar($claimUser, label: false);
@@ -200,7 +205,7 @@ RenderContentStart("Claim List");
             echo "<td class='text-xs text-center'>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
             echo "<td class='text-xs text-center'>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
             echo "<td class='text-xs text-center'>" . ClaimStatus::toString($claim['Status']) . "</td>";
-            echo "<td class='text-xs text-center'>" . ClaimSpecial::toString($claim['Special']) . "</td>";
+            echo "<td class='text-xs text-center'>" . $fieldSpecial . "</td>";
             echo "<td class='smalldate text-center whitespace-nowrap'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
             echo "<td class='smalldate text-center whitespace-nowrap'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td></tr>";
         }
