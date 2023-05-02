@@ -192,7 +192,7 @@ function renderGameCard(int|array $game): string
 
 function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy): void
 {
-    echo "<div class='py-3'><span>";
+    echo "<div><span>";
     echo "Sort: ";
 
     $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
