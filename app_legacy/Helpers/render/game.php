@@ -62,7 +62,7 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 
     // Update $html by appending text
     $updateHtml = function (&$html, $text, $append) {
-        $html = trim(str_replace(" $text", '', $html) . $append);
+        $html = trim(str_replace($text, '', $html) . $append);
     };
 
     $html = $title;
@@ -81,7 +81,7 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
             . "<span class='tag-arrow'></span>"
             . "<span>$subset</span>"
             . "</span>";
-        $updateHtml($html, $matches[0], $tags ? " $span" : '');
+        $updateHtml($html, " $matches[0]", $tags ? " $span" : '');
     }
 
     return $html;
