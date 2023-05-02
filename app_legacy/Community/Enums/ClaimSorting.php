@@ -91,7 +91,7 @@ abstract class ClaimSorting
         }
 
         return match ($type % 10) {
-            self::UserDescending => "User",
+            self::UserDescending => "Dev",
             self::GameDescending => "Game",
             self::ClaimTypeDescending => "Claim Type",
             self::SetTypeDescending => "Set Type",
