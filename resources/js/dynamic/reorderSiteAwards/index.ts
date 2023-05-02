@@ -53,43 +53,6 @@ export function handleRowDragEnter(event: DragEvent) {
   }
 }
 
-export function handleRowDragOver(event: DragEvent) {
-  event.preventDefault();
-
-  // How many px away from the window edge until we start autoscrolling?
-  const scrollWindowEdgeThreshold = 150;
-
-  const cursorY = event.clientY;
-  const windowHeight = window.innerHeight;
-
-  // If the cursor is near the top edge, set autoscrollDirection to negative and adjust speed based on distance.
-  if (cursorY < scrollWindowEdgeThreshold) {
-    // prettier-ignore
-    store.autoscrollDirection = -1 * ((scrollWindowEdgeThreshold - cursorY) / scrollWindowEdgeThreshold);
-
-    if (!store.autoscrollAnimationId) {
-      store.autoscrollAnimationId = requestAnimationFrame(autoscroll);
-    }
-  } else if (cursorY > windowHeight - scrollWindowEdgeThreshold) {
-    // If the cursor is near the bottom edge, set autoscrollDirection to positive and adjust speed based on distance.
-    // prettier-ignore
-    store.autoscrollDirection = (cursorY - (windowHeight - scrollWindowEdgeThreshold)) / scrollWindowEdgeThreshold;
-
-    if (!store.autoscrollAnimationId) {
-      store.autoscrollAnimationId = requestAnimationFrame(autoscroll);
-    }
-  } else {
-    // If the cursor is not near the edges, set autoscrollDirection to null and stop scrolling.
-    store.autoscrollDirection = null;
-    if (store.autoscrollAnimationId) {
-      cancelAnimationFrame(store.autoscrollAnimationId);
-      store.autoscrollAnimationId = null;
-    }
-  }
-
-  return false;
-}
-
 export function handleRowDragLeave(event: DragEvent) {
   const targetRowEl = (event.currentTarget as HTMLTableRowElement).closest('tr');
   const relatedTarget = event.relatedTarget as HTMLElement;
@@ -211,7 +174,6 @@ export function isRowHidden(rowEl: HTMLTableRowElement | null) {
  * @returns {string[]} - An ordered array of award kinds, eg `["game", "event"]`
  */
 export function buildSectionsOrderList(): string[] {
-  // prettier-ignore
   const sectionOrderSelectEls = document.querySelectorAll<HTMLSelectElement>('select[data-award-kind]');
   const selectedValues: Record<string, string> = {};
 
@@ -277,7 +239,6 @@ export function computeDisplayOrderValues(mappedTableRows: MappedTableRow[]) {
       // The second group will have an offset of 3000.
       // The third group will have an offset of 6000.
       // etc...
-      // prettier-ignore
       const groupOffsetBoost = sectionsOrder.findIndex((sectionName) => sectionName === row.kind) * 3000;
 
       // Set the display order value considering the row index, offset, and an arbitrary shift of 20.
