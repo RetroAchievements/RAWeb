@@ -1294,7 +1294,7 @@ sanitize_outputs(
 
                             $trClassNames = $achieved ? "class='unlocked-row'" : "";
                             echo "<tr {$trClassNames}>";
-                            
+
                             echo "<td>";
 
                             echo "<div class='flex justify-between gap-3 items-start'>";
