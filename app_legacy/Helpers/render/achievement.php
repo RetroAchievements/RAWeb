@@ -79,7 +79,7 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
     }
     $title = str_replace('[m]', '', $title);
 
-    // If we don't strip consecutive spaces, the 
+    // If we don't strip consecutive spaces, the
     // browser doesn't collapse them in forum <pre> tags.
     $title = preg_replace('/\s+/', ' ', $title);
 
