@@ -1,6 +1,15 @@
 {{-- TODO add livewire--}}
 {{--<livewire:scripts />--}}
 @if(!app()->environment('production'))
+    <script>
+        function hideDebugBar() {
+            const debugBarEl = document.querySelector('#debug');
+            if (debugBarEl) {
+                debugBarEl.classList.add('hidden');
+            }
+        }
+    </script>
+
     <style nonce="{{ csp_nonce() }}">
         pre.xdebug-var-dump {
             background: #FFFFFF;
@@ -13,7 +22,8 @@
             z-index: 100;
         }
     </style>
-    <div id="debug">
+
+    <div id="debug" role="button" x-init="{}" @click="hideDebugBar()">
         <b class="text-danger text-capitalize">{{ app()->environment() }}</b>
         <b>
             <span class="sm:hidden">XS</span>
