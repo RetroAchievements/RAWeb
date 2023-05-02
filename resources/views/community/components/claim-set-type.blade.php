@@ -4,9 +4,9 @@ use LegacyApp\Community\Enums\ClaimSetType;
 
 <div class="flex items-center gap-1 text-xs">
 @if ($claimSetType == ClaimSetType::NewSet)
-    <x-pixelarticons-check class="w-5 h-5 text-lime-400" />
+    <x-pixelarticons-card-plus class="w-4 h-4 text-green-500" />
 @else
-    <x-pixelarticons-check-double class="w-5 h-5 text-cyan-300" />
+    <x-pixelarticons-edit class="w-4 h-4 text-cyan-400" />
 @endif
     <span>{{ ClaimSetType::toString($claimSetType) }}</span>
 </div>
