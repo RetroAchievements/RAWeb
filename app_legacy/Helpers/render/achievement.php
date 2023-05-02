@@ -79,7 +79,7 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
     }
     $title = str_replace('[m]', '', $title);
 
-    return "$title$missableTag";
+    return trim("$title$missableTag");
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
