@@ -165,7 +165,7 @@ RenderContentStart("Claim List");
         }
         echo "<br style='clear:both'>";
 
-        echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
+        echo "<div class='table-wrapper'><table class='table-highlight text-xs'><tbody>";
 
         // Sortable table headers
         echo "<tr class='do-not-highlight'>";
@@ -193,19 +193,19 @@ RenderContentStart("Claim List");
             echo "<td>";
             echo userAvatar($claimUser, label: false);
             echo "</td>";
-            echo "<td class='text-xs'>";
+            echo "<td>";
             echo userAvatar($claimUser, icon: false);
             echo "</td>";
             echo "<td>";
             echo gameAvatar($claim, label: false);
             echo "</td>";
-            echo "<td class='text-xs'>";
+            echo "<td width='300'>";
             echo gameAvatar($claim, icon: false);
             echo "</td>";
-            echo "<td class='text-xs text-center'>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
-            echo "<td class='text-xs text-center'>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
-            echo "<td class='text-xs text-center'>" . ClaimStatus::toString($claim['Status']) . "</td>";
-            echo "<td class='text-xs text-center'>" . $fieldSpecial . "</td>";
+            echo "<td class='text-center'>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
+            echo "<td class='text-center'>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+            echo "<td class='text-center'>" . ClaimStatus::toString($claim['Status']) . "</td>";
+            echo "<td class='text-center'>" . $fieldSpecial . "</td>";
             echo "<td class='smalldate text-center whitespace-nowrap'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
             echo "<td class='smalldate text-center whitespace-nowrap'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td></tr>";
         }
