@@ -107,14 +107,12 @@ class UserAwardsTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
         $awardDate = '2015-07-02 16:44:46';
-
-        /** @var PlayerBadge $playerBadge */
         $award = PlayerBadge::factory()->create([
             'User' => $user->User,
-            'AwardDate' => $awardDate,
             'AwardType' => AwardType::Mastery,
             'AwardData' => $game->ID,
             'AwardDataExtra' => 1,
+            'AwardDate' => $awardDate,
             'DisplayOrder' => 0,
         ]);
 

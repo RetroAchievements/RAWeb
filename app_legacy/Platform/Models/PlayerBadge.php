@@ -22,12 +22,14 @@ class PlayerBadge extends BaseModel
         'AwardData',
         'AwardDataExtra',
         'AwardDate',
+        'DisplayOrder',
     ];
 
     protected $casts = [
         'AwardType' => 'int',
         'AwardData' => 'int',
         'AwardDataExtra' => 'int',
+        'DisplayOrder' => 'int',
     ];
 
     public const CREATED_AT = 'AwardDate';
