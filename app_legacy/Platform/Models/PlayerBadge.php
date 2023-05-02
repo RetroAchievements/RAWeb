@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace LegacyApp\Platform\Models;
 
+use Database\Factories\Legacy\PlayerBadgeFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Support\Database\Eloquent\BaseModel;
 
 class PlayerBadge extends BaseModel
 {
+    use HasFactory;
+
     // Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge
     protected $table = 'SiteAwards';
 
@@ -72,6 +76,11 @@ class PlayerBadge extends BaseModel
             AwardType::AchievementPointsYield => self::DEVELOPER_POINT_BOUNDARIES,
             default => null,
         };
+    }
+
+    protected static function newFactory(): PlayerBadgeFactory
+    {
+        return PlayerBadgeFactory::new();
     }
 
     public static function getBadgeThreshold(int $awardType, int $tier): int

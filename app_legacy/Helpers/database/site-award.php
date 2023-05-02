@@ -58,56 +58,47 @@ function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): a
 
 function getUsersSiteAwards(string $user, bool $showHidden = false): array
 {
-    sanitize_sql_inputs($user);
-
-    $retVal = [];
+    $dbResult = [];
 
     if (!isValidUsername($user)) {
-        return $retVal;
+        return $dbResult;
     }
 
+    $bindings = [
+        'username' => $user,
+        'username2' => $user,
+    ];
+
     $query = "
-    (
-    SELECT UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAt, saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+    SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
                   FROM SiteAwards AS saw
                   LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = " . AwardType::Mastery . " )
                   LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE saw.AwardType = " . AwardType::Mastery . " AND saw.User = '$user'
+                  WHERE saw.AwardType = " . AwardType::Mastery . " AND saw.User = :username
                   GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
-    )
     UNION
-    (
-    SELECT UNIX_TIMESTAMP(MAX( saw.AwardDate )) as AwardedAt, saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
+    SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL
                   FROM SiteAwards AS saw
-                  WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = '$user'
+                  WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = :username2
                   GROUP BY saw.AwardType
-
-    )
     ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
+    $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
-    $numFound = 0;
     if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[$numFound] = $db_entry;
-            $numFound++;
-        }
-
         // Updated way to "squash" duplicate awards to work with the new site award ordering implementation
         $completedGames = [];
         $masteredGames = [];
 
         // Get a separate list of completed and mastered games
-        $retValCount = count($retVal);
-        for ($i = 0; $i < $retValCount; $i++) {
-            if ($retVal[$i]['AwardType'] == AwardType::Mastery &&
-                $retVal[$i]['AwardDataExtra'] == 1) {
-                $masteredGames[] = $retVal[$i]['AwardData'];
-            } elseif ($retVal[$i]['AwardType'] == AwardType::Mastery &&
-                $retVal[$i]['AwardDataExtra'] == 0) {
-                $completedGames[] = $retVal[$i]['AwardData'];
+        $awardsCount = count($dbResult);
+        for ($i = 0; $i < $awardsCount; $i++) {
+            if ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
+                $dbResult[$i]['AwardDataExtra'] == 1) {
+                $masteredGames[] = $dbResult[$i]['AwardData'];
+            } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
+                $dbResult[$i]['AwardDataExtra'] == 0) {
+                $completedGames[] = $dbResult[$i]['AwardData'];
             }
         }
 
@@ -118,12 +109,12 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
             // For games that have been both completed and mastered, remove the completed entry from the award array.
             foreach ($multiAwardGames as $game) {
                 $index = 0;
-                foreach ($retVal as $award) {
+                foreach ($dbResult as $award) {
                     if (isset($award['AwardData']) &&
                         $award['AwardData'] === $game &&
                         $award['AwardDataExtra'] == 0 &&
                         $award['AwardType'] == AwardType::Mastery) {
-                        $retVal[$index] = "";
+                        $dbResult[$index] = "";
                         break;
                     }
                     $index++;
@@ -132,10 +123,10 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
         }
 
         // Remove blank indexes
-        $retVal = array_values(array_filter($retVal));
+        $dbResult = array_values(array_filter($dbResult));
     }
 
-    return $retVal;
+    return $dbResult;
 }
 
 function HasPatreonBadge(string $username): bool
