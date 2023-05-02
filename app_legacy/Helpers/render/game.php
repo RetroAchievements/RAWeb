@@ -62,7 +62,7 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
 
     // Update $html by appending text
     $updateHtml = function (&$html, $text, $append) {
-        $html = trim(str_replace($text, '', $html) . $append);
+        $html = trim(str_replace(" $text", '', $html) . $append);
     };
 
     $html = $title;
