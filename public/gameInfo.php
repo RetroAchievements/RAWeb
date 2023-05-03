@@ -1436,7 +1436,7 @@ sanitize_outputs(
             }
 
             if (!empty($gameHacks)) {
-                RenderGameAlts($gameHacks, 'Hacks');
+                RenderGameAlts($gameHacks, 'Hacks', scroll: true);
             }
 
             if (!empty($gameAlts)) {

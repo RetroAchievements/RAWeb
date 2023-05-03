@@ -237,12 +237,13 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
     echo "<sup>&nbsp;</sup></span></div>";
 }
 
-function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
+function RenderGameAlts(array $gameAlts, ?string $headerText = null, bool $scroll = false): void
 {
     echo "<div class='component gamealts'>";
     if ($headerText) {
         echo "<h2 class='text-h3'>$headerText</h2>";
     }
+    echo "<div " . ($scroll ? "class='max-h-[300px] overflow-y-auto'" : '' ) . ">";
     echo "<table class='table-highlight'><tbody>";
     foreach ($gameAlts as $nextGame) {
         echo "<tr>";
@@ -281,6 +282,7 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
         echo "</tr>";
     }
     echo "</tbody></table>";
+    echo "</div>";
     echo "</div>";
 }
 
