@@ -78,6 +78,8 @@ foreach ($relatedGames as $gameAlt) {
     }
 }
 
+$gameHacks = $isFullyFeaturedGame ? getGameHacks($gameID, $gameTitle) : [];
+
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
 if ($v != 1 && $isFullyFeaturedGame) {
@@ -1431,6 +1433,10 @@ sanitize_outputs(
 
             if (!empty($gameSubsets)) {
                 RenderGameAlts($gameSubsets, 'Subsets');
+            }
+
+            if (!empty($gameHacks)) {
+                RenderGameAlts($gameHacks, 'Hacks');
             }
 
             if (!empty($gameAlts)) {

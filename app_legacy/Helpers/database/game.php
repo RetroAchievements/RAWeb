@@ -214,6 +214,40 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
     return $results;
 }
 
+function getGameHacks(int $gameID, string $gameTitle): array
+{
+    $officialCore = AchievementType::OfficialCore;
+    $query = <<<SQL
+        SELECT gd.ID AS gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
+        CASE
+            WHEN (
+                SELECT COUNT(*) FROM Achievements ach
+                WHERE ach.GameID = gd.ID AND ach.Flags = $officialCore
+            ) > 0 THEN 1
+            ELSE 0
+        END AS HasAchievements, (
+            SELECT SUM(ach.Points) FROM Achievements ach
+            WHERE ach.GameID = gd.ID AND ach.Flags = $officialCore
+        ) AS Points, gd.TotalTruePoints
+        FROM GameData AS gd
+        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+        WHERE gd.Publisher = "Hack - $gameTitle" AND gd.Title LIKE "~Hack~%"
+        GROUP BY gd.ID, gd.Title
+    SQL;
+
+    $dbResult = s_mysql_query($query);
+
+    $results = [];
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $results[] = $data;
+        }
+    }
+
+    return $results;
+}
+
 function getGamesListWithNumAchievements(int $consoleID, ?array &$dataOut, int $sortBy): int
 {
     return getGamesListByDev(null, $consoleID, $dataOut, $sortBy);
