@@ -232,6 +232,7 @@ function getGameHacks(int $gameID, string $gameTitle): array
         FROM GameData AS gd
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
         WHERE gd.Publisher = "Hack - $gameTitle" AND gd.Title LIKE "~Hack~%"
+            AND gd.ID IN (SELECT gameID FROM Achievements AS ach WHERE ach.flags = $officialCore)
         GROUP BY gd.ID, gd.Title
     SQL;
 
