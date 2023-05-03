@@ -214,6 +214,9 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
     return $results;
 }
 
+/**
+ * Get list of hacks derived from a given game (ignore empty official sets)
+ */
 function getGameHacks(int $gameID, string $gameTitle): array
 {
     $officialCore = AchievementType::OfficialCore;
