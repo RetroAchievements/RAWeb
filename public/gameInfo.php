@@ -72,7 +72,7 @@ foreach ($relatedGames as $gameAlt) {
     } else {
         if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
             $gameSubsets[] = $gameAlt;
-        } else {
+        } elseif (!str_starts_with($gameAlt['Title'], '~Hack~')) {
             $gameAlts[] = $gameAlt;
         }
     }
