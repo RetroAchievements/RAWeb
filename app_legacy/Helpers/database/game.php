@@ -239,11 +239,11 @@ function getGameHacks(int $gameID, string $gameTitle): array
         ) AS Points, gd.TotalTruePoints
         FROM GameData gd
         LEFT JOIN Console c ON c.ID = gd.ConsoleID
-        WHERE gd.ID IN (
+        WHERE (gd.ID IN (
             SELECT gameID FROM GameAlternatives ga
             LEFT JOIN GameData gd ON ga.gameIDAlt = gd.ID
             WHERE gd.Title = '[Hacks - $gameTitle]'
-        ) OR gd.Publisher LIKE '%Hack - $gameTitle%'
+        ) OR gd.Publisher LIKE '%Hack - $gameTitle%')
             AND gd.Title LIKE "~Hack~%" AND gd.TotalTruePoints > 0
         GROUP BY gd.ID, gd.Title
     SQL;
