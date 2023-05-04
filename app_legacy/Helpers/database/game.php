@@ -221,11 +221,11 @@ function getGameHacks(int $gameID, string $gameTitle): array
 {
     $officialCore = AchievementType::OfficialCore;
     $alternativeTitleQuery = '';
-    if (str_contains($gameTitle, ': ')) { 
+    if (str_contains($gameTitle, ': ')) {
         $alternativeTitle = str_replace(': ', ' - ', $gameTitle);
         $alternativeTitleQuery = "OR gd.Title = '[Hacks - $alternativeTitle]'";
     }
-    
+
     $query = <<<SQL
         SELECT gd.ID gameIDAlt, gd.Title, gd.ImageIcon, c.Name ConsoleName,
         CASE
