@@ -77,7 +77,7 @@ foreach ($relatedGames as $gameAlt) {
         $gameHacks,
         fn ($hack) => $hack['gameIDAlt'] === $gameAlt['gameIDAlt']
     )) {
-        // Games in Hacks section are ignored here
+        // Games already in Hacks are ignored in Similar Games
         $gameAlts[] = $gameAlt;
     }
 }
