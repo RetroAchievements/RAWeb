@@ -61,7 +61,9 @@ $isEventGame = $consoleName == 'Events';
 
 $pageTitle = "$gameTitle ($consoleName)";
 
+$gameHacks = $isFullyFeaturedGame ? getGameHacks($gameID, $gameTitle) : [];
 $relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
+
 $gameAlts = [];
 $gameHubs = [];
 $gameSubsets = [];
@@ -69,16 +71,16 @@ $subsetPrefix = $gameData['Title'] . " [Subset - ";
 foreach ($relatedGames as $gameAlt) {
     if ($gameAlt['ConsoleName'] == 'Hubs') {
         $gameHubs[] = $gameAlt;
-    } else {
-        if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
-            $gameSubsets[] = $gameAlt;
-        } elseif (!str_starts_with($gameAlt['Title'], '~Hack~')) {
-            $gameAlts[] = $gameAlt;
-        }
+    } elseif (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
+        $gameSubsets[] = $gameAlt;
+    } elseif (!array_filter(
+        $gameHacks,
+        fn ($hack) => $hack['gameIDAlt'] === $gameAlt['gameIDAlt']
+    )) {
+        // Games in Hacks section are ignored here
+        $gameAlts[] = $gameAlt;
     }
 }
-
-$gameHacks = $isFullyFeaturedGame ? getGameHacks($gameID, $gameTitle) : [];
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
