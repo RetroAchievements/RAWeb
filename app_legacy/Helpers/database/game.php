@@ -221,7 +221,7 @@ function getGameHacks(int $gameID, string $gameTitle): array
 {
     $officialCore = AchievementType::OfficialCore;
     $query = <<<SQL
-        SELECT gd.ID AS gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
+        SELECT gd.ID gameIDAlt, gd.Title, gd.ImageIcon, c.Name ConsoleName,
         CASE
             WHEN (
                 SELECT COUNT(*) FROM Achievements ach
@@ -232,10 +232,13 @@ function getGameHacks(int $gameID, string $gameTitle): array
             SELECT SUM(ach.Points) FROM Achievements ach
             WHERE ach.GameID = gd.ID AND ach.Flags = $officialCore
         ) AS Points, gd.TotalTruePoints
-        FROM GameData AS gd
-        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        WHERE gd.Publisher = "Hack - $gameTitle" AND gd.Title LIKE "~Hack~%"
-            AND gd.ID IN (SELECT gameID FROM Achievements AS ach WHERE ach.flags = $officialCore)
+        FROM GameData gd
+        LEFT JOIN Console c ON c.ID = gd.ConsoleID
+        WHERE gd.ID IN (
+            SELECT gameID FROM GameAlternatives ga
+            LEFT JOIN GameData gd ON ga.gameIDAlt = gd.ID
+            WHERE gd.Title = '[Hacks - $gameTitle]'
+        ) AND gd.Title LIKE "~Hack~%" AND gd.TotalTruePoints > 0
         GROUP BY gd.ID, gd.Title
     SQL;
 
