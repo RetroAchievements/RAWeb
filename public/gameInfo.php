@@ -1439,8 +1439,12 @@ sanitize_outputs(
 
             if (!empty($gameHacks)) {
                 $hubID = getGameIDFromTitle("[Hacks - $gameTitle]", 100);
-                $headerText = "Hacks <a class='btn float-right text-sm' href='/game/$hubID'>Visit Hub</a>";
-                RenderGameAlts($gameHacks, $headerText);
+                $linkHub = $hubID ? "/game/$hubID" : null;
+                $headerText = "Derived Hacks";
+                if ($hubID) {
+                    $headerText .= " <a class='btn float-right text-sm' href='$linkHub'>Visit Hub</a>";
+                }
+                RenderGameAlts($gameHacks, $headerText, linkFull: $linkHub);
             }
 
             if (!empty($gameAlts)) {

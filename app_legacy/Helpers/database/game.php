@@ -246,6 +246,7 @@ function getGameHacks(int $gameID, string $gameTitle): array
         ) OR gd.Publisher LIKE '%Hack - $gameTitle%')
             AND gd.Title LIKE "~Hack~%" AND gd.TotalTruePoints > 0
         GROUP BY gd.ID, gd.Title
+        LIMIT 10
     SQL;
 
     $dbResult = s_mysql_query($query);
