@@ -220,13 +220,10 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 function getGameHacks(int $gameID, string $gameTitle): array
 {
     $officialCore = AchievementType::OfficialCore;
-    $alternativeTitleQuery = '';
     if (str_contains($gameTitle, ': ')) {
-        $alternativeTitle = str_replace(': ', ' - ', $gameTitle);
-        sanitize_outputs($alternativeTitle);
-        $alternativeTitleQuery = "OR gd.Title = '[Hacks - $alternativeTitle]'";
+        $gameTitle = str_replace(': ', ' - ', $gameTitle);
     }
-    sanitize_outputs($gameTitle);
+    sanitize_outputs($gameTitle);    
 
     $query = <<<SQL
         SELECT gd.ID gameIDAlt, gd.Title, gd.ImageIcon, c.Name ConsoleName,
@@ -245,8 +242,9 @@ function getGameHacks(int $gameID, string $gameTitle): array
         WHERE gd.ID IN (
             SELECT gameID FROM GameAlternatives ga
             LEFT JOIN GameData gd ON ga.gameIDAlt = gd.ID
-            WHERE gd.Title = '[Hacks - $gameTitle]' $alternativeTitleQuery
-        ) AND gd.Title LIKE "~Hack~%" AND gd.TotalTruePoints > 0
+            WHERE gd.Title = '[Hacks - $gameTitle]'
+        ) OR gd.Publisher LIKE '%Hack - $gameTitle%'
+            AND gd.Title LIKE "~Hack~%" AND gd.TotalTruePoints > 0
         GROUP BY gd.ID, gd.Title
     SQL;
 
