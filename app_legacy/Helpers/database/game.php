@@ -223,7 +223,7 @@ function getGameHacks(int $gameID, string $gameTitle): array
     if (str_contains($gameTitle, ': ')) {
         $gameTitle = str_replace(': ', ' - ', $gameTitle);
     }
-    sanitize_outputs($gameTitle);    
+    sanitize_outputs($gameTitle);
 
     $query = <<<SQL
         SELECT gd.ID gameIDAlt, gd.Title, gd.ImageIcon, c.Name ConsoleName,
