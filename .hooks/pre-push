@@ -2,31 +2,22 @@
 # exit on error
 set -e
 
-modifiedPhpFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.php')"
-if [ ${#modifiedPhpFiles} -gt 0 ]; then
-    printf "\n⏳ composer lint\n"
-    PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php ${modifiedPhpFiles}
+printf "\n⏳ composer lint\n"
+PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php
 
-    printf "\n⏳ composer analyse\n"
-    vendor/bin/phpstan analyse --memory-limit 512M
+printf "\n⏳ composer analyse\n"
+vendor/bin/phpstan analyse --memory-limit 512M
 
-    printf "\n⏳ composer deptrac\n"
-    vendor/bin/deptrac analyse
+printf "\n⏳ composer deptrac\n"
+vendor/bin/deptrac analyse
 
-    printf "\n⏳ composer test\n"
-    vendor/bin/phpunit
-fi
+printf "\n⏳ npm run lint:eslint\n"
+npx eslint --quiet
 
-modifiedJsFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.js')"
-if [ ${#modifiedJsFiles} -gt 0 ]; then
-    printf "\n⏳ npm run lint:eslint\n"
-    npx eslint --quiet ${modifiedJsFiles}
-fi
+printf "\n⏳ npm run test\n"
+npm run test
 
-#modifiedCssFiles="$(git diff master...HEAD --diff-filter=d --name-only '**/*.css')"
-#if [ ${#modifiedCssFiles} -gt 0 ]; then
-#    printf "\n⏳ npm run lint:stylelint\n"
-#    npx stylelint --syntax scss ${modifiedCssFiles}
-#fi
+printf "\n⏳ composer test\n"
+vendor/bin/phpunit
 
 printf "\n✅ pre-push OK\n\n"
