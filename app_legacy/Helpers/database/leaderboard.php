@@ -871,5 +871,5 @@ function getLeaderboardCounts(string $username): array
               HAVING LeaderboardCount > 0
               ORDER BY LeaderboardCount DESC, GameTitle";
 
-    return legacyDbFetchAll($query)->toArray();
+    return legacyDbFetchAll($query, $bindings)->toArray();
 }
