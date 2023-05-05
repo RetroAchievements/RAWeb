@@ -413,7 +413,7 @@ $maxRecentAchievements = 200;
 $recentlyObtainedAchievements = getRecentUnlocks($achievementIDs, 0, $maxRecentAchievements);
 
 // Initialize leaderboard variables
-$leaderboardCount = 0;
+$userLeaderboardCount = 0;
 
 // Get leaderboard information for user
 $leaderboards = getLeaderboardCounts($dev);
