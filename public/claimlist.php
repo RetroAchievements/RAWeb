@@ -169,9 +169,9 @@ RenderContentStart("Claim List");
 
         // Sortable table headers
         echo "<tr class='do-not-highlight'>";
-        echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
-        echo "<th></th>";
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::GameDescending), ClaimSorting::GameDescending, ClaimSorting::GameAscending);
+        echo "<th></th>";
+        echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
         echo "<th></th>";
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimTypeDescending), ClaimSorting::ClaimTypeDescending, ClaimSorting::ClaimTypeAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::SetTypeDescending), ClaimSorting::SetTypeDescending, ClaimSorting::SetTypeAscending);
@@ -191,16 +191,16 @@ RenderContentStart("Claim List");
 
             echo "<tr>";
             echo "<td>";
-            echo userAvatar($claimUser, label: false);
-            echo "</td>";
-            echo "<td>";
-            echo userAvatar($claimUser, icon: false);
-            echo "</td>";
-            echo "<td>";
             echo gameAvatar($claim, label: false);
             echo "</td>";
             echo "<td width='300'>";
             echo gameAvatar($claim, icon: false);
+            echo "</td>";
+            echo "<td>";
+            echo userAvatar($claimUser, label: false);
+            echo "</td>";
+            echo "<td>";
+            echo userAvatar($claimUser, icon: false);
             echo "</td>";
             echo "<td class='text-center'>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
             echo "<td class='text-center'>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
