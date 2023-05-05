@@ -104,7 +104,7 @@ function generateManualMoveButtons(
     HTML;
 }
 
-$prefersSeeingNoSavedHiddenRows = request()->cookie('prefers_no_saved_hidden_rows_when_reordering') === 'true';
+$prefersSeeingSavedHiddenRows = request()->cookie('prefers_seeing_saved_hidden_rows_when_reordering') === 'true';
 
 $userAwards = getUsersSiteAwards($user, true);
 [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
@@ -186,7 +186,7 @@ function postAllAwardsDisplayOrder(awards) {
 <div id="mainpage">
     <div id="<?= $hasSomeAwards ? 'leftcontainer' : 'fullcontainer' ?>">
         <?php
-        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, bool $prefersSeeingNoSavedHiddenRows, int $initialSectionOrder): void
+        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, bool $prefersSeeingSavedHiddenRows, int $initialSectionOrder): void
         {
             // "Game Awards" -> "game"
             $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -245,7 +245,7 @@ function postAllAwardsDisplayOrder(awards) {
 
                 $cursorGrabClass = $isHiddenPreChecked ? '' : 'cursor-grab';
                 $savedHiddenClass = $isHiddenPreChecked ? 'saved-hidden' : '';
-                $hiddenClass = ($prefersSeeingNoSavedHiddenRows && $isHiddenPreChecked) ? 'hidden' : '';
+                $hiddenClass = (!$prefersSeeingSavedHiddenRows && $isHiddenPreChecked) ? 'hidden' : '';
 
                 $rowClassNames = "award-table-row select-none transition {$cursorGrabClass} {$savedHiddenClass} {$hiddenClass}";
 
@@ -296,7 +296,7 @@ function postAllAwardsDisplayOrder(awards) {
         }
 
         if ($hasSomeAwards) {
-            $hideSavedHiddenRowsCheckedAttribute = $prefersSeeingNoSavedHiddenRows ? 'checked' : '';
+            $showSavedHiddenRowsCheckedAttribute = $prefersSeeingSavedHiddenRows ? 'checked' : '';
 
             echo <<<HTML
                 <h2 id='reorder-site-awards-header'>Reorder Site Awards</h2>
@@ -316,10 +316,10 @@ function postAllAwardsDisplayOrder(awards) {
                         <label class="flex items-center gap-x-1">
                             <input
                                 type="checkbox"
-                                onchange="reorderSiteAwards.handleHideSavedHiddenRowsChange(event)"
-                                $hideSavedHiddenRowsCheckedAttribute
+                                onchange="reorderSiteAwards.handleShowSavedHiddenRowsChange(event)"
+                                $showSavedHiddenRowsCheckedAttribute
                             >
-                                Hide saved hidden rows
+                                Show previously hidden badges
                             </input>
                         </label>
                     </div>
@@ -334,15 +334,15 @@ function postAllAwardsDisplayOrder(awards) {
         }
 
         if (!empty($gameAwards)) {
-            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $prefersSeeingNoSavedHiddenRows, $initialSectionOrders[0]);
+            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $prefersSeeingSavedHiddenRows, $initialSectionOrders[0]);
         }
 
         if (!empty($eventAwards)) {
-            RenderAwardOrderTable("Event Awards", $eventAwards, $awardCounter, $renderedSectionCount, $prefersSeeingNoSavedHiddenRows, $initialSectionOrders[1]);
+            RenderAwardOrderTable("Event Awards", $eventAwards, $awardCounter, $renderedSectionCount, $prefersSeeingSavedHiddenRows, $initialSectionOrders[1]);
         }
 
         if (!empty($siteAwards)) {
-            RenderAwardOrderTable("Site Awards", $siteAwards, $awardCounter, $renderedSectionCount, $prefersSeeingNoSavedHiddenRows, $initialSectionOrders[2]);
+            RenderAwardOrderTable("Site Awards", $siteAwards, $awardCounter, $renderedSectionCount, $prefersSeeingSavedHiddenRows, $initialSectionOrders[2]);
         }
         ?>
     </div>

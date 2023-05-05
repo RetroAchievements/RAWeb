@@ -1,4 +1,3 @@
-import { autoscroll } from './autoscroll';
 import { reorderSiteAwardsStore as store } from './reorderSiteAwardsStore';
 
 /**

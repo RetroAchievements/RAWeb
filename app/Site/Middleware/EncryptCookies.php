@@ -16,6 +16,6 @@ class EncryptCookies extends Middleware
         'theme', // color scheme
         'logo',
         'prefers_hidden_user_completed_sets',
-        'prefers_no_saved_hidden_rows_when_reordering',
+        'prefers_seeing_saved_hidden_rows_when_reordering',
     ];
 }
