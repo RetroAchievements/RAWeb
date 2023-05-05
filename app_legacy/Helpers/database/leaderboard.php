@@ -860,7 +860,6 @@ function GetLBPatch(int $gameID): array
  */
 function getLeaderboardCounts(string $username): array
 {
-    $retVal = [];
     $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, lb.GameID as GameID, COUNT(lb.GameID) as TotalLeaderboards,
               SUM(CASE WHEN lb.Author = $username THEN 1 ELSE 0 END) AS LeaderboardCount
               FROM LeaderboardDef AS lb
@@ -872,12 +871,5 @@ function getLeaderboardCounts(string $username): array
               HAVING LeaderboardCount > 0
               ORDER BY LeaderboardCount DESC, GameTitle";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
-
-    return $retVal;
+    return legacyDbFetchAll($query)->toArray();
 }
