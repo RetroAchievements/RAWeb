@@ -10,17 +10,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'gameId' => 'required|integer|exists:mysql_legacy.GameData,ID',
-    'parentGameId' => 'nullable|integer|exists:mysql_legacy.GameData,ID',
+    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
 ]);
 
 /** @var UpdateGameWeightedPointsAction $updateGameWeightedPointsAction */
 $updateGameWeightedPointsAction = app()->make(UpdateGameWeightedPointsAction::class);
-
-$gameId = (int) $input['gameId'];
-$parentGameId = isset($input['parentGameId']) ? (int) $input['parentGameId'] : null;
-
-if ($updateGameWeightedPointsAction->run($gameId, $parentGameId)) {
+if ($updateGameWeightedPointsAction->run((int) $input['game'])) {
     return back()->with('success', __('legacy.success.points_recalculate'));
 }
 

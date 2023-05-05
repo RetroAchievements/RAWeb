@@ -35,6 +35,11 @@ function getParentGameIdFromGameTitle(string $title): ?int {
     return null;
 }
 
+function getParentGameIdFromGameId(int $gameID): ?int {
+    $gameData = getGameData($gameID);
+    return getParentGameIdFromGameTitle($gameData['Title']);
+}
+
 function getGameMetadata(
     int $gameID,
     ?string $user,

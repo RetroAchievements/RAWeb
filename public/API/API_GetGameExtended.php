@@ -8,7 +8,7 @@
  *  string     Title                      name of the game
  *  int        ConsoleID                  unique identifier of the console associated to the game
  *  string     ConsoleName                name of the console associated to the game
- *  string     ParentGameID               unique identifier of the parent game if this is a subset
+ *  int        ParentGameID               unique identifier of the parent game if this is a subset
  *  string     NumDistinctPlayersCasual   number of unique players who have earned achievements for the game
  *  string     NumDistinctPlayersHardcore number of unique players who have earned achievements for the game in hardcore
  *  int        NumAchievements            count of core achievements associated to the game

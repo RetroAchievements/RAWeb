@@ -8,8 +8,10 @@ use LegacyApp\Platform\Enums\AchievementType;
 
 class UpdateGameWeightedPoints
 {
-    public function run(int $gameId, ?int $parentGameId = null): bool
+    public function run(int $gameId): bool
     {
+        $parentGameId = getParentGameIdFromGameId($gameId);
+
         $query = "SELECT ach.ID, ach.Points, SUM(CASE WHEN NOT ua.Untracked THEN aw.HardcoreMode ELSE 0 END) AS NumAchieved
               FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID

@@ -436,11 +436,11 @@ function getTotalUniquePlayers(int $gameID, ?int $parentGameID = null, ?string $
         $requestedByStatement = 'OR ua.User = :requestedBy';
     }
 
+    $gameIdStatement = 'ach.GameID = :gameId';
     if ($parentGameID !== null) {
+        $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
         $bindings['parentGameId'] = $parentGameID;
     }
-
-    $gameIdStatement = $parentGameID === null ? 'ach.GameID = :gameId' : 'ach.GameID IN (:gameId, :parentGameId)';
 
     $query = "
         SELECT COUNT(DISTINCT aw.User) As UniquePlayers

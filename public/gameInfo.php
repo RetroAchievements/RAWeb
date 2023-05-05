@@ -54,7 +54,6 @@ $consoleID = $gameData['ConsoleID'];
 $forumTopicID = $gameData['ForumTopicID'];
 $richPresenceData = $gameData['RichPresencePatch'];
 $guideURL = $gameData['GuideURL'];
-$parentGameID = $gameData['ParentGameID'];
 
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
 $isFullyFeaturedGame = $consoleName !== 'Hubs';
@@ -788,8 +787,7 @@ sanitize_outputs(
                     if ($permissions >= Permissions::Developer) {
                         echo "<form action='/request/game/recalculate-points-ratio.php' method='post'>";
                         echo csrf_field();
-                        echo "<input type='hidden' name='gameId' value='$gameID'>";
-                        echo "<input type='hidden' name='parentGameId' value='$parentGameID'>";
+                        echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<button>Recalculate True Ratios</button>";
                         echo "</form>";
                     }
