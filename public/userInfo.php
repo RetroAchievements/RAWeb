@@ -480,7 +480,11 @@ RenderContentStart($userPage);
 
         $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
 
-        echo "<h4>Last $recentlyPlayedCount games played:</h4>";
+        if ($recentlyPlayedCount == 1) {
+            echo "<h4>Last game played:</h4>";
+        } elseif ($recentlyPlayedCount > 1) {
+            echo "<h4>Last $recentlyPlayedCount games played:</h4>";
+        }
         for ($i = 0; $i < $recentlyPlayedCount; $i++) {
             $gameID = $userMassData['RecentlyPlayed'][$i]['GameID'];
             $consoleID = $userMassData['RecentlyPlayed'][$i]['ConsoleID'];
@@ -603,8 +607,10 @@ RenderContentStart($userPage);
     </div>
     <div id="rightcontainer">
         <?php
+        $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_completed_sets') === 'true';
+
         RenderSiteAwards(getUsersSiteAwards($userPage));
-        RenderCompletedGamesList($userCompletedGamesList);
+        RenderCompletedGamesList($userCompletedGamesList, $prefersHiddenUserCompletedSets);
 
         echo "<div id='achdistribution' class='component'>";
         echo "<h3>Recent Progress</h3>";
