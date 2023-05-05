@@ -412,6 +412,15 @@ foreach ($obtainers as $obtainer) {
 $maxRecentAchievements = 200;
 $recentlyObtainedAchievements = getRecentUnlocks($achievementIDs, 0, $maxRecentAchievements);
 
+// Initialize leaderboard variables
+$leaderboardCount = 0;
+
+// Get leaderboard information for user
+$leaderboards = getLeaderboardCounts($dev);
+foreach ($leaderboards as $game) {
+    $userLeaderboardCount += $game['LeaderboardCount'];
+}
+
 // Initialize code note variables
 $mostNotedGame = [];
 $userCodeNoteCount = 0;
@@ -1187,6 +1196,20 @@ RenderContentStart("$dev's Developer Stats");
                 }
                 $rowCount++;
             }
+            echo "</tbody></table>";
+            echo "</div>";
+            echo "</table></tbody>";
+            echo "</br></br>";
+
+            /*
+             * Leaderboards
+             */
+            echo "<H1>Tickets</H1>";
+            echo "<table class='table-highlight'><tbody>";
+
+            // Leaderboards created
+            echo "<tr><td width='50%'>Leaderboards Created:</td><td>" . $userLeaderboardCount . "</td></tr>";
+
             echo "</tbody></table>";
             echo "</div>";
             echo "</table></tbody>";
