@@ -1204,7 +1204,7 @@ RenderContentStart("$dev's Developer Stats");
             /*
              * Leaderboards
              */
-            echo "<H1>Tickets</H1>";
+            echo "<H1>Leaderboards</H1>";
             echo "<table class='table-highlight'><tbody>";
 
             // Leaderboards created
