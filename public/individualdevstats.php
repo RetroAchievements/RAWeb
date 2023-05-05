@@ -1211,8 +1211,6 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr><td width='50%'>Leaderboards Created:</td><td>" . $userLeaderboardCount . "</td></tr>";
 
             echo "</tbody></table>";
-            echo "</div>";
-            echo "</table></tbody>";
             echo "</br></br>";
 
             /*
