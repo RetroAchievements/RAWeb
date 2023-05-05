@@ -77,6 +77,8 @@ function generateManualMoveButtons(
         $downA11yLabel = "Move to bottom";
     }
 
+    $disabledAttribute = $isHiddenPreChecked ? "disabled" : "";
+
     return <<<HTML
         <div class="$containerClassNames">
             <button
@@ -84,7 +86,7 @@ function generateManualMoveButtons(
                 aria-label="$upA11yLabel" 
                 class="text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)"
-                disabled="$isHiddenPreChecked"
+                $disabledAttribute
             >
                 ↑$upLabel
             </button>
@@ -94,7 +96,7 @@ function generateManualMoveButtons(
                 aria-label="$downA11yLabel"
                 class="text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)"
-                disabled="$isHiddenPreChecked"
+                $disabledAttribute
             >
                 ↓$downLabel
             </button>
