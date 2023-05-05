@@ -865,7 +865,7 @@ function getLeaderboardCounts(string $username): array
               FROM LeaderboardDef AS lb
               LEFT JOIN GameData AS gd ON gd.ID = lb.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE gd.ID IN (SELECT GameID from Leaderboards WHERE Author = $username GROUP BY GameID)
+              WHERE gd.ID IN (SELECT GameID from LeaderboardDef WHERE Author = $username GROUP BY GameID)
               AND gd.Title IS NOT NULL
               GROUP BY GameID, GameTitle
               HAVING LeaderboardCount > 0
