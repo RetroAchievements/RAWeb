@@ -181,6 +181,8 @@ RenderContentStart("Claim List");
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
+            $claimSetType = $claim['SetType'];
+
             echo "<tr>";
             echo "<td>";
             echo userAvatar($claimUser, label: false);
@@ -192,7 +194,7 @@ RenderContentStart("Claim List");
             echo gameAvatar($claim);
             echo "</td>";
             echo "<td>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
-            echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+            echo "<td>" . Blade::render("<x-claim-set-type :claimSetType=$claimSetType />") . "</td>";
             echo "<td>" . ClaimStatus::toString($claim['Status']) . "</td>";
             echo "<td>" . ClaimSpecial::toString($claim['Special']) . "</td>";
             echo "<td>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
