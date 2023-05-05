@@ -17,7 +17,6 @@ $commentId = $commentData['ID'];
 $commentAuthor = e($commentData['Author']);
 $commentAuthorJoinDate = $commentData['AuthorJoined'];
 $commentAuthorPermissions = $commentData['AuthorPermissions'];
-$commentAuthorPostCount = $commentData['AuthorPostCount'];
 $commentDateCreated = $commentData['DateCreated'];
 $commentDateModified = $commentData['DateModified'];
 $commentIsAuthorised = $commentData['Authorised'];
@@ -28,14 +27,17 @@ $isCurrentUserAuthor = $currentUser === $commentAuthor;
 $showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserAdmin || $isCurrentUserAuthor);
 $showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserAdmin;
 $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
+
+// TODO: Move this conditional to the filter level and delete the @if() conditional.
+$canShowPost = $commentIsAuthorised || $showUnverifiedDisclaimer;
 ?>
 
+@if($canShowPost)
 <x-forum.post-container :commentId="$commentId" :isHighlighted="$isHighlighted">
     <x-forum.post-author-box
         :authorUserName="$commentAuthor"
         :authorJoinDate="$commentAuthorJoinDate"
         :authorPermissions="$commentAuthorPermissions"
-        :authorPostCount="$commentAuthorPostCount"
     />
 
     <div class='comment w-full pt-2 pb-4 lg:py-0 px-1 lg:px-6'>
@@ -69,3 +71,4 @@ $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
         {!! $parsedPostContent !!}
     </div>
 </x-forum.post-container>
+@endif

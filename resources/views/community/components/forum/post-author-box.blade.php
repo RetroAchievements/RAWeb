@@ -8,7 +8,6 @@ use LegacyApp\Site\Enums\Permissions;
     'authorUserName',
     'authorJoinDate' => '',
     'authorPermissions' => Permissions::Unregistered,
-    'authorPostCount' => 0,
 ])
 
 <?php
@@ -42,12 +41,6 @@ $formattedUserJoinDate = Carbon::parse($authorJoinDate)->format('M j, Y');
             @endif
 
             @if($canShowUserTooltip)
-                {{-- "1,464 Posts" --}}
-                <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>
-                    {{ localized_number($authorPostCount) }}
-                    {{ __res('user.post', $authorPostCount) }}
-                </p>
-
                 @if($authorJoinDate)
                     <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>
                         Joined {{ $formattedUserJoinDate }}
