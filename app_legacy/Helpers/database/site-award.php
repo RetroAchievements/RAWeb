@@ -85,46 +85,44 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
 
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
-    if ($dbResult !== false) {
-        // Updated way to "squash" duplicate awards to work with the new site award ordering implementation
-        $completedGames = [];
-        $masteredGames = [];
+    // Updated way to "squash" duplicate awards to work with the new site award ordering implementation
+    $completedGames = [];
+    $masteredGames = [];
 
-        // Get a separate list of completed and mastered games
-        $awardsCount = count($dbResult);
-        for ($i = 0; $i < $awardsCount; $i++) {
-            if ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
-                $dbResult[$i]['AwardDataExtra'] == 1) {
-                $masteredGames[] = $dbResult[$i]['AwardData'];
-            } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
-                $dbResult[$i]['AwardDataExtra'] == 0) {
-                $completedGames[] = $dbResult[$i]['AwardData'];
-            }
+    // Get a separate list of completed and mastered games
+    $awardsCount = count($dbResult);
+    for ($i = 0; $i < $awardsCount; $i++) {
+        if ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
+            $dbResult[$i]['AwardDataExtra'] == 1) {
+            $masteredGames[] = $dbResult[$i]['AwardData'];
+        } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
+            $dbResult[$i]['AwardDataExtra'] == 0) {
+            $completedGames[] = $dbResult[$i]['AwardData'];
         }
-
-        // Get a single list of games both completed and mastered
-        if (!empty($completedGames) && !empty($masteredGames)) {
-            $multiAwardGames = array_intersect($completedGames, $masteredGames);
-
-            // For games that have been both completed and mastered, remove the completed entry from the award array.
-            foreach ($multiAwardGames as $game) {
-                $index = 0;
-                foreach ($dbResult as $award) {
-                    if (isset($award['AwardData']) &&
-                        $award['AwardData'] === $game &&
-                        $award['AwardDataExtra'] == 0 &&
-                        $award['AwardType'] == AwardType::Mastery) {
-                        $dbResult[$index] = "";
-                        break;
-                    }
-                    $index++;
-                }
-            }
-        }
-
-        // Remove blank indexes
-        $dbResult = array_values(array_filter($dbResult));
     }
+
+    // Get a single list of games both completed and mastered
+    if (!empty($completedGames) && !empty($masteredGames)) {
+        $multiAwardGames = array_intersect($completedGames, $masteredGames);
+
+        // For games that have been both completed and mastered, remove the completed entry from the award array.
+        foreach ($multiAwardGames as $game) {
+            $index = 0;
+            foreach ($dbResult as $award) {
+                if (isset($award['AwardData']) &&
+                    $award['AwardData'] === $game &&
+                    $award['AwardDataExtra'] == 0 &&
+                    $award['AwardType'] == AwardType::Mastery) {
+                    $dbResult[$index] = "";
+                    break;
+                }
+                $index++;
+            }
+        }
+    }
+
+    // Remove blank indexes
+    $dbResult = array_values(array_filter($dbResult));
 
     return $dbResult;
 }
