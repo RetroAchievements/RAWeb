@@ -860,12 +860,17 @@ function GetLBPatch(int $gameID): array
  */
 function getLeaderboardCounts(string $username): array
 {
+    $bindings = [
+        'user' => $username,
+        'user2' => $username,
+    ];
+
     $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, lb.GameID as GameID, COUNT(lb.GameID) as TotalLeaderboards,
-              SUM(CASE WHEN lb.Author LIKE '$username' THEN 1 ELSE 0 END) AS LeaderboardCount
+              SUM(CASE WHEN lb.Author LIKE :user THEN 1 ELSE 0 END) AS LeaderboardCount
               FROM LeaderboardDef AS lb
               LEFT JOIN GameData AS gd ON gd.ID = lb.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE gd.ID IN (SELECT GameID from LeaderboardDef WHERE Author LIKE '$username' GROUP BY GameID)
+              WHERE gd.ID IN (SELECT GameID from LeaderboardDef WHERE Author LIKE :user2 GROUP BY GameID)
               AND gd.Title IS NOT NULL
               GROUP BY GameID, GameTitle
               HAVING LeaderboardCount > 0
