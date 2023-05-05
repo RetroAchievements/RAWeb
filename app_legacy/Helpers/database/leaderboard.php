@@ -854,3 +854,34 @@ function GetLBPatch(int $gameID): array
 
     return $lbData;
 }
+
+/**
+ * Gets the number of leaderboards created for each game the user has created any leaderboards for.
+ */
+function getLeaderboardCounts(string $username): array
+{
+    /** @var ?User $user */
+    //$user = User::firstWhere('User', $username);
+    //$userId = $user->ID;
+
+    $retVal = [];
+    $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, lb.GameID as GameID, COUNT(lb.GameID) as TotalLeaderboards,
+              SUM(CASE WHEN lb.Author = $username THEN 1 ELSE 0 END) AS LeaderboardCount
+              FROM LeaderboardDef AS lb
+              LEFT JOIN GameData AS gd ON gd.ID = lb.GameID
+              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE gd.ID IN (SELECT GameID from Leaderboards WHERE Author = $username GROUP BY GameID)
+              AND gd.Title IS NOT NULL
+              GROUP BY GameID, GameTitle
+              HAVING LeaderboardCount > 0
+              ORDER BY LeaderboardCount DESC, GameTitle";
+
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
+        }
+    }
+
+    return $retVal;
+}
