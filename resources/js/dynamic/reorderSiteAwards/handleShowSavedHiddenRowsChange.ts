@@ -1,6 +1,5 @@
-import { setCookie } from '@/utils/cookie';
-
-const cookieName = 'prefers_seeing_saved_hidden_rows_when_reordering';
+import { showSavedHiddenRowsCookie } from './showSavedHiddenRowsCookie';
+import { setSavedHiddenRowsVisiblity } from './setSavedHiddenRowsVisibility';
 
 /**
  * Toggles the visibility of saved hidden rows in a table based on
@@ -11,14 +10,7 @@ const cookieName = 'prefers_seeing_saved_hidden_rows_when_reordering';
  */
 export function handleShowSavedHiddenRowsChange(event: MouseEvent) {
   const isChecked = (event.target as HTMLInputElement).checked;
-  setCookie(cookieName, isChecked ? 'true' : 'false');
+  showSavedHiddenRowsCookie.set(isChecked);
 
-  const allSavedHiddenRowEls = document.querySelectorAll<HTMLTableRowElement>('tr.saved-hidden');
-  allSavedHiddenRowEls.forEach((rowEl) => {
-    if (isChecked) {
-      rowEl.classList.remove('hidden');
-    } else {
-      rowEl.classList.add('hidden');
-    }
-  });
+  setSavedHiddenRowsVisiblity();
 }

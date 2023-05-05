@@ -176,7 +176,8 @@ function postAllAwardsDisplayOrder(awards) {
             showStatusMessage('Awards updated successfully');
             $('#rightcontainer').html(response.updatedAwardsHTML);
 
-            reorderSiteAwards.state.isFormDirty = false;
+            reorderSiteAwards.store.isFormDirty = false;
+            reorderSiteAwards.refreshVisibilityAfterSave();
         })
         .fail(function () {
             showStatusMessage('Error updating awards');
