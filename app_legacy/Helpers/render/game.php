@@ -74,14 +74,14 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
         $updateHtml($html, $match, $tags ? " $span" : '');
     }
     $matches = [];
-    if (preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
+    if (preg_match('/\s?\[Subset - (.+)\]/', $title, $matches)) {
         $subset = $matches[1];
         $span = "<span class='tag'>"
             . "<span class='tag-label'>Subset</span>"
             . "<span class='tag-arrow'></span>"
             . "<span>$subset</span>"
             . "</span>";
-        $updateHtml($html, " $matches[0]", $tags ? " $span" : '');
+        $updateHtml($html, $matches[0], $tags ? " $span" : '');
     }
 
     return $html;
