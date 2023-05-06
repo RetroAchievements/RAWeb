@@ -11,7 +11,7 @@ if (empty($gameData)) {
 }
 
 getCodeNotes($gameID, $codeNotes);
-$codeNoteCount = sizeof($codeNotes);
+$codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== ""; }));
 
 RenderContentStart('Code Notes - ' . $gameData['Title']);
 ?>
