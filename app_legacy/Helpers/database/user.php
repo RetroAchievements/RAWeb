@@ -357,6 +357,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         5 => "LastLogin DESC",
         6 => "Author ASC",
         7 => "ActiveClaims DESC",
+        8 => "Leaderboards DESC",
         default => "Achievements DESC",
     };
 
@@ -367,6 +368,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         ContribCount,
         ContribYield,
         COUNT(DISTINCT(IF(ach.Flags = 3, ach.ID, NULL))) AS Achievements,
+        COUNT(DISTINCT(lbd.ID)) AS Leaderboards,
         COUNT(DISTINCT(tick.ID)) AS OpenTickets,
         COALESCE(resolved.total,0) AS TicketsResolvedForOthers,
         LastLogin,
@@ -375,6 +377,8 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         UserAccounts AS ua
     LEFT JOIN
         Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
+    LEFT JOIN
+        LeaderboardDef AS lbd ON (lbd.Author = ua.User)
     LEFT JOIN
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
     LEFT JOIN
