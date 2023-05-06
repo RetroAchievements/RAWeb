@@ -18,7 +18,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'guide_url' => [
         'nullable',
         'active_url',
-        'regex:/^https?:\/\/(www\.)?github\.com\/RetroAchievements\/guides\//i'
+        'regex:/^https?:\/\/(www\.)?github\.com\/RetroAchievements\/guides\//i',
     ],
 ], [
     'guide_url.regex' => 'The guide URL must be from https://github.com/RetroAchievements/guides/.',
