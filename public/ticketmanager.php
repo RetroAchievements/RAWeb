@@ -251,6 +251,7 @@ RenderContentStart($pageTitle);
                         // when clearing Closed or Resolved bit and the other is not set, also clear ResolvedByNonAuthor bit
                         if (($ticketFilters & (TicketFilters::StateClosed | TicketFilters::StateResolved)) == $ticketFilter) {
                             $ticketFilter |= TicketFilters::ResolvedByNonAuthor;
+                            $ticketFilter |= TicketFilters::ResolvedByNonReporter;
                         }
 
                         return "<b><a href='" . $createLink('t', $ticketFilters & ~$ticketFilter) . "'>*$label</a></b>";
@@ -323,7 +324,8 @@ RenderContentStart($pageTitle);
                 if ($closedTickets || $resolvedTickets) {
                     echo "<div>";
                     echo "<b>Resolved By:</b> ";
-                    echo $linkFilter('Not Achievement Developer', TicketFilters::ResolvedByNonAuthor);
+                    echo $linkFilter('Not Achievement Developer | ', TicketFilters::ResolvedByNonAuthor);
+                    echo $linkFilter('Not Achievement Reporter', TicketFilters::ResolvedByNonReporter);
                     echo "</div>";
                 }
 
