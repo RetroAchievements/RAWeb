@@ -79,7 +79,11 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
     }
     $title = str_replace('[m]', '', $title);
 
-    return "$title$missableTag";
+    // If we don't strip consecutive spaces, the
+    // browser doesn't collapse them in forum <pre> tags.
+    $title = preg_replace('/\s+/', ' ', $title);
+
+    return trim("$title$missableTag");
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
