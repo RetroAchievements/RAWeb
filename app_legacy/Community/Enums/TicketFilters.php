@@ -42,11 +42,11 @@ abstract class TicketFilters
 
     public const ResolvedByNonAuthor = 1 << 17;
 
-    public const ResolvedByNonReporter = 1 << 18;
+    public const StateRequest = 1 << 18;
 
-    public const StateRequest = 1 << 19;
+    public const EmulatorOther = 1 << 19;
 
-    public const EmulatorOther = 1 << 20;
+    public const ResolvedByNonReporter = 1 << 20;
 
     // This should updated every time a new filter is added so it has all possible filter bits set
     public const AllFilters = (1 << 21) - 1;
