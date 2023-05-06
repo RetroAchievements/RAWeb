@@ -218,17 +218,6 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
 
     $libraryOut['Rank'] = getUserRank($user);
 
-    $RAAchievements = 0;
-    $SoftcoreAchievements = 0;
-
-    if (countUserAchievements($user, $userAchievements)) {
-        $RAAchievements = $userAchievements['RAAchievements'];
-        $SoftcoreAchievements = $userAchievements['TotalAchievements'] - $userAchievements['RAAchievements'];
-    }
-
-    $libraryOut['TotalAchievements'] = $RAAchievements;
-    $libraryOut['TotalSoftcoreAchievements'] = $SoftcoreAchievements;
-
     $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 

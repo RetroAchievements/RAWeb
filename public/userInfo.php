@@ -47,6 +47,10 @@ $numArticleComments = getRecentArticleComments(ArticleType::User, $userPageID, $
 $totalPctWon = 0.0;
 $numGamesFound = 0;
 
+// Achievement totals
+$totalHardcoreAchievements = 0;
+$totalSoftcoreAchievements = 0;
+
 // Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
@@ -57,6 +61,8 @@ foreach ($userCompletedGamesList as $nextGame) {
         if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
             $totalPctWon += $nextGame['PctWon'];
             $numGamesFound++;
+            $totalHardcoreAchievements += $nextGame['NumAwardedHC'];
+            $totalSoftcoreAchievements += ($nextGame['NumAwarded'] - $nextGame['NumAwardedHC']);
         }
     }
 }
@@ -265,13 +271,12 @@ RenderContentStart($userPage);
         echo "<br>";
 
         $totalHardcorePoints = $userMassData['TotalPoints'];
-        $totalHardcoreachievements = $userMassData['TotalAchievements'];
         if ($totalHardcorePoints > 0) {
             $totalTruePoints = $userMassData['TotalTruePoints'];
 
             $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
             echo "Hardcore Points: $totalHardcorePoints <span class='TrueRatio'> ($totalTruePoints)</span></span><br>";
-            echo "Hardcore Achievements: $totalHardcoreachievements<br>";
+            echo "Hardcore Achievements: $totalHardcoreAchievements<br>";
 
             echo "Site Rank: ";
             if ($userIsUntracked) {
@@ -292,10 +297,9 @@ RenderContentStart($userPage);
         }
 
         $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
-        $totalSoftcoreachievements = $userMassData['TotalSoftcoreAchievements'];
         if ($totalSoftcorePoints > 0) {
             echo "Softcore Points: $totalSoftcorePoints<br>";
-            echo "Softcore Achievements: $totalSoftcoreachievements<br>";
+            echo "Softcore Achievements: $totalSoftcoreAchievements<br>";
 
             echo "Softcore Rank: ";
             if ($userIsUntracked) {
