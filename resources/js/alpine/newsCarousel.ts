@@ -23,7 +23,7 @@ const privateUtils = {
   scrollToPosition: (
     imageListEl: HTMLDivElement,
     position: number,
-    scrollBehavior: 'smooth' | 'instant' = 'smooth'
+    scrollBehavior: 'smooth' | 'instant' = 'smooth',
   ) => {
     imageListEl.scrollTo({
       left: position,
@@ -35,11 +35,7 @@ const privateUtils = {
    * Scroll to somewhere in the carousel image list, with index as
    * the slide index to scroll to.
    */
-  scrollToIndex: (
-    imageListEl: HTMLDivElement,
-    index: number,
-    scrollBehavior: 'smooth' | 'instant' = 'smooth'
-  ) => {
+  scrollToIndex: (imageListEl: HTMLDivElement, index: number, scrollBehavior: 'smooth' | 'instant' = 'smooth') => {
     const offsetWidth = imageListEl.offsetWidth;
     const position = index * offsetWidth;
 
@@ -200,12 +196,13 @@ const newsCarouselStore = {
     if (imageListEl) {
       this.pause();
 
-      this.activeIndex = index;
-
       // We don't want the user to see us rapidly scrolling through
       // lots of images. That can be disorienting. If they're moving
       // to a position far away, just animate them there.
       const absoluteDistance = Math.abs(index - this.activeIndex);
+
+      this.activeIndex = index;
+
       if (absoluteDistance > 2) {
         this.resetCarouselToIndex(imageListEl, index);
       } else {

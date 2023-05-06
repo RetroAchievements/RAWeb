@@ -1,9 +1,9 @@
 import type { Alpine } from 'alpinejs';
 
+import type { newsCarousel as NewsCarousel } from '@/alpine/newsCarousel';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
 import type { mobileSafeTipEvents as MobileSafeTipEvents } from '@/utils/tooltip';
-import type { newsCarousel as NewsCarousel } from '@/carousel/newsCarousel';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 
 declare global {

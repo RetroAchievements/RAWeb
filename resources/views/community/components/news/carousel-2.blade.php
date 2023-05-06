@@ -11,10 +11,10 @@ if ($newsData->isEmpty()) {
 ?>
 
 <div class="mb-6" aria-live="polite" aria-atomic="true" x-data="newsCarousel()">
-    <h2>News</h2>
+    <h2 class="sr-only">News</h2>
 
     <div 
-        class="relative h-[300px] max-h-[300px] sm:h-[270px] sm:max-h-[270px]"
+        class="mt-2 relative h-[300px] max-h-[300px] sm:h-[270px] sm:max-h-[270px]"
         @mouseenter="pause()"
         @mouseleave="resume()"
     >
@@ -32,7 +32,7 @@ if ($newsData->isEmpty()) {
         <x-news.carousel-scroll-buttons />
     </div>
 
-    <div class="mt-2 flex justify-center gap-x-1">
+    <div class="mt-4 flex justify-center gap-x-1">
         @foreach ($newsData as $index => $news)
             <x-news.carousel-position-indicator :index="$index" />
         @endforeach

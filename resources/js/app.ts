@@ -2,7 +2,7 @@ import Alpine from 'alpinejs';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-import { newsCarousel } from './carousel/newsCarousel';
+import { newsCarousel } from './alpine/newsCarousel';
 import {
   copyToClipboard,
   handleLeaderboardTabClick,
