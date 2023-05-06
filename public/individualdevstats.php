@@ -957,7 +957,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "</td></tr>";
 
             // Sole Developer - Games with Leaderboards and Leaderboard count
-            echo "<tr><td>Games with Leaderboards also Developed For:</td><td>";
+            echo "<tr><td>Games with Leaderboards also Developed for:</td><td>";
             if (!empty($onlyDevGameIDs)) {
                 echo $onlyDevLeaderboardCountByThisDev . " of " . $onlyDevLeaderboardCount . " - " . number_format($onlyDevLeaderboardCountByThisDev / count($onlyDevGameIDs) * 100, 2, '.', '') . "% of Games</br>" . $onlyDevLeaderboardTotalByThisDev . " of " . $onlyDevLeaderboardTotal . " Unique Leaderboards";
             } else {
