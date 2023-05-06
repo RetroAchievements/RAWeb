@@ -15,7 +15,13 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'publisher' => 'nullable|string|max:50',
     'genre' => 'nullable|string|max:50',
     'release' => 'nullable|string|max:50',
-    'guide_url' => 'nullable|active_url',
+    'guide_url' => [
+        'nullable',
+        'active_url',
+        'regex:/^https?:\/\/(www\.)?github\.com\/RetroAchievements\/guides\//i'
+    ],
+], [
+    'guide_url.regex' => 'The guide URL must be from https://github.com/RetroAchievements/guides/.',
 ]);
 
 $gameId = (int) $input['game'];
