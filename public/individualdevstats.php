@@ -40,6 +40,8 @@ $anyDevEasiestGame = [];
 $anyDevRichPresenceCount = 0;
 $anyDevLeaderboardCount = 0;
 $anyDevLeaderboardTotal = 0;
+$anyDevLeaderboardCountByThisDev = 0;
+$anyDevLeaderboardTotalByThisDev = 0;
 
 // Initialise majority dev game variables
 $majorityDevGameIDs = [];
@@ -49,6 +51,8 @@ $majorityDevAchievementCount = 0;
 $majorityDevRichPresenceCount = 0;
 $majorityDevLeaderboardCount = 0;
 $majorityDevLeaderboardTotal = 0;
+$majorityDevLeaderboardCountByThisDev = 0;
+$majorityDevLeaderboardTotalByThisDev = 0;
 
 // Initialise sole dev game variables
 $onlyDevGameIDs = [];
@@ -58,6 +62,8 @@ $onlyDevAchievementCount = 0;
 $onlyDevRichPresenceCount = 0;
 $onlyDevLeaderboardCount = 0;
 $onlyDevLeaderboardTotal = 0;
+$onlyDevLeaderboardCountByThisDev = 0;
+$onlyDevLeaderboardTotalByThisDev = 0;
 
 // Get user game list data
 getGamesListByDev($dev, 0, $gamesList, 1, false);
@@ -82,6 +88,10 @@ foreach ($gamesList as $game) {
         if (isset($game['NumLBs'])) {
             $anyDevLeaderboardCount++;
         }
+        $anyDevLeaderboardTotalByThisDev += $game['MyLBs'];
+        if (isset($game['MyLBs'])) {
+            $anyDevLeaderboardCountByThisDev++;
+        }
 
         // Majority developer
         if ($game['MyAchievements'] >= $game['NotMyAchievements']) {
@@ -102,6 +112,10 @@ foreach ($gamesList as $game) {
             $majorityDevLeaderboardTotal += $game['NumLBs'];
             if (isset($game['NumLBs'])) {
                 $majorityDevLeaderboardCount++;
+            }
+            $majorityDevLeaderboardTotalByThisDev += $game['MyLBs'];
+            if (isset($game['MyLBs'])) {
+                $majorityDevLeaderboardCountByThisDev++;
             }
         }
 
@@ -124,6 +138,10 @@ foreach ($gamesList as $game) {
             $onlyDevLeaderboardTotal += $game['NumLBs'];
             if (isset($game['NumLBs'])) {
                 $onlyDevLeaderboardCount++;
+            }
+            $onlyDevLeaderboardTotalByThisDev += $game['MyLBs'];
+            if (isset($game['MyLBs'])) {
+                $onlyDevLeaderboardCountByThisDev++;
             }
         }
     }
@@ -707,7 +725,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published at least one achievement for.</td></tr>";
 
             // Any Development - Games developed for
-            echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($anyDevGameIDs) . "</td></tr>";
+            echo "<tr><td width='50%'>Games Developed for:</td><td>" . count($anyDevGameIDs) . "</td></tr>";
 
             // Any Development - Games with Rich Presence
             echo "<tr><td>Games with Rich Presence:</td><td>";
@@ -719,9 +737,9 @@ RenderContentStart("$dev's Developer Stats");
             echo "</td></tr>";
 
             // Any Development - Games with Leaderboards and Leaderboard count
-            echo "<tr><td>Games with Leaderboards:</td><td>";
+            echo "<tr><td>Games with Leaderboards also Developed for:</td><td>";
             if (!empty($anyDevGameIDs)) {
-                echo $anyDevLeaderboardCount . " - " . number_format($anyDevLeaderboardCount / count($anyDevGameIDs) * 100, 2, '.', '') . "%</br>" . $anyDevLeaderboardTotal . " Unique Leaderboards";
+                echo $anyDevLeaderboardCountByThisDev . " of " . $anyDevLeaderboardCount . " - " . number_format($anyDevLeaderboardCountByThisDev / count($anyDevGameIDs) * 100, 2, '.', '') . "% of Games</br>" . $anyDevLeaderboardTotalByThisDev . " of " . $anyDevLeaderboardTotal . " Unique Leaderboards";
             } else {
                 echo "N/A";
             }
@@ -817,7 +835,7 @@ RenderContentStart("$dev's Developer Stats");
             echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published at least half the achievements for.</td></tr>";
 
             // Majority Developer - Games developed for
-            echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($majorityDevGameIDs) . "</td></tr>";
+            echo "<tr><td width='50%'>Games Developed for:</td><td>" . count($majorityDevGameIDs) . "</td></tr>";
 
             // Majority Developer - Games with Rich Presence
             echo "<tr><td>Games with Rich Presence:</td><td>";
@@ -829,9 +847,9 @@ RenderContentStart("$dev's Developer Stats");
             echo "</td></tr>";
 
             // Majority Developer - Games with Leaderboards and Leaderboard count
-            echo "<tr><td>Games with Leaderboards:</td><td>";
+            echo "<tr><td>Games with Leaderboards also Developed for:</td><td>";
             if (!empty($majorityDevGameIDs)) {
-                echo $majorityDevLeaderboardCount . " - " . number_format($majorityDevLeaderboardCount / count($majorityDevGameIDs) * 100, 2, '.', '') . "%</br>" . $majorityDevLeaderboardTotal . " Unique Leaderboards";
+                echo $majorityDevLeaderboardCountByThisDev . " of " . $majorityDevLeaderboardCount . " - " . number_format($majorityDevLeaderboardCountByThisDev / count($majorityDevGameIDs) * 100, 2, '.', '') . "% of Games</br>" . $majorityDevLeaderboardTotalByThisDev . " of " . $majorityDevLeaderboardTotal . " Unique Leaderboards";
             } else {
                 echo "N/A";
             }
@@ -939,9 +957,9 @@ RenderContentStart("$dev's Developer Stats");
             echo "</td></tr>";
 
             // Sole Developer - Games with Leaderboards and Leaderboard count
-            echo "<tr><td>Games with Leaderboards:</td><td>";
+            echo "<tr><td>Games with Leaderboards also Developed For:</td><td>";
             if (!empty($onlyDevGameIDs)) {
-                echo $onlyDevLeaderboardCount . " - " . number_format($onlyDevLeaderboardCount / count($onlyDevGameIDs) * 100, 2, '.', '') . "%</br>" . $onlyDevLeaderboardTotal . " Unique Leaderboards";
+                echo $onlyDevLeaderboardCountByThisDev . " of " . $onlyDevLeaderboardCount . " - " . number_format($onlyDevLeaderboardCountByThisDev / count($onlyDevGameIDs) * 100, 2, '.', '') . "% of Games</br>" . $onlyDevLeaderboardTotalByThisDev . " of " . $onlyDevLeaderboardTotal . " Unique Leaderboards";
             } else {
                 echo "N/A";
             }
