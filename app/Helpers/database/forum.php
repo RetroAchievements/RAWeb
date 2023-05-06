@@ -252,6 +252,10 @@ function editTopicComment(int $commentID, string $newPayload): bool
     $newPayload = str_replace("<", "&lt;", $newPayload);
     $newPayload = str_replace(">", "&gt;", $newPayload);
 
+    // Take any RA links and convert them to relevant shortcodes.
+    // eg: "https://retroachievements.org/game/1" --> "[game=1]"
+    $newPayload = normalize_shortcodes($newPayload);
+
     $query = "UPDATE ForumTopicComment SET Payload = '$newPayload' WHERE ID=$commentID";
 
     $db = getMysqliConnection();
@@ -279,6 +283,10 @@ function submitTopicComment(
     $commentPayload = str_replace("<", "&lt;", $commentPayload);
     $commentPayload = str_replace(">", "&gt;", $commentPayload);
     // $commentPayload = strip_tags( $commentPayload );
+
+    // Take any RA links and convert them to relevant shortcodes.
+    // eg: "https://retroachievements.org/game/1" --> "[game=1]"
+    $commentPayload = normalize_shortcodes($commentPayload);
 
     $authFlags = getUserForumPostAuth($user) ? 1 : 0;
 
@@ -330,7 +338,7 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
 
     $urlTarget = "viewtopic.php?t=$topicID&c=$commentID#$commentID";
     foreach ($subscribers as $sub) {
-        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, false, $urlTarget);
+        sendActivityEmail($sub['User'], $sub['EmailAddress'], $topicID, $author, ArticleType::Forum, $topicTitle, $urlTarget);
     }
 }
 

@@ -19,6 +19,13 @@ class Rating extends BaseModel
     public const CREATED_AT = 'Created';
     public const UPDATED_AT = 'Updated';
 
+    protected $fillable = [
+        'User',
+        'RatingObjectType',
+        'RatingID',
+        'RatingValue',
+    ];
+
     // == accessors
 
     // == mutators

@@ -157,10 +157,14 @@ function handleSaveAllClick() {
 function postAllAwardsDisplayOrder(awards) {
     showStatusMessage('Updating...');
 
-    // We want each award to only take up a single variable in the form POST payload.
-    const compressedAwards = awards.map((award) => [award.type, award.data, award.extra, award.number].join(','));
+    // We want the awards to occupy limited space over the network.
+    const compressAwards = (award) => ([award.type, award.data, award.extra, award.number].join(','));
 
-    $.post('/request/user/update-site-awards.php', { awards: compressedAwards })
+    // Pass both sets of awards as CSVs rather than array elements.
+    const sortedAwards = awards.filter(award => award.number !== -1).map(compressAwards).join('|');
+    const hiddenAwards = awards.filter(award => award.number === -1).map(compressAwards).join('|');
+
+    $.post('/request/user/update-site-awards.php', { sortedAwards, hiddenAwards })
         .done(function (response) {
             showStatusMessage('Awards updated successfully');
             $('#rightcontainer').html(response.updatedAwardsHTML);

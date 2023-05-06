@@ -327,6 +327,7 @@ function addArticleComment(
     // $commentPayload = str_replace( "'", "''", $commentPayload );
 
     if (is_array($articleID)) {
+        $articleIDs = $articleID;
         $arrayCount = count($articleID);
         $count = 0;
         $query = "INSERT INTO Comment (ArticleType, ArticleID, UserID, Payload) VALUES";
@@ -338,6 +339,7 @@ function addArticleComment(
         }
     } else {
         $query = "INSERT INTO Comment (ArticleType, ArticleID, UserID, Payload) VALUES( $articleType, $articleID, $userID, '$commentPayload' )";
+        $articleIDs = [$articleID];
     }
 
     $db = getMysqliConnection();
@@ -350,12 +352,12 @@ function addArticleComment(
     }
 
     // Inform Subscribers of this comment:
-    if (is_array($articleID)) {
-        foreach ($articleID as $id) {
-            informAllSubscribersAboutActivity($articleType, $id, $user, $onBehalfOfUser);
-        }
-    } else {
-        informAllSubscribersAboutActivity($articleType, $articleID, $user, $onBehalfOfUser);
+    foreach ($articleIDs as $id) {
+        $query = "SELECT MAX(ID) AS CommentID FROM Comment
+                  WHERE ArticleType=$articleType AND ArticleID=$id AND UserID=$userID";
+        $commentID = legacyDbFetch($query)['CommentID'];
+
+        informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
     }
 
     return true;
@@ -383,10 +385,19 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
             $recentlyPlayedGameIDs[] = $recentlyPlayedGame['GameID'];
         }
 
+        // cache may remember more than was asked for
+        if ($count < count($recentlyPlayedGameIDs)) {
+            $recentlyPlayedGameIDs = array_slice($recentlyPlayedGameIDs, 0, $count);
+        }
+
         // discard anything that's not numeric or the query will fail
         $recentlyPlayedGameIDs = collect($recentlyPlayedGameIDs)
             ->filter(fn ($id) => is_int($id) || is_numeric($id))
             ->implode(',');
+        if (empty($recentlyPlayedGameIDs)) {
+            return 0;
+        }
+
         $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon
                   FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                   WHERE gd.ID IN ($recentlyPlayedGameIDs)";
@@ -394,6 +405,8 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
         $gameData = [];
         $dbResult = legacyDbFetchAll($query);
         foreach ($dbResult as $data) {
+            settype($data['GameID'], 'integer');
+            settype($data['ConsoleID'], 'integer');
             $gameData[$data['GameID']] = $data;
         }
 
@@ -506,7 +519,7 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $query = "SELECT ua.User, IF(ua.Untracked, 0, ua.RAPoints) as RAPoints, IF(ua.Untracked, 0, ua.RASoftcorePoints) as RASoftcorePoints, 
+    $query = "SELECT ua.User, IF(ua.Untracked, 0, ua.RAPoints) as RAPoints, IF(ua.Untracked, 0, ua.RASoftcorePoints) as RASoftcorePoints,
                      ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID

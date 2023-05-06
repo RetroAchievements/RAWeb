@@ -49,7 +49,9 @@ function achievementAvatar(
         id: $id,
         label: $label !== false && ($label || !$icon) ? $label : null,
         link: route('achievement.show', $id),
-        tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
+        tooltip: is_array($tooltip)
+            ? renderAchievementCard($tooltip, iconUrl: $icon)
+            : $tooltip,
         iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
         iconSize: $iconSize,
         iconClass: $iconClass,
@@ -67,19 +69,20 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
     if (!$title) {
         return '';
     }
-
     if (!Str::contains($title, '[m]')) {
         return $title;
     }
-    $span = '';
-    if ($tags) {
-        $span = '<span class=\'tag missable\' title=\'Missable\'><abbr>[<b>m</b>]</abbr></span>';
-    }
 
-    return trim(str_replace('[m]', $span, $title));
+    $missableTag = '';
+    if ($tags) {
+        $missableTag = " <span class='tag missable' title='Missable'><abbr>[<span>m</span>]</abbr></span>";
+    }
+    $title = str_replace('[m]', '', $title);
+
+    return "$title$missableTag";
 }
 
-function renderAchievementCard(int|string|array $achievement, ?string $context = null): string
+function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
 {
     $id = is_int($achievement) || is_string($achievement) ? (int) $achievement : ($achievement['AchievementID'] ?? $achievement['ID'] ?? null);
 
@@ -101,10 +104,11 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
     $unlock = $data['Unlock'] ?? null;
+    $badgeImgSrc = $iconUrl ?? media_asset("Badge/{$badgeName}.png");
     $gameTitle = renderGameTitle($data['GameTitle'] ?? null);
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
-    $tooltip .= "<img src='" . media_asset("Badge/$badgeName.png") . "' width='64' height='64' />";
+    $tooltip .= "<img src='$badgeImgSrc' width='64' height='64' />";
     $tooltip .= "<div>";
     $tooltip .= "<div><b>$title</b></div>";
     $tooltip .= "<div class='mb-1'>$description</div>";

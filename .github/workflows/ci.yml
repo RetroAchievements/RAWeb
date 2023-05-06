@@ -91,7 +91,7 @@ jobs:
       - name: Install
         run: npm install
       - name: Test
-        run: npm run test:ci
+        run: npm run test
         env:
           VITE_BUILD_PATH: dist
           APP_URL: https://raweb.test

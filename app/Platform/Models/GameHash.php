@@ -35,11 +35,14 @@ class GameHash extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'hash',
-        'MD5',
-        'system_id',
-        'Name',
         'description',
+        'GameID',
+        'hash',
+        'Label',
+        'MD5',
+        'Name',
+        'system_id',
+        'User',
     ];
 
     protected $casts = [

@@ -22,10 +22,7 @@ function getGameRating(int $gameID, ?string $user = null): array
               WHERE r.RatingID = $gameID
               GROUP BY r.RatingObjectType, r.RatingValue";
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    while ($nextRow = mysqli_fetch_assoc($dbResult)) {
+    foreach (legacyDbFetchAll($query) as $nextRow) {
         $type = $nextRow['RatingObjectType'];
         $retVal[$type]['RatingCount'] += $nextRow['NumVotes'];
         $retVal[$type]['Rating' . $nextRow['RatingValue']] += $nextRow['NumVotes'];
@@ -49,11 +46,8 @@ function getGameRating(int $gameID, ?string $user = null): array
             $ratingData['UserRating'] = 0;
         }
 
-        sanitize_sql_inputs($user);
-        $query = "SELECT RatingObjectType, RatingValue FROM Rating WHERE RatingID=$gameID AND User='$user'";
-        $dbResult = mysqli_query($db, $query);
-
-        while ($nextRow = mysqli_fetch_assoc($dbResult)) {
+        $query = "SELECT RatingObjectType, RatingValue FROM Rating WHERE RatingID=$gameID AND User=:username";
+        foreach (legacyDbFetchAll($query, ['username' => $user]) as $nextRow) {
             $type = $nextRow['RatingObjectType'];
             $retVal[$type]['UserRating'] = $nextRow['RatingValue'];
         }

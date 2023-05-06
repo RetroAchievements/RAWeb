@@ -152,6 +152,8 @@ function unlockAchievement(string $user, int $achIDToAward, bool $isHardcore): a
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
 
+    expireUserAchievementUnlocksForGame($user, $achData['GameID']);
+
     static_setlastearnedachievement($achIDToAward, $user, $achData['Points']);
 
     if ($user != $achData['Author']) {
@@ -179,47 +181,6 @@ function insertAchievementUnlockIntoAwardedTable(string $user, int $achIDToAward
     $dbResult = s_mysql_query($query);
 
     return $dbResult !== false;
-}
-
-function getUsersRecentAwardedForGames(string $user, string $gameIDsCSV, int $numAchievements): array
-{
-    if (empty($gameIDsCSV)) {
-        return [];
-    }
-
-    $gameIDsArray = explode(',', $gameIDsCSV);
-
-    $gameIDs = [];
-    foreach ($gameIDsArray as $gameID) {
-        $gameID = (int) $gameID;
-        $gameIDs[] = $gameID;
-    }
-    $gameIDs = implode(',', $gameIDs);
-
-    $limit = ($numAchievements == 0) ? 5000 : $numAchievements;
-
-    // TODO: because of the "ORDER BY HardcoreAchieved", this query only returns non-hardcore
-    //       unlocks if the user has more than $limit unlocks. Note that $limit appears to be
-    //       default (5000) for all use cases except API_GetUserSummary
-    $query = "SELECT ach.ID, ach.GameID, gd.Title AS GameTitle, ach.Title, ach.Description, ach.Points, ach.BadgeName,
-                     aw.User AS IsAwarded, aw.Date AS DateAwarded, aw.HardcoreMode AS HardcoreAchieved
-              FROM Achievements AS ach
-              LEFT OUTER JOIN Awarded AS aw ON aw.User = :username AND aw.AchievementID = ach.ID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              WHERE ach.Flags = " . AchievementType::OfficialCore . "
-              AND ach.GameID IN ( $gameIDs )
-              ORDER BY IsAwarded DESC, HardcoreAchieved, DateAwarded DESC, ach.DisplayOrder, ach.ID
-              LIMIT $limit";
-
-    $dataOut = [];
-    $dbResult = legacyDbFetchAll($query, ['username' => $user]);
-    foreach ($dbResult as $db_entry) {
-        $db_entry['IsAwarded'] = !empty($db_entry['IsAwarded']) ? '1' : '0';
-
-        $dataOut[$db_entry['GameID']][$db_entry['ID']] = $db_entry;
-    }
-
-    return $dataOut;
 }
 
 function getAchievementUnlockCount(int $achID): int

@@ -53,7 +53,7 @@ abstract class Permissions
             Permissions::Registered => 'Registered',
             Permissions::JuniorDeveloper => 'Junior Developer',
             Permissions::Developer => 'Developer',
-            Permissions::Admin => 'Admin',
+            Permissions::Admin => 'Site Moderator', //  In name only; still referred to as Admin throughout
             default => 'Invalid permission',
         };
     }

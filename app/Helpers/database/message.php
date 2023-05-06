@@ -230,6 +230,8 @@ function DeleteMessage(string $user, int $messageID): bool
     $query = "DELETE FROM Messages WHERE Messages.ID = $messageID";
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
+        UpdateCachedUnreadTotals($user);
+
         /** @var User $user */
         $user = request()->user();
         DeletedModels::create([

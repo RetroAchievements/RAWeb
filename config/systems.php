@@ -567,14 +567,14 @@ return [
     100 => [
         'name' => 'Hubs',
         'name_full' => null,
-        'name_short' => null,
+        'name_short' => 'hubs',
         'manufacturer' => null,
         'active' => false,
     ],
     101 => [
         'name' => 'Events',
         'name_full' => null,
-        'name_short' => null,
+        'name_short' => 'events',
         'manufacturer' => null,
         'active' => true,
     ],

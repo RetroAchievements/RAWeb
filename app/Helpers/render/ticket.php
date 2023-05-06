@@ -22,7 +22,7 @@ function ticketAvatar(
     }
 
     $ticketStateClass = match ($ticket->ticketState) {
-        TicketState::Open => 'open',
+        TicketState::Open, TicketState::Request => 'open',
         TicketState::Closed, TicketState::Resolved => 'closed',
         default => '',
     };
@@ -52,7 +52,7 @@ function renderTicketCard(int|Ticket $ticket): string
     }
 
     $ticketStateClass = match ($ticket->ticketState) {
-        TicketState::Open => 'open',
+        TicketState::Open, TicketState::Request => 'open',
         TicketState::Closed, TicketState::Resolved => 'closed',
         default => '',
     };

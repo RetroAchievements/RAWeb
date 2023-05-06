@@ -37,6 +37,7 @@ function RenderToolbar(): void
 
     $username = $user?->getAttribute('User');
     $permissions = $user?->getAttribute('Permissions') ?? 0;
+    $contribCount = $user?->getAttribute('ContribCount') ?? 0;
 
     $menuSystemsList = [
         [
@@ -132,6 +133,7 @@ function RenderToolbar(): void
     echo "<li><a href='/setRequestList.php'>Most Requested</a></li>";
     echo "<li><a href='/claimlist.php?s=9&f=8109'>New Sets & Revisions</a></li>";
     echo "<li><a href='/claimlist.php'>Sets in Progress</a></li>";
+    echo "<li><a href='/random.php'>Random Set</a></li>";
     echo "<li class='dropdown-header'>Hubs</li>";
     echo "<li><a href='/gameList.php?s=6&c=100&f=1'>Hub List</a></li>";
     echo "<li><a href='/game/6914'>Central Hub</a></li>";
@@ -184,9 +186,14 @@ function RenderToolbar(): void
         echo "<div>";
         echo "<ul>";
         echo "<li><a href='/user/$username'>Profile</a></li>";
-        echo "<li><a href='/gameList.php?d=$username'>My Sets</a></li>";
-        echo "<li><a href='/ticketmanager.php?u=$username'>My Tickets</a></li>";
-        echo "<li><a href='/claimlist.php?u=$username'>My Claims</a></li>";
+        if ($contribCount > 0) {
+            echo "<li><a href='/gameList.php?d=$username'>My Sets</a></li>";
+            echo "<li><a href='/individualdevstats.php?u=$username'>My Dev Stats</a></li>";
+            echo "<li><a href='/ticketmanager.php?u=$username'>My Tickets</a></li>";
+        }
+        if ($permissions >= Permissions::JuniorDeveloper) {
+            echo "<li><a href='/claimlist.php?u=$username'>My Claims</a></li>";
+        }
         echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
         echo "<li><a href='/friends.php'>Following</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";

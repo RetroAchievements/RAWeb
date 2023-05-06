@@ -199,42 +199,45 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
 
     $libraryOut = [];
 
-    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
-    $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
+    $libraryOut['User'] = $userInfo['User'];
     $libraryOut['MemberSince'] = $userInfo['Created'];
     $libraryOut['LastActivity'] = $userInfo['LastLogin'];
+    $libraryOut['LastActivityID'] = $userInfo['LastActivityID'];
     $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : $userInfo['RichPresenceMsg'];
-    $libraryOut['LastGameID'] = $userInfo['LastGameID'];
-    if ($userInfo['LastGameID']) {
-        $libraryOut['LastGame'] = getGameData((int) $userInfo['LastGameID']);
-    }
-    $libraryOut['ContribCount'] = $userInfo['ContribCount'];
-    $libraryOut['ContribYield'] = $userInfo['ContribYield'];
-    $libraryOut['TotalPoints'] = $userInfo['RAPoints'];
-    $libraryOut['TotalSoftcorePoints'] = $userInfo['RASoftcorePoints'];
-    $libraryOut['TotalTruePoints'] = $userInfo['TrueRAPoints'];
-    $libraryOut['Permissions'] = $userInfo['Permissions'];
-    $libraryOut['Untracked'] = $userInfo['Untracked'];
-    $libraryOut['ID'] = $userInfo['ID'];
-    $libraryOut['UserWallActive'] = $userInfo['UserWallActive'];
+    $libraryOut['LastGameID'] = (int) $userInfo['LastGameID'];
+    $libraryOut['ContribCount'] = (int) $userInfo['ContribCount'];
+    $libraryOut['ContribYield'] = (int) $userInfo['ContribYield'];
+    $libraryOut['TotalPoints'] = (int) $userInfo['RAPoints'];
+    $libraryOut['TotalSoftcorePoints'] = (int) $userInfo['RASoftcorePoints'];
+    $libraryOut['TotalTruePoints'] = (int) $userInfo['TrueRAPoints'];
+    $libraryOut['Permissions'] = (int) $userInfo['Permissions'];
+    $libraryOut['Untracked'] = (int) $userInfo['Untracked'];
+    $libraryOut['ID'] = (int) $userInfo['ID'];
+    $libraryOut['UserWallActive'] = (int) $userInfo['UserWallActive'];
     $libraryOut['Motto'] = $userInfo['Motto'];
 
     $libraryOut['Rank'] = getUserRank($user);
 
-    $numRecentlyPlayed = is_countable($recentlyPlayedData) ? count($recentlyPlayedData) : 0;
+    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
+    $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
-    if ($numRecentlyPlayed > 0) {
-        $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
-
-        for ($i = 1; $i < $numRecentlyPlayed; $i++) {
-            $gameIDsCSV .= "," . $recentlyPlayedData[$i]['GameID'];
+    if ($libraryOut['RecentlyPlayedCount'] > 0) {
+        $gameIDs = [];
+        foreach ($recentlyPlayedData as $recentlyPlayed) {
+            $gameIDs[] = $recentlyPlayed['GameID'];
         }
 
-        $awardedData = getUserProgress($user, (string) $gameIDsCSV);
-        $libraryOut['Awarded'] = $awardedData;
+        if (!in_array($userInfo['LastGameID'], $gameIDs)) {
+            $gameIDs[] = $userInfo['LastGameID'];
+        }
 
-        $achievementData = getUsersRecentAwardedForGames($user, $gameIDsCSV, $numRecentAchievements);
-        $libraryOut['RecentAchievements'] = $achievementData;
+        $userProgress = getUserProgress($user, $gameIDs, $numRecentAchievements, withGameInfo: true);
+
+        $libraryOut['Awarded'] = $userProgress['Awarded'];
+        $libraryOut['RecentAchievements'] = $userProgress['RecentAchievements'];
+        if (array_key_exists($userInfo['LastGameID'], $userProgress['GameInfo'])) {
+            $libraryOut['LastGame'] = $userProgress['GameInfo'][$userInfo['LastGameID']];
+        }
     }
 
     return $libraryOut;

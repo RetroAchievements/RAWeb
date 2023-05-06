@@ -17,8 +17,7 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
 
     if ($recentPostData->isNotEmpty()) {
         foreach ($recentPostData as $nextData) {
-            $timestamp = strtotime($nextData['PostedAt']);
-            $postedAt = Carbon::createFromTimeStamp($timestamp)->diffForHumans();
+            $postedAt = Carbon::parse($nextData['PostedAt'])->diffForHumans();
 
             $shortMsg = trim($nextData['ShortMsg']);
             if ($nextData['IsTruncated']) {

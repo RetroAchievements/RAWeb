@@ -67,7 +67,7 @@
         "driftingly/rector-laravel": "^0.17.0",
         "fakerphp/faker": "^1.20",
         "friendsofphp/php-cs-fixer": "^3.11",
-        "laravel/sail": "^1.16",
+        "laravel/sail": "^1.21",
         "mockery/mockery": "^1.5",
         "nunomaduro/collision": "^6.3",
         "nunomaduro/larastan": "^2.2",

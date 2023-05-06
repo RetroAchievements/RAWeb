@@ -7,7 +7,8 @@ import {
   handleLeaderboardTabClick,
   injectShortcode,
   mobileSafeTipEvents,
-  themeChange
+  themeChange,
+  toggleUserCompletedSetsVisibility,
 } from './utils';
 import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 
@@ -16,13 +17,14 @@ import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 lazyLoadModuleOnIdFound({
   elementId: 'reorder-site-awards-header',
   codeFileName: 'reorderSiteAwards',
-  moduleName: 'reorderSiteAwards',
+  moduleNameToAttachToWindow: 'reorderSiteAwards',
 });
 
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.injectShortcode = injectShortcode;
 window.mobileSafeTipEvents = mobileSafeTipEvents;
+window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
 // Alpine needs to be placed after all `window` injection
 // or race conditions could occur.

@@ -487,9 +487,6 @@ function GetFormattedLeaderboardEntry(string $formatType, int $scoreIn): string
 
         return sprintf("%01dh%02d", $hours, $mins);
     }
-    if ($formatType == 'SCORE') { // Number padded to six digits
-        return sprintf("%06d", $scoreIn);
-    }
 
     // Raw number
     return "$scoreIn";

@@ -105,14 +105,16 @@ $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
 // assume caller doesn't care about the rich presence script for the last game played
-if (isset($retVal['LastGame'])) {
+if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
     unset($retVal['LastGame']['system']);
 }
 
 // Find out if we're online or offline
-getAccountDetails($user, $userDetails);
-$retVal['LastActivity'] = getActivityMetadata((int) ($userDetails['LastActivityID'] ?? 0));
+if (array_key_exists('LastActivityID', $retVal)) {
+    $retVal['LastActivity'] = getActivityMetadata((int) ($retVal['LastActivityID'] ?? 0));
+    unset($retVal['LastActivityID']);
+}
 
 $status = 'Offline';
 if ($retVal['LastActivity']) {

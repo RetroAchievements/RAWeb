@@ -17,13 +17,9 @@ function getMD5List(int $consoleID): array
               $whereClause
               ORDER BY GameID ASC";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $nextData['GameID'] = (int) $nextData['GameID'];
-            $retVal[$nextData['MD5']] = $nextData['GameID'];
-            // echo $nextData['MD5'] . ":" . $nextData['GameID'] . "\n";
-        }
+    foreach (legacyDbFetchAll($query) as $nextData) {
+        $nextData['GameID'] = (int) $nextData['GameID'];
+        $retVal[$nextData['MD5']] = $nextData['GameID'];
     }
 
     return $retVal;

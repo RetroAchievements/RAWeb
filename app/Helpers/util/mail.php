@@ -195,11 +195,12 @@ function informAllSubscribersAboutActivity(
     int $articleType,
     int $articleID,
     string $activityAuthor,
+    int $commentID,
     ?string $onBehalfOfUser = null
 ): void {
     $subscribers = [];
     $subjectAuthor = null;
-    $altURLTarget = null;
+    $urlTarget = null;
     $articleTitle = '';
 
     switch ($articleType) {
@@ -207,6 +208,7 @@ function informAllSubscribersAboutActivity(
             $gameData = getGameData($articleID);
             $subscribers = getSubscribersOfGameWall($articleID);
             $articleTitle = $gameData['Title'] . ' (' . $gameData['ConsoleName'] . ')';
+            $urlTarget = "game/$articleID";
             break;
 
         case ArticleType::Achievement:
@@ -214,14 +216,15 @@ function informAllSubscribersAboutActivity(
             $subscribers = getSubscribersOfAchievement($articleID, $achievementData['GameID'], $achievementData['Author']);
             $subjectAuthor = $achievementData['Author'];
             $articleTitle = $achievementData['Title'] . ' (' . $achievementData['GameTitle'] . ')';
+            $urlTarget = "achievement/$articleID";
             break;
 
         case ArticleType::User:  // User wall
             $wallUserData = getUserMetadataFromID($articleID);
             $subscribers = getSubscribersOfUserWall($articleID, $wallUserData['User']);
             $subjectAuthor = $wallUserData['User'];
-            $altURLTarget = $wallUserData['User'];
             $articleTitle = $wallUserData['User'];
+            $urlTarget = "user/" . $wallUserData['User'];
             break;
 
         case ArticleType::News:  // News
@@ -235,6 +238,8 @@ function informAllSubscribersAboutActivity(
             break;
 
         case ArticleType::Leaderboard:  // Leaderboard
+            // cannot currently subscribe to leaderboard
+            $urlTarget = "leaderboardinfo.php?i=$articleID";
             break;
 
         case ArticleType::AchievementTicket:  // Ticket
@@ -242,6 +247,7 @@ function informAllSubscribersAboutActivity(
             $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
             $subjectAuthor = $ticketData['ReportedBy'];
             $articleTitle = $ticketData['AchievementTitle'] . ' (' . $ticketData['GameTitle'] . ')';
+            $urlTarget = "ticketmanager.php?i=$articleID";
             break;
 
         default:
@@ -253,10 +259,14 @@ function informAllSubscribersAboutActivity(
         $activityAuthor = $onBehalfOfUser;
     }
 
+    if ($commentID > 0) {
+        $urlTarget .= "#comment_$commentID";
+    }
+
     foreach ($subscribers as $subscriber) {
         $isThirdParty = ($subscriber['User'] != $activityAuthor && ($subjectAuthor === null || $subscriber['User'] != $subjectAuthor));
 
-        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $isThirdParty, $altURLTarget);
+        sendActivityEmail($subscriber['User'], $subscriber['EmailAddress'], $articleID, $activityAuthor, $articleType, $articleTitle, $urlTarget, $isThirdParty);
     }
 }
 
@@ -267,29 +277,28 @@ function sendActivityEmail(
     string $activityCommenter,
     int $articleType,
     string $articleTitle,
+    string $urlTarget,
     bool $threadInvolved = false,
-    ?string $altURLTarget = null
 ): bool {
     if ($user === $activityCommenter || getUserPermissions($user) < Permissions::Unregistered) {
         return false;
     }
 
+    $link = "<a href='" . config('app.url') . "/$urlTarget'>here</a>";
+
     switch ($articleType) {
         case ArticleType::Game:
             $emailTitle = "New Game Wall Comment from $activityCommenter";
-            $link = "<a href='" . config('app.url') . "/game/$actID'>here</a>";
             $activityDescription = "the game wall for $articleTitle";
             break;
 
         case ArticleType::Achievement:
             $emailTitle = "New Achievement Comment from $activityCommenter";
-            $link = "<a href='" . config('app.url') . "/achievement/$actID'>here</a>";
             $activityDescription = "the achievement wall for $articleTitle";
             break;
 
         case ArticleType::User:
             $emailTitle = "New User Wall Comment from $activityCommenter";
-            $link = "<a href='" . config('app.url') . "/user/$altURLTarget'>here</a>";
             $activityDescription = "your user wall";
             if ($articleTitle !== $user) {
                 $activityDescription = "$articleTitle's user wall";
@@ -298,19 +307,16 @@ function sendActivityEmail(
 
         case ArticleType::Leaderboard:
             $emailTitle = "New Leaderboard Comment from $activityCommenter";
-            $link = "<a href='" . config('app.url') . "/leaderboardinfo.php?i=$actID'>here</a>";
             $activityDescription = "the leaderboard wall for $articleTitle";
             break;
 
         case ArticleType::Forum:
             $emailTitle = "New Forum Comment from $activityCommenter";
-            $link = "<a href='" . config('app.url') . "/$altURLTarget'>here</a>";
             $activityDescription = "the forum post \"$articleTitle\"";
             break;
 
         case ArticleType::AchievementTicket:
             $emailTitle = "New Ticket Comment from $activityCommenter";
-            $link = "<a href='" . config('app.url') . "/ticketmanager.php?i=$actID'>here</a>";
             $activityDescription = "the ticket you reported for $articleTitle";
             if ($threadInvolved) {
                 $activityDescription = "a ticket for $articleTitle";

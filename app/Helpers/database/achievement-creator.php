@@ -137,12 +137,16 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
         WHERE ach.GameID = :gameId
         AND ach.Flags = :achievementType";
 
-    return legacyDbFetchAll($query, [
+    $authors = legacyDbFetchAll($query, [
         'gameId' => $gameID,
         'achievementType' => AchievementType::OfficialCore,
-    ])
-        ->filter(fn ($data) => $data['Author'] !== $user)
-        ->isNotEmpty();
+    ]);
+
+    if ($authors->count() !== 1) {
+        return false;
+    }
+
+    return $authors->first()['Author'] === $user;
 }
 
 function attributeDevelopmentAuthor(string $author, int $count, int $points): void

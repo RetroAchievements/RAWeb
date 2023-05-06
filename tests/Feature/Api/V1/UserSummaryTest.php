@@ -269,5 +269,117 @@ class UserSummaryTest extends TestCase
                     ],
                 ],
             ]);
+
+        // repeat the call, but only ask for one game
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User, 'g' => 1]))
+        ->assertSuccessful()
+        ->assertJson([
+            'ID' => $user->ID,
+            'TotalPoints' => $user->RAPoints,
+            'TotalSoftcorePoints' => $user->RASoftcorePoints,
+            'TotalTruePoints' => $user->TrueRAPoints,
+            'Permissions' => $user->Permissions,
+            'MemberSince' => $user->Created->__toString(),
+            'Untracked' => $user->Untracked,
+            'UserPic' => '/UserPic/' . $user->User . '.png',
+            'Motto' => $user->Motto,
+            'UserWallActive' => $user->UserWallActive,
+            'ContribCount' => $user->ContribCount,
+            'ContribYield' => $user->ContribYield,
+            'Rank' => 2,
+            'TotalRanked' => 2, // $this->user and $user
+            'LastGameID' => $user->LastGameID,
+            'LastGame' => [
+                'ID' => $game->ID,
+                'Title' => $game->Title,
+                'ConsoleID' => $system->ID,
+                'ConsoleName' => $system->Name,
+                'ForumTopicID' => $game->ForumTopicID,
+                'Flags' => 0,
+                'ImageIcon' => $game->ImageIcon,
+                'ImageTitle' => $game->ImageTitle,
+                'ImageIngame' => $game->ImageIngame,
+                'ImageBoxArt' => $game->ImageBoxArt,
+                'Publisher' => $game->Publisher,
+                'Developer' => $game->Developer,
+                'Genre' => $game->Genre,
+                'Released' => $game->Released,
+                'IsFinal' => false,
+            ],
+            'RichPresenceMsg' => 'Hi',
+            'RecentlyPlayedCount' => 1,
+            'RecentlyPlayed' => [
+                [
+                    'GameID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $system->ID,
+                    'ConsoleName' => $system->Name,
+                    'ImageIcon' => $game->ImageIcon,
+                    'LastPlayed' => $activity2->lastupdate->__toString(),
+                ],
+            ],
+            'LastActivity' => [
+                'ID' => $activity2->ID,
+                'timestamp' => $activity2->timestamp->__toString(),
+                'lastupdate' => $activity2->lastupdate->__toString(),
+                'activitytype' => '3',
+                'User' => $user->User,
+                'data' => $game->ID,
+                'data2' => null,
+            ],
+            'Status' => 'Online',
+            'Awarded' => [
+                $game->ID => [
+                    'NumPossibleAchievements' => 3,
+                    'PossibleScore' => $publishedAchievements->get(0)->Points +
+                                       $publishedAchievements->get(1)->Points +
+                                       $publishedAchievements->get(2)->Points,
+                    'NumAchievedHardcore' => 1,
+                    'ScoreAchievedHardcore' => $earnedAchievement->Points,
+                    'NumAchieved' => 0,
+                    'ScoreAchieved' => 0,
+                ],
+            ],
+            'RecentAchievements' => [
+                $game->ID => [
+                    $earnedAchievement->ID => [
+                        'ID' => $earnedAchievement->ID,
+                        'Title' => $earnedAchievement->Title,
+                        'Description' => $earnedAchievement->Description,
+                        'Points' => $earnedAchievement->Points,
+                        'BadgeName' => $earnedAchievement->BadgeName,
+                        'GameID' => $game->ID,
+                        'GameTitle' => $game->Title,
+                        'IsAwarded' => '1',
+                        'DateAwarded' => $unlock->Date->__toString(),
+                        'HardcoreAchieved' => '1',
+                    ],
+                    $publishedAchievements->get(1)->ID => [
+                        'ID' => $publishedAchievements->get(1)->ID,
+                        'Title' => $publishedAchievements->get(1)->Title,
+                        'Description' => $publishedAchievements->get(1)->Description,
+                        'Points' => $publishedAchievements->get(1)->Points,
+                        'BadgeName' => $publishedAchievements->get(1)->BadgeName,
+                        'GameID' => $game->ID,
+                        'GameTitle' => $game->Title,
+                        'IsAwarded' => '0',
+                        'DateAwarded' => null,
+                        'HardcoreAchieved' => null,
+                    ],
+                    $publishedAchievements->get(2)->ID => [
+                        'ID' => $publishedAchievements->get(2)->ID,
+                        'Title' => $publishedAchievements->get(2)->Title,
+                        'Description' => $publishedAchievements->get(2)->Description,
+                        'Points' => $publishedAchievements->get(2)->Points,
+                        'BadgeName' => $publishedAchievements->get(2)->BadgeName,
+                        'GameID' => $game->ID,
+                        'GameTitle' => $game->Title,
+                        'IsAwarded' => '0',
+                        'DateAwarded' => null,
+                        'HardcoreAchieved' => null,
+                    ],
+                ],
+            ],
+        ]);
     }
 }

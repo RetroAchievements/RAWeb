@@ -18,6 +18,11 @@
 $user = request()->query('u');
 $gameCSV = request()->query('i', "");
 
-$data = getUserProgress($user, $gameCSV);
+$gameIDs = collect(explode(',', $gameCSV))
+    ->map(fn ($id) => is_numeric($id) ? (int) $id : 0)
+    ->filter(fn ($id) => $id > 0)
+    ->toArray();
 
-return response()->json($data);
+$data = getUserProgress($user, $gameIDs);
+
+return response()->json($data['Awarded']);

@@ -40,14 +40,14 @@ $recentlyPlayedData = [];
 $numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
 
 if (!empty($recentlyPlayedData)) {
-    $gameIDsCSV = $recentlyPlayedData[0]['GameID'];
-    for ($i = 1; $i < $numRecentlyPlayed; $i++) {
-        $gameIDsCSV .= "," . $recentlyPlayedData[$i]['GameID'];
+    $gameIDs = [];
+    foreach ($recentlyPlayedData as $recentlyPlayed) {
+        $gameIDs[] = $recentlyPlayed['GameID'];
     }
 
-    $awardedData = getUserProgress($user, $gameIDsCSV);
+    $awardedData = getUserProgress($user, $gameIDs);
 
-    foreach ($awardedData as $nextAwardID => $nextAwardData) {
+    foreach ($awardedData['Awarded'] as $nextAwardID => $nextAwardData) {
         $entry = array_search($nextAwardID, array_column($recentlyPlayedData, 'GameID'));
         if ($entry !== false) {
             $recentlyPlayedData[$entry] = array_merge($recentlyPlayedData[$entry], $nextAwardData);

@@ -6,9 +6,14 @@ extends:
   - plugin:@typescript-eslint/recommended
   - plugin:import/typescript
 
-parser: "@typescript-eslint/parser"
+parser: '@typescript-eslint/parser'
 plugins:
-  - "@typescript-eslint"
+  - '@typescript-eslint'
+
+settings:
+  # allows for tsconfig path aliases
+  import/resolver:
+    typescript: {} # this loads tsconfig.json to eslint
 
 globals:
   Atomics: readonly

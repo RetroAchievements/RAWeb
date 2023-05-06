@@ -5,3 +5,4 @@ export * from './helpers';
 export * from './injectShortcode';
 export * from './theme';
 export * from './tooltip';
+export * from './toggleUserCompletedSetsVisibility';

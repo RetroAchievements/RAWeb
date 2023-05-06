@@ -20,7 +20,8 @@ return [
             'active' => true,
             'link' => 'https://docs.retroachievements.org/FAQ/#retroarch-emulators',
             'description' => 'Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
-Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
+See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
+            'download_url' => 'https://www.retroarch.com/index.php?page=platforms',
             'systems' => [
                 1, // Genesis/Mega Drive
                 2, // Nintendo 64 (Cores: Mupen64Plus, ParaLLEl N64)
@@ -70,11 +71,12 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'latest_version' => '1.5.0',
             'latest_version_url' => 'bin/RALibretro.zip',
             'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
-            'name' => 'LibRetro',
+            'name' => 'RALibRetro',
             'handle' => 'RALibRetro',
             'active' => true,
             'integration_id' => Emulators::RALibretro,
             'link' => 'https://docs.retroachievements.org/RALibretro/',
+            'source' => 'https://github.com/RetroAchievements/RALibretro',
             'description' => '<strong>Preferred for achievement creation!</strong><br>RALibRetro is a multi-emulator that can be used for achievements development.',
             'systems' => [
                 1, // Genesis/Mega Drive
@@ -125,7 +127,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'handle' => 'Bizhawk',
             'active' => true,
             'link' => 'https://tasvideos.org/Bizhawk/FAQ',
-            'description' => 'Download from <a href="https://tasvideos.org/BizHawk/ReleaseHistory">tasvideos.org</a>.',
+            'download_url' => 'https://tasvideos.org/BizHawk/ReleaseHistory',
             'systems' => [
                 1, // Genesis/Mega Drive
                 2, // Nintendo 64
@@ -163,7 +165,8 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'handle' => 'PCSX2',
             'active' => true,
             'link' => 'https://pcsx2.net/guides/basic-setup/',
-            'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for PlayStation 2.<br>Download the QT nightly from <a href="https://pcsx2.net/downloads">pcsx2.net</a>',
+            'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for PlayStation 2. Download the QT version.',
+            'download_url' => 'https://pcsx2.net/downloads',
             'systems' => [
                 21, // PlayStation 2
             ],
@@ -173,7 +176,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'handle' => 'DuckStation',
             'active' => true,
             'link' => 'https://github.com/stenzek/duckstation/wiki',
-            'description' => 'Download from <a href="https://www.duckstation.org/">duckstation.org</a>.',
+            'download_url' => 'https://duckstation.org',
             'systems' => [
                 12, // PlayStation
             ],
@@ -188,6 +191,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RAppleWin,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
+            'source' => 'https://github.com/RetroAchievements/AppleWin',
             'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for Apple II.',
             'systems' => [
                 38, // Apple II
@@ -195,7 +199,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
         ],
         Emulators::RAQUASI88 => [
             'minimum_version' => '1.1.3',
-            'latest_version' => '1.1.3',
+            'latest_version' => '1.2.0',
             'latest_version_url' => 'bin/RAQUASI88.zip',
             // 'latest_version_url_x64' => 'bin/RAQUASI88-x64.zip',
             'name' => 'Quasi88',
@@ -203,6 +207,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RAQUASI88,
             'link' => 'https://docs.retroachievements.org/RAQUASI88/',
+            'source' => 'https://github.com/RetroAchievements/quasi88',
             'description' => '<strong>NOTE:</strong> only emulator available supporting achievements for PC-8000/8800.',
             'systems' => [
                 47, // PC-8000/8800
@@ -232,6 +237,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RAMeka,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
+            'source' => 'https://github.com/RetroAchievements/RAMeka',
             'systems' => [
                 11, // Master System
                 15, // Game Gear
@@ -249,6 +255,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RANes,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
+            'source' => 'https://github.com/RetroAchievements/RANes',
             'systems' => [
                 7, // NES, Famicom, Famicom Disk System (FDS), and Dendy
             ],
@@ -277,6 +284,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RAP64,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
+            'source' => 'https://github.com/RetroAchievements/RAProject64',
             'systems' => [
                 2, // Nintendo 64
             ],
@@ -305,6 +313,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RASnes9x,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
+            'source' => 'https://github.com/RetroAchievements/RASnes9x',
             'systems' => [
                 3, // SNES
             ],
@@ -319,6 +328,7 @@ Download from <a href="https://retroarch.com">retroarch.com</a>. See <a href="ht
             'active' => true,
             'integration_id' => Emulators::RAVBA,
             'link' => 'https://docs.retroachievements.org/FAQ/#official-retroachievementsorg-emulators',
+            'source' => 'https://github.com/RetroAchievements/RAVBA',
             'systems' => [
                 4, // Game Boy
                 5, // Game Boy Advance

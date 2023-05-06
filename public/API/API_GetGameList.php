@@ -8,9 +8,9 @@
  *
  *  array
  *   object     [value]
- *    string     ID                unique identifier of the game
+ *    int        ID                unique identifier of the game
  *    string     Title             title of the game
- *    string     ConsoleID         unique identifier of the console
+ *    int        ConsoleID         unique identifier of the console
  *    string     ConsoleName       name of the console
  *    string     ImageIcon         site-relative path to the game's icon image
  *    int        NumAchievements   number of core achievements for the game
@@ -19,7 +19,7 @@
  *    datetime   DateModified      when the last modification was made
  *                                 NOTE: this only tracks modifications to the achievements of the game,
  *                                       but is consistent with the data reported in the site game list.
- *    int        ForumTopicID      unique identifier of the official forum topic for the game
+ *    ?int       ForumTopicID      unique identifier of the official forum topic for the game
  *    array      Hashes
  *     string     [value]          RetroAchievements hash associated to the game
  */

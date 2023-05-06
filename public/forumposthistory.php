@@ -68,8 +68,7 @@ RenderContentStart("Forum Recent Posts");
             $commentID_7d = $topicPostData['CommentID_7d'] ?? 0;
             $count_7d = $topicPostData['Count_7d'] ?? 0;
 
-            $timestamp = strtotime($topicPostData['PostedAt']);
-            $postedAt = Carbon::createFromTimeStamp($timestamp)->diffForHumans();
+            $postedAt = Carbon::parse($topicPostData['PostedAt'])->diffForHumans();
 
             sanitize_outputs($forumTopicTitle, $forumTitle, $postMessage);
 

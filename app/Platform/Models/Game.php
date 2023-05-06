@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use LegacyApp\Community\Models\Rating;
+use LegacyApp\Platform\Models\GameHash;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia;
@@ -223,6 +225,22 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function gameHashSets(): HasMany
     {
         return $this->hasMany(GameHashSet::class);
+    }
+
+    /**
+     * @return HasMany<GameHash>
+     */
+    public function hashes(): HasMany
+    {
+        return $this->hasMany(GameHash::class, 'GameID');
+    }
+
+    /**
+     * @return HasMany<Rating>
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class, 'RatingID');
     }
 
     // == scopes

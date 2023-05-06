@@ -199,7 +199,7 @@ RenderContentStart('Leaderboard');
             echo "<div class='larger'>$lbTitle: $lbDescription</div>";
 
             echo "<table class='table-highlight'><tbody>";
-            echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th>Result</th><th>Date Submitted</th></tr>";
+            echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th class='text-right'>Result</th><th class='text-right'>Date Submitted</th></tr>";
 
             $numActualEntries = 0;
             $localUserFound = false;
@@ -246,9 +246,9 @@ RenderContentStart('Leaderboard');
                 echo userAvatar($nextUser);
                 echo "</td>";
 
-                echo "<td class='lb_result'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";
+                echo "<td class='lb_result text-right'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";
 
-                echo "<td class='lb_date'>$injectFmt1$nextSubmitAtNice$injectFmt2</td>";
+                echo "<td class='lb_date text-right'>$injectFmt1$nextSubmitAtNice$injectFmt2</td>";
 
                 echo "</tr>";
 
