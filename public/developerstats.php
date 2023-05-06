@@ -75,7 +75,7 @@ RenderContentStart("Developer Stats");
         echo "<th><a href='/developerstats.php?t=6&f=$devFilter'>Name</a>$orderedByName</th>";
         echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>$orderedByOpenTickets</th>";
         echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?f=$devFilter'>Achievements</a>$orderedByAchievements</th>";
-        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=4&f=$devFilter' title='Ticket Resolved for Others'>Tickets Resolved For Others</a>$orderedByResolvedTickets</th>";
+        echo "<th class='text-right' style='max-width: 120px'><a href='/developerstats.php?t=4&f=$devFilter' title='Ticket Resolved for Others'>Tickets Resolved For Others</a>$orderedByResolvedTickets</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=2&f=$devFilter' title='Achievements unlocked by others'>Yielded Unlocks</a>$orderedByYieldedUnlocks</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>$orderedByYieldedPoints</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=7&f=$devFilter' title='Set claims currently active'>Active Claims</a>$orderedByActiveClaims</th>";
