@@ -378,7 +378,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
     LEFT JOIN
         Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
     LEFT JOIN
-        LeaderboardDef AS lbd ON (lbd.Author = ua.User)
+        LeaderboardDef AS lbd ON lbd.Author = ua.User
     LEFT JOIN
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
     LEFT JOIN
