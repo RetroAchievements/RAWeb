@@ -339,7 +339,7 @@ function addArticleComment(
         return false;
     }
 
-    if (getIsCommentDoublePost($userID, $articleID, $commentPayload)) {
+    if ($user !== "Server" && getIsCommentDoublePost($userID, $articleID, $commentPayload)) {
         return false;
     }
 
