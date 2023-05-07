@@ -86,8 +86,8 @@ final class Shortcode
             '~\[url.*?](.*?)\[/url\]~i' => '$1',
             '~\[link.*?](.*?)\[/link\]~i' => '$1',
 
-            // "[spoiler]Top Secret[/spoiler]" --> "<Spoiler>"
-            '~\[spoiler\](.*?)\[/spoiler\]~i' => "<Spoiler>",
+            // "[spoiler]Top Secret[/spoiler]" --> "{SPOILER}"
+            '~\[spoiler\](.*?)\[/spoiler\]~i' => "{SPOILER}",
 
             // "[ticket=123]" --> "Ticket 123"
             '~\[ticket(=)?(\d+)]~i' => 'Ticket $2',

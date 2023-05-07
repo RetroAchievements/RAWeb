@@ -104,7 +104,7 @@ final class ShortcodeTest extends TestCase
     public function testStripAndClampSpoilers(): void
     {
         $this->assertSame(
-            '<Spoiler>',
+            '{SPOILER}',
             Shortcode::stripAndClamp('[spoiler]Top Secret[/spoiler]')
         );
     }
