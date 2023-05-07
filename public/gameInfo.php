@@ -687,7 +687,7 @@ sanitize_outputs(
             $iconName = Str::kebab($cleanSystemShortName);
             $iconPath = public_path("assets/images/system/$iconName.png");
             $iconUrl = file_exists($iconPath) ? asset("assets/images/system/$iconName.png") : $fallBackConsoleIcon;
-    
+
             $gameMetaBindings = [
                 'consoleName' => $consoleName,
                 'developer' => $developer,
