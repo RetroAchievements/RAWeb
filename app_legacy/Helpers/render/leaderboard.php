@@ -580,7 +580,8 @@ function getGlobalRankingData(
                           $friendCondAward
                           $singleUserAwardCond
                           $untrackedCond
-                          GROUP BY sa.User, sa.AwardData, sa.AwardDate
+                          AND AwardType = " . AwardType::Mastery .
+                          "GROUP BY sa.User
                       )
                   ) AS Query
               GROUP BY User
