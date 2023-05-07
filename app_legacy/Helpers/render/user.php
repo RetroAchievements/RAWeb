@@ -219,15 +219,18 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
         echo "<tr class='$isCompletedClassName'>";
 
         echo "<td>";
-        echo gameAvatar($userCompletedGamesList[$i], label: false);
+        echo gameAvatar($userCompletedGamesList[$i], label: false, iconSize: 36);
         echo "</td>";
-        echo "<td class='smaller'>";
-        echo gameAvatar($userCompletedGamesList[$i], icon: false);
-        echo "</td>";
-        echo "<td>";
 
-        echo "<div class='w-24'>";
-        echo "<div class='flex w-full items-center'>";
+        echo "<td class='flex flex-col gap-1 py-1.5 text-xs'>";
+
+        echo gameAvatar($userCompletedGamesList[$i], icon: false);
+
+        echo "<div class='flex gap-2 items-center whitespace-nowrap'>";
+        echo "<div class='progressbar-label w-24 text-right'>";
+        echo "<span class='text-xs'>$nextTotalAwarded</span> of <span class='text-xs'>$nextMaxPossible</span>";
+        echo "</div>";
+        echo "<div class='flex w-full items-center pr-8'>";
         echo "<div class='progressbar grow'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
         echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";
@@ -235,12 +238,9 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
         echo "</div>";
         echo renderCompletionIcon((int) $nextTotalAwarded, (int) $nextMaxPossible, $pctAwardedHCProportional, tooltip: true);
         echo "</div>";
-        echo "<div class='progressbar-label pr-5 -mt-1'>";
-        echo "$nextTotalAwarded of $nextMaxPossible";
-        echo "</div>";
-        echo "</div>";
 
         echo "</td>";
+
         echo "</tr>";
     }
 
