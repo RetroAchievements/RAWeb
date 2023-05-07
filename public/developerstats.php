@@ -34,7 +34,7 @@ RenderContentStart("Developer Stats");
         $orderedByYieldedUnlocks = $type == 2 ? "*" : "";
         $orderedByYieldedPoints = $type == 1 ? "*" : "";
         $orderedByActiveClaims = $type == 7 ? "*" : "";
-        orderedByActiveClaims = $type == 8 ? "*" : "";
+        $orderedByLeaderboards = $type == 8 ? "*" : "";
 
         echo "<div>";
         echo "<b>Developer Status:</b> ";
