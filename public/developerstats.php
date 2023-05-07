@@ -34,6 +34,7 @@ RenderContentStart("Developer Stats");
         $orderedByYieldedUnlocks = $type == 2 ? "*" : "";
         $orderedByYieldedPoints = $type == 1 ? "*" : "";
         $orderedByActiveClaims = $type == 7 ? "*" : "";
+        orderedByActiveClaims = $type == 8 ? "*" : "";
 
         echo "<div>";
         echo "<b>Developer Status:</b> ";
@@ -74,12 +75,12 @@ RenderContentStart("Developer Stats");
         echo "<tr class='do-not-highlight'>";
         echo "<th></th>";
         echo "<th><a href='/developerstats.php?t=6&f=$devFilter'>Name</a>$orderedByName</th>";
-        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>$orderedByOpenTickets</th>";
         echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?f=$devFilter'>Achievements</a>$orderedByAchievements</th>";
-        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?f=$devFilter'>Leaderboards</a>$orderedByLeaderboards</th>";
+        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>$orderedByOpenTickets</th>";
         echo "<th class='text-right' style='max-width: 120px'><a href='/developerstats.php?t=4&f=$devFilter' title='Ticket Resolved for Others'>Tickets Resolved For Others</a>$orderedByResolvedTickets</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=2&f=$devFilter' title='Achievements unlocked by others'>Yielded Unlocks</a>$orderedByYieldedUnlocks</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>$orderedByYieldedPoints</th>";
+        echo "<th class='text-right'><a href='/developerstats.php?t=8&f=$devFilter' title='Leaderboards made'>Leaderboards</a>$orderedByLeaderboards</th>";
         echo "<th class='text-right'><a href='/developerstats.php?t=7&f=$devFilter' title='Set claims currently active'>Active Claims</a>$orderedByActiveClaims</th>";
         echo "</tr>";
 
