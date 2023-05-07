@@ -438,7 +438,7 @@ function getGlobalRankingData(
     }
 
     $masteryCond = "AND AwardType = " . AwardType::Mastery;
-    
+
     $untrackedCond = match ($untracked) {
         0 => "AND Untracked = 0",
         1 => "AND Untracked = 1",
