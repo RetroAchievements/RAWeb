@@ -1,5 +1,6 @@
 <?php
 
+use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Community\Enums\ClaimStatus;
 use LegacyApp\Community\Enums\TicketState;
 use LegacyApp\Site\Enums\Permissions;
@@ -461,4 +462,27 @@ function getMostAwardedGames(array $gameIDs): array
     }
 
     return $retVal;
+}
+
+/**
+ * Gets the number of event awards a user has earned
+ */
+function getUserEventAwardCount(string $user): int
+{
+    $bindings = [
+        'user' => $user,
+        'type' => AwardType::Mastery,
+        'event' => 101,
+    ];
+
+    $query = "SELECT COUNT(DISTINCT AwardData) AS TotalAwards 
+              FROM SiteAwards sa
+              INNER JOIN GameData gd ON gd.ID = sa.AwardData
+              WHERE User = :user              
+              AND AwardType = :type
+              AND gd.ConsoleID = :event";
+
+    $dataOut = legacyDbFetch($query, $bindings);
+
+    return $dataOut['TotalAwards'];
 }
