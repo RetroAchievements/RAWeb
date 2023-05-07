@@ -222,15 +222,15 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
         echo gameAvatar($userCompletedGamesList[$i], label: false, iconSize: 36);
         echo "</td>";
 
-        echo "<td class='flex flex-col gap-1 py-1.5 text-xs'>";
+        echo "<td class='flex flex-col gap-1 pl-1 text-2xs'>";
 
         echo gameAvatar($userCompletedGamesList[$i], icon: false);
 
-        echo "<div class='flex gap-2 items-center whitespace-nowrap'>";
-        echo "<div class='progressbar-label w-24 text-right'>";
+        echo "<div class='flex gap-2 items-center w-48 mx-auto whitespace-nowrap'>";
+        echo "<div class='progressbar-label w-20 text-right'>";
         echo "<span class='text-xs'>$nextTotalAwarded</span> of <span class='text-xs'>$nextMaxPossible</span>";
         echo "</div>";
-        echo "<div class='flex w-full items-center pr-8'>";
+        echo "<div class='flex w-full items-center'>";
         echo "<div class='progressbar grow'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
         echo "<div class='completion-hardcore' style='width:$pctAwardedHCProportional%' title='Hardcore: $nextNumAwardedHC/$nextMaxPossible'></div>";
