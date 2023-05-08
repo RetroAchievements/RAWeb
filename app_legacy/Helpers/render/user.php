@@ -226,7 +226,7 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
 
         echo gameAvatar($userCompletedGamesList[$i], icon: false);
 
-        echo "<div class='flex gap-3 items-baseline mx-3 w-48 whitespace-nowrap'>";
+        echo "<div class='flex gap-1 items-baseline mx-3 w-48 whitespace-nowrap'>";
         echo "<div class='flex w-full items-center'>";
         echo "<div class='progressbar grow'>";
         echo "<div class='completion' style='width:$pctAwardedNormal%'>";
@@ -235,7 +235,7 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
         echo "</div>";
         echo renderCompletionIcon((int) $nextTotalAwarded, (int) $nextMaxPossible, $pctAwardedHCProportional, tooltip: true);
         echo "</div>";
-        echo "<div class='w-20 text-left'>";
+        echo "<div class='w-20 text-center'>";
         echo "$nextTotalAwarded <span class='text-[.6rem]'>of</span> $nextMaxPossible";
         echo "</div>";
         echo "</div>";
