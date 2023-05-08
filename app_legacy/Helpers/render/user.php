@@ -218,15 +218,15 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
 
         echo "<tr class='$isCompletedClassName'>";
 
-        echo "<td>";
+        echo "<td class='text-center'>";
         echo gameAvatar($userCompletedGamesList[$i], label: false, iconSize: 36);
         echo "</td>";
 
-        echo "<td class='flex flex-col gap-1 pl-1 text-2xs'>";
+        echo "<td class='flex flex-col gap-1 py-1.5 pl-0.5 text-2xs'>";
 
         echo gameAvatar($userCompletedGamesList[$i], icon: false);
 
-        echo "<div class='flex gap-2 items-center w-48 mx-auto whitespace-nowrap'>";
+        echo "<div class='flex gap-2 items-center mx-2 w-48 whitespace-nowrap'>";
         echo "<div class='progressbar-label w-20 text-right'>";
         echo "<span class='text-xs'>$nextTotalAwarded</span> of <span class='text-xs'>$nextMaxPossible</span>";
         echo "</div>";
