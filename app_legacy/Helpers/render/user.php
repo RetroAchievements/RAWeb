@@ -222,7 +222,7 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
         echo gameAvatar($userCompletedGamesList[$i], label: false, iconSize: 36);
         echo "</td>";
 
-        echo "<td class='flex flex-col gap-1.5 py-1.5 pl-0.5 text-2xs'>";
+        echo "<td class='flex flex-col gap-1.5 py-1.5 pl-0 text-2xs'>";
 
         echo gameAvatar($userCompletedGamesList[$i], icon: false);
 
