@@ -455,7 +455,7 @@ function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $num
         echo "</div>";
         echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
         echo "</div>";
-        echo "<div class='progressbar-label -mt-1'>";
+        echo "<div class='-mt-1 text-center text-2xs'>";
         if ($pctHardcore >= 100.0) {
             echo "Mastered";
         } else {
