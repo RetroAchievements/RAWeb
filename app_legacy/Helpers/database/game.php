@@ -126,6 +126,16 @@ function getGameMetadata(
         ->toArray();
 
     $numAchievements = count($achievementDataOut);
+    foreach ($achievementDataOut as &$achievement) {
+        settype($achievement['ID'], 'integer');
+        settype($achievement['Points'], 'integer');
+        settype($achievement['TrueRatio'], 'integer');
+        settype($achievement['DisplayOrder'], 'integer');
+        if ($metrics) {
+            settype($achievement['NumAwarded'], 'integer');
+            settype($achievement['NumAwardedHardcore'], 'integer');
+        }
+    }
 
     if (isset($user)) {
         $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $flags);

@@ -8,7 +8,7 @@ tbody tr {
 }
 
 tbody tr:nth-child(odd) {
-  background-color: rgba(50, 50, 50, .2);
+  background-color: rgba(50, 50, 50, .3);
 }
 
 [data-scheme="light"] tbody tr:nth-child(odd) {
@@ -17,7 +17,7 @@ tbody tr:nth-child(odd) {
 
 table.table-highlight tr:not(.do-not-highlight):hover {
   outline-color: rgba(128, 128, 128, .3);
-  background-color: rgba(128, 128, 128, .1);
+  background-color: rgba(128, 128, 128, .2);
 }
 
 [data-scheme="light"] table.table-highlight tr:not(.do-not-highlight):hover {
