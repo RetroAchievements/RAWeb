@@ -437,6 +437,8 @@ function getGlobalRankingData(
             break;
     }
 
+    $masteryCond = "AND AwardType = " . AwardType::Mastery;
+
     $untrackedCond = match ($untracked) {
         0 => "AND Untracked = 0",
         1 => "AND Untracked = 1",
@@ -505,7 +507,7 @@ function getGlobalRankingData(
             // Get site award info for each user.
             $usersCount = count($users);
             for ($i = 0; $i < $usersCount; $i++) {
-                $query2 = "SELECT $totalAwards AS TotalAwards FROM SiteAwards WHERE User = '" . $users[$i] . "' AND AwardType = " . AwardType::Mastery;
+                $query2 = "SELECT $totalAwards AS TotalAwards FROM SiteAwards WHERE User = '" . $users[$i] . "' " . $masteryCond;
 
                 $dbResult2 = s_mysql_query($query2);
                 if ($dbResult2 !== false) {
@@ -579,8 +581,9 @@ function getGlobalRankingData(
                           WHERE TRUE $whereDateAward $typeCond
                           $friendCondAward
                           $singleUserAwardCond
+                          $masteryCond
                           $untrackedCond
-                          GROUP BY sa.User, sa.AwardData, sa.AwardDate
+                          GROUP BY sa.User
                       )
                   ) AS Query
               GROUP BY User
