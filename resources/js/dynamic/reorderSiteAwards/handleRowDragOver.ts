@@ -1,4 +1,5 @@
 import { autoscroll } from './autoscroll';
+import { cancelAutoscroll } from './cancelAutoscroll';
 import { reorderSiteAwardsStore as store } from './reorderSiteAwardsStore';
 
 export function handleRowDragOver(event: DragEvent) {
@@ -29,11 +30,7 @@ export function handleRowDragOver(event: DragEvent) {
   } else {
     // If the cursor is not near the edges of the screen,
     // set autoscrollDirection to null and stop scrolling.
-    store.autoscrollDirection = null;
-    if (store.autoscrollAnimationId) {
-      cancelAnimationFrame(store.autoscrollAnimationId);
-      store.autoscrollAnimationId = null;
-    }
+    cancelAutoscroll();
   }
 
   return false;
