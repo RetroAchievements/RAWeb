@@ -22,6 +22,25 @@ function getGameData(int $gameID): ?array
     ]);
 }
 
+// If the game is a subset, identify its parent game ID.
+function getParentGameIdFromGameTitle(string $title): ?int {
+    if (preg_match('/(.+)(\[Subset - .+\])/', $title, $matches)) {
+        $baseSetTitle = trim($matches[1]);
+        $query = "SELECT ID FROM GameData WHERE Title = :title";
+        $result = legacyDbFetch($query, ['title' => $baseSetTitle]);
+
+        return $result ? $result['ID'] : null;
+    }
+
+    return null;
+}
+
+function getParentGameIdFromGameId(int $gameID): ?int {
+    $gameData = getGameData($gameID);
+
+    return getParentGameIdFromGameTitle($gameData['Title']);
+}
+
 function getGameMetadata(
     int $gameID,
     ?string $user,
@@ -137,6 +156,8 @@ function getGameMetadata(
     }
 
     if ($metrics) {
+        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title']);
+
         $bindings = [
             'gameId' => $gameID,
             'achievementType' => $flags,
@@ -148,13 +169,22 @@ function getGameMetadata(
             $requestedByStatement = 'OR ua.User = :username';
         }
 
+        $gameIdStatement = 'ach.GameID = :gameId';
+        if ($parentGameId !== null) {
+            $bindings['parentGameId'] = $parentGameId;
+            $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
+        }
+
         $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN UserAccounts as ua ON ua.User = aw.User
-                WHERE ach.GameID = :gameId AND ach.Flags = :achievementType
-              AND (NOT ua.Untracked $requestedByStatement)
-              GROUP BY aw.HardcoreMode";
+                FROM (
+                  SELECT aw.User, aw.HardcoreMode
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                  WHERE $gameIdStatement AND ach.Flags = :achievementType
+                  AND (NOT ua.Untracked $requestedByStatement)
+                ) AS aw
+                GROUP BY aw.HardcoreMode";
 
         $gameMetaData = legacyDbFetchAll($query, $bindings);
 
@@ -168,6 +198,7 @@ function getGameMetadata(
             }
         }
 
+        $gameDataOut['ParentGameID'] = $parentGameId;
         $gameDataOut['NumDistinctPlayersCasual'] = $numDistinctPlayersCasual;
         $gameDataOut['NumDistinctPlayersHardcore'] = $numDistinctPlayersHardcore;
     }
@@ -248,7 +279,7 @@ function getGamesListByDev(
                            SUM(CASE WHEN ach.Author = :myRRDev THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
                            SUM(CASE WHEN ach.Author != :notMyAchDev THEN 1 ELSE 0 END) AS NotMyAchievements,
                            lbdi.MyLBs,";
-        $havingCond = "HAVING MyAchievements > 0 ";
+        $havingCond = "HAVING MyAchievements > 0 OR MyLBs > 0 ";
     } else {
         if ($filter == 0) { // only with achievements
             $havingCond = "HAVING NumAchievements > 0 ";
