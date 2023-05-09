@@ -1450,7 +1450,7 @@ sanitize_outputs(
             }
 
             if (!empty($gameHubs)) {
-                RenderGameAlts($gameHubs, 'Collections');
+                RenderGameAlts($gameHubs, 'Hubs');
             }
 
             if ($user !== null && $numAchievements > 0) {
