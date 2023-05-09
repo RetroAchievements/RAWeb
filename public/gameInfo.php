@@ -1226,7 +1226,17 @@ sanitize_outputs(
                 */
 
                 if ($numAchievements > 1) {
+                    echo "<div class='flex flex-col sm:flex-row-reverse justify-between w-full py-3'>";
+
+                    $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
+                    echo "<div>";
+                    if ($user && ($numEarnedCasual > 0 || $numEarnedHardcore > 0) && !$hasCompletionOrMastery) {
+                        echo Blade::render("<x-game.hide-earned-checkbox />");
+                    }
+                    echo "</div>";
+
                     RenderGameSort($isFullyFeaturedGame, $flags, $officialFlag, $gameID, $sortBy);
+                    echo "</div>";
                 }
 
                 echo "<table class='achievementlist table-highlight'><tbody>";
@@ -1282,7 +1292,9 @@ sanitize_outputs(
                                 $achBadgeName .= "_lock";
                             }
 
-                            echo "<tr>";
+                            $trClassNames = $achieved ? "class='unlocked-row'" : "";
+                            echo "<tr {$trClassNames}>";
+
                             echo "<td>";
 
                             echo "<div class='flex justify-between gap-3 items-start'>";
