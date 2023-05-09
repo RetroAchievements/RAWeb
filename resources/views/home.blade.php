@@ -8,10 +8,6 @@
 
     <livewire:active-players />
 
-    <?php
-        RenderActivePlayersComponent();
-    ?>
-
     <x-user.online-count-chart />
     <x-claims.new-claims count="5" />
 

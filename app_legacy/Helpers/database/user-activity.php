@@ -540,16 +540,11 @@ function getLatestRichPresenceUpdates(): array
                 AND ua.Permissions >= $permissionsCutoff
               ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.User ASC";
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $db_entry['GameID'] = (int) $db_entry['GameID'];
-            $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
-            $db_entry['RASoftcorePoints'] = (int) $db_entry['RASoftcorePoints'];
-            $playersFound[] = $db_entry;
-        }
-    } else {
-        log_sql_fail();
+    foreach (legacyDbFetchAll($query) as $nextData) {
+        $nextData['GameID'] = (int) $nextData['GameID'];
+        $nextData['RAPoints'] = (int) $nextData['RAPoints'];
+        $nextData['RASoftcorePoints'] = (int) $nextData['RASoftcorePoints'];
+        $playersFound[] = $nextData;
     }
 
     $truncatedArray = array_slice($playersFound, 0, 400);

@@ -19,10 +19,8 @@ class ActivePlayers extends Component
 
     public function updateActivePlayers()
     {
-        $this->activePlayers = getCachedLatestRichPresenceUpdates();
-
         try {
-            $this->activePlayers = getCachedLatestRichPresenceUpdates();
+            $this->activePlayers = getLatestRichPresenceUpdates();
         } catch (Exception $e) {
             $this->hasError = true;
         }

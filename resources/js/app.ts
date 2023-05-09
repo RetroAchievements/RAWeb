@@ -2,6 +2,7 @@ import Alpine from 'alpinejs';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
+import { activePlayers } from './alpine/activePlayers';
 import {
   copyToClipboard,
   handleLeaderboardTabClick,
@@ -20,6 +21,7 @@ lazyLoadModuleOnIdFound({
   moduleNameToAttachToWindow: 'reorderSiteAwards',
 });
 
+window.activePlayers = activePlayers;
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.injectShortcode = injectShortcode;

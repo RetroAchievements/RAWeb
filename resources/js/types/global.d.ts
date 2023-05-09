@@ -1,11 +1,13 @@
 import type { Alpine } from 'alpinejs';
 
+import type { activePlayers as ActivePlayers } from '@/alpine/activePlayers';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
 import type { mobileSafeTipEvents as MobileSafeTipEvents } from '@/utils/tooltip';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 
 declare global {
+  var activePlayers: typeof ActivePlayers;
   var Alpine: Alpine;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
