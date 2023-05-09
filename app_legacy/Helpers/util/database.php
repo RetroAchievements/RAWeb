@@ -71,6 +71,15 @@ function floatDivisionStatement(string $dividend, string $divisor): string
     };
 }
 
+function unixTimestampStatement(string $column, string $alias): string
+{
+    return match (legacyDbDriver()) {
+        'sqlite' => "strftime('%s', $column) AS $alias",
+        // mysql
+        default => "UNIX_TIMESTAMP($column) AS $alias",
+    };
+}
+
 /**
  * @deprecated
  */
