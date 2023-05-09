@@ -20,14 +20,14 @@ class ActivePlayers extends Component
     public function updateActivePlayers()
     {
         try {
-            $activePlayers = getLatestRichPresenceUpdates();
+            $activePlayers = getCachedLatestRichPresenceUpdates();
 
             foreach ($activePlayers as &$player) {
                 $player['userAvatarHtml'] = userAvatar($player['User'], iconSize: 32, label: false);
                 $player['gameAvatarHtml'] = gameAvatar(
                     [
                         'ID' => $player['GameID'],
-                        'ImageIcon' => $player['GameIcon']
+                        'ImageIcon' => $player['GameIcon'],
                     ],
                     iconSize: 32,
                     label: false
