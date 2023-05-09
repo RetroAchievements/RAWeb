@@ -271,6 +271,7 @@ function getAllTickets(
 
     // Karama condition
     $notAuthorCond = getNotAuthorCondition($ticketFilters);
+    $notReporterCond = getNotReporterCondition($ticketFilters);
 
     // official/unofficial filter (ignore when a specific achievement is requested)
     $achFlagCond = '';
@@ -288,7 +289,7 @@ function getAllTickets(
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
               $devJoin
-              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond
+              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond $notReporterCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
@@ -521,10 +522,17 @@ function countOpenTickets(
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
+    // Not Reporter condition
+    $reporterJoin = "";
+    $notReporterCond = getNotReporterCondition($ticketFilters);
+    if ($notReporterCond != "") {
+        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID";
+    }
+
     // Not Author condition
     $resolverJoin = "";
     $notAuthorCond = getNotAuthorCondition($ticketFilters);
-    if ($notAuthorCond != "") {
+    if ($notAuthorCond != "" || $notReporterCond != "") {
         $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
 
@@ -537,7 +545,6 @@ function countOpenTickets(
 
     // Reporter condition
     $reporterCond = "";
-    $reporterJoin = "";
     if ($reportedByUser != null) {
         $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID";
         $reporterCond = " AND ua.User = :reportedByUsername";
@@ -571,7 +578,7 @@ function countOpenTickets(
         $reporterJoin
         $resolverJoin
         $devJoin
-        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $reporterCond $resolverCond";
+        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $notReporterCond $reporterCond $resolverCond";
 
     $results = legacyDbFetch($query, $bindings);
 
@@ -773,6 +780,20 @@ function getNotAuthorCondition(int $ticketFilters): string
 
     if ($notAuthorTickets) {
         return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author";
+    }
+
+    return "";
+}
+
+/**
+ * Gets the Not Reporter condition to put into the main ticket query.
+ */
+function getNotReporterCondition(int $ticketFilters): string
+{
+    $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonReporter);
+
+    if ($notAuthorTickets) {
+        return "AND ua.User IS NOT NULL AND ua.User <> ua2.User";
     }
 
     return "";
