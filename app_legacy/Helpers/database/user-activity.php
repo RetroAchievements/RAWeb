@@ -506,11 +506,28 @@ function getRecentArticleComments(
     return $numArticleComments;
 }
 
+function getCachedLatestRichPresenceUpdates(): array
+{
+    return Cache::remember(
+        'currently-active',
+        Carbon::now()->addMinutes(2),
+        fn () => collect(getLatestRichPresenceUpdates())
+            ->keyBy('User')
+            ->map(function ($user) {
+                $user['InGame'] = true;
+    
+                return $user;
+            })
+            ->values()
+            ->toArray()
+    );
+}
+
 function getLatestRichPresenceUpdates(): array
 {
     $playersFound = [];
 
-    $recentMinutes = 10;
+    $recentMinutes = 99999;
     $permissionsCutoff = Permissions::Registered;
 
     $query = "SELECT ua.User, IF(ua.Untracked, 0, ua.RAPoints) as RAPoints, IF(ua.Untracked, 0, ua.RASoftcorePoints) as RASoftcorePoints, 
@@ -535,7 +552,9 @@ function getLatestRichPresenceUpdates(): array
         log_sql_fail();
     }
 
-    return $playersFound;
+    $truncatedArray = array_slice($playersFound, 0, 400);
+
+    return $truncatedArray;
 }
 
 function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int

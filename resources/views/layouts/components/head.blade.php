@@ -31,8 +31,7 @@
 
     @vite(['resources/js/app.ts', 'resources/css/app.css'], config('vite.build_path'))
 
-    {{-- TODO add livewire--}}
-    {{--<livewire:styles />--}}
+    <livewire:styles />
 
     {{-- BEGIN v1 compat --}}
     <script>window.assetUrl = "{{ config('app.asset_url') }}";</script>

@@ -1,5 +1,5 @@
-{{-- TODO add livewire--}}
-{{--<livewire:scripts />--}}
+<livewire:scripts />
+
 @if(!app()->environment('production'))
     <style nonce="{{ csp_nonce() }}">
         pre.xdebug-var-dump {

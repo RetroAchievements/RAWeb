@@ -6,6 +6,8 @@
     <x-news.carousel />
     <x-claims.finished-claims count="6" />
 
+    <livewire:active-players />
+
     <?php
         RenderActivePlayersComponent();
     ?>
