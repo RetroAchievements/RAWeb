@@ -527,7 +527,7 @@ function getLatestRichPresenceUpdates(): array
 {
     $playersFound = [];
 
-    $recentMinutes = 99999;
+    $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
     $query = "SELECT ua.User, IF(ua.Untracked, 0, ua.RAPoints) as RAPoints, IF(ua.Untracked, 0, ua.RASoftcorePoints) as RASoftcorePoints, 
@@ -547,9 +547,7 @@ function getLatestRichPresenceUpdates(): array
         $playersFound[] = $nextData;
     }
 
-    $truncatedArray = array_slice($playersFound, 0, 400);
-
-    return $truncatedArray;
+    return $playersFound;
 }
 
 function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int

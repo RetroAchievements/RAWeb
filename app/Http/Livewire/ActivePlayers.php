@@ -28,9 +28,11 @@ class ActivePlayers extends Component
                     [
                         'ID' => $player['GameID'],
                         'ImageIcon' => $player['GameIcon'],
+                        'GameTitle' => $player['GameTitle'],
+                        'ConsoleName' => $player['ConsoleName'],
                     ],
                     iconSize: 32,
-                    label: false
+                    label: false,
                 );
             }
 
