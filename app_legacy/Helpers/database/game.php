@@ -22,6 +22,25 @@ function getGameData(int $gameID): ?array
     ]);
 }
 
+// If the game is a subset, identify its parent game ID.
+function getParentGameIdFromGameTitle(string $title): ?int {
+    if (preg_match('/(.+)(\[Subset - .+\])/', $title, $matches)) {
+        $baseSetTitle = trim($matches[1]);
+        $query = "SELECT ID FROM GameData WHERE Title = :title";
+        $result = legacyDbFetch($query, ['title' => $baseSetTitle]);
+
+        return $result ? $result['ID'] : null;
+    }
+
+    return null;
+}
+
+function getParentGameIdFromGameId(int $gameID): ?int {
+    $gameData = getGameData($gameID);
+
+    return getParentGameIdFromGameTitle($gameData['Title']);
+}
+
 function getGameMetadata(
     int $gameID,
     ?string $user,
@@ -137,6 +156,8 @@ function getGameMetadata(
     }
 
     if ($metrics) {
+        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title']);
+
         $bindings = [
             'gameId' => $gameID,
             'achievementType' => $flags,
@@ -148,13 +169,22 @@ function getGameMetadata(
             $requestedByStatement = 'OR ua.User = :username';
         }
 
+        $gameIdStatement = 'ach.GameID = :gameId';
+        if ($parentGameId !== null) {
+            $bindings['parentGameId'] = $parentGameId;
+            $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
+        }
+
         $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN UserAccounts as ua ON ua.User = aw.User
-                WHERE ach.GameID = :gameId AND ach.Flags = :achievementType
-              AND (NOT ua.Untracked $requestedByStatement)
-              GROUP BY aw.HardcoreMode";
+                FROM (
+                  SELECT aw.User, aw.HardcoreMode
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                  WHERE $gameIdStatement AND ach.Flags = :achievementType
+                  AND (NOT ua.Untracked $requestedByStatement)
+                ) AS aw
+                GROUP BY aw.HardcoreMode";
 
         $gameMetaData = legacyDbFetchAll($query, $bindings);
 
@@ -168,6 +198,7 @@ function getGameMetadata(
             }
         }
 
+        $gameDataOut['ParentGameID'] = $parentGameId;
         $gameDataOut['NumDistinctPlayersCasual'] = $numDistinctPlayersCasual;
         $gameDataOut['NumDistinctPlayersHardcore'] = $numDistinctPlayersHardcore;
     }
@@ -235,31 +266,8 @@ function getGamesListByDev(
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
-
-    if ($ticketsFlag) {
-        $selectTickets = ", ticks.OpenTickets";
-        $joinTicketsTable = "
-        LEFT JOIN (
-            SELECT
-                ach.GameID,
-                count( DISTINCT tick.ID ) AS OpenTickets
-            FROM
-                Ticket AS tick
-            LEFT JOIN
-                Achievements AS ach ON ach.ID = tick.AchievementID
-            WHERE
-                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
-            GROUP BY
-                ach.GameID
-        ) as ticks ON ticks.GameID = gd.ID ";
-    } else {
-        $selectTickets = null;
-        $joinTicketsTable = null;
-    }
-
-    if ($consoleID != 0) {
-        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
-    }
+    $selectTickets = null;
+    $joinTicketsTable = null;
 
     if ($dev != null) {
         $bindings['myAchDev'] = $dev;
@@ -271,13 +279,37 @@ function getGamesListByDev(
                            SUM(CASE WHEN ach.Author = :myRRDev THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
                            SUM(CASE WHEN ach.Author != :notMyAchDev THEN 1 ELSE 0 END) AS NotMyAchievements,
                            lbdi.MyLBs,";
-        $havingCond = "HAVING MyAchievements > 0 ";
+        $havingCond = "HAVING MyAchievements > 0 OR MyLBs > 0 ";
     } else {
         if ($filter == 0) { // only with achievements
             $havingCond = "HAVING NumAchievements > 0 ";
         } elseif ($filter == 1) { // only without achievements
             $havingCond = "HAVING NumAchievements = 0 ";
         }
+    }
+
+    if ($ticketsFlag) {
+        $selectTickets = ", ticks.OpenTickets";
+        $joinTicketsTable = "
+        LEFT JOIN (
+            SELECT
+                ach.GameID,
+                count( DISTINCT tick.ID ) AS OpenTickets,
+                SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyOpenTickets
+            FROM
+                Ticket AS tick
+            LEFT JOIN
+                Achievements AS ach ON ach.ID = tick.AchievementID
+            WHERE
+                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
+            GROUP BY
+                ach.GameID
+        ) as ticks ON ticks.GameID = gd.ID ";
+        $moreSelectCond .= "ticks.MyOpenTickets,";
+    }
+
+    if ($consoleID != 0) {
+        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
     }
 
     $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName,
