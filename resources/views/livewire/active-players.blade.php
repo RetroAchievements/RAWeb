@@ -1,6 +1,6 @@
 <div 
     class="component" 
-    wire:poll.5.minutes="updateActivePlayers"
+    wire:poll.300s="updateActivePlayers"
     x-data="activePlayers({{ json_encode($activePlayers) }})"
 >
     <h3>Active Players</h3>

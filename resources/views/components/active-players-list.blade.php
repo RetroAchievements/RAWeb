@@ -1,19 +1,17 @@
 <table class="table-highlight">
     <tbody x-ref="playerTable">
-        @foreach ($activePlayers as $activePlayer)
+        <template x-for="player in filteredPlayers">
             <tr>
                 <td class="w-[52px]">
-                    {!! userAvatar($activePlayer['User'], iconSize: 32, label: false) !!}
-                    <span class="hidden">{{ $activePlayer['User'] }}
+                    <div x-html="player.userAvatarHtml"></div>
                 </td>
-
+                
                 <td class="w-[52px]">
-                    {!! gameAvatar(['ID' => $activePlayer['GameID'], 'ImageIcon' => $activePlayer['GameIcon']], iconSize: 32, label: false) !!}
-                    <span class="hidden">{{ $activePlayer['GameTitle'] }}</span>
+                    <div x-html="player.gameAvatarHtml"></div>
                 </td>
 
-                <td>{{ $activePlayer['RichPresenceMsg'] }}</td>
+                <td x-text="player.RichPresenceMsg"></td>
             </tr>
-        @endforeach
+        </template>
     </tbody>
 </table>

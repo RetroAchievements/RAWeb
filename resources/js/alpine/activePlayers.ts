@@ -3,7 +3,13 @@ import type { AlpineComponent } from 'alpinejs';
 const rememberFiltersKey = 'rememberFilters';
 const filterStringKey = 'filterString';
 
-export function activePlayers(activePlayers: unknown[]): AlpineComponent {
+interface ActivePlayerEntity {
+  User: string;
+  GameTitle: string;
+  RichPresenceMsg: string;
+}
+
+export function activePlayers(activePlayers: ActivePlayerEntity[]): AlpineComponent {
   return {
     activePlayers,
     isSearchMenuOpen: false,
@@ -12,21 +18,18 @@ export function activePlayers(activePlayers: unknown[]): AlpineComponent {
     filteredPlayerCount: activePlayers.length,
     shouldRememberFilters: localStorage.getItem(rememberFiltersKey) === 'true',
 
-    filterPlayers() {
-      let count = 0; // reset filtered count
-
+    filteredPlayers: function () {
       const lowerSearchTerm = (this.searchTerm ?? '').toLowerCase();
-      this.$refs.playerTable.querySelectorAll('tr').forEach((row) => {
-        const content = row.textContent ? row.textContent.toLowerCase() : '';
-        if (content.includes(lowerSearchTerm)) {
-          row.style.display = '';
-          count += 1;
-        } else {
-          row.style.display = 'none';
-        }
+      const filtered = this.activePlayers.filter(
+        // prettier-ignore
+        (activePlayer: ActivePlayerEntity) => activePlayer.User.toLowerCase().includes(lowerSearchTerm)
+          || activePlayer.GameTitle.toLowerCase().includes(lowerSearchTerm)
+          || activePlayer.RichPresenceMsg.toLowerCase().includes(lowerSearchTerm),
+      );
 
-        this.filteredPlayerCount = count;
-      });
+      this.filteredPlayerCount = filtered.length;
+
+      return filtered;
     },
 
     buildLastUpdatedTime(): string {
@@ -63,7 +66,6 @@ export function activePlayers(activePlayers: unknown[]): AlpineComponent {
 
       if (this.shouldRememberFilters) {
         this.searchTerm = localStorage.getItem(filterStringKey);
-        this.filterPlayers();
       }
     },
   };

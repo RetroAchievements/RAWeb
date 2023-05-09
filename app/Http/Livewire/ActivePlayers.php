@@ -20,7 +20,21 @@ class ActivePlayers extends Component
     public function updateActivePlayers()
     {
         try {
-            $this->activePlayers = getLatestRichPresenceUpdates();
+            $activePlayers = getLatestRichPresenceUpdates();
+
+            foreach ($activePlayers as &$player) {
+                $player['userAvatarHtml'] = userAvatar($player['User'], iconSize: 32, label: false);
+                $player['gameAvatarHtml'] = gameAvatar(
+                    [
+                        'ID' => $player['GameID'],
+                        'ImageIcon' => $player['GameIcon']
+                    ],
+                    iconSize: 32,
+                    label: false
+                );
+            }
+
+            $this->activePlayers = $activePlayers;
         } catch (Exception $e) {
             $this->hasError = true;
         }
