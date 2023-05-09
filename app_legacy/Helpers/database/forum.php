@@ -301,7 +301,8 @@ function submitTopicComment(
     $userID = getUserIDFromUser($user);
 
     if (getIsForumDoublePost($userID, $topicID, $commentPayload)) {
-        return false;
+        // Fail silently.
+        return true;
     }
 
     // Replace inverted commas, Remove HTML

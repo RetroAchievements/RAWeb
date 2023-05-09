@@ -340,7 +340,8 @@ function addArticleComment(
     }
 
     if ($user !== "Server" && getIsCommentDoublePost($userID, $articleID, $commentPayload)) {
-        return false;
+        // Fail silently.
+        return true;
     }
 
     // Replace all single quotes with double quotes (to work with MYSQL DB)
