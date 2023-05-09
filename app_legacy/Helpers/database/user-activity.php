@@ -515,7 +515,7 @@ function getCachedLatestRichPresenceUpdates(): array
             ->keyBy('User')
             ->map(function ($user) {
                 $user['InGame'] = true;
-    
+
                 return $user;
             })
             ->values()
