@@ -89,10 +89,16 @@ foreach ($gamesList as $game) {
                 $majorityDevHardestGame = $game;
                 $majorityDevEasiestGame = $game;
             } elseif ($game['MaxPointsAvailable']) {
-                if (($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
-                    $majorityDevHardestGame = $game;
+                if ($majorityDevHardestGame['MaxPointsAvailable'] != 0 && $game['MaxPointsAvailable'] != 0) {
+                    if (($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
+                        $majorityDevHardestGame = $game;
+                    }
                 }
-                if ($majorityDevEasiestGame['TotalTruePoints'] == 0 || ($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
+
+                if ($majorityDevEasiestGame['TotalTruePoints'] == 0
+                    || ($majorityDevEasiestGame['MaxPointsAvailable'] != 0 && $game['MaxPointsAvailable'] != 0
+                    && (($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))
+                ) {
                     $majorityDevEasiestGame = $game;
                 }
             }
@@ -111,17 +117,25 @@ foreach ($gamesList as $game) {
                 $onlyDevHardestGame = $game;
                 $onlyDevEasiestGame = $game;
             } elseif ($game['MaxPointsAvailable']) {
-                if (($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
-                    $onlyDevHardestGame = $game;
+                if ($onlyDevHardestGame['MaxPointsAvailable'] != 0 && $game['MaxPointsAvailable'] != 0) {
+                    if (($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable']) < ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])) {
+                        $onlyDevHardestGame = $game;
+                    }
                 }
-                if ($onlyDevEasiestGame['TotalTruePoints'] == 0 || ($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable']) < 1 || ($game['TotalTruePoints'] > 0 && (($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))) {
+
+                if ($onlyDevEasiestGame['TotalTruePoints'] == 0
+                    || ($onlyDevEasiestGame['MaxPointsAvailable'] != 0 && $game['MaxPointsAvailable'] != 0
+                    && (($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable']) > ($game['TotalTruePoints'] / $game['MaxPointsAvailable'])))
+                ) {
                     $onlyDevEasiestGame = $game;
                 }
             }
+
             $onlyDevGameIDs[] = $game['ID'];
             $onlyDevAchievementCount += $game['MyAchievements'];
             $onlyDevRichPresenceCount += $game['RichPresence'];
             $onlyDevLeaderboardTotal += $game['NumLBs'];
+
             if (isset($game['NumLBs'])) {
                 $onlyDevLeaderboardCount++;
             }
@@ -851,7 +865,11 @@ RenderContentStart("$dev's Developer Stats");
             // Majority Developer - Hardest game by retro ratio
             echo "<tr><td>Hardest Game by Retro Ratio:</td><td>";
             if (!empty($majorityDevHardestGame)) {
-                echo number_format($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
+                if ($majorityDevHardestGame['MaxPointsAvailable'] != 0) {
+                    echo number_format($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
+                } else {
+                    echo "N/A - ";
+                }
                 echo gameAvatar($majorityDevHardestGame);
                 echo "</br>" . $majorityDevHardestGame['MyAchievements'] . " of " . $majorityDevHardestGame['NumAchievements'] . " Achievements Created";
             } else {
@@ -961,7 +979,11 @@ RenderContentStart("$dev's Developer Stats");
             // Sole Developer - Hardest game by retro ratio
             echo "<tr><td>Hardest Game by Retro Ratio:</td><td>";
             if (!empty($onlyDevHardestGame)) {
-                echo number_format($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
+                if ($onlyDevHardestGame['MaxPointsAvailable'] != 0) {
+                    echo number_format($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
+                } else {
+                    echo "N/A - ";
+                }
                 echo gameAvatar($onlyDevHardestGame);
                 echo "</br>" . $onlyDevHardestGame['MyAchievements'] . " of " . $onlyDevHardestGame['NumAchievements'] . " Achievements Created";
             } else {
