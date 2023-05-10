@@ -175,24 +175,25 @@ function handleConsoleChanged(event) {
 
             // Add page traversal links
             echo "<div class='float-right row'>";
+            $unclaimedOnlyParam = isset($unclaimedOnly) ? "&x=$unclaimedOnly" : "";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
                 if (!empty($selectedConsoleId)) {
-                    echo "<a href='/setRequestList.php?s=$selectedConsoleId'>First</a> - ";
-                    echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsoleId'>&lt; Previous $maxCount</a> - ";
+                    echo "<a href='/setRequestList.php?s=$selectedConsoleId$unclaimedOnlyParam'>First</a> - ";
+                    echo "<a href='/setRequestList.php?o=$prevOffset&s=$selectedConsoleId$unclaimedOnlyParam'>&lt; Previous $maxCount</a> - ";
                 } else {
-                    echo "<a href='/setRequestList.php'>First</a> - ";
-                    echo "<a href='/setRequestList.php?o=$prevOffset'>&lt; Previous $maxCount</a> - ";
+                    echo "<a href='/setRequestList.php?$unclaimedOnlyParam'>First</a> - ";
+                    echo "<a href='/setRequestList.php?o=$prevOffset$unclaimedOnlyParam'>&lt; Previous $maxCount</a> - ";
                 }
             }
             if ($gameCounter == $maxCount && $offset != $totalRequestedGames - $maxCount) {
                 $nextOffset = $offset + $maxCount;
                 if (!empty($selectedConsoleId)) {
-                    echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsoleId'>Next $maxCount &gt;</a>";
-                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsoleId'>Last</a>";
+                    echo "<a href='/setRequestList.php?o=$nextOffset&s=$selectedConsoleId$unclaimedOnlyParam'>Next $maxCount &gt;</a>";
+                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "&s=$selectedConsoleId$unclaimedOnlyParam'>Last</a>";
                 } else {
-                    echo "<a href='/setRequestList.php?o=$nextOffset'>Next $maxCount &gt;</a>";
-                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "'>Last</a>";
+                    echo "<a href='/setRequestList.php?o=$nextOffset$unclaimedOnlyParam'>Next $maxCount &gt;</a>";
+                    echo " - <a href='/setRequestList.php?o=" . ($totalRequestedGames - $maxCount) . "$unclaimedOnlyParam'>Last</a>";
                 }
             }
             echo "</div>";
