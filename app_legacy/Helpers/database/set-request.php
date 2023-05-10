@@ -308,7 +308,7 @@ function getGamesWithRequests(array|int|null $console, int $claimStatus = 0): in
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID) ";
 
-    if ($claimStatus === 2) {
+    if ($claimStatus === 1 || $claimStatus === 2) {
         $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = 0) ";
     }
 
@@ -321,11 +321,11 @@ function getGamesWithRequests(array|int|null $console, int $claimStatus = 0): in
         $query .= " AND c.ID = $console ";
     }
 
-    // if ($claimStatus === 1) {
-    //     $query .= " AND sc.ID IS NOT NULL ";
-    // } else if ($claimStatus === 2) {
-    //     $query .= " AND sc.ID IS NULL ";
-    // }
+    if ($claimStatus === 1) {
+        $query .= " AND sc.ID IS NOT NULL ";
+    } elseif ($claimStatus === 2) {
+        $query .= " AND sc.ID IS NULL ";
+    }
 
     $dbResult = s_mysql_query($query);
 

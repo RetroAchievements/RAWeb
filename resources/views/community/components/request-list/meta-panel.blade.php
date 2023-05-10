@@ -48,50 +48,22 @@
 <div x-init="{}">
     <p class="text-lg mb-2">{{ localized_number($requestedSetsCount) }} Requested Sets</p>
 
-    <div class="embedded p-4 w-full grid gap-y-4">
-        <div class="grid gap-y-1">
-            <label for="filter-by-console-select">Filter by console:</label>
-            <select id="filter-by-console-id" class="w-full" @change="handleConsoleChanged">
-                @if ($selectedConsoleId === null)
-                    <option selected>Only supported systems</option>
-                @else 
-                    <option value=''>Only supported systems</option>
-                @endif
+    <div class="embedded p-4 my-4 w-full">
+        <p class="sr-only">Filters</p>
 
-                @if ($selectedConsoleId == -1)
-                    <option selected>All systems</option>
-                @else
-                    <option value="-1">All systems</option>
-                @endif
-
-                @foreach ($consoles as $console)
-                    @if ($selectedConsoleId == $console['ID'])
-                        <option selected>{{ e($console->Name) }}</option>
-                    @else
-                        <option value="{{ $console['ID'] }}">{{ e($console->Name) }}</option>
-                    @endif
-                @endforeach
-            </select>
-        </div>
-
-        <div class="grid gap-y-1">
-            <p>Filter by request status:</p>
-            <div class="space-x-6 flex" id="filter-by-request-status">
-                <div class="flex items-center gap-x-1 text-xs">
-                    <input type="radio" id="all-requests" name="request-status" value="0" {{ !$selectedRequestStatus ? 'checked' : '' }} @change="handleRequestStatusChanged">
-                    <label for="all-requests">All</label>
-                </div>
-        
-                <div class="flex items-center gap-x-1 text-xs">
-                    <input type="radio" id="claimed-requests" name="request-status" value="1" {{ $selectedRequestStatus == 1 ? 'checked' : '' }} @change="handleRequestStatusChanged">
-                    <label for="claimed-requests">Claimed</label>
-                </div>
-        
-                <div class="flex items-center gap-x-1 text-xs">
-                    <input type="radio" id="unclaimed-requests" name="request-status" value="2" {{ $selectedRequestStatus == 2 ? 'checked' : '' }} @change="handleRequestStatusChanged">
-                    <label for="unclaimed-requests">Unclaimed</label>
-                </div>
+        <div class="grid md:grid-cols-3 gap-y-4">
+            <div class="grid gap-y-1">
+                <x-request-list.meta-console-filter
+                    :consoles="$consoles"
+                    :selectedConsoleId="$selectedConsoleId"
+                />
             </div>
-        </div>        
+
+            <div class="grid gap-y-1">
+                <x-request-list.meta-request-status-filter 
+                    :selectedRequestStatus="$selectedRequestStatus"
+                />
+            </div>  
+        </div>      
     </div>
 </div>
