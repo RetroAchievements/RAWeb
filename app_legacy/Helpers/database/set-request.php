@@ -232,7 +232,7 @@ function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 /**
  * Gets a list of the most requested sets without core achievements.
  */
-function getMostRequestedSetsList(array|int|null $console, int $offset, int $count): array
+function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, bool $unclaimedOnly = false): array
 {
     sanitize_sql_inputs($offset, $count);
 
@@ -249,7 +249,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
         FROM
             SetRequest sr
         LEFT JOIN
-            SetClaim sc ON (sr.GameID = sc.GameID)
+            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = 0) 
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
@@ -262,6 +262,10 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
     } elseif (!empty($console)) {
         sanitize_sql_inputs($console);
         $query .= " AND c.ID = $console ";
+    }
+
+    if ($unclaimedOnly) {
+        $query .= " AND sc.ID IS NULL ";
     }
 
     $query .= "
