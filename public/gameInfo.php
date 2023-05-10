@@ -963,7 +963,7 @@ sanitize_outputs(
                     echo "<input type='hidden' name='genre' value='" . attributeEscape($genre) . "'>";
                     echo "<input type='hidden' name='release' value='" . attributeEscape($released) . "'>";
                     echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
-                    echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
+                    echo "<label for='guide_url' class='cursor-help' title='Must be from https://github.com/RetroAchievements/guides'>Guide URL<sup>*</sup></label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
