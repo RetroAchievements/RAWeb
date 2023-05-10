@@ -268,7 +268,8 @@ function getGamesListByDev(
     bool $ticketsFlag = false,
     ?int $filter = 0,
     int $offset = 0,
-    int $count = 0
+    int $count = 0,
+    bool $includeLBs = false // include games for which the dev made 0 cheevos but some LBs
 ): int {
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
@@ -289,7 +290,10 @@ function getGamesListByDev(
                            SUM(CASE WHEN ach.Author = :myRRDev THEN ach.TrueRatio ELSE 0 END) AS MyTrueRatio,
                            SUM(CASE WHEN ach.Author != :notMyAchDev THEN 1 ELSE 0 END) AS NotMyAchievements,
                            lbdi.MyLBs,";
-        $havingCond = "HAVING MyAchievements > 0 OR MyLBs > 0 ";
+        $havingCond = "HAVING MyAchievements > 0 ";
+        if ($includeLBs) {
+            $havingCond .= "OR MyLBs > 0 ";
+        }
     } else {
         if ($filter == 0) { // only with achievements
             $havingCond = "HAVING NumAchievements > 0 ";
