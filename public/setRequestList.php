@@ -175,7 +175,7 @@ function handleConsoleChanged(event) {
 
             // Add page traversal links
             echo "<div class='float-right row'>";
-            $unclaimedOnlyParam = isset($unclaimedOnly) ? "&x=$unclaimedOnly" : "";
+            $unclaimedOnlyParam = "&x=$unclaimedOnly";
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
                 if (!empty($selectedConsoleId)) {
