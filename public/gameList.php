@@ -8,7 +8,7 @@ $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 $filter = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
-$includeLBs = true;
+$includeLBs = true;  // include games for which the dev made 0 cheevos but some LBs
 
 if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
     $maxCount = 50;
