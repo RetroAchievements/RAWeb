@@ -215,7 +215,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
         // 1 or unspecified
-        default => "ORDER BY HasAchievements DESC, SUBSTRING_INDEX(gd.Title, ' [Subset', 1) COLLATE latin1_general_ci, c.Name COLLATE latin1_general_ci, gd.Title COLLATE latin1_general_ci ",
+        default => "ORDER BY HasAchievements DESC, SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
     };
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
