@@ -266,7 +266,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
 
     if ($claimStatus === 1) {
         $query .= " AND sc.ID IS NOT NULL ";
-    } else if ($claimStatus === 2) {
+    } elseif ($claimStatus === 2) {
         $query .= " AND sc.ID IS NULL ";
     }
 
@@ -313,7 +313,6 @@ function getGamesWithRequests(array|int|null $console, int $claimStatus = 0): in
     }
 
     $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
-        
 
     if (is_array($console)) {
         $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';

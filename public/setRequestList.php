@@ -79,7 +79,7 @@ RenderContentStart("Set Requests");
                 ]
             );
             echo "</div>";
-            
+
             echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
 
             // Create table headers
