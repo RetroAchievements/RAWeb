@@ -8,6 +8,7 @@ $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 $filter = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
+$includeLBs = true;
 
 if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
     $maxCount = 50;
@@ -21,7 +22,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
-$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, (int) $sortBy, $showTickets, $filter, $offset, $maxCount);
+$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, (int) $sortBy, $showTickets, $filter, $offset, $maxCount, $includeLBs);
 
 function ListGames(
     array $gamesList,
