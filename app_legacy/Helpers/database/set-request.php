@@ -232,7 +232,7 @@ function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 /**
  * Gets a list of the most requested sets without core achievements.
  */
-function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, bool $unclaimedOnly = false): array
+function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, int $claimStatus = 0): array
 {
     sanitize_sql_inputs($offset, $count);
 
@@ -264,7 +264,9 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
         $query .= " AND c.ID = $console ";
     }
 
-    if ($unclaimedOnly) {
+    if ($claimStatus === 1) {
+        $query .= " AND sc.ID IS NOT NULL ";
+    } else if ($claimStatus === 2) {
         $query .= " AND sc.ID IS NULL ";
     }
 
@@ -292,7 +294,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
 /**
  * Gets the number of set-less games with at least one set request.
  */
-function getGamesWithRequests(array|int|null $console): int
+function getGamesWithRequests(array|int|null $console, int $claimStatus = 0): int
 {
     $query = "
         SELECT
@@ -304,9 +306,14 @@ function getGamesWithRequests(array|int|null $console): int
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
-            Console c ON (gd.ConsoleID = c.ID)
-        WHERE
-             GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
+            Console c ON (gd.ConsoleID = c.ID) ";
+
+    if ($claimStatus === 2) {
+        $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = 0) ";
+    }
+
+    $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
+        
 
     if (is_array($console)) {
         $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
@@ -314,6 +321,12 @@ function getGamesWithRequests(array|int|null $console): int
         sanitize_sql_inputs($console);
         $query .= " AND c.ID = $console ";
     }
+
+    // if ($claimStatus === 1) {
+    //     $query .= " AND sc.ID IS NOT NULL ";
+    // } else if ($claimStatus === 2) {
+    //     $query .= " AND sc.ID IS NULL ";
+    // }
 
     $dbResult = s_mysql_query($query);
 
