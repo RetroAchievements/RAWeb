@@ -75,14 +75,16 @@ RenderContentStart("Claim List");
         };
 
         $linkSorting = function (string $label, int $sort1, int $sort2) use ($sortType, $createLink) {
+            $textAlign = ($label != 'Game' and $label != 'Dev') ? 'text-center' : 'text-left';
+            $th = "<th class='text-xs $textAlign whitespace-nowrap'>";
             if (($sortType % 10) == $sort1) { // if on the current sort header
                 if ($sortType == $sort2) {
-                    return "<th><b><a href='" . $createLink('s', $sort1) . "'>$label &#9650;</a></b></th>"; // Ascending
+                    return "$th<b><a href='" . $createLink('s', $sort1) . "'>$label &#9650;</a></b></th>"; // Ascending
                 } else {
-                    return "<th><b><a href='" . $createLink('s', $sort2) . "'>$label &#9660;</a></b></th>"; // Descending
+                    return "$th<b><a href='" . $createLink('s', $sort2) . "'>$label &#9660;</a></b></th>"; // Descending
                 }
             } else {
-                return "<th><a href='" . $createLink('s', $sort1) . "'>$label</a></th>";
+                return "$th<a href='" . $createLink('s', $sort1) . "'>$label</a></th>";
             }
         };
 
@@ -102,7 +104,7 @@ RenderContentStart("Claim List");
 
         // Claim Status filter
         echo "<div>";
-        echo "<b>Claim Status:</b> ";
+        echo "<b>Status:</b> ";
         echo $linkFilter(ClaimStatus::toString(ClaimStatus::Active), ClaimFilters::ActiveClaim) . ' | ';
         echo $linkFilter(ClaimStatus::toString(ClaimStatus::Complete), ClaimFilters::CompleteClaim) . ' | ';
         echo $linkFilter(ClaimStatus::toString(ClaimStatus::Dropped), ClaimFilters::DroppedClaim);
@@ -163,13 +165,14 @@ RenderContentStart("Claim List");
         }
         echo "<br style='clear:both'>";
 
-        echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
+        echo "<div class='table-wrapper'><table class='table-highlight text-xs'><tbody>";
 
-        echo "<tr class='do-not-highlight'>";
-        echo "<th></th>";
         // Sortable table headers
-        echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
+        echo "<tr class='do-not-highlight'>";
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::GameDescending), ClaimSorting::GameDescending, ClaimSorting::GameAscending);
+        echo "<th></th>";
+        echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
+        echo "<th></th>";
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimTypeDescending), ClaimSorting::ClaimTypeDescending, ClaimSorting::ClaimTypeAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::SetTypeDescending), ClaimSorting::SetTypeDescending, ClaimSorting::SetTypeAscending);
         echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimStatusDescending), ClaimSorting::ClaimStatusDescending, ClaimSorting::ClaimStatusAscending);
@@ -181,22 +184,30 @@ RenderContentStart("Claim List");
         // Loop through the claims and display them in the table
         foreach ($claimData as $claim) {
             $claimUser = $claim['User'];
+            $fieldSpecial = ClaimSpecial::toString($claim['Special']);
+            if ($fieldSpecial === 'None') {
+                $fieldSpecial = '--';
+            }
+
             echo "<tr>";
+            echo "<td>";
+            echo gameAvatar($claim, label: false);
+            echo "</td>";
+            echo "<td width='300'>";
+            echo gameAvatar($claim, icon: false);
+            echo "</td>";
             echo "<td>";
             echo userAvatar($claimUser, label: false);
             echo "</td>";
-            echo "<td class='whitespace-nowrap'>";
+            echo "<td>";
             echo userAvatar($claimUser, icon: false);
             echo "</td>";
-            echo "<td>";
-            echo gameAvatar($claim);
-            echo "</td>";
-            echo "<td>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
-            echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
-            echo "<td>" . ClaimStatus::toString($claim['Status']) . "</td>";
-            echo "<td>" . ClaimSpecial::toString($claim['Special']) . "</td>";
-            echo "<td>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
-            echo "<td>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td></tr>";
+            echo "<td class='text-center'>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
+            echo "<td class='text-center'>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
+            echo "<td class='text-center'>" . ClaimStatus::toString($claim['Status']) . "</td>";
+            echo "<td class='text-center'>" . $fieldSpecial . "</td>";
+            echo "<td class='smalldate text-center whitespace-nowrap'>" . getNiceDate(strtotime($claim['Created'])) . "</td>";
+            echo "<td class='smalldate text-center whitespace-nowrap'>" . getNiceDate(strtotime($claim['DoneTime'])) . "</td></tr>";
         }
         echo "</tbody></table></div>";
 

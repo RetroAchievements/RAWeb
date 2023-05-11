@@ -354,7 +354,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         // number of achievements won by others
         2 => "ContribCount DESC",
         3 => "OpenTickets DESC",
-        4 => "TicketRatio DESC",
+        4 => "TicketsResolvedForOthers DESC",
         5 => "LastLogin DESC",
         6 => "Author ASC",
         7 => "ActiveClaims DESC",
@@ -369,7 +369,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         ContribYield,
         COUNT(DISTINCT(IF(ach.Flags = 3, ach.ID, NULL))) AS Achievements,
         COUNT(DISTINCT(tick.ID)) AS OpenTickets,
-        COUNT(tick.ID)/COUNT(ach.ID) AS TicketRatio,
+        COALESCE(resolved.total,0) AS TicketsResolvedForOthers,
         LastLogin,
         COUNT(DISTINCT(sc.ID)) AS ActiveClaims
     FROM
@@ -380,6 +380,17 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
     LEFT JOIN
         SetClaim AS sc ON (sc.User = ua.User AND sc.Status = " . ClaimStatus::Active . ")
+    LEFT JOIN (
+        SELECT ua2.User,
+        SUM(CASE WHEN t.ReportState = 2 THEN 1 ELSE 0 END) AS total
+        FROM Ticket AS t
+        LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
+        LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.ResolvedByUserID
+        LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+        WHERE ua.User NOT LIKE ua2.User
+        AND a.Author NOT LIKE ua2.User
+        AND a.Flags = '3' 
+        GROUP BY ua2.User) resolved ON resolved.User = ua.User
     WHERE
         ContribCount > 0 AND ContribYield > 0
         $stateCond

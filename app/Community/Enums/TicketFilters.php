@@ -46,8 +46,10 @@ abstract class TicketFilters
 
     public const EmulatorOther = 1 << 19;
 
+    public const ResolvedByNonReporter = 1 << 20;
+
     // This should updated every time a new filter is added so it has all possible filter bits set
-    public const AllFilters = (1 << 20) - 1;
+    public const AllFilters = (1 << 21) - 1;
 
     // All filter is everything except Not Author (Not Author filter excludes items)
     public const All = self::AllFilters & ~self::ResolvedByNonAuthor;
@@ -55,5 +57,6 @@ abstract class TicketFilters
     // Default filter is everything except Closed, Resolved, and Not Author
     public const Default = self::AllFilters & ~self::StateClosed
                                             & ~self::StateResolved
-                                            & ~self::ResolvedByNonAuthor;
+                                            & ~self::ResolvedByNonAuthor
+                                            & ~self::ResolvedByNonReporter;
 }

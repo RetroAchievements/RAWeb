@@ -2,6 +2,7 @@ import Alpine from 'alpinejs';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
+import { hideEarnedCheckboxComponent } from './alpine';
 import {
   copyToClipboard,
   handleLeaderboardTabClick,
@@ -22,13 +23,16 @@ lazyLoadModuleOnIdFound({
 
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
+window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.injectShortcode = injectShortcode;
 window.mobileSafeTipEvents = mobileSafeTipEvents;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
 // Alpine needs to be placed after all `window` injection
 // or race conditions could occur.
-window.Alpine = Alpine;
-Alpine.start();
+document.addEventListener('DOMContentLoaded', () => {
+  window.Alpine = Alpine;
+  Alpine.start();
+});
 
 themeChange();

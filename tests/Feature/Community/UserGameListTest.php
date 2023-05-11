@@ -10,6 +10,7 @@ use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -39,6 +40,36 @@ class UserGameListTest extends TestCase
         $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0,
             'Created' => Carbon::now()->subDays(370),
         ]);
+
+        $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
+
+        $this->assertEquals($requestInfo, [
+            'total' => 1,
+            'pointsForNext' => 1250,
+            'maxSoftcoreReached' => false,
+        ]);
+    }
+
+    public function testSetRequestLimitFromAwards(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
+
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => 101]);
+
+        /** @var Achievement $publishedAchievements */
+        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->ID]);
+
+        /** @var PlayerBadge $badge */
+        $badge = new PlayerBadge([
+            'User' => $user->User,
+            'AwardType' => 1,
+            'AwardData' => $game->ID,
+            'AwardDataExtra' => 1,
+            'AwardDate' => Carbon::now(),
+        ]);
+        $user->playerBadges()->save($badge);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 

@@ -45,7 +45,7 @@ $lbUsers = match ($friends) {
 if ($friends == 1) {
     // We do a maxCount + 1 so that if we get maxCount + 1 rows returned we know
     // there are more row to get and we can add a "Next X" link for page traversal
-    $data = getGlobalRankingData($type, $sort, $date, null, $user, $untracked, $offset, getFriendCount($user) + 1, 0);
+    $data = getGlobalRankingData($type, $sort, $date, null, $user, $untracked, 0, getFriendCount($user) + 1, 0);
 } else {
     $data = getGlobalRankingData($type, $sort, $date, null, null, $untracked, $offset, $maxCount + 1, 0);
 }
@@ -215,7 +215,11 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         $userListed = false;
         $userRank = 0;
         $findUserRank = false;
-        $rank = $offset + 1;
+        if ($friends == 1) {
+            $rank = 1;
+        } else {
+            $rank = $offset + 1;
+        }
         $rowRank = $rank;
         $rankPoints = null;
         $userCount = 0;
@@ -239,7 +243,12 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 $rankPoints = $dataPoint['Points'];
             }
 
-            if (!$findUserRank) {
+            if ($rowRank < $offset + 1 || $findUserRank) {
+                if ($dataPoint['User'] == $user) {
+                    $userRank = $rank;
+                }
+                $rowRank++;
+            } else {
                 // Outline the currently logged in user in the table
                 if ($dataPoint['User'] == $user) {
                     $userListed = true;
@@ -279,11 +288,6 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
 
                 $rowRank++;
                 $userCount++;
-            } else {
-                if ($dataPoint['User'] == $user) {
-                    $userRank = $rank;
-                }
-                $rowRank++;
             }
         }
 
@@ -293,7 +297,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 // Get and display the information for the logged in user if applicable
                 $userData = getGlobalRankingData($type, $sort, $date, $user, null, $untracked, 0, 1);
                 if (!empty($userData)) {
-                    // Add dummy row to seperate the user from the rest of the table
+                    // Add dummy row to separate the user from the rest of the table
                     echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
                     echo "<tr style='outline: thin solid'>";
 

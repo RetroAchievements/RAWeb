@@ -268,6 +268,28 @@ function editTopicComment(int $commentID, string $newPayload): bool
     return false;
 }
 
+function getIsForumDoublePost(
+    int $authorID,
+    int $topicID,
+    string $commentPayload,
+): bool {
+    $query = "SELECT ftc.Payload, ftc.ForumTopicID
+        FROM ForumTopicComment AS ftc
+        WHERE AuthorID = :authorId
+        ORDER BY ftc.DateCreated DESC
+        LIMIT 1";
+
+    $dbResult = legacyDbFetch($query, ['authorId' => $authorID]);
+
+    $retrievedPayload = $dbResult['Payload'];
+    $retrievedTopicID = $dbResult['ForumTopicID'];
+
+    return
+        $retrievedPayload === $commentPayload
+        && $retrievedTopicID === $topicID
+    ;
+}
+
 function submitTopicComment(
     string $user,
     int $topicID,
@@ -277,6 +299,11 @@ function submitTopicComment(
 ): bool {
     sanitize_sql_inputs($user);
     $userID = getUserIDFromUser($user);
+
+    if (getIsForumDoublePost($userID, $topicID, $commentPayload)) {
+        // Fail silently.
+        return true;
+    }
 
     // Replace inverted commas, Remove HTML
     $commentPayload = str_replace("'", "''", $commentPayload);

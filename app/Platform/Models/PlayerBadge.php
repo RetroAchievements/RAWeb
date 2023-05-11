@@ -6,9 +6,13 @@ namespace App\Platform\Models;
 
 use App\Community\Enums\AwardType;
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\Legacy\PlayerBadgeFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PlayerBadge extends BaseModel
 {
+    use HasFactory;
+
     // Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge
     protected $table = 'SiteAwards';
 
@@ -21,12 +25,14 @@ class PlayerBadge extends BaseModel
         'AwardData',
         'AwardDataExtra',
         'AwardDate',
+        'DisplayOrder',
     ];
 
     protected $casts = [
         'AwardType' => 'int',
         'AwardData' => 'int',
         'AwardDataExtra' => 'int',
+        'DisplayOrder' => 'int',
     ];
 
     private const DEVELOPER_COUNT_BOUNDARIES = [
@@ -72,6 +78,11 @@ class PlayerBadge extends BaseModel
             AwardType::AchievementPointsYield => self::DEVELOPER_POINT_BOUNDARIES,
             default => null,
         };
+    }
+
+    protected static function newFactory(): PlayerBadgeFactory
+    {
+        return PlayerBadgeFactory::new();
     }
 
     public static function getBadgeThreshold(int $awardType, int $tier): int

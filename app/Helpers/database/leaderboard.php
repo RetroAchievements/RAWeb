@@ -489,7 +489,7 @@ function GetFormattedLeaderboardEntry(string $formatType, int $scoreIn): string
     }
 
     // Raw number
-    return "$scoreIn";
+    return localized_number($scoreIn);
 }
 
 // TODO replace with Enum

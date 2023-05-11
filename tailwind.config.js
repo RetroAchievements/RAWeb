@@ -69,6 +69,5 @@ module.exports = {
     }),
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
-    require('@tailwindcss/line-clamp'),
   ],
 };
