@@ -310,6 +310,11 @@ function getIsCommentDoublePost(int $userID, array|int $articleID, string $comme
 
     $dbResult = legacyDbFetch($query, ['userId' => $userID]);
 
+    // Otherwise the user can't make their first post.
+    if (!$dbResult) {
+        return false;
+    }
+
     $retrievedPayload = $dbResult['Payload'];
     $retrievedArticleID = $dbResult['ArticleID'];
 
