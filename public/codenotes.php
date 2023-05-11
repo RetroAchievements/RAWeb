@@ -72,7 +72,10 @@ function cancelEditMode(rowIndex) {
     // Restore the original value so unsaved edits are not persisted.
     const noteDisplayEl = rowEl.querySelector('.note-display');
     const noteEditEl = rowEl.querySelector('.note-edit');
-    const originalValue = noteDisplayEl.innerHTML.replace(/<br>\n/g, '\n');
+
+    // "<br>" "<br />" "<br>\n"
+    const originalValue = noteDisplayEl.innerHTML.replace(/<br\s*\/?>\n?/g, '\n');
+    
     noteEditEl.value = originalValue;
 
     setRowEditingEnabled(rowEl, false);
