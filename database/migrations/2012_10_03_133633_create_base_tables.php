@@ -383,6 +383,7 @@ return new class() extends Migration {
                 if (DB::connection()->getDriverName() === 'sqlite') {
                     // SQLite does not allow changing a primary key after a table has been created so it has to be done here
                     $table->bigIncrements('id')->first();
+                    $table->string('MD5', 32);
                 } else {
                     $table->string('MD5', 32)->primary();
                 }

@@ -9,6 +9,7 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends Factory<Achievement>
@@ -33,6 +34,7 @@ class AchievementFactory extends Factory
             'Flags' => AchievementType::Unofficial,
             'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),
             'BadgeName' => '00001',
+            'DateModified' => Carbon::now(),
         ];
     }
 

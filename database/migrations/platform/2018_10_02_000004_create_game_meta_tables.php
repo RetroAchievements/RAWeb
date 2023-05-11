@@ -61,12 +61,12 @@ return new class() extends Migration {
              * the main identifier hash
              * usually md5 by a specific method
              */
-            $table->string('hash')->after('system_id');
+            $table->string('hash')->after('system_id')->nullable();
 
             $table->string('type')->nullable()->after('hash');
 
             $table->string('crc', 8)->nullable()->after('type');
-            // $table->string('md5', 32)->nullable(); // already exists
+            $table->string('MD5', 32)->nullable()->change();
             $table->string('sha1', 40)->nullable()->after('MD5');
             $table->string('file_crc', 8)->nullable()->after('sha1');
             $table->string('file_md5', 32)->nullable()->after('file_crc');
