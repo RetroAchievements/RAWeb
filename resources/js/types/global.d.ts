@@ -1,5 +1,6 @@
 import type { Alpine } from 'alpinejs';
 
+import { hideEarnedCheckboxComponent as HideEarnedCheckboxComponent } from '@/alpine/hideEarnedCheckboxComponent';
 import type { newsCarousel as NewsCarousel } from '@/alpine/newsCarousel';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
@@ -11,6 +12,7 @@ declare global {
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
+  var hideEarnedCheckboxComponent: typeof HideEarnedCheckboxComponent;
   var injectShortcode: typeof InjectShortcode;
   var mobileSafeTipEvents: typeof MobileSafeTipEvents;
   var newsCarousel: typeof NewsCarousel;
