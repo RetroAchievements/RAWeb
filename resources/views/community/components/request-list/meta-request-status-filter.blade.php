@@ -6,8 +6,8 @@ $claimed = RequestStatus::Claimed;
 $unclaimed = RequestStatus::Unclaimed;
 ?>
 
-<label class="text-xs font-bold md:-mb-6">Request status</label>
-<div class="space-x-6 flex" id="filter-by-request-status">
+<label class="text-xs font-bold sm:-mb-6">Request status</label>
+<div class="space-x-4 flex" id="filter-by-request-status">
     <x-request-list.meta-request-status-filter-radio value="{{ $any }}" :selectedRequestStatus="$selectedRequestStatus">
         Any
     </x-request-list.meta-request-status-filter-radio>

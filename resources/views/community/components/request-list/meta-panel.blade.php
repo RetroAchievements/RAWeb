@@ -51,15 +51,15 @@
     <div class="embedded p-4 my-4 w-full">
         <p class="sr-only">Filters</p>
 
-        <div class="grid md:grid-cols-3 gap-y-4">
-            <div class="grid gap-y-1">
+        <div class="grid sm:flex gap-y-4 sm:divide-x-2 divide-embed-highlight">
+            <div class="grid gap-y-1 sm:pr-[40px]">
                 <x-request-list.meta-console-filter
                     :consoles="$consoles"
                     :selectedConsoleId="$selectedConsoleId"
                 />
             </div>
 
-            <div class="grid gap-y-1">
+            <div class="grid gap-y-1 sm:px-8">
                 <x-request-list.meta-request-status-filter 
                     :selectedRequestStatus="$selectedRequestStatus"
                 />
