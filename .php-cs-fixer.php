@@ -16,7 +16,6 @@ $rules = [
     '@Symfony' => true,
 
     // @Symfony overrides
-    'braces' => false, // TODO remove as soon as inline php tags with echos are gone?
     'concat_space' => ['spacing' => 'one'],
     'echo_tag_syntax' => false,
     'global_namespace_import' => true,
