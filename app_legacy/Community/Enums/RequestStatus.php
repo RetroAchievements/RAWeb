@@ -4,9 +4,18 @@ declare(strict_types=1);
 
 namespace LegacyApp\Community\Enums;
 
-enum RequestStatus: int
+abstract class RequestStatus
 {
-    case ANY = 0;
-    case CLAIMED = 1;
-    case UNCLAIMED = 2;
+    public const Any = 0;
+    public const Claimed = 1;
+    public const Unclaimed = 2;
+
+    public static function cases(): array
+    {
+        return [
+            self::Any,
+            self::Claimed,
+            self::Unclaimed,
+        ];
+    }
 }

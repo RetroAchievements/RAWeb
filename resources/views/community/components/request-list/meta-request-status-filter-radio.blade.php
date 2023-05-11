@@ -1,7 +1,7 @@
 <?php
 use LegacyApp\Community\Enums\RequestStatus;
 
-$any = RequestStatus::ANY;
+$any = RequestStatus::Any;
 ?>
 
 @props([
@@ -9,7 +9,7 @@ $any = RequestStatus::ANY;
     'value' => $any,
 ])
 
-<label class="cursor-pointer flex items-center gap-x-1 text-xs">
-    <input type="radio" name="request-status" value="{{ $value }}" {{ $selectedRequestStatus->value == $value ? 'checked' : '' }} @change="handleRequestStatusChanged">
+<label class="transition lg:active:scale-95 cursor-pointer flex items-center gap-x-1 text-xs">
+    <input type="radio" class="cursor-pointer" name="request-status" value="{{ $value }}" {{ $selectedRequestStatus == $value ? 'checked' : '' }} @change="handleRequestStatusChanged">
     {{ $slot }}
 </label>

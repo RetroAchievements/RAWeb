@@ -1,9 +1,9 @@
 <?php
 use LegacyApp\Community\Enums\RequestStatus;
 
-$any = RequestStatus::ANY;
-$claimed = RequestStatus::CLAIMED;
-$unclaimed = RequestStatus::UNCLAIMED;
+$any = RequestStatus::Any;
+$claimed = RequestStatus::Claimed;
+$unclaimed = RequestStatus::Unclaimed;
 ?>
 
 <label class="text-xs font-bold md:-mb-6">Request status</label>
