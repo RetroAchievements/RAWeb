@@ -36,7 +36,7 @@ class UserComments extends Grid
     }
 
     /**
-     * @return Builder<User>
+     * @return Builder<UserComment>
      */
     protected function query(): Builder
     {

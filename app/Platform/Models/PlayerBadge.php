@@ -6,7 +6,7 @@ namespace App\Platform\Models;
 
 use App\Community\Enums\AwardType;
 use App\Support\Database\Eloquent\BaseModel;
-use Database\Factories\Legacy\PlayerBadgeFactory;
+use Database\Factories\PlayerBadgeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PlayerBadge extends BaseModel

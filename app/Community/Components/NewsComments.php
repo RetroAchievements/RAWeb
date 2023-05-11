@@ -43,7 +43,7 @@ class NewsComments extends Grid
     }
 
     /**
-     * @return Builder<News>
+     * @return Builder<NewsComment>
      */
     protected function query(): Builder
     {

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Site\Models\User;
 use App\Support\Shortcode\Converter\HTMLConverter;
 
 /**

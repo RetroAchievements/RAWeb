@@ -40,7 +40,7 @@ class SyncComments extends Command
 
         return $transformed;
 
-        /* @phpstan-ignore-next-line */
+        // @phpstan-ignore-next-line
         dd($origin);
 
         /**
