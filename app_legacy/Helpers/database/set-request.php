@@ -1,6 +1,7 @@
 <?php
 
 use LegacyApp\Community\Enums\ClaimStatus;
+use LegacyApp\Community\Enums\RequestStatus;
 use LegacyApp\Community\Models\UserGameListEntry;
 use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Site\Models\User;
@@ -232,7 +233,7 @@ function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 /**
  * Gets a list of the most requested sets without core achievements.
  */
-function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, int $claimStatus = 0): array
+function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, RequestStatus $requestStatus = RequestStatus::ANY): array
 {
     sanitize_sql_inputs($offset, $count);
 
@@ -264,9 +265,9 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
         $query .= " AND c.ID = $console ";
     }
 
-    if ($claimStatus === 1) {
+    if ($requestStatus === RequestStatus::CLAIMED) {
         $query .= " AND sc.ID IS NOT NULL ";
-    } elseif ($claimStatus === 2) {
+    } elseif ($requestStatus === RequestStatus::UNCLAIMED) {
         $query .= " AND sc.ID IS NULL ";
     }
 
@@ -294,7 +295,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
 /**
  * Gets the number of set-less games with at least one set request.
  */
-function getGamesWithRequests(array|int|null $console, int $claimStatus = 0): int
+function getGamesWithRequests(array|int|null $console, RequestStatus $requestStatus = RequestStatus::ANY): int
 {
     $query = "
         SELECT
@@ -308,7 +309,7 @@ function getGamesWithRequests(array|int|null $console, int $claimStatus = 0): in
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID) ";
 
-    if ($claimStatus === 1 || $claimStatus === 2) {
+    if ($requestStatus !== RequestStatus::ANY) {
         $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = 0) ";
     }
 
@@ -321,9 +322,9 @@ function getGamesWithRequests(array|int|null $console, int $claimStatus = 0): in
         $query .= " AND c.ID = $console ";
     }
 
-    if ($claimStatus === 1) {
+    if ($requestStatus === RequestStatus::CLAIMED) {
         $query .= " AND sc.ID IS NOT NULL ";
-    } elseif ($claimStatus === 2) {
+    } elseif ($requestStatus === RequestStatus::UNCLAIMED) {
         $query .= " AND sc.ID IS NULL ";
     }
 

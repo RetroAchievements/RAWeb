@@ -1,17 +1,22 @@
+<?php
+use LegacyApp\Community\Enums\RequestStatus;
+
+$any = RequestStatus::ANY;
+$claimed = RequestStatus::CLAIMED;
+$unclaimed = RequestStatus::UNCLAIMED;
+?>
+
 <label class="text-xs font-bold md:-mb-6">Request status</label>
 <div class="space-x-6 flex" id="filter-by-request-status">
-    <label class="cursor-pointer flex items-center gap-x-1 text-xs">
-        <input type="radio" id="all-requests" name="request-status" value="0" {{ !$selectedRequestStatus ? 'checked' : '' }} @change="handleRequestStatusChanged">
-        All
-    </label>
+    <x-request-list.meta-request-status-filter-radio value="{{ $any }}" :selectedRequestStatus="$selectedRequestStatus">
+        Any
+    </x-request-list.meta-request-status-filter-radio>
 
-    <label class="cursor-pointer flex items-center gap-x-1 text-xs">
-        <input type="radio" id="all-requests" name="request-status" value="1" {{ $selectedRequestStatus == 1 ? 'checked' : '' }} @change="handleRequestStatusChanged">
+    <x-request-list.meta-request-status-filter-radio value="{{ $claimed }}" :selectedRequestStatus="$selectedRequestStatus">
         Claimed
-    </label>
+    </x-request-list.meta-request-status-filter-radio>
 
-    <label class="cursor-pointer flex items-center gap-x-1 text-xs">
-        <input type="radio" id="all-requests" name="request-status" value="2" {{ $selectedRequestStatus == 2 ? 'checked' : '' }} @change="handleRequestStatusChanged">
+    <x-request-list.meta-request-status-filter-radio value="{{ $unclaimed }}" :selectedRequestStatus="$selectedRequestStatus">
         Unclaimed
-    </label>
+    </x-request-list.meta-request-status-filter-radio>
 </div>

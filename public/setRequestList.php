@@ -1,5 +1,6 @@
 <?php
 
+use LegacyApp\Community\Enums\RequestStatus;
 use LegacyApp\Platform\Models\System;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
@@ -9,9 +10,11 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 $maxCount = 50;
 $offset = 0;
 
+$selectedRequestStatusValue = (int) request()->input('x');
+$selectedRequestStatus = RequestStatus::tryFrom($selectedRequestStatusValue) ?? RequestStatus::ANY;
+
 $username = requestInputSanitized('u');
 $selectedConsoleId = (int) request()->input('s');
-$selectedRequestStatus = (int) request()->input('x');
 $count = (int) request()->input('c', $maxCount);
 $offset = (int) request()->input('o', $offset);
 $flag = (int) request()->input('f', 0); // 0 - display only active user set requests, else display all user set requests
@@ -108,7 +111,7 @@ RenderContentStart("Set Requests");
 
             // Add page traversal links
             echo "<div class='float-right row'>";
-            $requestStatusParam = "&x=$selectedRequestStatus";
+            $requestStatusParam = "&x=" . $selectedRequestStatus->value;
             if ($offset > 0) {
                 $prevOffset = $offset - $maxCount;
                 if (!empty($selectedConsoleId)) {
