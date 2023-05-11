@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform\Action;
+namespace Tests\Feature\Community;
 
 use App\Community\Actions\AddGameToListAction;
 use App\Community\Actions\RemoveGameFromListAction;

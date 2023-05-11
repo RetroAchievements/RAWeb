@@ -4,7 +4,8 @@ use App\Community\Enums\ArticleType;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\SearchType;
 
-function canSearch(int $searchType, int $permissions): bool {
+function canSearch(int $searchType, int $permissions): bool
+{
     return match ($searchType) {
         SearchType::UserModerationComment, SearchType::SetClaimComment => $permissions >= Permissions::Admin,
         SearchType::GameHashComment => $permissions >= Permissions::Developer,

@@ -68,8 +68,7 @@ trait TestsPlayerAchievements
     protected function assertHasUnlock(User $user, Achievement $achievement, int $mode): void
     {
         $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
-        foreach ($unlocks as $unlock)
-        {
+        foreach ($unlocks as $unlock) {
             if ($unlock->HardcoreMode === $mode) {
                 $this->assertTrue(true);
 
@@ -94,8 +93,7 @@ trait TestsPlayerAchievements
     protected function assertDoesNotHaveUnlock(User $user, Achievement $achievement, int $mode): void
     {
         $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
-        foreach ($unlocks as $unlock)
-        {
+        foreach ($unlocks as $unlock) {
             if ($unlock->HardcoreMode === $mode) {
                 $this->fail("Found " . UnlockMode::toString($mode) . " unlock for achievement " .
                             $achievement->ID . "/user " . $user->ID);
@@ -118,8 +116,7 @@ trait TestsPlayerAchievements
     protected function assertDoesNotHaveAnyUnlock(User $user, Achievement $achievement): void
     {
         $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
-        foreach ($unlocks as $unlock)
-        {
+        foreach ($unlocks as $unlock) {
             $this->fail("Found " . UnlockMode::toString($unlock->HardcoreMode) . " unlock for achievement " .
                         $achievement->ID . "/user " . $user->ID);
         }

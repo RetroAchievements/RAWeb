@@ -54,13 +54,11 @@ class UpdatePlayerMasteries extends Command
             ->get();
 
         $masteredGames = [];
-        foreach ($awards as $award)
-        {
+        foreach ($awards as $award) {
             $masteredGames[$award->AwardData][$award->AwardDataExtra] = true;
         }
 
-        foreach ($masteredGames as $gameID => $masteryData)
-        {
+        foreach ($masteredGames as $gameID => $masteryData) {
             if (array_key_exists($gameID, $this->gameAchievements)) {
                 $coreAchievementCount = $this->gameAchievements[$gameID];
             } else {

@@ -77,11 +77,13 @@ class PlayerBadge extends BaseModel
     public static function getBadgeThreshold(int $awardType, int $tier): int
     {
         $thresholds = self::getThresholds($awardType);
-        if ($thresholds === null)
+        if ($thresholds === null) {
             return 0;
+        }
 
-        if ($tier < 0 || $tier >= count($thresholds))
+        if ($tier < 0 || $tier >= count($thresholds)) {
             return 0;
+        }
 
         return $thresholds[$tier];
     }
@@ -91,8 +93,9 @@ class PlayerBadge extends BaseModel
         $thresholds = self::getThresholds($awardType);
         if ($thresholds !== null) {
             for ($i = count($thresholds) - 1; $i >= 0; $i--) {
-                if ($newValue >= $thresholds[$i] && $oldValue < $thresholds[$i])
+                if ($newValue >= $thresholds[$i] && $oldValue < $thresholds[$i]) {
                     return $i;
+                }
             }
         }
 

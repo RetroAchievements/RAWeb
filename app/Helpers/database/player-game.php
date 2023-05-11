@@ -189,8 +189,9 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
 
     if ($numRecentAchievements >= 0) {
         usort($unlockedAchievements, function ($a, $b) {
-            if ($a['When'] == $b['When'])
+            if ($a['When'] == $b['When']) {
                 return $a['Achievement']['ID'] <=> $b['Achievement']['ID'];
+            }
 
             return -($a['When'] <=> $b['When']);
         });

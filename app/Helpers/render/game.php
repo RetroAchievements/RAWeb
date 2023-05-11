@@ -228,8 +228,7 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
         // }
         echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
         echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
-    }
-    else {
+    } else {
         echo "<a href='/game/$gameID?$flagParam&s=$sort1'>Default$mark1</a> - ";
         echo "<a href='/game/$gameID?$flagParam&s=$sort2'>Retro Points$reverseMark2</a>";
     }

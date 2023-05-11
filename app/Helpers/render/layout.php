@@ -107,11 +107,11 @@ function RenderToolbar(): void
     echo "<ul class='flex-1'>";
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
-    foreach ($menuSystemsList as $column){
+    foreach ($menuSystemsList as $column) {
         echo "<ul>";
         foreach ($column as $brand => $systems) {
             echo "<li class='dropdown-header'>$brand</li>";
-            foreach ($systems as $system){
+            foreach ($systems as $system) {
 
                 $systemName = $system['systemName'];
                 $listId = $system['listID'];

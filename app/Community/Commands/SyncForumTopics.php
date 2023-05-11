@@ -34,73 +34,63 @@ class SyncForumTopics extends Command
         }
 
         $query = DB::table(function ($query) {
-                $query->from('ForumTopic')
-                    ->select('ForumTopic.*', 'UserAccounts.ID as ExistingAuthorID')
-                    ->addSelect([
-                        /*
-                         * fetch first comment to be used as actual data
-                         */
-                        'FirstForumCommentID' => function ($query) {
-                            /* @var Builder $query */
-                            $query->select('ForumTopicComment.ID')
-                                ->from('ForumTopicComment')
-                                ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
-                                ->orderBy('ForumTopicComment.DateCreated', 'asc')
-                                ->limit(1);
-                        },
-                        'FirstForumCommentDateCreated' => function ($query) {
-                            /* @var Builder $query */
-                            $query->selectRaw('ForumTopicComment.DateCreated')
-                                ->from('ForumTopicComment')
-                                ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
-                                ->orderBy('ForumTopicComment.DateCreated', 'asc')
-                                ->limit(1);
-                        },
-                        'FirstForumCommentDateUpdated' => function ($query) {
-                            /* @var Builder $query */
-                            $query->selectRaw('ForumTopicComment.DateModified')
-                                ->from('ForumTopicComment')
-                                ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
-                                ->orderBy('ForumTopicComment.DateCreated', 'asc')
-                                ->limit(1);
-                        },
-                        'FirstForumCommentPayload' => function ($query) {
-                            /* @var Builder $query */
-                            $query->selectRaw('ForumTopicComment.Payload')
-                                ->from('ForumTopicComment')
-                                ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
-                                ->orderBy('ForumTopicComment.DateCreated', 'asc')
-                                ->limit(1);
-                        },
-                        /*
-                         * reference column
-                         */
-                        'LastForumCommentDateUpdated' => function ($query) {
-                            /* @var Builder $query */
-                            $query->selectRaw('COALESCE(ForumTopicComment.DateModified, ForumTopicComment.DateCreated) as ForumTopicUpdated')
-                                ->from('ForumTopicComment')
-                                ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
-                                ->orderBy('ForumTopicUpdated', 'desc')
-                                ->limit(1);
-                        },
-                    ])
-                    /*
-                     * left join users, may be null/deleted
-                     */
-                    ->leftJoin('UserAccounts', 'UserAccounts.ID', '=', 'ForumTopic.AuthorID')
-                    /*
-                     * by inner joining users we can make sure only comments with a valid user attached are imported
-                     * only select game data though
-                     */
-                    ->join('Forum', 'Forum.ID', '=', 'ForumTopic.ForumID');
+            $query->from('ForumTopic')
+                ->select('ForumTopic.*', 'UserAccounts.ID as ExistingAuthorID')
+                ->addSelect([
+                    // fetch first comment to be used as actual data
+                    'FirstForumCommentID' => function ($query) {
+                        /* @var Builder $query */
+                        $query->select('ForumTopicComment.ID')
+                            ->from('ForumTopicComment')
+                            ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
+                            ->orderBy('ForumTopicComment.DateCreated', 'asc')
+                            ->limit(1);
+                    },
+                    'FirstForumCommentDateCreated' => function ($query) {
+                        /* @var Builder $query */
+                        $query->selectRaw('ForumTopicComment.DateCreated')
+                            ->from('ForumTopicComment')
+                            ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
+                            ->orderBy('ForumTopicComment.DateCreated', 'asc')
+                            ->limit(1);
+                    },
+                    'FirstForumCommentDateUpdated' => function ($query) {
+                        /* @var Builder $query */
+                        $query->selectRaw('ForumTopicComment.DateModified')
+                            ->from('ForumTopicComment')
+                            ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
+                            ->orderBy('ForumTopicComment.DateCreated', 'asc')
+                            ->limit(1);
+                    },
+                    'FirstForumCommentPayload' => function ($query) {
+                        /* @var Builder $query */
+                        $query->selectRaw('ForumTopicComment.Payload')
+                            ->from('ForumTopicComment')
+                            ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
+                            ->orderBy('ForumTopicComment.DateCreated', 'asc')
+                            ->limit(1);
+                    },
+                    // reference column
+                    'LastForumCommentDateUpdated' => function ($query) {
+                        /* @var Builder $query */
+                        $query->selectRaw('COALESCE(ForumTopicComment.DateModified, ForumTopicComment.DateCreated) as ForumTopicUpdated')
+                            ->from('ForumTopicComment')
+                            ->whereColumn('ForumTopicComment.ForumTopicID', 'ForumTopic.ID')
+                            ->orderBy('ForumTopicUpdated', 'desc')
+                            ->limit(1);
+                    },
+                ])
+                // left join users, may be null/deleted
+                ->leftJoin('UserAccounts', 'UserAccounts.ID', '=', 'ForumTopic.AuthorID')
+                // by inner joining users we can make sure only comments with a valid user attached are imported
+                // only select game data though
+                ->join('Forum', 'Forum.ID', '=', 'ForumTopic.ForumID');
 
-                if ($this->hasArgument('forumTopicId') && $this->argument('forumTopicId')) {
-                    $query->where('ForumTopic.ID', $this->argument('forumTopicId'));
-                }
-            })
-            /*
-             * if it no first comment -> not a valid forum topic worth keeping around as there's no content then
-             */
+            if ($this->hasArgument('forumTopicId') && $this->argument('forumTopicId')) {
+                $query->where('ForumTopic.ID', $this->argument('forumTopicId'));
+            }
+        })
+            // if it no first comment -> not a valid forum topic worth keeping around as there's no content then
             ->whereNotNull('FirstForumCommentID');
 
         return $query;

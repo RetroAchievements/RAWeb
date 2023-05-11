@@ -25,8 +25,7 @@ $commentData = [];
 $numArticleComments = getArticleComments($articleTypeID, $articleID, $offset, $count, $commentData);
 
 $commentsLabel = "Comments";
-switch ($articleTypeID)
-{
+switch ($articleTypeID) {
     case ArticleType::Game:
         /** @var Game $game */
         $game = Game::findOrFail($articleID);

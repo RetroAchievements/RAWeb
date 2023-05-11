@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api;
+namespace Tests\Feature\Api\V1;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -10,7 +10,6 @@ use LegacyApp\Platform\Enums\UnlockMode;
 use LegacyApp\Platform\Models\Achievement;
 use LegacyApp\Platform\Models\Game;
 use LegacyApp\Platform\Models\System;
-use Tests\Feature\Api\V1\BootstrapsApiV1;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 

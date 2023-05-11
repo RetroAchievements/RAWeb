@@ -22,6 +22,7 @@ $rules = [
     'global_namespace_import' => true,
     'increment_style' => ['style' => 'post'],
     'no_alternative_syntax' => false,
+    'no_multiple_statements_per_line' => false,
     'no_extra_blank_lines' => [
         'tokens' => [
             'extra',
@@ -40,6 +41,7 @@ $rules = [
     ],
     'semicolon_after_instruction' => false,
     'single_quote' => false,
+    'statement_indentation' => false,
     'yoda_style' => false,
 
     // 'declare_strict_types' => true, // TODO add as soon as php files in public have been fully ported

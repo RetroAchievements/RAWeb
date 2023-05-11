@@ -46,7 +46,7 @@ function getGameMetadata(
         14 => "ORDER BY ach.Points DESC, ach.ID DESC ",
         5 => "ORDER BY ach.Title, ach.ID ASC ",
         15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
-            // 1
+        // 1
         default => "ORDER BY ach.DisplayOrder, ach.ID ASC ",
     };
 
@@ -183,7 +183,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
-            // 1 or unspecified
+        // 1 or unspecified
         default => "ORDER BY HasAchievements DESC, gd.Title ",
     };
 
