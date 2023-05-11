@@ -415,6 +415,13 @@ function GetPatchData(int $gameID, int $flags): array
         $gameData['ImageBoxArtURL'] = media_asset($gameData['ImageBoxArt']);
     }
 
+    // Any IDs sent to the client that aren't under "Achievements" or "Leaderboards"
+    // are interpreted as the game ID and mess with Rich Presence pings.
+    // See https://discord.com/channels/310192285306454017/310195377993416714/1101532094842273872
+    // and https://discord.com/channels/476211979464343552/1002689485005406249/1101552737516257400
+    // The system ID and name should have already been copied into "ConsoleID" and "ConsoleName"
+    unset($gameData['system']);
+
     return array_merge($gameData, [
         'Achievements' => GetAchievementsPatch($gameID, $flags),
         'Leaderboards' => GetLBPatch($gameID),

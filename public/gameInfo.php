@@ -424,12 +424,13 @@ sanitize_outputs(
     }
 
     function UpdateRating(container, label, rating, raters) {
+        const pluralizeVotes = (count) => count === 1 ? 'vote' : 'votes';
         if (raters < <?= $minimumNumberOfRatingsToDisplay ?>) {
             SetLitStars(container, 0);
-            label.html('More ratings needed (' + raters + ' votes)');
+            label.html(`More ratings needed (${raters} ${pluralizeVotes(raters)})`);
         } else {
             SetLitStars(container, rating);
-            label.html('Rating: ' + rating.toFixed(2) + ' (' + raters + ' votes)');
+            label.html(`Rating: ${rating.toFixed(2)} (${raters} ${pluralizeVotes(raters)})`);
         }
     }
 
@@ -456,14 +457,15 @@ sanitize_outputs(
 
                         UpdateRatings();
 
+                        const pluralizeStarCount = (count) => count === 1 ? 'star' : 'stars';
                         if (ratingObjectType == <?= RatingType::Game ?>) {
                             index = ratinggametooltip.indexOf('Your rating: ') + 13;
                             index2 = ratinggametooltip.indexOf('</td>', index);
-                            ratinggametooltip = ratinggametooltip.substring(0, index) + value + '<br><i>Distribution may have changed</i>' + ratinggametooltip.substring(index2);
+                            ratinggametooltip = ratinggametooltip.substring(0, index) + value + ` ${pluralizeStarCount(value)}` + '<br><i>Distribution may have changed</i>' + ratinggametooltip.substring(index2);
                         } else {
                             index = ratingachtooltip.indexOf('Your rating: ') + 13;
                             index2 = ratingachtooltip.indexOf('</td>', index);
-                            ratingachtooltip = ratingachtooltip.substring(0, index) + value + '<br><i>Distribution may have changed</i>' + ratingachtooltip.substring(index2);
+                            ratingachtooltip = ratingachtooltip.substring(0, index) + value + ` ${pluralizeStarCount(value)}` + '<br><i>Distribution may have changed</i>' + ratingachtooltip.substring(index2);
                         }
                     });
             });
@@ -537,6 +539,10 @@ sanitize_outputs(
             if ($(this).parent().is($('#ratingach'))) {
                 ratingType = 3;
             }
+
+            // Do an optimistic update to make performance seem better.
+            const yourRatingText = document.getElementById('your-game-rating');
+            yourRatingText.innerHTML = `Your rating: ${numStars} ${numStars === 1 ? 'star' : 'stars'}`;
 
             SubmitRating(<?= $gameID ?>, ratingType, numStars);
         });
@@ -957,7 +963,7 @@ sanitize_outputs(
                     echo "<input type='hidden' name='genre' value='" . attributeEscape($genre) . "'>";
                     echo "<input type='hidden' name='release' value='" . attributeEscape($released) . "'>";
                     echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
-                    echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
+                    echo "<label for='guide_url' class='cursor-help' title='Must be from https://github.com/RetroAchievements/guides'>Guide URL<sup>*</sup></label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -1022,11 +1028,13 @@ sanitize_outputs(
 
                     echo "<h2 class='text-h4 mb-0'>$label</h2>";
 
-                    $yourRating = ($ratingData['UserRating'] > 0) ? $ratingData['UserRating'] : 'not rated';
+                    $yourRating = ($ratingData['UserRating'] > 0)
+                        ? $ratingData['UserRating'] . " " . strtolower(__res('vote.star', $ratingData['UserRating'])) // "2 stars"
+                        : 'not rated';
 
                     $voters = $ratingData['RatingCount'];
                     if ($voters < $minimumNumberOfRatingsToDisplay) {
-                        $labelcontent = "More ratings needed ($voters votes)";
+                        $labelcontent = "More ratings needed ($voters " . strtolower(__res('vote', $voters)) . ")";
 
                         $star1 = $star2 = $star3 = $star4 = $star5 = "";
                         $tooltip = "<div class='tooltip-body flex items-start' style='max-width: 400px'>";
@@ -1034,7 +1042,7 @@ sanitize_outputs(
                         $tooltip .= "</div>";
                     } else {
                         $rating = $ratingData['AverageRating'];
-                        $labelcontent = "Rating: " . number_format($rating, 2) . " ($voters votes)";
+                        $labelcontent = "Rating: " . number_format($rating, 2) . " ($voters " . strtolower(__res('vote', $voters)) . ")"; // "Rating: 4.78 (20 votes)"
 
                         $percent1 = round($ratingData['Rating1'] * 100 / $voters);
                         $percent2 = round($ratingData['Rating2'] * 100 / $voters);
@@ -1080,7 +1088,12 @@ sanitize_outputs(
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
                     echo "<div class='mt-1' style='float: left; clear: left' onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
-                    echo "<span class='$labelname text-2xs'>$labelcontent</span>";
+                    echo "<p class='$labelname text-2xs'>$labelcontent</p>";
+                    echo "<p id='your-game-rating' class='text-2xs'>";
+                    if ($ratingData['UserRating'] > 0) {
+                        echo "Your rating: $yourRating";
+                    }
+                    echo "</p>";
                     echo "</div>";
 
                     echo "</div>";
@@ -1213,7 +1226,17 @@ sanitize_outputs(
                 */
 
                 if ($numAchievements > 1) {
+                    echo "<div class='flex flex-col sm:flex-row-reverse justify-between w-full py-3'>";
+
+                    $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
+                    echo "<div>";
+                    if ($user && ($numEarnedCasual > 0 || $numEarnedHardcore > 0) && !$hasCompletionOrMastery) {
+                        echo Blade::render("<x-game.hide-earned-checkbox />");
+                    }
+                    echo "</div>";
+
                     RenderGameSort($isFullyFeaturedGame, $flags, $officialFlag, $gameID, $sortBy);
+                    echo "</div>";
                 }
 
                 echo "<table class='achievementlist table-highlight'><tbody>";
@@ -1269,7 +1292,9 @@ sanitize_outputs(
                                 $achBadgeName .= "_lock";
                             }
 
-                            echo "<tr>";
+                            $trClassNames = $achieved ? "class='unlocked-row'" : "";
+                            echo "<tr {$trClassNames}>";
+
                             echo "<td>";
 
                             echo "<div class='flex justify-between gap-3 items-start'>";
@@ -1425,7 +1450,7 @@ sanitize_outputs(
             }
 
             if (!empty($gameHubs)) {
-                RenderGameAlts($gameHubs, 'Collections');
+                RenderGameAlts($gameHubs, 'Hubs');
             }
 
             if ($user !== null && $numAchievements > 0) {

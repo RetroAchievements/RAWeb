@@ -300,6 +300,25 @@ function RemoveComment(int $commentID, int $userID, int $permissions): bool
     return mysqli_affected_rows($db) > 0;
 }
 
+function getIsCommentDoublePost(int $userID, array|int $articleID, string $commentPayload): bool
+{
+    $query = "SELECT Comment.Payload, Comment.ArticleID
+        FROM Comment
+        WHERE UserID = :userId
+        ORDER BY Comment.Submitted DESC
+        LIMIT 1";
+
+    $dbResult = legacyDbFetch($query, ['userId' => $userID]);
+
+    $retrievedPayload = $dbResult['Payload'];
+    $retrievedArticleID = $dbResult['ArticleID'];
+
+    return
+        $retrievedPayload === $commentPayload
+        && $retrievedArticleID === $articleID
+    ;
+}
+
 function addArticleComment(
     string $user,
     int $articleType,
@@ -320,10 +339,16 @@ function addArticleComment(
         return false;
     }
 
+    if ($user !== "Server" && getIsCommentDoublePost($userID, $articleID, $commentPayload)) {
+        // Fail silently.
+        return true;
+    }
+
     // Replace all single quotes with double quotes (to work with MYSQL DB)
     // $commentPayload = str_replace( "'", "''", $commentPayload );
 
     if (is_array($articleID)) {
+        $articleIDs = $articleID;
         $arrayCount = count($articleID);
         $count = 0;
         $query = "INSERT INTO Comment VALUES";
@@ -335,6 +360,7 @@ function addArticleComment(
         }
     } else {
         $query = "INSERT INTO Comment VALUES( NULL, $articleType, $articleID, $userID, '$commentPayload', NOW(), NULL )";
+        $articleIDs = [$articleID];
     }
 
     $db = getMysqliConnection();
@@ -346,17 +372,13 @@ function addArticleComment(
         return false;
     }
 
-    $query = "SELECT MAX(ID) AS CommentID FROM Comment
-              WHERE ArticleType=$articleType AND ArticleID=$articleID AND UserID=$userID";
-    $commentID = legacyDbFetch($query)['CommentID'];
-
     // Inform Subscribers of this comment:
-    if (is_array($articleID)) {
-        foreach ($articleID as $id) {
-            informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
-        }
-    } else {
-        informAllSubscribersAboutActivity($articleType, $articleID, $user, $commentID, $onBehalfOfUser);
+    foreach ($articleIDs as $id) {
+        $query = "SELECT MAX(ID) AS CommentID FROM Comment
+                  WHERE ArticleType=$articleType AND ArticleID=$id AND UserID=$userID";
+        $commentID = legacyDbFetch($query)['CommentID'];
+
+        informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
     }
 
     return true;
@@ -393,6 +415,10 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
         $recentlyPlayedGameIDs = collect($recentlyPlayedGameIDs)
             ->filter(fn ($id) => is_int($id) || is_numeric($id))
             ->implode(',');
+        if (empty($recentlyPlayedGameIDs)) {
+            return 0;
+        }
+
         $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon
                   FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                   WHERE gd.ID IN ($recentlyPlayedGameIDs)";

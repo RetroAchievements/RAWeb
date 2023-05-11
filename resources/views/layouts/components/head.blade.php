@@ -3,7 +3,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ (!empty($pageTitle) ? $pageTitle . ' · ' : '') . config('app.name') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.webp') }}">
+    <link rel="icon" type="image/png" href="{{ asset(app()->environment('local', 'stage') ? 'assets/images/favicon-gray.webp' : 'assets/images/favicon.webp') }}">
     <link rel="image_src" href="{{ asset('assets/images/ra-logo-sm.webp') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="copyright" content="Copyright 2014-{{ date('Y') }}">

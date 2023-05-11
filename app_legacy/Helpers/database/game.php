@@ -22,6 +22,25 @@ function getGameData(int $gameID): ?array
     ]);
 }
 
+// If the game is a subset, identify its parent game ID.
+function getParentGameIdFromGameTitle(string $title): ?int {
+    if (preg_match('/(.+)(\[Subset - .+\])/', $title, $matches)) {
+        $baseSetTitle = trim($matches[1]);
+        $query = "SELECT ID FROM GameData WHERE Title = :title";
+        $result = legacyDbFetch($query, ['title' => $baseSetTitle]);
+
+        return $result ? $result['ID'] : null;
+    }
+
+    return null;
+}
+
+function getParentGameIdFromGameId(int $gameID): ?int {
+    $gameData = getGameData($gameID);
+
+    return getParentGameIdFromGameTitle($gameData['Title']);
+}
+
 function getGameMetadata(
     int $gameID,
     ?string $user,
@@ -46,7 +65,7 @@ function getGameMetadata(
         14 => "ORDER BY ach.Points DESC, ach.ID DESC ",
         5 => "ORDER BY ach.Title, ach.ID ASC ",
         15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
-        // 1
+            // 1
         default => "ORDER BY ach.DisplayOrder, ach.ID ASC ",
     };
 
@@ -107,15 +126,27 @@ function getGameMetadata(
         ->toArray();
 
     $numAchievements = count($achievementDataOut);
+    foreach ($achievementDataOut as &$achievement) {
+        settype($achievement['ID'], 'integer');
+        settype($achievement['Points'], 'integer');
+        settype($achievement['TrueRatio'], 'integer');
+        settype($achievement['DisplayOrder'], 'integer');
+        if ($metrics) {
+            settype($achievement['NumAwarded'], 'integer');
+            settype($achievement['NumAwardedHardcore'], 'integer');
+        }
+    }
 
     if (isset($user)) {
         $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $flags);
         foreach ($userUnlocks as $achID => $userUnlock) {
-            if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
-                $achievementDataOut[$achID]['DateEarnedHardcore'] = $userUnlock['DateEarnedHardcore'];
-            }
-            if (array_key_exists('DateEarned', $userUnlock)) {
-                $achievementDataOut[$achID]['DateEarned'] = $userUnlock['DateEarned'];
+            if (array_key_exists($achID, $achievementDataOut)) {
+                if (array_key_exists('DateEarnedHardcore', $userUnlock)) {
+                    $achievementDataOut[$achID]['DateEarnedHardcore'] = $userUnlock['DateEarnedHardcore'];
+                }
+                if (array_key_exists('DateEarned', $userUnlock)) {
+                    $achievementDataOut[$achID]['DateEarned'] = $userUnlock['DateEarned'];
+                }
             }
         }
     }
@@ -123,16 +154,20 @@ function getGameMetadata(
     if (isset($user2)) {
         $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $flags);
         foreach ($friendUnlocks as $achID => $friendUnlock) {
-            if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
-                $achievementDataOut[$achID]['DateEarnedFriendHardcore'] = $friendUnlock['DateEarnedHardcore'];
-            }
-            if (array_key_exists('DateEarned', $friendUnlock)) {
-                $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
+            if (array_key_exists($achID, $achievementDataOut)) {
+                if (array_key_exists('DateEarnedHardcore', $friendUnlock)) {
+                    $achievementDataOut[$achID]['DateEarnedFriendHardcore'] = $friendUnlock['DateEarnedHardcore'];
+                }
+                if (array_key_exists('DateEarned', $friendUnlock)) {
+                    $achievementDataOut[$achID]['DateEarnedFriend'] = $friendUnlock['DateEarned'];
+                }
             }
         }
     }
 
     if ($metrics) {
+        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title']);
+
         $bindings = [
             'gameId' => $gameID,
             'achievementType' => $flags,
@@ -144,13 +179,22 @@ function getGameMetadata(
             $requestedByStatement = 'OR ua.User = :username';
         }
 
+        $gameIdStatement = 'ach.GameID = :gameId';
+        if ($parentGameId !== null) {
+            $bindings['parentGameId'] = $parentGameId;
+            $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
+        }
+
         $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN UserAccounts as ua ON ua.User = aw.User
-                WHERE ach.GameID = :gameId AND ach.Flags = :achievementType
-              AND (NOT ua.Untracked $requestedByStatement)
-              GROUP BY aw.HardcoreMode";
+                FROM (
+                  SELECT aw.User, aw.HardcoreMode
+                  FROM Awarded AS aw
+                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                  WHERE $gameIdStatement AND ach.Flags = :achievementType
+                  AND (NOT ua.Untracked $requestedByStatement)
+                ) AS aw
+                GROUP BY aw.HardcoreMode";
 
         $gameMetaData = legacyDbFetchAll($query, $bindings);
 
@@ -164,6 +208,7 @@ function getGameMetadata(
             }
         }
 
+        $gameDataOut['ParentGameID'] = $parentGameId;
         $gameDataOut['NumDistinctPlayersCasual'] = $numDistinctPlayersCasual;
         $gameDataOut['NumDistinctPlayersHardcore'] = $numDistinctPlayersHardcore;
     }
@@ -179,7 +224,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
-        // 1 or unspecified
+            // 1 or unspecified
         default => "ORDER BY HasAchievements DESC, gd.Title ",
     };
 
@@ -231,31 +276,8 @@ function getGamesListByDev(
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
-
-    if ($ticketsFlag) {
-        $selectTickets = ", ticks.OpenTickets";
-        $joinTicketsTable = "
-        LEFT JOIN (
-            SELECT
-                ach.GameID,
-                count( DISTINCT tick.ID ) AS OpenTickets
-            FROM
-                Ticket AS tick
-            LEFT JOIN
-                Achievements AS ach ON ach.ID = tick.AchievementID
-            WHERE
-                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
-            GROUP BY
-                ach.GameID
-        ) as ticks ON ticks.GameID = gd.ID ";
-    } else {
-        $selectTickets = null;
-        $joinTicketsTable = null;
-    }
-
-    if ($consoleID != 0) {
-        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
-    }
+    $selectTickets = null;
+    $joinTicketsTable = null;
 
     if ($dev != null) {
         $bindings['myAchDev'] = $dev;
@@ -276,11 +298,36 @@ function getGamesListByDev(
         }
     }
 
+    if ($ticketsFlag) {
+        $selectTickets = ", ticks.OpenTickets";
+        $joinTicketsTable = "
+        LEFT JOIN (
+            SELECT
+                ach.GameID,
+                count( DISTINCT tick.ID ) AS OpenTickets,
+                SUM(CASE WHEN ach.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyOpenTickets
+            FROM
+                Ticket AS tick
+            LEFT JOIN
+                Achievements AS ach ON ach.ID = tick.AchievementID
+            WHERE
+                tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
+            GROUP BY
+                ach.GameID
+        ) as ticks ON ticks.GameID = gd.ID ";
+        $moreSelectCond .= "ticks.MyOpenTickets,";
+    }
+
+    if ($consoleID != 0) {
+        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
+    }
+
     $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName,
                 COUNT( ach.ID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable,
                 lbdi.NumLBs, gd.ImageIcon as GameIcon, gd.TotalTruePoints, gd.ForumTopicID $selectTickets,
                 $moreSelectCond
-                CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence
+                CASE WHEN LENGTH(gd.RichPresencePatch) > 0 THEN 1 ELSE 0 END AS RichPresence,
+                CASE WHEN SUM(ach.Points) > 0 THEN ROUND(gd.TotalTruePoints/SUM(ach.Points), 2) ELSE 0.00 END AS RetroRatio
                 FROM GameData AS gd
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID
                 LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = " . AchievementType::OfficialCore . "
@@ -293,7 +340,7 @@ function getGamesListByDev(
                 GROUP BY gd.ID
                 $havingCond";
 
-    if ($sortBy < 1 || $sortBy > 16) {
+    if ($sortBy < 1 || $sortBy > 17) {
         $sortBy = 1;
     }
 
@@ -314,6 +361,8 @@ function getGamesListByDev(
                 : "",
         6 => "DateModified DESC",
         16 => "DateModified",
+        7 => "RetroRatio DESC, MaxPointsAvailable DESC",
+        17 => "RetroRatio ASC, MaxPointsAvailable ASC",
         default => "",
     };
 

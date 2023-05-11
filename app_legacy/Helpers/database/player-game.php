@@ -159,7 +159,7 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
             'ScoreAchievedHardcore' => $scoreAchievedHardcore,
         ];
 
-        if ($withGameInfo) {
+        if ($withGameInfo && $gameData !== null) {
             $gameInfo[$gameID] = [
                 'ID' => (int) $gameData['ID'],
                 'Title' => $gameData['Title'],
@@ -412,22 +412,22 @@ function getUsersCompletedGamesAndMax(string $user): array
     return legacyDbFetchAll($query)->toArray();
 }
 
-function getTotalUniquePlayers(int $gameID, ?string $requestedBy = null, bool $hardcoreOnly = false, ?int $achievementType = null): int
+function getTotalUniquePlayers(int $gameID, ?int $parentGameID = null, ?string $requestedBy = null, bool $hardcoreOnly = false, ?int $achievementType = null): int
 {
     $bindings = [
         'gameId' => $gameID,
     ];
 
-    $hardcoreStatement = '';
+    $unlockModeStatement = '';
     if ($hardcoreOnly) {
         $bindings['unlockMode'] = UnlockMode::Hardcore;
-        $hardcoreStatement = ' AND aw.HardcoreMode = :unlockMode';
+        $unlockModeStatement = ' AND aw.HardcoreMode = :unlockMode';
     }
 
-    $achievementStatement = '';
+    $achievementFlagsStatement = '';
     if ($achievementType !== null) {
         $bindings['achievementType'] = $achievementType;
-        $achievementStatement = 'AND ach.Flags = :achievementType';
+        $achievementFlagsStatement = 'AND ach.Flags = :achievementType';
     }
 
     $requestedByStatement = '';
@@ -436,13 +436,19 @@ function getTotalUniquePlayers(int $gameID, ?string $requestedBy = null, bool $h
         $requestedByStatement = 'OR ua.User = :requestedBy';
     }
 
+    $gameIdStatement = 'ach.GameID = :gameId';
+    if ($parentGameID !== null) {
+        $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
+        $bindings['parentGameId'] = $parentGameID;
+    }
+
     $query = "
         SELECT COUNT(DISTINCT aw.User) As UniquePlayers
         FROM Awarded AS aw
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ach.GameID = :gameId
-        $hardcoreStatement $achievementStatement
+        WHERE $gameIdStatement
+        $unlockModeStatement $achievementFlagsStatement
         AND (NOT ua.Untracked $requestedByStatement)
     ";
 

@@ -69,16 +69,21 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
     if (!$title) {
         return '';
     }
-
     if (!Str::contains($title, '[m]')) {
         return $title;
     }
-    $span = '';
-    if ($tags) {
-        $span = '<span class=\'tag missable\' title=\'Missable\'><abbr>[<b>m</b>]</abbr></span>';
-    }
 
-    return trim(str_replace('[m]', $span, $title));
+    $missableTag = '';
+    if ($tags) {
+        $missableTag = " <span class='tag missable' title='Missable'><abbr>[<span>m</span>]</abbr></span>";
+    }
+    $title = str_replace('[m]', '', $title);
+
+    // If we don't strip consecutive spaces, the
+    // browser doesn't collapse them in forum <pre> tags.
+    $title = preg_replace('/\s+/', ' ', $title);
+
+    return trim("$title$missableTag");
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
