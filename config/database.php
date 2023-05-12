@@ -61,7 +61,7 @@ return [
             'strict' => true,
             'engine' => null,
             'modes' => [
-                'ONLY_FULL_GROUP_BY',
+                // 'ONLY_FULL_GROUP_BY',
                 'NO_ZERO_IN_DATE',
                 'NO_ZERO_DATE',
                 'ERROR_FOR_DIVISION_BY_ZERO',
