@@ -83,6 +83,8 @@ class Game extends BaseModel implements HasComments, HasMedia
         'Genre',
         'Released',
         'IsFinal',
+        'RichPresencePatch',
+        'GuideURL',
     ];
 
     protected static function newFactory(): GameFactory
