@@ -64,6 +64,7 @@ require_once __DIR__ . '/util/trigger.php';
 
 require_once __DIR__ . '/formatters.php';
 require_once __DIR__ . '/resources.php';
+require_once __DIR__ . '/shortcode.php';
 require_once __DIR__ . '/translation.php';
 
 if (!function_exists('bit_value')) {
