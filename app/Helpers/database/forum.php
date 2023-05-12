@@ -281,6 +281,11 @@ function getIsForumDoublePost(
 
     $dbResult = legacyDbFetch($query, ['authorId' => $authorID]);
 
+    // Otherwise the user can't make their first post.
+    if (!$dbResult) {
+        return false;
+    }
+
     $retrievedPayload = $dbResult['Payload'];
     $retrievedTopicID = $dbResult['ForumTopicID'];
 

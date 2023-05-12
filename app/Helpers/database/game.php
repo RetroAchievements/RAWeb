@@ -23,12 +23,12 @@ function getGameData(int $gameID): ?array
 }
 
 // If the game is a subset, identify its parent game ID.
-function getParentGameIdFromGameTitle(string $title): ?int
+function getParentGameIdFromGameTitle(string $title, int $consoleID): ?int
 {
     if (preg_match('/(.+)(\[Subset - .+\])/', $title, $matches)) {
         $baseSetTitle = trim($matches[1]);
-        $query = "SELECT ID FROM GameData WHERE Title = :title";
-        $result = legacyDbFetch($query, ['title' => $baseSetTitle]);
+        $query = "SELECT ID FROM GameData WHERE Title = :title AND ConsoleID = :consoleId";
+        $result = legacyDbFetch($query, ['title' => $baseSetTitle, 'consoleId' => $consoleID]);
 
         return $result ? $result['ID'] : null;
     }
@@ -40,7 +40,7 @@ function getParentGameIdFromGameId(int $gameID): ?int
 {
     $gameData = getGameData($gameID);
 
-    return getParentGameIdFromGameTitle($gameData['Title']);
+    return getParentGameIdFromGameTitle($gameData['Title'], $gameData['ConsoleID']);
 }
 
 function getGameMetadata(
@@ -168,7 +168,7 @@ function getGameMetadata(
     }
 
     if ($metrics) {
-        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title']);
+        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
         $bindings = [
             'gameId' => $gameID,
