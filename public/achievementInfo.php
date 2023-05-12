@@ -48,7 +48,7 @@ sanitize_outputs(
 );
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
-$parentGameID = getParentGameIdFromGameTitle($gameTitle);
+$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
 
 $numWinners = 0;
 $numPossibleWinners = 0;
