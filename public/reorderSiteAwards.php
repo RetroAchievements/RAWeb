@@ -240,7 +240,7 @@ function postAllAwardsDisplayOrder(awards) {
                     $awardTitle = "Patreon Supporter";
                 }
 
-                $isHiddenPreChecked = $awardDisplayOrder === '-1';
+                $isHiddenPreChecked = $awardDisplayOrder === -1;
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
                 $isDraggable = $isHiddenPreChecked ? 'false' : 'true';
 
