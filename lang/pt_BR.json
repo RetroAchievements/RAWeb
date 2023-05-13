@@ -1,5 +1,7 @@
 {
-///////Font Colors Translations (A-Z)///////
+/**
+*Font Colors Translations (A-Z)
+*\
     "Amber": "Âmbar",
     "Blue": "Azul",
     "Color": "Cor",
@@ -21,14 +23,18 @@
     "Teal": "Verde-água",
     "Violet": "Violeta",
     "Yellow": "Amarelo",
-
-///////Background Themes Translations (A-Z)///////
+    
+/**
+*Background Themes Translations (A-Z)
+*\
     "Black": "Preto",
     "Dark": "Escuro",
     "Light": "Claro",
     "Theme": "Tema",
-
-///////Simple Words Translations (A-Z)///////
+    
+/**
+*Simple Words Translations (A-Z)
+*\
     "About": "Sobre",
     "account": "Conta",
     "accounts": "Contas",
@@ -284,7 +290,7 @@
     "hour ago": "hora atrás",
     "hours ago": "horas atrás",
     "Hubs List": "Lista de áreas",
-    "If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.": "Se você sente que sua pontuação está incorreta devido a valores de pontos variando durante o desenvolvimento da conquista, você pode pedir uma recalculação apertando o botão abaixo.
+    "If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.": "Se você sente que sua pontuação está incorreta devido a valores de pontos variando durante o desenvolvimento da conquista, você pode pedir uma recalculação apertando o botão abaixo.",
     "Join this tournament!": "Entre nesse Torneio!",
     "Join us on Discord": "Entre no nosso Discord",
     "Jump to Date:": "Pular para a data:",
@@ -366,16 +372,16 @@
     "started playing a game": "começou a jogar um jogo",
     "Subscribe to comments": "Inscreva-se para os comentários",
     "System Default": "Padrão do Sistema",
-    "The Connect Key is used in emulators to keep you logged in. Resetting the key will log you out of all emulators.": "A Chave de Conexão é utilizada nos emuladores para manter você conectado. Redefinir a Chave vai fazer com que você seja desconectado de todos os emuladores.
+    "The Connect Key is used in emulators to keep you logged in. Resetting the key will log you out of all emulators.": "A Chave de Conexão é utilizada nos emuladores para manter você conectado. Redefinir a Chave vai fazer com que você seja desconectado de todos os emuladores.",
     "The Golden Era of Handheld Gaming - whether it's Tetris, MArio or Pokemon, discuss your favourite GB/GBA titles here!": "A Época de Ouro dos Consoles Portáteis - seja Tetris, Mario ou Pokemon, discuta seus títulos favoritos de GB/GBA aqui!",
     "There are :numberOfFilteredPlayers active players.": "Existem :numberOfFilteredPlayers jogadores ativos."
-    "There are :numberOfFilteredPlayers filtered active players (out of :numberOfPlayersActive total).": "Existem :numberOfFilteredPlayers jogadores ativos filtrados (De um total de :numberOfPlayersActive).
+    "There are :numberOfFilteredPlayers filtered active players (out of :numberOfPlayersActive total).": "Existem :numberOfFilteredPlayers jogadores ativos filtrados (De um total de :numberOfPlayersActive).",
     "terms-developers": "Código de Conduta dos Desenvolvedores",
     "This is your personal Web API Key. Handle it with care.": "Essa é sua Chave Web API pessoal. Guarde-a com segurança.",
     "Tickets Resolved For Others": "Tickets Resolvidos para Outros",
     "to find someone to add to follow?": "para achar alguém para seguir?",
     "Total Points": "Total de Pontos",
-    "Unsubscribe from comments": "Desinscreva-se dos Comentários,
+    "Unsubscribe from comments": "Desinscreva-se dos Comentários",
     "User Documentation": "Documentação de Usuários",
     "User List": "Lista de Usúarios",
     "User List:": "Lista de Usuários:",
