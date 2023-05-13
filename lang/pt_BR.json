@@ -135,6 +135,7 @@
     "Outbox": "Caixa de Saída",
     "Overview": "Visão Geral",
     "Page": "Página",
+    "Password": "Senha",
     "Play": "Jogar",
     "play": "Jogar",
     "player": "Jogador",
@@ -401,7 +402,4 @@
     "Yielded Points": "Pontos Providos",
     "You don't appear to be following anyone yet. Why not": "Você não parece estar seguindo ninguém ainda. Porquê você não",
     "Your motto": "Seu Lema",
-    
-    ///////Translation made by:///////
-    //////////////Elfocat/////////////
 }
