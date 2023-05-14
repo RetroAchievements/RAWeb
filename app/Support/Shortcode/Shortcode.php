@@ -225,19 +225,12 @@ final class Shortcode
     }
 
     /**
-     * from http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
+     * @see http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
+     * This has been enhanced a little bit to support timestamp parameters.
      */
     private function autoEmbedYouTube(string $text): string
     {
-        // http://www.youtube.com/v/YbKzgRwF91w
-        // http://www.youtube.com/watch?v=1zMHaHPXqqg
-        // http://youtu.be/-D06lkNS3-k
-        // https://youtu.be/66ohBw9O6NU
-        // https://www.youtube.com/embed/Fmwr6T2JHc4
-        // https://www.youtube.com/watch?v=1YiNYWpwn7o
-        // www.youtube.com/watch?v=Yjba9rvs4iU
-
-        return (string) preg_replace(
+        return preg_replace_callback(
             '~
                 (?:https?://)?      # Optional scheme. Either http or https.
                 (?:[0-9A-Z-]+\.)?   # Optional subdomain.
@@ -250,7 +243,6 @@ final class Shortcode
                 ([\w\-]{11})        # $1: VIDEO_ID is exactly 11 chars.
                 (?=[^\w\-]|$)       # Assert next char is non-ID or EOS.
                 (?!                 # Assert URL is not pre-linked.
-                  [?=&+%\w.-]*      # Allow URL (query) remainder.
                   (?:               # Group pre-linked alternatives.
                     [^<>]*>         # Either inside a start tag,
                     | [^<>]*</a>    # or inside <a> element text contents.
@@ -258,9 +250,47 @@ final class Shortcode
                 )                   # End negative lookahead assertion.
                 ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
             ~ix',
-            $this->embedVideo('//www.youtube-nocookie.com/embed/$1$2'),
+            function ($matches) {
+                $videoId = $matches[1];
+                $query = [];
+
+                // Are there additional query parameters in the URL?
+                if (isset($matches[2])) {
+                    // Parse the query parameters and populate them into $query.
+                    parse_str(ltrim($matches[2], '?'), $query);
+
+                    // Check if the "t" parameter (timestamp) is present.
+                    if (isset($query['t'])) {
+                        // "t" has to be converted to a time compatible with youtube-nocookie.com embeds.
+                        $query['start'] = $this->convertYouTubeTime($query['t']);
+
+                        // Once converted, remove the "t" parameter so we don't accidentally duplicate it.
+                        unset($query['t']);
+                    }
+                }
+
+                $query = http_build_query($query);
+
+                return $this->embedVideo("//www.youtube-nocookie.com/embed/$videoId" . ($query ? "?$query" : ""));
+            },
             $text
         );
+    }
+
+    private function convertYouTubeTime(string $time): int
+    {
+        // If the time is numeric, it's already in seconds
+        if (is_numeric($time)) {
+            return (int) $time;
+        }
+
+        // If it's not numeric, it could be in the format of 1h30m15s, 30m15s, 15s, 90m etc.
+        preg_match('/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/', $time, $matches);
+        $hours = isset($matches[1]) ? intval($matches[1]) : 0;
+        $minutes = isset($matches[2]) ? intval($matches[2]) : 0;
+        $seconds = isset($matches[3]) ? intval($matches[3]) : 0;
+
+        return $hours * 3600 + $minutes * 60 + $seconds;
     }
 
     private function autoEmbedTwitch(string $text): string
