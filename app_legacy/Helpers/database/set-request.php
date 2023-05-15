@@ -250,7 +250,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
         FROM
             SetRequest sr
         LEFT JOIN
-            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = 0) 
+            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ") 
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
@@ -310,7 +310,7 @@ function getGamesWithRequests(array|int|null $console, int $requestStatus = Requ
             Console c ON (gd.ConsoleID = c.ID) ";
 
     if ($requestStatus !== RequestStatus::Any) {
-        $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = 0) ";
+        $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ") ";
     }
 
     $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
