@@ -6,7 +6,7 @@
  *
  *  string     Title                      name of the game
  *  string     GameTitle                  name of the game
- *  string     ConsoleID                  unique identifier of the console associated to the game
+ *  int        ConsoleID                  unique identifier of the console associated to the game
  *  string     ConsoleName                name of the console associated to the game
  *  string     Console                    name of the console associated to the game
  *  int        ForumTopicID               unique identifier of the official forum topic for the game
