@@ -315,6 +315,9 @@ final class Shortcode
      */
     private function autoEmbedYouTube(string $text): string
     {
+        // Restore any ampersands escaped by sanitization.
+        $text = str_replace('&amp;', '&', $text);
+
         return preg_replace_callback(
             '~
                 (?:https?://)?      # Optional scheme. Either http or https.
