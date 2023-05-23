@@ -40,6 +40,91 @@ final class Shortcode
         return (new Shortcode())->parse($input, $options);
     }
 
+    public static function stripAndClamp(string $input, int $previewLength = 100): string
+    {
+        // Inject game and achievement data for shortcodes.
+        // This is more desirable than showing "Game 123" or "Achievement 123".
+        $injectionShortcodes = [
+            // "[game=1]" --> "Sonic the Hedgehog (Mega Drive)"
+            '~\[game=(\d+)]~i' => function ($matches) {
+                $gameData = getGameData((int) $matches[1]);
+                if ($gameData) {
+                    return "{$gameData['Title']} ({$gameData['ConsoleName']})";
+                }
+
+                return "";
+            },
+
+            // "[ach=1]" --> "Ring Collector (5)"
+            '~\[ach=(\d+)]~i' => function ($matches) {
+                $achievementData = GetAchievementData((int) $matches[1]);
+                if ($achievementData) {
+                    return "{$achievementData['Title']} ({$achievementData['Points']})";
+                }
+
+                return "";
+            },
+        ];
+
+        foreach ($injectionShortcodes as $pattern => $callback) {
+            $input = preg_replace_callback($pattern, $callback, $input);
+        }
+
+        $stripPatterns = [
+            // "[img=https://google.com/icon.png]" --> ""
+            '~\[img(=)?([^]]+)]~i' => '',
+
+            // "[img]https://google.com/icon.png[/img]" --> ""
+            '~\[img\](.*?)\[/img\]~i' => '',
+
+            // "[b]Hello[/b]" --> "Hello"
+            '~\[(b|i|u|s|code)\](.*?)\[/\1\]~i' => '$2',
+            '~\[(url|link).*?](.*?)\[/\1\]~i' => '$2',
+
+            // "[spoiler]Top Secret[/spoiler]" --> "{SPOILER}"
+            '~\[spoiler\](.*?)\[/spoiler\]~i' => "{SPOILER}",
+
+            // "[ticket=123]" --> "Ticket 123"
+            '~\[ticket(=)?(\d+)]~i' => 'Ticket $2',
+
+            // "[user=Scott]" --> "@Scott"
+            '~\[user(=)?([^]]+)]~i' => '@$2',
+
+            // Fragments: opening tags without closing tags.
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?\]~i' => '',
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?$~i' => '...',
+
+            // Fragments: closing tags without opening tags.
+            '~\[/?(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\]~i' => '',
+        ];
+
+        foreach ($stripPatterns as $stripPattern => $replacement) {
+            $input = preg_replace($stripPattern, $replacement, $input);
+        }
+
+        // For cleaner previews, strip all unnecessary whitespace.
+        $input = trim(preg_replace('/\s+/', ' ', $input));
+
+        // As a failsafe, check the last 6 characters for any fragmented shortcodes and purge them.
+        $lastSixChars = substr($input, -6);
+        if (preg_match('/\[[^\]]{0,5}$/', $lastSixChars)) {
+            $input = preg_replace('/\[[^\]]{0,5}$/', '...', $input);
+        }
+
+        // If the string is over the preview length, clamp it and add "..."
+        // This can happen as a result of the replacement from above.
+        if (strlen($input) > $previewLength) {
+            $input = substr($input, 0, $previewLength) . '...';
+        }
+
+        // Handle edge case: if the input is just ellipses, show nothing.
+        if ($input === "...") {
+            $input = "";
+        }
+
+        return $input;
+    }
+
     private function parse(string $input, array $options = []): string
     {
         // make sure to use attribute delimiter for string values

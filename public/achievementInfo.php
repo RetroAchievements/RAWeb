@@ -39,6 +39,8 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
+$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
+
 sanitize_outputs(
     $achievementTitle,
     $desc,
@@ -48,7 +50,6 @@ sanitize_outputs(
 );
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
-$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
 
 $numWinners = 0;
 $numPossibleWinners = 0;
