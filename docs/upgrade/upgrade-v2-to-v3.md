@@ -12,6 +12,7 @@ Clean up invalid data before running migrations:
 
 ```sql
 DELETE FROM Achievements WHERE GameID = 0;
+DELETE FROM LeaderboardEntry WHERE LeaderboardID = 0;
 UPDATE GameData SET ConsoleID = 101 WHERE ConsoleID = 99;
 ```
 
