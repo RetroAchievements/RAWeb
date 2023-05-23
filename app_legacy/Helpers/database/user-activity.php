@@ -300,6 +300,30 @@ function RemoveComment(int $commentID, int $userID, int $permissions): bool
     return mysqli_affected_rows($db) > 0;
 }
 
+function getIsCommentDoublePost(int $userID, array|int $articleID, string $commentPayload): bool
+{
+    $query = "SELECT Comment.Payload, Comment.ArticleID
+        FROM Comment
+        WHERE UserID = :userId
+        ORDER BY Comment.Submitted DESC
+        LIMIT 1";
+
+    $dbResult = legacyDbFetch($query, ['userId' => $userID]);
+
+    // Otherwise the user can't make their first post.
+    if (!$dbResult) {
+        return false;
+    }
+
+    $retrievedPayload = $dbResult['Payload'];
+    $retrievedArticleID = $dbResult['ArticleID'];
+
+    return
+        $retrievedPayload === $commentPayload
+        && $retrievedArticleID === $articleID
+    ;
+}
+
 function addArticleComment(
     string $user,
     int $articleType,
@@ -318,6 +342,11 @@ function addArticleComment(
     $userID = getUserIDFromUser($user);
     if ($userID == 0) {
         return false;
+    }
+
+    if ($user !== "Server" && getIsCommentDoublePost($userID, $articleID, $commentPayload)) {
+        // Fail silently.
+        return true;
     }
 
     // Replace all single quotes with double quotes (to work with MYSQL DB)

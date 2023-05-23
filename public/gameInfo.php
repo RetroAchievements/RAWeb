@@ -857,7 +857,7 @@ sanitize_outputs(
                     echo "<input type='hidden' name='genre' value='" . attributeEscape($genre) . "'>";
                     echo "<input type='hidden' name='release' value='" . attributeEscape($released) . "'>";
                     echo "<div class='md:grid grid-cols-[180px_1fr_100px] gap-1 items-center mb-1'>";
-                    echo "<label for='guide_url'>Guide URL</label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
+                    echo "<label for='guide_url' class='cursor-help' title='Must be from https://github.com/RetroAchievements/guides'>Guide URL<sup>*</sup></label><input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
                     echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                     echo "</div>";
                     echo "</form>";
@@ -1120,7 +1120,17 @@ sanitize_outputs(
                 */
 
                 if ($numAchievements > 1) {
+                    echo "<div class='flex flex-col sm:flex-row-reverse justify-between w-full py-3'>";
+
+                    $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
+                    echo "<div>";
+                    if ($user && ($numEarnedCasual > 0 || $numEarnedHardcore > 0) && !$hasCompletionOrMastery) {
+                        echo Blade::render("<x-game.hide-earned-checkbox />");
+                    }
+                    echo "</div>";
+
                     RenderGameSort($isFullyFeaturedGame, $flags, $officialFlag, $gameID, $sortBy);
+                    echo "</div>";
                 }
 
                 echo "<table class='achievementlist table-highlight'><tbody>";
@@ -1176,7 +1186,9 @@ sanitize_outputs(
                                 $achBadgeName .= "_lock";
                             }
 
-                            echo "<tr>";
+                            $trClassNames = $achieved ? "class='unlocked-row'" : "";
+                            echo "<tr {$trClassNames}>";
+
                             echo "<td>";
 
                             echo "<div class='flex justify-between gap-3 items-start'>";
@@ -1332,7 +1344,7 @@ sanitize_outputs(
             }
 
             if (!empty($gameHubs)) {
-                RenderGameAlts($gameHubs, 'Collections');
+                RenderGameAlts($gameHubs, 'Hubs');
             }
 
             if ($user !== null && $numAchievements > 0) {
