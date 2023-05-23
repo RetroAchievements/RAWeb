@@ -81,7 +81,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['connect'])->group(function () {
             /*
              * RAIntegration uses POST requests, except for LatestIntegration.html
-             * RetroArch uses GET requests except for (TODO what was it again?)
+             * Legacy RetroArch uses GET requests except, RetroArch 1.9.13+ (Nov 2021) should be using POST for everything
              */
             Route::any('login_app.php', fn () => $this->handleRequest('login_app'));
             Route::any('dorequest.php', fn () => $this->handleRequest('dorequest'));
