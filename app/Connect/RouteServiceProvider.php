@@ -21,7 +21,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         // TODO setup rate limiting
-        // RateLimiter::for('connect', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->id ?: $request->ip()));
+        // RateLimiter::for('connect', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
     }
 
     public function map(): void
