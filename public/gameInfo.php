@@ -173,7 +173,6 @@ $totalEarnedTrueRatio = null;
 $totalPossible = null;
 $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
-$openTickets = 0;
 $claimData = null;
 $claimListLength = 0;
 
@@ -237,11 +236,6 @@ if ($isFullyFeaturedGame) {
     // Determine if the logged in user is the sole author of the set
     if (isset($user)) {
         $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
-    }
-
-    // Get user claim data
-    if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-        $openTickets = countOpenTicketsByDev($user);
     }
 
     $claimData = getClaimData($gameID, true);
@@ -742,7 +736,6 @@ sanitize_outputs(
                                 :isOfficial="$isOfficial"
                                 :isSoleAuthor="$isSoleAuthor"
                                 :numAchievements="$numAchievements"
-                                :openTickets="$openTickets"
                                 :user="$user"
                                 :userPermissions="$permissions"
                             />
@@ -755,7 +748,6 @@ sanitize_outputs(
                             'isOfficial' => $isOfficial,
                             'isSoleAuthor' => $isSoleAuthor,
                             'numAchievements' => $numAchievements,
-                            'openTickets' => $openTickets,
                             'permissions' => $permissions,
                             'user' => $user,
                         ]);

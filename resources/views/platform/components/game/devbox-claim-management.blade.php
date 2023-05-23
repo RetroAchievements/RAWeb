@@ -16,7 +16,6 @@ use LegacyApp\Site\Enums\Permissions;
     'isOfficial' => true,
     'isSoleAuthor' => false,
     'numAchievements' => 0,
-    'openTickets' => [],
     'user' => null,
     'userPermissions' => Permissions::Unregistered,
 ])
@@ -28,13 +27,16 @@ $primaryClaimMinutesActive = 0;
 $primaryClaimMinutesLeft = 0;
 $hasGameClaimed = false;
 $isSoleAuthor = false;
+
 $userClaimCount = 0;
 $userHasClaimSlot = false;
+$openTickets = null;
 
 // Get user claim data.
 if (isset($user) && $userPermissions >= Permissions::JuniorDeveloper) {
     $userClaimCount = getActiveClaimCount($user, false, false);
     $userHasClaimSlot = $userClaimCount < permissionsToClaim($userPermissions);
+    $openTickets = countOpenTicketsByDev($user);
 }
 
 $claimListLength = count($claimData);
