@@ -23,11 +23,11 @@ function getGameData(int $gameID): ?array
 }
 
 // If the game is a subset, identify its parent game ID.
-function getParentGameIdFromGameTitle(string $title): ?int {
+function getParentGameIdFromGameTitle(string $title, int $consoleID): ?int {
     if (preg_match('/(.+)(\[Subset - .+\])/', $title, $matches)) {
         $baseSetTitle = trim($matches[1]);
-        $query = "SELECT ID FROM GameData WHERE Title = :title";
-        $result = legacyDbFetch($query, ['title' => $baseSetTitle]);
+        $query = "SELECT ID FROM GameData WHERE Title = :title AND ConsoleID = :consoleId";
+        $result = legacyDbFetch($query, ['title' => $baseSetTitle, 'consoleId' => $consoleID]);
 
         return $result ? $result['ID'] : null;
     }
@@ -38,7 +38,7 @@ function getParentGameIdFromGameTitle(string $title): ?int {
 function getParentGameIdFromGameId(int $gameID): ?int {
     $gameData = getGameData($gameID);
 
-    return getParentGameIdFromGameTitle($gameData['Title']);
+    return getParentGameIdFromGameTitle($gameData['Title'], $gameData['ConsoleID']);
 }
 
 function getGameMetadata(
@@ -166,7 +166,7 @@ function getGameMetadata(
     }
 
     if ($metrics) {
-        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title']);
+        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
         $bindings = [
             'gameId' => $gameID,
@@ -224,8 +224,8 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         11 => "ORDER BY HasAchievements ASC, gd.Title DESC",
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
-            // 1 or unspecified
-        default => "ORDER BY HasAchievements DESC, gd.Title ",
+        // 1 or unspecified
+        default => "ORDER BY HasAchievements DESC, SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
     };
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,

@@ -33,7 +33,7 @@ if (!function_exists('localized_number')) {
         int $fractionDigits = 0,
         string $pattern = null
     ): string {
-        $locale ??= session('number_locale');
+        $locale = $locale ?? session('number_locale', 'en_US');
 
         $formatter = new NumberFormatter($locale, $format, $pattern);
         $formatter->setAttribute($formatter::FRACTION_DIGITS, $fractionDigits);
