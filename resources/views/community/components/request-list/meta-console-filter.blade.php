@@ -14,9 +14,9 @@
 
     @foreach ($consoles as $console)
         @if ($selectedConsoleId == $console['ID'])
-            <option selected>{{ e($console->Name) }}</option>
+            <option selected>{{ $console->Name }}</option>
         @else
-            <option value="{{ $console['ID'] }}">{{ e($console->Name) }}</option>
+            <option value="{{ $console['ID'] }}">{{ $console->Name }}</option>
         @endif
     @endforeach
 </select>
