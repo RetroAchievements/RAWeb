@@ -716,18 +716,19 @@ sanitize_outputs(
                     :genre="$genre"
                     :released="$released"
                     :imageIcon="$imageIcon"
+                    :metaKind="$isFullyFeaturedGame ? \'Game\' : \'Hub\'"
                 >
                     @if ($isFullyFeaturedGame)
-                        <?= RenderMetadataTableRow("Developer", $developer, $gameHubs, ["Hacker"]); ?>
-                        <?= RenderMetadataTableRow("Publisher", $publisher, $gameHubs, ["Hacks"]); ?>
-                        <?= RenderMetadataTableRow("Genre", $genre, $gameHubs, ["Subgenre"]); ?>
+                        <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" :gameHubs="$gameHubs" :altLabels="[\'Hacker\']" />
+                        <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" :gameHubs="$gameHubs" :altLabels="[\'Hacks\']" />
+                        <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" :gameHubs="$gameHubs" :altLabels="[\'Subgenre\']" />
                     @else
-                        <?= RenderMetadataTableRow("Developer", $developer); ?>
-                        <?= RenderMetadataTableRow("Publisher", $publisher); ?>
-                        <?= RenderMetadataTableRow("Genre", $genre); ?>
+                        <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" />
+                        <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
+                        <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
                     @endif
 
-                    <?= RenderMetadataTableRow("Released", $released); ?>
+                    <x-game.primary-meta-row-item label="Released" :metadataValue="$released" />
                 </x-game.primary-meta>
             ', $gameMetaBindings);
 
