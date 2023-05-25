@@ -19,9 +19,10 @@ function avatar(
         sanitize_outputs($label);
     }
 
+    $margin = $label ? 'my-1' : '';
+
     if ($iconUrl) {
         $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='$iconUrl' alt='$escapedName' class='$iconClass'>";
-
         $label = $iconLabel . ' ' . $label;
     }
 
@@ -34,7 +35,7 @@ function avatar(
         }
     }
 
-    return "<span class='$class' $tooltipTrigger><a class='inline-block' href='$link'>$label</a></span>";
+    return "<span class='$class' $tooltipTrigger><a class='inline-flex items-center gap-2 $margin align-middle' href='$link'>$label</a></span>";
 }
 
 function tooltipEscape(string $input): string

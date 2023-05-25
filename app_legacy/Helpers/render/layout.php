@@ -107,19 +107,21 @@ function RenderToolbar(): void
     echo "<ul class='flex-1'>";
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
-    foreach ($menuSystemsList as $column){
+    foreach ($menuSystemsList as $column) {
         echo "<ul>";
         foreach ($column as $brand => $systems) {
             echo "<li class='dropdown-header'>$brand</li>";
-            foreach ($systems as $system){
-
+            foreach ($systems as $system) {
                 $systemName = $system['systemName'];
-                $listId = $system['listID'];
-                $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listId.name_short")));
+                $listID = $system['listID'];
+
+                $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listID.name_short")));
                 $iconName = Str::kebab($cleanSystemShortName);
-                echo "<li><a href='/gameList.php?c=$listId' class='!flex items-center gap-x-2' >"; // the flex class needs to be forced here
-                echo " <img src='" . asset("assets/images/system/$iconName.png") . "' width='16' height='16' alt=''>";
-                echo " <span>$systemName</span>";
+                $iconSrc = asset("assets/images/system/$iconName.png");
+
+                echo "<li><a href='/gameList.php?c=$listID' class='!flex items-center gap-x-2'>"; // the flex class needs to be forced here
+                echo " <img src='$iconSrc' width='16' height='16' alt='$systemName icon'>";
+                echo " <span class='console-name' style='font-size: 1em'>$systemName</span>";
                 echo "</a></li>";
             }
         }

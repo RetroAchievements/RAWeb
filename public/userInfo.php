@@ -336,7 +336,7 @@ RenderContentStart($userPage);
         if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
             echo "<div class='mottocontainer'>Last seen ";
             if (!empty($userMassData['LastGame'])) {
-                echo ' in ' . gameAvatar($userMassData['LastGame'], iconSize: 22) . '<br>';
+                echo " in <div class='inline-block mx-1'>" . gameAvatar($userMassData['LastGame'], iconSize: 28) . "</div><br>";
             }
             echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
         }
@@ -376,8 +376,8 @@ RenderContentStart($userPage);
                     'ImageIcon' => $claim['GameIcon'],
                     'ConsoleName' => $claim['ConsoleName'],
                 ];
-                echo gameAvatar($claim, iconSize: 22);
-                echo $details . '<br>';
+                echo gameAvatar($claim, iconSize: 28);
+                echo " $details<br>";
             }
             echo "* Counts against reservation limit</br></br>";
         }
@@ -529,7 +529,7 @@ RenderContentStart($userPage);
                 echo "<div class='md:flex justify-between mb-3'>";
 
                 echo "<div>";
-                echo gameAvatar($userMassData['RecentlyPlayed'][$i], iconSize: 24);
+                echo gameAvatar($userMassData['RecentlyPlayed'][$i], iconSize: 42);
                 echo "<br>";
                 echo "Last played $gameLastPlayed<br>";
                 if ($numPossibleAchievements) {

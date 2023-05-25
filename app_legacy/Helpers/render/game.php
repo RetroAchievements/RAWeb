@@ -21,11 +21,21 @@ function gameAvatar(
         if ($label !== false) {
             $title = $game['GameTitle'] ?? $game['Title'] ?? null;
             $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
-            if ($consoleName) {
-                $title .= " ($consoleName)";
-            }
             sanitize_outputs($title);   // sanitize before rendering HTML
-            $label = renderGameTitle($title);
+
+            $flexDirection = $iconSize >= 32 ? 'col' : 'row';
+            $alignItems = $flexDirection == 'col' ? 'start' : 'center';
+
+            $label = "<div class='flex flex-$flexDirection items-$alignItems gap-1'>";
+            $label .= renderGameTitle($title);
+            if ($consoleName) {
+                $label .= "<div class='console-name";
+                if ($flexDirection == 'row') {
+                    $label .= " mx-0.5 border-l-2 border-white/[.25] pl-1.5";
+                }
+                $label .= "'>$consoleName</div>";
+            }
+            $label .= "</div>";
         }
 
         if ($icon === null) {
@@ -58,14 +68,14 @@ function gameAvatar(
  */
 function renderGameTitle(?string $title = null, bool $tags = true): string
 {
-    $title ??= '';
-
     // Update $html by appending text
     $updateHtml = function (&$html, $text, $append) {
         $html = trim(str_replace($text, '', $html) . $append);
     };
 
+    $title ??= '';
     $html = $title;
+
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
@@ -84,7 +94,22 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
         $updateHtml($html, $matches[0], $tags ? " $span" : '');
     }
 
-    return $html;
+    return "<div>$html</div>";
+}
+
+/**
+ * Render console icon based on given system ID
+ *
+ * Fallback to a default image if icon fails to be found on server
+ */
+function renderConsoleIcon(string $consoleName, int $consoleID): string {
+    $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
+    $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
+    $iconName = Str::kebab($cleanSystemShortName);
+    $iconPath = public_path("assets/images/system/$iconName.png");
+    $iconUrl = file_exists($iconPath) ? asset("assets/images/system/$iconName.png") : $fallBackConsoleIcon;
+
+    return "<img class='console-icon' src='$iconUrl' alt='$consoleName icon'>";
 }
 
 /**
@@ -262,6 +287,7 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
             'Title' => $nextGame['Title'],
             'ImageIcon' => $nextGame['ImageIcon'],
             'ConsoleName' => $consoleName,
+            'ConsoleID' => $nextGame['ConsoleID'],
         ];
 
         echo "<td>";

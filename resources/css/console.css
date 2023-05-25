@@ -1,0 +1,18 @@
+.console-name {
+  margin-left: .05em;
+  color: var(--menu-link-color);
+  font-size: .85em;
+
+  /* Font smoothing issue on Safari etc */
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+.console-icon {
+  margin: 0 .55em;
+  height: 26px;
+}
+
+.console-icon + * .console-name {
+  font-size: .8em;
+}
