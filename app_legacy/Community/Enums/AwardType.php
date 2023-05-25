@@ -35,4 +35,16 @@ abstract class AwardType
     {
         return in_array($value, self::cases());
     }
+
+    public static function toString(int $awardType): string
+    {
+        return match ($awardType) {
+            AwardType::Mastery => 'Mastery/Completion',
+            AwardType::AchievementUnlocksYield => 'Achievement Unlocks Yield',
+            AwardType::AchievementPointsYield => 'Achievement Points Yield',
+            AwardType::PatreonSupporter => 'Patreon Supporter',
+            AwardType::CertifiedLegend => 'Certified Legend',
+            default => 'Invalid or deprecated award type',
+        };
+    }
 }

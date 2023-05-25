@@ -36,11 +36,11 @@
 }
 
 .tag.missable abbr {
-  padding: .14em .15em .16em;
+  padding: .18em .12em;
   font-weight: normal;
   color: currentColor;
 }
 
-.tag.missable abbr b, a:hover .tag.missable abbr {
+.tag.missable abbr span, a:hover .tag.missable abbr {
   color: var(--bg-color);
 }

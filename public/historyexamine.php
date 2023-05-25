@@ -26,9 +26,9 @@ RenderContentStart("$userPage's Legacy - $dateStr");
 ?>
 <script>
   function convertDate() {
-    var field = document.gotodateform.dateinput;
-    var timestamp = new Date(field.value).getTime() / 1000;
-    document.gotodateform.d.value = timestamp;
+    const { dateinput, d } = document.gotodateform;
+    const timestamp = new Date(dateinput.value).getTime() / 1000;
+    d.value = timestamp;
     return true;
  }
 </script>
@@ -57,11 +57,11 @@ RenderContentStart("$userPage's Legacy - $dateStr");
 
         echo "</b><br>";
         echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
-        echo "<label for='d'><b>Jump to Date: </b></label>";
+        echo "<label for='d' class='font-bold'>Jump to Date: </label>";
         echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateInput) . "' />";
         echo "<input type='hidden' name='d' value='$dateInput' />";
         echo "<input type='hidden' name='u' value='$userPage' />";
-        echo "<input type='submit' value='Goto Date'/>";
+        echo "<input type='submit' value='Goto Date' class='ml-1' />";
         echo "</form>";
         echo "<br>";
 

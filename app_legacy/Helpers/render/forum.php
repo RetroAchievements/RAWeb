@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 use LegacyApp\Site\Enums\Permissions;
 use LegacyApp\Site\Models\User;
@@ -41,7 +42,9 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
             echo "<div><a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a></div>";
             echo "</div>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
-            echo "<div class='comment text-overflow-wrap'>$shortMsg</div>";
+            echo "<div class='comment text-overflow-wrap'>";
+            echo Shortcode::stripAndClamp($shortMsg);
+            echo "</div>";
             echo "</div>";
         }
     }

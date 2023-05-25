@@ -39,6 +39,8 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
+$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
+
 sanitize_outputs(
     $achievementTitle,
     $desc,
@@ -52,7 +54,7 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 $numWinners = 0;
 $numPossibleWinners = 0;
 
-$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $user, 0, 50);
+$unlocks = getAchievementUnlocksData($achievementID, $user, $numWinners, $numPossibleWinners, $parentGameID, 0, 50);
 
 $dateWonLocal = "";
 foreach ($unlocks as $userObject) {
@@ -205,7 +207,7 @@ RenderContentStart($pageTitle);
         echo "</tbody></table>";
 
         if ($numPossibleWinners > 0) {
-            $recentWinnersPct = sprintf("%01.0f", ($numWinners / $numPossibleWinners) * 100);
+            $recentWinnersPct = sprintf("%01.2f", ($numWinners / $numPossibleWinners) * 100);
         } else {
             $recentWinnersPct = sprintf("%01.0f", 0);
         }
@@ -222,7 +224,7 @@ RenderContentStart($pageTitle);
         echo "</small>";
         echo "</p>";
 
-        echo "<p class='mb-2'>Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)</p>";
+        echo "<p class='mb-2'>Unlocked by <span class='font-bold'>" . localized_number($numWinners) . "</span> of <span class='font-bold'>" . localized_number($numPossibleWinners) . "</span> possible players ($recentWinnersPct%)</p>";
 
         if (isset($user) && $permissions >= Permissions::Registered) {
             $countTickets = countOpenTicketsByAchievement($achievementID);

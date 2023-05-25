@@ -143,6 +143,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 12, // PlayStation
                 13, // Atari Lynx
                 14, // Neo Geo Pocket
+                15, // Game Gear
                 17, // Atari Jaguar
                 18, // Nintendo DS
                 23, // Magnavox Odyssey 2
@@ -150,6 +151,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 28, // Virtual Boy
                 29, // MSX
                 33, // SG-1000
+                38, // Apple II
                 39, // Saturn
                 44, // ColecoVision
                 45, // IntelliVision
@@ -157,6 +159,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
+                76, // PC Engine CD
                 78, // Nintendo DSi
             ],
         ],
@@ -176,7 +179,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
             'handle' => 'DuckStation',
             'active' => true,
             'link' => 'https://github.com/stenzek/duckstation/wiki',
-            'download_url' => 'duckstation.org',
+            'download_url' => 'https://duckstation.org',
             'systems' => [
                 12, // PlayStation
             ],

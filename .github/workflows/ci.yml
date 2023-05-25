@@ -32,7 +32,7 @@ jobs:
     name: phpstan (PHP ${{ matrix.php }})
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -54,7 +54,7 @@ jobs:
     name: phpunit (PHP ${{ matrix.php }})
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -74,7 +74,11 @@ jobs:
     name: eslint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Use Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
       - name: Install
         run: npm install
       - name: Lint
@@ -87,11 +91,15 @@ jobs:
     name: vitest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Use Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
       - name: Install
         run: npm install
       - name: Test
-        run: npm run test:ci
+        run: npm run test
         env:
           VITE_BUILD_PATH: dist
           APP_URL: https://raweb.test
