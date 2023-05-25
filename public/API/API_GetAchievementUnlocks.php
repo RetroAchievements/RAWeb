@@ -63,7 +63,9 @@ $console = [
     'Title' => $achievementData['ConsoleName'] ?? null,
 ];
 
-$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, null, $offset, $count);
+$parentGameID = getParentGameIdFromGameTitle($game['Title'], $achievementData['ConsoleID']);
+
+$unlocks = getAchievementUnlocksData($achievementID, null, $numWinners, $numPossibleWinners, $parentGameID, $offset, $count);
 
 return response()->json([
     'Achievement' => $achievement,

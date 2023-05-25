@@ -74,7 +74,7 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
         $updateHtml($html, $match, $tags ? " $span" : '');
     }
     $matches = [];
-    if (preg_match('/\[Subset - (.+)\]/', $title, $matches)) {
+    if (preg_match('/\s?\[Subset - (.+)\]/', $title, $matches)) {
         $subset = $matches[1];
         $span = "<span class='tag'>"
             . "<span class='tag-label'>Subset</span>"
@@ -192,7 +192,7 @@ function renderGameCard(int|array $game): string
 
 function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy): void
 {
-    echo "<div class='py-3'><span>";
+    echo "<div><span>";
     echo "Sort: ";
 
     $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
