@@ -10,7 +10,7 @@ $renderedTitle = renderGameTitle(e($gameTitle));
 ?>
 
 <h1 class="text-h3">
-    <span class="block mb-1">{{ $renderedTitle }}</span>
+    <span class="block mb-1">{!! $renderedTitle !!}</span>
     
     <div class="flex items-center gap-x-1">
         <img src="{{ $iconUrl }}" width="24" height="24" alt="Console icon">
