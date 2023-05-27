@@ -1,7 +1,7 @@
 <?php
 
 $buttonClassNames = <<<EOT
-    carousel-button absolute top-1/2 transform -translate-y-1/2
+    absolute top-1/2 transition transform -translate-y-1/2 lg:active:scale-95
     z-20 text-link bg-black bg-opacity-80 hover:bg-opacity-100
     rounded-full w-10 h-10 flex items-center justify-center
 EOT;
