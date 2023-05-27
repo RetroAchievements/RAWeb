@@ -201,6 +201,7 @@ function RenderToolbar(): void
         echo "<li><a href='/setRequestList.php?u=$username'>Requested Sets</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>Settings</a></li>";
+        echo "<li><a href='/reorderSiteAwards.php'>Reorder Site Awards</a></li>";
         echo "<li class='divider'></li>";
         echo "<li>";
         echo "<form action='/request/auth/logout.php' method='post'>";
