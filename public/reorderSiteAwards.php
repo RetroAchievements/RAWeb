@@ -232,7 +232,9 @@ function postAllAwardsDisplayOrder(awards) {
                     $awardDataExtra,
                 );
 
-                if ($awardType == AwardType::AchievementUnlocksYield) {
+                if ($awardType == AwardType::Mastery) {
+                    $awardTitle = renderGameTitle($awardTitle);
+                } elseif ($awardType == AwardType::AchievementUnlocksYield) {
                     $awardTitle = "Achievements Earned by Others";
                 } elseif ($awardType == AwardType::AchievementPointsYield) {
                     $awardTitle = "Achievement Points Earned by Others";
