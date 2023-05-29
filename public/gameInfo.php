@@ -685,32 +685,52 @@ sanitize_outputs(
             $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
             $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
             $iconName = Str::kebab($cleanSystemShortName);
+            $iconPath = public_path("assets/images/system/$iconName.png");
+            $iconUrl = file_exists($iconPath) ? asset("assets/images/system/$iconName.png") : $fallBackConsoleIcon;
 
-            echo "<h1 class='text-h3'>";
-            echo " <span class='block mb-1'>$renderedTitle</span>";
-            echo " <div class='flex items-center gap-x-1'>";
-            echo "  <img src='" . asset("assets/images/system/$iconName.png") . "' width='24' height='24' alt='Console icon' onerror='this.src=\"$fallBackConsoleIcon\"'>";
-            echo "  <span class='block text-sm tracking-tighter'>$consoleName</span>";
-            echo " </div>";
-            echo "</h1>";
+            $gameMetaBindings = [
+                'consoleName' => $consoleName,
+                'developer' => $developer,
+                'gameHubs' => $gameHubs,
+                'gameTitle' => $gameTitle,
+                'genre' => $genre,
+                'iconUrl' => $iconUrl,
+                'imageIcon' => $imageIcon,
+                'isFullyFeaturedGame' => $isFullyFeaturedGame,
+                'publisher' => $publisher,
+                'released' => $released,
+            ];
 
-            echo "<div class='flex flex-col sm:flex-row sm:w-full gap-x-4 gap-y-2 items-center mb-4'>";
-            echo "<img class='aspect-1 object-cover rounded-sm w-[96px] h-[96px]' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
+            echo Blade::render('
+                <x-game.heading 
+                    :consoleName="$consoleName"
+                    :gameTitle="$gameTitle"
+                    :iconUrl="$iconUrl"
+                />
+            ', $gameMetaBindings);
 
-            echo "<div class='flex flex-col w-full gap-1'>";
-            if ($isFullyFeaturedGame) {
-                RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
-                RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
-                RenderMetadataTableRow('Genre', $genre, $gameHubs, ['Subgenre']);
-            } else {
-                RenderMetadataTableRow('Developer', $developer);
-                RenderMetadataTableRow('Publisher', $publisher);
-                RenderMetadataTableRow('Genre', $genre);
-            }
-            RenderMetadataTableRow('Released', $released);
-            echo "</div>";
+            echo Blade::render('
+                <x-game.primary-meta
+                    :developer="$developer"
+                    :publisher="$publisher"
+                    :genre="$genre"
+                    :released="$released"
+                    :imageIcon="$imageIcon"
+                    :metaKind="$isFullyFeaturedGame ? \'Game\' : \'Hub\'"
+                >
+                    @if ($isFullyFeaturedGame)
+                        <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" :gameHubs="$gameHubs" :altLabels="[\'Hacker\']" />
+                        <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" :gameHubs="$gameHubs" :altLabels="[\'Hacks\']" />
+                        <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" :gameHubs="$gameHubs" :altLabels="[\'Subgenre\']" />
+                    @else
+                        <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" />
+                        <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
+                        <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
+                    @endif
 
-            echo "</div>";
+                    <x-game.primary-meta-row-item label="Released" :metadataValue="$released" />
+                </x-game.primary-meta>
+            ', $gameMetaBindings);
 
             if ($isFullyFeaturedGame) {
                 echo <<<HTML
