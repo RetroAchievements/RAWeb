@@ -165,7 +165,7 @@ function RenderToolbar(): void
     echo "<li><a href='/forumposthistory.php'>Recent Forum Posts</a></li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='/userList.php'>User List</a></li>";
-    echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
+    echo "<li><a href='/globalRanking.php?s=5&t=2'>Global Ranking</a></li>";
     echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
     // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
