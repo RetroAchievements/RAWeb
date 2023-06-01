@@ -62,7 +62,7 @@ function RenderToolbar(): void
                 ["systemName" => "Atari 2600", "listID" => 25],
                 ["systemName" => "Atari 7800", "listID" => 51],
                 ["systemName" => "Atari Jaguar", "listID" => 17],
-                // ["systemName" => "Atari Jaguar CD", "listID"=>77],
+                ["systemName" => "Atari Jaguar CD", "listID"=>77],
                 ["systemName" => "Atari Lynx", "listID" => 13],
             ],
             "NEC" => [
