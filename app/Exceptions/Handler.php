@@ -58,7 +58,7 @@ class Handler extends ExceptionHandler
             $context['url'] = $request->url();
 
             // never log raw passwords
-            $params = Arr::except(request()->all(), $this->dontFlash);
+            $params = Arr::except($request->all(), $this->dontFlash);
 
             // extract the user and token parameters for API calls
             if (str_ends_with($context['url'], 'dorequest.php')) {
@@ -73,7 +73,7 @@ class Handler extends ExceptionHandler
             // truncate long parameters
             foreach ($params as $k => $p) {
                 if (strlen($p) > 20)
-                    $params[$k] = substr($p, 0, 15) + "...";
+                    $params[$k] = substr($p, 0, 15) . "...";
             }
 
             // capture any remaining parameters
