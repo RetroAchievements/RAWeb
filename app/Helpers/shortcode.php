@@ -91,20 +91,21 @@ function normalize_user_shortcodes(string $value): string
      */
 
     /**
+     * TODO rebuild hash id prefixed username shortcodes
      * any user tag that has no dash in it -> no id there yet
      * only take those that have a username set
      *
      * TODO: fetch users in batch first
      */
-    $value = preg_replace_callback("~\[user=([^-]*?[\w]+?)\]~si", function ($matches) {
-        $username = $userTag = $matches[1];
-        $user = User::where('username', mb_strtolower($username))->first();
-        if ($user) {
-            $userTag = $user->hashId . '-' . $username;
-        }
-
-        return '[user=' . $userTag . ']';
-    }, $value ?? '');
+    // $value = preg_replace_callback("~\[user=([^-]*?[\w]+?)\]~si", function ($matches) {
+    //     $username = $userTag = $matches[1];
+    //     $user = User::where('User', $username)->first();
+    //     if ($user) {
+    //         $userTag = $user->hashId . '-' . $username;
+    //     }
+    //
+    //     return '[user=' . $userTag . ']';
+    // }, $value ?? '');
 
     return $value ?? '';
 }
