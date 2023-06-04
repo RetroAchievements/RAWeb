@@ -89,7 +89,7 @@ function isValidConsoleId(int $consoleId): bool
         // 74, // Interton VC 4000
         // 75, // Elektor TV Games Computer
         76, // PC Engine CD
-        // 77, // Atari Jaguar CD
+        77, // Atari Jaguar CD
         78, // Nintendo DSi
         // 79, // TI-83
         // 80, // Uzebox
