@@ -138,6 +138,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     ];
 
     protected $visible = [
+        "ID",
         "User",
         "achievements_unlocked",
         "achievements_unlocked_hardcore",
