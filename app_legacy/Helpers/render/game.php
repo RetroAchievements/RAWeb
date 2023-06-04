@@ -237,13 +237,17 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFla
     echo "<sup>&nbsp;</sup></span></div>";
 }
 
-function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
+function RenderGameAlts(array $gameAlts, ?string $headerText = null, ?string $linkFull = null): void
 {
     echo "<div class='component gamealts'>";
+
     if ($headerText) {
         echo "<h2 class='text-h3'>$headerText</h2>";
     }
+    echo "<div class='max-h-[350px] overflow-y-auto'>";
     echo "<table class='table-highlight'><tbody>";
+
+    $count = 0;
     foreach ($gameAlts as $nextGame) {
         echo "<tr>";
         $consoleName = $nextGame['ConsoleName'];
@@ -279,8 +283,19 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
         }
 
         echo "</tr>";
+
+        $count++;
+        if ($linkFull and $count === 8) {
+            break;
+        }
     }
     echo "</tbody></table>";
+    echo "</div>";
+
+    if ($linkFull and $count < count($gameAlts)) {
+        echo "<a class='btn btn-link float-right mt-2' href='$linkFull'>more...</a>";
+    }
+
     echo "</div>";
 }
 

@@ -255,6 +255,54 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
     return $results;
 }
 
+/**
+ * Get list of hacks derived from a given game (ignore empty official sets)
+ */
+function getGameHacks(int $gameID, string $gameTitle): array
+{
+    $officialCore = AchievementType::OfficialCore;
+    if (str_contains($gameTitle, ': ')) {
+        $gameTitle = str_replace(': ', ' - ', $gameTitle);
+    }
+    sanitize_outputs($gameTitle);
+
+    $query = <<<SQL
+        SELECT gd.ID gameIDAlt, gd.Title, gd.ImageIcon, c.Name ConsoleName,
+        CASE
+            WHEN (
+                SELECT COUNT(*) FROM Achievements ach
+                WHERE ach.GameID = gd.ID AND ach.Flags = $officialCore
+            ) > 0 THEN 1
+            ELSE 0
+        END AS HasAchievements, (
+            SELECT SUM(ach.Points) FROM Achievements ach
+            WHERE ach.GameID = gd.ID AND ach.Flags = $officialCore
+        ) AS Points, gd.TotalTruePoints
+        FROM GameData gd
+        LEFT JOIN Console c ON c.ID = gd.ConsoleID
+        WHERE (gd.ID IN (
+            SELECT gameID FROM GameAlternatives ga
+            LEFT JOIN GameData gd ON ga.gameIDAlt = gd.ID
+            WHERE gd.Title = '[Hacks - $gameTitle]'
+        ) OR gd.Publisher LIKE '%Hack - $gameTitle%')
+            AND gd.Title LIKE "~Hack~%" AND gd.TotalTruePoints > 0
+        GROUP BY gd.ID, gd.Title
+        LIMIT 10
+    SQL;
+
+    $dbResult = s_mysql_query($query);
+
+    $results = [];
+
+    if ($dbResult !== false) {
+        while ($data = mysqli_fetch_assoc($dbResult)) {
+            $results[] = $data;
+        }
+    }
+
+    return $results;
+}
+
 function getGamesListWithNumAchievements(int $consoleID, ?array &$dataOut, int $sortBy): int
 {
     return getGamesListByDev(null, $consoleID, $dataOut, $sortBy);

@@ -61,7 +61,9 @@ $isEventGame = $consoleName == 'Events';
 
 $pageTitle = "$gameTitle ($consoleName)";
 
+$gameHacks = $isFullyFeaturedGame ? getGameHacks($gameID, $gameTitle) : [];
 $relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
+
 $gameAlts = [];
 $gameHubs = [];
 $gameSubsets = [];
@@ -69,12 +71,14 @@ $subsetPrefix = $gameData['Title'] . " [Subset - ";
 foreach ($relatedGames as $gameAlt) {
     if ($gameAlt['ConsoleName'] == 'Hubs') {
         $gameHubs[] = $gameAlt;
-    } else {
-        if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
-            $gameSubsets[] = $gameAlt;
-        } else {
-            $gameAlts[] = $gameAlt;
-        }
+    } elseif (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
+        $gameSubsets[] = $gameAlt;
+    } elseif (!array_filter(
+        $gameHacks,
+        fn ($hack) => $hack['gameIDAlt'] === $gameAlt['gameIDAlt']
+    )) {
+        // Games already in Hacks are ignored in Similar Games
+        $gameAlts[] = $gameAlt;
     }
 }
 
@@ -1463,6 +1467,16 @@ sanitize_outputs(
 
             if (!empty($gameSubsets)) {
                 RenderGameAlts($gameSubsets, 'Subsets');
+            }
+
+            if (!empty($gameHacks)) {
+                $hubID = getGameIDFromTitle("[Hacks - $gameTitle]", 100);
+                $linkHub = $hubID ? "/game/$hubID" : null;
+                $headerText = "Derived Hacks";
+                if ($hubID) {
+                    $headerText .= " <a class='btn float-right text-sm' href='$linkHub'>Visit Hub</a>";
+                }
+                RenderGameAlts($gameHacks, $headerText, linkFull: $linkHub);
             }
 
             if (!empty($gameAlts)) {
