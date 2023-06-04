@@ -294,7 +294,7 @@ RenderContentStart($userPage);
                 $userRank = $userMassData['Rank'];
                 $rankPct = sprintf("%1.2f", ($userRank / $countRankedUsers) * 100.0);
                 $rankOffset = (int) (($userRank - 1) / 25) * 25;
-                echo "<a href='/globalRanking.php?s=5&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
+                echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
             }
             echo "<br>";
 
@@ -317,7 +317,7 @@ RenderContentStart($userPage);
                 $userRankSoftcore = getUserRank($userPage, RankType::Softcore);
                 $rankPct = sprintf("%1.2f", ($userRankSoftcore / $countRankedUsers) * 100.0);
                 $rankOffset = (int) (($userRankSoftcore - 1) / 25) * 25;
-                echo "<a href='/globalRanking.php?s=2&o=$rankOffset'>$userRankSoftcore</a> / $countRankedUsers ranked users (Top $rankPct%)";
+                echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>$userRankSoftcore</a> / $countRankedUsers ranked users (Top $rankPct%)";
             }
             echo "<br>";
             echo "<br>";
