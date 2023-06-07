@@ -29,12 +29,17 @@ if ($gameHubs) {
 
                 $key = array_search($value, $metadataValues);
                 if ($key !== false) {
-                    unset($unmergedKeys[$key]);
+                    unset($unmergedKeys[array_search($key, $unmergedKeys)]);
                 }
 
-                // If the value is already in metadataValues, we replace it with a linkified version.
-                // Otherwise, we add a new entry to the end of the array.
-                $metadataValues[$key ?? array_push($metadataValues, '') - 1] = "<a href='/game/{$hub['gameIDAlt']}'>$value</a>";
+                $escapedLink = "<a href='/game/" . htmlspecialchars($hub['gameIDAlt']) . "'>" . htmlspecialchars($value) . "</a>";
+
+                // Check if key is valid.
+                if (is_int($key)) {
+                    $metadataValues[$key] = $escapedLink;
+                } else {
+                    $metadataValues[] = $escapedLink;
+                }
             }
         }
     }
