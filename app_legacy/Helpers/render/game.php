@@ -69,13 +69,13 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
-        $category = $matches[1][$i];
+        $category = htmlspecialchars($matches[1][$i], ENT_QUOTES, 'UTF-8');
         $span = "<span class='tag'><span>$category</span></span>";
         $updateHtml($html, $match, $tags ? " $span" : '');
     }
     $matches = [];
     if (preg_match('/\s?\[Subset - (.+)\]/', $title, $matches)) {
-        $subset = $matches[1];
+        $subset = htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8');
         $span = "<span class='tag'>"
             . "<span class='tag-label'>Subset</span>"
             . "<span class='tag-arrow'></span>"
