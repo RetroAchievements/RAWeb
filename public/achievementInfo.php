@@ -170,7 +170,18 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
         echo "</div>";
 
-        echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
+        $systemIconUrl = getSystemIconUrl($consoleID);
+        echo Blade::render('
+            <x-game.heading
+                :consoleName="$consoleName"
+                :gameTitle="$gameTitle"
+                :iconUrl="$iconUrl"
+            />
+        ', [
+            'consoleName' => $consoleName,
+            'gameTitle' => $gameTitle,
+            'iconUrl' => $systemIconUrl,
+        ]);
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
