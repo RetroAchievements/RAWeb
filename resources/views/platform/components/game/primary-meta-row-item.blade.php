@@ -27,9 +27,15 @@ if ($gameHubs) {
                     ? str_replace("Hacks - ", "Hack - ", substr($title, 1, -1)) // For "Hack", normalize the title.
                     : substr($title, strlen($hubPrefix), -1); // Otherwise, just remove the prefix.
 
+                // Does the value exist in the metadataValues array?
                 $key = array_search($value, $metadataValues);
                 if ($key !== false) {
-                    unset($unmergedKeys[array_search($key, $unmergedKeys)]);
+                    // If the value does indeed exist, we don't need to keep track of it anymore in the
+                    // unmergedKeys array. Find its index in unmergedKeys, then remove it from the array.
+                    $index = array_search($key, $unmergedKeys);
+                    if ($index !== false) {
+                        unset($unmergedKeys[$index]);
+                    }
                 }
 
                 $escapedLink = "<a href='/game/" . htmlspecialchars($hub['gameIDAlt']) . "'>" . htmlspecialchars($value) . "</a>";
