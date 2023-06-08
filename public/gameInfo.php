@@ -341,6 +341,10 @@ sanitize_outputs(
             }
 
             function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int {
+                if ($numAchievements <= 0) {
+                    return 0;
+                }
+
                 // Add a bucket for the users who have earned all achievements.
                 $buckets[] = [
                     'hardcore' => $achDistHardcore[$numAchievements],
@@ -380,23 +384,30 @@ sanitize_outputs(
                         $bucketLabels[] = $label;
                         $hAxisValues[] = $numAchievements;
                     } else {
-                        // For other buckets, the label indicates the range of achievements that
-                        // the bucket represents.
-                        $start = ($index * $bucketSize) + 1;
-                        $end = min(($index + 1) * $bucketSize, $numAchievements);
+                        if ($bucketSize > 1) {
+                            // For other buckets, the label indicates the range of achievements that
+                            // the bucket represents.
+                            $start = ($index * $bucketSize) + 1;
+                            $end = min(($index + 1) * $bucketSize, $numAchievements);
 
-                        // If the end of the range equals the total number of achievements, decrement it by one
-                        // to avoid including the all achievements case in the current bucket.
-                        if ($end == $numAchievements) {
-                            $end--;
+                            // If the end of the range equals the total number of achievements, decrement it by one
+                            // to avoid including the all achievements case in the current bucket.
+                            if ($end == $numAchievements) {
+                                $end--;
+                            }
+
+                            // Pluralize 'achievement' if the range contains more than one achievement.
+                            $plural = $end > $start ? 's' : '';
+                            $label = "Earned $start-$end achievement$plural";
+                            $hAxisValues[] = $end;
+                        } else {
+                            $achievementNumber = $index + 1;
+                            $plural = $index > 0 ? "s" : "";
+                            $label = "Earned $achievementNumber achievement$plural";            
                         }
 
-                        // Pluralize 'achievement' if the range contains more than one achievement.
-                        $plural = $end > $start ? 's' : '';
-                        $label = "Earned $start-$end achievement$plural";
                         printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
                         $bucketLabels[] = $label;
-                        $hAxisValues[] = $end;
                     }
                 }
 
