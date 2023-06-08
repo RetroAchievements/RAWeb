@@ -403,7 +403,7 @@ sanitize_outputs(
                         } else {
                             $achievementNumber = $index + 1;
                             $plural = $index > 0 ? "s" : "";
-                            $label = "Earned $achievementNumber achievement$plural";            
+                            $label = "Earned $achievementNumber achievement$plural";
                         }
 
                         printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
