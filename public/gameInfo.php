@@ -310,7 +310,7 @@ sanitize_outputs(
                 // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by 20).
                 // If bucketing is not enabled, each achievement gets its own bucket (bucket size is 1).
                 $bucketSize = $isBucketingEnabled ? ceil($numAchievements / 20) : 1;
-                
+
                 $buckets = [];
                 $largestWonByCount = 0;
 
@@ -330,7 +330,7 @@ sanitize_outputs(
                     $wonByUserCount = $achDist[$i];
                     $buckets[$bucketIndex]['hardcore'] += $achDistHardcore[$i];
                     $buckets[$bucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
-                
+
                     // We need to also keep tracked of `largestWonByCount`, which is later used for chart
                     // configuration, such as determining the number of gridlines to show.
                     $currentTotal = $buckets[$bucketIndex]['hardcore'] + $buckets[$bucketIndex]['softcore'];
@@ -344,7 +344,7 @@ sanitize_outputs(
                 // Add a bucket for the users who have earned all achievements.
                 $buckets[] = [
                     'hardcore' => $achDistHardcore[$numAchievements],
-                    'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements]
+                    'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements],
                 ];
 
                 // Calculate the total count of users who have earned all achievements.
@@ -353,10 +353,10 @@ sanitize_outputs(
                 $allAchievementsCount = (
                     $achDistHardcore[$numAchievements] + ($achDist[$numAchievements] - $achDistHardcore[$numAchievements])
                 );
-            
+
                 return $allAchievementsCount;
             }
-            
+
             function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void {
                 echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
             }
@@ -365,13 +365,13 @@ sanitize_outputs(
                 $bucketLabels = [];
                 $hAxisValues = [];
                 $bucketIteration = 0;
-            
+
                 // Loop through each bucket to generate their labels and values.
                 foreach ($buckets as $index => $bucket) {
                     if ($bucketIteration++ > 0) {
                         echo ", ";
                     }
-            
+
                     // Is this the last bucket? If so, we only want it to include
                     // players who have earned all the achievements, not a range.
                     if ($index == count($buckets) - 1) {
@@ -380,17 +380,17 @@ sanitize_outputs(
                         $bucketLabels[] = $label;
                         $hAxisValues[] = $numAchievements;
                     } else {
-                        // For other buckets, the label indicates the range of achievements that 
+                        // For other buckets, the label indicates the range of achievements that
                         // the bucket represents.
                         $start = ($index * $bucketSize) + 1;
                         $end = min(($index + 1) * $bucketSize, $numAchievements);
-                        
-                        // If the end of the range equals the total number of achievements, decrement it by one 
+
+                        // If the end of the range equals the total number of achievements, decrement it by one
                         // to avoid including the all achievements case in the current bucket.
                         if ($end == $numAchievements) {
                             $end--;
                         }
-            
+
                         // Pluralize 'achievement' if the range contains more than one achievement.
                         $plural = $end > $start ? 's' : '';
                         $label = "Earned $start-$end achievement$plural";
@@ -426,8 +426,8 @@ sanitize_outputs(
                     count: <?= $numGridlines ?>,
                     color: '#333333'
                 },
-                <?php 
-                if ($isBucketingEnabled) { 
+                <?php
+                if ($isBucketingEnabled) {
                     echo 'ticks: hAxisValues.map(function(value, index) { return {v: index + 1, f: value.toString()}; }),';
                 }
                 ?>
