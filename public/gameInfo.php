@@ -300,32 +300,122 @@ sanitize_outputs(
 
         dataTotalScore.addRows([
             <?php
-            $largestWonByCount = 0;
-            $count = 0;
-            $plural = '';
-            for ($i = 1; $i <= $numAchievements; $i++) {
-                if ($count++ > 0) {
-                    $plural = 's';
-                    echo ", ";
-                }
-                $wonByUserCount = $achDist[$i];
+            function calculateBuckets(int $numAchievements, array $achDist, array $achDistHardcore): array {
+                // Enable bucketing based on the number of achievements in the set.
+                // This number was picked arbitrarily, but generally reflects when we start seeing
+                // width constraints in the Achievements Distribution bar chart.
+                $isBucketingEnabled = $numAchievements > 60;
 
-                if ($wonByUserCount > $largestWonByCount) {
-                    $largestWonByCount = $wonByUserCount;
+                // Bucket size is determined based on the total number of achievements in the set.
+                // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by 20).
+                // If bucketing is not enabled, each achievement gets its own bucket (bucket size is 1).
+                $bucketSize = $isBucketingEnabled ? ceil($numAchievements / 20) : 1;
+                
+                $buckets = [];
+                $largestWonByCount = 0;
+
+                // Iterate through the achievements and distribute them into buckets.
+                for ($i = 1; $i < $numAchievements; $i++) {
+                    // Determine the bucket index based on the current achievement number.
+                    $bucketIndex = intval(($i - 1) / $bucketSize);
+
+                    // Initialize the bucket if it does not exist.
+                    if (!isset($buckets[$bucketIndex])) {
+                        $buckets[$bucketIndex] = ['hardcore' => 0, 'softcore' => 0];
+                    }
+
+                    // Distribute the achievements into the bucket by adding the number of hardcore
+                    // users who achieved it and the number of softcore users who achieved it to
+                    // the respective counts.
+                    $wonByUserCount = $achDist[$i];
+                    $buckets[$bucketIndex]['hardcore'] += $achDistHardcore[$i];
+                    $buckets[$bucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
+                
+                    // We need to also keep tracked of `largestWonByCount`, which is later used for chart
+                    // configuration, such as determining the number of gridlines to show.
+                    $currentTotal = $buckets[$bucketIndex]['hardcore'] + $buckets[$bucketIndex]['softcore'];
+                    $largestWonByCount = max($currentTotal, $largestWonByCount);
                 }
 
-                echo "[ {v:$i, f:\"Earned $i achievement$plural\"}, $achDistHardcore[$i], $wonByUserCount - $achDistHardcore[$i] ] ";
+                return [$isBucketingEnabled, $buckets, $bucketSize, $largestWonByCount];
             }
 
+            function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int {
+                // Add a bucket for the users who have earned all achievements.
+                $buckets[] = [
+                    'hardcore' => $achDistHardcore[$numAchievements],
+                    'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements]
+                ];
+
+                // Calculate the total count of users who have earned all achievements.
+                // This will later be used for chart configuration in determining the
+                // number of gridlines to show on one of the axes.
+                $allAchievementsCount = (
+                    $achDistHardcore[$numAchievements] + ($achDist[$numAchievements] - $achDistHardcore[$numAchievements])
+                );
+            
+                return $allAchievementsCount;
+            }
+            
+            function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void {
+                echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
+            }
+
+            function generateBucketLabelsAndValues(int $numAchievements, array $buckets, int $bucketSize): array {
+                $bucketLabels = [];
+                $hAxisValues = [];
+                $bucketIteration = 0;
+            
+                // Loop through each bucket to generate their labels and values.
+                foreach ($buckets as $index => $bucket) {
+                    if ($bucketIteration++ > 0) {
+                        echo ", ";
+                    }
+            
+                    // Is this the last bucket? If so, we only want it to include
+                    // players who have earned all the achievements, not a range.
+                    if ($index == count($buckets) - 1) {
+                        $label = "Earned $numAchievements achievements";
+                        printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+                        $bucketLabels[] = $label;
+                        $hAxisValues[] = $numAchievements;
+                    } else {
+                        // For other buckets, the label indicates the range of achievements that 
+                        // the bucket represents.
+                        $start = ($index * $bucketSize) + 1;
+                        $end = min(($index + 1) * $bucketSize, $numAchievements);
+                        
+                        // If the end of the range equals the total number of achievements, decrement it by one 
+                        // to avoid including the all achievements case in the current bucket.
+                        if ($end == $numAchievements) {
+                            $end--;
+                        }
+            
+                        // Pluralize 'achievement' if the range contains more than one achievement.
+                        $plural = $end > $start ? 's' : '';
+                        $label = "Earned $start-$end achievement$plural";
+                        printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+                        $bucketLabels[] = $label;
+                        $hAxisValues[] = $end;
+                    }
+                }
+
+                return $hAxisValues;
+            }
+
+            [$isBucketingEnabled, $buckets, $bucketSize, $largestWonByCount] = calculateBuckets($numAchievements, $achDist, $achDistHardcore);
+            $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
+            $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
+
+            $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
             if ($largestWonByCount > 20) {
                 $largestWonByCount = -2;
             }
 
-            // if there's less than 20 achievements, just show a line for every value
-            // otherwise show 10 lines (chart will actually use less lines if it doesn't divide evenly)
-            $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
+            $hAxisValues = generateBucketLabelsAndValues($numAchievements, $buckets, $bucketSize);
             ?>
         ]);
+        var hAxisValues = <?php echo json_encode($hAxisValues); ?>;
         var optionsTotalScore = {
             isStacked: true,
             backgroundColor: 'transparent',
@@ -336,10 +426,15 @@ sanitize_outputs(
                     count: <?= $numGridlines ?>,
                     color: '#333333'
                 },
+                <?php 
+                if ($isBucketingEnabled) { 
+                    echo 'ticks: hAxisValues.map(function(value, index) { return {v: index + 1, f: value.toString()}; }),';
+                }
+                ?>
                 minorGridlines: { count: 0 },
                 format: '#',
                 slantedTextAngle: 90,
-                maxAlternation: 0
+                maxAlternation: 0,
             },
             vAxis: {
                 textStyle: { color: '#186DEE' },
