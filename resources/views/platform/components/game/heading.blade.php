@@ -6,7 +6,7 @@
 
 <?php
 // TODO: Migrate renderGameTitle to a Blade component.
-$renderedTitle = renderGameTitle(e($gameTitle));
+$renderedTitle = renderGameTitle($gameTitle);
 ?>
 
 <h1 class="text-h3">
