@@ -189,9 +189,14 @@ RenderContentStart($pageTitle);
         echo "<div id='achievemententry'>";
 
         $renderedTitle = renderAchievementTitle($achievementTitle);
+
         echo "<div class='flex justify-between'>";
         echo "<div>";
-        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a>";
+        if ($achPoints !== 0 && $achTruePoints !== 0) {
+            echo " ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span>";
+        }
+        echo "<br>";
         echo "$desc";
         echo "</div>";
         if ($achievedLocal) {
