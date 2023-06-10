@@ -351,6 +351,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         case TicketState::Closed:
             if ($reason == TicketState::REASON_DEMOTED) {
                 updateAchievementFlags($achID, AchievementType::Unofficial);
+                addArticleComment("Server", ArticleType::Achievement, $achID, "$user demoted this achievement to Unofficial.", $user);
             }
             $comment = "Ticket closed by $user. Reason: \"$reason\".";
             postActivity($user, ActivityType::ClosedTicket, $achID);
