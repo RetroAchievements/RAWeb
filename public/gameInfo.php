@@ -822,11 +822,7 @@ sanitize_outputs(
             $imageIngame = media_asset($gameData['ImageIngame']);
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
-            $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
-            $iconName = Str::kebab($cleanSystemShortName);
-            $iconPath = public_path("assets/images/system/$iconName.png");
-            $iconUrl = file_exists($iconPath) ? asset("assets/images/system/$iconName.png") : $fallBackConsoleIcon;
+            $systemIconUrl = getSystemIconUrl($consoleID);
 
             $gameMetaBindings = [
                 'consoleName' => $consoleName,
@@ -834,7 +830,7 @@ sanitize_outputs(
                 'gameHubs' => $gameHubs,
                 'gameTitle' => $gameTitle,
                 'genre' => $genre,
-                'iconUrl' => $iconUrl,
+                'iconUrl' => $systemIconUrl,
                 'imageIcon' => $imageIcon,
                 'isFullyFeaturedGame' => $isFullyFeaturedGame,
                 'publisher' => $publisher,
@@ -1500,7 +1496,9 @@ sanitize_outputs(
                                 icon: false,
                                 tooltip: false,
                             );
-                            echo " <span class='TrueRatio'>($achTrueRatio)</span>";
+                            if ($achPoints !== 0) {
+                                echo " <span class='TrueRatio'>($achTrueRatio)</span>";
+                            }
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
                             if ($flags != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
