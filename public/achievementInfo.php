@@ -193,7 +193,7 @@ RenderContentStart($pageTitle);
         echo "<div class='flex justify-between'>";
         echo "<div>";
         echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a>";
-        if ($achPoints !== 0 && $achTruePoints !== 0) {
+        if ($achPoints !== 0) {
             echo " ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span>";
         }
         echo "<br>";
