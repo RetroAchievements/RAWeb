@@ -1356,7 +1356,9 @@ sanitize_outputs(
                                 icon: false,
                                 tooltip: false,
                             );
-                            echo " <span class='TrueRatio'>($achTrueRatio)</span>";
+                            if ($achPoints !== 0) {
+                                echo " <span class='TrueRatio'>($achTrueRatio)</span>";
+                            }
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
                             if ($flags != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
