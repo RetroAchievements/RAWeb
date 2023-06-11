@@ -197,13 +197,15 @@ sanitize_outputs($consoleName, $requestedConsole);
 
 RenderContentStart($requestedConsole . " Games");
 
-function renderConsoleHeading(int $consoleID, string $consoleName): string
+function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall = false): string
 {
     $systemIconUrl = getSystemIconUrl($consoleID);
+    $iconSize = $isSmall ? 24 : 32;
+    $headingSizeClassName = $isSmall ? 'text-h3' : '';
 
     return <<<HTML
-        <h2 class="flex gap-x-2 items-center">
-            <img src="$systemIconUrl" alt="Console icon" width="32" height="32">
+        <h2 class="flex gap-x-2 items-center $headingSizeClassName">
+            <img src="$systemIconUrl" alt="Console icon" width="$iconSize" height="$iconSize">
             <span>$consoleName</span>
         </h2>
     HTML;
@@ -228,7 +230,7 @@ function renderConsoleHeading(int $consoleID, string $consoleName): string
                 foreach ($devConsoles as $consoleName => $consoleData) {
                     sanitize_outputs($consoleName);
 
-                    echo renderConsoleHeading($consoleData['consoleID'], $consoleName);
+                    echo renderConsoleHeading($consoleData['consoleID'], $consoleName, $isSmall = true);
                     ListGames($consoleData['consoleGames'], $dev, '', $sortBy, $showTickets, false, true);
 
                     echo "<br/>";
