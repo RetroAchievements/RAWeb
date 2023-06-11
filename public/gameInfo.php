@@ -300,44 +300,90 @@ sanitize_outputs(
 
         dataTotalScore.addRows([
             <?php
-            function calculateBuckets(int $numAchievements, array $achDist, array $achDistHardcore): array {
+            function generateEmptyBucketsWithBounds(int $numAchievements): array {
+                $DYNAMIC_BUCKETING_THRESHOLD = 44;
+                $GENERATED_RANGED_BUCKETS_COUNT = 19;
+
                 // Enable bucketing based on the number of achievements in the set.
                 // This number was picked arbitrarily, but generally reflects when we start seeing
                 // width constraints in the Achievements Distribution bar chart.
-                $isBucketingEnabled = $numAchievements > 60;
+                $isDynamicBucketingEnabled = $numAchievements >= $DYNAMIC_BUCKETING_THRESHOLD;
+
+                // If bucketing is enabled, we'll dynamically generate 19 buckets. The final 20th
+                // bucket will contain all users who have completed/mastered the game.
+                $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements;
 
                 // Bucket size is determined based on the total number of achievements in the set.
-                // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by 20).
+                // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by $bucketCount).
                 // If bucketing is not enabled, each achievement gets its own bucket (bucket size is 1).
-                $bucketSize = $isBucketingEnabled ? ceil($numAchievements / 20) : 1;
+                $bucketSize = $isDynamicBucketingEnabled ? ($numAchievements - 1) / $bucketCount : 1;
 
                 $buckets = [];
+                $currentUpperBound = 1;
+                for ($i = 0; $i < $bucketCount; $i++) {
+                    if ($isDynamicBucketingEnabled) {
+                        $start = $i === 0 ? 1 : $currentUpperBound + 1;
+                        $end = intval(round($bucketSize * ($i + 1)));
+                        $buckets[$i] = ['start' => $start, 'end' => $end, 'hardcore' => 0, 'softcore' => 0];
+
+                        $currentUpperBound = $end;
+                    } else {
+                        $buckets[$i] = ['start' => $i + 1, 'end' => $i + 1, 'hardcore' => 0, 'softcore' => 0];
+                    }
+                }
+
+                return [$buckets, $isDynamicBucketingEnabled];
+            }
+
+            function findBucketIndex(array $buckets, int $achievementNumber): int {
+                $low = 0;
+                $high = count($buckets) - 1;
+
+                // Perform a binary search.
+                while ($low <= $high) {
+                    $mid = intdiv($low + $high, 2);
+                    if ($achievementNumber >= $buckets[$mid]['start'] && $achievementNumber <= $buckets[$mid]['end']) {
+                        return $mid;
+                    }
+                    if ($achievementNumber < $buckets[$mid]['start']) {
+                        $high = $mid - 1;
+                    } else {
+                        $low = $mid + 1;
+                    }
+                }
+
+                // Error: this should not happen unless something is terribly wrong with the page.
+                return -1;
+            }
+
+            function calculateBuckets(
+                array &$buckets,
+                bool $isDynamicBucketingEnabled,
+                int $numAchievements,
+                array $achDist,
+                array $achDistHardcore
+            ): array {
                 $largestWonByCount = 0;
 
-                // Iterate through the achievements and distribute them into buckets.
+                // Iterate through the achievements and distribute them into the buckets.
                 for ($i = 1; $i < $numAchievements; $i++) {
                     // Determine the bucket index based on the current achievement number.
-                    $bucketIndex = intval(($i - 1) / $bucketSize);
-
-                    // Initialize the bucket if it does not exist.
-                    if (!isset($buckets[$bucketIndex])) {
-                        $buckets[$bucketIndex] = ['hardcore' => 0, 'softcore' => 0];
-                    }
+                    $targetBucketIndex = $isDynamicBucketingEnabled ? findBucketIndex($buckets, $i) : $i - 1;
 
                     // Distribute the achievements into the bucket by adding the number of hardcore
                     // users who achieved it and the number of softcore users who achieved it to
                     // the respective counts.
                     $wonByUserCount = $achDist[$i];
-                    $buckets[$bucketIndex]['hardcore'] += $achDistHardcore[$i];
-                    $buckets[$bucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
+                    $buckets[$targetBucketIndex]['hardcore'] += $achDistHardcore[$i];
+                    $buckets[$targetBucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
 
                     // We need to also keep tracked of `largestWonByCount`, which is later used for chart
                     // configuration, such as determining the number of gridlines to show.
-                    $currentTotal = $buckets[$bucketIndex]['hardcore'] + $buckets[$bucketIndex]['softcore'];
+                    $currentTotal = $buckets[$targetBucketIndex]['hardcore'] + $buckets[$targetBucketIndex]['softcore'];
                     $largestWonByCount = max($currentTotal, $largestWonByCount);
                 }
 
-                return [$isBucketingEnabled, $buckets, $bucketSize, $largestWonByCount];
+                return [$buckets, $largestWonByCount];
             }
 
             function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int {
@@ -365,10 +411,11 @@ sanitize_outputs(
                 echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
             }
 
-            function generateBucketLabelsAndValues(int $numAchievements, array $buckets, int $bucketSize): array {
+            function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array {
                 $bucketLabels = [];
                 $hAxisValues = [];
                 $bucketIteration = 0;
+                $bucketCount = count($buckets);
 
                 // Loop through each bucket to generate their labels and values.
                 foreach ($buckets as $index => $bucket) {
@@ -378,43 +425,35 @@ sanitize_outputs(
 
                     // Is this the last bucket? If so, we only want it to include
                     // players who have earned all the achievements, not a range.
-                    if ($index == count($buckets) - 1) {
+                    if ($index == $bucketCount - 1) {
                         $label = "Earned $numAchievements achievements";
                         printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
-                        $bucketLabels[] = $label;
+
                         $hAxisValues[] = $numAchievements;
                     } else {
-                        if ($bucketSize > 1) {
-                            // For other buckets, the label indicates the range of achievements that
-                            // the bucket represents.
-                            $start = ($index * $bucketSize) + 1;
-                            $end = min(($index + 1) * $bucketSize, $numAchievements);
+                        // For other buckets, the label indicates the range of achievements that
+                        // the bucket represents.
+                        $start = $bucket['start'];
+                        $end = $bucket['end'];
 
-                            // If the end of the range equals the total number of achievements, decrement it by one
-                            // to avoid including the all achievements case in the current bucket.
-                            if ($end == $numAchievements) {
-                                $end--;
-                            }
-
-                            // Pluralize 'achievement' if the range contains more than one achievement.
-                            $plural = $end > $start ? 's' : '';
+                        // Pluralize 'achievement' if the range contains more than one achievement.
+                        $plural = $end > 1 ? 's' : '';
+                        $label = "Earned $start achievement$plural";
+                        if ($start !== $end) {
                             $label = "Earned $start-$end achievement$plural";
-                            $hAxisValues[] = $end;
-                        } else {
-                            $achievementNumber = $index + 1;
-                            $plural = $index > 0 ? "s" : "";
-                            $label = "Earned $achievementNumber achievement$plural";
                         }
 
                         printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
-                        $bucketLabels[] = $label;
+
+                        $hAxisValues[] = $end;
                     }
                 }
 
                 return $hAxisValues;
             }
 
-            [$isBucketingEnabled, $buckets, $bucketSize, $largestWonByCount] = calculateBuckets($numAchievements, $achDist, $achDistHardcore);
+            [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
+            [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $achDist, $achDistHardcore);
             $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
             $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
 
@@ -423,7 +462,7 @@ sanitize_outputs(
                 $largestWonByCount = -2;
             }
 
-            $hAxisValues = generateBucketLabelsAndValues($numAchievements, $buckets, $bucketSize);
+            $hAxisValues = generateBucketLabelsAndValues($numAchievements, $buckets);
             ?>
         ]);
         var hAxisValues = <?php echo json_encode($hAxisValues); ?>;
@@ -437,11 +476,6 @@ sanitize_outputs(
                     count: <?= $numGridlines ?>,
                     color: '#333333'
                 },
-                <?php
-                if ($isBucketingEnabled) {
-                    echo 'ticks: hAxisValues.map(function(value, index) { return {v: index + 1, f: value.toString()}; }),';
-                }
-                ?>
                 minorGridlines: { count: 0 },
                 format: '#',
                 slantedTextAngle: 90,
