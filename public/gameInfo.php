@@ -476,6 +476,11 @@ sanitize_outputs(
                     count: <?= $numGridlines ?>,
                     color: '#333333'
                 },
+                <?php
+                if ($isDynamicBucketingEnabled) {
+                    echo 'ticks: hAxisValues.map(function(value, index) { return {v: index + 1, f: value.toString()}; }),';
+                }
+                ?>
                 minorGridlines: { count: 0 },
                 format: '#',
                 slantedTextAngle: 90,
