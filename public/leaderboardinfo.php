@@ -88,8 +88,18 @@ RenderContentStart('Leaderboard');
             echo " &raquo; <b>$lbTitle</b>";
             echo "</div>";
 
-            $renderedTitle = renderGameTitle("$gameTitle ($consoleName)");
-            echo "<h3>$renderedTitle</h3>";
+            $systemIconUrl = getSystemIconUrl($consoleID);
+            echo Blade::render('
+                <x-game.heading
+                    :consoleName="$consoleName"
+                    :gameTitle="$gameTitle"
+                    :iconUrl="$iconUrl"
+                />
+            ', [
+                'consoleName' => $consoleName,
+                'gameTitle' => $gameTitle,
+                'iconUrl' => $systemIconUrl,
+            ]);
 
             echo "<table class='nicebox'><tbody>";
 
