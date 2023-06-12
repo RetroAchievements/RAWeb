@@ -352,7 +352,7 @@ sanitize_outputs(
                     }
                 }
 
-                // Error: this should not happen unless something is terribly wrong with the page.
+                // Error: This should not happen unless something is terribly wrong with the page.
                 return -1;
             }
 
