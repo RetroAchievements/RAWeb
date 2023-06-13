@@ -302,7 +302,7 @@ sanitize_outputs(
             <?php
             function generateEmptyBucketsWithBounds(int $numAchievements): array {
                 $DYNAMIC_BUCKETING_THRESHOLD = 44;
-                $GENERATED_RANGED_BUCKETS_COUNT = 19;
+                $GENERATED_RANGED_BUCKETS_COUNT = 20;
 
                 // Enable bucketing based on the number of achievements in the set.
                 // This number was picked arbitrarily, but generally reflects when we start seeing
@@ -445,7 +445,7 @@ sanitize_outputs(
 
                         printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
 
-                        $hAxisValues[] = $end;
+                        $hAxisValues[] = $start;
                     }
                 }
 
