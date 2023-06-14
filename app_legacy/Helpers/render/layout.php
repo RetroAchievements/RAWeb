@@ -174,7 +174,7 @@ function RenderToolbar(): void
     echo "<li><a href='https://github.com/RetroAchievements/guides/wiki/'>RAGuides Wiki</li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
-    echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
+    echo "<li><a href='https://docs.retroachievements.org/Developer-Docs/'>Developer Documentation</a></li>";
     echo "</ul>";
     echo "</div>";
     echo "</li>";
