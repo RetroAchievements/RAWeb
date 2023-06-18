@@ -32,6 +32,7 @@ if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
 
 if ($hasGameClaimed && updateTopicOriginalPoster($user, $forumTopicID)) {
     addArticleComment("Server", ArticleType::GameModification, $gameID, "$user set themselves as the game's forum topic original poster.");
+
     return back()->with('success', __('legacy.success.ok'));
 }
 
