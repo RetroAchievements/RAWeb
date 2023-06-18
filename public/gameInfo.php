@@ -300,7 +300,8 @@ sanitize_outputs(
 
         dataTotalScore.addRows([
             <?php
-            function generateEmptyBucketsWithBounds(int $numAchievements): array {
+            function generateEmptyBucketsWithBounds(int $numAchievements): array
+            {
                 $DYNAMIC_BUCKETING_THRESHOLD = 44;
                 $GENERATED_RANGED_BUCKETS_COUNT = 20;
 
@@ -335,7 +336,8 @@ sanitize_outputs(
                 return [$buckets, $isDynamicBucketingEnabled];
             }
 
-            function findBucketIndex(array $buckets, int $achievementNumber): int {
+            function findBucketIndex(array $buckets, int $achievementNumber): int
+            {
                 $low = 0;
                 $high = count($buckets) - 1;
 
@@ -386,7 +388,8 @@ sanitize_outputs(
                 return [$buckets, $largestWonByCount];
             }
 
-            function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int {
+            function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int
+            {
                 if ($numAchievements <= 0) {
                     return 0;
                 }
@@ -407,11 +410,13 @@ sanitize_outputs(
                 return $allAchievementsCount;
             }
 
-            function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void {
+            function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void
+            {
                 echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
             }
 
-            function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array {
+            function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array
+            {
                 $bucketLabels = [];
                 $hAxisValues = [];
                 $bucketIteration = 0;

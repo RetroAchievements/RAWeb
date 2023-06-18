@@ -1,7 +1,7 @@
 <?php
 
-use App\Support\Shortcode\Shortcode;
 use App\Site\Enums\Permissions;
+use App\Support\Shortcode\Shortcode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
