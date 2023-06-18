@@ -41,10 +41,10 @@ if ($action === 'unlocks') {
 
         $keys = array_keys($winners);
         $winnersCount = count($winners);
-        for ($i = 0; $i < $winnersCount; $i++) {
-            $winnersCount = is_countable($winners[$keys[$i]]) ? count($winners[$keys[$i]]) : 0;
-            $message .= "<strong>" . number_format($winnersCount) . " Winners of " . $keys[$i] . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
-            $message .= implode(', ', $winners[$keys[$i]]) . "<br><br>";
+        foreach ($winners as $key => $winner) {
+            $winnersCount = is_countable($winner) ? count($winner) : 0;
+            $message .= "<strong>" . number_format($winnersCount) . " Winners of " . $key . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
+            $message .= implode(', ', $winner) . "<br><br>";
         }
     }
 }

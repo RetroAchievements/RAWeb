@@ -53,7 +53,7 @@ function performSearch(
         LEFT JOIN Console AS c ON gd.ConsoleID = c.ID
         WHERE gd.Title LIKE '%$searchQuery%'
         GROUP BY gd.ID, gd.Title
-        ORDER BY SecondarySort, gd.Title";
+        ORDER BY SecondarySort, REPLACE(gd.Title, '|', ''), gd.Title";
     }
 
     if (in_array(SearchType::Achievement, $searchType)) {

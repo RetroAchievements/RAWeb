@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Shortcode\Shortcode;
 use App\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -134,7 +135,9 @@ RenderContentStart("Forum: $thisForumTitle");
             echo "<td class='p-1'><img src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='20' height='20' title='No unread posts' alt='No unread posts'></td>";
             echo "<td>";
             echo "<a href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a>";
-            echo "<div class='mb-1' style='word-break:break-word'>$nextTopicPreview...</div>";
+            echo "<div class='mb-1' style='word-break:break-word'>";
+            echo Shortcode::stripAndClamp("$nextTopicPreview...", previewLength: 57);
+            echo "</div>";
             echo "</td>";
             echo "<td>";
             echo "<div>" . userAvatar($nextTopicAuthor, icon: false) . "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";

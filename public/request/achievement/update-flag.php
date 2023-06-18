@@ -32,7 +32,7 @@ if (updateAchievementFlags($achievementIds, $value)) {
     if ($value == AchievementType::Unofficial) {
         $commentText = 'demoted this achievement to Unofficial';
     }
-    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "\"$user\" $commentText.", $user);
+    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
     expireGameTopAchievers($achievement['GameID']);
 
     return response()->json(['message' => __('legacy.success.ok')]);

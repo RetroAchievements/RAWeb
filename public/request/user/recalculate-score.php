@@ -16,7 +16,7 @@ if ($input['user'] !== $user && $permissions < Permissions::Admin) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (recalculatePlayerPoints($user)) {
+if (recalculatePlayerPoints($input['user'])) {
     return back()->with('success', __('legacy.success.points_recalculate'));
 }
 

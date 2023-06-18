@@ -69,13 +69,23 @@ function renderGameTitle(?string $title = null, bool $tags = true): string
     $matches = [];
     preg_match_all('/~([^~]+)~/', $title, $matches);
     foreach ($matches[0] as $i => $match) {
-        $category = $matches[1][$i];
+        // The string in $matches[1][$i] may have encoded entities. We need to
+        // first decode those back to their original characters before
+        // sanitizing the string.
+        $decoded = html_entity_decode($matches[1][$i], ENT_QUOTES, 'UTF-8');
+        $category = htmlspecialchars($decoded, ENT_NOQUOTES, 'UTF-8');
+
         $span = "<span class='tag'><span>$category</span></span>";
         $updateHtml($html, $match, $tags ? " $span" : '');
     }
     $matches = [];
     if (preg_match('/\s?\[Subset - (.+)\]/', $title, $matches)) {
-        $subset = $matches[1];
+        // The string in $matches[1] may have encoded entities. We need to
+        // first decode those back to their original characters before
+        // sanitizing the string.
+        $decoded = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
+        $subset = htmlspecialchars($decoded, ENT_QUOTES, 'UTF-8');
+
         $span = "<span class='tag'>"
             . "<span class='tag-label'>Subset</span>"
             . "<span class='tag-arrow'></span>"
@@ -281,74 +291,6 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
     }
     echo "</tbody></table>";
     echo "</div>";
-}
-
-function RenderMetadataTableRow(
-    string $label,
-    ?string $gameDataValue,
-    ?array $gameHubs = null,
-    array $altLabels = []
-): void {
-    $gameDataValues = !empty($gameDataValue) ? array_map('trim', explode(',', $gameDataValue)) : [];
-    $unmergedKeys = array_keys($gameDataValues);
-
-    if ($gameHubs) {
-        $mergeMetadata = function ($hubCategory) use (&$gameHubs, &$gameDataValues, &$unmergedKeys) {
-            $hubPrefix = "[$hubCategory - ";
-            foreach ($gameHubs as $hub) {
-                $title = $hub['Title'];
-                if (str_starts_with($title, $hubPrefix)) {
-                    if (str_starts_with($hubCategory, "Hack")) {
-                        // for Hacks, we do want to display the hub category, but it
-                        // should be normalized to "Hack - XXX".
-
-                        // the hub name will always be "[Hacks - XXX]"
-                        // strip the brackets and attempt to match the hub name explicitly
-                        $value = substr($title, 1, -1);
-                        $key = array_search($value, $gameDataValues);
-
-                        // normalize to "Hack - XXX";
-                        $value = str_replace("Hacks - ", "Hack - ", $value);
-
-                        if ($key === false) {
-                            // non-normalized value did not match, try normalized value
-                            $key = array_search($value, $gameDataValues);
-                        }
-                    } else {
-                        // strip the category and brackets and look for an exact match
-                        $value = substr($title, strlen($hubPrefix), -1);
-                        $key = array_search($value, $gameDataValues);
-                    }
-
-                    $link = "<a href=/game/" . $hub['gameIDAlt'] . ">$value</a>";
-
-                    if ($key !== false) {
-                        $gameDataValues[$key] = $link;
-                        unset($unmergedKeys[$key]);
-                    } else {
-                        $gameDataValues[] = $link;
-                    }
-                }
-            }
-        };
-
-        $mergeMetadata($label);
-
-        foreach ($altLabels as $altLabel) {
-            $mergeMetadata($altLabel);
-        }
-    }
-
-    if (!empty($gameDataValues)) {
-        foreach ($unmergedKeys as $key) {
-            sanitize_outputs($gameDataValues[$key]);
-        }
-
-        echo "<div class='flex'>";
-        echo " <p class='tracking-tight w-[100px] min-w-[100px]'>$label</p>";
-        echo " <p class='font-semibold'>" . implode(', ', $gameDataValues) . "</p>";
-        echo "</div>";
-    }
 }
 
 function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicID, int $permissions = Permissions::Unregistered): void

@@ -473,13 +473,11 @@ function confirmEmailChange(event) {
     <?php if ($permissions >= Permissions::Registered): ?>
         <div id="rightcontainer">
             <div class='component'>
-                <h3>Request Score Recalculation</h3>
-                <form method="post" action="/request/user/recalculate-score.php">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="user" value="<?= $user ?>">
-                    If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
-                    <input value="Recalculate My Score" type='submit' size='37'>
-                </form>
+                <h3>Site Awards</h3>
+                <div style="margin-bottom: 10px">
+                    You can manually set the display order for your earned awards.
+                </div>
+                <a class="btn btn-link" href="reorderSiteAwards.php">Reorder Site Awards</a>
             </div>
             <div class='component'>
                 <h3>Avatar</h3>
@@ -504,7 +502,13 @@ function confirmEmailChange(event) {
                 </form>
             </div>
             <div class='component'>
-                <a class="btn btn-link" href="reorderSiteAwards.php">Reorder site awards</a>
+                <h3>Request Score Recalculation</h3>
+                <form method="post" action="/request/user/recalculate-score.php">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="user" value="<?= $user ?>">
+                    If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
+                    <input value="Recalculate My Score" type='submit' size='37'>
+                </form>
             </div>
         </div>
     <?php endif ?>

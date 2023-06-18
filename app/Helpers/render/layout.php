@@ -62,7 +62,7 @@ function RenderToolbar(): void
                 ["systemName" => "Atari 2600", "listID" => 25],
                 ["systemName" => "Atari 7800", "listID" => 51],
                 ["systemName" => "Atari Jaguar", "listID" => 17],
-                // ["systemName" => "Atari Jaguar CD", "listID"=>77],
+                ["systemName" => "Atari Jaguar CD", "listID" => 77],
                 ["systemName" => "Atari Lynx", "listID" => 13],
             ],
             "NEC" => [
@@ -174,7 +174,7 @@ function RenderToolbar(): void
     echo "<li><a href='https://github.com/RetroAchievements/guides/wiki/'>RAGuides Wiki</li>";
     echo "<li class='divider'></li>";
     echo "<li><a href='https://docs.retroachievements.org/'>User Documentation</a></li>";
-    echo "<li><a href='https://docs.retroachievements.org/Developer-docs/'>Developer Documentation</a></li>";
+    echo "<li><a href='https://docs.retroachievements.org/Developer-Docs/'>Developer Documentation</a></li>";
     echo "</ul>";
     echo "</div>";
     echo "</li>";
@@ -201,6 +201,7 @@ function RenderToolbar(): void
         echo "<li><a href='/setRequestList.php?u=$username'>Requested Sets</a></li>";
         echo "<li class='divider'></li>";
         echo "<li><a href='/controlpanel.php'>Settings</a></li>";
+        echo "<li><a href='/reorderSiteAwards.php'>Reorder Site Awards</a></li>";
         echo "<li class='divider'></li>";
         echo "<li>";
         echo "<form action='/request/auth/logout.php' method='post'>";

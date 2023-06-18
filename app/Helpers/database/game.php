@@ -7,6 +7,12 @@ use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Str;
+use LegacyApp\Community\Enums\ArticleType;
+use LegacyApp\Community\Enums\TicketState;
+use LegacyApp\Platform\Enums\AchievementType;
+use LegacyApp\Platform\Enums\UnlockMode;
+use LegacyApp\Platform\Models\Game;
+use LegacyApp\Site\Enums\Permissions;
 
 function getGameData(int $gameID): ?array
 {
@@ -227,7 +233,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
         // 1 or unspecified
-        default => "ORDER BY HasAchievements DESC, gd.Title ",
+        default => "ORDER BY HasAchievements DESC, SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
     };
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,

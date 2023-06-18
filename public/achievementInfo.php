@@ -39,6 +39,8 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
+$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
+
 sanitize_outputs(
     $achievementTitle,
     $desc,
@@ -48,7 +50,6 @@ sanitize_outputs(
 );
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
-$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
 
 $numWinners = 0;
 $numPossibleWinners = 0;
@@ -169,7 +170,18 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
         echo "</div>";
 
-        echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
+        $systemIconUrl = getSystemIconUrl($consoleID);
+        echo Blade::render('
+            <x-game.heading
+                :consoleName="$consoleName"
+                :gameTitle="$gameTitle"
+                :iconUrl="$iconUrl"
+            />
+        ', [
+            'consoleName' => $consoleName,
+            'gameTitle' => $gameTitle,
+            'iconUrl' => $systemIconUrl,
+        ]);
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
@@ -188,9 +200,14 @@ RenderContentStart($pageTitle);
         echo "<div id='achievemententry'>";
 
         $renderedTitle = renderAchievementTitle($achievementTitle);
+
         echo "<div class='flex justify-between'>";
         echo "<div>";
-        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a>";
+        if ($achPoints !== 0) {
+            echo " ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span>";
+        }
+        echo "<br>";
         echo "$desc";
         echo "</div>";
         if ($achievedLocal) {
