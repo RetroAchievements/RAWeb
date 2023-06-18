@@ -749,6 +749,11 @@ sanitize_outputs(
         }
     });
 
+    // Popup for updating the forum topic original poster
+    function updateForumTopicOwner(gameTitle) {
+        return confirm(`Are you sure you want to become the new original poster for ${gameTitle}?`);
+    }
+    
     // Popup for making a claim
     function makeClaim(gameTitle, revisionFlag = false, ticketFlag = false) {
         var revisionMessage = '';
@@ -956,7 +961,7 @@ sanitize_outputs(
                     }
 
                     if ($permissions >= Permissions::Developer && $hasGameClaimed && $forumTopicMetadata['Author'] !== $user) {
-                        echo "<form action='/request/game/update-forum-topic-op.php' method='post'>";
+                        echo "<form action='/request/game/update-forum-topic-op.php' method='post' onsubmit='return updateForumTopicOwner(\"$escapedGameTitle\")'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<input type='hidden' name='existing_forum_topic' value='$forumTopicID'>";
