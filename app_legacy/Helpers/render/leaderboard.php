@@ -2,6 +2,7 @@
 
 use LegacyApp\Community\Enums\AwardType;
 use LegacyApp\Community\Enums\Rank;
+use LegacyApp\Platform\Enums\AchievementType;
 use LegacyApp\Platform\Enums\UnlockMode;
 
 function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void
@@ -468,13 +469,13 @@ function getGlobalRankingData(
         if ($info == 0) {
             if ($unlockMode == UnlockMode::Hardcore) {
                 $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS AchievementCount,
+                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " AND ach.Flags = " . AchievementType::OfficialCore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw JOIN Achievements AS ach ON aw.AchievementID = ach.ID WHERE aw.User = ua.User) AS AchievementCount,
                         COALESCE(ua.RAPoints, 0) AS Points,
                         COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
                         COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
             } else {
                 $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE -1 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS AchievementCount,
+                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " AND ach.Flags = " . AchievementType::OfficialCore . " THEN 1 ELSE -1 END), 0) FROM Awarded AS aw JOIN Achievements AS ach ON aw.AchievementID = ach.ID WHERE aw.User = ua.User) AS AchievementCount,
                         COALESCE(ua.RASoftcorePoints, 0) AS Points,
                         0 AS RetroPoints,
                         0 AS RetroRatio ";
