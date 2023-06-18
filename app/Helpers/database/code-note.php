@@ -1,5 +1,6 @@
 <?php
 
+use App\Platform\Models\MemoryNote;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 
@@ -57,16 +58,22 @@ function getCodeNotes(int $gameID, ?array &$codeNotesOut): bool
     return false;
 }
 
-function submitCodeNote2(string $user, int $gameID, int $address, string $note): bool
+function submitCodeNote2(string $username, int $gameID, int $address, string $note): bool
 {
-    // Prevent <= registered users from creating code notes.
-    if (getUserPermissions($user) <= Permissions::Registered) {
+    /** @var ?User $user */
+    $user = User::firstWhere('User', $username);
+
+    if (!$user) {
         return false;
     }
 
-    $db = getMysqliConnection();
+    // TODO refactor to ability
+    $permissions = (int) $user->getAttribute('Permissions');
 
-    sanitize_sql_inputs($user, $gameID, $address, $note);
+    // Prevent <= registered users from creating code notes.
+    if ($permissions <= Permissions::Registered) {
+        return false;
+    }
 
     $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
     $currentNotes = getCodeNotesData($gameID);
@@ -74,26 +81,25 @@ function submitCodeNote2(string $user, int $gameID, int $address, string $note):
 
     if (
         $i !== false
-        && getUserPermissions($user) <= Permissions::JuniorDeveloper
+        && $permissions <= Permissions::JuniorDeveloper
         && $currentNotes[$i]['User'] !== $user
         && !empty($currentNotes[$i]['Note'])
     ) {
         return false;
     }
 
-    $userID = getUserIDFromUser($user);
+    MemoryNote::updateOrCreate(
+        [
+            'GameID' => $gameID,
+            'Address' => $address,
+        ],
+        [
+            'AuthorID' => $user->ID,
+            'Note' => $note,
+        ]
+    );
 
-    // Nope! $address will be an integer
-    // turn '0x00000f' into '15'
-    // $addressAsInt = hexdec( substr( $address, 2 ) );
-
-    $query = "INSERT INTO CodeNotes ( GameID, Address, AuthorID, Note )
-              VALUES( '$gameID', '$address', '$userID', '$note' )
-              ON DUPLICATE KEY UPDATE AuthorID=VALUES(AuthorID), Note=VALUES(Note)";
-
-    $dbResult = mysqli_query($db, $query);
-
-    return $dbResult !== false;
+    return true;
 }
 
 /**

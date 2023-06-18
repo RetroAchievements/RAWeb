@@ -25,6 +25,13 @@ class MemoryNote extends BaseModel
     public const CREATED_AT = 'Created';
     public const UPDATED_AT = 'Updated';
 
+    protected $fillable = [
+        'AuthorID',
+        'GameID',
+        'Address',
+        'Note',
+    ];
+
     protected $visible = [
         'GameID',
         'Address',
