@@ -7,12 +7,6 @@ use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Str;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Site\Enums\Permissions;
 
 function getGameData(int $gameID): ?array
 {
