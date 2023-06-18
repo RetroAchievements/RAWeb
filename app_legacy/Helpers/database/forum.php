@@ -216,7 +216,7 @@ function updateTopicOriginalPoster(string $newOriginalPoster, int $existingTopic
         ]);
     }
 
-    // Did the write operation work? 
+    // Did the write operation work?
     // We need to double-check because the writes themselves just returns `null`.
     $readTopicQuery = "SELECT Author FROM ForumTopic WHERE ID = :forumTopicId";
     $readTopicPostQuery = "SELECT Author FROM ForumTopicComment WHERE ForumTopicID = :forumTopicId ORDER BY DateCreated ASC LIMIT 1";
