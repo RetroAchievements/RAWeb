@@ -185,6 +185,51 @@ function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
     return false;
 }
 
+function updateTopicOriginalPoster(string $newOriginalPoster, int $existingTopicID): bool {
+    $newOriginalPosterID = getUserIDFromUser($newOriginalPoster);
+
+    // Get the first post in the topic. Topics can have multiple posts, so
+    // we'll grab the earliest one that's stored in the database and assume it's the first post.
+    $getTopicOPQuery = "SELECT ID FROM ForumTopicComment WHERE ForumTopicID = :forumTopicId ORDER BY DateCreated ASC LIMIT 1";
+    $topicOPResult = legacyDbFetch($getTopicOPQuery, ['forumTopicId' => $existingTopicID]);
+
+    // Did we find it? If so, update the thread's OP user.
+    if ($topicOPResult['ID']) {
+        $topicPostUpdateQuery = "UPDATE ForumTopicComment
+            SET Author = :author,
+                AuthorID = :authorId
+            WHERE ID = :topicId
+        ";
+        legacyDbFetch($topicPostUpdateQuery, [
+            'author' => $newOriginalPoster,
+            'authorId' => $newOriginalPosterID,
+            'topicId' => $topicOPResult['ID'],
+        ]);
+
+        // Also update the ForumTopic entity itself. This doesn't actually reassign the
+        // topic's OP, but is useful for identifying the topic's "owner".
+        $topicUpdateQuery = "UPDATE ForumTopic SET Author = :author, AuthorID = :authorId WHERE ID = :forumTopicId";
+        legacyDbFetch($topicUpdateQuery, [
+            'author' => $newOriginalPoster,
+            'authorId' => $newOriginalPosterID,
+            'forumTopicId' => $existingTopicID,
+        ]);
+    }
+
+    // Did the write operation work? 
+    // We need to double-check because the writes themselves just returns `null`.
+    $readTopicQuery = "SELECT Author FROM ForumTopic WHERE ID = :forumTopicId";
+    $readTopicPostQuery = "SELECT Author FROM ForumTopicComment WHERE ForumTopicID = :forumTopicId ORDER BY DateCreated ASC LIMIT 1";
+    $readTopicResult = legacyDbFetch($readTopicQuery, ['forumTopicId' => $existingTopicID]);
+    $readTopicPostResult = legacyDbFetch($readTopicPostQuery, ['forumTopicId' => $existingTopicID]);
+
+    if ($readTopicResult['Author'] === $newOriginalPoster && $readTopicPostResult['Author'] === $newOriginalPoster) {
+        return true;
+    }
+
+    return false;
+}
+
 function submitNewTopic(
     string $user,
     int $forumID,

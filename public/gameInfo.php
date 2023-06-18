@@ -55,6 +55,8 @@ $forumTopicID = $gameData['ForumTopicID'];
 $richPresenceData = $gameData['RichPresencePatch'];
 $guideURL = $gameData['GuideURL'];
 
+getTopicDetails($forumTopicID, $forumTopicMetadata);
+
 // Entries that aren't actual game only have alternatives exposed, e.g. hubs.
 $isFullyFeaturedGame = $consoleName !== 'Hubs';
 $isEventGame = $consoleName == 'Events';
@@ -950,6 +952,15 @@ sanitize_outputs(
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
                         echo "<button>Recalculate True Ratios</button>";
+                        echo "</form>";
+                    }
+
+                    if ($permissions >= Permissions::Developer && $hasGameClaimed && $forumTopicMetadata['Author'] !== $user) {
+                        echo "<form action='/request/game/update-forum-topic-op.php' method='post'>";
+                        echo csrf_field();
+                        echo "<input type='hidden' name='game' value='$gameID'>";
+                        echo "<input type='hidden' name='existing_forum_topic' value='$forumTopicID'>";
+                        echo "<button>Become Forum Topic OP</button>";
                         echo "</form>";
                     }
 
