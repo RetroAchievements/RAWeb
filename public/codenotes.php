@@ -29,6 +29,7 @@ function setRowEditingEnabled(rowEl, isEditing) {
         { className: 'note-display', showWhen: !isEditing },
         { className: 'note-edit', showWhen: isEditing },
         { className: 'save-btn', showWhen: isEditing },
+        { className: 'delete-btn', showWhen: isEditing },
         { className: 'cancel-btn', showWhen: isEditing },
     ];
 
@@ -101,12 +102,24 @@ function isSavedNoteDifferent(rowIndex, newNoteValue) {
 }
 
 /**
+ * @param {number} rowIndex - The index of the row to delete the note for.
+ */
+function deleteCodeNote(rowIndex) {
+    if (!confirm('Are you sure you want to delete this note? It will be irreversibly lost.')) {
+        return;
+    }
+
+    saveCodeNote(rowIndex, true);
+}
+
+/**
  * Save the updated note for a specific row and 
  * go back to view mode.
  * 
  * @param {number} rowIndex - The index of the row to save the note for.
+ * @param {boolean} isDeleting - Are we deleting this code note?
  */
-function saveCodeNote(rowIndex) {
+function saveCodeNote(rowIndex, isDeleting = false) {
     const rowEl = document.getElementById(`row-${rowIndex}`);
     const noteDisplayEl = rowEl.querySelector('.note-display');
     const authorAvatarCellEl = rowEl.querySelector('.note-author-avatar');
@@ -119,7 +132,7 @@ function saveCodeNote(rowIndex) {
 
     // If the user didn't actually change anything in the note but still
     // pressed the Save button, treat this like it's a cancel.
-    if (!isSavedNoteDifferent(rowIndex, noteEditEl.value)) {
+    if (!isDeleting && !isSavedNoteDifferent(rowIndex, noteEditEl.value)) {
         cancelEditMode(rowIndex);
         return;
     }
@@ -127,6 +140,7 @@ function saveCodeNote(rowIndex) {
     // If the code note was authored by a different user, make sure the
     // current user is fine with taking ownership of this note.
     if (
+        !isDeleting &&
         currentAuthor !== currentUsername &&
         !confirm('Are you sure you want to replace this note? You will become the author of this note.')
     ) {
@@ -138,7 +152,7 @@ function saveCodeNote(rowIndex) {
         // Make sure line endings are normalized to "\r\n" before storing in the DB.
         // Otherwise they'll look correct in the web UI, but won't look correct
         // in the RAIntegration tooling.
-        note: noteEditEl.value.replace(/\n/g, '\r\n'),
+        note: isDeleting ? null : noteEditEl.value.replace(/\n/g, '\r\n'),
         // Addresses are stored as base 10 numbers in the DB, not base 16.
         address: parseInt(addressHex, 16),
         gameId: <?= $gameID ?>,
@@ -148,21 +162,30 @@ function saveCodeNote(rowIndex) {
         // Before bailing from edit mode, make sure all new values for
         // the note (the text content and author avatar) are properly
         // displayed in the UI.
-        const noteValueWithLineBreaks = noteEditEl.value.replace(/\n/g, '<br />');
-        noteDisplayEl.innerHTML = noteValueWithLineBreaks;
+        if (isDeleting) {
+            rowEl.remove();
 
-        const avatarImageEl = authorAvatarCellEl.querySelector('img');
-        avatarImageEl.src = mediaAsset(`/UserPic/${currentUsername}.png`);
+            const codeNoteCountEl = document.querySelector('.code-note-count');
+            const currentDisplayCount = Number(codeNoteCountEl.textContent);
+            codeNoteCountEl.textContent = currentDisplayCount - 1;
+        } else {
+            const noteValueWithLineBreaks = noteEditEl.value.replace(/\n/g, '<br />');
+            noteDisplayEl.innerHTML = noteValueWithLineBreaks;
 
-        rowEl.querySelector('td[data-current-author]').dataset.currentAuthor = currentUsername;
+            const avatarImageEl = authorAvatarCellEl.querySelector('img');
+            avatarImageEl.src = mediaAsset(`/UserPic/${currentUsername}.png`);
 
-        const authorAvatarSpan = authorAvatarCellEl.querySelector('span.inline.whitespace-nowrap');
-        const tooltipOnMouseOverAttr = authorAvatarSpan.getAttribute('onmouseover');
-        const updatedOnMouseOverAttr = tooltipOnMouseOverAttr.replace(
-            /loadCard\(this, 'user', '([^']*)', ''\)/,
-            `loadCard(this, 'user', '${currentUsername}', '')`
-        );
-        authorAvatarSpan.setAttribute('onmouseover', updatedOnMouseOverAttr);
+            rowEl.querySelector('td[data-current-author]').dataset.currentAuthor = currentUsername;
+
+            const authorAvatarSpan = authorAvatarCellEl.querySelector('span.inline.whitespace-nowrap');
+            const tooltipOnMouseOverAttr = authorAvatarSpan.getAttribute('onmouseover');
+            const updatedOnMouseOverAttr = tooltipOnMouseOverAttr.replace(
+                /loadCard\(this, 'user', '([^']*)', ''\)/,
+                `loadCard(this, 'user', '${currentUsername}', '')`
+            );
+            authorAvatarSpan.setAttribute('onmouseover', updatedOnMouseOverAttr);
+        }
+
 
         // Now it's safe to bail.
         setRowEditingEnabled(rowEl, false);
@@ -185,7 +208,7 @@ function saveCodeNote(rowIndex) {
         at address $00000000, immediately followed by the cartridge memory. As such, the addresses
         displayed below may not directly correspond to the addresses on the real hardware.</p>
         <br/>
-        <p>There are currently <span class='font-bold'><?= $codeNoteCount ?></span> code notes for this game.</p>
+        <p>There are currently <span class='font-bold code-note-count'><?= $codeNoteCount ?></span> code notes for this game.</p>
         <?php
         if (isset($user) && $permissions >= Permissions::Registered) {
             RenderCodeNotes($codeNotes, $user, $permissions);

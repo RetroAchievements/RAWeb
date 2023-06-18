@@ -48,11 +48,16 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
         echo "<span class='font-mono'>0x$addrFormatted</span>";
         echo "</td>";
 
-        echo "<td>";
-        echo "<div class='font-mono note-display block' style='word-break:break-word'>$memNote</div>";
-        echo "<textarea class='w-full font-mono note-edit hidden'>$originalMemNote</textarea>";
-        echo "<button class='mt-[6px] save-btn hidden' onclick='saveCodeNote($rowIndex)'>Save</button>";
-        echo "</td>";
+        echo <<<HTML
+            <td>
+                <div class="font-mono note-display block" style="word-break: break-word;">$memNote</div>
+                <textarea class="w-full font-mono note-edit hidden">$originalMemNote</textarea>
+                <div class="mt-[6px] flex justify-between">
+                    <button class="save-btn hidden" onclick="saveCodeNote($rowIndex)">Save</button>
+                    <button class="delete-btn btn-danger hidden" onclick="deleteCodeNote($rowIndex)">Delete</button>
+                </div>
+            </td>
+        HTML;
 
         echo "<td class='note-author-avatar' data-current-author='" . $nextCodeNote['User'] . "'>";
         echo userAvatar($nextCodeNote['User'], label: false, iconSize: 24);
