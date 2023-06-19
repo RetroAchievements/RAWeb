@@ -285,6 +285,8 @@ function showStatusFailure(message) {
     status.classList.add('failure');
     status.innerHTML = message;
     status.style.display = 'block';
+  } else if (!message) {
+    console.trace();
   }
 }
 
