@@ -121,10 +121,26 @@ function confirmEmailChange(event) {
                     echo "<td>";
                     echo "<form class='flex gap-2 mb-1' method='post' action='/request/user/update-motto.php'>";
                     echo csrf_field();
-                    echo "<input name='motto' value=\"$userMottoString\" maxlength='50' size='50' id='motto' placeholder='Your motto'>";
-                    echo "<button class='btn'>Set Motto</button>";
+
+                    echo <<<HTML
+                        <div class="flex gap-x-2">
+                            <div class="grid gap-y-1">
+                                <input id="motto" name="motto" value="$userMottoString" maxlength="50" size="50" placeholder="Your motto">
+
+                                <div class="text-xs flex w-full justify-between">
+                                    <p>No profanity.</p>    
+                                    
+                                    <div>
+                                        <div class="textarea-counter" data-textarea-id="motto"></div>
+                                        <div class="text-danger hidden"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn">Set Motto</button>
+                        </div>
+                    HTML;
+
                     echo "</form>";
-                    echo "<div>No profanity.</div>";
                     echo "</td>";
                     echo "</tr>";
                 }

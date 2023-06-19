@@ -6,6 +6,7 @@ import { hideEarnedCheckboxComponent } from './alpine';
 import {
   copyToClipboard,
   handleLeaderboardTabClick,
+  initializeTextareaCounter,
   injectShortcode,
   mobileSafeTipEvents,
   themeChange,
@@ -24,6 +25,7 @@ lazyLoadModuleOnIdFound({
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
+window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.mobileSafeTipEvents = mobileSafeTipEvents;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
