@@ -1011,7 +1011,16 @@ sanitize_outputs(
                                 echo "<input type='hidden' name='game' value='$gameID'>";
                                 echo "<button>Complete Claim</button>";
                                 if ($isRecentPrimaryClaim) {
-                                    echo "<span class='ml-3 text-danger'>Within 24 Hours of Claim!</span>";
+                                    echo <<<HTML
+                                        <a
+                                            href="https://docs.retroachievements.org/Claims-System/#how-to-complete-a-claim"
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            class="ml-3 text-danger underline"
+                                        >
+                                            Within 24 Hours of Claim!
+                                        </a>
+                                    HTML;
                                 }
                                 echo "</form>";
                             }
