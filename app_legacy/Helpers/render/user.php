@@ -94,7 +94,7 @@ function renderUserCard(string|array $user): string
     $lastLogin = $data['LastLogin'] ? getNiceDate(strtotime($data['LastLogin'])) : null;
     $memberSince = $data['Created'] ? getNiceDate(strtotime($data['Created']), true) : null;
 
-    $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='width: 400px'>";
+    $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='min-width: 400px'>";
 
     $tooltip .= "<img width='128' height='128' src='" . media_asset('/UserPic/' . $username . '.png') . "'>";
 
@@ -102,7 +102,7 @@ function renderUserCard(string|array $user): string
 
     $tooltip .= "<div class='flex justify-between mb-2'>";
     $tooltip .= "<div class='usercardusername'>$username</div>";
-    $tooltip .= "<div class='usercardaccounttype'>$userAccountType</div>";
+    $tooltip .= "<div class='usercardaccounttype ml-3'>$userAccountType</div>";
     $tooltip .= "</div>";
 
     // Add the user motto if it's set
