@@ -178,6 +178,7 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                             maxlength="2000"
                             placeholder="Enter a comment here..."
                             id="comment_textarea_$commentId"
+                            oninput="autoExpandTextInput(this)"
                         ></textarea>
                         <button class="comment-submit-button">
                             <img src="$submitImageUrl" alt="Submit">

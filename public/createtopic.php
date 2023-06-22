@@ -59,6 +59,7 @@ RenderContentStart("Create topic: $thisForumTitle");
             maxlength="60000"
             name="body"
             placeholder="Don't share links to copyrighted ROMs."
+            oninput='autoExpandTextInput(this)'
         ><?= $existingComment ?></textarea>
         <?php
         echo "</td></tr>";

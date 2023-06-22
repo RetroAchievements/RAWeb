@@ -4,6 +4,7 @@ import Alpine from 'alpinejs';
 
 import { hideEarnedCheckboxComponent } from './alpine';
 import {
+  autoExpandTextInput,
   copyToClipboard,
   handleLeaderboardTabClick,
   injectShortcode,
@@ -21,6 +22,7 @@ lazyLoadModuleOnIdFound({
   moduleNameToAttachToWindow: 'reorderSiteAwards',
 });
 
+window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;

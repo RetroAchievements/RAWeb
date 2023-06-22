@@ -1,5 +1,6 @@
 import type { Alpine } from 'alpinejs';
 
+import { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
 import { hideEarnedCheckboxComponent as HideEarnedCheckboxComponent } from '@/alpine/hideEarnedCheckboxComponent';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
@@ -8,6 +9,7 @@ import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibi
 
 declare global {
   var Alpine: Alpine;
+  var autoExpandTextInput: typeof AutoExpandTextInput;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
