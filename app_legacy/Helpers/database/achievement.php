@@ -25,14 +25,23 @@ function getAchievementsList(
     ];
 
     $innerJoin = "";
+    $withAwardedDate = "";
     if ($params > 0 && isValidUsername($username)) {
         $bindings['username'] = $username;
         $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = :username";
+        $withAwardedDate = ", aw.Date AS AwardedDate";
+    }
+
+    // We can't run a sort on a user's achievements AwardedDate
+    // if we don't have a user. Bail from the sort.
+    if (($sortBy == 19 || $sortBy == 20) && !isValidUsername($username)) {
+        $sortBy = 0;
     }
 
     $query = "SELECT
                     ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID,
                     gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName
+                    $withAwardedDate
                 FROM Achievements AS ach
                 $innerJoin
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
@@ -107,6 +116,12 @@ function getAchievementsList(
             break;
         case 18:
             $query .= "ORDER BY ach.DateModified DESC ";
+            break;
+        case 19:
+            $query .= "ORDER BY AwardedDate DESC ";
+            break;
+        case 20:
+            $query .= "ORDER BY AwardedDate ";
             break;
     }
 
