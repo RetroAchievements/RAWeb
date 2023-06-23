@@ -209,7 +209,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
                 echo "<td>";
                 echo "<span class='smalldate'>" . getNiceDate(strtotime($achDateCreated)) . "</span>";
                 echo "</td>";
-    
+
                 if (!$mobileBrowser) {
                     echo "<td>";
                     echo "<span class='smalldate'>" . getNiceDate(strtotime($achDateModified)) . "</span>";
