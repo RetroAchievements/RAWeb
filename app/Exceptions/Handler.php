@@ -9,6 +9,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -46,6 +47,40 @@ class Handler extends ExceptionHandler
     public function report(Throwable $e)
     {
         parent::report($e);
+    }
+
+    protected function buildExceptionContext(Throwable $e)
+    {
+        $context = parent::buildExceptionContext($e);
+
+        $request = request();
+        if ($request) {
+            $context['url'] = $request->url();
+
+            // never log raw passwords
+            $params = Arr::except($request->all(), $this->dontFlash);
+
+            // extract the user and token parameters for API calls
+            if (str_ends_with($context['url'], 'dorequest.php')) {
+                unset($params['u']);
+                unset($params['t']);
+            } elseif (str_contains($context['url'], '/API/')) {
+                unset($params['z']);
+                unset($params['y']);
+            }
+
+            // truncate long parameters
+            foreach ($params as $k => $p) {
+                if (strlen($p) > 20) {
+                    $params[$k] = substr($p, 0, 15) . "...";
+                }
+            }
+
+            // capture any remaining parameters
+            $context['params'] = http_build_query($params);
+        }
+
+        return $context;
     }
 
     /**
