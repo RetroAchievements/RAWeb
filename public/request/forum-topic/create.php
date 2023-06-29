@@ -1,15 +1,15 @@
 <?php
 
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'forum' => 'required|integer|exists:mysql_legacy.Forum,ID',
+    'forum' => 'required|integer|exists:Forum,ID',
     'title' => 'required|string|max:255',
     'body' => 'required|string|max:60000',
 ]);

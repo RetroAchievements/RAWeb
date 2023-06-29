@@ -7,7 +7,6 @@ namespace App\Community\Components;
 use App\Community\Models\ForumTopic;
 use App\Community\Models\ForumTopicComment;
 use App\Site\Components\Grid;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -23,7 +22,7 @@ class ForumTopicComments extends Grid
 
     protected function resourceName(): string
     {
-        return 'forum-topic.comment';
+        return 'forum-topic-comment';
     }
 
     public function mount(int $topicId, ?int $take = null): void
@@ -43,6 +42,9 @@ class ForumTopicComments extends Grid
         );
     }
 
+    /**
+     * @return Builder<ForumTopicComment>
+     */
     protected function query(): Builder
     {
         /** @var ForumTopic $topic */
@@ -55,7 +57,7 @@ class ForumTopicComments extends Grid
              * deleted comments on forum topics will be displayed as either deleted or blanked out
              * to preserve pagination index
              */
-            ->withTrashed()
+            // TODO ->withTrashed()
             /*
              * always order by creation date to preserve page index
              */
@@ -79,11 +81,6 @@ class ForumTopicComments extends Grid
     protected function load(): ?LengthAwarePaginator
     {
         parent::load();
-
-        /*
-         * intercept to eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect(collect($this->results->items())->pluck('body'));
 
         return $this->results;
     }

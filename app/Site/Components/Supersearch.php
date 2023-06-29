@@ -12,6 +12,7 @@ use App\Site\Models\User;
 use App\Support\Concerns\HandlesResources;
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -96,6 +97,9 @@ class Supersearch extends Component
         }
     }
 
+    /**
+     * @return Collection<int, Model>|null
+     */
     private function searchResource(string $resourceName, string $resourceClass, array $options = []): Collection|null
     {
         try {

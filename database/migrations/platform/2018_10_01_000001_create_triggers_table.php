@@ -7,8 +7,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
+        if (Schema::hasTable('triggers')) {
+            return;
+        }
+
         /*
          * triggers are versioned
          * multiple devs should be able to push new triggers
@@ -55,10 +59,7 @@ return new class() extends Migration {
              */
             $table->text('type')->nullable();
 
-            /*
-             * TODO: What might stat used for? let's assume it will be part of the trigger logic
-             * Might be related to badge progress?
-             */
+            // stats for "measured"
             $table->string('stat')->nullable();
             $table->string('stat_goal')->nullable();
             $table->string('stat_format', 50)->nullable();
@@ -68,11 +69,11 @@ return new class() extends Migration {
 
             $table->unique(['triggerable_type', 'triggerable_id', 'version']);
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('triggers');
     }
