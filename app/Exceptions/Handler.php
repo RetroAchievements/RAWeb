@@ -64,16 +64,16 @@ class Handler extends ExceptionHandler
             if (str_ends_with($context['url'], 'dorequest.php')) {
                 unset($params['u']);
                 unset($params['t']);
-            }
-            elseif (str_contains($context['url'], '/API/')) {
+            } elseif (str_contains($context['url'], '/API/')) {
                 unset($params['z']);
                 unset($params['y']);
             }
 
             // truncate long parameters
             foreach ($params as $k => $p) {
-                if (strlen($p) > 20)
+                if (strlen($p) > 20) {
                     $params[$k] = substr($p, 0, 15) . "...";
+                }
             }
 
             // capture any remaining parameters
