@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform;
 
+use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Site\Models\User;
 use Carbon\Carbon;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Site\Models\User;
 
 trait TestsPlayerAchievements
 {
@@ -21,7 +21,7 @@ trait TestsPlayerAchievements
         $needsHardcore = ($hardcoreUnlockTime !== null);
         $needsSoftcore = true;
 
-        $unlocks = $user->playerAchievements()->where('AchievementID', $achievement->id)->get();
+        $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->id)->get();
         foreach ($unlocks as $unlock) {
             if ($unlock['HardcoreMode'] === UnlockMode::Hardcore) {
                 $needsHardcore = false;
@@ -31,25 +31,25 @@ trait TestsPlayerAchievements
         }
 
         if ($needsHardcore) {
-            $unlock = new PlayerAchievement([
+            $unlock = new PlayerAchievementLegacy([
                 'User' => $user->User,
                 'AchievementID' => $achievement->ID,
                 'HardcoreMode' => UnlockMode::Hardcore,
                 'Date' => $hardcoreUnlockTime,
             ]);
-            $user->playerAchievements()->save($unlock);
+            $user->playerAchievementsLegacy()->save($unlock);
         } elseif (!$needsSoftcore) {
             return;
         }
 
         if ($needsSoftcore) {
-            $unlock = new PlayerAchievement([
+            $unlock = new PlayerAchievementLegacy([
                 'User' => $user->User,
                 'AchievementID' => $achievement->ID,
                 'HardcoreMode' => UnlockMode::Softcore,
                 'Date' => $softcoreUnlockTime,
             ]);
-            $user->playerAchievements()->save($unlock);
+            $user->playerAchievementsLegacy()->save($unlock);
         }
     }
 
@@ -67,9 +67,8 @@ trait TestsPlayerAchievements
 
     protected function assertHasUnlock(User $user, Achievement $achievement, int $mode): void
     {
-        $unlocks = $user->playerAchievements()->where('AchievementID', $achievement->ID)->get();
-        foreach ($unlocks as $unlock)
-        {
+        $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
+        foreach ($unlocks as $unlock) {
             if ($unlock->HardcoreMode === $mode) {
                 $this->assertTrue(true);
 
@@ -93,9 +92,8 @@ trait TestsPlayerAchievements
 
     protected function assertDoesNotHaveUnlock(User $user, Achievement $achievement, int $mode): void
     {
-        $unlocks = $user->playerAchievements()->where('AchievementID', $achievement->ID)->get();
-        foreach ($unlocks as $unlock)
-        {
+        $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
+        foreach ($unlocks as $unlock) {
             if ($unlock->HardcoreMode === $mode) {
                 $this->fail("Found " . UnlockMode::toString($mode) . " unlock for achievement " .
                             $achievement->ID . "/user " . $user->ID);
@@ -117,9 +115,8 @@ trait TestsPlayerAchievements
 
     protected function assertDoesNotHaveAnyUnlock(User $user, Achievement $achievement): void
     {
-        $unlocks = $user->playerAchievements()->where('AchievementID', $achievement->ID)->get();
-        foreach ($unlocks as $unlock)
-        {
+        $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
+        foreach ($unlocks as $unlock) {
             $this->fail("Found " . UnlockMode::toString($unlock->HardcoreMode) . " unlock for achievement " .
                         $achievement->ID . "/user " . $user->ID);
         }

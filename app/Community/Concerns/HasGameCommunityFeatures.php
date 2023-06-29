@@ -13,6 +13,9 @@ trait HasGameCommunityFeatures
     {
     }
 
+    /**
+     * @return MorphMany<GameComment>
+     */
     public function comments(): MorphMany
     {
         return $this->morphMany(GameComment::class, 'commentable')->with('user');

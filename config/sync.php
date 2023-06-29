@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Models\AchievementSetRequest;
 use App\Community\Models\Comment;
 use App\Community\Models\Forum;
 use App\Community\Models\ForumCategory;
@@ -13,13 +12,17 @@ use App\Community\Models\UserRelation;
 use App\Community\Models\Vote;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\GameAlternative;
 use App\Platform\Models\GameHash;
-use App\Platform\Models\GameRelation;
+use App\Platform\Models\GameSetGame;
 use App\Platform\Models\Leaderboard;
 use App\Platform\Models\LeaderboardEntry;
+use App\Platform\Models\LeaderboardEntryLegacy;
 use App\Platform\Models\MemoryNote;
 use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
+use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
 use App\Site\Models\User;
@@ -37,464 +40,301 @@ return [
         /*
          * Achievements           83k    incremental by DateModified
          */
-        'achievements' => [
-            'model' => Achievement::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\Achievement::class,
-            // TODO: make sure timestamp is updated on badge upload
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'require' => [
-                'games',
-                'users',
-            ],
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'GameID' => [
-                    'key' => 'game_id',
-                ],
-                'Description' => [
-                    'key' => 'description',
-                ],
-                // 'MemAddr' => [
-                //     'key' => 'trigger',
-                // ],
-                // 'Progress' => [
-                //     'key' => 'progress',
-                // ],
-                // 'ProgressMax' => [
-                //     'key' => 'progress_max',
-                // ],
-                // 'ProgressFormat' => [
-                //     'key' => 'progress_format',
-                // ],
-                'Points' => [
-                    'key' => 'points',
-                ],
-                // 'Flags' => [
-                //     'key' => 'status_flag',
-                // ],
-                // 'Author' => [
-                //     'key' => 'user_name',
-                // ],
-                'AuthorID' => [
-                    'key' => 'user_id',
-                ],
-                'DateCreated' => [
-                    'key' => 'created_at',
-                ],
-                'DateModified' => [
-                    'key' => 'updated_at',
-                ],
-                // 'VotesPos' => [
-                //     'key' => 'votes_positive',
-                // ],
-                // 'VotesNeg' => [
-                //     'key' => 'votes_negative',
-                // ],
-                // 'BadgeName' => [
-                //     'key' => 'badge_name',
-                // ],
-                // 'DisplayOrder' => [
-                //     'key' => 'order_column',
-                // ],
-                // 'AssocVideo' => [
-                //     'key' => 'video',
-                // ],
-                'Title' => [
-                    'key' => 'title',
-                ],
-                // 'TrueRatio' => [
-                //     'key' => 'points_weighted',
-                // ],
-            ],
-        ],
-
-        'achievement_set_requests' => [
-            'model' => AchievementSetRequest::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\AchievementSetRequest::class,
-            'reference_key' => 'Updated',
-            'require' => [
-                'games',
-                'users',
-            ],
-            'map' => [
-                'UserID' => [
-                    'key' => 'user_id',
-                ],
-                'GameID' => [
-                    'key' => 'game_id',
-                ],
-                'Updated' => [
-                    'key' => 'updated_at',
-                    'type' => 'timestamp',
-                ],
-            ],
-        ],
+        // TODO
+        // 'achievements' => [
+        //     'model' => Achievement::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Achievement::class,
+        //     // TODO: make sure timestamp is updated on badge upload
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //         'games',
+        //     ],
+        //     'map' => [
+        //         'AuthorID' => [
+        //             'key' => 'user_id',
+        //         ],
+        //     ],
+        // ],
 
         /*
          * Comment               200k    incremental by Submitted
          */
-        'comments' => [
-            'model' => Comment::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\Comment::class,
-            'reference_key' => 'Submitted',
-            'unique_key' => 'origin_id',
-            'require' => [
-                'users',
-            ],
-            'map' => [
-                'Payload' => [
-                    'key' => 'body',
-                    'fixEncoding' => true,
-                ],
-                'ExistingAuthorID' => [
-                    'key' => 'user_id',
-                ],
-                'DateCreated' => [
-                    'key' => 'created_at',
-                    'type' => 'timestamp',
-                ],
-                'DateUpdated' => [
-                    'key' => 'updated_at',
-                    'type' => 'timestamp',
-                ],
-            ],
-        ],
-
-        // /**
-        //  *
-        //  */
-        // 'deleted_models' => [
-        //
+        // TODO
+        // 'comments' => [
+        //     'model' => Comment::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Comment::class,
+        //     'reference_key' => 'Submitted',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //     ],
+        //     'map' => [
+        //         'Payload' => [
+        //             'key' => 'body',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
         // ],
 
         /*
          * ForumCategories         0k    incremental by Updated
          */
-        'forum_categories' => [
-            'model' => ForumCategory::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\ForumCategory::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'Name' => [
-                    'key' => 'title',
-                ],
-                'Description' => [
-                    'key' => 'description',
-                    'fixEncoding' => true,
-                ],
-                'DisplayOrder' => [
-                    'key' => 'order_column',
-                ],
-            ],
-        ],
+        // TODO
+        // 'forum_categories' => [
+        //     'model' => ForumCategory::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => ForumCategory::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'map' => [
+        //         'Description' => [
+        //             'key' => 'description',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
 
         /*
          * Forums                  0k    incremental by Updated
          */
-        'forums' => [
-            'model' => Forum::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\Forum::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'require' => [
-                'forum_categories',
-            ],
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'Title' => [
-                    'key' => 'title',
-                ],
-                'Description' => [
-                    'key' => 'description',
-                    'fixEncoding' => true,
-                ],
-                'DisplayOrder' => [
-                    'key' => 'order_column',
-                ],
-                'CategoryID' => [
-                    'key' => 'forum_category_id',
-                ],
-            ],
-        ],
+        // TODO
+        // 'forums' => [
+        //     'model' => Forum::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Forum::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //         'forum_categories',
+        //     ],
+        //     'map' => [
+        //         'Description' => [
+        //             'key' => 'description',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
 
         /*
-         * ForumTopics            60k    incremental by derived dates
+         * ForumTopics            60k    incremental by Updated
          */
-        'forum_topics' => [
-            'model' => ForumTopic::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\ForumTopic::class,
-            'reference_key' => 'LastForumCommentDateUpdated',
-            'reference_column' => 'LastForumCommentDateUpdated',
-            'unique_key' => 'id',
-            'require' => [
-                'users',
-                'forums',
-                'games',
-            ],
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'ForumID' => [
-                    'key' => 'forum_id',
-                ],
-                'Title' => [
-                    'key' => 'title',
-                    'fixEncoding' => true,
-                ],
-                'ExistingAuthorID' => [
-                    'key' => 'user_id',
-                ],
-                'RequiredPermissions' => [
-                    'key' => 'permissions',
-                ],
-                'FirstForumCommentPayload' => [
-                    'key' => 'body',
-                    'fixEncoding' => true,
-                ],
-                'FirstForumCommentDateCreated' => [
-                    'key' => 'created_at',
-                ],
-                'FirstForumCommentDateUpdated' => [
-                    'key' => 'updated_at',
-                ],
-            ],
-        ],
+        // 'forum_topics' => [
+        //     'model' => ForumTopic::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => ForumTopic::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //         'forums',
+        //         'games',
+        //     ],
+        //     'map' => [
+        //         'Title' => [
+        //             'key' => 'title',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
+
+        /*
+         * ForumTopicComment            150k    incremental by DateModified
+         */
+        // 'forum_topics' => [
+        //     'model' => ForumTopicComment::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => ForumTopicComment::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //         'forum_topics',
+        //     ],
+        //     'map' => [
+        //         'Payload' => [
+        //             'key' => 'body',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
 
         /*
          * GameData               13k    incremental by Updated
          */
-        'games' => [
-            'model' => Game::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\Game::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'require' => [
-                'users',
-                'systems',
-            ],
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'ConsoleID' => [
-                    'key' => 'system_id',
-                ],
-                // 'ForumTopicID' => [
-                //     'key' => 'forum_topic_id',
-                // ],
-                'Title' => [
-                    'key' => 'title',
-                    'fixEncoding' => true,
-                ],
-                // 'Flags' => [
-                //     'key' => 'status_flag',
-                // ],
-                // 'ImageIcon' => [
-                //     'key' => 'image_icon',
-                // ],
-                // 'ImageTitle' => [
-                //     'key' => 'image_title',
-                // ],
-                // 'ImageIngame' => [
-                //     'key' => 'image_in_game',
-                // ],
-                // 'ImageBoxArt' => [
-                //     'key' => 'image_box_art',
-                // ],
-                // 'Publisher' => [
-                //     'key' => 'publisher',
-                // ],
-                // 'Developer' => [
-                //     'key' => 'developer',
-                // ],
-                // 'Genre' => [
-                //     'key' => 'genre',
-                // ],
-                'Released' => [
-                    'key' => 'release',
-                ],
-                // 'IsFinal' => [
-                //     'key' => 'final',
-                // ],
-                // 'RichPresencePatch' => [
-                //     'key' => 'rich_presence_patch',
-                // ],
-                // 'TotalTruePoints' => [
-                //     'key' => 'points_weighted',
-                // ],
-                'Created' => [
-                    'key' => 'created_at',
-                ],
-                'Updated' => [
-                    'key' => 'updated_at',
-                ],
-            ],
-        ],
+        // TODO
+        // 'games' => [
+        //     'model' => Game::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Game::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //         'systems',
+        //     ],
+        //     'map' => [
+        //         'Title' => [
+        //             'key' => 'title',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
 
         /*
          * GameAlternatives       33k    incremental by Created
          */
-        'game_relations' => [
-            'model' => GameRelation::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\GameRelation::class,
-            'reference_key' => 'Created',
-            'unique_key' => 'id',
-            'require' => [
-                'games',
-            ],
-            'map' => [
-            ],
-        ],
+        // TODO
+        // 'game_sets' => [
+        //     'model' => GameSetGame::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => GameAlternative::class,
+        //     'reference_key' => 'Created',
+        //     'unique_key' => 'id',
+        //     'require' => [
+        //         'games',
+        //     ],
+        //     'map' => [
+        //     ],
+        // ],
 
         /*
          * LeaderboardDef          5k    incremental by Updated
          */
-        'leaderboards' => [
-            'model' => Leaderboard::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\Leaderboard::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'require' => [
-                'games',
-            ],
-            'map' => [
-            ],
-        ],
+        // TODO
+        // 'leaderboards' => [
+        //     'model' => Leaderboard::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Leaderboard::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //     ],
+        //     'map' => [
+        //     ],
+        // ],
 
         /*
-         * LeaderboardEntry      270k    incremental by DateSubmitted
+         * LeaderboardEntry      1500k    incremental by DateSubmitted
          */
         'leaderboard_entries' => [
             'model' => LeaderboardEntry::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\LeaderboardEntry::class,
-            'reference_key' => 'DateSubmitted',
-            'unique_key' => 'id',
+            'reference_model' => LeaderboardEntryLegacy::class,
+            'reference_key' => LeaderboardEntryLegacy::UPDATED_AT,
+            'unique_key' => ['leaderboard_id', 'user_id'],
             'require' => [
-                'leaderboards',
             ],
             'map' => [
+                'LeaderboardID' => [
+                    'key' => 'leaderboard_id',
+                ],
+                'UserID' => [
+                    'key' => 'user_id',
+                ],
+                'Score' => [
+                    'key' => 'score',
+                    'type' => 'integer',
+                ],
+                'Created' => [
+                    'key' => 'created_at',
+                ],
+                'DateSubmitted' => [
+                    'key' => 'updated_at',
+                ],
             ],
         ],
 
         /*
          * CodeNotes             150k    incremental by Updated
          */
-        'memory_notes' => [
-            'model' => MemoryNote::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\MemoryNote::class,
-            'reference_key' => 'Created',
-            'unique_key' => ['game_hash_set_id', 'address', 'user_id'],
-            'require' => [
-                'games',
-                'game_hashes',
-            ],
-            'map' => [
-                // 'GameID' => [
-                //     'key' => 'game_id',
-                // ],
-                'Address' => [
-                    'key' => 'address',
-                ],
-                'AuthorID' => [
-                    'key' => 'user_id',
-                ],
-                'Note' => [
-                    'key' => 'body',
-                    'fixEncoding' => true,
-                ],
-                'Created' => [
-                    'key' => 'created_at',
-                ],
-                'Updated' => [
-                    'key' => 'updated_at',
-                ],
-            ],
-        ],
+        // TODO
+        // 'memory_notes' => [
+        //     'model' => MemoryNote::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => MemoryNote::class,
+        //     'reference_key' => 'Created',
+        //     'unique_key' => ['game_hash_set_id', 'address', 'user_id'],
+        //     'require' => [
+        //         'games',
+        //         'game_hashes',
+        //     ],
+        //     'map' => [
+        //         'Note' => [
+        //             'key' => 'body',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
 
         /*
          * Messages               57k    incremental by TimeSent
          */
-        'messages' => [
-            'model' => Message::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\Message::class,
-            'reference_key' => 'TimeSent',
-            'unique_key' => 'id',
-            'require' => [
-                'users',
-            ],
-            'map' => [
-            ],
-        ],
+        // TODO
+        // 'messages' => [
+        //     'model' => Message::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Message::class,
+        //     'reference_key' => 'TimeSent',
+        //     'unique_key' => 'id',
+        //     'require' => [
+        //     ],
+        //     'map' => [
+        //     ],
+        // ],
 
         /*
          * News                    0k    incremental by Updated
          */
-        'news' => [
-            'model' => News::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\News::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'require' => [
-                'users',
-            ],
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'Timestamp' => [
-                    'key' => 'created_at',
-                ],
-                'Title' => [
-                    'key' => 'title',
-                ],
-                'Payload' => [
-                    'key' => 'lead',
-                    'fixEncoding' => true,
-                ],
-                'AuthorID' => [
-                    'key' => 'user_id',
-                ],
-                // 'Image' => [
-                //     'key' => 'image',
-                // ],
-            ],
-        ],
+        // TODO
+        // 'news' => [
+        //     'model' => News::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => News::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'id',
+        //     'require' => [
+        //     ],
+        //     'map' => [
+        //         'AuthorID' => [
+        //             'key' => 'user_id',
+        //         ],
+        //         'Payload' => [
+        //             'key' => 'lead',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
 
         /*
-         * Awarded             12338k    incremental by Date
+         * Awarded             60000k    incremental by Date
+         *
+         * Populates player_achievements and player_games
+         *
+         * @see \App\Platform\Commands\SyncPlayerAchievements
          */
         'player_achievements' => [
             'model' => PlayerAchievement::class,
             'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\PlayerAchievement::class,
+            'reference_model' => PlayerAchievementLegacy::class,
             'reference_key' => 'Date',
-            'unique_key' => 'id',
+            'unique_key' => ['user_id', 'achievement_id'],
             'require' => [
-                'users',
-                'achievements',
+            ],
+            'map' => [
+                /* no map. everything is handled in preProcessEntity */
+            ],
+        ],
+
+        /*
+         * syncing from Activity (type 3 = started playing) is too expensive
+         * sync from player achievements instead
+         */
+        'player_games' => [
+            'model' => PlayerGame::class,
+            'strategy' => SyncStrategy::UPSERT,
+            'reference_model' => PlayerAchievement::class,
+            'reference_key' => PlayerAchievement::CREATED_AT,
+            'unique_key' => ['user_id', 'game_id'],
+            'require' => [
             ],
             'map' => [
                 /* no map. everything is handled in preProcessEntity */
@@ -504,254 +344,176 @@ return [
         /*
          * SiteAwards            106k    incremental by AwardDate
          */
-        'player_badges' => [
-            'model' => PlayerBadge::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\PlayerBadge::class,
-            'reference_key' => 'AwardDate',
-            'require' => [
-                'users',
-            ],
-            'map' => [
-                'UserID' => [
-                    'key' => 'user_id',
-                ],
-                'AwardDate' => [
-                    'key' => 'created_at',
-                    'type' => 'timestamp',
-                ],
-            ],
-        ],
+        // TODO
+        // 'player_badges' => [
+        //     'model' => PlayerBadge::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => PlayerBadge::class,
+        //     'reference_key' => 'AwardDate',
+        //     'require' => [
+        //     ],
+        //     'map' => [
+        //         'UserID' => [
+        //             'key' => 'user_id',
+        //         ],
+        //     ],
+        // ],
 
         /*
          * Rating                 41k    incremental by Updated
          */
-        'ratings' => [
-            'model' => Rating::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\Rating::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'require' => [
-                'games',
-            ],
-            'map' => [
-            ],
-        ],
+        // TODO
+        // 'ratings' => [
+        //     'model' => Rating::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Rating::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'id',
+        //     'require' => [
+        //     ],
+        //     'map' => [
+        //     ],
+        // ],
 
         /*
          * GameHashLibrary        22k    incremental by Created
          */
-        'game_hashes' => [
-            'model' => GameHash::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\GameHash::class,
-            'reference_key' => 'Created',
-            'unique_key' => ['system_id', 'hash'],
-            'require' => [
-                'games',
-            ],
-            'map' => [
-                'MD5' => [
-                    'key' => 'hash',
-                ],
-            ],
-        ],
+        // TODO
+        // 'game_hashes' => [
+        //     'model' => GameHash::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => GameHash::class,
+        //     'reference_key' => 'Created',
+        //     'unique_key' => ['system_id', 'hash'],
+        //     'require' => [
+        //         'games',
+        //     ],
+        //     'map' => [
+        //         'MD5' => [
+        //             'key' => 'hash',
+        //         ],
+        //     ],
+        // ],
 
         /*
          * Console                 0k    incremental by Updated
          */
-        'systems' => [
-            'model' => System::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Platform\Models\System::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'Name' => [
-                    'key' => 'name',
-                ],
-            ],
-        ],
+        // TODO
+        // 'systems' => [
+        //     'model' => System::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => System::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'map' => [
+        //     ],
+        // ],
 
         /*
          * Ticket                 18k    incremental by Updated
          */
-        'tickets' => [
-            'model' => Ticket::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Community\Models\Ticket::class,
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'require' => [
-                'achievements',
-            ],
-            'map' => [
-            ],
-        ],
+        // TODO
+        // 'tickets' => [
+        //     'model' => Ticket::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => Ticket::class,
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //         'achievements',
+        //     ],
+        //     'map' => [
+        //     ],
+        // ],
 
         /*
          * UserAccounts          106k    incremental by Updated
          */
-        'users' => [
-            'model' => User::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => \LegacyApp\Site\Models\User::class,
-            // TODO: make sure timestamp is updated on avatar upload
-            'reference_key' => 'Updated',
-            'unique_key' => 'id',
-            'map' => [
-                'ID' => [
-                    'key' => 'id',
-                ],
-                'User' => [
-                    'key' => 'username',
-                ],
-                'EmailAddress' => [
-                    'key' => 'email',
-                ],
-                'Password' => [
-                    'key' => 'password',
-                ],
-                // 'SaltedPass' => [
-                //     'key' => 'password_legacy',
-                // ],
-                // 'fbUser' => [
-                //     'key' => 'facebook_user_id',
-                // ],
-                // 'fbPrefs' => [
-                //     'key' => 'facebook_user_preferences',
-                // ],
-                'appToken' => [
-                    'key' => 'connect_token',
-                ],
-                'appTokenExpiry' => [
-                    'key' => 'connect_token_expires_at',
-                    'type' => 'timestamp',
-                ],
-                // 'cookie' => [
-                //     'key' => 'remember_token',
-                // ],
-                // 'websitePrefs' => [
-                //     'key' => 'preferences_legacy',
-                // ],
-                // 'Permissions' => [
-                //     'key' => 'role_id',
-                // ],
-                'LastLogin' => [
-                    'key' => 'last_activity_at',
-                    'type' => 'timestamp',
-                ],
-                // 'LastActivityID' => [
-                //     'key' => 'last_activity_id',
-                // ],
-                'Motto' => [
-                    'key' => 'motto',
-                    'fixEncoding' => true,
-                ],
-                // 'ContribCount' => [
-                //     'key' => 'achievements_unlocked_yield',
-                // ],
-                // 'ContribYield' => [
-                //     'key' => 'achievements_points_yield',
-                // ],
-                'APIKey' => [
-                    'key' => 'api_token',
-                ],
-                'APIUses' => [
-                    'key' => 'api_calls',
-                ],
-                // 'LastGameID' => [
-                //     'key' => 'last_game_id',
-                // ],
-                // 'ManuallyVerified' => [
-                //     'key' => 'forum_verified_at',
-                // ],
-                // 'UnreadMessageCount' => [
-                //     'key' => 'unread_messages_count',
-                // ],
-                'RAPoints' => [
-                    'key' => 'points_total',
-                ],
-                'TrueRAPoints' => [
-                    'key' => 'points_weighted',
-                ],
-                // 'UserWallActive' => [
-                //     'key' => 'wall_active',
-                // ],
-                // 'Unranked' => [
-                //     'key' => 'unranked',
-                // ],
-                'Created' => [
-                    'key' => 'created_at',
-                    'type' => 'timestamp',
-                ],
-                'Updated' => [
-                    'key' => 'updated_at',
-                    'type' => 'timestamp',
-                ],
-                'DeleteRequested' => [
-                    'key' => 'delete_requested_at',
-                    'type' => 'timestamp',
-                ],
-                'Deleted' => [
-                    'key' => 'deleted_at',
-                    'type' => 'timestamp',
-                ],
-            ],
-        ],
+        // TODO
+        // 'users' => [
+        //     'model' => User::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => User::class,
+        //     // TODO: make sure timestamp is updated on avatar upload
+        //     'reference_key' => 'Updated',
+        //     'unique_key' => 'ID',
+        //     'map' => [
+        //         'Motto' => [
+        //             'key' => 'motto',
+        //             'fixEncoding' => true,
+        //         ],
+        //     ],
+        // ],
 
-        'user_rich_presence' => [
-            'model' => PlayerSession::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_table' => 'UserAccounts',
-            'reference_key' => 'RichPresenceMsgDate',
-            'unique_key' => 'id',
-            'require' => [
-                'user_achievements', /* really just the player_sessions */
-            ],
-            'map' => [
-               /* no map. everything is handled in preProcessEntity */
-                // 'RichPresenceMsg' => [
-                //     'key' => 'rich_presence',
-                // ],
-                // 'RichPresenceMsgDate' => [
-                //     'key' => 'rich_presence_updated_at',
-                // ],
-            ],
-        ],
+        // TODO
+        // 'player_rich_presence' => [
+        //     'model' => PlayerSession::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_table' => 'UserAccounts',
+        //     'reference_key' => 'RichPresenceMsgDate',
+        //     'unique_key' => 'ID',
+        //     'require' => [
+        //         'user_achievements', /* really just the player_sessions */
+        //     ],
+        //     'map' => [
+        //        /* no map. everything is handled in preProcessEntity */
+        //         // 'RichPresenceMsg' => [
+        //         //     'key' => 'rich_presence',
+        //         // ],
+        //         // 'RichPresenceMsgDate' => [
+        //         //     'key' => 'rich_presence_updated_at',
+        //         // ],
+        //     ],
+        // ],
+
+        /*
+         * SetRequest           50k    incremental by Updated
+         */
+        // TODO
+        // 'user_game_list_entries' => [
+        //     'model' => UserGameListEntry::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_model' => UserGameListEntry::class,
+        //     'reference_key' => 'Updated',
+        //     'require' => [
+        //         'games',
+        //     ],
+        //     'map' => [
+        //         'UserID' => [
+        //             'key' => 'user_id',
+        //         ],
+        //     ],
+        // ],
 
         /*
          * Friends                43k    incremental by Updated
          */
-        'user_relations' => [
-            'model' => UserRelation::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_table' => 'Friends',
-            'reference_key' => 'Updated',
-            'require' => [
-                'users',
-            ],
-            'map' => [
-            ],
-        ],
+        // TODO
+        // 'user_relations' => [
+        //     'model' => UserRelation::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_table' => 'Friends',
+        //     'reference_key' => 'Updated',
+        //     'require' => [
+        //     ],
+        //     'map' => [
+        //     ],
+        // ],
 
         /*
          * Votes                   0k    incremental by Updated
          */
-        'votes' => [
-            'model' => Vote::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_table' => 'Votes',
-            'reference_key' => 'Updated',
-            'require' => [
-                'achievements',
-            ],
-            'map' => [
-            ],
-        ],
+        // TODO
+        // 'votes' => [
+        //     'model' => Vote::class,
+        //     'strategy' => SyncStrategy::UPSERT,
+        //     'reference_table' => 'Votes',
+        //     'reference_key' => 'Updated',
+        //     'require' => [
+        //         'achievements',
+        //     ],
+        //     'map' => [
+        //     ],
+        // ],
     ],
 ];

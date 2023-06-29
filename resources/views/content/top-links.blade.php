@@ -1,5 +1,5 @@
 <x-section class="mb-3 flex flex-col gap-2">
-    <a class="btn text-center py-2" href="/globalRanking.php?s=5&t=2">
+    <a class="btn text-center py-2" href="/globalRanking.php">
         <span class="text-yellow-400"><x-fas-medal/></span>
         Global Ranking
     </a>
