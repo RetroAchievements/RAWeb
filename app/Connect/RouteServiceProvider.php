@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Connect;
 
 use App\Connect\Controllers\ConnectApiController;
-use Illuminate\Cache\RateLimiting\Limit;
+use App\Support\Http\HandlesPublicFileRequests;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
+    use HandlesPublicFileRequests;
+
     public function boot(): void
     {
         $this->configureRateLimiting();
@@ -20,7 +20,8 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
-        RateLimiter::for('connect', fn (Request $request) => Limit::perMinute(90));
+        // TODO setup rate limiting
+        // RateLimiter::for('connect', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
     }
 
     public function map(): void
@@ -80,27 +81,26 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['connect'])->group(function () {
             /*
              * RAIntegration uses POST requests, except for LatestIntegration.html
-             * RetroArch uses GET requests except for (TODO what was it again?)
+             * Legacy RetroArch uses GET requests except, RetroArch 1.9.13+ (Nov 2021) should be using POST for everything
              */
-            Route::any('LatestIntegration.html', [ConnectApiController::class, 'legacyLatestIntegration']);
-            Route::any('login_app.php', [ConnectApiController::class, 'legacyLogin']);
-            Route::any('dorequest.php', [ConnectApiController::class, 'legacyRequest']);
-            Route::any('doupload.php', [ConnectApiController::class, 'legacyBadgeUploadRequest']);
+            Route::any('login_app.php', fn () => $this->handleRequest('login_app'));
+            Route::any('dorequest.php', fn () => $this->handleRequest('dorequest'));
+            Route::any('doupload.php', fn () => $this->handleRequest('doupload'));
+            // Route::any('LatestIntegration.html', [ConnectApiController::class, 'legacyLatestIntegration']);
+            // Route::any('login_app.php', [ConnectApiController::class, 'legacyLogin']);
+            // Route::any('dorequest.php', [ConnectApiController::class, 'legacyRequest']);
+            // Route::any('doupload.php', [ConnectApiController::class, 'legacyBadgeUploadRequest']);
         });
     }
 
     private function connectDomain(): ?string
     {
         if ($domain = parse_url(config('app.connect_url'), PHP_URL_HOST)) {
-            if (is_string($domain)) {
-                return $domain;
-            }
+            return $domain;
         }
 
         if ($domain = parse_url(config('app.url'), PHP_URL_HOST)) {
-            if (is_string($domain)) {
-                return $domain;
-            }
+            return $domain;
         }
 
         return null;
@@ -109,9 +109,7 @@ class RouteServiceProvider extends ServiceProvider
     private function connectPrefix(): ?string
     {
         if ($prefix = parse_url(config('app.connect_url'), PHP_URL_PATH)) {
-            if (is_string($prefix)) {
-                return $prefix;
-            }
+            return $prefix;
         }
 
         return null;

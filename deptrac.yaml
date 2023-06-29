@@ -11,7 +11,6 @@ deptrac:
 
   paths:
     - ./app
-    - ./app_legacy
     - ./database
     - ./public
     - ./resources
@@ -66,33 +65,12 @@ deptrac:
     # Database
     - name: Database
       collectors:
-        - type: bool
-          must_not:
-            - type: directory
-              value: database/factories/Legacy/.*
-          must:
-            - type: directory
-              value: database/factories/.*
-        - type: bool
-          must_not:
-            - type: directory
-              value: database/migrations/legacy/.*
-          must:
-            - type: directory
-              value: database/migrations/.*
-        - type: bool
-          must_not:
-            - type: directory
-              value: database/seeders/Legacy/.*
-            - type: className
-              value: Database\\Seeders\\DatabaseSeeder
-          must:
-            - type: directory
-              value: database/seeders/.*
-    - name: DatabaseSeeder
-      collectors:
-        - type: className
-          value: Database\\Seeders\\DatabaseSeeder
+        - type: directory
+          value: database/factories/.*
+        - type: directory
+          value: database/migrations/.*
+        - type: directory
+          value: database/seeders/.*
 
     # Resources
     - name: Views
@@ -100,57 +78,14 @@ deptrac:
         - type: directory
           value: resources/views/.*
 
-    # Legacy Domains
-    - name: LegacyApi
-      collectors:
-        - type: directory
-          value: app_legacy/Api/.*
-    - name: LegacyCommunity
-      collectors:
-        - type: directory
-          value: app_legacy/Community/.*
-    - name: LegacyConnect
-      collectors:
-        - type: directory
-          value: app_legacy/Connect/.*
-    - name: LegacyConsole
-      collectors:
-        - type: directory
-          value: app_legacy/Console/.*
-    - name: LegacyHelpers
-      collectors:
-        - type: directory
-          value: app_legacy/Helpers/.*
-    - name: LegacyPlatform
-      collectors:
-        - type: directory
-          value: app_legacy/Platform/.*
-    - name: LegacySite
-      collectors:
-        - type: directory
-          value: app_legacy/Site/.*
-        - type: directory
-          value: public/.*
-    - name: LegacySupport
-      collectors:
-        - type: directory
-          value: app_legacy/Support/.*
-    # Legacy Database
-    - name: LegacyDatabase
-      collectors:
-        - type: directory
-          value: database/factories/Legacy/.*
-        - type: directory
-          value: database/migrations/legacy/.*
-        - type: directory
-          value: database/seeders/Legacy/.*
-
   ruleset:
     # Domains
     Api:
       - Http
+      - Site
       - Support
     Community:
+      - Database
       - Http
       - Platform
       - Site
@@ -173,15 +108,17 @@ deptrac:
       - Site
       - Support
     Platform:
-      - Http
       - Connect
       - Community
+      - Database
+      - Http
       - Support
       - Site
     Site:
-      - Http
       - Community
       - Connect
+      - Database
+      - Http
       - Platform
       - Support
     Support:
@@ -192,55 +129,10 @@ deptrac:
       - Community
       - Platform
       - Site
-    DatabaseSeeder:
-      - LegacyDatabase
-      - Database
+      - Support
 
     # Resources
     Views:
-      - LegacyCommunity
-      - LegacyHelpers
-      - LegacySite
+      - Community
       - Helpers
-
-    # Legacy
-    LegacyApi:
-      - LegacySupport
-      - LegacySite
-    LegacyConnect:
-      - LegacySupport
-    LegacyCommunity:
-      - LegacyDatabase
-      - LegacyPlatform
-      - LegacySite
-      - LegacySupport
-      - Support
-    LegacyHelpers:
-      - LegacyCommunity
-      - LegacyPlatform
-      - LegacySite
-      - LegacySupport
-      - Helpers
-      - Support
-    LegacyPlatform:
-      - LegacyCommunity
-      - LegacyDatabase
-      - LegacySite
-      - LegacySupport
-      - Support
-    LegacySite:
-      - LegacyCommunity
-      - LegacyDatabase
-      - LegacyHelpers
-      - LegacyPlatform
-      - LegacySupport
-      - Helpers
-      - Support
-    LegacySupport:
-      - Support
-    # Legacy Database
-    LegacyDatabase:
-      - LegacyCommunity
-      - LegacyPlatform
-      - LegacySite
-      - LegacySupport
+      - Site

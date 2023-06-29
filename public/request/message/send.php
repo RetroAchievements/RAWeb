@@ -8,7 +8,7 @@ if (!authenticateFromCookie($username, $permissions, $userDetail)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'recipient' => 'required|string|exists:mysql_legacy.UserAccounts,User',
+    'recipient' => 'required|string|exists:UserAccounts,User',
     'subject' => 'required|string|max:255',
     'message' => 'required|string|max:60000',
 ]);
