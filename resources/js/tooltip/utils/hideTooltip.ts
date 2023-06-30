@@ -28,14 +28,12 @@ export function hideTooltip() {
 
     tooltipEl.style.transition = 'opacity 150ms ease, transform 150ms ease';
     tooltipEl.style.opacity = '0';
-    tooltipEl.style.transform = 'scale(0.95)';
 
     setTimeout(() => {
       if (tooltipEl && store.currentTooltipId === activeTooltipId) {
         tooltipEl.style.display = '';
 
         tooltipEl.style.removeProperty('transition');
-        tooltipEl.style.removeProperty('transform');
         tooltipEl.style.removeProperty('opacity');
       }
     }, 150);
