@@ -196,7 +196,7 @@ function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 
     return true;
 }
 
-function UpdateUserRichPresence(User &$user, int $gameID, string $presenceMsg): void
+function UpdateUserRichPresence(User $user, int $gameID, string $presenceMsg): void
 {
     $user->RichPresenceMsg = utf8_sanitize($presenceMsg);
     $user->LastGameID = $gameID;

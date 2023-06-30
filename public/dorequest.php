@@ -325,7 +325,7 @@ switch ($requestType) {
         break;
 
     case "unlocks":
-        $hardcoreMode = request()->input('h', 0) == UnlockMode::Hardcore;
+        $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
         $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID);
         if ($hardcoreMode) {
             $response['UserUnlocks'] = collect($userUnlocks)
