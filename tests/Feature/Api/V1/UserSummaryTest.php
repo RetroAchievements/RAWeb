@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\ActivityType;
+use App\Community\Enums\Rank;
+use App\Community\Models\UserActivityLegacy;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\ActivityType;
-use LegacyApp\Community\Enums\Rank;
-use LegacyApp\Community\Models\UserActivity;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class UserSummaryTest extends TestCase
@@ -117,8 +117,7 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/002347.png',
             'ImageBoxArt' => '/Images/002348.png',
         ]);
-        /** @var UserActivity $activity */
-        $activity = new UserActivity([
+        $activity = new UserActivityLegacy([
             'User' => $user->User,
             'timestamp' => Carbon::now()->subDays(1),
             'lastupdate' => Carbon::now()->subDays(1),
@@ -126,8 +125,7 @@ class UserSummaryTest extends TestCase
             'data' => $game2->ID,
         ]);
         $activity->save();
-        /** @var UserActivity $activity2 */
-        $activity2 = new UserActivity([
+        $activity2 = new UserActivityLegacy([
             'User' => $user->User,
             'timestamp' => Carbon::now()->subHours(1),
             'lastupdate' => Carbon::now()->subMinutes(5), // active less than 5 minutes ago is Online
@@ -139,9 +137,9 @@ class UserSummaryTest extends TestCase
         $user->save();
 
         $earnedAchievement = $publishedAchievements->get(0);
-        $unlock = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $earnedAchievement->ID, 'User' => $user->User]);
+        $unlock = PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $earnedAchievement->ID, 'User' => $user->User]);
 
-         // make sure $this->user is ranked higher than $user
+        // make sure $this->user is ranked higher than $user
         $this->user->RAPoints = 1_234_567;
         $this->user->save();
 

@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Community\Models\News;
+use App\Community\Models\News;
 
 $totalNewsCount = 10;
 

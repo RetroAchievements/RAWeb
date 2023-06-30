@@ -16,12 +16,12 @@ $rules = [
     '@Symfony' => true,
 
     // @Symfony overrides
-    'braces' => false, // TODO remove as soon as inline php tags with echos are gone?
     'concat_space' => ['spacing' => 'one'],
     'echo_tag_syntax' => false,
     'global_namespace_import' => true,
     'increment_style' => ['style' => 'post'],
     'no_alternative_syntax' => false,
+    'no_multiple_statements_per_line' => false,
     'no_extra_blank_lines' => [
         'tokens' => [
             'extra',
@@ -40,6 +40,7 @@ $rules = [
     ],
     'semicolon_after_instruction' => false,
     'single_quote' => false,
+    'statement_indentation' => false,
     'yoda_style' => false,
 
     // 'declare_strict_types' => true, // TODO add as soon as php files in public have been fully ported
@@ -49,7 +50,6 @@ $project_path = getcwd();
 $finder = Finder::create()
     ->in([
         $project_path . '/app',
-        $project_path . '/app_legacy',
         $project_path . '/config',
         $project_path . '/database',
         $project_path . '/lang',
@@ -58,7 +58,7 @@ $finder = Finder::create()
         $project_path . '/tests',
     ])
     // ->filter(fn (SplFileInfo $filename) => !in_array($filename->getRealPath(), [
-    //     $project_path . '/app_legacy/Helpers/util/recaptcha.php',
+    //     $project_path . '/app/Helpers/util/recaptcha.php',
     // ]))
         ->name('*.php');
 

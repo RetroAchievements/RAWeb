@@ -43,6 +43,9 @@ class ForumTopics extends Grid
         );
     }
 
+    /**
+     * @return Builder<ForumTopic>
+     */
     protected function query(): Builder
     {
         /** @var Forum $forum */

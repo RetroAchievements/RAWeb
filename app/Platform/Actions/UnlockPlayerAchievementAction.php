@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Events\PlayerCompletedAchievementSet;
-use App\Platform\Events\PlayerUnlockedAchievement;
+use App\Platform\Events\AchievementSetCompleted;
+use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
@@ -16,19 +16,18 @@ class UnlockPlayerAchievementAction
 {
     public function execute(User $user, Achievement $achievement, bool $hardcore, ?User $unlockedBy = null): array
     {
+        // TODO refactor to new schema
+
         $alreadyUnlocked = false;
         $response = ['achievementId' => $achievement->id];
-
-        /*
-         * TODO: assume trigger_id from most recent version of the achievement trigger
-         */
 
         $unlock = $user->playerAchievements()->where('achievement_id', $achievement->id)->first();
         if ($unlock == null) {
             $unlock = new PlayerAchievement([
                 'user_id' => $user->id,
                 'achievement_id' => $achievement->id,
-                // 'trigger_id' => ???
+                // TODO assume trigger_id from most recent version of the achievement trigger
+                // TODO 'trigger_id' => ???
             ]);
             $user->playerAchievements()->save($unlock);
         }
@@ -58,7 +57,7 @@ class UnlockPlayerAchievementAction
         if (!$alreadyUnlocked) {
             // set the unlocked_by or associate to the player's session
             if ($unlockedBy) {
-                $unlock->unlocked_by_user_id = $unlockedBy->id;
+                $unlock->unlocker_id = $unlockedBy->id;
             } else {
                 $playerSession = $user->playerSessions()->where('game_id', $achievement->game_id)->first();
                 if ($playerSession) {
@@ -70,7 +69,7 @@ class UnlockPlayerAchievementAction
             $unlock->save();
 
             // post the unlock notification
-            PlayerUnlockedAchievement::dispatch($user, $achievement, $hardcore);
+            PlayerAchievementUnlocked::dispatch($user, $achievement, $hardcore);
 
             /*
             * TODO: adjust retro ratio for user -> queue job via event
@@ -118,7 +117,7 @@ class UnlockPlayerAchievementAction
 
         // if the set has been completed, post the mastery notification
         if ($game && $response['achievementsRemaining'] == 0) {
-            PlayerCompletedAchievementSet::dispatch($user, $game, $hardcore);
+            AchievementSetCompleted::dispatch($user, $game, $hardcore);
         }
 
         /*

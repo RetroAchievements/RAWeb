@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class UserCompletedGamesTest extends TestCase
@@ -68,8 +68,8 @@ class UserCompletedGamesTest extends TestCase
         $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->ID]);
 
         foreach ($publishedAchievements as $ach) {
-            PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
-            PlayerAchievement::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+            PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+            PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
         }
 
         $index = 0;
@@ -77,11 +77,11 @@ class UserCompletedGamesTest extends TestCase
             if ($index % 3 != 0) {
                 if ($index % 2 == 0) {
                     // 2,4,8,10,14,16 hardcore
-                    PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
-                    PlayerAchievement::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+                    PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+                    PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
                 } else {
                     // 1,5,7,11,13,17,19 softcore
-                    PlayerAchievement::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+                    PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
                 }
             }
             $index++;
@@ -89,7 +89,7 @@ class UserCompletedGamesTest extends TestCase
 
         for ($index = 0; $index < 3; $index++) {
             $ach = $publishedAchievements4->get($index);
-            PlayerAchievement::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+            PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
         }
 
         $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->User]))

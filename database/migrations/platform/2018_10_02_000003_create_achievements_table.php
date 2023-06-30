@@ -7,84 +7,49 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('achievements', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::table('Achievements', function (Blueprint $table) {
+            $table->bigIncrements('id')->change();
 
             /*
              * direct reference to game
              * achievement are additionally assigned to games via sets - redundant but necessary
              */
-            $table->unsignedBigInteger('game_id')->nullable()->index();
-            $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
-
-            /*
-             * moved to polymorphic triggers table
-             */
-            // $table->unsignedBigInteger('trigger_id');
-
-            /*
-             * the owner of this achievement
-             * somebody created it after all by writing a concept for it
-             */
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->unsignedBigInteger('GameID')->nullable()->change();
 
             /*
              * title and description are audited via activity log for reference
              * note: badges stages can have their own title and description
              * achievements override those
-             */
-            $table->string('title')->nullable();
-            $table->string('description')->nullable();
-
-            $table->unsignedInteger('points')->nullable();
-            // $table->unsignedInteger('points_weighted')->nullable();
-
-            /*
-             * status flag was used to determine whether an achievement is in core or not
+             *
+             * Flags was used to determine whether an achievement is in core or not
              * this is not relevant anymore as that is done via achievement sets
              * the publish date is the updated_at date within a set
-             */
-            // $table->tinyInteger('status_flag')->nullable();
-
-            /*
+             *
              * achievement badges are assigned via badge sets on games
-             */
-            // $table->string('badge_name')->nullable();
-
-            /*
+             *
              * game hashes are assigned to triggers via game hash sets on games
              */
-            // $table->unsignedBigInteger('game_hash_id')->nullable();
-            // $table->foreign('game_hash_id')->references('id')->on('game_hashes')->onDelete('set null');
 
-            $table->timestampsTz();
+            /*
+             * the owner of this achievement
+             * somebody created it after all by writing a concept for it
+             */
+            $table->unsignedBigInteger('user_id')->nullable()->after('Author');
+
+            /**
+             * metrics
+             */
+            $table->unsignedInteger('unlocks_total')->nullable()->after('user_id');
+            $table->unsignedInteger('unlocks_hardcore_total')->nullable()->after('unlocks_total');
+            $table->decimal('unlock_percentage', 10, 9)->nullable()->after('unlocks_hardcore_total');
+            $table->decimal('unlock_hardcore_percentage', 10, 9)->nullable()->after('unlock_percentage');
+
             $table->softDeletesTz();
 
-            /*
-             * votes have been moved to polymorphic votes table
-             */
-            // $table->unsignedInteger('votes_positive')->nullable();
-            // $table->unsignedInteger('votes_negative')->nullable();
-
-            /*
-             * TODO: what to do about videos? -> should be moved to guides or forum even? something that is better suited for metadata
-             */
-            // $table->string('video')->nullable();
-
-            /*
-             * let's keep cashed values out of here for now
-             * TODO: check back in a while
-             */
-            // $table->unsignedInteger('unlocks_total')->nullable();
-            // $table->unsignedInteger('unlocks_hardcore_total')->nullable();
-            // $table->decimal('unlock_percentage', 10, 9)->nullable();
-            // $table->decimal('unlock_hardcore_percentage', 10, 9)->nullable();
-
-            $table->index('points');
-            // $table->index('points_weighted');
+            $table->foreign('GameID', 'achievements_game_id_foreign')->references('ID')->on('GameData')->onDelete('cascade');
+            $table->foreign('user_id', 'achievements_user_id_foreign')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
 
         /*
@@ -101,8 +66,8 @@ return new class() extends Migration {
 
             $table->unique(['achievement_id', 'user_id']);
 
-            $table->foreign('achievement_id')->references('id')->on('achievements')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('achievement_id')->references('ID')->on('Achievements')->onDelete('cascade');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
         });
 
         /*
@@ -117,6 +82,16 @@ return new class() extends Migration {
             $table->unsignedBigInteger('user_id')->nullable();
 
             /*
+             * metrics (all latest versions)
+             * should match achievement_set_versions
+             */
+            $table->unsignedInteger('players_total')->nullable();
+            $table->unsignedInteger('achievements_published')->nullable();
+            $table->unsignedInteger('achievements_unpublished')->nullable();
+            $table->unsignedInteger('points_total')->nullable();
+            $table->unsignedInteger('points_weighted')->nullable();
+
+            /*
              * the set can be discussed
              * any given forum topic id on a synced game should be to an achievement set instead
              * not: using forumable morph on forum topics
@@ -125,7 +100,7 @@ return new class() extends Migration {
 
             /*
              * achievements sets have an active badge set assigned which can be swapped e.g. for changing assets
-             * Update: NO. games have bage_sets, individual achievements refer to a particular stage of a badge
+             * Update: NO. games have badge_sets, individual achievements refer to a particular stage of a badge
              */
             // $table->unsignedBigInteger('active_badge_set_id')->nullable();
 
@@ -139,7 +114,7 @@ return new class() extends Migration {
 
             $table->index('user_id');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
 
         Schema::create('achievement_set_achievements', function (Blueprint $table) {
@@ -151,12 +126,11 @@ return new class() extends Migration {
             $table->unsignedInteger('order_column')->nullable();
 
             $table->timestampsTz();
-            // $table->softDeletesTz(); // TODO: soft deletes?
 
             $table->unique(['achievement_set_id', 'achievement_id'], 'achievement_set_achievement_unique');
 
             $table->foreign('achievement_set_id')->references('id')->on('achievement_sets')->onDelete('cascade');
-            $table->foreign('achievement_id')->references('id')->on('achievements')->onDelete('cascade');
+            $table->foreign('achievement_id')->references('ID')->on('Achievements')->onDelete('cascade');
         });
 
         /*
@@ -172,6 +146,15 @@ return new class() extends Migration {
              * json including achievement ids and corresponding version
              */
             $table->mediumText('definition')->nullable();
+
+            /**
+             * Metrics should match achievements_sets
+             */
+            $table->unsignedInteger('players_total')->nullable();
+            $table->unsignedInteger('achievements_published')->nullable();
+            $table->unsignedInteger('achievements_unpublished')->nullable();
+            $table->unsignedInteger('points_total')->nullable();
+            $table->unsignedInteger('points_weighted')->nullable();
 
             $table->timestampsTz();
             $table->softDeletesTz();
@@ -194,18 +177,27 @@ return new class() extends Migration {
             $table->softDeletesTz();
 
             $table->foreign('achievement_set_id')->references('id')->on('achievement_sets')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('achievement_set_authors');
         Schema::dropIfExists('achievement_set_versions');
         Schema::dropIfExists('achievement_set_achievements');
         Schema::dropIfExists('achievement_sets');
-
         Schema::dropIfExists('achievement_authors');
-        Schema::dropIfExists('achievements');
+
+        Schema::table('Achievements', function (Blueprint $table) {
+            $table->dropForeign('achievements_game_id_foreign');
+            $table->dropForeign('achievements_user_id_foreign');
+            $table->dropColumn('user_id');
+            $table->dropColumn('unlocks_total');
+            $table->dropColumn('unlocks_hardcore_total');
+            $table->dropColumn('unlock_percentage');
+            $table->dropColumn('unlock_hardcore_percentage');
+            $table->dropSoftDeletesTz();
+        });
     }
 };

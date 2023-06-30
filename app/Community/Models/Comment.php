@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Community\Models;
 
+use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
-use App\Support\Shortcode\HasShortcodeFields;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,26 +15,26 @@ use Laravel\Scout\Searchable;
 
 class Comment extends BaseModel
 {
-    use HasShortcodeFields;
     use Searchable;
     use SoftDeletes;
 
-    protected $table = 'comments';
+    // TODO rename Comment table to comments
+    // TODO rename ID column id
+    // TODO rename UserID column to user_id
+    // TODO drop ArticleType, migrate to commentable_type (morph map)
+    // TODO drop ArticleID, migrate to commentable_id
+    // TODO rename Payload to body or payload
+    // TODO rename Submitted to created_at
+    // TODO rename Edited to updated_at
+    protected $table = 'Comment';
+
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Submitted';
+    public const UPDATED_AT = 'Edited';
 
     protected $fillable = [
-        'body',
-    ];
-
-    protected $with = [
-        'commentable',
-        'user',
-    ];
-
-    /**
-     * @see HasShortcodeFields
-     */
-    protected array $shortcodeFields = [
-        'body',
+        'Payload',
     ];
 
     // == search
@@ -41,7 +42,7 @@ class Comment extends BaseModel
     public function toSearchableArray(): array
     {
         return $this->only([
-            'id',
+            'ID',
             // 'body', // TODO: doable? might be a bit extreme with some of those posts...
         ]);
     }
@@ -82,13 +83,19 @@ class Comment extends BaseModel
 
     // == relations
 
+    /**
+     * @return MorphTo<Model, Comment>
+     */
     public function commentable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return BelongsTo<User, Comment>
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Site\Models\User::class)->withDefault(['username' => 'Deleted User']);
+        return $this->belongsTo(User::class, 'UserID')->withDefault(['username' => 'Deleted User']);
     }
 }

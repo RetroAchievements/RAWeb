@@ -10,46 +10,53 @@ use App\Community\Contracts\HasComments;
 use App\Platform\Concerns\ActsAsDeveloper;
 use App\Platform\Concerns\ActsAsPlayer;
 use App\Platform\Concerns\CollectsBadges;
-use App\Platform\Concerns\UsesWebApi;
 use App\Platform\Contracts\Developer;
 use App\Platform\Contracts\Player;
 use App\Site\Concerns\HasAccount;
 use App\Site\Concerns\HasAvatar;
 use App\Site\Concerns\HasPreferences;
+use App\Site\Enums\Permissions;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
 use App\Support\HashId\HasHashId;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
-use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements CommunityMember, Developer, HasComments, HasLocalePreference, HasMedia, MustVerifyEmail, Player
+// TODO MustVerifyEmail,
+class User extends Authenticatable implements CommunityMember, Developer, HasComments, HasLocalePreference, HasMedia, Player
 {
     /*
      * Framework Traits
      */
     use HasFactory;
     use Notifiable;
+
     use Searchable;
     use SoftDeletes;
+
     /*
      * Providers Traits
      */
     use InteractsWithMedia;
     use HasRoles;
-    use CausesActivity;
+
+    // TODO use CausesActivity;
+
     /*
      * Shared Traits
      */
     use HasHashId;
     use HasFullTableName;
+
     /*
      * RA Feature Traits
      */
@@ -59,84 +66,135 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     use ActsAsCommunityMember;
     use ActsAsDeveloper;
     use ActsAsPlayer;
+
     // use CausesModerationIncidents;
     use CollectsBadges;
-    use UsesWebApi;
+
+    // TODO use UsesWebApi;
+
+    // TODO rename UserAccounts table to users
+    // TODO drop cookie, fbUser, fbPrefs, LastActivityID, LastGameID, PasswordResetToken, UnreadMessageCount
+    // TODO drop RichPresenceMsg, RichPresenceMsgDate -> player_sessions
+    // TODO drop LastActivityID, LastGameID, UnreadMessageCount -> derived
+    // TODO drop PasswordResetToken -> password_resets table
+    // TODO move UserWallActive to preferences, allow comments to be visible to/writable for public, friends, private etc
+    // TODO drop Untracked in favor of unranked_at
+    // TODO drop ManuallyVerified in favor of forum_verified_at
+    // TODO drop SaltedPass in favor of Password
+    // TODO drop Permissions in favor of RBAC tables
+    // TODO rename ID column to id
+    // TODO rename User column to username
+    // TODO rename Password column to password
+    // TODO rename EmailAddress column to email
+    // TODO rename LastLogin column to last_activity_at
+    // TODO rename appToken column to connect_token or to passport
+    // TODO rename appTokenExpiry column to connect_token_expires_at or to passport
+    // TODO rename APIKey column to api_token or to passport
+    // TODO rename APIUses column to api_calls or to passport
+    // TODO rename RAPoints column to points
+    // TODO rename TrueRAPoints column to points_weighted
+    // TODO rename RASoftcorePoints column to points_softcore
+    // TODO rename ContribCount column to yield_unlocks
+    // TODO rename ContribYield column to yield_points
+    // TODO introduce unique email addresses
+    protected $table = 'UserAccounts';
+
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+    public const DELETED_AT = 'Deleted';
 
     protected $fillable = [
-        'api_calls',
-        'api_token',
         'achievements_total',
         'achievements_hardcore_total',
-        'achievements_unlocked_yield',
-        'achievements_points_yield',
+        'APIUses',
+        'APIKey',
         'banned_at',
+        'ContribCount',
+        'ContribYield',
         'country',
         'display_name',
-        'email', // fillable for registration
+        'EmailAddress', // fillable for registration
         'email_verified_at',
-        'connect_token',
-        'connect_token_expires_at',
-        // 'last_activity_at',
-        'last_login_at',
+        'appToken',
+        'appTokenExpiry',
+        'LastLogin',
         'locale',
         'locale_date',
         'locale_time',
         'locale_number',
         'motto',
         'password', // fillable for registration
-        'points_total',
         'preferences',
-        'rich_presence',
-        'rich_presence_updated_at',
-        'points_weighted',
+        'RAPoints',
+        'RASoftcorePoints',
+        'RichPresenceMsg',
+        'RichPresenceMsgDate',
+        'TrueRAPoints',
         'timezone',
         'unranked_at',
-        'username', // fillable for registration
+        'User', // fillable for registration
     ];
 
-    protected $hidden = [
-        'api_token',
-        'media',
-        'password',
-        'remember_token',
-        'roles',
-        'connect_token',
-        'connect_token_expires_at',
-        'preferences',
+    protected $visible = [
+        "ID",
+        "User",
+        "achievements_unlocked",
+        "achievements_unlocked_hardcore",
+        "completion_percentage_average",
+        "completion_percentage_average_hardcore",
+        "RAPoints",
+        "RASoftcorePoints",
+        "ContribCount",
+        "ContribYield",
+        "TrueRAPoints",
     ];
 
     protected $appends = [
         'avatarUrl',
     ];
 
-    protected $with = [
-        'media',
-        'roles',
-    ];
-
     protected $casts = [
+        'DeleteRequested' => 'datetime',
+        'LastLogin' => 'datetime',
+        'RichPresenceMsgDate' => 'datetime',
         'banned_at' => 'datetime',
-        'connect_token_expires_at' => 'datetime',
+        'appTokenExpiry' => 'datetime',
         'email_verified_at' => 'datetime',
-        'last_activity_at' => 'datetime',
-        'last_login_at' => 'datetime',
         'muted_until' => 'datetime',
-        'rich_presence_updated_at' => 'datetime',
         'unranked_at' => 'datetime',
     ];
+
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
+    }
+
+    public function getRememberTokenName(): ?string
+    {
+        return null;
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->Password;
+    }
+
+    // search
 
     public function toSearchableArray(): array
     {
         $searchable = $this->only([
-            'id',
-            'username',
+            'ID',
+            'User',
             'display_name',
         ]);
 
         /*
          * add trigrams of the username to the index to have partial matches show up as well
          */
+
         // $searchable['usernameNgrams'] = utf8_encode((new TNTIndexer())->buildTrigrams($this->username));
 
         return $searchable;
@@ -144,14 +202,14 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
     public function shouldBeSearchable(): bool
     {
-        /*
-         * TODO: check privacy setting
-         */
+        // TODO check privacy setting
+
         if ($this->banned_at) {
             return false;
         }
 
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == media
@@ -173,7 +231,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         /*
          * TODO: this might not hold up for changeable usernames -> find a better solution
          */
-        return 'username';
+        return 'User';
     }
 
     public function getCanonicalUrlAttribute(): string
@@ -186,9 +244,46 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return route('user.permalink', $this->getHashIdAttribute());
     }
 
+    protected function getHashIdAttribute(): int
+    {
+        return app(Optimus::class)->encode($this->getAttribute('ID'));
+    }
+
     public function getDisplayNameAttribute(): ?string
     {
-        return $this->attributes['display_name'] ?? $this->attributes['username'] ?? null;
+        // return $this->attributes['display_name'] ?? $this->attributes['username'] ?? null;
+        return $this->getAttribute('User');
+    }
+
+    public function getUsernameAttribute(): string
+    {
+        return $this->getAttribute('User');
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
+    }
+
+    // Email verification
+
+    public function hasVerifiedEmail(): bool
+    {
+        return (int) $this->getAttribute('Permissions') >= Permissions::Registered;
+    }
+
+    public function markEmailAsVerified(): bool
+    {
+        return true;
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+    }
+
+    public function getEmailForVerification(): string
+    {
+        return $this->EmailAddress;
     }
 
     // == mutators
@@ -246,4 +341,16 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     //
     //     return $this;
     // }
+
+    // == scopes
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeHasAnyPoints(Builder $query): Builder
+    {
+        return $query->where('RAPoints', '>', 0)
+            ->orWhere('RASoftcorePoints', '>', 0);
+    }
 }

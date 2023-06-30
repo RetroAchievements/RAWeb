@@ -10,7 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class GameHashSetHash extends BasePivot
 {
-    use LogsActivity;
+    // TODO use LogsActivity;
 
     protected $table = 'game_hash_set_hashes';
 
