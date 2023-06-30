@@ -8,12 +8,15 @@ use App\Connect\Controllers\ConnectApiController;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
-use App\Support\Database\Eloquent\BasePivot;
+use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
@@ -46,60 +49,88 @@ trait ActsAsPlayer
 
     public function getPointsTotalAttribute(): int
     {
-        return (int) ($this->attributes['points_total'] ?? 0);
+        return (int) ($this->attributes['RAPoints'] ?? 0);
     }
 
     public function getPointsWeightedTotalAttribute(): int
     {
-        return (int) ($this->attributes['points_weighted'] ?? 0);
+        return (int) ($this->attributes['TrueRAPoints'] ?? 0);
     }
 
     // == relations
 
+    /**
+     * @return BelongsToMany<Achievement>
+     */
     public function achievements(): BelongsToMany
     {
-        return $this->belongsToMany(Achievement::class, 'player_achievements')
-            ->using(BasePivot::class)
+        return $this->belongsToMany(Achievement::class, 'player_achievements', 'user_id', 'achievement_id')
             ->using(PlayerAchievement::class);
     }
 
     /**
-     * TODO: probably not needed anymore
+     * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
+     *
+     * @return HasMany<PlayerAchievementLegacy>
      */
-    // public function gamesAchievements(): HasManyThrough
-    // {
-    //     return $this->hasManyThrough(Achievement::class, Game::class);
-    // }
+    public function playerAchievementsLegacy(): HasMany
+    {
+        return $this->hasMany(PlayerAchievementLegacy::class, 'User', 'User');
+    }
 
+    /**
+     * @return HasMany<PlayerAchievement>
+     */
     public function playerAchievements(): HasMany
     {
-        return $this->hasMany(PlayerAchievement::class);
+        return $this->hasMany(PlayerAchievement::class, 'user_id');
     }
 
+    /**
+     * Return badges earned by the user
+     *
+     * @return HasMany<PlayerBadge>
+     */
+    public function playerBadges(): HasMany
+    {
+        return $this->hasMany(PlayerBadge::class, 'User', 'User');
+    }
+
+    /**
+     * @return BelongsToMany<Game>
+     */
     public function games(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'player_games')
+        return $this->belongsToMany(Game::class, 'player_games', 'user_id', 'game_id')
             ->using(PlayerGame::class)
-            ->withTimestamps();
+            ->withTimestamps('created_at', 'updated_at');
     }
 
+    /**
+     * @return HasMany<PlayerSession>
+     */
     public function playerSessions(): HasMany
     {
-        return $this->hasMany(PlayerSession::class);
+        return $this->hasMany(PlayerSession::class, 'user_id');
     }
 
-    public function lastGame(): mixed
+    /**
+     * @return BelongsTo<Game, User>
+     */
+    public function lastGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'last_game_id');
+        return $this->belongsTo(Game::class, 'LastGameID', 'user_id');
     }
 
+    /**
+     * @return HasMany<PlayerGame>
+     */
     public function playerGames(): HasMany
     {
-        return $this->hasMany(PlayerGame::class)
-            ->leftJoin('games', 'games.id', '=', 'player_games.game_id');
+        return $this->hasMany(PlayerGame::class, 'user_id');
     }
 
-    public function playerGame(Game $game): Model|HasMany|null
+    public function playerGame(Game $game): ?PlayerGame
     {
         return $this->playerGames()->where('game_id', $game->id)->first();
     }
@@ -111,23 +142,31 @@ trait ActsAsPlayer
 
     // == scopes
 
+    /**
+     * @param Builder<Model> $query
+     * @return Builder<Model>
+     */
     public function scopeTracked(Builder $query): Builder
     {
         $query->where(function ($query) {
             /* @var Builder $query */
-            $query->where('unranked', false);
+            $query->where('Untracked', false);
             if (request()->user()) {
-                $query->orWhere('username', '=', request()->user()->username);
+                $query->orWhere('User', '=', request()->user()->username);
             }
         });
 
         return $query;
     }
 
+    /**
+     * @param Builder<Model> $query
+     * @return Builder<Model>
+     */
     public function scopeCurrentlyOnline(Builder $query): Builder
     {
         $recentMinutes = 10;
-        $query->where('last_login_at', '>', Carbon::now()->subMinutes($recentMinutes));
+        $query->where('LastLogin', '>', Carbon::now()->subMinutes($recentMinutes));
 
         return $query;
     }

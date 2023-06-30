@@ -1,7 +1,6 @@
 <?php
 
 use App\Site\Models\User;
-use LegacyApp\Site\Models\User as LegacyUser;
 
 return [
 
@@ -17,8 +16,8 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web-legacy',
-        'passwords' => 'users-legacy',
+        'guard' => 'web',
+        'passwords' => 'users',
     ],
 
     /*
@@ -39,53 +38,30 @@ return [
     */
 
     'guards' => [
-        'web-legacy' => [
-            'driver' => 'session',
-            'provider' => 'users-legacy',
-        ],
-
-        'api-token-legacy' => [
-            'driver' => 'token',
-            'provider' => 'users-legacy',
-            'input_key' => 'y',
-            'storage_key' => 'APIKey',
-        ],
-
-        'connect-token-legacy' => [
-            'driver' => 'token',
-            'provider' => 'users-legacy',
-            'input_key' => 't',
-            'storage_key' => 'appToken',
-        ],
-
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
 
-        // 'api' => [
-        //     'driver' => 'token', // 'sanctum', 'passport',
-        //     'provider' => 'users',
-        //     'hash' => false,
-        // ],
+        'api-token' => [
+            'driver' => 'token', // 'sanctum', 'passport',
+            'provider' => 'users',
+            'input_key' => 'y',
+            'storage_key' => 'APIKey',
+            // TODO 'storage_key' => 'api_token',
+        ],
+
+        'connect-token' => [
+            'driver' => 'token', // 'sanctum', 'passport',
+            'provider' => 'users',
+            'input_key' => 't',
+            'storage_key' => 'appToken',
+            // TODO 'storage_key' => 'connect_token',
+        ],
 
         'oauth' => [
             'driver' => 'passport',
             'provider' => 'users',
-        ],
-
-        'api-token' => [
-            'driver' => 'token',
-            'provider' => 'users',
-            'input_key' => 'y',
-            'storage_key' => 'api_token',
-        ],
-
-        'connect-token' => [
-            'driver' => 'token',
-            'provider' => 'users',
-            'input_key' => 't',
-            'storage_key' => 'connect_token',
         ],
     ],
 
@@ -111,16 +87,6 @@ return [
             'driver' => 'eloquent',
             'model' => User::class,
         ],
-
-        'users-legacy' => [
-            'driver' => 'eloquent',
-            'model' => LegacyUser::class,
-        ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
@@ -141,12 +107,6 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => 'password_resets',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-        'users-legacy' => [
-            'provider' => 'users-legacy',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,

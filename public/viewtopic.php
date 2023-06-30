@@ -1,8 +1,9 @@
 <?php
 
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Enums\UserAction;
+use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
-use LegacyApp\Community\Enums\SubscriptionSubjectType;
-use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 $userID = $userDetails['ID'] ?? 0;

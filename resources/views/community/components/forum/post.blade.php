@@ -11,7 +11,7 @@
 ])
 
 <?php
-use LegacyApp\Site\Enums\Permissions;
+use App\Site\Enums\Permissions;
 
 $commentId = $commentData['ID'];
 $commentAuthor = e($commentData['Author']);

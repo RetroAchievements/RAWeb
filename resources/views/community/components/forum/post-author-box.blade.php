@@ -1,6 +1,6 @@
 <?php
 use Illuminate\Support\Carbon;
-use LegacyApp\Site\Enums\Permissions;
+use App\Site\Enums\Permissions;
 
 ?>
 

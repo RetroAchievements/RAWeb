@@ -7,65 +7,32 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('games', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            /*
-             * let's have a game on one system only - other system variants may be linked through game relations as "alternative"
-             */
-            $table->unsignedInteger('system_id')->nullable();
+        Schema::table('GameData', function (Blueprint $table) {
+            $table->bigIncrements('ID')->change();
+            $table->unsignedInteger('ConsoleID')->nullable()->change();
 
-            $table->string('title', 80)->nullable();
+            $table->string('Title', 80)->nullable()->change();
 
             /*
-             * TODO: what are those flags for again?
+             * metrics (all sets)
+             * should match achievement_sets
              */
-            // $table->unsignedSmallInteger('status_flag')->nullable();
-            // $table->boolean('final')->nullable();
+            $table->unsignedInteger('players_total')->nullable()->after('RichPresencePatch');
+            $table->unsignedInteger('achievements_published')->nullable()->after('players_total');
+            $table->unsignedInteger('achievements_unpublished')->nullable()->after('achievements_published');
+            $table->unsignedInteger('points_total')->nullable()->after('achievements_unpublished');
 
-            // $table->string('image_icon', 50)->nullable();
-            // $table->string('image_title', 50)->nullable();
-            // $table->string('image_in_game', 50)->nullable();
-            // $table->string('image_box_art', 50)->nullable();
-            // $table->string('publisher', 50)->nullable();
-            // $table->string('developer', 50)->nullable();
-            // $table->string('genre', 50)->nullable();
-
-            $table->string('release', 50)->nullable();
-
-            /*
-             * moved to triggers
-             */
-            // $table->text('rich_presence_patch')->nullable();
-            // $table->unsignedInteger('rich_presence_patch_version')->nullable();
-
-            /*
-             * cached metrics
-             */
-            // $table->unsignedInteger('points_weighted')->nullable();
-            // $table->unsignedInteger('points_total')->nullable();
-            // $table->unsignedInteger('players_total')->nullable();
-            // $table->unsignedInteger('achievements_total')->nullable();
-            // $table->unsignedInteger('achievements_published')->nullable();
-            // $table->unsignedInteger('achievements_unpublished')->nullable();
-
-            /*
-             * doing that through relations now...
-             */
-            // $table->unsignedInteger('achievements_version')->nullable();
-            // $table->string('achievements_version_hash')->nullable();
-            // $table->timestampTz('achievements_updated_at')->nullable();
-
-            $table->timestampTz('released_at')->nullable();
-            $table->text('releases')->nullable();
-            $table->timestampsTz();
+            $table->timestampTz('released_at')->nullable()->after('Released');
+            $table->text('releases')->nullable()->after('released_at');
             $table->softDeletesTz();
 
-            $table->index('system_id');
-            $table->index('title');
+            // Alphabetic sort
+            $table->index('title', 'games_title_index');
+            $table->index('released_at', 'games_released_at_index');
 
-            $table->foreign('system_id')->references('id')->on('systems')->onDelete('set null');
+            $table->foreign('ConsoleID', 'games_systems_id_foreign')->references('ID')->on('Console')->onDelete('set null');
         });
 
         /*
@@ -91,7 +58,7 @@ return new class() extends Migration {
 
             $table->index('user_id');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
 
         Schema::create('game_set_games', function (Blueprint $table) {
@@ -104,14 +71,25 @@ return new class() extends Migration {
             $table->softDeletesTz();
 
             $table->foreign('game_set_id')->references('id')->on('game_sets')->onDelete('cascade');
-            $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
+            $table->foreign('game_id')->references('ID')->on('GameData')->onDelete('cascade');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('game_set_games');
         Schema::dropIfExists('game_sets');
-        Schema::dropIfExists('games');
+
+        Schema::table('GameData', function (Blueprint $table) {
+            $table->dropIndex('games_title_index');
+            $table->dropForeign('games_systems_id_foreign');
+            $table->dropColumn('players_total');
+            $table->dropColumn('achievements_published');
+            $table->dropColumn('achievements_unpublished');
+            $table->dropColumn('points_total');
+            $table->dropColumn('released_at');
+            $table->dropColumn('releases');
+            $table->dropSoftDeletesTz();
+        });
     }
 };

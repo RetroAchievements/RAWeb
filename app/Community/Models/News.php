@@ -6,8 +6,8 @@ namespace App\Community\Models;
 
 use App\Community\Concerns\HasAuthor;
 use App\Community\Contracts\HasComments;
+use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
-use App\Support\Shortcode\HasShortcodeFields;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,15 +24,34 @@ class News extends BaseModel implements HasComments, HasMedia
 {
     use HasAuthor;
     use HasFactory;
-    use HasShortcodeFields;
     use InteractsWithMedia;
+
     use Searchable;
     use SoftDeletes;
 
+    // TODO rename News table to news
+    // TODO rename ID column to id
+    // TODO rename Timestamp column to created_at
+    // TODO rename Updated column to updated_at
+    // TODO rename Title column to title
+    // TODO rename Payload column to body
+    // TODO drop Author, migrate to user_id
+    // TODO drop Link, include in body/Payload
+    // TODO drop Image, migrate to media
+    protected $table = 'News';
+
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = 'Updated';
+
     protected $fillable = [
-        'body',
+        'Title',
         'lead',
-        'title',
+        'Payload',
+        'Author',
+        'Link',
+        'Image',
         'publish_at',
         'unpublish_at',
     ];
@@ -42,34 +61,22 @@ class News extends BaseModel implements HasComments, HasMedia
         'unpublish_at' => 'datetime',
     ];
 
-    protected $with = [
-        'user',
-        'media',
-    ];
-
-    /**
-     * @see HasShortcodeFields
-     */
-    protected array $shortcodeFields = [
-        'lead',
-        'body',
-    ];
-
     // == search
 
     public function toSearchableArray(): array
     {
         return $this->only([
-            'id',
-            // 'body',
+            'ID',
+            'Title',
             'lead',
-            'title',
+            // 'Payload',
         ]);
     }
 
     public function shouldBeSearchable(): bool
     {
-        return $this->isPublished();
+        // TODO return $this->isPublished();
+        return false;
     }
 
     // == media
@@ -127,14 +134,20 @@ class News extends BaseModel implements HasComments, HasMedia
 
     // == relations
 
+    /**
+     * @return MorphMany<NewsComment>
+     */
     public function comments(): MorphMany
     {
         return $this->morphMany(NewsComment::class, 'commentable');
     }
 
+    /**
+     * @return BelongsTo<User, News>
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Site\Models\User::class);
+        return $this->belongsTo(User::class);
     }
 
     // == scopes

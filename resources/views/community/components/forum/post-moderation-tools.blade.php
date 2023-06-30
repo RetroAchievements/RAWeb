@@ -1,5 +1,5 @@
 <?php
-use LegacyApp\Community\Enums\UserAction;
+use App\Community\Enums\UserAction;
 
 $updateForumPostPermissions = UserAction::UpdateForumPostPermissions;
 ?>
