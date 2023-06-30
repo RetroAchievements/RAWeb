@@ -1,9 +1,9 @@
 <?php
 
-use LegacyApp\Community\Enums\TicketFilters;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
+use App\Community\Enums\TicketFilters;
+use App\Community\Enums\TicketState;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 
 /** @var ?User $user */
 $user = request()->user();
@@ -19,7 +19,7 @@ $user = request()->user();
                 <label class="sr-only" for="password-input">Password</label>
                 <input id="password-input" class="w-full" type="password" placeholder="Password" name="p">
             </div>
-            
+
             <div class="flex flex-col items-center gap-2">
                 <div class="h-7 flex items-center justify-center gap-x-2">
                     <button class="flex items-center justify-center p-2" type="submit" name="submit">Log In</button>

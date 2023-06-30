@@ -7,20 +7,17 @@ namespace App\Site\Commands;
 use App\Site\Actions\DeleteAvatarAction;
 use App\Site\Actions\UpdateAvatarAction;
 use App\Site\Models\User;
-use App\Site\Notifications\UserRegistrationNotification;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Str;
 
 class SyncUsers extends Command
 {
     use SyncTrait;
 
-    protected $signature = 'ra:sync:users {id?} {--d|direct} {--f|full} {--p|no-post} {--m|no-media}';
+    protected $signature = 'ra:sync:users {id?} {--f|full} {--p|no-post} {--m|no-media}';
     protected $description = 'Sync users';
 
     public function __construct(
@@ -37,13 +34,12 @@ class SyncUsers extends Command
     {
         User::disableSearchSyncing();
 
-        $this->sync('users', $this->option('direct'));
+        $this->sync('users');
     }
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('UserAccounts');
+        return DB::table('UserAccounts');
     }
 
     protected function preProcessEntity(object $origin, array $transformed): array
@@ -52,8 +48,7 @@ class SyncUsers extends Command
             $transformed['motto'] = null;
         }
 
-        $transformed['display_name'] = $transformed['username'];
-        $transformed['username'] = Str::lower($transformed['username']);
+        $transformed['display_name'] = $transformed['User'];
 
         return $transformed;
     }
@@ -80,14 +75,6 @@ class SyncUsers extends Command
             } else {
                 $this->deleteAvatarAction->execute($user);
             }
-        }
-
-        /*
-         * fake a registration even for users that were created within the last minute
-         */
-        if ($user->created_at && $user->created_at->diffInSeconds() < 61) {
-            Notification::route('webhook', config('services.discord.webhook.users'))
-                ->notify(new UserRegistrationNotification($user));
         }
 
         /*

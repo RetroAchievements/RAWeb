@@ -7,32 +7,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('systems', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('name_full')->nullable();
-            $table->string('name_short')->nullable();
-            $table->string('manufacturer')->nullable();
-            $table->unsignedInteger('order_column')->nullable();
+        Schema::table('Console', function (Blueprint $table) {
+            $table->increments('ID')->change();
+            $table->string('Name')->change();
+            $table->string('name_full')->nullable()->after('Name');
+            $table->string('name_short')->nullable()->after('name_full');
+            $table->string('manufacturer')->nullable()->after('name_short');
 
-            $table->boolean('active')->nullable();
+            $table->boolean('active')->nullable()->after('manufacturer');
 
-            /*
-             * let's keep cached values out of this for now
-             * TODO: check back in a while
-             */
-            // $table->unsignedInteger('points_total')->nullable();
-            // $table->unsignedInteger('points_weighted')->nullable();
-            // $table->unsignedInteger('achievements_total')->nullable();
-            // $table->unsignedInteger('achievements_published')->nullable();
-            // $table->unsignedInteger('achievements_unpublished')->nullable();
+            $table->unsignedInteger('order_column')->nullable()->after('active');
 
-            /*
-             * earlier creation dates are not known
-             */
-            $table->timestampsTz();
             $table->softDeletesTz();
         });
 
@@ -64,7 +51,7 @@ return new class() extends Migration {
             $table->unsignedInteger('emulator_id')->unsigned();
             $table->timestampsTz();
 
-            $table->foreign('system_id')->references('id')->on('systems')->onDelete('cascade');
+            $table->foreign('system_id')->references('ID')->on('Console')->onDelete('cascade');
             $table->foreign('emulator_id')->references('id')->on('emulators')->onDelete('cascade');
         });
 
@@ -95,13 +82,21 @@ return new class() extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('emulator_releases');
         Schema::dropIfExists('integration_releases');
 
         Schema::dropIfExists('system_emulators');
         Schema::dropIfExists('emulators');
-        Schema::dropIfExists('systems');
+
+        Schema::table('Console', function (Blueprint $table) {
+            $table->dropColumn('name_full');
+            $table->dropColumn('name_short');
+            $table->dropColumn('manufacturer');
+            $table->dropColumn('active');
+            $table->dropColumn('order_column');
+            $table->dropSoftDeletesTz();
+        });
     }
 };

@@ -81,6 +81,8 @@ if (!empty($achData)) {
     }
 }
 
+unset($gameData['system']);
+
 $gameData['UserCompletion'] = '0.00%';
 $gameData['UserCompletionHardcore'] = '0.00%';
 if ($gameData['NumAchievements'] ?? false) {

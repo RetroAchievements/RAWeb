@@ -7,11 +7,12 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
         if (Schema::hasTable('sync_status')) {
             return;
         }
+
         Schema::create('sync_status', function (Blueprint $table) {
             $table->string('kind');
             $table->string('reference')->nullable();
@@ -21,8 +22,8 @@ return new class() extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        // nope
+        // no
     }
 };

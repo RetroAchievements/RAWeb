@@ -91,7 +91,7 @@ trait AuthRequests
                 if ($now > $user->connect_token_expires_at) {
                     // expired app tokens have to be rerolled by logging in with username
                     $user = null;
-                } elseif (strtolower($user->username) != strtolower($request->input('u'))) {
+                } elseif (strtolower($user->username) !== strtolower($request->input('u'))) {
                     // mismatch between user and token, ignore
                     $user = null;
                 } else {

@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Enums\Permissions;
+use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');

@@ -1,16 +1,16 @@
 <?php
 
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
-    'leaderboard' => 'nullable|integer|exists:mysql_legacy.LeaderboardDef,ID',
+    'game' => 'required|integer|exists:GameData,ID',
+    'leaderboard' => 'nullable|integer|exists:LeaderboardDef,ID',
     'amount' => 'required_with:leaderboard|integer|min:1|max:25',
 ]);
 

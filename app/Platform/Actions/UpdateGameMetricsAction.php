@@ -10,6 +10,8 @@ class UpdateGameMetricsAction
 {
     public function execute(Game $game): void
     {
+        // TODO
+
         // $game->achievements_total = $this->achievements()->count();
 
         /*
@@ -43,9 +45,6 @@ class UpdateGameMetricsAction
 
         // $this->attributes['players_total'] = $this->players()->count();
 
-        /*
-         * TODO: update players metrics
-         */
         // $game->save();
     }
 }

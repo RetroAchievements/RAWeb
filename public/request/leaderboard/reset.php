@@ -1,16 +1,16 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'leaderboard' => 'required|integer|exists:mysql_legacy.LeaderboardDef,ID',
+    'leaderboard' => 'required|integer|exists:LeaderboardDef,ID',
 ]);
 
 $lbId = (int) $input['leaderboard'];

@@ -1,9 +1,9 @@
 <?php
 
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\StaticData;
-use LegacyApp\Site\Models\User;
+use App\Platform\Models\Achievement;
+use App\Site\Enums\Permissions;
+use App\Site\Models\StaticData;
+use App\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     abort(401);
