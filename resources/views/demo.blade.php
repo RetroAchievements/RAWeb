@@ -57,7 +57,7 @@
     </x-slot>
 
     <?php
-    $user = request()->user() ?? LegacyApp\Site\Models\User::first();
+    $user = request()->user() ?? App\Site\Models\User::first();
     ?>
     <x-section>
         <x-section-header class="mb-3">

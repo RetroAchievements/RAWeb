@@ -1,17 +1,17 @@
 <?php
 
+use App\Platform\Actions\ResetPlayerAchievementAction;
+use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Platform\Actions\ResetPlayerAchievementAction;
-use LegacyApp\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required_without:achievement|integer|exists:mysql_legacy.GameData,ID',
-    'achievement' => 'required_without:game|integer|exists:mysql_legacy.Achievements,ID',
+    'game' => 'required_without:achievement|integer|exists:GameData,ID',
+    'achievement' => 'required_without:game|integer|exists:Achievements,ID',
 ]);
 
 $userModel = User::firstWhere('User', $user);

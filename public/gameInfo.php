@@ -1,19 +1,19 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimType;
+use App\Community\Enums\RatingType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Enums\TicketFilters;
+use App\Community\Enums\TicketState;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\ImageType;
+use App\Platform\Enums\UnlockMode;
+use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 use Carbon\Carbon;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Enums\RatingType;
-use LegacyApp\Community\Enums\SubscriptionSubjectType;
-use LegacyApp\Community\Enums\TicketFilters;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\ImageType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Enums\UserPreference;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -301,32 +301,177 @@ sanitize_outputs(
 
         dataTotalScore.addRows([
             <?php
-            $largestWonByCount = 0;
-            $count = 0;
-            $plural = '';
-            for ($i = 1; $i <= $numAchievements; $i++) {
-                if ($count++ > 0) {
-                    $plural = 's';
-                    echo ", ";
-                }
-                $wonByUserCount = $achDist[$i];
+            function generateEmptyBucketsWithBounds(int $numAchievements): array
+            {
+                $DYNAMIC_BUCKETING_THRESHOLD = 44;
+                $GENERATED_RANGED_BUCKETS_COUNT = 20;
 
-                if ($wonByUserCount > $largestWonByCount) {
-                    $largestWonByCount = $wonByUserCount;
+                // Enable bucketing based on the number of achievements in the set.
+                // This number was picked arbitrarily, but generally reflects when we start seeing
+                // width constraints in the Achievements Distribution bar chart.
+                $isDynamicBucketingEnabled = $numAchievements >= $DYNAMIC_BUCKETING_THRESHOLD;
+
+                // If bucketing is enabled, we'll dynamically generate 19 buckets. The final 20th
+                // bucket will contain all users who have completed/mastered the game.
+                $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements;
+
+                // Bucket size is determined based on the total number of achievements in the set.
+                // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by $bucketCount).
+                // If bucketing is not enabled, each achievement gets its own bucket (bucket size is 1).
+                $bucketSize = $isDynamicBucketingEnabled ? ($numAchievements - 1) / $bucketCount : 1;
+
+                $buckets = [];
+                $currentUpperBound = 1;
+                for ($i = 0; $i < $bucketCount; $i++) {
+                    if ($isDynamicBucketingEnabled) {
+                        $start = $i === 0 ? 1 : $currentUpperBound + 1;
+                        $end = intval(round($bucketSize * ($i + 1)));
+                        $buckets[$i] = ['start' => $start, 'end' => $end, 'hardcore' => 0, 'softcore' => 0];
+
+                        $currentUpperBound = $end;
+                    } else {
+                        $buckets[$i] = ['start' => $i + 1, 'end' => $i + 1, 'hardcore' => 0, 'softcore' => 0];
+                    }
                 }
 
-                echo "[ {v:$i, f:\"Earned $i achievement$plural\"}, $achDistHardcore[$i], $wonByUserCount - $achDistHardcore[$i] ] ";
+                return [$buckets, $isDynamicBucketingEnabled];
             }
 
+            function findBucketIndex(array $buckets, int $achievementNumber): int
+            {
+                $low = 0;
+                $high = count($buckets) - 1;
+
+                // Perform a binary search.
+                while ($low <= $high) {
+                    $mid = intdiv($low + $high, 2);
+                    if ($achievementNumber >= $buckets[$mid]['start'] && $achievementNumber <= $buckets[$mid]['end']) {
+                        return $mid;
+                    }
+                    if ($achievementNumber < $buckets[$mid]['start']) {
+                        $high = $mid - 1;
+                    } else {
+                        $low = $mid + 1;
+                    }
+                }
+
+                // Error: This should not happen unless something is terribly wrong with the page.
+                return -1;
+            }
+
+            function calculateBuckets(
+                array &$buckets,
+                bool $isDynamicBucketingEnabled,
+                int $numAchievements,
+                array $achDist,
+                array $achDistHardcore
+            ): array {
+                $largestWonByCount = 0;
+
+                // Iterate through the achievements and distribute them into the buckets.
+                for ($i = 1; $i < $numAchievements; $i++) {
+                    // Determine the bucket index based on the current achievement number.
+                    $targetBucketIndex = $isDynamicBucketingEnabled ? findBucketIndex($buckets, $i) : $i - 1;
+
+                    // Distribute the achievements into the bucket by adding the number of hardcore
+                    // users who achieved it and the number of softcore users who achieved it to
+                    // the respective counts.
+                    $wonByUserCount = $achDist[$i];
+                    $buckets[$targetBucketIndex]['hardcore'] += $achDistHardcore[$i];
+                    $buckets[$targetBucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
+
+                    // We need to also keep tracked of `largestWonByCount`, which is later used for chart
+                    // configuration, such as determining the number of gridlines to show.
+                    $currentTotal = $buckets[$targetBucketIndex]['hardcore'] + $buckets[$targetBucketIndex]['softcore'];
+                    $largestWonByCount = max($currentTotal, $largestWonByCount);
+                }
+
+                return [$buckets, $largestWonByCount];
+            }
+
+            function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int
+            {
+                if ($numAchievements <= 0) {
+                    return 0;
+                }
+
+                // Add a bucket for the users who have earned all achievements.
+                $buckets[] = [
+                    'hardcore' => $achDistHardcore[$numAchievements],
+                    'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements],
+                ];
+
+                // Calculate the total count of users who have earned all achievements.
+                // This will later be used for chart configuration in determining the
+                // number of gridlines to show on one of the axes.
+                $allAchievementsCount = (
+                    $achDistHardcore[$numAchievements] + ($achDist[$numAchievements] - $achDistHardcore[$numAchievements])
+                );
+
+                return $allAchievementsCount;
+            }
+
+            function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void
+            {
+                echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
+            }
+
+            function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array
+            {
+                $bucketLabels = [];
+                $hAxisValues = [];
+                $bucketIteration = 0;
+                $bucketCount = count($buckets);
+
+                // Loop through each bucket to generate their labels and values.
+                foreach ($buckets as $index => $bucket) {
+                    if ($bucketIteration++ > 0) {
+                        echo ", ";
+                    }
+
+                    // Is this the last bucket? If so, we only want it to include
+                    // players who have earned all the achievements, not a range.
+                    if ($index == $bucketCount - 1) {
+                        $label = "Earned $numAchievements achievements";
+                        printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+
+                        $hAxisValues[] = $numAchievements;
+                    } else {
+                        // For other buckets, the label indicates the range of achievements that
+                        // the bucket represents.
+                        $start = $bucket['start'];
+                        $end = $bucket['end'];
+
+                        // Pluralize 'achievement' if the range contains more than one achievement.
+                        $plural = $end > 1 ? 's' : '';
+                        $label = "Earned $start achievement$plural";
+                        if ($start !== $end) {
+                            $label = "Earned $start-$end achievement$plural";
+                        }
+
+                        printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+
+                        $hAxisValues[] = $start;
+                    }
+                }
+
+                return $hAxisValues;
+            }
+
+            [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
+            [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $achDist, $achDistHardcore);
+            $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
+            $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
+
+            $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
             if ($largestWonByCount > 20) {
                 $largestWonByCount = -2;
             }
 
-            // if there's less than 20 achievements, just show a line for every value
-            // otherwise show 10 lines (chart will actually use less lines if it doesn't divide evenly)
-            $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
+            $hAxisValues = generateBucketLabelsAndValues($numAchievements, $buckets);
             ?>
         ]);
+        var hAxisValues = <?php echo json_encode($hAxisValues); ?>;
         var optionsTotalScore = {
             isStacked: true,
             backgroundColor: 'transparent',
@@ -337,10 +482,15 @@ sanitize_outputs(
                     count: <?= $numGridlines ?>,
                     color: '#333333'
                 },
+                <?php
+                if ($isDynamicBucketingEnabled) {
+                    echo 'ticks: hAxisValues.map(function(value, index) { return {v: index + 1, f: value.toString()}; }),';
+                }
+                ?>
                 minorGridlines: { count: 0 },
                 format: '#',
                 slantedTextAngle: 90,
-                maxAlternation: 0
+                maxAlternation: 0,
             },
             vAxis: {
                 textStyle: { color: '#186DEE' },
@@ -663,7 +813,7 @@ sanitize_outputs(
             <?php
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='navpath leading-4'>";
+                echo "<div class='navpath'>";
                 echo renderGameBreadcrumb($gameData, addLinkToLastCrumb: $flags === $unofficialFlag);
                 if ($flags === $unofficialFlag) {
                     echo " &raquo; <b>Unofficial Achievements</b>";
@@ -683,35 +833,51 @@ sanitize_outputs(
             $imageIngame = media_asset($gameData['ImageIngame']);
             $pageTitleAttr = attributeEscape($pageTitle);
 
-            $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
-            $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleID.name_short")));
-            $iconName = Str::kebab($cleanSystemShortName);
+            $systemIconUrl = getSystemIconUrl($consoleID);
 
-            echo "<h1 class='text-h3'>";
-            echo " <span class='block mb-1'>$renderedTitle</span>";
-            echo " <div class='flex items-center gap-x-1'>";
-            echo "  <img src='" . asset("assets/images/system/$iconName.png") . "' width='24' height='24' alt='Console icon' onerror='this.src=\"$fallBackConsoleIcon\"'>";
-            echo "  <span class='block text-sm tracking-tighter'>$consoleName</span>";
-            echo " </div>";
-            echo "</h1>";
+            $gameMetaBindings = [
+                'consoleName' => $consoleName,
+                'developer' => $developer,
+                'gameHubs' => $gameHubs,
+                'gameTitle' => $gameTitle,
+                'genre' => $genre,
+                'iconUrl' => $systemIconUrl,
+                'imageIcon' => $imageIcon,
+                'isFullyFeaturedGame' => $isFullyFeaturedGame,
+                'publisher' => $publisher,
+                'released' => $released,
+            ];
 
-            echo "<div class='flex flex-col sm:flex-row sm:w-full gap-x-4 gap-y-2 items-center mb-4'>";
-            echo "<img class='aspect-1 object-cover rounded-sm w-[96px] h-[96px]' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
+            echo Blade::render('
+                <x-game.heading 
+                    :consoleName="$consoleName"
+                    :gameTitle="$gameTitle"
+                    :iconUrl="$iconUrl"
+                />
+            ', $gameMetaBindings);
 
-            echo "<div class='flex flex-col w-full gap-1'>";
-            if ($isFullyFeaturedGame) {
-                RenderMetadataTableRow('Developer', $developer, $gameHubs, ['Hacker']);
-                RenderMetadataTableRow('Publisher', $publisher, $gameHubs, ['Hacks']);
-                RenderMetadataTableRow('Genre', $genre, $gameHubs, ['Subgenre']);
-            } else {
-                RenderMetadataTableRow('Developer', $developer);
-                RenderMetadataTableRow('Publisher', $publisher);
-                RenderMetadataTableRow('Genre', $genre);
-            }
-            RenderMetadataTableRow('Released', $released);
-            echo "</div>";
+            echo Blade::render('
+                <x-game.primary-meta
+                    :developer="$developer"
+                    :publisher="$publisher"
+                    :genre="$genre"
+                    :released="$released"
+                    :imageIcon="$imageIcon"
+                    :metaKind="$isFullyFeaturedGame ? \'Game\' : \'Hub\'"
+                >
+                    @if ($isFullyFeaturedGame)
+                        <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" :gameHubs="$gameHubs" :altLabels="[\'Hacker\']" />
+                        <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" :gameHubs="$gameHubs" :altLabels="[\'Hacks\']" />
+                        <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" :gameHubs="$gameHubs" :altLabels="[\'Subgenre\']" />
+                    @else
+                        <x-game.primary-meta-row-item label="Developer" :metadataValue="$developer" />
+                        <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
+                        <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
+                    @endif
 
-            echo "</div>";
+                    <x-game.primary-meta-row-item label="Released" :metadataValue="$released" />
+                </x-game.primary-meta>
+            ', $gameMetaBindings);
 
             if ($isFullyFeaturedGame) {
                 echo <<<HTML
@@ -1342,7 +1508,9 @@ sanitize_outputs(
                                 icon: false,
                                 tooltip: false,
                             );
-                            echo " <span class='TrueRatio'>($achTrueRatio)</span>";
+                            if ($achPoints !== 0) {
+                                echo " <span class='TrueRatio'>($achTrueRatio)</span>";
+                            }
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
                             if ($flags != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {

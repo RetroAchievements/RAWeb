@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\AwardType;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\AwardType;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
@@ -232,7 +232,9 @@ function postAllAwardsDisplayOrder(awards) {
                     $awardDataExtra,
                 );
 
-                if ($awardType == AwardType::AchievementUnlocksYield) {
+                if ($awardType == AwardType::Mastery) {
+                    $awardTitle = renderGameTitle($awardTitle);
+                } elseif ($awardType == AwardType::AchievementUnlocksYield) {
                     $awardTitle = "Achievements Earned by Others";
                 } elseif ($awardType == AwardType::AchievementPointsYield) {
                     $awardTitle = "Achievement Points Earned by Others";
@@ -240,7 +242,7 @@ function postAllAwardsDisplayOrder(awards) {
                     $awardTitle = "Patreon Supporter";
                 }
 
-                $isHiddenPreChecked = $awardDisplayOrder === '-1';
+                $isHiddenPreChecked = $awardDisplayOrder === -1;
                 $subduedOpacityClassName = $isHiddenPreChecked ? 'opacity-40' : '';
                 $isDraggable = $isHiddenPreChecked ? 'false' : 'true';
 

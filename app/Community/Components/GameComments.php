@@ -7,7 +7,6 @@ namespace App\Community\Components;
 use App\Community\Models\GameComment;
 use App\Platform\Models\Game;
 use App\Site\Components\Grid;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -43,6 +42,9 @@ class GameComments extends Grid
         );
     }
 
+    /**
+     * @return Builder<GameComment>
+     */
     protected function query(): Builder
     {
         /** @var Game $game */
@@ -71,11 +73,6 @@ class GameComments extends Grid
     protected function load(): ?LengthAwarePaginator
     {
         parent::load();
-
-        /*
-         * intercept to eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect(collect($this->results->items())->pluck('body'));
 
         return $this->results;
     }

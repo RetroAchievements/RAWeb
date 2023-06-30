@@ -1,7 +1,7 @@
 <?php
 
+use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
@@ -65,11 +65,12 @@ $(document).ready(onUserChange);
             echo "<div class='comment'>$messageContextPayload</div>";
         }
 
+        echo "<form action='/request/message/send.php' method='post'>";
+        echo csrf_field();
+
         echo "<table>";
         echo "<tbody>";
 
-        echo "<form action='/request/message/send.php' method='post'>";
-        echo csrf_field();
         $destUser = mb_strlen($messageTo) > 2 ? $messageTo : '_User';
         echo "<tr>";
         echo "<td>User:</td>";
@@ -81,9 +82,9 @@ $(document).ready(onUserChange);
         RenderShortcodeButtons();
         echo "<textarea id='commentTextarea' class='w-full forum messageTextarea' style='height:160px' rows='5' cols='61' name='message' placeholder='Enter your message here...' required>$messageOutgoingPayload</textarea></td></tr>";
         echo "<tr><td></td><td colspan='2' class='w-full'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
-        echo "</form>";
         echo "</tbody>";
         echo "</table>";
+        echo "</form>";
         ?>
     </div>
 </div>

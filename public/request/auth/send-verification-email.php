@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Site\Models\User;
+use App\Site\Models\User;
 
 /** @var ?User $user */
 $user = request()->user();

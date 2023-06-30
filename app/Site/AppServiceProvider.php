@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace App\Site;
 
 use App\Site\Commands\CleanupAvatars;
+use App\Site\Commands\DeleteExpiredEmailVerificationTokens;
+use App\Site\Commands\DeleteOverdueUserAccounts;
 use App\Site\Commands\DeleteUsers;
+use App\Site\Commands\LogUsersOnlineCount;
 use App\Site\Commands\SyncUsers;
 use App\Site\Commands\SystemAlert;
+use App\Site\Commands\UpdateUserTimestamps;
 use App\Site\Models\User;
+use Exception;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -21,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                LogUsersOnlineCount::class,
+                DeleteExpiredEmailVerificationTokens::class,
+                DeleteOverdueUserAccounts::class,
+                UpdateUserTimestamps::class,
+
                 /*
                  * User Accounts
                  */
@@ -36,6 +47,13 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Model::shouldBeStrict(!$this->app->isProduction());
+
+        $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+            $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
+            $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
+            $schedule->command(DeleteOverdueUserAccounts::class)->daily();
+        });
 
         /*
          * https://josephsilber.com/posts/2018/07/02/eloquent-polymorphic-relations-morph-map
@@ -75,6 +93,32 @@ class AppServiceProvider extends ServiceProvider
             return class_exists('App\\Models\\' . $factoryBasename)
                 ? 'App\\Models\\' . $factoryBasename
                 : 'App\\' . $factoryBasename;
+        });
+
+        // TODO remove
+        $this->app->singleton('mysqli', function () {
+            try {
+                $db = mysqli_connect(
+                    config('database.connections.mysql.host'),
+                    config('database.connections.mysql.username'),
+                    config('database.connections.mysql.password'),
+                    config('database.connections.mysql.database'),
+                    (int) config('database.connections.mysql.port')
+                );
+                if (!$db) {
+                    throw new Exception('Could not connect to database. Please try again later.');
+                }
+                mysqli_set_charset($db, 'latin1');
+                mysqli_query($db, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+
+                return $db;
+            } catch (Exception $exception) {
+                if (app()->environment('local', 'testing')) {
+                    throw $exception;
+                }
+                echo 'Could not connect to database. Please try again later.';
+                exit;
+            }
         });
     }
 }
