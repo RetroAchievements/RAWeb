@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\RequestStatus;
 use App\Community\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementType;
 use App\Site\Models\User;
@@ -232,7 +233,7 @@ function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 /**
  * Gets a list of the most requested sets without core achievements.
  */
-function getMostRequestedSetsList(array|int|null $console, int $offset, int $count): array
+function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, int $requestStatus = RequestStatus::Any): array
 {
     sanitize_sql_inputs($offset, $count);
 
@@ -249,7 +250,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
         FROM
             SetRequest sr
         LEFT JOIN
-            SetClaim sc ON (sr.GameID = sc.GameID)
+            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ") 
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
@@ -262,6 +263,12 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
     } elseif (!empty($console)) {
         sanitize_sql_inputs($console);
         $query .= " AND c.ID = $console ";
+    }
+
+    if ($requestStatus === RequestStatus::Claimed) {
+        $query .= " AND sc.ID IS NOT NULL ";
+    } elseif ($requestStatus === RequestStatus::Unclaimed) {
+        $query .= " AND sc.ID IS NULL ";
     }
 
     $query .= "
@@ -288,7 +295,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
 /**
  * Gets the number of set-less games with at least one set request.
  */
-function getGamesWithRequests(array|int|null $console): int
+function getGamesWithRequests(array|int|null $console, int $requestStatus = RequestStatus::Any): int
 {
     $query = "
         SELECT
@@ -300,15 +307,25 @@ function getGamesWithRequests(array|int|null $console): int
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
-            Console c ON (gd.ConsoleID = c.ID)
-        WHERE
-             GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
+            Console c ON (gd.ConsoleID = c.ID) ";
+
+    if ($requestStatus !== RequestStatus::Any) {
+        $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ") ";
+    }
+
+    $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
 
     if (is_array($console)) {
         $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
     } elseif (!empty($console)) {
         sanitize_sql_inputs($console);
         $query .= " AND c.ID = $console ";
+    }
+
+    if ($requestStatus === RequestStatus::Claimed) {
+        $query .= " AND sc.ID IS NOT NULL ";
+    } elseif ($requestStatus === RequestStatus::Unclaimed) {
+        $query .= " AND sc.ID IS NULL ";
     }
 
     $dbResult = s_mysql_query($query);
