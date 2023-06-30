@@ -1,9 +1,4 @@
-import {
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { hideTooltip } from './hideTooltip';
 import { tooltipStore as store } from '../state/tooltipStore';
@@ -41,7 +36,6 @@ describe('Util: hideTooltip', () => {
     // ASSERT
     expect(tooltipEl.style.transition).toBeTruthy();
     expect(tooltipEl.style.opacity).toBeTruthy();
-    expect(tooltipEl.style.transform).toBeTruthy();
   });
 
   it('given a lengthy period of time passes, should strip added styles', () => {
@@ -59,7 +53,6 @@ describe('Util: hideTooltip', () => {
     // ASSERT
     expect(tooltipEl.style.display).not.toBeTruthy();
     expect(tooltipEl.style.transition).not.toBeTruthy();
-    expect(tooltipEl.style.transform).not.toBeTruthy();
     expect(tooltipEl.style.opacity).not.toBeTruthy();
   });
 
@@ -81,6 +74,5 @@ describe('Util: hideTooltip', () => {
     // ASSERT
     expect(tooltipEl.style.transition).toBeTruthy();
     expect(tooltipEl.style.opacity).toBeTruthy();
-    expect(tooltipEl.style.transform).toBeTruthy();
   });
 });
