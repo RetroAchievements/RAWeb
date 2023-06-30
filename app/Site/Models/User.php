@@ -149,6 +149,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         "ContribCount",
         "ContribYield",
         "TrueRAPoints",
+        "websitePrefs",
     ];
 
     protected $appends = [

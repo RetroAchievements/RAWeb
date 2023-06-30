@@ -145,7 +145,7 @@ function getTopicComments(int $topicID, int $offset, int $count, ?int &$maxCount
         $maxCountOut = (int) $data['COUNT(*)'];
     }
 
-    $query = "SELECT ftc.ID, ftc.ForumTopicID, ftc.Payload, ftc.Author, ftc.AuthorID, ftc.DateCreated, ftc.DateModified, ftc.Authorised, ua.RAPoints
+    $query = "SELECT ftc.ID, ftc.ForumTopicID, ftc.Payload, ftc.Author, ftc.AuthorID, ftc.DateCreated, ftc.DateModified, ftc.Authorised, ua.RAPoints, ua.Created AS AuthorJoined, ua.Permissions as AuthorPermissions
                 FROM ForumTopicComment AS ftc
                 LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
                 WHERE ftc.ForumTopicID = $topicID
