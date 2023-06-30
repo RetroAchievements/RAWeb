@@ -7,7 +7,6 @@ namespace App\Community\Components;
 use App\Community\Models\News;
 use App\Community\Models\NewsComment;
 use App\Site\Components\Grid;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -43,6 +42,9 @@ class NewsComments extends Grid
         );
     }
 
+    /**
+     * @return Builder<NewsComment>
+     */
     protected function query(): Builder
     {
         /** @var News $news */
@@ -64,11 +66,6 @@ class NewsComments extends Grid
     protected function load(): ?LengthAwarePaginator
     {
         parent::load();
-
-        /*
-         * intercept to eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect(collect($this->results->items())->pluck('body'));
 
         return $this->results;
     }

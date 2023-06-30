@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class UserGameRankAndScoreTest extends TestCase
@@ -35,14 +35,14 @@ class UserGameRankAndScoreTest extends TestCase
         $thirdAchievement = $publishedAchievements->get(2);
         /** @var User $user */
         $user = User::factory()->create();
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
-        $unlock2 = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
+        $unlock2 = PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user->User]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user2->User]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user2->User]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $thirdAchievement->ID, 'User' => $user2->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user2->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user2->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $thirdAchievement->ID, 'User' => $user2->User]);
 
         $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->User, 'g' => $game->ID]))
             ->assertSuccessful()
@@ -64,14 +64,14 @@ class UserGameRankAndScoreTest extends TestCase
         $thirdAchievement = $publishedAchievements->get(2);
         /** @var User $user */
         $user = User::factory()->create(['Untracked' => true]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
-        $unlock2 = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user->User]);
+        $unlock2 = PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user->User]);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user2->User]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user2->User]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $thirdAchievement->ID, 'User' => $user2->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $firstAchievement->ID, 'User' => $user2->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $secondAchievement->ID, 'User' => $user2->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $thirdAchievement->ID, 'User' => $user2->User]);
 
         $this->get($this->apiUrl('GetUserGameRankAndScore', ['u' => $user->User, 'g' => $game->ID]))
             ->assertSuccessful()

@@ -24,11 +24,11 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\AwardType;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Enums\AwardType;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],

@@ -2,8 +2,8 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 parameters:
     paths:
-        # - app
-        - app_legacy
+        - app
+        - database
         - public
         - resources/views
         - tests
@@ -17,7 +17,9 @@ parameters:
         # accessors to polymorphic relationships
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger|subject]#'
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[a-zA-Z0-9\&\\_]+[_count]#'
-        - '#Access to an undefined property LegacyApp\\Site\\Models\\.*#'
+        - '#Access to an undefined property App\\Community\\Models\\.*#'
+        - '#Access to an undefined property App\\Platform\\Models\\.*#'
+        - '#Access to an undefined property App\\Site\\Models\\.*#'
         # Builder::exists() is not private
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
         - '#Parameter (.*) of function htmlentities expects#'
@@ -28,6 +30,9 @@ parameters:
         # TODO check if still an issue with Laravel 10
         - '#Call to an undefined method Database\\Factories#'
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$#'
+        - '#Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Database\\Eloquent\\Collection<int,App\\[a-zA-Z]+\\Models\\[a-zA-Z]+>::mapWithKeys\(\)#'
+        - '#Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Support\\Collection<\(int\|string\),mixed>::mapWithKeys\(\)#'
+        - '#Command "ra:sync:(.*)" does not have argument "(.*)"#'
     excludePaths:
         # unrelated directories
         - public/storage
@@ -39,4 +44,4 @@ parameters:
         - public/popularGames.php
         - public/rss-activity.xml.php
         # third party
-        - app_legacy/Helpers/util/recaptcha.php
+        - app/Helpers/util/recaptcha.php

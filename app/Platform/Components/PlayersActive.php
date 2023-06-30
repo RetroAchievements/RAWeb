@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Components;
 
 use App\Site\Components\Concerns\DeferLoading;
+use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -14,8 +15,8 @@ class PlayersActive extends Component
 
     public function render(): View
     {
-        $players = \App\Site\Models\User::currentlyOnline()->get();
-        $playersOnline = \App\Site\Models\User::currentlyOnline()->count();
+        $players = User::currentlyOnline()->get();
+        $playersOnline = User::currentlyOnline()->count();
 
         return view('components.player.active')
             ->with('players', $players)

@@ -31,6 +31,9 @@ class GameHashSet extends BaseModel implements HasVersionedTrigger
 
     // == relations
 
+    /**
+     * @return BelongsToMany<GameHash>
+     */
     public function hashes(): BelongsToMany
     {
         return $this->belongsToMany(GameHash::class, GameHashSetHash::getFullTableName())
@@ -38,11 +41,17 @@ class GameHashSet extends BaseModel implements HasVersionedTrigger
             ->withTimestamps();
     }
 
+    /**
+     * @return BelongsTo<Game, GameHashSet>
+     */
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
     }
 
+    /**
+     * @return HasMany<MemoryNote>
+     */
     public function memoryNotes(): HasMany
     {
         return $this->hasMany(MemoryNote::class);
@@ -55,6 +64,9 @@ class GameHashSet extends BaseModel implements HasVersionedTrigger
             ->orderByDesc('version');
     }
 
+    /**
+     * @return MorphToMany<Trigger>
+     */
     public function triggers(): MorphToMany
     {
         return $this->morphToMany(Trigger::class, 'triggerable')
@@ -63,6 +75,10 @@ class GameHashSet extends BaseModel implements HasVersionedTrigger
 
     // == scopes
 
+    /**
+     * @param Builder<GameHashSet> $query
+     * @return Builder<GameHashSet>
+     */
     public function scopeCompatible(Builder $query, bool $compatible = true): Builder
     {
         return $query->where('compatible', $compatible);

@@ -7,27 +7,47 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('votes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
-            $table->morphs('votable');
-            $table->unsignedSmallInteger('vote');
+        Schema::table('Votes', function (Blueprint $table) {
+            $table->dropPrimary(['User', 'AchievementID']);
+        });
 
-            /*
-             * earlier creation dates are not known
-             */
-            $table->timestampsTz();
+        Schema::table('Votes', function (Blueprint $table) {
+            // TODO remove as soon as SQLite was upgraded to 3.37+ via Ubuntu upgrade from 20.04 -> 22.04
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                $table->bigIncrements('id')->first();
+            }
 
-            $table->unique(['user_id', 'votable_type', 'votable_id']);
+            // nullable morphs
+            $table->string('votable_model')->nullable()->after('id');
+            $table->unsignedBigInteger('votable_id')->nullable()->after('votable_model');
+            $table->index(['votable_model', 'votable_id'], 'votes_votable_index');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable()->after('votable_id');
+
+            // drop this in favor of ratable morph
+            // kept to make sure only unique ratings exist
+            $table->unique(['User', 'AchievementID'], 'votes_user_achievement_id_unique');
+
+            $table->foreign('user_id', 'votes_user_id_foreign')->references('ID')->on('UserAccounts')->onDelete('cascade');
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('votes');
+        Schema::table('Votes', function (Blueprint $table) {
+            $table->dropIndex('votes_votable_index');
+            $table->dropUnique('votes_user_achievement_id_unique');
+            $table->dropForeign('votes_user_id_foreign');
+            $table->dropColumn('id');
+            $table->dropColumn('votable_model');
+            $table->dropColumn('votable_id');
+            $table->dropColumn('user_id');
+        });
+
+        Schema::table('Votes', function (Blueprint $table) {
+            $table->primary(['User', 'AchievementID']);
+        });
     }
 };
