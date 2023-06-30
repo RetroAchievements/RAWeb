@@ -155,31 +155,32 @@ function UpdateMailboxCount(messageCount) {
 jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
 
-  var $searchBoxInput = $('.searchboxinput');
-  // eslint-disable-next-line no-underscore-dangle -- required by autocomplete's API
-  $searchBoxInput.autocomplete({
-    source: function (request, response) {
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
-    },
-    minLength: 2,
-    select: function (event) {
-      // This is required by jQuery UI Autocomplete. Unfortunately we can't
-      // just rely on the browser's native behavior for dealing with anchor tags.
-      event.preventDefault();
-      window.location = event.srcElement.href;
-    }
-  }).data('autocomplete')._renderItem = function (ul, item) {
-    const li = $('<li>');
-    const a = $('<a>', {
-      text: item.label,
-      href: item.mylink,
-    });
+  $('.searchboxinput').each(function () {
+    // eslint-disable-next-line no-underscore-dangle
+    $(this).autocomplete({
+      source: function (request, response) {
+        $.post('/request/search.php', request)
+          .done(function (data) {
+            response(data);
+          });
+      },
+      minLength: 2,
+      select: function (event) {
+        // This is required by jQuery UI Autocomplete. Unfortunately we can't
+        // just rely on the browser's native behavior for dealing with anchor tags.
+        event.preventDefault();
+        window.location = event.srcElement.href;
+      }
+    }).data('autocomplete')._renderItem = function (ul, item) {
+      const li = $('<li>');
+      const a = $('<a>', {
+        text: item.label,
+        href: item.mylink,
+      });
 
-    return li.append(a).appendTo(ul);
-  };
+      return li.append(a).appendTo(ul);
+    };
+  });
 
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
   $seachBoxCompareUser.autocomplete({
