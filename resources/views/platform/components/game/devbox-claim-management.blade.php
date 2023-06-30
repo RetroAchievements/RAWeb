@@ -1,9 +1,9 @@
 <?php
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimType;
+use App\Community\Enums\TicketState;
+use App\Site\Enums\Permissions;
 
 ?>
 
