@@ -812,7 +812,7 @@ sanitize_outputs(
             <?php
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='navpath leading-4'>";
+                echo "<div class='navpath'>";
                 echo renderGameBreadcrumb($gameData, addLinkToLastCrumb: $flags === $unofficialFlag);
                 if ($flags === $unofficialFlag) {
                     echo " &raquo; <b>Unofficial Achievements</b>";
