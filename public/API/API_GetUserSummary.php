@@ -107,6 +107,7 @@ $retVal['TotalRanked'] = countRankedUsers();
 // assume caller doesn't care about the rich presence script for the last game played
 if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
+    unset($retVal['LastGame']['system']);
 }
 
 // Find out if we're online or offline

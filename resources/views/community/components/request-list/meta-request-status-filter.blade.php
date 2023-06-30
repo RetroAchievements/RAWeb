@@ -1,5 +1,5 @@
 <?php
-use LegacyApp\Community\Enums\RequestStatus;
+use App\Community\Enums\RequestStatus;
 
 $any = RequestStatus::Any;
 $claimed = RequestStatus::Claimed;

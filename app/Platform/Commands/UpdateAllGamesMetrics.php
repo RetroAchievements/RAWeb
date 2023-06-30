@@ -22,13 +22,13 @@ class UpdateAllGamesMetrics extends Command
         /*
          * TODO: queue artisan commands instead of calling it directly
          */
-        Game::withCount('achievements')
-            ->having('achievements_count', '>', '0')
-            ->chunk(100, function ($games, $index) {
-                $this->info('chunk ' . ($index * 100) . ' ' . memory_get_usage());
-                foreach ($games as $game) {
-                    $game->updateMetrics();
-                }
-            });
+        // Game::withCount('achievements')
+        //     ->having('achievements_count', '>', '0')
+        //     ->chunk(100, function ($games, $index) {
+        //         $this->info('chunk ' . ($index * 100) . ' ' . memory_get_usage());
+        //         foreach ($games as $game) {
+        //             $game->updateMetrics();
+        //         }
+        //     });
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Community\Models\News;
+use App\Community\Models\News;
 
 $newsData = News::orderByDesc('ID')->take(10)->get();
 if ($newsData->isEmpty()) {

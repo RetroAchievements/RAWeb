@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Site\Enums\SearchType;
+use App\Platform\Models\Achievement;
+use App\Site\Enums\SearchType;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -104,7 +104,7 @@ RenderContentStart("Search");
 
                         case SearchType::Game:
                             echo "<td>Game</td>";
-                            $gameData = GetGameData($nextID);
+                            $gameData = getGameData($nextID);
                             echo "<td colspan='2'>";
                             echo gameAvatar($gameData);
                             echo "</td>";

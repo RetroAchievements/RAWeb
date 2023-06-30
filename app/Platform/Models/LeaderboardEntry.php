@@ -15,6 +15,9 @@ class LeaderboardEntry extends BaseModel
 
     // == relations
 
+    /**
+     * @return BelongsTo<Leaderboard, LeaderboardEntry>
+     */
     public function leaderboard(): BelongsTo
     {
         return $this->belongsTo(Leaderboard::class);

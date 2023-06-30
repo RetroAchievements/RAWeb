@@ -1,16 +1,16 @@
 <?php
 
+use App\Community\Enums\UserRelationship;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use LegacyApp\Community\Enums\UserRelationship;
 
 if (!authenticateFromCookie($user, $permissions, $userDetail)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'user' => 'required|string|exists:mysql_legacy.UserAccounts,User',
+    'user' => 'required|string|exists:UserAccounts,User',
     'action' => ['required', 'integer', Rule::in(UserRelationship::cases())],
 ]);
 
