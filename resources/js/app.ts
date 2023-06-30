@@ -4,6 +4,7 @@ import Alpine from 'alpinejs';
 
 import { attachTooltipToElement } from './tooltip';
 import { hideEarnedCheckboxComponent } from './alpine';
+import { newsCarousel } from './alpine/newsCarousel';
 import {
   copyToClipboard,
   handleLeaderboardTabClick,
@@ -26,6 +27,7 @@ window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.injectShortcode = injectShortcode;
+window.newsCarousel = newsCarousel;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
 // Alpine needs to be placed after all `window` injection
