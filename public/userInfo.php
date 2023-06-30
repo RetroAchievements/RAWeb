@@ -1,15 +1,15 @@
 <?php
 
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSorting;
-use LegacyApp\Community\Enums\ClaimSpecial;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Enums\Rank;
-use LegacyApp\Community\Enums\RankType;
-use LegacyApp\Community\Enums\UserAction;
-use LegacyApp\Community\Enums\UserRelationship;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSorting;
+use App\Community\Enums\ClaimSpecial;
+use App\Community\Enums\ClaimType;
+use App\Community\Enums\Rank;
+use App\Community\Enums\RankType;
+use App\Community\Enums\UserAction;
+use App\Community\Enums\UserRelationship;
+use App\Site\Enums\Permissions;
 
 $userPage = request('user');
 if (empty($userPage) || !isValidUsername($userPage)) {
@@ -47,6 +47,10 @@ $numArticleComments = getRecentArticleComments(ArticleType::User, $userPageID, $
 $totalPctWon = 0.0;
 $numGamesFound = 0;
 
+// Achievement totals
+$totalHardcoreAchievements = 0;
+$totalSoftcoreAchievements = 0;
+
 // Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
@@ -57,6 +61,8 @@ foreach ($userCompletedGamesList as $nextGame) {
         if (!in_array($nextGame['ConsoleName'], $excludedConsoles)) {
             $totalPctWon += $nextGame['PctWon'];
             $numGamesFound++;
+            $totalHardcoreAchievements += $nextGame['NumAwardedHC'];
+            $totalSoftcoreAchievements += ($nextGame['NumAwarded'] - $nextGame['NumAwardedHC']);
         }
     }
 }
@@ -206,15 +212,19 @@ RenderContentStart($userPage);
         }
 
         if (isset($user) && ($user !== $userPage)) {
-            echo "<div class='flex items-center gap-1'>";
-            $friendshipType = GetFriendship($user, $userPage);
-            switch ($friendshipType) {
+            echo "<div class='flex flex-col sm:flex-row justify-center sm:justify-start sm:gap-1'>";
+
+            $myFriendshipType = GetFriendship($user, $userPage);
+            $areTheyFollowingMe = GetFriendship($userPage, $user) == UserRelationship::Following;
+
+            echo "<div class='flex'>";
+            switch ($myFriendshipType) {
                 case UserRelationship::Following:
                     echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='user' value='$userPage'>";
                     echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
-                    echo "<button class='btn btn-link'>Unfollow</button>";
+                    echo "<button class='btn btn-link !pl-0'>Unfollow</button>";
                     echo "</form>";
                     break;
                 case UserRelationship::NotFollowing:
@@ -222,12 +232,12 @@ RenderContentStart($userPage);
                     echo csrf_field();
                     echo "<input type='hidden' name='user' value='$userPage'>";
                     echo "<input type='hidden' name='action' value='" . UserRelationship::Following . "'>";
-                    echo "<button class='btn btn-link'>Follow</button>";
+                    echo "<button class='btn btn-link !pl-0'>Follow" . ($areTheyFollowingMe ? ' Back' : '') . "</button>";
                     echo "</form>";
                     break;
             }
 
-            if ($friendshipType != UserRelationship::Blocked) {
+            if ($myFriendshipType != UserRelationship::Blocked) {
                 echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
                 echo csrf_field();
                 echo "<input type='hidden' name='user' value='$userPage'>";
@@ -243,10 +253,12 @@ RenderContentStart($userPage);
                 echo "</form>";
             }
             echo "<a class='btn btn-link' href='/createmessage.php?t=$userPage'>Message</a>";
+            echo "</div>";
 
-            if (GetFriendship($userPage, $user) == UserRelationship::Following) {
-                echo "<span class='px-3'>Follows you</span>";
+            if ($areTheyFollowingMe) {
+                echo "<p class='sm:px-3'>Follows you</p>";
             }
+
             echo "</div>";
         }
 
@@ -269,7 +281,8 @@ RenderContentStart($userPage);
             $totalTruePoints = $userMassData['TotalTruePoints'];
 
             $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
-            echo "Hardcore Points: $totalHardcorePoints points<span class='TrueRatio'> ($totalTruePoints)</span></span><br>";
+            echo "Hardcore Points: $totalHardcorePoints <span class='TrueRatio'> ($totalTruePoints)</span></span><br>";
+            echo "Hardcore Achievements: $totalHardcoreAchievements<br>";
 
             echo "Site Rank: ";
             if ($userIsUntracked) {
@@ -291,7 +304,8 @@ RenderContentStart($userPage);
 
         $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
         if ($totalSoftcorePoints > 0) {
-            echo "Softcore Points: $totalSoftcorePoints points<br>";
+            echo "Softcore Points: $totalSoftcorePoints<br>";
+            echo "Softcore Achievements: $totalSoftcoreAchievements<br>";
 
             echo "Softcore Rank: ";
             if ($userIsUntracked) {

@@ -1,17 +1,17 @@
 <?php
 
+use App\Community\Enums\RatingType;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use LegacyApp\Community\Enums\RatingType;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'game' => 'required|integer|exists:GameData,ID',
     'type' => ['required', Rule::in(RatingType::cases())],
     'rating' => 'required|integer|min:1|max:5',
 ]);

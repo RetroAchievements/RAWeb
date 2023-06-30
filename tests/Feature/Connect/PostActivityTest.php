@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Community\Enums\ActivityType;
+use App\Community\Models\UserActivityLegacy;
+use App\Platform\Models\Game;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\ActivityType;
-use LegacyApp\Community\Models\UserActivity;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -35,8 +35,8 @@ class PostActivityTest extends TestCase
                 'Success' => true,
             ]);
 
-        /** @var UserActivity $activity */
-        $activity = UserActivity::latest()->first();
+        /** @var UserActivityLegacy $activity */
+        $activity = UserActivityLegacy::latest()->first();
         $this->assertNotNull($activity);
         $this->assertEquals(ActivityType::StartedPlaying, $activity->activitytype);
         $this->assertEquals($game->ID, $activity->data);

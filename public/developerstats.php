@@ -1,12 +1,16 @@
 <?php
 
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\TicketFilters;
+use App\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $type = requestInputSanitized('t', 0, 'integer');
 $defaultFilter = 7; // set all 3 status' to enabled
 $devFilter = requestInputSanitized('f', 7, 'integer');
+$resolvedForOthersTicketFilter = TicketFilters::AllFilters & ~TicketFilters::StateOpen
+                                            & ~TicketFilters::StateRequest
+                                            & ~TicketFilters::StateClosed;
 
 RenderContentStart("Developer Stats");
 ?>
@@ -15,11 +19,20 @@ RenderContentStart("Developer Stats");
         <h3>Developer Stats</h3>
         <?php
         $devStatsList = GetDeveloperStatsFull(100, $type, $devFilter);
+        $filteredDevCount = sizeof($devStatsList);
 
         echo "<div class='embedded mb-1'>";
         $activeDev = ($devFilter & (1 << 0));
         $juniorDev = ($devFilter & (1 << 1));
         $inactiveDev = ($devFilter & (1 << 2));
+
+        $orderedByName = $type == 6 ? "*" : "";
+        $orderedByOpenTickets = $type == 3 ? "*" : "";
+        $orderedByAchievements = $type == 0 ? "*" : "";
+        $orderedByResolvedTickets = $type == 4 ? "*" : "";
+        $orderedByYieldedUnlocks = $type == 2 ? "*" : "";
+        $orderedByYieldedPoints = $type == 1 ? "*" : "";
+        $orderedByActiveClaims = $type == 7 ? "*" : "";
 
         echo "<div>";
         echo "<b>Developer Status:</b> ";
@@ -40,6 +53,8 @@ RenderContentStart("Developer Stats");
         } else {
             echo "<a href='/developerstats.php?t=$type&f=" . ($devFilter | (1 << 2)) . "'>Inactive</a>";
         }
+        echo "<br>";
+        echo "Filtered Developers: $filteredDevCount";
         echo "</div>";
 
         // Clear Filter
@@ -57,14 +72,13 @@ RenderContentStart("Developer Stats");
 
         echo "<tr class='do-not-highlight'>";
         echo "<th></th>";
-        echo "<th><a href='/developerstats.php?t=6&f=$devFilter'>Name</a>" . ($type == 6 ? "*" : "") . "</th>";
-        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>" . ($type == 3 ? "*" : "") . "</th>";
-        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?f=$devFilter'>Achievements</a>" . ($type == 0 ? "*" : "") . "</th>";
-        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=4&f=$devFilter'>Ticket Ratio (%)</a>" . ($type == 4 ? "*" : "") . "</th>";
-        echo "<th class='text-right'><a href='/developerstats.php?t=2&f=$devFilter' title='Achievements unlocked by others'>Yielded Unlocks</a>" . ($type == 2 ? "*" : "") . "</th>";
-        echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>" . ($type == 1 ? "*" : "") . "</th>";
-        echo "<th class='text-right'><a href='/developerstats.php?t=7&f=$devFilter' title='Set claims currently active'>Active Claims</a>" . ($type == 7 ? "*" : "") . "</th>";
-        // echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=5'>Last Login</a>" . ($type == AchievementType::UNOFFICIAL ? "*" : "") . "</th>";
+        echo "<th><a href='/developerstats.php?t=6&f=$devFilter'>Name</a>$orderedByName</th>";
+        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?t=3&f=$devFilter'>Open Tickets</a>$orderedByOpenTickets</th>";
+        echo "<th class='text-right whitespace-nowrap'><a href='/developerstats.php?f=$devFilter'>Achievements</a>$orderedByAchievements</th>";
+        echo "<th class='text-right' style='max-width: 120px'><a href='/developerstats.php?t=4&f=$devFilter' title='Ticket Resolved for Others'>Tickets Resolved For Others</a>$orderedByResolvedTickets</th>";
+        echo "<th class='text-right'><a href='/developerstats.php?t=2&f=$devFilter' title='Achievements unlocked by others'>Yielded Unlocks</a>$orderedByYieldedUnlocks</th>";
+        echo "<th class='text-right'><a href='/developerstats.php?t=1&f=$devFilter' title='Points gained by others through achievement unlocks'>Yielded Points</a>$orderedByYieldedPoints</th>";
+        echo "<th class='text-right'><a href='/developerstats.php?t=7&f=$devFilter' title='Set claims currently active'>Active Claims</a>$orderedByActiveClaims</th>";
         echo "</tr>";
 
         $userCount = 0;
@@ -89,14 +103,12 @@ RenderContentStart("Developer Stats");
             }
             echo "</small>";
             echo "</div></td>";
-
-            echo "<td class='text-right'>" . $devStats['OpenTickets'] . "</td>";
-            echo "<td class='text-right'>" . $devStats['Achievements'] . "</td>";
-            echo "<td class='text-right'>" . number_format($devStats['TicketRatio'] * 100, 2) . "</td>";
+            echo "<td class='text-right'><a href='/ticketmanager.php?u=" . $devStats['Author'] . "'>" . $devStats['OpenTickets'] . "</a></td>";
+            echo "<td class='text-right'><a href='/gameList.php?d=" . $devStats['Author'] . "'>" . $devStats['Achievements'] . "</a></td>";
+            echo "<td class='text-right'><a href='/ticketmanager.php?r=" . $devStats['Author'] . "&t=" . $resolvedForOthersTicketFilter . "'>" . $devStats['TicketsResolvedForOthers'] . "</a></td>";
             echo "<td class='text-right'>" . $devStats['ContribCount'] . "</td>";
             echo "<td class='text-right'>" . $devStats['ContribYield'] . "</td>";
-            echo "<td class='text-right'>" . $devStats['ActiveClaims'] . "</td>";
-            // echo "<td class='text-right smalldate'>" . getNiceDate( strtotime( $devStats[ 'LastLogin' ] ) ) . "</td>";
+            echo "<td class='text-right'><a href='/claimlist.php?u=" . $devStats['Author'] . "'>" . $devStats['ActiveClaims'] . "</a></td>";
         }
         echo "</tbody></table></div>";
         ?>

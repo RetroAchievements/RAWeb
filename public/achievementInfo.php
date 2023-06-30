@@ -1,10 +1,10 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Platform\Enums\AchievementPoints;
+use App\Platform\Enums\AchievementType;
+use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Platform\Enums\AchievementPoints;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -39,6 +39,8 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
+$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
+
 sanitize_outputs(
     $achievementTitle,
     $desc,
@@ -52,7 +54,7 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 $numWinners = 0;
 $numPossibleWinners = 0;
 
-$unlocks = getAchievementUnlocksData($achievementID, $numWinners, $numPossibleWinners, $user, 0, 50);
+$unlocks = getAchievementUnlocksData($achievementID, $user, $numWinners, $numPossibleWinners, $parentGameID, 0, 50);
 
 $dateWonLocal = "";
 foreach ($unlocks as $userObject) {
@@ -168,7 +170,18 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
         echo "</div>";
 
-        echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
+        $systemIconUrl = getSystemIconUrl($consoleID);
+        echo Blade::render('
+            <x-game.heading
+                :consoleName="$consoleName"
+                :gameTitle="$gameTitle"
+                :iconUrl="$iconUrl"
+            />
+        ', [
+            'consoleName' => $consoleName,
+            'gameTitle' => $gameTitle,
+            'iconUrl' => $systemIconUrl,
+        ]);
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
@@ -187,9 +200,14 @@ RenderContentStart($pageTitle);
         echo "<div id='achievemententry'>";
 
         $renderedTitle = renderAchievementTitle($achievementTitle);
+
         echo "<div class='flex justify-between'>";
         echo "<div>";
-        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a>";
+        if ($achPoints !== 0) {
+            echo " ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span>";
+        }
+        echo "<br>";
         echo "$desc";
         echo "</div>";
         if ($achievedLocal) {
@@ -205,7 +223,7 @@ RenderContentStart($pageTitle);
         echo "</tbody></table>";
 
         if ($numPossibleWinners > 0) {
-            $recentWinnersPct = sprintf("%01.0f", ($numWinners / $numPossibleWinners) * 100);
+            $recentWinnersPct = sprintf("%01.2f", ($numWinners / $numPossibleWinners) * 100);
         } else {
             $recentWinnersPct = sprintf("%01.0f", 0);
         }
@@ -222,7 +240,7 @@ RenderContentStart($pageTitle);
         echo "</small>";
         echo "</p>";
 
-        echo "<p class='mb-2'>Won by <b>$numWinners</b> of <b>$numPossibleWinners</b> possible players ($recentWinnersPct%)</p>";
+        echo "<p class='mb-2'>Unlocked by <span class='font-bold'>" . localized_number($numWinners) . "</span> of <span class='font-bold'>" . localized_number($numPossibleWinners) . "</span> possible players ($recentWinnersPct%)</p>";
 
         if (isset($user) && $permissions >= Permissions::Registered) {
             $countTickets = countOpenTicketsByAchievement($achievementID);

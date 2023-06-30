@@ -1,38 +1,104 @@
 <?php
 
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSorting;
+declare(strict_types=1);
 
-$desiredClaimCount = $count;
-$claimData = [];
-$remainingClaimsToFetch = $desiredClaimCount;
-$currentOffset = 0;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSorting;
 
-// Continue fetching claims until the desired number of claims
-// have been added to `$claimData`.
-while ($remainingClaimsToFetch > 0) {
-    $currentClaimsBatch = getFilteredClaims(
-        claimFilter: ClaimFilters::AllCompletedPrimaryClaims,
-        sortType: ClaimSorting::FinishedDateDescending,
-        offset: $currentOffset,
-        limit: $count,
-    );
+/**
+ * Creates a unique key based on the given game title and user.
+ * This key can then be used for convenient comparison of potential duplicates.
+ */
+$createClaimKey = function (string $gameTitle, string $user): string {
+    return $gameTitle . '_' . $user;
+};
 
-    if ($currentClaimsBatch->isEmpty()) {
-        break;
+/**
+ * Compares the created timestamps of two claims to
+ * determine their chronological order.
+ */
+$isOlderClaim = function (array $claim1, array $claim2): bool {
+    return strtotime($claim1['Created']) < strtotime($claim2['Created']);
+};
+
+/**
+ * Replaces an existing claim in the claim data array that is to
+ * be rendered in the UI with a new claim. This function is used when
+ * a new claim is found to be older than the existing claim (ie- a duplicate).
+ */
+$updateClaimData = function (array &$claimData, array $existingClaim, array $newClaim): void {
+    foreach ($claimData as $index => $claim) {
+        if ($claim['ID'] === $existingClaim['ID']) {
+            $claimData[$index] = $newClaim;
+            break;
+        }
     }
+};
 
-    foreach ($currentClaimsBatch as $batchedClaim) {
+ /**
+  * Processes a batch of claims and updates the unique claims and claim
+  * data arrays. This function is responsible for filtering out duplicate
+  * claims and claims belonging to consoles that haven't been rolled out yet.
+  * Ideally, if duplicates are detected, we want to keep the oldest duplicate.
+  */
+ $processClaimsBatch = function (
+    array &$uniqueClaims,
+    array &$claimData,
+    array $claimsBatch,
+    int &$remainingClaimsToFetch
+) use (
+    $createClaimKey,
+    $isOlderClaim,
+    $updateClaimData
+): void {
+    foreach ($claimsBatch as $batchedClaim) {
         if (isValidConsoleId($batchedClaim['ConsoleID'])) {
-            $claimData[] = $batchedClaim;
-            $remainingClaimsToFetch--;
+            $claimKey = $createClaimKey($batchedClaim['GameTitle'], $batchedClaim['User']);
+
+            if (!isset($uniqueClaims[$claimKey])) {
+                $uniqueClaims[$claimKey] = $batchedClaim;
+                $claimData[] = $batchedClaim;
+                $remainingClaimsToFetch--;
+            } else {
+                $existingClaim = $uniqueClaims[$claimKey];
+
+                if ($isOlderClaim($batchedClaim, $existingClaim)) {
+                    $uniqueClaims[$claimKey] = $batchedClaim;
+                    $updateClaimData($claimData, $existingClaim, $batchedClaim);
+                }
+            }
 
             if ($remainingClaimsToFetch === 0) {
                 break;
             }
         }
     }
+};
 
+$desiredClaimCount = (int) $count;
+$claimData = [];
+$remainingClaimsToFetch = (int) $desiredClaimCount;
+$currentOffset = 0;
+
+$uniqueClaims = [];
+
+/**
+ * Continue fetching and processing claims until the desired number of
+ * unique claims is reached or no more claims are available.
+ */
+while ($remainingClaimsToFetch > 0) {
+    $currentClaimsBatch = getFilteredClaims(
+        claimFilter: ClaimFilters::AllCompletedPrimaryClaims,
+        sortType: ClaimSorting::FinishedDateDescending,
+        offset: $currentOffset,
+        limit: (int) $count,
+    );
+
+    if ($currentClaimsBatch->isEmpty()) {
+        break;
+    }
+
+    $processClaimsBatch($uniqueClaims, $claimData, $currentClaimsBatch->toArray(), $remainingClaimsToFetch);
     $currentOffset += $count;
 }
 

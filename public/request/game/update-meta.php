@@ -1,21 +1,27 @@
 <?php
 
+use App\Community\Enums\ClaimSetType;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
+    'game' => 'required|integer|exists:GameData,ID',
     'developer' => 'nullable|string|max:50',
     'publisher' => 'nullable|string|max:50',
     'genre' => 'nullable|string|max:50',
     'release' => 'nullable|string|max:50',
-    'guide_url' => 'nullable|active_url',
+    'guide_url' => [
+        'nullable',
+        'active_url',
+        'regex:/^https?:\/\/(www\.)?github\.com\/RetroAchievements\/guides\//i',
+    ],
+], [
+    'guide_url.regex' => 'The guide URL must be from https://github.com/RetroAchievements/guides/.',
 ]);
 
 $gameId = (int) $input['game'];

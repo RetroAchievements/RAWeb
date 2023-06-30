@@ -1,14 +1,14 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketFilters;
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Models\Achievement;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Str;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\TicketAction;
-use LegacyApp\Community\Enums\TicketFilters;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Community\Enums\TicketType;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -251,6 +251,7 @@ RenderContentStart($pageTitle);
                         // when clearing Closed or Resolved bit and the other is not set, also clear ResolvedByNonAuthor bit
                         if (($ticketFilters & (TicketFilters::StateClosed | TicketFilters::StateResolved)) == $ticketFilter) {
                             $ticketFilter |= TicketFilters::ResolvedByNonAuthor;
+                            $ticketFilter |= TicketFilters::ResolvedByNonReporter;
                         }
 
                         return "<b><a href='" . $createLink('t', $ticketFilters & ~$ticketFilter) . "'>*$label</a></b>";
@@ -323,7 +324,8 @@ RenderContentStart($pageTitle);
                 if ($closedTickets || $resolvedTickets) {
                     echo "<div>";
                     echo "<b>Resolved By:</b> ";
-                    echo $linkFilter('Not Achievement Developer', TicketFilters::ResolvedByNonAuthor);
+                    echo $linkFilter('Not Achievement Developer | ', TicketFilters::ResolvedByNonAuthor);
+                    echo $linkFilter('Not Achievement Reporter', TicketFilters::ResolvedByNonReporter);
                     echo "</div>";
                 }
 

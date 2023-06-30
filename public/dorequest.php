@@ -1,13 +1,13 @@
 <?php
 
+use App\Community\Enums\ActivityType;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\UnlockMode;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
+use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\ActivityType;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
-use LegacyApp\Support\Media\FilenameIterator;
 
 /**
  * @usage

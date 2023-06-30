@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\System;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 

@@ -6,11 +6,14 @@ namespace App\Platform\Models;
 
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
+use App\Platform\Enums\AchievementType;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -23,26 +26,65 @@ class Achievement extends BaseModel implements HasComments
      * Community Traits
      */
     use HasAchievementCommunityFeatures;
+
     /*
      * Shared Traits
      */
     use HasFactory;
+
     use Searchable;
     use SoftDeletes;
 
-    // published = core
-    // const Core = 3; # published = core
-    // const Unofficial = 5; # unpublished ... doesn't matter. anything that is not 3 is unpublished/unofficial
-    public const PUBLISHED = 3;
+    // TODO rename Achievements table to achievements
+    // TODO rename GameID column to game_id
+    // TODO rename Title column to title
+    // TODO rename Description column to description
+    // TODO rename Points column to points
+    // TODO drop AssocVideo, move to guides or something
+    // TODO rename TrueRation column to points_weighted
+    // TODO drop MemAddr, migrate to triggerable morph
+    // TODO drop Progress, ProgressMax, ProgressFormat migrate to triggerable morph
+    // TODO drop Flags, derived from being included in an achievement set
+    // TODO drop Author, migrate to user_id
+    // TODO drop VotesPos, migrate to votable/ratable morph
+    // TODO drop VotesNeg, migrate to votable/ratable morph
+    // TODO drop BadgeName, derived from badge set
+    protected $table = 'Achievements';
+
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'DateCreated';
+    public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'title',
-        'description',
+        'Title',
+        'Description',
     ];
 
-    protected $with = [
-        // 'media',
+    protected $casts = [
+        'DateModified' => 'datetime',
+        'Points' => 'integer',
+        'TrueRatio' => 'integer',
     ];
+
+    protected $visible = [
+        'ID',
+        'GameID',
+        'Title',
+        'Description',
+        'Points',
+        'TrueRatio',
+        'Author',
+        'DateCreated',
+        'DateModified',
+    ];
+
+    protected static function newFactory(): AchievementFactory
+    {
+        return AchievementFactory::new();
+    }
+
+    // search
 
     public function toSearchableArray(): array
     {
@@ -55,8 +97,9 @@ class Achievement extends BaseModel implements HasComments
 
     public function shouldBeSearchable(): bool
     {
-        // TODO: return $this->isPublished();
-        return true;
+        // TODO return $this->isPublished();
+        // TODO return true;
+        return false;
     }
 
     // == helpers
@@ -96,6 +139,7 @@ class Achievement extends BaseModel implements HasComments
         // $badge = 'Badge/' . $this->badge_name . '_lock.png';
         // if (!file_exists(public_path($badge))) {
         $badge = 'assets/images/achievement/badge-locked.png';
+
         // }
         return $badge;
     }
@@ -108,6 +152,7 @@ class Achievement extends BaseModel implements HasComments
         // $badge = 'Badge/' . $this->badge_name . '.png';
         // if (!file_exists(public_path($badge))) {
         $badge = 'assets/images/achievement/badge.png';
+
         // }
         return $badge;
     }
@@ -121,23 +166,105 @@ class Achievement extends BaseModel implements HasComments
 
     // == relations
 
+    /**
+     * @return BelongsTo<User, Achievement>
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Site\Models\User::class);
+        return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Game, Achievement>
+     */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class);
+        return $this->belongsTo(Game::class, 'GameID');
     }
 
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function players(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'Awarded', 'AchievementID', 'User')
+            ->using(PlayerAchievementLegacy::class);
+    }
+
+    /**
+     * @return HasMany<PlayerAchievementLegacy>
+     */
+    public function playerAchievementsLegacy(): HasMany
+    {
+        return $this->hasMany(PlayerAchievementLegacy::class);
+    }
+
+    /**
+     * @return HasMany<PlayerAchievement>
+     */
     public function playerAchievements(): HasMany
     {
-        return $this->hasMany(\App\Platform\Models\PlayerAchievement::class);
+        return $this->hasMany(PlayerAchievement::class);
+    }
+
+    /**
+     * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
+     *
+     * @return HasMany<PlayerAchievementLegacy>
+     */
+    public function rawUnlocks(): HasMany
+    {
+        return $this->hasMany(PlayerAchievementLegacy::class, 'AchievementID');
+    }
+
+    /**
+     * Merge softcore with hardcore entries if the unlock mode is not specified
+     *
+     * @return HasMany<PlayerAchievementLegacy>
+     */
+    public function unlocks(int $mode = null): HasMany
+    {
+        if ($mode !== null) {
+            return $this->rawUnlocks()->where('HardcoreMode', $mode);
+        }
+
+        return $this->rawUnlocks()->selectRaw('AchievementID, User, MAX(Date) Date, MAX(HardcoreMode) HardcoreMode')
+            ->groupBy(['AchievementID', 'User']);
     }
 
     // == scopes
 
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeType(Builder $query, int $type): Builder
+    {
+        return $query->where('Flags', $type);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $this->scopeType($query, AchievementType::OfficialCore);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeUnpublished(Builder $query): Builder
+    {
+        return $this->scopeType($query, AchievementType::Unofficial);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
     public function scopeWithUnlocksByUser(Builder $query, User $user): Builder
     {
         $query->leftJoin('player_achievements', function ($join) use ($user) {

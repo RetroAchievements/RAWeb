@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Site\Models\User;
 use Illuminate\Support\Str;
-use LegacyApp\Site\Models\User;
 
 trait BootstrapsConnect
 {

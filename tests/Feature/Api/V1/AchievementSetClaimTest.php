@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimSpecial;
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
+use App\Community\Models\AchievementSetClaim;
+use App\Platform\Models\Game;
+use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimSpecial;
-use LegacyApp\Community\Enums\ClaimStatus;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Models\AchievementSetClaim;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class AchievementSetClaimTest extends TestCase

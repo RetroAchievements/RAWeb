@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 

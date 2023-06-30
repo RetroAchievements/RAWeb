@@ -17,7 +17,16 @@ class PlayerGame extends BasePivot
     protected $table = 'player_games';
 
     protected $casts = [
+        'last_played_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'completed_hardcore_at' => 'datetime',
         'last_unlock_at' => 'datetime',
+        'last_unlock_hardcore_at' => 'datetime',
+        'first_unlock_at' => 'datetime',
+        'first_unlock_hardcore_at' => 'datetime',
+        'started_at' => 'datetime',
+        'started_hardcore_at' => 'datetime',
+        'metrics_updated_at' => 'datetime',
     ];
 
     // == accessors
@@ -26,25 +35,36 @@ class PlayerGame extends BasePivot
 
     // == relations
 
+    /**
+     * @return HasMany<Achievement>
+     */
     public function achievements(): HasMany
     {
         return $this->hasMany(Achievement::class, 'game_id', 'game_id');
     }
 
-    public function playerAchievements(): HasMany
-    {
-        return $this->hasMany(PlayerAchievement::class, 'game_id', 'game_id')
-            ->where('player_games.user_id', '=', 'player_achievements.user_id');
-    }
-
+    /**
+     * @return BelongsTo<Game, PlayerGame>
+     */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class);
+        return $this->belongsTo(Game::class, 'game_id');
     }
 
+    /**
+     * @return BelongsTo<User, PlayerGame>
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * @return BelongsTo<User, PlayerGame>
+     */
+    public function player(): BelongsTo
+    {
+        return $this->user();
     }
 
     // == scopes

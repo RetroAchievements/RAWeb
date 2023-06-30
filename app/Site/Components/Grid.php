@@ -9,6 +9,7 @@ use App\Support\Concerns\HandlesResources;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Pagination\Paginator;
 use Livewire\Component;
@@ -40,6 +41,7 @@ abstract class Grid extends Component
         100,
     ];
 
+    /** @var LengthAwarePaginator<Model>|null */
     protected ?LengthAwarePaginator $results = null;
 
     protected ?QueryBuilderRequest $request = null;
@@ -123,6 +125,7 @@ abstract class Grid extends Component
         return [];
     }
 
+    // @phpstan-ignore-next-line
     protected function query(): Builder
     {
         $query = $this->resourceQuery();
@@ -137,6 +140,9 @@ abstract class Grid extends Component
         $this->authorize('viewAny', $this->resourceClass($this->resourceName()));
     }
 
+    /**
+     * @return LengthAwarePaginator<Model>|null
+     */
     protected function load(): ?LengthAwarePaginator
     {
         if ($this->take) {

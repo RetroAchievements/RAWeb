@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\System;
+use App\Site\Models\StaticData;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\StaticData;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class AchievementOfTheWeekTest extends TestCase
@@ -37,14 +37,14 @@ class AchievementOfTheWeekTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->create(['GameID' => $game->ID]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         $now = Carbon::now();
-        /** @var PlayerAchievement $unlock */
-        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User, 'Date' => $now]);
-        /** @var PlayerAchievement $unlock2 */
-        $unlock2 = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $user2->User, 'Date' => $now->copy()->subMinutes(5)]);
-        /** @var PlayerAchievement $unlock3 */
-        $unlock3 = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $user3->User, 'Date' => $now->copy()->addMinutes(5)]);
+        /** @var PlayerAchievementLegacy $unlock */
+        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User, 'Date' => $now]);
+        /** @var PlayerAchievementLegacy $unlock2 */
+        $unlock2 = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $user2->User, 'Date' => $now->copy()->subMinutes(5)]);
+        /** @var PlayerAchievementLegacy $unlock3 */
+        $unlock3 = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $user3->User, 'Date' => $now->copy()->addMinutes(5)]);
 
         $staticData = StaticData::factory()->create([
             'Event_AOTW_AchievementID' => $achievement->ID,

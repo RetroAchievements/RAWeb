@@ -6,6 +6,7 @@ namespace App\Site\Actions;
 
 use App\Site\Models\User;
 use Illuminate\Filesystem\Filesystem;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class LinkLatestAvatarAction
 {
@@ -45,7 +46,9 @@ class LinkLatestAvatarAction
         // }
 
         if ($user->hasMedia('avatar')) {
-            $avatarPath = $user->getMedia('avatar')->last()->getPath('2xl');
+            /** @var Media $media */
+            $media = $user->getMedia('avatar')->last();
+            $avatarPath = $media->getPath('2xl');
         }
 
         /*

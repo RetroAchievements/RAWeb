@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Enums\Permissions;
+use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
@@ -173,6 +173,7 @@ function ListGames(
         echo "<td><b>$achievementsTally</b></td>";
         echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
         echo "<td></td>";
+        echo "<td></td>";
         echo "<td><b>$lbCount</b></td>";
         if ($showTickets) {
             echo "<td><b>$ticketsCount</b></td>";
@@ -195,6 +196,20 @@ if ($consoleList->has($consoleIDInput)) {
 sanitize_outputs($consoleName, $requestedConsole);
 
 RenderContentStart($requestedConsole . " Games");
+
+function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall = false): string
+{
+    $systemIconUrl = getSystemIconUrl($consoleID);
+    $iconSize = $isSmall ? 24 : 32;
+    $headingSizeClassName = $isSmall ? 'text-h3' : '';
+
+    return <<<HTML
+        <h2 class="flex gap-x-2 items-center $headingSizeClassName">
+            <img src="$systemIconUrl" alt="Console icon" width="$iconSize" height="$iconSize">
+            <span>$consoleName</span>
+        </h2>
+    HTML;
+}
 ?>
 <div id="mainpage">
     <div id="fullcontainer">
@@ -206,30 +221,22 @@ RenderContentStart($requestedConsole . " Games");
                 foreach ($consoleList as $consoleID => $consoleName) {
                     $consoleGames = array_filter($gamesList, fn ($game) => $game['ConsoleID'] == $consoleID);
                     if (!empty($consoleGames)) {
-                        $devConsoles[$consoleName] = $consoleGames;
+                        $devConsoles[$consoleName] = ['consoleID' => $consoleID, 'consoleGames' => $consoleGames];
                     }
                 }
 
                 ksort($devConsoles);
 
-                foreach ($devConsoles as $consoleName => $consoleGames) {
+                foreach ($devConsoles as $consoleName => $consoleData) {
                     sanitize_outputs($consoleName);
-                    echo "<h2>$consoleName</h2>";
 
-                    ListGames($consoleGames, $dev, '', $sortBy, $showTickets, false, true);
+                    echo renderConsoleHeading($consoleData['consoleID'], $consoleName, $isSmall = true);
+                    ListGames($consoleData['consoleGames'], $dev, '', $sortBy, $showTickets, false, true);
 
                     echo "<br/>";
                 }
             } else {
-                $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
-                $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$consoleIDInput.name_short")));
-                $iconName = Str::kebab($cleanSystemShortName);
-
-                echo "<h2 class='flex gap-x-2'>";
-                echo " <img src='" . asset("assets/images/system/$iconName.png") . "' alt='' width='32' height='32'";
-                echo " onerror='this.src=\"$fallBackConsoleIcon\"'></img>"; // fallback
-                echo " <span>$consoleName</span>";
-                echo "</h2>";
+                echo renderConsoleHeading($consoleIDInput, $consoleName);
 
                 echo "<div style='float:left'>$gamesCount Games</div>";
 
