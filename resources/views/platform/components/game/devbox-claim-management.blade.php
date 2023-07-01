@@ -188,12 +188,15 @@ function completeClaim() {
             <input type="hidden" name="game" value="{{ $gameId }}">
             <button>Complete Claim</button>
             @if ($isRecentPrimaryClaim)
-                <span 
-                    class="ml-3 text-danger cursor-help" 
+                <a
+                    href="https://docs.retroachievements.org/Claims-System/#how-to-complete-a-claim"
+                    target="_blank"
+                    rel="noreferrer"
+                    class="ml-3 text-danger underline"
                     title="You made a claim on this game within the last 24 hours."
                 >
                     Within 24 Hours of Claim!
-                </span>
+                </a>
             @endif
         </form>
     @endif
