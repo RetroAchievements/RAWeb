@@ -187,6 +187,10 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
         $libraryOut['GameInfo'] = $gameInfo;
     }
 
+    // magic numbers!
+    // -1 = don't populate RecentAchievements field
+    // 0 = return all achievements for each game, with the unlocked achievements first ordered by unlock date
+    // >0 = return the N most recent unlocks across all games queried, grouped by game
     if ($numRecentAchievements >= 0) {
         usort($unlockedAchievements, function ($a, $b) {
             if ($a['When'] == $b['When']) {
@@ -222,24 +226,26 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
             ];
         }
 
-        foreach ($lockedAchievements as $lockedAchievement) {
-            $gameData = $lockedAchievement['Game'];
-            $gameID = (int) $gameData['ID'];
-            $achievementData = $lockedAchievement['Achievement'];
-            $achievementID = (int) $achievementData['ID'];
+        if ($numRecentAchievements === 0) {
+            foreach ($lockedAchievements as $lockedAchievement) {
+                $gameData = $lockedAchievement['Game'];
+                $gameID = (int) $gameData['ID'];
+                $achievementData = $lockedAchievement['Achievement'];
+                $achievementID = (int) $achievementData['ID'];
 
-            $recentAchievements[$gameID][$achievementID] = [
-                'ID' => $achievementID,
-                'GameID' => $gameID,
-                'GameTitle' => $gameData['Title'],
-                'Title' => $achievementData['Title'],
-                'Description' => $achievementData['Description'],
-                'Points' => (int) $achievementData['Points'],
-                'BadgeName' => $achievementData['BadgeName'],
-                'IsAwarded' => '0',
-                'DateAwarded' => null,
-                'HardcoreAchieved' => null,
-            ];
+                $recentAchievements[$gameID][$achievementID] = [
+                    'ID' => $achievementID,
+                    'GameID' => $gameID,
+                    'GameTitle' => $gameData['Title'],
+                    'Title' => $achievementData['Title'],
+                    'Description' => $achievementData['Description'],
+                    'Points' => (int) $achievementData['Points'],
+                    'BadgeName' => $achievementData['BadgeName'],
+                    'IsAwarded' => '0',
+                    'DateAwarded' => null,
+                    'HardcoreAchieved' => null,
+                ];
+            }
         }
 
         $libraryOut['RecentAchievements'] = $recentAchievements;
