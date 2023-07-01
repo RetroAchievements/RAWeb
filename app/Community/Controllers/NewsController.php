@@ -8,7 +8,6 @@ use App\Community\Models\News;
 use App\Community\Requests\NewsRequest;
 use App\Http\Controller;
 use App\Support\MediaLibrary\Actions\AddMediaAction;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -51,12 +50,6 @@ class NewsController extends Controller
         if (!$this->resolvesToSlug($news->slug, $slug)) {
             return redirect(route('news.show', [$news, $news->slug]));
         }
-
-        /*
-         * eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect($news->lead);
-        ShortcodeModelCollector::collect($news->body);
 
         return view('news.show')
             ->with('news', $news);

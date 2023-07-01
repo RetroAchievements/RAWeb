@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 
 class BadgesTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         /*
          * TODO: create an award set for on-site awards

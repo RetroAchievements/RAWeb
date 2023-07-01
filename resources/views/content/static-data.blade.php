@@ -1,7 +1,7 @@
 <?php
 
+use App\Site\Models\StaticData;
 use Illuminate\Support\Carbon;
-use LegacyApp\Site\Models\StaticData;
 
 /** @var ?StaticData $staticData */
 $staticData = StaticData::with('lastRegisteredUser')
@@ -41,10 +41,10 @@ if ($lastRegisteredUserAt) {
     <div class="infobox">
         <div class="w-full">
             <div class="grid grid-cols-2 gap-px mb-2">
-                <x-home-stats-embed label="Games" :count="$numGames" href="/gameList.php?s=1" />
-                <x-home-stats-embed label="Achievements" :count="$numAchievements" href="/achievementList.php" />
-                <x-home-stats-embed label="Registered Players" :count="$numRegisteredPlayers" href="/userList.php" />
-                <x-home-stats-embed label="Achievement Unlocks" :count="$numAwarded" href="/recentMastery.php" />
+                <x-home-stats-embed label="Games" :count="$numGames" href="/gameList.php?s=1"/>
+                <x-home-stats-embed label="Achievements" :count="$numAchievements" href="/achievementList.php"/>
+                <x-home-stats-embed label="Registered Players" :count="$numRegisteredPlayers" href="/userList.php"/>
+                <x-home-stats-embed label="Achievement Unlocks" :count="$numAwarded" href="/recentMastery.php"/>
             </div>
 
             <div class="w-full h-16 flex flex-col justify-center items-center">
@@ -62,7 +62,7 @@ if ($lastRegisteredUserAt) {
                 <p>Newest user</p>
 
                 <div>
-                    <x-user.avatar :user="$staticData->lastRegisteredUser" /> 
+                    <x-user.avatar :user="$staticData->lastRegisteredUser"/>
                     @if($lastRegisteredUserTimeAgo)
                         <span class="text-2xs">({{ $lastRegisteredUserTimeAgo }})</span>
                     @endif

@@ -398,7 +398,7 @@ final class Shortcode
                 (?:www.)?           # Optional subdomain.
                 twitch.tv/.*        # Host.
                 (?:videos|[^/]+/v)  # See path examples above.
-                /([0-9]+)           # $1
+                /(\d+)              # $1
                 (?!                 # Assert URL is not pre-linked.
                   [?=&+%\w.-]*      # Allow URL (query) remainder.
                   (?:               # Group pre-linked alternatives.

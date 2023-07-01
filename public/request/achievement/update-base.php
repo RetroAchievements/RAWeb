@@ -1,16 +1,16 @@
 <?php
 
+use App\Platform\Models\Achievement;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'achievement' => 'required|integer|exists:mysql_legacy.Achievements,ID',
+    'achievement' => 'required|integer|exists:Achievements,ID',
     'title' => 'required|string|max:64',
     'description' => 'required|max:255',
     'points' => 'required|integer',

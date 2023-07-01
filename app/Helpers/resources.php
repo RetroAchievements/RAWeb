@@ -8,11 +8,9 @@ use App\Platform\Models\Game;
 use App\Platform\Models\Leaderboard;
 use App\Platform\Models\System;
 use App\Site\Models\User;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Translation\Translator;
 
 if (!function_exists('__res')) {
-    function __res(string $resource = 'resource', int $amount = 2): array|string|Translator|Application|null
+    function __res(string $resource = 'resource', int $amount = 2): array|string
     {
         return trans('resource.title', ['resource' => trans_choice("resource.$resource.title", $amount)]);
     }

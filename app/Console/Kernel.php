@@ -10,47 +10,21 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    protected $commands = [
-
-    ];
-
     protected function schedule(Schedule $schedule)
     {
-        /*
-         * websockets
-         */
         // $schedule->command('websockets:clean')->daily();
 
-        /*
-         * horizon
-         */
         // $schedule->command('horizon:snapshot')->everyFiveMinutes();
-
-        /*
-         * stats
-         * TODO: currently online stat every 30 mins
-         */
-
-        /*
-         * TODO: update player ranks / metrics
-         */
-        // $schedule->command('ra:action:update-user-ranks')
-        //          ->everyMinute();
-
-        // $schedule->command('ra:moderate:watchdog')
-        //     ->onOneServer()->withoutOverlapping()
-        //     ->everyFiveMinutes();
 
         /** @var Settings $settings */
         $settings = $this->app->get(Settings::class);
 
-        /**
-         * sync
-         */
+        // sync
         $syncEnabled = $settings->get('sync', true);
-        if ($syncEnabled && $this->app->environment('production')) {
+        if ($syncEnabled) {
             /*
              * sync incrementally every minute
+             * check the state of each kind first
              */
             $schedule->command('ra:sync:status')
                 ->everyMinute()
@@ -61,23 +35,26 @@ class Kernel extends ConsoleKernel
                     // Site
                     // $this->call('ra:sync:users');
 
-                    // Server
+                    // Platform
                     // $this->call('ra:sync:systems');
                     // $this->call('ra:sync:games');
                     // $this->call('ra:sync:achievements');
                     // $this->call('ra:sync:game-hashes');
                     // $this->call('ra:sync:memory-notes');
-                    // $this->call('ra:sync:player-achievements');
+
+                    $this->call('ra:sync:player-achievements');
+                    $this->call('ra:sync:player-games');
                     // $this->call('ra:sync:user-awards');
                     // $this->call('ra:sync:game-relations');
                     // $this->call('ra:sync:leaderboards');
-                    // $this->call('ra:sync:leaderboard-entries');
+                    $this->call('ra:sync:leaderboard-entries');
 
                     // Community
                     // $this->call('ra:sync:forum-categories');
                     // $this->call('ra:sync:forums');
                     // $this->call('ra:sync:forum-topics');
                     // $this->call('ra:sync:news');
+
                     // $this->call('ra:sync:comments');
                     // $this->call('ra:sync:user-relations');
                     // $this->call('ra:sync:messages');
@@ -86,12 +63,5 @@ class Kernel extends ConsoleKernel
                     // $this->call('ra:sync:votes');
                 });
         }
-    }
-
-    protected function commands()
-    {
-        $this->load(__DIR__ . '/Commands');
-
-        // require base_path('routes/console.php');
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
+use App\Site\Models\User;
 use Illuminate\Support\Carbon;
-use LegacyApp\Site\Models\User;
 
 $playersOnlineChartData = [];
 if (file_exists("../storage/logs/playersonline.log")) {

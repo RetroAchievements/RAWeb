@@ -6,14 +6,15 @@ namespace App\Api;
 
 use App\Api\Controllers\WebApiController;
 use App\Api\Controllers\WebApiV1Controller;
-use Illuminate\Cache\RateLimiting\Limit;
+use App\Api\Middleware\LogApiUsage;
+use App\Support\Http\HandlesPublicFileRequests;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
+    use HandlesPublicFileRequests;
+
     public function boot(): void
     {
         $this->configureRateLimiting();
@@ -21,7 +22,8 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
-        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120));
+        // TODO setup rate limiting
+        // RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->ID ?: $request->ip()));
     }
 
     public function map(): void
@@ -88,12 +90,13 @@ class RouteServiceProvider extends ServiceProvider
          * Casing should be handled by web server (API vs api).
          * Always has to be authenticated with an api token.
          */
-        Route::middleware(['api', 'auth:api-token'])->prefix('API')->group(function () {
+        Route::middleware(['api', 'auth:api-token', LogApiUsage::class])->prefix('API')->group(function () {
             /*
              * Usually called via GET, should allow POST, too though
              */
-            Route::any('{method}.php', [WebApiV1Controller::class, 'request']);
-            Route::any('{method}', [WebApiV1Controller::class, 'request']);
+            Route::any('{method}.php', fn (string $method) => $this->handleRequest('API/' . $method))->where('path', '(.*)');
+            // Route::any('{method}.php', [WebApiV1Controller::class, 'request']);
+            // Route::any('{method}', [WebApiV1Controller::class, 'request']);
             /*
              * Nothing to do on root level
              */
@@ -104,15 +107,11 @@ class RouteServiceProvider extends ServiceProvider
     private function apiDomain(): ?string
     {
         if ($domain = parse_url(config('app.api_url'), PHP_URL_HOST)) {
-            if (is_string($domain)) {
-                return $domain;
-            }
+            return $domain;
         }
 
         if ($domain = parse_url(config('app.url'), PHP_URL_HOST)) {
-            if (is_string($domain)) {
-                return $domain;
-            }
+            return $domain;
         }
 
         return null;
@@ -121,9 +120,7 @@ class RouteServiceProvider extends ServiceProvider
     private function apiPrefix(): ?string
     {
         if ($prefix = parse_url(config('app.api_url'), PHP_URL_PATH)) {
-            if (is_string($prefix)) {
-                return $prefix;
-            }
+            return $prefix;
         }
 
         return null;

@@ -1,19 +1,16 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\RatingType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Enums\TicketFilters;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\ImageType;
+use App\Platform\Enums\UnlockMode;
+use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 use Carbon\Carbon;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSetType;
-use LegacyApp\Community\Enums\ClaimType;
-use LegacyApp\Community\Enums\RatingType;
-use LegacyApp\Community\Enums\SubscriptionSubjectType;
-use LegacyApp\Community\Enums\TicketFilters;
-use LegacyApp\Community\Enums\TicketState;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\ImageType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Enums\UserPreference;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -31,6 +28,7 @@ $matureContentPref = UserPreference::SiteMsgOff_MatureContent;
 $officialFlag = AchievementType::OfficialCore;
 $unofficialFlag = AchievementType::Unofficial;
 $flags = requestInputSanitized('f', $officialFlag, 'integer');
+$isOfficial = $flags !== $unofficialFlag;
 
 $defaultSort = 1;
 if (isset($user)) {
@@ -175,15 +173,8 @@ $totalEarnedTrueRatio = null;
 $totalPossible = null;
 $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
-$openTickets = 0;
 $claimData = null;
-$primaryClaimUser = null;
-$userClaimCount = 0;
 $claimListLength = 0;
-$userHasClaimSlot = 0;
-$primaryClaimMinutesActive = 0;
-$primaryClaimMinutesLeft = 0;
-$hasGameClaimed = false;
 
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
@@ -247,27 +238,8 @@ if ($isFullyFeaturedGame) {
         $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
     }
 
-    // Get user claim data
-    if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-        $openTickets = countOpenTicketsByDev($user);
-        $userClaimCount = getActiveClaimCount($user, false, false);
-        $userHasClaimSlot = $userClaimCount < permissionsToClaim($permissions);
-    }
-
     $claimData = getClaimData($gameID, true);
     $claimListLength = count($claimData);
-
-    // Get the first entry returned for the primary claim data
-    if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
-        $primaryClaimUser = $claimData[0]['User'];
-        $primaryClaimMinutesActive = $claimData[0]['MinutesActive'];
-        $primaryClaimMinutesLeft = $claimData[0]['MinutesLeft'];
-        foreach ($claimData as $claim) {
-            if (isset($claim['User']) && $claim['User'] == $user) {
-                $hasGameClaimed = true;
-            }
-        }
-    }
 }
 
 $gameRating = getGameRating($gameID, $user);
@@ -300,7 +272,8 @@ sanitize_outputs(
 
         dataTotalScore.addRows([
             <?php
-            function generateEmptyBucketsWithBounds(int $numAchievements): array {
+            function generateEmptyBucketsWithBounds(int $numAchievements): array
+            {
                 $DYNAMIC_BUCKETING_THRESHOLD = 44;
                 $GENERATED_RANGED_BUCKETS_COUNT = 20;
 
@@ -335,7 +308,8 @@ sanitize_outputs(
                 return [$buckets, $isDynamicBucketingEnabled];
             }
 
-            function findBucketIndex(array $buckets, int $achievementNumber): int {
+            function findBucketIndex(array $buckets, int $achievementNumber): int
+            {
                 $low = 0;
                 $high = count($buckets) - 1;
 
@@ -386,7 +360,8 @@ sanitize_outputs(
                 return [$buckets, $largestWonByCount];
             }
 
-            function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int {
+            function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int
+            {
                 if ($numAchievements <= 0) {
                     return 0;
                 }
@@ -407,11 +382,13 @@ sanitize_outputs(
                 return $allAchievementsCount;
             }
 
-            function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void {
+            function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void
+            {
                 echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
             }
 
-            function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array {
+            function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array
+            {
                 $bucketLabels = [];
                 $hAxisValues = [];
                 $bucketIteration = 0;
@@ -747,46 +724,6 @@ sanitize_outputs(
         }
     });
 
-    // Popup for making a claim
-    function makeClaim(gameTitle, revisionFlag = false, ticketFlag = false) {
-        var revisionMessage = '';
-        if (revisionFlag) {
-            revisionMessage = 'Please ensure a revision plan has been posted and approved before making this claim.\n\n';
-        }
-
-        var ticketMessage = '';
-        if (ticketFlag) {
-            ticketMessage = 'Please ensure any open tickets have been addressed before making this claim.\n\n';
-        }
-
-        var message = revisionMessage + ticketMessage + 'Are you sure you want to claim ' + gameTitle + '?';
-        return confirm(message);
-    }
-
-    // Popup for dropping a claim
-    function dropClaim(gameTitle) {
-        var message = 'Are you sure you want to drop the claim for ' + gameTitle + '?';
-        return confirm(message);
-    }
-
-    // Popup for extending a claim
-    function extendClaim(gameTitle) {
-        var message = 'Are you sure you want to extend the claim for ' + gameTitle + '?';
-        return confirm(message);
-    }
-
-    // Popup for claim completion confirmation
-    function completeClaim(gameTitle, earlyReleaseWarning) {
-        var earlyReleaseMessage = '';
-        if (earlyReleaseWarning) {
-            earlyReleaseMessage = 'Please ensure you have approval to complete this claim with 24 hours of the claim being made.\n\n';
-        }
-
-        var message = earlyReleaseMessage + 'This will inform all set requestors that new achievements have been added.\n\n';
-        message += 'Are you sure you want to complete the claim for ' + gameTitle + '?';
-        return confirm(message);
-    }
-
     function ResetProgress() {
         if (confirm('Are you sure you want to reset this progress?')) {
             showStatusMessage('Updating...');
@@ -807,7 +744,7 @@ sanitize_outputs(
             <?php
 
             if ($isFullyFeaturedGame) {
-                echo "<div class='navpath leading-4'>";
+                echo "<div class='navpath'>";
                 echo renderGameBreadcrumb($gameData, addLinkToLastCrumb: $flags === $unofficialFlag);
                 if ($flags === $unofficialFlag) {
                     echo " &raquo; <b>Unofficial Achievements</b>";
@@ -955,69 +892,31 @@ sanitize_outputs(
 
                     // Display the claims links if not an event game
                     if (!$isEventGame) {
-                        $claimType = $claimListLength > 0 && (!$hasGameClaimed || $primaryClaimUser !== $user) ? ClaimType::Collaboration : ClaimType::Primary;
-                        $isCollaboration = $claimType === ClaimType::Collaboration;
-                        $claimSetType = $numAchievements > 0 ? ClaimSetType::Revision : ClaimSetType::NewSet;
-                        $isRevision = $claimSetType === ClaimSetType::Revision;
-                        $hasOpenTickets = $openTickets[TicketState::Open] > 0;
-                        $createTopic = !$isRevision && $permissions >= Permissions::Developer && empty($forumTopicID);
-                        $claimBlockedByMissingForumTopic = !$isRevision && $permissions == Permissions::JuniorDeveloper && empty($forumTopicID);
-
-                        // User has an open claim or is claiming own set or is making a collaboration claim and missing forum topic is not blocking
-                        $canClaim = ($userHasClaimSlot || $isSoleAuthor || $isCollaboration) && !$hasGameClaimed && !$claimBlockedByMissingForumTopic;
-
-                        if ($canClaim) {
-                            $revisionDialogFlag = $isRevision && !$isSoleAuthor ? 'true' : 'false';
-                            $ticketDialogFlag = $hasOpenTickets ? 'true' : 'false';
-                            echo "<form action='/request/set-claim/make-claim.php' method='post' onsubmit='return makeClaim(\"$escapedGameTitle\", " . $revisionDialogFlag . ", " . $ticketDialogFlag . ")'>";
-                            echo csrf_field();
-                            echo "<input type='hidden' name='game' value='$gameID'>";
-                            echo "<input type='hidden' name='claim_type' value='" . $claimType . "'>";
-                            echo "<input type='hidden' name='set_type' value='" . $claimSetType . "'>";
-                            if ($createTopic) {
-                                echo "<input type='hidden' name='create_topic' value='1'>";
-                            }
-                            echo "<button>Make " . ClaimSetType::toString($claimSetType) . " " . ClaimType::toString($claimType) . " Claim" . ($createTopic ? ' and Forum Topic' : '') . "</button>";
-                            echo "</form>";
-                        } elseif ($claimBlockedByMissingForumTopic) {
-                            echo "<div>Forum Topic Needed for Claim</div>";
-                        } elseif ($hasGameClaimed) {
-                            if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080) {
-                                echo "<form action='/request/set-claim/extend-claim.php' method='post' onsubmit='return extendClaim(\"$escapedGameTitle\")'>";
-                                echo csrf_field();
-                                echo "<input type='hidden' name='game' value='$gameID'>";
-                                echo "<button>Extend Claim</button>";
-                                echo "</form>";
-                            }
-                            echo "<form class='mb-1' action='/request/set-claim/drop-claim.php' method='post' onsubmit='return dropClaim(\"$escapedGameTitle\")'>";
-                            echo csrf_field();
-                            echo "<input type='hidden' name='game' value='$gameID'>";
-                            echo "<input type='hidden' name='claim_type' value='" . $claimType . "'>";
-                            echo "<input type='hidden' name='set_type' value='" . $claimSetType . "'>";
-                            echo "<button>Drop " . ClaimType::toString($claimType) . " Claim</button>";
-                            echo "</form>";
-                        }
-
-                        // if the set has achievements and the current user is the primary claim owner then allow completing the claim
-                        if ($user === $primaryClaimUser && $numAchievements > 0) {
-                            // for valid consoles, only allow completing if core achievements exist
-                            // for rollout consoles, achievements can't be pushed to core, so don't restrict completing
-                            if (isValidConsoleId($consoleID) && $flags == $unofficialFlag) {
-                                echo "<div><span class='ml-2'>Cannot Complete Claim from Unofficial</span></div>";
-                            } else {
-                                $isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440; // within 24 hours of claim date
-                                echo "<form action='/request/set-claim/complete-claim.php' method='post' onsubmit='return completeClaim(\"$escapedGameTitle\", " . ($isRecentPrimaryClaim ? 'true' : 'false') . ")'>";
-                                echo csrf_field();
-                                echo "<input type='hidden' name='game' value='$gameID'>";
-                                echo "<button>Complete Claim</button>";
-                                if ($isRecentPrimaryClaim) {
-                                    echo "<span class='ml-3 text-danger'>Within 24 Hours of Claim!</span>";
-                                }
-                                echo "</form>";
-                            }
-                        }
-
-                        echo "<div><a class='btn btn-link' href='/claimlist.php?g=$gameID&f=" . ClaimFilters::AllFilters . "'>Claim History</a></div>";
+                        echo Blade::render('
+                            <x-game.devbox-claim-management
+                                :claimData="$claimData"
+                                :consoleId="$consoleID"
+                                :forumTopicId="$forumTopicID"
+                                :gameId="$gameID"
+                                :gameTitle="$gameTitle"
+                                :isOfficial="$isOfficial"
+                                :isSoleAuthor="$isSoleAuthor"
+                                :numAchievements="$numAchievements"
+                                :user="$user"
+                                :userPermissions="$permissions"
+                            />
+                        ', [
+                            'claimData' => $claimData,
+                            'consoleID' => $consoleID,
+                            'forumTopicID' => $forumTopicID,
+                            'gameID' => $gameID,
+                            'gameTitle' => $gameTitle,
+                            'isOfficial' => $isOfficial,
+                            'isSoleAuthor' => $isSoleAuthor,
+                            'numAchievements' => $numAchievements,
+                            'permissions' => $permissions,
+                            'user' => $user,
+                        ]);
                     }
 
                     echo "</div>"; // end right column
