@@ -115,7 +115,7 @@ if ($action === 'alt_identifier') {
         if (!empty($forUser->EmailAddress)) {
             $emailAddresses[] = $forUser->EmailAddress;
         }
-        if (!empty($forUser->email_backup && $forUser->email_backup != $forUser->EmailAddress)) {
+        if (!empty($forUser->email_backup) && $forUser->email_backup != $forUser->EmailAddress) {
             $emailAddresses[] = $forUser->email_backup;
         }
         $message = "No alts found for $altsForUser";
