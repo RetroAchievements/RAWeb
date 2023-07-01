@@ -1,8 +1,8 @@
 <?php
 
+use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Site\Models\User;
 
 /** @var ?User $user */
 $user = request()->user();

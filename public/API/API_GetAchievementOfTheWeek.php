@@ -1,7 +1,7 @@
 <?php
 
+use App\Site\Models\StaticData;
 use Illuminate\Support\Carbon;
-use LegacyApp\Site\Models\StaticData;
 
 /*
  *  API_GetAchievementOfTheWeek

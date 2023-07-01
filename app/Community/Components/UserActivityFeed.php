@@ -8,12 +8,13 @@ use App\Community\Models\UserActivity;
 use App\Site\Components\Grid;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class UserActivityFeed extends Grid
 {
     public array $filter = [
-        'users' => 'friends',
+        'users' => 'following',
     ];
 
     protected array $pageSizes = [
@@ -31,7 +32,7 @@ class UserActivityFeed extends Grid
     //     // TODO: finish refactoring
     //
     //     return view('components.user.activity')
-    //         ->with('friendsFiltered', false)
+    //         ->with('followingFiltered', false)
     //         ->with('userActivities', $this->loadDeferred());
     // }
 
@@ -44,10 +45,10 @@ class UserActivityFeed extends Grid
     {
         return [
             AllowedFilter::callback('users', function (Builder $query, $value) {
-                if (request()->user() && $value === 'friends') {
-                    $friendsIds = request()->user()->friends()->get(['id'])->pluck('id');
-                    $friendsIds[] = request()->user()->id;
-                    $query->whereIn('user_id', $friendsIds);
+                if (request()->user() && $value === 'following') {
+                    $followingIds = request()->user()->following()->get(['id'])->pluck('id');
+                    $followingIds[] = request()->user()->ID;
+                    $query->whereIn('user_id', $followingIds);
                 }
             }),
         ];
@@ -59,9 +60,9 @@ class UserActivityFeed extends Grid
         $this->resetPage();
     }
 
-    public function filterByFriends(): void
+    public function filterByFollowing(): void
     {
-        $this->filter['users'] = 'friends';
+        $this->filter['users'] = 'following';
         $this->resetPage();
     }
 
@@ -69,7 +70,8 @@ class UserActivityFeed extends Grid
     {
         parent::load();
 
-        collect($this->results->items())->map(function (UserActivity $userActivity) {
+        // @phpstan-ignore-next-line
+        (new Collection($this->results->items()))->map(function (UserActivity $userActivity) {
             if ($userActivity->isAchievementActivity()) {
                 $userActivity->achievement->load('game');
             }

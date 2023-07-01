@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Site\Components;
 
+use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\AllowedSort;
 
@@ -18,7 +19,7 @@ class UserGrid extends Grid
 
     protected function columns(): iterable
     {
-        $filters = $this->request()->query('filter');
+        // $filter = $this->request()->query('filter');
         $sort = $this->request()->query('sort');
 
         return collect([
@@ -76,6 +77,9 @@ class UserGrid extends Grid
         ];
     }
 
+    /**
+     * @return Builder<User>
+     */
     protected function query(): Builder
     {
         $query = parent::query();

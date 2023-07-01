@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\AwardType;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerBadge;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\AwardType;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerBadge;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class UserAwardsTest extends TestCase

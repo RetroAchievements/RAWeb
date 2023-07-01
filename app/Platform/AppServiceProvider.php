@@ -4,26 +4,32 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
+use App\Platform\Commands\DeleteOrphanedLeaderboardEntries;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncGameHashes;
-use App\Platform\Commands\SyncGameRelations;
 use App\Platform\Commands\SyncGames;
+use App\Platform\Commands\SyncGameSets;
 use App\Platform\Commands\SyncLeaderboardEntries;
 use App\Platform\Commands\SyncLeaderboards;
 use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerAchievements;
 use App\Platform\Commands\SyncPlayerBadges;
+use App\Platform\Commands\SyncPlayerGames;
 use App\Platform\Commands\SyncPlayerRichPresence;
-use App\Platform\Commands\SyncSystems;
+use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAllAchievementsMetrics;
 use App\Platform\Commands\UpdateAllGamesMetrics;
 use App\Platform\Commands\UpdateAllPlayerGamesMetrics;
+use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameMetrics;
+use App\Platform\Commands\UpdateGameWeightedPoints;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
+use App\Platform\Commands\UpdatePlayerMasteries;
 use App\Platform\Commands\UpdatePlayerMetrics;
+use App\Platform\Commands\UpdatePlayerPoints;
 use App\Platform\Commands\UpdatePlayerRanks;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Badge;
@@ -34,15 +40,18 @@ use App\Platform\Models\Game;
 use App\Platform\Models\GameHash;
 use App\Platform\Models\GameHashSet;
 use App\Platform\Models\GameHashSetHash;
+use App\Platform\Models\GameSet;
+use App\Platform\Models\GameSetGame;
 use App\Platform\Models\IntegrationRelease;
 use App\Platform\Models\Leaderboard;
-use App\Platform\Models\LeaderboardEntry;
+use App\Platform\Models\LeaderboardEntryLegacy;
 use App\Platform\Models\MemoryNote;
-use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerBadgeStage;
 use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -52,6 +61,12 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                DeleteOrphanedLeaderboardEntries::class,
+                UpdateDeveloperContributionYield::class,
+                UpdateGameWeightedPoints::class,
+                UpdatePlayerPoints::class,
+                UpdatePlayerMasteries::class,
+
                 /*
                  * no-intro
                  */
@@ -79,18 +94,30 @@ class AppServiceProvider extends ServiceProvider
                  * Sync
                  */
                 SyncAchievements::class,
-                SyncGameRelations::class,
+                SyncGameSets::class,
                 SyncGames::class,
                 SyncLeaderboards::class,
                 SyncLeaderboardEntries::class,
                 SyncMemoryNotes::class,
                 SyncPlayerAchievements::class,
+                SyncPlayerGames::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,
+                SyncPlayerSession::class,
                 SyncGameHashes::class,
-                SyncSystems::class,
             ]);
         }
+
+        $this->app->booted(function () {
+            /** @var Schedule $schedule */
+            $schedule = $this->app->make(Schedule::class);
+
+            // TODO replace with queued jobs
+            $schedule->command(UpdateGameWeightedPoints::class)->everyMinute();
+            $schedule->command(UpdatePlayerPoints::class)->everyMinute();
+
+            $schedule->command(DeleteOrphanedLeaderboardEntries::class)->daily();
+        });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);
 
@@ -98,22 +125,25 @@ class AppServiceProvider extends ServiceProvider
             'achievement' => Achievement::class,
             'badge' => Badge::class,
             'badge-stage' => BadgeStage::class,
+            'emulator' => Emulator::class,
+            'emulator.release' => EmulatorRelease::class,
             'game' => Game::class,
-            'leaderboard' => Leaderboard::class,
-            'leaderboard-entry' => LeaderboardEntry::class,
-            'memory-note' => MemoryNote::class,
             'game-hash' => GameHash::class,
             'game-hash-set' => GameHashSet::class,
             'game-hash-set.game-hash' => GameHashSetHash::class,
-            'system' => System::class,
-
+            'game-set' => GameSet::class,
+            'game-set.game' => GameSetGame::class,
+            'integration.release' => IntegrationRelease::class,
+            'leaderboard' => Leaderboard::class,
+            // TODO 'leaderboard-entry' => LeaderboardEntry::class,
+            'leaderboard-entry' => LeaderboardEntryLegacy::class,
+            'memory-note' => MemoryNote::class,
             'player.badge' => PlayerBadge::class,
             'player.badge-stage' => PlayerBadgeStage::class,
-            'player-achievement' => PlayerAchievement::class,
+            // TODO 'player.achievement' => PlayerAchievement::class,
+            'player.achievement' => PlayerAchievementLegacy::class,
             'player-session' => PlayerSession::class,
-            'emulator' => Emulator::class,
-            'emulator.release' => EmulatorRelease::class,
-            'integration.release' => IntegrationRelease::class,
+            'system' => System::class,
         ]);
 
         // Livewire::component('achievement-grid', AchievementGrid::class);

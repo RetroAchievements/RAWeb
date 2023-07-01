@@ -1,7 +1,7 @@
 <?php
 
+use App\Platform\Enums\UnlockMode;
 use Illuminate\Support\Carbon;
-use LegacyApp\Platform\Enums\UnlockMode;
 
 /*
  *  API_GetUserRecentAchievements - returns achievements recently earned by a user
