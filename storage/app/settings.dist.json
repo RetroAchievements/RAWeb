@@ -1,0 +1,10 @@
+{
+    "sync": false,
+    "tools": [
+        {
+            "label": "Demo",
+            "url": "demo",
+            "abilities": "tool"
+        }
+    ]
+}

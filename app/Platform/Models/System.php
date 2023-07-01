@@ -7,6 +7,7 @@ namespace App\Platform\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Support\Database\Eloquent\BaseModel;
 use App\Support\Database\Eloquent\BasePivot;
+use Database\Factories\SystemFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -24,9 +25,33 @@ class System extends BaseModel implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
+
     use Searchable;
     use SoftDeletes;
     use DiscussedInForum;
+
+    // TODO rename Console table to systems
+    // TODO rename ID column to id
+    // TODO rename Name column to name
+    // TODO rename Created column to created_at
+    // TODO rename Updated column to updated_at
+    // TODO: store aggregates?
+    // $table->unsignedInteger('points_total')->nullable();
+    // $table->unsignedInteger('points_weighted')->nullable();
+    // $table->unsignedInteger('achievements_total')->nullable();
+    // $table->unsignedInteger('achievements_published')->nullable();
+    // $table->unsignedInteger('achievements_unpublished')->nullable();
+    protected $table = 'Console';
+
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
+    protected static function newFactory(): SystemFactory
+    {
+        return SystemFactory::new();
+    }
 
     protected $fillable = [
         'name',
@@ -37,8 +62,9 @@ class System extends BaseModel implements HasMedia
         'active',
     ];
 
-    protected $with = [
-        'media',
+    protected $visible = [
+        'ID',
+        'Name',
     ];
 
     // == media
@@ -82,7 +108,8 @@ class System extends BaseModel implements HasMedia
             return false;
         }
 
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == accessors
@@ -116,6 +143,9 @@ class System extends BaseModel implements HasMedia
 
     // == relations
 
+    /**
+     * @return BelongsToMany<Emulator>
+     */
     public function emulators(): BelongsToMany
     {
         return $this->belongsToMany(Emulator::class, 'system_emulators')
@@ -123,19 +153,27 @@ class System extends BaseModel implements HasMedia
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<Game>
+     */
     public function games(): HasMany
     {
-        return $this->hasMany(Game::class);
+        return $this->hasMany(Game::class, 'ConsoleID');
     }
 
     /**
      * TODO: store achievements_published and achievements_total on games to be easily filterable
+     *
+     * @return HasMany<Game>
      */
     public function achievementGames(): HasMany
     {
         return $this->hasMany(Game::class)->where('achievements_published', '>', 0);
     }
 
+    /**
+     * @return HasManyThrough<Achievement>
+     */
     public function achievements(): HasManyThrough
     {
         return $this->hasManyThrough(Achievement::class, Game::class);
@@ -143,11 +181,19 @@ class System extends BaseModel implements HasMedia
 
     // == scopes
 
+    /**
+     * @param Builder<System> $query
+     * @return Builder<System>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
     }
 
+    /**
+     * @param Builder<System> $query
+     * @return Builder<System>
+     */
     public function scopeHasAchievements(Builder $query): Builder
     {
         $query->withCount('achievements');
@@ -155,6 +201,10 @@ class System extends BaseModel implements HasMedia
         return $query->having('achievements_count', '>', '0');
     }
 
+    /**
+     * @param Builder<System> $query
+     * @return Builder<System>
+     */
     public function scopeHasGames(Builder $query): Builder
     {
         $query->withCount('games');

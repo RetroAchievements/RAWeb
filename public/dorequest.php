@@ -1,9 +1,9 @@
 <?php
 
+use App\Platform\Enums\AchievementType;
+use App\Site\Enums\Permissions;
+use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Support\Media\FilenameIterator;
 
 /**
  * @usage

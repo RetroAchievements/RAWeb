@@ -33,18 +33,13 @@ class SyncUpdateStatus extends Command
                 continue;
             }
 
-            $hasKeyAsColumn = Schema::connection('mysql_legacy')
-                ->hasColumn(
-                    $options['reference_table'],
-                    $options['reference_key']
-                );
+            $hasKeyAsColumn = Schema::hasColumn($options['reference_table'], $options['reference_key']);
 
             if (!$hasKeyAsColumn) {
                 continue;
             }
 
-            $remaining = DB::connection('mysql_legacy')
-                ->table($options['reference_table'])
+            $remaining = DB::table($options['reference_table'])
                 ->where($options['reference_key'], '>', $status->getAttribute('reference') ?? '0000-00-00 00:00:00')
                 ->orderBy($options['reference_key'])
                 ->count();

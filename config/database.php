@@ -54,42 +54,21 @@ return [
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_general_ci',
-            // TODO removed prefix as soon as affected legacy tables have been removed:
-            // Achievements, Messages, News, Votes
-            // on production v2 tables are in a separate database
-            'prefix' => env('APP_ENV') === 'local' ? '_' : '',
+            // TODO
+            // 'charset' => 'utf8mb4',
+            // 'collation' => 'utf8mb4_general_ci',
+            'charset' => 'latin1',
+            'collation' => 'latin1_general_ci',
+            'prefix' => '',
             'prefix_indexes' => false,
             'strict' => true,
             'engine' => null,
             'modes' => [
-                'ONLY_FULL_GROUP_BY',
+                // TODO 'ONLY_FULL_GROUP_BY',
                 'NO_ZERO_IN_DATE',
                 'NO_ZERO_DATE',
                 'ERROR_FOR_DIVISION_BY_ZERO',
                 'NO_ENGINE_SUBSTITUTION',
-            ],
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
-
-        'mysql_legacy' => [
-            'driver' => env('LEGACY_DB_DRIVER', 'mysql'),
-            'host' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'mysql' : env('LEGACY_DB_HOST', '127.0.0.1'),
-            'port' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? '3306' : env('LEGACY_DB_PORT', '3306'),
-            'database' => env('LEGACY_DB_DATABASE', 'forge'),
-            'username' => env('LEGACY_DB_USERNAME', 'forge'),
-            'password' => env('LEGACY_DB_PASSWORD', ''),
-            'unix_socket' => env('LEGACY_DB_SOCKET', ''),
-            'charset' => 'latin1',
-            'collation' => 'latin1_general_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => false,
-            'engine' => null,
-            'modes' => [
             ],
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
