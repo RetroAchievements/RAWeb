@@ -13,6 +13,9 @@ trait HasAchievementCommunityFeatures
     {
     }
 
+    /**
+     * @return MorphMany<AchievementComment>
+     */
     public function comments(): MorphMany
     {
         return $this->morphMany(AchievementComment::class, 'commentable')->with('user');

@@ -3,6 +3,7 @@ import Alpine from 'alpinejs';
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
 import { hideEarnedCheckboxComponent } from './alpine';
+import { newsCarousel } from './alpine/newsCarousel';
 import {
   copyToClipboard,
   handleLeaderboardTabClick,
@@ -28,6 +29,7 @@ window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.mobileSafeTipEvents = mobileSafeTipEvents;
+window.newsCarousel = newsCarousel;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
 // Alpine needs to be placed after all `window` injection

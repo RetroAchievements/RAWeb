@@ -24,7 +24,7 @@ class LinkStorage extends StorageLinkCommand
         parent::handle();
     }
 
-    private function localLinks()
+    private function localLinks(): void
     {
         /** @var Filesystem $filesystem */
         $filesystem = $this->laravel->make('files');

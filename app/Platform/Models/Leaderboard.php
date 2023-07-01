@@ -15,21 +15,38 @@ class Leaderboard extends BaseModel
     use Searchable;
     use SoftDeletes;
 
+    // TODO rename LeaderboardDef table to leaderboards
+    // TODO rename ID column to id
+    // TODO rename GameID column to game_id
+    // TODO rename Format column to format
+    // TODO rename LowerIsBetter column to rank_asc
+    // TODO rename DisplayOrder column to order_column
+    // TODO rename Created column to created_at
+    // TODO rename Updated column to updated_at
+    // TODO drop Mem, migrate to triggerable morph
+    // TODO drop Author, migrate to triggerable morph author
+    protected $table = 'LeaderboardDef';
+
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
+
     // == search
 
     public function toSearchableArray(): array
     {
         return $this->only([
-            'id',
-            'title',
-            'description',
+            'ID',
+            'Title',
+            'Description',
         ]);
     }
 
     public function shouldBeSearchable(): bool
     {
-        // return $this->isPublished();
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == accessors
@@ -53,6 +70,9 @@ class Leaderboard extends BaseModel
 
     // == relations
 
+    /**
+     * @return BelongsTo<Game, Leaderboard>
+     */
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
