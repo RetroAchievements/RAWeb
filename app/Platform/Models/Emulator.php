@@ -58,6 +58,9 @@ class Emulator extends BaseModel implements HasMedia
 
     // == relations
 
+    /**
+     * @return BelongsToMany<System>
+     */
     public function systems(): BelongsToMany
     {
         return $this->belongsToMany(System::class, 'system_emulators')
@@ -65,6 +68,9 @@ class Emulator extends BaseModel implements HasMedia
             ->withTimestamps();
     }
 
+    /**
+     * @return HasOne<EmulatorRelease>
+     */
     public function latestRelease(): HasOne
     {
         return $this->hasOne(EmulatorRelease::class)
@@ -72,6 +78,9 @@ class Emulator extends BaseModel implements HasMedia
             ->orderBy('version', 'DESC');
     }
 
+    /**
+     * @return HasOne<EmulatorRelease>
+     */
     public function latestBetaRelease(): HasOne
     {
         return $this->hasOne(EmulatorRelease::class)
@@ -79,6 +88,9 @@ class Emulator extends BaseModel implements HasMedia
             ->orderBy('version', 'DESC');
     }
 
+    /**
+     * @return HasMany<EmulatorRelease>
+     */
     public function releases(): HasMany
     {
         return $this->hasMany(EmulatorRelease::class);
@@ -86,6 +98,10 @@ class Emulator extends BaseModel implements HasMedia
 
     // == scopes
 
+    /**
+     * @param Builder<Emulator> $query
+     * @return Builder<Emulator>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);

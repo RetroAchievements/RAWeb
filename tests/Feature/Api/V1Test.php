@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api;
 
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\System;
+use App\Site\Models\StaticData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Enums\UnlockMode;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\StaticData;
 use Tests\Feature\Api\V1\BootstrapsApiV1;
 use Tests\TestCase;
 
@@ -60,14 +60,14 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(0)->ID, 'User' => $this->user->User]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(1)->ID, 'User' => $this->user->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(0)->ID, 'User' => $this->user->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(1)->ID, 'User' => $this->user->User]);
 
         $unpublishedAchievements = Achievement::factory()->count(5)->create(['GameID' => $game->ID]);
-        PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $unpublishedAchievements->get(0)->ID, 'User' => $this->user->User]);
-        PlayerAchievement::factory()->create(['AchievementID' => $unpublishedAchievements->get(1)->ID, 'User' => $this->user->User]);
-        PlayerAchievement::factory()->create(['AchievementID' => $unpublishedAchievements->get(2)->ID, 'User' => $this->user->User]);
-        PlayerAchievement::factory()->create(['AchievementID' => $unpublishedAchievements->get(3)->ID, 'User' => $this->user->User]);
+        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $unpublishedAchievements->get(0)->ID, 'User' => $this->user->User]);
+        PlayerAchievementLegacy::factory()->create(['AchievementID' => $unpublishedAchievements->get(1)->ID, 'User' => $this->user->User]);
+        PlayerAchievementLegacy::factory()->create(['AchievementID' => $unpublishedAchievements->get(2)->ID, 'User' => $this->user->User]);
+        PlayerAchievementLegacy::factory()->create(['AchievementID' => $unpublishedAchievements->get(3)->ID, 'User' => $this->user->User]);
 
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => -1]))
             ->assertSuccessful()
@@ -125,8 +125,8 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
-        /** @var PlayerAchievement $unlock */
-        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+        /** @var PlayerAchievementLegacy $unlock */
+        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
 
         $staticData = StaticData::factory()->create([
             'Event_AOTW_AchievementID' => $achievement->ID,
@@ -176,8 +176,8 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100]);
-        /** @var PlayerAchievement $unlock */
-        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+        /** @var PlayerAchievementLegacy $unlock */
+        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedBetween', [
@@ -213,8 +213,8 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User]);
-        /** @var PlayerAchievement $unlock */
-        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+        /** @var PlayerAchievementLegacy $unlock */
+        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedOnDay', [
@@ -256,8 +256,8 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
-        /** @var PlayerAchievement $unlock */
-        $unlock = PlayerAchievement::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+        /** @var PlayerAchievementLegacy $unlock */
+        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
 
         $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => $achievement->ID]))
             ->assertSuccessful()

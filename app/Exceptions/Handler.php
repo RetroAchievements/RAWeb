@@ -9,6 +9,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -48,6 +49,40 @@ class Handler extends ExceptionHandler
         parent::report($e);
     }
 
+    protected function buildExceptionContext(Throwable $e)
+    {
+        $context = parent::buildExceptionContext($e);
+
+        $request = request();
+        if ($request) {
+            $context['url'] = $request->url();
+
+            // never log raw passwords
+            $params = Arr::except($request->all(), $this->dontFlash);
+
+            // extract the user and token parameters for API calls
+            if (str_ends_with($context['url'], 'dorequest.php')) {
+                unset($params['u']);
+                unset($params['t']);
+            } elseif (str_contains($context['url'], '/API/')) {
+                unset($params['z']);
+                unset($params['y']);
+            }
+
+            // truncate long parameters
+            foreach ($params as $k => $p) {
+                if (strlen($p) > 20) {
+                    $params[$k] = substr($p, 0, 15) . "...";
+                }
+            }
+
+            // capture any remaining parameters
+            $context['params'] = http_build_query($params);
+        }
+
+        return $context;
+    }
+
     /**
      * Render an exception into an HTTP response.
      *
@@ -70,7 +105,7 @@ class Handler extends ExceptionHandler
                     ],
                 ], $e->getStatusCode());
             }
-            if (is_a($e, TokenMismatchException::class)) {
+            if ($e instanceof TokenMismatchException) {
                 return response()->json([
                     'message' => __('Token Mismatch'),
                     'errors' => [
@@ -82,7 +117,7 @@ class Handler extends ExceptionHandler
                     ],
                 ], 419);
             }
-            if (is_a($e, AuthenticationException::class)) {
+            if ($e instanceof AuthenticationException) {
                 return response()->json([
                     'message' => __($e->getMessage() ?: Response::$statusTexts[401]),
                     'errors' => [
@@ -94,7 +129,7 @@ class Handler extends ExceptionHandler
                     ],
                 ], 401);
             }
-            if (is_a($e, AuthorizationException::class)) {
+            if ($e instanceof AuthorizationException) {
                 return response()->json([
                     'message' => __($e->getMessage() ?: Response::$statusTexts[403]),
                     'errors' => [
@@ -108,7 +143,7 @@ class Handler extends ExceptionHandler
             }
         }
 
-        if (is_a($e, AuthenticationException::class)) {
+        if ($e instanceof AuthenticationException) {
             // parent::render will call parent::unauthenticated for AuthenticationException,
             // which redirects to route('login') unless the exception specifies another target.
             // Since we don't define a login route, this causes an exception. If no redirect

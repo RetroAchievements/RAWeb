@@ -1,13 +1,13 @@
 <?php
 
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Community\Models\Ticket;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\Leaderboard;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
+use App\Community\Enums\ArticleType;
+use App\Community\Models\Ticket;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\Leaderboard;
+use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -25,8 +25,7 @@ $commentData = [];
 $numArticleComments = getArticleComments($articleTypeID, $articleID, $offset, $count, $commentData);
 
 $commentsLabel = "Comments";
-switch ($articleTypeID)
-{
+switch ($articleTypeID) {
     case ArticleType::Game:
         /** @var Game $game */
         $game = Game::findOrFail($articleID);

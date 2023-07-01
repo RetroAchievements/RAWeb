@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\RankType;
-use LegacyApp\Platform\Enums\UnlockMode;
+use App\Community\Enums\RankType;
+use App\Platform\Enums\UnlockMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -217,8 +217,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         $findUserRank = false;
         if ($friends == 1) {
             $rank = 1;
-        }
-        else {
+        } else {
             $rank = $offset + 1;
         }
         $rowRank = $rank;
@@ -249,8 +248,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                     $userRank = $rank;
                 }
                 $rowRank++;
-            }
-            else {
+            } else {
                 // Outline the currently logged in user in the table
                 if ($dataPoint['User'] == $user) {
                     $userListed = true;

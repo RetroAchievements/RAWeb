@@ -14,7 +14,7 @@ class DownloadController extends Controller
 {
     public function index(): View
     {
-        /** @var Collection $emulators */
+        /** @var Collection<int, Emulator> $emulators */
         $emulators = Emulator::ordered()->active()
             ->with([
                 'systems' => function ($query) {

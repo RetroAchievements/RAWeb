@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Platform\Enums\UnlockMode;
+use App\Platform\Enums\UnlockMode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
