@@ -33,7 +33,7 @@ $sortBy = (int) request()->input('s', 17);
 $achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $dev);
 
 // Is the user looking at their own achievements list?
-$isOwnEarnedAchievementsList = $params > 0 && $user && ($sortBy == 19 || $sortBy == 20);
+$isOwnEarnedAchievementsList = $user !== null;
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
@@ -67,7 +67,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo $params !== AchievementType::OfficialCore ? "</a>" : "</b>";
         echo "<br>";
 
-        if ($user !== null) {
+        if ($isOwnEarnedAchievementsList) {
             echo $params !== AchievementType::Unofficial ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::Unofficial . "$dev_param'>" : "<b>";
             echo "Achievements in Unofficial Sets";
             echo $params !== AchievementType::Unofficial ? "</a>" : "</b>";
@@ -85,7 +85,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         }
         echo "</div>";
 
-        if ($user !== null) {
+        if ($isOwnEarnedAchievementsList) {
             echo "<div>";
             echo "Filter by developer:<br>";
             echo "<form action='/achievementList.php'>";
