@@ -6,10 +6,11 @@ namespace Database\Seeders;
 
 use App\Platform\Models\System;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 class SystemsTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         if (System::count() > 0) {
             return;
@@ -18,8 +19,9 @@ class SystemsTableSeeder extends Seeder
         /*
          * System IDs: https://github.com/RetroAchievements/RAIntegration/blob/master/src/RA_Interface.h
          */
-        collect(config('systems'))->each(function ($systemData, $systemId) {
-            $systemData['id'] = $systemId;
+        (new Collection(config('systems')))->each(function ($systemData, $systemId) {
+            $systemData['ID'] = $systemId;
+            $systemData['Name'] = $systemData['name'];
             System::create($systemData);
         });
     }

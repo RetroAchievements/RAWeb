@@ -7,7 +7,6 @@ namespace App\Community\Components;
 use App\Community\Models\UserComment;
 use App\Site\Components\Grid;
 use App\Site\Models\User;
-use App\Support\Shortcode\ShortcodeModelCollector;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -36,6 +35,9 @@ class UserComments extends Grid
         );
     }
 
+    /**
+     * @return Builder<UserComment>
+     */
     protected function query(): Builder
     {
         /** @var User $user */
@@ -64,11 +66,6 @@ class UserComments extends Grid
     protected function load(): ?LengthAwarePaginator
     {
         parent::load();
-
-        /*
-         * intercept to eager load models referenced in content
-         */
-        ShortcodeModelCollector::collect(collect($this->results->items())->pluck('body'));
 
         return $this->results;
     }

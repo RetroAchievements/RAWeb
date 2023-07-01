@@ -7,8 +7,10 @@ namespace App\Platform\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Contracts\HasComments;
+use App\Community\Models\Rating;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\GameFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,7 +19,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -29,25 +30,67 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     use DiscussedInForum;
     use HasGameCommunityFeatures;
+
     /*
      * Shared Traits
      */
-    use LogsActivity;
+    // TODO use LogsActivity;
     use HasFactory;
     use InteractsWithMedia;
+
     use Searchable;
     use SoftDeletes;
+
+    // TODO rename GameData table to games
+    // TODO rename ID column to id
+    // TODO rename Title column to title
+    // TODO rename ConsoleID column to system_id
+    // TODO rename Publisher column to publisher
+    // TODO rename Developer column to developer
+    // TODO rename Genre column to genre
+    // TODO rename Released to release
+    // TODO rename TotalTruePoints to points_weighted
+    // TODO drop ForumTopicID, migrate to forumable morph
+    // TODO drop Flags
+    // TODO drop ImageIcon, ImageTitle, ImageInGame, ImageBoxArt, migrate to media
+    // TODO drop GuideURL, migrate to forumable morph
+    // TODO drop RichPresencePatch, migrate to triggerable morph
+    // TODO drop IsFinal
+    protected $table = 'GameData';
+
+    protected $primaryKey = 'ID';
+
+    public const CREATED_AT = 'Created';
+    public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
         'system_id',
         'release',
-        'title',
+        'Title',
     ];
 
-    protected $with = [
-        'system',
-        'media',
+    protected $visible = [
+        'ID',
+        'Title',
+        'ForumTopicID',
+        'Flags',
+        'ImageIcon',
+        'ImageTitle',
+        'ImageIngame',
+        'ImageBoxArt',
+        'Publisher',
+        'Developer',
+        'Genre',
+        'Released',
+        'IsFinal',
+        'RichPresencePatch',
+        'GuideURL',
     ];
+
+    protected static function newFactory(): GameFactory
+    {
+        return GameFactory::new();
+    }
 
     // == logging
 
@@ -100,15 +143,16 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function toSearchableArray(): array
     {
         return $this->only([
-            'id',
-            'title',
+            'ID',
+            'Title',
         ]);
     }
 
     public function shouldBeSearchable(): bool
     {
-        // return $this->isPublished();
-        return true;
+        // TODO return $this->isPublished();
+        // TODO return true;
+        return false;
     }
 
     // == actions
@@ -127,23 +171,48 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     public function getSlugAttribute(): string
     {
-        return $this->title ? '-' . Str::slug($this->title) : '';
+        return $this->Title ? '-' . Str::slug($this->Title) : '';
     }
 
     // == mutators
 
     // == relations
 
+    /**
+     * @return HasMany<Achievement>
+     */
     public function achievements(): HasMany
     {
-        return $this->hasMany(Achievement::class);
+        return $this->hasMany(Achievement::class, 'GameID');
     }
 
+    /**
+     * @return BelongsTo<System, Game>
+     */
+    public function system(): BelongsTo
+    {
+        return $this->belongsTo(System::class, 'ConsoleID');
+    }
+
+    /**
+     * @return BelongsTo<System, Game>
+     */
+    public function console(): BelongsTo
+    {
+        return $this->system();
+    }
+
+    /**
+     * @return HasMany<Leaderboard>
+     */
     public function leaderboards(): HasMany
     {
         return $this->hasMany(Leaderboard::class);
     }
 
+    /**
+     * @return BelongsToMany<User>
+     */
     public function players(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_games')
@@ -151,14 +220,28 @@ class Game extends BaseModel implements HasComments, HasMedia
             ->using(PlayerGame::class);
     }
 
+    /**
+     * @return HasMany<GameHashSet>
+     */
     public function gameHashSets(): HasMany
     {
         return $this->hasMany(GameHashSet::class);
     }
 
-    public function system(): BelongsTo
+    /**
+     * @return HasMany<GameHash>
+     */
+    public function hashes(): HasMany
     {
-        return $this->belongsTo(System::class);
+        return $this->hasMany(GameHash::class, 'GameID');
+    }
+
+    /**
+     * @return HasMany<Rating>
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class, 'RatingID');
     }
 
     // == scopes

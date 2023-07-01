@@ -7,9 +7,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('failed_jobs', function (Blueprint $table) {
+        Schema::create('queue_failed_jobs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('uuid')->unique();
             $table->text('connection');
@@ -20,8 +20,8 @@ return new class() extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('failed_jobs');
+        Schema::dropIfExists('queue_failed_jobs');
     }
 };

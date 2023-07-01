@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\ActivityType;
+use App\Community\Enums\Rank;
+use App\Community\Models\UserActivityLegacy;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\ActivityType;
-use LegacyApp\Community\Enums\Rank;
-use LegacyApp\Community\Models\UserActivity;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\PlayerAchievement;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
+use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class UserSummaryTest extends TestCase
 {
     use RefreshDatabase;
     use BootstrapsApiV1;
+    use TestsPlayerAchievements;
 
     public function testItValidates(): void
     {
@@ -117,8 +119,7 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/002347.png',
             'ImageBoxArt' => '/Images/002348.png',
         ]);
-        /** @var UserActivity $activity */
-        $activity = new UserActivity([
+        $activity = new UserActivityLegacy([
             'User' => $user->User,
             'timestamp' => Carbon::now()->subDays(1),
             'lastupdate' => Carbon::now()->subDays(1),
@@ -126,8 +127,7 @@ class UserSummaryTest extends TestCase
             'data' => $game2->ID,
         ]);
         $activity->save();
-        /** @var UserActivity $activity2 */
-        $activity2 = new UserActivity([
+        $activity2 = new UserActivityLegacy([
             'User' => $user->User,
             'timestamp' => Carbon::now()->subHours(1),
             'lastupdate' => Carbon::now()->subMinutes(5), // active less than 5 minutes ago is Online
@@ -139,9 +139,9 @@ class UserSummaryTest extends TestCase
         $user->save();
 
         $earnedAchievement = $publishedAchievements->get(0);
-        $unlock = PlayerAchievement::factory()->hardcore()->create(['AchievementID' => $earnedAchievement->ID, 'User' => $user->User]);
+        $unlock = PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $earnedAchievement->ID, 'User' => $user->User]);
 
-         // make sure $this->user is ranked higher than $user
+        // make sure $this->user is ranked higher than $user
         $this->user->RAPoints = 1_234_567;
         $this->user->save();
 
@@ -244,30 +244,6 @@ class UserSummaryTest extends TestCase
                             'DateAwarded' => $unlock->Date->__toString(),
                             'HardcoreAchieved' => '1',
                         ],
-                        $publishedAchievements->get(1)->ID => [
-                            'ID' => $publishedAchievements->get(1)->ID,
-                            'Title' => $publishedAchievements->get(1)->Title,
-                            'Description' => $publishedAchievements->get(1)->Description,
-                            'Points' => $publishedAchievements->get(1)->Points,
-                            'BadgeName' => $publishedAchievements->get(1)->BadgeName,
-                            'GameID' => $game->ID,
-                            'GameTitle' => $game->Title,
-                            'IsAwarded' => '0',
-                            'DateAwarded' => null,
-                            'HardcoreAchieved' => null,
-                        ],
-                        $publishedAchievements->get(2)->ID => [
-                            'ID' => $publishedAchievements->get(2)->ID,
-                            'Title' => $publishedAchievements->get(2)->Title,
-                            'Description' => $publishedAchievements->get(2)->Description,
-                            'Points' => $publishedAchievements->get(2)->Points,
-                            'BadgeName' => $publishedAchievements->get(2)->BadgeName,
-                            'GameID' => $game->ID,
-                            'GameTitle' => $game->Title,
-                            'IsAwarded' => '0',
-                            'DateAwarded' => null,
-                            'HardcoreAchieved' => null,
-                        ],
                     ],
                 ],
             ]);
@@ -356,32 +332,126 @@ class UserSummaryTest extends TestCase
                         'DateAwarded' => $unlock->Date->__toString(),
                         'HardcoreAchieved' => '1',
                     ],
-                    $publishedAchievements->get(1)->ID => [
-                        'ID' => $publishedAchievements->get(1)->ID,
-                        'Title' => $publishedAchievements->get(1)->Title,
-                        'Description' => $publishedAchievements->get(1)->Description,
-                        'Points' => $publishedAchievements->get(1)->Points,
-                        'BadgeName' => $publishedAchievements->get(1)->BadgeName,
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
-                        'IsAwarded' => '0',
-                        'DateAwarded' => null,
-                        'HardcoreAchieved' => null,
-                    ],
-                    $publishedAchievements->get(2)->ID => [
-                        'ID' => $publishedAchievements->get(2)->ID,
-                        'Title' => $publishedAchievements->get(2)->Title,
-                        'Description' => $publishedAchievements->get(2)->Description,
-                        'Points' => $publishedAchievements->get(2)->Points,
-                        'BadgeName' => $publishedAchievements->get(2)->BadgeName,
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
-                        'IsAwarded' => '0',
-                        'DateAwarded' => null,
-                        'HardcoreAchieved' => null,
-                    ],
                 ],
             ],
         ]);
+    }
+
+    public function testGetUserSummaryLimitRecentAchievements(): void
+    {
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $publishedAchievements = Achievement::factory()->published()->count(7)->create(['GameID' => $game->ID]);
+
+        /** @var Game $game2 */
+        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $publishedAchievements2 = Achievement::factory()->published()->count(4)->create(['GameID' => $game2->ID]);
+
+        $now = Carbon::now();
+
+        $activity = new UserActivityLegacy([
+            'User' => $this->user->User,
+            'timestamp' => $now->clone()->subMinutes(35),
+            'lastupdate' => $now->clone()->subMinutes(1),
+            'activitytype' => ActivityType::StartedPlaying,
+            'data' => $game->ID,
+        ]);
+        $activity->save();
+        $activity2 = new UserActivityLegacy([
+            'User' => $this->user->User,
+            'timestamp' => $now->clone()->subMinutes(100),
+            'lastupdate' => $now->clone()->subMinutes(75),
+            'activitytype' => ActivityType::StartedPlaying,
+            'data' => $game2->ID,
+        ]);
+        $activity2->save();
+
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(1), $now->clone()->subMinutes(3));
+        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(4), $now->clone()->subMinutes(6));
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(6), $now->clone()->subMinutes(10));
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0), $now->clone()->subMinutes(20));
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(2), $now->clone()->subMinutes(30));
+
+        $this->addHardcoreUnlock($this->user, $publishedAchievements2->get(2), $now->clone()->subMinutes(90));
+
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'a' => 2]))
+            ->assertSuccessful()
+            ->assertJson([
+                'ID' => $this->user->ID,
+                'Awarded' => [
+                    $game->ID => [
+                        'NumPossibleAchievements' => 7,
+                        'NumAchieved' => 5,
+                        'NumAchievedHardcore' => 4,
+                    ],
+                    $game2->ID => [
+                        'NumPossibleAchievements' => 4,
+                        'NumAchieved' => 1,
+                        'NumAchievedHardcore' => 1,
+                    ],
+                ],
+                'RecentAchievements' => [
+                    $game->ID => [
+                        $publishedAchievements->get(1)->ID => [
+                            'HardcoreAchieved' => 1,
+                        ],
+                        $publishedAchievements->get(4)->ID => [
+                            'HardcoreAchieved' => 0,
+                        ],
+                    ],
+                ],
+            ])
+            // only two recent achievements were requested - both should be in game 1
+            // and nothing should be returned for game 2
+            ->assertJsonCount(1, "RecentAchievements")
+            ->assertJsonCount(2, "RecentAchievements.{$game->ID}");
+
+        // user only has 6 unlocks, so return all of them, and nothing more
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'a' => 7]))
+            ->assertSuccessful()
+            ->assertJson([
+                'ID' => $this->user->ID,
+                'Awarded' => [
+                    $game->ID => [
+                        'NumPossibleAchievements' => 7,
+                        'NumAchieved' => 5,
+                        'NumAchievedHardcore' => 4,
+                    ],
+                    $game2->ID => [
+                        'NumPossibleAchievements' => 4,
+                        'NumAchieved' => 1,
+                        'NumAchievedHardcore' => 1,
+                    ],
+                ],
+                'RecentAchievements' => [
+                    $game->ID => [
+                        $publishedAchievements->get(1)->ID => [
+                            'HardcoreAchieved' => 1,
+                        ],
+                        $publishedAchievements->get(4)->ID => [
+                            'HardcoreAchieved' => 0,
+                        ],
+                        $publishedAchievements->get(6)->ID => [
+                            'HardcoreAchieved' => 1,
+                        ],
+                        $publishedAchievements->get(0)->ID => [
+                            'HardcoreAchieved' => 1,
+                        ],
+                        $publishedAchievements->get(2)->ID => [
+                            'HardcoreAchieved' => 1,
+                        ],
+                    ],
+                    $game2->ID => [
+                        $publishedAchievements2->get(2)->ID => [
+                            'HardcoreAchieved' => 1,
+                        ],
+                    ],
+                ],
+            ])
+            ->assertJsonCount(2, "RecentAchievements")
+            ->assertJsonCount(5, "RecentAchievements.{$game->ID}")
+            ->assertJsonCount(1, "RecentAchievements.{$game2->ID}");
     }
 }

@@ -7,13 +7,14 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        if (Schema::hasColumns('users', ['two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'])) {
+        if (Schema::hasColumns('UserAccounts', ['two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'])) {
             return;
         }
 
-        Schema::table('users', function (Blueprint $table) {
+        // TODO update UserAccounts table
+        Schema::table('UserAccounts', function (Blueprint $table) {
             $table->text('two_factor_secret')
                 ->after('password')
                 ->nullable();
@@ -28,9 +29,9 @@ return new class() extends Migration {
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('UserAccounts', function (Blueprint $table) {
             $table->dropColumn([
                     'two_factor_secret',
                     'two_factor_recovery_codes',
