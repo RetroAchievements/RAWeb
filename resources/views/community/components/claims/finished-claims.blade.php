@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use LegacyApp\Community\Enums\ClaimFilters;
-use LegacyApp\Community\Enums\ClaimSorting;
+use App\Community\Enums\ClaimFilters;
+use App\Community\Enums\ClaimSorting;
 
 /**
  * Creates a unique key based on the given game title and user.

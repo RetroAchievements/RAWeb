@@ -1,8 +1,8 @@
 <?php
 
+use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Site\Models\User;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails)) {
     abort(401);

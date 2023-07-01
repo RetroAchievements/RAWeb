@@ -6,7 +6,9 @@ namespace App\Platform\Controllers;
 
 use App\Http\Controller;
 use App\Platform\Models\Leaderboard;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class LeaderboardController extends Controller
@@ -32,6 +34,9 @@ class LeaderboardController extends Controller
     {
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function show(Leaderboard $leaderboard, ?string $slug = null): View|RedirectResponse
     {
         $this->authorize('view', $leaderboard);

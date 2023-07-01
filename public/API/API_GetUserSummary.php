@@ -73,7 +73,7 @@
  *     string     GameTitle            name of the game
  *     string     IsAwarded            always "1"
  *     datetime   DateAwarded          when the user earned the achievement
- *     int?       HardcoreAchieved     1 for hardcore award, 0 for non-hardcore award, null if not achieved
+ *     int?       HardcoreAchieved     1 for hardcore award, 0 for non-hardcore award
  *  int        ContribCount            achievements won by others
  *  int        ContribYield            points awarded to others
  */
@@ -107,6 +107,7 @@ $retVal['TotalRanked'] = countRankedUsers();
 // assume caller doesn't care about the rich presence script for the last game played
 if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
+    unset($retVal['LastGame']['system']);
 }
 
 // Find out if we're online or offline
