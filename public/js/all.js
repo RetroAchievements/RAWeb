@@ -282,10 +282,12 @@ function showStatusSuccess(message) {
 
 function showStatusFailure(message) {
   const status = document.getElementById('status');
-  if (status) {
+  if (status && message) {
     status.classList.add('failure');
     status.innerHTML = message;
     status.style.display = 'block';
+  } else if (!message) {
+    console.trace();
   }
 }
 
