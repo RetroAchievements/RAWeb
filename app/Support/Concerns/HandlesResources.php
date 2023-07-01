@@ -22,6 +22,7 @@ trait HandlesResources
         return resource_class($resourceName ?? $this->resourceName());
     }
 
+    // @phpstan-ignore-next-line
     protected function resourceQuery(?string $resourceName = null): Builder
     {
         return $this->resourceClass($resourceName ?? $this->resourceName())::query();

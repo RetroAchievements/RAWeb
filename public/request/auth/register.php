@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Validator;
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'username' => [
         'required',
-        'unique:mysql_legacy.UserAccounts,User',
+        'unique:mysql.UserAccounts,User',
         'min:4',
         'max:20',
         new CtypeAlnum(),

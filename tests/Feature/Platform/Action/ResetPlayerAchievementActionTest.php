@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Action;
 
+use App\Platform\Actions\ResetPlayerAchievementAction;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Platform\Actions\ResetPlayerAchievementAction;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Site\Models\User;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\Feature\Platform\TestsPlayerBadges;
 use Tests\TestCase;

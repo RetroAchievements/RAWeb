@@ -8,7 +8,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'message' => 'required|integer|exists:mysql_legacy.Messages,ID',
+    'message' => 'required|integer|exists:Messages,ID',
     'status' => 'required|integer|in:0,1',
 ]);
 

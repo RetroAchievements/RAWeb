@@ -30,13 +30,12 @@ class SyncPlayerRichPresence extends Command
      */
     public function handle(): void
     {
-        $this->sync('user_rich_presence');
+        $this->sync('player_rich_presence');
     }
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('UserAccounts')
+        return DB::table('UserAccounts')
             ->where('LastGameId', '>', 0)
             ->whereNotNull('RichPresenceMsgDate')
             ->select('User', 'LastGameID', 'RichPresenceMsg', 'RichPresenceMsgDate');

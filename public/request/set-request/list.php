@@ -4,8 +4,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'game' => 'required|integer|exists:mysql_legacy.GameData,ID',
-    'user' => 'required|string|exists:mysql_legacy.UserAccounts,User',
+    'game' => 'required|integer|exists:GameData,ID',
+    'user' => 'required|string|exists:UserAccounts,User',
 ]);
 
 $gameID = (int) $input['game'];

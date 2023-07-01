@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Enums\UserPreference;
+use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -358,10 +358,10 @@ function confirmEmailChange(event) {
                     // Disable achievement select and clear game select
                     achievementSelect.disabled = true;
                     gameSelect.replaceChildren();
-                    
+
                     // Show loading icon
                     $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
-                    
+
                     // Make API call to get game list
                     $.post('/request/user/list-games.php').done(data => {
                         // Create a document fragment to hold the options
