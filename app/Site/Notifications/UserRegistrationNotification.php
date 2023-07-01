@@ -33,11 +33,12 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
     {
         $user = $this->user;
 
-        $username = $user->display_name ?? '';
+        $username = $user->User ?? '';
+        // TODO $username = $user->display_name ?? '';
         $username = \mb_strlen($username) < 2 ? '???' : $username;
         $username = \mb_strlen($username) > 32 ? \mb_substr($username, 0, 29) . '..' : $username;
 
-        $avatar = $user->avatar_url;
+        $avatar = asset($user->avatar_url);
 
         // $username = $this->incident->subject->username;
         // $username = \mb_strlen($username) < 2 ? '???' : $username;
@@ -46,7 +47,6 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
 
         $embeds = [];
         $messageElements = [];
-        $changeElements = [];
         $footerElements = [];
         $fields = [];
         $descriptionElements = [];
@@ -61,8 +61,8 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
         //     'inline' => true,
         // ];
 
-        if ($user->created_at) {
-            $descriptionElements[] = 'Joined ' . $user->created_at->format('Y-m-d');
+        if ($user->Created) {
+            $descriptionElements[] = 'Joined ' . $user->Created->format('Y-m-d');
         }
 
         $embeds[] = [

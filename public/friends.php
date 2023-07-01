@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Community\Enums\UserRelationship;
-use LegacyApp\Site\Enums\Permissions;
+use App\Community\Enums\UserRelationship;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     abort(401);

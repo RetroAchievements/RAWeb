@@ -20,6 +20,9 @@ class NewsTeaser extends Component
             ->with('results', $this->loadDeferred());
     }
 
+    /**
+     * @return Collection<int, News>
+     */
     protected function load(): Collection
     {
         return News::orderByDesc('created_at')->take(4)->with('user', 'media')->get();

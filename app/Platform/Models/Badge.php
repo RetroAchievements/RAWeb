@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
@@ -30,8 +31,8 @@ class Badge extends BaseModel implements HasMedia
 
     public function shouldBeSearchable(): bool
     {
-        // return $this->isPublished();
-        return true;
+        // TODO return true;
+        return false;
     }
 
     // == media
@@ -86,6 +87,9 @@ class Badge extends BaseModel implements HasMedia
 
     // == relations
 
+    /**
+     * @return MorphTo<Model, Badge>
+     */
     public function badgeable(): MorphTo
     {
         return $this->morphTo();
