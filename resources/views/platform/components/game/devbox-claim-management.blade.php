@@ -71,7 +71,7 @@ $isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440;
 
 <script>
 function makeClaim() {
-    const gameTitle = "{{ e($gameTitle) }}";
+    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
     const hasRevisionFlag = {{ $revisionDialogFlag }};
     const hasTicketFlag = {{ $ticketDialogFlag }};
 
@@ -90,21 +90,21 @@ function makeClaim() {
 }
 
 function dropClaim() {
-    const gameTitle = "{{ e($gameTitle) }}";
+    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
 
     const message = 'Are you sure you want to drop the claim for ' + gameTitle + '?';
     return confirm(message);
 }
 
 function extendClaim() {
-    const gameTitle = "{{ e($gameTitle) }}";
+    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
 
     const message = 'Are you sure you want to extend the claim for ' + gameTitle + '?';
     return confirm(message);
 }
 
 function completeClaim() {
-    const gameTitle = "{{ e($gameTitle) }}";
+    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
     const showEarlyReleaseWarning = {{ $isRecentPrimaryClaim }};
 
     let earlyReleaseMessage = '';
