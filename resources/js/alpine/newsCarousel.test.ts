@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import Alpine from 'alpinejs';
 import {
   afterEach,
+  beforeAll,
   describe,
   expect,
   it,
@@ -14,9 +15,6 @@ import { newsCarousel } from './newsCarousel';
 function render() {
   (Element as any).prototype.scrollTo = vi.fn();
   (document as any).newsCarousel = newsCarousel;
-
-  window.Alpine = Alpine;
-  Alpine.start();
 
   document.body.innerHTML = /** @html */ `
     <div x-data="document.newsCarousel(3)">
@@ -48,6 +46,11 @@ function render() {
 }
 
 describe('Component: newsCarousel', () => {
+  beforeAll(() => {
+    window.Alpine = Alpine;
+    Alpine.start();
+  });
+
   afterEach(() => {
     vi.useRealTimers();
   });
