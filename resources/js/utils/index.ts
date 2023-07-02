@@ -1,3 +1,4 @@
+export * from './autoExpandTextInput';
 export * from './cookie';
 export * from './copyToClipboard';
 export * from './handleLeaderboardTabClick';
