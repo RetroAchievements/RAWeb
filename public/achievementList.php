@@ -67,7 +67,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo $params !== AchievementType::OfficialCore ? "</a>" : "</b>";
         echo "<br>";
 
-        if ($isOwnEarnedAchievementsList) {
+        if ($user !== null) {
             echo $params !== AchievementType::Unofficial ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::Unofficial . "$dev_param'>" : "<b>";
             echo "Achievements in Unofficial Sets";
             echo $params !== AchievementType::Unofficial ? "</a>" : "</b>";
@@ -85,7 +85,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         }
         echo "</div>";
 
-        if ($isOwnEarnedAchievementsList) {
+        if ($user !== null) {
             echo "<div>";
             echo "Filter by developer:<br>";
             echo "<form action='/achievementList.php'>";
