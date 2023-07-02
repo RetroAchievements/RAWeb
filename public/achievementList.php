@@ -33,7 +33,7 @@ $sortBy = (int) request()->input('s', 17);
 $achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $dev);
 
 // Is the user looking at their own achievements list?
-$isOwnEarnedAchievementsList = $user !== null;
+$isOwnEarnedAchievementsList = $user !== null && $params === 1;
 
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
@@ -112,7 +112,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         $sort6 = ($sortBy == 6) ? 16 : 6;
         $sort7 = ($sortBy == 17) ? 7 : 17;
         $sort8 = ($sortBy == 18) ? 8 : 18;
-        $sort9 = ($sortBy == 19) ? 20 : 19;
+        $sort9 = ($sortBy == 19) ? 9 : 19;
 
         $mark1 = ($sortBy % 10 == 1) ? '&nbsp;*' : '';
         $mark2 = ($sortBy % 10 == 2) ? '&nbsp;*' : '';
@@ -216,8 +216,13 @@ RenderContentStart("Achievement List" . $requestedConsole);
                     echo "</td>";
                 }
             } else {
+                $renderAwardedDate = "Unknown";
+                if (strlen($achAwardedDate) > 0) {
+                    $renderAwardedDate = getNiceDate(strtotime($achAwardedDate));
+                }
+
                 echo "<td>";
-                echo "<span class='smalldate'>" . getNiceDate(strtotime($achAwardedDate)) . "</span>";
+                echo "<span class='smalldate'>$renderAwardedDate</span>";
                 echo "</td>";
             }
 

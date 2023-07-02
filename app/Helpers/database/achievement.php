@@ -34,7 +34,7 @@ function getAchievementsList(
 
     // We can't run a sort on a user's achievements AwardedDate
     // if we don't have a user. Bail from the sort.
-    if (($sortBy == 19 || $sortBy == 20) && !isValidUsername($username)) {
+    if (($sortBy == 9 || $sortBy == 19) && !isValidUsername($username)) {
         $sortBy = 0;
     }
 
@@ -94,6 +94,9 @@ function getAchievementsList(
         case 8:
             $query .= "ORDER BY ach.DateModified ";
             break;
+        case 9:
+            $query .= "ORDER BY AwardedDate ";
+            break;
         case 11:
             $query .= "ORDER BY ach.Title DESC ";
             break;
@@ -120,9 +123,6 @@ function getAchievementsList(
             break;
         case 19:
             $query .= "ORDER BY AwardedDate DESC ";
-            break;
-        case 20:
-            $query .= "ORDER BY AwardedDate ";
             break;
     }
 
