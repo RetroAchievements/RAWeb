@@ -2,6 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 
 function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void
@@ -468,13 +469,27 @@ function getGlobalRankingData(
         if ($info == 0) {
             if ($unlockMode == UnlockMode::Hardcore) {
                 $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS AchievementCount,
+                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " 
+                                                  THEN 1 ELSE 0 END), 0) 
+                            FROM Awarded AS aw 
+                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID 
+                            JOIN GameData as gd ON ach.GameID = gd.ID 
+                            WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
+                            AND ach.Flags = " . AchievementType::OfficialCore . "
+                        ) AS AchievementCount,
                         COALESCE(ua.RAPoints, 0) AS Points,
                         COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
                         COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
             } else {
                 $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE -1 END), 0) FROM Awarded AS aw WHERE aw.User = ua.User) AS AchievementCount,
+                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " 
+                                                  THEN 1 ELSE -1 END), 0) 
+                            FROM Awarded AS aw 
+                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID 
+                            JOIN GameData as gd ON ach.GameID = gd.ID 
+                            WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
+                            AND ach.Flags = " . AchievementType::OfficialCore . "
+                        ) AS AchievementCount,
                         COALESCE(ua.RASoftcorePoints, 0) AS Points,
                         0 AS RetroPoints,
                         0 AS RetroRatio ";
