@@ -194,9 +194,9 @@ function RenderToolbar(): void
         if ($permissions >= Permissions::JuniorDeveloper) {
             echo "<li><a href='/claimlist.php?u=$username'>My Claims</a></li>";
         }
-        echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
-        echo "<li><a href='/friends.php'>Following</a></li>";
+        echo "<li><a href='/achievementList.php?s=19&p=1'>Unlocked Achievements</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
+        echo "<li><a href='/friends.php'>Following</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         echo "<li><a href='/setRequestList.php?u=$username'>Requested Sets</a></li>";
         echo "<li class='divider'></li>";
