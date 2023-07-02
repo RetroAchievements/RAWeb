@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Site;
 
+use App\Site\Enums\Permissions;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use App\Site\Policies\UserPolicy;
@@ -40,7 +41,11 @@ class AuthServiceProvider extends ServiceProvider
          */
         Gate::before(
             function (Authenticatable $user, $ability) {
-                if ($user instanceof User && $user->hasRole(Role::ROOT)) {
+                if ($user->hasRole(Role::ROOT)) {
+                    return true;
+                }
+
+                if ($user->Permissions >= Permissions::Admin) {
                     return true;
                 }
 

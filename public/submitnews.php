@@ -1,8 +1,8 @@
 <?php
 
-use LegacyApp\Community\Models\News;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Models\User;
+use App\Community\Models\News;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Developer)) {
     abort(401);
@@ -28,10 +28,14 @@ RenderContentStart("Manage News");
     <div id="fullcontainer">
         <div class="mb-5">
             <h2 class="longheader">Manage News</h2>
-            <p class="embedded">
-                Here you can submit new articles or modify old articles that can be viewed on the frontpage of the site.<br>
-                Please note: news images will be scaled to 470px width, and (currently) drawn at 220px height.
-            </p>
+            <div class="embedded grid gap-y-2">
+                <p>Here you can submit new articles or modify old articles that can be viewed on the frontpage of the site.</p>
+
+                <div>
+                    <p>Please note: news images will be slightly darkened and scaled to fit the width of the user's device.</p>
+                    <p>The images will be drawn at 270px height on desktop and 300px height on mobile.</p>
+                </div>
+            </div>
         </div>
         <form action="/request/news/update.php" method="post">
             <?= csrf_field() ?>

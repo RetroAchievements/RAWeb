@@ -31,7 +31,7 @@ class UserCommentController extends CommentController
      * comments have to be created for something -> use sub resource create route, e.g.
      * - user.comment.create (wall)
      * - achievement-ticket.comment.create
-     * - forum-topic.comment.create
+     * - forum-topic-comment.create
      */
     public function create(): void
     {

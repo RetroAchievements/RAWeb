@@ -1,8 +1,8 @@
 <?php
 
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
@@ -11,12 +11,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'gameId' => 'required|integer',
     'address' => 'required|integer',
-    'note' => 'required|string',
+    'note' => 'nullable|string',
 ]);
 
 $gameId = $input['gameId'];
 $address = $input['address'];
-$note = $input['note'];
+$note = $input['note'] ?? "";
 
 $success = submitCodeNote2($user, $gameId, $address, $note);
 

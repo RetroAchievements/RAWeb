@@ -33,8 +33,7 @@ class SyncSystems extends Command
 
     protected function query(): Builder
     {
-        return DB::connection('mysql_legacy')
-            ->table('Console')
+        return DB::table('Console')
             ->select('*');
     }
 

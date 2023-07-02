@@ -88,9 +88,12 @@ class ConnectApiController extends Controller
         Auth::shouldUse('connect-token');
     }
 
+    /**
+     * @return Collection<int|string, string>
+     */
     private function mask(mixed $input): Collection
     {
-        return collect($input)->mapWithKeys(function ($item, $key) {
+        return (new Collection($input))->mapWithKeys(function ($item, $key) {
             if (in_array($key, [
                 'p',
                 't',
@@ -250,6 +253,9 @@ class ConnectApiController extends Controller
         return false;
     }
 
+    /**
+     * @param string|array|Collection<int|string, mixed>|null $data
+     */
     private function respond(string|array|Collection|null $data = null, int $status = 200): Response
     {
         if (is_string($data)) {

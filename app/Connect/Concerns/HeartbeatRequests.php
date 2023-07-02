@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Concerns;
 
+use App\Community\Enums\ActivityType;
 use App\Community\Models\UserActivity;
 use App\Platform\Actions\ResumePlayerSessionAction;
 use App\Platform\Models\Game;
@@ -44,16 +45,14 @@ trait HeartbeatRequests
         /*
          * any activity event will update the last_activity_at timestamp on the user
          */
-        switch ($activityType) {
-            case UserActivity::StartedPlaying:
-                /** @var ?Game $game */
-                $game = Game::find($messagePayload);
-                if ($game) {
-                    /** @var ResumePlayerSessionAction $resumePlayerSessionAction */
-                    $resumePlayerSessionAction = app()->make(ResumePlayerSessionAction::class);
-                    $resumePlayerSessionAction->execute($request, $game);
-                }
-                break;
+        if ($activityType === ActivityType::StartedPlaying) {
+            /** @var ?Game $game */
+            $game = Game::find($messagePayload);
+            if ($game) {
+                /** @var ResumePlayerSessionAction $resumePlayerSessionAction */
+                $resumePlayerSessionAction = app()->make(ResumePlayerSessionAction::class);
+                $resumePlayerSessionAction->execute($request, $game);
+            }
         }
 
         return [];

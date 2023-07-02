@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Site;
 
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Site\Models\StaticData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Site\Models\StaticData;
 use Tests\TestCase;
 
 class HomeTest extends TestCase

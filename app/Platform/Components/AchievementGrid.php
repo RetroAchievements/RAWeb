@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
+use App\Platform\Models\Achievement;
 use App\Platform\Models\System;
 use App\Site\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
@@ -92,9 +93,12 @@ class AchievementGrid extends Grid
         $this->systemId = $systemId;
     }
 
+    /**
+     * @return Builder<Achievement>
+     */
     protected function query(): Builder
     {
-        $query = $this->resourceQuery();
+        $query = parent::query();
 
         $query->with('game', 'user');
 

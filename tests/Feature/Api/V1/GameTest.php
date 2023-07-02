@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Models\Game;
+use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\System;
 use Tests\TestCase;
 
 class GameTest extends TestCase

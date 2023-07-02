@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Community\Enums\RatingType;
+use App\Community\Models\Rating;
+use App\Platform\Models\Game;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Community\Enums\RatingType;
-use LegacyApp\Community\Models\Rating;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
 use Tests\TestCase;
 
 class GameRatingTest extends TestCase
