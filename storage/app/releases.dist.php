@@ -190,12 +190,12 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
             'handle' => 'WinArcadia',
             'active' => true,
             'link' => 'https://amigan.1emu.net/releases/',
-			'download_url' => 'https://amigan.1emu.net/releases/WinArcadia-bin.rar',
-			'systems' => [
-			    73, // Arcadia 2001
-			    74, // Interton VC 4000
-			    75, // Elektor TV Games Computer
-			],
+            'download_url' => 'https://amigan.1emu.net/releases/WinArcadia-bin.rar',
+            'systems' => [
+                73, // Arcadia 2001
+                74, // Interton VC 4000
+                75, // Elektor TV Games Computer
+            ],
         ],
         Emulators::RAppleWin => [
             'minimum_version' => '1.1.1',
