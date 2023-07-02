@@ -20,9 +20,10 @@ export function autoExpandTextInput(textInputEl: HTMLTextAreaElement | HTMLInput
     // Temporarily reset the height to allow it to shrink to the content size.
     textInputEl.style.height = `${preservedHeight - SCROLL_BAR_BUFFER_SIZE}px`;
 
+    // prettier-ignore
     if (
-      textInputEl.scrollHeight >= preservedHeight &&
-      Math.max(textInputEl.scrollHeight, preservedHeight) === textInputEl.scrollHeight
+      textInputEl.scrollHeight >= preservedHeight
+      && Math.max(textInputEl.scrollHeight, preservedHeight) === textInputEl.scrollHeight
     ) {
       textInputEl.style.height = `${textInputEl.scrollHeight + SCROLL_BAR_BUFFER_SIZE}px`;
     }
