@@ -60,6 +60,7 @@ $credentialsOK = match ($requestType) {
     "awardachievement",
     "getfriendlist",
     "patch",
+    "ping",
     "postactivity",
     "richpresencepatch",
     "startsession",
@@ -76,7 +77,11 @@ $credentialsOK = match ($requestType) {
 };
 
 if (!$credentialsOK) {
-    return DoRequestError("Credentials invalid ($permissions)");
+    if ($permissions) {
+        return DoRequestError("Credentials invalid ($permissions)");
+    }
+
+    return DoRequestError("Credentials invalid");
 }
 
 switch ($requestType) {
@@ -179,6 +184,11 @@ switch ($requestType) {
             ? $baseDownloadUrl . $integration['latest_version_url_x64']
             : 'http://retroachievements.org/bin/RA_Integration-x64.dll';
         break;
+
+    /*
+     * User-based (require credentials)
+     */
+
     case "ping":
         $userModel = User::firstWhere('User', $user);
         if ($userModel === null) {
@@ -196,10 +206,6 @@ switch ($requestType) {
             $userModel->save();
         }
         break;
-
-    /*
-     * User-based (require credentials)
-     */
 
     case "achievementwondata":
         $friendsOnly = (bool) request()->input('f', 0);
