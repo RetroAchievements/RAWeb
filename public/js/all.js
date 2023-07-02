@@ -282,37 +282,15 @@ function showStatusSuccess(message) {
 
 function showStatusFailure(message) {
   const status = document.getElementById('status');
-  if (status) {
+  if (status && message) {
     status.classList.add('failure');
     status.innerHTML = message;
     status.style.display = 'block';
+  } else if (!message) {
+    console.trace();
   }
 }
 
 function hideStatusMessage() {
   $('#status').hide();
 }
-
-function initializeTextareaCounter() {
-  var textareaCounters = document.getElementsByClassName('textarea-counter');
-  for (var i = 0; i < textareaCounters.length; i++) {
-    var textareaCounter = textareaCounters[i];
-    var textareaId = textareaCounter.dataset.textareaId;
-    var textarea = document.getElementById(textareaId);
-    var max = textarea.getAttribute('maxlength');
-
-    if (max) {
-      var updateCount = function () {
-        var count = textarea.value.length;
-        textareaCounter.textContent = count + ' / ' + max;
-        textareaCounter.classList.toggle('text-danger', count >= max);
-      };
-      ['keydown', 'keypress', 'keyup', 'blur'].forEach(function (eventName) {
-        textarea.addEventListener(eventName, updateCount);
-      });
-      updateCount();
-    }
-  }
-}
-
-window.addEventListener('load', initializeTextareaCounter);
