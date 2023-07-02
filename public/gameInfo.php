@@ -767,16 +767,25 @@ sanitize_outputs(
             $systemIconUrl = getSystemIconUrl($consoleID);
 
             $gameMetaBindings = [
+                'claimData' => $claimData,
+                'consoleID' => $consoleID,
                 'consoleName' => $consoleName,
                 'developer' => $developer,
+                'forumTopicID' => $forumTopicID,
                 'gameHubs' => $gameHubs,
+                'gameID' => $gameID,
                 'gameTitle' => $gameTitle,
                 'genre' => $genre,
                 'iconUrl' => $systemIconUrl,
                 'imageIcon' => $imageIcon,
                 'isFullyFeaturedGame' => $isFullyFeaturedGame,
+                'isOfficial' => $isOfficial,
+                'isSoleAuthor' => $isSoleAuthor,
+                'numAchievements' => $numAchievements,
+                'permissions' => $permissions,
                 'publisher' => $publisher,
                 'released' => $released,
+                'user' => $user,
             ];
 
             echo Blade::render('
@@ -905,18 +914,7 @@ sanitize_outputs(
                                 :user="$user"
                                 :userPermissions="$permissions"
                             />
-                        ', [
-                            'claimData' => $claimData,
-                            'consoleID' => $consoleID,
-                            'forumTopicID' => $forumTopicID,
-                            'gameID' => $gameID,
-                            'gameTitle' => $gameTitle,
-                            'isOfficial' => $isOfficial,
-                            'isSoleAuthor' => $isSoleAuthor,
-                            'numAchievements' => $numAchievements,
-                            'permissions' => $permissions,
-                            'user' => $user,
-                        ]);
+                        ', $gameMetaBindings);
                     }
 
                     echo "</div>"; // end right column

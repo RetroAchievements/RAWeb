@@ -11,12 +11,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'gameId' => 'required|integer',
     'address' => 'required|integer',
-    'note' => 'required|string',
+    'note' => 'nullable|string',
 ]);
 
 $gameId = $input['gameId'];
 $address = $input['address'];
-$note = $input['note'];
+$note = $input['note'] ?? "";
 
 $success = submitCodeNote2($user, $gameId, $address, $note);
 

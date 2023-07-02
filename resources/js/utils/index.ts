@@ -3,6 +3,7 @@ export * from './cookie';
 export * from './copyToClipboard';
 export * from './handleLeaderboardTabClick';
 export * from './helpers';
+export * from './initializeTextareaCounter';
 export * from './injectShortcode';
 export * from './theme';
 export * from './tooltip';

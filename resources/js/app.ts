@@ -8,6 +8,7 @@ import {
   autoExpandTextInput,
   copyToClipboard,
   handleLeaderboardTabClick,
+  initializeTextareaCounter,
   injectShortcode,
   mobileSafeTipEvents,
   themeChange,
@@ -27,6 +28,7 @@ window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
+window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.mobileSafeTipEvents = mobileSafeTipEvents;
 window.newsCarousel = newsCarousel;
