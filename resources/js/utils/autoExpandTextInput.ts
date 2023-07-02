@@ -3,6 +3,13 @@ export function autoExpandTextInput(textInputEl: HTMLTextAreaElement | HTMLInput
   // appear in the user's browser.
   const SCROLL_BAR_BUFFER_SIZE = 2;
 
+  // Check if the textarea has been manually resized, and bail if it has.
+  // We don't want to override the user's preferred size.
+  const lastHeight = textInputEl.dataset.lastHeight;
+  if (lastHeight && textInputEl.offsetHeight !== Number(lastHeight)) {
+    return;
+  }
+
   // We need to preserve a `minHeight` attribute on the input field so we
   // don't inadvertently shrink the field.
   if (!textInputEl.dataset.minHeight) {
@@ -10,8 +17,17 @@ export function autoExpandTextInput(textInputEl: HTMLTextAreaElement | HTMLInput
   } else {
     const preservedHeight = Number(textInputEl.dataset.minHeight);
 
-    if (Math.max(textInputEl.scrollHeight, preservedHeight) === textInputEl.scrollHeight) {
+    // Temporarily reset the height to allow it to shrink to the content size.
+    textInputEl.style.height = `${preservedHeight - SCROLL_BAR_BUFFER_SIZE}px`;
+
+    if (
+      textInputEl.scrollHeight >= preservedHeight &&
+      Math.max(textInputEl.scrollHeight, preservedHeight) === textInputEl.scrollHeight
+    ) {
       textInputEl.style.height = `${textInputEl.scrollHeight + SCROLL_BAR_BUFFER_SIZE}px`;
     }
   }
+
+  // Store the new height
+  textInputEl.dataset.lastHeight = String(textInputEl.offsetHeight);
 }
