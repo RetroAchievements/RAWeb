@@ -216,7 +216,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
                     echo "</td>";
                 }
             } else {
-                $renderAwardedDate = "Unknown";
+                $renderAwardedDate = "";
                 if (strlen($achAwardedDate) > 0) {
                     $renderAwardedDate = getNiceDate(strtotime($achAwardedDate));
                 }
