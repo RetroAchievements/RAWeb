@@ -5,8 +5,10 @@ import Alpine from 'alpinejs';
 import { hideEarnedCheckboxComponent } from './alpine';
 import { newsCarousel } from './alpine/newsCarousel';
 import {
+  autoExpandTextInput,
   copyToClipboard,
   handleLeaderboardTabClick,
+  initializeTextareaCounter,
   injectShortcode,
   mobileSafeTipEvents,
   themeChange,
@@ -22,9 +24,11 @@ lazyLoadModuleOnIdFound({
   moduleNameToAttachToWindow: 'reorderSiteAwards',
 });
 
+window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
+window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.mobileSafeTipEvents = mobileSafeTipEvents;
 window.newsCarousel = newsCarousel;

@@ -88,10 +88,13 @@ function RenderToolbar(): void
                 ["systemName" => "Amstrad CPC", "listID" => 37],
                 ["systemName" => "Apple II", "listID" => 38],
                 ["systemName" => "Arcade", "listID" => 27],
+                ["systemName" => "Arcadia 2001", "listID" => 73],
                 ["systemName" => "Arduboy", "listID" => 71],
                 ["systemName" => "ColecoVision", "listID" => 44],
+                ["systemName" => "Elektor TV Games Computer", "listID" => 75],
                 ["systemName" => "Fairchild Channel F", "listID" => 57],
                 ["systemName" => "Intellivision", "listID" => 45],
+                ["systemName" => "Interton VC 4000", "listID" => 74],
                 ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
                 ["systemName" => "Mega Duck", "listID" => 69],
                 ["systemName" => "MSX", "listID" => 29],
@@ -194,9 +197,9 @@ function RenderToolbar(): void
         if ($permissions >= Permissions::JuniorDeveloper) {
             echo "<li><a href='/claimlist.php?u=$username'>My Claims</a></li>";
         }
-        echo "<li><a href='/achievementList.php?s=14&p=1'>Achievements</a></li>";
-        echo "<li><a href='/friends.php'>Following</a></li>";
+        echo "<li><a href='/achievementList.php?s=19&p=1'>Unlocked Achievements</a></li>";
         echo "<li><a href='/history.php'>History</a></li>";
+        echo "<li><a href='/friends.php'>Following</a></li>";
         echo "<li><a href='/inbox.php'>Messages</a></li>";
         echo "<li><a href='/setRequestList.php?u=$username'>Requested Sets</a></li>";
         echo "<li class='divider'></li>";

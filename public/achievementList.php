@@ -32,6 +32,9 @@ if ($dev != null) {
 $sortBy = (int) request()->input('s', 17);
 $achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $dev);
 
+// Is the user looking at their own achievements list?
+$isOwnEarnedAchievementsList = $user !== null && $params === 1;
+
 $requestedConsole = "";
 if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
@@ -109,6 +112,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         $sort6 = ($sortBy == 6) ? 16 : 6;
         $sort7 = ($sortBy == 17) ? 7 : 17;
         $sort8 = ($sortBy == 18) ? 8 : 18;
+        $sort9 = ($sortBy == 19) ? 9 : 19;
 
         $mark1 = ($sortBy % 10 == 1) ? '&nbsp;*' : '';
         $mark2 = ($sortBy % 10 == 2) ? '&nbsp;*' : '';
@@ -118,6 +122,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         $mark6 = ($sortBy % 10 == 6) ? '&nbsp;*' : '';
         $mark7 = ($sortBy % 10 == 7) ? '&nbsp;*' : '';
         $mark8 = ($sortBy % 10 == 8) ? '&nbsp;*' : '';
+        $mark9 = ($sortBy % 10 == 9) ? '&nbsp;*' : '';
 
         echo "<tr class='do-not-highlight'>";
 
@@ -137,17 +142,20 @@ RenderContentStart("Achievement List" . $requestedConsole);
         }
 
         echo "<th><a href='/achievementList.php?s=$sort6&p=$params$dev_param'>Game</a>$mark6</th>";
-        echo "<th><a href='/achievementList.php?s=$sort7&p=$params$dev_param'>Added</a>$mark7</th>";
 
-        if (!$mobileBrowser) {
-            echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
+        if (!$isOwnEarnedAchievementsList) {
+            echo "<th><a href='/achievementList.php?s=$sort7&p=$params$dev_param'>Added</a>$mark7</th>";
+
+            if (!$mobileBrowser) {
+                echo "<th><a href='/achievementList.php?s=$sort8&p=$params$dev_param'>Modified</a>$mark8</th>";
+            }
+        } else {
+            echo "<th><a href='/achievementList.php?s=$sort9&p=$params$dev_param'>Awarded</a>$mark9</th>";
         }
 
         echo "</tr>";
 
         foreach ($achData as $achEntry) {
-            // $query = "SELECT ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID, gd.Title AS GameTitle, gd.ConsoleID, c.Name AS ConsoleName ";
-
             $achID = $achEntry['ID'];
             $achTitle = $achEntry['AchievementTitle'];
             $achDesc = $achEntry['Description'];
@@ -162,6 +170,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             $gameTitle = $achEntry['GameTitle'];
             $consoleID = $achEntry['ConsoleID'];
             $consoleName = $achEntry['ConsoleName'];
+            $achAwardedDate = isset($achEntry['AwardedDate']) ? $achEntry['AwardedDate'] : "";
 
             sanitize_outputs(
                 $achTitle,
@@ -196,13 +205,24 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo gameAvatar($achEntry, label: false);
             echo "</td>";
 
-            echo "<td>";
-            echo "<span class='smalldate'>" . getNiceDate(strtotime($achDateCreated)) . "</span>";
-            echo "</td>";
-
-            if (!$mobileBrowser) {
+            if (!$isOwnEarnedAchievementsList) {
                 echo "<td>";
-                echo "<span class='smalldate'>" . getNiceDate(strtotime($achDateModified)) . "</span>";
+                echo "<span class='smalldate'>" . getNiceDate(strtotime($achDateCreated)) . "</span>";
+                echo "</td>";
+
+                if (!$mobileBrowser) {
+                    echo "<td>";
+                    echo "<span class='smalldate'>" . getNiceDate(strtotime($achDateModified)) . "</span>";
+                    echo "</td>";
+                }
+            } else {
+                $renderAwardedDate = "Unknown";
+                if (strlen($achAwardedDate) > 0) {
+                    $renderAwardedDate = getNiceDate(strtotime($achAwardedDate));
+                }
+
+                echo "<td>";
+                echo "<span class='smalldate'>$renderAwardedDate</span>";
                 echo "</td>";
             }
 
