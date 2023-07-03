@@ -122,7 +122,7 @@ function RenderArticleComment(
         $class .= ' system';
     }
 
-    echo "<tr class='comment$class' id='comment_$commentID'>";
+    echo "<tr class='comment$class' id='comment_" . $commentID . "_highlight'>";
 
     $niceDate = date("j M Y ", $submittedDate);
     $niceDate .= date("H:i", $submittedDate);
@@ -131,6 +131,13 @@ function RenderArticleComment(
     $comment = nl2br($comment);
 
     echo "<td class='align-top py-2'>";
+
+    echo <<<HTML
+        <div class="relative">
+            <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_$commentID"></div>
+        </div>
+    HTML;
+
     if ($user !== 'Server') {
         echo userAvatar($user, label: false);
     }

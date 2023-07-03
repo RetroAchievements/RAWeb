@@ -233,9 +233,19 @@ jQuery(document).ready(function onReady($) {
     return false;
   });
 
-  var $anchor = window.location.hash;
-  if ($anchor.startsWith('#comment_')) {
-    $($anchor).addClass('highlight');
+  // Add highlights to deep-linked comments.
+  const urlHash = window.location.hash;
+  if (urlHash.startsWith('#comment_')) {
+    const highlightTargetEl = document.querySelector(`${urlHash}_highlight`) || document.getElementById(urlHash);
+    if (highlightTargetEl) {
+      highlightTargetEl.classList.add('highlight');
+    }
+  }
+
+  if (urlHash.startsWith('#comment_') && !highlightTargetEl) {
+    $(urlHash).addClass('highlight');
+  } else if (urlHash.startsWith('#comment_') && highlightTargetEl) {
+    $(highlightTargetEl).addClass('highlight');
   }
 });
 
