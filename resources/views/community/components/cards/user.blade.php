@@ -58,10 +58,10 @@ $userRankPctLabel = '';
 if ($userUntracked) {
     $userRank = 'Untracked';
     $rankType = 'Untracked';
-} else if ($userHardcorePoints >= $userSoftcorePoints) {
+} elseif ($userHardcorePoints >= $userSoftcorePoints) {
     $rankType = RankType::Hardcore;
     $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($userName, $rankType);
-} else if ($userSoftcorePoints > 0) {
+} elseif ($userSoftcorePoints > 0) {
     $rankType = RankType::Softcore;
     $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($userName, $rankType);
     $userRankLabel = 'Softcore Rank:';

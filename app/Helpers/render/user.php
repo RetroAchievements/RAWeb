@@ -60,7 +60,7 @@ function userAvatar(
 function renderUserCard(string|array $user): string
 {
     return Blade::render('<x-cards.user :user="$user" />', [
-        'user' => $user
+        'user' => $user,
     ]);
 }
 
