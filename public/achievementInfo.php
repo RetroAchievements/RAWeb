@@ -186,7 +186,7 @@ RenderContentStart($pageTitle);
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
 
-        echo "<table class='nicebox'><tbody>";
+        echo "<table class='nicebox mb-1'><tbody>";
 
         $descAttr = attributeEscape($desc);
         echo "<tr>";
@@ -201,7 +201,7 @@ RenderContentStart($pageTitle);
 
         $renderedTitle = renderAchievementTitle($achievementTitle);
 
-        echo "<div class='flex justify-between'>";
+        echo "<div class='flex flex-col justify-between gap-y-2'>";
         echo "<div>";
         echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a>";
         if ($achPoints !== 0) {
@@ -212,7 +212,7 @@ RenderContentStart($pageTitle);
         echo "</div>";
         if ($achievedLocal) {
             $niceDateWon = date("d M, Y H:i", strtotime($dateWonLocal));
-            echo "<div class='text-right' class='smalldate'>Unlocked on<br>$niceDateWon</div>";
+            echo "<div class='date smalltext'>Unlocked $niceDateWon</div>";
         }
         echo "</div>";
 

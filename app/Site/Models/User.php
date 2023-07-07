@@ -140,6 +140,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     protected $visible = [
         "ID",
         "User",
+        "Permissions",
         "achievements_unlocked",
         "achievements_unlocked_hardcore",
         "completion_percentage_average",
@@ -149,6 +150,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         "ContribCount",
         "ContribYield",
         "TrueRAPoints",
+        "websitePrefs",
     ];
 
     protected $appends = [

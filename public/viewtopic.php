@@ -1,7 +1,6 @@
 <?php
 
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\UserAction;
 use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
 
@@ -150,114 +149,43 @@ RenderContentStart($pageTitle);
         echo "</div>";
         echo "</div>";
 
-        echo "<div class='table-wrapper'>";
-        echo "<table class='table-highlight'><tbody>";
-        // Output all topics, and offer 'prev/next page'
-        foreach ($commentList as $commentData) {
-            // Output one forum, then loop
+        echo "<div class='mb-4'>";
+        // Output all posts, and offer 'prev/next page'
+        foreach ($commentList as $index => $commentData) {
             $nextCommentID = $commentData['ID'];
             $nextCommentPayload = $commentData['Payload'];
             $nextCommentAuthor = $commentData['Author'];
-            $nextCommentAuthorID = $commentData['AuthorID'];
-            $nextCommentDateCreated = $commentData['DateCreated'];
-            $nextCommentDateModified = $commentData['DateModified'];
-            $nextCommentAuthorised = $commentData['Authorised'];
+            $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
 
-            if ($nextCommentDateCreated !== null) {
-                $nextCommentDateCreatedNiceDate = date("d M, Y H:i", strtotime($nextCommentDateCreated));
-            } else {
-                $nextCommentDateCreatedNiceDate = "None";
-            }
+            sanitize_outputs($nextCommentPayload, $nextCommentAuthor);
 
-            if ($nextCommentDateModified !== null) {
-                $nextCommentDateModifiedNiceDate = date("d M, Y H:i", strtotime($nextCommentDateModified));
-            } else {
-                $nextCommentDateModifiedNiceDate = "None";
-            }
+            $isOriginalPoster = $nextCommentAuthor === $thisTopicAuthor;
+            $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
+            $parsedPostContent = Shortcode::render($nextCommentPayload);
 
-            sanitize_outputs(
-                $nextCommentPayload,
-                $nextCommentAuthor,
-            );
-
-            $showDisclaimer = false;
-            $showAuthoriseTools = false;
-
-            if ($nextCommentAuthorised == 0) {
-                // Allow, only if this is MY comment (disclaimer: unofficial), or if I'm admin (disclaimer: unofficial, verify user?)
-                if ($permissions >= Permissions::Admin) {
-                    // Allow with disclaimer
-                    $showDisclaimer = true;
-                    $showAuthoriseTools = true;
-                } elseif ($nextCommentAuthor == $user) {
-                    // Allow with disclaimer
-                    $showDisclaimer = true;
-                } else {
-                    continue;    // Ignore this comment for the rest
-                }
-            }
-
-            if (isset($gotoCommentID) && $nextCommentID == $gotoCommentID) {
-                echo "<tr class='highlight'>";
-            } else {
-                echo "<tr>";
-            }
-
-            echo "<td class='align-top py-3'>";
-            echo userAvatar($nextCommentAuthor, label: false, iconSize: 64);
-            echo "</td>";
-
-            echo "<td class='w-full py-3 break-all' id='$nextCommentID'>";
-
-            echo "<div class='flex justify-between mb-2'>";
-            echo "<div>";
-            echo userAvatar($nextCommentAuthor, icon: false);
-            if ($showDisclaimer) {
-                echo " <b class='cursor-help' title='Unverified: not yet visible to the public. Please wait for a moderator to authorise this comment.'>(Unverified)</b>";
-            }
-            echo "<span class='smalltext text-muted ml-2'>$nextCommentDateCreatedNiceDate</span>";
-            if ($nextCommentDateModified !== null) {
-                echo "<i class='smalltext ml-3'>(Edited $nextCommentDateModifiedNiceDate)</i>";
-            }
-            echo "</div>";
-            echo "<div class='flex gap-1'>";
-            if ($showAuthoriseTools) {
-                echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Authorise this user and all their posts?\')'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
-                echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
-                echo "<input type='hidden' name='value' value='1' />";
-                echo "<button class='btn py-1'>Authorise</button>";
-                echo "</form>";
-                echo "<form action='/request/user/update.php' method='post' onsubmit='return confirm(\'Permanently Block (spam)?\')'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='property' value='" . UserAction::UpdateForumPostPermissions . "' />";
-                echo "<input type='hidden' name='target' value='$nextCommentAuthor' />";
-                echo "<input type='hidden' name='value' value='0' />";
-                echo "<button class='btn btn-danger py-1'>Block</button>";
-                echo "</form>";
-            }
-            if (($user == $nextCommentAuthor) || ($permissions >= Permissions::Admin)) {
-                echo "<a class='btn btn-link py-1' href='/editpost.php?comment=$nextCommentID'>Edit</a>";
-            }
-            echo "<span class='btn py-1' onclick='copyToClipboard(\"" . config('app.url') . "/viewtopic.php?t=$thisTopicID&amp;c=$nextCommentID#$nextCommentID\");showStatusSuccess(\"Copied\")'>";
-            echo "<img class='h-3' src='" . asset('assets/images/icon/link.png') . "'>";
-            echo "</span>";
-            echo "</div>";
-            echo "</div>";
-
-            echo "<div class='comment' style='word-break: normal; overflow-wrap: anywhere;'>";
-            echo Shortcode::render($nextCommentPayload);
-            echo "</div>";
-
-            echo "</td>";
-            echo "</tr>";
+            echo Blade::render('
+                <x-forum.post
+                    :commentData="$commentData"
+                    :currentUser="$user"
+                    :currentUserPermissions="$permissions"
+                    :forumTopicId="$thisTopicID"
+                    :isHighlighted="$isHighlighted"
+                    :isOriginalPoster="$isOriginalPoster"
+                    :parsedPostContent="$parsedPostContent"
+                    :threadPostNumber="$nextCommentIndex"
+                />
+            ', [
+                'commentData' => $commentData,
+                'isHighlighted' => $isHighlighted,
+                'isOriginalPoster' => $isOriginalPoster,
+                'nextCommentIndex' => $nextCommentIndex,
+                'parsedPostContent' => $parsedPostContent,
+                'permissions' => $permissions,
+                'thisTopicID' => $thisTopicID,
+                'user' => $user,
+            ]);
         }
-
-        if (count($commentList) % 2 == 1) {
-            echo "<tr><td colspan=2 class='smalltext'></td></tr>";
-        }
-        echo "</tbody></table></div>";
+        echo "</div>";
 
         if ($numTotalComments > $count) {
             echo "<div class='mb-3'>";
@@ -303,6 +231,7 @@ RenderContentStart($pageTitle);
                     maxlength="60000"
                     name="body"
                     placeholder="Don't share links to copyrighted ROMs."
+                    oninput='autoExpandTextInput(this)'
                 >$defaultMessage</textarea>
             EOF;
             echo "<div class='flex justify-between mb-2'>";
