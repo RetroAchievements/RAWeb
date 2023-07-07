@@ -70,6 +70,7 @@ class Achievement extends BaseModel implements HasComments
     protected $visible = [
         'ID',
         'GameID',
+        'BadgeName',
         'Title',
         'Description',
         'Points',
