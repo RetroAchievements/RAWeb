@@ -1,4 +1,5 @@
 <?php
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Carbon;
 
 ?>
@@ -11,6 +12,7 @@ use Illuminate\Support\Carbon;
 ])
 
 <?php
+$registeredPermission = Permissions::Registered;
 
 // "January 4, 2012"
 $formattedUserJoinDate = Carbon::parse($authorJoinDate)->format('M j, Y');
@@ -25,7 +27,7 @@ $formattedUserJoinDate = Carbon::parse($authorJoinDate)->format('M j, Y');
                 {!! userAvatar($authorUserName, icon: false, tooltip: true) !!}
             </div>
 
-            @if($authorPermissions > Permissions::Registered)
+            @if($authorPermissions > $registeredPermission)
                 <p class='smalltext !leading-4 !text-xs lg:!text-2xs'>
                     {{ Permissions::toString($authorPermissions) }}
                 </p>
