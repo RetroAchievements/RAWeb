@@ -15,6 +15,7 @@ use App\Site\Enums\Permissions;
 
 $commentId = $commentData['ID'];
 $commentAuthor = e($commentData['Author']);
+$commentAuthorDeletedDate = $commentData['AuthorDeleted'];
 $commentAuthorJoinDate = $commentData['AuthorJoined'];
 $commentAuthorPermissions = $commentData['AuthorPermissions'];
 $commentDateCreated = $commentData['DateCreated'];
@@ -38,6 +39,7 @@ $canShowPost = $commentIsAuthorised || $showUnverifiedDisclaimer;
         :authorUserName="$commentAuthor"
         :authorJoinDate="$commentAuthorJoinDate"
         :authorPermissions="$commentAuthorPermissions"
+        :isAuthorDeleted="$commentAuthorDeletedDate !== null"
     />
 
     <div class='comment w-full pt-2 pb-4 lg:py-0 px-1 lg:px-6'>

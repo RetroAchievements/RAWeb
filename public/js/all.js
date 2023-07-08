@@ -165,11 +165,9 @@ jQuery(document).ready(function onReady($) {
           });
       },
       minLength: 2,
-      select: function (event) {
-        // This is required by jQuery UI Autocomplete. Unfortunately we can't
-        // just rely on the browser's native behavior for dealing with anchor tags.
-        event.preventDefault();
-        window.location = event.srcElement.href;
+      select: function (_, ui) {
+        window.location = ui.item.mylink;
+        return false;
       }
     }).data('autocomplete')._renderItem = function (ul, item) {
       const li = $('<li>');
@@ -178,7 +176,7 @@ jQuery(document).ready(function onReady($) {
         href: item.mylink,
       });
 
-      return li.append(a).appendTo(ul);
+      return li.data('item.autocomplete', item).append(a).appendTo(ul);
     };
   });
 

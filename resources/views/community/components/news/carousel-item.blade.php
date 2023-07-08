@@ -1,5 +1,5 @@
 <div
-    class="relative box-content flex w-full flex-none snap-start"
+    class="relative box-content flex w-full flex-none snap-start min-h-[270px]"
     role="group"
     aria-label="{{ "News item " . ($index + 1) }}"
     {{ $index === 0 ? 'id=first-news-item' : '' }}
