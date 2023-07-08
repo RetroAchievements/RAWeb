@@ -265,7 +265,7 @@ sanitize_outputs(
             if ($isEventGame) {
                 return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
             } elseif ($numAchievements === 0 || $gamePoints === 0) {
-                return "No achievements have been created yet for $gameTitle. Join RetroAchievements for updates on $gameTitle for $consoleName and many other classic games.";
+                return "No achievements have been created yet for $gameTitle. Join RetroAchievements to request achievements for $gameTitle and earn achievements on many other classic games.";
             }
 
             $localizedPoints = localized_number($gamePoints);
