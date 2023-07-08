@@ -253,7 +253,41 @@ sanitize_outputs(
 );
 ?>
 <?php if ($isFullyFeaturedGame): ?>
-    <?php RenderOpenGraphMetadata($pageTitle, "game", media_asset($gameData['ImageIcon']), "Game Info for $gameTitle ($consoleName)"); ?>
+    <?php
+        function generateMetaDescription(
+            string $gameTitle,
+            string $consoleName,
+            int $numAchievements = 0,
+            int $gamePoints = 0,
+            int $gameRetroPoints = 0,
+            bool $isEventGame = false,
+        ): string {
+            if ($isEventGame) {
+                return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
+            } elseif ($numAchievements === 0 || $gamePoints === 0) {
+                return "No achievements have been created yet for $gameTitle. Join RetroAchievements for updates on $gameTitle for $consoleName and many other classic games.";
+            }
+
+            $localizedPoints = localized_number($gamePoints);
+            $localizedRetroPoints = localized_number($gameRetroPoints);
+
+            return "There are $numAchievements worth $localizedPoints ($localizedRetroPoints) points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
+        }
+
+        RenderOpenGraphMetadata(
+            $pageTitle,
+            "game",
+            media_asset($gameData['ImageIcon']),
+            generateMetaDescription(
+                $gameTitle,
+                $consoleName,
+                $numAchievements,
+                $totalPossible,
+                $totalPossibleTrueRatio,
+                $isEventGame
+            )
+        );
+    ?>
 <?php endif ?>
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
