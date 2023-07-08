@@ -3,6 +3,7 @@
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\StaticData;
+use App\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
     abort(401);
@@ -101,6 +102,62 @@ if ($action === 'aotw') {
     return back()->withErrors(__('legacy.error.error'));
 }
 
+if ($action === 'alt_identifier') {
+    $altsForUser = request()->input('u');
+
+    $forUser = User::where('User', $altsForUser)->first();
+    if ($forUser == null) {
+        $message = "Unknown user: $altsForUser";
+    } else {
+        $altsForUser = $forUser->User;
+
+        $emailAddresses = [];
+        if (!empty($forUser->EmailAddress)) {
+            $emailAddresses[] = $forUser->EmailAddress;
+        }
+        if (!empty($forUser->email_backup) && $forUser->email_backup != $forUser->EmailAddress) {
+            $emailAddresses[] = $forUser->email_backup;
+        }
+        $message = "No alts found for $altsForUser";
+        if (!empty($emailAddresses)) {
+            $alts = User::withTrashed()
+                ->select('User', 'Permissions', 'LastLogin', 'Deleted')
+                ->where('ID', '!=', $forUser->ID)
+                ->whereIn('EmailAddress', $emailAddresses)
+                ->orWhereIn('email_backup', $emailAddresses)
+                ->orderBy('LastLogin', 'desc')
+                ->get();
+
+            $numAlts = $alts->count();
+            if ($numAlts > 0) {
+                $message = "<div class='mb-1'>";
+                if ($numAlts === 1) {
+                    $message .= "1 additional user shares the same email address as $altsForUser:";
+                } else {
+                    $message .= "$numAlts additional users share the same email address as $altsForUser:";
+                }
+                $message .= "</div>";
+
+                $message .= "<div class='table-wrapper'><table class='table-highlight'><tbody>";
+                $message .= "<tr class='do-not-highlight'>";
+                $message .= "<th>User</th><th>Account Type</th><th>Last Login</th>";
+                $message .= "</tr>";
+
+                foreach ($alts as $alt) {
+                    $message .= '<tr><td>';
+                    $message .= userAvatar($alt['User']);
+                    $message .= '</td><td>';
+                    $message .= ($alt['Deleted']) ? 'Deleted' : Permissions::toString($alt['Permissions']);
+                    $message .= '</td><td>';
+                    $message .= !empty($alt['LastLogin']) ? getNiceDate(strtotime($alt['LastLogin'])) : '';
+                    $message .= '</td></tr>';
+                }
+                $message .= '</tbody></table></div>';
+            }
+        }
+    }
+}
+
 $staticData = StaticData::first();
 
 RenderContentStart('Admin Tools');
@@ -109,7 +166,7 @@ RenderContentStart('Admin Tools');
 <link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <div id="mainpage" class="flex-wrap">
     <?php if ($message): ?>
-        <div class="w-full">
+        <div class="w-full mb-6">
             <?= $message ?>
         </div>
     <?php endif ?>
@@ -309,6 +366,30 @@ RenderContentStart('Admin Tools');
                     mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
                 });
             </script>
+        </div>
+
+        <div id="fullcontainer" class="w-full">
+            <h4>Alt Identifier</h4>
+            <form action="admin.php">
+                <input type="hidden" name="action" value="alt_identifier">
+                <table class="mb-1">
+                    <colgroup>
+                        <col>
+                        <col class="w-full">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="whitespace-nowrap">
+                            <label for="alts_of_user">User to query for alts</label>
+                        </td>
+                        <td>
+                            <input id="alts_of_user" name="u">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button class="btn">Submit</button>
+            </form>
         </div>
     <?php endif ?>
 </div>
