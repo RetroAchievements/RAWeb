@@ -1,5 +1,6 @@
 # Security Policy
 
+The RAWeb team takes the security of the RetroAchievements platform seriously. If you discover a security issue, we appreciate your help in disclosing it to us in a responsible manner.
 
 ## Reporting a Vulnerability
 
