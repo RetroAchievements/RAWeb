@@ -38,7 +38,7 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
             echo "<div class='embedded mb-1'>";
             echo "<div class='flex justify-between items-center'><div>";
             echo userAvatar($author, iconSize: 16);
-            echo " <span class='smalldate'>$postedAt</span></div>";
+            echo " <span class='smalldate cursor-help' title='" . $nextData['PostedAt'] . "'>$postedAt</span></div>";
             echo "<div><a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a></div>";
             echo "</div>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";

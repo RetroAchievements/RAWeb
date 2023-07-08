@@ -41,5 +41,14 @@ $formattedEditTimestamp = $postEditedTimestamp ? $formatMetaTimestamp($postEdite
 
 <p class='smalltext !leading-[14px]'>
     {{-- Keep this all on a single line so white space isn't added before the comma --}}
-    {{ $formattedPostTimestamp }}@if($formattedEditTimestamp)<span class='italic smalltext !leading-[14px]'>, <span class='hidden sm:inline'>last</span> edited {{ $formattedEditTimestamp }}</span> @endif
+    <span title="{{ $postCreatedTimestamp }}" class="cursor-help">{{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif</span>
+
+    @if($formattedEditTimestamp)
+        <span class='italic smalltext !leading-[14px]'>
+            <span class='hidden sm:inline'>last</span> edited
+            <span class="cursor-help" title="{{ $postEditedTimestamp }}">
+                {{ $formattedEditTimestamp }}
+            </span>
+        </span> 
+    @endif
 </p>

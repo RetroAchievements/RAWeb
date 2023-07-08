@@ -81,7 +81,7 @@ RenderContentStart("Forum Recent Posts");
 
             echo "<td>";
             echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID#$commentID'>$forumTopicTitle</a>";
-            echo " <span class='smalldate'>$postedAt</span>";
+            echo " <span class='smalldate cursor-help' title='" . $topicPostData['PostedAt'] . "'>$postedAt</span>";
             echo "<div class='comment text-overflow-wrap'>";
             echo Shortcode::stripAndClamp($postMessage);
             echo "</div>";
