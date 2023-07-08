@@ -1,8 +1,5 @@
 # Security Policy
 
-## Supported Versions
-
-Current version only.
 
 ## Reporting a Vulnerability
 
