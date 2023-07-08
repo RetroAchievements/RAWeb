@@ -1,7 +1,16 @@
+<?php
+use Illuminate\Support\Carbon;
+
+$isNewAccount = false;
+if (Auth::user()) {
+    $isNewAccount = Carbon::now()->diffInMonths(Auth::user()->Created) < 1;
+}
+?>
+
 <x-app-layout>
     @guest
         @include('content.welcome')
-    @elseif(Carbon\Carbon::now()->diffInMonths(Auth::user()->Created) < 1)
+    @elseif($isNewAccount)
         @include('content.getting-started')
     @endguest
 
