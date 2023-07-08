@@ -1,6 +1,8 @@
 <x-app-layout>
     @guest
         @include('content.welcome')
+    @elseif(Carbon\Carbon::now()->diffInMonths(Auth::user()->Created) < 1)
+        @include('content.getting-started')
     @endguest
 
     <x-news.carousel-2 />
