@@ -165,7 +165,7 @@ final class Shortcode
         $html = $this->autoEmbedYouTube($html);
         $html = $this->autoEmbedTwitch($html);
         $html = $this->autolinkRetroachievementsUrls($html);
-        
+
         return $this->autolinkUrls($html);
     }
 
@@ -284,6 +284,7 @@ final class Shortcode
             function ($matches) {
                 $subdomain = isset($matches[1]) ? $matches[1] : '';
                 $path = isset($matches[2]) ? '/' . $matches[2] : '';
+
                 return '<a href="https://' . $subdomain . 'retroachievements.org' . $path . '">https://' . $subdomain . 'retroachievements.org' . $path . '</a>';
             },
             $text
