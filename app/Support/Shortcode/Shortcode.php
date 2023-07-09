@@ -165,7 +165,7 @@ final class Shortcode
         $html = $this->autoEmbedYouTube($html);
         $html = $this->autoEmbedTwitch($html);
         $html = $this->autolinkRetroachievementsUrls($html);
-
+        
         return $this->autolinkUrls($html);
     }
 
@@ -266,21 +266,26 @@ final class Shortcode
         // see https://stackoverflow.com/a/2271552/580651:
         // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
         // The same goes for other sentence-punctuation characters like periods, question marks, quotes, etc..
-        // lookahead: (?<![!,.?;:"\'()-])
-        return (string) preg_replace(
+        // lookahead: (?<![!,.?;:"\'()])
+        return (string) preg_replace_callback(
             '~
-                (?:https?://)?      # Optional scheme. Either http or https.
-                (?:www.)?           # Optional subdomain.
-                (?:media.)?         # Optional subdomain.
-                retroachievements\.        # Host.
-                ([\w!#$%&\'()*+,./:;=?@\[\]-]+
-                (?<![!,.?;:"\'()]))
-                (?!                 # Assert URL is not pre-linked.
-                  [^<>]*>           # Either inside a start tag,
-                  | [^<>]*</a>      # End recognized pre-linked alts.
-                )                   # End negative lookahead assertion.
+                (?:https?://)?             # Optional scheme. Either http or https.
+                ((?:[\w-]+\.)?)            # Optional subdomains, include the period in the group.
+                retroachievements\.org     # Host + TLD.
+                (?:                        # Optional path
+                  /([\w!#$%&\'()*+,./:;=?@\[\]-]*)    # Capture path in group 2 if any.
+                )?
+                (?<![!,.?;:"\'()])         # Do not end with punctuation.
+                (?!                        # Assert URL is not pre-linked.
+                  [^<>]*>                  # Either inside a start tag,
+                  | [^<>]*</a>             # or inside an end tag.
+                )                          # End negative lookahead assertion.
             ~ix',
-            '<a href="https://retroachievements.$1">https://retroachievements.$1</a>',
+            function ($matches) {
+                $subdomain = isset($matches[1]) ? $matches[1] : '';
+                $path = isset($matches[2]) ? '/' . $matches[2] : '';
+                return '<a href="https://' . $subdomain . 'retroachievements.org' . $path . '">https://' . $subdomain . 'retroachievements.org' . $path . '</a>';
+            },
             $text
         );
     }
