@@ -6,9 +6,18 @@
 ])
 
 <?php
+use App\Site\Enums\UserPreference;
 use Illuminate\Support\Carbon;
 
-$formatMetaTimestamp = function (string $rawDate): string {
+/** @var ?User $user */
+$user = auth()->user();
+$preferences = $user?->websitePrefs ?? 0;
+
+$formatMetaTimestamp = function (string $rawDate, int $preferences = 0): string {
+    if ($preferences && BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates)) {
+        return $rawDate;
+    }
+
     $givenDate = Carbon::parse($rawDate);
     $now = Carbon::now();
 
@@ -21,8 +30,8 @@ $formatMetaTimestamp = function (string $rawDate): string {
     }
 };
 
-$formattedPostTimestamp = $formatMetaTimestamp($postCreatedTimestamp);
-$formattedEditTimestamp = $postEditedTimestamp ? $formatMetaTimestamp($postEditedTimestamp) : '';
+$formattedPostTimestamp = $formatMetaTimestamp($postCreatedTimestamp, $preferences);
+$formattedEditTimestamp = $postEditedTimestamp ? $formatMetaTimestamp($postEditedTimestamp, $preferences) : '';
 ?>
 
 @if($showUnverifiedDisclaimer)

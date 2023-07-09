@@ -1,5 +1,6 @@
 <?php
 
+use App\Site\Enums\UserPreference;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 
@@ -7,6 +8,8 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount = 25;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$websitePrefs = $userDetails['websitePrefs'] ?? 0;
 
 $forUser = requestInputSanitized('u');
 if (empty($forUser)) {
@@ -69,7 +72,10 @@ RenderContentStart("Forum Recent Posts");
             $commentID_7d = $topicPostData['CommentID_7d'] ?? 0;
             $count_7d = $topicPostData['Count_7d'] ?? 0;
 
-            $postedAt = Carbon::parse($topicPostData['PostedAt'])->diffForHumans();
+            $postedAt =
+                $websitePrefs && BitSet($websitePrefs, UserPreference::Forum_ShowAbsoluteDates)
+                    ? $topicPostData['PostedAt']
+                    : Carbon::parse($topicPostData['PostedAt'])->diffForHumans();
 
             sanitize_outputs($forumTopicTitle, $forumTitle, $postMessage);
 

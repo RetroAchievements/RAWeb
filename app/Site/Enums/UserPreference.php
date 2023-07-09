@@ -35,4 +35,6 @@ abstract class UserPreference
     public const SiteMsgOn_PrivateMessage = 13;
 
     public const SiteMsgOn_Newsletter = 14;
+
+    public const Forum_ShowAbsoluteDates = 15;
 }

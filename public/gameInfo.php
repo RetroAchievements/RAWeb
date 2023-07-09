@@ -101,7 +101,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
             const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
             const gameId = <?= $gameID ?>;
 
-            fetch('/request/user/update-notification.php', {
+            fetch('/request/user/update-preferences.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
