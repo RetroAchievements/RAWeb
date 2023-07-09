@@ -45,6 +45,8 @@ abstract class Emulators
 
     public const Bizhawk = 'bizhawk';
 
+    public const WinArcadia = 'winarcadia';
+
     public static function cases(): array
     {
         return [

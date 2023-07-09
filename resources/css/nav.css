@@ -50,7 +50,9 @@
   top: 42px;
   left: 0;
   margin: 0;
-  z-index: 1;
+
+  /* Use Tailwind z-index sane defaults rather than a magic number. */
+  @apply z-20;
 }
 
 #innermenu > ul > li > div > ul > li:last-child {
@@ -95,7 +97,7 @@
 #innermenu > ul > li > a > img {
   position: relative;
   top: 4px;
-  left: 2px
+  left: 2px;
 }
 
 #innermenu > ul > li:hover > div > ul > li > a,
@@ -128,7 +130,7 @@
 }
 
 #innermenu > ul > li:hover > div > ul > li > a:hover,
-#innermenu > ul > li:hover > div > ul > li button:hover{
+#innermenu > ul > li:hover > div > ul > li button:hover {
   color: var(--link-color);
   background: var(--embed-color);
 }

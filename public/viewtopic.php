@@ -231,6 +231,7 @@ RenderContentStart($pageTitle);
                     maxlength="60000"
                     name="body"
                     placeholder="Don't share links to copyrighted ROMs."
+                    oninput='autoExpandTextInput(this)'
                 >$defaultMessage</textarea>
             EOF;
             echo "<div class='flex justify-between mb-2'>";

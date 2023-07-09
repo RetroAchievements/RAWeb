@@ -6,8 +6,10 @@ import { attachTooltipToElement } from './tooltip';
 import { hideEarnedCheckboxComponent } from './alpine';
 import { newsCarousel } from './alpine/newsCarousel';
 import {
+  autoExpandTextInput,
   copyToClipboard,
   handleLeaderboardTabClick,
+  initializeTextareaCounter,
   injectShortcode,
   themeChange,
   toggleUserCompletedSetsVisibility,
@@ -23,9 +25,11 @@ lazyLoadModuleOnIdFound({
 });
 
 window.attachTooltipToElement = attachTooltipToElement;
+window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
+window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.newsCarousel = newsCarousel;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
