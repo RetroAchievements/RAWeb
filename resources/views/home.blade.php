@@ -19,7 +19,16 @@
 
     @slot('sidebar')
         @include('content.top-links')
-        <x-event.aotw />
+
+        @if(isset($eventAchievement))
+            <x-event.aotw
+                :achievement="$eventAchievement"
+                :game="$eventGame"
+                :consoleName="$eventConsoleName"
+                :forumTopicId="$eventForumTopicId"
+            />
+        @endif
+
         @include('content.static-data')
     @endslot
 </x-app-layout>
