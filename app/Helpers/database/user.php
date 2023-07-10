@@ -195,7 +195,7 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
             $gameIDs[] = $recentlyPlayed['GameID'];
         }
 
-        if (!in_array($userInfo['LastGameID'], $gameIDs)) {
+        if ($userInfo['LastGameID'] && !in_array($userInfo['LastGameID'], $gameIDs)) {
             $gameIDs[] = $userInfo['LastGameID'];
         }
 

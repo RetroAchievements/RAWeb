@@ -3,7 +3,7 @@
         @include('content.welcome')
     @endguest
 
-    <x-news.carousel />
+    <x-news.carousel-2 />
     <x-claims.finished-claims count="6" />
 
     <?php

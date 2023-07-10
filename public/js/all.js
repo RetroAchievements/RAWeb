@@ -155,31 +155,30 @@ function UpdateMailboxCount(messageCount) {
 jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
 
-  var $searchBoxInput = $('.searchboxinput');
-  // eslint-disable-next-line no-underscore-dangle -- required by autocomplete's API
-  $searchBoxInput.autocomplete({
-    source: function (request, response) {
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
-    },
-    minLength: 2,
-    select: function (event) {
-      // This is required by jQuery UI Autocomplete. Unfortunately we can't
-      // just rely on the browser's native behavior for dealing with anchor tags.
-      event.preventDefault();
-      window.location = event.srcElement.href;
-    }
-  }).data('autocomplete')._renderItem = function (ul, item) {
-    const li = $('<li>');
-    const a = $('<a>', {
-      text: item.label,
-      href: item.mylink,
-    });
+  $('.searchboxinput').each(function () {
+    // eslint-disable-next-line no-underscore-dangle
+    $(this).autocomplete({
+      source: function (request, response) {
+        $.post('/request/search.php', request)
+          .done(function (data) {
+            response(data);
+          });
+      },
+      minLength: 2,
+      select: function (_, ui) {
+        window.location = ui.item.mylink;
+        return false;
+      }
+    }).data('autocomplete')._renderItem = function (ul, item) {
+      const li = $('<li>');
+      const a = $('<a>', {
+        text: item.label,
+        href: item.mylink,
+      });
 
-    return li.append(a).appendTo(ul);
-  };
+      return li.data('item.autocomplete', item).append(a).appendTo(ul);
+    };
+  });
 
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
   $seachBoxCompareUser.autocomplete({
@@ -232,9 +231,19 @@ jQuery(document).ready(function onReady($) {
     return false;
   });
 
-  var $anchor = window.location.hash;
-  if ($anchor.startsWith('#comment_')) {
-    $($anchor).addClass('highlight');
+  // Add highlights to deep-linked comments.
+  const urlHash = window.location.hash;
+  if (urlHash.startsWith('#comment_')) {
+    const highlightTargetEl = document.querySelector(`${urlHash}_highlight`) || document.getElementById(urlHash);
+    if (highlightTargetEl) {
+      highlightTargetEl.classList.add('highlight');
+    }
+  }
+
+  if (urlHash.startsWith('#comment_') && !highlightTargetEl) {
+    $(urlHash).addClass('highlight');
+  } else if (urlHash.startsWith('#comment_') && highlightTargetEl) {
+    $(highlightTargetEl).addClass('highlight');
   }
 });
 
@@ -281,37 +290,15 @@ function showStatusSuccess(message) {
 
 function showStatusFailure(message) {
   const status = document.getElementById('status');
-  if (status) {
+  if (status && message) {
     status.classList.add('failure');
     status.innerHTML = message;
     status.style.display = 'block';
+  } else if (!message) {
+    console.trace();
   }
 }
 
 function hideStatusMessage() {
   $('#status').hide();
 }
-
-function initializeTextareaCounter() {
-  var textareaCounters = document.getElementsByClassName('textarea-counter');
-  for (var i = 0; i < textareaCounters.length; i++) {
-    var textareaCounter = textareaCounters[i];
-    var textareaId = textareaCounter.dataset.textareaId;
-    var textarea = document.getElementById(textareaId);
-    var max = textarea.getAttribute('maxlength');
-
-    if (max) {
-      var updateCount = function () {
-        var count = textarea.value.length;
-        textareaCounter.textContent = count + ' / ' + max;
-        textareaCounter.classList.toggle('text-danger', count >= max);
-      };
-      ['keydown', 'keypress', 'keyup', 'blur'].forEach(function (eventName) {
-        textarea.addEventListener(eventName, updateCount);
-      });
-      updateCount();
-    }
-  }
-}
-
-window.addEventListener('load', initializeTextareaCounter);

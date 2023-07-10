@@ -73,7 +73,7 @@
  *     string     GameTitle            name of the game
  *     string     IsAwarded            always "1"
  *     datetime   DateAwarded          when the user earned the achievement
- *     int?       HardcoreAchieved     1 for hardcore award, 0 for non-hardcore award, null if not achieved
+ *     int?       HardcoreAchieved     1 for hardcore award, 0 for non-hardcore award
  *  int        ContribCount            achievements won by others
  *  int        ContribYield            points awarded to others
  */

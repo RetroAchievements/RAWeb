@@ -48,6 +48,7 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
     $query = "  SELECT COUNT(*) FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 WHERE ft.ForumID = $forumID AND ftc.Authorised = 1
+                AND ft.deleted_at IS NULL
                 AND ft.RequiredPermissions <= $permissions";
 
     $dbResult = s_mysql_query($query);
@@ -63,6 +64,7 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID AND ftc2.Authorised = 1
                 WHERE ft.ForumID = $forumID
                 AND ft.RequiredPermissions <= $permissions
+                AND ft.deleted_at IS NULL
                 GROUP BY ft.ID, LatestCommentPostedDate
                 HAVING NumTopicReplies >= 0
                 ORDER BY LatestCommentPostedDate DESC
@@ -119,7 +121,7 @@ function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
                 FROM ForumTopic AS ft
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
-                WHERE ft.ID = $topicID ";
+                WHERE ft.ID = $topicID AND ft.deleted_at IS NULL";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -145,7 +147,7 @@ function getTopicComments(int $topicID, int $offset, int $count, ?int &$maxCount
         $maxCountOut = (int) $data['COUNT(*)'];
     }
 
-    $query = "SELECT ftc.ID, ftc.ForumTopicID, ftc.Payload, ftc.Author, ftc.AuthorID, ftc.DateCreated, ftc.DateModified, ftc.Authorised, ua.RAPoints
+    $query = "SELECT ftc.ID, ftc.ForumTopicID, ftc.Payload, ftc.Author, ftc.AuthorID, ftc.DateCreated, ftc.DateModified, ftc.Authorised, ua.RAPoints, ua.Created AS AuthorJoined, ua.Deleted as AuthorDeleted, ua.Permissions as AuthorPermissions
                 FROM ForumTopicComment AS ftc
                 LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
                 WHERE ftc.ForumTopicID = $topicID
@@ -521,7 +523,7 @@ function getRecentForumPosts(
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
         LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
-        WHERE ft.RequiredPermissions <= :permissions
+        WHERE ft.RequiredPermissions <= :permissions AND ft.deleted_at IS NULL
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, :limit";
 
@@ -565,7 +567,7 @@ function getRecentForumTopics(int $offset, int $count, int $permissions, int $nu
             WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
             GROUP BY ftc.ForumTopicId
         ) AS d7 ON d7.ForumTopicId = ft.ID
-        WHERE ft.RequiredPermissions <= $permissions
+        WHERE ft.RequiredPermissions <= $permissions AND ft.deleted_at IS NULL
         ORDER BY PostedAt DESC
         LIMIT $offset, $count";
 
