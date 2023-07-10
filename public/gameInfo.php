@@ -78,7 +78,7 @@ foreach ($relatedGames as $gameAlt) {
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
-if ($v != 1 && $isFullyFeaturedGame) {
+if (($v != 1 && $isFullyFeaturedGame)) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
             if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
@@ -87,6 +87,8 @@ if ($v != 1 && $isFullyFeaturedGame) {
             $gate = true;
         }
     }
+} elseif (str_contains($gameTitle, '[Theme - Mature]')) {
+    $gate = !($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref));
 }
 ?>
 <?php if ($gate): ?>
@@ -120,10 +122,10 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
             </div>
             <h1 class="text-h3"><?= renderGameTitle($pageTitle) ?></h1>
-            <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
+            <h4>WARNING: THIS PAGE MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
             <div id="confirmation">
-                Are you sure that you want to view this game?
+                Are you sure that you want to view this page?
                 <br/>
                 <br/>
 
@@ -143,7 +145,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
                             class='break-words whitespace-normal leading-normal'
                             onclick='disableMatureContentWarningPreference()'
                         >
-                            Yes. And never ask me again for games with mature content.
+                            Yes. And never ask me again for pages with mature content.
                         </button>
                     <?php endif; ?>
                 </div>
