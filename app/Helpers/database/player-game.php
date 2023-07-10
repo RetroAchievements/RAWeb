@@ -262,7 +262,9 @@ function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
 
 function getUserAchievementUnlocksForGame(string $user, int $gameID, int $flags = AchievementType::OfficialCore): array
 {
-    return Cache::remember("user:$user:gameUnlocks:$gameID:$flags",
+    $normalizedUser = strtolower($user);
+
+    return Cache::remember("user:$normalizedUser:gameUnlocks:$gameID:$flags",
         Carbon::now()->addDays(7),
         function () use ($user, $gameID, $flags) {
             $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
