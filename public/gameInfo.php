@@ -78,7 +78,7 @@ foreach ($relatedGames as $gameAlt) {
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
-if (($v != 1 && $isFullyFeaturedGame)) {
+if ($v != 1 && $isFullyFeaturedGame) {
     foreach ($gameHubs as $hub) {
         if ($hub['Title'] == '[Theme - Mature]') {
             if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
