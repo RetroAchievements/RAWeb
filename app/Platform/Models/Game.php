@@ -225,7 +225,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function gameHashSets(): HasMany
     {
-        return $this->hasMany(GameHashSet::class);
+        return $this->hasMany(GameHashSet::class, 'game_id');
     }
 
     /**
