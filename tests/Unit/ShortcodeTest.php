@@ -40,6 +40,16 @@ final class ShortcodeTest extends TestCase
             '<a href="https://retroachievements.org/">https://retroachievements.org/</a>.',
             Shortcode::render('http://retroachievements.org/.')
         );
+
+        $this->assertSame(
+            '<a href="https://docs.retroachievements.org/Working-with-the-Right-ROM">https://docs.retroachievements.org/Working-with-the-Right-ROM</a>',
+            Shortcode::render('docs.retroachievements.org/Working-with-the-Right-ROM')
+        );
+
+        $this->assertSame(
+            '<a href="https://media.retroachievements.org/12345.png">https://media.retroachievements.org/12345.png</a>',
+            Shortcode::render('media.retroachievements.org/12345.png')
+        );
     }
 
     public function testUnclosedCodeTag(): void
