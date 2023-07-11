@@ -259,7 +259,6 @@ sanitize_outputs(
             string $consoleName,
             int $numAchievements = 0,
             int $gamePoints = 0,
-            int $gameRetroPoints = 0,
             bool $isEventGame = false,
         ): string {
             if ($isEventGame) {
@@ -269,9 +268,8 @@ sanitize_outputs(
             }
 
             $localizedPoints = localized_number($gamePoints);
-            $localizedRetroPoints = localized_number($gameRetroPoints);
 
-            return "There are $numAchievements worth $localizedPoints ($localizedRetroPoints) points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
+            return "There are $numAchievements achievements worth $localizedPoints points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
         }
 
         RenderOpenGraphMetadata(
@@ -283,7 +281,6 @@ sanitize_outputs(
                 $consoleName,
                 $numAchievements,
                 $totalPossible,
-                $totalPossibleTrueRatio,
                 $isEventGame
             )
         );
