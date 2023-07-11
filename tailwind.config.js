@@ -22,6 +22,7 @@ module.exports = {
     container: {
       center: true,
     },
+
     extend: {
       colors: {
         bg: 'var(--bg-color)',
@@ -38,7 +39,18 @@ module.exports = {
         'text-danger': 'var(--text-color-danger)',
         'text-muted': 'var(--text-color-muted)',
       },
+
+      animation: {
+        'fade-in': 'fade-in 100ms ease',
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+      },
     },
+
     fontSize: {
       '2xs': '.70rem',
       xs: '.75rem',
@@ -53,6 +65,7 @@ module.exports = {
       '6xl': '4rem',
       '7xl': '5rem',
     },
+
     screens: {
       sm: '640px',
       md: '768px',

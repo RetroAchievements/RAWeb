@@ -101,6 +101,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
             const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
             const gameId = <?= $gameID ?>;
 
+            // FIXME: Use the `fetcher` util.
             fetch('/request/user/update-notification.php', {
                 method: 'POST',
                 headers: {
@@ -1145,7 +1146,8 @@ sanitize_outputs(
                     echo "</div>";
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
-                    echo "<div class='mt-1' style='float: left; clear: left' onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
+
+                    echo "<div class='mt-1' style='float: left; clear: left' x-init=\"attachTooltipToElement(\$el, { staticHtmlContent: {$containername}tooltip })\">";
                     echo "<p class='$labelname text-2xs'>$labelcontent</p>";
                     echo "<p id='your-game-rating' class='text-2xs'>";
                     if ($ratingData['UserRating'] > 0) {

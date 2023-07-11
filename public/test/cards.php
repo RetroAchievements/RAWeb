@@ -4,7 +4,6 @@ use App\Support\Shortcode\Shortcode;
 
 RenderContentStart();
 ?>
-<script src='/vendor/wz_tooltip.js'></script>
 <article class="flex flex-col gap-3">
     <h1>Cards</h1>
 

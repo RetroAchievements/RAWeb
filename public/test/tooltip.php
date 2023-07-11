@@ -48,7 +48,6 @@ function tooltip_row(string $text): void
     echo "    </tr>\n";
 }
 ?>
-<script src='/vendor/wz_tooltip.js'></script>
 <div style="width:1024px">
     <h1>Tooltip</h1>
     <table><th>alt</th><th>game</th><th>achievement</th><th>user</th><th>ticket</th>
