@@ -203,12 +203,6 @@ jQuery(document).ready(function onReady($) {
       highlightTargetEl.classList.add('highlight');
     }
   }
-
-  if (urlHash.startsWith('#comment_') && !highlightTargetEl) {
-    $(urlHash).addClass('highlight');
-  } else if (urlHash.startsWith('#comment_') && highlightTargetEl) {
-    $(highlightTargetEl).addClass('highlight');
-  }
 });
 
 $(function () {
