@@ -109,8 +109,7 @@ function ListGames(
         echo "</td>";
         echo "<td class='w-full'>";
         $gameLabelData = $gameEntry;
-        unset($gameLabelData['ConsoleName']);
-        echo gameAvatar($gameLabelData, icon: false);
+        echo gameAvatar($gameLabelData, title: $gameLabelData['Title'], icon: false);
         echo "</td>";
 
         if ($dev == null) {
