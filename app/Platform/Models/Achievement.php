@@ -224,7 +224,7 @@ class Achievement extends BaseModel implements HasComments
      *
      * @return HasMany<PlayerAchievementLegacy>
      */
-    public function unlocks(int $mode = null): HasMany
+    public function unlocks(?int $mode = null): HasMany
     {
         if ($mode !== null) {
             return $this->rawUnlocks()->where('HardcoreMode', $mode);

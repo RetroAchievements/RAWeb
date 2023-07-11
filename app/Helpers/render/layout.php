@@ -244,7 +244,7 @@ function RenderToolbar(): void
         }
         if (auth()->user()->can('viewLogs')) {
             echo "<li class='divider'></li>";
-            echo "<li><a href='" . route('blv.index') . "'>Logs</a></li>";
+            echo "<li><a href='" . route('log-viewer.index') . "'>Logs</a></li>";
         }
         echo "</ul>";
         echo "</div>";

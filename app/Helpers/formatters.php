@@ -7,7 +7,7 @@ use Illuminate\Support\Carbon;
 if (!function_exists('localized_date')) {
     function localized_date(
         ?Carbon $dateTime = null,
-        string $locale = null,
+        ?string $locale = null,
         int $dateType = IntlDateFormatter::SHORT,
         int $timeType = IntlDateFormatter::SHORT,
         ?string $timezone = 'UTC'
@@ -28,10 +28,10 @@ if (!function_exists('localized_date')) {
 if (!function_exists('localized_number')) {
     function localized_number(
         int|float $number,
-        string $locale = null,
+        ?string $locale = null,
         int $format = NumberFormatter::DECIMAL,
         int $fractionDigits = 0,
-        string $pattern = null
+        ?string $pattern = null
     ): string {
         $locale = $locale ?? session('number_locale', 'en_US');
 
