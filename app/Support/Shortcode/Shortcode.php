@@ -40,6 +40,91 @@ final class Shortcode
         return (new Shortcode())->parse($input, $options);
     }
 
+    public static function stripAndClamp(string $input, int $previewLength = 100): string
+    {
+        // Inject game and achievement data for shortcodes.
+        // This is more desirable than showing "Game 123" or "Achievement 123".
+        $injectionShortcodes = [
+            // "[game=1]" --> "Sonic the Hedgehog (Mega Drive)"
+            '~\[game=(\d+)]~i' => function ($matches) {
+                $gameData = getGameData((int) $matches[1]);
+                if ($gameData) {
+                    return "{$gameData['Title']} ({$gameData['ConsoleName']})";
+                }
+
+                return "";
+            },
+
+            // "[ach=1]" --> "Ring Collector (5)"
+            '~\[ach=(\d+)]~i' => function ($matches) {
+                $achievementData = GetAchievementData((int) $matches[1]);
+                if ($achievementData) {
+                    return "{$achievementData['Title']} ({$achievementData['Points']})";
+                }
+
+                return "";
+            },
+        ];
+
+        foreach ($injectionShortcodes as $pattern => $callback) {
+            $input = preg_replace_callback($pattern, $callback, $input);
+        }
+
+        $stripPatterns = [
+            // "[img=https://google.com/icon.png]" --> ""
+            '~\[img(=)?([^]]+)]~i' => '',
+
+            // "[img]https://google.com/icon.png[/img]" --> ""
+            '~\[img\](.*?)\[/img\]~i' => '',
+
+            // "[b]Hello[/b]" --> "Hello"
+            '~\[(b|i|u|s|code)\](.*?)\[/\1\]~i' => '$2',
+            '~\[(url|link).*?](.*?)\[/\1\]~i' => '$2',
+
+            // "[spoiler]Top Secret[/spoiler]" --> "{SPOILER}"
+            '~\[spoiler\](.*?)\[/spoiler\]~i' => "{SPOILER}",
+
+            // "[ticket=123]" --> "Ticket 123"
+            '~\[ticket(=)?(\d+)]~i' => 'Ticket $2',
+
+            // "[user=Scott]" --> "@Scott"
+            '~\[user(=)?([^]]+)]~i' => '@$2',
+
+            // Fragments: opening tags without closing tags.
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?\]~i' => '',
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?$~i' => '...',
+
+            // Fragments: closing tags without opening tags.
+            '~\[/?(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\]~i' => '',
+        ];
+
+        foreach ($stripPatterns as $stripPattern => $replacement) {
+            $input = preg_replace($stripPattern, $replacement, $input);
+        }
+
+        // For cleaner previews, strip all unnecessary whitespace.
+        $input = trim(preg_replace('/\s+/', ' ', $input));
+
+        // As a failsafe, check the last 6 characters for any fragmented shortcodes and purge them.
+        $lastSixChars = substr($input, -6);
+        if (preg_match('/\[[^\]]{0,5}$/', $lastSixChars)) {
+            $input = preg_replace('/\[[^\]]{0,5}$/', '...', $input);
+        }
+
+        // If the string is over the preview length, clamp it and add "..."
+        // This can happen as a result of the replacement from above.
+        if (strlen($input) > $previewLength) {
+            $input = substr($input, 0, $previewLength) . '...';
+        }
+
+        // Handle edge case: if the input is just ellipses, show nothing.
+        if ($input === "...") {
+            $input = "";
+        }
+
+        return $input;
+    }
+
     private function parse(string $input, array $options = []): string
     {
         // make sure to use attribute delimiter for string values
@@ -181,21 +266,27 @@ final class Shortcode
         // see https://stackoverflow.com/a/2271552/580651:
         // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
         // The same goes for other sentence-punctuation characters like periods, question marks, quotes, etc..
-        // lookahead: (?<![!,.?;:"\'()-])
-        return (string) preg_replace(
+        // lookahead: (?<![!,.?;:"\'()])
+        return (string) preg_replace_callback(
             '~
-                (?:https?://)?      # Optional scheme. Either http or https.
-                (?:www.)?           # Optional subdomain.
-                (?:media.)?         # Optional subdomain.
-                retroachievements\.        # Host.
-                ([\w!#$%&\'()*+,./:;=?@\[\]-]+
-                (?<![!,.?;:"\'()]))
-                (?!                 # Assert URL is not pre-linked.
-                  [^<>]*>           # Either inside a start tag,
-                  | [^<>]*</a>      # End recognized pre-linked alts.
-                )                   # End negative lookahead assertion.
+                (?:https?://)?             # Optional scheme. Either http or https.
+                ((?:[\w-]+\.)?)            # Optional subdomains, include the period in the group.
+                retroachievements\.org     # Host + TLD.
+                (?:                        # Optional path
+                  /([\w!#$%&\'()*+,./:;=?@\[\]-]*)    # Capture path in group 2 if any.
+                )?
+                (?<![!,.?;:"\'()])         # Do not end with punctuation.
+                (?!                        # Assert URL is not pre-linked.
+                  [^<>]*>                  # Either inside a start tag,
+                  | [^<>]*</a>             # or inside an end tag.
+                )                          # End negative lookahead assertion.
             ~ix',
-            '<a href="https://retroachievements.$1">https://retroachievements.$1</a>',
+            function ($matches) {
+                $subdomain = isset($matches[1]) ? $matches[1] : '';
+                $path = isset($matches[2]) ? '/' . $matches[2] : '';
+
+                return '<a href="https://' . $subdomain . 'retroachievements.org' . $path . '">https://' . $subdomain . 'retroachievements.org' . $path . '</a>';
+            },
             $text
         );
     }
@@ -225,19 +316,15 @@ final class Shortcode
     }
 
     /**
-     * from http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
+     * @see http://stackoverflow.com/questions/5830387/how-to-find-all-youtube-video-ids-in-a-string-using-a-regex
+     * This has been enhanced a little bit to support timestamp parameters.
      */
     private function autoEmbedYouTube(string $text): string
     {
-        // http://www.youtube.com/v/YbKzgRwF91w
-        // http://www.youtube.com/watch?v=1zMHaHPXqqg
-        // http://youtu.be/-D06lkNS3-k
-        // https://youtu.be/66ohBw9O6NU
-        // https://www.youtube.com/embed/Fmwr6T2JHc4
-        // https://www.youtube.com/watch?v=1YiNYWpwn7o
-        // www.youtube.com/watch?v=Yjba9rvs4iU
+        // Restore any ampersands escaped by sanitization.
+        $text = str_replace('&amp;', '&', $text);
 
-        return (string) preg_replace(
+        return preg_replace_callback(
             '~
                 (?:https?://)?      # Optional scheme. Either http or https.
                 (?:[0-9A-Z-]+\.)?   # Optional subdomain.
@@ -250,7 +337,6 @@ final class Shortcode
                 ([\w\-]{11})        # $1: VIDEO_ID is exactly 11 chars.
                 (?=[^\w\-]|$)       # Assert next char is non-ID or EOS.
                 (?!                 # Assert URL is not pre-linked.
-                  [?=&+%\w.-]*      # Allow URL (query) remainder.
                   (?:               # Group pre-linked alternatives.
                     [^<>]*>         # Either inside a start tag,
                     | [^<>]*</a>    # or inside <a> element text contents.
@@ -258,9 +344,47 @@ final class Shortcode
                 )                   # End negative lookahead assertion.
                 ([?=&+%\w.-]*)      # Consume any URL (query) remainder.
             ~ix',
-            $this->embedVideo('//www.youtube-nocookie.com/embed/$1$2'),
+            function ($matches) {
+                $videoId = $matches[1];
+                $query = [];
+
+                // Are there additional query parameters in the URL?
+                if (isset($matches[2])) {
+                    // Parse the query parameters and populate them into $query.
+                    parse_str(ltrim($matches[2], '?'), $query);
+
+                    // Check if the "t" parameter (timestamp) is present.
+                    if (isset($query['t'])) {
+                        // "t" has to be converted to a time compatible with youtube-nocookie.com embeds.
+                        $query['start'] = $this->convertYouTubeTime($query['t']);
+
+                        // Once converted, remove the "t" parameter so we don't accidentally duplicate it.
+                        unset($query['t']);
+                    }
+                }
+
+                $query = http_build_query($query);
+
+                return $this->embedVideo("//www.youtube-nocookie.com/embed/$videoId" . ($query ? "?$query" : ""));
+            },
             $text
         );
+    }
+
+    private function convertYouTubeTime(string $time): int
+    {
+        // If the time is numeric, it's already in seconds
+        if (is_numeric($time)) {
+            return (int) $time;
+        }
+
+        // If it's not numeric, it could be in the format of 1h30m15s, 30m15s, 15s, 90m etc.
+        preg_match('/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/', $time, $matches);
+        $hours = isset($matches[1]) ? intval($matches[1]) : 0;
+        $minutes = isset($matches[2]) ? intval($matches[2]) : 0;
+        $seconds = isset($matches[3]) ? intval($matches[3]) : 0;
+
+        return $hours * 3600 + $minutes * 60 + $seconds;
     }
 
     private function autoEmbedTwitch(string $text): string
@@ -280,7 +404,7 @@ final class Shortcode
                 (?:www.)?           # Optional subdomain.
                 twitch.tv/.*        # Host.
                 (?:videos|[^/]+/v)  # See path examples above.
-                /([0-9]+)           # $1
+                /(\d+)              # $1
                 (?!                 # Assert URL is not pre-linked.
                   [?=&+%\w.-]*      # Allow URL (query) remainder.
                   (?:               # Group pre-linked alternatives.

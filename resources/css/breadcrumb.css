@@ -14,4 +14,5 @@
 
 .navpath > * {
   display: inline-block;
+  @apply leading-4;
 }

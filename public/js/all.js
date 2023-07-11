@@ -111,42 +111,6 @@ function useCard(type, id, context = null, html = '') {
   return html;
 }
 
-function loadCard(target, type, id, context = null) {
-  var cardId = `tooltip_card_${type}_${id}`;
-
-  if (context) {
-    cardId += `_${context}`;
-  }
-
-  if (cardsCache[cardId]) {
-    return cardsCache[cardId];
-  }
-
-  // delay requesting the tooltip for 200ms in case the mouse is just passing over the avatar
-  timeoutObject = setTimeout(function () {
-    $(target).off('mouseleave');
-    $.post('/request/card.php', {
-      type: type,
-      id: id,
-      context: context,
-    })
-      .done(function (data) {
-        cardsCache[cardId] = data.html;
-        $(`#${cardId}_yield`).html(data.html);
-      });
-  }, 200);
-  $(target).mouseleave(function () {
-    $(target).off('mouseleave');
-    clearTimeout(timeoutObject);
-  });
-
-  return `<div id="${cardId}_yield">
-    <div class="flex justify-center items-center" style="width: 30px; height: 30px">
-        <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
-    </div>
-  </div>`;
-}
-
 function UpdateMailboxCount(messageCount) {
   $('#mailboxicon').attr('src', messageCount > 0 ? asset('/assets/images/icon/mail-unread.png') : asset('/assets/images/icon/mail.png'));
   $('#mailboxcount').html(messageCount);
@@ -155,24 +119,29 @@ function UpdateMailboxCount(messageCount) {
 jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
 
-  var $searchBoxInput = $('.searchboxinput');
-  $searchBoxInput.autocomplete({
-    source: function (request, response) {
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
-    },
-    minLength: 2
-  });
-  $searchBoxInput.autocomplete({
-    select: function (event, ui) {
-      return false;
-    },
-  });
-  $searchBoxInput.on('autocompleteselect', function (event, ui) {
-    window.location = ui.item.mylink;
-    return false;
+  $('.searchboxinput').each(function () {
+    // eslint-disable-next-line no-underscore-dangle
+    $(this).autocomplete({
+      source: function (request, response) {
+        $.post('/request/search.php', request)
+          .done(function (data) {
+            response(data);
+          });
+      },
+      minLength: 2,
+      select: function (_, ui) {
+        window.location = ui.item.mylink;
+        return false;
+      }
+    }).data('autocomplete')._renderItem = function (ul, item) {
+      const li = $('<li>');
+      const a = $('<a>', {
+        text: item.label,
+        href: item.mylink,
+      });
+
+      return li.data('item.autocomplete', item).append(a).appendTo(ul);
+    };
   });
 
   var $seachBoxCompareUser = $('.searchboxgamecompareuser');
@@ -226,9 +195,13 @@ jQuery(document).ready(function onReady($) {
     return false;
   });
 
-  var $anchor = window.location.hash;
-  if ($anchor.startsWith('#comment_')) {
-    $($anchor).addClass('highlight');
+  // Add highlights to deep-linked comments.
+  const urlHash = window.location.hash;
+  if (urlHash.startsWith('#comment_')) {
+    const highlightTargetEl = document.querySelector(`${urlHash}_highlight`) || document.getElementById(urlHash);
+    if (highlightTargetEl) {
+      highlightTargetEl.classList.add('highlight');
+    }
   }
 });
 
@@ -275,37 +248,15 @@ function showStatusSuccess(message) {
 
 function showStatusFailure(message) {
   const status = document.getElementById('status');
-  if (status) {
+  if (status && message) {
     status.classList.add('failure');
     status.innerHTML = message;
     status.style.display = 'block';
+  } else if (!message) {
+    console.trace();
   }
 }
 
 function hideStatusMessage() {
   $('#status').hide();
 }
-
-function initializeTextareaCounter() {
-  var textareaCounters = document.getElementsByClassName('textarea-counter');
-  for (var i = 0; i < textareaCounters.length; i++) {
-    var textareaCounter = textareaCounters[i];
-    var textareaId = textareaCounter.dataset.textareaId;
-    var textarea = document.getElementById(textareaId);
-    var max = textarea.getAttribute('maxlength');
-
-    if (max) {
-      var updateCount = function () {
-        var count = textarea.value.length;
-        textareaCounter.textContent = count + ' / ' + max;
-        textareaCounter.classList.toggle('text-danger', count >= max);
-      };
-      ['keydown', 'keypress', 'keyup', 'blur'].forEach(function (eventName) {
-        textarea.addEventListener(eventName, updateCount);
-      });
-      updateCount();
-    }
-  }
-}
-
-window.addEventListener('load', initializeTextareaCounter);

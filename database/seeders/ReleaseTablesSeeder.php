@@ -7,10 +7,11 @@ namespace Database\Seeders;
 use App\Platform\Models\Emulator;
 use App\Platform\Models\IntegrationRelease;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 class ReleaseTablesSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         if (IntegrationRelease::count() > 0) {
             return;
@@ -22,7 +23,8 @@ class ReleaseTablesSeeder extends Seeder
             'stable' => true,
         ]);
 
-        collect([
+        // TODO (new Collection(getReleasesFromFile()))->
+        (new Collection([
             [
                 'handle' => 'RAGens',
                 'integration_id' => 0,
@@ -133,8 +135,8 @@ class ReleaseTablesSeeder extends Seeder
                     ],
                 ],
             ],
-        ])->each(function ($data) {
-            Emulator::where('integration_id', $data['integration_id'])->first()->releases()->createMany($data['releases'] ?? []);
+        ]))->each(function ($data) {
+            Emulator::where('integration_id', $data['integration_id'])->first()->releases()->createMany($data['releases']);
         });
     }
 }

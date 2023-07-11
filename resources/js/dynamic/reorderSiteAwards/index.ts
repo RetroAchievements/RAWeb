@@ -1,3 +1,4 @@
+import { cancelAutoscroll } from './cancelAutoscroll';
 import { reorderSiteAwardsStore as store } from './reorderSiteAwardsStore';
 
 /**
@@ -112,6 +113,9 @@ export function handleRowDrop(event: DragEvent) {
   if (dropTargetEl) {
     setRowOutlineVisibility(dropTargetEl, false);
   }
+
+  // If we're autoscrolling, immediately halt.
+  cancelAutoscroll();
 }
 
 /**

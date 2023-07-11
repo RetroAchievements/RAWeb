@@ -1,8 +1,8 @@
 <?php
 
+use App\Community\Enums\ClaimFilters;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use LegacyApp\Community\Enums\ClaimFilters;
 
 /*
  *  API_GetClaims - returns information about 1000 max set claims, sorted by latest `Created` date.
@@ -31,13 +31,13 @@ use LegacyApp\Community\Enums\ClaimFilters;
  *    int        MinutesLeft        time in minutes left until the claim expires
  */
 
- $input = Validator::validate(Arr::wrap(request()->query()), [
-    'k' => [
-        'nullable',
-        Rule::in(['1', '2', '3']),
-    ],
+$input = Validator::validate(Arr::wrap(request()->query()), [
+   'k' => [
+       'nullable',
+       Rule::in(['1', '2', '3']),
+   ],
 ], [
-    'k.in' => 'k must be set to one of the following values: :values',
+   'k.in' => 'k must be set to one of the following values: :values',
 ]);
 
 $completedClaims = '1';

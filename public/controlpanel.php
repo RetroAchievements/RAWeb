@@ -1,7 +1,7 @@
 <?php
 
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Site\Enums\UserPreference;
+use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -121,10 +121,26 @@ function confirmEmailChange(event) {
                     echo "<td>";
                     echo "<form class='flex gap-2 mb-1' method='post' action='/request/user/update-motto.php'>";
                     echo csrf_field();
-                    echo "<input name='motto' value=\"$userMottoString\" maxlength='50' size='50' id='motto' placeholder='Your motto'>";
-                    echo "<button class='btn'>Set Motto</button>";
+
+                    echo <<<HTML
+                        <div class="flex gap-x-2">
+                            <div class="grid gap-y-1">
+                                <input id="motto" name="motto" value="$userMottoString" maxlength="50" size="50" placeholder="Your motto">
+
+                                <div class="text-xs flex w-full justify-between">
+                                    <p>No profanity.</p>    
+                                    
+                                    <div>
+                                        <div class="textarea-counter" data-textarea-id="motto"></div>
+                                        <div class="text-danger hidden"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn">Set Motto</button>
+                        </div>
+                    HTML;
+
                     echo "</form>";
-                    echo "<div>No profanity.</div>";
                     echo "</td>";
                     echo "</tr>";
                 }
@@ -342,10 +358,10 @@ function confirmEmailChange(event) {
                     // Disable achievement select and clear game select
                     achievementSelect.disabled = true;
                     gameSelect.replaceChildren();
-                    
+
                     // Show loading icon
                     $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
-                    
+
                     // Make API call to get game list
                     $.post('/request/user/list-games.php').done(data => {
                         // Create a document fragment to hold the options
@@ -473,13 +489,11 @@ function confirmEmailChange(event) {
     <?php if ($permissions >= Permissions::Registered): ?>
         <div id="rightcontainer">
             <div class='component'>
-                <h3>Request Score Recalculation</h3>
-                <form method="post" action="/request/user/recalculate-score.php">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="user" value="<?= $user ?>">
-                    If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
-                    <input value="Recalculate My Score" type='submit' size='37'>
-                </form>
+                <h3>Site Awards</h3>
+                <div style="margin-bottom: 10px">
+                    You can manually set the display order for your earned awards.
+                </div>
+                <a class="btn btn-link" href="reorderSiteAwards.php">Reorder Site Awards</a>
             </div>
             <div class='component'>
                 <h3>Avatar</h3>
@@ -504,7 +518,13 @@ function confirmEmailChange(event) {
                 </form>
             </div>
             <div class='component'>
-                <a class="btn btn-link" href="reorderSiteAwards.php">Reorder site awards</a>
+                <h3>Request Score Recalculation</h3>
+                <form method="post" action="/request/user/recalculate-score.php">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="user" value="<?= $user ?>">
+                    If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
+                    <input value="Recalculate My Score" type='submit' size='37'>
+                </form>
             </div>
         </div>
     <?php endif ?>

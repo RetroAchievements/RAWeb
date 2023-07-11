@@ -7,136 +7,54 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
-
-            /*
-             * used for login currently but should be vanity, really
-             */
-            $table->string('username');
+        Schema::table('UserAccounts', function (Blueprint $table) {
+            $table->bigIncrements('ID')->change();
 
             /*
              * let users have another name on their profile
              */
-            $table->string('display_name')->nullable();
-
-            /*
-             * strongly hashed password
-             */
-            $table->string('password')->nullable();
-
-            $table->timestampTz('last_login_at')->nullable();
-            $table->timestampTz('last_activity_at')->nullable();
+            $table->string('display_name')->after('User')->nullable();
 
             /*
              * nullable email -> there is some legacy here...
              */
-            $table->string('email')->nullable();
-            $table->timestampTz('email_verified_at')->nullable();
-
-            $table->json('preferences')->nullable();
-            /*
-             * TODO: move this to preferences, allow comments to be visible to/writable for public, friends, private etc
-             */
-            // $table->boolean('wall_active')->nullable()->default(true);
-
-            $table->string('motto')->nullable();
-
-            /*
-             * dynamic relationship to this user's activity
-             */
-            // $table->unsignedInteger('last_activity_id')->nullable();
+            $table->timestampTz('email_verified_at')->nullable()->after('EmailAddress');
 
             /*
              * token for web auth middleware
              */
-            $table->rememberToken();
+            $table->rememberToken()->after('email_verified_at');
 
-            $table->string('country')->nullable();
-            $table->string('timezone')->nullable();
-            $table->string('locale')->nullable();
-            $table->string('locale_date')->nullable();
-            $table->string('locale_number')->nullable();
+            $table->json('preferences')->nullable()->after('websitePrefs');
 
-            /*
-             * token for RPC API auth middleware
-             * TODO: move to passport?
-             */
-            $table->string('connect_token', 60)->nullable();
-            $table->timestampTz('connect_token_expires_at')->nullable();
+            $table->string('country')->nullable()->after('preferences');
+            $table->string('timezone')->nullable()->after('country');
+            $table->string('locale')->nullable()->after('timezone');
+            $table->string('locale_date')->nullable()->after('locale');
+            $table->string('locale_number')->nullable()->after('locale_date');
 
             /*
-             * token for web api auth middleware
-             * we love tokens...
-             * TODO: move to passport?
+             * status timestamps
              */
-            $table->string('api_token')->nullable();
-            $table->unsignedInteger('api_calls')->nullable();
+            $table->timestampTz('forum_verified_at')->nullable()->after('ManuallyVerified');
+            $table->timestampTz('unranked_at')->nullable()->after('forum_verified_at');
+            $table->timestampTz('banned_at')->nullable()->after('unranked_at');
+            $table->timestampTz('muted_until')->nullable()->after('banned_at');
 
             /*
-             * moved to dynamic relationship to game trips ... eh, sessions
+             * metrics
              */
-            // $table->unsignedInteger('last_game_id')->nullable();
+            $table->unsignedInteger('achievements_unlocked')->nullable()->after('Permissions');
+            $table->unsignedInteger('achievements_unlocked_hardcore')->nullable()->after('achievements_unlocked');
+            $table->decimal('completion_percentage_average', 10, 9)->nullable()->after('achievements_unlocked_hardcore');
+            $table->decimal('completion_percentage_average_hardcore', 10, 9)->nullable()->after('completion_percentage_average');
 
-            /*
-             * moved to game sessions
-             */
-            // $table->string('rich_presence')->nullable();
-            // $table->timestampTz('rich_presence_updated_at')->nullable();
-
-            /*
-             * some additional states
-             */
-            $table->timestampTz('forum_verified_at')->nullable();
-
-            $table->timestampTz('unranked_at')->nullable();
-
-            $table->timestampTz('banned_at')->nullable();
-
-            $table->timestampTz('muted_until')->nullable();
-
-            /*
-             * some cached metrics
-             * should be moved to dynamic relationships where it makes sense
-             * TODO: move those to another place that really likes cached values? like, a cache
-             */
-            $table->unsignedInteger('points_total')->nullable();
-            $table->unsignedInteger('points_weighted')->nullable();
-
-            // $table->unsignedInteger('achievements_unlocked_yield')->nullable();
-            // $table->unsignedInteger('achievements_points_yield')->nullable();
-            // $table->unsignedInteger('achievements_unlocked')->nullable();
-            // $table->unsignedInteger('achievements_unlocked_hardcore')->nullable();
-            // $table->decimal('completion_percentage_average', 10, 9)->nullable();
-            // $table->decimal('completion_percentage_average_hardcore', 10, 9)->nullable();
-
-            /*
-             * dynamic
-             */
-            // $table->unsignedInteger('unread_messages_count')->nullable();
-
-            /*
-             * earlier creation dates are not known
-             */
-            $table->timestampsTz();
-            $table->timestampTz('delete_requested_at')->nullable();
-            $table->softDeletesTz();
-
-            /*
-             * TODO check usernames are actually unique
-             */
-            $table->unique('username');
-
-            /*
-             * TODO hopefully, some day, email addresses are unique and can be used as login instead of the username
-             */
-            $table->index('email');
-
-            $table->index('last_login_at');
-            $table->index('points_total');
-            $table->index('points_weighted');
+            $table->index('unranked_at', 'users_unranked_at_index');
+            $table->index(['RAPoints', 'unranked_at'], 'users_points_unranked_at_index');
+            $table->index(['RASoftcorePoints', 'unranked_at'], 'users_points_softcore_unranked_at_index');
+            $table->index(['TrueRAPoints', 'unranked_at'], 'users_points_weighted_unranked_at_index');
         });
 
         /*
@@ -154,13 +72,36 @@ return new class() extends Migration {
             $table->unique(['user_id', 'username']);
             $table->index('username');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('user_usernames');
-        Schema::dropIfExists('users');
+        Schema::table('UserAccounts', function (Blueprint $table) {
+
+            $table->dropIndex('users_points_unranked_at_index');
+            $table->dropIndex('users_points_softcore_unranked_at_index');
+            $table->dropIndex('users_points_weighted_unranked_at_index');
+
+            $table->dropColumn('display_name');
+            $table->dropColumn('email_verified_at');
+            $table->dropRememberToken();
+            $table->dropColumn('preferences');
+            $table->dropColumn('country');
+            $table->dropColumn('timezone');
+            $table->dropColumn('locale');
+            $table->dropColumn('locale_date');
+            $table->dropColumn('locale_number');
+            $table->dropColumn('forum_verified_at');
+            $table->dropColumn('unranked_at');
+            $table->dropColumn('banned_at');
+            $table->dropColumn('muted_until');
+            $table->dropColumn('achievements_unlocked');
+            $table->dropColumn('achievements_unlocked_hardcore');
+            $table->dropColumn('completion_percentage_average');
+            $table->dropColumn('completion_percentage_average_hardcore');
+        });
     }
 };

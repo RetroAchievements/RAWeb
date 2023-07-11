@@ -1,9 +1,13 @@
 <?php
 
+use App\Community\Enums\ActivityType;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\UnlockMode;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
+use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Site\Enums\Permissions;
-use LegacyApp\Support\Media\FilenameIterator;
+use Illuminate\Support\Carbon;
 
 /**
  * @usage
@@ -30,12 +34,14 @@ if (!empty($token)) {
     $validLogin = authenticateFromAppToken($user, $token, $permissions);
 }
 
-function DoRequestError(string $error): JsonResponse
-{
-    return response()->json([
-        'Success' => false,
-        'Error' => $error,
-    ]);
+if (!function_exists('DoRequestError')) {
+    function DoRequestError(string $error): JsonResponse
+    {
+        return response()->json([
+            'Success' => false,
+            'Error' => $error,
+        ]);
+    }
 }
 
 /**
@@ -54,8 +60,10 @@ $credentialsOK = match ($requestType) {
     "awardachievement",
     "getfriendlist",
     "patch",
+    "ping",
     "postactivity",
     "richpresencepatch",
+    "startsession",
     "submitcodenote",
     "submitgametitle",
     "submitlbentry",
@@ -69,7 +77,11 @@ $credentialsOK = match ($requestType) {
 };
 
 if (!$credentialsOK) {
-    return DoRequestError("Credentials invalid ($permissions)");
+    if ($permissions) {
+        return DoRequestError("Credentials invalid ($permissions)");
+    }
+
+    return DoRequestError("Credentials invalid");
 }
 
 switch ($requestType) {
@@ -172,18 +184,28 @@ switch ($requestType) {
             ? $baseDownloadUrl . $integration['latest_version_url_x64']
             : 'http://retroachievements.org/bin/RA_Integration-x64.dll';
         break;
-    case "ping":
-        $activityMessage = request()->post('m');
-        $response['Success'] = userActivityPing($user);
-
-        if (isset($activityMessage)) {
-            UpdateUserRichPresence($user, $gameID, $activityMessage);
-        }
-        break;
 
     /*
      * User-based (require credentials)
      */
+
+    case "ping":
+        $userModel = User::firstWhere('User', $user);
+        if ($userModel === null) {
+            $response['Success'] = false;
+        } else {
+            $response['Success'] = true;
+
+            $activityMessage = request()->post('m');
+            if (isset($activityMessage)) {
+                UpdateUserRichPresence($userModel, $gameID, $activityMessage);
+            }
+
+            $userModel->LastLogin = Carbon::now();
+            $userModel->timestamps = false;
+            $userModel->save();
+        }
+        break;
 
     case "achievementwondata":
         $friendsOnly = (bool) request()->input('f', 0);
@@ -241,6 +263,28 @@ switch ($requestType) {
         $response['RichPresencePatch'] = $richPresenceData;
         break;
 
+    case "startsession":
+        if (!postActivity($user, ActivityType::StartedPlaying, $gameID)) {
+            return DoRequestError("Unknown game");
+        }
+        $response['Success'] = true;
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID);
+        foreach ($userUnlocks as $achId => $unlock) {
+            if (array_key_exists('DateEarnedHardcore', $unlock)) {
+                $response['HardcoreUnlocks'][] = [
+                    'ID' => $achId,
+                    'When' => strtotime($unlock['DateEarnedHardcore']),
+                ];
+            } else {
+                $response['Unlocks'][] = [
+                    'ID' => $achId,
+                    'When' => strtotime($unlock['DateEarned']),
+                ];
+            }
+        }
+        $response['ServerNow'] = Carbon::now()->timestamp;
+        break;
+
     case "submitcodenote":
         $note = request()->input('n') ?? '';
         $address = (int) request()->input('m', 0);
@@ -287,8 +331,15 @@ switch ($requestType) {
         break;
 
     case "unlocks":
-        $hardcoreMode = (bool) request()->input('h', 0);
-        $response['UserUnlocks'] = GetUserUnlocksData($user, $gameID, $hardcoreMode);
+        $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
+        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID);
+        if ($hardcoreMode) {
+            $response['UserUnlocks'] = collect($userUnlocks)
+                ->filter(fn ($value, $key) => array_key_exists('DateEarnedHardcore', $value))
+                ->keys();
+        } else {
+            $response['UserUnlocks'] = array_keys($userUnlocks);
+        }
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
         $response['HardcoreMode'] = $hardcoreMode;
         break;

@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Platform\Enums\Emulators;
+use App\Platform\Enums\Emulators;
 
 // TODO: replace with systems, integration release, and emulator release management
 return [
@@ -68,7 +68,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
         ],
         Emulators::RALibretro => [
             'minimum_version' => '1.3.9',
-            'latest_version' => '1.5.0',
+            'latest_version' => '1.6.0',
             'latest_version_url' => 'bin/RALibretro.zip',
             'latest_version_url_x64' => 'bin/RALibretro-x64.zip',
             'name' => 'RALibRetro',
@@ -143,6 +143,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 12, // PlayStation
                 13, // Atari Lynx
                 14, // Neo Geo Pocket
+                15, // Game Gear
                 17, // Atari Jaguar
                 18, // Nintendo DS
                 23, // Magnavox Odyssey 2
@@ -150,6 +151,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 28, // Virtual Boy
                 29, // MSX
                 33, // SG-1000
+                38, // Apple II
                 39, // Saturn
                 44, // ColecoVision
                 45, // IntelliVision
@@ -157,6 +159,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
+                76, // PC Engine CD
                 78, // Nintendo DSi
             ],
         ],
@@ -179,6 +182,19 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
             'download_url' => 'https://duckstation.org',
             'systems' => [
                 12, // PlayStation
+            ],
+        ],
+        Emulators::WinArcadia => [
+            'minimum_version' => '29.41',
+            'name' => 'WinArcadia',
+            'handle' => 'WinArcadia',
+            'active' => true,
+            'link' => 'https://amigan.1emu.net/releases/',
+            'download_url' => 'https://amigan.1emu.net/releases/WinArcadia-bin.rar',
+            'systems' => [
+                73, // Arcadia 2001
+                74, // Interton VC 4000
+                75, // Elektor TV Games Computer
             ],
         ],
         Emulators::RAppleWin => [

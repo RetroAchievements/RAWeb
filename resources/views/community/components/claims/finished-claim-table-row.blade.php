@@ -1,7 +1,7 @@
 <?php
 
+use App\Community\Enums\ClaimSetType;
 use Illuminate\Support\Carbon;
-use LegacyApp\Community\Enums\ClaimSetType;
 
 $claimSetTypeCopy = ClaimSetType::toString(ClaimSetType::NewSet);
 if ($claim['SetType'] !== ClaimSetType::NewSet) {

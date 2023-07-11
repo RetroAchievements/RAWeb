@@ -1,7 +1,7 @@
 <?php
 
+use App\Site\Models\StaticData;
 use Illuminate\Support\Carbon;
-use LegacyApp\Site\Models\StaticData;
 
 /*
  *  API_GetAchievementOfTheWeek
@@ -78,7 +78,7 @@ $forumTopic = [
     'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
 ];
 
-$parentGameID = getParentGameIdFromGameTitle($game['Title']);
+$parentGameID = getParentGameIdFromGameTitle($game['Title'], $achievementData['ConsoleID']);
 
 $unlocks = getAchievementUnlocksData((int) $achievementID, null, $numWinners, $numPossibleWinners, $parentGameID, 0, 500);
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Platform\Models\Game;
-use LegacyApp\Platform\Models\System;
-use LegacyApp\Site\Models\User;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -31,7 +31,6 @@ class GameRankAndScoreTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $publishedAchievements =
 
         $ach1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 3]);
         $ach2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 5]);

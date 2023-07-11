@@ -1,10 +1,10 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Platform\Enums\AchievementPoints;
+use App\Platform\Enums\AchievementType;
+use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Platform\Enums\AchievementPoints;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Site\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -44,6 +44,8 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
+$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
+
 sanitize_outputs(
     $achievementTitle,
     $desc,
@@ -53,7 +55,6 @@ sanitize_outputs(
 );
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
-$parentGameID = getParentGameIdFromGameTitle($gameTitle);
 
 $numWinners = 0;
 $numPossibleWinners = 0;
@@ -174,12 +175,23 @@ RenderContentStart($pageTitle);
         echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
         echo "</div>";
 
-        echo "<h3>" . renderGameTitle("$gameTitle ($consoleName)") . "</h3>";
+        $systemIconUrl = getSystemIconUrl($consoleID);
+        echo Blade::render('
+            <x-game.heading
+                :consoleName="$consoleName"
+                :gameTitle="$gameTitle"
+                :iconUrl="$iconUrl"
+            />
+        ', [
+            'consoleName' => $consoleName,
+            'gameTitle' => $gameTitle,
+            'iconUrl' => $systemIconUrl,
+        ]);
 
         $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
         $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
 
-        echo "<table class='nicebox'><tbody>";
+        echo "<table class='nicebox mb-1'><tbody>";
 
         $descAttr = attributeEscape($desc);
         echo "<tr>";
@@ -193,14 +205,19 @@ RenderContentStart($pageTitle);
         echo "<div id='achievemententry'>";
 
         $renderedTitle = renderAchievementTitle($achievementTitle);
-        echo "<div class='flex justify-between'>";
+
+        echo "<div class='flex flex-col justify-between gap-y-2'>";
         echo "<div>";
-        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a> ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span><br>";
+        echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a>";
+        if ($achPoints !== 0) {
+            echo " ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span>";
+        }
+        echo "<br>";
         echo "$desc";
         echo "</div>";
         if ($achievedLocal) {
             $niceDateWon = date("d M, Y H:i", strtotime($dateWonLocal));
-            echo "<div class='text-right' class='smalldate'>Unlocked on<br>$niceDateWon</div>";
+            echo "<div class='date smalltext'>Unlocked $niceDateWon</div>";
         }
         echo "</div>";
 

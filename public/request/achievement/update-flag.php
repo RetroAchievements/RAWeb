@@ -1,11 +1,11 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Platform\Enums\AchievementType;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     abort(401);
@@ -32,7 +32,7 @@ if (updateAchievementFlags($achievementIds, $value)) {
     if ($value == AchievementType::Unofficial) {
         $commentText = 'demoted this achievement to Unofficial';
     }
-    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "\"$user\" $commentText.", $user);
+    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
     expireGameTopAchievers($achievement['GameID']);
 
     return response()->json(['message' => __('legacy.success.ok')]);

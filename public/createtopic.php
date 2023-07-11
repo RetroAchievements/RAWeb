@@ -1,6 +1,6 @@
 <?php
 
-use LegacyApp\Site\Enums\Permissions;
+use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
@@ -59,6 +59,7 @@ RenderContentStart("Create topic: $thisForumTitle");
             maxlength="60000"
             name="body"
             placeholder="Don't share links to copyrighted ROMs."
+            oninput='autoExpandTextInput(this)'
         ><?= $existingComment ?></textarea>
         <?php
         echo "</td></tr>";

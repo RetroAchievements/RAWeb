@@ -1,11 +1,11 @@
 <?php
 
+use App\Community\Enums\ArticleType;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Models\Achievement;
+use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use LegacyApp\Community\Enums\ArticleType;
-use LegacyApp\Platform\Enums\AchievementType;
-use LegacyApp\Platform\Models\Achievement;
-use LegacyApp\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     abort(401);
