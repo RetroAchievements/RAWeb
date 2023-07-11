@@ -111,42 +111,6 @@ function useCard(type, id, context = null, html = '') {
   return html;
 }
 
-function loadCard(target, type, id, context = null) {
-  var cardId = `tooltip_card_${type}_${id}`;
-
-  if (context) {
-    cardId += `_${context}`;
-  }
-
-  if (cardsCache[cardId]) {
-    return cardsCache[cardId];
-  }
-
-  // delay requesting the tooltip for 200ms in case the mouse is just passing over the avatar
-  timeoutObject = setTimeout(function () {
-    $(target).off('mouseleave');
-    $.post('/request/card.php', {
-      type: type,
-      id: id,
-      context: context,
-    })
-      .done(function (data) {
-        cardsCache[cardId] = data.html;
-        $(`#${cardId}_yield`).html(data.html);
-      });
-  }, 200);
-  $(target).mouseleave(function () {
-    $(target).off('mouseleave');
-    clearTimeout(timeoutObject);
-  });
-
-  return `<div id="${cardId}_yield">
-    <div class="flex justify-center items-center" style="width: 30px; height: 30px">
-        <img class="m-5" src="${asset('assets/images/icon/loading.gif')}" alt="Loading">
-    </div>
-  </div>`;
-}
-
 function UpdateMailboxCount(messageCount) {
   $('#mailboxicon').attr('src', messageCount > 0 ? asset('/assets/images/icon/mail-unread.png') : asset('/assets/images/icon/mail.png'));
   $('#mailboxcount').html(messageCount);
