@@ -11,19 +11,23 @@ function gameAvatar(
     string $iconClass = 'badgeimg',
     bool|string|array $tooltip = true,
     ?string $context = null,
+    ?string $title = null,
 ): string {
     $id = $game;
-    $title = null;
 
     if (is_array($game)) {
         $id = $game['GameID'] ?? $game['ID'];
 
         if ($label !== false) {
-            $title = $game['GameTitle'] ?? $game['Title'] ?? null;
-            $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
-            if ($consoleName) {
-                $title .= " ($consoleName)";
+            if ($title === null) {
+                $title = $game['GameTitle'] ?? $game['Title'] ?? null;
+
+                $consoleName = $game['Console'] ?? $game['ConsoleName'] ?? null;
+                if ($consoleName) {
+                    $title .= " ($consoleName)";
+                }
             }
+
             sanitize_outputs($title);   // sanitize before rendering HTML
             $label = renderGameTitle($title);
         }
