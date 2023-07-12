@@ -25,10 +25,16 @@ function attachTooltipListeners(
 ) {
   let showTimeout: number | null = null;
   let lastMouseCoords: { x: number; y: number } | null = null;
+  let isTooltipShowing = false;
 
   const handleMouseOver = () => {
+    if (isTooltipShowing) {
+      return;
+    }
+
     showTimeout = window.setTimeout(() => {
       showFn(lastMouseCoords?.x ?? 0, lastMouseCoords?.y ?? 0);
+      isTooltipShowing = true;
     }, 70);
   };
 
@@ -38,6 +44,7 @@ function attachTooltipListeners(
       showTimeout = null;
     }
 
+    isTooltipShowing = false;
     hideTooltip();
   };
 
