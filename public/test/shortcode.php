@@ -172,7 +172,6 @@ EOF;
 
 RenderContentStart();
 ?>
-<script src='/vendor/wz_tooltip.js'></script>
 <div style="width:560px;margin:10px;">
     <h1>Shortcode</h1>
     <?php echo Shortcode::render($payload, ['imgur' => true]) ?>
