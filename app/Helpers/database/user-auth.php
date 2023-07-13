@@ -3,6 +3,7 @@
 use App\Community\Enums\ActivityType;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -210,7 +211,9 @@ function authenticateFromCookie(
     }
 
     // valid active account. update the last activity timestamp
-    userActivityPing($userOut);
+    $user->LastLogin = Carbon::now();
+    $user->timestamps = false;
+    $user->save();
 
     // validate permissions for the current page if required
     if (isset($minPermissions) && $permissionsOut < $minPermissions) {
@@ -242,8 +245,6 @@ function authenticateFromAppToken(
     if (empty($token)) {
         return false;
     }
-
-    sanitize_sql_inputs($userOut);
 
     /** @var ?User $user */
     $user = auth('connect-token')->user();

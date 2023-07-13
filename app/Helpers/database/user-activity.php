@@ -3,6 +3,7 @@
 use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Community\Models\Comment;
+use App\Community\Models\UserActivityLegacy;
 use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -12,9 +13,7 @@ use Illuminate\Support\Facades\Cache;
 
 function getMostRecentActivity(string $user, ?int $type = null, ?int $data = null): ?array
 {
-    sanitize_sql_inputs($user);
-
-    $innerClause = "Activity.user = '$user'";
+    $innerClause = "Activity.user = :user";
     if (isset($type)) {
         $innerClause .= " AND Activity.activityType = $type";
     }
@@ -26,14 +25,7 @@ function getMostRecentActivity(string $user, ?int $type = null, ?int $data = nul
               WHERE act.ID =
                 ( SELECT MAX(Activity.ID) FROM Activity WHERE $innerClause ) ";
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return null;
-    }
-
-    return mysqli_fetch_assoc($dbResult);
+    return legacyDbFetch($query, ['user' => $user]);
 }
 
 function updateActivity(int $activityID): void
@@ -43,11 +35,7 @@ function updateActivity(int $activityID): void
               SET Activity.lastupdate = NOW()
               WHERE Activity.ID = $activityID ";
 
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    legacyDbStatement($query);
 }
 
 function RecentlyPostedCompletionActivity(string $user, int $gameID, int $isHardcore): bool
@@ -68,33 +56,30 @@ function RecentlyPostedCompletionActivity(string $user, int $gameID, int $isHard
 
 function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 = null): bool
 {
-    $db = getMysqliConnection();
-
-    $user = validateUsername($userIn);
-    if (!$user) {
-        return false;
-    }
-
     if (!ActivityType::isValid($type)) {
         return false;
     }
 
-    userActivityPing($user);
+    $user = User::firstWhere('User', $userIn);
+    if ($user === null) {
+        return false;
+    }
 
-    // Remove single quotes!
-    $query = "INSERT INTO Activity (lastupdate, activitytype, user, data, data2) VALUES ";
+    $activity = new UserActivityLegacy([
+        'User' => $user->User,
+        'activitytype' => $type,
+    ]);
 
     switch ($type) {
         case ActivityType::UnlockedAchievement:
             if ($data === null) {
                 return false;
             }
-            $achID = $data;
-            $query .= "(NOW(), $type, '$user', '$achID', $data2 )";
+            $activity->data = (string) $data;
             break;
 
         case ActivityType::Login:
-            $lastLoginActivity = getMostRecentActivity($user, $type);
+            $lastLoginActivity = getMostRecentActivity($user->User, $type);
             if ($lastLoginActivity) {
                 $nowTimestamp = time();
                 $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
@@ -111,7 +96,6 @@ function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 
                     return true;
                 }
             }
-            $query .= "(NOW(), $type, '$user', NULL, NULL)";
             break;
 
         case ActivityType::StartedPlaying:
@@ -148,7 +132,7 @@ function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 
 
             if ($activityID === null) {
                 // not in recent activity, look back farther
-                $lastPlayedActivityData = getMostRecentActivity($user, $type, $gameID);
+                $lastPlayedActivityData = getMostRecentActivity($user->User, $type, $gameID);
                 if (isset($lastPlayedActivityData)) {
                     $lastPlayedTimestamp = strtotime($lastPlayedActivityData['timestamp']);
                     $activityID = $lastPlayedActivityData['ID'];
@@ -167,7 +151,7 @@ function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 
                      * Updating db, but not posting!
                      */
                     updateActivity($activityID);
-                    expireRecentlyPlayedGames($user);
+                    expireRecentlyPlayedGames($user->User);
 
                     return true;
                 }
@@ -177,87 +161,46 @@ function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 
                  */
             }
 
-            $query .= "(NOW(), $type, '$user', '$gameID', NULL)";
+            $activity->data = (string) $gameID;
             break;
 
         case ActivityType::UploadAchievement:
         case ActivityType::EditAchievement:
         case ActivityType::OpenedTicket:
         case ActivityType::ClosedTicket:
-            $query .= "(NOW(), $type, '$user', '$data', NULL)";
+            $activity->data = (string) $data;
             break;
 
         case ActivityType::CompleteGame:
         case ActivityType::NewLeaderboardEntry:
         case ActivityType::ImprovedLeaderboardEntry:
-            $query .= "(NOW(), $type, '$user', '$data', '$data2')";
+            $activity->data = (string) $data;
+            $activity->data2 = (string) $data2;
             break;
     }
 
-    $dbResult = mysqli_query($db, $query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
+    $activity->save();
 
     if ($type == ActivityType::StartedPlaying) {
-        // have to do this after the query is executed to prevent a race condition where
-        // it may get re-cached before the query finishes
-        expireRecentlyPlayedGames($user);
+        // have to do this after the activity is saved to prevent a race condition where
+        // it may get re-cached before the activity is committed.
+        expireRecentlyPlayedGames($user->User);
     }
 
-    /**
-     * Update UserAccount
-     */
-    $newActID = mysqli_insert_id($db);
-    $query = "UPDATE UserAccounts AS ua SET ua.LastActivityID = $newActID, ua.LastLogin = NOW() WHERE ua.User = '$user'";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
+    // update UserAccount
+    $user->LastLogin = Carbon::now();
+    $user->LastActivityID = $activity->ID;
+    $user->timestamps = false;
+    $user->save();
 
     return true;
 }
 
-function userActivityPing(string $user): bool
+function UpdateUserRichPresence(User $user, int $gameID, string $presenceMsg): void
 {
-    $username = validateUsername($user);
-    if (!$username) {
-        return false;
-    }
-
-    return legacyDbStatement(
-        'UPDATE UserAccounts AS ua SET ua.LastLogin = NOW() WHERE ua.User = :username',
-        ['username' => $username]
-    );
-}
-
-function UpdateUserRichPresence(string $user, int $gameID, string $presenceMsg): bool
-{
-    $username = validateUsername($user);
-    if (!$username) {
-        return false;
-    }
-
-    // TODO metrics: use RichPresence from player_games, remove from UserAccounts
-    // TODO updateUserGame($user, $gameID, ['RichPresence' => $presenceMsg]);
-
-    $query = "UPDATE UserAccounts AS ua
-              SET ua.RichPresenceMsg = :presence, ua.LastGameID = :gameId, ua.RichPresenceMsgDate = NOW()
-              WHERE ua.User = :username";
-
-    return legacyDbStatement(
-        $query,
-        [
-            'presence' => utf8_sanitize($presenceMsg),
-            'gameId' => $gameID,
-            'username' => $username,
-        ]
-    );
+    $user->RichPresenceMsg = utf8_sanitize($presenceMsg);
+    $user->LastGameID = $gameID;
+    $user->RichPresenceMsgDate = Carbon::now();
 }
 
 function getActivityMetadata(int $activityID): ?array
