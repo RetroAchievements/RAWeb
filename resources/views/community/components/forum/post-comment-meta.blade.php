@@ -8,11 +8,20 @@
 <?php
 use Illuminate\Support\Carbon;
 
-$formatMetaTimestamp = function (string $rawDate): string {
+$shouldUseTimeAgoDate = function (string $rawDate): bool {
     $givenDate = Carbon::parse($rawDate);
     $now = Carbon::now();
 
-    if ($givenDate->gt($now->subHours(24))) {
+    return $givenDate->gt($now->subHours(24));
+};
+
+$shouldUsePostedTimeAgoDate = $shouldUseTimeAgoDate($postCreatedTimestamp);
+$shouldUseEditedTimeAgoDate = $shouldUseTimeAgoDate($postEditedTimestamp);
+
+$formatMetaTimestamp = function (string $rawDate, bool $shouldUseTimeAgoDate): string {
+    $givenDate = Carbon::parse($rawDate);
+
+    if ($shouldUseTimeAgoDate) {
         // "5 minutes ago"
         return $givenDate->diffForHumans();
     } else {
@@ -21,8 +30,11 @@ $formatMetaTimestamp = function (string $rawDate): string {
     }
 };
 
-$formattedPostTimestamp = $formatMetaTimestamp($postCreatedTimestamp);
-$formattedEditTimestamp = $postEditedTimestamp ? $formatMetaTimestamp($postEditedTimestamp) : '';
+$formattedPostTimestamp = $formatMetaTimestamp($postCreatedTimestamp, $shouldUsePostedTimeAgoDate);
+$formattedEditTimestamp =
+    $postEditedTimestamp
+        ? $formatMetaTimestamp($postEditedTimestamp, $shouldUseEditedTimeAgoDate)
+        : '';
 ?>
 
 @if($showUnverifiedDisclaimer)
@@ -41,12 +53,20 @@ $formattedEditTimestamp = $postEditedTimestamp ? $formatMetaTimestamp($postEdite
 
 <p class='smalltext !leading-[14px]'>
     {{-- Keep this all on a single line so white space isn't added before the comma --}}
-    <span title="{{ $postCreatedTimestamp }}" class="cursor-help">{{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif</span>
+    <span 
+        title="{{ $shouldUsePostedTimeAgoDate ? $postCreatedTimestamp : null }}" 
+        class="{{ $shouldUsePostedTimeAgoDate ? "cursor-help" : null }}"
+    >
+        {{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif
+    </span>
 
     @if($formattedEditTimestamp)
         <span class='italic smalltext !leading-[14px]'>
             <span class='hidden sm:inline'>last</span> edited
-            <span class="cursor-help" title="{{ $postEditedTimestamp }}">
+            <span 
+                class="{{ $shouldUseEditedTimeAgoDate ? "cursor-help" : null }}"
+                title="{{ $shouldUseEditedTimeAgoDate ? $postEditedTimestamp : null }}"
+            >
                 {{ $formattedEditTimestamp }}
             </span>
         </span> 
