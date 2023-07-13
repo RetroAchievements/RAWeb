@@ -78,17 +78,19 @@ foreach ($relatedGames as $gameAlt) {
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
-if ($v != 1 && $isFullyFeaturedGame) {
-    foreach ($gameHubs as $hub) {
-        if ($hub['Title'] == '[Theme - Mature]') {
-            if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
-                break;
+if ($v != 1) {
+    if ($isFullyFeaturedGame) {
+        foreach ($gameHubs as $hub) {
+            if ($hub['Title'] == '[Theme - Mature]') {
+                if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
+                    break;
+                }
+                $gate = true;
             }
-            $gate = true;
         }
+    } elseif (str_contains($gameTitle, '[Theme - Mature]')) {
+        $gate = !$userDetails || !BitSet($userDetails['websitePrefs'], $matureContentPref);
     }
-} elseif (str_contains($gameTitle, '[Theme - Mature]')) {
-    $gate = !($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref));
 }
 ?>
 <?php if ($gate): ?>
