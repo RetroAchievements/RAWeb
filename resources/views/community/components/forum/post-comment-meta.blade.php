@@ -15,7 +15,7 @@ $preferences = $user?->websitePrefs ?? 0;
 
 $formatMetaTimestamp = function (string $rawDate, int $preferences = 0): string {
     if ($preferences && BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates)) {
-        return $rawDate;
+        return getNiceDate(strtotime($rawDate));
     }
 
     $givenDate = Carbon::parse($rawDate);

@@ -22,7 +22,7 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
         foreach ($recentPostData as $nextData) {
             $postedAt =
                 $preferences && BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates)
-                    ? $nextData['PostedAt']
+                    ? getNiceDate(strtotime($nextData['PostedAt']))
                     : Carbon::parse($nextData['PostedAt'])->diffForHumans();
 
             $shortMsg = trim($nextData['ShortMsg']);

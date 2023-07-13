@@ -48,24 +48,11 @@ function RenderUserPref(
  */
 function DoChangeUserPrefs(targetLoadingIcon = 1) {
     var newUserPrefs = 0;
-    for (i = 0; i < 7; ++i) { // 0-6 are set if checked
+    for (i = 0; i <= 15; ++i) {
         var checkbox = document.getElementById('UserPreference' + i);
         if (checkbox != null && checkbox.checked) {
             newUserPrefs += (1 << i);
         }
-    }
-
-    for (i = 8; i <= 15; ++i) { // 8-15 are set if checked
-        var checkbox = document.getElementById('UserPreference' + i);
-        if (checkbox != null && checkbox.checked) {
-            newUserPrefs += (1 << i);
-        }
-    }
-
-    // 7 is set if unchecked
-    var checkbox = document.getElementById('UserPreference7');
-    if (checkbox != null && !checkbox.checked) {
-        newUserPrefs += (1 << 7);
     }
 
     const loadingIconId = `#loadingicon-${targetLoadingIcon}`;
@@ -224,11 +211,6 @@ function confirmEmailChange(event) {
                         <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_Newsletter, true) ?></td>
                         <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_Newsletter, true, "disabled") ?></td>
                     </tr>
-                    <tr>
-                        <td>Games with mature content</td>
-                        <td/>
-                        <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOff_MatureContent, false) ?></td>
-                    </tr>
                     </tbody>
                 </table>
                 <img id='loadingicon-1' style='opacity: 0; float: right;' src='<?= asset('assets/images/icon/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
@@ -240,6 +222,12 @@ function confirmEmailChange(event) {
                     <tr class='do-not-highlight'>
                         <th>Setting</th>
                         <th>Enabled</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            Suppress mature content warnings
+                            <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOff_MatureContent, true, $state = null, $targetLoadingIcon = 2) ?></td>
+                        </td>
                     </tr>
                     <tr>
                         <td>

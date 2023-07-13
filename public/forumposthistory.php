@@ -74,7 +74,7 @@ RenderContentStart("Forum Recent Posts");
 
             $postedAt =
                 $websitePrefs && BitSet($websitePrefs, UserPreference::Forum_ShowAbsoluteDates)
-                    ? $topicPostData['PostedAt']
+                    ? getNiceDate(strtotime($topicPostData['PostedAt']))
                     : Carbon::parse($topicPostData['PostedAt'])->diffForHumans();
 
             sanitize_outputs($forumTopicTitle, $forumTitle, $postMessage);
