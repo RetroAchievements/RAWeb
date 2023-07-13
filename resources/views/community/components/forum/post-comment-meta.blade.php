@@ -52,11 +52,11 @@ $formattedEditTimestamp =
 @endif
 
 <p class='smalltext !leading-[14px]'>
-    {{-- Keep this all on a single line so white space isn't added before the comma --}}
     <span 
         title="{{ $shouldUsePostedTimeAgoDate ? $postCreatedTimestamp : null }}" 
         class="{{ $shouldUsePostedTimeAgoDate ? "cursor-help" : null }}"
     >
+        {{-- Keep this all on a single line so white space isn't added before the comma --}}
         {{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif
     </span>
 
