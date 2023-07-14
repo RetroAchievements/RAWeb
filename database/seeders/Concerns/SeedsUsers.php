@@ -23,14 +23,14 @@ trait SeedsUsers
         }
 
         $user = User::create(array_merge([
-            'email' => config('mail.from.address'),
+            'EmailAddress' => config('mail.from.address'),
             'email_verified_at' => Carbon::now(),
-            'api_token' => $username . '-secret',
-            'motto' => 'I am ' . $username,
-            'points_total' => 1000,
-            'password' => Hash::make($safeUsername),
-            'points_weighted' => 1010,
-            'username' => $safeUsername,
+            'APIKey' => $username . '-secret',
+            'Motto' => 'I am ' . $username,
+            'RAPoints' => 1000,
+            'Password' => Hash::make($safeUsername),
+            'TrueRAPoints' => 1010,
+            'User' => $safeUsername,
             'display_name' => strtoupper($safeUsername),
         ], $attributes));
 
@@ -38,7 +38,7 @@ trait SeedsUsers
 
         // set the connect token expiry back a few minutes so we can detect if it gets
         // updated to now + expiry_delay
-        $user->connect_token_expires_at = $user->connect_token_expires_at->subMinutes(5);
+        $user->appTokenExpiry = $user->appTokenExpiry->subMinutes(5);
         $user->save();
 
         if (!$role) {
