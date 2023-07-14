@@ -34,9 +34,9 @@ trait ActsAsPlayer
     public function rollConnectToken(): void
     {
         do {
-            $this->connect_token = Str::random(30);
-        } while ($this->where('connect_token', $this->connect_token)->exists());
-        $this->connect_token_expires_at = Carbon::now()->addDays(ConnectApiController::TOKEN_EXPIRY_DAYS);
+            $this->appToken = Str::random(30);
+        } while ($this->where('appToken', $this->appToken)->exists());
+        $this->appTokenExpiry = Carbon::now()->addDays(ConnectApiController::TOKEN_EXPIRY_DAYS);
         $this->save();
     }
 
