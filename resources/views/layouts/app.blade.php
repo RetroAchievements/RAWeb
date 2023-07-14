@@ -14,7 +14,6 @@
     data-theme="{{ request()->cookie('theme', '') }}"
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
 >
-<script src="{{ asset('/vendor/wz_tooltip.js') }}"></script>
 {{--@if(Route::is('home'))--}}
 <x-brand-top/>
 {{--@endif--}}

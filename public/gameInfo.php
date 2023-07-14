@@ -101,6 +101,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
             const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
             const gameId = <?= $gameID ?>;
 
+            // FIXME: Use the `fetcher` util.
             fetch('/request/user/update-notification.php', {
                 method: 'POST',
                 headers: {
@@ -253,7 +254,38 @@ sanitize_outputs(
 );
 ?>
 <?php if ($isFullyFeaturedGame): ?>
-    <?php RenderOpenGraphMetadata($pageTitle, "game", media_asset($gameData['ImageIcon']), "Game Info for $gameTitle ($consoleName)"); ?>
+    <?php
+        function generateMetaDescription(
+            string $gameTitle,
+            string $consoleName,
+            int $numAchievements = 0,
+            int $gamePoints = 0,
+            bool $isEventGame = false,
+        ): string {
+            if ($isEventGame) {
+                return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
+            } elseif ($numAchievements === 0 || $gamePoints === 0) {
+                return "No achievements have been created yet for $gameTitle. Join RetroAchievements to request achievements for $gameTitle and earn achievements on many other classic games.";
+            }
+
+            $localizedPoints = localized_number($gamePoints);
+
+            return "There are $numAchievements achievements worth $localizedPoints points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
+        }
+
+        RenderOpenGraphMetadata(
+            $pageTitle,
+            "game",
+            media_asset($gameData['ImageIcon']),
+            generateMetaDescription(
+                $gameTitle,
+                $consoleName,
+                $numAchievements,
+                $totalPossible,
+                $isEventGame
+            )
+        );
+    ?>
 <?php endif ?>
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
@@ -1145,7 +1177,8 @@ sanitize_outputs(
                     echo "</div>";
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
-                    echo "<div class='mt-1' style='float: left; clear: left' onmouseover=\"mobileSafeTipEvents.mouseOver({$containername}tooltip)\" onmouseout=\"UnTip()\">";
+
+                    echo "<div class='mt-1' style='float: left; clear: left' x-init=\"attachTooltipToElement(\$el, { staticHtmlContent: {$containername}tooltip })\">";
                     echo "<p class='$labelname text-2xs'>$labelcontent</p>";
                     echo "<p id='your-game-rating' class='text-2xs'>";
                     if ($ratingData['UserRating'] > 0) {
