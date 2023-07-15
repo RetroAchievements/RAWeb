@@ -21,8 +21,6 @@ abstract class NotificationPreferences
 
     public const EmailOn_Newsletter = 6;
 
-    public const SiteMsgOff_MatureContent = 7;
-
     public const SiteMsgOn_ActivityComment = 8;
 
     public const SiteMsgOn_AchievementComment = 9;
