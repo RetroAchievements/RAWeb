@@ -12,7 +12,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'achievement' => 'required|integer|exists:mysql_legacy.Achievements,ID',
+    'achievement' => 'required|integer|exists:Achievements,ID',
     'video' => 'nullable|url',
 ]);
 
@@ -32,8 +32,7 @@ if (
 }
 
 if (updateAchievementEmbedVideo($achievementId, $embedUrl)) {
-    $embedUrlText = $embedUrl === null ? 'null' : $embedUrl;
-    $auditLog = "$user set this achievement's embed URL to $embedUrlText.";
+    $auditLog = "$user set this achievement's embed URL.";
 
     addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $user);
 
