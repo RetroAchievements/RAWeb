@@ -6,33 +6,33 @@ namespace App\Support\Cache;
 
 class CacheKey
 {
-    public static function buildUserCanTicketCacheKey(string $userName): string
+    public static function buildUserCanTicketCacheKey(string $username): string
     {
-        return self::buildNormalizedUserCacheKey($userName, "canTicket");
+        return self::buildNormalizedUserCacheKey($username, "canTicket");
     }
 
-    public static function buildUserCardDataCacheKey(string $userName): string
+    public static function buildUserCardDataCacheKey(string $username): string
     {
-        return self::buildNormalizedUserCacheKey($userName, "card-data");
+        return self::buildNormalizedUserCacheKey($username, "card-data");
     }
 
     /**
-     * @param string $userName the name of the user for which the cache key is being constructed
+     * @param string $username the name of the user for which the cache key is being constructed
      * @param int $gameID the target game ID for the unlocks data
      * @param int $flags The type of achievement flag which should correspond to values in the `AchievementType` enum.
      *                   3 for 'OfficialCore' (default), 5 for 'Unofficial'.
      */
-    public static function buildUserGameUnlocksCacheKey(string $userName, int $gameID, int $flags = 3): string
+    public static function buildUserGameUnlocksCacheKey(string $username, int $gameID, int $flags = 3): string
     {
-        return self::buildNormalizedUserCacheKey($userName, "gameUnlocks", [$gameID, $flags]);
+        return self::buildNormalizedUserCacheKey($username, "gameUnlocks", [$gameID, $flags]);
     }
 
     /**
-     * @param string $userName the name of the user for which the cache key is being constructed
+     * @param string $username the name of the user for which the cache key is being constructed
      * @param int $rankType The type of the rank which should correspond to values in the `RankType` enum.
      *                      1 for 'Hardcore' (default), 2 for 'Softcore', 3 for 'TruePoints'.
      */
-    public static function buildUserRankCacheKey(string $userName, int $rankType = 1): string
+    public static function buildUserRankCacheKey(string $username, int $rankType = 1): string
     {
         $rankTypeParam = match ($rankType) {
             default => 'hardcore',
@@ -40,12 +40,12 @@ class CacheKey
             3 => 'truepoints',
         };
 
-        return self::buildNormalizedUserCacheKey($userName, "rank", [$rankTypeParam]);
+        return self::buildNormalizedUserCacheKey($username, "rank", [$rankTypeParam]);
     }
 
-    public static function buildUserRecentGamesCacheKey(string $userName): string
+    public static function buildUserRecentGamesCacheKey(string $username): string
     {
-        return self::buildNormalizedUserCacheKey($userName, "recentGames");
+        return self::buildNormalizedUserCacheKey($username, "recentGames");
     }
 
     /**
@@ -61,15 +61,15 @@ class CacheKey
      * ```
      * This generates a cache key like: "user:username:gameUnlocks:{gameID}:{flags}".
      *
-     * @param string $userName the name of the user for which the cache key is constructed
+     * @param string $username the name of the user for which the cache key is constructed
      * @param string $keyKind the kind of the cache key
      * @param array  $params optional parameters for the cache key
      *
      * @return string the constructed cache key
      */
-    private static function buildNormalizedUserCacheKey(string $userName, string $keyKind, array $params = []): string
+    private static function buildNormalizedUserCacheKey(string $username, string $keyKind, array $params = []): string
     {
-        $normalizedUserName = strtolower($userName);
+        $normalizedUserName = strtolower($username);
 
         $cacheKey = "user:$normalizedUserName:$keyKind";
         if (count($params) > 0) {
