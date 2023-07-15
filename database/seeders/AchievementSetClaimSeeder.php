@@ -13,8 +13,8 @@ class AchievementSetClaimSeeder extends Seeder
 {
     public function run(): void
     {
-        //
-        if(AchievementSetClaim::count() > 0) {
+
+        if (AchievementSetClaim::count() > 0) {
             return;
         }
         Game::take(5)->get()->each(function (Game $game) {
