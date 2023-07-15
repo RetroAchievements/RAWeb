@@ -21,7 +21,7 @@
     </style>
 
     <div id="debug" role="button" x-init="{}" @click="handleClick($el)">
-        <b class="text-danger text-capitalize">{{ app()->environment() }}</b>
+        <b class="text-danger text-capitalize">{{ app()->environment() }} ({{ config('app.branch') }})</b>
         <b>
             <span class="sm:hidden">XS</span>
             <span class="hidden sm:inline-block md:hidden">SM</span>
