@@ -53,8 +53,10 @@ $formattedEditTimestamp =
 
 <p class='smalltext !leading-[14px]'>
     <span 
-        title="{{ $shouldUsePostedTimeAgoDate ? $postCreatedTimestamp : null }}" 
-        class="{{ $shouldUsePostedTimeAgoDate ? "cursor-help" : null }}"
+        @if($shouldUsePostedTimeAgoDate)
+            title="{{ getNiceDate(strtotime($postCreatedTimestamp)) }}" 
+            class="cursor-help"
+        @endif
     >
         {{-- Keep this all on a single line so white space isn't added before the comma --}}
         {{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif
@@ -63,9 +65,11 @@ $formattedEditTimestamp =
     @if($formattedEditTimestamp)
         <span class='italic smalltext !leading-[14px]'>
             <span class='hidden sm:inline'>last</span> edited
-            <span 
-                class="{{ $shouldUseEditedTimeAgoDate ? "cursor-help" : null }}"
-                title="{{ $shouldUseEditedTimeAgoDate ? $postEditedTimestamp : null }}"
+            <span
+                @if($shouldUseEditedTimeAgoDate)
+                    class="cursor-help"
+                    title="{{ getNiceDate(strtotime($postEditedTimestamp)) }}"
+                @endif
             >
                 {{ $formattedEditTimestamp }}
             </span>
