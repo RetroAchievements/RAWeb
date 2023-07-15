@@ -78,14 +78,18 @@ foreach ($relatedGames as $gameAlt) {
 
 $v = requestInputSanitized('v', 0, 'integer');
 $gate = false;
-if ($v != 1 && $isFullyFeaturedGame) {
-    foreach ($gameHubs as $hub) {
-        if ($hub['Title'] == '[Theme - Mature]') {
-            if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
-                break;
+if ($v != 1) {
+    if ($isFullyFeaturedGame) {
+        foreach ($gameHubs as $hub) {
+            if ($hub['Title'] == '[Theme - Mature]') {
+                if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
+                    break;
+                }
+                $gate = true;
             }
-            $gate = true;
         }
+    } elseif (str_contains($gameTitle, '[Theme - Mature]')) {
+        $gate = !$userDetails || !BitSet($userDetails['websitePrefs'], $matureContentPref);
     }
 }
 ?>
@@ -121,10 +125,10 @@ if ($v != 1 && $isFullyFeaturedGame) {
                 <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
             </div>
             <h1 class="text-h3"><?= renderGameTitle($pageTitle) ?></h1>
-            <h4>WARNING: THIS GAME MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
+            <h4>WARNING: THIS PAGE MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
             <br/>
             <div id="confirmation">
-                Are you sure that you want to view this game?
+                Are you sure that you want to view this page?
                 <br/>
                 <br/>
 
@@ -144,7 +148,7 @@ if ($v != 1 && $isFullyFeaturedGame) {
                             class='break-words whitespace-normal leading-normal'
                             onclick='disableMatureContentWarningPreference()'
                         >
-                            Yes. And never ask me again for games with mature content.
+                            Yes. And never ask me again for pages with mature content.
                         </button>
                     <?php endif; ?>
                 </div>
@@ -254,7 +258,38 @@ sanitize_outputs(
 );
 ?>
 <?php if ($isFullyFeaturedGame): ?>
-    <?php RenderOpenGraphMetadata($pageTitle, "game", media_asset($gameData['ImageIcon']), "Game Info for $gameTitle ($consoleName)"); ?>
+    <?php
+        function generateMetaDescription(
+            string $gameTitle,
+            string $consoleName,
+            int $numAchievements = 0,
+            int $gamePoints = 0,
+            bool $isEventGame = false,
+        ): string {
+            if ($isEventGame) {
+                return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
+            } elseif ($numAchievements === 0 || $gamePoints === 0) {
+                return "No achievements have been created yet for $gameTitle. Join RetroAchievements to request achievements for $gameTitle and earn achievements on many other classic games.";
+            }
+
+            $localizedPoints = localized_number($gamePoints);
+
+            return "There are $numAchievements achievements worth $localizedPoints points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
+        }
+
+        RenderOpenGraphMetadata(
+            $pageTitle,
+            "game",
+            media_asset($gameData['ImageIcon']),
+            generateMetaDescription(
+                $gameTitle,
+                $consoleName,
+                $numAchievements,
+                $totalPossible,
+                $isEventGame
+            )
+        );
+    ?>
 <?php endif ?>
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
