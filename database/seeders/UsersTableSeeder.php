@@ -31,7 +31,7 @@ class UsersTableSeeder extends Seeder
         $this->seedUserByUsername('unverified', ['id' => ++$id, 'email_verified_at' => null]);
         $this->seedUserByUsername('unranked', ['id' => ++$id, 'unranked_at' => Carbon::now()]);
         $this->seedUserByUsername('banned', ['id' => ++$id, 'banned_at' => Carbon::now()]);
-        $this->seedUserByUsername('spammer', ['id' => ++$id, 'banned_at' => Carbon::now(), 'deleted_at' => Carbon::now()]);
+        $this->seedUserByUsername('spammer', ['id' => ++$id, 'banned_at' => Carbon::now(), 'Deleted' => Carbon::now()]);
 
         // if(app()->environment('local')) {
         //     User::factory()->count(50)->create()->each(function ($user) {
