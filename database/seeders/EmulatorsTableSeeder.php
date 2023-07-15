@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Platform\Models\Emulator;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 
 class EmulatorsTableSeeder extends Seeder
 {
@@ -19,11 +18,17 @@ class EmulatorsTableSeeder extends Seeder
         /*
          * Integration IDs: https://github.com/RetroAchievements/RAIntegration/blob/master/src/RA_Interface.h
          */
-        (new Collection(getReleasesFromFile()))->each(function ($data) {
-            $systems = $data['systems'] ?? [];
-            unset($data['systems']);
-            $emulator = Emulator::create($data);
-            $emulator->systems()->sync($systems);
-        });
+        $emulatorReleases = getReleasesFromFile()['emulators'] ?? [];
+        foreach ($emulatorReleases as $integrationId => $emulatorRelease) {
+            $emulator = Emulator::create([
+                'integration_id' => $integrationId,
+                'name' => $emulatorRelease['name'],
+                'handle' => $emulatorRelease['handle'],
+                'active' => $emulatorRelease['active'],
+                'link' => $emulatorRelease['link'],
+                'description' => $emulatorRelease['description'] ?? null,
+            ]);
+            $emulator->systems()->sync($emulatorRelease['systems'] ?? []);
+        }
     }
 }
