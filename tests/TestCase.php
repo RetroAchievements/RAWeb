@@ -71,7 +71,7 @@ abstract class TestCase extends BaseTestCase
         $games = $system->games()->saveMany(Game::factory()->count($amount)->create());
 
         if ($withHash) {
-            $games->each(fn (Game $game) => (bool) (new LinkHashToGameAction())->execute($game->id . '_hash', $game));
+            $games->each(fn (Game $game) => (bool) (new LinkHashToGameAction())->execute($game->ID . '_hash', $game));
         }
 
         if ($achievementsAmount > 0) {

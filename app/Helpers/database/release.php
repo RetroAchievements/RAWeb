@@ -117,7 +117,7 @@ function getIntegrationRelease(): ?array
 function getReleasesFromFile(): ?array
 {
     try {
-        return file_exists(storage_path('app/releases.php')) ? require_once storage_path('app/releases.php') : null;
+        return file_exists(storage_path('app/releases.php')) ? require storage_path('app/releases.php') : null;
     } catch (Throwable $throwable) {
         if (app()->environment('local')) {
             throw $throwable;
