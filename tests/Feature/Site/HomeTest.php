@@ -6,6 +6,7 @@ namespace Tests\Feature\Site;
 
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\System;
 use App\Site\Models\StaticData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,9 +24,12 @@ class HomeTest extends TestCase
     {
         /** @var StaticData $staticData */
         $staticData = StaticData::factory()->create();
+        /** @var System $system */
+        $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create([
             'ID' => $staticData->LastCreatedGameID,
+            'ConsoleID' => $system->ID,
         ]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create([
