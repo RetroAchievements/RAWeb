@@ -9,8 +9,8 @@ use App\Community\Enums\ClaimSorting;
  * Creates a unique key based on the given game title and user.
  * This key can then be used for convenient comparison of potential duplicates.
  */
-$createClaimKey = function (string $gameTitle, string $user): string {
-    return $gameTitle . '_' . $user;
+$createClaimKey = function (string $gameTitle, string $user, int $consoleId): string {
+    return $gameTitle . '_' . $user . '_' . $consoleId;
 };
 
 /**
@@ -53,7 +53,7 @@ $updateClaimData = function (array &$claimData, array $existingClaim, array $new
 ): void {
     foreach ($claimsBatch as $batchedClaim) {
         if (isValidConsoleId($batchedClaim['ConsoleID'])) {
-            $claimKey = $createClaimKey($batchedClaim['GameTitle'], $batchedClaim['User']);
+            $claimKey = $createClaimKey($batchedClaim['GameTitle'], $batchedClaim['User'], $batchedClaim['ConsoleID']);
 
             if (!isset($uniqueClaims[$claimKey])) {
                 $uniqueClaims[$claimKey] = $batchedClaim;
