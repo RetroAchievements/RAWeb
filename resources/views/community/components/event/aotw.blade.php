@@ -19,6 +19,8 @@ $achievementIconSrc = media_asset("/Badge/$achievementBadgeName.png");
 $gameSystemIconUrl = getSystemIconUrl($game->ConsoleID);
 
 $achievementUrl = route('achievement.show', $achievement->ID);
+$gameUrl = route('game.show', $achievement->GameID);
+$gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
 ?>
 
 <div class="component">
@@ -32,23 +34,37 @@ $achievementUrl = route('achievement.show', $achievement->ID);
 
             <div>
                 <a href={{ $achievementUrl }} class="font-semibold leading-4 text-link">{!! $renderedAchievementTitle !!}</a>
-                <p class="text-xs mb-1">5 <span class="TrueRatio">(12)</span> Points</p>
+                <p class="text-xs mb-1">{{ $achievementPoints }} <span class="TrueRatio">({{ $achievementRetroPoints }})</span> Points</p>
                 <p class="text-xs">{{ $achievement->Description }}</p>
             </div>
         </div>
 
         <hr class="border-embed-highlight mt-2 mb-3">
 
-        <a href="{{ route('game.show', $achievement->GameID) }}" class="group flex gap-x-2">
-            <img src="{{ media_asset($game->ImageIcon) }}" alt="Achievement of the week game badge" width="32" height="32" class="w-8 h-8">
+        <div class="flex gap-x-2">
+            <a href="{{ $gameUrl }}">
+                <img 
+                    src="{{ media_asset($game->ImageIcon) }}" 
+                    alt="Achievement of the week game badge" 
+                    width="32" 
+                    height="32" 
+                    class="w-8 h-8"
+                >
+            </a>
+
             <div class="-mt-1">
-                <p class="font-semibold mb-0.5 text-xs text-link group-hover:text-link-hover">{!! $renderedGameTitle !!}</p>
-                <div class="flex items-center gap-x-1">
+                <a href="{{ $gameUrl }}">
+                    <p class="font-semibold mb-0.5 text-xs">
+                        {!! $renderedGameTitle !!}
+                    </p>
+                </a>
+
+                <a href="{{ $gameSystemUrl }}" class="flex items-center gap-x-1">
                     <img src="{{ $gameSystemIconUrl }}" width="18" height="18" alt="Console icon">
                     <span class="block text-xs tracking-tighter">{{ $consoleName }}</span>
-                </div>
+                </a>
             </div>
-        </a>
+        </div>
     </div>
 
     <a class="btn text-center py-2 w-full mt-2" href="/viewtopic.php?t={{ $forumTopicId }}">Learn more about this event</a>
