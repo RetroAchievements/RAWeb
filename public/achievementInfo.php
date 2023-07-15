@@ -35,6 +35,11 @@ $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
 $isAuthor = $user == $author;
 
+$canEmbedVideo = (
+    $permissions >= Permissions::Developer
+    || ($permissions === Permissions::JuniorDeveloper && $isAuthor)
+);
+
 $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
@@ -112,7 +117,7 @@ RenderContentStart($pageTitle);
     </script>
 <?php endif ?>
 
-<?php if ($permissions >= Permissions::Developer): ?>
+<?php if ($canEmbedVideo): ?>
     <script>
     function PostEmbedUpdate() {
         var url = $('#embedurlinput').val();
@@ -295,7 +300,7 @@ RenderContentStart($pageTitle);
                 echo "</form><br>";
             }
 
-            if ($permissions >= Permissions::Developer) {
+            if ($canEmbedVideo) {
                 echo "<div class='devbox'>";
                 echo "<div><span onclick=\"$('#embedcontent').toggle(); return false;\">Embedded video URL - show accepted formats ▼</span></div>";
                 echo "<div id='embedcontent' style='display: none'>";
