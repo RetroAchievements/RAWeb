@@ -6,6 +6,7 @@ use App\Community\Models\Comment;
 use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
+use App\Support\Cache\CacheKey;
 use App\Support\Database\Models\DeletedModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -135,7 +136,8 @@ function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 
              */
             $lastPlayedTimestamp = null;
             $activityID = null;
-            $recentlyPlayedGames = Cache::get("user:$user:recentGames");
+            $recentlyPlayedGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
+            $recentlyPlayedGames = Cache::get($recentlyPlayedGamesCacheKey);
             if (!empty($recentlyPlayedGames)) {
                 foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
                     if ($recentlyPlayedGame['GameID'] == $gameID) {
@@ -394,13 +396,15 @@ function addArticleComment(
 
 function expireRecentlyPlayedGames(string $user): void
 {
-    Cache::forget("user:$user:recentGames");
+    $userRecentGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
+    Cache::forget($userRecentGamesCacheKey);
 }
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
 {
     if ($offset == 0 && $count <= 5) {
-        $recentlyPlayedGames = Cache::remember("user:$user:recentGames", Carbon::now()->addDays(30), fn () => _getRecentlyPlayedGameIds($user, 0, 5));
+        $userRecentGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
+        $recentlyPlayedGames = Cache::remember($userRecentGamesCacheKey, Carbon::now()->addDays(30), fn () => _getRecentlyPlayedGameIds($user, 0, 5));
     } else {
         $recentlyPlayedGames = _getRecentlyPlayedGameIds($user, $offset, $count);
     }

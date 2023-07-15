@@ -3,6 +3,7 @@
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
 use App\Site\Enums\Permissions;
+use App\Support\Cache\CacheKey;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -21,7 +22,8 @@ function userAvatar(
         return '';
     }
 
-    $user = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
+    $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($username);
+    $user = Cache::store('array')->rememberForever($userCardDataCacheKey, function () use ($username) {
         getAccountDetails($username, $data);
 
         return $data;
@@ -73,7 +75,8 @@ function renderUserCard(string|array $user): string
     }
 
     if (empty($data)) {
-        $data = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
+        $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($username);
+        $data = Cache::store('array')->rememberForever($userCardDataCacheKey, function () use ($username) {
             getAccountDetails($username, $dataOut);
 
             return $dataOut;
