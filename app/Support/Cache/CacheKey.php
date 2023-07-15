@@ -17,10 +17,9 @@ class CacheKey
     }
 
     /**
-     * @param string $username the name of the user for which the cache key is being constructed
-     * @param int $gameID the target game ID for the unlocks data
-     * @param int $flags The type of achievement flag which should correspond to values in the `AchievementType` enum.
-     *                   3 for 'OfficialCore' (default), 5 for 'Unofficial'.
+     * @param string $username The name of the user for which the cache key is being constructed.
+     * @param int    $gameID The target game ID for the unlocks data.
+     * @param bool   $isOfficial Whether this is for official or unofficial achievements.
      */
     public static function buildUserGameUnlocksCacheKey(string $username, int $gameID, bool $isOfficial = true): string
     {
@@ -30,7 +29,7 @@ class CacheKey
     }
 
     /**
-     * @param string $username the name of the user for which the cache key is being constructed
+     * @param string $username The name of the user for which the cache key is being constructed.
      * @param int $rankType The type of the rank which should correspond to values in the `RankType` enum.
      *                      1 for 'Hardcore' (default), 2 for 'Softcore', 3 for 'TruePoints'.
      */
@@ -63,11 +62,11 @@ class CacheKey
      * ```
      * This generates a cache key like: "user:username:gameUnlocks:{gameID}:{flags}".
      *
-     * @param string $username the name of the user for which the cache key is constructed
-     * @param string $keyKind the kind of the cache key
-     * @param array  $params optional parameters for the cache key
+     * @param string $username The name of the user for which the cache key is constructed.
+     * @param string $keyKind The kind of the cache key.
+     * @param array  $params Optional parameters for the cache key.
      *
-     * @return string the constructed cache key
+     * @return string The constructed cache key.
      */
     private static function buildNormalizedUserCacheKey(string $username, string $keyKind, array $params = []): string
     {
