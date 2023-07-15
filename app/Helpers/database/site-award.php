@@ -1,45 +1,38 @@
 <?php
 
 use App\Community\Enums\AwardType;
+use App\Platform\Models\PlayerBadge;
+use Carbon\Carbon;
 
 function AddSiteAward(string $user, int $awardType, ?int $data = null, int $dataExtra = 0): void
 {
-    sanitize_sql_inputs($user);
-
     $displayOrder = 0;
-    $query = "SELECT MAX( DisplayOrder ) FROM SiteAwards WHERE User = '$user'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    } else {
-        $dbData = mysqli_fetch_assoc($dbResult);
-        if (isset($dbData['MAX( DisplayOrder )'])) {
-            $displayOrder = (int) $dbData['MAX( DisplayOrder )'] + 1;
-        }
+    $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
+    $dbData = legacyDbFetch($query, ['user' => $user]);
+    if (isset($dbData['MaxDisplayOrder'])) {
+        $displayOrder = (int) $dbData['MaxDisplayOrder'] + 1;
     }
 
-    $query = "INSERT INTO SiteAwards (AwardDate, User, AwardType, AwardData, AwardDataExtra, DisplayOrder)
-                            VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
-    $db = getMysqliConnection();
-    mysqli_query($db, $query);
+    $badge = PlayerBadge::firstOrNew([
+        'User' => $user,
+        'AwardType' => $awardType,
+        'AwardData' => $data,
+        'AwardDataExtra' => $dataExtra,
+    ], [
+        'DisplayOrder' => $displayOrder,
+    ]);
+    $badge->AwardDate = Carbon::now();
+    $badge->save();
 }
 
 function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra = null): bool
 {
-    sanitize_sql_inputs($user);
-    $query = "SELECT AwardDate FROM SiteAwards WHERE User='$user' AND AwardType=$awardType AND AwardData=$data";
+    $query = "SELECT AwardDate FROM SiteAwards WHERE User=:user AND AwardType=$awardType AND AwardData=$data";
     if ($dataExtra !== null) {
         $query .= " AND AwardDataExtra=$dataExtra";
     }
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    $dbData = mysqli_fetch_assoc($dbResult);
+    $dbData = legacyDbFetch($query, ['user' => $user]);
 
     return isset($dbData['AwardDate']);
 }

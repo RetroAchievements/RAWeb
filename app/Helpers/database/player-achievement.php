@@ -77,7 +77,7 @@ function unlockAchievement(string $username, int $achIDToAward, bool $isHardcore
             'User' => $user->User,
             'AchievementID' => $achievement->ID,
             'HardcoreMode' => UnlockMode::Hardcore,
-            'Date' => $now
+            'Date' => $now,
         ]);
     }
     if (!$hasRegular) {
@@ -85,7 +85,7 @@ function unlockAchievement(string $username, int $achIDToAward, bool $isHardcore
             'User' => $user->User,
             'AchievementID' => $achievement->ID,
             'HardcoreMode' => UnlockMode::Softcore,
-            'Date' => $now
+            'Date' => $now,
         ]);
     }
 
@@ -94,7 +94,7 @@ function unlockAchievement(string $username, int $achIDToAward, bool $isHardcore
     if (!$alreadyAwarded) {
         // testFullyCompletedGame could post a mastery notification. make sure to post
         // the achievement unlock notification first
-        postActivity($user->User, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
+        postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
     $completion = testFullyCompletedGame($achievement->GameID, $user->User, $isHardcore, !$alreadyAwarded);

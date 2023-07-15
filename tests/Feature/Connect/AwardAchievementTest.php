@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Community\Enums\ActivityType;
+use App\Community\Enums\AwardType;
+use App\Community\Models\UserActivityLegacy;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\System;
-use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Tests\Feature\Platform\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -22,9 +24,9 @@ class AwardAchievementTest extends TestCase
     use RefreshDatabase;
     use TestsPlayerAchievements;
 
-    private function buildValidationHash(Achievement $achievement, User $user, int $hardcore)
+    private function buildValidationHash(Achievement $achievement, User $user, int $hardcore): string
     {
-        return md5(str($achievement->ID) . $user->User . str($hardcore));
+        return md5(strval($achievement->ID) . $user->User . strval($hardcore));
     }
 
     public function testHardcoreUnlock(): void
@@ -47,13 +49,19 @@ class AwardAchievementTest extends TestCase
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
         /** @var Achievement $achievement4 */
         $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);
+        $this->addHardcoreUnlock($this->user, $achievement5, $unlock1Date);
+        $this->addHardcoreUnlock($this->user, $achievement6, $unlock1Date);
 
         // cache the unlocks for the game - verify singular unlock captured
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the hardcore unlock
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
@@ -85,9 +93,16 @@ class AwardAchievementTest extends TestCase
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
+
+        // make sure the unlock was announced
+        $this->assertNotNull(UserActivityLegacy::find([
+            'activitytype' => ActivityType::UnlockedAchievement,
+            'User' => $this->user->User,
+            'data' => $achievement3->ID,
+        ]));
 
         // repeat the hardcore unlock
         $scoreBefore = $user1->RAPoints;
@@ -127,6 +142,57 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($now, $unlockTime);
         $unlockTime = $this->getUnlockTime($user2, $achievement3, UnlockMode::Softcore);
         $this->assertEquals($now, $unlockTime);
+
+        // unlock the rest of the set
+        $validationHash = $this->buildValidationHash($achievement2, $this->user, 1);
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'AchievementsRemaining' => 1,
+                'Score' => $scoreBefore + $achievement2->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $this->assertNotNull(UserActivityLegacy::where('User', $this->user->User)
+            ->where('activitytype', ActivityType::UnlockedAchievement)
+            ->where('data', $achievement2->ID)
+            ->first()
+        );
+
+        $validationHash = $this->buildValidationHash($achievement4, $this->user, 1);
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->ID,
+                'AchievementsRemaining' => 0,
+                'Score' => $scoreBefore + $achievement2->Points + $achievement4->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+
+        $this->assertNotNull(UserActivityLegacy::where('User', $this->user->User)
+            ->where('activitytype', ActivityType::UnlockedAchievement)
+            ->where('data', $achievement4->ID)
+            ->first()
+        );
+
+        $masteryActivity = UserActivityLegacy::where('User', $this->user->User)
+            ->where('activitytype', ActivityType::CompleteGame)
+            ->where('data', $game->ID)
+            ->where('data2', UnlockMode::Hardcore)
+            ->first();
+        $this->assertNotNull($masteryActivity);
+
+        // unlock should be reported before mastery
+        $latest = UserActivityLegacy::latest()->first();
+        $this->assertEquals($masteryActivity->toArray(), $latest->toArray());
+
+        // verify badge was awarded
+        $this->assertNotNull(PlayerBadge::where('User', $this->user->User)
+            ->where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $game->ID)
+            ->where('AwardDataExtra', UnlockMode::Hardcore)
+            ->where('AwardDate', $newNow)
+        );
     }
 
     public function testSoftcoreUnlockPromotedToHardcore(): void
@@ -149,13 +215,19 @@ class AwardAchievementTest extends TestCase
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
         /** @var Achievement $achievement4 */
         $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);
+        $this->addSoftcoreUnlock($this->user, $achievement5, $unlock1Date);
+        $this->addSoftcoreUnlock($this->user, $achievement6, $unlock1Date);
 
         // cache the unlocks for the game - verify singular unlock captured
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
 
         // do the softcore unlock
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 0);
@@ -187,7 +259,7 @@ class AwardAchievementTest extends TestCase
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertArrayNotHasKey('DateEarnedHardcore', $unlocks[$achievement3->ID]);
 
@@ -239,7 +311,7 @@ class AwardAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
-                'AchievementsRemaining' => 2,
+                'AchievementsRemaining' => 4,
                 'Score' => $scoreBefore + $achievement3->Points,
                 'SoftcoreScore' => $softcoreScoreBefore - $achievement3->Points,
             ]);
@@ -257,7 +329,7 @@ class AwardAchievementTest extends TestCase
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertEquals($newNow, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
 
@@ -266,6 +338,60 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($now, $unlockTime);
         $unlockTime = $this->getUnlockTime($user2, $achievement3, UnlockMode::Hardcore);
         $this->assertEquals($newNow, $unlockTime);
+
+        // unlock the rest of the set
+        $scoreBefore = $user2->RAPoints;
+        $softcoreScoreBefore = $user2->RASoftcorePoints;
+
+        $validationHash = $this->buildValidationHash($achievement2, $this->user, 0);
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement2->ID, 'h' => 0, 'm' => $gameHash, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'AchievementsRemaining' => 1,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->Points,
+            ]);
+        $this->assertNotNull(UserActivityLegacy::where('User', $this->user->User)
+            ->where('activitytype', ActivityType::UnlockedAchievement)
+            ->where('data', $achievement2->ID)
+            ->first()
+        );
+
+        $validationHash = $this->buildValidationHash($achievement4, $this->user, 0);
+        $this->get($this->apiUrl('awardachievement', ['a' => $achievement4->ID, 'h' => 0, 'm' => $gameHash, 'v' => $validationHash]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement4->ID,
+                'AchievementsRemaining' => 0,
+                'Score' => $scoreBefore,
+                'SoftcoreScore' => $softcoreScoreBefore + $achievement2->Points + $achievement4->Points,
+            ]);
+
+        $this->assertNotNull(UserActivityLegacy::where('User', $this->user->User)
+            ->where('activitytype', ActivityType::UnlockedAchievement)
+            ->where('data', $achievement4->ID)
+            ->first()
+        );
+
+        $masteryActivity = UserActivityLegacy::where('User', $this->user->User)
+            ->where('activitytype', ActivityType::CompleteGame)
+            ->where('data', $game->ID)
+            ->where('data2', UnlockMode::Softcore)
+            ->first();
+        $this->assertNotNull($masteryActivity);
+
+        // unlock should be reported before mastery
+        $latest = UserActivityLegacy::latest()->first();
+        $this->assertEquals($masteryActivity->toArray(), $latest->toArray());
+
+        // verify badge was awarded
+        $this->assertNotNull(PlayerBadge::where('User', $this->user->User)
+            ->where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $game->ID)
+            ->where('AwardDataExtra', UnlockMode::Softcore)
+            ->where('AwardDate', $newNow)
+        );
     }
 
     public function testErrors(): void
