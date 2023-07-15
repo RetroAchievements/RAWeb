@@ -35,6 +35,9 @@ $formattedEditTimestamp =
     $postEditedTimestamp
         ? $formatMetaTimestamp($postEditedTimestamp, $shouldUseEditedTimeAgoDate)
         : '';
+
+$formattedPostTimestampTooltip = $formatMetaTimestamp($postCreatedTimestamp, false);
+$formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, false);
 ?>
 
 @if($showUnverifiedDisclaimer)
@@ -54,7 +57,7 @@ $formattedEditTimestamp =
 <p class='smalltext !leading-[14px]'>
     <span 
         @if($shouldUsePostedTimeAgoDate)
-            title="{{ getNiceDate(strtotime($postCreatedTimestamp)) }}" 
+            title="{{ $formattedPostTimestampTooltip }}" 
             class="cursor-help"
         @endif
     >
@@ -68,7 +71,7 @@ $formattedEditTimestamp =
             <span
                 @if($shouldUseEditedTimeAgoDate)
                     class="cursor-help"
-                    title="{{ getNiceDate(strtotime($postEditedTimestamp)) }}"
+                    title="{{ $formattedEditTimestampTooltip }}"
                 @endif
             >
                 {{ $formattedEditTimestamp }}

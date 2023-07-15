@@ -81,7 +81,7 @@ RenderContentStart("Forum Recent Posts");
 
             echo "<td>";
             echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID#$commentID'>$forumTopicTitle</a>";
-            echo " <span class='smalldate cursor-help' title='" . getNiceDate(strtotime($topicPostData['PostedAt'])) . "'>$postedAt</span>";
+            echo " <span class='smalldate cursor-help' title='" . Carbon::parse($topicPostData['PostedAt'])->format('F j Y, g:ia') . "'>$postedAt</span>";
             echo "<div class='comment text-overflow-wrap'>";
             echo Shortcode::stripAndClamp($postMessage);
             echo "</div>";
