@@ -65,6 +65,7 @@ class Achievement extends BaseModel implements HasComments
         'DateModified' => 'datetime',
         'Points' => 'integer',
         'TrueRatio' => 'integer',
+        'Flags' => 'integer',
     ];
 
     protected $visible = [

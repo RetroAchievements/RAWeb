@@ -5,12 +5,13 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievementLegacy;
+use App\Site\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 function playerHasUnlock(?string $user, int $achievementId): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [
         'HasRegular' => false,
         'HasHardcore' => false,
@@ -24,10 +25,9 @@ function playerHasUnlock(?string $user, int $achievementId): array
 
     $query = "SELECT HardcoreMode, Date
               FROM Awarded
-              WHERE AchievementID = '$achievementId' AND User = '$user'";
+              WHERE AchievementID = '$achievementId' AND User = :user";
 
-    $dbResult = s_mysql_query($query);
-    while ($nextData = mysqli_fetch_assoc($dbResult)) {
+    foreach (legacyDbFetchAll($query, ['user' => $user]) as $nextData) {
         if ($nextData['HardcoreMode'] == 0) {
             $retVal['HasRegular'] = true;
             $retVal['RegularDate'] = $nextData['Date'];
@@ -40,63 +40,53 @@ function playerHasUnlock(?string $user, int $achievementId): array
     return $retVal;
 }
 
-function unlockAchievement(string $user, int $achIDToAward, bool $isHardcore): array
+function unlockAchievement(string $username, int $achIDToAward, bool $isHardcore): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [
         'Success' => false,
     ];
 
-    if ($achIDToAward <= 0) {
-        $retVal['Error'] = "Achievement ID <= 0! Cannot unlock";
+    $user = User::firstWhere('User', $username);
+    if (!$user) {
+        $retVal['Error'] = "Data not found for user $username";
 
         return $retVal;
     }
 
-    if (!isValidUsername($user)) {
-        $retVal['Error'] = "User is '$user', cannot unlock achievement";
+    $achievement = Achievement::find($achIDToAward);
+    if (!$achievement) {
+        $retVal['Error'] = "Data not found for achievement $achIDToAward";
 
         return $retVal;
     }
 
-    $userData = GetUserData($user);
-    if (!$userData) {
-        $retVal['Error'] = "User data cannot be found for $user";
-
-        return $retVal;
-    }
-
-    $achData = GetAchievementData($achIDToAward);
-    if (!$achData) {
-        $retVal['Error'] = "Achievement data cannot be found for $achIDToAward";
-
-        return $retVal;
-    }
-
-    if ((int) $achData['Flags'] === AchievementType::Unofficial) { // do not award Unofficial achievements
+    if ($achievement->Flags === AchievementType::Unofficial) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
 
         return $retVal;
     }
 
-    $hasAwardTypes = playerHasUnlock($user, $achIDToAward);
+    $hasAwardTypes = playerHasUnlock($user->User, $achievement->ID);
     $hasRegular = $hasAwardTypes['HasRegular'];
     $hasHardcore = $hasAwardTypes['HasHardcore'];
     $alreadyAwarded = $isHardcore ? $hasHardcore : $hasRegular;
 
-    $awardedOK = true;
+    $now = Carbon::now();
     if ($isHardcore && !$hasHardcore) {
-        $awardedOK &= insertAchievementUnlockIntoAwardedTable($user, $achIDToAward, true);
+        PlayerAchievementLegacy::firstOrCreate([
+            'User' => $user->User,
+            'AchievementID' => $achievement->ID,
+            'HardcoreMode' => UnlockMode::Hardcore,
+            'Date' => $now
+        ]);
     }
-    if (!$hasRegular && $awardedOK) {
-        $awardedOK &= insertAchievementUnlockIntoAwardedTable($user, $achIDToAward, false);
-    }
-
-    if (!$awardedOK) {
-        $retVal['Error'] = "Could not unlock achievement for player";
-
-        return $retVal;
+    if (!$hasRegular) {
+        PlayerAchievementLegacy::firstOrCreate([
+            'User' => $user->User,
+            'AchievementID' => $achievement->ID,
+            'HardcoreMode' => UnlockMode::Softcore,
+            'Date' => $now
+        ]);
     }
 
     // TODO dispatch user unlock event to start/extend player session, upsert user game entry
@@ -104,10 +94,10 @@ function unlockAchievement(string $user, int $achIDToAward, bool $isHardcore): a
     if (!$alreadyAwarded) {
         // testFullyCompletedGame could post a mastery notification. make sure to post
         // the achievement unlock notification first
-        postActivity($user, ActivityType::UnlockedAchievement, $achIDToAward, (int) $isHardcore);
+        postActivity($user->User, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
-    $completion = testFullyCompletedGame($achData['GameID'], $user, $isHardcore, !$alreadyAwarded);
+    $completion = testFullyCompletedGame($achievement->GameID, $user->User, $isHardcore, !$alreadyAwarded);
     if (array_key_exists('NumAwarded', $completion)) {
         $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
     }
@@ -126,61 +116,34 @@ function unlockAchievement(string $user, int $achIDToAward, bool $isHardcore): a
         return $retVal;
     }
 
-    $pointsToGive = $achData['Points'];
-    $trueRatio = $achData['TrueRatio'];
-    $pointsToGive = (int) $pointsToGive;
-    $trueRatio = (int) $trueRatio;
-
     if ($isHardcore) {
+        $user->RAPoints += $achievement->Points;
+        $user->TrueRAPoints += $achievement->TrueRatio;
         if ($hasRegular) {
-            $setPointsString = "SET RAPoints=RAPoints+$pointsToGive, TrueRAPoints=TrueRAPoints+$trueRatio, RASoftcorePoints=RASoftcorePoints-$pointsToGive, Updated=NOW()";
-        } else {
-            $setPointsString = "SET RAPoints=RAPoints+$pointsToGive, TrueRAPoints=TrueRAPoints+$trueRatio, Updated=NOW()";
+            $user->RASoftcorePoints -= $achievement->Points;
         }
     } else {
-        $setPointsString = "SET RASoftcorePoints=RASoftcorePoints+$pointsToGive, Updated=NOW()";
+        $user->RASoftcorePoints += $achievement->Points;
     }
 
-    $query = "UPDATE UserAccounts $setPointsString WHERE User='$user'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        $retVal['Error'] = "Could not add points for this player";
-
-        return $retVal;
-    }
+    $user->save();
 
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
 
-    expireUserAchievementUnlocksForGame($user, $achData['GameID']);
+    expireUserAchievementUnlocksForGame($user->User, $achievement->GameID);
 
-    static_setlastearnedachievement($achIDToAward, $user, $achData['Points']);
+    static_setlastearnedachievement($achievement->ID, $user->User, $achievement->Points);
 
-    if ($user != $achData['Author']) {
+    if ($user->User != $achievement->Author) {
         if ($isHardcore && $hasRegular) {
             // developer received contribution points when the regular version was unlocked
         } else {
-            attributeDevelopmentAuthor($achData['Author'], 1, $pointsToGive);
+            attributeDevelopmentAuthor($achievement->Author, 1, $achievement->Points);
         }
     }
 
     return $retVal;
-}
-
-function insertAchievementUnlockIntoAwardedTable(string $user, int $achIDToAward, bool $isHardcore): bool
-{
-    sanitize_sql_inputs($user);
-
-    $isHardcore = (int) $isHardcore;
-
-    $query = "INSERT INTO Awarded ( User, AchievementID, Date, HardcoreMode )
-              VALUES ( '$user', '$achIDToAward', NOW(), '$isHardcore' )
-              ON DUPLICATE KEY
-              UPDATE User=User, AchievementID=AchievementID, Date=Date, HardcoreMode=HardcoreMode";
-
-    $dbResult = s_mysql_query($query);
-
-    return $dbResult !== false;
 }
 
 function getAchievementUnlockCount(int $achID): int
