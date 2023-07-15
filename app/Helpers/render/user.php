@@ -61,8 +61,11 @@ function userAvatar(
 
 function renderUserCard(string|array $user): string
 {
-    return Blade::render('<x-cards.user :user="$user" />', [
+    $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($user);
+
+    return Blade::render('<x-cards.user :user="$user" :userCardDataCacheKey="$userCardDataCacheKey" />', [
         'user' => $user,
+        'userCardDataCacheKey' => $userCardDataCacheKey,
     ]);
 }
 

@@ -1,5 +1,6 @@
 @props([
-    "user"
+    "user",
+    "userCardDataCacheKey",
 ])
 
 <?php
@@ -28,7 +29,7 @@ if (is_array($user)) {
 }
 
 if (empty($userData)) {
-    $userData = Cache::store('array')->rememberForever('user:' . $userName . ':card-data', function () use ($userName) {
+    $userData = Cache::store('array')->rememberForever($userCardDataCacheKey, function () use ($userName) {
         return User::firstWhere('User', $userName);
     });
 }
