@@ -23,7 +23,7 @@ if (authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
-$matureContentPref = UserPreference::SiteMsgOff_MatureContent;
+$matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
 $officialFlag = AchievementType::OfficialCore;
 $unofficialFlag = AchievementType::Unofficial;

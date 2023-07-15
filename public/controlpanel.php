@@ -226,7 +226,7 @@ function confirmEmailChange(event) {
                     <tr>
                         <td>
                             Suppress mature content warnings
-                            <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOff_MatureContent, true, $state = null, $targetLoadingIcon = 2) ?></td>
+                            <td><?php RenderUserPref($websitePrefs, UserPreference::Site_SuppressMatureContentWarning, true, $state = null, $targetLoadingIcon = 2) ?></td>
                         </td>
                     </tr>
                     <tr>
