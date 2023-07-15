@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Community\Enums\RankType;
-use App\Platform\Enums\AchievementType;
 use App\Support\Cache\CacheKey;
 use Tests\TestCase;
 

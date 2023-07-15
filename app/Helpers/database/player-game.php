@@ -264,8 +264,8 @@ function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
 function getUserAchievementUnlocksForGame(string $user, int $gameID, int $flags = AchievementType::OfficialCore): array
 {
     $cacheKey = CacheKey::buildUserGameUnlocksCacheKey(
-        $user, 
-        $gameID, 
+        $user,
+        $gameID,
         isOfficial: $flags === AchievementType::OfficialCore
     );
 
