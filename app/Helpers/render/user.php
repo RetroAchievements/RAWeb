@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Cache\CacheKey;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,11 +22,15 @@ function userAvatar(
     }
 
     $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($username);
-    $user = Cache::store('array')->rememberForever($userCardDataCacheKey, function () use ($username) {
-        getAccountDetails($username, $data);
+    $user = Cache::store('array')->remember(
+        $userCardDataCacheKey,
+        Carbon::now()->addMonths(3),
+        function () use ($username) {
+            getAccountDetails($username, $data);
 
-        return $data;
-    });
+            return $data;
+        }
+    );
 
     if (!$user) {
         $userSanitized = $username;
