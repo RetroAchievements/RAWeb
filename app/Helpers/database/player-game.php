@@ -257,13 +257,17 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
 
 function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
 {
-    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, AchievementType::OfficialCore));
-    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, AchievementType::Unofficial));
+    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, true));
+    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, false));
 }
 
 function getUserAchievementUnlocksForGame(string $user, int $gameID, int $flags = AchievementType::OfficialCore): array
 {
-    $cacheKey = CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, $flags);
+    $cacheKey = CacheKey::buildUserGameUnlocksCacheKey(
+        $user, 
+        $gameID, 
+        isOfficial: $flags === AchievementType::OfficialCore
+    );
 
     return Cache::remember($cacheKey,
         Carbon::now()->addDays(7),

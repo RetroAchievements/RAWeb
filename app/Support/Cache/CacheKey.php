@@ -8,7 +8,7 @@ class CacheKey
 {
     public static function buildUserCanTicketCacheKey(string $username): string
     {
-        return self::buildNormalizedUserCacheKey($username, "canTicket");
+        return self::buildNormalizedUserCacheKey($username, "can-ticket");
     }
 
     public static function buildUserCardDataCacheKey(string $username): string
@@ -22,9 +22,11 @@ class CacheKey
      * @param int $flags The type of achievement flag which should correspond to values in the `AchievementType` enum.
      *                   3 for 'OfficialCore' (default), 5 for 'Unofficial'.
      */
-    public static function buildUserGameUnlocksCacheKey(string $username, int $gameID, int $flags = 3): string
+    public static function buildUserGameUnlocksCacheKey(string $username, int $gameID, bool $isOfficial = true): string
     {
-        return self::buildNormalizedUserCacheKey($username, "gameUnlocks", [$gameID, $flags]);
+        $achievementKind = $isOfficial ? 'official' : 'unofficial';
+
+        return self::buildNormalizedUserCacheKey($username, "game-unlocks", [$gameID, $achievementKind]);
     }
 
     /**
@@ -45,7 +47,7 @@ class CacheKey
 
     public static function buildUserRecentGamesCacheKey(string $username): string
     {
-        return self::buildNormalizedUserCacheKey($username, "recentGames");
+        return self::buildNormalizedUserCacheKey($username, "recent-games");
     }
 
     /**

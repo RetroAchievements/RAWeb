@@ -17,7 +17,7 @@ final class CacheKeyTest extends TestCase
 
         $cacheKey = CacheKey::buildUserCanTicketCacheKey($username);
 
-        $this->assertEquals("user:username:canTicket", $cacheKey);
+        $this->assertEquals("user:username:can-ticket", $cacheKey);
     }
 
     public function testBuildUserCardDataCacheKey(): void
@@ -33,11 +33,11 @@ final class CacheKeyTest extends TestCase
     {
         $username = "UserName";
         $gameID = 14402;
-        $flags = AchievementType::OfficialCore;
+        $isOfficial = false;
 
-        $cacheKey = CacheKey::buildUserGameUnlocksCacheKey($username, $gameID, $flags);
+        $cacheKey = CacheKey::buildUserGameUnlocksCacheKey($username, $gameID, $isOfficial);
 
-        $this->assertEquals("user:username:gameUnlocks:14402:" . AchievementType::OfficialCore, $cacheKey);
+        $this->assertEquals("user:username:game-unlocks:14402:unofficial", $cacheKey);
     }
 
     public function testBuildUserRankCacheKey(): void
@@ -56,6 +56,6 @@ final class CacheKeyTest extends TestCase
 
         $cacheKey = CacheKey::buildUserRecentGamesCacheKey($username);
 
-        $this->assertEquals("user:username:recentGames", $cacheKey);
+        $this->assertEquals("user:username:recent-games", $cacheKey);
     }
 }
