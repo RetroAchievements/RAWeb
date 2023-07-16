@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\View\Components\Community\Cards;
+namespace App\View\Components\Community;
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Component;
 
-class User extends Component
+class UserCard extends Component
 {
     private string|array $user;
 
@@ -45,7 +45,7 @@ class User extends Component
 
         $cardViewValues = $this->buildAllCardViewValues($username, $rawUserData);
 
-        return view('components.community.cards.user', array_merge($cardViewValues, ['rawUserData' => $rawUserData]));
+        return view('components.community.user-card', array_merge($cardViewValues, ['rawUserData' => $rawUserData]));
     }
 
     private function getUsername(string|array $user): ?string

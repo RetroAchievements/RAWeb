@@ -28,7 +28,7 @@ class UserCardTest extends TestCase
             'LastLogin' => '2023-07-10 00:00:00',
         ]);
 
-        $view = $this->blade('<x-community.cards.user user="mockUser" />');
+        $view = $this->blade('<x-community.user-card user="mockUser" />');
 
         $view->assertSeeText("mockUser"); // Name
         $view->assertSeeText("mockMotto"); // Motto
@@ -53,7 +53,7 @@ class UserCardTest extends TestCase
             'LastLogin' => '2023-07-10 00:00:00',
         ]);
 
-        $view = $this->blade('<x-community.cards.user user="mockUser" />');
+        $view = $this->blade('<x-community.user-card user="mockUser" />');
 
         $view->assertSeeText(Permissions::toString(Permissions::JuniorDeveloper));
     }
@@ -72,7 +72,7 @@ class UserCardTest extends TestCase
             'LastLogin' => '2023-07-10 00:00:00',
         ]);
 
-        $view = $this->blade('<x-community.cards.user user="mockUser" />');
+        $view = $this->blade('<x-community.user-card user="mockUser" />');
 
         $view->assertDontSeeText(Permissions::toString(Permissions::Banned));
     }
@@ -91,7 +91,7 @@ class UserCardTest extends TestCase
             'LastLogin' => '2023-07-10 00:00:00',
         ]);
 
-        $view = $this->blade('<x-community.cards.user user="mockUser" />');
+        $view = $this->blade('<x-community.user-card user="mockUser" />');
 
         $view->assertSeeText("Softcore Points");
         $view->assertSeeText("5,000");
@@ -111,7 +111,7 @@ class UserCardTest extends TestCase
             'LastLogin' => '2023-07-10 00:00:00',
         ]);
 
-        $view = $this->blade('<x-community.cards.user user="mockUser" />');
+        $view = $this->blade('<x-community.user-card user="mockUser" />');
 
         $view->assertSeeText("Untracked");
     }
@@ -130,7 +130,7 @@ class UserCardTest extends TestCase
             'LastLogin' => '2023-07-10 00:00:00',
         ]);
 
-        $view = $this->blade('<x-community.cards.user user="mockUser" />');
+        $view = $this->blade('<x-community.user-card user="mockUser" />');
 
         $view->assertSeeText("Needs at least " . Rank::MIN_POINTS . " points");
     }
