@@ -5,6 +5,7 @@ use App\Community\Enums\RankType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Models\User;
+use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -109,12 +110,7 @@ function getTopUsersByScore(int $count): array
  */
 function getUserRank(string $username, int $type = RankType::Hardcore): ?int
 {
-    $key = "user:$username:rank:";
-    $key .= match ($type) {
-        default => 'hardcore',
-        RankType::Softcore => 'softcore',
-        RankType::TruePoints => 'truepoints',
-    };
+    $key = CacheKey::buildUserRankCacheKey($username, $type);
 
     return Cache::remember($key, Carbon::now()->addMinutes(15), function () use ($username, $type) {
         $user = User::firstWhere('User', $username);

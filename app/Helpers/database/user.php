@@ -131,43 +131,11 @@ function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): in
     return count($dataOut);
 }
 
-function GetUserUnlocksData(string $user, int $gameID, bool $hardcoreMode): array
-{
-    sanitize_sql_inputs($user, $gameID);
-
-    $hardcoreMode = (int) $hardcoreMode;
-
-    $query = "SELECT AchievementID
-        FROM Achievements AS ach
-        LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = '$gameID' AND aw.User = '$user' AND aw.HardcoreMode = $hardcoreMode ";
-
-    $dbResult = s_mysql_query($query);
-
-    $retVal = [];
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        $db_entry['AchievementID'] = (int) $db_entry['AchievementID'];
-        $retVal[] = $db_entry['AchievementID'];
-    }
-
-    return $retVal;
-}
-
 function validateUsername(string $userIn): ?string
 {
-    sanitize_sql_inputs($userIn);
+    $user = User::firstWhere('User', $userIn);
 
-    $query = "SELECT uc.User FROM UserAccounts AS uc WHERE uc.User LIKE '$userIn'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return $data['User'];
-    }
-    log_sql_fail();
-
-    return null;
+    return ($user !== null) ? $user->User : null;
 }
 
 // TODO replace with created and lastLogin timestamps on user

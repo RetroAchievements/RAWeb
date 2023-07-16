@@ -22,6 +22,7 @@ class SystemsTableSeeder extends Seeder
         (new Collection(config('systems')))->each(function ($systemData, $systemId) {
             $systemData['ID'] = $systemId;
             $systemData['Name'] = $systemData['name'];
+            unset($systemData['name']);
             System::create($systemData);
         });
     }

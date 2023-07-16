@@ -71,6 +71,7 @@ ${PHP_BIN} artisan migrate --force
 ln -snf "${BASEDIR}/${RELEASE_DIR}" "${BASEDIR}/${CURRENT_DIR}"
 # update version in .env file
 sed -i "s/APP_VERSION=.*/APP_VERSION=${VERSION}/g" .env
+sed -i "s/APP_BRANCH=.*/APP_BRANCH=${GIT_BRANCH}/g" .env
 ${PHP_BIN} artisan config:cache
 #${PHP_BIN} artisan route:cache
 #${PHP_BIN} artisan octane:reload

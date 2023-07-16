@@ -1,8 +1,8 @@
 <?php
 
-use App\Community\Enums\Rank;
-use App\Community\Enums\RankType;
-use App\Site\Enums\Permissions;
+use App\Support\Cache\CacheKey;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -21,11 +21,16 @@ function userAvatar(
         return '';
     }
 
-    $user = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
-        getAccountDetails($username, $data);
+    $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($username);
+    $user = Cache::store('array')->remember(
+        $userCardDataCacheKey,
+        Carbon::now()->addMonths(3),
+        function () use ($username) {
+            getAccountDetails($username, $data);
 
-        return $data;
-    });
+            return $data;
+        }
+    );
 
     if (!$user) {
         $userSanitized = $username;
@@ -61,90 +66,12 @@ function userAvatar(
 
 function renderUserCard(string|array $user): string
 {
-    $username = is_string($user) ? $user : ($user['User'] ?? null);
+    $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($user);
 
-    if (empty($username)) {
-        return __('legacy.error.error');
-    }
-
-    $data = [];
-    if (is_array($user)) {
-        $data = $user;
-    }
-
-    if (empty($data)) {
-        $data = Cache::store('array')->rememberForever('user:' . $username . ':card-data', function () use ($username) {
-            getAccountDetails($username, $dataOut);
-
-            return $dataOut;
-        });
-    }
-
-    // deleted users
-    if (empty($data)) {
-        return '';
-    }
-
-    $userMotto = $data['Motto'];
-    $userHardcorePoints = $data['RAPoints'];
-    $userSoftcorePoints = $data['RASoftcorePoints'];
-    $userTruePoints = $data['TrueRAPoints'];
-    $userAccountType = Permissions::toString($data['Permissions']);
-    $userUntracked = $data['Untracked'];
-    $lastLogin = $data['LastLogin'] ? getNiceDate(strtotime($data['LastLogin'])) : null;
-    $memberSince = $data['Created'] ? getNiceDate(strtotime($data['Created']), true) : null;
-
-    $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='width: 400px'>";
-
-    $tooltip .= "<img width='128' height='128' src='" . media_asset('/UserPic/' . $username . '.png') . "'>";
-
-    $tooltip .= "<div class='grow' style='font-size: 8pt'>";
-
-    $tooltip .= "<div class='flex justify-between mb-2'>";
-    $tooltip .= "<div class='usercardusername'>$username</div>";
-    $tooltip .= "<div class='usercardaccounttype'>$userAccountType</div>";
-    $tooltip .= "</div>";
-
-    // Add the user motto if it's set
-    if ($userMotto !== null && mb_strlen($userMotto) > 2) {
-        sanitize_outputs($userMotto);
-        $tooltip .= "<div class='usermotto mb-1'>$userMotto</div>";
-    }
-
-    // Add the user points if there are any
-    if ($userHardcorePoints > $userSoftcorePoints) {
-        $tooltip .= "<div class='usercardbasictext'><b>Points:</b> $userHardcorePoints ($userTruePoints)</div>";
-        $userRank = $userHardcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, RankType::Hardcore);
-        $userRankLabel = 'Site Rank';
-    } elseif ($userSoftcorePoints > 0) {
-        $tooltip .= "<div class='usercardbasictext'><b>Softcore Points:</b> $userSoftcorePoints</div>";
-        $userRank = $userSoftcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, RankType::Softcore);
-        $userRankLabel = 'Softcore Rank';
-    } else {
-        $tooltip .= "<div class='usercardbasictext'><b>Points:</b> 0</div>";
-        $userRank = 0;
-        $userRankLabel = 'Site Rank';
-    }
-
-    // Add the other user information
-    if ($userUntracked) {
-        $tooltip .= "<div class='usercardbasictext'><b>$userRankLabel:</b> Untracked</div>";
-    } elseif ($userRank == 0) {
-        $tooltip .= "<div class='usercardbasictext'><b>$userRankLabel:</b> Needs at least " . Rank::MIN_POINTS . " points </div>";
-    } else {
-        $tooltip .= "<div class='usercardbasictext'><b>$userRankLabel:</b> $userRank</div>";
-    }
-
-    if ($lastLogin) {
-        $tooltip .= "<div class='usercardbasictext'><b>Last Activity:</b> $lastLogin</div>";
-    }
-    if ($memberSince) {
-        $tooltip .= "<div class='usercardbasictext'><b>Member Since:</b> $memberSince</div>";
-    }
-    $tooltip .= "</div>";
-    $tooltip .= "</div>";
-
-    return $tooltip;
+    return Blade::render('<x-cards.user :user="$user" :userCardDataCacheKey="$userCardDataCacheKey" />', [
+        'user' => $user,
+        'userCardDataCacheKey' => $userCardDataCacheKey,
+    ]);
 }
 
 function getCompletedAndIncompletedSetsCounts(array $userCompletedGamesList): array
