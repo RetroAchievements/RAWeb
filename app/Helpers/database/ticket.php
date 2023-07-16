@@ -9,6 +9,7 @@ use App\Community\ViewModels\Ticket;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Models\User;
+use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -18,7 +19,7 @@ function isAllowedToSubmitTickets(string $user): bool
         return false;
     }
 
-    $cacheKey = "user:$user:canTicket";
+    $cacheKey = CacheKey::buildUserCanTicketCacheKey($user);
 
     $value = Cache::get($cacheKey);
     if ($value !== null) {

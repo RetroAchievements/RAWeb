@@ -6,7 +6,13 @@
 ])
 
 <?php
+use App\Site\Enums\UserPreference;
 use Illuminate\Support\Carbon;
+
+/** @var ?User $user */
+$user = auth()->user();
+$preferences = $user?->websitePrefs ?? 0;
+$isShowAbsoluteDatesPreferenceSet = BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates);
 
 $shouldUseTimeAgoDate = function (string $rawDate): bool {
     $givenDate = Carbon::parse($rawDate);
@@ -18,9 +24,12 @@ $shouldUseTimeAgoDate = function (string $rawDate): bool {
 $shouldUsePostedTimeAgoDate = $shouldUseTimeAgoDate($postCreatedTimestamp);
 $shouldUseEditedTimeAgoDate = $shouldUseTimeAgoDate($postEditedTimestamp);
 
-$formatMetaTimestamp = function (string $rawDate, bool $shouldUseTimeAgoDate): string {
-    $givenDate = Carbon::parse($rawDate);
+$formatMetaTimestamp = function (string $rawDate, bool $shouldUseTimeAgoDate, bool $isShowAbsoluteDatesPreferenceSet = false): string {
+    if ($isShowAbsoluteDatesPreferenceSet) {
+        return getNiceDate(strtotime($rawDate));
+    }
 
+    $givenDate = Carbon::parse($rawDate);
     if ($shouldUseTimeAgoDate) {
         // "5 minutes ago"
         return $givenDate->diffForHumans();
@@ -30,14 +39,14 @@ $formatMetaTimestamp = function (string $rawDate, bool $shouldUseTimeAgoDate): s
     }
 };
 
-$formattedPostTimestamp = $formatMetaTimestamp($postCreatedTimestamp, $shouldUsePostedTimeAgoDate);
+$formattedPostTimestamp = $formatMetaTimestamp($postCreatedTimestamp, $shouldUsePostedTimeAgoDate, $isShowAbsoluteDatesPreferenceSet);
 $formattedEditTimestamp =
     $postEditedTimestamp
-        ? $formatMetaTimestamp($postEditedTimestamp, $shouldUseEditedTimeAgoDate)
+        ? $formatMetaTimestamp($postEditedTimestamp, $shouldUseEditedTimeAgoDate, $isShowAbsoluteDatesPreferenceSet)
         : '';
 
-$formattedPostTimestampTooltip = $formatMetaTimestamp($postCreatedTimestamp, false);
-$formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, false);
+$formattedPostTimestampTooltip = $formatMetaTimestamp($postCreatedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
+$formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
 ?>
 
 @if($showUnverifiedDisclaimer)
@@ -56,7 +65,7 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
 
 <p class='smalltext !leading-[14px]'>
     <span 
-        @if($shouldUsePostedTimeAgoDate)
+        @if($shouldUsePostedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
             title="{{ $formattedPostTimestampTooltip }}" 
             class="cursor-help"
         @endif
@@ -69,7 +78,7 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
         <span class='italic smalltext !leading-[14px]'>
             <span class='hidden sm:inline'>last</span> edited
             <span
-                @if($shouldUseEditedTimeAgoDate)
+                @if($shouldUseEditedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
                     class="cursor-help"
                     title="{{ $formattedEditTimestampTooltip }}"
                 @endif
