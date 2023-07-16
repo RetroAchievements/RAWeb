@@ -10,9 +10,16 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:GameData,ID',
-    'relations' => 'required',
+    'relations' => 'required|string',
 ]);
 
-modifyGameAlternatives($user, (int) $input['game'], toAdd: $input['relations']);
+$gameId = (int) $input['game'];
+
+// Filter out instances where a game might be linked to itself.
+$relationsArray = explode(",", $input['relations']);
+$filteredArray = array_diff($relationsArray, [$input['game']]);
+$filteredRelationsCsv = implode(",", $filteredArray);
+
+modifyGameAlternatives($user, $gameId, toAdd: $filteredRelationsCsv);
 
 return back()->with('success', __('legacy.success.ok'));
