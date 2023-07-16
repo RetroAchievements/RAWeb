@@ -20,7 +20,7 @@ abstract class UserPreference
 
     public const EmailOn_Newsletter = 6;
 
-    public const SiteMsgOff_MatureContent = 7;
+    public const Site_SuppressMatureContentWarning = 7;
 
     public const SiteMsgOn_ActivityComment = 8;
 
@@ -35,4 +35,6 @@ abstract class UserPreference
     public const SiteMsgOn_PrivateMessage = 13;
 
     public const SiteMsgOn_Newsletter = 14;
+
+    public const Forum_ShowAbsoluteDates = 15;
 }
