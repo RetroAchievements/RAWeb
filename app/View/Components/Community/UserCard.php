@@ -70,7 +70,7 @@ class UserCard extends Component
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
         $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'], $rawUserData['Untracked'] ? true : false);
-        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['Permissions']);
+        $cardRoleData = $this->buildCardRoleData($username, (int) $rawUserData['Permissions']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
     }
