@@ -17,7 +17,7 @@ trait HandlesPublicFileRequests
     /**
      * @deprecated Migrate to Model/View/Controllers
      */
-    private function handlePageRequest(string $file, string $resourceId = null): Response|RedirectResponse|View
+    private function handlePageRequest(string $file, ?string $resourceId = null): Response|RedirectResponse|View
     {
         if (is_string($resourceId)) {
             $_GET['ID'] = $resourceId;

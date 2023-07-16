@@ -85,11 +85,11 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     // Get a separate list of completed and mastered games
     $awardsCount = count($dbResult);
     for ($i = 0; $i < $awardsCount; $i++) {
-        if ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
-            $dbResult[$i]['AwardDataExtra'] == 1) {
+        if ($dbResult[$i]['AwardType'] == AwardType::Mastery
+            && $dbResult[$i]['AwardDataExtra'] == 1) {
             $masteredGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
-            $dbResult[$i]['AwardDataExtra'] == 0) {
+        } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery
+            && $dbResult[$i]['AwardDataExtra'] == 0) {
             $completedGames[] = $dbResult[$i]['AwardData'];
         }
     }
@@ -102,10 +102,10 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
         foreach ($multiAwardGames as $game) {
             $index = 0;
             foreach ($dbResult as $award) {
-                if (isset($award['AwardData']) &&
-                    $award['AwardData'] === $game &&
-                    $award['AwardDataExtra'] == 0 &&
-                    $award['AwardType'] == AwardType::Mastery) {
+                if (isset($award['AwardData'])
+                    && $award['AwardData'] === $game
+                    && $award['AwardDataExtra'] == 0
+                    && $award['AwardType'] == AwardType::Mastery) {
                     $dbResult[$index] = "";
                     break;
                 }
@@ -175,7 +175,7 @@ function SetCertifiedLegend(string $usernameIn, bool $enable): void
  * Results are configurable based on input parameters allowing returning data for a specific users friends
  * and selecting a specific date
  */
-function getRecentMasteryData(string $date, string $friendsOf = null, int $offset = 0, int $count = 50): array
+function getRecentMasteryData(string $date, ?string $friendsOf = null, int $offset = 0, int $count = 50): array
 {
     // Determine the friends condition
     $friendCondAward = "";

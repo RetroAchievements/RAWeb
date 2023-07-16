@@ -148,18 +148,18 @@ return [
 
     'default_location' => [
         'ip' => '127.0.0.0',
-        'iso_code' => null,
-        'country' => null,
-        'city' => null,
-        'state' => null,
-        'state_name' => null,
-        'postal_code' => null,
-        'lat' => null,
-        'lon' => null,
-        'timezone' => 'UTC', // America/New_York
-        'continent' => null,
+        'iso_code' => 'US',
+        'country' => 'United States',
+        'city' => 'New Haven',
+        'state' => 'CT',
+        'state_name' => 'Connecticut',
+        'postal_code' => '06510',
+        'lat' => 41.31,
+        'lon' => -72.92,
+        'timezone' => 'America/New_York',
+        'continent' => 'NA',
         'default' => true,
-        'currency' => null,
+        'currency' => 'USD',
     ],
 
 ];

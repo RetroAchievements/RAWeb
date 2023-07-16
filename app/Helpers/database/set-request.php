@@ -9,7 +9,7 @@ use App\Site\Models\User;
 /**
  * Gets a list of set requests made by a given user.
  */
-function getUserRequestList(string $user = null): array
+function getUserRequestList(?string $user = null): array
 {
     sanitize_sql_inputs($user);
 

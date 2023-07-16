@@ -498,12 +498,12 @@ function GetFormattedLeaderboardEntry(string $formatType, int $scoreIn): string
 // TODO replace with Enum
 function isValidLeaderboardFormat(string $formatType): bool
 {
-    return $formatType == 'TIME' ||      // Frames
-           $formatType == 'TIMESECS' ||  // Seconds
-           $formatType == 'MINUTES' ||   // Minutes
-           $formatType == 'MILLISECS' || // Hundredths of seconds
-           $formatType == 'VALUE' ||     // Raw number
-           $formatType == 'SCORE';       // Number padded to six digits
+    return $formatType == 'TIME'      // Frames
+        || $formatType == 'TIMESECS'  // Seconds
+        || $formatType == 'MINUTES'   // Minutes
+        || $formatType == 'MILLISECS' // Hundredths of seconds
+        || $formatType == 'VALUE'     // Raw number
+        || $formatType == 'SCORE';    // Number padded to six digits
 }
 
 function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition): bool
@@ -695,8 +695,8 @@ function UploadNewLeaderboard(
     // Prevent non-developers from uploading or modifying leaderboards
     $userPermissions = getUserPermissions($author);
     if ($userPermissions < Permissions::Developer) {
-        if ($userPermissions < Permissions::JuniorDeveloper ||
-            (!empty($originalAuthor) && $author !== $originalAuthor)) {
+        if ($userPermissions < Permissions::JuniorDeveloper
+            || (!empty($originalAuthor) && $author !== $originalAuthor)) {
             $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
             return false;

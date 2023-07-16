@@ -63,7 +63,6 @@ function _recaptcha_qsencode($data)
  * @param string $path
  * @param array $data
  * @param int port
- * @param mixed $port
  * @return array response
  */
 function _recaptcha_http_post($host, $path, $data, $port = 80)
@@ -101,7 +100,7 @@ function _recaptcha_http_post($host, $path, $data, $port = 80)
  * @param string $pubkey A public key for reCAPTCHA
  * @param string $error The error given by reCAPTCHA (optional, default is null)
  * @param bool $use_ssl Should the request be made over ssl? (optional, default is false)
-
+ *
  * @return string - The HTML to be embedded in the user's form
  */
 function recaptcha_get_html($pubkey, $error = null, $use_ssl = false)
@@ -245,7 +244,6 @@ function recaptcha_mailhide_url($pubkey, $privkey, $email)
  * gets the parts of the email to expose to the user.
  * eg, given johndoe@example,com return ["john", "example.com"].
  * the email is then displayed as john...@example.com
- * @param mixed $email
  */
 function _recaptcha_mailhide_email_parts($email)
 {
@@ -267,9 +265,6 @@ function _recaptcha_mailhide_email_parts($email)
  * to get a key, go to:
  *
  * http://www.google.com/recaptcha/mailhide/apikey
- * @param mixed $pubkey
- * @param mixed $privkey
- * @param mixed $email
  */
 function recaptcha_mailhide_html($pubkey, $privkey, $email)
 {
