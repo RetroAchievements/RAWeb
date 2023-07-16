@@ -27,10 +27,11 @@ function RenderUserPref(
     int $websitePrefs,
     int $userPref,
     bool $setIfTrue,
-    ?string $state = null
+    ?string $state = null,
+    int $targetLoadingIcon = 1,
 ): void {
     echo "<input id='UserPreference$userPref' type='checkbox' ";
-    echo "onchange='DoChangeUserPrefs(); return false;' value='1'";
+    echo "onchange='DoChangeUserPrefs($targetLoadingIcon); return false;' value='1'";
 
     if ($state) {
         echo " $state";
@@ -42,34 +43,25 @@ function RenderUserPref(
 }
 ?>
 <script>
-function DoChangeUserPrefs() {
+/**
+ * @param {number} targetLoadingIcon - There are multiple loading icons on the page, which one will update based on this prefs change? 
+ */
+function DoChangeUserPrefs(targetLoadingIcon = 1) {
     var newUserPrefs = 0;
-    for (i = 0; i < 7; ++i) { // 0-6 are set if checked
+    for (i = 0; i <= 15; ++i) {
         var checkbox = document.getElementById('UserPreference' + i);
         if (checkbox != null && checkbox.checked) {
             newUserPrefs += (1 << i);
         }
     }
 
-    for (i = 8; i < 15; ++i) { // 8-14 are set if checked
-        var checkbox = document.getElementById('UserPreference' + i);
-        if (checkbox != null && checkbox.checked) {
-            newUserPrefs += (1 << i);
-        }
-    }
-
-    // 7 is set if unchecked
-    var checkbox = document.getElementById('UserPreference7');
-    if (checkbox != null && !checkbox.checked) {
-        newUserPrefs += (1 << 7);
-    }
-
-    $('#loadingicon').attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
-    $.post('/request/user/update-notification.php', {
+    const loadingIconId = `#loadingicon-${targetLoadingIcon}`;
+    $(loadingIconId).attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
+    $.post('/request/user/update-preferences.php', {
         preferences: newUserPrefs
     })
         .done(function () {
-            $('#loadingicon').attr('src', '<?= asset('assets/images/icon/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
+            $(loadingIconId).attr('src', '<?= asset('assets/images/icon/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
         });
 }
 
@@ -105,7 +97,7 @@ function confirmEmailChange(event) {
     <div id="leftcontainer">
         <div class='detaillist'>
             <div class='component'>
-                <h2>Settings</h2>
+                <h2>Profile</h2>
                 <?php
                 echo "<table><colgroup><col style='width: 300px'></colgroup><tbody>";
                 echo "<tr>";
@@ -170,6 +162,7 @@ function confirmEmailChange(event) {
                 echo "</tbody></table>";
                 ?>
             </div>
+
             <div class='component'>
                 <h3>Notifications</h3>
                 <table class='table-highlight'>
@@ -218,14 +211,32 @@ function confirmEmailChange(event) {
                         <td><?php RenderUserPref($websitePrefs, UserPreference::EmailOn_Newsletter, true) ?></td>
                         <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOn_Newsletter, true, "disabled") ?></td>
                     </tr>
-                    <tr>
-                        <td>Games with mature content</td>
-                        <td/>
-                        <td><?php RenderUserPref($websitePrefs, UserPreference::SiteMsgOff_MatureContent, false) ?></td>
-                    </tr>
                     </tbody>
                 </table>
-                <img id='loadingicon' style='opacity: 0; float: right;' src='<?= asset('assets/images/icon/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
+                <img id='loadingicon-1' style='opacity: 0; float: right;' src='<?= asset('assets/images/icon/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
+            </div>
+
+            <div class='component'>
+                <h3>Settings</h3>
+                <table class='table-highlight'>
+                    <tr class='do-not-highlight'>
+                        <th>Setting</th>
+                        <th>Enabled</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            Suppress mature content warnings
+                            <td><?php RenderUserPref($websitePrefs, UserPreference::Site_SuppressMatureContentWarning, true, $state = null, $targetLoadingIcon = 2) ?></td>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Show absolute dates on forum posts
+                            <td><?php RenderUserPref($websitePrefs, UserPreference::Forum_ShowAbsoluteDates, true, $state = null, $targetLoadingIcon = 2) ?></td>
+                        </td>
+                    </tr>
+                </table>
+                <img id='loadingicon-2' style='opacity: 0; float: right;' src='<?= asset('assets/images/icon/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
             </div>
             <?php
             if ($permissions >= Permissions::Registered) {

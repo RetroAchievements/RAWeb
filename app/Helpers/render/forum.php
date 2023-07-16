@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
@@ -10,6 +11,7 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
     /** @var ?User $user */
     $user = auth()->user();
     $permissions = $user?->Permissions ?? Permissions::Unregistered;
+    $preferences = $user?->websitePrefs ?? 0;
 
     echo "<div class='component'>";
     echo "<h3>Forum Activity</h3>";
@@ -18,7 +20,10 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
 
     if ($recentPostData->isNotEmpty()) {
         foreach ($recentPostData as $nextData) {
-            $postedAt = Carbon::parse($nextData['PostedAt'])->diffForHumans();
+            $postedAt =
+                $preferences && BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates)
+                    ? getNiceDate(strtotime($nextData['PostedAt']))
+                    : Carbon::parse($nextData['PostedAt'])->diffForHumans();
 
             $shortMsg = trim($nextData['ShortMsg']);
             if ($nextData['IsTruncated']) {

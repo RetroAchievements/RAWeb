@@ -23,7 +23,7 @@ if (authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
-$matureContentPref = UserPreference::SiteMsgOff_MatureContent;
+$matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
 $officialFlag = AchievementType::OfficialCore;
 $unofficialFlag = AchievementType::Unofficial;
@@ -105,8 +105,7 @@ if ($v != 1) {
             const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
             const gameId = <?= $gameID ?>;
 
-            // FIXME: Use the `fetcher` util.
-            fetch('/request/user/update-notification.php', {
+            fetch('/request/user/update-preferences.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

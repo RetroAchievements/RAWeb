@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Facade;
 return [
 
     'version' => env('APP_VERSION', 'DEV'),
+    'branch' => env('APP_BRANCH', 'master'),
 
     /*
     |--------------------------------------------------------------------------

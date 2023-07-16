@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-# usage:
+# print all executed commands
+set -x
+# exit on error
+set -e
+
 GIT_REMOTE="https://github.com/RetroAchievements/RAWeb"
-GIT_BRANCH="master"
+if [ -z "$1" ]; then
+    GIT_BRANCH="master"
+else
+    GIT_BRANCH=$1
+fi
 
 # php binary to use - should match the composer platform config and crontab php version
 PHP_FPM='php8.0-fpm'
@@ -14,18 +22,19 @@ CURRENT_DIR=current
 RELEASES_DIR=releases
 BASEDIR="$PWD"
 
-# print all executed commands
-set -x
-# exit on error
-set -e
-
-
 ### Prepare ###
 
 # pull source from git
 cd "${BASEDIR}"
 rm -rf "${BASEDIR:?empty string}/${GIT_DIR}"
-git clone "${GIT_REMOTE}" -b "${GIT_BRANCH}" --depth 1 "${BASEDIR}/${GIT_DIR}"
+if [[ "$GIT_BRANCH" =~ ^[0-9]+$ ]]; then
+    git clone "${GIT_REMOTE}" --depth 1 "${BASEDIR}/${GIT_DIR}"
+    cd "${BASEDIR}/${GIT_DIR}"
+    git fetch "${GIT_REMOTE}" "pull/${GIT_BRANCH}/head:pr-${GIT_BRANCH}"
+    git checkout "pr-${GIT_BRANCH}"
+else
+    git clone "${GIT_REMOTE}" -b "${GIT_BRANCH}" --depth 1 "${BASEDIR}/${GIT_DIR}"
+fi
 
 # install php dependencies
 cd "${BASEDIR}/${GIT_DIR}"
@@ -71,6 +80,7 @@ ${PHP_BIN} artisan migrate --force
 ln -snf "${BASEDIR}/${RELEASE_DIR}" "${BASEDIR}/${CURRENT_DIR}"
 # update version in .env file
 sed -i "s/APP_VERSION=.*/APP_VERSION=${VERSION}/g" .env
+sed -i "s/APP_BRANCH=.*/APP_BRANCH=${GIT_BRANCH}/g" .env
 ${PHP_BIN} artisan config:cache
 #${PHP_BIN} artisan route:cache
 #${PHP_BIN} artisan octane:reload

@@ -6,6 +6,7 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
+use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -249,13 +250,19 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
 
 function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
 {
-    Cache::forget("user:$user:gameUnlocks:$gameID:" . AchievementType::OfficialCore);
-    Cache::forget("user:$user:gameUnlocks:$gameID:" . AchievementType::Unofficial);
+    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, true));
+    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, false));
 }
 
 function getUserAchievementUnlocksForGame(string $user, int $gameID, int $flags = AchievementType::OfficialCore): array
 {
-    return Cache::remember("user:$user:gameUnlocks:$gameID:$flags",
+    $cacheKey = CacheKey::buildUserGameUnlocksCacheKey(
+        $user,
+        $gameID,
+        isOfficial: $flags === AchievementType::OfficialCore
+    );
+
+    return Cache::remember($cacheKey,
         Carbon::now()->addDays(7),
         function () use ($user, $gameID, $flags) {
             $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode

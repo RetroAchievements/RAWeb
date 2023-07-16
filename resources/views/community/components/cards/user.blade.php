@@ -1,5 +1,6 @@
 @props([
-    "user"
+    "user",
+    "userCardDataCacheKey",
 ])
 
 <?php
@@ -28,9 +29,13 @@ if (is_array($user)) {
 }
 
 if (empty($userData)) {
-    $userData = Cache::store('array')->rememberForever('user:' . $userName . ':card-data', function () use ($userName) {
-        return User::firstWhere('User', $userName);
-    });
+    $userData = Cache::store('array')->remember(
+        $userCardDataCacheKey,
+        Carbon::now()->addMonths(3),
+        function () use ($userName) {
+            return User::firstWhere('User', $userName);
+        }
+    );
 }
 
 // If we can't find the user, then we can't render a tooltip. Bail.
