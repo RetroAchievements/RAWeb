@@ -45,7 +45,7 @@ class UserCard extends Component
 
         $cardViewValues = $this->buildAllCardViewValues($username, $rawUserData);
 
-        return view('components.community.user-card', array_merge($cardViewValues, ['rawUserData' => $rawUserData]));
+        return view('components.community.user-card', $cardViewValues);
     }
 
     private function getUsername(string|array $user): ?string
