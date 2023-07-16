@@ -166,6 +166,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'email_verified_at' => 'datetime',
         'muted_until' => 'datetime',
         'unranked_at' => 'datetime',
+        'RAPoints' => 'integer',
+        'RASoftcorePoints' => 'integer',
+        'TrueRAPoints' => 'integer',
+        'ContribCount' => 'integer',
+        'ContribYield' => 'integer',
     ];
 
     protected static function newFactory(): UserFactory

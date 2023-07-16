@@ -41,29 +41,29 @@ function updateActivity(int $activityID): void
 
 function RecentlyPostedCompletionActivity(string $user, int $gameID, int $isHardcore): bool
 {
-    sanitize_sql_inputs($user);
+    $activity = UserActivityLegacy::where('User', $user)
+        ->where('activitytype', ActivityType::CompleteGame)
+        ->where('data', $gameID)
+        ->where('data2', $isHardcore)
+        ->where('lastupdate', '>=', Carbon::now()->subHours(1))
+        ->first();
 
-    $query = "SELECT act.ID
-              FROM Activity AS act
-              WHERE act.user='$user' AND act.activitytype=" . ActivityType::CompleteGame . "
-              AND act.data='$gameID' AND act.data2='$isHardcore'
-              AND act.lastupdate >= DATE_SUB( NOW(), INTERVAL 1 HOUR )
-              LIMIT 1";
-
-    $dbResult = s_mysql_query($query);
-
-    return mysqli_num_rows($dbResult) > 0;
+    return $activity != null;
 }
 
-function postActivity(string $userIn, int $type, ?int $data = null, ?int $data2 = null): bool
+function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $data2 = null): bool
 {
     if (!ActivityType::isValid($type)) {
         return false;
     }
 
-    $user = User::firstWhere('User', $userIn);
-    if ($user === null) {
-        return false;
+    if ($userIn instanceof User) {
+        $user = $userIn;
+    } else {
+        $user = User::firstWhere('User', $userIn);
+        if ($user === null) {
+            return false;
+        }
     }
 
     $activity = new UserActivityLegacy([
