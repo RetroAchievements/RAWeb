@@ -107,7 +107,7 @@ function getAchievementsEarnedOnDay(int $unixTimestamp, string $user): array
 function getAwardedList(
     string $user,
     ?int $offset = null,
-    int $limit = null,
+    ?int $limit = null,
     ?string $dateFrom = null,
     ?string $dateTo = null
 ): array {

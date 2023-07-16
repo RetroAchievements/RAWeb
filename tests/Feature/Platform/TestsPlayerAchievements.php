@@ -123,4 +123,16 @@ trait TestsPlayerAchievements
 
         $this->assertTrue(true);
     }
+
+    protected function getUnlockTime(User $user, Achievement $achievement, int $mode): ?Carbon
+    {
+        $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
+        foreach ($unlocks as $unlock) {
+            if ($unlock->HardcoreMode === $mode) {
+                return $unlock->Date;
+            }
+        }
+
+        return null;
+    }
 }

@@ -32,11 +32,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Socket connect timeout
+    |--------------------------------------------------------------------------
+    | This option defines the maximum time to wait in seconds for socket connection attempts before failure or timeout, default null = no limit.
+    */
+    'socket_connect_timeout' => env('CLAMAV_SOCKET_CONNECT_TIMEOUT', null),
+
+    /*
+    |--------------------------------------------------------------------------
     | Socket read timeout
     |--------------------------------------------------------------------------
     | This option defines the maximum time to wait in seconds for a read.
     */
     'socket_read_timeout' => env('CLAMAV_SOCKET_READ_TIMEOUT', 30),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Throw exceptions instead of returning failures when scan fails.
+    |--------------------------------------------------------------------------
+    | This makes it easier for a developer to find the source of a clamav
+    | failure, but an end user may only see a 500 error for the user
+    | if exceptions are not displayed.
+    */
+    'client_exceptions' => env('CLAMAV_CLIENT_EXCEPTIONS', false),
 
     /*
     |--------------------------------------------------------------------------

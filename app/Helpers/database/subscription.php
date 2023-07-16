@@ -99,7 +99,7 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
  * @param ?string $implicitSubscriptionQry sql query that returns the set of users that are implicitly subscribed to
  *                                        the subject (must return whole UserAccounts rows)
  */
-function getSubscribersOf(string $subjectType, int $subjectID, int $reqWebsitePrefs = null, string $implicitSubscriptionQry = null): array
+function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsitePrefs = null, ?string $implicitSubscriptionQry = null): array
 {
     sanitize_sql_inputs($subjectType);
 

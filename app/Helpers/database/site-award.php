@@ -1,45 +1,38 @@
 <?php
 
 use App\Community\Enums\AwardType;
+use App\Platform\Models\PlayerBadge;
+use Carbon\Carbon;
 
 function AddSiteAward(string $user, int $awardType, ?int $data = null, int $dataExtra = 0): void
 {
-    sanitize_sql_inputs($user);
-
     $displayOrder = 0;
-    $query = "SELECT MAX( DisplayOrder ) FROM SiteAwards WHERE User = '$user'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    } else {
-        $dbData = mysqli_fetch_assoc($dbResult);
-        if (isset($dbData['MAX( DisplayOrder )'])) {
-            $displayOrder = (int) $dbData['MAX( DisplayOrder )'] + 1;
-        }
+    $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
+    $dbData = legacyDbFetch($query, ['user' => $user]);
+    if (isset($dbData['MaxDisplayOrder'])) {
+        $displayOrder = (int) $dbData['MaxDisplayOrder'] + 1;
     }
 
-    $query = "INSERT INTO SiteAwards (AwardDate, User, AwardType, AwardData, AwardDataExtra, DisplayOrder)
-                            VALUES( NOW(), '$user', '$awardType', '$data', '$dataExtra', '$displayOrder' ) ON DUPLICATE KEY UPDATE AwardDate = NOW()";
-    $db = getMysqliConnection();
-    mysqli_query($db, $query);
+    $badge = PlayerBadge::firstOrNew([
+        'User' => $user,
+        'AwardType' => $awardType,
+        'AwardData' => $data,
+        'AwardDataExtra' => $dataExtra,
+    ], [
+        'DisplayOrder' => $displayOrder,
+    ]);
+    $badge->AwardDate = Carbon::now();
+    $badge->save();
 }
 
 function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra = null): bool
 {
-    sanitize_sql_inputs($user);
-    $query = "SELECT AwardDate FROM SiteAwards WHERE User='$user' AND AwardType=$awardType AND AwardData=$data";
+    $query = "SELECT AwardDate FROM SiteAwards WHERE User=:user AND AwardType=$awardType AND AwardData=$data";
     if ($dataExtra !== null) {
         $query .= " AND AwardDataExtra=$dataExtra";
     }
 
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    $dbData = mysqli_fetch_assoc($dbResult);
+    $dbData = legacyDbFetch($query, ['user' => $user]);
 
     return isset($dbData['AwardDate']);
 }
@@ -92,11 +85,11 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     // Get a separate list of completed and mastered games
     $awardsCount = count($dbResult);
     for ($i = 0; $i < $awardsCount; $i++) {
-        if ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
-            $dbResult[$i]['AwardDataExtra'] == 1) {
+        if ($dbResult[$i]['AwardType'] == AwardType::Mastery
+            && $dbResult[$i]['AwardDataExtra'] == 1) {
             $masteredGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery &&
-            $dbResult[$i]['AwardDataExtra'] == 0) {
+        } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery
+            && $dbResult[$i]['AwardDataExtra'] == 0) {
             $completedGames[] = $dbResult[$i]['AwardData'];
         }
     }
@@ -109,10 +102,10 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
         foreach ($multiAwardGames as $game) {
             $index = 0;
             foreach ($dbResult as $award) {
-                if (isset($award['AwardData']) &&
-                    $award['AwardData'] === $game &&
-                    $award['AwardDataExtra'] == 0 &&
-                    $award['AwardType'] == AwardType::Mastery) {
+                if (isset($award['AwardData'])
+                    && $award['AwardData'] === $game
+                    && $award['AwardDataExtra'] == 0
+                    && $award['AwardType'] == AwardType::Mastery) {
                     $dbResult[$index] = "";
                     break;
                 }
@@ -182,7 +175,7 @@ function SetCertifiedLegend(string $usernameIn, bool $enable): void
  * Results are configurable based on input parameters allowing returning data for a specific users friends
  * and selecting a specific date
  */
-function getRecentMasteryData(string $date, string $friendsOf = null, int $offset = 0, int $count = 50): array
+function getRecentMasteryData(string $date, ?string $friendsOf = null, int $offset = 0, int $count = 50): array
 {
     // Determine the friends condition
     $friendCondAward = "";
