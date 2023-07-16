@@ -30,6 +30,8 @@ $rules = [
         ],
     ],
     'not_operator_with_space' => false,
+    // 'nullable_type_declaration' => false,
+    'nullable_type_declaration_for_default_null_value' => true,
     'phpdoc_align' => false,
     'phpdoc_separation' => false,
     'phpdoc_summary' => false,

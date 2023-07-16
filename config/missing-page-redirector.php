@@ -1,7 +1,6 @@
 <?php
 
 use App\Support\Redirector\LegacyRedirector;
-use Symfony\Component\HttpFoundation\Response;
 
 return [
     /*
@@ -17,7 +16,7 @@ return [
      * always no matter what the response code.
      */
     'redirect_status_codes' => [
-        Response::HTTP_NOT_FOUND,
+        \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND,
     ],
 
     /*
@@ -121,18 +120,18 @@ return [
         '/rss.php' => '/rss',
         '/rss-news.xml.php' => '/rss/news',
 
-    /*
-     * TODO: external service routes
-     */
+        /*
+         * TODO: external service routes
+         */
         // '/BingSiteAuth.xml' => '',
         // '/channel.php' => '',
 
-    /*
-     * discarded & deprecated routes
-     * redirecting those doesn't make sense because:
-     * - api & form actions post data cannot/should not be forwarded
-     * - route is not applicable anymore
-     */
+        /*
+         * discarded & deprecated routes
+         * redirecting those doesn't make sense because:
+         * - api & form actions post data cannot/should not be forwarded
+         * - route is not applicable anymore
+         */
         // '/admin.php' => '',
         // '/developerstats.php' => '',
         // '/dorequest.php' => '', // RPC API route

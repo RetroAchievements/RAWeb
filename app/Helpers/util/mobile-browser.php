@@ -5,8 +5,8 @@ function IsMobileBrowser(): bool
     $mobile_browser = '0';
 
     if (isset($_SERVER['HTTP_ACCEPT'])) {
-        if ((mb_strpos(mb_strtolower($_SERVER['HTTP_ACCEPT']), 'application/vnd.wap.xhtml+xml') > 0) ||
-            (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE']))) {
+        if ((mb_strpos(mb_strtolower($_SERVER['HTTP_ACCEPT']), 'application/vnd.wap.xhtml+xml') > 0)
+            || (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE']))) {
             $mobile_browser++;
         }
     }

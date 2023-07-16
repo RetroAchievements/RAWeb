@@ -19,9 +19,11 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
     $recentPostData = getRecentForumPosts(0, $numToFetch, 100, $permissions);
 
     if ($recentPostData->isNotEmpty()) {
+        $isShowAbsoluteDatesPreferenceSet = $preferences && BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates);
+
         foreach ($recentPostData as $nextData) {
             $postedAt =
-                $preferences && BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates)
+                $isShowAbsoluteDatesPreferenceSet
                     ? getNiceDate(strtotime($nextData['PostedAt']))
                     : Carbon::parse($nextData['PostedAt'])->diffForHumans();
 
@@ -40,10 +42,15 @@ function RenderRecentForumPostsComponent(int $numToFetch = 4): void
                 $forumTopicTitle,
             );
 
+            $tooltipClassName = $isShowAbsoluteDatesPreferenceSet ? "" : "cursor-help";
+            $titleAttribute = $isShowAbsoluteDatesPreferenceSet
+                ? ""
+                : "title='" . Carbon::parse($nextData['PostedAt'])->format('F j Y, g:ia') . "'";
+
             echo "<div class='embedded mb-1'>";
             echo "<div class='flex justify-between items-center'><div>";
             echo userAvatar($author, iconSize: 16);
-            echo " <span class='smalldate'>$postedAt</span></div>";
+            echo " <span class='smalldate $tooltipClassName' $titleAttribute>$postedAt</span></div>";
             echo "<div><a class='btn btn-link' href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>View</a></div>";
             echo "</div>";
             echo "in <a href='/viewtopic.php?t=$forumTopicID&amp;c=$commentID#$commentID'>$forumTopicTitle</a><br>";
