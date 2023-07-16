@@ -56,6 +56,8 @@ RenderContentStart("Forum Recent Posts");
         }
         echo "</tr>";
 
+        $isShowAbsoluteDatesPreferenceSet = $websitePrefs && BitSet($websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
+
         foreach ($recentPosts as $topicPostData) {
             $postMessage = $topicPostData['ShortMsg'];
             if ($topicPostData['IsTruncated']) {
@@ -73,7 +75,7 @@ RenderContentStart("Forum Recent Posts");
             $count_7d = $topicPostData['Count_7d'] ?? 0;
 
             $postedAt =
-                $websitePrefs && BitSet($websitePrefs, UserPreference::Forum_ShowAbsoluteDates)
+                $isShowAbsoluteDatesPreferenceSet
                     ? getNiceDate(strtotime($topicPostData['PostedAt']))
                     : Carbon::parse($topicPostData['PostedAt'])->diffForHumans();
 
@@ -85,9 +87,14 @@ RenderContentStart("Forum Recent Posts");
             echo userAvatar($postAuthor, iconSize: 24);
             echo "</td>";
 
+            $tooltipClassName = $isShowAbsoluteDatesPreferenceSet ? "" : "cursor-help";
+            $titleAttribute = $isShowAbsoluteDatesPreferenceSet
+                ? ""
+                : "title='" . Carbon::parse($topicPostData['PostedAt'])->format('F j Y, g:ia') . "'";
+
             echo "<td>";
             echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID#$commentID'>$forumTopicTitle</a>";
-            echo " <span class='smalldate cursor-help' title='" . Carbon::parse($topicPostData['PostedAt'])->format('F j Y, g:ia') . "'>$postedAt</span>";
+            echo " <span class='smalldate $tooltipClassName' $titleAttribute>$postedAt</span>";
             echo "<div class='comment text-overflow-wrap'>";
             echo Shortcode::stripAndClamp($postMessage);
             echo "</div>";
