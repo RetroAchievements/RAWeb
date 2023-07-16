@@ -40,7 +40,7 @@ function playerHasUnlock(?string $user, int $achievementId): array
     return $retVal;
 }
 
-function unlockAchievement(string $username, int $achIDToAward, bool $isHardcore): array
+function unlockAchievement(string $username, int $achievementId, bool $isHardcore): array
 {
     $retVal = [
         'Success' => false,
@@ -53,9 +53,9 @@ function unlockAchievement(string $username, int $achIDToAward, bool $isHardcore
         return $retVal;
     }
 
-    $achievement = Achievement::find($achIDToAward);
+    $achievement = Achievement::find($achievementId);
     if (!$achievement) {
-        $retVal['Error'] = "Data not found for achievement $achIDToAward";
+        $retVal['Error'] = "Data not found for achievement $achievementId";
 
         return $retVal;
     }
