@@ -31,11 +31,21 @@ class User extends Component
             return null;
         }
 
-        /* @var UserModel|array $rawUserData */
-        $rawUserData = $this->getUserData($username);
+        /* @var array $rawUserData */
+        $rawUserData = [];
+        if (is_array($this->user)) {
+            $rawUserData = $this->user;
+        } else {
+            $rawUserData = $this->getUserData($username);
+        }
+
+        if (!$rawUserData) {
+            return null;
+        }
+
         $cardViewValues = $this->buildAllCardViewValues($username, $rawUserData);
 
-        return view('components.community.cards.user', $cardViewValues);
+        return view('components.community.cards.user', array_merge($cardViewValues, ['rawUserData' => $rawUserData]));
     }
 
     private function getUsername(string|array $user): ?string
@@ -43,38 +53,40 @@ class User extends Component
         return is_string($user) ? $user : ($user['User'] ?? null);
     }
 
-    private function getUserData(string $username): ?UserModel
+    private function getUserData(string $username): ?array
     {
         return Cache::store('array')->remember(
-            CacheKey::buildUserCardDataCacheKey($username),
+            CacheKey::buildUserCardDataCacheKey($username . "1"),
             Carbon::now()->addMonths(3),
-            function () use ($username) {
-                return UserModel::firstWhere('User', $username);
+            function () use ($username): ?array {
+                $foundUser = UserModel::firstWhere('User', $username);
+
+                return $foundUser ? $foundUser->toArray() : null;
             }
         );
     }
 
-    private function buildAllCardViewValues(string $username, UserModel $rawUserData): array
+    private function buildAllCardViewValues(string $username, array $rawUserData): array
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
-        $cardRankData = $this->buildCardRankData($username, $rawUserData->RAPoints, $rawUserData->RASoftcorePoints, $rawUserData->Untracked ? true : false);
+        $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'], $rawUserData['Untracked'] ? true : false);
         $cardRoleData = $this->buildCardRoleData($username, $rawUserData['Permissions']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
     }
 
-    private function buildCardBioData(UserModel $rawUserData): array
+    private function buildCardBioData(array $rawUserData): array
     {
-        $username = $rawUserData->User ?? "";
-        $motto = $rawUserData->Motto ?? null;
-        $avatarUrl = $rawUserData->AvatarUrl ?? null;
-        $hardcorePoints = $rawUserData->RAPoints ?? 0;
-        $softcorePoints = $rawUserData->RASoftcorePoints ?? 0;
-        $retroPoints = $rawUserData->TrueRAPoints ?? 0;
-        $isUntracked = $rawUserData->Untracked ? true : false;
-        $permissions = $rawUserData->Permissions ?? Permissions::Unregistered;
-        $memberSince = $rawUserData->Created ?? Carbon::now();
-        $lastActivity = $rawUserData->LastLogin ? Carbon::parse($rawUserData->LastLogin)->diffForHumans() : null;
+        $username = $rawUserData['User'] ?? "";
+        $motto = $rawUserData['Motto'] ?? null;
+        $avatarUrl = $rawUserData['avatarUrl'] ?? null;
+        $hardcorePoints = $rawUserData['RAPoints'] ?? 0;
+        $softcorePoints = $rawUserData['RASoftcorePoints'] ?? 0;
+        $retroPoints = $rawUserData['TrueRAPoints'] ?? 0;
+        $isUntracked = $rawUserData['Untracked'] ? true : false;
+        $permissions = $rawUserData['Permissions'] ?? Permissions::Unregistered;
+        $memberSince = $rawUserData['Created'] ?? Carbon::now();
+        $lastActivity = $rawUserData['LastLogin'] ? Carbon::parse($rawUserData['LastLogin'])->diffForHumans() : null;
 
         return compact(
             'username',

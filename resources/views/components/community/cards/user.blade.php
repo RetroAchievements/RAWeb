@@ -3,9 +3,11 @@
         <!-- Role -->
         @if($canShowUserRole)
             <div class="absolute top-[-14px] right-[-21px]">
-                <p class="text-2xs tracking-tighter flex items-center justify-center pl-2 pr-5 pt-2 bg-menu-link text-box-bg rounded">
-                    {{ $roleLabel }}
-                </p>
+                <div class="h-[25px] flex flex-col text-2xs tracking-tighter items-center justify-center pl-2 pr-5 pt-2 bg-menu-link text-box-bg rounded">
+                    <!-- Spacer div due to absolute positioned parent element -->
+                    <div class="mb-px"></div>
+                    <p class="bottom-[8px] right-0">{{ $roleLabel }}</p>
+                </div>
             </div>
         @endif
 

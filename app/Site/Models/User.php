@@ -151,6 +151,10 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         "ContribYield",
         "TrueRAPoints",
         "websitePrefs",
+        "Motto",
+        "Untracked",
+        "LastLogin",
+        "avatarUrl",
     ];
 
     protected $appends = [
