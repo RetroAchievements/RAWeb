@@ -56,7 +56,7 @@ class UserCard extends Component
     private function getUserData(string $username): ?array
     {
         return Cache::store('array')->remember(
-            CacheKey::buildUserCardDataCacheKey($username . "1"),
+            CacheKey::buildUserCardDataCacheKey($username),
             Carbon::now()->addMonths(3),
             function () use ($username): ?array {
                 $foundUser = UserModel::firstWhere('User', $username);
@@ -70,7 +70,7 @@ class UserCard extends Component
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
         $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'], $rawUserData['Untracked'] ? true : false);
-        $cardRoleData = $this->buildCardRoleData($username, (int) $rawUserData['Permissions']);
+        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['Permissions']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
     }
