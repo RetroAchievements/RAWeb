@@ -49,7 +49,11 @@ final class Shortcode
             '~\[game=(\d+)]~i' => function ($matches) {
                 $gameData = getGameData((int) $matches[1]);
                 if ($gameData) {
-                    return "{$gameData['Title']} ({$gameData['ConsoleName']})";
+                    // Escape square brackets so strings like "[Series - Star Wars]" still
+                    // get rendered correctly and aren't mistaken for shortcodes.
+                    $title = str_replace(['[', ']'], ['&#91;', '&#93;'], $gameData['Title']);
+
+                    return "{$title} ({$gameData['ConsoleName']})";
                 }
 
                 return "";
