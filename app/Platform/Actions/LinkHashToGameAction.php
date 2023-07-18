@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class LinkHashToGameAction
 {
-    public function execute(string $hash, Game $game, string $gameHashTitle = null): GameHash
+    public function execute(string $hash, Game $game, ?string $gameHashTitle = null): GameHash
     {
         /*
          * TODO: lowercase hashes only

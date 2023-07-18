@@ -18,7 +18,7 @@ class StaticData extends BaseModel
 
     protected static $unguarded = true;
 
-    protected $primaryKey = null;
+    protected $primaryKey;
     public $incrementing = false;
     public $timestamps = false;
 

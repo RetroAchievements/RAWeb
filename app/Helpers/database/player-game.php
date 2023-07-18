@@ -14,21 +14,14 @@ function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, boo
 {
     // TODO remove, implement in UpdatePlayerGameMetricsAction instead
 
-    sanitize_sql_inputs($user);
-
     $query = "SELECT COUNT(DISTINCT ach.ID) AS NumAch,
-                     COUNT(IF(aw.HardcoreMode=1,1,NULL)) AS NumAwardedHC,
-                     COUNT(IF(aw.HardcoreMode=0,1,NULL)) AS NumAwardedSC
+                     COUNT(CASE WHEN aw.HardcoreMode=1 THEN 1 ELSE NULL END) AS NumAwardedHC,
+                     COUNT(CASE WHEN aw.HardcoreMode=0 THEN 1 ELSE NULL END) AS NumAwardedSC
               FROM Achievements AS ach
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = '$user'
+              LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = :user
               WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore;
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        return [];
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
+    $data = legacyDbFetch($query, ['user' => $user]);
 
     $minToCompleteGame = 6;
     if ($postMastery && $data['NumAch'] >= $minToCompleteGame) {

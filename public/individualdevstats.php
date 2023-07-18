@@ -1164,10 +1164,10 @@ RenderContentStart("$dev's Developer Stats");
 
                 // Check the next entry for the same achievement ID and time to see if SC and HC were earned at the same time
                 // Only display row for Hardcore if so.
-                if ($i + 1 < count($recentlyObtainedAchievements) &&
-                    $recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User'] &&
-                    $recentlyObtainedAchievements[$i]['Date'] == $recentlyObtainedAchievements[$i + 1]['Date'] &&
-                    $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID']) {
+                if ($i + 1 < count($recentlyObtainedAchievements)
+                    && $recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User']
+                    && $recentlyObtainedAchievements[$i]['Date'] == $recentlyObtainedAchievements[$i + 1]['Date']
+                    && $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID']) {
                     echo " (Hardcore!)";
                     $skipNextEntry = true;
                 } elseif ($recentlyObtainedAchievements[$i]['HardcoreMode'] == 1) {

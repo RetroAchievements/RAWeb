@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 function static_addnewachievement(int $id): void
 {
     $query = "UPDATE StaticData AS sd ";
@@ -39,11 +41,13 @@ function static_addnewregistereduser(string $user): void
 
 function static_setlastearnedachievement(int $id, string $user, int $points): void
 {
-    sanitize_sql_inputs($user);
-
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.NumAwarded = sd.NumAwarded+1, sd.LastAchievementEarnedID = '$id', sd.LastAchievementEarnedByUser = '$user', sd.LastAchievementEarnedAt = NOW(), sd.TotalPointsEarned=sd.TotalPointsEarned+$points";
-    $dbResult = s_mysql_query($query);
+    $query = "UPDATE StaticData
+              SET NumAwarded = NumAwarded+1,
+                  LastAchievementEarnedID = $id,
+                  LastAchievementEarnedByUser = :user,
+                  LastAchievementEarnedAt = :now,
+                  TotalPointsEarned = TotalPointsEarned+$points";
+    $dbResult = legacyDbStatement($query, ['user' => $user, 'now' => Carbon::now()]);
     if (!$dbResult) {
         log_sql_fail();
     }
