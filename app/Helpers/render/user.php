@@ -1,7 +1,10 @@
 <?php
 
 use App\Site\Models\User;
+use App\Support\Cache\CacheKey;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
@@ -19,8 +22,17 @@ function userAvatar(
         return '';
     }
 
-    $doesUserExist = User::where('User', $username)->exists();
-    if (!$doesUserExist) {
+    $user = Cache::store('array')->remember(
+        CacheKey::buildUserCardDataCacheKey($username),
+        Carbon::now()->addMonths(3),
+        function () use ($username): ?array {
+            $foundUser = User::firstWhere('User', $username);
+
+            return $foundUser ? $foundUser->toArray() : null;
+        }
+    );
+
+    if (!$user) {
         $userSanitized = $username;
         sanitize_outputs($userSanitized);
 
@@ -36,6 +48,8 @@ function userAvatar(
 
         return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
     }
+
+    $username = $user['User'] ?? null;
 
     return avatar(
         resource: 'user',
