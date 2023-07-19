@@ -1,5 +1,6 @@
 <?php
 
+use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
@@ -21,14 +22,13 @@ function userAvatar(
         return '';
     }
 
-    $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($username);
     $user = Cache::store('array')->remember(
-        $userCardDataCacheKey,
+        CacheKey::buildUserCardDataCacheKey($username),
         Carbon::now()->addMonths(3),
-        function () use ($username) {
-            getAccountDetails($username, $data);
+        function () use ($username): ?array {
+            $foundUser = User::firstWhere('User', $username);
 
-            return $data;
+            return $foundUser ? $foundUser->toArray() : null;
         }
     );
 
@@ -66,11 +66,8 @@ function userAvatar(
 
 function renderUserCard(string|array $user): string
 {
-    $userCardDataCacheKey = CacheKey::buildUserCardDataCacheKey($user);
-
-    return Blade::render('<x-cards.user :user="$user" :userCardDataCacheKey="$userCardDataCacheKey" />', [
+    return Blade::render('<x-community.user-card :user="$user" />', [
         'user' => $user,
-        'userCardDataCacheKey' => $userCardDataCacheKey,
     ]);
 }
 

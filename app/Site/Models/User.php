@@ -151,6 +151,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         "ContribYield",
         "TrueRAPoints",
         "websitePrefs",
+        "Motto",
+        "Untracked",
+        "LastLogin",
+        "avatarUrl",
+        'Created',
     ];
 
     protected $appends = [
@@ -171,6 +176,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'TrueRAPoints' => 'integer',
         'ContribCount' => 'integer',
         'ContribYield' => 'integer',
+        'Permissions' => 'integer',
     ];
 
     protected static function newFactory(): UserFactory
