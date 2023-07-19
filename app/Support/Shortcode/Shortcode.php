@@ -49,11 +49,7 @@ final class Shortcode
             '~\[game=(\d+)]~i' => function ($matches) {
                 $gameData = getGameData((int) $matches[1]);
                 if ($gameData) {
-                    // Escape square brackets so strings like "[Series - Star Wars]" still
-                    // get rendered correctly and aren't mistaken for shortcodes.
-                    $title = str_replace(['[', ']'], ['&#91;', '&#93;'], $gameData['Title']);
-
-                    return "{$title} ({$gameData['ConsoleName']})";
+                    return "{$gameData['Title']} ({$gameData['ConsoleName']})";
                 }
 
                 return "";
@@ -95,8 +91,8 @@ final class Shortcode
             '~\[user(=)?([^]]+)]~i' => '@$2',
 
             // Fragments: opening tags without closing tags.
-            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?\]~i' => '',
-            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?$~i' => '...',
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?\]~i' => '',
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?$~i' => '...',
 
             // Fragments: closing tags without opening tags.
             '~\[/?(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\]~i' => '',
