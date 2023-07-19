@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Community;
 
 use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use App\Support\Shortcode\Shortcode;
-use App\Platform\Models\Game;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ShortcodeClampTest extends TestCase
 {
@@ -25,7 +25,7 @@ class ShortcodeClampTest extends TestCase
             'Title' => 'Sonic the Hedgehog',
             'ConsoleID' => $system->ID,
         ]);
-    
+
         $this->assertSame(
             'Sonic the Hedgehog (Mega Drive)',
             Shortcode::stripAndClamp('[game=1]')
@@ -57,7 +57,7 @@ class ShortcodeClampTest extends TestCase
             'is great',
             Shortcode::stripAndClamp('[game=999999] is great')
         );
-    
+
         $this->assertSame(
             'is difficult',
             Shortcode::stripAndClamp('[ach=999999] is difficult')
