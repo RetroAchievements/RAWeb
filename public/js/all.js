@@ -225,7 +225,9 @@ function removeComment(artTypeID, artID, commentID) {
     comment: commentID
   })
     .done(function () {
-      $('#comment_' + commentID).hide();
+      document.querySelectorAll(`[id^="comment_${commentID}"]`).forEach(function (el) {
+        el.style.display = 'none';
+      });
     });
   return true;
 }
