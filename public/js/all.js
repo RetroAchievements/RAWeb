@@ -225,7 +225,7 @@ function removeComment(artTypeID, artID, commentID) {
     comment: commentID
   })
     .done(function () {
-      $('#comment_' + commentID).hide();
+      $(`[id^="comment_${commentID}"]`).hide();
     });
   return true;
 }
