@@ -11,7 +11,7 @@ use App\Support\Shortcode\Shortcode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ShortcodeClampTest extends TestCase
+class ShortcodeEmbedTest extends TestCase
 {
     use RefreshDatabase;
 
