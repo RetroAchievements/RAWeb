@@ -84,6 +84,20 @@ class AppServiceProvider extends ServiceProvider
             'vote' => Vote::class,
         ]);
 
+        AchievementComment::disableSearchSyncing();
+        Comment::disableSearchSyncing();
+        Forum::disableSearchSyncing();
+        ForumCategory::disableSearchSyncing();
+        ForumTopic::disableSearchSyncing();
+        ForumTopicComment::disableSearchSyncing();
+        GameComment::disableSearchSyncing();
+        Message::disableSearchSyncing();
+        News::disableSearchSyncing();
+        NewsComment::disableSearchSyncing();
+        Ticket::disableSearchSyncing();
+        TriggerTicketComment::disableSearchSyncing();
+        UserComment::disableSearchSyncing();
+
         // Livewire::component('forum-topics', ForumTopics::class);
         //
         // Livewire::component('achievement.comments', AchievementComments::class);

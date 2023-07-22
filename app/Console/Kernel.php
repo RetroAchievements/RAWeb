@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('websockets:clean')->daily();
 
-        // $schedule->command('horizon:snapshot')->everyFiveMinutes();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
         /** @var Settings $settings */
         $settings = $this->app->get(Settings::class);

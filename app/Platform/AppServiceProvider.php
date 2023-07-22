@@ -146,6 +146,13 @@ class AppServiceProvider extends ServiceProvider
             'system' => System::class,
         ]);
 
+        Achievement::disableSearchSyncing();
+        Badge::disableSearchSyncing();
+        Game::disableSearchSyncing();
+        GameHash::disableSearchSyncing();
+        Leaderboard::disableSearchSyncing();
+        System::disableSearchSyncing();
+
         // Livewire::component('achievement-grid', AchievementGrid::class);
         // Livewire::component('achievement-player-grid', AchievementPlayerGrid::class);
         // Livewire::component('badge-grid', BadgeGrid::class);
