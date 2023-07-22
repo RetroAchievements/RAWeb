@@ -109,7 +109,7 @@ REDIS_PORT=${FORWARD_REDIS_PORT}
 > Connect with a database client of you choice using the forwarded ports
 > or use phpMyAdmin which runs at http://localhost:64080 by default. 
 
-Use mailhog as SMTP server for local mails testing:
+Use mailpit as SMTP server for local mails testing:
 
 ```dotenv
 MAIL_MAILER=smtp
