@@ -3,7 +3,7 @@
 set -e
 
 printf "\n⏳ composer lint\n"
-PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --verbose --dry-run --show-progress=none --config=.php-cs-fixer.php
+vendor/bin/pint --test
 
 printf "\n⏳ composer analyse\n"
 vendor/bin/phpstan analyse --memory-limit 512M

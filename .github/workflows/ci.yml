@@ -1,13 +1,13 @@
 on: [pull_request]
 
 jobs:
-  php-cs-fixer:
+  pint:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
         php: [8.0]
-    name: php-cs-fixer (PHP ${{ matrix.php }})
+    name: pint (PHP ${{ matrix.php }})
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
