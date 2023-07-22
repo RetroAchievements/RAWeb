@@ -17,7 +17,7 @@
         <!-- Motto -->
         @if($motto !== null && mb_strlen($motto) > 2)
             <div class="mb-1 rounded bg-bg text-text italic p-1 text-2xs hyphens-auto">
-                <p>{{ $motto }}</p>
+                <p style="word-break: break-word;">{{ $motto }}</p>
             </div>
         @endif
 

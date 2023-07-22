@@ -148,6 +148,24 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testStripAndClampCombinedWordsAndActualShortcodes(): void
+    {
+        $this->assertSame(
+            'I uploaded an img',
+            Shortcode::stripAndClamp('I uploaded an img [img=https://google.com/icon.png]')
+        );
+
+        $this->assertSame(
+            'The code print("Hello") is clean',
+            Shortcode::stripAndClamp('The code [code]print("Hello")[/code] is clean')
+        );
+
+        $this->assertSame(
+            'u the important points',
+            Shortcode::stripAndClamp('u [u]the important points[/u]')
+        );
+    }
+
     /**
      * @dataProvider youtubeUrlProvider
      */

@@ -89,16 +89,6 @@
                     <a href='/game/5686'>DevQuest</a>.
                 </p>
             </x-section>
-
-            <x-section>
-                <h2>Quality Quest</h2>
-
-                <p class="mb-3">
-                    <a href='/createmessage.php?t=QualityQuest'>Send a message to QualityQuest</a> for
-                    submissions, questions, ideas, or reporting issues related to
-                    <a href='/game/18999'>Quality Quest</a>.
-                </p>
-            </x-section>
         </div>
     </div>
 </x-app-layout>
