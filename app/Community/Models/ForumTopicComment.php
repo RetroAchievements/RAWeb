@@ -8,9 +8,11 @@ use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class ForumTopicComment extends BaseModel
 {
+    use Searchable;
     use SoftDeletes;
 
     // TODO rename ForumTopicComment table to forum_topic_comments
@@ -28,6 +30,22 @@ class ForumTopicComment extends BaseModel
 
     public const CREATED_AT = 'DateCreated';
     public const UPDATED_AT = 'DateModified';
+
+    // == search
+
+    public function toSearchableArray(): array
+    {
+        return $this->only([
+            'ID',
+            'Payload',
+        ]);
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        // TODO return true;
+        return false;
+    }
 
     public function getEditLinkAttribute(): string
     {
