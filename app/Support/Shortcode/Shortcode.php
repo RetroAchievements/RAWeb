@@ -91,8 +91,8 @@ final class Shortcode
             '~\[user(=)?([^]]+)]~i' => '@$2',
 
             // Fragments: opening tags without closing tags.
-            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?\]~i' => '',
-            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)[^\]]*?$~i' => '...',
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?\]~i' => '',
+            '~\[(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\b[^\]]*?$~i' => '...',
 
             // Fragments: closing tags without opening tags.
             '~\[/?(b|i|u|s|img|code|url|link|spoiler|ach|game|ticket|user)\]~i' => '',
