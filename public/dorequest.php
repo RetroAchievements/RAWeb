@@ -89,9 +89,9 @@ switch ($requestType) {
      * Login
      */
     case "login": // From App!
-        $user = request()->input('u');
+        $user = request()->input('u', '');
         $rawPass = request()->input('p');
-        $response = authenticateFromPasswordOrAppToken($user, $rawPass, $token);
+        $response = authenticateForConnect($user, $rawPass, $token);
         break;
 
     /*
@@ -388,5 +388,9 @@ switch ($requestType) {
 }
 
 $response['Success'] = (bool) $response['Success'];
+
+if (array_key_exists('Status', $response)) {
+    return response()->json($response, $response['Status']);
+}
 
 return response()->json($response);

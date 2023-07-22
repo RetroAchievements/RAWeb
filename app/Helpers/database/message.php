@@ -36,45 +36,25 @@ function CreateNewMessage(string $author, string $destUser, string $messageTitle
     return false;
 }
 
-function GetMessageCount(string $user, ?int &$totalMessageCount = null): int
+function GetMessageCount(string $username, ?int &$totalMessageCount = null): int
 {
-    sanitize_sql_inputs($user);
-
-    if (!isset($user)) {
-        $totalMessageCount = 0;
-
-        return 0;
-    }
-
-    // Returns unread message count.
-
     $unreadMessageCount = 0;
     $totalMessageCount = 0;
 
-    $query = "
-        SELECT Unread, COUNT(*) AS NumFound FROM
-        (
-            SELECT *
-            FROM Messages AS msg
-            WHERE msg.UserTo = '$user'
-        ) Inner1
-        GROUP BY Unread";
+    $query = "SELECT Unread, COUNT(*) AS NumFound
+              FROM Messages
+              WHERE UserTo = :user
+              GROUP BY Unread";
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            if ($data['Unread'] == 1) {
-                $unreadMessageCount = (int) $data['NumFound'];
-            }
-
-            $totalMessageCount += (int) $data['NumFound'];
+    while ($data = legacyDbFetch($query, ['user' => $username])) {
+        if ($data['Unread'] == 1) {
+            $unreadMessageCount = (int) $data['NumFound'];
         }
 
-        return $unreadMessageCount;
+        $totalMessageCount += (int) $data['NumFound'];
     }
 
-    return 0;
+    return $unreadMessageCount;
 }
 
 function GetSentMessageCount(string $user): int
