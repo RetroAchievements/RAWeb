@@ -40,7 +40,6 @@ yarn-error.log
 /.env*
 .deptrac.cache
 .eslintcache
-.php-cs-fixer.cache
 .phpstorm.meta.php
 .phpunit.result.cache
 _ide_helper.php
