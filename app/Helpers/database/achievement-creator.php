@@ -159,10 +159,9 @@ function attributeDevelopmentAuthor(string $author, int $count, int $points): vo
     $oldContribCount = $user->ContribCount;
     $oldContribYield = $user->ContribYield;
 
-    $user->ContribCount += $count;
-    $user->ContribYield += $points;
-    $user->timestamps = false;
-    $user->save();
+    // use raw statement to perform atomic update
+    legacyDbStatement("UPDATE UserAccounts SET ContribCount = ContribCount + $count," .
+                            " ContribYield = ContribYield + $points WHERE User=:user", ['user' => $author]);
 
     $newContribTier = PlayerBadge::getNewBadgeTier(AwardType::AchievementUnlocksYield, $oldContribCount, $oldContribCount + $count);
     if ($newContribTier !== null) {
