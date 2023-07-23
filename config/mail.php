@@ -36,7 +36,7 @@ return [
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
-            'host' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'mailhog' : env('MAIL_HOST', 'smtp.mailgun.org'),
+            'host' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'mailpit' : env('MAIL_HOST', 'smtp.mailgun.org'),
             'port' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? '1025' : env('MAIL_PORT', 587),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
