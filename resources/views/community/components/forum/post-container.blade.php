@@ -4,7 +4,7 @@
     'isPreview' => false,
 ])
 
-<div class="relative">
+<div class="relative {{ $isPreview ? "my-2" : "" }}">
     <div {{ $commentId ? 'id="$commentId"' : ''}} class="absolute left-0 h-px w-px" style="top: -64px;"></div>
 
     <div

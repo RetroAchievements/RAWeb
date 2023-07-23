@@ -39,7 +39,7 @@ describe('Util: loadPostPreview', () => {
   it('given post content, fetches and displays a preview', async () => {
     // ARRANGE
     const fetcherSpy = vi.spyOn(fetcherModule, 'fetcher').mockResolvedValueOnce({
-      postPreviewHTML: '<p>Hello from preview!</p>',
+      postPreviewHtml: '<p>Hello from preview!</p>',
     });
 
     // ACT
@@ -54,7 +54,7 @@ describe('Util: loadPostPreview', () => {
   it('given duplicate content, does not fetch', async () => {
     // ARRANGE
     const fetcherSpy = vi.spyOn(fetcherModule, 'fetcher').mockResolvedValueOnce({
-      postPreviewHTML: '<p>Hello from preview!</p>',
+      postPreviewHtml: '<p>Hello from preview!</p>',
     });
 
     // ACT

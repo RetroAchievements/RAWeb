@@ -16,16 +16,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $parsedPostContent = Shortcode::render($input['body']);
 
-$postPreviewHTML = '';
-ob_start();
-echo "<div class='my-2'>";
-echo Blade::render('<x-forum.post :parsedPostContent="$parsedPostContent" isPreview="true" />', [
-    'parsedPostContent' => $parsedPostContent,
-]);
-echo "</div>";
-$postPreviewHTML = ob_get_clean();
-
 return response()->json([
     'message' => __('legacy.success.ok'),
-    'postPreviewHTML' => $postPreviewHTML,
+    'postPreviewHtml' => Blade::render('<x-forum.post :parsedPostContent="$parsedPostContent" isPreview="true" />', [
+        'parsedPostContent' => Shortcode::render($input['body']),
+    ]),
 ]);

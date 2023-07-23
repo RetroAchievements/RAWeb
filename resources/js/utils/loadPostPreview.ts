@@ -5,7 +5,7 @@ let mostRecentPreviewContent = '';
 export const loadPostPreview = async (
   textareaElId = 'commentTextarea',
   previewElId = 'post-preview',
-  loadingElId = 'preview-loading-icon',
+  loadingElId = 'preview-loading-icon'
 ) => {
   // Locate the element on the page where we'll be dumping preview content.
   // If the element isn't on the page, we can prematurely bail.
@@ -27,16 +27,16 @@ export const loadPostPreview = async (
 
   try {
     setLoadingIconVisibility(loadingElId, { isVisible: true });
-    const { postPreviewHTML } = await fetcher<{ message: string; postPreviewHTML: string }>(
+    const { postPreviewHtml } = await fetcher<{ message: string; postPreviewHtml: string }>(
       '/request/forum-topic-comment/preview.php',
       {
         method: 'POST',
         body: `body=${postContent}`,
-      },
+      }
     );
 
-    if (postPreviewHTML) {
-      previewEl.innerHTML = postPreviewHTML;
+    if (postPreviewHtml) {
+      previewEl.innerHTML = postPreviewHtml;
     }
 
     setLoadingIconVisibility(loadingElId, { isVisible: false });
