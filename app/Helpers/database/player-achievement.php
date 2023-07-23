@@ -116,8 +116,8 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
-    // Use raw UPDATE statement to ensure updates are atomic. Modifying the user model
-    // and committing via save() leaves a window where multiple simultaneous unlocks can
+    // Use raw statement to ensure updates are atomic. Modifying the user model and
+    // committing via save() leaves a window where multiple simultaneous unlocks can
     // increment the score separately and miss the merged result. For example:
     // * unlock A => read points = 10
     // * unlock B => read points = 10
@@ -137,7 +137,8 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         $updateClause = 'RASoftcorePoints = RASoftcorePoints + ' . $achievement->Points;
     }
 
-    legacyDbStatement("UPDATE UserAccounts SET $updateClause, Updated=NOW() WHERE User=:user", ['user' => $user->User]);
+    legacyDbStatement("UPDATE UserAccounts SET $updateClause, Updated=:now WHERE User=:user",
+                      ['user' => $user->User, 'now' => Carbon::now()]);
 
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
