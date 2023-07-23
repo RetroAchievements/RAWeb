@@ -79,18 +79,32 @@ RenderContentStart("Edit post");
             >$existingComment</textarea>
         EOF;
         echo "</td></tr>";
-        echo "<tr><td></td><td>";
-        echo "<div class='flex justify-between items-center'>";
-        echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
-        echo "<div class='flex gap-2'>";
-        echo "<a class='btn btn-link' href='/viewtopic.php?t=$thisTopicID&c=$requestedComment#$requestedComment'>Back</a>";
-        echo "<button class='btn'>Submit</button>";
-        echo "</div>";
-        echo "</div>";
-        echo "</td></tr>";
+
+        $loadingIconSrc = asset('assets/images/icon/loading.gif');
+
+        echo <<<HTML
+            <tr>
+                <td></td>
+                <td>
+                    <div class="flex justify-between items-center">
+                        <div class="textarea-counter text-right" data-textarea-id="commentTextarea"></div>
+
+                        <div class="flex gap-2">
+                            <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading..." class="w-4 h-4">
+                            <a class="btn btn-link" href="/viewtopic.php?t=$thisTopicID&c=$requestedComment#$requestedComment">Back</a>
+                            <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
+                            <button type="submit" class="btn">Submit</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        HTML;
+
         echo "</tbody>";
         echo "</table>";
         echo "</form>";
+
+        echo "<div id='post-preview'></div>";
         ?>
         <br>
     </div>
