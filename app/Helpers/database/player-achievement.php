@@ -116,17 +116,28 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
+    // Use raw UPDATE statement to ensure updates are atomic. Modifying the user model
+    // and committing via save() leaves a window where multiple simultaneous unlocks can
+    // increment the score separately and miss the merged result. For example:
+    // * unlock A => read points = 10
+    // * unlock B => read points = 10
+    // * unlock A => award 5 points, total = 15
+    // * unlock B => award 10 points, total = 20
+    // * unlock A => commit points (15)
+    // * unlock B => commit points (20)
+    // -- actual points is 20, expected points should be 25: 10 + 5 (A) + 10 (B)
+    $updateClause = '';
     if ($isHardcore) {
-        $user->RAPoints += $achievement->Points;
-        $user->TrueRAPoints += $achievement->TrueRatio;
+        $updateClause = 'RAPoints = RAPoints + ' . $achievement->Points;
+        $updateClause .= ', TrueRAPoints = TrueRAPoints + ' . $achievement->TrueRatio;
         if ($hasRegular) {
-            $user->RASoftcorePoints -= $achievement->Points;
+            $updateClause .= ', RASoftcorePoints = RASoftcorePoints - ' . $achievement->Points;
         }
     } else {
-        $user->RASoftcorePoints += $achievement->Points;
+        $updateClause = 'RASoftcorePoints = RASoftcorePoints + ' . $achievement->Points;
     }
 
-    $user->save();
+    legacyDbStatement("UPDATE UserAccounts SET $updateClause, Updated=NOW() WHERE User=:user", ['user' => $user->User]);
 
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
