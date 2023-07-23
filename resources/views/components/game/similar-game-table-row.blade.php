@@ -28,7 +28,7 @@
                     points
                 </p>
 
-                <x-game.retropoints-container>
+                <x-retropoints-container>
                     <p class="text-2xs whitespace-nowrap {{ $totalRetroPoints === 0 ? 'text-text-muted' : '' }}">
                         @if ($totalRetroPoints > 0)
                             ({{ localized_number($totalRetroPoints) }})
@@ -37,7 +37,7 @@
                         @endif
                         RP
                     </p>
-                </x-game.retropoints-container>
+                </x-retropoints-container>
             </div>
         </td>
     @endif
