@@ -63,15 +63,31 @@ RenderContentStart("Create topic: $thisForumTitle");
         ><?= $existingComment ?></textarea>
         <?php
         echo "</td></tr>";
-        echo "<tr><td></td><td>";
-        echo "<div class='flex justify-between items-center'>";
-        echo "<div class='textarea-counter text-right' data-textarea-id='commentTextarea'></div>";
-        echo "<button class='btn'>Submit new topic</button>";
-        echo "</div>";
-        echo "</td></tr>";
+
+        $loadingIconSrc = asset('assets/images/icon/loading.gif');
+
+        echo <<<HTML
+            <tr>
+                <td></td>
+                <td>
+                    <div class="flex justify-between items-center">
+                        <div class="textarea-counter text-right" data-textarea-id="commentTextarea"></div>
+
+                        <div>
+                            <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
+                            <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
+                            <button type="submit" class="btn">Submit new topic</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        HTML;
+
         echo "</tbody>";
         echo "</table>";
         echo "</form>";
+
+        echo "<div id='post-preview'></div>";
         ?>
     </div>
 </div>
