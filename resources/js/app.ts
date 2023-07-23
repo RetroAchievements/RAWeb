@@ -11,6 +11,7 @@ import {
   handleLeaderboardTabClick,
   initializeTextareaCounter,
   injectShortcode,
+  loadPostPreview,
   themeChange,
   toggleUserCompletedSetsVisibility,
 } from './utils';
@@ -31,6 +32,7 @@ window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
+window.loadPostPreview = loadPostPreview;
 window.newsCarousel = newsCarousel;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
