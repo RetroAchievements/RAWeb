@@ -27,20 +27,20 @@ services:
             - redis
             - minio
     nginx:
-        image: nginx:1.18
+        image: 'nginx:1.18'
         ports:
             - '${APP_PORT:-8080}:80'
         volumes:
-            - .:/var/www/html
-            - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-            - ./docker/nginx/ra-web.conf:/etc/nginx/sites-enabled/ra-web.conf:ro
-            - ./docker/nginx/logs:/var/log/nginx
+            - '.:/var/www/html'
+            - './docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
+            - './docker/nginx/ra-web.conf:/etc/nginx/sites-enabled/ra-web.conf:ro'
+            - './docker/nginx/logs:/var/log/nginx'
         networks:
             - raweb
         depends_on:
             - laravel.test
     mysql:
-        image: mysql:8 # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile
+        image: 'mysql:8'
         environment:
             MYSQL_DATABASE: '${DB_DATABASE}'
             MYSQL_USER: '${DB_USERNAME}'
@@ -49,15 +49,15 @@ services:
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         volumes:
-            - mysql-data:/var/lib/mysql # https://github.com/docker-library/mysql/blob/696fc899126ae00771b5d87bdadae836e704ae7d/8.0/Dockerfile#L67
-            - ./database:/docker-entrypoint-initdb.d/
-            - ./docker/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+            - 'mysql-data:/var/lib/mysql'
+            - './database:/docker-entrypoint-initdb.d/'
+            - './docker/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro'
         networks:
             - raweb
         command:
-            - "--default-authentication-plugin=mysql_native_password"
+            - '--default-authentication-plugin=mysql_native_password'
     phpmyadmin:
-        image: phpmyadmin/phpmyadmin # https://github.com/phpmyadmin/docker/blob/master/fpm-alpine/Dockerfile
+        image: phpmyadmin/phpmyadmin
         environment:
             PMA_ARBITRARY: 1
             PMA_HOST: mysql
@@ -68,11 +68,11 @@ services:
             - '${FORWARD_PHPMYADMIN_PORT:-8081}:80'
         networks:
             - raweb
-    mailhog:
-        image: 'mailhog/mailhog:latest'
+    mailpit:
+        image: 'axllent/mailpit:latest'
         ports:
-            - '${FORWARD_MAILHOG_PORT:-1025}:1025'
-            - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
+            - '${FORWARD_MAILPIT_PORT:-1025}:1025'
+            - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - raweb
     minio:
@@ -81,15 +81,19 @@ services:
             - '${FORWARD_MINIO_PORT:-9000}:9000'
             - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
         environment:
-            MINIO_ROOT_USER: 'retroachievements'
-            MINIO_ROOT_PASSWORD: 'retroachievements'
+            MINIO_ROOT_USER: retroachievements
+            MINIO_ROOT_PASSWORD: retroachievements
         volumes:
             - 'minio-data:/data'
         networks:
             - raweb
-        command: minio server /data/minio --console-address ":8900"
+        command: 'minio server /data/minio --console-address ":8900"'
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+            test:
+                - CMD
+                - curl
+                - '-f'
+                - 'http://localhost:9000/minio/health/live'
             retries: 3
             timeout: 5s
     redis:
@@ -101,7 +105,10 @@ services:
         networks:
             - raweb
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test:
+                - CMD
+                - redis-cli
+                - ping
             retries: 3
             timeout: 5s
 networks:

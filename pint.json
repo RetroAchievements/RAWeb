@@ -1,0 +1,41 @@
+{
+    "preset": "symfony",
+    "rules": {
+        "blank_line_after_namespace": true,
+        "blank_line_after_opening_tag": true,
+        "braces": false,
+        "concat_space": {
+            "spacing": "one"
+        },
+        "echo_tag_syntax": false,
+        "global_namespace_import": true,
+        "increment_style": {
+            "style": "post"
+        },
+        "no_alternative_syntax": false,
+        "no_extra_blank_lines": {
+            "tokens": [
+                "extra",
+                "throw",
+                "use"
+            ]
+        },
+        "no_multiple_statements_per_line": false,
+        "not_operator_with_space": false,
+        "nullable_type_declaration_for_default_null_value": true,
+        "phpdoc_align": false,
+        "phpdoc_separation": false,
+        "phpdoc_summary": false,
+        "phpdoc_to_comment": false,
+        "single_line_throw": false,
+        "single_line_comment_style": {
+            "comment_types": [
+                "hash"
+            ]
+        },
+        "semicolon_after_instruction": false,
+        "single_quote": false,
+        "statement_indentation": false,
+        "yoda_style": false
+    }
+}

@@ -2,32 +2,24 @@
 
 declare(strict_types=1);
 
+use Valet\Drivers\ValetDriver;
+
 class LocalValetDriver extends ValetDriver
 {
-    private string $site_folder = '/public';
-
     /**
      * Determine if the driver serves the request.
-     *
-     * @param string $sitePath
-     * @param string $siteName
-     * @param string $uri
      */
-    public function serves($sitePath, $siteName, $uri): bool
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return true;
     }
 
     /**
      * Determine if the incoming request is for a static file.
-     *
-     * @param string $sitePath
-     * @param string $siteName
-     * @param string $uri
      */
-    public function isStaticFile($sitePath, $siteName, $uri): bool|string
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/* : string|false */
     {
-        if (file_exists($staticFilePath = $sitePath . $this->site_folder . $uri)) {
+        if (file_exists($staticFilePath = $sitePath . '/public/' . $uri)) {
             return $staticFilePath;
         }
 
@@ -43,13 +35,9 @@ class LocalValetDriver extends ValetDriver
 
     /**
      * Get the fully resolved path to the application's front controller.
-     *
-     * @param string $sitePath
-     * @param string $siteName
-     * @param string $uri
      */
-    public function frontControllerPath($sitePath, $siteName, $uri): string
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
-        return $sitePath . $this->site_folder . '/index.php';
+        return $sitePath . '/public/index.php';
     }
 }
