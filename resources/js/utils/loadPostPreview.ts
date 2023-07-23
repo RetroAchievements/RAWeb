@@ -31,7 +31,7 @@ export const loadPostPreview = async (
       '/request/forum-topic-comment/preview.php',
       {
         method: 'POST',
-        body: `body=${postContent}`,
+        body: `body=${encodeURIComponent(postContent)}`,
       }
     );
 

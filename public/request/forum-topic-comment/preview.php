@@ -14,8 +14,6 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$parsedPostContent = Shortcode::render($input['body']);
-
 return response()->json([
     'message' => __('legacy.success.ok'),
     'postPreviewHtml' => Blade::render('<x-forum.post :parsedPostContent="$parsedPostContent" isPreview="true" />', [
