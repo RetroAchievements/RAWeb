@@ -35,7 +35,6 @@
                         @else
                             -
                         @endif
-                        RP
                     </p>
                 </x-retropoints-container>
             </div>
