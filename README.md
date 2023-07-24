@@ -11,7 +11,7 @@ It is a Laravel application ([TALL stack](https://tallstack.dev/)) including ind
 - [MySQL 8](https://dev.mysql.com/doc/refman/8.0/en/)
 - [Node.js 18](https://nodejs.org/)
  
-Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
+RAWeb is validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
 
 ### **[Docker Compose](https://docs.docker.com/compose/install/)** (Windows, Linux, macOS)
 
