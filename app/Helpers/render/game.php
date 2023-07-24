@@ -290,7 +290,15 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
                 :totalRetroPoints="$totalRetroPoints"
                 :isFullyFeaturedGame="$isFullyFeaturedGame"
             />
-        ', $rowData);
+        ', [
+            'gameId' => $nextGame['gameIDAlt'],
+            'gameTitle' => $nextGame['Title'],
+            'gameImageIcon' => $nextGame['ImageIcon'],
+            'consoleName' => $consoleName,
+            'totalPoints' => $points,
+            'totalRetroPoints' => $totalTP,
+            'isFullyFeaturedGame' => $isFullyFeaturedGame,
+        ]);
     }
 
     echo "</tbody></table>";
