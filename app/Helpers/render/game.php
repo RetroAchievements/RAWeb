@@ -270,16 +270,6 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
             $consoleName = null;
         }
 
-        $rowData = [
-            'gameId' => $nextGame['gameIDAlt'],
-            'gameTitle' => $nextGame['Title'],
-            'gameImageIcon' => $nextGame['ImageIcon'],
-            'consoleName' => $consoleName,
-            'totalPoints' => $points,
-            'totalRetroPoints' => $totalTP,
-            'isFullyFeaturedGame' => $isFullyFeaturedGame,
-        ];
-
         echo Blade::render('
             <x-game.similar-game-table-row
                 :gameId="$gameId"
