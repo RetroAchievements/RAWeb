@@ -31,21 +31,26 @@ $gameSystemIconSrc = $consoleId ? getSystemIconUrl($consoleId) : null;
         </div>
     </a>
 
-    <div>
+    <div class="w-full">
         <div class="mb-0.5">
             <a 
                 href="{{ $href ?? $gameHref }}"
-                class="font-semibold text-xs"
+                class="font-medium text-xs"
                 :class="{ 'text-link-hover': hovered }"
             >
                 {!! $renderedGameTitle !!}
             </a>
         </div>
 
-        @if($consoleId && $consoleName)
+        @if($consoleId || $consoleName)
             <div class="flex items-center gap-x-1">
-                <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $consoleName }} console icon">
-                <span class="block text-xs tracking-tighter">{{ $consoleName }}</span>
+                @if($consoleId && $consoleName)
+                    <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $consoleName }} console icon">
+                @endif
+
+                @if($consoleName)
+                    <span class="block text-xs tracking-tighter">{{ $consoleName }}</span>
+                @endif
             </div>
         @endif
     </div>
