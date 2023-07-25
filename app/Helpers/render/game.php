@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 
 function gameAvatar(
@@ -258,7 +259,6 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
     }
     echo "<table class='table-highlight'><tbody>";
     foreach ($gameAlts as $nextGame) {
-        echo "<tr>";
         $consoleName = $nextGame['ConsoleName'];
         $points = $nextGame['Points'];
         $totalTP = $nextGame['TotalTruePoints'];
@@ -270,29 +270,27 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
             $consoleName = null;
         }
 
-        $gameData = [
-            'ID' => $nextGame['gameIDAlt'],
-            'Title' => $nextGame['Title'],
-            'ImageIcon' => $nextGame['ImageIcon'],
-            'ConsoleName' => $consoleName,
-        ];
-
-        echo "<td>";
-        echo gameAvatar($gameData, label: false);
-        echo "</td>";
-
-        echo "<td style='width: 100%' " . ($isFullyFeaturedGame ? '' : 'colspan="2"') . ">";
-        echo gameAvatar($gameData, icon: false);
-        echo "</td>";
-
-        if ($isFullyFeaturedGame) {
-            echo "<td>";
-            echo "<span class='whitespace-nowrap'>$points points</span><span class='TrueRatio'> ($totalTP)</span>";
-            echo "</td>";
-        }
-
-        echo "</tr>";
+        echo Blade::render('
+            <x-game.similar-game-table-row
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :gameImageIcon="$gameImageIcon"
+                :consoleName="$consoleName"
+                :totalPoints="$totalPoints"
+                :totalRetroPoints="$totalRetroPoints"
+                :isFullyFeaturedGame="$isFullyFeaturedGame"
+            />
+        ', [
+            'gameId' => $nextGame['gameIDAlt'],
+            'gameTitle' => $nextGame['Title'],
+            'gameImageIcon' => $nextGame['ImageIcon'],
+            'consoleName' => $consoleName,
+            'totalPoints' => $points,
+            'totalRetroPoints' => $totalTP,
+            'isFullyFeaturedGame' => $isFullyFeaturedGame,
+        ]);
     }
+
     echo "</tbody></table>";
     echo "</div>";
 }
