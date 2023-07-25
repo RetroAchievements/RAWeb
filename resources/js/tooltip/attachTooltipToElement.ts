@@ -21,20 +21,24 @@ interface TooltipOptions {
  */
 function attachTooltipListeners(
   anchorEl: HTMLElement,
-  showFn: (givenX: number, givenY: number) => void
+  showFn: (givenX: number, givenY: number) => void,
 ) {
   let showTimeout: number | null = null;
   let lastMouseCoords: { x: number; y: number } | null = null;
   let isTooltipShowing = false;
 
-  const handleMouseOver = () => {
+  const handleMouseOver = (event: MouseEvent) => {
     if (isTooltipShowing) {
       return;
     }
 
+    lastMouseCoords = { x: event.pageX, y: event.pageY };
+
     showTimeout = window.setTimeout(() => {
-      showFn(lastMouseCoords?.x ?? 0, lastMouseCoords?.y ?? 0);
-      isTooltipShowing = true;
+      if (!isTooltipShowing) {
+        showFn(lastMouseCoords?.x ?? 0, lastMouseCoords?.y ?? 0);
+        isTooltipShowing = true;
+      }
     }, 70);
   };
 
