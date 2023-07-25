@@ -23,13 +23,9 @@
   margin-bottom: 10px;
   border: 2px solid var(--embed-color);
   border-radius: 4px;
-  align-self: start;
-  grid-column: span 2;
-  flex-grow: 1;
   background: var(--box-bg-color);
   background: linear-gradient(180deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
   overflow: auto; /* 1 */
-  grid-column: 1 / -1;
 }
 
 /*
@@ -41,7 +37,6 @@
   display: block;
   border: 2px solid var(--embed-color);
   border-radius: 4px;
-  align-self: start;
   background: var(--box-bg-color);
   background: linear-gradient(180deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
   overflow: auto; /* 1 */
@@ -52,19 +47,9 @@
   margin-bottom: 10px;
   border: 2px solid var(--embed-color);
   border-radius: 4px;
-  align-self: start;
   background: var(--box-bg-color);
   background: linear-gradient(0deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
   overflow: auto; /* 1 */
-  width: 100%;
-}
-
-@media only screen and (min-width: 1024px) {
-  #rightcontainer, aside {
-    width: 340px;
-    max-width: 340px;
-    min-width: 340px;
-  }
 }
 
 /* TODO replace with sections */
