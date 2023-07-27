@@ -4,10 +4,9 @@ function CreateCardIconDiv(type, id, title, icon, url) {
     initDirective = `x-init="attachTooltipToElement($el, { staticHtmlContent: useCard('game', '${id}') })"`;
   }
 
-  return `<div class=\'inline\' ${initDirective}>`
-    + '<a href=\'' + url + '\'>'
-    + '<img src=\'' + mediaAsset(icon) + '\' width=\'32\' height=\'32\' '
-    + ' alt="' + title + '" title="' + title + '" class=\'badgeimg\' loading=\'lazy\' />'
+  return `<div class="inline" ${initDirective}>`
+    + `<a href="${url}">`
+    + `<img src="${mediaAsset(icon)}" width="32" height="32" alt="${title}" class="badgeimg" loading="lazy" />`
     + '</a>'
     + '</div>';
 }
