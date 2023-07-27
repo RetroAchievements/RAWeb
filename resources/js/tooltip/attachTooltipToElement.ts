@@ -33,6 +33,8 @@ function attachTooltipListeners(
   };
 
   const handleMouseOver = (event: MouseEvent) => {
+    store.isHoveringOverAnchorEl = true;
+
     if (isTooltipShowing) {
       return;
     }
@@ -40,10 +42,9 @@ function attachTooltipListeners(
     updateLastMouseCoords(event);
 
     showTimeout = window.setTimeout(() => {
-      if (!isTooltipShowing) {
+      if (!isTooltipShowing && store.isHoveringOverAnchorEl) {
         showFn(event.pageX, event.pageY);
         isTooltipShowing = true;
-        store.isHoveringOverAnchorEl = true;
       }
     }, 70);
   };
