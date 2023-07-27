@@ -123,8 +123,10 @@ if ($action === 'alt_identifier') {
             $alts = User::withTrashed()
                 ->select('User', 'Permissions', 'LastLogin', 'Deleted')
                 ->where('ID', '!=', $forUser->ID)
-                ->whereIn('EmailAddress', $emailAddresses)
-                ->orWhereIn('email_backup', $emailAddresses)
+                ->where(function ($query) use ($emailAddresses) {
+                    $query->whereIn('EmailAddress', $emailAddresses)
+                          ->orWhereIn('email_backup', $emailAddresses);
+                })
                 ->orderBy('LastLogin', 'desc')
                 ->get();
 
