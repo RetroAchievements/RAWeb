@@ -31,8 +31,20 @@ function authenticateForConnect(string $username, ?string $pass = null, ?string 
             'Status' => 401,
             'Code' => 'invalid_credentials',
             'Error' => $tokenProvided ?
-                'Invalid User/Token combination. Please try again.' :
+                'Invalid User/Token combination.' :
                 'Invalid User/Password combination. Please try again.',
+        ];
+    }
+
+    $permissions = (int) $user->getAttribute('Permissions');
+    if ($permissions < Permissions::Registered) {
+        return [
+            'Success' => false,
+            'Status' => 403,
+            'Code' => 'access_denied',
+            'Error' => ($permissions === Permissions::Unregistered) ?
+                'Please register your account.' :
+                'Access denied.',
         ];
     }
 
@@ -69,8 +81,8 @@ function authenticateForConnect(string $username, ?string $pass = null, ?string 
         'Score' => $user->RAPoints,
         'SoftcoreScore' => $user->RASoftcorePoints,
         'Messages' => GetMessageCount($user, $totalMessageCount),
-        'Permissions' => $user->Permissions,
-        'AccountType' => Permissions::toString((int) $user->getAttribute('Permissions')),
+        'Permissions' => $permissions,
+        'AccountType' => Permissions::toString($permissions),
     ];
 }
 

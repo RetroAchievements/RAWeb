@@ -71,7 +71,7 @@ class Handler extends ExceptionHandler
 
             // truncate long parameters
             foreach ($params as $k => $p) {
-                if (strlen($p) > 20) {
+                if (is_string($p) && strlen($p) > 20) {
                     $params[$k] = substr($p, 0, 15) . "...";
                 }
             }
