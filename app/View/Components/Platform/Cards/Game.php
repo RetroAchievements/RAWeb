@@ -55,10 +55,10 @@ class Game extends Component
      * Retrieves the game data for a given game ID.
      * It first checks if the data is available in cache. If it is, the cached data is returned.
      * Otherwise, the method fetches the data from the database, caches it, and then returns it.
-     * 
+     *
      * The fetched game data includes game metadata, console info, core achievements, dev claims,
      * and alternate games (used if the game is for a hub).
-     * 
+     *
      * @return ?array<mixed> The game data. Returns null if no game is found with the given game ID.
      */
     private function getGameData(int $gameId): ?array
@@ -112,11 +112,11 @@ class Game extends Component
      * An array is returned with keys "Completed" and "Mastered" which contain
      * corresponding award details. If no progression awards are found, or if the
      * target username is not provided, no awards are fetched or returned.
-     * 
-     * @param int $gameId The ID of the game for which to retrieve a user's award metadata.
-     * @param ?string $usernameContext The target username to look up awards for.
-     * 
-     * @return array The array of a target user's site award metadata for a given game ID.
+     *
+     * @param int $gameId the ID of the game for which to retrieve a user's award metadata
+     * @param ?string $usernameContext the target username to look up awards for
+     *
+     * @return array the array of a target user's site award metadata for a given game ID
      */
     private function getUserGameProgressionAwards(int $gameId, ?string $usernameContext): array
     {
@@ -149,10 +149,10 @@ class Game extends Component
      * For one developer, it returns the developer's username.
      * For two developers, it joins the usernames like "AAA and BBB".
      * For more than two developers, it joins the usernames like "AAA, BBB, and CCC".
-     * 
-     * @param array $activeDeveloperUsernames The list of usernames with active claims.
-     * 
-     * @return string A human-readable label listing all active developers' usernames.
+     *
+     * @param array $activeDeveloperUsernames the list of usernames with active claims
+     *
+     * @return string a human-readable label listing all active developers' usernames
      */
     private function buildActiveDevelopersLabel(array $activeDeveloperUsernames): string
     {
@@ -178,11 +178,11 @@ class Game extends Component
     /**
      * Builds an array containing all data required for a game card view.
      * It uses various other private methods to build specific parts of the data.
-     * 
-     * @param array $rawGameData An array of raw game metadata from the database.
-     * @param array $userGameProgressionAwards An array of a target user's site awards for this particular game.
-     * 
-     * @return array An associative array of data for the game card Blade template.
+     *
+     * @param array $rawGameData an array of raw game metadata from the database
+     * @param array $userGameProgressionAwards an array of a target user's site awards for this particular game
+     *
+     * @return array an associative array of data for the game card Blade template
      */
     private function buildAllCardViewValues(array $rawGameData, array $userGameProgressionAwards): array
     {
@@ -236,11 +236,11 @@ class Game extends Component
      * last updated date. If no achievements are found, the points sums and retro ratio are
      * set to 0 and the last updated date comes from the game metadata instead of the
      * achievement metadata.
-     * 
-     * @param array $rawAchievements An array of achievements from the game.
-     * @param string $gameLastUpdated The last updated date for the game.
-     * 
-     * @return array An array containing total points, total RetroPoints, retro ratio, and last updated date.
+     *
+     * @param array $rawAchievements an array of achievements from the game
+     * @param string $gameLastUpdated the last updated date for the game
+     *
+     * @return array an array containing total points, total RetroPoints, retro ratio, and last updated date
      */
     private function buildCardAchievementsData(array $rawAchievements, string $gameLastUpdated): array
     {
@@ -271,11 +271,11 @@ class Game extends Component
      * Iterates over a hub's list of linked games and returns the most recent 'Updated' date.
      * If an alternative game has a more recent 'Updated' date than the provided last updated date,
      * the 'Updated' date of that linked game is set as the new last updated date.
-     * 
-     * @param array $rawAltGames An array of linked games.
-     * @param Carbon $lastUpdated The initially known last updated date.
-     * 
-     * @return Carbon The most recent last updated date, either the initial date or one from a linked game.
+     *
+     * @param array $rawAltGames an array of linked games
+     * @param Carbon $lastUpdated the initially known last updated date
+     *
+     * @return Carbon the most recent last updated date, either the initial date or one from a linked game
      */
     private function buildCardLastUpdatedFromAltGames(array $rawAltGames, Carbon $lastUpdated): Carbon
     {
@@ -294,10 +294,10 @@ class Game extends Component
      * The method checks for "Completed" and "Mastered" awards in the received awards list.
      * If "Mastered" is present, it takes precedence over "Completed".
      * If neither "Mastered" nor "Completed" are present, both the status and award date are returned as null.
-     * 
-     * @param array $userGameProgressionAwards An array of user's game progression awards.
-     * 
-     * @return array An array containing the highest progression status and corresponding award date.
+     *
+     * @param array $userGameProgressionAwards an array of user's game progression awards
+     *
+     * @return array an array containing the highest progression status and corresponding award date
      */
     private function buildCardUserProgressionData(array $userGameProgressionAwards): array
     {
