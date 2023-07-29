@@ -22,7 +22,7 @@ if ($highestProgressionStatus === 'Mastered') {
             <span class="block text-sm tracking-tighter">{{ $consoleName }}</span>
         </div>
 
-        @if ($achievementsCount > 0)
+        @if ($achievementsCount > 0 || mb_strpos($rawTitle, '~Z~') !== false)
             <!-- Progression Status -->
             @if ($highestProgressionStatus && $highestProgressionAwardDate)
                 <div class="my-1 flex items-center gap-x-1">
@@ -32,7 +32,9 @@ if ($highestProgressionStatus === 'Mastered') {
             @else
                 <div class="mb-2"></div>
             @endif
+        @endif
 
+        @if ($achievementsCount > 0)
             <!-- Achievement Count -->
             <x-card.info-row label="Achievements">
                 {{ localized_number($achievementsCount) }}

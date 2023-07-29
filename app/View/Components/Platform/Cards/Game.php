@@ -200,10 +200,6 @@ class Game extends Component
             $rawGameData['Updated'],
         );
 
-        if ($isHub) {
-            $lastUpdated = $this->buildCardLastUpdatedFromAltGames($rawGameData['AltGames'], $lastUpdated);
-        }
-
         [$highestProgressionStatus, $highestProgressionAwardDate] = $this->buildCardUserProgressionData($userGameProgressionAwards);
 
         $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => $claim['Status'] === ClaimStatus::Active);
@@ -265,28 +261,6 @@ class Game extends Component
         }
 
         return [$pointsSum, $retroPointsSum, $retroRatio, $lastUpdated];
-    }
-
-    /**
-     * Iterates over a hub's list of linked games and returns the most recent 'Updated' date.
-     * If an alternative game has a more recent 'Updated' date than the provided last updated date,
-     * the 'Updated' date of that linked game is set as the new last updated date.
-     *
-     * @param array $rawAltGames an array of linked games
-     * @param Carbon $lastUpdated the initially known last updated date
-     *
-     * @return Carbon the most recent last updated date, either the initial date or one from a linked game
-     */
-    private function buildCardLastUpdatedFromAltGames(array $rawAltGames, Carbon $lastUpdated): Carbon
-    {
-        foreach ($rawAltGames as $altGame) {
-            $altGameUpdatedDate = Carbon::parse($altGame['Updated']);
-            if ($altGameUpdatedDate->gt($lastUpdated)) {
-                $lastUpdated = $altGameUpdatedDate;
-            }
-        }
-
-        return $lastUpdated;
     }
 
     /**
