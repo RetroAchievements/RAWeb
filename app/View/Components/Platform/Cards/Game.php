@@ -33,6 +33,11 @@ class Game extends Component
     public function render(): ?View
     {
         $rawGameData = $this->getGameData($this->gameId);
+
+        if (!$rawGameData) {
+            return null;
+        }
+
         $this->userGameProgressionAwards = $this->getUserGameProgressionAwards(
             $this->gameId,
             $this->usernameContext
@@ -49,7 +54,7 @@ class Game extends Component
     /**
      * @return array<mixed>
      */
-    private function getGameData(int $gameId): array
+    private function getGameData(int $gameId): ?array
     {
         $cacheKey = CacheKey::buildGameCardDataCacheKey($gameId);
 
@@ -57,13 +62,17 @@ class Game extends Component
             return Cache::store('array')->get($cacheKey);
         }
 
-        $loadGameCardData = (function () use ($gameId): array {
+        $loadGameCardData = (function () use ($gameId): ?array {
             $foundGame = GameModel::with([
                 'system',
                 'achievements' => function ($query) {
                     $query->published();
                 },
             ])->find($gameId);
+
+            if (!$foundGame) {
+                return null;
+            }
 
             $foundGameConsoleId = $foundGame->system->ID;
             $foundGameAchievements = $foundGame->achievements->toArray();
