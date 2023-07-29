@@ -41,8 +41,9 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
 
         <hr class="border-embed-highlight mt-2 mb-3">
 
-        <div class="flex gap-x-2">
-            <a href="{{ $gameUrl }}">
+        <div class="gap-x-2 flex relative">
+            <!-- Keep the image and game title in a single tooltipped container. Do not tooltip the console name. -->
+            <a href="{{ $gameUrl }}" x-init="attachTooltipToElement($el, {dynamicType: 'game', dynamicId: '{{ $achievement->GameID }}'})">
                 <img 
                     src="{{ media_asset($game->ImageIcon) }}" 
                     alt="Achievement of the week game badge" 
@@ -50,16 +51,17 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
                     height="32" 
                     class="w-8 h-8"
                 >
+
+                <p class="absolute max-w-fit pl-4 top-[-4px] left-6 font-semibold mb-0.5 text-xs">
+                    {!! $renderedGameTitle !!}
+                </p>
             </a>
 
-            <div class="-mt-1">
-                <a href="{{ $gameUrl }}">
-                    <p class="font-semibold mb-0.5 text-xs">
-                        {!! $renderedGameTitle !!}
-                    </p>
-                </a>
+            <div>
+                <!-- Provide invisible space to slide the console underneath -->
+                <p class="invisible">{!! $renderedGameTitle !!}</p>
 
-                <a href="{{ $gameSystemUrl }}" class="flex items-center gap-x-1">
+                <a href="{{ $gameSystemUrl }}" class="flex items-center gap-x-1 -mt-1">
                     <img src="{{ $gameSystemIconUrl }}" width="18" height="18" alt="Console icon">
                     <span class="block text-xs tracking-tighter">{{ $consoleName }}</span>
                 </a>

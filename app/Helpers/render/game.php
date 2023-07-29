@@ -2,7 +2,6 @@
 
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Cache;
 
 function gameAvatar(
     int|string|array $game,
@@ -10,7 +9,7 @@ function gameAvatar(
     bool|string|null $icon = null,
     int $iconSize = 32,
     string $iconClass = 'badgeimg',
-    bool|string|array $tooltip = true,
+    bool $tooltip = true,
     ?string $context = null,
     ?string $title = null,
 ): string {
@@ -36,11 +35,6 @@ function gameAvatar(
         if ($icon === null) {
             $icon = media_asset($game['GameIcon'] ?? $game['ImageIcon']);
         }
-
-        // pre-render tooltip
-        if (!is_string($tooltip)) {
-            $tooltip = $tooltip !== false ? $game : false;
-        }
     }
 
     return avatar(
@@ -48,7 +42,7 @@ function gameAvatar(
         id: $id,
         label: $label !== false && ($label || !$icon) ? $label : null,
         link: route('game.show', $id),
-        tooltip: is_array($tooltip) ? renderGameCard($tooltip) : $tooltip,
+        tooltip: $tooltip,
         iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
         iconSize: $iconSize,
         iconClass: $iconClass,
@@ -163,46 +157,18 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
     return $html;
 }
 
-function renderGameCard(int|array $game): string
+function renderGameCard(int|array $game, ?string $targetUsername): string
 {
-    $id = is_int($game) ? $game : ($game['GameID'] ?? $game['ID'] ?? null);
+    $gameId = is_int($game) ? $game : ($game['GameID'] ?? $game['ID'] ?? null);
 
-    if (empty($id)) {
+    if (empty($gameId)) {
         return __('legacy.error.error');
     }
 
-    $data = [];
-    if (is_array($game)) {
-        $data = $game;
-    }
-
-    if (empty($data)) {
-        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', fn () => getGameData($id));
-    }
-
-    if (empty($data)) {
-        return '';
-    }
-
-    $gameName = renderGameTitle($data['GameTitle'] ?? $data['Title'] ?? '');
-    $consoleName = $data['Console'] ?? $data['ConsoleName'] ?? '';
-    $icon = $data['GameIcon'] ?? $data['ImageIcon'] ?? null;
-
-    $tooltip = "<div class='tooltip-body flex items-start' style='max-width: 400px'>";
-    $tooltip .= "<img style='margin-right:5px' src='" . media_asset($icon) . "' width='64' height='64' />";
-    $tooltip .= "<div>";
-    $tooltip .= "<b>$gameName</b><br>";
-    $tooltip .= $consoleName;
-
-    $mastery = $game['Mastery'] ?? null;
-    if (!empty($mastery)) {
-        $tooltip .= "<div>$mastery</div>";
-    }
-
-    $tooltip .= "</div>";
-    $tooltip .= "</div>";
-
-    return $tooltip;
+    return Blade::render('<x-platform.cards.game :gameId="$gameId" :targetUsername="$targetUsername" />', [
+        'gameId' => $gameId,
+        'targetUsername' => $targetUsername,
+    ]);
 }
 
 function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy): void

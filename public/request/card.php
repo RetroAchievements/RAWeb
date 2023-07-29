@@ -13,7 +13,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 return response()->json([
     'html' => match ($input['type']) {
         'achievement' => renderAchievementCard($input['id'], context: $input['context']),
-        'game' => renderGameCard((int) $input['id']),
+        'game' => renderGameCard((int) $input['id'], targetUsername: $input['context']),
         'ticket' => renderTicketCard((int) $input['id']),
         'user' => renderUserCard($input['id']),
         default => '?',

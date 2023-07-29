@@ -22,7 +22,7 @@ export function updateTooltipPosition(
   anchorEl: HTMLElement,
   tooltipEl: HTMLElement,
   givenX?: number,
-  givenY?: number
+  givenY?: number,
 ) {
   computePosition(anchorEl, tooltipEl, {
     placement: 'bottom-end',
@@ -37,7 +37,7 @@ export function updateTooltipPosition(
 
     if (middlewareData.cursorFlip.isFlipped) {
       const tooltipHeight = tooltipEl.getBoundingClientRect().height;
-      setY -= tooltipHeight - 12;
+      setY -= tooltipHeight + 12;
     }
 
     Object.assign(tooltipEl.style, {

@@ -623,7 +623,7 @@ RenderContentStart($userPage);
         <?php
         $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_completed_sets') === 'true';
 
-        RenderSiteAwards(getUsersSiteAwards($userPage));
+        RenderSiteAwards(getUsersSiteAwards($userPage), $userPage);
         RenderCompletedGamesList($userCompletedGamesList, $prefersHiddenUserCompletedSets);
 
         echo "<div id='achdistribution' class='component'>";

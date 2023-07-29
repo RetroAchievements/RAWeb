@@ -232,7 +232,7 @@ final class Shortcode
 
     private function embedGame(int $id): string
     {
-        $data = Cache::store('array')->rememberForever('game:' . $id . ':card-data', fn () => getGameData($id));
+        $data = Cache::store('array')->rememberForever('game:' . $id . ':game-data', fn () => getGameData($id));
 
         if (empty($data)) {
             return '';
