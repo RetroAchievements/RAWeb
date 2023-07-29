@@ -281,4 +281,38 @@ class GameCardTest extends TestCase
         // Assert
         $view->assertSeeText('Mastered 2 July 2015');
     }
+
+    public function testItRendersEvents(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create(['User' => 'AAA']);
+        /** @var System $system */
+        $system = System::factory()->create(['ID' => 101, 'Name' => 'Events']);
+        /** @var Game $game */
+        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+
+        $awardDate = '2015-07-02 16:44:46';
+        PlayerBadge::factory()->create([
+            'User' => $user->User,
+            'AwardType' => AwardType::Mastery,
+            'AwardData' => $game->ID,
+            'AwardDataExtra' => 1,
+            'AwardDate' => $awardDate,
+            'DisplayOrder' => 0,
+        ]);
+
+        // Act
+        $view = $this->blade('<x-platform.cards.game gameId="1" targetUsername="AAA" />');
+
+        // Assert
+        $view->assertDontSeeText('Achievements');
+        $view->assertDontSeeText('Points');
+        $view->assertDontSeeText('Last Updated');
+        $view->assertDontSeeText('Mastered');
+
+        $view->assertSeeText('Events');
+        $view->assertSeeText('Awarded 2 July 2015');
+    }
 }

@@ -21,6 +21,7 @@ class Game extends Component
 {
     private int $gameId;
     private int $hubConsoleId = 100;
+    private int $eventConsoleId = 101;
     private array $userGameProgressionAwards;
     private ?string $usernameContext;
 
@@ -193,6 +194,7 @@ class Game extends Component
         $consoleName = $rawGameData['ConsoleName'];
         $achievementsCount = count($rawGameData['Achievements']);
         $isHub = $rawGameData['ConsoleID'] === $this->hubConsoleId;
+        $isEvent = $rawGameData['ConsoleID'] === $this->eventConsoleId;
         $altGamesCount = count($rawGameData['AltGames']);
 
         [$pointsSum, $retroPointsSum, $retroRatio, $lastUpdated] = $this->buildCardAchievementsData(
@@ -200,29 +202,33 @@ class Game extends Component
             $rawGameData['Updated'],
         );
 
-        [$highestProgressionStatus, $highestProgressionAwardDate] = $this->buildCardUserProgressionData($userGameProgressionAwards);
+        [$highestProgressionStatus, $highestProgressionAwardDate] = $this->buildCardUserProgressionData(
+            $userGameProgressionAwards, 
+            $isEvent,
+        );
 
         $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => $claim['Status'] == ClaimStatus::Active);
         $activeDeveloperUsernames = array_map(fn ($activeClaim) => $activeClaim['User'], array_values($activeClaims));
         $activeDevelopersLabel = $this->buildActiveDevelopersLabel($activeDeveloperUsernames);
 
         return compact(
-            'isHub',
+            'achievementsCount',
+            'activeDevelopersLabel',
+            'activeDeveloperUsernames',
             'altGamesCount',
+            'badgeUrl',
+            'consoleName',
+            'gameSystemIconSrc',
+            'highestProgressionAwardDate',
+            'highestProgressionStatus',
+            'isEvent',
+            'isHub',
+            'lastUpdated',
+            'pointsSum',
             'rawTitle',
             'renderedTitle',
-            'badgeUrl',
-            'gameSystemIconSrc',
-            'consoleName',
-            'achievementsCount',
-            'pointsSum',
             'retroPointsSum',
             'retroRatio',
-            'lastUpdated',
-            'highestProgressionStatus',
-            'highestProgressionAwardDate',
-            'activeDeveloperUsernames',
-            'activeDevelopersLabel',
         );
     }
 
@@ -270,10 +276,11 @@ class Game extends Component
      * If neither "Mastered" nor "Completed" are present, both the status and award date are returned as null.
      *
      * @param array $userGameProgressionAwards an array of user's game progression awards
+     * @param bool $isEvent whether or not the game ID is associated with an event
      *
      * @return array an array containing the highest progression status and corresponding award date
      */
-    private function buildCardUserProgressionData(array $userGameProgressionAwards): array
+    private function buildCardUserProgressionData(array $userGameProgressionAwards, bool $isEvent): array
     {
         $highestProgressionStatus = null;
         $highestProgressionAwardDate = null;
@@ -286,6 +293,10 @@ class Game extends Component
         if ($userGameProgressionAwards['Mastered']) {
             $highestProgressionStatus = 'Mastered';
             $highestProgressionAwardDate = Carbon::parse($userGameProgressionAwards['Mastered']['AwardDate']);
+        }
+
+        if ($isEvent && $highestProgressionStatus !== null) {
+            $highestProgressionStatus = 'Awarded';
         }
 
         return [$highestProgressionStatus, $highestProgressionAwardDate];

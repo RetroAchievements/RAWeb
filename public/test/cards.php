@@ -140,6 +140,7 @@ RenderContentStart();
         </div>
         <div class="flex w-full justify-between mb-2">
             <?= Blade::render('<x-platform.cards.game gameId="586" />') ?>
+            <?= Blade::render('<x-platform.cards.game gameId="22561" />') ?>
         </div>
     </div>
 
