@@ -7,7 +7,9 @@ namespace Tests\Feature\Platform;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Models\AchievementSetClaim;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerBadge;
@@ -45,14 +47,14 @@ class GameCardTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
 
-        insertClaim(
-            $user->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer,
-        );
+        AchievementSetClaim::factory()->create([
+            'User' => $user->User,
+            'GameID' => $game->ID,
+            'ClaimType' => ClaimType::Primary,
+            'SetType' => ClaimSetType::NewSet,
+            'Special' => ClaimSpecial::None,
+            'Status' => ClaimStatus::Active,
+        ]);
 
         // Act
         $view = $this->blade('<x-platform.cards.game gameId="1" />');
@@ -76,23 +78,23 @@ class GameCardTest extends TestCase
         /** @var User $user2 */
         $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'BBB']);
 
-        insertClaim(
-            $user1->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer,
-        );
+        AchievementSetClaim::factory()->create([
+            'User' => $user1->User,
+            'GameID' => $game->ID,
+            'ClaimType' => ClaimType::Primary,
+            'SetType' => ClaimSetType::NewSet,
+            'Special' => ClaimSpecial::None,
+            'Status' => ClaimStatus::Active,
+        ]);
 
-        insertClaim(
-            $user2->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer,
-        );
+        AchievementSetClaim::factory()->create([
+            'User' => $user2->User,
+            'GameID' => $game->ID,
+            'ClaimType' => ClaimType::Primary,
+            'SetType' => ClaimSetType::NewSet,
+            'Special' => ClaimSpecial::None,
+            'Status' => ClaimStatus::Active,
+        ]);
 
         // Act
         $view = $this->blade('<x-platform.cards.game gameId="1" />');
@@ -118,32 +120,32 @@ class GameCardTest extends TestCase
         /** @var User $user3 */
         $user3 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'CCC']);
 
-        insertClaim(
-            $user1->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer,
-        );
+        AchievementSetClaim::factory()->create([
+            'User' => $user1->User,
+            'GameID' => $game->ID,
+            'ClaimType' => ClaimType::Primary,
+            'SetType' => ClaimSetType::NewSet,
+            'Special' => ClaimSpecial::None,
+            'Status' => ClaimStatus::Active,
+        ]);
 
-        insertClaim(
-            $user2->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer,
-        );
+        AchievementSetClaim::factory()->create([
+            'User' => $user2->User,
+            'GameID' => $game->ID,
+            'ClaimType' => ClaimType::Primary,
+            'SetType' => ClaimSetType::NewSet,
+            'Special' => ClaimSpecial::None,
+            'Status' => ClaimStatus::Active,
+        ]);
 
-        insertClaim(
-            $user3->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer,
-        );
+        AchievementSetClaim::factory()->create([
+            'User' => $user3->User,
+            'GameID' => $game->ID,
+            'ClaimType' => ClaimType::Primary,
+            'SetType' => ClaimSetType::NewSet,
+            'Special' => ClaimSpecial::None,
+            'Status' => ClaimStatus::Active,
+        ]);
 
         // Act
         $view = $this->blade('<x-platform.cards.game gameId="1" />');
@@ -187,14 +189,14 @@ class GameCardTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
 
-        insertClaim(
-            $user->User,
-            $game->ID,
-            ClaimType::Primary,
-            ClaimSetType::NewSet,
-            ClaimSpecial::None,
-            Permissions::Developer,
-        );
+        AchievementSetClaim::factory()->create([
+            'User' => $user->User,
+            'GameID' => $game->ID,
+            'ClaimType' => ClaimType::Primary,
+            'SetType' => ClaimSetType::NewSet,
+            'Special' => ClaimSpecial::None,
+            'Status' => ClaimStatus::Active,
+        ]);
 
         // Act
         $view = $this->blade('<x-platform.cards.game gameId="1" />');
