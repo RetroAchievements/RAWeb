@@ -144,4 +144,41 @@ class PingTest extends TestCase
                 'Error' => 'Please register your account.',
             ]);
     }
+
+    public function testPingUserTokenMismatch(): void
+    {
+        // NOTE: Attempting to lump this in the previous test case doesn't work. The
+        // response indicates the function was still validating the banned user, despite
+        // passing the credentials for the unregistered user. This seems to be a known
+        // issue (https://stackoverflow.com/questions/37418155/post-bodies-ignored-when-making-multiple-post-calls-in-laravel-test),
+        // but the provided solution didn't seem to work.
+        // While a separate test case is desirable, the overhead or refreshing the database
+        // is not desirable, which is why most of the test cases are lumped in singular functions.
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+
+        $params = [
+            'u' => $user->User,
+            't' => $this->user->appToken,
+            'r' => 'ping',
+            'g' => $game->ID,
+            'm' => 'Doing good',
+        ];
+
+        $this->post('dorequest.php', $params)
+            ->assertStatus(401)
+            ->assertHeader('WWW-Authenticate', 'Bearer')
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid User/Token combination.',
+            ]);
+    }
 }

@@ -226,9 +226,6 @@ function authenticateFromAppToken(
     if (empty($userOut)) {
         return false;
     }
-    if (!isValidUsername($userOut)) {
-        return false;
-    }
     if (empty($token)) {
         return false;
     }
@@ -236,7 +233,7 @@ function authenticateFromAppToken(
     /** @var ?User $user */
     $user = auth('connect-token')->user();
 
-    if (!$user) {
+    if (!$user || strcasecmp($user->User, $userOut) != 0) {
         return false;
     }
 
