@@ -2,9 +2,7 @@
     'imgSrc' => '',
 ])
 
-<div
-    class="bg-box-bg text-menu-link rounded border border-embed-highlight leading-normal p-2 w-[400px] overflow-hidden"
->
+<div class="bg-box-bg text-menu-link rounded border border-embed-highlight leading-normal p-2 w-[400px] overflow-hidden">
     <div class="flex gap-x-3">
         <div class="flex items-center flex-col gap-y-2">
             @if($imgSrc)
