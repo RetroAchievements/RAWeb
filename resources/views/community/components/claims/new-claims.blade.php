@@ -22,7 +22,7 @@ $claimData = getFilteredClaims(
                 <thead>
                     <tr class="do-not-highlight">
                         <th>Game</th>
-                        <th colspan="2">Dev</th>
+                        <th>Dev</th>
                         <th class="whitespace-nowrap">Started</th>
                     </tr>
                 </thead>
