@@ -203,7 +203,7 @@ class Game extends Component
         );
 
         [$highestProgressionStatus, $highestProgressionAwardDate] = $this->buildCardUserProgressionData(
-            $userGameProgressionAwards, 
+            $userGameProgressionAwards,
             $isEvent,
         );
 
