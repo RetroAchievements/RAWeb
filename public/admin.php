@@ -122,7 +122,6 @@ if ($action === 'alt_identifier') {
         if (!empty($emailAddresses)) {
             $alts = User::withTrashed()
                 ->select('User', 'Permissions', 'LastLogin', 'Deleted')
-                ->where('ID', '!=', $forUser->ID)
                 ->where(function ($query) use ($emailAddresses) {
                     $query->whereIn('EmailAddress', $emailAddresses)
                           ->orWhereIn('email_backup', $emailAddresses);
@@ -130,14 +129,10 @@ if ($action === 'alt_identifier') {
                 ->orderBy('LastLogin', 'desc')
                 ->get();
 
-            $numAlts = $alts->count();
-            if ($numAlts > 0) {
+            $numAccounts = $alts->count();
+            if ($numAccounts > 1) {
                 $message = "<div class='mb-1'>";
-                if ($numAlts === 1) {
-                    $message .= "1 additional user shares the same email address as $altsForUser:";
-                } else {
-                    $message .= "$numAlts additional users share the same email address as $altsForUser:";
-                }
+                $message .= "$numAccounts users share the same email address as $altsForUser:";
                 $message .= "</div>";
 
                 $message .= "<div class='table-wrapper'><table class='table-highlight'><tbody>";
