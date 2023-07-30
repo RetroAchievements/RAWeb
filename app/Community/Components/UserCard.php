@@ -55,9 +55,8 @@ class UserCard extends Component
 
     private function getUserData(string $username): ?array
     {
-        return Cache::store('array')->remember(
+        return Cache::store('array')->rememberForever(
             CacheKey::buildUserCardDataCacheKey($username),
-            Carbon::now()->addMonths(3),
             function () use ($username): ?array {
                 $foundUser = UserModel::firstWhere('User', $username);
 
