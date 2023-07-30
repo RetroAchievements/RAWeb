@@ -16,7 +16,7 @@ class AchievementSetClaimSeeder extends Seeder
         if (AchievementSetClaim::count() > 0) {
             return;
         }
-        
+
         Game::take(5)->get()->each(function (Game $game) {
             AchievementSetClaim::factory()->count(5)->create([
                 'GameID' => $game->ID,
