@@ -29,7 +29,11 @@ $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 $officialFlag = AchievementFlags::OfficialCore;
 $unofficialFlag = AchievementFlags::Unofficial;
 $flagParam = requestInputSanitized('f', $officialFlag, 'integer');
-$isOfficial = $flagParam !== $unofficialFlag;
+$isOfficial = false;
+if ($flagParam !== $unofficialFlag) {
+    $isOfficial = true;
+    $flagParam = $officialFlag;
+}
 
 $defaultSort = 1;
 if (isset($user)) {

@@ -41,6 +41,14 @@ if (empty($achievementID)) {
 }
 
 $achievementData = GetAchievementData($achievementID);
+if ($achievementData === null) {
+    return response()->json([
+        'Achievement' => [],
+        'UnlocksCount' => 0,
+        'TotalPlayers' => 0,
+        'Unlocks' => [],
+    ], 404);
+}
 
 $achievement = [
     'ID' => $achievementData['AchievementID'] ?? null,
