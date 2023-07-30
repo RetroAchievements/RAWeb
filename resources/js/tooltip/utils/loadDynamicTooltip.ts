@@ -27,7 +27,7 @@ export async function loadDynamicTooltip(
   id: string,
   context?: unknown,
   givenX?: number,
-  givenY?: number
+  givenY?: number,
 ): Promise<void> {
   const cacheKey = `${type}_${id}`;
 
@@ -65,13 +65,13 @@ export async function loadDynamicTooltip(
       // We don't want to continue on with displaying this dynamic tooltip
       // if a static tooltip is opened while we're fetching data.
       const wasTimeoutCleared = !store.dynamicTimeoutId;
-      if (anchorEl === store.activeAnchorEl && !wasTimeoutCleared) {
+      if (anchorEl === store.activeAnchorEl && !wasTimeoutCleared && store.isHoveringOverAnchorEl) {
         renderTooltip(anchorEl, fetchedDynamicContent, givenX, givenY);
         pinTooltipToCursorPosition(
           anchorEl,
           store.tooltipEl,
           store.trackedMouseX,
-          (store.trackedMouseY ?? 0) - 12 // The tooltip appears to jump if we don't do this subtraction.
+          (store.trackedMouseY ?? 0) - 12, // The tooltip appears to jump if we don't do this subtraction.
         );
       }
     }
