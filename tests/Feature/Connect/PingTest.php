@@ -31,6 +31,7 @@ class PingTest extends TestCase
 
         // this API requires POST
         $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Doing good']))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
             ]);
@@ -42,6 +43,7 @@ class PingTest extends TestCase
 
         // string sent by GET will not update user's rich presence message
         $this->get($this->apiUrl('ping', ['g' => $game->ID, 'm' => 'Doing better']))
+            ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
             ]);
@@ -53,8 +55,6 @@ class PingTest extends TestCase
 
     public function testPingInvalidUser(): void
     {
-        Carbon::setTestNow(Carbon::now());
-
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
@@ -68,19 +68,28 @@ class PingTest extends TestCase
             'm' => 'Doing good',
         ];
 
+        // try with unknown user
         $this->post('dorequest.php', $params)
+            ->assertStatus(401)
+            ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Credentials invalid',
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid User/Token combination.',
             ]);
 
         // try with incorrect token
         $params['u'] = $this->user->User;
 
         $this->post('dorequest.php', $params)
+            ->assertStatus(401)
+            ->assertHeader('WWW-Authenticate', 'Bearer')
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Credentials invalid',
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid User/Token combination.',
             ]);
 
         // try with banned user
@@ -91,9 +100,85 @@ class PingTest extends TestCase
         $params['t'] = $user->appToken;
 
         $this->post('dorequest.php', $params)
+            ->assertStatus(403)
             ->assertExactJson([
                 'Success' => false,
-                'Error' => 'Credentials invalid (-1)',
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Access denied.',
+            ]);
+    }
+
+    public function testPingUnregisteredUser(): void
+    {
+        // NOTE: Attempting to lump this in the previous test case doesn't work. The
+        // response indicates the function was still validating the banned user, despite
+        // passing the credentials for the unregistered user. This seems to be a known
+        // issue (https://stackoverflow.com/questions/37418155/post-bodies-ignored-when-making-multiple-post-calls-in-laravel-test),
+        // but the provided solution didn't seem to work.
+        // While a separate test case is desirable, the overhead or refreshing the database
+        // is not desirable, which is why most of the test cases are lumped in singular functions.
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::Unregistered, 'appToken' => Str::random(16)]);
+
+        $params = [
+            'u' => $user->User,
+            't' => $user->appToken,
+            'r' => 'ping',
+            'g' => $game->ID,
+            'm' => 'Doing good',
+        ];
+
+        $this->post('dorequest.php', $params)
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Error' => 'Please register your account.',
+            ]);
+    }
+
+    public function testPingUserTokenMismatch(): void
+    {
+        // NOTE: Attempting to lump this in the previous test case doesn't work. The
+        // response indicates the function was still validating the banned user, despite
+        // passing the credentials for the unregistered user. This seems to be a known
+        // issue (https://stackoverflow.com/questions/37418155/post-bodies-ignored-when-making-multiple-post-calls-in-laravel-test),
+        // but the provided solution didn't seem to work.
+        // While a separate test case is desirable, the overhead or refreshing the database
+        // is not desirable, which is why most of the test cases are lumped in singular functions.
+
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var User $user */
+        $user = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+
+        $params = [
+            'u' => $user->User,
+            't' => $this->user->appToken,
+            'r' => 'ping',
+            'g' => $game->ID,
+            'm' => 'Doing good',
+        ];
+
+        $this->post('dorequest.php', $params)
+            ->assertStatus(401)
+            ->assertHeader('WWW-Authenticate', 'Bearer')
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid User/Token combination.',
             ]);
     }
 }
