@@ -281,6 +281,15 @@ class V1Test extends TestCase
                 ],
                 'UnlocksCount' => 1,
             ]);
+
+        $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => 999999999]))
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Achievement' => [],
+                'TotalPlayers' => 0,
+                'Unlocks' => [],
+                'UnlocksCount' => 0,
+            ]);
     }
 
     public function testGetConsoleIds(): void
