@@ -7,140 +7,124 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-function authenticateFromPasswordOrAppToken(?string $user, ?string $pass = null, ?string $token = null): array
+function authenticateForConnect(string $username, ?string $pass = null, ?string $token = null): array
 {
-    sanitize_sql_inputs($user, $token);
-
-    $response = [];
-
-    if (empty($user) || !isValidUsername($user)) {
-        // username failed: empty user
-        $response['Success'] = false;
-        $response['Error'] = "Invalid User/Password combination. Please try again";
-
-        return $response;
-    }
+    $user = null;
 
     $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
     $tokenProvided = (isset($token) && mb_strlen($token) >= 1);
-    $query = null;
     if ($passwordProvided) {
         // Password provided, validate it
-        if (authenticateFromPassword($user, $pass)) {
-            $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken FROM UserAccounts WHERE User='$user'";
+        if (authenticateFromPassword($username, $pass)) {
+            $user = User::firstWhere('User', $username);
         }
+
+        $tokenProvided = false; // ignore token if provided
     } elseif ($tokenProvided) {
         // Token provided, look for match
-        $query = "SELECT RAPoints, RASoftcorePoints, Permissions, appToken, appTokenExpiry FROM UserAccounts WHERE User='$user' AND appToken='$token'";
+        $user = User::where('User', $username)->where('appToken', $token)->first();
     }
 
-    if (!$query) {
-        $response['Success'] = false;
-        $response['Error'] = "Invalid User/Password combination. Please try again";
-
-        return $response;
+    if (!$user) {
+        return [
+            'Success' => false,
+            'Status' => 401,
+            'Code' => 'invalid_credentials',
+            'Error' => $tokenProvided ?
+                'Invalid User/Token combination.' :
+                'Invalid User/Password combination. Please try again.',
+        ];
     }
 
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        $response['Success'] = false;
-        $response['Error'] = "Invalid User/Password combination. Please try again";
-
-        return $response;
+    $permissions = (int) $user->getAttribute('Permissions');
+    if ($permissions < Permissions::Registered) {
+        return [
+            'Success' => false,
+            'Status' => 403,
+            'Code' => 'access_denied',
+            'Error' => ($permissions === Permissions::Unregistered) ?
+                'Please register your account.' :
+                'Access denied.',
+        ];
     }
 
-    $data = mysqli_fetch_assoc($dbResult);
-    if ($data !== false && mysqli_num_rows($dbResult) == 1) {
-        // Test for expired tokens!
-        if ($tokenProvided) {
-            $expiry = $data['appTokenExpiry'];
-            if (time() > strtotime($expiry)) {
-                generateAppToken($user, $token);
-                // Expired!
-                $response['Success'] = false;
-                $response['Error'] = "Automatic login failed (token expired), please login manually";
+    if ($tokenProvided) {
+        if ($user->appTokenExpiry && $user->appTokenExpiry < Carbon::now()) {
+            // appToken has expired. Generate a new one and force the user to log in again.
+            $user->appToken = newAppToken();
+            $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
+            $user->save();
 
-                return $response;
-            }
+            return [
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'expired_token',
+                'Error' => 'The access token has expired. Please log in again.',
+            ];
         }
-
-        if (mb_strlen($data['appToken']) !== 16) {   // Generate if new
-            generateAppToken($user, $tokenInOut);
-        } else {
-            // Return old token if not
-            $token = $data['appToken'];
-
-            // Update app token expiry now anyway
-            $expDays = 14;
-            $expiryStr = date("Y-m-d H:i:s", time() + 60 * 60 * 24 * $expDays);
-            $query = "UPDATE UserAccounts SET appTokenExpiry='$expiryStr' WHERE User='$user'";
-            s_mysql_query($query);
-        }
-
-        postActivity($user, ActivityType::Login);
-
-        $response['Success'] = true;
-        $response['User'] = $user;
-        $response['Token'] = $token;
-        $response['Score'] = (int) $data['RAPoints'];
-        $response['SoftcoreScore'] = (int) $data['RASoftcorePoints'];
-        $response['Messages'] = GetMessageCount($user, $totalMessageCount);
-        $response['Permissions'] = (int) $data['Permissions'];
-        $response['AccountType'] = Permissions::toString($response['Permissions']);
-    } else {
-        $response['Success'] = false;
-        $response['Error'] = "Invalid User/Password combination. Please try again";
+    } elseif (mb_strlen($user->appToken) !== 16) {
+        // login via password, token doesn't exist or is incorrectly formatted. generate new token
+        $user->appToken = newAppToken();
     }
 
-    return $response;
+    // update appTokenExpiry
+    $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
+    $user->timestamps = false;
+    $user->save();
+
+    postActivity($user, ActivityType::Login);
+
+    return [
+        'Success' => true,
+        'User' => $user->User,
+        'Token' => $user->appToken,
+        'Score' => $user->RAPoints,
+        'SoftcoreScore' => $user->RASoftcorePoints,
+        'Messages' => GetMessageCount($user, $totalMessageCount),
+        'Permissions' => $permissions,
+        'AccountType' => Permissions::toString($permissions),
+    ];
 }
 
-/*
- * PASSWORD
- */
-
-function authenticateFromPassword(string &$user, string $pass): bool
+function authenticateFromPassword(string &$username, string $pass): bool
 {
-    if (!isValidUsername($user)) {
+    if (!isValidUsername($username)) {
         return false;
     }
 
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ID, User, Password, SaltedPass, cookie, Permissions FROM UserAccounts WHERE User='$user'";
-    $result = s_mysql_query($query);
-    if (!$result) {
-        return false;
-    }
-
-    $row = mysqli_fetch_assoc($result);
-
+    // use raw query to access non-visible fields
+    $query = "SELECT ID, User, Password, SaltedPass, Permissions FROM UserAccounts WHERE User=:user";
+    $row = legacyDbFetch($query, ['user' => $username]);
     if (!$row) {
         return false;
     }
 
+    // don't let Banned or Spam users log in
     if ($row['Permissions'] < Permissions::Unregistered) {
         return false;
     }
 
     $hashedPassword = $row['Password'];
 
+    // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
     if (mb_strlen($row['SaltedPass']) === 32) {
         $pepperedPassword = md5($pass . config('app.legacy_password_salt'));
         if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }
-        $hashedPassword = migratePassword($user, $pass);
+        $hashedPassword = migratePassword($username, $pass);
     }
 
+    // validate the password
     if (!password_verify($pass, $hashedPassword)) {
         return false;
     }
 
+    // do the login
     Auth::loginUsingId($row['ID']);
 
-    $user = $row['User'];
+    // case-correct the username
+    $username = $row['User'];
 
     return true;
 }
@@ -162,17 +146,20 @@ function changePassword(string $user, string $pass): bool
 
 function hashPassword(string $pass): string
 {
-    return password_hash($pass, PASSWORD_ARGON2ID, [
+    $algorithm = defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT;
+
+    return password_hash($pass, $algorithm, [
         'memory_cost' => 1024,
         'threads' => 2,
         'time' => 1,
     ]);
 }
 
-function migratePassword(string $user, string $pass): string
+function migratePassword(string $username, string $pass): string
 {
     $hashedPassword = hashPassword($pass);
-    s_mysql_query("UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='' WHERE User='$user'");
+    legacyDbStatement("UPDATE UserAccounts SET Password=:hashedPassword, SaltedPass='' WHERE User=:user",
+        ['hashedPassword' => $hashedPassword, 'user' => $username]);
 
     return $hashedPassword;
 }
@@ -239,9 +226,6 @@ function authenticateFromAppToken(
     if (empty($userOut)) {
         return false;
     }
-    if (!isValidUsername($userOut)) {
-        return false;
-    }
     if (empty($token)) {
         return false;
     }
@@ -249,7 +233,7 @@ function authenticateFromAppToken(
     /** @var ?User $user */
     $user = auth('connect-token')->user();
 
-    if (!$user) {
+    if (!$user || strcasecmp($user->User, $userOut) != 0) {
         return false;
     }
 
@@ -259,25 +243,23 @@ function authenticateFromAppToken(
     return true;
 }
 
-function generateAppToken(string $user, ?string &$tokenOut): bool
+function generateAppToken(string $username, ?string &$tokenOut): bool
 {
-    if (empty($user)) {
+    $user = User::firstWhere('User', $username);
+    if (!$user) {
         return false;
     }
-    sanitize_sql_inputs($user);
-    $newToken = Str::random(16);
 
-    $expDays = 14;
-    $expiryStr = date("Y-m-d H:i:s", time() + 60 * 60 * 24 * $expDays);
-    $query = "UPDATE UserAccounts SET appToken='$newToken', appTokenExpiry='$expiryStr', Updated=NOW() WHERE User='$user'";
-    $result = s_mysql_query($query);
-    if ($result !== false) {
-        $tokenOut = $newToken;
+    $user->appToken = $tokenOut = newAppToken();
+    $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
+    $user->save();
 
-        return true;
-    }
+    return true;
+}
 
-    return false;
+function newAppToken(): string
+{
+    return Str::random(16);
 }
 
 /*
