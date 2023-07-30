@@ -8,7 +8,7 @@ use App\Site\Models\User;
 /** @var ?User $user */
 $user = request()->user();
 ?>
-<div class="bg-embedded rounded lg:w-[340px] lg:my-4 p-[1.125rem]">
+<div class="bg-embedded rounded lg:my-4 p-[1.125rem]">
     @guest
         <form class="flex gap-[1.125rem]" action="/request/auth/login.php" method="post">
             @csrf
