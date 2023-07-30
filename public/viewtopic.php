@@ -3,6 +3,7 @@
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 $userID = $userDetails['ID'] ?? 0;
@@ -234,10 +235,21 @@ RenderContentStart($pageTitle);
                     oninput='autoExpandTextInput(this)'
                 >$defaultMessage</textarea>
             EOF;
-            echo "<div class='flex justify-between mb-2'>";
-            echo "<span class='textarea-counter' data-textarea-id='commentTextarea'></span>";
-            echo "<button id='postBtn' class='btn' onclick='this.form.submit(); disableRepost()' $inputEnabled>Submit</button>";    // TBD: replace with image version
-            echo "</div>";
+
+            $loadingIconSrc = asset('assets/images/icon/loading.gif');
+
+            echo <<<HTML
+                <div class="flex justify-between mb-2">
+                    <span class="textarea-counter" data-textarea-id="commentTextarea">0 / 60000</span>
+                    
+                    <div>
+                        <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
+                        <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
+                        <button type="submit" id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" $inputEnabled>Submit</button>
+                    </div>
+                </div>
+            HTML;
+
             echo "</form>";
 
             echo "</td>";
@@ -245,7 +257,10 @@ RenderContentStart($pageTitle);
             echo "</tbody></table>";
 
             echo "</tr>";
+
+            echo "<div id='post-preview'></div>";
             echo "</tbody></table></div>";
+
         } else {
             echo "<br/>You must log in before you can join this conversation.<br/>";
         }

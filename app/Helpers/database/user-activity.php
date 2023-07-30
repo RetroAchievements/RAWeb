@@ -77,6 +77,7 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
                 return false;
             }
             $activity->data = (string) $data;
+            $activity->data2 = (string) $data2;
             break;
 
         case ActivityType::Login:

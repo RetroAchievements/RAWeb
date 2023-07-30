@@ -1,3 +1,4 @@
+import { tooltipStore as store } from './state/tooltipStore';
 import { getIsMobileIos } from './utils/getIsMobileIos';
 import { hideTooltip } from './utils/hideTooltip';
 import { loadDynamicTooltip } from './utils/loadDynamicTooltip';
@@ -21,20 +22,30 @@ interface TooltipOptions {
  */
 function attachTooltipListeners(
   anchorEl: HTMLElement,
-  showFn: (givenX: number, givenY: number) => void
+  showFn: (givenX: number, givenY: number) => void,
 ) {
   let showTimeout: number | null = null;
-  let lastMouseCoords: { x: number; y: number } | null = null;
   let isTooltipShowing = false;
 
-  const handleMouseOver = () => {
+  const updateLastMouseCoords = (event: MouseEvent) => {
+    store.trackedMouseX = event.pageX;
+    store.trackedMouseY = event.pageY;
+  };
+
+  const handleMouseOver = (event: MouseEvent) => {
+    store.isHoveringOverAnchorEl = true;
+
     if (isTooltipShowing) {
       return;
     }
 
+    updateLastMouseCoords(event);
+
     showTimeout = window.setTimeout(() => {
-      showFn(lastMouseCoords?.x ?? 0, lastMouseCoords?.y ?? 0);
-      isTooltipShowing = true;
+      if (!isTooltipShowing && store.isHoveringOverAnchorEl) {
+        showFn(event.pageX, event.pageY);
+        isTooltipShowing = true;
+      }
     }, 70);
   };
 
@@ -45,11 +56,12 @@ function attachTooltipListeners(
     }
 
     isTooltipShowing = false;
+    store.isHoveringOverAnchorEl = false;
     hideTooltip();
   };
 
   const handleMouseMove = (event: MouseEvent) => {
-    lastMouseCoords = { x: event.pageX, y: event.pageY };
+    updateLastMouseCoords(event);
     trackTooltipMouseMovement(anchorEl, event);
   };
 

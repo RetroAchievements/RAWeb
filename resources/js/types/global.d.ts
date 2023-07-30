@@ -7,6 +7,7 @@ import type { newsCarousel as NewsCarousel } from '@/alpine/newsCarousel';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
+import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 
 declare global {
@@ -19,6 +20,7 @@ declare global {
   var hideEarnedCheckboxComponent: typeof HideEarnedCheckboxComponent;
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
   var injectShortcode: typeof InjectShortcode;
+  var loadPostPreview: typeof LoadPostPreview;
   var newsCarousel: typeof NewsCarousel;
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;

@@ -25,7 +25,7 @@
  */
 
 $consoleID = (int) request()->query('i');
-if ($consoleID < 0) {
+if ($consoleID <= 0) {
     return response()->json(['success' => false]);
 }
 
