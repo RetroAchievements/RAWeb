@@ -66,7 +66,7 @@ function userAvatar(
 
 function renderUserCard(string|array $user): string
 {
-    return Blade::render('<x-community.user-card :user="$user" />', [
+    return Blade::render('<x-user-card :user="$user" />', [
         'user' => $user,
     ]);
 }

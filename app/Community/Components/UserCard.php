@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\View\Components\Community;
+namespace App\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;

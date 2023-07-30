@@ -165,7 +165,7 @@ function renderGameCard(int|array $game, ?string $targetUsername): string
         return __('legacy.error.error');
     }
 
-    return Blade::render('<x-platform.cards.game :gameId="$gameId" :targetUsername="$targetUsername" />', [
+    return Blade::render('<x-game-card :gameId="$gameId" :targetUsername="$targetUsername" />', [
         'gameId' => $gameId,
         'targetUsername' => $targetUsername,
     ]);

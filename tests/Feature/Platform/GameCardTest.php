@@ -30,7 +30,7 @@ class GameCardTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
 
-        $view = $this->blade('<x-platform.cards.game gameId="1" />');
+        $view = $this->blade('<x-game-card gameId="1" />');
 
         $view->assertSeeText($game->Title);
         $view->assertSeeText($system->ConsoleName);
@@ -57,7 +57,7 @@ class GameCardTest extends TestCase
         ]);
 
         // Act
-        $view = $this->blade('<x-platform.cards.game gameId="1" />');
+        $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
         $view->assertSeeText($game->Title);
@@ -97,7 +97,7 @@ class GameCardTest extends TestCase
         ]);
 
         // Act
-        $view = $this->blade('<x-platform.cards.game gameId="1" />');
+        $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
         $view->assertSeeText($game->Title);
@@ -148,7 +148,7 @@ class GameCardTest extends TestCase
         ]);
 
         // Act
-        $view = $this->blade('<x-platform.cards.game gameId="1" />');
+        $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
         $view->assertSeeText($game->Title);
@@ -165,7 +165,7 @@ class GameCardTest extends TestCase
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
         Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
 
-        $view = $this->blade('<x-platform.cards.game gameId="1" />');
+        $view = $this->blade('<x-game-card gameId="1" />');
 
         $view->assertSeeText($game->Title);
         $view->assertSeeText($system->ConsoleName);
@@ -199,7 +199,7 @@ class GameCardTest extends TestCase
         ]);
 
         // Act
-        $view = $this->blade('<x-platform.cards.game gameId="1" />');
+        $view = $this->blade('<x-game-card gameId="1" />');
 
         // Assert
         $view->assertSeeText($game->Title);
@@ -219,7 +219,7 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID, 'Title' => 'Pokemon Blue Version ~Z~']);
 
-        $view = $this->blade('<x-platform.cards.game gameId="1" />');
+        $view = $this->blade('<x-game-card gameId="1" />');
 
         $view->assertSeeText("Pokemon Blue Version");
         $view->assertSeeText($system->ConsoleName);
@@ -248,7 +248,7 @@ class GameCardTest extends TestCase
         ]);
 
         // Act
-        $view = $this->blade('<x-platform.cards.game gameId="1" targetUsername="AAA" />');
+        $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
 
         // Assert
         $view->assertSeeText('Completed 2 July 2015');
@@ -276,7 +276,7 @@ class GameCardTest extends TestCase
         ]);
 
         // Act
-        $view = $this->blade('<x-platform.cards.game gameId="1" targetUsername="AAA" />');
+        $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
 
         // Assert
         $view->assertSeeText('Mastered 2 July 2015');
@@ -304,7 +304,7 @@ class GameCardTest extends TestCase
         ]);
 
         // Act
-        $view = $this->blade('<x-platform.cards.game gameId="1" targetUsername="AAA" />');
+        $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
 
         // Assert
         $view->assertDontSeeText('Achievements');

@@ -31,6 +31,7 @@ use App\Platform\Commands\UpdatePlayerMasteries;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPoints;
 use App\Platform\Commands\UpdatePlayerRanks;
+use App\Platform\Components\GameCard;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Badge;
 use App\Platform\Models\BadgeStage;
@@ -53,6 +54,7 @@ use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -152,6 +154,8 @@ class AppServiceProvider extends ServiceProvider
         GameHash::disableSearchSyncing();
         Leaderboard::disableSearchSyncing();
         System::disableSearchSyncing();
+
+        Blade::component('game-card', GameCard::class);
 
         // Livewire::component('achievement-grid', AchievementGrid::class);
         // Livewire::component('achievement-player-grid', AchievementPlayerGrid::class);

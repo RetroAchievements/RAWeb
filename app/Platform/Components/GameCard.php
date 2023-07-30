@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\View\Components\Platform\Cards;
+namespace App\Platform\Components;
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Component;
 
-class Game extends Component
+class GameCard extends Component
 {
     private int $gameId;
     private int $hubConsoleId = 100;
@@ -103,7 +103,7 @@ class Game extends Component
             );
         })();
 
-        Cache::store('array')->put($cacheKey, $loadGameCardData, Carbon::now()->addDays(7));
+        Cache::store('array')->put($cacheKey, $loadGameCardData);
 
         return $loadGameCardData;
     }

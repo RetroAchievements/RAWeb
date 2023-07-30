@@ -123,24 +123,24 @@ RenderContentStart();
             </div>
         </div>
         <div class="flex w-full justify-between mb-2">
-            <?= Blade::render('<x-platform.cards.game gameId="1667" />') ?>
-            <?= Blade::render('<x-platform.cards.game gameId="17078" />') ?>
+            <?= Blade::render('<x-game-card gameId="1667" />') ?>
+            <?= Blade::render('<x-game-card gameId="17078" />') ?>
         </div>
         <div class="flex w-full justify-between mb-2">
-            <?= Blade::render('<x-platform.cards.game gameId="2791" />') ?>
-            <?= Blade::render('<x-platform.cards.game gameId="1471" />') ?>
+            <?= Blade::render('<x-game-card gameId="2791" />') ?>
+            <?= Blade::render('<x-game-card gameId="1471" />') ?>
         </div>
         <div class="flex w-full justify-between mb-2">
-            <?= Blade::render('<x-platform.cards.game gameId="17953" />') ?>
-            <?= Blade::render('<x-platform.cards.game gameId="1" />') ?>
+            <?= Blade::render('<x-game-card gameId="17953" />') ?>
+            <?= Blade::render('<x-game-card gameId="1" />') ?>
         </div>
         <div class="flex w-full justify-between mb-2">
-            <?= Blade::render('<x-platform.cards.game gameId="12798" />') ?>
-            <?= Blade::render('<x-platform.cards.game gameId="12192" />') ?>
+            <?= Blade::render('<x-game-card gameId="12798" />') ?>
+            <?= Blade::render('<x-game-card gameId="12192" />') ?>
         </div>
         <div class="flex w-full justify-between mb-2">
-            <?= Blade::render('<x-platform.cards.game gameId="586" />') ?>
-            <?= Blade::render('<x-platform.cards.game gameId="22561" />') ?>
+            <?= Blade::render('<x-game-card gameId="586" />') ?>
+            <?= Blade::render('<x-game-card gameId="22561" />') ?>
         </div>
     </div>
 
@@ -151,7 +151,7 @@ RenderContentStart();
                 <?= gameAvatar(8935) ?>
             </div>
             <div>
-                <?= Blade::render('<x-platform.cards.game gameId="8935" />') ?>
+                <?= Blade::render('<x-game-card gameId="8935" />') ?>
             </div>
         </div>
     </div>
