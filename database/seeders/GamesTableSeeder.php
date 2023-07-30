@@ -37,6 +37,7 @@ class GamesTableSeeder extends Seeder
             ]))->hashes()->save(new GameHash([
                 'system_id' => $game->ConsoleID,
                 'hash' => Str::random(16),
+                'MD5' => Str::random(16),
             ]));
         });
 
