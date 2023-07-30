@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlags;
 use App\Platform\Models\System;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
@@ -62,15 +62,15 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo "<div class='flex flex-wrap justify-between'>";
         echo "<div>";
 
-        echo $params !== AchievementType::OfficialCore ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::OfficialCore . "$dev_param'>" : "<b>";
+        echo $params !== AchievementFlags::OfficialCore ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlags::OfficialCore . "$dev_param'>" : "<b>";
         echo "Achievements in Core Sets";
-        echo $params !== AchievementType::OfficialCore ? "</a>" : "</b>";
+        echo $params !== AchievementFlags::OfficialCore ? "</a>" : "</b>";
         echo "<br>";
 
         if ($user !== null) {
-            echo $params !== AchievementType::Unofficial ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementType::Unofficial . "$dev_param'>" : "<b>";
+            echo $params !== AchievementFlags::Unofficial ? "<a href='/achievementList.php?s=$sortBy&p=" . AchievementFlags::Unofficial . "$dev_param'>" : "<b>";
             echo "Achievements in Unofficial Sets";
-            echo $params !== AchievementType::Unofficial ? "</a>" : "</b>";
+            echo $params !== AchievementFlags::Unofficial ? "</a>" : "</b>";
             echo "<br>";
 
             echo $params !== 1 ? "<a href='/achievementList.php?s=$sortBy&p=1$dev_param'>" : "<b>";

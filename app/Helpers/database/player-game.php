@@ -2,7 +2,7 @@
 
 use App\Community\Enums\ActivityType;
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlags;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -19,7 +19,7 @@ function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, boo
                      COUNT(CASE WHEN aw.HardcoreMode=0 THEN 1 ELSE NULL END) AS NumAwardedSC
               FROM Achievements AS ach
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = :user
-              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementType::OfficialCore;
+              WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementFlags::OfficialCore;
 
     $data = legacyDbFetch($query, ['user' => $user]);
 
@@ -78,7 +78,7 @@ function getGameRankAndScore(int $gameID, string $username): array
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ach.Flags = " . AchievementType::OfficialCore . "
+        WHERE ach.Flags = " . AchievementFlags::OfficialCore . "
           AND gd.ID = $gameID $untrackedClause
         GROUP BY aw.User
         ORDER BY TotalScore DESC, LastAward ASC
@@ -254,25 +254,25 @@ function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
     Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, false));
 }
 
-function getUserAchievementUnlocksForGame(string $user, int $gameID, int $flags = AchievementType::OfficialCore): array
+function getUserAchievementUnlocksForGame(string $user, int $gameID, int $flag = AchievementFlags::OfficialCore): array
 {
     $cacheKey = CacheKey::buildUserGameUnlocksCacheKey(
         $user,
         $gameID,
-        isOfficial: $flags === AchievementType::OfficialCore
+        isOfficial: $flag === AchievementFlags::OfficialCore
     );
 
     return Cache::remember($cacheKey,
         Carbon::now()->addDays(7),
-        function () use ($user, $gameID, $flags) {
+        function () use ($user, $gameID, $flag) {
             $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
                       FROM Awarded AS aw
                       LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                      WHERE ach.GameID = :gameId AND ach.Flags = :achievementType AND aw.User = :username";
+                      WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND aw.User = :username";
 
             $userUnlocks = legacyDbFetchAll($query, [
                 'gameId' => $gameID,
-                'achievementType' => $flags,
+                'achievementFlag' => $flag,
                 'username' => $user,
             ]);
 
@@ -357,7 +357,7 @@ function getUsersGameList(string $user, ?array &$dataOut): int
                     GROUP BY GameID ) AS gt ON gt.GameIDInner = gd.ID
         WHERE aw.User = '$user'
         AND aw.HardcoreMode = " . UnlockMode::Softcore . "
-        AND ach.Flags = " . AchievementType::OfficialCore . "
+        AND ach.Flags = " . AchievementFlags::OfficialCore . "
         GROUP BY gd.ID";
 
     $dbResult = s_mysql_query($query);
@@ -376,7 +376,7 @@ function getUsersGameList(string $user, ?array &$dataOut): int
     $query = "SELECT ach.GameID, gd.Title, COUNT(ach.ID) AS NumAchievements
             FROM Achievements AS ach
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            WHERE ach.Flags = " . AchievementType::OfficialCore . " AND ach.GameID IN ( $gamelistCSV )
+            WHERE ach.Flags = " . AchievementFlags::OfficialCore . " AND ach.GameID IN ( $gamelistCSV )
             GROUP BY ach.GameID ";
 
     $dbResult = s_mysql_query($query);
@@ -400,7 +400,7 @@ function getUsersCompletedGamesAndMax(string $user): array
         return [];
     }
 
-    $requiredFlags = AchievementType::OfficialCore;
+    $requiredFlag = AchievementFlags::OfficialCore;
     $minAchievementsForCompletion = 5;
 
     // TODO slow query
@@ -412,18 +412,23 @@ function getUsersCompletedGamesAndMax(string $user): array
         LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         LEFT JOIN
-            ( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags = $requiredFlags GROUP BY GameID )
+            ( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags = $requiredFlag GROUP BY GameID )
             AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > $minAchievementsForCompletion
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        WHERE aw.User = '$user' AND ach.Flags = $requiredFlags
+        WHERE aw.User = '$user' AND ach.Flags = $requiredFlag
         GROUP BY ach.GameID, gd.Title
         ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title";
 
     return legacyDbFetchAll($query)->toArray();
 }
 
-function getTotalUniquePlayers(int $gameID, ?int $parentGameID = null, ?string $requestedBy = null, bool $hardcoreOnly = false, ?int $achievementType = null): int
-{
+function getTotalUniquePlayers(
+    int $gameID,
+    ?int $parentGameID = null,
+    ?string $requestedBy = null,
+    bool $hardcoreOnly = false,
+    ?int $achievementFlag = null,
+): int {
     $bindings = [
         'gameId' => $gameID,
     ];
@@ -435,9 +440,9 @@ function getTotalUniquePlayers(int $gameID, ?int $parentGameID = null, ?string $
     }
 
     $achievementFlagsStatement = '';
-    if ($achievementType !== null) {
-        $bindings['achievementType'] = $achievementType;
-        $achievementFlagsStatement = 'AND ach.Flags = :achievementType';
+    if ($achievementFlag !== null) {
+        $bindings['achievementFlag'] = $achievementFlag;
+        $achievementFlagsStatement = 'AND ach.Flags = :achievementFlag';
     }
 
     $requestedByStatement = '';
@@ -513,7 +518,7 @@ function getGameTopAchievers(int $gameID): array
 
     $query = "SELECT COUNT(*) AS NumAchievementsInSet
         FROM Achievements
-        WHERE GameID = $gameID AND Flags = " . AchievementType::OfficialCore;
+        WHERE GameID = $gameID AND Flags = " . AchievementFlags::OfficialCore;
     $data = legacyDbFetch($query);
     if ($data !== null) {
         $numAchievementsInSet = $data['NumAchievementsInSet'];
@@ -526,7 +531,7 @@ function getGameTopAchievers(int $gameID): array
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
                 WHERE NOT ua.Untracked
-                  AND ach.Flags = " . AchievementType::OfficialCore . "
+                  AND ach.Flags = " . AchievementFlags::OfficialCore . "
                   AND gd.ID = $gameID
                   AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
                 GROUP BY aw.User
@@ -603,7 +608,7 @@ function getMostPopularGames(int $offset, int $count, int $method): array
         //             FROM Activity AS act
         //             LEFT JOIN GameData AS gd ON gd.ID = act.data
         //             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        //             WHERE act.activitytype = " . AchievementType::OFFICIAL_CORE . " AND !ISNULL( gd.ID )
+        //             WHERE act.activitytype = " . AchievementFlags::OfficialCore . " AND !ISNULL( gd.ID )
         //             GROUP BY gd.ID, act.User
         //         ) AS Inner1
         //         GROUP BY Inner1.ID

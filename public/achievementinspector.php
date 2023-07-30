@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ClaimSetType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlags;
 use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -59,7 +59,10 @@ function updateDisplayOrder(objID) {
     });
 }
 
-function updateAchievementsTypeFlag(typeFlag) {
+/**
+ * @param {3 | 5} newFlag - see AchievementFlags.php
+ */
+function updateAchievementsFlag(newFlag) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
     var checkboxes = document.querySelectorAll('[name^=\'achievement\']');
     var achievements = [];
@@ -69,7 +72,7 @@ function updateAchievementsTypeFlag(typeFlag) {
         }
     }
 
-    if (!confirm(`Are you sure you want to ${(typeFlag === <?= AchievementType::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
+    if (!confirm(`Are you sure you want to ${(newFlag === <?= AchievementFlags::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
         return;
     }
 
@@ -80,7 +83,7 @@ function updateAchievementsTypeFlag(typeFlag) {
     showStatusMessage('Updating...');
     $.post('/request/achievement/update-flag.php', {
         achievements: achievements,
-        flag: typeFlag,
+        flag: newFlag,
     })
         .done(function () {
             location.reload();
@@ -95,10 +98,10 @@ function updateAchievementsTypeFlag(typeFlag) {
         echo "<div id='fullcontainer'>";
     }
 
-    if ($flag === AchievementType::Unofficial) {
+    if ($flag === AchievementFlags::Unofficial) {
         echo "<h2>Unofficial Achievement Inspector</h2>";
     }
-    if ($flag === AchievementType::OfficialCore) {
+    if ($flag === AchievementFlags::OfficialCore) {
         echo "<h2>Core Achievement Inspector</h2>";
     }
 
@@ -116,21 +119,21 @@ function updateAchievementsTypeFlag(typeFlag) {
         }
 
         if ($fullModifyOK) {
-            echo "</br></br>You can " . ($flag === AchievementType::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
-                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementType::Unofficial ? "Promote" : "Demote") . " Selected' " .
+            echo "</br></br>You can " . ($flag === AchievementFlags::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlags::Unofficial ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
 
         echo "<div style='text-align:center'><p class='embedded'><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
-        if ($flag === AchievementType::Unofficial) {
+        if ($flag === AchievementFlags::Unofficial) {
             if ($fullModifyOK) {
-                echo "<a class='cursor-pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::OfficialCore . ")'>Promote Selected</a> | ";
+                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlags::OfficialCore . ")'>Promote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
         }
-        if ($flag === AchievementType::OfficialCore) {
+        if ($flag === AchievementFlags::OfficialCore) {
             if ($fullModifyOK) {
-                echo "<a class='cursor-pointer' onclick='updateAchievementsTypeFlag(" . AchievementType::Unofficial . ")'>Demote Selected</a> | ";
+                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlags::Unofficial . ")'>Demote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a> | ";
         }

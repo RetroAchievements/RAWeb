@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlags;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
@@ -16,14 +16,14 @@ function getUserAchievementsPerConsole(string $username): array
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = :author
-              AND a.Flags = :achievementType
+              AND a.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY AchievementCount DESC, ConsoleName";
 
     return legacyDbFetchAll($query, [
         'author' => $username,
-        'achievementType' => AchievementType::OfficialCore,
+        'achievementFlag' => AchievementFlags::OfficialCore,
     ])->toArray();
 }
 
@@ -37,14 +37,14 @@ function getUserSetsPerConsole(string $username): array
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author = :author
-              AND a.Flags = :achievementType
+              AND a.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY SetCount DESC, ConsoleName";
 
     return legacyDbFetchAll($query, [
         'author' => $username,
-        'achievementType' => AchievementType::OfficialCore,
+        'achievementFlag' => AchievementFlags::OfficialCore,
     ])->toArray();
 }
 
@@ -59,14 +59,14 @@ function getUserAchievementInformation(string $username): array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = :joinUsername
               WHERE Author LIKE :author
-              AND a.Flags = :achievementType
+              AND a.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
               ORDER BY a.DateCreated";
 
     return legacyDbFetchAll($query, [
         'author' => $username,
         'joinUsername' => $username,
-        'achievementType' => AchievementType::OfficialCore,
+        'achievementFlag' => AchievementFlags::OfficialCore,
     ])->toArray();
 }
 
@@ -84,13 +84,13 @@ function getOwnAchievementsObtained(string $username): array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE a.Author LIKE :author
               AND aw.User LIKE :username
-              AND a.Flags = :achievementType
+              AND a.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)";
 
     return legacyDbFetch($query, [
         'author' => $username,
         'username' => $username,
-        'achievementType' => AchievementType::OfficialCore,
+        'achievementFlag' => AchievementFlags::OfficialCore,
         'sumUnlockModeSoftcore' => UnlockMode::Softcore,
         'sumUnlockModeHardcore' => UnlockMode::Hardcore,
     ]);
@@ -111,7 +111,7 @@ function getObtainersOfSpecificUser(string $username): array
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE a.Author LIKE :author
               AND aw.User NOT LIKE :username
-              AND a.Flags = :achievementType
+              AND a.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
               AND Untracked = 0
               GROUP BY aw.User
@@ -120,7 +120,7 @@ function getObtainersOfSpecificUser(string $username): array
     return legacyDbFetchAll($query, [
         'author' => $username,
         'username' => $username,
-        'achievementType' => AchievementType::OfficialCore,
+        'achievementFlag' => AchievementFlags::OfficialCore,
         'sumUnlockModeSoftcore' => UnlockMode::Softcore,
         'sumUnlockModeHardcore' => UnlockMode::Hardcore,
     ])->toArray();
@@ -135,11 +135,11 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
         SELECT distinct(Author) AS Author FROM Achievements AS ach
         LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
         WHERE ach.GameID = :gameId
-        AND ach.Flags = :achievementType";
+        AND ach.Flags = :achievementFlag";
 
     $authors = legacyDbFetchAll($query, [
         'gameId' => $gameID,
-        'achievementType' => AchievementType::OfficialCore,
+        'achievementFlag' => AchievementFlags::OfficialCore,
     ]);
 
     if ($authors->count() !== 1) {
@@ -182,7 +182,7 @@ function recalculateDeveloperContribution(string $author): void
               FROM (SELECT aw.User, ach.ID, MAX(aw.HardcoreMode) as HardcoreMode, ach.Points
                     FROM Achievements ach LEFT JOIN Awarded aw ON aw.AchievementID=ach.ID
                     WHERE ach.Author='$author' AND aw.User != '$author'
-                    AND ach.Flags=" . AchievementType::OfficialCore . "
+                    AND ach.Flags=" . AchievementFlags::OfficialCore . "
                     GROUP BY 1,2) AS UniqueUnlocks";
 
     $dbResult = s_mysql_query($query);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
-abstract class AchievementType
+abstract class AchievementFlags
 {
     public const OfficialCore = 3;
 
@@ -18,8 +18,8 @@ abstract class AchievementType
         ];
     }
 
-    public static function isValid(int $type): bool
+    public static function isValid(int $flag): bool
     {
-        return in_array($type, self::cases());
+        return in_array($flag, self::cases());
     }
 }

@@ -6,7 +6,7 @@ namespace App\Platform\Models;
 
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlags;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementFactory;
@@ -251,7 +251,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function scopePublished(Builder $query): Builder
     {
-        return $this->scopeType($query, AchievementType::OfficialCore);
+        return $this->scopeType($query, AchievementFlags::OfficialCore);
     }
 
     /**
@@ -260,7 +260,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function scopeUnpublished(Builder $query): Builder
     {
-        return $this->scopeType($query, AchievementType::Unofficial);
+        return $this->scopeType($query, AchievementFlags::Unofficial);
     }
 
     /**

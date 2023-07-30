@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlags;
 use App\Platform\Enums\UnlockMode;
 
 function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy): array
@@ -32,7 +32,7 @@ function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy)
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE User='$user'
                 AND aw.HardcoreMode = " . UnlockMode::Softcore . "
-                AND ach.Flags = " . AchievementType::OfficialCore . "
+                AND ach.Flags = " . AchievementFlags::OfficialCore . "
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
                 $orderCond
                 LIMIT $offset, $limit";
@@ -62,7 +62,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?strin
         'dateStart' => $dateStart,
         'dateEnd' => $dateEnd,
         'username' => $username,
-        'achievementType' => AchievementType::OfficialCore,
+        'achievementFlag' => AchievementFlags::OfficialCore,
     ];
 
     $query = "SELECT aw.Date, aw.HardcoreMode,
@@ -74,7 +74,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?strin
               LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE User = :username AND ach.Flags = :achievementType
+              WHERE User = :username AND ach.Flags = :achievementFlag
               AND Date BETWEEN :dateStart AND :dateEnd
               ORDER BY aw.Date, aw.HardcoreMode DESC
               LIMIT 500";
@@ -145,7 +145,7 @@ function getAwardedList(
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 WHERE aw.user = '$user'
-                AND ach.Flags = " . AchievementType::OfficialCore . "
+                AND ach.Flags = " . AchievementFlags::OfficialCore . "
 
                 $dateCondition
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)

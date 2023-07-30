@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ActivityType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlags;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -277,8 +277,8 @@ switch ($requestType) {
         break;
 
     case "patch":
-        $flags = (int) request()->input('f', 0);
-        $response['PatchData'] = GetPatchData($gameID, $flags);
+        $flag = (int) request()->input('f', 0);
+        $response['PatchData'] = GetPatchData($gameID, $flag);
         if (array_key_exists('Success', $response['PatchData'])) {
             $response['Success'] = $response['PatchData']['Success']; // Passthru
             unset($response['PatchData']['Success']);
@@ -389,7 +389,7 @@ switch ($requestType) {
             progressFmt: ' ',
             points: (int) request()->input('z', 0),
             mem: request()->input('m'),
-            type: (int) request()->input('f', AchievementType::Unofficial),
+            flag: (int) request()->input('f', AchievementFlags::Unofficial),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut
