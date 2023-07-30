@@ -89,10 +89,10 @@ function performSearch(
         FROM ForumTopicComment AS ftc
         LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
         LEFT JOIN ForumTopic AS ft ON ft.ID = ftc.ForumTopicID
-        WHERE ftc.Payload LIKE '%$searchQuery%'
+        WHERE ftc.Payload LIKE '%$searchQuery%' AND ft.deleted_at IS NULL
         AND ft.RequiredPermissions <= '$permissions'
         GROUP BY ID, ftc.ID
-        ORDER BY DateModified DESC";
+        ORDER BY IFNULL(ftc.DateModified, ftc.DateCreated) DESC";
     }
 
     $articleTypes = [];
