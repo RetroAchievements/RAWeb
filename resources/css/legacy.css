@@ -23,6 +23,7 @@
   margin-bottom: 10px;
   border: 2px solid var(--embed-color);
   border-radius: 4px;
+  align-self: start;
   background: var(--box-bg-color);
   background: linear-gradient(180deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
   overflow: auto; /* 1 */
@@ -47,6 +48,7 @@
   margin-bottom: 10px;
   border: 2px solid var(--embed-color);
   border-radius: 4px;
+  align-self: start;
   background: var(--box-bg-color);
   background: linear-gradient(0deg, var(--box-bg-color) 0%, var(--bg-color) 100%);
   overflow: auto; /* 1 */
