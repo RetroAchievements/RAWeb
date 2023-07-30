@@ -22,8 +22,7 @@ $finishedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['DoneTime'])->
         />
     </td>
 
-    <td class="pr-0">{!! userAvatar($claim['User'], label: false) !!}</td>
-    <td>{!! userAvatar($claim['User'], icon: false) !!}</td>
+    <td class="pr-0">{!! userAvatar($claim['User']) !!}</td>
     <td>{{ $claimSetTypeCopy }}</td>
     <td class="smalldate">{{ $finishedTimeAgo }}</td>
 </tr>

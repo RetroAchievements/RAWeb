@@ -6,7 +6,7 @@ $startedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['Created'])->di
 ?>
 
 <tr>
-    <td class="py-1.5">
+    <td class="py-1.5" width="55%">
         <x-game.multiline-avatar
             :gameId="$claim['GameID']"
             :gameTitle="$claim['GameTitle']"
@@ -16,7 +16,6 @@ $startedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['Created'])->di
         />
     </td>
 
-    <td class="pr-0">{!! userAvatar($claim['User'], label: false) !!}</td>
-    <td>{!! userAvatar($claim['User'], icon: false) !!}</td>
+    <td class="pr-0">{!! userAvatar($claim['User']) !!}</td>
     <td class="smalldate">{{ $startedTimeAgo }}</td>
 </tr>
