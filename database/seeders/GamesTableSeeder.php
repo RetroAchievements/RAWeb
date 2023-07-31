@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameHash;
@@ -47,7 +47,7 @@ class GamesTableSeeder extends Seeder
         Game::all()->each(function (Game $game) {
             $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 10))->create([
                 'GameID' => $game->ID,
-                'Flags' => AchievementType::OfficialCore,
+                'Flags' => AchievementFlag::OfficialCore,
             ]));
         });
     }

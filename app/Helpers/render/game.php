@@ -171,12 +171,12 @@ function renderGameCard(int|array $game, ?string $targetUsername): string
     ]);
 }
 
-function RenderGameSort(bool $isFullyFeaturedGame, ?int $flags, int $officialFlag, int $gameID, ?int $sortBy): void
+function RenderGameSort(bool $isFullyFeaturedGame, ?int $flag, int $officialFlag, int $gameID, ?int $sortBy): void
 {
     echo "<div><span>";
     echo "Sort: ";
 
-    $flagParam = ($flags != $officialFlag) ? "f=$flags" : '';
+    $flagParam = ($flag != $officialFlag) ? "f=$flag" : '';
 
     $sortType = ($sortBy < 10) ? "^" : "<sup>v</sup>";
     // Used for options which sort in Descending order on first click

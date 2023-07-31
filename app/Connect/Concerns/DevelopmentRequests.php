@@ -269,7 +269,7 @@ trait DevelopmentRequests
         //     $newDesc = $request->input('d');
         //     $newPoints = $request->input('z', 0, 'integer');
         //     $newMemString = $request->input('m');
-        //     $newFlags = $request->input('f', 0, 'integer');
+        //     $newFlag = $request->input('f', 0, 'integer');
         //     $newBadge = $request->input('b');
         //     $errorOut = "";
         //     $response['Success'] = UploadNewAchievement(
@@ -282,7 +282,7 @@ trait DevelopmentRequests
         //         ' ',
         //         $newPoints,
         //         $newMemString,
-        //         $newFlags,
+        //         $newFlag,
         //         $achievementID,
         //         $newBadge,
         //         $errorOut

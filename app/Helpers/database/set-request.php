@@ -3,7 +3,7 @@
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\RequestStatus;
 use App\Community\Models\UserGameListEntry;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Site\Models\User;
 
 /**
@@ -50,7 +50,7 @@ function getUserRequestList(?string $user = null): array
         if (!empty($gameIDs)) {
             $query = "SELECT GameID, COUNT(ID) AS AchievementCount FROM Achievements"
                    . " WHERE GameID IN (" . implode(',', $gameIDs) . ")"
-                   . " AND Flags = " . AchievementType::OfficialCore
+                   . " AND Flags = " . AchievementFlag::OfficialCore
                    . " GROUP BY GameID";
 
             $dbResult = s_mysql_query($query);
