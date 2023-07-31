@@ -114,7 +114,6 @@ class GameCard extends Component
      * corresponding award details. If no progression awards are found, or if the
      * target username is not provided, no awards are fetched or returned.
      *
-     * @param int $gameId the ID of the game for which to retrieve a user's award metadata
      * @param ?string $usernameContext the target username to look up awards for
      *
      * @return array the array of a target user's site award metadata for a given game ID
@@ -180,10 +179,7 @@ class GameCard extends Component
      * Builds an array containing all data required for a game card view.
      * It uses various other private methods to build specific parts of the data.
      *
-     * @param array $rawGameData an array of raw game metadata from the database
      * @param array $userGameProgressionAwards an array of a target user's site awards for this particular game
-     *
-     * @return array an associative array of data for the game card Blade template
      */
     private function buildAllCardViewValues(array $rawGameData, array $userGameProgressionAwards): array
     {
@@ -239,9 +235,6 @@ class GameCard extends Component
      * set to 0 and the last updated date comes from the game metadata instead of the
      * achievement metadata.
      *
-     * @param array $rawAchievements an array of achievements from the game
-     * @param string $gameLastUpdated the last updated date for the game
-     *
      * @return array an array containing total points, total RetroPoints, retro ratio, and last updated date
      */
     private function buildCardAchievementsData(array $rawAchievements, string $gameLastUpdated): array
@@ -275,8 +268,7 @@ class GameCard extends Component
      * If "Mastered" is present, it takes precedence over "Completed".
      * If neither "Mastered" nor "Completed" are present, both the status and award date are returned as null.
      *
-     * @param array $userGameProgressionAwards an array of user's game progression awards
-     * @param bool $isEvent whether or not the game ID is associated with an event
+     * @param bool $isEvent whether or not the game ID is associated with the "Events" console
      *
      * @return array an array containing the highest progression status and corresponding award date
      */

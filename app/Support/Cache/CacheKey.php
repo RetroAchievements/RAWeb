@@ -23,8 +23,7 @@ class CacheKey
 
     /**
      * @param string $username the name of the user for which the cache key is being constructed
-     * @param int    $gameID the target game ID for the unlocks data
-     * @param bool   $isOfficial whether this is for official or unofficial achievements
+     * @param int $gameID the target game ID for the unlocks data
      */
     public static function buildUserGameUnlocksCacheKey(string $username, int $gameID, bool $isOfficial = true): string
     {
@@ -34,7 +33,6 @@ class CacheKey
     }
 
     /**
-     * @param string $username the name of the user for which the cache key is being constructed
      * @param int $rankType the type of the rank which should correspond to values in the `RankType` enum.
      *                      1 for 'Hardcore' (default), 2 for 'Softcore', 3 for 'TruePoints'.
      */
@@ -60,12 +58,9 @@ class CacheKey
      * This function creates a cache key for a specific entity with a given kind and optional parameters.
      * Cache keys follow the format: "entityKind:12345:keyKind:{param1}:{param2}".
      *
-     * @param string     $entityKind the kind of entity to cache data for (eg: "user", "game", "achievement")
+     * @param string $entityKind the kind of entity to cache data for (eg: "user", "game", "achievement")
      * @param string|int $identifier the unique id associated with this entity (eg: 12345, "Scott")
-     * @param string     $keyKind the specific kind of data being cached (eg: "card-data")
-     * @param array      $params optional parameters for the cache key
-     *
-     * @return string the constructed cache key
+     * @param string $keyKind the specific kind of data being cached (eg: "card-data")
      */
     private static function buildNormalizedCacheKey(
         string $entityKind,
@@ -95,15 +90,11 @@ class CacheKey
      * ```
      * This generates a cache key like: "user:username:gameUnlocks:{gameID}:{flags}".
      *
-     * @param string $username the name of the user for which the cache key is constructed
-     * @param string $keyKind the kind of the cache key
-     * @param array  $params optional parameters for the cache key
-     *
-     * @return string the constructed cache key
+     * @param string $keyKind the specific kind of data being cached (eg: "card-data")
      */
-    private static function buildNormalizedUserCacheKey(string $username, string $keyKind, array $params = []): string
+    private static function buildNormalizedUserCacheKey(string $forUsername, string $keyKind, array $params = []): string
     {
-        $normalizedUsername = strtolower($username);
+        $normalizedUsername = strtolower($forUsername);
 
         return self::buildNormalizedCacheKey("user", $normalizedUsername, $keyKind, $params);
     }
