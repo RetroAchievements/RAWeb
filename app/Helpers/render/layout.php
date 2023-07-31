@@ -107,7 +107,7 @@ function RenderToolbar(): void
 
         ],
     ];
-    echo "<ul class='flex-1'>";
+    echo "<ul>";
     echo "<li><a href='#'>Games</a>";
     echo "<div>";
     foreach ($menuSystemsList as $column) {

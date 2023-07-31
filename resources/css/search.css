@@ -15,7 +15,6 @@
 .searchbox-top {
   background-color: var(--embed-color);
   border-radius: 4px;
-  width: 340px;
 }
 
 .searchbox-top .searchboxinput {
