@@ -13,6 +13,6 @@ $mobile ??= false;
         <x-nav-item :link="route('tool.index')">{{ __('Tools') }}</x-nav-item>
     @endif
 </ul>--}}
-<div class="lg:flex gap-4 justify-between items-center" id="innermenu">
+<div class="lg:grid grid-cols-[1fr_340px] gap-4" id="innermenu">
     <?php RenderToolbar() ?>
 </div>
