@@ -7,7 +7,7 @@ namespace App\Platform\Components;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Models\AchievementSetClaim;
-use App\Platform\Models\Game as GameModel;
+use App\Platform\Models\Game;
 use App\Platform\Models\GameAlternative;
 use App\Platform\Models\PlayerBadge;
 use App\Support\Cache\CacheKey;
@@ -71,7 +71,7 @@ class GameCard extends Component
         }
 
         $loadGameCardData = (function () use ($gameId): ?array {
-            $foundGame = GameModel::with([
+            $foundGame = Game::with([
                 'system',
                 'achievements' => function ($query) {
                     $query->published();
