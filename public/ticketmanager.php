@@ -5,7 +5,7 @@ use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Str;
@@ -97,7 +97,7 @@ if ($ticketID == 0) {
             $gameIDGiven,
             $achievementIDGiven,
             $ticketFilters,
-            $gamesTableFlag === AchievementType::Unofficial
+            $gamesTableFlag === AchievementFlag::Unofficial
         );
     }
 }
@@ -162,9 +162,9 @@ RenderContentStart($pageTitle);
             if (!isValidUsername($resolvedByUser)) {
                 $resolvedByUser = null;
             }
-            $openTicketsCount = countOpenTickets($gamesTableFlag === AchievementType::Unofficial);
+            $openTicketsCount = countOpenTickets($gamesTableFlag === AchievementFlag::Unofficial);
             $filteredTicketsCount = countOpenTickets(
-                $gamesTableFlag === AchievementType::Unofficial,
+                $gamesTableFlag === AchievementFlag::Unofficial,
                 $ticketFilters,
                 $assignedToUser,
                 $reportedByUser,
@@ -172,7 +172,7 @@ RenderContentStart($pageTitle);
                 $gameIDGiven,
                 $achievementIDGiven
             );
-            echo "<h3>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementType::Unofficial ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
+            echo "<h3>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementFlag::Unofficial ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
         }
 
         echo "<div class='detaillist'>";
@@ -330,7 +330,7 @@ RenderContentStart($pageTitle);
                 }
 
                 // Clear Filter
-                if ($ticketFilters != $defaultFilter || $gamesTableFlag === AchievementType::Unofficial) {
+                if ($ticketFilters != $defaultFilter || $gamesTableFlag === AchievementFlag::Unofficial) {
                     echo "<div>";
                     echo "<a href='" . $createLink('t', $defaultFilter, 'f', 3) . "'>Clear Filter</a>";
                     echo "</div>";

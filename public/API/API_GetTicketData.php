@@ -135,7 +135,7 @@
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
@@ -219,7 +219,7 @@ if ($gameIDGiven > 0) {
         $ticketData['GameTitle'] = $gameData['Title'];
         $ticketData['ConsoleName'] = $gameData['ConsoleName'];
         $ticketData['OpenTickets'] = countOpenTickets(
-            $gamesTableFlag == AchievementType::Unofficial,
+            $gamesTableFlag == AchievementFlag::Unofficial,
             $defaultTicketFilter,
             null,
             null,
