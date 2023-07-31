@@ -119,7 +119,7 @@ $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescend
                 <thead>
                     <tr class="do-not-highlight">
                         <th>Game</th>
-                        <th colspan="2">Dev</th>
+                        <th>Dev</th>
                         <th>Type</th>
                         <th>Finished</th>
                     </tr>
