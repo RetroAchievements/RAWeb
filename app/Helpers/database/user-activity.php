@@ -121,7 +121,7 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
              */
             $lastPlayedTimestamp = null;
             $activityID = null;
-            $recentlyPlayedGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
+            $recentlyPlayedGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user->User);
             $recentlyPlayedGames = Cache::get($recentlyPlayedGamesCacheKey);
             if (!empty($recentlyPlayedGames)) {
                 foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
