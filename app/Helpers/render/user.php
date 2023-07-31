@@ -92,8 +92,8 @@ function getCompletedAndIncompletedSetsCounts(array $userCompletedGamesList): ar
 
 function RenderCompletedGamesList(
     array $userCompletedGamesList,
-    bool $isInitiallyHidingCompletedSets = false,
     string $username,
+    bool $isInitiallyHidingCompletedSets = false,
 ): void {
     echo "<div id='completedgames' class='component' >";
 
