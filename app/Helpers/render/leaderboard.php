@@ -2,7 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 
 function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void
@@ -475,7 +475,7 @@ function getGlobalRankingData(
                             JOIN Achievements AS ach ON aw.AchievementID = ach.ID 
                             JOIN GameData as gd ON ach.GameID = gd.ID 
                             WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
-                            AND ach.Flags = " . AchievementFlags::OfficialCore . "
+                            AND ach.Flags = " . AchievementFlag::OfficialCore . "
                         ) AS AchievementCount,
                         COALESCE(ua.RAPoints, 0) AS Points,
                         COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
@@ -488,7 +488,7 @@ function getGlobalRankingData(
                             JOIN Achievements AS ach ON aw.AchievementID = ach.ID 
                             JOIN GameData as gd ON ach.GameID = gd.ID 
                             WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
-                            AND ach.Flags = " . AchievementFlags::OfficialCore . "
+                            AND ach.Flags = " . AchievementFlag::OfficialCore . "
                         ) AS AchievementCount,
                         COALESCE(ua.RASoftcorePoints, 0) AS Points,
                         0 AS RetroPoints,

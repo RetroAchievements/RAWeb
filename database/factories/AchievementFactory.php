@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Models\Achievement;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
@@ -31,7 +31,7 @@ class AchievementFactory extends Factory
             'Description' => fake()->sentence(),
             'MemAddr' => '0x000000',
             'Author' => $this->fakeUsername(),
-            'Flags' => AchievementFlags::Unofficial,
+            'Flags' => AchievementFlag::Unofficial,
             'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),
             'BadgeName' => '00001',
             'DateModified' => Carbon::now(),
@@ -41,7 +41,7 @@ class AchievementFactory extends Factory
     public function published(): static
     {
         return $this->state(fn (array $attributes) => [
-            'Flags' => AchievementFlags::OfficialCore,
+            'Flags' => AchievementFlag::OfficialCore,
         ]);
     }
 }

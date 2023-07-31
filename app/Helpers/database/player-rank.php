@@ -2,7 +2,7 @@
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
@@ -48,7 +48,7 @@ function recalculatePlayerPoints(string $user): bool
                     SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", ach.Points, 0)) AS TotalPoints
                     FROM Awarded AS aw
                     LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                    WHERE aw.User = '$user' AND ach.Flags = " . AchievementFlags::OfficialCore . "
+                    WHERE aw.User = '$user' AND ach.Flags = " . AchievementFlag::OfficialCore . "
                 ) hc ON ua.User = hc.UserAwarded
                 SET RAPoints = COALESCE(hc.HardcorePoints, 0),
                     TrueRAPoints = COALESCE(hc.TruePoints, 0),

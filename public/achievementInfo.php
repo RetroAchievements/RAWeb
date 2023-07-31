@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
@@ -134,10 +134,10 @@ RenderContentStart($pageTitle);
     }
 
     /**
-     * @param {3 | 5} newFlag - see AchievementFlags.php
+     * @param {3 | 5} newFlag - see AchievementFlag.php
      */
     function updateAchievementFlag(newFlag) {
-        if (!confirm(`Are you sure you want to ${(newFlag === <?= AchievementFlags::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
+        if (!confirm(`Are you sure you want to ${(newFlag === <?= AchievementFlag::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
             return;
         }
         showStatusMessage('Updating...');
@@ -242,7 +242,7 @@ RenderContentStart($pageTitle);
 
         echo "<p class='embedded smalldata mb-3'>";
         echo "<small>";
-        if ($achFlags === AchievementFlags::Unofficial) {
+        if ($achFlags === AchievementFlag::Unofficial) {
             echo "<b>Unofficial Achievement</b><br>";
         }
         echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
@@ -343,11 +343,11 @@ RenderContentStart($pageTitle);
                 echo "</tbody></table>";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
 
-                if ($achFlags === AchievementFlags::OfficialCore) {
-                    echo "<li>State: Official&nbsp;<button class='btn btn-danger' type='button' onclick='updateAchievementFlag(" . AchievementFlags::Unofficial . ")'>Demote To Unofficial</button></li>";
+                if ($achFlags === AchievementFlag::OfficialCore) {
+                    echo "<li>State: Official&nbsp;<button class='btn btn-danger' type='button' onclick='updateAchievementFlag(" . AchievementFlag::Unofficial . ")'>Demote To Unofficial</button></li>";
                 }
-                if ($achFlags === AchievementFlags::Unofficial) {
-                    echo "<li>State: Unofficial&nbsp;<button class='btn' type='button' onclick='updateAchievementFlag(" . AchievementFlags::OfficialCore . ")'>Promote To Official</button></li>";
+                if ($achFlags === AchievementFlag::Unofficial) {
+                    echo "<li>State: Unofficial&nbsp;<button class='btn' type='button' onclick='updateAchievementFlag(" . AchievementFlag::OfficialCore . ")'>Promote To Official</button></li>";
                 }
             }
 

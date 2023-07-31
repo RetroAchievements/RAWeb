@@ -4,7 +4,7 @@ use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Community\Models\Comment;
 use App\Community\Models\UserActivityLegacy;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
@@ -627,7 +627,7 @@ function getUserGameActivity(string $user, int $gameID): array
         $when = strtotime($row['timestamp']);
         $achievements[$row['data']] = $when;
 
-        if ($row['Flags'] != AchievementFlags::OfficialCore) {
+        if ($row['Flags'] != AchievementFlag::OfficialCore) {
             $unofficialAchievements[$row['data']] = 1;
         }
 
@@ -694,7 +694,7 @@ function getUserGameActivity(string $user, int $gameID): array
 
     // Count num possible achievements
     $query = "SELECT COUNT(*) as Count FROM Achievements ach
-              WHERE ach.Flags=" . AchievementFlags::OfficialCore . " AND ach.GameID=$gameID";
+              WHERE ach.Flags=" . AchievementFlag::OfficialCore . " AND ach.GameID=$gameID";
     $dbResult = s_mysql_query($query);
     if ($dbResult) {
         $activity['CoreAchievementCount'] = mysqli_fetch_assoc($dbResult)['Count'];

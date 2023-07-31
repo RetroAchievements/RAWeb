@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 
 function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy): array
@@ -32,7 +32,7 @@ function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy)
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 WHERE User='$user'
                 AND aw.HardcoreMode = " . UnlockMode::Softcore . "
-                AND ach.Flags = " . AchievementFlags::OfficialCore . "
+                AND ach.Flags = " . AchievementFlag::OfficialCore . "
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
                 $orderCond
                 LIMIT $offset, $limit";
@@ -62,7 +62,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?strin
         'dateStart' => $dateStart,
         'dateEnd' => $dateEnd,
         'username' => $username,
-        'achievementFlag' => AchievementFlags::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore,
     ];
 
     $query = "SELECT aw.Date, aw.HardcoreMode,
@@ -145,7 +145,7 @@ function getAwardedList(
                 LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                 LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
                 WHERE aw.user = '$user'
-                AND ach.Flags = " . AchievementFlags::OfficialCore . "
+                AND ach.Flags = " . AchievementFlag::OfficialCore . "
 
                 $dateCondition
                 GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)

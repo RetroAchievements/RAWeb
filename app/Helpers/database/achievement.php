@@ -2,7 +2,7 @@
 
 use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Collection;
@@ -16,7 +16,7 @@ function getAchievementsList(
     int $params,
     int $limit,
     int $offset,
-    ?int $achievementFlag = AchievementFlags::OfficialCore,
+    ?int $achievementFlag = AchievementFlag::OfficialCore,
     ?string $developer = null
 ): Collection {
     $bindings = [
@@ -172,13 +172,13 @@ function UploadNewAchievement(
         return false;
     }
 
-    if (!AchievementFlags::isValid($flag)) {
+    if (!AchievementFlag::isValid($flag)) {
         $errorOut = "Invalid achievement flag";
 
         return false;
     }
 
-    if ($flag === AchievementFlags::OfficialCore && !isValidConsoleId($consoleID)) {
+    if ($flag === AchievementFlag::OfficialCore && !isValidConsoleId($consoleID)) {
         $errorOut = "You cannot promote achievements for a game from an unsupported console (console ID: " . $consoleID . ").";
 
         return false;
@@ -257,7 +257,7 @@ function UploadNewAchievement(
         $changingBadge = ($data['BadgeName'] !== $badge);
         $changingLogic = ($data['MemAddr'] != $mem);
 
-        if ($flag === AchievementFlags::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
+        if ($flag === AchievementFlag::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
             // changing ach set detected; user is $author, permissions is $userPermissions, target set is $flag
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
@@ -269,7 +269,7 @@ function UploadNewAchievement(
             }
         }
 
-        if ($flag === AchievementFlags::Unofficial) { // If modifying unofficial
+        if ($flag === AchievementFlag::Unofficial) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
             if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] !== $author) {
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
@@ -301,7 +301,7 @@ function UploadNewAchievement(
             postActivity($author, ActivityType::EditAchievement, $idInOut);
 
             if ($changingAchSet) {
-                if ($flag === AchievementFlags::OfficialCore) {
+                if ($flag === AchievementFlag::OfficialCore) {
                     addArticleComment(
                         "Server",
                         ArticleType::Achievement,
@@ -309,7 +309,7 @@ function UploadNewAchievement(
                         "$author promoted this achievement to the Core set.",
                         $author
                     );
-                } elseif ($flag === AchievementFlags::Unofficial) {
+                } elseif ($flag === AchievementFlag::Unofficial) {
                     addArticleComment(
                         "Server",
                         ArticleType::Achievement,
@@ -353,7 +353,7 @@ function UploadNewAchievement(
                 $numUnlocks = getAchievementUnlockCount($idInOut);
                 if ($numUnlocks > 0) {
                     if ($changingAchSet) {
-                        if ($flag === AchievementFlags::OfficialCore) {
+                        if ($flag === AchievementFlag::OfficialCore) {
                             // promoted to core, restore point attribution
                             attributeDevelopmentAuthor($data['Author'], $numUnlocks, $numUnlocks * $points);
                         } else {
@@ -512,7 +512,7 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
 
     foreach ($authorCount as $author => $count) {
         $points = $authorPoints[$author];
-        if ($newFlag != AchievementFlags::OfficialCore) {
+        if ($newFlag != AchievementFlag::OfficialCore) {
             $count = -$count;
             $points = -$points;
         }

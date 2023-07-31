@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ClaimSetType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -60,7 +60,7 @@ function updateDisplayOrder(objID) {
 }
 
 /**
- * @param {3 | 5} newFlag - see AchievementFlags.php
+ * @param {3 | 5} newFlag - see AchievementFlag.php
  */
 function updateAchievementsFlag(newFlag) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
@@ -72,7 +72,7 @@ function updateAchievementsFlag(newFlag) {
         }
     }
 
-    if (!confirm(`Are you sure you want to ${(newFlag === <?= AchievementFlags::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
+    if (!confirm(`Are you sure you want to ${(newFlag === <?= AchievementFlag::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
         return;
     }
 
@@ -98,10 +98,10 @@ function updateAchievementsFlag(newFlag) {
         echo "<div id='fullcontainer'>";
     }
 
-    if ($flag === AchievementFlags::Unofficial) {
+    if ($flag === AchievementFlag::Unofficial) {
         echo "<h2>Unofficial Achievement Inspector</h2>";
     }
-    if ($flag === AchievementFlags::OfficialCore) {
+    if ($flag === AchievementFlag::OfficialCore) {
         echo "<h2>Core Achievement Inspector</h2>";
     }
 
@@ -119,21 +119,21 @@ function updateAchievementsFlag(newFlag) {
         }
 
         if ($fullModifyOK) {
-            echo "</br></br>You can " . ($flag === AchievementFlags::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
-                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlags::Unofficial ? "Promote" : "Demote") . " Selected' " .
+            echo "</br></br>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+                "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlag::Unofficial ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
 
         echo "<div style='text-align:center'><p class='embedded'><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
-        if ($flag === AchievementFlags::Unofficial) {
+        if ($flag === AchievementFlag::Unofficial) {
             if ($fullModifyOK) {
-                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlags::OfficialCore . ")'>Promote Selected</a> | ";
+                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlag::OfficialCore . ")'>Promote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
         }
-        if ($flag === AchievementFlags::OfficialCore) {
+        if ($flag === AchievementFlag::OfficialCore) {
             if ($fullModifyOK) {
-                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlags::Unofficial . ")'>Demote Selected</a> | ";
+                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlag::Unofficial . ")'>Demote Selected</a> | ";
             }
             echo "<a href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a> | ";
         }

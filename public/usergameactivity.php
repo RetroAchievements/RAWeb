@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
@@ -84,7 +84,7 @@ RenderContentStart("$user2's activity for $gameTitle");
                     echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>";
                     echo achievementAvatar($achievement);
 
-                    if ($achievement['Flags'] != AchievementFlags::OfficialCore) {
+                    if ($achievement['Flags'] != AchievementFlag::OfficialCore) {
                         echo " (Unofficial)";
                     }
 

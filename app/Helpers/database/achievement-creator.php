@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
@@ -23,7 +23,7 @@ function getUserAchievementsPerConsole(string $username): array
 
     return legacyDbFetchAll($query, [
         'author' => $username,
-        'achievementFlag' => AchievementFlags::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore,
     ])->toArray();
 }
 
@@ -44,7 +44,7 @@ function getUserSetsPerConsole(string $username): array
 
     return legacyDbFetchAll($query, [
         'author' => $username,
-        'achievementFlag' => AchievementFlags::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore,
     ])->toArray();
 }
 
@@ -66,7 +66,7 @@ function getUserAchievementInformation(string $username): array
     return legacyDbFetchAll($query, [
         'author' => $username,
         'joinUsername' => $username,
-        'achievementFlag' => AchievementFlags::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore,
     ])->toArray();
 }
 
@@ -90,7 +90,7 @@ function getOwnAchievementsObtained(string $username): array
     return legacyDbFetch($query, [
         'author' => $username,
         'username' => $username,
-        'achievementFlag' => AchievementFlags::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore,
         'sumUnlockModeSoftcore' => UnlockMode::Softcore,
         'sumUnlockModeHardcore' => UnlockMode::Hardcore,
     ]);
@@ -120,7 +120,7 @@ function getObtainersOfSpecificUser(string $username): array
     return legacyDbFetchAll($query, [
         'author' => $username,
         'username' => $username,
-        'achievementFlag' => AchievementFlags::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore,
         'sumUnlockModeSoftcore' => UnlockMode::Softcore,
         'sumUnlockModeHardcore' => UnlockMode::Hardcore,
     ])->toArray();
@@ -139,7 +139,7 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
 
     $authors = legacyDbFetchAll($query, [
         'gameId' => $gameID,
-        'achievementFlag' => AchievementFlags::OfficialCore,
+        'achievementFlag' => AchievementFlag::OfficialCore,
     ]);
 
     if ($authors->count() !== 1) {
@@ -182,7 +182,7 @@ function recalculateDeveloperContribution(string $author): void
               FROM (SELECT aw.User, ach.ID, MAX(aw.HardcoreMode) as HardcoreMode, ach.Points
                     FROM Achievements ach LEFT JOIN Awarded aw ON aw.AchievementID=ach.ID
                     WHERE ach.Author='$author' AND aw.User != '$author'
-                    AND ach.Flags=" . AchievementFlags::OfficialCore . "
+                    AND ach.Flags=" . AchievementFlag::OfficialCore . "
                     GROUP BY 1,2) AS UniqueUnlocks";
 
     $dbResult = s_mysql_query($query);

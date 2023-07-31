@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
-abstract class AchievementFlags
+abstract class AchievementFlag
 {
     public const OfficialCore = 3;
 

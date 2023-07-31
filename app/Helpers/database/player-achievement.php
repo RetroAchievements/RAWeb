@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ActivityType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
@@ -60,7 +60,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
-    if ($achievement->Flags === AchievementFlags::Unofficial) { // do not award Unofficial achievements
+    if ($achievement->Flags === AchievementFlag::Unofficial) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
 
         return $retVal;
@@ -214,7 +214,7 @@ function getAchievementUnlocksData(
     $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username, achievementFlag: AchievementFlags::OfficialCore);
+    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username, achievementFlag: AchievementFlag::OfficialCore);
 
     // Get recent winners, and their most recent activity
     $bindings = [
@@ -429,7 +429,7 @@ function getAchievementDistribution(
     int $gameID,
     int $hardcore,
     ?string $requestedBy = null,
-    int $flag = AchievementFlags::OfficialCore
+    int $flag = AchievementFlag::OfficialCore
 ): array {
     /** @var Game $game */
     $game = Game::withCount(['achievements' => fn ($query) => $query->type($flag)])

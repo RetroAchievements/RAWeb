@@ -6,7 +6,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
@@ -351,7 +351,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
     switch ($ticketVal) {
         case TicketState::Closed:
             if ($reason == TicketState::REASON_DEMOTED) {
-                updateAchievementFlag($achID, AchievementFlags::Unofficial);
+                updateAchievementFlag($achID, AchievementFlag::Unofficial);
                 addArticleComment("Server", ArticleType::Achievement, $achID, "$user demoted this achievement to Unofficial.", $user);
             }
             $comment = "Ticket closed by $user. Reason: \"$reason\".";
@@ -609,7 +609,7 @@ function gamesSortedByOpenTickets(int $count): array
         LEFT JOIN
             Console AS cons ON cons.ID = gd.ConsoleID
         WHERE
-            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementFlags::OfficialCore . "
+            tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ") AND ach.Flags = " . AchievementFlag::OfficialCore . "
         GROUP BY
             gd.ID
         ORDER BY
@@ -845,7 +845,7 @@ function getTicketsForUser(string $user): array
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = :username AND a.Flags = " . AchievementFlags::OfficialCore . "
+              WHERE a.Author = :username AND a.Flags = " . AchievementFlag::OfficialCore . "
               GROUP BY t.AchievementID, ReportState
               ORDER BY t.AchievementID";
 

@@ -5,7 +5,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
@@ -26,8 +26,8 @@ $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
-$officialFlag = AchievementFlags::OfficialCore;
-$unofficialFlag = AchievementFlags::Unofficial;
+$officialFlag = AchievementFlag::OfficialCore;
+$unofficialFlag = AchievementFlag::Unofficial;
 $flagParam = requestInputSanitized('f', $officialFlag, 'integer');
 $isOfficial = false;
 if ($flagParam !== $unofficialFlag) {

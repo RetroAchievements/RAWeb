@@ -2,7 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketState;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
@@ -50,10 +50,10 @@ function getGameMetadata(
     ?array &$gameDataOut,
     int $sortBy = 1,
     ?string $user2 = null,
-    int $flag = AchievementFlags::OfficialCore,
+    int $flag = AchievementFlag::OfficialCore,
     bool $metrics = false,
 ): int {
-    $flag = $flag !== AchievementFlags::Unofficial ? AchievementFlags::OfficialCore : AchievementFlags::Unofficial;
+    $flag = $flag !== AchievementFlag::Unofficial ? AchievementFlag::OfficialCore : AchievementFlag::Unofficial;
 
     $orderBy = match ($sortBy) {
         11 => "ORDER BY ach.DisplayOrder DESC, ach.ID DESC ",
@@ -232,10 +232,10 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
               CASE
-                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlags::OfficialCore . ") > 0 THEN 1
+                WHEN (SELECT COUNT(*) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore . ") > 0 THEN 1
                 ELSE 0
               END AS HasAchievements,
-              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlags::OfficialCore . ") AS Points,
+              (SELECT SUM(ach.Points) FROM Achievements ach WHERE ach.GameID = gd.ID AND ach.Flags = " . AchievementFlag::OfficialCore . ") AS Points,
               gd.TotalTruePoints
               FROM GameAlternatives AS ga
               LEFT JOIN GameData AS gd ON gd.ID = ga.gameIDAlt
@@ -333,7 +333,7 @@ function getGamesListByDev(
                 CASE WHEN SUM(ach.Points) > 0 THEN ROUND(gd.TotalTruePoints/SUM(ach.Points), 2) ELSE 0.00 END AS RetroRatio
                 FROM GameData AS gd
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID
-                LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = " . AchievementFlags::OfficialCore . "
+                LEFT JOIN Achievements AS ach ON gd.ID = ach.GameID AND ach.Flags = " . AchievementFlag::OfficialCore . "
                 LEFT JOIN ( SELECT lbd.GameID, COUNT( DISTINCT lbd.ID ) AS NumLBs,
                                    SUM(CASE WHEN lbd.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyLBs
                             FROM LeaderboardDef AS lbd
@@ -421,7 +421,7 @@ function getGamesListData(?int $consoleID = null, bool $officialFlag = false): a
     $whereClause = "";
     if ($officialFlag) {
         $leftJoinAch = "LEFT JOIN Achievements AS ach ON ach.GameID = gd.ID ";
-        $whereClause = "WHERE ach.Flags=" . AchievementFlags::OfficialCore . ' ';
+        $whereClause = "WHERE ach.Flags=" . AchievementFlag::OfficialCore . ' ';
     }
 
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
@@ -864,7 +864,7 @@ function getRandomGameWithAchievements(): int
         $gameID = random_int(1, $maxID);
         $query = "SELECT gd.ConsoleID, COUNT(ach.ID) AS NumAchievements
                 FROM GameData gd LEFT JOIN Achievements ach ON ach.GameID=gd.ID
-                WHERE ach.Flags = " . AchievementFlags::OfficialCore . " AND gd.ConsoleID < 100
+                WHERE ach.Flags = " . AchievementFlag::OfficialCore . " AND gd.ConsoleID < 100
                 AND gd.ID = $gameID
                 GROUP BY ach.GameID
                 HAVING NumAchievements > 0";

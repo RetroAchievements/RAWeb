@@ -11,12 +11,12 @@
  *    int        [value]   number of players who have earned that many achievements
  */
 
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 
 $gameID = (int) request()->query('i');
 $hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);
 $requestedBy = request()->query('z');
-$flag = (int) request()->query('f', (string) AchievementFlags::OfficialCore);
+$flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
 return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $flag));

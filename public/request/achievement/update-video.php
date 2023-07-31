@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
@@ -26,7 +26,7 @@ $currentVideoUrl = $achievement['AssocVideo'];
 // Only allow jr. devs to update achievement embed if they are the author and the achievement is not core/official
 if (
     $permissions == Permissions::JuniorDeveloper
-    && ($user != $achievement['Author'] || $achievement['Flags'] == AchievementFlags::OfficialCore)
+    && ($user != $achievement['Author'] || $achievement['Flags'] == AchievementFlag::OfficialCore)
 ) {
     abort(401);
 }

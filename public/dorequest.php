@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ActivityType;
-use App\Platform\Enums\AchievementFlags;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -389,7 +389,7 @@ switch ($requestType) {
             progressFmt: ' ',
             points: (int) request()->input('z', 0),
             mem: request()->input('m'),
-            flag: (int) request()->input('f', AchievementFlags::Unofficial),
+            flag: (int) request()->input('f', AchievementFlag::Unofficial),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut
