@@ -16,3 +16,6 @@ Disallow: /
 
 User-Agent: The Knowledge AI
 Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
