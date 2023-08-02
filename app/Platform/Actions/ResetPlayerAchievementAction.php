@@ -3,7 +3,7 @@
 namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Site\Models\User;
 
 class ResetPlayerAchievementAction
@@ -26,7 +26,7 @@ class ResetPlayerAchievementAction
                      WHERE aw.User = :username $clause GROUP BY aw.AchievementID
                   ) as aw_ach
                   LEFT JOIN Achievements ach ON ach.ID = aw_ach.AchievementID
-                  WHERE ach.Flags = " . AchievementType::OfficialCore . "
+                  WHERE ach.Flags = " . AchievementFlag::OfficialCore . "
                   GROUP BY ach.Author, ach.GameID, aw_ach.HardcoreMode";
 
         $affectedGames = [];

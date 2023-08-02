@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
@@ -57,7 +57,7 @@ class UpdateDeveloperContributionYield extends Command
             ->leftJoin('Achievements', 'Achievements.ID', '=', 'Awarded.AchievementID')
             ->where('Achievements.Author', '=', $username)
             ->where('Awarded.User', '!=', $username)
-            ->where('Achievements.Flags', '=', AchievementType::OfficialCore)
+            ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
             ->groupBy(['Awarded.User', 'Awarded.AchievementID'])
             ->orderBy('Awarded.Date')
             ->get();

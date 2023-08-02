@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 
 class UpdateGameWeightedPoints
 {
@@ -19,13 +19,13 @@ class UpdateGameWeightedPoints
               LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE ach.GameID = $gameId
-              AND ach.Flags = " . AchievementType::OfficialCore . "
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               GROUP BY ach.ID";
 
         $dbResult = s_mysql_query($query);
 
         if ($dbResult !== false) {
-            $numHardcoreWinners = getTotalUniquePlayers((int) $gameId, $parentGameId, null, true, AchievementType::OfficialCore);
+            $numHardcoreWinners = getTotalUniquePlayers((int) $gameId, $parentGameId, null, true, AchievementFlag::OfficialCore);
 
             if ($numHardcoreWinners == 0) { // force all unachieved to be 1
                 $numHardcoreWinners = 1;

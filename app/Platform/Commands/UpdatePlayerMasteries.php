@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -65,7 +65,7 @@ class UpdatePlayerMasteries extends Command
                 // TODO use Achievement model
                 $coreAchievementCount = DB::table('Achievements')
                     ->where('GameID', '=', $gameID)
-                    ->where('Flags', '=', AchievementType::OfficialCore)
+                    ->where('Flags', '=', AchievementFlag::OfficialCore)
                     ->count();
                 $this->gameAchievements[$gameID] = $coreAchievementCount;
             }
@@ -76,7 +76,7 @@ class UpdatePlayerMasteries extends Command
                 ->leftJoin('Achievements', 'Achievements.ID', '=', 'Awarded.AchievementID')
                 ->where('Achievements.GameID', '=', $gameID)
                 ->where('Awarded.User', '=', $username)
-                ->where('Achievements.Flags', '=', AchievementType::OfficialCore)
+                ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
                 ->groupBy(['Awarded.HardcoreMode'])
                 ->pluck('Num', 'Awarded.HardcoreMode')
                 ->toArray();

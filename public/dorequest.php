@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ActivityType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -35,12 +35,28 @@ if (!empty($token)) {
 }
 
 if (!function_exists('DoRequestError')) {
-    function DoRequestError(string $error): JsonResponse
+    function DoRequestError(string $error, ?int $status = 200, ?string $code = null): JsonResponse
     {
-        return response()->json([
+        $response = [
             'Success' => false,
             'Error' => $error,
-        ]);
+        ];
+
+        if ($code !== null) {
+            $response['Code'] = $code;
+        }
+
+        if ($status !== 200) {
+            $response['Status'] = $status;
+
+            if ($status === 401) {
+                return response()->json($response, $status)->header('WWW-Authenticate', 'Bearer');
+            }
+
+            return response()->json($response, $status);
+        }
+
+        return response()->json($response);
     }
 }
 
@@ -77,21 +93,38 @@ $credentialsOK = match ($requestType) {
 };
 
 if (!$credentialsOK) {
-    if ($permissions) {
-        return DoRequestError("Credentials invalid ($permissions)");
+    if (!$validLogin) {
+        return DoRequestError("Invalid User/Token combination.", 401, 'invalid_credentials');
     }
 
-    return DoRequestError("Credentials invalid");
+    if ($permissions < Permissions::Unregistered) { // Banned/Spam accounts
+        return DoRequestError("Access denied.", 403, 'access_denied');
+    }
+    if ($permissions === Permissions::Unregistered) {
+        return DoRequestError("Please register your account.", 403, 'access_denied');
+    }
+
+    return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
 }
 
 switch ($requestType) {
     /*
      * Login
      */
-    case "login": // From App!
-        $user = request()->input('u');
+    case "login":
+        $user = request()->input('u', '');
         $rawPass = request()->input('p');
-        $response = authenticateFromPasswordOrAppToken($user, $rawPass, $token);
+        $response = authenticateForConnect($user, $rawPass, $token);
+
+        // do not return $response['Status'] as an HTTP status code when using this
+        // endpoint. legacy clients sometimes report the HTTP status code instead of
+        // the $response['Error'] message.
+        return response()->json($response);
+
+    case "login2":
+        $user = request()->input('u', '');
+        $rawPass = request()->input('p');
+        $response = authenticateForConnect($user, $rawPass, $token);
         break;
 
     /*
@@ -244,8 +277,8 @@ switch ($requestType) {
         break;
 
     case "patch":
-        $flags = (int) request()->input('f', 0);
-        $response['PatchData'] = GetPatchData($gameID, $flags);
+        $flag = (int) request()->input('f', 0);
+        $response['PatchData'] = GetPatchData($gameID, $flag);
         if (array_key_exists('Success', $response['PatchData'])) {
             $response['Success'] = $response['PatchData']['Success']; // Passthru
             unset($response['PatchData']['Success']);
@@ -356,7 +389,7 @@ switch ($requestType) {
             progressFmt: ' ',
             points: (int) request()->input('z', 0),
             mem: request()->input('m'),
-            type: (int) request()->input('f', AchievementType::Unofficial),
+            flag: (int) request()->input('f', AchievementFlag::Unofficial),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut
@@ -388,5 +421,14 @@ switch ($requestType) {
 }
 
 $response['Success'] = (bool) $response['Success'];
+
+if (array_key_exists('Status', $response)) {
+    $status = $response['Status'];
+    if ($status === 401) {
+        return response()->json($response, $status)->header('WWW-Authenticate', 'Bearer');
+    }
+
+    return response()->json($response, $status);
+}
 
 return response()->json($response);

@@ -144,12 +144,12 @@ trait GameRequests
         abort_if($game === null, 404, 'Game with ID "' . $gameId . '" not found');
 
         // achievements
-        // $flags = seekPOSTorGET( 'f', 0, 'integer' );
+        // $flag = seekPOSTorGET( 'f', 0, 'integer' );
         // $hardcore = seekPOSTorGET( 'h', 0, 'integer' );
-        // $response[ 'PatchData' ] = GetPatchData( $gameID, $flags, $user, $hardcore );
+        // $response[ 'PatchData' ] = GetPatchData( $gameID, $flag, $user, $hardcore );
         // $flagsCond = "TRUE";
-        // if ($flags != 0) {
-        //     $flagsCond = "Flags='$flags'";
+        // if ($flag != 0) {
+        //     $flagsCond = "Flags='$flag'";
         // }
         // $query = "SELECT ID, MemAddr, Title, Description, Points, Author, UNIX_TIMESTAMP(DateModified) AS Modified, UNIX_TIMESTAMP(DateCreated) AS Created, BadgeName, Flags
         //       FROM Achievements
