@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ActivityType;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
@@ -60,7 +60,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
-    if ($achievement->Flags === AchievementType::Unofficial) { // do not award Unofficial achievements
+    if ($achievement->Flags === AchievementFlag::Unofficial) { // do not award Unofficial achievements
         $retVal['Error'] = "Unofficial achievements cannot be unlocked";
 
         return $retVal;
@@ -214,7 +214,7 @@ function getAchievementUnlocksData(
     $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username, achievementType: AchievementType::OfficialCore);
+    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username, achievementFlag: AchievementFlag::OfficialCore);
 
     // Get recent winners, and their most recent activity
     $bindings = [
@@ -429,10 +429,10 @@ function getAchievementDistribution(
     int $gameID,
     int $hardcore,
     ?string $requestedBy = null,
-    int $flags = AchievementType::OfficialCore
+    int $flag = AchievementFlag::OfficialCore
 ): array {
     /** @var Game $game */
-    $game = Game::withCount(['achievements' => fn ($query) => $query->type($flags)])
+    $game = Game::withCount(['achievements' => fn ($query) => $query->type($flag)])
         ->find($gameID);
 
     if (!$game || !$game->achievements_count) {
@@ -443,7 +443,7 @@ function getAchievementDistribution(
     $bindings = [
         'gameId' => $gameID,
         'unlockMode' => $hardcore,
-        'achievementType' => $flags,
+        'achievementFlag' => $flag,
     ];
 
     $requestedByStatement = '';
@@ -463,7 +463,7 @@ function getAchievementDistribution(
             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
             WHERE gd.ID = :gameId
               AND aw.HardcoreMode = :unlockMode
-              AND ach.Flags = :achievementType
+              AND ach.Flags = :achievementFlag
               AND (NOT ua.Untracked $requestedByStatement)
             GROUP BY aw.User
             ORDER BY AwardedCount DESC

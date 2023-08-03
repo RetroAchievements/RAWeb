@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api;
 
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
@@ -89,7 +89,7 @@ class V1Test extends TestCase
                 '3' => 0,
             ]);
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore, 'f' => AchievementType::Unofficial]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore, 'f' => AchievementFlag::Unofficial]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 1,
@@ -99,7 +99,7 @@ class V1Test extends TestCase
                 '5' => 0,
             ]);
 
-        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore, 'f' => AchievementType::Unofficial]))
+        $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore, 'f' => AchievementFlag::Unofficial]))
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
@@ -280,6 +280,15 @@ class V1Test extends TestCase
                     ],
                 ],
                 'UnlocksCount' => 1,
+            ]);
+
+        $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => 999999999]))
+            ->assertStatus(404)
+            ->assertExactJson([
+                'Achievement' => [],
+                'TotalPlayers' => 0,
+                'Unlocks' => [],
+                'UnlocksCount' => 0,
             ]);
     }
 

@@ -35,7 +35,7 @@ if (UploadNewAchievement(
     progressFmt: $achievement['ProgressFormat'],
     points: $input['points'],
     mem: $achievement['MemAddr'],
-    type: $achievement['Flags'],
+    flag: $achievement['Flags'],
     idInOut: $achievementId,
     badge: $achievement['BadgeName'],
     errorOut: $errorOut

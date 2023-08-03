@@ -5,12 +5,13 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
-use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Blade;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -25,10 +26,14 @@ $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
-$officialFlag = AchievementType::OfficialCore;
-$unofficialFlag = AchievementType::Unofficial;
-$flags = requestInputSanitized('f', $officialFlag, 'integer');
-$isOfficial = $flags !== $unofficialFlag;
+$officialFlag = AchievementFlag::OfficialCore;
+$unofficialFlag = AchievementFlag::Unofficial;
+$flagParam = requestInputSanitized('f', $officialFlag, 'integer');
+$isOfficial = false;
+if ($flagParam !== $unofficialFlag) {
+    $isOfficial = true;
+    $flagParam = $officialFlag;
+}
 
 $defaultSort = 1;
 if (isset($user)) {
@@ -40,7 +45,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flags, metrics:true);
+$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
 
 if (empty($gameData)) {
     abort(404);
@@ -184,8 +189,8 @@ if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
     $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flags);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flags);
+    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam);
+    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam);
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
@@ -780,8 +785,8 @@ sanitize_outputs(
 
             if ($isFullyFeaturedGame) {
                 echo "<div class='navpath'>";
-                echo renderGameBreadcrumb($gameData, addLinkToLastCrumb: $flags === $unofficialFlag);
-                if ($flags === $unofficialFlag) {
+                echo renderGameBreadcrumb($gameData, addLinkToLastCrumb: $flagParam === $unofficialFlag);
+                if ($flagParam === $unofficialFlag) {
                     echo " &raquo; <b>Unofficial Achievements</b>";
                 }
                 echo "</div>";
@@ -879,7 +884,7 @@ sanitize_outputs(
                     echo "<div class='lg:flex justify-between gap-5 mb-5'>";
                     echo "<div class='grow'>";
 
-                    if ($flags == $unofficialFlag) {
+                    if ($flagParam == $unofficialFlag) {
                         echo "<div><a class='btn btn-link' href='/game/$gameID" . ($v == 1 ? '?v=1' : '') . "'>View Core Achievements</a></div>";
                         echo "<div><a class='btn btn-link' href='/achievementinspector.php?g=$gameID&f=5'>Manage Unofficial Achievements</a></div>";
                     } else {
@@ -1196,7 +1201,7 @@ sanitize_outputs(
                 echo "<div class='md:float-right mb-4 md:mb-0'>";
 
                 // Only show set request option for logged in users, games without achievements, and core achievement page
-                if ($user !== null && $numAchievements == 0 && $flags == $officialFlag) {
+                if ($user !== null && $numAchievements == 0 && $flagParam == $officialFlag) {
                     echo "<div>";
                     echo "<h2 class='text-h4'>Set Requests</h2>";
                     echo "<div class='gameRequestsLabel'></div>";
@@ -1212,7 +1217,7 @@ sanitize_outputs(
 
                 echo "</div>";
 
-                if ($flags == $unofficialFlag) {
+                if ($flagParam == $unofficialFlag) {
                     echo "<h2 class='text-h4'><b>Unofficial</b> Achievements</h2>";
                     echo "<a href='/game/$gameID'><b>Click here to view the Core Achievements</b></a><br>";
                 } else {
@@ -1235,7 +1240,7 @@ sanitize_outputs(
                 }
 
                 // Display claim information
-                if ($user !== null && $flags == $officialFlag && !$isEventGame) {
+                if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
                     echo "<div>";
                     $claimExpiration = null;
                     $primaryClaim = 1;
@@ -1275,7 +1280,7 @@ sanitize_outputs(
                 echo "<div class='my-8 lg:my-4 lg:flex justify-between w-full gap-x-4'>";
 
                 echo "<div>";
-                if ($flags == $unofficialFlag) {
+                if ($flagParam == $unofficialFlag) {
                     echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 } else {
                     echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
@@ -1329,7 +1334,7 @@ sanitize_outputs(
                     }
                     echo "</div>";
 
-                    RenderGameSort($isFullyFeaturedGame, $flags, $officialFlag, $gameID, $sortBy);
+                    RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
                     echo "</div>";
                 }
 
@@ -1439,7 +1444,7 @@ sanitize_outputs(
                             }
                             echo "</div>";
                             echo "<div class='mb-2'>$achDesc</div>";
-                            if ($flags != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
+                            if ($flagParam != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
                                 echo "<div class='text-2xs'>Author: " . userAvatar($achAuthor, icon: false) . "</div>";
                             }
                             if ($achieved) {
@@ -1476,7 +1481,7 @@ sanitize_outputs(
 
             if (!$isFullyFeaturedGame) {
                 if (!empty($relatedGames)) {
-                    RenderGameSort($isFullyFeaturedGame, $flags, $officialFlag, $gameID, $sortBy);
+                    RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
                     RenderGameAlts($relatedGames);
                 }
             }
@@ -1523,8 +1528,8 @@ sanitize_outputs(
                         null,
                         $gameID
                     );
-                    if ($flags == $unofficialFlag) {
-                        echo "<li><a class='btn py-2 mb-2 block' href='/ticketmanager.php?g=$gameID&f=$flags'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
+                    if ($flagParam == $unofficialFlag) {
+                        echo "<li><a class='btn py-2 mb-2 block' href='/ticketmanager.php?g=$gameID&f=$flagParam'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
                     } else {
                         echo "<li><a class='btn py-2 mb-2 block' href='/ticketmanager.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
                     }
