@@ -430,7 +430,7 @@ function getAchievementDistribution(
     int $hardcore,
     ?string $requestedBy = null,
     int $flag = AchievementFlag::OfficialCore,
-    int $numPlayers = 0,
+    int $numPlayers = 0
 ): array {
     /** @var Game $game */
     $game = Game::withCount(['achievements' => fn ($query) => $query->type($flag)])
