@@ -188,14 +188,11 @@ function getGameMetadata(
         }
 
         $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-                FROM (
-                  SELECT aw.User, aw.HardcoreMode
                   FROM Awarded AS aw
                   LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
                   LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
                   WHERE $gameIdStatement AND ach.Flags = :achievementFlag
                   AND (NOT ua.Untracked $requestedByStatement)
-                ) AS aw
                 GROUP BY aw.HardcoreMode";
 
         $gameMetaData = legacyDbFetchAll($query, $bindings);
