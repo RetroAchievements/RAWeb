@@ -3,12 +3,91 @@
 use App\Community\Enums\ActivityType;
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+
+function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
+{
+    $totalProgressions = Achievement::where('GameID', $gameId)
+        ->where('type', AchievementType::Progression)
+        ->where('Flags', AchievementFlag::OfficialCore)
+        ->count();
+
+    $totalWinConditions = Achievement::where('GameID', $gameId)
+        ->where('type', AchievementType::WinCondition)
+        ->where('Flags', AchievementFlag::OfficialCore)
+        ->count();
+
+    // If the game has no progression-tier achievements assigned, it is not considered beatable.
+    if ($totalProgressions === 0 && $totalWinConditions === 0) {
+        return [
+            'isBeatenSoftcore' => false,
+            'isBeatenHardcore' => false,
+            'isBeatable' => false,
+        ];
+    }
+
+    $userAchievements = Achievement::where('Achievements.GameID', $gameId)
+        ->whereIn('Achievements.type', [AchievementType::Progression, AchievementType::WinCondition])
+        ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+        ->leftJoin('Awarded', function ($join) use ($user) {
+            $join->on('Achievements.ID', '=', 'Awarded.AchievementID')
+                ->where('Awarded.User', '=', $user);
+        })
+        ->select('Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID')
+        ->get();
+
+    // Create a Laravel collection and then group the collection items by generating a unique
+    // key for each item. The key is a combination of the achievement type and HardcoreMode
+    // status, separated by "|". For example, a Progression achievement accomplished in
+    // hardcore mode will have the key "Progression|1". After the groupBy, use the map
+    // method to apply the count function to each group. This approach allows us to
+    // both classify and count in a single loop with minimal conditional logic.
+    $achievements = collect($userAchievements)->groupBy(function ($item) {
+        return implode('|', [$item->type, $item->HardcoreMode]);
+    })->map->count();
+
+    $numUnlockedSoftcoreProgressions = $achievements[AchievementType::Progression . '|0'] ?? 0;
+    $numUnlockedHardcoreProgressions = $achievements[AchievementType::Progression . '|1'] ?? 0;
+    $numUnlockedSoftcoreWinConditions = $achievements[AchievementType::WinCondition . '|0'] ?? 0;
+    $numUnlockedHardcoreWinConditions = $achievements[AchievementType::WinCondition . '|1'] ?? 0;
+
+    // If there are no win condition achievements in the set, the game is considered beaten
+    // if the user unlocks all the progression achievements.
+    $neededWinConditionAchievements = $totalWinConditions >= 1 ? 1 : 0;
+
+    $isBeatenSoftcore =
+        $numUnlockedSoftcoreProgressions === $totalProgressions
+        && $numUnlockedSoftcoreWinConditions >= $neededWinConditionAchievements;
+
+    $isBeatenHardcore =
+        $numUnlockedHardcoreProgressions === $totalProgressions
+        && $numUnlockedHardcoreWinConditions >= $neededWinConditionAchievements;
+
+    if ($postBeaten && ($isBeatenSoftcore || $isBeatenHardcore)) {
+        $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
+
+        if (!HasSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode)) {
+            AddSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode);
+        }
+
+        if (!RecentlyPostedProgressionActivity($user, $gameId, $awardMode, ActivityType::BeatGame)) {
+            postActivity($user, ActivityType::BeatGame, $gameId, $awardMode);
+        }
+    }
+
+    return [
+        'isBeatenSoftcore' => $isBeatenSoftcore,
+        'isBeatenHardcore' => $isBeatenHardcore,
+        'isBeatable' => true,
+    ];
+}
 
 function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, bool $postMastery): array
 {
@@ -43,7 +122,7 @@ function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, boo
                 AddSiteAward($user, AwardType::Mastery, $gameID, $awardBadge);
             }
 
-            if (!RecentlyPostedCompletionActivity($user, $gameID, $awardBadge)) {
+            if (!RecentlyPostedProgressionActivity($user, $gameID, $awardBadge, ActivityType::CompleteGame)) {
                 postActivity($user, ActivityType::CompleteGame, $gameID, $awardBadge);
             }
 

@@ -39,11 +39,11 @@ function updateActivity(int $activityID): void
     legacyDbStatement($query);
 }
 
-function RecentlyPostedCompletionActivity(string $user, int $gameID, int $isHardcore): bool
+function RecentlyPostedProgressionActivity(string $user, int $gameId, int $isHardcore, int $activityType): bool
 {
     $activity = UserActivityLegacy::where('User', $user)
-        ->where('activitytype', ActivityType::CompleteGame)
-        ->where('data', $gameID)
+        ->where('activitytype', $activityType)
+        ->where('data', $gameId)
         ->where('data2', $isHardcore)
         ->where('lastupdate', '>=', Carbon::now()->subHours(1))
         ->first();
