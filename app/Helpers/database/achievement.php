@@ -5,7 +5,9 @@ use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -536,15 +538,9 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
 
 function updateAchievementType(int|string|array $achID, string $newType): bool
 {
-    $achievementIds = is_array($achID) ? implode(', ', $achID) : $achID;
+    $achievementIds = is_array($achID) ? $achID : [$achID];
 
-    $query = <<<SQL
-        UPDATE Achievements
-        SET type = :newType, Updated=NOW()
-        WHERE ID IN (:achievementIds)
-    SQL;
-
-    legacyDbFetch($query, ['newType' => $newType, 'achievementIds' => $achievementIds]);
+    Achievement::whereIn('ID', $achievementIds)->update(['type' => $newType, 'Updated' => Carbon::now()]);
 
     return true;
 }
