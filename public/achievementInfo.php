@@ -297,7 +297,7 @@ RenderContentStart($pageTitle);
                 echo "</select>";
                 echo "</td></tr>";
 
-                echo "<tr><td>Type:</td><td>";
+                echo "<tr><td class='cursor-help' title='A game is considered beaten if ALL Progression achievements are unlocked and ANY Win Condition achievements are unlocked.'>Type:<sup>*</sup></td><td>";
                 echo "<select id='typeinput' name='k'>";
                 echo "<option value=''>None</option>";
                 foreach (AchievementType::cases() as $typeOption) {

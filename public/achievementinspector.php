@@ -144,18 +144,34 @@ function updateAchievementsProperty(property, newValue) {
             echo "<br><br>";
         }
 
+        echo "<div class='grid gap-y-4 mb-8'>";
         if ($partialModifyOK || $fullModifyOK) {
-            echo "<p align='justify'><b>Instructions:</b> This is the game's achievement list as displayed on the website or in the emulator. " .
-                "The achievements will be ordered by 'Display Order', the column found on the right, in order from smallest to greatest. " .
-                "Adjust the numbers on the right to set an order for them to appear in. Any changes you make on this page will instantly " .
-                "take effect on the website, but you will need to press 'Refresh List' to see the new order on this page.";
+            echo <<<HTML
+                <p align="justify">
+                    <span class="font-bold">Instructions:</span> This is the game's achievement list as displayed on the website
+                    or in the emulator. The achievements will be ordered by 'Display Order', the column found on the right, in
+                    order from smallest to greatest. Adjust the numbers on the right to set an order for them to appear in. Any
+                    changes you make on this page will instantly take effect on the website, but you will need to press 'Refresh List'
+                    to see the new order on this page.
+                </p>
+
+                <p align="justify">
+                    You can mark multiple achievements as 'Progression' or 'Win Condition'. To do this, check the desired
+                    checkboxes in the far-left column and click either the 'Set Selected as Progression' or 'Set Selected as Win Condition'
+                    button, depending on your needs. A game is considered 'beaten' when all Progression achievements and at least
+                    one Win Condition achievement are unlocked. If there are no Win Condition achievements, the game is beaten
+                    if all Progression achievements are unlocked. If there are no Progression achievements, the game is beaten
+                    if any Win Condition achievements are unlocked.
+                </p>
+            HTML;
         }
 
         if ($fullModifyOK) {
-            echo "</br></br>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
+            echo "<p>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
                 "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlag::Unofficial ? "Promote" : "Demote") . " Selected' " .
-                "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
+                "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p>";
         }
+        echo "</div>";
 
         echo "Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a><br/>";
 
@@ -269,23 +285,26 @@ function updateAchievementsProperty(property, newValue) {
         echo "<div class='mb-2'>";
         echo "<h3>Toolbox</h3>";
         echo "<div class='flex flex-col gap-y-1'>";
-        echo "<a class='btn flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a>";
+        
+        if ($fullModifyOK || $partialModifyOK) {
+            echo "<a class='btn flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a>";
 
-        if ($flag === AchievementFlag::Unofficial) {
-            if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::OfficialCore . ")'>Promote Selected</a>";
+            if ($flag === AchievementFlag::Unofficial) {
+                if ($fullModifyOK) {
+                    echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::OfficialCore . ")'>Promote Selected</a>";
+                }
+                echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a>";
             }
-            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a>";
-        }
-        if ($flag === AchievementFlag::OfficialCore) {
-            if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::Unofficial . ")'>Demote Selected</a>";
+            if ($flag === AchievementFlag::OfficialCore) {
+                if ($fullModifyOK) {
+                    echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::Unofficial . ")'>Demote Selected</a>";
+                }
+                echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
             }
-            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
+    
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
         }
-
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
 
         echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php'>Back to List</a></p></div><br>";
 
