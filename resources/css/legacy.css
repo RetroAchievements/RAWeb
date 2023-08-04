@@ -18,6 +18,10 @@
   grid-column: span 2;
 }
 
+#mainpage > .both, #fullcontainer {
+  grid-column: span 2;
+}
+
 #fullcontainer, article {
   padding: 15px 20px;
   margin-bottom: 10px;
