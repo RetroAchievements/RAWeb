@@ -30,8 +30,8 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
             return $item->total;
         });
 
-    $totalProgressions = $gameTierAchievementCounts[AchievementType::Progression] ?? 0;
-    $totalWinConditions = $gameTierAchievementCounts[AchievementType::WinCondition] ?? 0;
+    $totalProgressions = (int)($gameTierAchievementCounts[AchievementType::Progression] ?? 0);
+    $totalWinConditions = (int)($gameTierAchievementCounts[AchievementType::WinCondition] ?? 0);
 
     // If the game has no beaten-tier achievements assigned, it is not considered beatable.
     // Bail.
