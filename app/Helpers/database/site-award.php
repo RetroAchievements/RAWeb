@@ -37,6 +37,14 @@ function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra =
     return isset($dbData['AwardDate']);
 }
 
+function HasBeatenSiteAwards(string $username, int $gameId): bool
+{
+    return PlayerBadge::where('User', $username)
+        ->where('AwardType', AwardType::GameBeaten)
+        ->where('AwardData', $gameId)
+        ->count() > 0;
+}
+
 function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): array
 {
     $query = "SELECT u.User, u.EmailAddress FROM SiteAwards saw

@@ -297,4 +297,80 @@ class BeatenGameTest extends TestCase
             ->first()
         );
     }
+
+    public function testBeatenAwardRevocation(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        $progressionAchievements = Achievement::factory()->published()->progression()->count(5)->create(['GameID' => $game->ID]);
+        $winConditionAchievement = Achievement::factory()->published()->winCondition()->create(['GameID' => $game->ID]);
+
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(0), Carbon::now());
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(1), Carbon::now());
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(2), Carbon::now());
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(3), Carbon::now());
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
+        $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now());
+
+        testBeatenGame($game->ID, $user->User, true);
+
+        // Act
+        Achievement::factory()->published()->progression()->create(['GameID' => $game->ID]);
+        testBeatenGame($game->ID, $user->User, true);
+
+        // Assert
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 0);
+    }
+
+    public function testBeatenAwardRevocation2(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        $progressionAchievements = Achievement::factory()->published()->progression()->count(5)->create(['GameID' => $game->ID]);
+        $winConditionAchievement = Achievement::factory()->published()->winCondition()->create(['GameID' => $game->ID]);
+
+        // First, the user will get a softcore beaten award.
+        $this->addSoftcoreUnlock($user, $progressionAchievements->get(0), Carbon::now());
+        $this->addSoftcoreUnlock($user, $progressionAchievements->get(1), Carbon::now());
+        $this->addSoftcoreUnlock($user, $progressionAchievements->get(2), Carbon::now());
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(3), Carbon::now());
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
+        $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now());
+
+        testBeatenGame($game->ID, $user->User, true);
+
+        // Now they'll upgrade it to hardcore by unlocking the remaining achievements in hardcore.
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(0), Carbon::now()->addMinutes(5));
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(1), Carbon::now()->addMinutes(5));
+        $this->addHardcoreUnlock($user, $progressionAchievements->get(2), Carbon::now()->addMinutes(5));
+
+        testBeatenGame($game->ID, $user->User, true);
+
+        // A new achievement gets added and marked as Progression.
+        /** @var Achievement $newAchievement */
+        $newAchievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID]);
+        testBeatenGame($game->ID, $user->User, true);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 0);
+
+        // The user unlocks it in softcore.
+        $this->addSoftcoreUnlock($user, $newAchievement, Carbon::now());
+        testBeatenGame($game->ID, $user->User, true);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+
+        // The user unlocks it in hardcore.
+        $this->addHardcoreUnlock($user, $newAchievement, Carbon::now());
+        testBeatenGame($game->ID, $user->User, true);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 2);
+    }
 }

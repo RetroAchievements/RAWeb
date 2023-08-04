@@ -6,6 +6,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
+use App\Platform\Models\PlayerBadge;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
@@ -70,7 +71,29 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         $numUnlockedHardcoreProgressions === $totalProgressions
         && $numUnlockedHardcoreWinConditions >= $neededWinConditionAchievements;
 
-    if ($postBeaten && ($isBeatenSoftcore || $isBeatenHardcore)) {
+    $isBeaten = $isBeatenSoftcore || $isBeatenHardcore;
+
+    // Revoke awards that no longer satisfy the game's "beaten" criteria.
+    $alreadyHasBeatenAwards = HasBeatenSiteAwards($user, $gameId);
+    if ($alreadyHasBeatenAwards && !$isBeaten) {
+        if (!$isBeatenSoftcore) {
+            PlayerBadge::where('User', $user)
+                ->where('AwardType', AwardType::GameBeaten)
+                ->where('AwardData', $gameId)
+                ->where('AwardDataExtra', UnlockMode::Softcore)
+                ->delete();
+        }
+
+        if (!$isBeatenHardcore) {
+            PlayerBadge::where('User', $user)
+                ->where('AwardType', AwardType::GameBeaten)
+                ->where('AwardData', $gameId)
+                ->where('AwardDataExtra', UnlockMode::Hardcore)
+                ->delete();
+        }
+    }
+
+    if ($postBeaten && $isBeaten) {
         $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
 
         if (!HasSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode)) {
