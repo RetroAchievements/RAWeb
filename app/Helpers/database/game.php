@@ -114,7 +114,8 @@ function getGameMetadata(
         ach.DateCreated,
         ach.BadgeName,
         ach.DisplayOrder,
-        ach.MemAddr
+        ach.MemAddr,
+        ach.type
     FROM Achievements AS ach
     $metricsJoin
     WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag

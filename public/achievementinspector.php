@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ClaimSetType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
@@ -60,30 +61,62 @@ function updateDisplayOrder(objID) {
 }
 
 /**
- * @param {3 | 5} newFlag - see AchievementFlag.php
+ * @param {'flag' | 'type'} property
+ * @param {3 | 5 | 'Progression' | 'Win Condition'} newValue
+ * @param {number} selectedCount
  */
-function updateAchievementsFlag(newFlag) {
-    // Creates an array of checked achievement IDs and sends it to the updateAchievements function
-    var checkboxes = document.querySelectorAll('[name^=\'achievement\']');
-    var achievements = [];
-    for (var i = 0, n = checkboxes.length; i < n; i++) {
-        if (checkboxes[i].checked) {
-            achievements.push(checkboxes[i].getAttribute('value'));
+function getConfirmMessage(property, newValue, selectedCount) {
+    let message = 'Are you sure you want to make this change?';
+
+    if (property === 'flag') {
+        if (newValue === <?= AchievementFlag::OfficialCore ?>) {
+            message = `Are you sure you want to promote ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
+        } else {
+            message = `Are you sure you want to demote ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
         }
     }
 
-    if (!confirm(`Are you sure you want to ${(newFlag === <?= AchievementFlag::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
-        return;
+    if (property === 'type') {
+        if (newValue === '<?= AchievementType::Progression ?>') {
+            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to Progression?`;
+        } else if (newValue === '<?= AchievementType::WinCondition ?>') {
+            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to Win Condition?`;
+        }
+    }
+
+    return message;
+}
+
+/**
+ * @param {'flag' | 'type'} property
+ * @param {3 | 5 | 'Progression' | 'Win Condition'} newValue
+ */
+function updateAchievementsProperty(property, newValue) {
+    // Creates an array of checked achievement IDs and sends it to the updateAchievements function
+    const checkboxes = document.querySelectorAll('[name^=\'achievement\']');
+    const achievements = [];
+    for (let i = 0, n = checkboxes.length; i < n; i += 1) {
+        if (checkboxes[i].checked) {
+            achievements.push(checkboxes[i].getAttribute('value'));
+        }
     }
 
     if (achievements.length === 0) {
         return;
     }
 
+    if (!confirm(getConfirmMessage(property, newValue, achievements.length))) {
+        return;
+    }
+
     showStatusMessage('Updating...');
-    $.post('/request/achievement/update-flag.php', {
-        achievements: achievements,
-        flag: newFlag,
+
+    const requestUrl = property === 'flag' 
+        ? '/request/achievement/update-flag.php'
+        : '/request/achievement/update-type.php';
+    $.post(requestUrl, {
+        achievements,
+        [property]: newValue
     })
         .done(function () {
             location.reload();
@@ -124,21 +157,6 @@ function updateAchievementsFlag(newFlag) {
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p><br>";
         }
 
-        echo "<div style='text-align:center'><p class='embedded'><a href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a> | ";
-        if ($flag === AchievementFlag::Unofficial) {
-            if ($fullModifyOK) {
-                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlag::OfficialCore . ")'>Promote Selected</a> | ";
-            }
-            echo "<a href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a> | ";
-        }
-        if ($flag === AchievementFlag::OfficialCore) {
-            if ($fullModifyOK) {
-                echo "<a class='cursor-pointer' onclick='updateAchievementsFlag(" . AchievementFlag::Unofficial . ")'>Demote Selected</a> | ";
-            }
-            echo "<a href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a> | ";
-        }
-        echo "<a href='/achievementinspector.php'>Back to List</a></p></div><br>";
-
         echo "Select <a onClick='toggle(true)'>All</a> | <a onClick='toggle(false)'>None</a><br/>";
 
         echo "<table class='table-highlight'><tbody>";
@@ -151,14 +169,21 @@ function updateAchievementsFlag(newFlag) {
         echo "<th>Display Order</th>";
         echo "</tr>";
 
+        $bgColorClassNames = ["!bg-box-bg", "!bg-embed"];
+        $currentBgColorIndex = 1;
+
         // Display all achievements
         foreach ((array) $achievementData as $achievementEntry) {
+            // Alternate the background color of the achievement rows.
+            $currentBgColorIndex = $currentBgColorIndex === 1 ? 0 : 1;
+
             $achID = $achievementEntry['ID'];
             // $gameConsoleID = $achievementEntry['ConsoleID'];
             $achTitle = $achievementEntry['Title'];
             $achDesc = $achievementEntry['Description'];
             $achMemAddr = htmlspecialchars($achievementEntry['MemAddr']);
             $achPoints = $achievementEntry['Points'];
+            $achType = $achievementEntry['type'] ?? "none";
 
             // $achCreated = $achievementEntry['DateCreated'];
             // $achModified = $achievementEntry['DateModified'];
@@ -171,7 +196,7 @@ function updateAchievementsFlag(newFlag) {
 
             sanitize_outputs($achTitle, $achDesc);
 
-            echo "<tr>";
+            echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
             if ($fullModifyOK) {
                 echo "<td><span style='white-space: nowrap'><input type='checkbox' name='achievement" . $achID . "' value='" . $achID . "'> <label for='achievement'>$achID</label></span></td>";
             } else {
@@ -186,11 +211,20 @@ function updateAchievementsFlag(newFlag) {
             } else {
                 echo "<td>$achDisplayOrder</td>";
             }    // Just remove the input
-
             echo "</tr>";
-            echo "<tr class='do-not-highlight'>";
+
+            $typeLabelClassNames = $achType === "none" ? "text-muted" : "";
+
+            echo <<<HTML
+                <tr class="$bgColorClassNames[$currentBgColorIndex]">
+                    <td><span class="font-bold">Type:</span></td>
+                    <td colspan="7" class="p-2.5 $typeLabelClassNames">$achType</td>
+                </tr>
+            HTML;
+
+            echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
             echo "<td><b>Code:</b></td>";
-            echo "<td colspan='7' style='padding: 10px; word-break:break-all;'>";
+            echo "<td colspan='7' class='p-2.5' style='word-break:break-all;'>";
             echo "<code style='word-break:break-all;'>$achMemAddr</code>";
             echo "</td>";
             echo "</tr>";
@@ -230,10 +264,37 @@ function updateAchievementsFlag(newFlag) {
     }
     echo "</div>";
 
-    if (!empty($codeNotes)) {
+    if ($gameIDSpecified) {
         echo "<div id='rightcontainer'>";
-        echo "<h3>Code Notes</h3>";
-        RenderCodeNotes($codeNotes);
+        echo "<div class='mb-2'>";
+        echo "<h3>Toolbox</h3>";
+        echo "<div class='flex flex-col gap-y-1'>";
+        echo "<a class='btn flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a>";
+
+        if ($flag === AchievementFlag::Unofficial) {
+            if ($fullModifyOK) {
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::OfficialCore . ")'>Promote Selected</a>";
+            }
+            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a>";
+        }
+        if ($flag === AchievementFlag::OfficialCore) {
+            if ($fullModifyOK) {
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::Unofficial . ")'>Demote Selected</a>";
+            }
+            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
+        }
+
+        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
+        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
+
+        echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php'>Back to List</a></p></div><br>";
+
+        echo "</div>";
+
+        if (!empty($codeNotes)) {
+            echo "<h3>Code Notes</h3>";
+            RenderCodeNotes($codeNotes);
+        }
         echo "</div>";
     }
     ?>

@@ -533,3 +533,18 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
 
     return true;
 }
+
+function updateAchievementType(int|string|array $achID, string $newType): bool
+{
+    $achievementIds = is_array($achID) ? implode(', ', $achID) : $achID;
+
+    $query = <<<SQL
+        UPDATE Achievements
+        SET type = :newType, Updated=NOW()
+        WHERE ID IN (:achievementIds)
+    SQL;
+
+    legacyDbFetch($query, ['newType' => $newType, 'achievementIds' => $achievementIds]);
+
+    return true;
+}
