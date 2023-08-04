@@ -447,61 +447,6 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
 /**
  * Gets the achievement distribution to display on the game page.
  */
-// function getAchievementDistribution(
-//     int $gameID,
-//     int $hardcore,
-//     ?string $requestedBy = null,
-//     int $flag = AchievementFlag::OfficialCore
-// ): array {
-//     /** @var Game $game */
-//     $game = Game::withCount(['achievements' => fn ($query) => $query->flag($flag)])
-//         ->find($gameID);
-
-//     if (!$game || !$game->achievements_count) {
-//         // NOTE this will return an empty array instead of an empty object. keep it like this for backwards compatibility.
-//         return [];
-//     }
-
-//     $bindings = [
-//         'gameId' => $gameID,
-//         'unlockMode' => $hardcore,
-//         'achievementFlag' => $flag,
-//     ];
-
-//     $requestedByStatement = '';
-//     if ($requestedBy) {
-//         $bindings['requestedBy'] = $requestedBy;
-//         $requestedByStatement = 'OR ua.User = :requestedBy';
-//     }
-
-//     // Returns an array of the number of players who have achieved each total, up to the max.
-//     $query = "
-//         SELECT InnerTable.AwardedCount, COUNT(*) AS NumUniquePlayers
-//         FROM (
-//             SELECT COUNT(*) AS AwardedCount
-//             FROM Awarded AS aw
-//             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-//             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-//             LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-//             WHERE gd.ID = :gameId
-//               AND aw.HardcoreMode = :unlockMode
-//               AND ach.Flags = :achievementFlag
-//               AND (NOT ua.Untracked $requestedByStatement)
-//             GROUP BY aw.User
-//             ORDER BY AwardedCount DESC
-//         ) AS InnerTable
-//         GROUP BY InnerTable.AwardedCount";
-
-//     $data = legacyDbFetchAll($query, $bindings)
-//         ->mapWithKeys(fn ($distribution) => [(int) $distribution['AwardedCount'] => (int) $distribution['NumUniquePlayers']]);
-
-//     return collect()->range(1, $game->achievements_count)
-//         ->flip()
-//         ->map(fn ($value, $index) => $data->get($index, 0))
-//         ->sortKeys()
-//         ->toArray();
-// }
-
 function getAchievementDistribution(
     int $gameID,
     int $hardcore,
@@ -531,17 +476,21 @@ function getAchievementDistribution(
 
     // Returns an array of the number of players who have achieved each total, up to the max.
     $query = "
-        SELECT COUNT(*) AS NumUniquePlayers, AwardedCount
+        SELECT InnerTable.AwardedCount, COUNT(*) AS NumUniquePlayers
         FROM (
-            SELECT aw.User, COUNT(*) AS AwardedCount
+            SELECT COUNT(*) AS AwardedCount
             FROM Awarded AS aw
-            INNER JOIN Achievements AS ach ON ach.ID = aw.AchievementID AND ach.Flags = :achievementFlag
-            INNER JOIN GameData AS gd ON gd.ID = ach.GameID AND gd.ID = :gameId
-            INNER JOIN UserAccounts AS ua ON ua.User = aw.User AND (ua.Untracked = 0 $requestedByStatement)
-            WHERE aw.HardcoreMode = :unlockMode
+            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+            WHERE gd.ID = :gameId
+              AND aw.HardcoreMode = :unlockMode
+              AND ach.Flags = :achievementFlag
+              AND (NOT ua.Untracked $requestedByStatement)
             GROUP BY aw.User
+            ORDER BY AwardedCount DESC
         ) AS InnerTable
-        GROUP BY AwardedCount";
+        GROUP BY InnerTable.AwardedCount";
 
     $data = legacyDbFetchAll($query, $bindings)
         ->mapWithKeys(fn ($distribution) => [(int) $distribution['AwardedCount'] => (int) $distribution['NumUniquePlayers']]);
