@@ -429,7 +429,8 @@ function getAchievementDistribution(
     int $gameID,
     int $hardcore,
     ?string $requestedBy = null,
-    int $flag = AchievementFlag::OfficialCore
+    int $flag = AchievementFlag::OfficialCore,
+    int $numPlayers = 0
 ): array {
     /** @var Game $game */
     $game = Game::withCount(['achievements' => fn ($query) => $query->type($flag)])
@@ -446,10 +447,16 @@ function getAchievementDistribution(
         'achievementFlag' => $flag,
     ];
 
+    // if a game has more than 100 players, don't filter out the untracked users as the
+    // join becomes very expensive. will be addressed when denormalized data is captured
     $requestedByStatement = '';
-    if ($requestedBy) {
-        $bindings['requestedBy'] = $requestedBy;
-        $requestedByStatement = 'OR ua.User = :requestedBy';
+    if ($numPlayers < 100) {
+        $requestedByStatement = 'AND (NOT ua.Untracked';
+        if ($requestedBy) {
+            $bindings['requestedBy'] = $requestedBy;
+            $requestedByStatement .= ' OR ua.User = :requestedBy';
+        }
+        $requestedByStatement .= ')';
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
@@ -464,7 +471,7 @@ function getAchievementDistribution(
             WHERE gd.ID = :gameId
               AND aw.HardcoreMode = :unlockMode
               AND ach.Flags = :achievementFlag
-              AND (NOT ua.Untracked $requestedByStatement)
+              $requestedByStatement
             GROUP BY aw.User
             ORDER BY AwardedCount DESC
         ) AS InnerTable
