@@ -285,7 +285,7 @@ function updateAchievementsProperty(property, newValue) {
         echo "<div class='mb-2'>";
         echo "<h3>Toolbox</h3>";
         echo "<div class='flex flex-col gap-y-1'>";
-        
+
         if ($fullModifyOK || $partialModifyOK) {
             echo "<a class='btn flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a>";
 
@@ -301,7 +301,7 @@ function updateAchievementsProperty(property, newValue) {
                 }
                 echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
             }
-    
+
             echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
             echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
         }
