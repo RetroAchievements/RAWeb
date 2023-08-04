@@ -25,6 +25,14 @@ function AddSiteAward(string $user, int $awardType, ?int $data = null, int $data
     $badge->save();
 }
 
+function HasBeatenSiteAwards(string $username, int $gameId): bool
+{
+    return PlayerBadge::where('User', $username)
+        ->where('AwardType', AwardType::GameBeaten)
+        ->where('AwardData', $gameId)
+        ->count() > 0;
+}
+
 function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra = null): bool
 {
     $query = "SELECT AwardDate FROM SiteAwards WHERE User=:user AND AwardType=$awardType AND AwardData=$data";
@@ -35,14 +43,6 @@ function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra =
     $dbData = legacyDbFetch($query, ['user' => $user]);
 
     return isset($dbData['AwardDate']);
-}
-
-function HasBeatenSiteAwards(string $username, int $gameId): bool
-{
-    return PlayerBadge::where('User', $username)
-        ->where('AwardType', AwardType::GameBeaten)
-        ->where('AwardData', $gameId)
-        ->count() > 0;
 }
 
 function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): array

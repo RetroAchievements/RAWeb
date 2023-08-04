@@ -12,20 +12,29 @@ use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
 {
-    $totalProgressions = Achievement::where('GameID', $gameId)
-        ->where('type', AchievementType::Progression)
+    // First, get the count of beaten-tier achievements for the game.
+    // We'll use this to determine if the game is even beatable, and later
+    // use it to determine if the user has in fact beaten the game.
+    $gameTierAchievementCounts = Achievement::where('GameID', $gameId)
+        ->whereIn('type', [AchievementType::Progression, AchievementType::WinCondition])
         ->where('Flags', AchievementFlag::OfficialCore)
-        ->count();
+        ->select('type', DB::raw('count(*) as total'))
+        ->groupBy('type')
+        ->get()
+        ->keyBy('type')
+        ->transform(function ($item) {
+            return $item->total;
+        });
 
-    $totalWinConditions = Achievement::where('GameID', $gameId)
-        ->where('type', AchievementType::WinCondition)
-        ->where('Flags', AchievementFlag::OfficialCore)
-        ->count();
+    $totalProgressions = $gameTierAchievementCounts[AchievementType::Progression] ?? 0;
+    $totalWinConditions = $gameTierAchievementCounts[AchievementType::WinCondition] ?? 0;
 
-    // If the game has no progression-tier achievements assigned, it is not considered beatable.
+    // If the game has no beaten-tier achievements assigned, it is not considered beatable.
+    // Bail.
     if ($totalProgressions === 0 && $totalWinConditions === 0) {
         return [
             'isBeatenSoftcore' => false,
@@ -34,6 +43,8 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         ];
     }
 
+    // We can now start checking if the user has beaten the game.
+    // Start by querying for their unlocked beaten-tier achievements.
     $userAchievements = Achievement::where('Achievements.GameID', $gameId)
         ->whereIn('Achievements.type', [AchievementType::Progression, AchievementType::WinCondition])
         ->where('Achievements.Flags', AchievementFlag::OfficialCore)
@@ -59,7 +70,7 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
     $numUnlockedSoftcoreWinConditions = $achievements[AchievementType::WinCondition . '|0'] ?? 0;
     $numUnlockedHardcoreWinConditions = $achievements[AchievementType::WinCondition . '|1'] ?? 0;
 
-    // If there are no win condition achievements in the set, the game is considered beaten
+    // If there are no Win Condition achievements in the set, the game is considered beaten
     // if the user unlocks all the progression achievements.
     $neededWinConditionAchievements = $totalWinConditions >= 1 ? 1 : 0;
 
@@ -73,7 +84,9 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
 
     $isBeaten = $isBeatenSoftcore || $isBeatenHardcore;
 
-    // Revoke awards that no longer satisfy the game's "beaten" criteria.
+    // Revoke pre-existing awards that no longer satisfy the game's "beaten" criteria.
+    // If the platform changes the definition of beating a game and the user no
+    // longer satisfies the criteria, they should not have the award anymore.
     $alreadyHasBeatenAwards = HasBeatenSiteAwards($user, $gameId);
     if ($alreadyHasBeatenAwards && !$isBeaten) {
         if (!$isBeatenSoftcore) {
@@ -93,6 +106,7 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         }
     }
 
+    // The user has beaten the game, give them an award.
     if ($postBeaten && $isBeaten) {
         $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
 
