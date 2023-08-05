@@ -4,8 +4,14 @@ use App\Community\Enums\AwardType;
 use App\Platform\Models\PlayerBadge;
 use Carbon\Carbon;
 
-function AddSiteAward(string $user, int $awardType, ?int $data = null, int $dataExtra = 0, ?int $displayOrder = null): void
-{
+function AddSiteAward(
+    string $user,
+    int $awardType,
+    ?int $data = null,
+    int $dataExtra = 0,
+    ?Carbon $awardDate = null,
+    ?int $displayOrder = null,
+): void {
     if (!isset($displayOrder)) {
         $displayOrder = 0;
         $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
@@ -15,7 +21,7 @@ function AddSiteAward(string $user, int $awardType, ?int $data = null, int $data
         }
     }
 
-    $badge = PlayerBadge::firstOrNew([
+    $award = PlayerBadge::firstOrNew([
         'User' => $user,
         'AwardType' => $awardType,
         'AwardData' => $data,
@@ -23,8 +29,9 @@ function AddSiteAward(string $user, int $awardType, ?int $data = null, int $data
     ], [
         'DisplayOrder' => $displayOrder,
     ]);
-    $badge->AwardDate = Carbon::now();
-    $badge->save();
+
+    $award->AwardDate = $awardDate ?? Carbon::now();
+    $award->save();
 }
 
 function HasBeatenSiteAwards(string $username, int $gameId): bool

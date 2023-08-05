@@ -52,7 +52,8 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
             $join->on('Achievements.ID', '=', 'Awarded.AchievementID')
                 ->where('Awarded.User', '=', $user);
         })
-        ->select('Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID')
+        ->select('Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID', 'Awarded.Date')
+        ->orderByDesc('Awarded.Date')
         ->get();
 
     // Create a Laravel collection and then group the collection items by generating a unique
@@ -111,7 +112,14 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
 
         if (!HasSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode)) {
-            AddSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode, displayOrder: 0);
+            AddSiteAward(
+                $user,
+                AwardType::GameBeaten,
+                $gameId,
+                $awardMode,
+                awardDate: Carbon::parse($userAchievements->first()->Date),
+                displayOrder: 0
+            );
         }
 
         if (!RecentlyPostedProgressionActivity($user, $gameId, $awardMode, ActivityType::BeatGame)) {
