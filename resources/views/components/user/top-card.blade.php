@@ -7,6 +7,38 @@ use App\Site\Models\User;
 
 /** @var ?User $user */
 $user = request()->user();
+
+// TODO: Migrate all of this out of the component file.
+$mailboxIconSrc = null;
+if ($user) {
+    $mailboxIconSrc = $user->UnreadMessageCount 
+        ? asset('assets/images/icon/mail-unread.png') 
+        : asset('assets/images/icon/mail.png');
+
+    $ticketLinks = collect();
+    if ($user->Permissions >= Permissions::JuniorDeveloper) {
+        $openTicketsData = countOpenTicketsByDev($user->User);
+        $ticketLinks->push([
+            'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest),
+            'count' => $openTicketsData[TicketState::Open],
+            'class' => 'text-danger',
+            'title' => 'Tickets for you to resolve',
+        ]);
+        $ticketLinks->push([
+            'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+            'count' => $openTicketsData[TicketState::Request],
+            'title' => 'Tickets pending feedback',
+        ]);
+    }
+
+    $ticketLinks->push([
+        'link' => '/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+        'count' => countRequestTicketsByUser($user->User),
+        'title' => 'Tickets awaiting your feedback',
+    ]);
+
+    $ticketLinks = $ticketLinks->filter(fn ($ticketLink) => $ticketLink['count'] > 0);
+}
 ?>
 <div class="bg-embedded rounded lg:my-4 p-[1.125rem]">
     @guest
@@ -33,54 +65,40 @@ $user = request()->user();
     @auth
         <div class="flex justify-between items-start gap-2">
             <a class="order-2" href="{{ $user->canonicalUrl }}">
-                <img class="userpic" src="{{ $user->avatarUrl }}" alt="Profile Picture" width="64" height="64">
+                <img class="userpic rounded-sm" src="{{ $user->avatarUrl }}" alt="Profile Picture" width="64" height="64">
             </a>
             <div class="grow flex flex-col justify-between">
                 <div>
                     <strong><a href="{{ $user->canonicalUrl }}">{{ $user->User }}</a></strong>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-2 mb-0.5">
                     @if ($user->RAPoints)
-                        <span>({{ $user->RAPoints }})</span>
-                        <span class="TrueRatio">({{ $user->TrueRAPoints }})</span>
+                        <span>
+                            ({{ localized_number($user->RAPoints) }})
+                        </span>
+                        
+                        <x-points-weighted-container>
+                            ({{ localized_number($user->TrueRAPoints) }})
+                        </x-points-weighted-container>
                     @endif
                     @if ($user->RASoftcorePoints)
-                        <span class="softcore">({{ $user->RASoftcorePoints }} softcore)</span>
+                        <span class="softcore cursor-help" title="Softcore Points">({{ localized_number($user->RASoftcorePoints) }})</span>
                     @endif
                 </div>
                 <div class="flex gap-5 items-center">
-                    <a href="/inbox.php">
-                        <img class="mr-1" id="mailboxicon" alt="Mailbox Icon" src="{{ $user->UnreadMessageCount ? asset('assets/images/icon/mail-unread.png') : asset('assets/images/icon/mail.png') }}">
+                    <a href="/inbox.php" class="flex items-center gap-x-1" title="Unread messages: {{ $user->UnreadMessageCount }}">
+                        <img id="mailboxicon"  alt="Mailbox Icon" src="{{ $mailboxIconSrc }}">
                         <span id="mailboxcount">{{ $user->UnreadMessageCount }}</span>
                     </a>
-                    <?php
-                    $ticketLinks = collect();
-                    if ($user->Permissions >= Permissions::JuniorDeveloper) {
-                        $openTicketsData = countOpenTicketsByDev($user->User);
-                        $ticketLinks->push([
-                            'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest),
-                            'count' => $openTicketsData[TicketState::Open],
-                            'class' => 'text-danger',
-                            'title' => 'Tickets for you to resolve',
-                        ]);
-                        $ticketLinks->push([
-                            'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
-                            'count' => $openTicketsData[TicketState::Request],
-                            'title' => 'Tickets pending feedback',
-                        ]);
-                    }
-                    $ticketLinks->push([
-                        'link' => '/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
-                        'count' => countRequestTicketsByUser($user->User),
-                        'title' => 'Tickets awaiting your feedback',
-                    ]);
-                    $ticketLinks = $ticketLinks->filter(fn ($ticketLink) => $ticketLink['count'] > 0);
-                    ?>
                     @if ($ticketLinks->isNotEmpty())
-                        <div class="flex gap-2">
+                        <div class="flex gap-x-1 items-center">
                             Tickets
                             @foreach($ticketLinks as $ticketLink)
-                                <a class="{{ $ticketLink['class'] ?? '' }}" href="{{ $ticketLink['link'] }}" title="{{ $ticketLink['title'] }}">
+                                <a 
+                                    class="{{ $ticketLink['class'] ?? '' }}" 
+                                    href="{{ $ticketLink['link'] }}" 
+                                    title="{{ $ticketLink['title'] }}"
+                                >
                                     {{ $ticketLink['count'] }}
                                 </a>
                             @endforeach
