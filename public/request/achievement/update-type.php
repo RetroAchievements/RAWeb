@@ -22,10 +22,10 @@ $value = $input['type'];
 if (updateAchievementType($achievementIds, $value)) {
     $commentText = '';
     if ($value === AchievementType::Progression) {
-        $commentText = 'set this achievement to Progression';
+        $commentText = "set this achievement's type to Progression";
     }
     if ($value === AchievementType::WinCondition) {
-        $commentText = 'set this achievement to Win Condition';
+        $commentText = "set this achievement's type to Win Condition";
     }
     addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
 
