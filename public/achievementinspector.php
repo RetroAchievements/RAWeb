@@ -122,6 +122,14 @@ function updateAchievementsProperty(property, newValue) {
             location.reload();
         });
 }
+
+function hideAllCodeRows() {
+    const codeRowEls = document.querySelectorAll('.code-row');
+
+    codeRowEls.forEach((codeRowEl) => {
+        codeRowEl.classList.add('hidden');
+    });
+}
 </script>
 <div id="mainpage">
     <?php
@@ -238,7 +246,7 @@ function updateAchievementsProperty(property, newValue) {
                 </tr>
             HTML;
 
-            echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
+            echo "<tr class='code-row $bgColorClassNames[$currentBgColorIndex]'>";
             echo "<td><b>Code:</b></td>";
             echo "<td colspan='7' class='p-2.5' style='word-break:break-all;'>";
             echo "<code style='word-break:break-all;'>$achMemAddr</code>";
@@ -305,6 +313,8 @@ function updateAchievementsProperty(property, newValue) {
             echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
             echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
         }
+
+        echo "<button class='btn w-full flex justify-center py-2' onclick='hideAllCodeRows()'>Hide Code Rows</button>";
 
         echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php'>Back to List</a></p></div><br>";
 
