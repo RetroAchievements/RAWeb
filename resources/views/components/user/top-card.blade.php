@@ -82,7 +82,13 @@ if ($user) {
                         </x-points-weighted-container>
                     @endif
                     @if ($user->RASoftcorePoints)
-                        <span class="softcore cursor-help" title="Softcore Points">({{ localized_number($user->RASoftcorePoints) }})</span>
+                        <span class="softcore cursor-help" title="Softcore Points">
+                            @if ($user->RAPoints)
+                                ({{ localized_number($user->RASoftcorePoints) }})
+                            @else
+                                ({{ localized_number($user->RASoftcorePoints) }} softcore)
+                            @endif
+                        </span>
                     @endif
                 </div>
                 <div class="flex gap-5 items-center">
