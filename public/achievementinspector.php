@@ -123,12 +123,19 @@ function updateAchievementsProperty(property, newValue) {
         });
 }
 
-function hideAllCodeRows() {
+let areCodeRowsHidden = false;
+function toggleAllCodeRows() {
     const codeRowEls = document.querySelectorAll('.code-row');
 
     codeRowEls.forEach((codeRowEl) => {
-        codeRowEl.classList.add('hidden');
+        if (areCodeRowsHidden) {
+            codeRowEl.classList.remove('hidden');
+        } else {
+            codeRowEl.classList.add('hidden');
+        }
     });
+
+    areCodeRowsHidden = !areCodeRowsHidden;
 }
 </script>
 <div id="mainpage">
@@ -314,7 +321,7 @@ function hideAllCodeRows() {
             echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
         }
 
-        echo "<button class='btn w-full flex justify-center py-2' onclick='hideAllCodeRows()'>Hide Code Rows</button>";
+        echo "<button class='btn w-full flex justify-center py-2' onclick='toggleAllCodeRows()'>Toggle Code Rows</button>";
 
         echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php'>Back to List</a></p></div><br>";
 

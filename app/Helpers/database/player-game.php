@@ -111,7 +111,7 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
 
         if (!HasSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode)) {
-            AddSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode);
+            AddSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode, displayOrder: 0);
         }
 
         if (!RecentlyPostedProgressionActivity($user, $gameId, $awardMode, ActivityType::BeatGame)) {
