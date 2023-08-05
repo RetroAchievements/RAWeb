@@ -117,7 +117,7 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
                 AwardType::GameBeaten,
                 $gameId,
                 $awardMode,
-                awardDate: Carbon::parse($userAchievements->first()->Date),
+                awardDate: Carbon::parse(calculateBeatenGameTimestamp($userAchievements)),
                 displayOrder: 0
             );
         }
@@ -132,6 +132,38 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         'isBeatenHardcore' => $isBeatenHardcore,
         'isBeatable' => true,
     ];
+}
+
+/**
+ * Beaten game awards are stored with an AwardDate that corresponds to when they
+ * unlocked the precise achievement that granted them the beaten status. This has
+ * to be calculated by on the rules that Progression and Win Condition achievements follow.
+ */
+function calculateBeatenGameTimestamp(mixed $userAchievements): string
+{
+    $progressionAchievementsUnlocked = 0;
+    $latestProgressionDate = null;
+    $earliestWinConditionDate = null;
+
+    foreach ($userAchievements as $achievement) {
+        if ($achievement->type == AchievementType::Progression && $achievement->AchievementID) {
+            $progressionAchievementsUnlocked++;
+            // Keep track of the latest progression achievement date.
+            $latestProgressionDate = $latestProgressionDate === null || $achievement->Date > $latestProgressionDate
+                ? $achievement->Date
+                : $latestProgressionDate;
+        } elseif ($achievement->type == AchievementType::WinCondition && $achievement->AchievementID) {
+            // Keep track of the earliest win condition date.
+            $earliestWinConditionDate = $earliestWinConditionDate === null || $achievement->Date < $earliestWinConditionDate
+                ? $achievement->Date
+                : $earliestWinConditionDate;
+        }
+    }
+
+    // Return the latest date between the progression and win condition achievements.
+    return $progressionAchievementsUnlocked > 0
+        ? ($latestProgressionDate ? max($latestProgressionDate, $earliestWinConditionDate) : $earliestWinConditionDate)
+        : $earliestWinConditionDate;
 }
 
 function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, bool $postMastery): array
