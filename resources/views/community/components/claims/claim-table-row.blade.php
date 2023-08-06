@@ -26,7 +26,7 @@ $timeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $targetTimestamp)->diffForHum
     <td class="pr-0">{!! userAvatar($claim['User']) !!}</td>
     <td>{{ $claimSetTypeCopy }}</td>
     <td 
-        class="smalldate" 
+        class="smalldate cursor-help" 
         title="{{ getNiceDate(strtotime($targetTimestamp)) }}"
     >
         {{ $timeAgo }}
