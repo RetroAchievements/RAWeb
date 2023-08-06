@@ -47,9 +47,9 @@
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
 
     @if(app()->environment('local'))
-        <script src="{{ asset('/js/all.js?v=' . random_int(0, mt_getrandmax())) }}"></script>
+        <script src="/js/all.js?v={{ random_int(0, mt_getrandmax()) }}"></script>
     @else
-        <script src="{{ asset('/js/all-' . config('app.version')) }}.js"></script>
+        <script src="/js/all-{{ config('app.version') }}.js"></script>
     @endif
     {{-- END v1 compat --}}
 
