@@ -17,19 +17,26 @@ $claimData = getFilteredClaims(
             <p>Couldn't find any sets in progress.</p>
         </div>
     @else
-        <div class="overflow-x-auto sm:overflow-x-hidden">
+        <div class="flex flex-col gap-y-1 sm:hidden">
+            @foreach($claimData as $claim)
+                <x-claims.claim-mobile-block :claim="$claim" />
+            @endforeach
+        </div>
+
+        <div class="hidden sm:block">
             <table class="table-highlight mb-1">
                 <thead>
                     <tr class="do-not-highlight">
                         <th>Game</th>
                         <th>Dev</th>
+                        <th>Type</th>
                         <th class="whitespace-nowrap">Started</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach($claimData as $claim)
-                        <x-claims.new-claim-table-row :claim="$claim" />
+                        <x-claims.claim-table-row :claim="$claim" />
                     @endforeach
                 </tbody>
             </table>
