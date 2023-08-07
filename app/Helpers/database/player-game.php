@@ -491,7 +491,7 @@ function prepareUserCompletedGamesCacheValue(array $allFetchedResults): string
 // TODO: Remove when denormalized data is ready. See comments in getUsersCompletedGamesAndMax().
 function expireUserCompletedGamesCacheValue(string $user): void
 {
-    Cache::store('redis')->delete(CacheKey::buildUserCompletedGamesCacheKey($user));
+    Cache::store()->delete(CacheKey::buildUserCompletedGamesCacheKey($user));
 }
 
 function getUsersCompletedGamesAndMax(string $user): array
@@ -504,7 +504,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     $minAchievementsForCompletion = 5;
 
     // TODO: Remove when denormalized data is ready. The cache call and conditional can be deleted.
-    $cachedAwardedValues = Cache::store('redis')->get(CacheKey::buildUserCompletedGamesCacheKey($user));
+    $cachedAwardedValues = Cache::store()->get(CacheKey::buildUserCompletedGamesCacheKey($user));
     if ($cachedAwardedValues) {
         return getLightweightUsersCompletedGamesAndMax($user, $cachedAwardedValues);
     }
@@ -530,7 +530,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     // Extract and cache data from Awarded.
     // TODO: Remove when denormalized data is ready. The function call and Cache put can be deleted.
     $awardedCacheString = prepareUserCompletedGamesCacheValue($fullResults);
-    Cache::store('redis')->put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, 60);
+    Cache::store()->put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, 60);
 
     return $fullResults;
 }
