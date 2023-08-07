@@ -178,14 +178,10 @@ function saveCodeNote(rowIndex, isDeleting = false) {
             rowEl.querySelector('td[data-current-author]').dataset.currentAuthor = currentUsername;
 
             const authorAvatarSpan = authorAvatarCellEl.querySelector('span.inline.whitespace-nowrap');
-            const tooltipOnMouseOverAttr = authorAvatarSpan.getAttribute('onmouseover');
-            const updatedOnMouseOverAttr = tooltipOnMouseOverAttr.replace(
-                /loadCard\(this, 'user', '([^']*)', ''\)/,
-                `loadCard(this, 'user', '${currentUsername}', '')`
-            );
-            authorAvatarSpan.setAttribute('onmouseover', updatedOnMouseOverAttr);
+            const newXInitValue = `attachTooltipToElement($el, { dynamicType: 'user', dynamicId: '${currentUsername}', dynamicContext: '' })`;
+            authorAvatarSpan.setAttribute('x-init', newXInitValue);
+            attachTooltipToElement(authorAvatarSpan, { dynamicType: 'user', dynamicId: currentUsername, dynamicContext: '' });
         }
-
 
         // Now it's safe to bail.
         setRowEditingEnabled(rowEl, false);
