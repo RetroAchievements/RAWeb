@@ -143,6 +143,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
 
+    expireUserCompletedGamesCacheValue($user->User);
     expireUserAchievementUnlocksForGame($user->User, $achievement->GameID);
 
     static_setlastearnedachievement($achievement->ID, $user->User, $achievement->Points);
