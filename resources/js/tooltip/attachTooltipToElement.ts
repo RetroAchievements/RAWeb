@@ -132,7 +132,7 @@ export function attachTooltipToElement(anchorEl: HTMLElement, options: Partial<T
         anchorEl,
         options.staticHtmlContent as string,
         windowX + 8,
-        windowY + 6
+        windowY + 6,
       );
 
       attachTooltipListeners(anchorEl, showStaticTooltip);

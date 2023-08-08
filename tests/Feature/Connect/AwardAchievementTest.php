@@ -192,6 +192,7 @@ class AwardAchievementTest extends TestCase
             ->where('AwardData', $game->ID)
             ->where('AwardDataExtra', UnlockMode::Hardcore)
             ->where('AwardDate', $newNow)
+            ->first()
         );
     }
 
@@ -391,6 +392,7 @@ class AwardAchievementTest extends TestCase
             ->where('AwardData', $game->ID)
             ->where('AwardDataExtra', UnlockMode::Softcore)
             ->where('AwardDate', $newNow)
+            ->first()
         );
     }
 

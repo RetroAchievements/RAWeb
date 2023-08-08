@@ -6,6 +6,8 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array
@@ -83,22 +85,89 @@ function getGameMetadata(
     $metricsJoin = '';
     $metricsBindings = [];
     if ($metrics) {
+        $cacheKey = "game:$gameID:playercount";
+        $gameMetrics = Cache::get($cacheKey);
+        if ($gameMetrics === null) {
+            $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
+
+            $bindings = [
+                'gameId' => $gameID,
+                'achievementFlag' => $flag,
+            ];
+
+            $gameIdStatement = 'ach.GameID = :gameId';
+            if ($parentGameId !== null) {
+                $bindings['parentGameId'] = $parentGameId;
+                $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
+            }
+
+            $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
+                        FROM Awarded AS aw
+                        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                        WHERE $gameIdStatement AND ach.Flags = :achievementFlag
+                        AND NOT ua.Untracked
+                    GROUP BY aw.HardcoreMode";
+
+            $gameMetaData = legacyDbFetchAll($query, $bindings);
+
+            $numDistinctPlayersCasual = 0;
+            $numDistinctPlayersHardcore = 0;
+            foreach ($gameMetaData as $data) {
+                if ($data['HardcoreMode'] == UnlockMode::Hardcore) {
+                    $numDistinctPlayersHardcore = $data['Users'];
+                } else {
+                    $numDistinctPlayersCasual = $data['Users'];
+                }
+            }
+
+            $gameMetrics = [
+                'ParentGameID' => $parentGameId,
+                'NumDistinctPlayersCasual' => $numDistinctPlayersCasual,
+                'NumDistinctPlayersHardcore' => $numDistinctPlayersHardcore,
+            ];
+
+            // if a game has more than 100 players, only update the player count once an hour
+            if ($numDistinctPlayersCasual > 100) {
+                Cache::put($cacheKey, $gameMetrics, Carbon::now()->addHours(1));
+            }
+        }
+
+        $gameDataOut['ParentGameID'] = $gameMetrics['ParentGameID'];
+        $gameDataOut['NumDistinctPlayersCasual'] = $gameMetrics['NumDistinctPlayersCasual'];
+        $gameDataOut['NumDistinctPlayersHardcore'] = $gameMetrics['NumDistinctPlayersHardcore'];
+
         $metricsBindings = [
             'metricsGameId' => $gameID,
             'metricsAchievementFlag' => $flag,
         ];
         $metricsColumns = 'IFNULL(tracked_aw.NumAwarded, 0) AS NumAwarded,
                            IFNULL(tracked_aw.NumAwardedHardcore, 0) AS NumAwardedHardcore,';
-        $metricsJoin = "LEFT JOIN (
-            SELECT ach.ID AS AchievementID,
-                (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
-                (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
-            FROM Achievements AS ach
-            INNER JOIN Awarded AS aw ON aw.AchievementID = ach.ID
-            INNER JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE ach.GameID = :metricsGameId AND ach.Flags = :metricsAchievementFlag AND NOT ua.Untracked
-            GROUP BY ach.ID
-        ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+
+        // if a game has more than 100 players, don't filter out the untracked users as the
+        // join becomes very expensive. will be addressed when denormalized data is captured
+        if ($gameMetrics['NumDistinctPlayersCasual'] > 100) {
+            $metricsJoin = "LEFT JOIN (
+                SELECT ach.ID AS AchievementID,
+                    (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
+                    (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
+                FROM Achievements AS ach
+                LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+                WHERE ach.GameID = :metricsGameId AND ach.Flags = :metricsAchievementFlag
+                GROUP BY ach.ID
+            ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+        } else {
+            $metricsJoin = "LEFT JOIN (
+                SELECT ach.ID AS AchievementID,
+                    (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
+                    (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
+                FROM Achievements AS ach
+                LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+                LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                WHERE ach.GameID = :metricsGameId AND ach.Flags = :metricsAchievementFlag AND NOT ua.Untracked
+                GROUP BY ach.ID
+            ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+        }
     }
 
     $query = "
@@ -165,54 +234,6 @@ function getGameMetadata(
                 }
             }
         }
-    }
-
-    if ($metrics) {
-        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
-
-        $bindings = [
-            'gameId' => $gameID,
-            'achievementFlag' => $flag,
-        ];
-
-        $requestedByStatement = '';
-        if ($user) {
-            $bindings['username'] = $user;
-            $requestedByStatement = 'OR ua.User = :username';
-        }
-
-        $gameIdStatement = 'ach.GameID = :gameId';
-        if ($parentGameId !== null) {
-            $bindings['parentGameId'] = $parentGameId;
-            $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
-        }
-
-        $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-                FROM (
-                  SELECT aw.User, aw.HardcoreMode
-                  FROM Awarded AS aw
-                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                  LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                  WHERE $gameIdStatement AND ach.Flags = :achievementFlag
-                  AND (NOT ua.Untracked $requestedByStatement)
-                ) AS aw
-                GROUP BY aw.HardcoreMode";
-
-        $gameMetaData = legacyDbFetchAll($query, $bindings);
-
-        $numDistinctPlayersCasual = 0;
-        $numDistinctPlayersHardcore = 0;
-        foreach ($gameMetaData as $data) {
-            if ($data['HardcoreMode'] == UnlockMode::Hardcore) {
-                $numDistinctPlayersHardcore = $data['Users'];
-            } else {
-                $numDistinctPlayersCasual = $data['Users'];
-            }
-        }
-
-        $gameDataOut['ParentGameID'] = $parentGameId;
-        $gameDataOut['NumDistinctPlayersCasual'] = $numDistinctPlayersCasual;
-        $gameDataOut['NumDistinctPlayersHardcore'] = $numDistinctPlayersHardcore;
     }
 
     $gameDataOut['NumAchievements'] = $numAchievements;
