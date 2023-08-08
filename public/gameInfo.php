@@ -860,17 +860,9 @@ sanitize_outputs(
             ', $gameMetaBindings);
 
             if ($isFullyFeaturedGame) {
-                echo <<<HTML
-                    <div class="mb-3 -mx-5 sm:mx-0 grid sm:flex sm:justify-around sm:w-full gap-y-1 sm:gap-x-5">
-                        <div class="flex justify-center items-center">
-                            <img class="w-full sm:rounded-sm" src="$imageTitle" alt="Title screenshot">
-                        </div>
-
-                        <div class="flex justify-center items-center">
-                            <img class="w-full sm:rounded-sm" src="$imageIngame" alt="In-game screenshot">
-                        </div>
-                    </div>
-                HTML;
+                echo Blade::render('
+                    <x-game.screenshots :titleImageSrc="$titleImageSrc" :ingameImageSrc="$ingameImageSrc" />
+                ', ['titleImageSrc' => $imageTitle, 'ingameImageSrc' => $imageIngame]);
             }
 
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
