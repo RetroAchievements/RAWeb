@@ -143,6 +143,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
 
+    expireUserCompletedGamesCacheValue($user->User);
     expireUserAchievementUnlocksForGame($user->User, $achievement->GameID);
 
     static_setlastearnedachievement($achievement->ID, $user->User, $achievement->Points);
@@ -449,8 +450,10 @@ function getAchievementDistribution(
 
     // if a game has more than 100 players, don't filter out the untracked users as the
     // join becomes very expensive. will be addressed when denormalized data is captured
+    $joinStatement = '';
     $requestedByStatement = '';
     if ($numPlayers < 100) {
+        $joinStatement = 'LEFT JOIN UserAccounts AS ua ON ua.User = aw.User';
         $requestedByStatement = 'AND (NOT ua.Untracked';
         if ($requestedBy) {
             $bindings['requestedBy'] = $requestedBy;
@@ -467,7 +470,7 @@ function getAchievementDistribution(
             FROM Awarded AS aw
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
             LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+            $joinStatement
             WHERE gd.ID = :gameId
               AND aw.HardcoreMode = :unlockMode
               AND ach.Flags = :achievementFlag

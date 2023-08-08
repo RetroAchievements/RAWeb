@@ -1,3 +1,5 @@
+import { safeRequestIdleCallback } from '@/utils';
+
 import { tooltipStore as store } from './state/tooltipStore';
 import { getIsMobileIos } from './utils/getIsMobileIos';
 import { hideTooltip } from './utils/hideTooltip';
@@ -112,26 +114,28 @@ export function attachTooltipToElement(anchorEl: HTMLElement, options: Partial<T
     return;
   }
 
-  // Do we need to dynamically fetch this tooltip's contents?
-  if (options.dynamicType && options.dynamicId) {
-    const showDynamicTooltip = (windowX: number, windowY: number) => loadDynamicTooltip(
-      anchorEl,
-      options.dynamicType as string,
-      options.dynamicId as string,
-      options?.dynamicContext,
-      windowX,
-      windowY,
-    );
+  safeRequestIdleCallback(() => {
+    // Do we need to dynamically fetch this tooltip's contents?
+    if (options.dynamicType && options.dynamicId) {
+      const showDynamicTooltip = (windowX: number, windowY: number) => loadDynamicTooltip(
+        anchorEl,
+        options.dynamicType as string,
+        options.dynamicId as string,
+        options?.dynamicContext,
+        windowX,
+        windowY,
+      );
 
-    attachTooltipListeners(anchorEl, showDynamicTooltip);
-  } else if (options.staticHtmlContent) {
-    const showStaticTooltip = (windowX: number, windowY: number) => renderTooltip(
-      anchorEl,
-      options.staticHtmlContent as string,
-      windowX + 8,
-      windowY + 6,
-    );
+      attachTooltipListeners(anchorEl, showDynamicTooltip);
+    } else if (options.staticHtmlContent) {
+      const showStaticTooltip = (windowX: number, windowY: number) => renderTooltip(
+        anchorEl,
+        options.staticHtmlContent as string,
+        windowX + 8,
+        windowY + 6,
+      );
 
-    attachTooltipListeners(anchorEl, showStaticTooltip);
-  }
+      attachTooltipListeners(anchorEl, showStaticTooltip);
+    }
+  });
 }
