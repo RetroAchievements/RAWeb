@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import focus from '@alpinejs/focus';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
@@ -40,6 +41,7 @@ window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 // or race conditions could occur.
 document.addEventListener('DOMContentLoaded', () => {
   window.Alpine = Alpine;
+  Alpine.plugin(focus);
   Alpine.start();
 });
 
