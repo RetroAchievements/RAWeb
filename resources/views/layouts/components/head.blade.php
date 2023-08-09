@@ -27,7 +27,6 @@
 
     {{-- TODO replace with ESM imports, Alpine, tailwind --}}
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
 
     @vite(['resources/js/app.ts', 'resources/css/app.css'], config('vite.build_path'))
 
@@ -42,8 +41,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 
     {{-- TODO replace with ESM imports, Alpine, tailwind --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
 
     @if(app()->environment('local'))
         <script src="/js/all.js?v={{ random_int(0, mt_getrandmax()) }}"></script>
