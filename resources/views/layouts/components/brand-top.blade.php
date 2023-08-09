@@ -31,7 +31,9 @@
                 </div>
             @endif--}}
             <div class="p-4 text-center">
-                <a href="{{ route('home') }}"><img style="max-width:550px;width:100%" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo"></a>
+                <a href="{{ route('home') }}">
+                    <img class="max-w-[550px] w-full" fetchpriority="high" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo">
+                </a>
             </div>
             <x-user.top-card/>
         </div>
