@@ -2,22 +2,23 @@ import { screen, waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import Alpine from 'alpinejs';
 import {
+  // @prettier-ignore
   afterEach,
   beforeAll,
   describe,
   expect,
   it,
-  vi
+  vi,
 } from 'vitest';
 
-import { newsCarousel } from './newsCarousel';
+import { newsCarouselComponent } from './newsCarouselComponent';
 
 function render() {
   (Element as any).prototype.scrollTo = vi.fn();
-  (document as any).newsCarousel = newsCarousel;
+  (document as any).newsCarouselComponent = newsCarouselComponent;
 
   document.body.innerHTML = /** @html */ `
-    <div x-data="document.newsCarousel(3)">
+    <div x-data="document.newsCarouselComponent(3)">
       <div id="news-carousel-image-list" data-testid="news-carousel-image-list" style="width: 100%; overflow-x: hidden;">
         <div style="width: 100%;">Slide 1</div>
         <div style="width: 100%;">Slide 2</div>
@@ -45,7 +46,7 @@ function render() {
   `;
 }
 
-describe('Component: newsCarousel', () => {
+describe('Component: newsCarouselComponent', () => {
   beforeAll(() => {
     window.Alpine = Alpine;
     Alpine.start();
@@ -56,7 +57,7 @@ describe('Component: newsCarousel', () => {
   });
 
   it('is defined #sanity', () => {
-    expect(newsCarousel).toBeDefined();
+    expect(newsCarouselComponent).toBeDefined();
   });
 
   it('renders without crashing #sanity', () => {
