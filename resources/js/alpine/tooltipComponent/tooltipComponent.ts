@@ -12,6 +12,41 @@ interface TooltipProps {
   dynamicContext: unknown;
 }
 
+/**
+ * This component is used to add a tooltip to any element on the site.
+ *
+ * Depending on the provided options, the tooltip can either have static HTML content
+ * or dynamic HTML content that is fetched from the server. On mobile iOS, this function
+ * does nothing so as to prevent tooltips from blocking user interactions on the page.
+ *
+ * @param anchorEl The HTML element to which the tooltip should be attached.
+ * @param props An object containing the tooltip configuration options.
+ *                This can include the static HTML content or the dynamic type and ID
+ *                used to fetch the content, as well as an optional context for dynamic tooltips.
+ *
+ * @example
+ * ```html
+ * <!-- Static content -->
+ * <div
+ *     x-data="tooltipComponent($el, { staticHtmlContent: '<p>I am tooltip content!</p>' }"
+ *     @mouseover="showTooltip($event)"
+ *     @mouseleave="hideTooltip"
+ *     @mousemove="trackMouseMovement($event)"
+ * >
+ *     Static tooltipped Element
+ * </div>
+ *
+ * <!-- Dynamic content -->
+ * <div
+ *     x-data="tooltipComponent($el, { dynamicType: 'game', dynamicId: '1', dynamicContext: 'context' }"
+ *     @mouseover="showTooltip($event)"
+ *     @mouseleave="hideTooltip"
+ *     @mousemove="trackMouseMovement($event)"
+ * >
+ *     Dynamic tooltipped element
+ * </div>
+ * ```
+ */
 export function tooltipComponent(anchorEl: HTMLElement, props: Partial<TooltipProps>) {
   let isTooltipShowing = false;
   let showTimeout: number | null = null;
