@@ -1,6 +1,7 @@
 <?php
 
 use App\Platform\Models\System;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -93,8 +94,22 @@ RenderContentStart("Set Requests");
             foreach ($setRequestList as $request) {
                 echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
-                echo "<td>";
-                echo gameAvatar($request);
+                echo "<td class='py-2.5'>";
+
+                echo Blade::render('
+                    <x-game.multiline-avatar
+                        :gameId="$gameId"
+                        :gameTitle="$gameTitle"
+                        :gameImageIcon="$gameImageIcon"
+                        :consoleName="$consoleName"
+                    />
+                ', [
+                    'gameId' => $request['GameID'],
+                    'gameTitle' => $request['GameTitle'],
+                    'gameImageIcon' => $request['GameIcon'],
+                    'consoleName' => $request['ConsoleName'],
+                ]);
+
                 echo "</td><td>";
                 $claims = explode(',', $request['Claims']);
                 foreach ($claims as $devClaim) {
@@ -164,8 +179,22 @@ RenderContentStart("Set Requests");
 
                 echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
-                echo "<td>";
-                echo gameAvatar($request);
+                echo "<td class='py-2.5'>";
+
+                echo Blade::render('
+                    <x-game.multiline-avatar
+                        :gameId="$gameId"
+                        :gameTitle="$gameTitle"
+                        :gameImageIcon="$gameImageIcon"
+                        :consoleName="$consoleName"
+                    />
+                ', [
+                    'gameId' => $request['GameID'],
+                    'gameTitle' => $request['GameTitle'],
+                    'gameImageIcon' => $request['GameIcon'],
+                    'consoleName' => $request['ConsoleName'],
+                ]);
+
                 echo "</td>";
 
                 echo "<td>";

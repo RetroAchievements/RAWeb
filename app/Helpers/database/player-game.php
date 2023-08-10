@@ -394,6 +394,106 @@ function getUsersGameList(string $user, ?array &$dataOut): int
     return $i;
 }
 
+// TODO: Remove when denormalized data is ready. See comments in getUsersCompletedGamesAndMax().
+function getLightweightUsersCompletedGamesAndMax(string $user, string $cachedAwardedValues): array
+{
+    // Parse the cached value.
+    $awardedCache = [];
+    foreach (explode(',', $cachedAwardedValues) as $row) {
+        list($gameId, $maxPossible, $numAwarded, $numAwardedHC) = explode('|', $row);
+
+        $awardedCache[$gameId] = [
+            'MaxPossible' => $maxPossible,
+            'NumAwarded' => $numAwarded,
+            'NumAwardedHC' => $numAwardedHC,
+        ];
+    }
+
+    $lightQuery = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title 
+    FROM GameData AS gd
+    LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+    WHERE gd.ID IN (
+        SELECT DISTINCT Achievements.GameID 
+        FROM Awarded 
+        INNER JOIN Achievements ON Awarded.AchievementID = Achievements.ID 
+        WHERE Awarded.User = '$user' AND Achievements.Flags = 3
+    )
+    ORDER BY gd.Title";
+
+    $lightResults = legacyDbFetchAll($lightQuery)->toArray();
+
+    // Merge cached award data
+    foreach ($lightResults as &$game) {
+        $gameId = $game['GameID'];
+
+        if (isset($awardedCache[$gameId])) {
+            $maxPossible == 0 ? 1 : (int) $maxPossible;
+
+            $game['MaxPossible'] = $awardedCache[$gameId]['MaxPossible'];
+            $game['NumAwarded'] = $awardedCache[$gameId]['NumAwarded'];
+            $game['NumAwardedHC'] = $awardedCache[$gameId]['NumAwardedHC'];
+            $game['PctWon'] = (int) $numAwarded / (int) $maxPossible;
+            $game['PctWonHC'] = (int) $numAwardedHC / (int) $maxPossible;
+        }
+    }
+
+    // Make sure we're sorting correctly similar to the costly query in getUsersCompletedGamesAndMax().
+    usort($lightResults, function ($a, $b) {
+        // Check if either game has 100% achievements won.
+        $a100Pct = (isset($a['PctWon']) && $a['PctWon'] == 1.0);
+        $b100Pct = (isset($b['PctWon']) && $b['PctWon'] == 1.0);
+
+        // If one game has 100% and the other doesn't, sort accordingly.
+        if ($a100Pct && !$b100Pct) {
+            return -1;
+        }
+        if (!$a100Pct && $b100Pct) {
+            return 1;
+        }
+
+        if ($a['PctWon'] != $b['PctWon']) {
+            return $b['PctWon'] <=> $a['PctWon']; // Sort by PctWon descending
+        }
+        if ($a['PctWonHC'] != $b['PctWonHC']) {
+            return $b['PctWonHC'] <=> $a['PctWonHC']; // Sort by PctWonHC descending
+        }
+        if ($a['MaxPossible'] != $b['MaxPossible']) {
+            return $b['MaxPossible'] <=> $a['MaxPossible']; // Sort by MaxPossible descending
+        }
+
+        return $a['Title'] <=> $b['Title']; // Sort by Title ascending
+    });
+
+    // Return combined results
+    return $lightResults;
+}
+
+// TODO: Remove when denormalized data is ready. See comments in getUsersCompletedGamesAndMax().
+function prepareUserCompletedGamesCacheValue(array $allFetchedResults): string
+{
+    // Extract awarded data
+    $awardedCacheString = '';
+    foreach ($allFetchedResults as $result) {
+        $gameId = $result['GameID'];
+        $maxPossible = $result['MaxPossible'];
+        $numAwarded = $result['NumAwarded'];
+        $numAwardedHC = $result['NumAwardedHC'];
+
+        $awardedCacheString .= "$gameId|$maxPossible|$numAwarded|$numAwardedHC,";
+    }
+
+    // Remove last comma
+    $awardedCacheString = rtrim($awardedCacheString, ',');
+
+    return $awardedCacheString;
+}
+
+// TODO: Remove when denormalized data is ready. See comments in getUsersCompletedGamesAndMax().
+function expireUserCompletedGamesCacheValue(string $user): void
+{
+    Cache::store()->delete(CacheKey::buildUserCompletedGamesCacheKey($user));
+}
+
 function getUsersCompletedGamesAndMax(string $user): array
 {
     if (!isValidUsername($user)) {
@@ -403,7 +503,13 @@ function getUsersCompletedGamesAndMax(string $user): array
     $requiredFlag = AchievementFlag::OfficialCore;
     $minAchievementsForCompletion = 5;
 
-    // TODO slow query
+    // TODO: Remove when denormalized data is ready. The cache call and conditional can be deleted.
+    $cachedAwardedValues = Cache::store()->get(CacheKey::buildUserCompletedGamesCacheKey($user));
+    if ($cachedAwardedValues) {
+        return getLightweightUsersCompletedGamesAndMax($user, $cachedAwardedValues);
+    }
+
+    // TODO slow query. optimize with denormalized data.
     $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
             MAX(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, " .
             floatDivisionStatement('SUM(aw.HardcoreMode = 0)', 'inner1.MaxPossible') . " AS PctWon, " .
@@ -419,7 +525,14 @@ function getUsersCompletedGamesAndMax(string $user): array
         GROUP BY ach.GameID, gd.Title
         ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title";
 
-    return legacyDbFetchAll($query)->toArray();
+    $fullResults = legacyDbFetchAll($query)->toArray();
+
+    // Extract and cache data from Awarded.
+    // TODO: Remove when denormalized data is ready. The function call and Cache put can be deleted.
+    $awardedCacheString = prepareUserCompletedGamesCacheValue($fullResults);
+    Cache::store()->put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, 60);
+
+    return $fullResults;
 }
 
 function getTotalUniquePlayers(

@@ -34,13 +34,14 @@ $userScoreData = getAwardedList($userPage);
 
 RenderContentStart("$userPage's Legacy");
 ?>
-<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script defer src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-  google.load('visualization', '1.0', { 'packages': ['corechart'] });
-  google.setOnLoadCallback(drawCharts);
+  document.addEventListener('DOMContentLoaded', function() {
+    google.load('visualization', '1.0', { 'packages': ['corechart'] });
+    google.setOnLoadCallback(drawCharts);
+  });
 
   function drawCharts() {
-
     var dataTotalScore = new google.visualization.DataTable();
 
     // Declare columns
@@ -251,10 +252,10 @@ RenderContentStart("$userPage's Legacy");
 
         echo "</div>";
 
-        echo "<div id='chart_scoreprogress'></div>";
+        echo "<div id='chart_scoreprogress' class='min-h-[250px]'></div>";
 
         echo "<h3>Best Days</h3>";
-        echo "<div id='chart_bestdays'></div>";
+        echo "<div id='chart_bestdays' class='min-h-[250px]'></div>";
 
         echo "<table class='table-highlight'><tbody>";
 

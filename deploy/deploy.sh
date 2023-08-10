@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# DEPRECATED deployments have been automated
+
 # print all executed commands
 set -x
 # exit on error
@@ -79,8 +81,8 @@ ${PHP_BIN} artisan migrate --force
 # activate release - note -n option to actually replace the symlink instead of placing the new link inside it
 ln -snf "${BASEDIR}/${RELEASE_DIR}" "${BASEDIR}/${CURRENT_DIR}"
 # update version in .env file
-sed -i "s/APP_VERSION=.*/APP_VERSION=${VERSION}/g" .env
-sed -i "s/APP_BRANCH=.*/APP_BRANCH=${GIT_BRANCH}/g" .env
+sed -i "s/APP_VERSION=.*/APP_VERSION=${VERSION}/g" "${BASEDIR}/.env"
+sed -i "s/APP_BRANCH=.*/APP_BRANCH=${GIT_BRANCH}/g" "${BASEDIR}/.env"
 ${PHP_BIN} artisan config:cache
 #${PHP_BIN} artisan route:cache
 #${PHP_BIN} artisan octane:reload

@@ -2,9 +2,7 @@ import Alpine from 'alpinejs';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-import { attachTooltipToElement } from './tooltip';
-import { hideEarnedCheckboxComponent } from './alpine';
-import { newsCarousel } from './alpine/newsCarousel';
+import { hideEarnedCheckboxComponent, newsCarouselComponent, tooltipComponent } from './alpine';
 import {
   autoExpandTextInput,
   copyToClipboard,
@@ -25,16 +23,19 @@ lazyLoadModuleOnIdFound({
   moduleNameToAttachToWindow: 'reorderSiteAwards',
 });
 
-window.attachTooltipToElement = attachTooltipToElement;
+// Utils
 window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
-window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.loadPostPreview = loadPostPreview;
-window.newsCarousel = newsCarousel;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
+
+// Alpine.js Components
+window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
+window.newsCarouselComponent = newsCarouselComponent;
+window.tooltipComponent = tooltipComponent;
 
 // Alpine needs to be placed after all `window` injection
 // or race conditions could occur.
