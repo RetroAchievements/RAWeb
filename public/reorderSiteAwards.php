@@ -187,8 +187,15 @@ function postAllAwardsDisplayOrder(awards) {
 <div id="mainpage">
     <div id="<?= $hasSomeAwards ? 'leftcontainer' : 'fullcontainer' ?>">
         <?php
-        function RenderAwardOrderTable(string $title, array $awards, int &$awardCounter, int $renderedSectionCount, bool $prefersSeeingSavedHiddenRows, int $initialSectionOrder): void
-        {
+        function RenderAwardOrderTable(
+            string $title,
+            array $awards,
+            string $awardOwnerUsername,
+            int &$awardCounter,
+            int $renderedSectionCount,
+            bool $prefersSeeingSavedHiddenRows,
+            int $initialSectionOrder,
+        ): void {
             // "Game Awards" -> "game"
             $humanReadableAwardKind = strtolower(strtok($title, " "));
 
@@ -226,7 +233,6 @@ function postAllAwardsDisplayOrder(awards) {
 
                 sanitize_outputs(
                     $awardTitle,
-                    $awardGameConsole,
                     $awardType,
                     $awardData,
                     $awardDataExtra,
@@ -268,7 +274,7 @@ function postAllAwardsDisplayOrder(awards) {
                 HTML;
 
                 echo "<td class='$subduedOpacityClassName transition'>";
-                RenderAward($award, 32, false);
+                RenderAward($award, 32, $awardOwnerUsername, false);
                 echo "</td>";
                 echo "<td class='$subduedOpacityClassName transition'><span>$awardTitle</span></td>";
                 echo "<td class='text-center !opacity-100'><input name='$awardCounter-is-hidden' onchange='reorderSiteAwards.handleRowHiddenCheckedChange(event, $awardCounter)' type='checkbox' " . ($isHiddenPreChecked ? "checked" : "") . "></td>";
@@ -337,22 +343,46 @@ function postAllAwardsDisplayOrder(awards) {
         }
 
         if (!empty($gameAwards)) {
-            RenderAwardOrderTable("Game Awards", $gameAwards, $awardCounter, $renderedSectionCount, $prefersSeeingSavedHiddenRows, $initialSectionOrders[0]);
+            RenderAwardOrderTable(
+                "Game Awards",
+                $gameAwards,
+                $user,
+                $awardCounter,
+                $renderedSectionCount,
+                $prefersSeeingSavedHiddenRows,
+                $initialSectionOrders[0],
+            );
         }
 
         if (!empty($eventAwards)) {
-            RenderAwardOrderTable("Event Awards", $eventAwards, $awardCounter, $renderedSectionCount, $prefersSeeingSavedHiddenRows, $initialSectionOrders[1]);
+            RenderAwardOrderTable(
+                "Event Awards",
+                $eventAwards,
+                $user,
+                $awardCounter,
+                $renderedSectionCount,
+                $prefersSeeingSavedHiddenRows,
+                $initialSectionOrders[1],
+            );
         }
 
         if (!empty($siteAwards)) {
-            RenderAwardOrderTable("Site Awards", $siteAwards, $awardCounter, $renderedSectionCount, $prefersSeeingSavedHiddenRows, $initialSectionOrders[2]);
+            RenderAwardOrderTable(
+                "Site Awards",
+                $siteAwards,
+                $user,
+                $awardCounter,
+                $renderedSectionCount,
+                $prefersSeeingSavedHiddenRows,
+                $initialSectionOrders[2],
+            );
         }
         ?>
     </div>
 
     <?php if ($hasSomeAwards): ?>
     <div id="rightcontainer">
-        <?php RenderSiteAwards(getUsersSiteAwards($user)) ?>
+        <?php RenderSiteAwards(getUsersSiteAwards($user), $user) ?>
     </div>
     <?php endif ?>
 </div>
