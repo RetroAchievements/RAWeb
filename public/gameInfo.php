@@ -297,10 +297,14 @@ sanitize_outputs(
 <?php endif ?>
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script defer src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-    google.load('visualization', '1.0', { 'packages': ['corechart'] });
-    google.setOnLoadCallback(drawCharts);
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof google !== 'undefined') {
+            google.load('visualization', '1.0', { 'packages': ['corechart'] });
+            google.setOnLoadCallback(drawCharts);
+        }
+    });
 
     function drawCharts() {
         var dataTotalScore = new google.visualization.DataTable();
@@ -1571,7 +1575,7 @@ sanitize_outputs(
             if ($numAchievements > 0) {
                 echo "<div id='achdistribution' class='component' >";
                 echo "<h2 class='text-h3'>Achievement Distribution</h2>";
-                echo "<div id='chart_distribution'></div>";
+                echo "<div id='chart_distribution' class='min-h-[260px]'></div>";
                 echo "</div>";
 
                 RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);

@@ -64,15 +64,15 @@ var ActivePlayersViewModel = function () {
   }, this);
 
   this.filteredPlayers = ko.pureComputed(function () {
-    return _.filter(this.players(), (player) => {
+    return this.players().filter((player) => {
       var lowercaseFilterTextTerms = this.playerFilterText().toLowerCase().split('|');
       var matchFound = false;
       lowercaseFilterTextTerms.forEach((lowercaseFilterText) => {
-        matchFound = lowercaseFilterText !== ''
+        matchFound = matchFound || (lowercaseFilterText !== ''
           && (player.username().toLowerCase().includes(lowercaseFilterText)
             || player.gameTitle().toLowerCase().includes(lowercaseFilterText)
             || player.consoleName().toLowerCase().includes(lowercaseFilterText)
-            || player.richPresenceDisplay().toLowerCase().includes(lowercaseFilterText));
+            || player.richPresenceDisplay().toLowerCase().includes(lowercaseFilterText)));
       });
       return this.playerFilterText() === '' || matchFound;
     });
