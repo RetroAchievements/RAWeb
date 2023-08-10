@@ -163,6 +163,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 53, // WonderSwan
                 76, // PC Engine CD
                 78, // Nintendo DSi
+                80, // Uzebox
             ],
         ],
         Emulators::PCSX2 => [
