@@ -21,7 +21,12 @@ $showConsoleLine = $consoleId || $consoleName;
     <a 
         href="{{ $href ?? $gameHref }}" 
         @if(!$showConsoleLine) class="flex items-center gap-x-2" @endif
-        @if($hasTooltip) x-init="attachTooltipToElement($el, {dynamicType: 'game', dynamicId: '{{ $gameId }}'})" @endif
+        @if($hasTooltip)
+            x-data="tooltipComponent($el, {dynamicType: 'game', dynamicId: '{{ $gameId }}'})" 
+            @mouseover="showTooltip($event)"
+            @mouseleave="hideTooltip"
+            @mousemove="trackMouseMovement($event)"
+        @endif
     >
         <img 
             src="{{ media_asset($gameImageIcon) }}" 

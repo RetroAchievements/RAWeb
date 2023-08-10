@@ -43,7 +43,13 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
 
         <div class="gap-x-2 flex relative">
             <!-- Keep the image and game title in a single tooltipped container. Do not tooltip the console name. -->
-            <a href="{{ $gameUrl }}" x-init="attachTooltipToElement($el, {dynamicType: 'game', dynamicId: '{{ $achievement->GameID }}'})">
+            <a 
+                href="{{ $gameUrl }}" 
+                x-data="tooltipComponent($el, {dynamicType: 'game', dynamicId: '{{ $achievement->GameID }}'})"
+                @mouseover="showTooltip($event)"
+                @mouseleave="hideTooltip"
+                @mousemove="trackMouseMovement($event)"
+            >
                 <img 
                     src="{{ media_asset($game->ImageIcon) }}" 
                     alt="Achievement of the week game badge" 
