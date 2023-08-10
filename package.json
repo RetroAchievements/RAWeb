@@ -14,6 +14,7 @@
         "apidoc:connect": "apidoc -i src/Connect/ -c docs/src/connect-api -t docs/src/connect-api/template -o docs/dist/api/connect"
     },
     "dependencies": {
+        "@alpinejs/focus": "^3.12.3",
         "@floating-ui/dom": "^1.2.3",
         "alpinejs": "^3.12.2",
         "js-cookie": "^3.0.5",
@@ -28,6 +29,7 @@
         "@testing-library/jest-dom": "^5.16.5",
         "@testing-library/user-event": "^14.4.3",
         "@types/alpinejs": "^3.7.2",
+        "@types/alpinejs__focus": "^3.10.0",
         "@types/js-cookie": "^3.0.3",
         "@types/ua-parser-js": "^0.7.36",
         "@typescript-eslint/eslint-plugin": "^5.60.1",

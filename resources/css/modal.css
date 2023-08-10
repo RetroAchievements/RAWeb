@@ -1,8 +1,0 @@
-.blocker {
-  z-index: 100;
-}
-
-.modal {
-  background-color: var(--bg-color);
-  z-index: 101;
-}
