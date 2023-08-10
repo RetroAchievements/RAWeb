@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -42,6 +43,20 @@ class AchievementFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'Flags' => AchievementFlag::OfficialCore,
+        ]);
+    }
+
+    public function progression(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => AchievementType::Progression,
+        ]);
+    }
+
+    public function winCondition(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => AchievementType::WinCondition,
         ]);
     }
 }

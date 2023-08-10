@@ -3,12 +3,168 @@
 use App\Community\Enums\ActivityType;
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Achievement;
+use App\Platform\Models\PlayerBadge;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
+{
+    // First, get the count of beaten-tier achievements for the game.
+    // We'll use this to determine if the game is even beatable, and later
+    // use it to determine if the user has in fact beaten the game.
+    $gameTierAchievementCounts = Achievement::where('GameID', $gameId)
+        ->whereIn('type', [AchievementType::Progression, AchievementType::WinCondition])
+        ->where('Flags', AchievementFlag::OfficialCore)
+        ->select('type', DB::raw('count(*) as total'))
+        ->groupBy('type')
+        ->get()
+        ->keyBy('type')
+        ->transform(function ($item) {
+            return $item->total;
+        });
+
+    $totalProgressions = (int) ($gameTierAchievementCounts[AchievementType::Progression] ?? 0);
+    $totalWinConditions = (int) ($gameTierAchievementCounts[AchievementType::WinCondition] ?? 0);
+
+    // If the game has no beaten-tier achievements assigned, it is not considered beatable.
+    // Bail.
+    if ($totalProgressions === 0 && $totalWinConditions === 0) {
+        return [
+            'isBeatenSoftcore' => false,
+            'isBeatenHardcore' => false,
+            'isBeatable' => false,
+        ];
+    }
+
+    // We can now start checking if the user has beaten the game.
+    // Start by querying for their unlocked beaten-tier achievements.
+    $userAchievements = Achievement::where('Achievements.GameID', $gameId)
+        ->whereIn('Achievements.type', [AchievementType::Progression, AchievementType::WinCondition])
+        ->where('Achievements.Flags', AchievementFlag::OfficialCore)
+        ->leftJoin('Awarded', function ($join) use ($user) {
+            $join->on('Achievements.ID', '=', 'Awarded.AchievementID')
+                ->where('Awarded.User', '=', $user);
+        })
+        ->select('Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID', 'Awarded.Date')
+        ->orderByDesc('Awarded.Date')
+        ->get();
+
+    // Create a Laravel collection and then group the collection items by generating a unique
+    // key for each item. The key is a combination of the achievement type and HardcoreMode
+    // status, separated by "|". For example, a Progression achievement accomplished in
+    // hardcore mode will have the key "Progression|1". After the groupBy, use the map
+    // method to apply the count function to each group. This approach allows us to
+    // both classify and count in a single loop with minimal conditional logic.
+    $achievements = collect($userAchievements)->groupBy(function ($item) {
+        return implode('|', [$item->type, $item->HardcoreMode]);
+    })->map->count();
+
+    $numUnlockedSoftcoreProgressions = $achievements[AchievementType::Progression . '|0'] ?? 0;
+    $numUnlockedHardcoreProgressions = $achievements[AchievementType::Progression . '|1'] ?? 0;
+    $numUnlockedSoftcoreWinConditions = $achievements[AchievementType::WinCondition . '|0'] ?? 0;
+    $numUnlockedHardcoreWinConditions = $achievements[AchievementType::WinCondition . '|1'] ?? 0;
+
+    // If there are no Win Condition achievements in the set, the game is considered beaten
+    // if the user unlocks all the progression achievements.
+    $neededWinConditionAchievements = $totalWinConditions >= 1 ? 1 : 0;
+
+    $isBeatenSoftcore =
+        $numUnlockedSoftcoreProgressions === $totalProgressions
+        && $numUnlockedSoftcoreWinConditions >= $neededWinConditionAchievements;
+
+    $isBeatenHardcore =
+        $numUnlockedHardcoreProgressions === $totalProgressions
+        && $numUnlockedHardcoreWinConditions >= $neededWinConditionAchievements;
+
+    $isBeaten = $isBeatenSoftcore || $isBeatenHardcore;
+
+    // Revoke pre-existing awards that no longer satisfy the game's "beaten" criteria.
+    // If the platform changes the definition of beating a game and the user no
+    // longer satisfies the criteria, they should not have the award anymore.
+    $alreadyHasBeatenAwards = HasBeatenSiteAwards($user, $gameId);
+    if ($alreadyHasBeatenAwards && !$isBeaten) {
+        if (!$isBeatenSoftcore) {
+            PlayerBadge::where('User', $user)
+                ->where('AwardType', AwardType::GameBeaten)
+                ->where('AwardData', $gameId)
+                ->where('AwardDataExtra', UnlockMode::Softcore)
+                ->delete();
+        }
+
+        if (!$isBeatenHardcore) {
+            PlayerBadge::where('User', $user)
+                ->where('AwardType', AwardType::GameBeaten)
+                ->where('AwardData', $gameId)
+                ->where('AwardDataExtra', UnlockMode::Hardcore)
+                ->delete();
+        }
+    }
+
+    // The user has beaten the game, give them an award.
+    if ($postBeaten && $isBeaten) {
+        $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
+
+        if (!HasSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode)) {
+            AddSiteAward(
+                $user,
+                AwardType::GameBeaten,
+                $gameId,
+                $awardMode,
+                awardDate: Carbon::parse(calculateBeatenGameTimestamp($userAchievements)),
+                displayOrder: 0
+            );
+        }
+
+        if (!RecentlyPostedProgressionActivity($user, $gameId, $awardMode, ActivityType::BeatGame)) {
+            postActivity($user, ActivityType::BeatGame, $gameId, $awardMode);
+        }
+    }
+
+    return [
+        'isBeatenSoftcore' => $isBeatenSoftcore,
+        'isBeatenHardcore' => $isBeatenHardcore,
+        'isBeatable' => true,
+    ];
+}
+
+/**
+ * Beaten game awards are stored with an AwardDate that corresponds to when they
+ * unlocked the precise achievement that granted them the beaten status. This has
+ * to be calculated by on the rules that Progression and Win Condition achievements follow.
+ */
+function calculateBeatenGameTimestamp(mixed $userAchievements): string
+{
+    $progressionAchievementsUnlocked = 0;
+    $latestProgressionDate = null;
+    $earliestWinConditionDate = null;
+
+    foreach ($userAchievements as $achievement) {
+        if ($achievement->type == AchievementType::Progression && $achievement->AchievementID) {
+            $progressionAchievementsUnlocked++;
+            // Keep track of the latest progression achievement date.
+            $latestProgressionDate = $latestProgressionDate === null || $achievement->Date > $latestProgressionDate
+                ? $achievement->Date
+                : $latestProgressionDate;
+        } elseif ($achievement->type == AchievementType::WinCondition && $achievement->AchievementID) {
+            // Keep track of the earliest win condition date.
+            $earliestWinConditionDate = $earliestWinConditionDate === null || $achievement->Date < $earliestWinConditionDate
+                ? $achievement->Date
+                : $earliestWinConditionDate;
+        }
+    }
+
+    // Return the latest date between the progression and win condition achievements.
+    return $progressionAchievementsUnlocked > 0
+        ? ($latestProgressionDate ? max($latestProgressionDate, $earliestWinConditionDate) : $earliestWinConditionDate)
+        : $earliestWinConditionDate;
+}
 
 function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, bool $postMastery): array
 {
@@ -43,7 +199,7 @@ function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, boo
                 AddSiteAward($user, AwardType::Mastery, $gameID, $awardBadge);
             }
 
-            if (!RecentlyPostedCompletionActivity($user, $gameID, $awardBadge)) {
+            if (!RecentlyPostedProgressionActivity($user, $gameID, $awardBadge, ActivityType::CompleteGame)) {
                 postActivity($user, ActivityType::CompleteGame, $gameID, $awardBadge);
             }
 
