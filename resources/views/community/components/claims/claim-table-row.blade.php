@@ -1,6 +1,6 @@
 <?php
-
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
 use Illuminate\Support\Carbon;
 
 $claimSetTypeCopy = ClaimSetType::toString(ClaimSetType::NewSet);
@@ -8,7 +8,8 @@ if ($claim['SetType'] !== ClaimSetType::NewSet) {
     $claimSetTypeCopy = ClaimSetType::toString(ClaimSetType::Revision);
 }
 
-$finishedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['DoneTime'])->diffForHumans();
+$targetTimestamp = $claim['Status'] === ClaimStatus::Active ? $claim['Created'] : $claim['DoneTime'];
+$timeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $targetTimestamp)->diffForHumans();
 ?>
 
 <tr>
@@ -24,5 +25,10 @@ $finishedTimeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $claim['DoneTime'])->
 
     <td class="pr-0">{!! userAvatar($claim['User']) !!}</td>
     <td>{{ $claimSetTypeCopy }}</td>
-    <td class="smalldate">{{ $finishedTimeAgo }}</td>
+    <td 
+        class="smalldate cursor-help" 
+        title="{{ getNiceDate(strtotime($targetTimestamp)) }}"
+    >
+        {{ $timeAgo }}
+    </td>
 </tr>

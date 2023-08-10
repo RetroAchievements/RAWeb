@@ -114,7 +114,13 @@ $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescend
             <p>Couldn't find any new sets/revisions.</p>
         </div>
     @else
-        <div class="overflow-x-auto sm:overflow-x-hidden">
+        <div class="flex flex-col gap-y-1 sm:hidden">
+            @foreach($claimData as $claim)
+                <x-claims.claim-mobile-block :claim="$claim" />
+            @endforeach
+        </div>
+
+        <div class="hidden sm:block overflow-x-hidden">
             <table class="table-highlight mb-1">
                 <thead>
                     <tr class="do-not-highlight">
@@ -127,7 +133,7 @@ $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescend
 
                 <tbody>
                     @foreach($claimData as $claim)
-                        <x-claims.finished-claim-table-row :claim="$claim" />
+                        <x-claims.claim-table-row :claim="$claim" />
                     @endforeach
                 </tbody>
             </table>
