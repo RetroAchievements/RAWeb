@@ -44,7 +44,7 @@ $showConsoleLine = $consoleId || $consoleName;
     @if($showConsoleLine)
         <div>
             <!-- Provide invisible space to slide the console underneath -->
-            <p class="invisible">{!! $renderedGameTitle !!}</p>
+            <p class="invisible max-w-fit font-medium mb-0.5 text-xs">{!! $renderedGameTitle !!}</p>
 
             <div class="flex items-center gap-x-1">
                 @if($consoleId && $consoleName)
