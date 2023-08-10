@@ -31,7 +31,7 @@ function SeparateAwards(array $userAwards): array
     return [$gameAwards, $eventAwards, $siteAwards];
 }
 
-function RenderSiteAwards(array $userAwards): void
+function RenderSiteAwards(array $userAwards, string $awardsOwnerUsername): void
 {
     [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
@@ -75,11 +75,11 @@ function RenderSiteAwards(array $userAwards): void
     usort($groups, fn ($a, $b) => $a[0] - $b[0]);
 
     foreach ($groups as $group) {
-        RenderAwardGroup($group[1], $group[2]);
+        RenderAwardGroup($group[1], $group[2], $awardsOwnerUsername);
     }
 }
 
-function RenderAwardGroup(array $awards, string $title): void
+function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsername): void
 {
     $numItems = count($awards);
     $numHidden = 0;
@@ -139,7 +139,7 @@ function RenderAwardGroup(array $awards, string $title): void
     $imageSize = 48;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
-            RenderAward($award, $imageSize);
+            RenderAward($award, $imageSize, $awardsOwnerUsername);
         }
     }
     echo "</div>";
@@ -160,7 +160,7 @@ function RenderCounter(string $icon, string $text, int $numItems, int $numHidden
     return $counter;
 }
 
-function RenderAward(array $award, int $imageSize, bool $clickable = true): void
+function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $clickable = true): void
 {
     $awardType = $award['AwardType'];
     $awardType = (int) $awardType;
@@ -186,7 +186,7 @@ function RenderAward(array $award, int $imageSize, bool $clickable = true): void
         $award['GameID'] = $award['AwardData'];
         $award['Mastery'] = "<br clear=all>$awarded";
 
-        echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, context: 'mastery', iconClass: $imgclass) . "</div>";
+        echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
 
         return;
     }

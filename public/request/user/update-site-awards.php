@@ -76,7 +76,7 @@ foreach ($awards as $award) {
 $userAwards = getUsersSiteAwards($user);
 $updatedAwardsHTML = '';
 ob_start();
-RenderSiteAwards($userAwards);
+RenderSiteAwards($userAwards, $user);
 $updatedAwardsHTML = ob_get_clean();
 
 return response()->json([

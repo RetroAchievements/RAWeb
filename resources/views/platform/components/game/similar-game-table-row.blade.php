@@ -39,5 +39,7 @@
                 </x-points-weighted-container>
             </div>
         </td>
+    @else
+        <td></td>
     @endif
 </tr>

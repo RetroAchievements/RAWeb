@@ -1,10 +1,12 @@
 <?php
 
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Facades\Blade;
 
 RenderContentStart();
 ?>
 <article class="flex flex-col gap-3">
+
     <h1>Cards</h1>
 
     <h3>User</h3>
@@ -110,7 +112,7 @@ RenderContentStart();
     </div>
 
     <h3>Game</h3>
-    <div class="flex justify-between">
+    <div class="grid">
         <div>
             <div class="mb-3">
                 <?= Shortcode::render('[game=1]') ?>
@@ -120,10 +122,37 @@ RenderContentStart();
                 <?= gameAvatar(1) ?>
             </div>
         </div>
+        <div class="flex w-full justify-between mb-2">
+            <?= Blade::render('<x-game-card gameId="1667" />') ?>
+            <?= Blade::render('<x-game-card gameId="17078" />') ?>
+        </div>
+        <div class="flex w-full justify-between mb-2">
+            <?= Blade::render('<x-game-card gameId="2791" />') ?>
+            <?= Blade::render('<x-game-card gameId="1471" />') ?>
+        </div>
+        <div class="flex w-full justify-between mb-2">
+            <?= Blade::render('<x-game-card gameId="17953" />') ?>
+            <?= Blade::render('<x-game-card gameId="1" />') ?>
+        </div>
+        <div class="flex w-full justify-between mb-2">
+            <?= Blade::render('<x-game-card gameId="12798" />') ?>
+            <?= Blade::render('<x-game-card gameId="12192" />') ?>
+        </div>
+        <div class="flex w-full justify-between mb-2">
+            <?= Blade::render('<x-game-card gameId="586" />') ?>
+            <?= Blade::render('<x-game-card gameId="22561" />') ?>
+        </div>
+    </div>
+
+    <h3>Hub</h3>
+    <div class="flex justify-between">
         <div>
-            <?= renderGameCard(1) ?>
-            <?= renderGameCard(17078) ?>
-            <?= renderGameCard(17953) ?>
+            <div class="mb-3">
+                <?= gameAvatar(8935) ?>
+            </div>
+            <div>
+                <?= Blade::render('<x-game-card gameId="8935" />') ?>
+            </div>
         </div>
     </div>
 

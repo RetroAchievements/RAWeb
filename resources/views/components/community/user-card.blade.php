@@ -1,4 +1,4 @@
-<x-tooltip-card imgSrc="{{ $avatarUrl }}">
+<x-card.container imgSrc="{{ $avatarUrl }}">
     <div class="relative h-full text-2xs">
         <!-- Role -->
         @if($canShowUserRole)
@@ -23,45 +23,36 @@
 
         <!-- Points -->
         @if($hardcorePoints > $softcorePoints)
-            <p>
-                <span class="font-bold">Points:</span>
+            <x-card.info-row label="Points">
                 {{ localized_number($hardcorePoints) }}
                 ({{ localized_number($retroPoints) }})
-            </p>
+            </x-card.info-row>
         @elseif($softcorePoints > 0)
-            <p>
-                <span class="font-bold">Softcore Points:</span>
-                {{ localized_number($softcorePoints) }}
-            </p>
+            <x-card.info-row label="Softcore Points">{{ localized_number($softcorePoints) }}</x-card.info-row>
         @else
-            <p><span class="font-bold">Points:</span> 0</p>
+            <x-card.info-row label="Points">0</x-card.info-row>
         @endif
 
         <!-- Site Rank -->
-        <p>
-            <span class="font-bold">{{ $rankLabel }}</span>
+        <x-card.info-row :label="$rankLabel">
             @if($isUntracked)
                 <span>Untracked</span>
             @else
                 {{ $siteRank === 0 ? "Needs at least $rankMinPoints points" : "#" . localized_number($siteRank) }}
                 {{ $rankPctLabel }}
             @endif
-        </p>
+        </x-card.info-row>
 
         <!-- Last Activity -->
         @if($lastActivity)
-            <p>
-                <span class="font-bold">Last Activity:</span>
-                {{ $lastActivity }}
-            </p>
+            <x-card.info-row label="Last Activity">{{ $lastActivity }}</x-card.info-row>
         @endif
 
         <!-- Member Since -->
         @if($memberSince)
-            <p>
-                <span class="font-bold">Member Since:</span>
+            <x-card.info-row label="Member Since">
                 {{ getNiceDate(strtotime($memberSince), $justDay = true) }}
-            </p>
+            </x-card.info-row>
         @endif
     </div>
-</x-tooltip-card>
+</x-card.container>
