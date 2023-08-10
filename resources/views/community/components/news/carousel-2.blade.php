@@ -10,7 +10,7 @@ if ($newsData->isEmpty()) {
 }
 ?>
 
-<div class="mb-6" aria-live="polite" aria-atomic="true" x-data="newsCarousel()">
+<div class="mb-6" aria-live="polite" aria-atomic="true" x-data="newsCarouselComponent()">
     <h2 class="sr-only">News</h2>
 
     <div 
