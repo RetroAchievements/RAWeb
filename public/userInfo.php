@@ -126,10 +126,14 @@ RenderOpenGraphMetadata(
 );
 RenderContentStart($userPage);
 ?>
-<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script defer src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-  google.load('visualization', '1.0', { 'packages': ['corechart'] });
-  google.setOnLoadCallback(drawCharts);
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof google !== 'undefined') {
+        google.load('visualization', '1.0', { 'packages': ['corechart'] });
+        google.setOnLoadCallback(drawCharts);
+    }
+  });
 
   function drawCharts() {
       var dataRecentProgress = new google.visualization.DataTable();
@@ -628,7 +632,7 @@ RenderContentStart($userPage);
 
         echo "<div id='achdistribution' class='component'>";
         echo "<h3>Recent Progress</h3>";
-        echo "<div id='chart_recentprogress' class='mb-5'></div>";
+        echo "<div id='chart_recentprogress' class='mb-5 min-h-[200px]'></div>";
         echo "<div class='text-right'><a class='btn btn-link' href='/history.php?u=$userPage'>more...</a></div>";
         echo "</div>";
 

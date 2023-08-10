@@ -4,7 +4,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * legacyDbAll() behaves like mysqli_fetch_all().
+ * legacyDbFetchAll() behaves like mysqli_fetch_all().
  * PDO will return an array of objects by default which will be cast to arrays.
  *
  * @return Collection<int, array>
@@ -16,9 +16,9 @@ function legacyDbFetchAll(string $query, array $bindings = []): Collection
 }
 
 /**
- * legacyDbFirst() behaves like a single call to mysqli_fetch_assoc().
+ * legacyDbFetch() behaves like a single call to mysqli_fetch_assoc().
  * Note that it does not work in a while loop like mysqli_fetch_assoc().
- * Use legacyDbAll() to fetch all rows.
+ * Use legacyDbFetchAll() to fetch all rows.
  */
 function legacyDbFetch(string $query, array $bindings = []): ?array
 {

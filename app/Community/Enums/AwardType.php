@@ -20,6 +20,8 @@ abstract class AwardType
 
     public const CertifiedLegend = 7;
 
+    public const GameBeaten = 8;
+
     public static function cases(): array
     {
         return [
@@ -28,6 +30,7 @@ abstract class AwardType
             self::AchievementPointsYield,
             self::PatreonSupporter,
             self::CertifiedLegend,
+            self::GameBeaten,
         ];
     }
 
@@ -44,6 +47,7 @@ abstract class AwardType
             AwardType::AchievementPointsYield => 'Achievement Points Yield',
             AwardType::PatreonSupporter => 'Patreon Supporter',
             AwardType::CertifiedLegend => 'Certified Legend',
+            AwardType::GameBeaten => 'Game Beaten',
             default => 'Invalid or deprecated award type',
         };
     }

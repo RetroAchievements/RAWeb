@@ -7,6 +7,7 @@ namespace App\Platform\Models;
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementFactory;
@@ -240,9 +241,9 @@ class Achievement extends BaseModel implements HasComments
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeType(Builder $query, int $type): Builder
+    public function scopeFlag(Builder $query, int $flag): Builder
     {
-        return $query->where('Flags', $type);
+        return $query->where('Flags', $flag);
     }
 
     /**
@@ -251,7 +252,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function scopePublished(Builder $query): Builder
     {
-        return $this->scopeType($query, AchievementFlag::OfficialCore);
+        return $this->scopeFlag($query, AchievementFlag::OfficialCore);
     }
 
     /**
@@ -260,7 +261,34 @@ class Achievement extends BaseModel implements HasComments
      */
     public function scopeUnpublished(Builder $query): Builder
     {
-        return $this->scopeType($query, AchievementFlag::Unofficial);
+        return $this->scopeFlag($query, AchievementFlag::Unofficial);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeType(Builder $query, string $type): Builder
+    {
+        return $query->where('type', $type);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeProgression(Builder $query): Builder
+    {
+        return $this->scopeType($query, AchievementType::Progression);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
+    public function scopeWinCondition(Builder $query): Builder
+    {
+        return $this->scopeType($query, AchievementType::WinCondition);
     }
 
     /**

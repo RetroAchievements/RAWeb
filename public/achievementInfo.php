@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
+use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Blade;
@@ -24,6 +25,7 @@ $desc = $dataOut['Description'];
 $achFlags = (int) $dataOut['Flags'];
 $achPoints = (int) $dataOut['Points'];
 $achTruePoints = (int) $dataOut['TrueRatio'];
+$achType = $dataOut['type'];
 $gameTitle = $dataOut['GameTitle'];
 $badgeName = $dataOut['BadgeName'];
 $consoleID = $dataOut['ConsoleID'];
@@ -110,6 +112,7 @@ RenderContentStart($pageTitle);
             title: $title.val(),
             description: $description.val(),
             points: $('#pointsinput').val(),
+            type: $('#typeinput').val(),
         })
             .done(function () {
                 location.reload();
@@ -282,8 +285,10 @@ RenderContentStart($pageTitle);
             if ($permissions >= Permissions::Developer || $isAuthor) {
                 echo "<div>Update achievement details:</div>";
                 echo "<table><tbody>";
+
                 echo "<tr><td>Title:</td><td style='width:100%'><input id='titleinput' type='text' name='t' value='" . attributeEscape($achievementTitle) . "' style='width:100%' maxlength='64'></td></tr>";
                 echo "<tr><td>Description:</td><td><input id='descriptioninput' type='text' name='d' value='" . attributeEscape($desc) . "' style='width:100%' maxlength='255'></td></tr>";
+
                 echo "<tr><td>Points:</td><td>";
                 echo "<select id='pointsinput' name='p'>";
                 foreach (AchievementPoints::cases() as $pointsOption) {
@@ -291,6 +296,15 @@ RenderContentStart($pageTitle);
                 }
                 echo "</select>";
                 echo "</td></tr>";
+
+                echo "<tr><td class='cursor-help' title='A game is considered beaten if ALL Progression achievements are unlocked and ANY Win Condition achievements are unlocked.'>Type:<sup>*</sup></td><td>";
+                echo "<select id='typeinput' name='k'>";
+                echo "<option value=''>None</option>";
+                foreach (AchievementType::cases() as $typeOption) {
+                    echo "<option value='$typeOption' " . ($achType === $typeOption ? 'selected' : '') . ">$typeOption</option>";
+                }
+                echo "</select></td></tr>";
+
                 echo "</tbody></table>";
                 echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
 
