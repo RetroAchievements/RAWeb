@@ -27,10 +27,21 @@ function avatar(
 
     $tooltipTrigger = '';
     if ($tooltip) {
-        $tooltipTrigger = "x-init=\"attachTooltipToElement(\$el, { dynamicType: '$resource', dynamicId: '$id', dynamicContext: '$context' })\"";
+        $tooltipTrigger = <<<HTML
+            x-data="tooltipComponent(\$el, { dynamicType: '$resource', dynamicId: '$id', dynamicContext: '$context' })"
+            @mouseover="showTooltip(\$event)"
+            @mouseleave="hideTooltip"
+            @mousemove="trackMouseMovement(\$event)"
+        HTML;
+
         if (is_string($tooltip)) {
             $escapedTooltip = tooltipEscape($tooltip);
-            $tooltipTrigger = "x-init=\"attachTooltipToElement(\$el, { staticHtmlContent: useCard('$resource', '$id', '$context', '$escapedTooltip') })\"";
+            $tooltipTrigger = <<<HTML
+                x-data="tooltipComponent(\$el, { staticHtmlContent: useCard('$resource', '$id', '$context', '$escapedTooltip') })"
+                @mouseover="showTooltip(\$event)"
+                @mouseleave="hideTooltip"
+                @mousemove="trackMouseMovement(\$event)"
+            HTML;
         }
     }
 

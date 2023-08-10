@@ -6,6 +6,11 @@ namespace App\Support\Cache;
 
 class CacheKey
 {
+    public static function buildUserCompletedGamesCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "completed-games");
+    }
+
     public static function buildUserCanTicketCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "can-ticket");
