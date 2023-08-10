@@ -40,6 +40,25 @@ function playerHasUnlock(?string $user, int $achievementId): array
     return $retVal;
 }
 
+function recalculatePlayerBeatenGames(string $username): bool
+{
+    // Get the list of games the user has played.
+    $gamesPlayedQuery = <<<SQL
+        SELECT DISTINCT Achievements.GameID 
+        FROM Awarded 
+        INNER JOIN Achievements ON Awarded.AchievementID = Achievements.ID 
+        WHERE Awarded.User = :username
+    SQL;
+
+    $gamesPlayed = legacyDbFetchAll($gamesPlayedQuery, ['username' => $username])->toArray();
+
+    foreach ($gamesPlayed as $game) {
+        testBeatenGame($game['GameID'], $username, true);
+    }
+
+    return true;
+}
+
 function unlockAchievement(string $username, int $achievementId, bool $isHardcore): array
 {
     $retVal = [
@@ -96,6 +115,9 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         // the achievement unlock notification first
         postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
+
+    // TODO: Should the return value from this function be attaching anything to $retVal?
+    testBeatenGame($achievement->GameID, $user->User, !$alreadyAwarded);
 
     $completion = testFullyCompletedGame($achievement->GameID, $user->User, $isHardcore, !$alreadyAwarded);
     if (array_key_exists('NumAwarded', $completion)) {
@@ -434,7 +456,7 @@ function getAchievementDistribution(
     int $numPlayers = 0
 ): array {
     /** @var Game $game */
-    $game = Game::withCount(['achievements' => fn ($query) => $query->type($flag)])
+    $game = Game::withCount(['achievements' => fn ($query) => $query->flag($flag)])
         ->find($gameID);
 
     if (!$game || !$game->achievements_count) {

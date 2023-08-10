@@ -47,5 +47,7 @@ class UpdatePlayerPoints extends Command
         recalculatePlayerPoints($username);
         // TODO queue UpdateDeveloperContributionYield command instead for a more detailed contribution yield update
         recalculateDeveloperContribution($username);
+        // TODO (?)
+        recalculatePlayerBeatenGames($username);
     }
 }
