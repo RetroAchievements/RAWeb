@@ -544,10 +544,12 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
 RenderContentStart("$dev's Developer Stats");
 ?>
-<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script defer src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-    google.charts.load('current', { 'packages': ['corechart'] });
-    google.charts.setOnLoadCallback(drawChart);
+    document.addEventListener('DOMContentLoaded', function() {
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+    });
 
     function drawChart() {
         <?php if ($userContribCount > 0) { ?>
@@ -689,9 +691,9 @@ RenderContentStart("$dev's Developer Stats");
             /*
              * Pie Charts
              */
-            echo "<div style='width: 100%; overflow: hidden; text-align: center'>";
-            echo "<div style='display: inline-block' id='gameChart'></div>";
-            echo "<div style='display: inline-block' id='achievementChart'></div>";
+            echo "<div class='w-full overflow-hidden text-center'>";
+            echo "<div class='inline-block min-h-[325px]' id='gameChart'></div>";
+            echo "<div class='inline-block min-h-[325px]' id='achievementChart'></div>";
             echo "</div>";
 
             /*

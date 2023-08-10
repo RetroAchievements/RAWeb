@@ -19,10 +19,12 @@ if (file_exists("../storage/logs/playersonline.log")) {
 
 $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->count();
 ?>
-<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script defer src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-    google.load('visualization', '1.0', { 'packages': ['corechart'] });
-    google.setOnLoadCallback(drawCharts);
+    document.addEventListener('DOMContentLoaded', function() {
+        google.load('visualization', '1.0', { 'packages': ['corechart'] });
+        google.setOnLoadCallback(drawCharts);
+    });
 
     function drawCharts() {
         var dataTotalScore = new google.visualization.DataTable();
