@@ -1190,7 +1190,17 @@ sanitize_outputs(
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
 
-                    echo "<div class='mt-1' style='float: left; clear: left' x-init=\"attachTooltipToElement(\$el, { staticHtmlContent: {$containername}tooltip })\">";
+                    echo <<<HTML
+                        <div
+                            class="mt-1"
+                            style="float: left; clear: left;"
+                            x-data="tooltipComponent(\$el, { staticHtmlContent: {$containername}tooltip })"
+                            @mouseover="showTooltip(\$event)"
+                            @mouseleave="hideTooltip"
+                            @mousemove="trackMouseMovement(\$event)"
+                        >
+                    HTML;
+
                     echo "<p class='$labelname text-2xs'>$labelcontent</p>";
                     echo "<p id='your-game-rating' class='text-2xs'>";
                     if ($ratingData['UserRating'] > 0) {

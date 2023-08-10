@@ -1,10 +1,10 @@
 function CreateCardIconDiv(type, id, title, icon, url) {
-  let initDirective = `x-init="attachTooltipToElement($el, { dynamicType: '${type}', dynamicId: '${id}' })"`;
+  let dataDirective = `x-data="tooltipComponent($el, { dynamicType: '${type}', dynamicId: '${id}' })"`;
   if (type === 'game') {
-    initDirective = `x-init="attachTooltipToElement($el, { staticHtmlContent: useCard('game', '${id}') })"`;
+    dataDirective = `x-data="tooltipComponent($el, { staticHtmlContent: useCard('game', '${id}') })"`;
   }
 
-  return `<div class="inline" ${initDirective}>`
+  return `<div class="inline" ${dataDirective} @mouseover="showTooltip($event)" @mouseleave="hideTooltip" @mousemove="trackMouseMovement($event)">`
     + `<a href="${url}">`
     + `<img src="${mediaAsset(icon)}" width="32" height="32" alt="${title}" class="badgeimg" loading="lazy" />`
     + '</a>'

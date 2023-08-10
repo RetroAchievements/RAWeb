@@ -178,9 +178,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
             rowEl.querySelector('td[data-current-author]').dataset.currentAuthor = currentUsername;
 
             const authorAvatarSpan = authorAvatarCellEl.querySelector('span.inline.whitespace-nowrap');
-            const newXInitValue = `attachTooltipToElement($el, { dynamicType: 'user', dynamicId: '${currentUsername}', dynamicContext: '' })`;
-            authorAvatarSpan.setAttribute('x-init', newXInitValue);
-            attachTooltipToElement(authorAvatarSpan, { dynamicType: 'user', dynamicId: currentUsername, dynamicContext: '' });
+            authorAvatarSpan.removeAttribute('@mouseover');
         }
 
         // Now it's safe to bail.

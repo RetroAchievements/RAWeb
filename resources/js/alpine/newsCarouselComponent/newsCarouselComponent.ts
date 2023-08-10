@@ -35,7 +35,11 @@ const privateUtils = {
    * Scroll to somewhere in the carousel image list, with index as
    * the slide index to scroll to.
    */
-  scrollToIndex: (imageListEl: HTMLDivElement, index: number, scrollBehavior: 'smooth' | 'instant' = 'smooth') => {
+  scrollToIndex: (
+    imageListEl: HTMLDivElement,
+    index: number,
+    scrollBehavior: 'smooth' | 'instant' = 'smooth',
+  ) => {
     const offsetWidth = imageListEl.offsetWidth;
     const position = index * offsetWidth;
 
@@ -243,6 +247,6 @@ const newsCarouselStore = {
   },
 };
 
-export function newsCarousel(totalSlideCount = 10) {
+export function newsCarouselComponent(totalSlideCount = 10) {
   return { ...newsCarouselStore, totalSlideCount };
 }
