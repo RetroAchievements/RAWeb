@@ -99,7 +99,7 @@ function RenderToolbar(): void
                 ["systemName" => "Mega Duck", "listID" => 69],
                 ["systemName" => "MSX", "listID" => 29],
                 ["systemName" => "Neo Geo Pocket", "listID" => 14],
-				["systemName" => "Uzebox", "listID" => 80],
+                ["systemName" => "Uzebox", "listID" => 80],
                 ["systemName" => "Vectrex", "listID" => 46],
                 ["systemName" => "WASM-4", "listID" => 72],
                 ["systemName" => "Watara Supervision", "listID" => 63],
