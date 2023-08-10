@@ -27,6 +27,8 @@ abstract class ActivityType
 
     public const ClosedTicket = 10;
 
+    public const BeatGame = 11;
+
     public static function cases(): array
     {
         return [
@@ -40,6 +42,7 @@ abstract class ActivityType
             self::ImprovedLeaderboardEntry,
             self::OpenedTicket,
             self::ClosedTicket,
+            self::BeatGame,
         ];
     }
 

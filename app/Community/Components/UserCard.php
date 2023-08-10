@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\View\Components\Community;
+namespace App\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
 use App\Site\Enums\Permissions;
-use App\Site\Models\User as UserModel;
+use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
@@ -55,11 +55,10 @@ class UserCard extends Component
 
     private function getUserData(string $username): ?array
     {
-        return Cache::store('array')->remember(
+        return Cache::store('array')->rememberForever(
             CacheKey::buildUserCardDataCacheKey($username),
-            Carbon::now()->addMonths(3),
             function () use ($username): ?array {
-                $foundUser = UserModel::firstWhere('User', $username);
+                $foundUser = User::firstWhere('User', $username);
 
                 return $foundUser ? $foundUser->toArray() : null;
             }

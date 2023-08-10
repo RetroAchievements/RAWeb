@@ -1,9 +1,11 @@
 <?php
 
+use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
@@ -14,6 +16,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'title' => 'required|string|max:64',
     'description' => 'required|max:255',
     'points' => 'required|integer',
+    'type' => ['nullable', 'string', Rule::in(AchievementType::cases())],
 ]);
 
 $achievement = Achievement::find($input['achievement']);
@@ -34,6 +37,7 @@ if (UploadNewAchievement(
     progressMax: $achievement['ProgressMax'],
     progressFmt: $achievement['ProgressFormat'],
     points: $input['points'],
+    type: $input['type'],
     mem: $achievement['MemAddr'],
     flag: $achievement['Flags'],
     idInOut: $achievementId,

@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Models\User;
+use Illuminate\Support\Facades\Blade;
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
 
@@ -88,7 +89,14 @@ function displayCore() {
                             <option value="1" <?= old('issue') === '1' ? 'selected' : '' ?>>Triggered at wrong time</option>
                             <option value="2" <?= old('issue') === '2' ? 'selected' : '' ?>>Doesn't Trigger</option>
                         </select>
-                        <a class="btn btn-link" href="/views/issueDescriptionModal.html" rel="modal:open">?</a>
+
+                        <?=
+                            Blade::render('
+                                <x-modal-trigger buttonLabel="What do these mean?" modalTitleLabel="Issue Kinds">
+                                    <x-modal-content.issue-description />
+                                </x-modal-trigger>
+                            ')
+                        ?>
                     </td>
                 </tr>
                 <tr>
@@ -111,7 +119,14 @@ function displayCore() {
                                placeholder="Emulator version"
                                value="<?= old('emulator_version') ?>"
                         >
-                        <a class="btn btn-link" href="/views/versionDescriptionModal.html" rel="modal:open">Why?</a>
+
+                        <?=
+                            Blade::render('
+                                <x-modal-trigger buttonLabel="Why?" modalTitleLabel="Why do I need this?">
+                                    <x-modal-content.why-emulator-version />
+                                </x-modal-trigger>
+                            ')
+                        ?>
                     </td>
                 </tr>
                 <tr id="core-row">
@@ -135,7 +150,7 @@ function displayCore() {
                     </td>
                 </tr>
                 <tr>
-                    <td><label for="hash">RetroAchievements Hash</label></td>
+                    <td><label for="hash">Supported Game File Hash</label></td>
                     <td>
                         <?php
                         $hashes = collect(getHashListByGameID($gameID))
@@ -154,7 +169,14 @@ function displayCore() {
                             }
                             ?>
                         </select>
-                        <a class="btn btn-link" href="/views/checksumDescriptionModal.html" rel="modal:open">?</a>
+
+                        <?=
+                            Blade::render('
+                                <x-modal-trigger buttonLabel="How do I find this?" modalTitleLabel="Find the Game File Hash">
+                                    <x-modal-content.how-to-find-hash />
+                                </x-modal-trigger>
+                            ')
+                        ?>
                     </td>
                 </tr>
                 <tr>

@@ -21,7 +21,7 @@ trait TestsPlayerAchievements
         $needsHardcore = ($hardcoreUnlockTime !== null);
         $needsSoftcore = true;
 
-        $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->id)->get();
+        $unlocks = $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->get();
         foreach ($unlocks as $unlock) {
             if ($unlock['HardcoreMode'] === UnlockMode::Hardcore) {
                 $needsHardcore = false;

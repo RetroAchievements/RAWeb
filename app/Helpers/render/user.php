@@ -66,7 +66,7 @@ function userAvatar(
 
 function renderUserCard(string|array $user): string
 {
-    return Blade::render('<x-community.user-card :user="$user" />', [
+    return Blade::render('<x-user-card :user="$user" />', [
         'user' => $user,
     ]);
 }
@@ -90,8 +90,11 @@ function getCompletedAndIncompletedSetsCounts(array $userCompletedGamesList): ar
     return ['completedSetsCount' => $completedSetsCount, 'incompletedSetsCount' => $incompletedSetsCount];
 }
 
-function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitiallyHidingCompletedSets = false): void
-{
+function RenderCompletedGamesList(
+    array $userCompletedGamesList,
+    string $username,
+    bool $isInitiallyHidingCompletedSets = false,
+): void {
     echo "<div id='completedgames' class='component' >";
 
     echo "<h3>Completion Progress</h3>";
@@ -143,10 +146,10 @@ function RenderCompletedGamesList(array $userCompletedGamesList, bool $isInitial
         echo "<tr class='$isCompletedClassName'>";
 
         echo "<td>";
-        echo gameAvatar($userCompletedGamesList[$i], label: false);
+        echo gameAvatar($userCompletedGamesList[$i], label: false, context: $username);
         echo "</td>";
         echo "<td class='smaller'>";
-        echo gameAvatar($userCompletedGamesList[$i], icon: false);
+        echo gameAvatar($userCompletedGamesList[$i], icon: false, context: $username);
         echo "</td>";
         echo "<td>";
 

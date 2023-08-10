@@ -1,4 +1,4 @@
-import { asset, fetcher } from '../../utils';
+import { asset, fetcher } from '@/utils';
 
 import { tooltipStore as store } from '../state/tooltipStore';
 import { renderTooltip } from './renderTooltip';

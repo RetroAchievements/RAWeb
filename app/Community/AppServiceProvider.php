@@ -14,6 +14,7 @@ use App\Community\Commands\SyncRatings;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Commands\SyncVotes;
+use App\Community\Components\UserCard;
 use App\Community\Models\AchievementComment;
 use App\Community\Models\AchievementSetClaim;
 use App\Community\Models\Comment;
@@ -36,6 +37,7 @@ use App\Community\Models\UserGameListEntry;
 use App\Community\Models\UserRelation;
 use App\Community\Models\Vote;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -97,6 +99,8 @@ class AppServiceProvider extends ServiceProvider
         Ticket::disableSearchSyncing();
         TriggerTicketComment::disableSearchSyncing();
         UserComment::disableSearchSyncing();
+
+        Blade::component('user-card', UserCard::class);
 
         // Livewire::component('forum-topics', ForumTopics::class);
         //

@@ -1,9 +1,11 @@
 import type { Alpine } from 'alpinejs';
 
-import type { attachTooltipToElement as AttachTooltipToElement } from '@/tooltip';
 import { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
-import { hideEarnedCheckboxComponent as HideEarnedCheckboxComponent } from '@/alpine/hideEarnedCheckboxComponent';
-import type { newsCarousel as NewsCarousel } from '@/alpine/newsCarousel';
+import type {
+  newsCarouselComponent as NewsCarouselComponent,
+  hideEarnedCheckboxComponent as HideEarnedCheckboxComponent,
+  tooltipComponent as TooltipComponent,
+} from '@/alpine';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
@@ -12,7 +14,6 @@ import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibi
 
 declare global {
   var Alpine: Alpine;
-  var attachTooltipToElement: typeof AttachTooltipToElement;
   var autoExpandTextInput: typeof AutoExpandTextInput;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
@@ -21,7 +22,8 @@ declare global {
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
-  var newsCarousel: typeof NewsCarousel;
+  var newsCarouselComponent: typeof NewsCarouselComponent;
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
+  var tooltipComponent: typeof TooltipComponent;
 }

@@ -297,10 +297,14 @@ sanitize_outputs(
 <?php endif ?>
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script defer src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-    google.load('visualization', '1.0', { 'packages': ['corechart'] });
-    google.setOnLoadCallback(drawCharts);
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof google !== 'undefined') {
+            google.load('visualization', '1.0', { 'packages': ['corechart'] });
+            google.setOnLoadCallback(drawCharts);
+        }
+    });
 
     function drawCharts() {
         var dataTotalScore = new google.visualization.DataTable();
@@ -860,17 +864,9 @@ sanitize_outputs(
             ', $gameMetaBindings);
 
             if ($isFullyFeaturedGame) {
-                echo <<<HTML
-                    <div class="mb-3 -mx-5 sm:mx-0 grid sm:flex sm:justify-around sm:w-full gap-y-1 sm:gap-x-5">
-                        <div class="flex justify-center items-center">
-                            <img class="w-full sm:rounded-sm" src="$imageTitle" alt="Title screenshot">
-                        </div>
-
-                        <div class="flex justify-center items-center">
-                            <img class="w-full sm:rounded-sm" src="$imageIngame" alt="In-game screenshot">
-                        </div>
-                    </div>
-                HTML;
+                echo Blade::render('
+                    <x-game.screenshots :titleImageSrc="$titleImageSrc" :ingameImageSrc="$ingameImageSrc" />
+                ', ['titleImageSrc' => $imageTitle, 'ingameImageSrc' => $imageIngame]);
             }
 
             // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
@@ -1186,7 +1182,17 @@ sanitize_outputs(
 
                     echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
 
-                    echo "<div class='mt-1' style='float: left; clear: left' x-init=\"attachTooltipToElement(\$el, { staticHtmlContent: {$containername}tooltip })\">";
+                    echo <<<HTML
+                        <div
+                            class="mt-1"
+                            style="float: left; clear: left;"
+                            x-data="tooltipComponent(\$el, { staticHtmlContent: {$containername}tooltip })"
+                            @mouseover="showTooltip(\$event)"
+                            @mouseleave="hideTooltip"
+                            @mousemove="trackMouseMovement(\$event)"
+                        >
+                    HTML;
+
                     echo "<p class='$labelname text-2xs'>$labelcontent</p>";
                     echo "<p id='your-game-rating' class='text-2xs'>";
                     if ($ratingData['UserRating'] > 0) {
@@ -1561,7 +1567,7 @@ sanitize_outputs(
             if ($numAchievements > 0) {
                 echo "<div id='achdistribution' class='component' >";
                 echo "<h2 class='text-h3'>Achievement Distribution</h2>";
-                echo "<div id='chart_distribution'></div>";
+                echo "<div id='chart_distribution' class='min-h-[260px]'></div>";
                 echo "</div>";
 
                 RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);

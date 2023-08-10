@@ -4,7 +4,10 @@ use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -134,7 +137,7 @@ function getAchievementsList(
 function GetAchievementData(int $achievementId): ?array
 {
     $query = "SELECT ach.ID AS ID, ach.ID AS AchievementID, ach.GameID, ach.Title AS Title, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio,
-                ach.Flags, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.DisplayOrder, ach.AssocVideo, ach.MemAddr,
+                ach.Flags, ach.type, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.DisplayOrder, ach.AssocVideo, ach.MemAddr,
                 c.ID AS ConsoleID, c.Name AS ConsoleName, g.Title AS GameTitle, g.ImageIcon AS GameIcon
               FROM Achievements AS ach
               LEFT JOIN GameData AS g ON g.ID = ach.GameID
@@ -153,6 +156,7 @@ function UploadNewAchievement(
     string $progressMax,
     string $progressFmt,
     int $points,
+    ?string $type,
     string $mem,
     int $flag,
     ?int &$idInOut,
@@ -190,10 +194,16 @@ function UploadNewAchievement(
         return false;
     }
 
+    if ($type !== null && !AchievementType::isValid($type)) {
+        $errorOut = "Invalid achievement type";
+
+        return false;
+    }
+
     $dbAuthor = $author;
     $rawDesc = $desc;
     $rawTitle = $title;
-    sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor);
+    sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor, $type);
 
     if (empty($idInOut)) {
         // New achievement added
@@ -208,7 +218,7 @@ function UploadNewAchievement(
             INSERT INTO Achievements (
                 ID, GameID, Title, Description,
                 MemAddr, Progress, ProgressMax,
-                ProgressFormat, Points, Flags,
+                ProgressFormat, Points, Flags, type,
                 Author, DateCreated, DateModified,
                 Updated, VotesPos, VotesNeg,
                 BadgeName, DisplayOrder, AssocVideo,
@@ -217,7 +227,7 @@ function UploadNewAchievement(
             VALUES (
                 NULL, '$gameID', '$title', '$desc',
                 '$mem', '$progress', '$progressMax',
-                '$progressFmt', $points, $flag,
+                '$progressFmt', $points, $flag, $type,
                 '$dbAuthor', NOW(), NOW(),
                 NOW(), 0, 0,
                 '$badge', 0, NULL,
@@ -245,12 +255,13 @@ function UploadNewAchievement(
         return false;
     }
     // Achievement being updated
-    $query = "SELECT Flags, MemAddr, Points, Title, Description, BadgeName, Author FROM Achievements WHERE ID='$idInOut'";
+    $query = "SELECT Flags, type, MemAddr, Points, Title, Description, BadgeName, Author FROM Achievements WHERE ID='$idInOut'";
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
         $data = mysqli_fetch_assoc($dbResult);
 
         $changingAchSet = ($data['Flags'] != $flag);
+        $changingType = ($data['type'] != $type);
         $changingPoints = ($data['Points'] != $points);
         $changingTitle = ($data['Title'] !== $rawTitle);
         $changingDescription = ($data['Description'] !== $rawDesc);
@@ -278,7 +289,7 @@ function UploadNewAchievement(
             }
         }
 
-        $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
+        $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type='$type', DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
 
         $db = getMysqliConnection();
         if (mysqli_query($db, $query) !== false) {
@@ -335,6 +346,9 @@ function UploadNewAchievement(
                 }
                 if ($changingDescription) {
                     $fields[] = "description";
+                }
+                if ($changingType) {
+                    $fields[] = "type";
                 }
                 $editString = implode(', ', $fields);
 
@@ -518,6 +532,15 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
         }
         attributeDevelopmentAuthor($author, $count, $points);
     }
+
+    return true;
+}
+
+function updateAchievementType(int|string|array $achID, string $newType): bool
+{
+    $achievementIds = is_array($achID) ? $achID : [$achID];
+
+    Achievement::whereIn('ID', $achievementIds)->update(['type' => $newType, 'Updated' => Carbon::now()]);
 
     return true;
 }
