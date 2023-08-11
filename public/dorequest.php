@@ -388,9 +388,9 @@ switch ($requestType) {
             progressMax: ' ',
             progressFmt: ' ',
             points: (int) request()->input('z', 0),
+            type: request()->input('x'),
             mem: request()->input('m'),
             flag: (int) request()->input('f', AchievementFlag::Unofficial),
-            type: request()->input('x'),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut

@@ -227,7 +227,7 @@ function UploadNewAchievement(
             VALUES (
                 NULL, '$gameID', '$title', '$desc',
                 '$mem', '$progress', '$progressMax',
-                '$progressFmt', $points, $flag, $type,
+                '$progressFmt', $points, $flag, '$type',
                 '$dbAuthor', NOW(), NOW(),
                 NOW(), 0, 0,
                 '$badge', 0, NULL,
