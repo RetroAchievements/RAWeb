@@ -64,6 +64,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 71, // Arduboy
                 72, // WASM-4
                 76, // PC Engine CD
+                80, // Uzebox
             ],
         ],
         Emulators::RALibretro => [
@@ -120,6 +121,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 71, // Arduboy
                 72, // WASM-4
                 76, // PC Engine CD
+                80, // Uzebox
             ],
         ],
         Emulators::Bizhawk => [
@@ -161,6 +163,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 53, // WonderSwan
                 76, // PC Engine CD
                 78, // Nintendo DSi
+                80, // Uzebox
             ],
         ],
         Emulators::PCSX2 => [

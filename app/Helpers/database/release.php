@@ -92,7 +92,7 @@ function isValidConsoleId(int $consoleId): bool
         77, // Atari Jaguar CD
         78, // Nintendo DSi
         // 79, // TI-83
-        // 80, // Uzebox
+        80, // Uzebox
         // 100, // Hubs (not an actual console)
         101 => true, // Events (not an actual console)
         default => false,
