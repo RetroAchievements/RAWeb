@@ -688,7 +688,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     // Extract and cache data from Awarded.
     // TODO: Remove when denormalized data is ready. The function call and Cache put can be deleted.
     $awardedCacheString = prepareUserCompletedGamesCacheValue($fullResults);
-    Cache::put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, Carbon::now()->addHour());
+    Cache::put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, Carbon::now()->addDays(7));
 
     return $fullResults;
 }
