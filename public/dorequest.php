@@ -390,7 +390,7 @@ switch ($requestType) {
             points: (int) request()->input('z', 0),
             mem: request()->input('m'),
             flag: (int) request()->input('f', AchievementFlag::Unofficial),
-            type: request()->input('x', null),
+            type: request()->input('x'),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut
