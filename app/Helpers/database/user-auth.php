@@ -7,8 +7,17 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-function authenticateForConnect(string $username, ?string $pass = null, ?string $token = null): array
+function authenticateForConnect(?string $username, ?string $pass = null, ?string $token = null): array
 {
+    if (!$username) {
+        return [
+            'Success' => false,
+            'Status' => 403,
+            'Code' => 'access_denied',
+            'Error' => 'Invalid username.',
+        ];
+    }
+
     $user = null;
 
     $passwordProvided = (isset($pass) && mb_strlen($pass) >= 1);
@@ -31,8 +40,8 @@ function authenticateForConnect(string $username, ?string $pass = null, ?string 
             'Status' => 401,
             'Code' => 'invalid_credentials',
             'Error' => $tokenProvided ?
-                'Invalid User/Token combination.' :
-                'Invalid User/Password combination. Please try again.',
+                'Invalid user/token combination.' :
+                'Invalid user/password combination. Please try again.',
         ];
     }
 
@@ -43,7 +52,7 @@ function authenticateForConnect(string $username, ?string $pass = null, ?string 
             'Status' => 403,
             'Code' => 'access_denied',
             'Error' => ($permissions === Permissions::Unregistered) ?
-                'Please register your account.' :
+                'Access denied. Please verify your email address.' :
                 'Access denied.',
         ];
     }

@@ -112,7 +112,7 @@ switch ($requestType) {
      * Login
      */
     case "login":
-        $user = request()->input('u', '');
+        $user = request()->input('u');
         $rawPass = request()->input('p');
         $response = authenticateForConnect($user, $rawPass, $token);
 
@@ -122,7 +122,7 @@ switch ($requestType) {
         return response()->json($response);
 
     case "login2":
-        $user = request()->input('u', '');
+        $user = request()->input('u');
         $rawPass = request()->input('p');
         $response = authenticateForConnect($user, $rawPass, $token);
         break;
