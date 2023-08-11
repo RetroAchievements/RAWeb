@@ -46,12 +46,14 @@ function GetMessageCount(string $username, ?int &$totalMessageCount = null): int
               WHERE UserTo = :user
               GROUP BY Unread";
 
-    while ($data = legacyDbFetch($query, ['user' => $username])) {
-        if ($data['Unread'] == 1) {
-            $unreadMessageCount = (int) $data['NumFound'];
+    $data = legacyDbFetchAll($query, ['user' => $username]);
+
+    foreach ($data as $datum) {
+        if ($datum['Unread'] == 1) {
+            $unreadMessageCount = (int) $datum['NumFound'];
         }
 
-        $totalMessageCount += (int) $data['NumFound'];
+        $totalMessageCount += (int) $datum['NumFound'];
     }
 
     return $unreadMessageCount;
