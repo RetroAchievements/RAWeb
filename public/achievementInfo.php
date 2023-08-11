@@ -95,7 +95,7 @@ function generateMetaDescription(
     string $consoleName,
     int $points = 0,
     int $winnerCount = 0,
-) {
+): string {
     $pointsLabel = $points === 1 ? "point" : "points";
     $localizedWinnerCount = localized_number($winnerCount);
     $winnerCountLabel = $winnerCount === 1 ? "player" : "players";
