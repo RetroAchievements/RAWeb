@@ -112,7 +112,7 @@ switch ($requestType) {
      * Login
      */
     case "login":
-        $user = request()->input('u', '');
+        $user = request()->input('u');
         $rawPass = request()->input('p');
         $response = authenticateForConnect($user, $rawPass, $token);
 
@@ -122,7 +122,7 @@ switch ($requestType) {
         return response()->json($response);
 
     case "login2":
-        $user = request()->input('u', '');
+        $user = request()->input('u');
         $rawPass = request()->input('p');
         $response = authenticateForConnect($user, $rawPass, $token);
         break;
@@ -388,9 +388,9 @@ switch ($requestType) {
             progressMax: ' ',
             progressFmt: ' ',
             points: (int) request()->input('z', 0),
+            type: request()->input('x'),
             mem: request()->input('m'),
             flag: (int) request()->input('f', AchievementFlag::Unofficial),
-            type: request()->input('x'),
             idInOut: $achievementID,
             badge: request()->input('b'),
             errorOut: $errorOut
