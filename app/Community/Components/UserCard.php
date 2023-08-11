@@ -106,7 +106,7 @@ class UserCard extends Component
         $siteRank = 0;
         $totalRankedUsersCount = 0;
         $rankType = RankType::Hardcore;
-        $rankLabel = 'Site Rank:';
+        $rankLabel = 'Site Rank';
         $rankPctLabel = '';
         $rankMinPoints = Rank::MIN_POINTS;
 
