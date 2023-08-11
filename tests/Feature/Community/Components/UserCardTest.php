@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Community;
+namespace Tests\Feature\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Site\Enums\Permissions;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform;
+namespace Tests\Feature\Platform\Components;
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
