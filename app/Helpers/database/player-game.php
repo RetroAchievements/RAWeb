@@ -590,8 +590,8 @@ function getLightweightUsersCompletedGamesAndMax(string $user, string $cachedAwa
             $game['MaxPossible'] = $maxPossible;
             $game['NumAwarded'] = $numAwarded;
             $game['NumAwardedHC'] = $numAwardedHC;
-            $game['PctWon'] = $numAwarded / $maxPossible;
-            $game['PctWonHC'] = $numAwardedHC / $maxPossible;
+            $game['PctWon'] = $maxPossible ? $numAwarded / $maxPossible : 0;
+            $game['PctWonHC'] = $maxPossible ? $numAwardedHC / $maxPossible : 0;
         }
     }
 
@@ -649,7 +649,7 @@ function prepareUserCompletedGamesCacheValue(array $allFetchedResults): string
 // TODO: Remove when denormalized data is ready. See comments in getUsersCompletedGamesAndMax().
 function expireUserCompletedGamesCacheValue(string $user): void
 {
-    Cache::store()->delete(CacheKey::buildUserCompletedGamesCacheKey($user));
+    Cache::delete(CacheKey::buildUserCompletedGamesCacheKey($user));
 }
 
 function getUsersCompletedGamesAndMax(string $user): array
@@ -662,7 +662,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     $minAchievementsForCompletion = 5;
 
     // TODO: Remove when denormalized data is ready. The cache call and conditional can be deleted.
-    $cachedAwardedValues = Cache::store()->get(CacheKey::buildUserCompletedGamesCacheKey($user));
+    $cachedAwardedValues = Cache::get(CacheKey::buildUserCompletedGamesCacheKey($user));
     if ($cachedAwardedValues) {
         return getLightweightUsersCompletedGamesAndMax($user, $cachedAwardedValues);
     }
