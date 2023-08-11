@@ -169,7 +169,11 @@ function toggleAllCodeRows() {
                     changes you make on this page will instantly take effect on the website, but you will need to press 'Refresh List'
                     to see the new order on this page.
                 </p>
+            HTML;
+        }
 
+        if ($fullModifyOK) {
+            echo <<<HTML
                 <p align="justify">
                     You can mark multiple achievements as 'Progression' or 'Win Condition'. To do this, check the desired
                     checkboxes in the far-left column and click either the 'Set Selected as Progression' or 'Set Selected as Win Condition'
@@ -179,9 +183,7 @@ function toggleAllCodeRows() {
                     if any Win Condition achievements are unlocked.
                 </p>
             HTML;
-        }
 
-        if ($fullModifyOK) {
             echo "<p>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
                 "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlag::Unofficial ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p>";
@@ -317,11 +319,15 @@ function toggleAllCodeRows() {
                 echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
             }
 
-            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
-            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
+            if ($fullModifyOK) {
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";    
+            }
         }
 
-        echo "<button class='btn w-full flex justify-center py-2' onclick='toggleAllCodeRows()'>Toggle Code Rows</button>";
+        if ($fullModifyOK) {
+            echo "<button class='btn w-full flex justify-center py-2' onclick='toggleAllCodeRows()'>Toggle Code Rows</button>";
+        }
 
         echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php'>Back to List</a></p></div><br>";
 
