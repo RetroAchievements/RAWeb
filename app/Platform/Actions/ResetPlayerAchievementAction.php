@@ -68,10 +68,6 @@ class ResetPlayerAchievementAction
 
             // expire the cached unlocks for the game for the user
             expireUserAchievementUnlocksForGame($user->User, $affectedGameID);
-
-            // expire the cached awarded data for the user's profile
-            // TODO: Remove when denormalized data is ready.
-            expireUserCompletedGamesCacheValue($user->User);
         }
 
         $user->save();
