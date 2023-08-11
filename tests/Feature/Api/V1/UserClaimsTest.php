@@ -35,7 +35,7 @@ class UserClaimsTest extends TestCase
     {
         // Freeze time
         Carbon::setTestNow(Carbon::now());
-        
+
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
