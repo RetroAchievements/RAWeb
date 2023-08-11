@@ -583,13 +583,15 @@ function getLightweightUsersCompletedGamesAndMax(string $user, string $cachedAwa
         $gameId = $game['GameID'];
 
         if (isset($awardedCache[$gameId])) {
-            $maxPossible = $maxPossible == 0 ? 1 : (int) $maxPossible;
+            $numAwarded = (int) $awardedCache[$gameId]['NumAwarded'];
+            $numAwardedHC = (int) $awardedCache[$gameId]['NumAwardedHC'];
+            $maxPossible = (int) $awardedCache[$gameId]['MaxPossible'];
 
-            $game['MaxPossible'] = $awardedCache[$gameId]['MaxPossible'];
-            $game['NumAwarded'] = $awardedCache[$gameId]['NumAwarded'];
-            $game['NumAwardedHC'] = $awardedCache[$gameId]['NumAwardedHC'];
-            $game['PctWon'] = (int) $numAwarded / (int) $maxPossible;
-            $game['PctWonHC'] = (int) $numAwardedHC / (int) $maxPossible;
+            $game['MaxPossible'] = $maxPossible;
+            $game['NumAwarded'] = $numAwarded;
+            $game['NumAwardedHC'] = $numAwardedHC;
+            $game['PctWon'] = $numAwarded / $maxPossible;
+            $game['PctWonHC'] = $numAwardedHC / $maxPossible;
         }
     }
 
