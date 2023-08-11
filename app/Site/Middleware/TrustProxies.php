@@ -12,7 +12,6 @@ class TrustProxies extends Middleware
      * The trusted proxies for this application.
      */
     protected $proxies = [
-        // TODO
-        '91.141.0.20',
+        '*',
     ];
 }

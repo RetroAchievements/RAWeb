@@ -88,7 +88,27 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
 getCodeNotes($gameID, $codeNotes);
 
 $pageTitle = "$achievementTitleRaw in $gameTitleRaw ($consoleName)";
-RenderOpenGraphMetadata($pageTitle, "achievement", media_asset("/Badge/$badgeName.png"), "$gameTitleRaw ($consoleName) - $achievementDescriptionRaw");
+
+function generateMetaDescription(
+    string $achievementDescription,
+    string $gameTitle,
+    string $consoleName,
+    int $points = 0,
+    int $winnerCount = 0,
+): string {
+    $pointsLabel = $points === 1 ? "point" : "points";
+    $localizedWinnerCount = localized_number($winnerCount);
+    $winnerCountLabel = $winnerCount === 1 ? "player" : "players";
+
+    return "$achievementDescription ($points $pointsLabel), won by $localizedWinnerCount $winnerCountLabel - $gameTitle for $consoleName";
+}
+
+RenderOpenGraphMetadata(
+    $pageTitle,
+    "achievement",
+    media_asset("/Badge/$badgeName.png"),
+    generateMetaDescription($achievementDescriptionRaw, $gameTitleRaw, $consoleName, $achPoints, $numWinners)
+);
 RenderContentStart($pageTitle);
 ?>
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isAuthor)): ?>
@@ -297,7 +317,16 @@ RenderContentStart($pageTitle);
                 echo "</select>";
                 echo "</td></tr>";
 
-                echo "<tr><td class='cursor-help' title='A game is considered beaten if ALL Progression achievements are unlocked and ANY Win Condition achievements are unlocked.'>Type:<sup>*</sup></td><td>";
+                $typeHelperContent = "A game is considered beaten if ALL Progression achievements are unlocked and ANY Win Condition achievements are unlocked.";
+                echo "<tr><td>";
+                echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
+                echo "Type";
+                echo "<span>";
+                echo Blade::render("<x-pixelarticons-info-box class='w-5 h-5' aria-hidden='true' />");
+                echo ":";
+                echo "</span>";
+                echo "</label>";
+                echo "</td><td>";
                 echo "<select id='typeinput' name='k'>";
                 echo "<option value=''>None</option>";
                 foreach (AchievementType::cases() as $typeOption) {
