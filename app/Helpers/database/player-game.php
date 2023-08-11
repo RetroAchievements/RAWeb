@@ -565,13 +565,13 @@ function getLightweightUsersCompletedGamesAndMax(string $user, string $cachedAwa
         ];
     }
 
-    $lightQuery = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title 
+    $lightQuery = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title
     FROM GameData AS gd
     LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
     WHERE gd.ID IN (
-        SELECT DISTINCT Achievements.GameID 
-        FROM Awarded 
-        INNER JOIN Achievements ON Awarded.AchievementID = Achievements.ID 
+        SELECT DISTINCT Achievements.GameID
+        FROM Awarded
+        INNER JOIN Achievements ON Awarded.AchievementID = Achievements.ID
         WHERE Awarded.User = '$user' AND Achievements.Flags = 3
     )
     ORDER BY gd.Title";
@@ -686,7 +686,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     // Extract and cache data from Awarded.
     // TODO: Remove when denormalized data is ready. The function call and Cache put can be deleted.
     $awardedCacheString = prepareUserCompletedGamesCacheValue($fullResults);
-    Cache::store()->put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, 60);
+    Cache::put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, Carbon::now()->addHour());
 
     return $fullResults;
 }
