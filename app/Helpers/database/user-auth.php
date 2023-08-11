@@ -12,8 +12,8 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
     if (!$username) {
         return [
             'Success' => false,
-            'Status' => 403,
-            'Code' => 'access_denied',
+            'Status' => 401,
+            'Code' => 'invalid_credentials',
             'Error' => 'Invalid username.',
         ];
     }
