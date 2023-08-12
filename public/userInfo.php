@@ -285,7 +285,7 @@ RenderContentStart($userPage);
             $totalTruePoints = $userMassData['TotalTruePoints'];
 
             $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
-            echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span></span><br>";
+            echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span><br>";
             echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
 
             echo "Site Rank: ";
