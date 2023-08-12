@@ -101,7 +101,7 @@ if (!$credentialsOK) {
         return DoRequestError("Access denied.", 403, 'access_denied');
     }
     if ($permissions === Permissions::Unregistered) {
-        return DoRequestError("Please register your account.", 403, 'access_denied');
+        return DoRequestError("Access denied. Please verify your email address.", 403, 'access_denied');
     }
 
     return DoRequestError("You do not have permission to do that.", 403, 'access_denied');

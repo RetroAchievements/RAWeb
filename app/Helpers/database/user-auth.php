@@ -14,7 +14,7 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
             'Success' => false,
             'Status' => 401,
             'Code' => 'invalid_credentials',
-            'Error' => 'Invalid username.',
+            'Error' => 'Invalid username. Please try again.',
         ];
     }
 
