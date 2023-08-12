@@ -89,7 +89,7 @@ function getConfirmMessage(property, newValue, selectedCount) {
 
 /**
  * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'Progression' | 'Win Condition'} newValue
+ * @param {3 | 5 | 'Progression' | 'Win Condition' | null} newValue
  */
 function updateAchievementsProperty(property, newValue) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
