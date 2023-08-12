@@ -13,7 +13,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Deve
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',
-    'type' => ['required', 'string', Rule::in(AchievementType::cases())],
+    'type' => ['nullable', 'string', Rule::in(AchievementType::cases())],
 ]);
 
 $achievementIds = $input['achievements'];
@@ -26,6 +26,9 @@ if (updateAchievementType($achievementIds, $value)) {
     }
     if ($value === AchievementType::WinCondition) {
         $commentText = "set this achievement's type to Win Condition";
+    }
+    if (!$value) {
+        $commentText = "removed this achievement's type";
     }
     addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
 

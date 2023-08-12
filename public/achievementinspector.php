@@ -320,6 +320,7 @@ function toggleAllCodeRows() {
             }
 
             if ($fullModifyOK) {
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Remove Types from Selected</a>";
                 echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
                 echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
             }

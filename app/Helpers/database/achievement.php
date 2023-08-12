@@ -536,7 +536,7 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
     return true;
 }
 
-function updateAchievementType(int|string|array $achID, string $newType): bool
+function updateAchievementType(int|string|array $achID, ?string $newType): bool
 {
     $achievementIds = is_array($achID) ? $achID : [$achID];
 
