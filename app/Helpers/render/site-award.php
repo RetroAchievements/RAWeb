@@ -28,8 +28,8 @@ function SeparateAwards(array $userAwards): array
         $isNotMasteryOrGameBeaten = $userAward['AwardType'] != AwardType::Mastery && $userAward['AwardType'] != AwardType::GameBeaten;
         $isActiveAwardType = AwardType::isActive((int) $userAward['AwardType']);
         $isDevEventAward = in_array($userAward, $devEventAwards);
-    
-        return ($isNotMasteryOrGameBeaten && $isActiveAwardType) || $isDevEventAward;    
+
+        return ($isNotMasteryOrGameBeaten && $isActiveAwardType) || $isDevEventAward;
     };
     $siteAwards = array_values(array_filter($userAwards, $filterSiteAwards));
 
