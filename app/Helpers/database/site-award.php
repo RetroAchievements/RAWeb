@@ -84,7 +84,7 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
                   FROM SiteAwards AS saw
                   LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType = " . AwardType::Mastery . " )
                   LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE saw.AwardType = " . AwardType::Mastery . " AND saw.User = :username
+                  WHERE (saw.AwardType = " . AwardType::Mastery . " OR saw.AwardType = " . AwardType::GameBeaten . ") AND saw.User = :username
                   GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
     UNION
     SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL

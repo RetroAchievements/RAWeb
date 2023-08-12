@@ -205,6 +205,13 @@ function UploadNewAchievement(
     $rawTitle = $title;
     sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor, $type);
 
+    $typeValue = "";
+    if ($type === null || trim($type) === '') {
+        $typeValue = "NULL";
+    } else {
+        $typeValue = "'$type'";
+    }
+
     if (empty($idInOut)) {
         // New achievement added
         // Prevent users from uploading achievements for games they do not have an active claim on unless it's an event game
@@ -227,7 +234,7 @@ function UploadNewAchievement(
             VALUES (
                 NULL, '$gameID', '$title', '$desc',
                 '$mem', '$progress', '$progressMax',
-                '$progressFmt', $points, $flag, '$type',
+                '$progressFmt', $points, $flag, $typeValue,
                 '$dbAuthor', NOW(), NOW(),
                 NOW(), 0, 0,
                 '$badge', 0, NULL,
@@ -289,7 +296,7 @@ function UploadNewAchievement(
             }
         }
 
-        $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type='$type', DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
+        $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type=$typeValue, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
 
         $db = getMysqliConnection();
         if (mysqli_query($db, $query) !== false) {
