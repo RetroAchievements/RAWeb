@@ -18,11 +18,11 @@ function carousel() {
 
 <div class="relative" x-data="carousel()">
     <div x-ref="carousel" class="-mx-5 my-6 sm:mt-0 sm:mb-3 sm:mx-0 flex sm:justify-around sm:w-full sm:gap-x-5 snap-x sm:snap-none sm:overflow-x-hidden snap-mandatory overflow-x-scroll scroll-smooth">
-        <div id="title-screenshot" class="box-content flex w-full sm:w-auto flex-none snap-start sm:items-center">
+        <div id="title-screenshot" class="box-content flex w-full sm:w-auto flex-none sm:flex-auto snap-start sm:items-center">
             <img class="w-full sm:rounded-sm" src="{{ $titleImageSrc }}" alt="Title screenshot">
         </div>
 
-        <div id="ingame-screenshot" class="box-content flex w-full sm:w-auto flex-none snap-start sm:items-center">
+        <div id="ingame-screenshot" class="box-content flex w-full sm:w-auto flex-none sm:flex-auto snap-start sm:items-center">
             <img class="w-full sm:rounded-sm" src="{{ $ingameImageSrc }}" alt="In-game screenshot">
         </div>
     </div>
