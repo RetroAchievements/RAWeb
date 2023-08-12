@@ -1453,12 +1453,6 @@ sanitize_outputs(
                             if ($pctAwardedCasual > 100) {
                                 $pctAwardedCasual = 100;
                             }
-                            if ($wonBy > $numDistinctPlayersCasual) {
-                                $wonBy = $numDistinctPlayersCasual;
-                            }
-                            if ($wonByHardcore > $numDistinctPlayersCasual) {
-                                $wonByHardcore = $numDistinctPlayersCasual;
-                            }
                             // TODO: Untracked players filtering workaround ends here
 
                             echo "<div class='achievementdata'>";
