@@ -1444,6 +1444,23 @@ sanitize_outputs(
                                     ($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual
                                 );
                             }
+
+                            // TODO: Remove when denormalized data is ready.
+                            // Because we're currently including Untracked players when the player count
+                            // for the game is >100, it's possible for the unlock rate to be greater than
+                            // 100%.
+                            // @see https://github.com/RetroAchievements/RAWeb/pull/1712
+                            if ($pctAwardedCasual > 100) {
+                                $pctAwardedCasual = 100;
+                            }
+                            if ($wonBy > $numDistinctPlayersCasual) {
+                                $wonBy = $numDistinctPlayersCasual;
+                            }
+                            if ($wonByHardcore > $numDistinctPlayersCasual) {
+                                $wonByHardcore = $numDistinctPlayersCasual;
+                            }
+                            // TODO: Untracked players filtering workaround ends here
+
                             echo "<div class='achievementdata'>";
                             echo "<div class='mb-1 lg:mt-1'>";
                             echo achievementAvatar(
