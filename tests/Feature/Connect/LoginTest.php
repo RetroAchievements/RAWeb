@@ -122,7 +122,18 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid username. Please try again.',
+            ]);
+
+        // invalid password
+        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 'p' => $password . '1'])
+            ->assertStatus(401)
+            ->assertHeader('WWW-Authenticate', 'Bearer')
+            ->assertExactJson([
+                'Success' => false,
+                'Status' => 401,
+                'Code' => 'invalid_credentials',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // invalid token
@@ -133,7 +144,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Token combination.',
+                'Error' => 'Invalid user/token combination.',
             ]);
 
         // unknown user
@@ -144,7 +155,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // no user
@@ -155,7 +166,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // no password or token
@@ -166,7 +177,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // expired token
@@ -193,7 +204,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // try with unregistered user - expect permissions error
@@ -205,7 +216,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 403,
                 'Code' => 'access_denied',
-                'Error' => 'Please register your account.',
+                'Error' => 'Access denied. Please verify your email address.',
             ]);
     }
 
@@ -232,7 +243,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // invalid token
@@ -242,7 +253,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Token combination.',
+                'Error' => 'Invalid user/token combination.',
             ]);
 
         // unknown user
@@ -252,7 +263,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // no user
@@ -262,7 +273,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // no password or token
@@ -272,7 +283,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // expired token
@@ -297,7 +308,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid User/Password combination. Please try again.',
+                'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
         // try with unregistered user - expect permissions error
@@ -309,7 +320,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 403,
                 'Code' => 'access_denied',
-                'Error' => 'Please register your account.',
+                'Error' => 'Access denied. Please verify your email address.',
             ]);
     }
 }

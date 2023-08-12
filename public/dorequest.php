@@ -94,7 +94,7 @@ $credentialsOK = match ($requestType) {
 
 if (!$credentialsOK) {
     if (!$validLogin) {
-        return DoRequestError("Invalid User/Token combination.", 401, 'invalid_credentials');
+        return DoRequestError("Invalid user/token combination.", 401, 'invalid_credentials');
     }
 
     if ($permissions < Permissions::Unregistered) { // Banned/Spam accounts
