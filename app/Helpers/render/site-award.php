@@ -191,7 +191,9 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
         $award['GameID'] = $award['AwardData'];
         $award['Mastery'] = "<br clear=all>$awarded";
 
-        echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
+        $dataAttrGameId = $award['GameID'];
+        // NOTE: If these data-* attributes are removed, userscripts will begin breaking.
+        echo "<div data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
 
         return;
     }
