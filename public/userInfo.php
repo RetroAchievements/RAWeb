@@ -285,8 +285,8 @@ RenderContentStart($userPage);
             $totalTruePoints = $userMassData['TotalTruePoints'];
 
             $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
-            echo "Hardcore Points: $totalHardcorePoints <span class='TrueRatio'> ($totalTruePoints)</span></span><br>";
-            echo "Hardcore Achievements: $totalHardcoreAchievements<br>";
+            echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span><br>";
+            echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
 
             echo "Site Rank: ";
             if ($userIsUntracked) {
@@ -297,8 +297,9 @@ RenderContentStart($userPage);
                 $countRankedUsers = countRankedUsers();
                 $userRank = $userMassData['Rank'];
                 $rankPct = sprintf("%1.2f", ($userRank / $countRankedUsers) * 100.0);
+                $rankPctLabel = $userRank > 100 ? "(Top $rankPct%)" : "";
                 $rankOffset = (int) (($userRank - 1) / 25) * 25;
-                echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>$userRank</a> / $countRankedUsers ranked users (Top $rankPct%)";
+                echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>#" . localized_number($userRank) . "</a> / " . localized_number($countRankedUsers) . " ranked users $rankPctLabel";
             }
             echo "<br>";
 
@@ -308,8 +309,8 @@ RenderContentStart($userPage);
 
         $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
         if ($totalSoftcorePoints > 0) {
-            echo "Softcore Points: $totalSoftcorePoints<br>";
-            echo "Softcore Achievements: $totalSoftcoreAchievements<br>";
+            echo "Softcore Points: " . localized_number($totalSoftcorePoints) . "<br>";
+            echo "Softcore Achievements: " . localized_number($totalSoftcoreAchievements) . "<br>";
 
             echo "Softcore Rank: ";
             if ($userIsUntracked) {
@@ -320,8 +321,9 @@ RenderContentStart($userPage);
                 $countRankedUsers = countRankedUsers(RankType::Softcore);
                 $userRankSoftcore = getUserRank($userPage, RankType::Softcore);
                 $rankPct = sprintf("%1.2f", ($userRankSoftcore / $countRankedUsers) * 100.0);
+                $rankPctLabel = $userRankSoftcore > 100 ? "(Top $rankPct%)" : "";
                 $rankOffset = (int) (($userRankSoftcore - 1) / 25) * 25;
-                echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>$userRankSoftcore</a> / $countRankedUsers ranked users (Top $rankPct%)";
+                echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>#" . localized_number($userRankSoftcore) . "</a> / " . localized_number($countRankedUsers) . " ranked users $rankPctLabel";
             }
             echo "<br>";
             echo "<br>";
@@ -356,8 +358,8 @@ RenderContentStart($userPage);
                 $openTicketsData = countOpenTicketsByDev($userPage);
                 echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . array_sum($openTicketsData) . "</b></a><br>";
             }
-            echo "Achievements won by others: <b>$contribCount</b><br>";
-            echo "Points awarded to others: <b>$contribYield</b><br><br>";
+            echo "Achievements won by others: <b>" . localized_number($contribCount) . "</b><br>";
+            echo "Points awarded to others: <b>" . localized_number($contribYield) . "</b><br><br>";
         }
 
         // Display the users active claims
