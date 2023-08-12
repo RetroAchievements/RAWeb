@@ -89,7 +89,7 @@ function getConfirmMessage(property, newValue, selectedCount) {
 
 /**
  * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'Progression' | 'Win Condition'} newValue
+ * @param {3 | 5 | 'Progression' | 'Win Condition' | null} newValue
  */
 function updateAchievementsProperty(property, newValue) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
@@ -322,6 +322,7 @@ function toggleAllCodeRows() {
             if ($fullModifyOK) {
                 echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
                 echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
             }
         }
 
