@@ -24,9 +24,14 @@ function SeparateAwards(array $userAwards): array
 
     $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
 
-    $siteAwards = array_values(array_filter($userAwards, fn ($award) => ($award['AwardType'] != AwardType::Mastery && AwardType::isActive((int) $award['AwardType']))
-        || in_array($award, $devEventAwards)
-    ));
+    $filterSiteAwards = function ($userAward) use ($devEventAwards) {
+        $isNotMasteryOrGameBeaten = $userAward['AwardType'] != AwardType::Mastery && $userAward['AwardType'] != AwardType::GameBeaten;
+        $isActiveAwardType = AwardType::isActive((int) $userAward['AwardType']);
+        $isDevEventAward = in_array($userAward, $devEventAwards);
+
+        return ($isNotMasteryOrGameBeaten && $isActiveAwardType) || $isDevEventAward;
+    };
+    $siteAwards = array_values(array_filter($userAwards, $filterSiteAwards));
 
     return [$gameAwards, $eventAwards, $siteAwards];
 }
@@ -186,7 +191,9 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
         $award['GameID'] = $award['AwardData'];
         $award['Mastery'] = "<br clear=all>$awarded";
 
-        echo "<div>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
+        $dataAttrGameId = $award['GameID'];
+        // NOTE: If these data-* attributes are removed, userscripts will begin breaking.
+        echo "<div data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
 
         return;
     }
