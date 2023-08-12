@@ -200,6 +200,13 @@ function UploadNewAchievement(
         return false;
     }
 
+    $typeValue = "";
+    if ($type === null || trim($type) === '') {
+        $typeValue = "NULL";
+    } else {
+        $typeValue = "'$type'";
+    }
+
     $dbAuthor = $author;
     $rawDesc = $desc;
     $rawTitle = $title;
@@ -227,7 +234,7 @@ function UploadNewAchievement(
             VALUES (
                 NULL, '$gameID', '$title', '$desc',
                 '$mem', '$progress', '$progressMax',
-                '$progressFmt', $points, $flag, '$type',
+                '$progressFmt', $points, $flag, $typeValue,
                 '$dbAuthor', NOW(), NOW(),
                 NOW(), 0, 0,
                 '$badge', 0, NULL,
