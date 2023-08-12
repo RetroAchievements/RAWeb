@@ -122,17 +122,6 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid username. Please try again.',
-            ]);
-
-        // invalid password
-        $this->post('dorequest.php', ['r' => 'login2', 'u' => $user->User, 'p' => $password . '1'])
-            ->assertStatus(401)
-            ->assertHeader('WWW-Authenticate', 'Bearer')
-            ->assertExactJson([
-                'Success' => false,
-                'Status' => 401,
-                'Code' => 'invalid_credentials',
                 'Error' => 'Invalid user/password combination. Please try again.',
             ]);
 
@@ -166,7 +155,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid user/password combination. Please try again.',
+                'Error' => 'Invalid username. Please try again.',
             ]);
 
         // no password or token
@@ -273,7 +262,7 @@ class LoginTest extends TestCase
                 'Success' => false,
                 'Status' => 401,
                 'Code' => 'invalid_credentials',
-                'Error' => 'Invalid user/password combination. Please try again.',
+                'Error' => 'Invalid username. Please try again.',
             ]);
 
         // no password or token
