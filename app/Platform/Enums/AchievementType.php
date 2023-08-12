@@ -6,9 +6,9 @@ namespace App\Platform\Enums;
 
 abstract class AchievementType
 {
-    public const Progression = 'Progression';
+    public const Progression = 'progression';
 
-    public const WinCondition = 'Win Condition';
+    public const WinCondition = 'win_condition';
 
     public static function cases(): array
     {

@@ -38,6 +38,9 @@ if ($gameIDSpecified) {
     getGamesList(null, $gamesList);
 }
 
+$progressionLabel = __('achievement-type.' . AchievementType::Progression);
+$winConditionLabel = __('achievement-type.' . AchievementType::WinCondition);
+
 RenderContentStart("Manage Achievements");
 ?>
 <script>
@@ -62,7 +65,7 @@ function updateDisplayOrder(objID) {
 
 /**
  * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'Progression' | 'Win Condition'} newValue
+ * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
  * @param {number} selectedCount
  */
 function getConfirmMessage(property, newValue, selectedCount) {
@@ -78,9 +81,11 @@ function getConfirmMessage(property, newValue, selectedCount) {
 
     if (property === 'type') {
         if (newValue === '<?= AchievementType::Progression ?>') {
-            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to Progression?`;
+            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to <?= $progressionLabel ?>?`;
         } else if (newValue === '<?= AchievementType::WinCondition ?>') {
-            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to Win Condition?`;
+            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to <?= $winConditionLabel ?>?`;
+        } else {
+            message = `Are you sure you want to remove the type from ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
         }
     }
 
@@ -89,7 +94,7 @@ function getConfirmMessage(property, newValue, selectedCount) {
 
 /**
  * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'Progression' | 'Win Condition' | null} newValue
+ * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
  */
 function updateAchievementsProperty(property, newValue) {
     // Creates an array of checked achievement IDs and sends it to the updateAchievements function
@@ -175,12 +180,12 @@ function toggleAllCodeRows() {
         if ($fullModifyOK) {
             echo <<<HTML
                 <p align="justify">
-                    You can mark multiple achievements as 'Progression' or 'Win Condition'. To do this, check the desired
-                    checkboxes in the far-left column and click either the 'Set Selected as Progression' or 'Set Selected as Win Condition'
-                    button, depending on your needs. A game is considered 'beaten' when all Progression achievements and at least
-                    one Win Condition achievement are unlocked. If there are no Win Condition achievements, the game is beaten
-                    if all Progression achievements are unlocked. If there are no Progression achievements, the game is beaten
-                    if any Win Condition achievements are unlocked.
+                    You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
+                    checkboxes in the far-left column and click either the 'Set Selected as $progressionLabel' or 'Set Selected as $winConditionLabel'
+                    button, depending on your needs. A game is considered 'beaten' when all $progressionLabel achievements and at least
+                    one $winConditionLabel achievement are unlocked. If there are no $winConditionLabel achievements, the game is beaten
+                    if all $progressionLabel achievements are unlocked. If there are no $progressionLabel achievements, the game is beaten
+                    if any $winConditionLabel achievements are unlocked.
                 </p>
             HTML;
 
@@ -216,7 +221,8 @@ function toggleAllCodeRows() {
             $achDesc = $achievementEntry['Description'];
             $achMemAddr = htmlspecialchars($achievementEntry['MemAddr']);
             $achPoints = $achievementEntry['Points'];
-            $achType = trim($achievementEntry['type'] ?? '') ?: 'none';
+            $achType = trim($achievementEntry['type'] ?? '');
+            $achTypeLabel = $achType ? __('achievement-type.' . $achType) : 'none';
 
             // $achCreated = $achievementEntry['DateCreated'];
             // $achModified = $achievementEntry['DateModified'];
@@ -246,12 +252,12 @@ function toggleAllCodeRows() {
             }    // Just remove the input
             echo "</tr>";
 
-            $typeLabelClassNames = $achType === "none" ? "text-muted" : "";
+            $typeLabelClassNames = !$achType ? "text-muted" : "";
 
             echo <<<HTML
                 <tr class="$bgColorClassNames[$currentBgColorIndex]">
                     <td><span class="font-bold">Type:</span></td>
-                    <td colspan="7" class="p-2.5 $typeLabelClassNames">$achType</td>
+                    <td colspan="7" class="p-2.5 $typeLabelClassNames">$achTypeLabel</td>
                 </tr>
             HTML;
 
@@ -320,8 +326,8 @@ function toggleAllCodeRows() {
             }
 
             if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to Progression</a>";
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to Win Condition</a>";
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to $progressionLabel</a>";
+                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to $winConditionLabel</a>";
                 echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
             }
         }
