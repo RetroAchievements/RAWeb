@@ -252,7 +252,7 @@ function toggleAllCodeRows() {
             }    // Just remove the input
             echo "</tr>";
 
-            $typeLabelClassNames = !$achType || trim($achType === '') ? "text-muted" : "";
+            $typeLabelClassNames = !$achType ? "text-muted" : "";
 
             echo <<<HTML
                 <tr class="$bgColorClassNames[$currentBgColorIndex]">
