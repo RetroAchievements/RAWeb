@@ -200,17 +200,17 @@ function UploadNewAchievement(
         return false;
     }
 
+    $dbAuthor = $author;
+    $rawDesc = $desc;
+    $rawTitle = $title;
+    sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor, $type);
+
     $typeValue = "";
     if ($type === null || trim($type) === '') {
         $typeValue = "NULL";
     } else {
         $typeValue = "'$type'";
     }
-
-    $dbAuthor = $author;
-    $rawDesc = $desc;
-    $rawTitle = $title;
-    sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor, $type);
 
     if (empty($idInOut)) {
         // New achievement added
@@ -296,7 +296,7 @@ function UploadNewAchievement(
             }
         }
 
-        $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type='$type', DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
+        $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type=$typeValue, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
 
         $db = getMysqliConnection();
         if (mysqli_query($db, $query) !== false) {
