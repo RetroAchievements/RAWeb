@@ -216,7 +216,7 @@ function toggleAllCodeRows() {
             $achDesc = $achievementEntry['Description'];
             $achMemAddr = htmlspecialchars($achievementEntry['MemAddr']);
             $achPoints = $achievementEntry['Points'];
-            $achType = $achievementEntry['type'] ?? "none";
+            $achType = trim($achievementEntry['type'] ?? '') ?: 'none';
 
             // $achCreated = $achievementEntry['DateCreated'];
             // $achModified = $achievementEntry['DateModified'];
