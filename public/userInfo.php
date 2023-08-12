@@ -297,8 +297,9 @@ RenderContentStart($userPage);
                 $countRankedUsers = countRankedUsers();
                 $userRank = $userMassData['Rank'];
                 $rankPct = sprintf("%1.2f", ($userRank / $countRankedUsers) * 100.0);
+                $rankPctLabel = $userRank > 100 ? "(Top $rankPct%)" : "";
                 $rankOffset = (int) (($userRank - 1) / 25) * 25;
-                echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>" . localized_number($userRank) . "</a> / " . localized_number($countRankedUsers) . " ranked users (Top $rankPct%)";
+                echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>#" . localized_number($userRank) . "</a> / " . localized_number($countRankedUsers) . " ranked users $rankPctLabel";
             }
             echo "<br>";
 
@@ -320,8 +321,9 @@ RenderContentStart($userPage);
                 $countRankedUsers = countRankedUsers(RankType::Softcore);
                 $userRankSoftcore = getUserRank($userPage, RankType::Softcore);
                 $rankPct = sprintf("%1.2f", ($userRankSoftcore / $countRankedUsers) * 100.0);
+                $rankPctLabel = $userRankSoftcore > 100 ? "(Top $rankPct%)" : "";
                 $rankOffset = (int) (($userRankSoftcore - 1) / 25) * 25;
-                echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>" . localized_number($userRankSoftcore) . "</a> / " . localized_number($countRankedUsers) . " ranked users (Top $rankPct%)";
+                echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>#" . localized_number($userRankSoftcore) . "</a> / " . localized_number($countRankedUsers) . " ranked users $rankPctLabel";
             }
             echo "<br>";
             echo "<br>";
