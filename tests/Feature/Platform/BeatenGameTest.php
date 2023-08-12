@@ -270,6 +270,8 @@ class BeatenGameTest extends TestCase
     public function testHardcoreAwardAssignment(): void
     {
         // Arrange
+        Carbon::setTestNow(Carbon::now());
+
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
@@ -333,6 +335,8 @@ class BeatenGameTest extends TestCase
 
     public function testBeatenAwardRevocation2(): void
     {
+        Carbon::setTestNow(Carbon::now());
+
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
@@ -393,6 +397,8 @@ class BeatenGameTest extends TestCase
 
     public function testRetroactiveAward(): void
     {
+        Carbon::setTestNow(Carbon::now());
+
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
@@ -426,35 +432,39 @@ class BeatenGameTest extends TestCase
         );
     }
 
-public function testRetroactiveAward2(): void
-{
-    /** @var User $user */
-    $user = User::factory()->create();
-    /** @var System $system */
-    $system = System::factory()->create();
-    /** @var Game $game */
-    $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+    public function testRetroactiveAward2(): void
+    {
+        Carbon::setTestNow(Carbon::now());
 
-    Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID]);
-    $winConditionAchievements = Achievement::factory()->published()->winCondition()->count(2)->create(['GameID' => $game->ID]);
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
-    $this->addHardcoreUnlock($user, $winConditionAchievements->get(0), Carbon::now()->subHours(12));
-    $this->addHardcoreUnlock($user, $winConditionAchievements->get(1), Carbon::now()->subHours(6));
+        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID]);
+        $winConditionAchievements = Achievement::factory()->published()->winCondition()->count(2)->create(['GameID' => $game->ID]);
 
-    testBeatenGame($game->ID, $user->User, true);
+        $this->addHardcoreUnlock($user, $winConditionAchievements->get(0), Carbon::now()->subHours(12));
+        $this->addHardcoreUnlock($user, $winConditionAchievements->get(1), Carbon::now()->subHours(6));
 
-    $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
-    $this->assertNotNull(PlayerBadge::where('User', $user->User)
-        ->where('AwardType', AwardType::GameBeaten)
-        ->where('AwardData', $game->ID)
-        ->where('AwardDataExtra', UnlockMode::Hardcore)
-        ->where('AwardDate', Carbon::now()->subHours(12))
-        ->first()
-    );
-}
+        testBeatenGame($game->ID, $user->User, true);
+
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+        $this->assertNotNull(PlayerBadge::where('User', $user->User)
+            ->where('AwardType', AwardType::GameBeaten)
+            ->where('AwardData', $game->ID)
+            ->where('AwardDataExtra', UnlockMode::Hardcore)
+            ->where('AwardDate', Carbon::now()->subHours(12))
+            ->first()
+        );
+    }
 
     public function testRetroactiveAward3(): void
     {
+        Carbon::setTestNow(Carbon::now());
+
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
