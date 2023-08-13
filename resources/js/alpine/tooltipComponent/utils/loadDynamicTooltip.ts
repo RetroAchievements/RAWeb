@@ -38,7 +38,7 @@ export async function loadDynamicTooltip(
   // If we already have cached HTML content for this tooltip available,
   // don't refetch the content. Display the cached content instead.
   if (store.dynamicContentCache[cacheKey]) {
-    displayDynamicTooltip(anchorEl, store.dynamicContentCache[cacheKey], givenY);
+    displayDynamicTooltip(anchorEl, store.dynamicContentCache[cacheKey]);
     return;
   }
 
@@ -103,18 +103,16 @@ async function fetchDynamicTooltipContent(type: string, id: string, context?: un
  *
  * @param anchorEl The HTML element to anchor the tooltip to.
  * @param htmlContent The HTML content to be displayed in the tooltip.
- * @param givenY Optional Y-coordinate to adjust the tooltip's starting position.
  */
-function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string, givenY?: number) {
-  const setX = store.trackedMouseX;
-  let setY = store.trackedMouseY;
-
-  // We'll do a slight subtraction to avoid a jump of the tooltip position.
-  // This is a visual anomaly that can occur on the first frame a tooltip is rendered.
-  if (givenY) {
-    setY = givenY - 10;
-  }
-
+function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string) {
   renderTooltip(anchorEl, htmlContent);
-  pinTooltipToCursorPosition(anchorEl, store.tooltipEl, setX, setY);
+
+  if (store.trackedMouseX && store.trackedMouseY) {
+    pinTooltipToCursorPosition(
+      anchorEl,
+      store.tooltipEl,
+      store.trackedMouseX,
+      store.trackedMouseY - 10,
+    );
+  }
 }

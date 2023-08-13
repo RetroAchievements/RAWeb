@@ -84,6 +84,7 @@ export function tooltipComponent(anchorEl: HTMLElement, props: Partial<TooltipPr
             event.pageY + 6,
           );
         }
+
         isTooltipShowing = true;
       }
     }, 70);
