@@ -817,10 +817,6 @@ function requestDeleteLB(int $lbID): bool
     $query = "DELETE FROM LeaderboardDef WHERE ID = $lbID";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        /** @var User $user */
-        $user = request()->user();
-    }
 
     return $dbResult !== false;
 }

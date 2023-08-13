@@ -237,9 +237,6 @@ function RemoveComment(int $commentID, int $userID, int $permissions): bool
         return false;
     }
 
-    /** @var User $user */
-    $user = request()->user();
-
     return mysqli_affected_rows($db) > 0;
 }
 

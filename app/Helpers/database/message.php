@@ -1,7 +1,6 @@
 <?php
 
 use App\Site\Enums\UserPreference;
-use App\Site\Models\User;
 
 function CreateNewMessage(string $author, string $destUser, string $messageTitle, string $messagePayloadIn): bool
 {
@@ -212,9 +211,6 @@ function DeleteMessage(string $user, int $messageID): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         UpdateCachedUnreadTotals($user);
-
-        /** @var User $user */
-        $user = request()->user();
     }
 
     return $dbResult !== false;
