@@ -9,16 +9,16 @@ if ($highestProgressionStatus === 'Mastered') {
 } 
 ?>
 
-<x-card.container imgSrc="{{ $badgeUrl }}">
-    <div class="relative h-full text-xs">
+<x-card.container imgSrc="{{ $badgeUrl }}" imgKind="game">
+    <div class="relative h-full text-2xs">
         <!-- Game Name -->
-        <p class="font-bold -mt-1 mb-1 line-clamp-2 {{ mb_strlen($rawTitle) > 24 ? 'text-sm leading-5' : 'text-lg leading-6' }}">
+        <p class="font-bold -mt-1 line-clamp-2 {{ mb_strlen($rawTitle) > 24 ? 'text-sm leading-5 mb-1' : 'text-lg leading-6 mb-0.5' }}">
             {!! $renderedTitle !!}
         </p>
 
         <!-- Console Icon and Name -->
         <div class="flex items-center gap-x-1">
-            <img src="{{ $gameSystemIconSrc }}" width="24" height="24" alt="{{ $consoleName }} console icon">
+            <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $consoleName }} console icon">
             <span class="block text-sm tracking-tighter">{{ $consoleName }}</span>
         </div>
 
@@ -39,32 +39,30 @@ if ($highestProgressionStatus === 'Mastered') {
 
         @if ($achievementsCount > 0)
             @if (!$isEvent)
-                <!-- Achievement Count -->
-                <x-card.info-row label="Achievements">
-                    {{ localized_number($achievementsCount) }}
-                </x-card.info-row>
-
-                @if ($pointsSum > 0)
-                    <!-- Points Sum -->
-                    <x-card.info-row label="Points">
-                        {{ localized_number($pointsSum) }}
-                        <span @if ($retroPointsSum === 0) class="text-text-muted" @endif>
-                            ({{ localized_number($retroPointsSum) }})
-                        </span>
+                <div class="leading-4">
+                    <!-- Achievement Count -->
+                    <x-card.info-row label="Achievements">
+                        {{ localized_number($achievementsCount) }}
                     </x-card.info-row>
 
-                    <!-- Retro Ratio -->
-                    <x-card.info-row label="Retro Ratio">
-                        {{ $retroRatio == 0 ? 'None yet' : $retroRatio }}
-                    </x-card.info-row>
-                @endif
+                    @if ($pointsSum > 0)
+                        <!-- Points Sum -->
+                        <x-card.info-row label="Points">
+                            {{ localized_number($pointsSum) }}
+                        </x-card.info-row>
 
-                <!-- Last Updated -->
-                @if (!$highestProgressionStatus && !$highestProgressionAwardDate)
-                    <x-card.info-row label="Last Updated">
-                        {{ $lastUpdated->format('j F Y') }}
-                    </x-card.info-row>
-                @endif
+                        <!-- RetroPoints & Retro Ratio -->
+                        <x-card.info-row label="RetroPoints">
+                            <span>
+                                {{ $retroPointsSum > 0 ? localized_number($retroPointsSum) : 'None yet' }}
+                                @if ($retroRatio != 0)
+                                    &ndash;
+                                    <em>{{ $retroRatio }}x</em>
+                                @endif
+                            <span>
+                        </x-card.info-row>
+                    @endif
+                </div>
             @endif
 
             <!-- Revision Notice -->
