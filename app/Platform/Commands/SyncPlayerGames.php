@@ -62,7 +62,7 @@ class SyncPlayerGames extends Command
             ->where('game_id', '=', $transformed->game_id)
             ->first();
 
-        $this->updatePlayerGameMetricsAction->execute($playerGame);
+        // $this->updatePlayerGameMetricsAction->execute($playerGame);
 
         // update only the minimum of fields
         // detailed
