@@ -107,58 +107,6 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
 }
 
 /**
- * Toggles a user set request.
- * If the user has not requested the set then add an entry to the database.
- * If the user has requested the set then remove it from the database.
- */
-function toggleSetRequest(string $user, int $gameID, int $remaining): bool
-{
-    sanitize_sql_inputs($user, $gameID);
-
-    $query = "
-        SELECT
-            COUNT(*) FROM SetRequest
-        WHERE
-            User = '$user'
-        AND
-            GameID = '$gameID'";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        if (mysqli_fetch_assoc($dbResult)['COUNT(*)'] == 1) {
-            $query2 = "
-                DELETE
-                    FROM SetRequest
-                WHERE
-                    (`User` = '$user')
-                AND
-                    (`GameID` = '$gameID')";
-
-            if (s_mysql_query($query2)) {
-                return true;
-            }
-
-            return false;
-        }
-        // Only insert a set request if the user has some available
-        if ($remaining > 0) {
-            $query2 = "
-                    INSERT
-                        INTO SetRequest (`User`, `GameID`)
-                    VALUES ('$user', '$gameID')";
-            if (s_mysql_query($query2)) {
-                return true;
-            }
-
-            return false;
-        }
-    }
-
-    return false;
-}
-
-/**
  * Gets the number of set requests for a given game.
  */
 function getSetRequestCount(int $gameID): int
