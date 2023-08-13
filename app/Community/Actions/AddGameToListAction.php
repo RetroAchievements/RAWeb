@@ -31,6 +31,7 @@ class AddGameToListAction
         }
 
         $entry = new UserGameListEntry([
+            'user_id' => $user->ID,
             'User' => $user->User,
             'GameID' => $game->ID,
         ]);

@@ -250,7 +250,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
         FROM
             SetRequest sr
         LEFT JOIN
-            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ") 
+            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ")
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
