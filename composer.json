@@ -4,7 +4,7 @@
     "license": "GPL-3.0-only",
     "type": "project",
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-gd": "*",
@@ -98,9 +98,9 @@
     "config": {
         "optimize-autoloader": true,
         "platform": {
-            "ext-pcntl": "8.0",
-            "ext-posix": "8.0",
-            "php": "8.0.12"
+            "ext-pcntl": "8.2",
+            "ext-posix": "8.2",
+            "php": "8.2.8"
         },
         "process-timeout": 0,
         "sort-packages": true

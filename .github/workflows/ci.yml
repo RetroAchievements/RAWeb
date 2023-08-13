@@ -2,11 +2,11 @@ on: [pull_request]
 
 jobs:
   pint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
       matrix:
-        php: [8.0]
+        php: [8.2]
     name: pint (PHP ${{ matrix.php }})
     steps:
       - name: Checkout code
@@ -24,11 +24,11 @@ jobs:
         run: composer lint
 
   phpstan:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
       matrix:
-        php: [8.0]
+        php: [8.2]
     name: phpstan (PHP ${{ matrix.php }})
     steps:
       - name: Checkout code
@@ -46,11 +46,11 @@ jobs:
         run: composer analyse
 
   phpunit:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
       matrix:
-        php: [8.0]
+        php: [8.2]
     name: phpunit (PHP ${{ matrix.php }})
     steps:
       - name: Checkout code
@@ -68,7 +68,7 @@ jobs:
         run: composer paratest
 
   eslint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
     name: eslint
@@ -85,7 +85,7 @@ jobs:
         run: npm run lint
 
   vitest:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
     name: vitest
