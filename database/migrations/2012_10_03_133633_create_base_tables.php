@@ -183,17 +183,6 @@ return new class() extends Migration {
             // UPDATE `Console` SET `Created` = NULL WHERE `Created` IS NOT NULL;
         }
 
-        // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190918_080000_Add_Timestamps.sql
-        if (!Schema::hasTable('DeletedModels')) {
-            Schema::create('DeletedModels', function (Blueprint $table) {
-                $table->increments('ID');
-                $table->string('ModelType', 30);
-                $table->unsignedInteger('ModelID');
-                $table->unsignedInteger('DeletedByUserID')->nullable();
-                $table->timestampTz('Deleted')->nullable()->useCurrent();
-            });
-        }
-
         if (!Schema::hasTable('EmailConfirmations')) {
             Schema::create('EmailConfirmations', function (Blueprint $table) {
                 $table->string('User', 32);
