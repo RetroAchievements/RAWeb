@@ -5,16 +5,14 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
-      matrix:
-        php: [8.2]
-    name: pint (PHP ${{ matrix.php }})
+    name: pint
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: 8.2
           extensions: mbstring
           tools: composer:v2
           coverage: none
@@ -27,16 +25,14 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
-      matrix:
-        php: [8.2]
-    name: phpstan (PHP ${{ matrix.php }})
+    name: phpstan
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: 8.2
           extensions: mbstring
           tools: composer:v2
           coverage: none
@@ -49,16 +45,14 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
-      matrix:
-        php: [8.2]
-    name: phpunit (PHP ${{ matrix.php }})
+    name: phpunit
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: 8.2
           extensions: mbstring
           tools: composer:v2
           coverage: none
