@@ -18,7 +18,7 @@ export function trackTooltipMouseMovement(anchorEl: HTMLElement, event: MouseEve
   store.trackedMouseX = event.pageX;
   store.trackedMouseY = event.pageY;
 
-  if (tooltipEl) {
+  if (tooltipEl && anchorEl === store.activeAnchorEl) {
     updateTooltipPosition(anchorEl, tooltipEl, store.trackedMouseX + 12, store.trackedMouseY + 6);
   }
 }
