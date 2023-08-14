@@ -3,7 +3,7 @@
 <div
     x-data="{ isModalOpen: false }"
     @keydown.escape.window="isModalOpen = false"
-    class="relative z-50 w-auto h-auto inline"
+    class="relative w-auto h-auto inline"
 >
     <button type="button" class="inline" @click="isModalOpen = true">{{ $buttonLabel }}</button>
 
