@@ -66,7 +66,7 @@ $canClaim = ($userHasClaimSlot || $isSoleAuthor || $isCollaboration) && !$hasGam
 
 $revisionDialogFlag = ($isRevision && !$isSoleAuthor) ? 'true' : 'false';
 $ticketDialogFlag = $hasOpenTickets ? 'true' : 'false';
-$isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440;
+$isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440 ? 'true' : 'false';
 ?>
 
 <script>
