@@ -105,14 +105,10 @@ async function fetchDynamicTooltipContent(type: string, id: string, context?: un
  * @param htmlContent The HTML content to be displayed in the tooltip.
  */
 function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string) {
-  renderTooltip(anchorEl, htmlContent);
-
-  if (store.trackedMouseX && store.trackedMouseY) {
-    pinTooltipToCursorPosition(
-      anchorEl,
-      store.tooltipEl,
-      store.trackedMouseX,
-      store.trackedMouseY - 10,
-    );
-  }
+  renderTooltip(
+    anchorEl,
+    htmlContent,
+    store.trackedMouseX ? store.trackedMouseX + 10 : undefined,
+    store.trackedMouseY ? store.trackedMouseY + 8 : undefined,
+  );
 }
