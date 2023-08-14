@@ -91,7 +91,9 @@ describe('Util: loadDynamicTooltip', () => {
     // ASSERT
     expect(renderTooltipSpy).toHaveBeenCalledWith(
       anchorEl,
-      store.dynamicContentCache.mockType_mockId
+      store.dynamicContentCache.mockType_mockId,
+      undefined,
+      undefined,
     );
   });
 
