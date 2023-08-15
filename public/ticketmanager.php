@@ -512,7 +512,6 @@ RenderContentStart($pageTitle);
                 $reportState = $nextTicket['ReportState'];
                 $reportType = $nextTicket['ReportType'];
                 $mode = $nextTicket['Hardcore'];
-
                 $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
 
                 $reportedAt = $nextTicket['ReportedAt'];
