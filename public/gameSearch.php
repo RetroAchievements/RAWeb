@@ -1,6 +1,7 @@
 <?php
 
 use App\Platform\Models\System;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -38,7 +39,7 @@ RenderContentStart("Hardest Games");
         echo "<h3>Hardest Games</h3>";
 
         echo "<div class='w-full flex flex-col sm:flex-row sm:items-center lg:items-start gap-2 justify-between'>";
-        echo "<p>Showing games by largest Retro Ratio</p>";
+        echo "<p>Showing games by most total RetroPoints</p>";
 
         echo "<div class='flex items-center gap-x-2'>";
         echo "<p>Show:</p>";
@@ -75,7 +76,7 @@ RenderContentStart("Hardest Games");
         echo "<th>Genre</th>";
         echo "<th>Publisher</th>";
         echo "<th>Developer</th>";
-        echo "<th>Total Retro Ratio</th>";
+        echo "<th>Total RetroPoints</th>";
         echo "</tr>";
 
         // $countCol = ( $method == 0 ) ? "Awards Given" : "Played By";
@@ -109,8 +110,20 @@ RenderContentStart("Hardest Games");
             echo $count + $offset;
             echo "</td>";
 
-            echo "<td style='min-width:30%'>";
-            echo gameAvatar($gameEntry);
+            echo "<td class='py-2.5' style='min-width:30%'>";
+            echo Blade::render('
+                <x-game.multiline-avatar
+                    :gameId="$gameId"
+                    :gameTitle="$gameTitle"
+                    :gameImageIcon="$gameImageIcon"
+                    :consoleName="$consoleName"
+                />
+            ', [
+                'gameId' => $gameEntry['ID'],
+                'gameTitle' => $gameEntry['Title'],
+                'gameImageIcon' => $gameEntry['ImageIcon'],
+                'consoleName' => $gameEntry['ConsoleName'],
+            ]);
             echo "</td>";
 
             echo "<td>";
@@ -126,7 +139,7 @@ RenderContentStart("Hardest Games");
             echo "</td>";
 
             echo "<td>";
-            echo "$gameTA";
+            echo localized_number($gameTA);
             echo "</td>";
 
             echo "</tr>";
