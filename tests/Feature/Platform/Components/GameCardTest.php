@@ -173,8 +173,7 @@ class GameCardTest extends TestCase
         $view->assertSeeText('6');
         $view->assertSeeText('Points');
         $view->assertSeeText('30');
-        $view->assertSeeText('Retro Ratio');
-        $view->assertSeeText('Last Updated');
+        $view->assertSeeText('RetroPoints');
     }
 
     public function testItRendersGameUndergoingRevision(): void
@@ -208,7 +207,7 @@ class GameCardTest extends TestCase
         $view->assertSeeText('6');
         $view->assertSeeText('Points');
         $view->assertSeeText('30');
-        $view->assertSeeText('Retro Ratio');
+        $view->assertSeeText('RetroPoints');
         $view->assertSeeText("Revision in progress");
         $view->assertSeeText("by " . $user->User);
     }
@@ -309,7 +308,6 @@ class GameCardTest extends TestCase
         // Assert
         $view->assertDontSeeText('Achievements');
         $view->assertDontSeeText('Points');
-        $view->assertDontSeeText('Last Updated');
         $view->assertDontSeeText('Mastered');
 
         $view->assertSeeText('Events');
