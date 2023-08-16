@@ -6,18 +6,18 @@ namespace App\Community\Enums;
 
 abstract class UserGameListType
 {
-    public const SetRequest = 'set-request';
+    public const AchievementSetRequest = 'achievement_set_request';
 
-    public const WantToPlay = 'want-to-play';
+    public const Play = 'play';
 
-    public const WantToDev = 'want-to-dev';
+    public const Develop = 'develop';
 
     public static function cases(): array
     {
         return [
-            self::SetRequest,
-            self::WantToPlay,
-            self::WantToDev,
+            self::AchievementSetRequest,
+            self::Play,
+            self::Develop,
         ];
     }
 
