@@ -58,11 +58,11 @@ class SyncPlayerGames extends Command
 
     protected function postProcessEntity(object $origin, object $transformed): void
     {
-        $playerGame = PlayerGame::where('user_id', '=', $transformed->user_id)
-            ->where('game_id', '=', $transformed->game_id)
-            ->first();
-
-        $this->updatePlayerGameMetricsAction->execute($playerGame);
+        // $playerGame = PlayerGame::where('user_id', '=', $transformed->user_id)
+        //     ->where('game_id', '=', $transformed->game_id)
+        //     ->first();
+        //
+        // $this->updatePlayerGameMetricsAction->execute($playerGame);
 
         // update only the minimum of fields
         // detailed

@@ -128,7 +128,7 @@ function updateAchievementsProperty(property, newValue) {
         });
 }
 
-let areCodeRowsHidden = false;
+let areCodeRowsHidden = true;
 function toggleAllCodeRows() {
     const codeRowEls = document.querySelectorAll('.code-row');
 
@@ -261,7 +261,7 @@ function toggleAllCodeRows() {
                 </tr>
             HTML;
 
-            echo "<tr class='code-row $bgColorClassNames[$currentBgColorIndex]'>";
+            echo "<tr class='code-row hidden $bgColorClassNames[$currentBgColorIndex]'>";
             echo "<td><b>Code:</b></td>";
             echo "<td colspan='7' class='p-2.5' style='word-break:break-all;'>";
             echo "<code style='word-break:break-all;'>$achMemAddr</code>";
