@@ -1,8 +1,6 @@
 <?php
 
 use App\Site\Enums\UserPreference;
-use App\Site\Models\User;
-use App\Support\Database\Models\DeletedModels;
 
 function CreateNewMessage(string $author, string $destUser, string $messageTitle, string $messagePayloadIn): bool
 {
@@ -213,14 +211,6 @@ function DeleteMessage(string $user, int $messageID): bool
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         UpdateCachedUnreadTotals($user);
-
-        /** @var User $user */
-        $user = request()->user();
-        DeletedModels::create([
-            'ModelType' => 'Messages',
-            'ModelID' => $messageID,
-            'DeletedByUserID' => $user->ID,
-        ]);
     }
 
     return $dbResult !== false;

@@ -22,12 +22,12 @@ $game = Game::findOrFail($gameID);
 
 /** @var User $user */
 $user = User::findOrFail($userDetails['ID']);
-if ($user->gameList(UserGameListType::SetRequest)->where('GameID', $gameID)->exists()) {
+if ($user->gameList(UserGameListType::AchievementSetRequest)->where('GameID', $gameID)->exists()) {
     $action = new RemoveGameFromListAction();
-    $success = $action->execute($user, $game, UserGameListType::SetRequest);
+    $success = $action->execute($user, $game, UserGameListType::AchievementSetRequest);
 } else {
     $action = new AddGameToListAction();
-    $success = $action->execute($user, $game, UserGameListType::SetRequest);
+    $success = $action->execute($user, $game, UserGameListType::AchievementSetRequest);
 }
 
 if ($success) {
