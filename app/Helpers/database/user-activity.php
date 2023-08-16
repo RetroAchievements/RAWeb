@@ -8,7 +8,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
-use App\Support\Database\Models\DeletedModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -237,14 +236,6 @@ function RemoveComment(int $commentID, int $userID, int $permissions): bool
 
         return false;
     }
-
-    /** @var User $user */
-    $user = request()->user();
-    DeletedModels::create([
-        'ModelType' => 'Comment',
-        'ModelID' => $commentID,
-        'DeletedByUserID' => $user->ID,
-    ]);
 
     return mysqli_affected_rows($db) > 0;
 }
