@@ -1,8 +1,5 @@
 function CreateCardIconDiv(type, id, title, icon, url) {
-  let dataDirective = `x-data="tooltipComponent($el, { dynamicType: '${type}', dynamicId: '${id}' })"`;
-  if (type === 'game') {
-    dataDirective = `x-data="tooltipComponent($el, { staticHtmlContent: useCard('game', '${id}') })"`;
-  }
+  const dataDirective = `x-data="tooltipComponent($el, { dynamicType: '${type}', dynamicId: '${id}' })"`;
 
   return `<div class="inline" ${dataDirective} @mouseover="showTooltip($event)" @mouseleave="hideTooltip" @mousemove="trackMouseMovement($event)">`
     + `<a href="${url}">`

@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Blade;
 RenderContentStart();
 ?>
 <article class="flex flex-col gap-3">
-
     <h1>Cards</h1>
 
     <h3>User</h3>
@@ -122,25 +121,29 @@ RenderContentStart();
                 <?= gameAvatar(1) ?>
             </div>
         </div>
-        <div class="flex w-full justify-between mb-2">
+        <div class="flex w-full justify-between items-start mb-2">
             <?= Blade::render('<x-game-card gameId="1667" />') ?>
             <?= Blade::render('<x-game-card gameId="17078" />') ?>
         </div>
-        <div class="flex w-full justify-between mb-2">
+        <div class="flex w-full justify-between items-start mb-2">
             <?= Blade::render('<x-game-card gameId="2791" />') ?>
             <?= Blade::render('<x-game-card gameId="1471" />') ?>
         </div>
-        <div class="flex w-full justify-between mb-2">
+        <div class="flex w-full justify-between items-start mb-2">
             <?= Blade::render('<x-game-card gameId="17953" />') ?>
             <?= Blade::render('<x-game-card gameId="1" />') ?>
         </div>
-        <div class="flex w-full justify-between mb-2">
+        <div class="flex w-full justify-between items-start mb-2">
             <?= Blade::render('<x-game-card gameId="12798" />') ?>
             <?= Blade::render('<x-game-card gameId="12192" />') ?>
         </div>
-        <div class="flex w-full justify-between mb-2">
+        <div class="flex w-full justify-between items-start mb-2">
             <?= Blade::render('<x-game-card gameId="586" />') ?>
             <?= Blade::render('<x-game-card gameId="22561" />') ?>
+        </div>
+        <div class="flex w-full justify-between items-start mb-2">
+            <?= Blade::render('<x-game-card gameId="20491" />') ?>
+            <?= Blade::render('<x-game-card gameId="16498" />') ?>
         </div>
     </div>
 
