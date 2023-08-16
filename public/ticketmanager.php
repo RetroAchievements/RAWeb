@@ -616,7 +616,7 @@ RenderContentStart($pageTitle);
                     $achTypeLabel = $achType ? __('achievement-type.' . $achType) : 'None';
                     echo "<tr>";
                     echo "<td>";
-                    echo "Type: ";
+                    echo "Achievement Type: ";
                     echo "</td>";
                     echo "<td colspan='7'>";
                     echo "<b>$achTypeLabel</b>";
