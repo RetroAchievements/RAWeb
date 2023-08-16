@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Site\Models;
 
-// TODO PHP 8.1 Enum
+// TODO Enum
 abstract class NotificationPreferences
 {
     public const EmailOn_ActivityComment = 0;

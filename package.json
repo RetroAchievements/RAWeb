@@ -15,7 +15,7 @@
     },
     "dependencies": {
         "@alpinejs/focus": "^3.12.3",
-        "@floating-ui/dom": "^1.2.3",
+        "@floating-ui/dom": "^1.5.1",
         "alpinejs": "^3.12.2",
         "js-cookie": "^3.0.5",
         "ua-parser-js": "^1.0.35"
