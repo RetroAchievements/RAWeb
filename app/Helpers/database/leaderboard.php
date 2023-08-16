@@ -4,7 +4,6 @@ use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
-use App\Support\Database\Models\DeletedModels;
 
 function SubmitLeaderboardEntry(
     string $user,
@@ -818,15 +817,6 @@ function requestDeleteLB(int $lbID): bool
     $query = "DELETE FROM LeaderboardDef WHERE ID = $lbID";
 
     $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        /** @var User $user */
-        $user = request()->user();
-        DeletedModels::create([
-            'ModelType' => 'LeaderboardDef',
-            'ModelID' => $lbID,
-            'DeletedByUserID' => $user->ID,
-        ]);
-    }
 
     return $dbResult !== false;
 }

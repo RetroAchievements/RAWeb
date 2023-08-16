@@ -15,7 +15,7 @@ class UserGameListEntry extends BaseModel
 {
     // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
     // TODO rename GameID to game_id
-    // TODO drop User, migrate to user_id
+    // TODO drop User
     // TODO drop user_game_list_entry_username_game_id_type_unique
     protected $table = 'SetRequest';
 
@@ -23,6 +23,8 @@ class UserGameListEntry extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
+        'user_id',
+        'type',
         'User',
         'GameID',
     ];
@@ -36,7 +38,7 @@ class UserGameListEntry extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'User', 'User');
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     /**

@@ -21,7 +21,7 @@ class AddGameToListAction
             return null;
         }
 
-        if ($type === UserGameListType::SetRequest) {
+        if ($type === UserGameListType::AchievementSetRequest) {
             $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
             $count = $user->gameList($type)->withoutAchievements()->count();
@@ -31,7 +31,9 @@ class AddGameToListAction
         }
 
         $entry = new UserGameListEntry([
+            'user_id' => $user->ID,
             'User' => $user->User,
+            'type' => $type,
             'GameID' => $game->ID,
         ]);
 
