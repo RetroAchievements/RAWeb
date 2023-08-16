@@ -56,8 +56,7 @@ if ($highestProgressionStatus === 'Mastered') {
                             <span>
                                 {{ $retroPointsSum > 0 ? localized_number($retroPointsSum) : 'None yet' }}
                                 @if ($retroRatio != 0)
-                                    &ndash;
-                                    <em>{{ $retroRatio }}x</em>
+                                    (&times;{{ $retroRatio }} Rarity)
                                 @endif
                             <span>
                         </x-card.info-row>
