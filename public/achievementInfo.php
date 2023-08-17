@@ -89,7 +89,7 @@ getCodeNotes($gameID, $codeNotes);
 
 $pageTitle = "$achievementTitleRaw in $gameTitleRaw ($consoleName)";
 
-function generateMetaDescription(
+function generateAchievementMetaDescription(
     string $achievementDescription,
     string $gameTitle,
     string $consoleName,
@@ -107,7 +107,7 @@ RenderOpenGraphMetadata(
     $pageTitle,
     "achievement",
     media_asset("/Badge/$badgeName.png"),
-    generateMetaDescription($achievementDescriptionRaw, $gameTitleRaw, $consoleName, $achPoints, $numWinners)
+    generateAchievementMetaDescription($achievementDescriptionRaw, $gameTitleRaw, $consoleName, $achPoints, $numWinners)
 );
 RenderContentStart($pageTitle);
 ?>
