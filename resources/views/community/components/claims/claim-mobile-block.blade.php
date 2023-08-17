@@ -19,7 +19,7 @@ $gameSystemIconSrc = getSystemIconUrl($claim['ConsoleID']);
         {!! gameAvatar($claim, label: false, iconSize: 48, iconClass: 'border-0 rounded-sm badgeimg') !!}
 
         <div class="flex flex-col gap-y-0.5 w-full">
-            <a class="leading-4 cursor-pointer">
+            <a href="{{ route('game.show', $claim['GameID']) }}" class="leading-4 cursor-pointer">
                 {!! renderGameTitle($claim['GameTitle']) !!}
             </a>
 
