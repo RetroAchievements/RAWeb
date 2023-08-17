@@ -20,7 +20,7 @@ if (!getSingleTopicComment($commentID, $commentData)) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-if ($user != $commentData['Author'] && $permissions < Permissions::Admin) {
+if ($user != $commentData['Author'] && $permissions < Permissions::Moderator) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

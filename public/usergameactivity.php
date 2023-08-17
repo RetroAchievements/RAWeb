@@ -3,7 +3,7 @@
 use App\Platform\Enums\AchievementFlag;
 use App\Site\Enums\Permissions;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     abort(401);
 }
 

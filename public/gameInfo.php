@@ -263,7 +263,7 @@ sanitize_outputs(
 ?>
 <?php if ($isFullyFeaturedGame): ?>
     <?php
-        function generateMetaDescription(
+        function generateGameMetaDescription(
             string $gameTitle,
             string $consoleName,
             int $numAchievements = 0,
@@ -285,7 +285,7 @@ sanitize_outputs(
             $pageTitle,
             "game",
             media_asset($gameData['ImageIcon']),
-            generateMetaDescription(
+            generateGameMetaDescription(
                 $gameTitle,
                 $consoleName,
                 $numAchievements,
@@ -833,7 +833,7 @@ sanitize_outputs(
             ];
 
             echo Blade::render('
-                <x-game.heading 
+                <x-game.heading
                     :consoleName="$consoleName"
                     :gameTitle="$gameTitle"
                     :iconUrl="$iconUrl"
@@ -903,7 +903,7 @@ sanitize_outputs(
                         echo "<div><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                     }
 
-                    if ($permissions >= Permissions::Admin && !$isEventGame) {
+                    if ($permissions >= Permissions::Moderator && !$isEventGame) {
                         echo "<div><a class='btn btn-link' href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
                     }
 
@@ -1036,7 +1036,7 @@ sanitize_outputs(
                     }
                 }
 
-                if ($permissions >= Permissions::Admin) {
+                if ($permissions >= Permissions::Moderator) {
                     echo "<form class='mb-2' method='post' action='/request/game/update-forum-topic.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
