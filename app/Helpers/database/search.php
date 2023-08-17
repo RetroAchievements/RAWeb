@@ -7,7 +7,7 @@ use App\Site\Enums\SearchType;
 function canSearch(int $searchType, int $permissions): bool
 {
     return match ($searchType) {
-        SearchType::UserModerationComment, SearchType::SetClaimComment => $permissions >= Permissions::Admin,
+        SearchType::UserModerationComment, SearchType::SetClaimComment => $permissions >= Permissions::Moderator,
         SearchType::GameHashComment => $permissions >= Permissions::Developer,
         // technically, just need to be logged in
         // but a not-logged-in user has Unregistered permissions.

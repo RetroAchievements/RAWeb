@@ -256,7 +256,7 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
 
     if ($perms >= Permissions::Spam && $perms <= Permissions::Unregistered || $perms == Permissions::JuniorDeveloper) {
         $permsFilter = "ua.Permissions = $perms ";
-    } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Admin) {
+    } elseif ($perms >= Permissions::Registered && $perms <= Permissions::Moderator) {
         $permsFilter = "ua.Permissions >= $perms ";
     } elseif ($showUntracked) {
         $whereQuery = "WHERE ua.Untracked ";
@@ -357,7 +357,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         LEFT JOIN Achievements as a ON a.ID = t.AchievementID
         WHERE ua.User NOT LIKE ua2.User
         AND a.Author NOT LIKE ua2.User
-        AND a.Flags = '3' 
+        AND a.Flags = '3'
         GROUP BY ua2.User) resolved ON resolved.User = ua.User
     WHERE
         ContribCount > 0 AND ContribYield > 0

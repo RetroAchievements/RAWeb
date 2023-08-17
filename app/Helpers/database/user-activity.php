@@ -224,7 +224,7 @@ function RemoveComment(int $commentID, int $userID, int $permissions): bool
 
     // if not UserWall's owner nor admin, check if it's the author
     // TODO use policies to explicitly determine ability to delete a comment instead of piggy-backing query specificity
-    if ($articleID != $userID && $permissions < Permissions::Admin) {
+    if ($articleID != $userID && $permissions < Permissions::Moderator) {
         $query .= " AND UserID = $userID";
     }
 

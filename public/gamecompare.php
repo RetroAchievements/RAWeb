@@ -91,12 +91,12 @@ RenderContentStart("Game Compare");
                     echo "<option value='$nextGameID' $selected>$nextGameTitle</option>";
                 }
                 echo "</select>";
-                echo "&nbsp;<input value='Change Game' type='submit' size='67'>";
+                echo "&nbsp;<button class='btn'>Change Game</button>";
                 echo "</form>";
                 echo "<br>";
             }
 
-            if ($permissions >= Permissions::Admin) {
+            if ($permissions >= Permissions::Moderator) {
                 echo "<div class='devbox mb-3'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
                 echo "<div id='devboxcontent' style='display: none'>";

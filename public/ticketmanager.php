@@ -362,7 +362,7 @@ RenderContentStart($pageTitle);
 
                         echo "<input size='28' name='$param' type='text' value=''>";
                         echo "&nbsp";
-                        echo "<input type='submit' value='Select'>";
+                        echo "<button class='btn'>Select</button>";
                         echo "</p>";
                         echo "</form>";
                     }
@@ -853,7 +853,7 @@ RenderContentStart($pageTitle);
 
                     echo "</select>";
 
-                    echo " <input type='submit' value='Perform action'>";
+                    echo " <button class='btn'>Perform action</button>";
                     echo "</form>";
 
                     echo "</span>";

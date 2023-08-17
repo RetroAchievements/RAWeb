@@ -17,7 +17,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 /** @var ForumTopic $topic */
 $topic = ForumTopic::find($input['topic']);
 
-if ($permissions < Permissions::Admin && $topic->Author !== $username) {
+if ($permissions < Permissions::Moderator && $topic->Author !== $username) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

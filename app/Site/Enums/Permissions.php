@@ -18,7 +18,7 @@ abstract class Permissions
 
     public const Developer = 3;
 
-    public const Admin = 4;
+    public const Moderator = 4;
 
     public static function cases(): array
     {
@@ -29,7 +29,7 @@ abstract class Permissions
             self::Registered,
             self::JuniorDeveloper,
             self::Developer,
-            self::Admin,
+            self::Moderator,
         ];
     }
 
@@ -40,7 +40,7 @@ abstract class Permissions
             self::Registered,
             self::JuniorDeveloper,
             self::Developer,
-            self::Admin,
+            self::Moderator,
         ];
     }
 
@@ -53,7 +53,7 @@ abstract class Permissions
             Permissions::Registered => 'Registered',
             Permissions::JuniorDeveloper => 'Junior Developer',
             Permissions::Developer => 'Developer',
-            Permissions::Admin => 'Site Moderator', //  In name only; still referred to as Admin throughout
+            Permissions::Moderator => 'Moderator',
             default => 'Invalid permission',
         };
     }

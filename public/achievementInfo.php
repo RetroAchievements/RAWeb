@@ -337,7 +337,7 @@ RenderContentStart($pageTitle);
                 echo "</select></td></tr>";
 
                 echo "</tbody></table>";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Update' onclick=\"updateAchievementDetails()\" /><br><br>";
+                echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateAchievementDetails()\">Update</button><br><br>";
 
                 echo "<form class='mb-2' method='post' action='/request/achievement/update-image.php' enctype='multipart/form-data'>";
                 echo csrf_field();
@@ -345,7 +345,7 @@ RenderContentStart($pageTitle);
                 echo "<input type='hidden' name='achievement' value='$achievementID'>";
                 echo "<input type='file' accept='.png,.jpg,.gif' name='file'>";
                 echo "</label>";
-                echo "<input type='submit' name='submit' style='float: right' value='Submit'>";
+                echo "<button class='btn' style='float: right'>Submit</button>";
                 echo "</form><br>";
             }
 
@@ -386,7 +386,7 @@ RenderContentStart($pageTitle);
                 echo "<input type='hidden' name='f' value='2' />";
                 echo "<tr><td>Embed:</td><td style='width:100%'><input id='embedurlinput' type='text' name='v' value='$embedVidURL' style='width:100%;'/></td></tr>";
                 echo "</tbody></table>";
-                echo "&nbsp;<input type='submit' style='float: right;' value='Submit' onclick=\"PostEmbedUpdate()\" /><br><br>";
+                echo "&nbsp;<button class='btn' style='float: right;' onclick=\"PostEmbedUpdate()\">Submit</button><br><br>";
 
                 if ($achFlags === AchievementFlag::OfficialCore) {
                     echo "<li>State: Official&nbsp;<button class='btn btn-danger' type='button' onclick='updateAchievementFlag(" . AchievementFlag::Unofficial . ")'>Demote To Unofficial</button></li>";

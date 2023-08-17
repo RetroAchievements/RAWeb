@@ -139,17 +139,18 @@ if ($v != 1) {
                 <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
                     <form id='escapeform' action='/gameList.php'>
                         <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                        <input type='submit' class='leading-normal' value='No. Get me out of here.'/>
+                        <button class='btn leading-normal'>No. Get me out of here.</button>
                     </form>
 
                     <form id='consentform' action='/game/<?= $gameID ?>'>
                         <input type='hidden' name='v' value='1'/>
-                        <input type='submit' class='leading-normal' value='Yes. I&apos;m an adult.'/>
+                        <button class='btn leading-normal'>Yes. I'm an adult.</button>
                     </form>
 
                     <?php if ($userWebsitePrefs): ?>
                         <button
-                            class='break-words whitespace-normal leading-normal'
+                            type="button"
+                            class='btn break-words whitespace-normal leading-normal'
                             onclick='disableMatureContentWarningPreference()'
                         >
                             Yes. And never ask me again for pages with mature content.
@@ -903,7 +904,7 @@ sanitize_outputs(
                         echo "<div><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                     }
 
-                    if ($permissions >= Permissions::Admin && !$isEventGame) {
+                    if ($permissions >= Permissions::Moderator && !$isEventGame) {
                         echo "<div><a class='btn btn-link' href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
                     }
 
@@ -1036,7 +1037,7 @@ sanitize_outputs(
                     }
                 }
 
-                if ($permissions >= Permissions::Admin) {
+                if ($permissions >= Permissions::Moderator) {
                     echo "<form class='mb-2' method='post' action='/request/game/update-forum-topic.php'>";
                     echo csrf_field();
                     echo "<input type='hidden' name='game' value='$gameID'>";
