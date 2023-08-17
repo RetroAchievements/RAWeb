@@ -8,10 +8,6 @@
   float: inherit;
 }
 
-#searchboxinput .longer {
-  width: 80%;
-}
-
 .searchbox-top {
   background-color: var(--embed-color);
   border-radius: 4px;
@@ -19,25 +15,15 @@
 
 .searchbox-top .searchboxinput {
   border: none;
-  padding: 10px 10px 10px 20px;
   background-color: transparent;
   vertical-align: top;
   color: inherit;
+  width: 60px;
+  padding-left: 0;
+  margin-right: 2px;
 }
 
-.searchbox-top .btn {
-  border: none;
-  background-color: transparent;
-  color: #FFF;
-  padding: 5px 15px;
-  height: 42px;
-  font-size: 16px;
-}
-
-@media only screen and (max-width: 1023px) {
-  .searchbox-top {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-  }
+.searchbox-top .searchboxinput:focus {
+  width: 190px;
+  padding-left: 10px;
 }

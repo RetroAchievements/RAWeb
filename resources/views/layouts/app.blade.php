@@ -18,37 +18,26 @@
 <x-brand-top/>
 {{--@endif--}}
 <x-navbar class="lg:h-14 bg-body flex flex-col w-full justify-center lg:sticky lg:top-0">
-    {{--<x-slot name="brand">
-        <x-menu.brand />
-    </x-slot>--}}
+    {{--<x-slot name="brand"><x-menu.brand /></x-slot>--}}
     <x-menu.main/>
-    {{--<x-slot name="right">
+    <x-slot name="right">
         <div class="ml-auto"></div>
-        @if(!Route::is('search'))
-            <ul class="navbar-nav lg:hidden">
-                <x-nav-item :link="route('search')">
-                    <x-fas-search/>
-                </x-nav-item>
-            </ul>
-            <div class="hidden lg:block">
-                <livewire:supersearch dropdown/>
-            </div>
-        @endif
-        <x-menu.notifications/>
+        <x-menu.search/>
         @can('accessManagementTools')
             <x-menu.management/>
         @endcan
+        {{--<x-menu.notifications/>--}}
         <x-menu.account/>
-    </x-slot>--}}
-    {{--<x-slot name="mobile">
-        <x-menu.main :mobile="true" />
-    </x-slot>--}}
+    </x-slot>
+    <x-slot name="mobile">
+        <x-menu.main :mobile="true"/>
+    </x-slot>
 </x-navbar>
-<x-messages/>
 <x-content>
     <x-slot name="header">
         {{ $header ?? '' }}
     </x-slot>
+    <x-messages/>
     <x-slot name="breadcrumb">
         {{ $breadcrumb ?? '' }}
     </x-slot>
