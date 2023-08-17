@@ -19,7 +19,7 @@ function generateEmailVerificationToken(string $user): ?string
     }
 
     // Clear permissions til they validate their email.
-    SetAccountPermissionsJSON('Server', Permissions::Admin, $user, Permissions::Unregistered);
+    SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Unregistered);
 
     return $emailCookie;
 }
@@ -53,7 +53,7 @@ function validateEmailVerificationToken(string $emailCookie, ?string &$user): bo
             return false;
         }
 
-        $response = SetAccountPermissionsJSON('Server', Permissions::Admin, $user, Permissions::Registered);
+        $response = SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Registered);
         if ($response['Success']) {
             static_addnewregistereduser($user);
             generateAPIKey($user);

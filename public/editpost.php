@@ -18,7 +18,7 @@ if (empty($commentData)) {
     abort(404);
 }
 
-if ($user != $commentData['Author'] && $permissions < Permissions::Admin) {
+if ($user != $commentData['Author'] && $permissions < Permissions::Moderator) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
