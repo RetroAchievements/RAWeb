@@ -24,10 +24,10 @@ class UsersTableSeeder extends Seeder
         /*
          * offset role test users by 1000000
          */
-        $this->seedUserByUsername('verified', ['id' => ++$id]);
         foreach (config('roles') as $role) {
             $this->seedUserByUsername($role['name'], ['id' => ++$id]);
         }
+        $this->seedUserByUsername('verified', ['id' => ++$id]);
         $this->seedUserByUsername('unverified', ['id' => ++$id, 'email_verified_at' => null]);
         $this->seedUserByUsername('unranked', ['id' => ++$id, 'unranked_at' => Carbon::now()]);
         $this->seedUserByUsername('banned', ['id' => ++$id, 'banned_at' => Carbon::now()]);
