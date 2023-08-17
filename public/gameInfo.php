@@ -149,7 +149,8 @@ if ($v != 1) {
 
                     <?php if ($userWebsitePrefs): ?>
                         <button
-                            class='break-words whitespace-normal leading-normal'
+                            type="button"
+                            class='btn break-words whitespace-normal leading-normal'
                             onclick='disableMatureContentWarningPreference()'
                         >
                             Yes. And never ask me again for pages with mature content.
