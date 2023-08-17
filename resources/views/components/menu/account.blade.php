@@ -7,24 +7,21 @@ use App\Site\Enums\Permissions;
 $user = request()->user();
 ?>
 @guest
-    <ul class="navbar-nav">
-        @if($settings->get('auth.registration', true))
-            <li class="nav-item hidden lg:inline-block">
-                {{--<a class="nav-link" href="{{ route('register') }}">--}}
-                <a class="nav-link" href="{{ url('createaccount.php') }}">
-                    <span class="sr-only">{{ __('Register') }}</span>
-                    <span class="hidden md:inline-block">{{ __('Register') }}</span>
-                </a>
-            </li>
-        @endif
-        {{--<li class="nav-item">
-            <a class="nav-link" href="{{ route('login') }}">
-                <x-fas-power-off />
-                <span class="sr-only">{{ __('Sign In') }}</span>
-                <span class="hidden lg:inline-block">{{ __('Sign In') }}</span>
+    <div class="nav-item">
+        <a class="nav-link" href="{{ route('login') }}">
+            <x-fas-power-off class="mr-1" />
+            <span class="sr-only">{{ __('Sign in') }}</span>
+            <span class="hidden lg:inline-block">{{ __('Sign in') }}</span>
+        </a>
+    </div>
+    @if($settings->get('auth.registration', true))
+        <div class="nav-item">
+            {{--<a class="nav-link" href="{{ route('register') }}">--}}
+            <a class="nav-link" href="{{ url('createaccount.php') }}">
+                <span>{{ __('Sign up') }}</span>
             </a>
-        </li>--}}
-    </ul>
+        </div>
+    @endif
 @endguest
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
@@ -75,8 +72,8 @@ $user = request()->user();
         <x-dropdown-item :link="url('controlpanel.php')">Settings</x-dropdown-item>
         <div class="dropdown-divider"></div>
         {{--<x-form :action="route('logout')">--}}
-        <x-form :action="url('request/auth/logout.php')">
-            <button class="dropdown-item">{{ __('Sign Out') }}</button>
+        <x-form :action="route('logout')">
+            <button class="dropdown-item">{{ __('Sign out') }}</button>
         </x-form>
     </x-nav-dropdown>
 @endauth

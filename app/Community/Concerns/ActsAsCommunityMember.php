@@ -23,12 +23,19 @@ trait ActsAsCommunityMember
     }
 
     /**
+     * @return HasMany<UserActivity>
+     */
+    public function legacyActivities(): HasMany
+    {
+        return $this->hasMany(UserActivityLegacy::class, 'User', 'User');
+    }
+
+    /**
      * @return HasMany<UserActivityLegacy>
      */
     public function activities(): HasMany
     {
-        // TODO return $this->hasMany(UserActivity::class);
-        return $this->hasMany(UserActivityLegacy::class, 'User', 'User');
+        return $this->hasMany(UserActivity::class);
     }
 
     /**
@@ -93,7 +100,7 @@ trait ActsAsCommunityMember
 
     public function getUnreadMessagesCountAttribute(): int
     {
-        return (int) ($this->attributes['unread_messages_count'] ?? 0);
+        return (int) ($this->attributes['UnreadMessageCount'] ?? 0);
     }
 
     /**

@@ -4,14 +4,69 @@ declare(strict_types=1);
 
 namespace App\Site\Components;
 
+use App\Community\Enums\TicketFilters;
+use App\Community\Enums\TicketState;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class NotificationIcon extends Component
 {
+    public string $class;
+
     public function render(): View
     {
+        /** @var User $user */
+        $user = request()->user();
+
+        $notifications = collect();
+
+        // Ticket notifications
+        if ($user->Permissions >= Permissions::JuniorDeveloper) {
+            $openTicketsData = countOpenTicketsByDev($user->User);
+            if ($openTicketsData[TicketState::Open]) {
+                $notifications->push([
+                    'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest),
+                    'title' => $openTicketsData[TicketState::Open] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open]) . ' for you to resolve',
+                    'class' => 'text-danger',
+                ]);
+            }
+            if ($openTicketsData[TicketState::Request]) {
+                $notifications->push([
+                    'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+                    'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
+                ]);
+            }
+        }
+        $ticketFeedback = countRequestTicketsByUser($user->User);
+        if ($ticketFeedback) {
+            $notifications->push([
+                'link' => '/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+                'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
+            ]);
+        }
+
+        // Claim expiry notifications
+        if ($user->Permissions >= Permissions::JuniorDeveloper) {
+            $expiringClaims = getExpiringClaim($user->User);
+            if ($expiringClaims['Expired'] > 0) {
+                $notifications->push([
+                    'link' => '/expiringclaims.php?u=' . $user->User,
+                    'title' => 'Claim Expired',
+                    'class' => 'text-danger',
+                ]);
+            } elseif ($expiringClaims['Expiring'] > 0) {
+                $notifications->push([
+                    'link' => '/expiringclaims.php?u=' . $user->User,
+                    'title' => 'Claim Expiring Soon',
+                    'class' => 'text-danger',
+                ]);
+            }
+        }
+
         return view('components.notification.icon')
-            ->with('count', 0);
+            ->with('notifications', $notifications)
+            ->with('count', $notifications->count());
     }
 }

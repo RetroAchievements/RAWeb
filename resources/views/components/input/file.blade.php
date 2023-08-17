@@ -8,7 +8,7 @@
     :help="$help ?? false"
 />
 @if(!empty($model) && $model->hasMedia($attribute))
-    <div class="form-group row">
+    <div class="flex">
         <div class="lg:col-9 ml-auto">
             <x-media.file :media="$model->getMedia($attribute)->last()" />
         </div>

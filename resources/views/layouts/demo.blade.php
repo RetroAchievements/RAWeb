@@ -13,34 +13,24 @@
     data-theme="{{ request()->cookie('theme', '') }}"
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
 >
-<x-navbar fluid class="bg-embedded px-4 flex flex-col justify-center lg:sticky top-0">
+<x-navbar class="flex flex-col w-full justify-center lg:sticky lg:top-0">
     <x-slot name="brand">
-       <x-menu.brand />
-   </x-slot>
+        <x-menu.brand />
+    </x-slot>
     <x-menu.main />
     <x-slot name="right">
         <div class="ml-auto"></div>
-        {{--@if(!Route::is('search'))
-            <ul class="navbar-nav lg:hidden">
-                <x-nav-item :link="route('search')">
-                    <x-fas-search/>
-                </x-nav-item>
-            </ul>
-            <div class="hidden lg:block">
-                <livewire:supersearch dropdown/>
-            </div>
-        @endif--}}
-        {{--<x-menu.notifications/>--}}
-        {{--@can('accessManagementTools')
+        <x-menu.search/>
+        @can('accessManagementTools')
             <x-menu.management/>
-        @endcan--}}
+        @endcan
+        <x-menu.notifications/>
         <x-menu.account/>
     </x-slot>
-    {{--<x-slot name="mobile">
-        <x-menu.main :mobile="true" />
-    </x-slot>--}}
+    <x-slot name="mobile">
+        <x-menu.main :mobile="true"/>
+    </x-slot>
 </x-navbar>
-<x-messages />
 <x-content>
     <x-slot name="header">
         {{ $header ?? '' }}

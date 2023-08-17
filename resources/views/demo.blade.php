@@ -1,6 +1,5 @@
-<x-app-demo-layout
+<x-demo-layout
     :page-title="__('Demo')"
-    wide
 >
     <x-slot name="breadcrumb">
         <li>
@@ -170,4 +169,4 @@
             <textarea class="form-textarea">Test</textarea>
         </div>
     </x-section>
-</x-app-demo-layout>
+</x-demo-layout>

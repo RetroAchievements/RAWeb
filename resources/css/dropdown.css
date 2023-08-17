@@ -21,8 +21,10 @@
   display: block;
 }
 
-.dropdown-column:not(:last-child) {
-  border-right: 1px solid var(--divider-color);
+@media only screen and (min-width: theme('screens.md')) {
+  .dropdown-column:not(:last-child) {
+    border-right: 1px solid var(--divider-color);
+  }
 }
 
 .dropdown-item {
