@@ -263,7 +263,7 @@ sanitize_outputs(
 ?>
 <?php if ($isFullyFeaturedGame): ?>
     <?php
-        function generateMetaDescription(
+        function generateGameMetaDescription(
             string $gameTitle,
             string $consoleName,
             int $numAchievements = 0,
@@ -285,7 +285,7 @@ sanitize_outputs(
             $pageTitle,
             "game",
             media_asset($gameData['ImageIcon']),
-            generateMetaDescription(
+            generateGameMetaDescription(
                 $gameTitle,
                 $consoleName,
                 $numAchievements,
@@ -833,7 +833,7 @@ sanitize_outputs(
             ];
 
             echo Blade::render('
-                <x-game.heading 
+                <x-game.heading
                     :consoleName="$consoleName"
                     :gameTitle="$gameTitle"
                     :iconUrl="$iconUrl"
