@@ -81,7 +81,7 @@ $(document).ready(onUserChange);
         echo "<tr><td>Message:</td><td colspan='2'>";
         RenderShortcodeButtons();
         echo "<textarea oninput='autoExpandTextInput(this)' id='commentTextarea' class='w-full forum messageTextarea' style='height:160px' rows='5' cols='61' name='message' placeholder='Enter your message here...' required>$messageOutgoingPayload</textarea></td></tr>";
-        echo "<tr><td></td><td colspan='2' class='w-full'><input style='float:right' type='submit' value='Send Message' size='37'/></td></tr>";
+        echo "<tr><td></td><td colspan='2' class='w-full'><button class='btn' style='float:right'>Send Message</button></td></tr>";
         echo "</tbody>";
         echo "</table>";
         echo "</form>";

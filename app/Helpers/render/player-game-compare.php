@@ -39,7 +39,7 @@ function RenderGameCompare(
         echo "<form action='/gamecompare.php'>";
         echo "<input type='hidden' name='ID' value='$gameID'>";
         echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
-        echo "&nbsp;<input type='submit' value='Select' />";
+        echo "&nbsp;<button class='btn'>Select</button>";
         echo "</form>";
     } else {
         echo "RetroAchievements is a lot more fun with others!<br><br>";
@@ -53,7 +53,7 @@ function RenderGameCompare(
             echo "<form action='/gamecompare.php'>";
             echo "<input type='hidden' name='ID' value='$gameID'>";
             echo "<input size='24' name='f' type='text' class='searchboxgamecompareuser' placeholder='Enter User...' />";
-            echo "&nbsp;<input type='submit' value='Select' />";
+            echo "&nbsp;<button class='btn'>Select</button>";
             echo "</form>";
         }
     }
