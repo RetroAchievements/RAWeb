@@ -57,7 +57,7 @@ RenderContentStart("Search");
         }
         echo "</select>";
         echo "&nbsp;&nbsp;";
-        echo "<input type='submit' value='Search' />";
+        echo "<button class='btn'>Search</button>";
         echo "</form>";
         echo "</div>";
 

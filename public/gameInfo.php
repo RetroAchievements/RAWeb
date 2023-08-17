@@ -139,12 +139,12 @@ if ($v != 1) {
                 <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
                     <form id='escapeform' action='/gameList.php'>
                         <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                        <input type='submit' class='leading-normal' value='No. Get me out of here.'/>
+                        <button class='btn leading-normal'>No. Get me out of here.</button>
                     </form>
 
                     <form id='consentform' action='/game/<?= $gameID ?>'>
                         <input type='hidden' name='v' value='1'/>
-                        <input type='submit' class='leading-normal' value='Yes. I&apos;m an adult.'/>
+                        <button class='btn leading-normal'>Yes. I'm an adult.</button>
                     </form>
 
                     <?php if ($userWebsitePrefs): ?>

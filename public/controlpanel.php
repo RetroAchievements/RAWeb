@@ -44,7 +44,7 @@ function RenderUserPref(
 ?>
 <script>
 /**
- * @param {number} targetLoadingIcon - There are multiple loading icons on the page, which one will update based on this prefs change? 
+ * @param {number} targetLoadingIcon - There are multiple loading icons on the page, which one will update based on this prefs change?
  */
 function DoChangeUserPrefs(targetLoadingIcon = 1) {
     var newUserPrefs = 0;
@@ -118,10 +118,8 @@ function confirmEmailChange(event) {
                         <div class="flex gap-x-2">
                             <div class="grid gap-y-1">
                                 <input id="motto" name="motto" value="$userMottoString" maxlength="50" size="50" placeholder="Your motto">
-
                                 <div class="text-xs flex w-full justify-between">
-                                    <p>No profanity.</p>    
-                                    
+                                    <p>No profanity.</p>
                                     <div>
                                         <div class="textarea-counter" data-textarea-id="motto"></div>
                                         <div class="text-danger hidden"></div>
@@ -534,7 +532,7 @@ function confirmEmailChange(event) {
                     <?= csrf_field() ?>
                     <input type="hidden" name="user" value="<?= $user ?>">
                     If you feel your score is inaccurate due to point values varying during achievement development, you can request a recalculation by using the button below.<br><br>
-                    <input value="Recalculate My Score" type='submit' size='37'>
+                    <button class="btn">Recalculate My Score</button>
                 </form>
             </div>
         </div>

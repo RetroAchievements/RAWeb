@@ -52,7 +52,7 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
         echo "<input type='hidden' name='t' value=" . 0 . ">";
         echo "<input type='date' name='d' value=" . $date . " min=$minDate max=" . date("Y-m-d") . "> ";
         echo "<input type='hidden' name='f' value=" . $friends . ">";
-        echo "<input type='submit' value='Goto Date' />";
+        echo "<button class='btn'>Go to Date</button>";
         echo "</form>";
 
         // Clear filter

@@ -93,7 +93,7 @@ RenderContentStart("Edit post");
                             <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading..." class="w-4 h-4">
                             <a class="btn btn-link" href="/viewtopic.php?t=$thisTopicID&c=$requestedComment#$requestedComment">Back</a>
                             <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
-                            <button type="submit" class="btn">Submit</button>
+                            <button class="btn">Submit</button>
                         </div>
                     </div>
                 </td>
