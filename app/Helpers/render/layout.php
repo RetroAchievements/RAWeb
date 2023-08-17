@@ -261,7 +261,7 @@ function RenderToolbar(): void
     echo "<form class='flex searchbox-top' action='/searchresults.php'>";
     // echo "Search:&nbsp;";
     echo "<input name='s' type='text' class='flex-1 searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
-    echo "<input type='submit' value='🔎︎' title='Search the site'>";
+    echo "<button class='btn' title='Search the site'>🔎</button>";
     echo "</form>";
 }
 

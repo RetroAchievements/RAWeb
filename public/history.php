@@ -219,7 +219,7 @@ RenderContentStart("$userPage's Legacy");
                             Filter by user:<br>
                             <input size="28" name="u" type="text" value="<?= $userPage ?>">
                         </label>
-                        <input type="submit" value="Select">
+                        <button class="btn">Select</button>
                     </form>
                 </div>
             </div>
@@ -247,7 +247,7 @@ RenderContentStart("$userPage's Legacy");
         echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateUnix) . "' />";
         echo "<input type='hidden' name='d' value='$dateUnix' />";
         echo "<input type='hidden' name='u' value='$userPage' />";
-        echo "<input type='submit' value='Goto Date' class='ml-1' />";
+        echo "<button class='btn ml-1'>Go to Date</button>";
         echo "</form>";
 
         echo "</div>";

@@ -91,7 +91,7 @@ RenderContentStart("Game Compare");
                     echo "<option value='$nextGameID' $selected>$nextGameTitle</option>";
                 }
                 echo "</select>";
-                echo "&nbsp;<input value='Change Game' type='submit' size='67'>";
+                echo "&nbsp;<button class='btn'>Change Game</button>";
                 echo "</form>";
                 echo "<br>";
             }

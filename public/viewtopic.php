@@ -90,7 +90,7 @@ RenderContentStart($pageTitle);
             echo csrf_field();
             echo "<input type='hidden' name='topic' value='$thisTopicID'>";
             echo "<input type='text' name='title' value='$thisTopicTitle' size='51' >";
-            echo "<input type='submit' name='submit' value='Submit' size='37'>";
+            echo "<button class='btn'>Submit</button>";
             echo "</form>";
 
             if ($permissions >= Permissions::Moderator) {
@@ -105,7 +105,7 @@ RenderContentStart($pageTitle);
                         Permissions::toString($selectablePermission) . "</option>";
                 }
                 echo "</select>";
-                echo "<input type='submit' name='submit' value='Change Minimum Permissions' size='37'>";
+                echo "<button class='btn'>Change Minimum Permissions</button>";
                 echo "</form>";
 
                 echo "<form action='/request/forum-topic/delete.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
@@ -126,7 +126,7 @@ RenderContentStart($pageTitle);
             // echo "<input type='hidden' name='i' value='$thisTopicID' />";
             // echo "<input type='hidden' name='f' value='1' />";
             // echo "&nbsp;";
-            // echo "<input type='submit' name='submit' value='Delete Permanently' size='37' />";
+            // echo "<button class='btn' name='submit'>Delete Permanently</button>";
             // echo "</form>";
             // }
 
@@ -245,7 +245,7 @@ RenderContentStart($pageTitle);
                     <div>
                         <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
                         <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
-                        <button type="submit" id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" $inputEnabled>Submit</button>
+                        <button id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" $inputEnabled>Submit</button>
                     </div>
                 </div>
             HTML;

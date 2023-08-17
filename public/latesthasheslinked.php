@@ -29,7 +29,7 @@ RenderContentStart("Hash List");
         echo "<form action='/latesthasheslinked.php'>";
         echo "<input size='50' name='h' value='$searchedHash' />";
         echo "&nbsp;&nbsp;";
-        echo "<input type='submit' value='Search Hash' />";
+        echo "<button class='btn'>Search Hash</button>";
         echo "</form>";
         if (empty($hashList) || $searchedHash !== null) {
             echo "<br>";

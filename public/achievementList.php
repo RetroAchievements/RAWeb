@@ -92,7 +92,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
             echo "<input type='hidden' name='s' value='$sortBy'>";
             echo "<input type='hidden' name='p' value='$params'>";
             echo "<input size='28' name='d' type='text' value='$dev'>";
-            echo "&nbsp;<input type='submit' value='Select' >";
+            echo "&nbsp;<button class='btn'>Select</button>";
             echo "</form>";
             echo "</div>";
         }
