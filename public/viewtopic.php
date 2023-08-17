@@ -80,7 +80,7 @@ RenderContentStart($pageTitle);
 
         echo "<h2>$thisTopicTitle</h2>";
 
-        if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Admin)) {
+        if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Moderator)) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
@@ -93,7 +93,7 @@ RenderContentStart($pageTitle);
             echo "<input type='submit' name='submit' value='Submit' size='37'>";
             echo "</form>";
 
-            if ($permissions >= Permissions::Admin) {
+            if ($permissions >= Permissions::Moderator) {
                 echo "<div>Restrict Topic:</div>";
                 echo "<form class='mb-3' action='/request/forum-topic/update-permissions.php' method='post'>";
                 echo csrf_field();
@@ -241,7 +241,7 @@ RenderContentStart($pageTitle);
             echo <<<HTML
                 <div class="flex justify-between mb-2">
                     <span class="textarea-counter" data-textarea-id="commentTextarea">0 / 60000</span>
-                    
+
                     <div>
                         <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
                         <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>

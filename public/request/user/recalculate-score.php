@@ -12,7 +12,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'user' => 'sometimes|string|exists:UserAccounts,User',
 ]);
 
-if ($input['user'] !== $user && $permissions < Permissions::Admin) {
+if ($input['user'] !== $user && $permissions < Permissions::Moderator) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

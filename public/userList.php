@@ -11,16 +11,16 @@ $perms = (int) request()->query('p', '1');
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $showUntracked = false;
-if (isset($user) && $permissions >= Permissions::Admin) {
+if (isset($user) && $permissions >= Permissions::Moderator) {
     $showUntracked = requestInputSanitized('u', null, 'boolean');
-} elseif ($perms < Permissions::Unregistered || $perms > Permissions::Admin) {
+} elseif ($perms < Permissions::Unregistered || $perms > Permissions::Moderator) {
     $perms = 1;
 }
 
 $userCount = getUserListByPerms($sortBy, $offset, $maxCount, $userListData, $user, $perms, $showUntracked);
 
 $permissionName = null;
-if ($perms >= Permissions::Spam && $perms <= Permissions::Admin) {
+if ($perms >= Permissions::Spam && $perms <= Permissions::Moderator) {
     $permissionName = Permissions::toString($perms);
 } elseif ($showUntracked) { // meleu: using -99 magic number for untracked (I know, it's sloppy)
     $perms = -99;
@@ -60,7 +60,7 @@ RenderContentStart("Users");
         echo implode(' | ', $permLinks);
         echo "</p>";
 
-        if (isset($user) && $permissions >= Permissions::Admin) {
+        if (isset($user) && $permissions >= Permissions::Moderator) {
             echo "<p class='embedded'>";
             echo "Filters for admins (always includes Untracked users):<br>";
             if ($permissionName == "Untracked") {
