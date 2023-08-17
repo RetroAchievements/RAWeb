@@ -18,7 +18,6 @@ $timeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $targetTimestamp)->diffForHum
             :gameId="$claim['GameID']"
             :gameTitle="$claim['GameTitle']"
             :gameImageIcon="$claim['GameIcon']"
-            :consoleId="$claim['ConsoleID']"
             :consoleName="$claim['ConsoleName']"
         />
     </td>

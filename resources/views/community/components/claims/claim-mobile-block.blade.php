@@ -25,7 +25,6 @@ $gameSystemIconSrc = getSystemIconUrl($claim['ConsoleID']);
 
             <div class="flex justify-between w-full text-xs tracking-tighter">
                 <div>
-                    <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $claim['ConsoleName'] }} console icon">
                     <span>{{ $claim['ConsoleName'] }}</span>
                 </div>
             </div>
