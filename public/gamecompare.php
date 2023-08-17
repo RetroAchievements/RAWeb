@@ -96,7 +96,7 @@ RenderContentStart("Game Compare");
                 echo "<br>";
             }
 
-            if ($permissions >= Permissions::Admin) {
+            if ($permissions >= Permissions::Moderator) {
                 echo "<div class='devbox mb-3'>";
                 echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
                 echo "<div id='devboxcontent' style='display: none'>";

@@ -9,7 +9,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 $forumList = getForumList($requestedCategoryID);
 
 $numUnofficialLinks = 0;
-if ($permissions >= Permissions::Admin) {
+if ($permissions >= Permissions::Moderator) {
     $unofficialLinks = getUnauthorisedForumLinks();
     $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }
