@@ -33,12 +33,12 @@ if (!$isPreview) {
     $commentDateModified = $commentData['DateModified'];
     $commentIsAuthorised = $commentData['Authorised'];
 
-    $isCurrentUserAdmin = $currentUserPermissions >= Permissions::Moderator;
+    $isCurrentUserModerator = $currentUserPermissions >= Permissions::Moderator;
     $isCurrentUserAuthor = $currentUser === $commentAuthor;
 
-    $showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserAdmin || $isCurrentUserAuthor);
-    $showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserAdmin;
-    $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
+    $showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserModerator || $isCurrentUserAuthor);
+    $showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserModerator;
+    $showEditButton = ($isCurrentUserModerator || $isCurrentUserAuthor);
 
     // TODO: Move this conditional to the filter level and delete the @if() conditional.
     $canShowPost = $commentIsAuthorised || $showUnverifiedDisclaimer;
@@ -47,15 +47,15 @@ if (!$isPreview) {
 
 @if($isPreview || $canShowPost)
     <x-forum.post-container
-            :commentId="$commentId ?? null"
-            :isHighlighted="$isHighlighted ?? false"
-            :isPreview="$isPreview ?? false"
+        :commentId="$commentId ?? null"
+        :isHighlighted="$isHighlighted ?? false"
+        :isPreview="$isPreview ?? false"
     >
         <x-forum.post-author-box
-                :authorUserName="$commentAuthor"
-                :authorJoinDate="$commentAuthorJoinDate"
-                :authorPermissions="$commentAuthorPermissions"
-                :isAuthorDeleted="$commentAuthorDeletedDate !== null"
+            :authorUserName="$commentAuthor"
+            :authorJoinDate="$commentAuthorJoinDate"
+            :authorPermissions="$commentAuthorPermissions"
+            :isAuthorDeleted="$commentAuthorDeletedDate !== null"
         />
 
         <div class='comment w-full lg:py-0 px-1 lg:px-6 {{ $isPreview ? "py-2" : "pt-2 pb-4" }}'>
@@ -67,10 +67,10 @@ if (!$isPreview) {
                 <div class='{{ $metaContainerClassNames }} {{ $showAuthoriseTools ? 'flex-col sm:flex-row items-start gap-y-2' : 'items-center' }}'>
                     <div class='flex gap-x-2 items-center'>
                         <x-forum.post-comment-meta
-                                :showUnverifiedDisclaimer="$showUnverifiedDisclaimer"
-                                :isOriginalPoster="$isOriginalPoster"
-                                :postCreatedTimestamp="$commentDateCreated"
-                                :postEditedTimestamp="$commentDateModified"
+                            :showUnverifiedDisclaimer="$showUnverifiedDisclaimer"
+                            :isOriginalPoster="$isOriginalPoster"
+                            :postCreatedTimestamp="$commentDateCreated"
+                            :postEditedTimestamp="$commentDateModified"
                         />
                     </div>
 
@@ -84,9 +84,9 @@ if (!$isPreview) {
                         @endif
 
                         <x-forum.post-copy-comment-link-button
-                                :commentId="$commentId"
-                                :forumTopicId="$forumTopicId"
-                                :threadPostNumber="$threadPostNumber"
+                            :commentId="$commentId"
+                            :forumTopicId="$forumTopicId"
+                            :threadPostNumber="$threadPostNumber"
                         />
                     </div>
                 </div>
