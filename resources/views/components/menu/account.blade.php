@@ -27,9 +27,11 @@ $user = request()->user();
     </ul>
 @endguest
 @auth
-    <div class="nav-link flex-col justify-center text-xs" style="line-height: 1em">
+    <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
         <div class="text-color">{{ number_format($user->points_total) }}</div>
-        <div class='trueratio'>{{ number_format($user->points_weighted_total) }}</div>
+        <x-points-weighted-container>
+            <span class='trueratio'>{{ number_format($user->points_weighted_total) }}</span>
+        </x-points-weighted-container>
         <div class='softcore'>{{ number_format($user->RASoftcorePoints) }}</div>
     </div>
     {{--
