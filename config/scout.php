@@ -11,7 +11,7 @@ return [
     | using Laravel Scout. This connection is used when syncing all models
     | to the search service. You should adjust this based on your needs.
     |
-    | Supported: "algolia", "null"
+    | Supported: "algolia", "meilisearch", "database", "collection", "null"
     |
     */
 
@@ -42,6 +42,19 @@ return [
     */
 
     'queue' => env('SCOUT_QUEUE', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Transactions
+    |--------------------------------------------------------------------------
+    |
+    | This configuration option determines if your data will only be synced
+    | with your search indexes after every open database transaction has
+    | been committed, thus preventing any discarded data from syncing.
+    |
+    */
+
+    'after_commit' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -103,31 +116,27 @@ return [
         'secret' => env('ALGOLIA_SECRET', ''),
     ],
 
-    'pgsql' => [
-        // Connection to use. See config/database.php
-        'connection' => env('DB_CONNECTION', 'pgsql'),
-        // You may want to update index documents directly in PostgreSQL (i.e. via triggers).
-        // In this case you can set this value to false.
-        'maintain_index' => true,
-        // You can explicitly specify what PostgreSQL text search config to use by scout.
-        // Use \dF in psql to see all available configurations in your database.
-        'config' => 'english',
-        // You may set the default querying method
-        // Possible values: plainquery, phrasequery, tsquery
-        // plainquery is used if this option is omitted.
-        // 'search_using' => 'tsquery',
-    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Meilisearch Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure your Meilisearch settings. Meilisearch is an open
+    | source search engine with minimal configuration. Below, you can state
+    | the host and key information for your own Meilisearch installation.
+    |
+    | See: https://www.meilisearch.com/docs/learn/configuration/instance_options#all-instance-options
+    |
+    */
 
-    'tntsearch' => [
-        'storage' => storage_path('tntsearch'), // place where the index files will be stored
-        'fuzziness' => env('TNTSEARCH_FUZZINESS', true),
-        'fuzzy' => [
-            'prefix_length' => 2,
-            'max_expansions' => 50,
-            'distance' => 4,
+    'meilisearch' => [
+        'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
+        'key' => env('MEILISEARCH_KEY'),
+        'index-settings' => [
+            // 'users' => [
+            //     'filterableAttributes'=> ['id', 'name', 'email'],
+            // ],
         ],
-        'asYouType' => false,
-        'searchBoolean' => env('TNTSEARCH_BOOLEAN', false),
     ],
 
 ];

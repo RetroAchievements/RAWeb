@@ -31,9 +31,13 @@ return [
      | By default, file storage (in the storage folder) is used. Redis and PDO
      | can also be used. For PDO, run the package migrations first.
      |
+     | Warning: Enabling storage.open will allow everyone to access previous
+     | request, do not enable open storage in publicly available environments!
+     | Specify a callback if you want to limit based on IP or authentication.
      */
     'storage' => [
         'enabled' => true,
+        'open' => env('DEBUGBAR_OPEN_STORAGE', false), // bool/callback.
         'driver' => 'file', // redis, file, pdo, socket, custom
         'path' => storage_path('debugbar'), // For file driver
         'connection' => null,   // Leave null for default connection (Redis/PDO)
@@ -153,10 +157,10 @@ return [
         'messages' => true,  // Messages
         'time' => true,  // Time Datalogger
         'memory' => true,  // Memory usage
-        'exceptions' => false,  // Exception displayer
+        'exceptions' => true,  // Exception displayer
         'log' => true,  // Logs from Monolog (merged in messages if enabled)
-        'views' => false,  // Views with their data - might break debugbar
         'db' => true,  // Show database (PDO) queries and bindings
+        'views' => false,  // Views with their data
         'route' => true,  // Current route information
         'auth' => true,  // Display Laravel authentication status
         'gate' => true,  // Display Laravel Gate checks

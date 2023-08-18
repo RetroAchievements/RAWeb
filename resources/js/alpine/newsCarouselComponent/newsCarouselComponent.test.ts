@@ -1,6 +1,5 @@
 import { screen, waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
-import Alpine from 'alpinejs';
 import {
   // @prettier-ignore
   afterEach,
@@ -10,6 +9,7 @@ import {
   it,
   vi,
 } from 'vitest';
+import Alpine from '../../../../vendor/livewire/livewire/dist/livewire';
 
 import { newsCarouselComponent } from './newsCarouselComponent';
 
@@ -31,11 +31,11 @@ function render() {
         <button @click="handleIndicatorClick(2)" class="carousel-indicator">Indicator 3</button>
       </div>
 
-      <button 
+      <button
             @click="handleScrollButtonClick('previous')"
             aria-label="Go to previous slide"
       ></button>
-      <button 
+      <button
             @click="handleScrollButtonClick('next')"
             aria-label="Go to next slide"
       ></button>

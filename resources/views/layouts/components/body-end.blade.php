@@ -1,5 +1,4 @@
-{{-- TODO add livewire--}}
-{{--<livewire:scripts />--}}
+<livewire:scripts />
 @if(!app()->environment('production'))
     <script>
         function handleClick(el) {

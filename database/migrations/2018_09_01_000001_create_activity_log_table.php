@@ -14,10 +14,8 @@ return new class() extends Migration {
             $table->string('log_name')->nullable();
             $table->text('description');
             $table->nullableMorphs('subject', config('activitylog.table_name') . '_subject_index');
-            $table->string('event')->nullable();
             $table->nullableMorphs('causer', config('activitylog.table_name') . '_causer_index');
             $table->json('properties')->nullable();
-            $table->uuid('batch_uuid')->nullable();
             $table->timestampsTz();
             $table->index('log_name');
         });

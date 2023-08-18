@@ -1,13 +1,15 @@
-import Alpine from 'alpinejs';
-import focus from '@alpinejs/focus';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
+// import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
+// Alpine.plugin(yourCustomPlugin);
+// Livewire.start();
+
 import {
-  hideEarnedCheckboxComponent,
-  modalComponent,
-  newsCarouselComponent,
-  tooltipComponent,
+    hideEarnedCheckboxComponent,
+    modalComponent,
+    newsCarouselComponent,
+    tooltipComponent,
 } from './alpine';
 import {
   autoExpandTextInput,
@@ -55,13 +57,5 @@ window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
 window.tooltipComponent = tooltipComponent;
-
-// Alpine needs to be placed after all `window` injection
-// or race conditions could occur.
-document.addEventListener('DOMContentLoaded', () => {
-  window.Alpine = Alpine;
-  Alpine.plugin(focus);
-  Alpine.start();
-});
 
 themeChange();

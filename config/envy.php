@@ -1,35 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 return [
+
     /*
      * Here, you should include any environment files that you want to keep
      * in sync. For most projects, the `.env.example` file will suffice.
      * However, you're free to include more as your project requires.
      */
-    'environment_files' => [base_path('.env.example')],
+    'environment_files' => [
+        base_path('.env.example'),
+    ],
 
-    /*
+    /**
      * Here you should list any config files/directories that you want to be
      * included when looking for calls to `env`. Directories are searched
      * recursively. Feel free to include unpublished vendor configs too.
      */
-    'config_files' => [config_path()],
+    'config_files' => [
+        config_path(),
+    ],
 
-    /*
+    /**
      * Comments like the one you're reading can be quite useful when trying
      * to remember what an environment variable is used for. When set to
      * true, we'll copy any comments we find in config over to .env.
      */
     'display_comments' => false,
 
-    /*
+    /**
      * Some developers find it useful to have reference to where an environment
      * variable is used. Enabling this option will display a comment above a
      * linked .env variable with reference to the correct config file.
      */
     'display_location_hints' => false,
 
-    /*
+    /**
      * Enabling this option will also insert any provided defaults in your .env file
      * when updating. Note that only scalar (primitive) types will be copied over.
      * Defaults that include spaces will be wrapped in quotes for you.
@@ -39,14 +46,14 @@ return [
      */
     'display_default_values' => true,
 
-    /*
+    /**
      * When calling the `env` function, you can optionally provide a default as the
      * second parameter. Envy will ignore any calls with a set default if this
      * option is set to true. Otherwise, it will include them whilst syncing.
      */
     'exclude_calls_with_defaults' => true,
 
-    /*
+    /**
      * Any environment variables that are added to exclusions will never be inserted
      * into .env files. Our defaults are based on the base Laravel config files.
      * Feel free to add or remove variables as required by your project needs.
@@ -54,8 +61,14 @@ return [
     'exclusions' => [
         // config/app.php
         'ASSET_URL',
+
         // config/broadcasting.php
         'ABLY_KEY',
+        'PUSHER_APP_KEY',
+        'PUSHER_APP_SECRET',
+        'PUSHER_APP_ID',
+        'PUSHER_APP_CLUSTER',
+
         // config/cache.php
         'MEMCACHED_PERSISTENT_ID',
         'MEMCACHED_USERNAME',
@@ -67,76 +80,94 @@ return [
         'AWS_DEFAULT_REGION',
         'DYNAMODB_CACHE_TABLE',
         'DYNAMODB_ENDPOINT',
+
         // config/database.php
         'DATABASE_URL',
         'DB_SOCKET',
         'REDIS_CLIENT',
         'REDIS_CLUSTER',
-        'REDIS_PASSWORD',
         'REDIS_PREFIX',
-        'REDIS_USERNAME',
         'REDIS_URL',
         'REDIS_DB',
         'REDIS_CACHE_DB',
         'MYSQL_ATTR_SSL_CA',
-        // config/feature.php
-        'FEATURE_BEAT',
-        // config/filesystem.php
+
+        // config/filesystems.php
         'AWS_ENDPOINT',
         'AWS_URL',
+        'AWS_BUCKET',
+
         // config/hashing.php
         'BCRYPT_ROUNDS',
+
         // config/logging.php
         'PAPERTRAIL_URL',
         'PAPERTRAIL_PORT',
         'LOG_STDERR_FORMATTER',
         'LOG_SLACK_WEBHOOK_URL',
+
         // config/mail.php
         'MAIL_SENDMAIL_PATH',
         'MAIL_LOG_CHANNEL',
         'MAIL_FROM_ADDRESS',
         'MAIL_FROM_NAME',
+
         // config/queue.php
         'SQS_PREFIX',
         'SQS_QUEUE',
         'SQS_SUFFIX',
         'REDIS_QUEUE',
         'QUEUE_FAILED_DRIVER',
+
         // config/sanctum.php
         'SANCTUM_STATEFUL_DOMAINS',
+
         // config/services.php
         'MAILGUN_DOMAIN',
         'MAILGUN_SECRET',
         'MAILGUN_ENDPOINT',
         'POSTMARK_TOKEN',
+
         // config/session.php
         'SESSION_CONNECTION',
         'SESSION_STORE',
         'SESSION_COOKIE',
         'SESSION_DOMAIN',
         'SESSION_SECURE_COOKIE',
+
         // config/view.php
         'VIEW_COMPILED_PATH',
-        'ACTIVITY_LOGGER_DB_CONNECTION',
+
         // other
+        'ACTIVITY_LOGGER_DB_CONNECTION',
         'FLARE_KEY',
+        'HORIZON_DOMAIN',
+        'IGNITION_ENABLE_RUNNABLE_SOLUTIONS',
+        'IGNITION_OPEN_AI_KEY',
+        'INTERCEPTOR_CONNECT',
+        'INTERCEPTOR_WEB',
         'IPAPI_KEY',
         'IPDATA_API_KEY',
         'IPFINDER_API_KEY',
         'IPGEOLOCATION_KEY',
+        'LARAVEL_SAIL',
         'LOG_SLACK_WEBHOOK_URL',
+        'MAIL_EHLO_DOMAIN',
+        'MAIL_URL',
+        'MEILISEARCH_KEY',
         'MAXMIND_LICENSE_KEY',
         'MAXMIND_USER_ID',
-        'INTERCEPTOR_CONNECT',
-        'INTERCEPTOR_WEB',
-        'LARAVEL_SAIL',
-        'MAIL_EHLO_DOMAIN',
+        'REDIS_PASSWORD',
+        'REDIS_USERNAME',
     ],
 
-    /*
+    /**
      * Any environment variables that are added to inclusions will never be pruned from
      * your .env files. By default, we include Laravel Mix variables. Feel free to
      * add or remove environment variables to suit your project's requirements.
      */
-    'inclusions' => ['MIX_PUSHER_APP_KEY', 'MIX_PUSHER_APP_CLUSTER'],
+    'inclusions' => [
+        'MIX_PUSHER_APP_KEY',
+        'MIX_PUSHER_APP_CLUSTER',
+    ],
 ];

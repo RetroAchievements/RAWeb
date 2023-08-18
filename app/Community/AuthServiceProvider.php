@@ -52,9 +52,4 @@ class AuthServiceProvider extends ServiceProvider
         UserActivity::class => UserActivityPolicy::class,
         UserComment::class => UserCommentPolicy::class,
     ];
-
-    public function boot(): void
-    {
-        $this->registerPolicies();
-    }
 }

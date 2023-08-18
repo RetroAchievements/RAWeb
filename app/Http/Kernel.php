@@ -40,34 +40,38 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Site\Middleware\UserPreferences::class,
             // TODO Web Interceptor middleware
-            // TODO 'throttle:web',
+            // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.':web',
         ],
 
         'api' => [
             \App\Api\Middleware\AccessControlAllowOriginWildcard::class,
             'json',
             // TODO Api Interceptor middleware
-            // TODO 'throttle:api',
+            // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
         ],
 
         'connect' => [
             'json',
             // TODO Connect Interceptor middleware
-            // TODO 'throttle:connect',
+            // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.'throttle:connect',
         ],
     ];
 
     /**
-     * The application's route middleware.
-     * These middlewares may be assigned to groups or used individually.
+     * The application's middleware aliases.
+     *
+     * Aliases may be used instead of class names to conveniently assign middleware to routes and groups.
+     *
+     * @var array<string, class-string|string>
      */
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
         'auth' => \App\Site\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Site\Middleware\RedirectIfAuthenticated::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
