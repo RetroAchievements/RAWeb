@@ -274,13 +274,16 @@ function getAllTickets(
     $notAuthorCond = getNotAuthorCondition($ticketFilters);
     $notReporterCond = getNotReporterCondition($ticketFilters);
 
+    // Progression filter
+    $progressionCond = getProgressionCondition($ticketFilters);
+
     // official/unofficial filter (ignore when a specific achievement is requested)
     $achFlagCond = '';
     if (!$givenAchievementID) {
         $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
     }
 
-    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
+    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
                 tick.ReportedAt, tick.ReportType, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy, tick.ReportState
               FROM Ticket AS tick
@@ -290,7 +293,7 @@ function getAllTickets(
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
               $devJoin
-              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond $notReporterCond
+              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond $notReporterCond $progressionCond
               ORDER BY tick.ID DESC
               LIMIT $offset, $limit";
 
@@ -299,7 +302,7 @@ function getAllTickets(
 
 function getTicket(int $ticketID): ?array
 {
-    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.Points, ach.BadgeName,
+    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
                 ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
                 tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
               FROM Ticket AS tick
@@ -561,6 +564,9 @@ function countOpenTickets(
         $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
 
+    // Progression condition
+    $progressionCond = getProgressionCondition($ticketFilters);
+
     // Game condition
     $gameCond = "";
     if ($gameID != null) {
@@ -580,7 +586,7 @@ function countOpenTickets(
         $reporterJoin
         $resolverJoin
         $devJoin
-        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $notReporterCond $reporterCond $resolverCond";
+        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $notReporterCond $reporterCond $resolverCond $progressionCond";
 
     $results = legacyDbFetch($query, $bindings);
 
@@ -796,6 +802,20 @@ function getNotReporterCondition(int $ticketFilters): string
 
     if ($notAuthorTickets) {
         return "AND ua.User IS NOT NULL AND ua.User <> ua2.User";
+    }
+
+    return "";
+}
+
+/**
+ * Gets the Progression condition to put into the main ticket query.
+ */
+function getProgressionCondition(int $ticketFilters): string
+{
+    $progressionOnly = ($ticketFilters & TicketFilters::ProgressionOnly);
+
+    if ($progressionOnly) {
+        return "AND ach.type IS NOT NULL";
     }
 
     return "";
