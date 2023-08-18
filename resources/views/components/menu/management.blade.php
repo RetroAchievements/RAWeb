@@ -10,7 +10,6 @@ $user = request()->user();
     <x-nav-dropdown dropdown-class="dropdown-menu-right">
         <x-slot name="trigger">
             <x-fas-toolbox/>
-            {{--<span class="hidden xl:inline-block">Manage</span>--}}
             <span class="ml-1 hidden sm:inline-block">Manage</span>
         </x-slot>
         @can('develop')

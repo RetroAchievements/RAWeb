@@ -15,6 +15,6 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
 }
 ?>
 <form class="flex searchbox-top" action="/searchresults.php">
-    <input name="s" type="text" class="flex-1 searchboxinput hidden lg:block" value="{!! $searchQuery !!}" placeholder="{{ __('Search') }}">
+    <input name="s" type="text" class="flex-1 searchboxinput" value="{!! $searchQuery !!}" placeholder="{{ __('Search') }}">
     <button class="nav-link" title="Search"><x-pixelarticons-search class="w-5 h-5"/></button>
 </form>
