@@ -27,3 +27,10 @@
   width: 190px;
   padding-left: 10px;
 }
+
+@media only screen and (max-width: 375px) {
+  .searchbox-top .searchboxinput:focus {
+    width: 150px;
+    padding-left: 10px;
+  }
+}
