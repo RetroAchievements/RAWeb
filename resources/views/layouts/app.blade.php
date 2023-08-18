@@ -17,7 +17,7 @@
 {{--@if(Route::is('home'))--}}
 <x-brand-top/>
 {{--@endif--}}
-<x-navbar class="lg:h-14 bg-body flex flex-col w-full justify-center lg:sticky lg:top-0">
+<x-navbar class="bg-body flex flex-col w-full justify-center lg:sticky lg:top-0">
     {{--<x-slot name="brand"><x-menu.brand /></x-slot>--}}
     <x-menu.main/>
     <x-slot name="right">
