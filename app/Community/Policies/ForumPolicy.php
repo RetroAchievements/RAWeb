@@ -16,7 +16,7 @@ class ForumPolicy
 
     public function manage(User $user): bool
     {
-        return $user->Permissions >= Permissions::Moderator;
+        return $user->getAttribute('Permissions') >= Permissions::Moderator;
         // return $user->hasAnyRole([
         //     Role::FORUM_MANAGER,
         // ]);

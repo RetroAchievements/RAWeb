@@ -80,7 +80,7 @@ class AuthServiceProvider extends ServiceProvider
         //     Role::WRITER,
         // ]));
         // TODO remove as soon as permission matrix is in place
-        Gate::define('accessManagementTools', fn (User $user) => $user->Permissions >= Permissions::JuniorDeveloper);
+        Gate::define('accessManagementTools', fn (User $user) => $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
 
         /*
          * can "create". meant for creator tools opt-in
@@ -90,7 +90,7 @@ class AuthServiceProvider extends ServiceProvider
         //     Role::ARTIST,
         //     Role::WRITER,
         // ]));
-        Gate::define('develop', fn (User $user) => $user->Permissions >= Permissions::JuniorDeveloper);
+        Gate::define('develop', fn (User $user) => $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
 
         /*
          * settings

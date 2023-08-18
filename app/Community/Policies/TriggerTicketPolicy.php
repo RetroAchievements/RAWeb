@@ -15,7 +15,7 @@ class TriggerTicketPolicy
 
     public function manage(User $user): bool
     {
-        return $user->Permissions >= Permissions::JuniorDeveloper;
+        return $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
     public function view(User $user, TriggerTicket $achievementTicket): bool

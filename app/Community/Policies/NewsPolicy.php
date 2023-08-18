@@ -16,7 +16,7 @@ class NewsPolicy
 
     public function manage(User $user): bool
     {
-        return $user->Permissions >= Permissions::Developer;
+        return $user->getAttribute('Permissions') >= Permissions::Developer;
         // return $user->hasAnyRole([
         //     // Role::ADMINISTRATOR,
         //     Role::MODERATOR,
