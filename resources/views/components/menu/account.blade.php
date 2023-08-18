@@ -28,11 +28,11 @@ $user = request()->user();
 @endguest
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
-        <div class="text-color">{{ number_format($user->points_total) }}</div>
+        <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ number_format($user->points_total) }}</div>
         <x-points-weighted-container>
             <span class='trueratio'>{{ number_format($user->points_weighted_total) }}</span>
         </x-points-weighted-container>
-        <div class='softcore'>{{ number_format($user->RASoftcorePoints) }}</div>
+        <div class='softcore cursor-help' title="Points earned in softcore mode">{{ number_format($user->RASoftcorePoints) }}</div>
     </div>
     {{--
     Note: keep icon avatar in its own navbar-nav
