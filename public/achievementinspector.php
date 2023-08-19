@@ -145,12 +145,7 @@ function toggleAllCodeRows() {
 </script>
 <div id="mainpage">
     <?php
-    if (!empty($codeNotes)) {
-        echo "<div id='leftcontainer'>";
-    } else {
-        echo "<div id='fullcontainer'>";
-    }
-
+    echo "<div id='leftcontainer'>";
     if ($flag === AchievementFlag::Unofficial) {
         echo "<h2>Unofficial Achievement Inspector</h2>";
     }
