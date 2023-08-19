@@ -45,7 +45,7 @@ class AuthServiceProvider extends ServiceProvider
                     return true;
                 }
 
-                if ($user->Permissions >= Permissions::Admin) {
+                if ($user->Permissions >= Permissions::Moderator) {
                     return true;
                 }
 

@@ -76,7 +76,7 @@ RenderContentStart("Create topic: $thisForumTitle");
                         <div>
                             <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
                             <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
-                            <button type="submit" class="btn">Submit new topic</button>
+                            <button class="btn">Submit new topic</button>
                         </div>
                     </div>
                 </td>

@@ -25,7 +25,7 @@ if (empty($userMassData)) {
     abort(404);
 }
 
-if ((int) $userMassData['Permissions'] < Permissions::Unregistered && $permissions < Permissions::Admin) {
+if ((int) $userMassData['Permissions'] < Permissions::Unregistered && $permissions < Permissions::Moderator) {
     abort(404);
 }
 
@@ -390,7 +390,7 @@ RenderContentStart($userPage);
 
         echo "</div>"; // usersummary
 
-        if (isset($user) && $permissions >= Permissions::Admin) {
+        if (isset($user) && $permissions >= Permissions::Moderator) {
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";

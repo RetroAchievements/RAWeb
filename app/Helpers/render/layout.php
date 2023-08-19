@@ -238,7 +238,7 @@ function RenderToolbar(): void
             echo "<li><a href='/latesthasheslinked.php'>Latest Linked Hashes</a></li>";
         }
         // Admin
-        if ($permissions >= Permissions::Admin) {
+        if ($permissions >= Permissions::Moderator) {
             echo "<li class='divider'></li>";
             echo "<li><a href='/viewforum.php?f=0'>Invalid Forum Posts</a></li>";
             echo "<li><a href='/admin.php'>Admin Tools</a></li>";
@@ -261,7 +261,7 @@ function RenderToolbar(): void
     echo "<form class='flex searchbox-top' action='/searchresults.php'>";
     // echo "Search:&nbsp;";
     echo "<input name='s' type='text' class='flex-1 searchboxinput' value='$searchQuery' placeholder='Search the site...'>";
-    echo "<input type='submit' value='🔎︎' title='Search the site'>";
+    echo "<button class='btn' title='Search the site'>🔎</button>";
     echo "</form>";
 }
 

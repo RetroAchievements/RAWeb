@@ -677,7 +677,7 @@ RenderContentStart("$dev's Developer Stats");
                             Filter by developer:<br>
                             <input size="28" name="u" type="text" value="<?= $dev ?>">
                         </label>
-                        <input type="submit" value="Select">
+                        <button class="btn">Select</button>
                     </form>
                 </div>
             </div>

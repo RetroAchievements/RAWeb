@@ -495,7 +495,7 @@ function getRecentForumPosts(
     if (!empty($fromUser)) {
         $bindings['fromAuthor'] = $fromUser;
         $userClause = "ftc.Author = :fromAuthor";
-        if ($permissions < Permissions::Admin) {
+        if ($permissions < Permissions::Moderator) {
             $userClause .= " AND ftc.Authorised = 1";
         }
     } else {
