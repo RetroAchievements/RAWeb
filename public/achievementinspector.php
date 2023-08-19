@@ -145,7 +145,12 @@ function toggleAllCodeRows() {
 </script>
 <div id="mainpage">
     <?php
-    echo "<div id='leftcontainer'>";
+    if (!empty($gameID)) {
+        echo "<div id='leftcontainer'>";
+    } else {
+        echo "<div id='fullcontainer'>";
+    }
+
     if ($flag === AchievementFlag::Unofficial) {
         echo "<h2>Unofficial Achievement Inspector</h2>";
     }
