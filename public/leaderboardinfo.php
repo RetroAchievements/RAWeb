@@ -104,11 +104,11 @@ RenderContentStart('Leaderboard');
             echo "<table class='nicebox'><tbody>";
 
             echo "<tr>";
-            echo "<td style='width:70px'>";
-            echo gameAvatar($lbData, label: false, iconSize: 64);
+            echo "<td style='width:70px' class='p-0'>";
+            echo gameAvatar($lbData, label: false, iconSize: 96);
             echo "</td>";
 
-            echo "<td>";
+            echo "<td class='px-3'>";
             echo "<div class='flex justify-between'>";
             echo "<div>";
             echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a><br>";
