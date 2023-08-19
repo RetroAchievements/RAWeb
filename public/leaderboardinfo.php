@@ -123,7 +123,7 @@ RenderContentStart('Leaderboard');
             $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));
             $niceDateModified = date("d M, Y H:i", strtotime($lbUpdated));
 
-            echo "<p class='embedded smalldata'>";
+            echo "<p class='embedded smalldata my-2'>";
             echo "<small>";
             if (is_null($lbAuthor)) {
                 echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
