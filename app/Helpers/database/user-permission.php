@@ -50,7 +50,7 @@ function SetAccountPermissionsJSON(
     $permissionChangeAllowed = true;
 
     // only admins can change permissions
-    if ($actingUserPermissions < Permissions::Admin) {
+    if ($actingUserPermissions < Permissions::Moderator) {
         $permissionChangeAllowed = false;
     }
 

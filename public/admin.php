@@ -5,7 +5,7 @@ use App\Site\Enums\Permissions;
 use App\Site\Models\StaticData;
 use App\Site\Models\User;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Admin)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     abort(401);
 }
 
@@ -168,7 +168,7 @@ RenderContentStart('Admin Tools');
         </div>
     <?php endif ?>
 
-    <?php if ($permissions >= Permissions::Admin) : ?>
+    <?php if ($permissions >= Permissions::Moderator) : ?>
         <div id="fullcontainer" class="w-full">
             <h4>Get Game Achievement IDs</h4>
             <form action="admin.php">

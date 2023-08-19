@@ -12,6 +12,7 @@
 ])
 
 <?php
+
 use App\Site\Enums\Permissions;
 
 $metaContainerClassNames = "w-full mb-4 lg:mb-3 gap-x-2 flex justify-between";
@@ -32,12 +33,12 @@ if (!$isPreview) {
     $commentDateModified = $commentData['DateModified'];
     $commentIsAuthorised = $commentData['Authorised'];
 
-    $isCurrentUserAdmin = $currentUserPermissions >= Permissions::Admin;
+    $isCurrentUserModerator = $currentUserPermissions >= Permissions::Moderator;
     $isCurrentUserAuthor = $currentUser === $commentAuthor;
 
-    $showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserAdmin || $isCurrentUserAuthor);
-    $showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserAdmin;
-    $showEditButton = ($isCurrentUserAdmin || $isCurrentUserAuthor);
+    $showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserModerator || $isCurrentUserAuthor);
+    $showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserModerator;
+    $showEditButton = ($isCurrentUserModerator || $isCurrentUserAuthor);
 
     // TODO: Move this conditional to the filter level and delete the @if() conditional.
     $canShowPost = $commentIsAuthorised || $showUnverifiedDisclaimer;
@@ -45,53 +46,53 @@ if (!$isPreview) {
 ?>
 
 @if($isPreview || $canShowPost)
-<x-forum.post-container 
-    :commentId="$commentId ?? null" 
-    :isHighlighted="$isHighlighted ?? false" 
-    :isPreview="$isPreview ?? false"
->
-    <x-forum.post-author-box
-        :authorUserName="$commentAuthor"
-        :authorJoinDate="$commentAuthorJoinDate"
-        :authorPermissions="$commentAuthorPermissions"
-        :isAuthorDeleted="$commentAuthorDeletedDate !== null"
-    />
+    <x-forum.post-container
+        :commentId="$commentId ?? null"
+        :isHighlighted="$isHighlighted ?? false"
+        :isPreview="$isPreview ?? false"
+    >
+        <x-forum.post-author-box
+            :authorUserName="$commentAuthor"
+            :authorJoinDate="$commentAuthorJoinDate"
+            :authorPermissions="$commentAuthorPermissions"
+            :isAuthorDeleted="$commentAuthorDeletedDate !== null"
+        />
 
-    <div class='comment w-full lg:py-0 px-1 lg:px-6 {{ $isPreview ? "py-2" : "pt-2 pb-4" }}'>
-        @if($isPreview)
-            <div class='{{ $metaContainerClassNames }}'>
-                <p class='smalltext !leading-[14px]'>Preview</p>
-            </div>
-        @else
-            <div class='{{ $metaContainerClassNames }} {{ $showAuthoriseTools ? 'flex-col sm:flex-row items-start gap-y-2' : 'items-center' }}'>
-                <div class='flex gap-x-2 items-center'>
-                    <x-forum.post-comment-meta
-                        :showUnverifiedDisclaimer="$showUnverifiedDisclaimer"
-                        :isOriginalPoster="$isOriginalPoster"
-                        :postCreatedTimestamp="$commentDateCreated"
-                        :postEditedTimestamp="$commentDateModified"
-                    />
+        <div class='comment w-full lg:py-0 px-1 lg:px-6 {{ $isPreview ? "py-2" : "pt-2 pb-4" }}'>
+            @if($isPreview)
+                <div class='{{ $metaContainerClassNames }}'>
+                    <p class='smalltext !leading-[14px]'>Preview</p>
                 </div>
+            @else
+                <div class='{{ $metaContainerClassNames }} {{ $showAuthoriseTools ? 'flex-col sm:flex-row items-start gap-y-2' : 'items-center' }}'>
+                    <div class='flex gap-x-2 items-center'>
+                        <x-forum.post-comment-meta
+                            :showUnverifiedDisclaimer="$showUnverifiedDisclaimer"
+                            :isOriginalPoster="$isOriginalPoster"
+                            :postCreatedTimestamp="$commentDateCreated"
+                            :postEditedTimestamp="$commentDateModified"
+                        />
+                    </div>
 
-                <div class='flex gap-x-1 items-center lg:-mx-4 lg:pl-4 lg:w-[calc(100% + 32px)]'>
-                    @if($showAuthoriseTools)
-                        <x-forum.post-moderation-tools :commentAuthor="$commentAuthor" />
-                    @endif
+                    <div class='flex gap-x-1 items-center lg:-mx-4 lg:pl-4 lg:w-[calc(100% + 32px)]'>
+                        @if($showAuthoriseTools)
+                            <x-forum.post-moderation-tools :commentAuthor="$commentAuthor"/>
+                        @endif
 
-                    @if($showEditButton)
-                        <a href='/editpost.php?comment={{ $commentId }}' class='btn p-1 lg:text-xs'>Edit</a>
-                    @endif
+                        @if($showEditButton)
+                            <a href='/editpost.php?comment={{ $commentId }}' class='btn p-1 lg:text-xs'>Edit</a>
+                        @endif
 
-                    <x-forum.post-copy-comment-link-button
-                        :commentId="$commentId"
-                        :forumTopicId="$forumTopicId"
-                        :threadPostNumber="$threadPostNumber"
-                    />
+                        <x-forum.post-copy-comment-link-button
+                            :commentId="$commentId"
+                            :forumTopicId="$forumTopicId"
+                            :threadPostNumber="$threadPostNumber"
+                        />
+                    </div>
                 </div>
-            </div>
-        @endif
+            @endif
 
-        {!! $parsedPostContent !!}
-    </div>
-</x-forum.post-container>
+            {!! $parsedPostContent !!}
+        </div>
+    </x-forum.post-container>
 @endif
