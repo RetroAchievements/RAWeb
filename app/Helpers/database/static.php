@@ -53,10 +53,10 @@ function static_addnewhardcoremastery(int $gameId, string $username): void
             num_hardcore_mastery_awards = num_hardcore_mastery_awards+1,
             last_game_hardcore_mastered_game_id = :gameId,
             last_game_hardcore_mastered_user_id = :userId,
-            last_game_hardcore_mastered_at = NOW()
+            last_game_hardcore_mastered_at = :now
     SQL;
 
-    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID]);
+    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
 }
 
 function static_addnewhardcoregamebeaten(int $gameId, string $username): void
@@ -72,10 +72,10 @@ function static_addnewhardcoregamebeaten(int $gameId, string $username): void
             num_hardcore_game_beaten_awards = num_hardcore_game_beaten_awards+1,
             last_game_hardcore_beaten_game_id = :gameId,
             last_game_hardcore_beaten_user_id = :userId,
-            last_game_hardcore_beaten_at = NOW()
+            last_game_hardcore_beaten_at = :now
     SQL;
 
-    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID]);
+    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
 }
 
 function static_setlastearnedachievement(int $id, string $user, int $points): void
