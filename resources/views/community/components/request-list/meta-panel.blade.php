@@ -29,7 +29,7 @@
     'selectedRequestStatus' => null,
 ])
 
-<div>
+<div x-init="{}">
     <p class="text-lg mb-2">{{ localized_number($requestedSetsCount) }} Requested Sets</p>
 
     <div class="embedded p-4 my-4 w-full">
