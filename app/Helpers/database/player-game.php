@@ -36,6 +36,8 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
     // If the game has no beaten-tier achievements assigned, it is not considered beatable.
     // Bail.
     if ($totalProgressions === 0 && $totalWinConditions === 0) {
+        purgeAllPlayerBeatenGameAwardsForGame($user, $gameId);
+
         return [
             'isBeatenSoftcore' => false,
             'isBeatenHardcore' => false,
@@ -91,19 +93,11 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
     $alreadyHasBeatenAwards = HasBeatenSiteAwards($user, $gameId);
     if ($alreadyHasBeatenAwards && !$isBeaten) {
         if (!$isBeatenSoftcore) {
-            PlayerBadge::where('User', $user)
-                ->where('AwardType', AwardType::GameBeaten)
-                ->where('AwardData', $gameId)
-                ->where('AwardDataExtra', UnlockMode::Softcore)
-                ->delete();
+            purgePlayerBeatenGameAward($user, $gameId, UnlockMode::Softcore);
         }
 
         if (!$isBeatenHardcore) {
-            PlayerBadge::where('User', $user)
-                ->where('AwardType', AwardType::GameBeaten)
-                ->where('AwardData', $gameId)
-                ->where('AwardDataExtra', UnlockMode::Hardcore)
-                ->delete();
+            purgePlayerBeatenGameAward($user, $gameId, UnlockMode::Hardcore);
         }
     }
 
@@ -136,6 +130,23 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         'isBeatenHardcore' => $isBeatenHardcore,
         'isBeatable' => true,
     ];
+}
+
+function purgePlayerBeatenGameAward(string $username, int $gameId, int $unlockMode = UnlockMode::Softcore): void
+{
+    PlayerBadge::where('User', $username)
+        ->where('AwardType', AwardType::GameBeaten)
+        ->where('AwardData', $gameId)
+        ->where('AwardDataExtra', $unlockMode)
+        ->delete();
+}
+
+function purgeAllPlayerBeatenGameAwardsForGame(string $username, int $gameId): void
+{
+    PlayerBadge::where('User', $username)
+        ->where('AwardType', AwardType::GameBeaten)
+        ->where('AwardData', $gameId)
+        ->delete();
 }
 
 /**
