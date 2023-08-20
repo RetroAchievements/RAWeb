@@ -13,6 +13,7 @@ import {
   loadPostPreview,
   themeChange,
   toggleUserCompletedSetsVisibility,
+  updateUrlParameter,
 } from './utils';
 import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 
@@ -24,7 +25,7 @@ lazyLoadModuleOnIdFound({
   moduleNameToAttachToWindow: 'reorderSiteAwards',
 });
 
-// Utils
+// Global Utils
 window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
@@ -32,6 +33,7 @@ window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.loadPostPreview = loadPostPreview;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
+window.updateUrlParameter = updateUrlParameter;
 
 // Alpine.js Components
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;

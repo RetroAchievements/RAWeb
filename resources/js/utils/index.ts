@@ -10,3 +10,4 @@ export * from './loadPostPreview';
 export * from './safeRequestIdleCallback';
 export * from './theme';
 export * from './toggleUserCompletedSetsVisibility';
+export * from './updateUrlParameter';

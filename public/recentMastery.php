@@ -1,67 +1,66 @@
 <?php
 
+use App\Community\Enums\AwardType;
+use App\Platform\Enums\UnlockMode;
+use Illuminate\Support\Facades\Blade;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
 // First day with Game Awards
-$minDate = '2014-09-29';
+$minDate = '2014-08-22';
 
 $offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
-$friends = requestInputSanitized('f', 0, 'integer');
+$followed = requestInputSanitized('f', 0, 'integer');
 $date = requestInputSanitized('d', date("Y-m-d"));
+$awardType = requestInputSanitized('t');
+$unlockMode = requestInputSanitized('m');
 
-$lbUsers = $friends === 1 ? 'Followed Users' : '';
+$lbUsers = $followed === 1 ? 'Followed Users' : '';
 
-if ($friends == 1) {
-    $data = getRecentMasteryData($date, $user, $offset, $maxCount + 1);
-} else {
-    $data = getRecentMasteryData($date, null, $offset, $maxCount + 1);
+if ($awardType != AwardType::GameBeaten && $awardType != AwardType::Mastery) {
+    $awardType = null;
+}
+if ($unlockMode != UnlockMode::Hardcore && $unlockMode != UnlockMode::Softcore) {
+    $unlockMode = null;
 }
 
-RenderContentStart("Recent " . $lbUsers . " Masteries");
+// Which award type filter should we default to?
+$awardTypes = [
+    AwardType::Mastery => ['mastered', 'completed'],
+    AwardType::GameBeaten => ['beaten-hardcore', 'beaten-softcore'],
+];
+$index = $unlockMode == UnlockMode::Hardcore ? 0 : 1;
+$selectedAwardType = $awardTypes[$awardType][$index] ?? null;
+
+if ($followed == 1) {
+    $data = getRecentProgressionAwardData($date, $user, $offset, $maxCount + 1, $awardType, $unlockMode);
+} else {
+    $data = getRecentProgressionAwardData($date, null, $offset, $maxCount + 1, $awardType, $unlockMode);
+}
+
+RenderContentStart("Recent " . $lbUsers . " Progression Awards");
 ?>
+
 <div id='mainpage'>
     <div id='fullcontainer'>
         <?php
-        echo "<h2>Recent " . $lbUsers . " Masteries</h2>";
+        echo "<h2>Recent " . $lbUsers . " Progression Awards</h2>";
 
-        // Add the leaderboard filters
-        echo "<div class='embedded mb-1'>";
-
-        // Create the Users filters only if a user is logged in
-        if ($user !== null) {
-            echo "<div>";
-            echo "<b>Users:</b> ";
-            if ($friends == 0) {
-                echo "<b><a href='/recentMastery.php?d=$date&f=0'>*All Users</a></b> | ";
-            } else {
-                echo "<a href='/recentMastery.php?d=$date&f=0'>All Users</a> | ";
-            }
-            if ($friends == 1) {
-                echo "<b><a href='/recentMastery.php?d=$date&f=1'>*Followed Users</a></b>";
-            } else {
-                echo "<a href='/recentMastery.php?d=$date&f=1'>Followed Users</a>";
-            }
-            echo "</div>";
-        }
-
-        // Create the custom date filter
-        echo "<form action='/recentMastery.php'>";
-        echo "<label for='d'><b>Jump to Date: </b></label>";
-        echo "<input type='hidden' name='t' value=" . 0 . ">";
-        echo "<input type='date' name='d' value=" . $date . " min=$minDate max=" . date("Y-m-d") . "> ";
-        echo "<input type='hidden' name='f' value=" . $friends . ">";
-        echo "<button class='btn'>Go to Date</button>";
-        echo "</form>";
-
-        // Clear filter
-        if ($date != date("Y-m-d") || $friends != 0) {
-            echo "<div>";
-            echo "<a href='/recentMastery.php'>Clear Filter</a>";
-            echo "</div>";
-        }
-        echo "</div>";
+        echo Blade::render('
+            <x-recent-awards.meta-panel
+                :minAllowedDate="$minAllowedDate"
+                :selectedAwardType="$selectedAwardType"
+                :selectedDate="$selectedDate"
+                :selectedUsers="$selectedUsers"
+            />
+        ', [
+            'minAllowedDate' => $minDate,
+            'selectedAwardType' => $selectedAwardType,
+            'selectedDate' => $date,
+            'selectedUsers' => $followed == 1 ? 'followed' : 'all',
+        ]);
 
         echo "<table class='table-highlight'><tbody>";
 
@@ -86,20 +85,40 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
             if (!$skip) {
                 echo "<tr>";
 
-                echo "<td>";
+                echo "<td class='py-2.5'>";
                 echo userAvatar($dataPoint['User']);
                 echo "</td>";
 
                 echo "<td>";
-                if ($dataPoint['AwardDataExtra'] == 1) {
-                    echo "Mastered";
-                } else {
-                    echo "Completed";
+                if ($dataPoint['AwardType'] == AwardType::Mastery) {
+                    if ($dataPoint['AwardDataExtra'] == 1) {
+                        echo "Mastered";
+                    } else {
+                        echo "Completed";
+                    }
+                } elseif ($dataPoint['AwardType'] == AwardType::GameBeaten) {
+                    if ($dataPoint['AwardDataExtra'] == 1) {
+                        echo "Beaten";
+                    } else {
+                        echo "Beaten (softcore)";
+                    }
                 }
                 echo "</td>";
 
                 echo "<td>";
-                echo gameAvatar($dataPoint);
+                echo Blade::render('
+                    <x-game.multiline-avatar
+                        :gameId="$gameId"
+                        :gameTitle="$gameTitle"
+                        :gameImageIcon="$gameImageIcon"
+                        :consoleName="$consoleName"
+                    />
+                ', [
+                    'gameId' => $dataPoint['GameID'],
+                    'gameTitle' => $dataPoint['GameTitle'],
+                    'gameImageIcon' => $dataPoint['GameIcon'],
+                    'consoleName' => $dataPoint['ConsoleName'],
+                ]);
                 echo "</td>";
 
                 echo "<td>";
@@ -116,25 +135,25 @@ RenderContentStart("Recent " . $lbUsers . " Masteries");
         echo "<div class='float-right row'>";
         if ($date > $minDate) {
             $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
-            echo "<a href='/recentMastery.php?d=$prevDate&f=$friends&o=0'>&lt; Prev Day </a>";
+            echo "<a href='/recentMastery.php?d=$prevDate&f=$followed&o=0'>&lt; Prev Day </a>";
             if ($date < date("Y-m-d")) {
                 echo " | ";
             }
         }
         if ($offset > 0) {
             $prevOffset = $offset - $maxCount;
-            echo "<a href='/recentMastery.php?d=$date&f=$friends&o=$prevOffset'>&lt; Prev $maxCount </a>";
+            echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$prevOffset'>&lt; Prev $maxCount </a>";
         }
         if ($userCount > $maxCount) {
             if ($offset > 0) {
                 echo " - ";
             }
             $nextOffset = $offset + $maxCount;
-            echo "<a href='/recentMastery.php?d=$date&f=$friends&o=$nextOffset'>Next $maxCount &gt;</a>";
+            echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$nextOffset'>Next $maxCount &gt;</a>";
         }
         if ($date < date("Y-m-d")) {
             $nextDate = date('Y-m-d', strtotime($date . "+1 days"));
-            echo " | <a href='/recentMastery.php?d=$nextDate&f=$friends&o=0'>Next Day &gt;</a>";
+            echo " | <a href='/recentMastery.php?d=$nextDate&f=$followed&o=0'>Next Day &gt;</a>";
         }
         echo "</div>";
         ?>

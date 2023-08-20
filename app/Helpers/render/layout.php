@@ -170,7 +170,7 @@ function RenderToolbar(): void
     echo "<li class='divider'></li>";
     echo "<li><a href='/userList.php'>User List</a></li>";
     echo "<li><a href='/globalRanking.php'>Global Ranking</a></li>";
-    echo "<li><a href='/recentMastery.php'>Recent Masteries</a></li>";
+    echo "<li><a href='/recentMastery.php'>Recent Progression Awards</a></li>";
     // echo "<li><a href='/leaderboardList.php'>Leaderboards</a></li>";
     echo "<li><a href='/developerstats.php'>Developer Stats</a></li>";
     echo "<li class='divider'></li>";
