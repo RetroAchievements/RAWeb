@@ -425,6 +425,38 @@ class BeatenGameTest extends TestCase
         );
     }
 
+    public function testBeatenAwardRevocation3(): void
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID]);
+        /** @var Achievement $progressionAchievement */
+        $progressionAchievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID]);
+
+        // The user unlocks the one progression achievement. They should be given beaten game credit.
+        $this->addHardcoreUnlock($user, $progressionAchievement);
+        testBeatenGame($game->ID, $user->User, true);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+
+        // Now, pretend a dev removes the progression type from the achievement.
+        $progressionAchievement->type = null;
+        $progressionAchievement->save();
+        $progressionAchievement->refresh();
+
+        // Next, pretend the player does a score recalc, which triggers testBeatenGame().
+        testBeatenGame($game->ID, $user->User, true);
+
+        // The beaten game award should be revoked.
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 0);
+    }
+
     public function testRetroactiveAward(): void
     {
         Carbon::setTestNow(Carbon::now());
