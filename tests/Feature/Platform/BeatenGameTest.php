@@ -124,7 +124,7 @@ class BeatenGameTest extends TestCase
 
     public function testAllProgressionAchievementsUnlockedAndNoWinConditionExists(): void
     {
-                // Arrange
+        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         /** @var System $system */
