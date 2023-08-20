@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Site\Models\StaticData;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends Factory<StaticData>
@@ -24,6 +25,14 @@ class StaticDataFactory extends Factory
             'NumAwarded' => 1,
             'NumGames' => 1,
             'NumRegisteredUsers' => 1,
+            'num_hardcore_mastery_awards' => 1,
+            'num_hardcore_game_beaten_awards' => 1,
+            'last_game_hardcore_mastered_game_id' => 1,
+            'last_game_hardcore_mastered_user_id' => 1,
+            'last_game_hardcore_mastered_at' => Carbon::now()->subMinutes(5),
+            'last_game_hardcore_beaten_game_id' => 1,
+            'last_game_hardcore_beaten_user_id' => 1,
+            'last_game_hardcore_beaten_at' => Carbon::now()->subMinutes(5),
             'TotalPointsEarned' => 1,
             'LastAchievementEarnedID' => 1,
             'LastAchievementEarnedByUser' => 1,
