@@ -21,9 +21,9 @@ $gameUrl = route('game.show', $game->ID);
 ?>
 
 <div>
-    <div class="flex justify-center items-center gap-x-2 w-full mb-1 flex-nowrap">
+    <div class="text-2xs flex lg:justify-between items-center gap-x-2 w-full mb-0.5 flex-nowrap">
         <p>{{ $headingLabel }}</p>
-        <p class="text-2xs">({{ $timestamp }})</p>
+        <p>({{ $timestamp }})</p>
     </div>
 
     <div class="text-xs bg-embed p-4 rounded border border-embed-highlight">
