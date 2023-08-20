@@ -122,8 +122,8 @@ function UnlinkHash(user, gameID, hash, elem) {
 
             echo "<td style='width: 60%'><input type='text' id='HASH_{$hash}_Name' value='" . attributeEscape($hashData['Name'] ?? '') . "' style='width: 100%'></td>";
             echo "<td style='width: 20%'><input type='text' id='HASH_{$hash}_Labels' value='" . attributeEscape($hashData['Labels'] ?? '') . "' style='width: 100%'></td>";
-            echo "<td style='width: 5%'><input type='submit' value='Update' onclick=\"UpdateHashDetails('$user', '$hash');\"></td>";
-            echo "<td style='width: 5%'><input class='btnDelete' type='submit' value='Unlink' onclick=\"UnlinkHash('$user', '$gameID', '$hash', this);\"></td>";
+            echo "<td style='width: 5%'><button type='button' class='btn' onclick=\"UpdateHashDetails('$user', '$hash');\">Update</button></td>";
+            echo "<td style='width: 5%'><button type='button' class='btn' onclick=\"UnlinkHash('$user', '$gameID', '$hash', this);\">Unlink</button></td>";
         }
 
         echo "</tbody></table><br><br>";

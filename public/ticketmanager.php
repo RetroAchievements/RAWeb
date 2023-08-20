@@ -320,6 +320,12 @@ RenderContentStart($pageTitle);
                 echo $linkFilter('Junior', TicketFilters::DevJunior);
                 echo "</div>";
 
+                // Progression Filter
+                echo "<div>";
+                echo "<b>Achievement Type:</b> ";
+                echo $linkFilter('Progression Only', TicketFilters::ProgressionOnly);
+                echo "</div>";
+
                 // Resolved By Filter
                 if ($closedTickets || $resolvedTickets) {
                     echo "<div>";
@@ -356,7 +362,7 @@ RenderContentStart($pageTitle);
 
                         echo "<input size='28' name='$param' type='text' value=''>";
                         echo "&nbsp";
-                        echo "<input type='submit' value='Select'>";
+                        echo "<button class='btn'>Select</button>";
                         echo "</p>";
                         echo "</form>";
                     }
@@ -410,6 +416,7 @@ RenderContentStart($pageTitle);
                     $achDesc = $nextTicket['AchievementDesc'];
                     $achAuthor = $nextTicket['AchievementAuthor'];
                     $achPoints = $nextTicket['Points'];
+                    $achType = $nextTicket['AchievementType'];
                     $achBadgeName = $nextTicket['BadgeName'];
                     $gameID = $nextTicket['GameID'];
                     $gameTitle = $nextTicket['GameTitle'];
@@ -431,6 +438,7 @@ RenderContentStart($pageTitle);
                         $achTitle,
                         $achDesc,
                         $achAuthor,
+                        $achType,
                         $gameTitle,
                         $consoleName,
                         $reportNotes,
@@ -495,6 +503,7 @@ RenderContentStart($pageTitle);
                 $achDesc = $nextTicket['AchievementDesc'];
                 $achAuthor = $nextTicket['AchievementAuthor'];
                 $achPoints = $nextTicket['Points'];
+                $achType = $nextTicket['AchievementType'];
                 $achBadgeName = $nextTicket['BadgeName'];
                 $gameID = $nextTicket['GameID'];
                 $gameTitle = $nextTicket['GameTitle'];
@@ -516,6 +525,7 @@ RenderContentStart($pageTitle);
                     $achTitle,
                     $achDesc,
                     $achAuthor,
+                    $achType,
                     $gameTitle,
                     $consoleName,
                     $mode,
@@ -598,6 +608,18 @@ RenderContentStart($pageTitle);
                     echo "</td>";
                     echo "<td colspan='7'>";
                     echo "<b>$reportModes[$mode]</b>";
+                    echo "</td>";
+                    echo "</tr>";
+                }
+
+                if (isset($achType)) {
+                    $achTypeLabel = $achType ? __('achievement-type.' . $achType) : 'None';
+                    echo "<tr>";
+                    echo "<td>";
+                    echo "Achievement Type: ";
+                    echo "</td>";
+                    echo "<td colspan='7'>";
+                    echo "<b>$achTypeLabel</b>";
                     echo "</td>";
                     echo "</tr>";
                 }
@@ -831,7 +853,7 @@ RenderContentStart($pageTitle);
 
                     echo "</select>";
 
-                    echo " <input type='submit' value='Perform action'>";
+                    echo " <button class='btn'>Perform action</button>";
                     echo "</form>";
 
                     echo "</span>";

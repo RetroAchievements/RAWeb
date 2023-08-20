@@ -10,18 +10,18 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', 25, 'integer');
 
 $numUnofficialLinks = 0;
-if ($permissions >= Permissions::Admin) {
+if ($permissions >= Permissions::Moderator) {
     $unofficialLinks = getUnauthorisedForumLinks();
     $numUnofficialLinks = is_countable($unofficialLinks) ? count($unofficialLinks) : 0;
 }
 
 $numTotalTopics = 0;
 
-if ($requestedForumID == 0 && $permissions < Permissions::Admin) {
+if ($requestedForumID == 0 && $permissions < Permissions::Moderator) {
     abort(404);
 }
 
-if ($requestedForumID == 0 && $permissions >= Permissions::Admin) {
+if ($requestedForumID == 0 && $permissions >= Permissions::Moderator) {
     $viewingUnauthorisedForumLinks = true;
 
     $thisForumID = 0;

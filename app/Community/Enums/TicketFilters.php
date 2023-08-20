@@ -48,15 +48,19 @@ abstract class TicketFilters
 
     public const ResolvedByNonReporter = 1 << 20;
 
+    public const ProgressionOnly = 1 << 21;
+
     // This should updated every time a new filter is added so it has all possible filter bits set
-    public const AllFilters = (1 << 21) - 1;
+    public const AllFilters = (1 << 22) - 1;
 
-    // All filter is everything except Not Author (Not Author filter excludes items)
-    public const All = self::AllFilters & ~self::ResolvedByNonAuthor;
+    // All filter is everything except Not Author (Not Author filter excludes items) and Progression only
+    public const All = self::AllFilters & ~self::ResolvedByNonAuthor
+                                        & ~self::ProgressionOnly;
 
-    // Default filter is everything except Closed, Resolved, and Not Author
+    // Default filter is everything except Closed, Resolved, Not Author and Progression only
     public const Default = self::AllFilters & ~self::StateClosed
                                             & ~self::StateResolved
                                             & ~self::ResolvedByNonAuthor
-                                            & ~self::ResolvedByNonReporter;
+                                            & ~self::ResolvedByNonReporter
+                                            & ~self::ProgressionOnly;
 }

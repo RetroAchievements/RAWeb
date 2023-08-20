@@ -14,7 +14,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $targetUser = $input['user'] ?? null;
 
-if ($targetUser && $targetUser !== $actingUser && $permissions < Permissions::Admin) {
+if ($targetUser && $targetUser !== $actingUser && $permissions < Permissions::Moderator) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
