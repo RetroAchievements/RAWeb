@@ -1,5 +1,6 @@
 <?php
 
+use App\Site\Models\User;
 use Carbon\Carbon;
 
 function static_addnewachievement(int $id): void
@@ -37,6 +38,44 @@ function static_addnewregistereduser(string $user): void
     if (!$dbResult) {
         log_sql_fail();
     }
+}
+
+function static_addnewhardcoremastery(int $gameId, string $username): void
+{
+    $foundUser = User::firstWhere('User', $username);
+    if ($foundUser->Untracked) {
+        return;
+    }
+
+    $query = <<<SQL
+        UPDATE StaticData
+        SET
+            num_hardcore_mastery_awards = num_hardcore_mastery_awards+1,
+            last_game_hardcore_mastered_game_id = :gameId,
+            last_game_hardcore_mastered_user_id = :userId,
+            last_game_hardcore_mastered_at = NOW()
+    SQL;
+
+    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID]);
+}
+
+function static_addnewhardcoregamebeaten(int $gameId, string $username): void
+{
+    $foundUser = User::firstWhere('User', $username);
+    if ($foundUser->Untracked) {
+        return;
+    }
+
+    $query = <<<SQL
+        UPDATE StaticData
+        SET
+            num_hardcore_game_beaten_awards = num_hardcore_game_beaten_awards+1,
+            last_game_hardcore_beaten_game_id = :gameId,
+            last_game_hardcore_beaten_user_id = :userId,
+            last_game_hardcore_beaten_at = NOW()
+    SQL;
+
+    legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID]);
 }
 
 function static_setlastearnedachievement(int $id, string $user, int $points): void
