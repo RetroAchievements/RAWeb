@@ -3,16 +3,15 @@
     'selectedAwardType' => null,
     'selectedDate' => null,
     'selectedUsers' => 'all',
+    'unlockModeSoftcore' => 0,
+    'unlockModeHardcore' => 1,
 ])
 
 <?php
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\UnlockMode;
 
 $awardTypeMastery = AwardType::Mastery;
 $awardTypeGameBeaten = AwardType::GameBeaten;
-$unlockModeSoftcore = UnlockMode::Softcore;
-$unlockModeHardcore = UnlockMode::Hardcore;
 ?>
 
 <script>
