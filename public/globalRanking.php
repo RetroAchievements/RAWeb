@@ -126,7 +126,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
         echo "<input type='hidden' name='t' value=" . $type . ">";
         echo "<input type='date' name='d' value=" . $date . " min='2012-01-01' max=" . date("Y-m-d") . "> ";
         echo "<input type='hidden' name='f' value=" . $friends . ">";
-        echo "<input type='submit' value='Goto Date' />";
+        echo "<button class='btn'>Go to Date</button>";
         echo "</form>";
 
         // Clear filter

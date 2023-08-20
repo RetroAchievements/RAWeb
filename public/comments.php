@@ -70,7 +70,7 @@ switch ($articleTypeID) {
         break;
 
     case ArticleType::SetClaim:
-        if ($permissions < Permissions::Admin) {
+        if ($permissions < Permissions::Moderator) {
             abort(403);
         }
         /** @var Game $game */
@@ -125,7 +125,7 @@ switch ($articleTypeID) {
         break;
 
     case ArticleType::UserModeration:
-        if ($permissions < Permissions::Admin) {
+        if ($permissions < Permissions::Moderator) {
             abort(403);
         }
         /** @var User $pageUser */

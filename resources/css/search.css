@@ -25,7 +25,7 @@
   color: inherit;
 }
 
-.searchbox-top input[type="submit"] {
+.searchbox-top .btn {
   border: none;
   background-color: transparent;
   color: #FFF;

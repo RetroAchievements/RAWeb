@@ -11,8 +11,8 @@ $user = request()->user();
 // TODO: Migrate all of this out of the component file.
 $mailboxIconSrc = null;
 if ($user) {
-    $mailboxIconSrc = $user->UnreadMessageCount 
-        ? asset('assets/images/icon/mail-unread.png') 
+    $mailboxIconSrc = $user->UnreadMessageCount
+        ? asset('assets/images/icon/mail-unread.png')
         : asset('assets/images/icon/mail.png');
 
     $ticketLinks = collect();
@@ -54,7 +54,7 @@ if ($user) {
 
             <div class="flex flex-col items-center gap-2">
                 <div class="h-7 flex items-center justify-center gap-x-2">
-                    <button class="flex items-center justify-center p-2" type="submit" name="submit">Log In</button>
+                    <button class="btn flex items-center justify-center p-2">Log In</button>
                     <a class="btn btn-link p-2" href="/createaccount.php">Register</a>
                 </div>
 
@@ -76,7 +76,7 @@ if ($user) {
                         <span>
                             ({{ localized_number($user->RAPoints) }})
                         </span>
-                        
+
                         <x-points-weighted-container>
                             ({{ localized_number($user->TrueRAPoints) }})
                         </x-points-weighted-container>
@@ -100,9 +100,9 @@ if ($user) {
                         <div class="flex gap-x-1 items-center">
                             Tickets
                             @foreach($ticketLinks as $ticketLink)
-                                <a 
-                                    class="{{ $ticketLink['class'] ?? '' }}" 
-                                    href="{{ $ticketLink['link'] }}" 
+                                <a
+                                    class="{{ $ticketLink['class'] ?? '' }}"
+                                    href="{{ $ticketLink['link'] }}"
                                     title="{{ $ticketLink['title'] }}"
                                 >
                                     {{ $ticketLink['count'] }}

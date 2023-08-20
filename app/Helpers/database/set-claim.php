@@ -489,7 +489,7 @@ function permissionsToClaim(int $permissions): int
         Permissions::Registered => 0,
         Permissions::JuniorDeveloper => 1,
         Permissions::Developer => 4,
-        Permissions::Admin => 4,
+        Permissions::Moderator => 4,
         default => 0,
     };
 }

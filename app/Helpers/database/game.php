@@ -763,7 +763,7 @@ function submitNewGameTitleJSON(
     } elseif (mb_strlen($titleIn) < 2) {
         $retVal['Error'] = "Cannot submit game title given as '$titleIn'";
         $retVal['Success'] = false;
-    } elseif ($consoleID < 1 || (!isValidConsoleId($consoleID) && $permissions < Permissions::Admin)) {
+    } elseif ($consoleID < 1 || (!isValidConsoleId($consoleID) && $permissions < Permissions::Moderator)) {
         $retVal['Error'] = "Cannot submit game title for unknown ConsoleID $consoleID";
         $retVal['Success'] = false;
     } else {

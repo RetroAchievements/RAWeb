@@ -1,4 +1,4 @@
-.btn, button, [type="button"], [type="reset"], [type="submit"] {
+.btn {
   background-color: var(--embed-color);
   /*color: var(--link-color);*/
   /*border: 1px solid var(--link-color);*/
@@ -14,7 +14,7 @@
   font-size: small;
   white-space: nowrap;
 }
-.btn:hover, button:hover, [type="button"]:hover, [type="reset"]:hover, [type="submit"]:hover {
+.btn:hover {
   background-color: var(--embed-highlight-color);
   color: var(--link-hover-color);
   border: 1px solid var(--menu-link-color);

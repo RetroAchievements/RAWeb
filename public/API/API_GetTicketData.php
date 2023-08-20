@@ -8,6 +8,7 @@
  *  int        AchievementID           unique identifier of the achievement associated to the ticket
  *  string     AchievementTitle        title of the achievement
  *  string     AchievementDesc         description of the achievement
+ *  string     AchievementType         unique identifier of the progression type of the achievement
  *  int        Points                  number of points the achievement
  *  string     BadgeName               unique identifier of the badge image for the achievement
  *  string     AchievementAuthor       user who originally created the achievement
@@ -38,6 +39,7 @@
  *   int        AchievementID          unique identifier of the achievement associated to the ticket
  *   string     AchievementTitle       title of the achievement
  *   string     AchievementDesc        description of the achievement
+ *   string     AchievementType        unique identifier of the progression type of the achievement
  *   int        Points                 number of points the achievement
  *   string     BadgeName              unique identifier of the badge image for the achievement
  *   string     AchievementAuthor      user who originally created the achievement
@@ -102,6 +104,7 @@
  *   int        AchievementID          unique identifier of the achievement associated to the ticket
  *   string     AchievementTitle       title of the achievement
  *   string     AchievementDesc        description of the achievement
+ *   string     AchievementType        unique identifier of the progression type of the achievement
  *   int        Points                 number of points the achievement
  *   string     BadgeName              unique identifier of the badge image for the achievement
  *   string     AchievementAuthor      user who originally created the achievement
@@ -254,6 +257,7 @@ if ($achievementIDGiven > 0) {
     $ticketData['AchievementID'] = $achievementIDGiven;
     $ticketData['AchievementTitle'] = $achievementData['Title'];
     $ticketData['AchievementDescription'] = $achievementData['Description'];
+    $ticketData['AchievementType'] = $achievementData['type'];
     $ticketData['URL'] = $baseUrl . "?a=$achievementIDGiven";
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
 

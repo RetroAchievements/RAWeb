@@ -5,7 +5,7 @@
     @keydown.escape.window="isModalOpen = false"
     class="relative w-auto h-auto inline"
 >
-    <button type="button" class="inline" @click="isModalOpen = true">{{ $buttonLabel }}</button>
+    <button type="button" class="btn inline" @click="isModalOpen = true">{{ $buttonLabel }}</button>
 
     <template x-teleport="body">
         <div
@@ -39,13 +39,13 @@
             >
                 <div class="flex items-center justify-between pb-2">
                     <p class="text-lg font-semibold mb-4">{{ $modalTitleLabel }}</p>
-                    <button 
+                    <button
                         aria-label="Close modal"
-                        @click="isModalOpen = false" 
+                        @click="isModalOpen = false"
                         class="fixed sm:absolute top-0 right-0 z-10 flex items-center justify-center w-8 h-8 mt-5 mr-5 text-link rounded-full hover:text-link-hover"
                     >
                         <title class="sr-only">Close</title>
-                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>  
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
 
