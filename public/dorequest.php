@@ -388,7 +388,7 @@ switch ($requestType) {
             progressMax: ' ',
             progressFmt: ' ',
             points: (int) request()->input('z', 0),
-            type: request()->input('x', 'not-given'), // TODO: remove "not-given" when RAIntegration supports `type`
+            type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),
             flag: (int) request()->input('f', AchievementFlag::Unofficial),
             idInOut: $achievementID,

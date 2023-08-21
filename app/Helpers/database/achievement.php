@@ -194,7 +194,6 @@ function UploadNewAchievement(
         return false;
     }
 
-    // TODO: remove "not-given" when RAIntegration supports `type`
     if ($type !== null && (!AchievementType::isValid($type) && $type !== 'not-given')) {
         $errorOut = "Invalid achievement type";
 
@@ -269,7 +268,7 @@ function UploadNewAchievement(
         $data = mysqli_fetch_assoc($dbResult);
 
         $changingAchSet = ($data['Flags'] != $flag);
-        $changingType = ($data['type'] != $type && $type !== 'not-given'); // TODO: remove "not-given" when RAIntegration supports `type`
+        $changingType = ($data['type'] != $type && $type !== 'not-given');
         $changingPoints = ($data['Points'] != $points);
         $changingTitle = ($data['Title'] !== $rawTitle);
         $changingDescription = ($data['Description'] !== $rawDesc);
@@ -297,7 +296,6 @@ function UploadNewAchievement(
             }
         }
 
-        // TODO: remove when RAIntegration supports `type`
         // `null` is a valid type value, so we use a different fallback value.
         if ($type === 'not-given' && $data['type'] !== null) {
             $typeValue = "'" . $data['type'] . "'";
