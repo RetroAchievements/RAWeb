@@ -296,6 +296,11 @@ function UploadNewAchievement(
             }
         }
 
+        // `null` is valid, so we use a different fallback value.
+        if ($typeValue === 'not-given' && $data['type']) {
+            $typeValue = $data['type'];
+        }
+
         $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type=$typeValue, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
 
         $db = getMysqliConnection();
