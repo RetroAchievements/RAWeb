@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -104,11 +105,11 @@ RenderContentStart('Leaderboard');
             echo "<table class='nicebox'><tbody>";
 
             echo "<tr>";
-            echo "<td style='width:70px'>";
-            echo gameAvatar($lbData, label: false, iconSize: 64);
+            echo "<td style='width:70px' class='p-0'>";
+            echo gameAvatar($lbData, label: false, iconSize: 96);
             echo "</td>";
 
-            echo "<td>";
+            echo "<td class='px-3'>";
             echo "<div class='flex justify-between'>";
             echo "<div>";
             echo "<a href='/leaderboard/$lbID'><strong>$lbTitle</strong></a><br>";
@@ -123,7 +124,7 @@ RenderContentStart('Leaderboard');
             $niceDateCreated = date("d M, Y H:i", strtotime($lbCreated));
             $niceDateModified = date("d M, Y H:i", strtotime($lbUpdated));
 
-            echo "<p class='embedded smalldata'>";
+            echo "<p class='embedded smalldata my-2'>";
             echo "<small>";
             if (is_null($lbAuthor)) {
                 echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
