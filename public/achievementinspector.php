@@ -145,7 +145,7 @@ function toggleAllCodeRows() {
 </script>
 <div id="mainpage">
     <?php
-    if (!empty($codeNotes)) {
+    if (!empty($gameID)) {
         echo "<div id='leftcontainer'>";
     } else {
         echo "<div id='fullcontainer'>";
