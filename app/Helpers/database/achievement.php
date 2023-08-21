@@ -194,7 +194,7 @@ function UploadNewAchievement(
         return false;
     }
 
-    if ($type !== null && !AchievementType::isValid($type)) {
+    if ($type !== null && (!AchievementType::isValid($type) && $type !== 'not-given')) {
         $errorOut = "Invalid achievement type";
 
         return false;
@@ -268,7 +268,7 @@ function UploadNewAchievement(
         $data = mysqli_fetch_assoc($dbResult);
 
         $changingAchSet = ($data['Flags'] != $flag);
-        $changingType = ($data['type'] != $type);
+        $changingType = ($data['type'] != $type && $type !== 'not-given');
         $changingPoints = ($data['Points'] != $points);
         $changingTitle = ($data['Title'] !== $rawTitle);
         $changingDescription = ($data['Description'] !== $rawDesc);
@@ -296,9 +296,9 @@ function UploadNewAchievement(
             }
         }
 
-        // `null` is valid, so we use a different fallback value.
-        if ($typeValue === 'not-given' && $data['type']) {
-            $typeValue = $data['type'];
+        // `null` is a valid type value, so we use a different fallback value.
+        if ($type === 'not-given' && $data['type'] !== null) {
+            $typeValue = "'" . $data['type'] . "'";
         }
 
         $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type=$typeValue, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
