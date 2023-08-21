@@ -47,14 +47,13 @@ function static_addnewhardcoremastery(int $gameId, string $username): void
         return;
     }
 
-    $query = <<<SQL
-        UPDATE StaticData
+    $query = "UPDATE StaticData
         SET
             num_hardcore_mastery_awards = num_hardcore_mastery_awards+1,
             last_game_hardcore_mastered_game_id = :gameId,
             last_game_hardcore_mastered_user_id = :userId,
             last_game_hardcore_mastered_at = :now
-    SQL;
+    ";
 
     legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
 }
@@ -66,14 +65,13 @@ function static_addnewhardcoregamebeaten(int $gameId, string $username): void
         return;
     }
 
-    $query = <<<SQL
-        UPDATE StaticData
+    $query = "UPDATE StaticData
         SET
             num_hardcore_game_beaten_awards = num_hardcore_game_beaten_awards+1,
             last_game_hardcore_beaten_game_id = :gameId,
             last_game_hardcore_beaten_user_id = :userId,
             last_game_hardcore_beaten_at = :now
-    SQL;
+    ";
 
     legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
 }
