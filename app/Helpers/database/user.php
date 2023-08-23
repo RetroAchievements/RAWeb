@@ -394,6 +394,10 @@ function GetUserFields(string $username, array $fields): ?array
 function getMostAwardedUsers(array $gameIDs): array
 {
     $retVal = [];
+    if (empty($gameIDs)) {
+        return $retVal;
+    }
+
     $query = "SELECT ua.User,
               SUM(IF(AwardDataExtra LIKE '0', 1, 0)) AS Completed,
               SUM(IF(AwardDataExtra LIKE '1', 1, 0)) AS Mastered
@@ -421,6 +425,10 @@ function getMostAwardedUsers(array $gameIDs): array
 function getMostAwardedGames(array $gameIDs): array
 {
     $retVal = [];
+    if (empty($gameIDs)) {
+        return $retVal;
+    }
+
     $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
               SUM(IF(AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
               SUM(IF(AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
