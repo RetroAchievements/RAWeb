@@ -54,7 +54,7 @@ $hasSoftcoreProgress = $numEarnedSoftcoreAchievements > 0;
     @elseif ($hasHardcoreProgress && $hasSoftcoreProgress)
         <p>
             <span class="font-bold">{{ localized_number($numEarnedHardcoreAchievements) }}</span>
-            hardcore achievements
+            hardcore {{ mb_strtolower(__res('achievement', $numEarnedHardcoreAchievements)) }}
         </p>
 
         @if ($totalPointsCount > 0)
@@ -65,19 +65,19 @@ $hasSoftcoreProgress = $numEarnedSoftcoreAchievements > 0;
                         ({{ localized_number($numEarnedWeightedPoints) }})
                     </x-points-weighted-container>
                 </div>
-                <p>hardcore points</p>
+                <p>hardcore {{ mb_strtolower(__res('point', $numEarnedHardcorePoints)) }}</p>
             </div>
 
             <p>
                 <span class="font-bold">{{ localized_number($numEarnedSoftcoreAchievements) }}</span>
-                softcore achievements
+                softcore {{ mb_strtolower(__res('achievement', $numEarnedSoftcoreAchievements)) }}
             </p>
 
             <div class="flex gap-x-1">
                 <div class="flex font-bold gap-x-1">
                     {{ localized_number($numEarnedSoftcorePoints) }}
                 </div>
-                <p>softcore points</p>
+                <p>softcore {{ mb_strtolower(__res('point', $numEarnedSoftcorePoints)) }}</p>
             </div>
         @endif
     @endif
