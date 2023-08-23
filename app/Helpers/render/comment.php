@@ -168,7 +168,7 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
     $csrfField = csrf_field();
     $avatar = media_asset("/UserPic/$user.png");
 
-    echo <<<EOL
+    echo <<<HTML
         <tr id="comment_$commentId" class='do-not-highlight'>
             <td class='align-top pb-3'>
                 <img alt="$user" title="$user" class="badgeimg" src="$avatar" width="32" height="32">
@@ -178,16 +178,16 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                     $csrfField
                     <input type="hidden" name="commentable_id" value="$articleId">
                     <input type="hidden" name="commentable_type" value="$articleTypeId">
-                    <div class="flex align-center mb-1">
+                    <div x-data="{ isValid: true }" class="flex align-center mb-1">
                         <textarea
                             class="comment-textarea"
                             name="body"
                             maxlength="2000"
                             placeholder="Enter a comment here..."
                             id="comment_textarea_$commentId"
-                            oninput="autoExpandTextInput(this)"
+                            x-on:input="autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 2000;"
                         ></textarea>
-                        <button class="comment-submit-button">
+                        <button class="comment-submit-button" :disabled="!isValid">
                             <img src="$submitImageUrl" alt="Submit">
                         </button>
                         <span class="comment-loading-indicator">
@@ -199,5 +199,5 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                 </form>
             </td>
         </tr>
-    EOL;
+    HTML;
 }

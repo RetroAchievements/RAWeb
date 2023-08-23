@@ -1,6 +1,10 @@
+import { getStringByteCount } from './getStringByteCount';
+
 // TODO: Refactor to use Alpine.js instead.
 export function initializeTextareaCounter() {
-  const textareaCounterEls = document.getElementsByClassName('textarea-counter') as HTMLCollectionOf<HTMLInputElement>;
+  const textareaCounterEls = document.getElementsByClassName(
+    'textarea-counter',
+  ) as HTMLCollectionOf<HTMLInputElement>;
 
   Array.from(textareaCounterEls).forEach((textareaCounterEl) => {
     const textareaId = textareaCounterEl.dataset.textareaId;
@@ -24,13 +28,6 @@ export function initializeTextareaCounter() {
       }
     }
   });
-}
-
-// Some characters, such as "á, ã, â, ü, ç, ñ, à, Á, Ã, Â, Ü, Ç, Ñ, À" or
-// emojis, are actually more than 1 character. We need to count those properly
-// when computing if the user is getting close to the field's max length.
-function getStringByteCount(value: string) {
-  return encodeURI(value).split(/%..|./).length - 1;
 }
 
 window.addEventListener('load', initializeTextareaCounter);
