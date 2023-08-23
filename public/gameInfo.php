@@ -186,7 +186,12 @@ $isSoleAuthor = false;
 $claimData = null;
 $claimListLength = 0;
 $isGameBeatable = false;
-$userGameProgressionAwards = [];
+$userGameProgressionAwards = [
+    'beaten-softcore' => null,
+    'beaten-hardcore' => null,
+    'completed' => null,
+    'mastered' => null,
+];
 
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
@@ -837,6 +842,7 @@ sanitize_outputs(
                     :isBeatenSoftcore="$isBeatenSoftcore"
                     :isCompleted="$isCompleted"
                     :isMastered="$isMastered"
+                    :isEvent="$isEvent"
                     :numEarnedHardcoreAchievements="$numEarnedHardcoreAchievements"
                     :numEarnedHardcorePoints="$numEarnedHardcorePoints"
                     :numEarnedSoftcoreAchievements="$numEarnedSoftcoreAchievements"
@@ -852,6 +858,7 @@ sanitize_outputs(
                 'isBeatenSoftcore' => !is_null($userGameProgressionAwards['beaten-softcore']),
                 'isCompleted' => !is_null($userGameProgressionAwards['completed']),
                 'isMastered' => !is_null($userGameProgressionAwards['mastered']),
+                'isEvent' => $isEventGame,
                 'numEarnedHardcoreAchievements' => $numEarnedHardcore,
                 'numEarnedHardcorePoints' => $totalEarnedHardcore,
                 'numEarnedSoftcoreAchievements' => $numEarnedCasual,
@@ -1325,12 +1332,10 @@ sanitize_outputs(
                 if ($flagParam == $unofficialFlag) {
                     echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 } else {
-                    echo "<div class='flex gap-x-1'>";
                     echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b>";
                     $localizedTotalPossibleWeightedPoints = localized_number($totalPossibleTrueRatio);
                     echo Blade::render("<x-points-weighted-container>($localizedTotalPossibleWeightedPoints)</x-points-weighted-container>");
                     echo "points.<br>";
-                    echo "</div>";
                 }
                 echo "</div>";
 

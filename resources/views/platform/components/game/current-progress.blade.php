@@ -5,6 +5,7 @@
     'isBeatenSoftcore' => false,
     'isCompleted' => false,
     'isMastered' => false,
+    'isEvent' => false,
     'numEarnedHardcoreAchievements' => 0,
     'numEarnedHardcorePoints' => 0,
     'numEarnedSoftcoreAchievements' => 0,
@@ -46,6 +47,7 @@ $canShowGlow = $hasUnlockedAnyAchievements && $hasAnyProgressionAward;
                         isBeatenSoftcore="{{ $isBeatenSoftcore }}"
                         isCompleted="{{ $isCompleted }}"
                         isMastered="{{ $isMastered }}"
+                        isEvent="{{ $isEvent }}"
                     />
 
                     <x-game.current-progress.stats

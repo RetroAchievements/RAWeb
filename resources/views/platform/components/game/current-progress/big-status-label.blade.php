@@ -4,6 +4,7 @@
     'isBeatenSoftcore' => false,
     'isCompleted' => false,
     'isMastered' => false,
+    'isEvent' => false,
 ])
 
 <?php
@@ -30,6 +31,10 @@ if ($isCompleted) {
 if ($isMastered) {
     $statusLabel = "Mastered";
 }
+if ($isEvent && $statusLabel !== 'Unfinished') {
+    $statusLabel = "Awarded";
+}
+
 // This case can occur on legacy completion/mastery awards
 // where progression achievements were added after the user
 // had already mastered the game. It's an edge case, but we

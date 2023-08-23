@@ -24,7 +24,7 @@ $completionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth + $softco
     aria-valuenow="{{ $completionPercentage }}"
     class="absolute w-full bottom-0 left-0 h-2 bg-embed-highlight lg:rounded-b flex"
 >
-    @if ($completionPercentage < 100)
+    @if ($completionPercentage > 0 && $completionPercentage < 100)
         <p 
             class="absolute bottom-2 text-[0.65rem] opacity-0 group-hover:opacity-100"
             style="left: calc({{ $completionPercentage }}% - 10px)"

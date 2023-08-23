@@ -50,7 +50,7 @@ function beginResetProgress() {
         x-transition:leave-end="opacity-0 scale-95"
         class="absolute top-[-6px] right-0 z-20 w-56"
     >
-        <div class="top-0 py-2 border border-embed-highlight bg-box-bg rounded-lg shadow-lg focus:outline-none focus-visible:ring-2">
+        <div class="top-0 py-2 border border-embed-highlight bg-box-bg rounded shadow-lg focus:outline-none focus-visible:ring-2">
             <button
                 @click="isMenuOpen = false; beginResetProgress();"
                 role="menuitem"
