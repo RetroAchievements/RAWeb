@@ -64,6 +64,9 @@ class Handler extends ExceptionHandler
             if (str_ends_with($context['url'], 'dorequest.php')) {
                 unset($params['u']);
                 unset($params['t']);
+                if ($params['r'] == 'login') {
+                    unset($params['p']);
+                }
             } elseif (str_contains($context['url'], '/API/')) {
                 unset($params['z']);
                 unset($params['y']);
