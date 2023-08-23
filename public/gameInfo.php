@@ -185,6 +185,8 @@ $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
 $claimData = null;
 $claimListLength = 0;
+$isGameBeatable = false;
+$userGameProgressionAwards = [];
 
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
@@ -234,6 +236,10 @@ if ($isFullyFeaturedGame) {
                 $numEarnedCasual++;
                 $totalEarnedCasual += $nextAch['Points'];
             }
+
+            if (isset($nextAch['type'])) {
+                $isGameBeatable = true;
+            }
         }
         // Combine arrays and sort by achievement count.
         $authorInfo = array_combine($authorName, $authorCount);
@@ -243,9 +249,12 @@ if ($isFullyFeaturedGame) {
     // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID);
 
-    // Determine if the logged in user is the sole author of the set
     if (isset($user)) {
+        // Determine if the logged in user is the sole author of the set
         $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+
+        // Determine if the logged in user has any progression awards for this set
+        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
     }
 
     $claimData = getClaimData($gameID, true);
@@ -768,19 +777,6 @@ sanitize_outputs(
             getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
         }
     });
-
-    function ResetProgress() {
-        if (confirm('Are you sure you want to reset this progress?')) {
-            showStatusMessage('Updating...');
-
-            $.post('/request/user/reset-achievements.php', {
-                game: <?= $gameID ?>
-            })
-                .done(function () {
-                    location.reload();
-                });
-        }
-    }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -832,6 +828,38 @@ sanitize_outputs(
                 'released' => $released,
                 'user' => $user,
             ];
+
+            $initializedProgressComponent = Blade::render('
+                <x-game.current-progress
+                    :gameId="$gameId"
+                    :isBeatable="$isBeatable"
+                    :isBeatenHardcore="$isBeatenHardcore"
+                    :isBeatenSoftcore="$isBeatenSoftcore"
+                    :isCompleted="$isCompleted"
+                    :isMastered="$isMastered"
+                    :numEarnedHardcoreAchievements="$numEarnedHardcoreAchievements"
+                    :numEarnedHardcorePoints="$numEarnedHardcorePoints"
+                    :numEarnedSoftcoreAchievements="$numEarnedSoftcoreAchievements"
+                    :numEarnedSoftcorePoints="$numEarnedSoftcorePoints"
+                    :numEarnedWeightedPoints="$numEarnedWeightedPoints"
+                    :totalAchievementsCount="$totalAchievementsCount"
+                    :totalPointsCount="$totalPointsCount"
+                />
+            ', [
+                'gameId' => $gameID,
+                'isBeatable' => $isGameBeatable,
+                'isBeatenHardcore' => !is_null($userGameProgressionAwards['beaten-hardcore']),
+                'isBeatenSoftcore' => !is_null($userGameProgressionAwards['beaten-softcore']),
+                'isCompleted' => !is_null($userGameProgressionAwards['completed']),
+                'isMastered' => !is_null($userGameProgressionAwards['mastered']),
+                'numEarnedHardcoreAchievements' => $numEarnedHardcore,
+                'numEarnedHardcorePoints' => $totalEarnedHardcore,
+                'numEarnedSoftcoreAchievements' => $numEarnedCasual,
+                'numEarnedSoftcorePoints' => $totalEarnedCasual,
+                'numEarnedWeightedPoints' => $totalEarnedTrueRatio,
+                'totalAchievementsCount' => $numAchievements,
+                'totalPointsCount' => $totalPossible,
+            ]);
 
             echo Blade::render('
                 <x-game.heading
@@ -1297,40 +1325,23 @@ sanitize_outputs(
                 if ($flagParam == $unofficialFlag) {
                     echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 } else {
-                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
-                }
-
-                if ($user !== null && $numAchievements > 0) {
-                    if ($numEarnedHardcore > 0) {
-                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>" . number_format($totalEarnedHardcore) . "</b> <span class='TrueRatio'>(" . number_format($totalEarnedTrueRatio) . ")</span> points.<br>";
-                        if ($numEarnedCasual > 0) { // Some Hardcore earns
-                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
-                        }
-                    } elseif ($numEarnedCasual > 0) {
-                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
-                    } else {
-                        echo "You have not earned any achievements for this game.<br/>";
-                    }
-                }
-
-                if ($user !== null && $numAchievements > 0) {
-                    if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
-                        echo "<div class='devbox mb-4'>";
-                        echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
-                        echo "<div id='resetboxcontent' style='display: none'>";
-                        echo "<button class='btn btn-danger' type='button' onclick='ResetProgress()'>Reset your progress for this game</button>";
-                        echo "</div></div>";
-                    }
-                }
-                echo "</div>";
-
-                if (isset($user) && $numAchievements > 0 && ($numEarnedCasual > 0 || $numEarnedHardcore > 0)) {
-                    echo "<div class='mb-2 w-full md:mb-4 lg:max-w-[160px]'>";
-                    RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
+                    echo "<div class='flex gap-x-1'>";
+                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b>";
+                    $localizedTotalPossibleWeightedPoints = localized_number($totalPossibleTrueRatio);
+                    echo Blade::render("<x-points-weighted-container>($localizedTotalPossibleWeightedPoints)</x-points-weighted-container>");
+                    echo "points.<br>";
                     echo "</div>";
                 }
+                echo "</div>";
 
                 echo "</div>";
+
+                // Progression component (desktop only)
+                if ($user !== null && $numAchievements > 0) {
+                    echo "<div class='mt-4 mb-4 lg:hidden'>";
+                    echo $initializedProgressComponent;
+                    echo "</div>";
+                }
 
                 /*
                 if( $user !== NULL && $numAchievements > 0 ) {
@@ -1572,6 +1583,13 @@ sanitize_outputs(
             }
 
             echo "</div>";
+
+            // Progression component (mobile only)
+            if ($user !== null && $numAchievements > 0 && $isOfficial) {
+                echo "<div class='mb-5 hidden lg:block'>";
+                echo $initializedProgressComponent;
+                echo "</div>";
+            }
 
             if (!empty($gameSubsets)) {
                 RenderGameAlts($gameSubsets, 'Subsets');

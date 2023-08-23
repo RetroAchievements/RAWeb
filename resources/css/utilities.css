@@ -34,3 +34,8 @@
 span.smalldate {
   display: inline-block;
 }
+
+/* @see https://alpinejs.dev/directives/cloak */
+[x-cloak] {
+  display: none !important;
+}
