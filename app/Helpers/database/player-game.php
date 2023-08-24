@@ -106,16 +106,18 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
 
         if (!HasSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode)) {
+            $awardDate = Carbon::parse(calculateBeatenGameTimestamp($userAchievements));
+
             AddSiteAward(
                 $user,
                 AwardType::GameBeaten,
                 $gameId,
                 $awardMode,
-                awardDate: Carbon::parse(calculateBeatenGameTimestamp($userAchievements)),
+                $awardDate,
                 displayOrder: 0
             );
 
-            if ($isBeatenHardcore) {
+            if ($isBeatenHardcore && $awardDate->gte(Carbon::now()->subMinutes(10))) {
                 static_addnewhardcoregamebeaten($gameId, $user);
             }
         }
