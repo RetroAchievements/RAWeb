@@ -12,7 +12,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'motto' => 'nullable|string|max:50',
 ]);
 
-$newMotto = $input['motto'];
+$newMotto = mb_strcut($input['motto'], 0, 50, "UTF-8");
 
 sanitize_sql_inputs($user, $cookie, $newMotto);
 
