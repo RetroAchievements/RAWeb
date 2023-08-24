@@ -26,7 +26,7 @@
                         @if ($totalPoints > 0)
                             {{ localized_number($totalPoints) }} points
                         @else
-                            No achievements
+                            no achievements
                         @endif
                     </span>
                 </p>
