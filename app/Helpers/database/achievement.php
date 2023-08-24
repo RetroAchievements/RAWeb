@@ -206,7 +206,7 @@ function UploadNewAchievement(
     sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor, $type);
 
     $typeValue = "";
-    if ($type === null || trim($type) === '') {
+    if ($type === null || trim($type) === '' || $type === 'not-given') {
         $typeValue = "NULL";
     } else {
         $typeValue = "'$type'";
