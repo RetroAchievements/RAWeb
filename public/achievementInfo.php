@@ -89,20 +89,6 @@ getCodeNotes($gameID, $codeNotes);
 
 $pageTitle = "$achievementTitleRaw in $gameTitleRaw ($consoleName)";
 
-function generateAchievementMetaDescription(
-    string $achievementDescription,
-    string $gameTitle,
-    string $consoleName,
-    int $points = 0,
-    int $winnerCount = 0,
-): string {
-    $pointsLabel = $points === 1 ? "point" : "points";
-    $localizedWinnerCount = localized_number($winnerCount);
-    $winnerCountLabel = $winnerCount === 1 ? "player" : "players";
-
-    return "$achievementDescription ($points $pointsLabel), won by $localizedWinnerCount $winnerCountLabel - $gameTitle for $consoleName";
-}
-
 RenderOpenGraphMetadata(
     $pageTitle,
     "achievement",

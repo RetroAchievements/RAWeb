@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<x-head/>
+<x-head
+        :page-title="$pageTitle ?? null"
+        :page-description="$pageDescription ?? null"
+        :page-image="$pageImage ?? null"
+        :page-type="$pageType ?? null"
+        :permalink="$permalink ?? null"
+        :canonical-url="$permalink ?? null"
+/>
 <body
     data-scheme="{{ request()->cookie('scheme', '') }}"
     data-theme="{{ request()->cookie('theme', '') }}"
