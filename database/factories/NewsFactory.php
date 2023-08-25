@@ -23,9 +23,12 @@ class NewsFactory extends Factory
      */
     public function definition(): array
     {
+        $author = User::inRandomOrder()->first();
+
         return [
             'Title' => ucwords(fake()->words(2, true)),
-            'user_id' => User::inRandomOrder()->first()->ID,
+            'user_id' => $author->ID,
+            'Author' => $author->username,
             // 'link' => mt_rand(0, 1) ? $faker->url : null,
             'lead' => fake()->text(200),
             'Payload' => fake()->text,

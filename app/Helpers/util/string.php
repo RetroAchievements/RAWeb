@@ -29,10 +29,6 @@ function attributeEscape(?string $input): string
 
 function isValidUsername(?string $username): bool
 {
-    if (Str::startsWith($username, '__')) {
-        return true;
-    }
-
     // Note: use request validation where applicable instead of checking the username manually
     // Note: allow 2 character usernames for existing accounts. New accounts are limited to 4.
     return Validator::make(

@@ -20,7 +20,7 @@ class RolesTableSeeder extends Seeder
         foreach (config('roles') as $roleData) {
             // make sure role is assigned to the web guard - not the legacy web guard
             $roleData['guard_name'] = 'web';
-            $role = Role::create(Arr::except($roleData, ['assign', 'permissions', 'staff']));
+            $role = Role::create(Arr::except($roleData, ['assign', 'permissions', 'staff', 'legacy_role']));
             if (!empty($roleData['permissions'])) {
                 foreach ($roleData['permissions'] as $permissionName) {
                     Permission::findOrCreate($permissionName);
