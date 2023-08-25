@@ -10,7 +10,7 @@ EOT;
 <button 
     @click="handleScrollButtonClick('previous')"
     aria-label="Go to previous slide"
-    class="{{ "left-0 top-1/2 translate-x-[-18px] " . $buttonClassNames }}"
+    class="{{ "btn left-0 top-1/2 translate-x-[-18px] " . $buttonClassNames }}"
 >
     <x-pixelarticons-chevron-left class="w-10 h-10"/>
 </button>
@@ -18,7 +18,7 @@ EOT;
 <button 
     @click="handleScrollButtonClick('next')"
     aria-label="Go to next slide"
-    class="{{ "right-0 top-1/2 translate-x-[18px] " . $buttonClassNames }}"
+    class="{{ "btn right-0 top-1/2 translate-x-[18px] " . $buttonClassNames }}"
 >
     <x-pixelarticons-chevron-right class="w-10 h-10"/>
 </button>
