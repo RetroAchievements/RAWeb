@@ -37,6 +37,6 @@
             </div>
         </td>
     @elseif ($isFullyFeaturedGame && $totalPoints === 0)
-        <td class="min-w-[86px]"></td>
+        <td class="min-w-[58px]"></td>
     @endif
 </tr>
