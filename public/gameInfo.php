@@ -932,7 +932,7 @@ sanitize_outputs(
                         echo "<form action='/request/game/recalculate-points-ratio.php' method='post'>";
                         echo csrf_field();
                         echo "<input type='hidden' name='game' value='$gameID'>";
-                        echo "<button>Recalculate True Ratios</button>";
+                        echo "<button class='btn'>Recalculate True Ratios</button>";
                         echo "</form>";
                     }
 
