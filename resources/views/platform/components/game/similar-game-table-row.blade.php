@@ -26,7 +26,9 @@
                         @if ($totalPoints > 0)
                             {{ localized_number($totalPoints) }} points
                         @else
-                            no achievements
+                            <span title="This game doesn't have any achievements yet." class="cursor-help">
+                                N/A
+                            </span>
                         @endif
                     </span>
                 </p>
