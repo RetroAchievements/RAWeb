@@ -36,7 +36,7 @@
                 </x-points-weighted-container>
             </div>
         </td>
-    @else
+    @elseif ($isFullyFeaturedGame && $totalPoints === 0)
         <td class="min-w-[86px]"></td>
     @endif
 </tr>
