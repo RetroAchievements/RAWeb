@@ -215,7 +215,7 @@ function getRecentProgressionAwardData(
     }
 
     $onlyUnlockModeClause = "saw.AwardDataExtra IS NOT NULL";
-    if ($onlyUnlockMode) {
+    if (isset($onlyUnlockMode)) {
         $onlyUnlockModeClause = "saw.AwardDataExtra = $onlyUnlockMode";
     }
 
@@ -229,7 +229,7 @@ function getRecentProgressionAwardData(
             FROM SiteAwards AS saw
             LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN SiteAwards AS saw2 ON saw2.User = saw.User AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
+            LEFT JOIN SiteAwards AS saw2 ON saw2.User = saw.User AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 5
             $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
             AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
         ) s

@@ -15,7 +15,7 @@ $offset = max($offset, 0);
 $followed = requestInputSanitized('f', 0, 'integer');
 $date = requestInputSanitized('d', date("Y-m-d"));
 $awardType = requestInputSanitized('t');
-$unlockMode = requestInputSanitized('m');
+$unlockMode = requestInputSanitized('m', type: 'integer');
 
 $lbUsers = $followed === 1 ? 'Followed Users' : '';
 
