@@ -187,10 +187,10 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                             id="comment_textarea_$commentId"
                             oninput="autoExpandTextInput(this)"
                         ></textarea>
-                        <button class="comment-submit-button">
+                        <button class="btn comment-submit-button">
                             <img src="$submitImageUrl" alt="Submit">
                         </button>
-                        <span class="comment-loading-indicator">
+                        <span class="btn comment-loading-indicator">
                             <img src="$loadingImageUrl" alt="Loading">
                         </span>
                     </div>
