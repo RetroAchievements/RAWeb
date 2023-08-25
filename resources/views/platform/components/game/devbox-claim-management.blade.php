@@ -147,7 +147,7 @@ function completeClaim() {
 
 @elseif ($hasGameClaimed)
     @if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080)
-        <form 
+        <form
             action="/request/set-claim/extend-claim.php"
             method="post"
             onsubmit="return extendClaim()"
