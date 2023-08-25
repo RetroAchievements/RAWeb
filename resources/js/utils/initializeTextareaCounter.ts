@@ -17,7 +17,7 @@ export function initializeTextareaCounter() {
         const updateCount = () => {
           const currentCharacterCount = getStringByteCount(textareaEl.value);
           textareaCounterEl.textContent = `${currentCharacterCount} / ${max}`;
-          textareaCounterEl.classList.toggle('text-danger', currentCharacterCount >= max);
+          textareaCounterEl.classList.toggle('text-danger', currentCharacterCount > max);
         };
 
         ['input', 'change', 'blur'].forEach(function (eventName) {
