@@ -189,7 +189,7 @@ RenderContentStart('Admin Tools');
                     </tr>
                     </tbody>
                 </table>
-                <button>Submit</button>
+                <button class="btn">Submit</button>
             </form>
         </div>
 
@@ -245,7 +245,7 @@ RenderContentStart('Admin Tools');
                     </tr>
                     </tbody>
                 </table>
-                <button>Submit</button>
+                <button class="btn">Submit</button>
             </form>
 
             <script>
