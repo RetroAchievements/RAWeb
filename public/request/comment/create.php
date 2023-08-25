@@ -16,8 +16,6 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'commentable_type' => 'required|integer',
 ]);
 
-dd(mb_strlen($input['body']));
-
 $articleID = (int) $input['commentable_id'];
 $articleType = (int) $input['commentable_type'];
 
