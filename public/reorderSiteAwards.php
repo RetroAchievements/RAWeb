@@ -82,9 +82,9 @@ function generateManualMoveButtons(
     return <<<HTML
         <div class="$containerClassNames">
             <button
-                title="$upA11yLabel" 
-                aria-label="$upA11yLabel" 
-                class="text-2xs py-0.5"
+                title="$upA11yLabel"
+                aria-label="$upA11yLabel"
+                class="btn text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $upValue, $autoScroll)"
                 $disabledAttribute
             >
@@ -94,7 +94,7 @@ function generateManualMoveButtons(
             <button
                 title="$downA11yLabel"
                 aria-label="$downA11yLabel"
-                class="text-2xs py-0.5"
+                class="btn text-2xs py-0.5"
                 onclick="reorderSiteAwards.moveRow($awardCounter, $downValue, $autoScroll)"
                 $disabledAttribute
             >
@@ -259,7 +259,7 @@ function postAllAwardsDisplayOrder(awards) {
                 $rowClassNames = "award-table-row select-none transition {$cursorGrabClass} {$savedHiddenClass} {$hiddenClass}";
 
                 echo <<<HTML
-                    <tr 
+                    <tr
                         data-row-index='$awardCounter'
                         data-award-kind='$humanReadableAwardKind'
                         draggable='$isDraggable'
@@ -315,7 +315,7 @@ function postAllAwardsDisplayOrder(awards) {
                         To rearrange your site awards, drag and drop the award rows or use
                         the buttons within each row to move them up or down. Award categories
                         can be reordered using the dropdown menus next to each category name.
-                        Remember to save your changes before leaving by clicking the 
+                        Remember to save your changes before leaving by clicking the
                         "Save All Changes" button.
                     </p>
                 </div>
