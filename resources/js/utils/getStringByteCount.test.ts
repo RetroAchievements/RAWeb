@@ -14,4 +14,12 @@ describe('Util: getStringByteCount', () => {
 
     expect(stringByteCount).toEqual(51);
   });
+
+  it('given a string with a newline, counts the newline as two characters', () => {
+    const mockValue = '123456789\n123456789';
+
+    const stringByteCount = getStringByteCount(mockValue);
+
+    expect(stringByteCount).toEqual(20);
+  });
 });

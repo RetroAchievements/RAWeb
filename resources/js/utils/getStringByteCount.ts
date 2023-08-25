@@ -2,5 +2,10 @@
 // emojis, are actually more than 1 character. We need to count those properly
 // when computing if the user is getting close to the field's max length.
 export function getStringByteCount(value: string) {
-  return encodeURI(value).split(/%..|./).length - 1;
+  // Replace newline characters with a 2-character placeholder
+  const valueWithReplacedNewlines = value.replace(/\n/g, '--');
+
+  console.log({ valueWithReplacedNewlines });
+
+  return encodeURI(valueWithReplacedNewlines).split(/%..|./).length - 1;
 }
