@@ -131,7 +131,7 @@ function completeClaim() {
         @if ($createTopic)
             <input type="hidden" name="create_topic" value="1">
         @endif
-        <button>
+        <button class="btn">
             Make
             {{ ClaimSetType::toString($claimSetType) }}
             {{ ClaimType::toString($claimType) }}
@@ -154,7 +154,7 @@ function completeClaim() {
         >
             {!! csrf_field() !!}
             <input type="hidden" name="game" value="{{ $gameId }}">
-            <button>Extend Claim</button>
+            <button class="btn">Extend Claim</button>
         </form>
     @endif
 
@@ -168,7 +168,7 @@ function completeClaim() {
         <input type="hidden" name="game" value="{{ $gameId }}">
         <input type="hidden" name="claim_type" value="{{ $claimType }}">
         <input type="hidden" name="set_type" value="{{ $claimSetType }}">
-        <button>Drop {{ ClaimType::toString($claimType) }} Claim</button>
+        <button class="btn">Drop {{ ClaimType::toString($claimType) }} Claim</button>
     </form>
 @endif
 
@@ -186,7 +186,7 @@ function completeClaim() {
         >
             {!! csrf_field() !!}
             <input type="hidden" name="game" value="{{ $gameId }}">
-            <button>Complete Claim</button>
+            <button class="btn">Complete Claim</button>
             @if ($isRecentPrimaryClaim)
                 <a
                     href="https://docs.retroachievements.org/Claims-System/#how-to-complete-a-claim"
