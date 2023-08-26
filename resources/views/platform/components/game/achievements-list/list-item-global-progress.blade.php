@@ -4,16 +4,18 @@
 ])
 
 <?php
-if ($totalPlayerCount === 0) {
-    $unlockRate = 0;
-    $hardcoreProgressBarWidth = 0;
-    $softcoreUnlockRate = 0;
-    $softcoreProgressBarWidth = 0;
-} else {
+$wonBy = 0;
+$wonByHardcore = 0;
+$unlockRate = 0;
+$hardcoreProgressBarWidth = 0;
+$softcoreUnlockRate = 0;
+$softcoreProgressBarWidth = 0;
+
+if ($totalPlayerCount > 0) {
     // NOTE: Because we're currently including Untracked players when the player count
     // for the game is >100, it's possible for various unlock rates to be greater than 100%.
-    $wonBy = $achievement['NumAwarded'] ?? 0;
-    $wonByHardcore = $achievement['NumAwardedHardcore'] ?? 0;
+    $wonBy = isset($achievement['NumAwarded']) ? $achievement['NumAwarded'] : 0;
+    $wonByHardcore = isset($achievement['NumAwardedHardcore']) ? $achievement['NumAwardedHardcore'] : 0;
     if ($wonBy > $totalPlayerCount) {
         $wonBy = $totalPlayerCount;
     }
