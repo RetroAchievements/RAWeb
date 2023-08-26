@@ -80,6 +80,7 @@ class Achievement extends BaseModel implements HasComments
         'Author',
         'DateCreated',
         'DateModified',
+        'type',
     ];
 
     protected static function newFactory(): AchievementFactory

@@ -82,5 +82,14 @@ module.exports = {
     }),
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
+
+    // Add support for `light:` prefixes to better support light mode users.
+    function ({ addVariant, e }) {
+      addVariant('light', ({ modifySelectors, separator }) => {
+        modifySelectors(
+          ({ className }) => `[data-scheme="light"] .${e(`light${separator}${className}`)}`,
+        );
+      });
+    },
   ],
 };

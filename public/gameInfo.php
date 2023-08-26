@@ -6,6 +6,7 @@ use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
@@ -1352,162 +1353,21 @@ sanitize_outputs(
                     echo "</div>";
                 }
 
-                echo "<table class='achievementlist table-highlight'><tbody>";
-
                 if (isset($achievementData)) {
-                    for ($i = 0; $i < 2; $i++) {
-                        if ($i == 0 && $numEarnedCasual == 0 && $numEarnedHardcore == 0) {
-                            continue;
-                        }
-
-                        foreach ($achievementData as &$nextAch) {
-                            $achieved = (isset($nextAch['DateEarned']));
-
-                            if ($i == 0 && $achieved == false) {
-                                continue;
-                            }
-                            if ($i == 1 && $achieved == true) {
-                                continue;
-                            }
-
-                            $achID = $nextAch['ID'];
-                            $achTitle = $nextAch['Title'];
-                            $achDesc = $nextAch['Description'];
-                            $achAuthor = $nextAch['Author'];
-                            $achPoints = $nextAch['Points'];
-                            $achTrueRatio = $nextAch['TrueRatio'];
-                            $dateAch = "";
-                            if ($achieved) {
-                                $dateAch = $nextAch['DateEarned'];
-                            }
-                            $achBadgeName = $nextAch['BadgeName'];
-
-                            sanitize_outputs(
-                                $achTitle,
-                                $achDesc,
-                            );
-
-                            $earnedOnHardcore = isset($nextAch['DateEarnedHardcore']);
-
-                            $imgClass = $earnedOnHardcore ? 'goldimagebig' : 'badgeimg';
-
-                            $wonBy = $nextAch['NumAwarded'];
-                            $wonByHardcore = $nextAch['NumAwardedHardcore'];
-                            if ($numDistinctPlayersCasual == 0) {
-                                $completionPctCasual = "0";
-                                $completionPctHardcore = "0";
-                            } else {
-                                $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
-                                $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
-                            }
-
-                            if ($user == "" || !$achieved) {
-                                $achBadgeName .= "_lock";
-                            }
-
-                            $trClassNames = $achieved ? "class='unlocked-row'" : "";
-                            echo "<tr {$trClassNames}>";
-
-                            echo "<td>";
-
-                            echo "<div class='flex justify-between gap-3 items-start'>";
-
-                            echo "<div>";
-
-                            $nextAch['Unlock'] = $earnedOnHardcore ? '<br clear=all>Unlocked: ' . getNiceDate(strtotime($nextAch['DateEarnedHardcore'])) . '<br>HARDCORE' : null;
-                            echo achievementAvatar(
-                                $nextAch,
-                                label: false,
-                                icon: $achBadgeName,
-                                iconSize: 64,
-                                iconClass: $imgClass,
-                                tooltip: false,
-                            );
-                            echo "</div>";
-
-                            echo "<div class='md:flex justify-between items-start gap-3 grow'>";
-                            $pctAwardedCasual = 0;
-                            $pctAwardedHardcore = 0;
-                            $pctComplete = 0;
-                            if ($numDistinctPlayersCasual) {
-                                $pctAwardedCasual = $wonBy / $numDistinctPlayersCasual;
-                                $pctAwardedHardcore = $wonByHardcore / $numDistinctPlayersCasual;
-                                $pctAwardedHardcoreProportion = 0;
-                                if ($wonByHardcore > 0 && $wonBy > 0) {
-                                    $pctAwardedHardcoreProportion = $wonByHardcore / $wonBy;
-                                }
-
-                                $pctAwardedCasual = sprintf("%01.2f", $pctAwardedCasual * 100.0);
-                                $pctAwardedHardcore = sprintf("%01.2f", $pctAwardedHardcoreProportion * 100.0);
-
-                                $pctComplete = sprintf(
-                                    "%01.2f",
-                                    ($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual
-                                );
-                            }
-
-                            // TODO: Remove when denormalized data is ready.
-                            // Because we're currently including Untracked players when the player count
-                            // for the game is >100, it's possible for the unlock rate to be greater than
-                            // 100%.
-                            // @see https://github.com/RetroAchievements/RAWeb/pull/1712
-                            if ($pctAwardedCasual > 100) {
-                                $pctAwardedCasual = 100;
-                            }
-                            if ($wonBy > $numDistinctPlayersCasual) {
-                                $wonBy = $numDistinctPlayersCasual;
-                            }
-                            if ($wonByHardcore > $numDistinctPlayersCasual) {
-                                $wonByHardcore = $numDistinctPlayersCasual;
-                            }
-                            // TODO: Untracked players filtering workaround ends here
-
-                            echo "<div class='achievementdata'>";
-                            echo "<div class='mb-1 lg:mt-1'>";
-                            echo achievementAvatar(
-                                $nextAch,
-                                label: true,
-                                icon: false,
-                                tooltip: false,
-                            );
-                            if ($achPoints !== 0) {
-                                echo " <span class='TrueRatio'>($achTrueRatio)</span>";
-                            }
-                            echo "</div>";
-                            echo "<div class='mb-2'>$achDesc</div>";
-                            if ($flagParam != $officialFlag && isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-                                echo "<div class='text-2xs'>Author: " . userAvatar($achAuthor, icon: false) . "</div>";
-                            }
-                            if ($achieved) {
-                                echo "<div class='date smalltext'>Unlocked $dateAch</div>";
-                            }
-                            echo "</div>";
-
-                            echo "<div class='my-2 flex flex-col items-center text-center whitespace-nowrap'>";
-                            echo "<div class='progressbar w-full md:w-60 lg:w-40'>";
-                            echo "<div class='completion' style='width:$pctAwardedCasual%'>";
-                            echo "<div class='completion-hardcore' style='width:$pctAwardedHardcore%'></div>";
-                            echo "</div>";
-                            echo "</div>";
-                            echo "<div class='mt-1 text-2xs'>";
-                            if ($wonByHardcore > 0) {
-                                echo "<p>" . number_format($wonBy) . " <strong>(" . number_format($wonByHardcore) . ")</strong> of " . number_format($numDistinctPlayersCasual) . "</p>";
-                            } else {
-                                echo "<p>" . number_format($wonBy) . " of " . number_format($numDistinctPlayersCasual) . "</p>";
-                            }
-                            echo "<p class='text-2xs'>$pctAwardedCasual% unlock rate</p>";
-                            echo "</div>";
-                            echo "</div>";
-
-                            echo "</div>";
-
-                            echo "</div>";
-                            echo "</td>";
-                            echo "</tr>";
-                        }
-                    }
+                    echo Blade::render('
+                        <x-game.achievements-list.root
+                            :achievements="$achievements"
+                            :totalPlayerCount="$totalPlayerCount"
+                            :progressionTypeValue="$progressionTypeValue"
+                            :winConditionTypeValue="$winConditionTypeValue"
+                        />
+                    ', [
+                        'achievements' => $achievementData,
+                        'totalPlayerCount' => $numDistinctPlayersCasual,
+                        'progressionTypeValue' => AchievementType::Progression,
+                        'winConditionTypeValue' => AchievementType::WinCondition,
+                    ]);
                 }
-                echo "</tbody></table>";
             }
 
             if (!$isFullyFeaturedGame) {
