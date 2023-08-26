@@ -294,7 +294,7 @@ if ($isFullyFeaturedGame) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
         if (
-            $totalEarnedProgression === $neededProgressions 
+            $totalEarnedProgression === $neededProgressions
             && $totalEarnedWinCondition >= $neededWinConditions
             && !$isBeatenHardcore
             && !$isBeatenSoftcore
