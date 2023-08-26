@@ -210,7 +210,7 @@ function RenderToolbar(): void
         echo "<li>";
         echo "<form action='/request/auth/logout.php' method='post'>";
         echo csrf_field();
-        echo "<button class='btn p-0 bg-transparent text-gray-200 border-0 w-full'>Logout</button>";
+        echo "<button>Logout</button>";
         echo "</form>";
         echo "</li>";
         echo "</ul>";
