@@ -18,28 +18,25 @@
         />
     </td>
 
-    @if ($isFullyFeaturedGame)
+    @if ($isFullyFeaturedGame && $totalPoints > 0)
         <td>
             <div class="flex flex-col items-end">
                 <p class="text-2xs whitespace-nowrap {{ $totalPoints === 0 ? 'text-text-muted' : '' }}">
-                    <span @if ($totalPoints > 0) class="font-semibold" @endif>
-                        {{ $totalPoints > 0 ? localized_number($totalPoints) : '-' }}
+                    <span>
+                        {{ localized_number($totalPoints) }} points
                     </span>
-                    points
                 </p>
 
                 <p class="text-2xs whitespace-nowrap {{ $totalRetroPoints === 0 ? 'text-text-muted' : '' }}">
                     <x-points-weighted-container>
                         @if ($totalRetroPoints > 0)
                             ({{ localized_number($totalRetroPoints) }})
-                        @else
-                            -
                         @endif
                     </x-points-weighted-container>
                 </p>
             </div>
         </td>
-    @else
-        <td></td>
+    @elseif ($isFullyFeaturedGame && $totalPoints === 0)
+        <td class="min-w-[58px]"></td>
     @endif
 </tr>

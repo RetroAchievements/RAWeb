@@ -109,7 +109,7 @@ RenderContentStart($pageTitle);
         echo "Amount: ";
         echo "<input style='width: 10%;' type='number' min='1' max='25' value='1' name='amount'>";
         echo "&nbsp;&nbsp;";
-        echo "<button>Duplicate</button>";
+        echo "<button class='btn'>Duplicate</button>";
         echo "</form>";
         echo "</li>";
         echo "</ul>";

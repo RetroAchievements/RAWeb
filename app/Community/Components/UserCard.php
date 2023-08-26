@@ -119,7 +119,7 @@ class UserCard extends Component
         } elseif ($softcorePoints > 0) {
             $rankType = RankType::Softcore;
             $siteRank = $softcorePoints < Rank::MIN_POINTS ? 0 : getUserRank($username, $rankType);
-            $rankLabel = 'Softcore Rank:';
+            $rankLabel = 'Softcore Rank';
         }
 
         if ($rankType !== 'Untracked') {
