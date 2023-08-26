@@ -6,6 +6,7 @@ use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
@@ -204,6 +205,16 @@ if ($isFullyFeaturedGame) {
 
     $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
+    if (isset($user)) {
+        // Determine if the logged in user is the sole author of the set
+        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+
+        // Determine if the logged in user has any progression awards for this set
+        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
+        $isBeatenHardcore = !is_null($userGameProgressionAwards['beaten-hardcore']);
+        $isBeatenSoftcore = !is_null($userGameProgressionAwards['beaten-softcore']);
+    }
+
     $screenshotWidth = 200;
     $screenshotMaxHeight = 240; // corresponds to the DS screen aspect ratio
 
@@ -214,6 +225,12 @@ if ($isFullyFeaturedGame) {
     $numEarnedHardcore = 0;
     $totalPossible = 0;
 
+    // Quickly calculate if the player potentially has an unawarded beaten game award
+    $totalProgressionAchievements = 0;
+    $totalWinConditionAchievements = 0;
+    $totalEarnedProgression = 0;
+    $totalEarnedWinCondition = 0;
+
     $totalEarnedTrueRatio = 0;
     $totalPossibleTrueRatio = 0;
 
@@ -221,17 +238,41 @@ if ($isFullyFeaturedGame) {
     $authorCount = [];
     if (isset($achievementData)) {
         foreach ($achievementData as &$nextAch) {
+            $lowercasedAuthor = mb_strtolower($nextAch['Author']);
+
             // Add author to array if it's not already there and initialize achievement count for that author.
             if (!in_array($nextAch['Author'], $authorName)) {
-                $authorName[mb_strtolower($nextAch['Author'])] = $nextAch['Author'];
-                $authorCount[mb_strtolower($nextAch['Author'])] = 1;
+                $authorName[$lowercasedAuthor] = $nextAch['Author'];
+                $authorCount[$lowercasedAuthor] = 1;
             } // If author is already in array then increment the achievement count for that author.
             else {
-                $authorCount[mb_strtolower($nextAch['Author'])]++;
+                $authorCount[$lowercasedAuthor]++;
             }
 
             $totalPossible += $nextAch['Points'];
             $totalPossibleTrueRatio += $nextAch['TrueRatio'];
+
+            // Tally up how many Progression and Win Condition achievements the user has earned.
+            // We'll use this to determine if they're potentially missing a beaten game award.
+            if (
+                $user
+                && isset($nextAch['type'])
+                && ($nextAch['type'] == AchievementType::Progression || $nextAch['type'] == AchievementType::WinCondition)
+            ) {
+                $isGameBeatable = true;
+
+                if ($nextAch['type'] == AchievementType::Progression) {
+                    $totalProgressionAchievements++;
+                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedProgression++;
+                    }
+                } elseif ($nextAch['type'] == AchievementType::WinCondition) {
+                    $totalWinConditionAchievements++;
+                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedWinCondition++;
+                    }
+                }
+            }
 
             if (isset($nextAch['DateEarnedHardcore'])) {
                 $numEarnedHardcore++;
@@ -241,26 +282,29 @@ if ($isFullyFeaturedGame) {
                 $numEarnedCasual++;
                 $totalEarnedCasual += $nextAch['Points'];
             }
-
-            if (isset($nextAch['type'])) {
-                $isGameBeatable = true;
-            }
         }
         // Combine arrays and sort by achievement count.
         $authorInfo = array_combine($authorName, $authorCount);
         array_multisort($authorCount, SORT_DESC, $authorInfo);
     }
 
+    // If the game is beatable, the user has met the requirements to receive the
+    // beaten game award, and they do not currently have that award, give it to them.
+    if ($isGameBeatable) {
+        $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
+        $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
+        if (
+            $totalEarnedProgression === $neededProgressions 
+            && $totalEarnedWinCondition >= $neededWinConditions
+            && !$isBeatenHardcore
+            && !$isBeatenSoftcore
+        ) {
+            testBeatenGame($gameID, $user, true);
+        }
+    }
+
     // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID);
-
-    if (isset($user)) {
-        // Determine if the logged in user is the sole author of the set
-        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
-
-        // Determine if the logged in user has any progression awards for this set
-        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
-    }
 
     $claimData = getClaimData($gameID, true);
     $claimListLength = count($claimData);
@@ -835,7 +879,7 @@ sanitize_outputs(
             ];
 
             $initializedProgressComponent = Blade::render('
-                <x-game.current-progress
+                <x-game.current-progress.root
                     :gameId="$gameId"
                     :isBeatable="$isBeatable"
                     :isBeatenHardcore="$isBeatenHardcore"
@@ -854,8 +898,8 @@ sanitize_outputs(
             ', [
                 'gameId' => $gameID,
                 'isBeatable' => $isGameBeatable,
-                'isBeatenHardcore' => !is_null($userGameProgressionAwards['beaten-hardcore']),
-                'isBeatenSoftcore' => !is_null($userGameProgressionAwards['beaten-softcore']),
+                'isBeatenHardcore' => $isBeatenHardcore,
+                'isBeatenSoftcore' => $isBeatenSoftcore,
                 'isCompleted' => !is_null($userGameProgressionAwards['completed']),
                 'isMastered' => !is_null($userGameProgressionAwards['mastered']),
                 'isEvent' => $isEventGame,

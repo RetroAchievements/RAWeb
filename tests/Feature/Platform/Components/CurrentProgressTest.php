@@ -14,7 +14,7 @@ class CurrentProgressTest extends TestCase
     public function testItRendersNothingIfNoAchievements(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="false"
                 :isBeatenHardcore="false"
                 :isBeatenSoftcore="false"
@@ -36,7 +36,7 @@ class CurrentProgressTest extends TestCase
     public function testItRendersEmptyStateIfNothingUnlocked(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="false"
                 :isBeatenHardcore="false"
                 :isBeatenSoftcore="false"
@@ -59,7 +59,7 @@ class CurrentProgressTest extends TestCase
     public function testItRendersOnlyHardcoreUserProgress(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="false"
                 :isBeatenHardcore="false"
                 :isBeatenSoftcore="false"
@@ -84,7 +84,7 @@ class CurrentProgressTest extends TestCase
     public function testItRendersOnlySoftcoreUserProgress(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="false"
                 :isBeatenHardcore="false"
                 :isBeatenSoftcore="false"
@@ -109,7 +109,7 @@ class CurrentProgressTest extends TestCase
     public function testItRendersCombinedHardcoreAndSoftcoreUserProgress(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="false"
                 :isBeatenHardcore="false"
                 :isBeatenSoftcore="false"
@@ -136,7 +136,7 @@ class CurrentProgressTest extends TestCase
     public function testItReportsGameAsBeatenSoftcore(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="true"
                 :isBeatenHardcore="false"
                 :isBeatenSoftcore="true"
@@ -158,7 +158,7 @@ class CurrentProgressTest extends TestCase
     public function testItReportsGameAsBeatenHardcore(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="true"
                 :isBeatenHardcore="true"
                 :isBeatenSoftcore="true"
@@ -181,7 +181,7 @@ class CurrentProgressTest extends TestCase
     public function testItReportsGameAsCompleted(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="true"
                 :isBeatenHardcore="true"
                 :isBeatenSoftcore="true"
@@ -204,7 +204,7 @@ class CurrentProgressTest extends TestCase
     public function testItReportsGameAsMastered(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="true"
                 :isBeatenHardcore="true"
                 :isBeatenSoftcore="true"
@@ -227,7 +227,7 @@ class CurrentProgressTest extends TestCase
     public function testItReportsGameAsUnbeaten(): void
     {
         $view = $this->blade(<<<HTML
-            <x-game.current-progress
+            <x-game.current-progress.root
                 :isBeatable="true"
                 :isBeatenHardcore="false"
                 :isBeatenSoftcore="false"

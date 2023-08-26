@@ -8,10 +8,16 @@
 $hardcoreProgressWidth = 0;
 $softcoreProgressWidth = 0;
 
+$softcoreCompletionPercentage = 0;
+$hardcoreCompletionPercentage = 0;
+
 // Never divide by zero.
 if ($totalAchievementsCount > 0) {
     $hardcoreProgressWidth = ($numEarnedHardcoreAchievements / $totalAchievementsCount) * 100;
     $softcoreProgressWidth = ($numEarnedSoftcoreAchievements / $totalAchievementsCount) * 100;
+
+    $hardcoreCompletionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth));
+    $softcoreCompletionPercentage = sprintf("%01.0f", floor($softcoreProgressWidth + $hardcoreCompletionPercentage));
 }
 
 $completionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth + $softcoreProgressWidth));
@@ -25,12 +31,11 @@ $completionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth + $softco
     class="absolute w-full bottom-0 left-0 h-2 bg-embed-highlight lg:rounded-b flex"
 >
     @if ($completionPercentage > 0 && $completionPercentage < 100)
-        <p 
-            class="absolute bottom-2 text-[0.65rem] opacity-0 group-hover:opacity-100"
-            style="left: calc({{ $completionPercentage }}% - 10px)"
-        >
-            {{ $completionPercentage }}%
-        </p>
+        <x-game.current-progress.progress-bar-indicator
+            :softcoreCompletionPercentage="$softcoreCompletionPercentage"
+            :hardcoreCompletionPercentage="$hardcoreCompletionPercentage"
+            :totalCompletionPercentage="$completionPercentage"
+        />
     @endif
 
     <span class="sr-only">{{ $completionPercentage}}% complete</span>

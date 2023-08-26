@@ -14,6 +14,7 @@ $hasSoftcoreProgress = $numEarnedSoftcoreAchievements > 0;
 ?>
 
 <div>
+    <!-- Hardcore only -->
     @if ($hasHardcoreProgress && !$hasSoftcoreProgress)
         <p>
             <span class="font-bold">{{ localized_number($numEarnedHardcoreAchievements) }}</span>
@@ -34,6 +35,7 @@ $hasSoftcoreProgress = $numEarnedSoftcoreAchievements > 0;
                 </p>
             </div>
         @endif
+    <!-- Softcore only -->
     @elseif ($hasSoftcoreProgress && !$hasHardcoreProgress)
         <p>
             <span class="font-bold">{{ localized_number($numEarnedSoftcoreAchievements) }}</span>
@@ -51,9 +53,11 @@ $hasSoftcoreProgress = $numEarnedSoftcoreAchievements > 0;
                 </p>
             </div>
         @endif
+    <!-- Hardcore and softcore mixed -->
     @elseif ($hasHardcoreProgress && $hasSoftcoreProgress)
         <p>
             <span class="font-bold">{{ localized_number($numEarnedHardcoreAchievements) }}</span>
+            of {{ localized_number($totalAchievementsCount) }}
             hardcore {{ mb_strtolower(__res('achievement', $numEarnedHardcoreAchievements)) }}
         </p>
 
