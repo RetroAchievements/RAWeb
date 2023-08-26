@@ -3,8 +3,6 @@
     'selectedAwardType' => null,
     'selectedDate' => null,
     'selectedUsers' => 'all',
-    'unlockModeSoftcore' => 0,
-    'unlockModeHardcore' => 1,
 ])
 
 <?php
@@ -35,13 +33,16 @@ function handleDateSubmitted(event) {
 function handleAwardTypeChanged(event) {
     const selectedValue = event.target.value;
 
+    const unlockModeHardcore = 'h';
+    const unlockModeSoftcore = 's';
+
     // A dictionary mapping the award kind to [awardType, unlockMode].
-    /** @type Record<string, [number, number]> */
+    /** @type Record<string, [number, string]> */
     const queryParamsMap = {
-        mastered: [{{ $awardTypeMastery }}, {{ $unlockModeHardcore }}],
-        completed: [{{ $awardTypeMastery }}, {{ $unlockModeSoftcore }}],
-        'beaten-hardcore': [{{ $awardTypeGameBeaten }}, {{ $unlockModeHardcore }}],
-        'beaten-softcore': [{{ $awardTypeGameBeaten }}, {{ $unlockModeSoftcore }}],
+        mastered: [{{ $awardTypeMastery }}, unlockModeHardcore],
+        completed: [{{ $awardTypeMastery }}, unlockModeSoftcore],
+        'beaten-hardcore': [{{ $awardTypeGameBeaten }}, unlockModeHardcore],
+        'beaten-softcore': [{{ $awardTypeGameBeaten }}, unlockModeSoftcore],
     }
     
     if (queryParamsMap[selectedValue]) {
