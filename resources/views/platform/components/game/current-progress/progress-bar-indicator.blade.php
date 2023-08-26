@@ -5,7 +5,11 @@
 ])
 
 <?php
-$isMixedProgress = $softcoreCompletionPercentage > 0 && $hardcoreCompletionPercentage > 0;
+$isMixedProgress =
+    ($softcoreCompletionPercentage != $hardcoreCompletionPercentage)
+    && ($softcoreCompletionPercentage > 0 && $hardcoreCompletionPercentage > 0);
+    
+$isOnlyHardcoreProgress = !$isMixedProgress && intval($hardcoreCompletionPercentage) > 0;
 
 $percentageDifference = abs($softcoreCompletionPercentage - $hardcoreCompletionPercentage);
 $canShowMixedProgress = $isMixedProgress && $percentageDifference >= 9;
@@ -27,7 +31,10 @@ $canShowMixedProgress = $isMixedProgress && $percentageDifference >= 9;
     </p>
 @else
     <p
-        class="absolute bottom-2 text-[0.65rem] opacity-0 group-hover:opacity-100 select-none"
+        class="
+            absolute bottom-2 text-[0.65rem] opacity-0 group-hover:opacity-100 select-none
+            {{ $isOnlyHardcoreProgress ? 'text-yellow-500 light:text-yellow-700' : 'text-neutral-400 light:text-neutral-600' }}
+        "
         style="left: calc({{ $totalCompletionPercentage }}% - 10px)"
     >
         {{ $totalCompletionPercentage }}%

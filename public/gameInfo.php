@@ -301,7 +301,9 @@ if ($isFullyFeaturedGame) {
             && !$isBeatenHardcore
             && !$isBeatenSoftcore
         ) {
-            testBeatenGame($gameID, $user, true);
+            $beatenGameRetVal = testBeatenGame($gameID, $user, true);
+            $isBeatenHardcore = $beatenGameRetVal['isBeatenHardcore'];
+            $isBeatenSoftcore = $beatenGameRetVal['isBeatenSoftcore'];
         }
     }
 
