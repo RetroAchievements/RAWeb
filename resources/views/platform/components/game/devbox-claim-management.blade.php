@@ -162,6 +162,9 @@ function completeClaim() {
         </button>
     </form>
 
+@elseif (!$userHasClaimSlot)
+    <div class="ml-2">Maximum number of games claimed</div>
+
 @elseif ($claimBlockedByMissingForumTopic)
     <div class="ml-2">Forum Topic Needed for Claim</div>
 
@@ -227,7 +230,7 @@ function completeClaim() {
 @endif
 
 <!-- If the author is a jr. dev and the current user is a full dev, allow the set to be changed to Review status -->
-@if ($primaryClaimUser && $userPermissions >= Permissions::Developer && $primaryClaimUser !== $user)
+@if ($primaryClaimUser && $userPermissions >= Permissions::Moderator && $primaryClaimUser !== $user)
     <?php $primaryClaimUserPermissions = getUserPermissions($primaryClaimUser); ?>
     @if ($primaryClaimUserPermissions < Permissions::Developer)
         @if ($primaryClaimStatus !== ClaimStatus::InReview)

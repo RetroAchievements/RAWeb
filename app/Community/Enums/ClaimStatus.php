@@ -31,4 +31,13 @@ abstract class ClaimStatus
             default => "Invalid status",
         };
     }
+
+    public static function isActive(int $type): bool
+    {
+        return match ($type) {
+            self::Active => true,
+            self::InReview => true,
+            default => false,
+        };
+    }
 }

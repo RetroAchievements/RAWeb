@@ -2,7 +2,6 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimStatus;
-use App\Community\Enums\ClaimType;
 use App\Community\Models\AchievementSetClaim;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
@@ -16,7 +15,7 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'claim' => 'required|integer|exists:SetClaim,ID',
     'game' => 'required|integer|exists:GameData,ID',
-    'claim_status' => ['required', 'integer', Rule::in(ClaimStatus::cases())]
+    'claim_status' => ['required', 'integer', Rule::in(ClaimStatus::cases())],
 ]);
 
 $claim = AchievementSetClaim::find((int) $input['claim']);
@@ -25,7 +24,7 @@ if ($claim) {
     $claim->save();
 
     print_r($claim->toArray());
-    addArticleComment("Server", ArticleType::SetClaim, (int) $input['game'], 
+    addArticleComment("Server", ArticleType::SetClaim, (int) $input['game'],
         "$user updated " . $claim->User . "'s claim. Claim Status: " . ClaimStatus::toString($claim->Status));
 
     return back()->with('success', __('legacy.success.ok'));
