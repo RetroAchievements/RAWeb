@@ -1,6 +1,7 @@
 <?php
 use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\TicketState;
 use App\Site\Enums\Permissions;
@@ -22,6 +23,8 @@ use App\Site\Enums\Permissions;
 
 <?php
 $allClaimFilters = ClaimFilters::AllFilters;
+$primaryClaimId = 0;
+$primaryClaimStatus = ClaimStatus::Active;
 $primaryClaimUser = null;
 $primaryClaimMinutesActive = 0;
 $primaryClaimMinutesLeft = 0;
@@ -43,9 +46,12 @@ $claimListLength = count($claimData);
 
 // Get the first entry returned for the primary claim data.
 if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
+    $primaryClaimId = $claimData[0]['ID'];
     $primaryClaimUser = $claimData[0]['User'];
     $primaryClaimMinutesActive = $claimData[0]['MinutesActive'];
     $primaryClaimMinutesLeft = $claimData[0]['MinutesLeft'];
+    $primaryClaimStatus = $claimData[0]['Status'];
+
     foreach ($claimData as $claim) {
         if (isset($claim['User']) && $claim['User'] === $user) {
             $hasGameClaimed = true;
@@ -96,6 +102,20 @@ function dropClaim() {
     return confirm(message);
 }
 
+function reviewClaim() {
+    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+
+    const message = 'Are you sure you want to change the claim status for ' + gameTitle + ' to In Review?';
+    return confirm(message);
+}
+
+function activateReview() {
+    const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
+
+    const message = 'Are you sure you want to change the claim status for ' + gameTitle + ' to Active?';
+    return confirm(message);
+}
+
 function extendClaim() {
     const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
 
@@ -143,7 +163,7 @@ function completeClaim() {
     </form>
 
 @elseif ($claimBlockedByMissingForumTopic)
-    <div>Forum Topic Needed for Claim</div>
+    <div class="ml-2">Forum Topic Needed for Claim</div>
 
 @elseif ($hasGameClaimed)
     @if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080)
@@ -158,18 +178,22 @@ function completeClaim() {
         </form>
     @endif
 
-    <form
-        class="mb-1"
-        action="/request/set-claim/drop-claim.php"
-        method="post"
-        onsubmit="return dropClaim()"
-    >
-        {!! csrf_field() !!}
-        <input type="hidden" name="game" value="{{ $gameId }}">
-        <input type="hidden" name="claim_type" value="{{ $claimType }}">
-        <input type="hidden" name="set_type" value="{{ $claimSetType }}">
-        <button class="btn">Drop {{ ClaimType::toString($claimType) }} Claim</button>
-    </form>
+    @if ($primaryClaimStatus === ClaimStatus::InReview && $primaryClaimUser === $user)
+        <div class="ml-2">Cannot modify Claim in Review status</div>
+    @else
+        <form
+            class="mb-1"
+            action="/request/set-claim/drop-claim.php"
+            method="post"
+            onsubmit="return dropClaim()"
+        >
+            {!! csrf_field() !!}
+            <input type="hidden" name="game" value="{{ $gameId }}">
+            <input type="hidden" name="claim_type" value="{{ $claimType }}">
+            <input type="hidden" name="set_type" value="{{ $claimSetType }}">
+            <button class="btn">Drop {{ ClaimType::toString($claimType) }} Claim</button>
+        </form>
+    @endif
 @endif
 
 <!-- If the set has achievements and the current user is the primary claim owner, then allow completing the claim. -->
@@ -199,6 +223,40 @@ function completeClaim() {
                 </a>
             @endif
         </form>
+    @endif
+@endif
+
+<!-- If the author is a jr. dev and the current user is a full dev, allow the set to be changed to Review status -->
+@if ($primaryClaimUser && $userPermissions >= Permissions::Developer && $primaryClaimUser !== $user)
+    <?php $primaryClaimUserPermissions = getUserPermissions($primaryClaimUser); ?>
+    @if ($primaryClaimUserPermissions < Permissions::Developer)
+        @if ($primaryClaimStatus !== ClaimStatus::InReview)
+            <form
+                class="mb-1"
+                action="/request/set-claim/update-claim-status.php"
+                method="post"
+                onsubmit="return reviewClaim()"
+            >
+                {!! csrf_field() !!}
+                <input type="hidden" name="game" value="{{ $gameId }}">
+                <input type="hidden" name="claim" value="{{ $primaryClaimId }}">
+                <input type="hidden" name="claim_status" value="{{ ClaimStatus::InReview }}">
+                <button class="btn">Mark Claim for Review</button>
+            </form>
+        @else
+            <form
+                class="mb-1"
+                action="/request/set-claim/update-claim-status.php"
+                method="post"
+                onsubmit="return activateReview()"
+            >
+                {!! csrf_field() !!}
+                <input type="hidden" name="game" value="{{ $gameId }}">
+                <input type="hidden" name="claim" value="{{ $primaryClaimId }}">
+                <input type="hidden" name="claim_status" value="{{ ClaimStatus::Active }}">
+                <button class="btn">Complete Claim Review</button>
+            </form>
+        @endif
     @endif
 @endif
 

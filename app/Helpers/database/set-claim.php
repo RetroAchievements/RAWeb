@@ -174,13 +174,13 @@ function getClaimData(int $gameID, bool $getFullData = true): array
         sc.ClaimType as ClaimType, sc.Created as Created, sc.Finished as Expiration";
 
     if ($getFullData) {
-        $query .= ", sc.Status as Status, ";
+        $query .= ", sc.Status as Status, sc.ID, ";
         $query .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft') . ",";
         $query .= diffMinutesPassedStatement('sc.Created', 'MinutesActive');
     }
 
     $query .= " FROM SetClaim sc WHERE sc.GameID = '$gameID'
-                 AND sc.Status = " . ClaimStatus::Active . "
+                 AND sc.Status IN (" . ClaimStatus::Active . "," . ClaimStatus::InReview .")
                ORDER BY sc.ClaimType ASC";
 
     return legacyDbFetchAll($query)->toArray();
