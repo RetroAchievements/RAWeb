@@ -46,7 +46,7 @@ class AuthServiceProvider extends ServiceProvider
                 }
 
                 // TODO remove as soon as permission matrix is in place
-                if ($user->Permissions >= Permissions::Root) {
+                if ($user->Permissions >= Permissions::Moderator) {
                     return true;
                 }
 
