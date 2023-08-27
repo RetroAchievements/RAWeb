@@ -28,16 +28,18 @@ $user = request()->user();
 @endguest
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
-        <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ number_format($user->points_total) }}</div>
-        <x-points-weighted-container>
-            <span class='trueratio'>{{ number_format($user->points_weighted_total) }}</span>
-        </x-points-weighted-container>
-        <div class='softcore cursor-help' title="Points earned in softcore mode">{{ number_format($user->RASoftcorePoints) }}</div>
+        @if($user->points_total)
+            <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ localized_number($user->points_total) }}</div>
+        @endif
+        @if($user->points_weighted_total)
+            <x-points-weighted-container>
+                <span class='trueratio'>{{ localized_number($user->points_weighted_total) }}</span>
+            </x-points-weighted-container>
+        @endif
+        @if($user->RASoftcorePoints)
+            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
+        @endif
     </div>
-    {{--
-    Note: keep icon avatar in its own navbar-nav
-    otherwise it jumps around vertically with other text nav items in the same group
-    --}}
     <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right">
         <x-slot name="trigger">
             <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false"/>
