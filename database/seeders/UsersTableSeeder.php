@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Carbon\Carbon;
 use Database\Seeders\Concerns\SeedsUsers;
@@ -24,14 +25,14 @@ class UsersTableSeeder extends Seeder
         /*
          * offset role test users by 1000000
          */
-        $this->seedUserByUsername('verified', ['id' => ++$id]);
         foreach (config('roles') as $role) {
-            $this->seedUserByUsername($role['name'], ['id' => ++$id]);
+            $this->seedUserByUsername($role['name'], ['id' => ++$id, 'Permissions' => $role['legacy_role']]);
         }
-        $this->seedUserByUsername('unverified', ['id' => ++$id, 'email_verified_at' => null]);
-        $this->seedUserByUsername('unranked', ['id' => ++$id, 'unranked_at' => Carbon::now()]);
-        $this->seedUserByUsername('banned', ['id' => ++$id, 'banned_at' => Carbon::now()]);
-        $this->seedUserByUsername('spammer', ['id' => ++$id, 'banned_at' => Carbon::now(), 'Deleted' => Carbon::now()]);
+        $this->seedUserByUsername('verified', ['id' => ++$id, 'Permissions' => Permissions::Registered]);
+        $this->seedUserByUsername('unverified', ['id' => ++$id, 'email_verified_at' => null, 'Permissions' => Permissions::Unregistered]);
+        $this->seedUserByUsername('unranked', ['id' => ++$id, 'unranked_at' => Carbon::now(), 'Untracked' => true, 'Permissions' => Permissions::Registered]);
+        $this->seedUserByUsername('banned', ['id' => ++$id, 'banned_at' => Carbon::now(), 'Permissions' => Permissions::Banned]);
+        $this->seedUserByUsername('spammer', ['id' => ++$id, 'banned_at' => Carbon::now(), 'Deleted' => Carbon::now(), 'Permissions' => Permissions::Spam]);
 
         // if(app()->environment('local')) {
         //     User::factory()->count(50)->create()->each(function ($user) {
