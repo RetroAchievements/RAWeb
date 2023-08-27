@@ -23,7 +23,7 @@
 }
 
 .dropdown-column:not(:last-child) {
-  border-right: 1px solid var(--embed-color);
+  border-right: 1px solid var(--divider-color);
 }
 
 .dropdown-item {
@@ -62,6 +62,6 @@
 }
 
 .dropdown-divider {
-  border-bottom: 1px solid var(--embed-color);
+  border-bottom: 1px solid var(--divider-color);
   margin: 2px 10px;
 }
