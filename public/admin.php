@@ -81,7 +81,7 @@ if ($action === 'manual-unlock') {
         }
 
         if (!empty($errors)) {
-            return back()->withErrors(join('\n', $errors));
+            return back()->withErrors(join('. ', $errors));
         }
 
         return back()->with('success', __('legacy.success.ok'));
