@@ -87,7 +87,7 @@ $menuSystemsList = [
 --}}
 <x-nav-dropdown>
     <x-slot name="trigger">
-        <x-pixelarticons-gamepad class="h-6 w-6"/>
+        <x-fas-gamepad class="h-4 w-4"/>
         <span class="ml-1 hidden sm:inline-block">{{ __res('game') }}</span>
     </x-slot>
     <div class="md:flex">
@@ -133,7 +133,7 @@ $menuSystemsList = [
 </x-nav-dropdown>
 <x-nav-dropdown>
     <x-slot name="trigger">
-        <x-pixelarticons-trophy class="h-5 w-5"/>
+        <x-fas-trophy class="h-4 w-4"/>
         <span class="ml-1 hidden sm:inline-block">{{ __res('achievement') }}</span>
     </x-slot>
     <x-dropdown-item :link="url('achievementList.php')">All Achievements</x-dropdown-item>
@@ -144,7 +144,7 @@ $menuSystemsList = [
 </x-nav-dropdown>
 <x-nav-dropdown>
     <x-slot name="trigger">
-        <x-pixelarticons-users class="h-4 w-4"/>
+        <x-fas-users class="h-4 w-4"/>
         <span class="ml-1 hidden sm:inline-block">{{ __('Community') }}</span>
     </x-slot>
     <x-dropdown-item :link="url('forum.php')">Forums</x-dropdown-item>
@@ -163,6 +163,6 @@ $menuSystemsList = [
     <x-dropdown-item link="https://docs.retroachievements.org/Developer-Docs">Developer Documentation</x-dropdown-item>
 </x-nav-dropdown>
 <x-nav-item :link="url('download.php')">
-    <x-pixelarticons-download class="h-4 w-4"/>
+    <x-fas-download class="h-3 w-3"/>
     <span class="ml-1 hidden sm:inline-block">{{ __('Download') }}</span>
 </x-nav-item>
