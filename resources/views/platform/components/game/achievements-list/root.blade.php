@@ -20,6 +20,8 @@ $winConditionAchievements = array_filter($achievements, function ($achievement) 
 
 // If there's only a single Win Condition achievement, show it as "Progression" to the user.
 $hasMultipleWinConditions = count($winConditionAchievements) > 1;
+
+$beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAchievements);
 ?>
 
 @if (count($achievements) > 0)
@@ -31,6 +33,7 @@ $hasMultipleWinConditions = count($winConditionAchievements) > 1;
                 :hasMultipleWinConditions="$hasMultipleWinConditions"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
             />
         @endforeach
 
@@ -41,6 +44,7 @@ $hasMultipleWinConditions = count($winConditionAchievements) > 1;
                 :hasMultipleWinConditions="$hasMultipleWinConditions"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
             />
         @endforeach
     </ul>

@@ -1,0 +1,75 @@
+@props([
+    'gameTitle' => '',
+    'progressionAchievements' => [],
+    'winConditionAchievements' => [],
+    'unlockContext' => 's:|h:',
+])
+
+<?php
+[$softcoreUnlocks, $hardcoreUnlocks] = explode("|", $unlockContext);
+$softcoreIds = explode(",", substr($softcoreUnlocks, 2)); // skip "s:"
+$hardcoreIds = explode(",", substr($hardcoreUnlocks, 2)); // skip "h:"
+
+// If there's only a single win condition achievement, we need to show it as
+// progression to the user.
+if (count($winConditionAchievements) === 1) {
+    // Move it to the progression achievements array.
+    $progressionAchievements[] = array_pop($winConditionAchievements);
+
+    // Make sure the array is still sorted by DisplayOrder.
+    usort($progressionAchievements, function($a, $b) {
+        return $a['DisplayOrder'] <=> $b['DisplayOrder'];
+    });
+}
+?>
+
+<div>
+    <div class="grid gap-y-3 mb-6">
+        <p>
+            A game is considered beaten when you've unlocked <span class="font-bold">ALL</span> of its
+            progression achievements and <span class="font-bold">ANY</span> of its win condition achievements.
+        </p>
+
+        <p>
+            {{ $gameTitle }} has {{ count($progressionAchievements ) }} progression
+            achievements and {{ count($winConditionAchievements ) }} win condition
+            achievements.
+        </p>
+    </div>
+
+    @if (count($progressionAchievements) > 0)
+        <div class="flex items-center gap-x-2.5 mb-4">
+            <div class="w-7 h-7 text-neutral-200" aria-label="Progression icon"><x-icon.progression /></div>
+            <p class="text-lg">You need ALL of these:</p>
+        </div>
+
+        @foreach ($progressionAchievements as $progressionAchievement)
+            <ul class="flex flex-col even:bg-bg">
+                <x-game.achievements-list.achievements-list-item
+                    :achievement="$progressionAchievement"
+                    :useMinimalLayout="true"
+                    isUnlocked="{{ in_array($progressionAchievement['ID'], $softcoreIds) }}"
+                    isUnlockedHardcore="{{ in_array($progressionAchievement['ID'], $hardcoreIds) }}"
+                />
+            </ul>
+        @endforeach
+    @endif
+
+    @if (count($winConditionAchievements) > 0)
+        <div class="flex items-center gap-x-2.5 mt-12 mb-4">
+            <div class="w-7 h-7 text-neutral-200" aria-label="Progression icon"><x-icon.win-condition /></div>
+            <p class="text-lg">You need ANY of these:</p>
+        </div>
+
+        @foreach ($winConditionAchievements as $winConditionAchievement)
+            <ul class="flex flex-col even:bg-bg">
+                <x-game.achievements-list.achievements-list-item
+                    :achievement="$winConditionAchievement"
+                    :useMinimalLayout="true"
+                    isUnlocked="{{ in_array($winConditionAchievement['ID'], $softcoreIds) }}"
+                    isUnlockedHardcore="{{ in_array($winConditionAchievement['ID'], $hardcoreIds) }}"
+                />
+            </ul>
+        @endforeach
+    @endif
+</div>
