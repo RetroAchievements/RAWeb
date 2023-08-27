@@ -61,13 +61,13 @@ RenderContentStart("Edit post");
         echo csrf_field();
         echo "<input type='hidden' value='$requestedComment' name='comment'>";
         echo "<table>";
-        echo "<tbody>";
+        echo "<tbody x-data='{ isValid: true }'>";
         echo "<tr><td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
         echo "<tr><td>Author:</td><td><input type='text' readonly value='$thisAuthor'></td></tr>";
         echo "<tr><td>Topic:</td><td><input type='text' readonly class='w-full' value='$thisTopicTitle'></td></tr>";
         echo "<tr><td>Message:</td><td>";
         RenderShortcodeButtons();
-        echo <<<EOF
+        echo <<<HTML
             <textarea
                 id="commentTextarea"
                 class="w-full"
@@ -76,8 +76,9 @@ RenderContentStart("Edit post");
                 maxlength="60000"
                 name="body"
                 placeholder="Don't share links to copyrighted ROMs."
+                x-on:input='isValid = window.getStringByteCount(\$event.target.value) <= 60000'
             >$existingComment</textarea>
-        EOF;
+        HTML;
         echo "</td></tr>";
 
         $loadingIconSrc = asset('assets/images/icon/loading.gif');
@@ -92,8 +93,8 @@ RenderContentStart("Edit post");
                         <div class="flex gap-2">
                             <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading..." class="w-4 h-4">
                             <a class="btn btn-link" href="/viewtopic.php?t=$thisTopicID&c=$requestedComment#$requestedComment">Back</a>
-                            <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
-                            <button class="btn">Submit</button>
+                            <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" :disabled="!isValid">Preview</button>
+                            <button class="btn" :disabled="!isValid">Submit</button>
                         </div>
                     </div>
                 </td>

@@ -15,6 +15,6 @@ class NewsTableSeeder extends Seeder
             return;
         }
 
-        News::factory()->count(5)->create();
+        News::factory()->count(15)->create();
     }
 }
