@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Community\Models\News;
+use App\Site\Models\User;
 use Database\Seeders\Concerns\SeedsUsers;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,9 +23,12 @@ class NewsFactory extends Factory
      */
     public function definition(): array
     {
+        $author = User::inRandomOrder()->first();
+
         return [
             'Title' => ucwords(fake()->words(2, true)),
-            'user_id' => $this->seedUserByUsername(fake()->userName)->id,
+            'user_id' => $author->ID,
+            'Author' => $author->username,
             // 'link' => mt_rand(0, 1) ? $faker->url : null,
             'lead' => fake()->text(200),
             'Payload' => fake()->text,
