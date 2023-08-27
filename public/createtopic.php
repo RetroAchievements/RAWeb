@@ -44,7 +44,7 @@ RenderContentStart("Create topic: $thisForumTitle");
         echo csrf_field();
         echo "<input type='hidden' value='$requestedForumID' name='forum'>";
         echo "<table>";
-        echo "<tbody>";
+        echo "<tbody x-data='{ isValid: true }'>";
         echo "<tr><td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
         echo "<tr><td>Author:</td><td><input type='text' readonly value='$user'></td></tr>";
         echo "<tr><td>Topic:</td><td><input class='w-full' type='text' value='' name='title' value='" . old('title') . "'></td></tr>";
@@ -59,7 +59,7 @@ RenderContentStart("Create topic: $thisForumTitle");
             maxlength="60000"
             name="body"
             placeholder="Don't share links to copyrighted ROMs."
-            oninput='autoExpandTextInput(this)'
+            x-on:input='autoExpandTextInput($el); isValid = window.getStringByteCount($event.target.value) <= 60000;'
         ><?= $existingComment ?></textarea>
         <?php
         echo "</td></tr>";
@@ -75,8 +75,8 @@ RenderContentStart("Create topic: $thisForumTitle");
 
                         <div>
                             <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
-                            <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
-                            <button class="btn">Submit new topic</button>
+                            <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" :disabled="!isValid">Preview</button>
+                            <button class="btn" :disabled="!isValid">Submit new topic</button>
                         </div>
                     </div>
                 </td>
