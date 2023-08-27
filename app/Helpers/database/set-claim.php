@@ -208,9 +208,6 @@ function getFilteredClaims(
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
     $newSetClaim = ($claimFilter & ClaimFilters::NewSetClaim);
     $revisionClaim = ($claimFilter & ClaimFilters::RevisionClaim);
-    $activeClaim = ($claimFilter & ClaimFilters::ActiveClaim);
-    $completeClaim = ($claimFilter & ClaimFilters::CompleteClaim);
-    $droppedClaim = ($claimFilter & ClaimFilters::DroppedClaim);
     $specialNoneClaim = ($claimFilter & ClaimFilters::SpecialNone);
     $specialRevisionClaim = ($claimFilter & ClaimFilters::SpecialOwnRevision);
     $specialRolloutClaim = ($claimFilter & ClaimFilters::SpecialFreeRollout);
@@ -239,21 +236,25 @@ function getFilteredClaims(
     }
 
     // Create the claim status condition
-    $statusCondition = '';
-    if ($activeClaim && $completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Active . ', ' . ClaimStatus::Complete . ')';
-    } elseif ($activeClaim && !$completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Active . ', ' . ClaimStatus::Dropped . ')';
-    } elseif ($activeClaim && !$completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Active;
-    } elseif (!$activeClaim && $completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Complete . ', ' . ClaimStatus::Dropped . ')';
-    } elseif (!$activeClaim && $completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Complete;
-    } elseif (!$activeClaim && !$completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Dropped;
-    } elseif (!$activeClaim && !$completeClaim && !$droppedClaim) {
+    $statuses = [];
+    if ($claimFilter & ClaimFilters::ActiveClaim) {
+        $statuses[] = ClaimStatus::Active;
+    }
+    if ($claimFilter & ClaimFilters::InReviewClaim) {
+        $statuses[] = ClaimStatus::InReview;
+    }
+    if ($claimFilter & ClaimFilters::CompleteClaim) {
+        $statuses[] = ClaimStatus::Complete;
+    }
+    if ($claimFilter & ClaimFilters::DroppedClaim) {
+        $statuses[] = ClaimStatus::Dropped;
+    }
+    if (empty($statuses)) {
         return collect();
+    }
+    $statusCondition = '';
+    if ($statuses != ClaimStatus::cases()) {
+        $statusCondition = 'AND sc.Status IN (' . join(',', $statuses) . ')';
     }
 
     // Create the special condition
