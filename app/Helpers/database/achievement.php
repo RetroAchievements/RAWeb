@@ -571,5 +571,6 @@ function buildBeatenGameCreditDialogContext(array $achievements): string
     }
 
     $dialogContext = "s:" . implode(",", $softcoreUnlocks) . "|h:" . implode(",", $hardcoreUnlocks);
+
     return $dialogContext;
 }
