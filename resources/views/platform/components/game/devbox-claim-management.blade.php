@@ -64,16 +64,16 @@ $claimBlockedByMissingForumTopic = !$isRevision && $userPermissions == Permissio
 // User has an open claim or is claiming own set or is making a collaboration claim and missing forum topic is not blocking
 $canClaim = ($userHasClaimSlot || $isSoleAuthor || $isCollaboration) && !$hasGameClaimed && !$claimBlockedByMissingForumTopic;
 
-$revisionDialogFlag = ($isRevision && !$isSoleAuthor) ? 'true' : 'false';
-$ticketDialogFlag = $hasOpenTickets ? 'true' : 'false';
-$isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440 ? 'true' : 'false';
+$revisionDialogFlag = ($isRevision && !$isSoleAuthor) ? true : false;
+$ticketDialogFlag = $hasOpenTickets ? true : false;
+$isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440 ? true : false;
 ?>
 
 <script>
 function makeClaim() {
     const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
     const hasRevisionFlag = {{ $revisionDialogFlag }};
-    const hasTicketFlag = {{ $ticketDialogFlag }};
+    const hasTicketFlag = {{ $ticketDialogFlag ? 1 : 0 }};
 
     let revisionMessage = '';
     if (hasRevisionFlag) {
@@ -105,7 +105,7 @@ function extendClaim() {
 
 function completeClaim() {
     const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
-    const showEarlyReleaseWarning = {{ $isRecentPrimaryClaim }};
+    const showEarlyReleaseWarning = {{ $isRecentPrimaryClaim ? 1 : 0 }};
 
     let earlyReleaseMessage = '';
     if (showEarlyReleaseWarning) {

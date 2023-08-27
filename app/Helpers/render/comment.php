@@ -164,11 +164,10 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
     $submitImageUrl = asset('assets/images/icon/submit.png');
-    $loadingImageUrl = asset('assets/images/icon/loading.gif');
     $csrfField = csrf_field();
     $avatar = media_asset("/UserPic/$user.png");
 
-    echo <<<EOL
+    echo <<<HTML
         <tr id="comment_$commentId" class='do-not-highlight'>
             <td class='align-top pb-3'>
                 <img alt="$user" title="$user" class="badgeimg" src="$avatar" width="32" height="32">
@@ -178,26 +177,23 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                     $csrfField
                     <input type="hidden" name="commentable_id" value="$articleId">
                     <input type="hidden" name="commentable_type" value="$articleTypeId">
-                    <div class="flex align-center mb-1">
+                    <div x-data="{ isValid: true }" class="flex align-center mb-1">
                         <textarea
                             class="comment-textarea"
                             name="body"
                             maxlength="2000"
                             placeholder="Enter a comment here..."
                             id="comment_textarea_$commentId"
-                            oninput="autoExpandTextInput(this)"
+                            x-on:input="autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 2000;"
                         ></textarea>
-                        <button class="comment-submit-button">
+                        <button class="btn comment-submit-button" :disabled="!isValid">
                             <img src="$submitImageUrl" alt="Submit">
                         </button>
-                        <span class="comment-loading-indicator">
-                            <img src="$loadingImageUrl" alt="Loading">
-                        </span>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>
                     <div class="text-danger hidden"></div>
                 </form>
             </td>
         </tr>
-    EOL;
+    HTML;
 }

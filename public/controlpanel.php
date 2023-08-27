@@ -115,9 +115,17 @@ function confirmEmailChange(event) {
                     echo csrf_field();
 
                     echo <<<HTML
-                        <div class="flex gap-x-2">
+                        <div x-data="{ isValid: true }" class="flex gap-x-2">
                             <div class="grid gap-y-1">
-                                <input id="motto" name="motto" value="$userMottoString" maxlength="50" size="50" placeholder="Your motto">
+                                <input 
+                                    id="motto"
+                                    name="motto"
+                                    value="$userMottoString"
+                                    maxlength="50"
+                                    size="50"
+                                    placeholder="Your motto"
+                                    x-on:input="isValid = window.getStringByteCount(\$event.target.value) <= 50"
+                                >
                                 <div class="text-xs flex w-full justify-between">
                                     <p>No profanity.</p>
                                     <div>
@@ -126,7 +134,7 @@ function confirmEmailChange(event) {
                                     </div>
                                 </div>
                             </div>
-                            <button class="btn">Set Motto</button>
+                            <button class="btn" :disabled="!isValid">Set Motto</button>
                         </div>
                     HTML;
 

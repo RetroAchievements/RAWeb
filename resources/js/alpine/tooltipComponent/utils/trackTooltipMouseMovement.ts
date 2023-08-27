@@ -11,14 +11,22 @@ import { updateTooltipPosition } from './updateTooltipPosition';
  *
  * @param anchorEl The HTML element to anchor the tooltip to.
  * @param event The MouseEvent object containing the current mouse coordinates.
+ * @param tooltipKind "static" if not lazy-loaded, "dynamic" if lazy-loaded.
  */
-export function trackTooltipMouseMovement(anchorEl: HTMLElement, event: MouseEvent) {
+export function trackTooltipMouseMovement(
+  anchorEl: HTMLElement,
+  event: MouseEvent,
+  tooltipKind: 'static' | 'dynamic',
+) {
   const tooltipEl = store.tooltipEl;
 
   store.trackedMouseX = event.pageX;
   store.trackedMouseY = event.pageY;
 
-  if (tooltipEl && anchorEl === store.activeAnchorEl) {
+  if (
+    tooltipEl
+    && (tooltipKind === 'static' || (tooltipKind === 'dynamic' && anchorEl === store.activeAnchorEl))
+  ) {
     updateTooltipPosition(anchorEl, tooltipEl, store.trackedMouseX + 12, store.trackedMouseY + 6);
   }
 }

@@ -100,9 +100,9 @@ function RenderScoreLeaderboardComponent(string $user, bool $friendsOnly, int $n
         $lbTypesCount = count($lbTypes);
         for ($i = 0; $i < $lbTypesCount; $i++) {
             if ($i == 0) {
-                echo "<button class='" . $tabClass . " active' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
+                echo "<button type='button' class='" . $tabClass . " active' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
             } else {
-                echo "<button class='" . $tabClass . "' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
+                echo "<button type='button' class='" . $tabClass . "' onclick='handleLeaderboardTabClick(event, \"" . $lbTypes[$i] . $id . "\", \"" . $tabClass . "\")'>" . $lbNames[$i] . "</button>";
             }
         }
         echo "</div>";
@@ -228,8 +228,8 @@ function RenderTopAchieversComponent(
 
     echo "<h2 class='text-h3'>High Scores</h2>";
     echo "<div class='tab'>";
-    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='handleLeaderboardTabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
-    echo "<button class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='handleLeaderboardTabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
+    echo "<button type='button' class='scores" . ($numLatestMasters >= $masteryThreshold ? " active" : "") . "' onclick='handleLeaderboardTabClick(event, \"latestmasters\", \"scores\")'>Latest Masters</button>";
+    echo "<button type='button' class='scores" . ($numLatestMasters >= $masteryThreshold ? "" : " active") . "' onclick='handleLeaderboardTabClick(event, \"highscores\", \"scores\")'>High Scores</button>";
     echo "</div>";
 
     // Latest Masters Tab
@@ -469,11 +469,11 @@ function getGlobalRankingData(
         if ($info == 0) {
             if ($unlockMode == UnlockMode::Hardcore) {
                 $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . " 
-                                                  THEN 1 ELSE 0 END), 0) 
-                            FROM Awarded AS aw 
-                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID 
-                            JOIN GameData as gd ON ach.GameID = gd.ID 
+                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . "
+                                                  THEN 1 ELSE 0 END), 0)
+                            FROM Awarded AS aw
+                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID
+                            JOIN GameData as gd ON ach.GameID = gd.ID
                             WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
                             AND ach.Flags = " . AchievementFlag::OfficialCore . "
                         ) AS AchievementCount,
@@ -482,11 +482,11 @@ function getGlobalRankingData(
                         COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
             } else {
                 $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . " 
-                                                  THEN 1 ELSE -1 END), 0) 
-                            FROM Awarded AS aw 
-                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID 
-                            JOIN GameData as gd ON ach.GameID = gd.ID 
+                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . "
+                                                  THEN 1 ELSE -1 END), 0)
+                            FROM Awarded AS aw
+                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID
+                            JOIN GameData as gd ON ach.GameID = gd.ID
                             WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
                             AND ach.Flags = " . AchievementFlag::OfficialCore . "
                         ) AS AchievementCount,
