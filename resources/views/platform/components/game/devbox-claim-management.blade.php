@@ -109,7 +109,7 @@ function reviewClaim() {
     return confirm(message);
 }
 
-function activateReview() {
+function activateClaim() {
     const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
 
     const message = 'Are you sure you want to change the claim status for ' + gameTitle + ' to Active?';
@@ -162,12 +162,6 @@ function completeClaim() {
         </button>
     </form>
 
-@elseif (!$userHasClaimSlot)
-    <div class="ml-2">Maximum number of games claimed</div>
-
-@elseif ($claimBlockedByMissingForumTopic)
-    <div class="ml-2">Forum Topic Needed for Claim</div>
-
 @elseif ($hasGameClaimed)
     @if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080)
         <form
@@ -197,6 +191,13 @@ function completeClaim() {
             <button class="btn">Drop {{ ClaimType::toString($claimType) }} Claim</button>
         </form>
     @endif
+
+@elseif (!$userHasClaimSlot)
+    <div class="ml-2">Maximum number of games claimed</div>
+
+@elseif ($claimBlockedByMissingForumTopic)
+    <div class="ml-2">Forum Topic Needed for Claim</div>
+
 @endif
 
 <!-- If the set has achievements and the current user is the primary claim owner, then allow completing the claim. -->
@@ -251,10 +252,9 @@ function completeClaim() {
                 class="mb-1"
                 action="/request/set-claim/update-claim-status.php"
                 method="post"
-                onsubmit="return activateReview()"
+                onsubmit="return activateClaim()"
             >
                 {!! csrf_field() !!}
-                <input type="hidden" name="game" value="{{ $gameId }}">
                 <input type="hidden" name="claim" value="{{ $primaryClaimId }}">
                 <input type="hidden" name="claim_status" value="{{ ClaimStatus::Active }}">
                 <button class="btn">Complete Claim Review</button>

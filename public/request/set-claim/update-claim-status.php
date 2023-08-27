@@ -8,13 +8,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'claim' => 'required|integer|exists:SetClaim,ID',
-    'game' => 'required|integer|exists:GameData,ID',
     'claim_status' => ['required', 'integer', Rule::in(ClaimStatus::cases())],
 ]);
 
@@ -24,7 +23,7 @@ if ($claim) {
     $claim->save();
 
     print_r($claim->toArray());
-    addArticleComment("Server", ArticleType::SetClaim, (int) $input['game'],
+    addArticleComment("Server", ArticleType::SetClaim, $claim->GameID,
         "$user updated " . $claim->User . "'s claim. Claim Status: " . ClaimStatus::toString($claim->Status));
 
     return back()->with('success', __('legacy.success.ok'));
