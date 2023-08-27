@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
             $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
             $schedule->command(DeleteOverdueUserAccounts::class)->daily();
+        });
+
+        Blade::if('hasfeature', function ($feature) {
+            return config("feature.$feature", false);
         });
 
         /*
