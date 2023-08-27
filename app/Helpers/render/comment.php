@@ -164,7 +164,6 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
     $submitImageUrl = asset('assets/images/icon/submit.png');
-    $loadingImageUrl = asset('assets/images/icon/loading.gif');
     $csrfField = csrf_field();
     $avatar = media_asset("/UserPic/$user.png");
 
@@ -187,12 +186,9 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                             id="comment_textarea_$commentId"
                             oninput="autoExpandTextInput(this)"
                         ></textarea>
-                        <button class="comment-submit-button">
+                        <button class="btn comment-submit-button">
                             <img src="$submitImageUrl" alt="Submit">
                         </button>
-                        <span class="comment-loading-indicator">
-                            <img src="$loadingImageUrl" alt="Loading">
-                        </span>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>
                     <div class="text-danger hidden"></div>
