@@ -45,16 +45,17 @@ $user = request()->user();
             <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false"/>
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
-        <div class="dropdown-divider"></div>
         <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
         @if($user->ContribCount > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
             <div class="dropdown-divider"></div>
-        @endif
-        @if($user->Permissions >= Permissions::JuniorDeveloper)
-            <x-dropdown-item :link="url('individualdevstats.php?u=' . $user->username)">Developer Profile</x-dropdown-item>
-            <x-dropdown-item :link="url('ticketmanager.php?u=' . $user->username)">Tickets</x-dropdown-item>
-            <x-dropdown-item :link="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>
-            <x-dropdown-item :link="url('gameList.php?d=' . $user->username)">Sets</x-dropdown-item>
+            @if($user->ContribCount > 0)
+                <x-dropdown-item :link="url('individualdevstats.php?u=' . $user->username)">Developer Profile</x-dropdown-item>
+                <x-dropdown-item :link="url('ticketmanager.php?u=' . $user->username)">Tickets</x-dropdown-item>
+                <x-dropdown-item :link="url('gameList.php?d=' . $user->username)">Sets</x-dropdown-item>
+            @endif
+            @if($user->Permissions >= Permissions::JuniorDeveloper)
+                <x-dropdown-item :link="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>
+            @endif
         @endif
         <div class="dropdown-divider"></div>
         <x-dropdown-item :link="url('achievementList.php?s=19&p=1')">Unlocked Achievements</x-dropdown-item>
