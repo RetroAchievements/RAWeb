@@ -6,7 +6,7 @@ use App\Site\Enums\Permissions;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
-$filter = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
+$filter = requestInputSanitized('f', 0, 'integer'); // 0 = with achievements, 1 = without achievements, 2 = all
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
 
@@ -48,7 +48,6 @@ function ListGames(
     $sort7 = ($sortBy == 7) ? 17 : 7;
 
     echo "<tr class='do-not-highlight'>";
-    echo "<th class='pr-0'></th>";
     if ($dev == null) {
         echo "<th><a href='/gameList.php?s=$sort1$queryParams'>Title</a></th>";
         echo "<th><a href='/gameList.php?s=$sort2$queryParams'>Achievements</a></th>";
@@ -110,10 +109,19 @@ function ListGames(
         echo "<tr>";
 
         echo "<td class='pr-0'>";
-        echo gameAvatar($gameEntry, label: false);
-        echo "</td>";
-        echo "<td class='w-full'>";
-        echo gameAvatar($gameEntry, title: $gameEntry['Title'], icon: false);
+        echo Blade::render('
+            <x-game.multiline-avatar
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :gameImageIcon="$gameImageIcon"
+                :consoleName="$consoleName"
+            />
+        ', [
+            'gameId' => $gameEntry['ID'],
+            'gameTitle' => $gameEntry['Title'],
+            'gameImageIcon' => $gameEntry['GameIcon'],
+            'consoleName' => $showConsoleName ? $gameEntry['ConsoleName'] : null,
+        ]);
         echo "</td>";
 
         if ($dev == null) {
@@ -187,9 +195,11 @@ function ListGames(
     echo "</tbody></table></div>";
 }
 
+$combiningConsoleName = '';
 if ($consoleList->has($consoleIDInput)) {
     $consoleName = $consoleList[$consoleIDInput];
     $requestedConsole = $consoleName;
+    $combiningConsoleName = " $consoleName";
 } elseif ($consoleIDInput === 0) {
     $consoleName = "All Games";
     $requestedConsole = "All";
@@ -198,10 +208,10 @@ if ($consoleList->has($consoleIDInput)) {
 }
 
 if ($listType === UserGameListType::Play) {
-    $requestedConsole = "Want to Play";
+    $requestedConsole = "Want to Play$combiningConsoleName";
     $consoleName = $requestedConsole . " Games";
 } elseif ($listType === UserGameListType::Develop) {
-    $requestedConsole = "Want to Develop";
+    $requestedConsole = "Want to Develop$combiningConsoleName";
     $consoleName = $requestedConsole . " Games";
 }
 

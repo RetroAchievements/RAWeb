@@ -297,7 +297,7 @@ function getGamesListByDev(
 ): int {
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
-    $whereCond = '';
+    $whereConds = [];
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
@@ -345,13 +345,18 @@ function getGamesListByDev(
     }
 
     if ($consoleID != 0) {
-        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
+        $whereConds[] = "gd.ConsoleID=$consoleID ";
     }
 
     if ($listType !== null) {
-        $joinUserListsTable = "LEFT JOIN SetRequest sr ON sr.GameID = gd.ID";
-        $whereCond .= "WHERE sr.user_id = " . request()->user()->ID . " AND sr.type = :listType";
+        $joinUserListsTable = "JOIN SetRequest sr ON sr.GameID = gd.ID";
+        $whereConds[] = "sr.user_id = " . request()->user()->ID . " AND sr.type = :listType";
         $bindings['listType'] = $listType;
+    }
+
+    $whereCond = '';
+    if (!empty($whereConds)) {
+        $whereCond = 'WHERE ' . join(' AND ', $whereConds);
     }
 
     // TODO slow query
