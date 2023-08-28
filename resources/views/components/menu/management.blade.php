@@ -34,8 +34,8 @@ $user = request()->user();
                 <x-dropdown-item :link="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
             @endcan
             @can('manage', App\Community\Models\Forum::class)
-                {{--<x-dropdown-item :link="route('forum-topic.clearing')">Forum Clearing</x-dropdown-item>--}}
-                <x-dropdown-item :link="url('viewforum.php?f=0')">Forum Clearing</x-dropdown-item>
+                {{--<x-dropdown-item :link="route('forum-topic.verify')">Forum Verification</x-dropdown-item>--}}
+                <x-dropdown-item :link="url('viewforum.php?f=0')">Forum Verification</x-dropdown-item>
             @endcan
             {{--@can('manage', App\Site\Models\Event::class)
                 <h6 class="dropdown-header">Events</h6>
