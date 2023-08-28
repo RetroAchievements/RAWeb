@@ -288,16 +288,17 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
                     $queryParamArray[] = "f=$filter";
                 }
                 $queryParams = join('&', $queryParamArray);
+                $appendQueryParams = '';
                 if ($queryParams !== '') {
-                    $queryParams = '&' . $queryParams;
+                    $appendQueryParams = '&' . $queryParams;
                 }
 
-                ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
+                ListGames($gamesList, null, $appendQueryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
 
                 if ($maxCount != 0 && $gamesCount > $maxCount) {
                     // Add page traversal links
                     echo "\n<br/><div class='float-right row'>";
-                    RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=");
+                    RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?$queryParams&o=");
                     echo "</div>";
                 }
             }
