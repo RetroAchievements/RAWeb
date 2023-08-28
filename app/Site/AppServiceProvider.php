@@ -18,6 +18,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
@@ -53,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(LogUsersOnlineCount::class)->everyThirtyMinutes();
             $schedule->command(DeleteExpiredEmailVerificationTokens::class)->daily();
             $schedule->command(DeleteOverdueUserAccounts::class)->daily();
+        });
+
+        Blade::if('hasfeature', function ($feature) {
+            return config("feature.$feature", false);
         });
 
         /*

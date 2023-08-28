@@ -4,6 +4,7 @@ use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\StaticData;
 use App\Site\Models\User;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     abort(401);
@@ -387,6 +388,11 @@ RenderContentStart('Admin Tools');
                 </table>
                 <button class="btn">Submit</button>
             </form>
+        </div>
+
+        <div id="fullcontainer" class="w-full">
+            <h4>Feature Flags</h4>
+            <?= Blade::render('<x-feature-flags />'); ?>
         </div>
     <?php endif ?>
 </div>
