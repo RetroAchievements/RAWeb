@@ -210,6 +210,7 @@ RenderContentStart($pageTitle);
 
             $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
             $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
+            $buttonEnabled = ($permissions >= Permissions::Registered) ? ":disabled='!isValid'" : "disabled";
 
             echo <<<EOF
                <script>
@@ -220,10 +221,10 @@ RenderContentStart($pageTitle);
                    }
                </script>
             EOF;
-            echo "<form action='/request/forum-topic-comment/create.php' method='post'>";
+            echo "<form action='/request/forum-topic-comment/create.php' method='post' x-data='{ isValid: true }'>";
             echo csrf_field();
             echo "<input type='hidden' name='topic' value='$thisTopicID'>";
-            echo <<<EOF
+            echo <<<HTML
                 <textarea
                     id="commentTextarea"
                     class="w-full mb-2"
@@ -232,9 +233,9 @@ RenderContentStart($pageTitle);
                     maxlength="60000"
                     name="body"
                     placeholder="Don't share links to copyrighted ROMs."
-                    oninput='autoExpandTextInput(this)'
+                    x-on:input='autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 60000;'
                 >$defaultMessage</textarea>
-            EOF;
+            HTML;
 
             $loadingIconSrc = asset('assets/images/icon/loading.gif');
 
@@ -244,8 +245,8 @@ RenderContentStart($pageTitle);
 
                     <div>
                         <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
-                        <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
-                        <button id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" $inputEnabled>Submit</button>
+                        <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" $buttonEnabled>Preview</button>
+                        <button id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" $buttonEnabled>Submit</button>
                     </div>
                 </div>
             HTML;
