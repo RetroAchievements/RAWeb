@@ -176,7 +176,7 @@ function completeClaim() {
     @endif
 
     @if ($primaryClaimStatus === ClaimStatus::InReview && $primaryClaimUser === $user)
-        <div class="ml-2">Cannot modify Claim in Review status</div>
+        <div class="ml-2">Cannot Drop Claim while In Review</div>
     @else
         <form
             class="mb-1"
@@ -201,7 +201,7 @@ function completeClaim() {
 @endif
 
 <!-- If the set has achievements and the current user is the primary claim owner, then allow completing the claim. -->
-@if ($user === $primaryClaimUser && $numAchievements > 0)
+@if ($primaryClaimStatus !== ClaimStatus::InReview && $user === $primaryClaimUser && $numAchievements > 0)
     <!-- For valid consoles, only allow completing if core achievements exist. -->
     <!-- For rollout consoles, achievements can't be pushed to core, so don't restrict completing. -->
     @if (isValidConsoleId($consoleId) && !$isOfficial)
