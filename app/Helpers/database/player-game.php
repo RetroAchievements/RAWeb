@@ -121,10 +121,6 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
                 static_addnewhardcoregamebeaten($gameId, $user);
             }
         }
-
-        if (!RecentlyPostedProgressionActivity($user, $gameId, $awardMode, ActivityType::BeatGame)) {
-            postActivity($user, ActivityType::BeatGame, $gameId, $awardMode);
-        }
     }
 
     return [

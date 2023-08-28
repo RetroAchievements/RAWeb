@@ -14,7 +14,11 @@
   font-size: small;
   white-space: nowrap;
 }
-.btn:hover {
+.btn:disabled {
+  color: var(--text-color-muted);
+  cursor: not-allowed;
+}
+.btn:hover:enabled {
   background-color: var(--embed-highlight-color);
   color: var(--link-hover-color);
   border: 1px solid var(--menu-link-color);
