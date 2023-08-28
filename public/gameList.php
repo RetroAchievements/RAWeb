@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Enums\UserGameListType;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
 
@@ -19,9 +20,13 @@ if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
+$listType = (isset($user) && !isset($dev)) ? requestInputSanitized('t') : null;
 $showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
-$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, (int) $sortBy, $showTickets, $filter, $offset, $maxCount);
+$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList,
+    listType: $listType, sortBy: $sortBy,
+    ticketsFlag: $showTickets, filter: $filter,
+    offset: $offset, count: $maxCount);
 
 function ListGames(
     array $gamesList,
@@ -45,12 +50,12 @@ function ListGames(
     echo "<tr class='do-not-highlight'>";
     echo "<th class='pr-0'></th>";
     if ($dev == null) {
-        echo "<th><a href='/gameList.php?s=$sort1&$queryParams'>Title</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort2&$queryParams'>Achievements</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort3&$queryParams'>Points</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort7&$queryParams'>Retro Ratio</a></th>";
-        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6&$queryParams'>Last Updated</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort4&$queryParams'>Leaderboards</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort1$queryParams'>Title</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort2$queryParams'>Achievements</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort3$queryParams'>Points</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort7$queryParams'>Retro Ratio</a></th>";
+        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6$queryParams'>Last Updated</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort4$queryParams'>Leaderboards</a></th>";
 
         if ($showTickets) {
             echo "<th class='whitespace-nowrap'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
@@ -191,7 +196,16 @@ if ($consoleList->has($consoleIDInput)) {
 } else {
     abort(404);
 }
-sanitize_outputs($consoleName, $requestedConsole);
+
+if ($listType === UserGameListType::Play) {
+    $requestedConsole = "Want to Play";
+    $consoleName = $requestedConsole . " Games";
+} elseif ($listType === UserGameListType::Develop) {
+    $requestedConsole = "Want to Develop";
+    $consoleName = $requestedConsole . " Games";
+}
+
+sanitize_outputs($consoleName, $requestedConsole, $listType);
 
 RenderContentStart($requestedConsole . " Games");
 
@@ -238,8 +252,20 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
 
                 echo "<div style='float:left'>$gamesCount Games</div>";
 
+                $queryParamArray = [];
+                if ($listType !== null) {
+                    $queryParamArray[] = "t=$listType";
+                }
+                if ($consoleIDInput !== 0) {
+                    $queryParamArray[] = "c=$consoleIDInput";
+                }
+                $queryParams = join('&', $queryParamArray);
+                if ($queryParams === '') {
+                    $queryParams = 's=0'; // prevent "gameList.php?&f=X"
+                }
+
                 echo "<div align='right'>";
-                echo "<select class='gameselector' onchange='window.location = \"/gameList.php?s=$sortBy&c=$consoleIDInput\" + this.options[this.selectedIndex].value'>";
+                echo "<select class='gameselector' onchange='window.location = \"/gameList.php?$queryParams\" + this.options[this.selectedIndex].value'>";
                 echo "<option value=''" . (($filter == 0) ? " selected" : "") . ">Games with achievements</option>";
                 echo "<option value='&f=1'" . (($filter == 1) ? " selected" : "") . ">Games without achievements</option>";
                 echo "<option value='&f=2'" . (($filter == 2) ? " selected" : "") . ">All games</option>";
@@ -248,7 +274,14 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
 
                 echo "<br/>";
 
-                $queryParams = "c=$consoleIDInput&f=$filter";
+                if ($filter !== 0) {
+                    $queryParamArray[] = "f=$filter";
+                }
+                $queryParams = join('&', $queryParamArray);
+                if ($queryParams !== '') {
+                    $queryParams = '&' . $queryParams;
+                }
+
                 ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
 
                 if ($maxCount != 0 && $gamesCount > $maxCount) {

@@ -292,7 +292,8 @@ function getGamesListByDev(
     bool $ticketsFlag = false,
     ?int $filter = 0,
     int $offset = 0,
-    int $count = 0
+    int $count = 0,
+    ?string $listType = null
 ): int {
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
@@ -300,8 +301,9 @@ function getGamesListByDev(
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
-    $selectTickets = null;
-    $joinTicketsTable = null;
+    $selectTickets = '';
+    $joinTicketsTable = '';
+    $joinUserListsTable = '';
 
     if ($dev != null) {
         $bindings['myAchDev'] = $dev;
@@ -346,6 +348,12 @@ function getGamesListByDev(
         $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
     }
 
+    if ($listType !== null) {
+        $joinUserListsTable = "LEFT JOIN SetRequest sr ON sr.GameID = gd.ID";
+        $whereCond .= "WHERE sr.user_id = " . request()->user()->ID . " AND sr.type = :listType";
+        $bindings['listType'] = $listType;
+    }
+
     // TODO slow query
     $query = "SELECT gd.Title, gd.ID, gd.ConsoleID, c.Name AS ConsoleName,
                 COUNT( ach.ID ) AS NumAchievements, MAX(ach.DateModified) AS DateModified, SUM(ach.Points) AS MaxPointsAvailable,
@@ -360,7 +368,7 @@ function getGamesListByDev(
                                    SUM(CASE WHEN lbd.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyLBs
                             FROM LeaderboardDef AS lbd
                             GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
-                $joinTicketsTable
+                $joinTicketsTable $joinUserListsTable
                 $whereCond
                 GROUP BY gd.ID
                 $havingCond";
