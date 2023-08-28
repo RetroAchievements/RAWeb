@@ -30,13 +30,11 @@ $completionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth + $softco
     aria-valuenow="{{ $completionPercentage }}"
     class="absolute w-full bottom-0 left-0 h-2 bg-embed-highlight lg:rounded-b flex"
 >
-    @if ($completionPercentage > 0 && $completionPercentage < 100)
-        <x-game.current-progress.progress-bar-indicator
-            :softcoreCompletionPercentage="$softcoreCompletionPercentage"
-            :hardcoreCompletionPercentage="$hardcoreCompletionPercentage"
-            :totalCompletionPercentage="$completionPercentage"
-        />
-    @endif
+    <x-game.current-progress.progress-bar-indicator
+        :softcoreCompletionPercentage="$softcoreCompletionPercentage"
+        :hardcoreCompletionPercentage="$hardcoreCompletionPercentage"
+        :totalCompletionPercentage="$completionPercentage"
+    />
 
     <span class="sr-only">{{ $completionPercentage}}% complete</span>
 
