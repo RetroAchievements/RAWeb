@@ -4,6 +4,7 @@
     'gameId' => null,
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
+    'isCreditDialogEnabled' => true,
 
     // If true, always show the type as Progression, even if it's something else.
     'useProgressionMask' => false,
@@ -25,6 +26,7 @@ if ($achievementType === $winConditionTypeValue && $useProgressionMask) {
         resourceApiRoute="/request/game/beaten-credit.php"
         resourceId="{{ $gameId }}"
         :resourceContext="$beatenGameCreditDialogContext"
+        :disabled="!$isCreditDialogEnabled"
     >
         <x-slot name="trigger">
             <div class="flex items-center group bg-embed light:bg-neutral-50 light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500">

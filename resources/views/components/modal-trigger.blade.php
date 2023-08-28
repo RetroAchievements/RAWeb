@@ -1,7 +1,8 @@
 @props([
     'buttonLabel' => 'buttonLabel',
     'modalTitleLabel' => 'modalTitleLabel',
-
+    
+    'disabled' => false,
     'resourceApiRoute' => '', // Optional
     'resourceId' => null, // Optional
     'resourceContext' => null, // Optional
@@ -65,7 +66,7 @@ function modalComponent() {
     class="relative w-auto h-auto inline"
 >
     @isset ($trigger)
-        <button @click="openModal" @mouseenter="fetchDynamicHtmlContent">
+        <button @click="openModal" @mouseenter="fetchDynamicHtmlContent" {{ $disabled ? 'disabled' : '' }}>
             {{ $trigger }}
         </button>
     @else
@@ -74,6 +75,7 @@ function modalComponent() {
             class="btn inline"
             @click="openModal"
             @mouseenter="fetchDynamicHtmlContent"
+            {{ $disabled ? 'disabled' : '' }}
         >
             {{ $buttonLabel }}
         </button>

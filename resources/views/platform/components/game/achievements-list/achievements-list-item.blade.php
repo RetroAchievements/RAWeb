@@ -8,6 +8,7 @@
     'useMinimalLayout' => false,
     'isUnlocked' => false,
     'isUnlockedHardcore' => false,
+    'isCreditDialogEnabled' => true,
 ])
 
 <?php
@@ -75,6 +76,7 @@ if (isset($achievement['DateEarnedHardcore'])) {
                                 :progressionTypeValue="$progressionTypeValue"
                                 :winConditionTypeValue="$winConditionTypeValue"
                                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                                :isCreditDialogEnabled="$isCreditDialogEnabled"
                                 useProgressionMask="{{ $hasMultipleWinConditions === false }}"
                             />
                         </div>
@@ -100,6 +102,7 @@ if (isset($achievement['DateEarnedHardcore'])) {
                         :progressionTypeValue="$progressionTypeValue"
                         :winConditionTypeValue="$winConditionTypeValue"
                         :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                        :isCreditDialogEnabled="$isCreditDialogEnabled"
                         useProgressionMask="{{ $hasMultipleWinConditions === false }}"
                     />
                 </div>

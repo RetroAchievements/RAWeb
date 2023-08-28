@@ -3,6 +3,7 @@
     'totalPlayerCount' => 0,
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
+    'isCreditDialogEnabled' => true,
 ])
 
 <?php
@@ -34,6 +35,7 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                :isCreditDialogEnabled="$isCreditDialogEnabled"
             />
         @endforeach
 
@@ -45,6 +47,7 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                :isCreditDialogEnabled="$isCreditDialogEnabled"
             />
         @endforeach
     </ul>
