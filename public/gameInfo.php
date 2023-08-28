@@ -5,6 +5,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
+use App\Community\Enums\UserGameListType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
@@ -717,7 +718,7 @@ sanitize_outputs(
     });
 
     function getSetRequestInformation(user, gameID) {
-        $.post('/request/set-request/list.php', {
+        $.post('/request/user-game-list/set-requests.php', {
             game: gameID,
             user: user,
         })
@@ -750,8 +751,9 @@ sanitize_outputs(
     }
 
     function submitSetRequest(user, gameID) {
-        $.post('/request/set-request/update.php', {
+        $.post('/request/user-game-list/toggle.php', {
             game: gameID,
+            type: '<?= UserGameListType::AchievementSetRequest ?>'
         })
             .done(function () {
                 getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
@@ -837,7 +839,9 @@ sanitize_outputs(
                 <x-game.heading
                     :consoleName="$consoleName"
                     :gameTitle="$gameTitle"
+                    :gameID="$gameID"
                     :iconUrl="$iconUrl"
+                    :user="$user"
                 />
             ', $gameMetaBindings);
 

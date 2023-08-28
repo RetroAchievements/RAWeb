@@ -289,3 +289,13 @@ function getGamesWithRequests(array|int|null $console, int $requestStatus = Requ
 
     return (int) mysqli_fetch_assoc($dbResult)['Games'];
 }
+
+function getUserGameListsContaining(string $user, int $gameID): array
+{
+    $query = "SELECT type FROM SetRequest WHERE User=:user AND GameID=$gameID";
+    $bindings = ['user' => $user];
+
+    return collect(legacyDbSelect($query, $bindings))
+        ->map(fn ($row) => $row->type)
+        ->toArray();
+}
