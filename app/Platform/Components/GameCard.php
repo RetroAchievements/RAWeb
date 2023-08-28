@@ -245,7 +245,10 @@ class GameCard extends Component
         $highestProgressionStatus = null;
         $highestProgressionAwardDate = null;
 
-        $progressionTypes = ['beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'];
+        $progressionTypes = ['completed', 'mastered'];
+        if (config('feature.beat')) {
+            $progressionTypes = ['beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'];
+        }
 
         foreach ($progressionTypes as $progressionType) {
             if (isset($userGameProgressionAwards[$progressionType])) {

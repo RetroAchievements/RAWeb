@@ -901,7 +901,7 @@ sanitize_outputs(
                 />
             ', [
                 'gameId' => $gameID,
-                'isBeatable' => $isGameBeatable,
+                'isBeatable' => $isGameBeatable && config('feature.beat') === true,
                 'isBeatenHardcore' => $isBeatenHardcore,
                 'isBeatenSoftcore' => $isBeatenSoftcore,
                 'isCompleted' => !is_null($userGameProgressionAwards['completed']),

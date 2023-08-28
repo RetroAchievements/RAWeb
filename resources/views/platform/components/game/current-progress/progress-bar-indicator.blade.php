@@ -23,12 +23,14 @@ $canShowMixedProgress = $isMixedProgress && $percentageDifference >= 9;
         {{ number_format($hardcoreCompletionPercentage, 0) }}%
     </p>
 
-    <p
-        class="absolute bottom-2 text-[0.64rem] opacity-0 group-hover:opacity-100 text-neutral-400 light:text-neutral-600 tracking-tighter select-none"
-        style="left: calc({{ $softcoreCompletionPercentage }}% - 10px)"
-    >
-        {{ number_format($softcoreCompletionPercentage, 0) }}%
-    </p>
+    @if ($softcoreCompletionPercentage < 99)
+        <p
+            class="absolute bottom-2 text-[0.64rem] opacity-0 group-hover:opacity-100 text-neutral-400 light:text-neutral-600 tracking-tighter select-none"
+            style="left: calc({{ $softcoreCompletionPercentage }}% - 10px)"
+        >
+            {{ number_format($softcoreCompletionPercentage, 0) }}%
+        </p>
+    @endif
 @else
     <p
         class="
