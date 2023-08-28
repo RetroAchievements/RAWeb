@@ -54,14 +54,7 @@
 
         <x-section>
             <h3>Feature Flags</h3>
-            <div class="flex justify-between">
-                <p>Beaten Games Player-facing UX</p>
-                @hasfeature("beat")
-                    Enabled
-                @else
-                    Disabled
-                @endhasfeature
-            </div>
+            <x-feature-flags />
         </x-section>
 
         <div>
