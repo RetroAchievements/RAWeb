@@ -20,7 +20,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
+$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch, isAuthenticated: $user !== null);
 if (empty($userMassData)) {
     abort(404);
 }
