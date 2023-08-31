@@ -186,8 +186,9 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
 
     $libraryOut['Rank'] = getUserRank($user);
 
+    $recentlyPlayedData = [];
     $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData) : 0;
-    $libraryOut['RecentlyPlayed'] = $isAuthenticated ? $recentlyPlayedData : [];
+    $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {
         $gameIDs = [];
