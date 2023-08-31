@@ -674,27 +674,43 @@ function getUsersCompletedGamesAndMax(string $user): array
     $requiredFlag = AchievementFlag::OfficialCore;
     $minAchievementsForCompletion = 5;
 
-    // TODO: Remove when denormalized data is ready. The cache call and conditional can be deleted.
-    $cachedAwardedValues = Cache::get(CacheKey::buildUserCompletedGamesCacheKey($user));
-    if ($cachedAwardedValues) {
-        return getLightweightUsersCompletedGamesAndMax($user, $cachedAwardedValues);
-    }
+    if (env('FEATURE_AGGREGATE_QUERIES')) {
+        $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, 
+                         gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
+                IF(pg.achievements_unlocked_hardcore > 0, 1, 0), 
+                pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
+                floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
+                floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
+            FROM player_games AS pg
+            LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
+            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
+            WHERE ua.User = '$user'
+            AND gd.achievements_published > $minAchievementsForCompletion
+            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
+    } else {
+        // TODO: Remove when denormalized data is ready. The cache call and conditional can be deleted.
+        $cachedAwardedValues = Cache::get(CacheKey::buildUserCompletedGamesCacheKey($user));
+        if ($cachedAwardedValues) {
+            return getLightweightUsersCompletedGamesAndMax($user, $cachedAwardedValues);
+        }
 
-    // TODO slow query. optimize with denormalized data.
-    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
-            MAX(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, " .
-            floatDivisionStatement('SUM(aw.HardcoreMode = 0)', 'inner1.MaxPossible') . " AS PctWon, " .
-            floatDivisionStatement('SUM(aw.HardcoreMode = 1)', 'inner1.MaxPossible') . " AS PctWonHC
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        LEFT JOIN
-            ( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags = $requiredFlag GROUP BY GameID )
-            AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > $minAchievementsForCompletion
-        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        WHERE aw.User = '$user' AND ach.Flags = $requiredFlag
-        GROUP BY ach.GameID, gd.Title
-        ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title";
+        // TODO slow query. optimize with denormalized data.
+        $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
+                MAX(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, " .
+                floatDivisionStatement('SUM(aw.HardcoreMode = 0)', 'inner1.MaxPossible') . " AS PctWon, " .
+                floatDivisionStatement('SUM(aw.HardcoreMode = 1)', 'inner1.MaxPossible') . " AS PctWonHC
+            FROM Awarded AS aw
+            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+            LEFT JOIN
+                ( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags = $requiredFlag GROUP BY GameID )
+                AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > $minAchievementsForCompletion
+            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            WHERE aw.User = '$user' AND ach.Flags = $requiredFlag
+            GROUP BY ach.GameID, gd.Title
+            ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title";
+    }
 
     $fullResults = legacyDbFetchAll($query)->toArray();
 
