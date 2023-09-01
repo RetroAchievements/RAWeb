@@ -145,7 +145,7 @@ function getGameMetadata(
         }
 
         $gameDataOut['ParentGameID'] = $gameMetrics['ParentGameID'];
-        $gameDataOut['NumDistinctPlayers'] = $gameMetrics['NumDistinctPlayers'];
+        $gameDataOut['NumDistinctPlayers'] = $gameMetrics['NumDistinctPlayers'] ?? 0;
 
         if (config('feature.aggregate_queries')) {
             $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
