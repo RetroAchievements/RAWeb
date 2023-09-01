@@ -85,9 +85,9 @@ $menuSystemsList = [
     <x-nav-item :link="route('tool.index')">{{ __('Tools') }}</x-nav-item>
 @endif
 --}}
-<x-nav-dropdown>
+<x-nav-dropdown :title="__res('game')">
     <x-slot name="trigger">
-        <x-fas-gamepad class="h-4 w-4"/>
+        <x-fas-gamepad/>
         <span class="ml-1 hidden sm:inline-block">{{ __res('game') }}</span>
     </x-slot>
     <div class="md:flex">
@@ -131,9 +131,9 @@ $menuSystemsList = [
         </div>
     </div>
 </x-nav-dropdown>
-<x-nav-dropdown>
+<x-nav-dropdown :title="__res('achievement')">
     <x-slot name="trigger">
-        <x-fas-trophy class="h-4 w-4"/>
+        <x-fas-trophy/>
         <span class="ml-1 hidden sm:inline-block">{{ __res('achievement') }}</span>
     </x-slot>
     <x-dropdown-item :link="url('achievementList.php')">All Achievements</x-dropdown-item>
@@ -142,9 +142,9 @@ $menuSystemsList = [
     <x-dropdown-item :link="url('achievementList.php?s=4&p=2')">Easy Achievements</x-dropdown-item>
     <x-dropdown-item :link="url('achievementList.php?s=14&p=2')">Hardest Achievements</x-dropdown-item>
 </x-nav-dropdown>
-<x-nav-dropdown>
+<x-nav-dropdown :title="__('Community')">
     <x-slot name="trigger">
-        <x-fas-users class="h-4 w-4"/>
+        <x-fas-users/>
         <span class="ml-1 hidden sm:inline-block">{{ __('Community') }}</span>
     </x-slot>
     <x-dropdown-item :link="url('forum.php')">Forums</x-dropdown-item>
@@ -162,7 +162,7 @@ $menuSystemsList = [
     <x-dropdown-item link="https://docs.retroachievements.org">User Documentation</x-dropdown-item>
     <x-dropdown-item link="https://docs.retroachievements.org/Developer-Docs">Developer Documentation</x-dropdown-item>
 </x-nav-dropdown>
-<x-nav-item :link="url('download.php')">
-    <x-fas-download class="h-3 w-3"/>
+<x-nav-item :link="url('download.php')" :title="__('Download')">
+    <x-fas-download/>
     <span class="ml-1 hidden sm:inline-block">{{ __('Download') }}</span>
 </x-nav-item>

@@ -8,6 +8,7 @@ $id = uniqid();
         role="button"
         aria-haspopup="true"
         aria-expanded="false"
+        title="{{ $title ?? '' }}"
     >
         {{ $trigger }}
     </button>
