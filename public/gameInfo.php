@@ -171,7 +171,7 @@ $commentData = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
-$numDistinctPlayersCasual = null;
+$numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
 $numLeaderboards = null;
@@ -187,11 +187,10 @@ $claimData = null;
 $claimListLength = 0;
 
 if ($isFullyFeaturedGame) {
-    $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
-    $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
+    $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayersCasual);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayersCasual);
+    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
+    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
@@ -1393,12 +1392,12 @@ sanitize_outputs(
 
                             $wonBy = $nextAch['NumAwarded'];
                             $wonByHardcore = $nextAch['NumAwardedHardcore'];
-                            if ($numDistinctPlayersCasual == 0) {
+                            if ($numDistinctPlayers == 0) {
                                 $completionPctCasual = "0";
                                 $completionPctHardcore = "0";
                             } else {
-                                $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayersCasual) * 100);
-                                $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayersCasual) * 100);
+                                $completionPctCasual = sprintf("%01.2f", ($wonBy / $numDistinctPlayers) * 100);
+                                $completionPctHardcore = sprintf("%01.2f", ($wonByHardcore / $numDistinctPlayers) * 100);
                             }
 
                             if ($user == "" || !$achieved) {
@@ -1429,9 +1428,9 @@ sanitize_outputs(
                             $pctAwardedCasual = 0;
                             $pctAwardedHardcore = 0;
                             $pctComplete = 0;
-                            if ($numDistinctPlayersCasual) {
-                                $pctAwardedCasual = $wonBy / $numDistinctPlayersCasual;
-                                $pctAwardedHardcore = $wonByHardcore / $numDistinctPlayersCasual;
+                            if ($numDistinctPlayers) {
+                                $pctAwardedCasual = $wonBy / $numDistinctPlayers;
+                                $pctAwardedHardcore = $wonByHardcore / $numDistinctPlayers;
                                 $pctAwardedHardcoreProportion = 0;
                                 if ($wonByHardcore > 0 && $wonBy > 0) {
                                     $pctAwardedHardcoreProportion = $wonByHardcore / $wonBy;
@@ -1442,7 +1441,7 @@ sanitize_outputs(
 
                                 $pctComplete = sprintf(
                                     "%01.2f",
-                                    ($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayersCasual
+                                    ($wonBy + $wonByHardcore) * 100.0 / $numDistinctPlayers
                                 );
                             }
 
@@ -1454,11 +1453,11 @@ sanitize_outputs(
                             if ($pctAwardedCasual > 100) {
                                 $pctAwardedCasual = 100;
                             }
-                            if ($wonBy > $numDistinctPlayersCasual) {
-                                $wonBy = $numDistinctPlayersCasual;
+                            if ($wonBy > $numDistinctPlayers) {
+                                $wonBy = $numDistinctPlayers;
                             }
-                            if ($wonByHardcore > $numDistinctPlayersCasual) {
-                                $wonByHardcore = $numDistinctPlayersCasual;
+                            if ($wonByHardcore > $numDistinctPlayers) {
+                                $wonByHardcore = $numDistinctPlayers;
                             }
                             // TODO: Untracked players filtering workaround ends here
 
@@ -1491,9 +1490,9 @@ sanitize_outputs(
                             echo "</div>";
                             echo "<div class='mt-1 text-2xs'>";
                             if ($wonByHardcore > 0) {
-                                echo "<p>" . number_format($wonBy) . " <strong>(" . number_format($wonByHardcore) . ")</strong> of " . number_format($numDistinctPlayersCasual) . "</p>";
+                                echo "<p>" . number_format($wonBy) . " <strong>(" . number_format($wonByHardcore) . ")</strong> of " . number_format($numDistinctPlayers) . "</p>";
                             } else {
-                                echo "<p>" . number_format($wonBy) . " of " . number_format($numDistinctPlayersCasual) . "</p>";
+                                echo "<p>" . number_format($wonBy) . " of " . number_format($numDistinctPlayers) . "</p>";
                             }
                             echo "<p class='text-2xs'>$pctAwardedCasual% unlock rate</p>";
                             echo "</div>";
