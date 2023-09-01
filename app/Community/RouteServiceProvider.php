@@ -128,7 +128,7 @@ class RouteServiceProvider extends ServiceProvider
 
                 //     Route::resource('forum', ForumController::class)->only('create', 'store', 'edit', 'update');
 
-                //     // Route::get('posts/clearing', [ForumCommentController::class, 'clearing'])->name('forum-topic-comments.clearing');
+                //     // Route::get('posts/verify', [ForumCommentController::class, 'verify'])->name('forum-topic-comments.verify');
                 // });
 
                 /*

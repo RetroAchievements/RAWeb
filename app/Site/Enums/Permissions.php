@@ -7,18 +7,14 @@ namespace App\Site\Enums;
 abstract class Permissions
 {
     public const Spam = -2;
-
     public const Banned = -1;
-
     public const Unregistered = 0;
-
     public const Registered = 1;
-
     public const JuniorDeveloper = 2;
-
     public const Developer = 3;
-
     public const Moderator = 4;
+    public const Admin = 5;
+    public const Root = 6;
 
     public static function cases(): array
     {
