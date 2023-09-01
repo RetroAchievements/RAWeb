@@ -337,7 +337,7 @@ function expireRecentlyPlayedGames(string $user): void
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
 {
-    if ($offset == 0 && $count <= 5 && !env('FEATURE_AGGREGATE_QUERIES')) {
+    if ($offset == 0 && $count <= 5 && !config('feature.aggregate_queries')) {
         $userRecentGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
         $recentlyPlayedGames = Cache::remember($userRecentGamesCacheKey, Carbon::now()->addDays(30), fn () => _getRecentlyPlayedGameIds($user, 0, 5));
     } else {
@@ -393,7 +393,7 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
 
 function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
 {
-    if (env('FEATURE_AGGREGATE_QUERIES')) {
+    if (config('feature.aggregate_queries')) {
         $query = "SELECT pg.last_played_at AS LastPlayed, pg.game_id AS GameID
                   FROM player_games pg
                   LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id

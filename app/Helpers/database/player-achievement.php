@@ -183,7 +183,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
 
 function getAchievementUnlockCount(int $achID): int
 {
-    if (env('FEATURE_AGGREGATE_QUERIES')) {
+    if (config('feature.aggregate_queries')) {
         $query = "SELECT COUNT(*) AS NumEarned FROM player_achievements
                   WHERE achievement_id=$achID";
     } else {
@@ -492,7 +492,7 @@ function getAchievementDistribution(
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
-    if (env('FEATURE_AGGREGATE_QUERIES')) {
+    if (config('feature.aggregate_queries')) {
         if ($flag === AchievementFlag::OfficialCore) {
             $countColumn = $hardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked';
             $query = "SELECT pg.$countColumn AS AwardedCount, COUNT(*) AS NumUniquePlayers

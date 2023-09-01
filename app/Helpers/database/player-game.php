@@ -674,7 +674,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     $requiredFlag = AchievementFlag::OfficialCore;
     $minAchievementsForCompletion = 5;
 
-    if (env('FEATURE_AGGREGATE_QUERIES')) {
+    if (config('feature.aggregate_queries')) {
         $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, 
                          gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
                 IF(pg.achievements_unlocked_hardcore > 0, 1, 0), 

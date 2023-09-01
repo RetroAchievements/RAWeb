@@ -84,7 +84,7 @@ function getGameMetadata(
     $metricsJoin = '';
     $metricsBindings = [];
     if ($metrics) {
-        if (env('FEATURE_AGGREGATE_QUERIES')) {
+        if (config('feature.aggregate_queries')) {
             $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
             if ($parentGameId === null) {
@@ -147,7 +147,7 @@ function getGameMetadata(
         $gameDataOut['ParentGameID'] = $gameMetrics['ParentGameID'];
         $gameDataOut['NumDistinctPlayers'] = $gameMetrics['NumDistinctPlayers'];
 
-        if (env('FEATURE_AGGREGATE_QUERIES')) {
+        if (config('feature.aggregate_queries')) {
             $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
         } else {
             $metricsBindings = [
