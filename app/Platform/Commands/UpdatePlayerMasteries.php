@@ -10,9 +10,12 @@ use App\Platform\Enums\UnlockMode;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @deprecated use UpdatePlayerGameMetrics
+ */
 class UpdatePlayerMasteries extends Command
 {
-    protected $signature = 'ra:platform:update-player-masteries {username?}';
+    protected $signature = 'ra:platform:player:update-masteries {username?}';
 
     protected $description = 'Recalculates masteries for a user';
 

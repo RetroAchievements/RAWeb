@@ -19,18 +19,14 @@ use App\Platform\Commands\SyncPlayerGames;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\UnlockPlayerAchievement;
-use App\Platform\Commands\UpdateAllAchievementsMetrics;
-use App\Platform\Commands\UpdateAllGamesMetrics;
-use App\Platform\Commands\UpdateAllPlayerGamesMetrics;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
+use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
-use App\Platform\Commands\UpdateGameWeightedPoints;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMasteries;
 use App\Platform\Commands\UpdatePlayerMetrics;
-use App\Platform\Commands\UpdatePlayerPoints;
 use App\Platform\Commands\UpdatePlayerRanks;
 use App\Platform\Components\GameCard;
 use App\Platform\Models\Achievement;
@@ -64,40 +60,31 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                DeleteOrphanedLeaderboardEntries::class,
-                UpdateDeveloperContributionYield::class,
-                UpdateGameWeightedPoints::class,
-                UpdatePlayerPoints::class,
-                UpdatePlayerMasteries::class,
+                // Games
+                UpdateGameMetrics::class,
+                UpdateGameAchievementsMetrics::class,
 
-                /*
-                 * no-intro
-                 */
+                // Game Hashes
                 NoIntroImport::class,
 
-                /*
-                 * Platform
-                 */
-                UnlockPlayerAchievement::class,
-
-                UpdateAllAchievementsMetrics::class,
-
-                UpdateGameMetrics::class,
-                UpdateAllGamesMetrics::class,
-
+                // Leaderboards
                 UpdateLeaderboardMetrics::class,
+                DeleteOrphanedLeaderboardEntries::class,
 
+                // Players
+                UnlockPlayerAchievement::class,
+                UpdatePlayerGameMetrics::class,
+                UpdatePlayerMasteries::class,
                 UpdatePlayerMetrics::class,
                 UpdatePlayerRanks::class,
 
-                UpdatePlayerGameMetrics::class,
-                UpdateAllPlayerGamesMetrics::class,
-
+                // Awards & Badges
                 UpdateAwardsStaticData::class,
 
-                /*
-                 * Sync
-                 */
+                // Developer
+                UpdateDeveloperContributionYield::class,
+
+                // Sync
                 SyncAchievements::class,
                 SyncGameSets::class,
                 SyncGames::class,
@@ -116,10 +103,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
-
-            // TODO replace with queued jobs
-            $schedule->command(UpdateGameWeightedPoints::class)->everyMinute();
-            $schedule->command(UpdatePlayerPoints::class)->everyMinute();
 
             $schedule->command(DeleteOrphanedLeaderboardEntries::class)->daily();
         });

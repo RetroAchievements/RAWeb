@@ -8,12 +8,6 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
 
 <h4 class="!leading-none mb-2">Progression Status</h4>
 
-<x-user.progression-status.recalc-cta
-    :totalUserPoints="$userHardcorePoints + $userSoftcorePoints"
-    :totalBeatenSoftcoreCount="$totalBeatenSoftcoreCount"
-    :totalBeatenHardcoreCount="$totalBeatenHardcoreCount"
-/>
-
 <div x-data="{ widthMode: '{{ $widthMode }}' }">
     <div class="flex flex-col sm:flex-row sm:justify-between w-full mb-2">
         <x-user.progression-status.legend

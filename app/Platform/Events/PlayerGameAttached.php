@@ -18,8 +18,8 @@ class PlayerGameAttached
     use SerializesModels;
 
     public function __construct(
-        public User $user,
-        public Game $game,
+        public User|string|int $user,
+        public Game|int $game,
     ) {
     }
 

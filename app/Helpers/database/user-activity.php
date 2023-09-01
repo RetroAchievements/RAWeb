@@ -11,6 +11,9 @@ use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @deprecated see UserActivity model
+ */
 function getMostRecentActivity(string $user, ?int $type = null, ?int $data = null): ?array
 {
     $innerClause = "Activity.user = :user";
@@ -28,6 +31,9 @@ function getMostRecentActivity(string $user, ?int $type = null, ?int $data = nul
     return legacyDbFetch($query, ['user' => $user]);
 }
 
+/**
+ * @deprecated see WriteUserActivity listener
+ */
 function updateActivity(int $activityID): void
 {
     // Update the last update value of given activity
@@ -38,6 +44,9 @@ function updateActivity(int $activityID): void
     legacyDbStatement($query);
 }
 
+/**
+ * @deprecated see UserActivity model
+ */
 function RecentlyPostedProgressionActivity(string $user, int $gameId, int $isHardcore, int $activityType): bool
 {
     $activity = UserActivityLegacy::where('User', $user)
@@ -50,6 +59,9 @@ function RecentlyPostedProgressionActivity(string $user, int $gameId, int $isHar
     return $activity != null;
 }
 
+/**
+ * @deprecated see WriteUserActivity listener
+ */
 function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $data2 = null): bool
 {
     if (!ActivityType::isValid($type)) {
@@ -198,6 +210,9 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
     return true;
 }
 
+/**
+ * @deprecated see ResumePlayerSessionAction
+ */
 function UpdateUserRichPresence(User $user, int $gameID, string $presenceMsg): void
 {
     $user->RichPresenceMsg = utf8_sanitize($presenceMsg);
@@ -205,6 +220,9 @@ function UpdateUserRichPresence(User $user, int $gameID, string $presenceMsg): v
     $user->RichPresenceMsgDate = Carbon::now();
 }
 
+/**
+ * @deprecated see UserActivity model
+ */
 function getActivityMetadata(int $activityID): ?array
 {
     $query = "SELECT * FROM Activity

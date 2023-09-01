@@ -88,7 +88,7 @@ trait GameRequests
         try {
             /** @var ResumePlayerSessionAction $resumePlayerSessionAction */
             $resumePlayerSessionAction = app()->make(ResumePlayerSessionAction::class);
-            $resumePlayerSessionAction->execute($request, $game, $gameHash);
+            $resumePlayerSessionAction->execute($request->user('connect-token'), $game, $gameHash);
         } catch (Exception) {
             // fail silently - might be an unauthenticated request (RetroArch)
         }

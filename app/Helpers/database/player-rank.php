@@ -2,8 +2,7 @@
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
+use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
@@ -11,10 +10,16 @@ use Illuminate\Support\Facades\Cache;
 
 function SetUserUntrackedStatus(string $usernameIn, int $isUntracked): void
 {
-    $query = "UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'";
-    s_mysql_query($query);
+    legacyDbStatement("UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'");
+
+    PlayerRankedStatusChanged::dispatch($usernameIn, (bool) $isUntracked);
+
+    // TODO update games that are affected by this user's library
 }
 
+/**
+ * @deprecated take from authenticated user directly
+ */
 function getPlayerPoints(?string $user, ?array &$dataOut): bool
 {
     if (empty($user) || !isValidUsername($user)) {
@@ -36,34 +41,10 @@ function getPlayerPoints(?string $user, ?array &$dataOut): bool
     return false;
 }
 
-function recalculatePlayerPoints(string $user): bool
-{
-    sanitize_sql_inputs($user);
-
-    $query = "UPDATE UserAccounts ua
-                LEFT JOIN (
-                    SELECT aw.User AS UserAwarded,
-                    SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
-                    SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.TrueRatio, 0)) AS TruePoints,
-                    SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", ach.Points, 0)) AS TotalPoints
-                    FROM Awarded AS aw
-                    LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                    WHERE aw.User = '$user' AND ach.Flags = " . AchievementFlag::OfficialCore . "
-                ) hc ON ua.User = hc.UserAwarded
-                SET RAPoints = COALESCE(hc.HardcorePoints, 0),
-                    TrueRAPoints = COALESCE(hc.TruePoints, 0),
-                    RASoftcorePoints = COALESCE(hc.TotalPoints - hc.HardcorePoints, 0)
-                WHERE User = '$user'";
-
-    $dbResult = s_mysql_query($query);
-
-    return (bool) $dbResult;
-}
-
 function countRankedUsers(int $type = RankType::Hardcore): int
 {
     return Cache::remember("rankedUserCount:$type",
-        60, // expire once a minute
+        Carbon::now()->addMinute(),
         function () use ($type) {
             $query = "SELECT COUNT(*) AS count FROM UserAccounts ";
             switch ($type) {

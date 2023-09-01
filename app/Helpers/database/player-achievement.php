@@ -10,6 +10,9 @@ use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
+/**
+ * @deprecated see PlayerAchievement model
+ */
 function playerHasUnlock(?string $user, int $achievementId): array
 {
     $retVal = [
@@ -40,24 +43,9 @@ function playerHasUnlock(?string $user, int $achievementId): array
     return $retVal;
 }
 
-function recalculatePlayerBeatenGames(string $username): bool
-{
-    // Get the list of games the user has played.
-    $gamesPlayedQuery = "SELECT DISTINCT Achievements.GameID 
-        FROM Awarded 
-        INNER JOIN Achievements ON Awarded.AchievementID = Achievements.ID 
-        WHERE Awarded.User = :username
-    ";
-
-    $gamesPlayed = legacyDbFetchAll($gamesPlayedQuery, ['username' => $username])->toArray();
-
-    foreach ($gamesPlayed as $game) {
-        testBeatenGame($game['GameID'], $username, true);
-    }
-
-    return true;
-}
-
+/**
+ * @deprecated see UnlockPlayerAchievementAction
+ */
 function unlockAchievement(string $username, int $achievementId, bool $isHardcore): array
 {
     $retVal = [
@@ -84,6 +72,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
+    // TODO config('feature.aggregate_queries')
     $hasAwardTypes = playerHasUnlock($user->User, $achievement->ID);
     $hasRegular = $hasAwardTypes['HasRegular'];
     $hasHardcore = $hasAwardTypes['HasHardcore'];
@@ -107,18 +96,11 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         ]);
     }
 
-    // TODO dispatch user unlock event to start/extend player session, upsert user game entry
-
     if (!$alreadyAwarded) {
-        // testFullyCompletedGame could post a mastery notification. make sure to post
-        // the achievement unlock notification first
         postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
-    // TODO: Should the return value from this function be attaching anything to $retVal?
-    testBeatenGame($achievement->GameID, $user->User, !$alreadyAwarded);
-
-    $completion = testFullyCompletedGame($achievement->GameID, $user->User, $isHardcore, !$alreadyAwarded);
+    $completion = getUnlockCounts($achievement->GameID, $user->username);
     if (array_key_exists('NumAwarded', $completion)) {
         $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
     }
@@ -168,14 +150,6 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
     expireUserAchievementUnlocksForGame($user->User, $achievement->GameID);
 
     static_setlastearnedachievement($achievement->ID, $user->User, $achievement->Points);
-
-    if ($user->User != $achievement->Author) {
-        if ($isHardcore && $hasRegular) {
-            // developer received contribution points when the regular version was unlocked
-        } else {
-            attributeDevelopmentAuthor($achievement->Author, 1, $achievement->Points);
-        }
-    }
 
     return $retVal;
 }
@@ -241,7 +215,8 @@ function getAchievementUnlocksData(
     $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username, achievementFlag: AchievementFlag::OfficialCore);
+    // TODO use $game->players_total
+    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username);
 
     // Get recent winners, and their most recent activity
     $bindings = [
@@ -307,7 +282,8 @@ function getRecentUnlocksPlayersData(
 
     // Fetch the total number of players for this game:
     $parentGameID = getParentGameIdFromGameTitle($game->Title, $game->ConsoleID);
-    $retVal['TotalPlayers'] = getTotalUniquePlayers($game->ID, $parentGameID, achievementFlag: AchievementFlag::OfficialCore);
+    // TODO use $game->players_total
+    $retVal['TotalPlayers'] = getTotalUniquePlayers($game->ID, $parentGameID);
 
     $extraWhere = "";
     if ($friendsOnly && isset($user) && $user) {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Events;
 
-use App\Platform\Models\Game;
+use App\Platform\Models\AchievementSet;
 use App\Site\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -18,9 +18,9 @@ class AchievementSetCompleted
     use SerializesModels;
 
     public function __construct(
-        public User $user,
-        public Game $game,
-        public bool $hardcore
+        public User|string|int $user,
+        public AchievementSet $achievementSet,
+        public ?bool $hardcore = false,
     ) {
     }
 

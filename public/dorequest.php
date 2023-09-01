@@ -3,6 +3,8 @@
 use App\Community\Enums\ActivityType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Events\PlayerSessionHeartbeat;
+use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Media\FilenameIterator;
@@ -21,7 +23,7 @@ $response = ['Success' => true];
  * Global RESERVED vars:
  */
 $requestType = request()->input('r');
-$user = request()->input('u');
+$username = request()->input('u');
 $token = request()->input('t');
 $achievementID = (int) request()->input('a', 0);  // Keep in mind, this will overwrite anything given outside these params!!
 $gameID = (int) request()->input('g', 0);
@@ -31,8 +33,11 @@ $count = (int) request()->input('c', 10);
 $validLogin = false;
 $permissions = null;
 if (!empty($token)) {
-    $validLogin = authenticateFromAppToken($user, $token, $permissions);
+    $validLogin = authenticateFromAppToken($username, $token, $permissions);
 }
+
+/** @var ?User $user */
+$user = request()->user('connect-token');
 
 if (!function_exists('DoRequestError')) {
     function DoRequestError(string $error, ?int $status = 200, ?string $code = null): JsonResponse
@@ -112,9 +117,9 @@ switch ($requestType) {
      * Login
      */
     case "login":
-        $user = request()->input('u');
+        $username = request()->input('u');
         $rawPass = request()->input('p');
-        $response = authenticateForConnect($user, $rawPass, $token);
+        $response = authenticateForConnect($username, $rawPass, $token);
 
         // do not return $response['Status'] as an HTTP status code when using this
         // endpoint. legacy clients sometimes report the HTTP status code instead of
@@ -122,9 +127,9 @@ switch ($requestType) {
         return response()->json($response);
 
     case "login2":
-        $user = request()->input('u');
+        $username = request()->input('u');
         $rawPass = request()->input('p');
-        $response = authenticateForConnect($user, $rawPass, $token);
+        $response = authenticateForConnect($username, $rawPass, $token);
         break;
 
     /*
@@ -132,7 +137,7 @@ switch ($requestType) {
      */
     case "allprogress":
         $consoleID = (int) request()->input('c');
-        $response['Response'] = GetAllUserProgress($user, $consoleID);
+        $response['Response'] = GetAllUserProgress($username, $consoleID);
         break;
 
     case "badgeiter":
@@ -223,20 +228,21 @@ switch ($requestType) {
      */
 
     case "ping":
-        $userModel = User::firstWhere('User', $user);
-        if ($userModel === null) {
+        if ($user === null) {
             $response['Success'] = false;
         } else {
-            $response['Success'] = true;
-
             $activityMessage = request()->post('m');
-            if (isset($activityMessage)) {
-                UpdateUserRichPresence($userModel, $gameID, $activityMessage);
-            }
 
-            $userModel->LastLogin = Carbon::now();
-            $userModel->timestamps = false;
-            $userModel->save();
+            PlayerSessionHeartbeat::dispatch($user, $gameID, $activityMessage);
+            // TODO remove double-writes below
+
+            if (isset($activityMessage)) {
+                UpdateUserRichPresence($user, $gameID, $activityMessage);
+            }
+            $user->LastLogin = Carbon::now();
+            $user->save();
+
+            $response['Success'] = true;
         }
         break;
 
@@ -246,19 +252,25 @@ switch ($requestType) {
         $response['Count'] = $count;
         $response['FriendsOnly'] = $friendsOnly;
         $response['AchievementID'] = $achievementID;
-        $response['Response'] = getRecentUnlocksPlayersData($achievementID, $offset, $count, $user, $friendsOnly);
+        $response['Response'] = getRecentUnlocksPlayersData($achievementID, $offset, $count, $username, $friendsOnly);
         break;
 
     case "awardachievement":
         $achIDToAward = (int) request()->input('a', 0);
         $hardcore = (bool) request()->input('h', 0);
+
+        // no checks, just dispatch
+        dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
+            ->onQueue('player-achievements');
+
         /**
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
+         * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
          */
-        $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
+        $response = array_merge($response, unlockAchievement($username, $achIDToAward, $hardcore));
         $response['Score'] = 0;
         $response['SoftcoreScore'] = 0;
-        if (getPlayerPoints($user, $userPoints)) {
+        if (getPlayerPoints($username, $userPoints)) {
             $response['Score'] = $userPoints['RAPoints'];
             $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'];
         }
@@ -266,14 +278,14 @@ switch ($requestType) {
         break;
 
     case "getfriendlist":
-        $response['Friends'] = GetFriendList($user);
+        $response['Friends'] = GetFriendList($username);
         break;
 
     case "lbinfo":
         $lbID = (int) request()->input('i', 0);
-        // Note: Nearby entry behavior has no effect if $user is null
+        // Note: Nearby entry behavior has no effect if $username is null
         // TBD: friendsOnly
-        $response['LeaderboardData'] = GetLeaderboardData($lbID, $user, $count, $offset, nearby: true);
+        $response['LeaderboardData'] = GetLeaderboardData($lbID, $username, $count, $offset, nearby: true);
         break;
 
     case "patch":
@@ -288,7 +300,7 @@ switch ($requestType) {
     case "postactivity":
         $activityType = (int) request()->input('a');
         $activityMessage = (int) request()->input('m');
-        $response['Success'] = postActivity($user, $activityType, $activityMessage);
+        $response['Success'] = postActivity($username, $activityType, $activityMessage);
         break;
 
     case "richpresencepatch":
@@ -297,11 +309,16 @@ switch ($requestType) {
         break;
 
     case "startsession":
-        if (!postActivity($user, ActivityType::StartedPlaying, $gameID)) {
+        // TODO replace game existence with validation
+        if (!postActivity($username, ActivityType::StartedPlaying, $gameID)) {
             return DoRequestError("Unknown game");
         }
+
+        // TODO remove postActivity() above - handled by ResumePlayerSessionAction
+        PlayerSessionHeartbeat::dispatch($user->id, $gameID);
+
         $response['Success'] = true;
-        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID);
+        $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
         foreach ($userUnlocks as $achId => $unlock) {
             if (array_key_exists('DateEarnedHardcore', $unlock)) {
                 $response['HardcoreUnlocks'][] = [
@@ -321,7 +338,7 @@ switch ($requestType) {
     case "submitcodenote":
         $note = request()->input('n') ?? '';
         $address = (int) request()->input('m', 0);
-        $response['Success'] = submitCodeNote2($user, $gameID, $address, $note);
+        $response['Success'] = submitCodeNote2($username, $gameID, $address, $note);
         $response['GameID'] = $gameID;     // Repeat this back to the caller?
         $response['Address'] = $address;    // Repeat this back to the caller?
         $response['Note'] = $note;      // Repeat this back to the caller?
@@ -333,7 +350,7 @@ switch ($requestType) {
         $gameTitle = request()->input('i');
         $description = request()->input('d');
         $consoleID = request()->input('c');
-        $response['Response'] = submitNewGameTitleJSON($user, $md5, $gameID, $gameTitle, $consoleID, $description);
+        $response['Response'] = submitNewGameTitleJSON($username, $md5, $gameID, $gameTitle, $consoleID, $description);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (isset($response['Response']['Error'])) {
             $response['Error'] = $response['Response']['Error'];
@@ -344,7 +361,10 @@ switch ($requestType) {
         $lbID = (int) request()->input('i', 0);
         $score = (int) request()->input('s', 0);
         $validation = request()->input('v'); // Ignore for now?
-        $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
+
+        // TODO dispatch job or event/listener using an action
+
+        $response['Response'] = SubmitLeaderboardEntry($username, $lbID, $score, $validation);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];
@@ -356,7 +376,7 @@ switch ($requestType) {
         $problemType = request()->input('p');
         $comment = request()->input('n');
         $md5 = request()->input('m');
-        $response['Response'] = submitNewTicketsJSON($user, $idCSV, $problemType, $comment, $md5);
+        $response['Response'] = submitNewTicketsJSON($username, $idCSV, $problemType, $comment, $md5);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (isset($response['Response']['Error'])) {
             $response['Error'] = $response['Response']['Error'];
@@ -365,7 +385,7 @@ switch ($requestType) {
 
     case "unlocks":
         $hardcoreMode = (int) request()->input('h', 0) === UnlockMode::Hardcore;
-        $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID);
+        $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);
         if ($hardcoreMode) {
             $response['UserUnlocks'] = collect($userUnlocks)
                 ->filter(fn ($value, $key) => array_key_exists('DateEarnedHardcore', $value))
@@ -380,7 +400,7 @@ switch ($requestType) {
     case "uploadachievement":
         $errorOut = "";
         $response['Success'] = UploadNewAchievement(
-            author: $user,
+            author: $username,
             gameID: $gameID,
             title: request()->input('n'),
             desc: request()->input('d'),
@@ -412,7 +432,7 @@ switch ($requestType) {
         $newMemString = "STA:$newStartMemString::CAN:$newCancelMemString::SUB:$newSubmitMemString::VAL:$newValueMemString";
 
         $errorOut = "";
-        $response['Success'] = UploadNewLeaderboard($user, $gameID, $newTitle, $newDesc, $newFormat, $newLowerIsBetter, $newMemString, $leaderboardID, $errorOut);
+        $response['Success'] = UploadNewLeaderboard($username, $gameID, $newTitle, $newDesc, $newFormat, $newLowerIsBetter, $newMemString, $leaderboardID, $errorOut);
         $response['LeaderboardID'] = $leaderboardID;
         $response['Error'] = $errorOut;
         break;

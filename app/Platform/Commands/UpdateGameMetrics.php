@@ -10,19 +10,25 @@ use Illuminate\Console\Command;
 
 class UpdateGameMetrics extends Command
 {
-    protected $signature = 'ra:platform:game:update-metrics {game}';
-    protected $description = "Update a game's metrics";
-
-    public function __construct(private UpdateGameMetricsAction $updateGameMetricsAction)
-    {
-        parent::__construct();
-    }
+    protected $signature = 'ra:platform:game:update-metrics
+                            {gameIds : Comma-separated list of game IDs}';
+    protected $description = "Update game(s) metrics";
 
     public function handle(): void
     {
-        /** @var Game $game */
-        $game = Game::findOrFail($this->argument('game'));
+        $gameIds = collect(explode(',', $this->argument('gameIds')))
+            ->map(fn ($id) => (int) $id);
 
-        $this->updateGameMetricsAction->execute($game);
+        $games = Game::whereIn('id', $gameIds)->get();
+
+        $progressBar = $this->output->createProgressBar($games->count());
+        $progressBar->start();
+
+        foreach ($games as $game) {
+            app()->make(UpdateGameMetricsAction::class)->execute($game);
+            $progressBar->advance();
+        }
+
+        $progressBar->finish();
     }
 }

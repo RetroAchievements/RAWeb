@@ -63,7 +63,7 @@ class AchievementsListTest extends TestCase
 
         $view->assertSeeText($achievement->Title);
         $view->assertSeeText($achievement->Description);
-        $view->assertSeeText($achievement->Points);
+        $view->assertSeeText((string) $achievement->Points);
         $view->assertSeeText("5,000");
         $view->assertSeeText("Progression");
     }

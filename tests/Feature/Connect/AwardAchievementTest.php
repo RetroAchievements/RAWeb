@@ -6,11 +6,15 @@ namespace Tests\Feature\Connect;
 
 use App\Community\Enums\ActivityType;
 use App\Community\Enums\AwardType;
+use App\Community\Models\UserActivity;
 use App\Community\Models\UserActivityLegacy;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerBadge;
+use App\Platform\Models\PlayerGame;
+use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -80,6 +84,33 @@ class AwardAchievementTest extends TestCase
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
 
+        // player session resumed
+        $playerSession = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+        ])->first();
+        $this->assertModelExists($playerSession);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertNotNull($playerGame->last_played_at);
+
+        // TODO assert player game metrics
+
+        // achievement unlocked
+        $playerAchievement = PlayerAchievement::where([
+            'user_id' => $this->user->id,
+            'achievement_id' => $achievement3->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement);
+        $this->assertNotNull($playerAchievement->unlocked_at);
+        $this->assertNotNull($playerAchievement->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement->player_session_id, $playerSession->id);
+
         // player score should have increased
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
@@ -102,6 +133,11 @@ class AwardAchievementTest extends TestCase
             'activitytype' => ActivityType::UnlockedAchievement,
             'User' => $this->user->User,
             'data' => $achievement3->ID,
+        ]));
+        $this->assertNotNull(UserActivity::find([
+            'user_id' => $this->user->id,
+            'subject_type' => 'achievement',
+            'subject_id' => $achievement3->id,
         ]));
 
         // repeat the hardcore unlock
