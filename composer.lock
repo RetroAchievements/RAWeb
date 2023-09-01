@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0f1e1930787c721237a868e7ec04acf",
+    "content-hash": "55de4f1a2a7a9df40d5aff5d31588a1b",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -9798,6 +9798,69 @@
             "time": "2022-01-02T09:55:41+00:00"
         },
         {
+            "name": "symfony/filesystem",
+            "version": "v6.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/filesystem.git",
+                "reference": "edd36776956f2a6fcf577edb5b05eb0e3bdc52ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/edd36776956f2a6fcf577edb5b05eb0e3bdc52ae",
+                "reference": "edd36776956f2a6fcf577edb5b05eb0e3bdc52ae",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-mbstring": "~1.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides basic utilities for the filesystem",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/filesystem/tree/v6.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2023-06-01T08:30:39+00:00"
+        },
+        {
             "name": "symfony/finder",
             "version": "v6.0.19",
             "source": {
@@ -14528,23 +14591,23 @@
         },
         {
             "name": "qossmic/deptrac-shim",
-            "version": "0.24.0",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/qossmic/deptrac-shim.git",
-                "reference": "2ff8320c94b4fa5cfeaf08b3f98b5679c959cdd2"
+                "reference": "3179a2c4978654add865309e3c280ef3d60f0043"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qossmic/deptrac-shim/zipball/2ff8320c94b4fa5cfeaf08b3f98b5679c959cdd2",
-                "reference": "2ff8320c94b4fa5cfeaf08b3f98b5679c959cdd2",
+                "url": "https://api.github.com/repos/qossmic/deptrac-shim/zipball/3179a2c4978654add865309e3c280ef3d60f0043",
+                "reference": "3179a2c4978654add865309e3c280ef3d60f0043",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-tokenizer": "*",
                 "ext-zlib": "*",
-                "php": "^7.4 || 8.0.* || 8.1.*"
+                "php": "^8.1"
             },
             "replace": {
                 "qossmic/deptrac": "self.version"
@@ -14562,9 +14625,11 @@
             ],
             "authors": [
                 {
+                    "name": "Tim Glabisch"
+                },
+                {
                     "name": "Simon Mönch",
-                    "email": "simon.moench@qossmic.com",
-                    "role": "maintainer"
+                    "email": "simon.moench@qossmic.com"
                 },
                 {
                     "name": "Denis Brumann",
@@ -14575,9 +14640,9 @@
             "description": "deptrac phar distribution",
             "support": {
                 "issues": "https://github.com/qossmic/deptrac-shim/issues",
-                "source": "https://github.com/qossmic/deptrac-shim/tree/0.24.0"
+                "source": "https://github.com/qossmic/deptrac-shim/tree/1.0.2"
             },
-            "time": "2022-08-12T10:10:47+00:00"
+            "time": "2022-12-02T11:47:53+00:00"
         },
         {
             "name": "rector/rector",
@@ -16115,7 +16180,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.0",
+        "php": "^8.2",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-gd": "*",
@@ -16130,9 +16195,9 @@
     },
     "platform-dev": [],
     "platform-overrides": {
-        "ext-pcntl": "8.0",
-        "ext-posix": "8.0",
-        "php": "8.0.12"
+        "ext-pcntl": "8.2",
+        "ext-posix": "8.2",
+        "php": "8.2.8"
     },
     "plugin-api-version": "2.3.0"
 }
