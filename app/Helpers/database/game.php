@@ -85,51 +85,73 @@ function getGameMetadata(
     $metricsJoin = '';
     $metricsBindings = [];
     if ($metrics) {
-        $cacheKey = "game:$gameID:playercount";
-        $gameMetrics = Cache::get($cacheKey);
-        if ($gameMetrics === null) {
+        if (env('FEATURE_AGGREGATE_QUERIES')) {
             $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
-            $bindings = [
-                'gameId' => $gameID,
-                'achievementFlag' => $flag,
-            ];
-
-            $gameIdStatement = 'ach.GameID = :gameId';
+            $gameIdStatement = 'game_id = :gameId';
             if ($parentGameId !== null) {
                 $bindings['parentGameId'] = $parentGameId;
-                $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
+                $gameIdStatement = 'game_id IN (:gameId, :parentGameId)';
             }
 
-            $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-                        FROM Awarded AS aw
-                        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                        WHERE $gameIdStatement AND ach.Flags = :achievementFlag
-                        AND NOT ua.Untracked
-                    GROUP BY aw.HardcoreMode";
+            $bindings = ['gameId' => $gameID];
+            $query = "SELECT COUNT(IF(achievements_unlocked > 0, 1, NULL)) AS NumDistinctPlayersCasual,
+                             COUNT(IF(achievements_unlocked_hardcore > 0, 1, NULL)) AS NumDistinctPlayersHardcore
+                        FROM (
+                            SELECT user_id, achievements_unlocked, achievements_unlocked_hardcore
+                              FROM player_games WHERE $gameIdStatement AND achievements_unlocked > 0
+                             GROUP BY user_id
+                        ) AS InnerTable";
+            $gameMetrics = legacyDbFetch($query, $bindings);
 
-            $gameMetaData = legacyDbFetchAll($query, $bindings);
+            $gameMetrics['ParentGameID'] = $parentGameId;
+        } else {
+            $cacheKey = "game:$gameID:playercount";
+            $gameMetrics = Cache::get($cacheKey);
+            if ($gameMetrics === null) {
+                $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
-            $numDistinctPlayersCasual = 0;
-            $numDistinctPlayersHardcore = 0;
-            foreach ($gameMetaData as $data) {
-                if ($data['HardcoreMode'] == UnlockMode::Hardcore) {
-                    $numDistinctPlayersHardcore = $data['Users'];
-                } else {
-                    $numDistinctPlayersCasual = $data['Users'];
+                $bindings = [
+                    'gameId' => $gameID,
+                    'achievementFlag' => AchievementFlag::OfficialCore,
+                ];
+
+                $gameIdStatement = 'ach.GameID = :gameId';
+                if ($parentGameId !== null) {
+                    $bindings['parentGameId'] = $parentGameId;
+                    $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
                 }
-            }
 
-            $gameMetrics = [
-                'ParentGameID' => $parentGameId,
-                'NumDistinctPlayersCasual' => $numDistinctPlayersCasual,
-                'NumDistinctPlayersHardcore' => $numDistinctPlayersHardcore,
-            ];
+                $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
+                            FROM Awarded AS aw
+                            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                            WHERE $gameIdStatement AND ach.Flags = :achievementFlag
+                            AND NOT ua.Untracked
+                        GROUP BY aw.HardcoreMode";
 
-            // if a game has more than 100 players, only update the player count once an hour
-            if ($numDistinctPlayersCasual > 100) {
-                Cache::put($cacheKey, $gameMetrics, Carbon::now()->addHours(1));
+                $gameMetaData = legacyDbFetchAll($query, $bindings);
+
+                $numDistinctPlayersCasual = 0;
+                $numDistinctPlayersHardcore = 0;
+                foreach ($gameMetaData as $data) {
+                    if ($data['HardcoreMode'] == UnlockMode::Hardcore) {
+                        $numDistinctPlayersHardcore = $data['Users'];
+                    } else {
+                        $numDistinctPlayersCasual = $data['Users'];
+                    }
+                }
+
+                $gameMetrics = [
+                    'ParentGameID' => $parentGameId,
+                    'NumDistinctPlayersCasual' => $numDistinctPlayersCasual,
+                    'NumDistinctPlayersHardcore' => $numDistinctPlayersHardcore,
+                ];
+
+                // if a game has more than 100 players, only update the player count once an hour
+                if ($numDistinctPlayersCasual > 100) {
+                    Cache::put($cacheKey, $gameMetrics, Carbon::now()->addHours(1));
+                }
             }
         }
 
