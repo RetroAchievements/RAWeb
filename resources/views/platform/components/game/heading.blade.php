@@ -4,10 +4,12 @@
     'gameID' => 0,
     'iconUrl' => asset("assets/images/system/unknown.png"),
     'user' => null,
+    'userPermissions' => null,
 ])
 
 <?php
 use App\Community\Enums\UserGameListType;
+use App\Site\Enums\Permissions;
 
 // TODO: Migrate renderGameTitle to a Blade component.
 $renderedTitle = renderGameTitle($gameTitle);
@@ -31,7 +33,7 @@ if (in_array(UserGameListType::Play, $onLists)) {
 <h1 class="text-h3">
     <span class="block mb-1">{!! $renderedTitle !!}</span>
 
-    @if (!empty($user))
+    @if (!empty($user) && $userPermissions >= Permissions::Registered)
     <div class="md:float-right">
         <button id='play-list-button' class='btn' type='button' title='{{ $buttonTooltip }}'
                 onClick="toggleListItem('{{ UserGameListType::Play}}')">

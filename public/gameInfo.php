@@ -842,6 +842,7 @@ sanitize_outputs(
                     :gameID="$gameID"
                     :iconUrl="$iconUrl"
                     :user="$user"
+                    :userPermissions="$permissions"
                 />
             ', $gameMetaBindings);
 
