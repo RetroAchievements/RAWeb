@@ -99,8 +99,9 @@ class GameExtendedTest extends TestCase
                 'Released' => $game->Released,
                 'IsFinal' => 0,
                 'NumAchievements' => 3,
+                'NumDistinctPlayers' => 4,
                 'NumDistinctPlayersCasual' => 4,
-                'NumDistinctPlayersHardcore' => 3, // user2 has no hardcore unlocks
+                'NumDistinctPlayersHardcore' => 4,
                 'Achievements' => [
                     $achievement1->ID => [
                         'ID' => $achievement1->ID,

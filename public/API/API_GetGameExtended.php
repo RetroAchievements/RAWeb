@@ -9,8 +9,9 @@
  *  int        ConsoleID                  unique identifier of the console associated to the game
  *  string     ConsoleName                name of the console associated to the game
  *  int?       ParentGameID               unique identifier of the parent game if this is a subset
- *  int        NumDistinctPlayersCasual   number of unique players who have earned achievements for the game
- *  int        NumDistinctPlayersHardcore number of unique players who have earned achievements for the game in hardcore
+ *  int        NumDistinctPlayers         number of unique players who have earned achievements for the game
+ *  int        NumDistinctPlayersCasual   [deprecated] equal to NumDistinctPlayers
+ *  int        NumDistinctPlayersHardcore [deprecated] equal to NumDistinctPlayers
  *  int        NumAchievements            count of core achievements associated to the game
  *  map        Achievements
  *   string     [key]                     unique identifier of the achievement
@@ -65,5 +66,8 @@ if (empty($achData)) {
 }
 $gameData['Claims'] = getClaimData($gameID, false);
 $gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
+
+$gameData['NumDistinctPlayersCasual'] = $gameData['NumDistinctPlayers'];
+$gameData['NumDistinctPlayersHardcore'] = $gameData['NumDistinctPlayers'];
 
 return response()->json($gameData);
