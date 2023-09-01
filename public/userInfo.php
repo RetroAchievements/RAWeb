@@ -10,6 +10,7 @@ use App\Community\Enums\RankType;
 use App\Community\Enums\UserAction;
 use App\Community\Enums\UserRelationship;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 $userPage = request('user');
 if (empty($userPage) || !isValidUsername($userPage)) {
@@ -82,6 +83,8 @@ $pageTitle = "$userPage";
 
 $daysRecentProgressToShow = 14; // fortnight
 
+$userAwards = getUsersSiteAwards($userPage);
+
 $userScoreData = getAwardedList(
     $userPage,
     0,
@@ -99,24 +102,6 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
         username: $userPage
     );
 }
-
-// Also add current.
-// $numScoreDataElements = count($userScoreData);
-// $userScoreData[$numScoreDataElements]['Year'] = (int)date('Y');
-// $userScoreData[$numScoreDataElements]['Month'] = (int)date('m');
-// $userScoreData[$numScoreDataElements]['Day'] = (int)date('d');
-// $userScoreData[$numScoreDataElements]['Date'] = date("Y-m-d H:i:s");
-// $userScoreData[$numScoreDataElements]['Points'] = 0;
-// settype($userPagePoints, 'integer');
-// $userScoreData[$numScoreDataElements]['CumulScore'] = $userPagePoints;
-//
-// $pointsReverseCumul = $userPagePoints;
-// for ($i = $numScoreDataElements; $i >= 0; $i--) {
-//     $pointsReverseCumul -= $userScoreData[$i]['Points'];
-//     $userScoreData[$i]['CumulScore'] = $pointsReverseCumul;
-// }
-//
-// $numScoreDataElements++;
 
 RenderOpenGraphMetadata(
     $userPage,
@@ -495,8 +480,26 @@ RenderContentStart($userPage);
 
             echo "</div>"; // devbox
         }
+        
+        // The component isn't as useful if we don't have data for the
+        // Completion Progress component.
+        if ($user) {
+            echo "<div class='mt-2 mb-8'>";
+            echo Blade::render('
+                <x-user-progression-status
+                    :userCompletionProgress="$userCompletionProgress"
+                    :userSiteAwards="$userSiteAwards"
+                    :userRecentlyPlayed="$userRecentlyPlayed"
+                />
+            ', [
+                'userCompletionProgress' => $userCompletedGamesList,
+                'userSiteAwards' => $userAwards,
+                'userRecentlyPlayed' => $userMassData['RecentlyPlayed'],
+            ]);
+            echo "</div>";
+        }
 
-        echo "<div class='userpage recentlyplayed' >";
+        echo "<div class='userpage recentlyplayed'>";
 
         $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
 

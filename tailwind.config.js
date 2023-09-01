@@ -42,11 +42,17 @@ module.exports = {
 
       animation: {
         'fade-in': 'fade-in 100ms ease',
+        'collapse-open': 'collapse-open 200ms ease-in-out',
       },
       keyframes: {
         'fade-in': {
           '0%': { opacity: 0 },
           '100%': { opacity: 1 },
+        },
+
+        'collapse-open': {
+          '0%': { opacity: 0, maxHeight: 0, transform: 'translateY(-0.5rem)' },
+          '100%': { opacity: 1, maxHeight: 9000, transform: 'translateY(0)' },
         },
       },
     },
