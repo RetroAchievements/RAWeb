@@ -27,7 +27,9 @@
 }
 
 .dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  @apply gap-x-2;
   color: var(--menu-link-color);
   line-height: 1.4em;
   width: 250px;
