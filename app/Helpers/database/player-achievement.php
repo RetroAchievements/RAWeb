@@ -491,17 +491,6 @@ function getAchievementDistribution(
         $requestedByStatement .= ')';
     }
 
-    // $query = "SELECT ua.ID as UserID, aw.HardcoreMode, COUNT(*) as NumAwarded
-    //           FROM Achievements ach
-    //           LEFT JOIN Awarded aw ON aw.AchievementID=ach.ID
-    //           LEFT JOIN UserAccounts ua ON ua.User=aw.User
-    //           WHERE ach.GameID=$gameID AND ach.Flags=3 AND aw.HardcoreMode=1
-    //           GROUP BY UserID";
-    // foreach (legacyDbFetchAll($query) as $row) {
-    //     $stmt = "UPDATE player_games SET achievements_unlocked_hardcore = " . $row['NumAwarded'] . " WHERE user_id=" . $row['UserID'] . " AND game_id=$gameID";
-    //     legacyDbStatement($stmt);
-    // }
-
     // Returns an array of the number of players who have achieved each total, up to the max.
     if (env('FEATURE_AGGREGATE_QUERIES')) {
         if ($flag === AchievementFlag::OfficialCore) {
