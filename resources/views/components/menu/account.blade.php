@@ -46,6 +46,7 @@ $user = request()->user();
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
         <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
+        <x-dropdown-item :link="url('gameList.php?t=play')">Want to Play Games</x-dropdown-item>
         @if($user->ContribCount > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
             <div class="dropdown-divider"></div>
             @if($user->ContribCount > 0)
