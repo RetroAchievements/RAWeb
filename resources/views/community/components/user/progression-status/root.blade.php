@@ -1,7 +1,7 @@
 <h4 class="!leading-none mb-2">Progression Status</h4>
 
 <div x-data="{ widthMode: 'equal' }">
-    <div class="flex w-full justify-between items-center mb-2">
+    <div class="flex flex-col sm:flex-row sm:justify-between w-full mb-2">
         <div class="{{ ($totalCompletedCount || $totalBeatenSoftcoreCount) ? 'grid grid-cols-2' : 'flex' }} sm:flex gap-x-4 [&>div]:flex [&>div]:items-center [&>div]:gap-x-1">
             <div class="order-1">
                 <div class="rounded-full w-2 h-2 bg-zinc-500"></div>
@@ -37,7 +37,7 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-x-1 select-none cursor-pointer">
+        <div class="hidden sm:flex items-center gap-x-1 select-none cursor-pointer text-xs">
             <input
                 id="toggle-row-width-mode-checkbox"
                 type="checkbox"
@@ -45,7 +45,7 @@
                 @change="widthMode = widthMode === 'equal' ? 'dynamic' : 'equal'"
                 class="cursor-pointer"
             >
-            <label for="toggle-row-width-mode-checkbox" class="cursor-pointer">Use dynamic cell widths</label>
+            <label for="toggle-row-width-mode-checkbox" class="cursor-pointer">Dynamic widths</label>
         </div>
     </div>
 
@@ -63,7 +63,7 @@
     @endif
 
     @if ($topConsole)
-        <div class="mb-4">
+        <div class="mb-1.5">
             <p class="text-xs">Most Recent</p>
             <x-user.progression-status.console-progression-list-item
                 :consoleId="$topConsole"
@@ -76,32 +76,12 @@
         </div>
     @endif
 
-    @if ($topConsole)
-        <p class="text-xs mb-0.5">Sorted by Most Games Played</p>
-    @endif
-    <ol class="flex flex-col gap-y-1.5">
-        @foreach ($consoleProgress as $consoleId => $progress)
-            @if ($consoleId == $topConsole)
-                @continue
-            @endif
-
-            @if ($loop->index <= 3)
-                <x-user.progression-status.console-progression-list-item
-                    :consoleId="$consoleId"
-                    :unfinishedCount="$progress['unfinishedCount']"
-                    :beatenSoftcoreCount="$progress['beatenSoftcoreCount']"
-                    :beatenHardcoreCount="$progress['beatenHardcoreCount']"
-                    :completedCount="$progress['completedCount']"
-                    :masteredCount="$progress['masteredCount']"
-                />
-            @endif
-        @endforeach
-    </ol>
-
     <!-- These items are hidden by default. -->
     @if (count($consoleProgress) > 4 || (count($consoleProgress) > 3) && $topConsole)
-        <ol class="mt-1.5">
+        <ol>
             <x-user.progression-status.hidden-consoles totalConsoleCount="{{ count($consoleProgress) }}">
+                <p class="text-xs mt-3 -mb-1.5">Sorted by Most Games Played</p>
+
                 @foreach ($consoleProgress as $consoleId => $progress)
                     @if ($consoleId != $topConsole && $loop->index > 3)
                         <x-user.progression-status.console-progression-list-item

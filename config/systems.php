@@ -168,7 +168,7 @@ return [
     24 => [
         'name' => 'Pokemon Mini',
         'name_full' => 'Nintendo Pokemon Mini',
-        'name_short' => 'POKÉ',
+        'name_short' => 'MINI',
         'manufacturer' => 'Nintendo',
         'active' => true,
     ],
@@ -231,7 +231,7 @@ return [
     33 => [
         'name' => 'SG-1000',
         'name_full' => 'Sega SG-1000',
-        'name_short' => 'SG1000',
+        'name_short' => 'SG1K',
         'manufacturer' => 'Sega',
         'active' => true,
     ],
@@ -497,7 +497,7 @@ return [
     71 => [
         'name' => 'Arduboy',
         'name_full' => 'Arduboy',
-        'name_short' => 'ARDU',
+        'name_short' => 'ARD',
         'manufacturer' => '',
         'active' => false,
     ],
@@ -511,7 +511,7 @@ return [
     73 => [
         'name' => 'Arcadia 2001',
         'name_full' => 'Arcadia 2001',
-        'name_short' => 'Arcadia',
+        'name_short' => 'A2001',
         'manufacturer' => 'Emerson Radio',
         'active' => false,
     ],
@@ -525,7 +525,7 @@ return [
     75 => [
         'name' => 'TV Games Computer',
         'name_full' => 'Elektor TV Games Computer',
-        'name_short' => 'TVGC',
+        'name_short' => 'ELEK',
         'manufacturer' => 'Elektor',
         'active' => false,
     ],

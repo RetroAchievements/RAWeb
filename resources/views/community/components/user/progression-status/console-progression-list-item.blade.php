@@ -43,6 +43,10 @@ $widthMode = "equal"; // equal or dynamic
             class="border-embed-highlight text-neutral-500 transition-all"
             style="width: {{ $widthMode === 'equal' ? '100' : $unfinishedGamesWidth }}%"
             x-show="widthMode === 'equal' || {{ $unfinishedCount }} > 0"
+            x-transition:leave="100ms"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            x-transition:enter="100ms"
             x-bind:style="'width: ' + (widthMode === 'equal' ? '100' : '{{ $unfinishedGamesWidth }}') + '%'"
         >
             {{ $unfinishedCount }}
@@ -55,6 +59,10 @@ $widthMode = "equal"; // equal or dynamic
             class="border-zinc-400/50 bg-neutral-400/10 text-zinc-300 transition-all flex gap-x-4"
             style="width: {{ $widthMode === 'equal' ? '100' : $beatenGamesWidth }}%"
             x-show="widthMode === 'equal' || {{ $beatenSoftcoreCount }} > 0 || {{ $beatenHardcoreCount }} > 0"
+            x-transition:leave="100ms"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            x-transition:enter="100ms"
             x-bind:style="'width: ' + (widthMode === 'equal' ? '100' : '{{ $beatenGamesWidth }}') + '%'"
         >
             @if ($beatenSoftcoreCount > 0)
@@ -79,6 +87,10 @@ $widthMode = "equal"; // equal or dynamic
             class="border-yellow-600 bg-yellow-600/10 text-[gold] transition-all flex gap-x-4"
             style="width: {{ $widthMode === 'equal' ? '100' : $masteredGamesWidth }}%"
             x-show="widthMode === 'equal' || {{ $completedCount }} > 0 || {{ $masteredCount }} > 0"
+            x-transition:leave="100ms"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            x-transition:enter="100ms"
             x-bind:style="'width: ' + (widthMode === 'equal' ? '100' : '{{ $masteredGamesWidth }}') + '%'"
         >
             @if ($completedCount > 0)
