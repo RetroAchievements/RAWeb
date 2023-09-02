@@ -27,7 +27,7 @@ if (in_array($type, $onLists)) {
 <button id='{{ $type }}-list-button' class='btn' type='button' title='{{ $buttonTooltip }}'
         onClick="toggleListItem('{{ $type }}')">
     <div class="flex items-center gap-x-1">
-        <div id='add-to-{{ $type }}-list' class="md:float-left w-[18px] h-[18px] {{ $addVisibility }}">
+        <div id='add-to-{{ $type }}-list' class="w-[18px] h-[18px] {{ $addVisibility }}">
             <x-icon.add-to-list />
         </div>
         <div id='remove-from-{{ $type }}-list' class="w-[18px] h-[18px] {{ $removeVisibility }}">
