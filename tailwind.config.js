@@ -42,11 +42,17 @@ module.exports = {
 
       animation: {
         'fade-in': 'fade-in 100ms ease',
+        tilt: 'tilt 10s infinite linear',
       },
       keyframes: {
         'fade-in': {
           '0%': { opacity: 0 },
           '100%': { opacity: 1 },
+        },
+        tilt: {
+          '0%, 50%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(1.5deg)' },
+          '75%': { transform: 'rotate(-1.5deg)' },
         },
       },
     },
@@ -75,6 +81,12 @@ module.exports = {
     },
   },
 
+  variants: {
+    extend: {
+      animation: ['motion-safe'],
+    },
+  },
+
   plugins: [
     require('@tailwindcss/forms')({
       // TODO switch to global strategy as soon UI has been consolidated
@@ -82,5 +94,14 @@ module.exports = {
     }),
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
+
+    // Add support for `light:` prefixes to better support light mode users.
+    function ({ addVariant, e }) {
+      addVariant('light', ({ modifySelectors, separator }) => {
+        modifySelectors(
+          ({ className }) => `[data-scheme="light"] .${e(`light${separator}${className}`)}`,
+        );
+      });
+    },
   ],
 };

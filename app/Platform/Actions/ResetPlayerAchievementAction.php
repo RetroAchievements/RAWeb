@@ -72,6 +72,9 @@ class ResetPlayerAchievementAction
             // expire the cached awarded data for the user's profile
             // TODO: Remove when denormalized data is ready.
             expireUserCompletedGamesCacheValue($user->User);
+
+            // revoke beaten game awards if necessary
+            testBeatenGame($affectedGameID, $user->User, false);
         }
 
         $user->save();

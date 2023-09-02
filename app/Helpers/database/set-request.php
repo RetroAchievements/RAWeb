@@ -22,7 +22,7 @@ function getUserRequestList(?string $user = null): array
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
             c.name as ConsoleName,
-            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
+            GROUP_CONCAT(DISTINCT(IF(sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "), sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
         LEFT JOIN
@@ -197,11 +197,11 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
             c.name as ConsoleName,
-            GROUP_CONCAT(DISTINCT(IF(sc.Status = " . ClaimStatus::Active . ", sc.User, NULL))) AS Claims
+            GROUP_CONCAT(DISTINCT(IF(sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "), sc.User, NULL))) AS Claims
         FROM
             SetRequest sr
         LEFT JOIN
-            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ")
+            SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "))
         LEFT JOIN
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
@@ -262,7 +262,7 @@ function getGamesWithRequests(array|int|null $console, int $requestStatus = Requ
             Console c ON (gd.ConsoleID = c.ID) ";
 
     if ($requestStatus !== RequestStatus::Any) {
-        $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status = " . ClaimStatus::Active . ") ";
+        $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")) ";
     }
 
     $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
