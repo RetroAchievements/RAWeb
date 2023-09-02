@@ -39,3 +39,7 @@ abbr {
   overflow-wrap: anywhere;
   word-break: normal;
 }
+
+.text-color {
+  color: var(--text-color);
+}

@@ -25,14 +25,14 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Moderator) {
     $viewingUnauthorisedForumLinks = true;
 
     $thisForumID = 0;
-    $thisForumTitle = "Unauthorised Links";
-    $thisForumDescription = "Unauthorised Links";
+    $thisForumTitle = "Forum Verification";
+    $thisForumDescription = "Unverified Posts";
     $thisCategoryID = 0;
-    $thisCategoryName = "Unauthorised Links";
+    $thisCategoryName = null;
 
     $topicList = $unofficialLinks;
 
-    $requestedForum = "Unauthorised Links";
+    $requestedForum = "Forum Verification";
 } else {
     if (!getForumDetails($requestedForumID, $forumDataOut)) {
         abort(404);
@@ -63,13 +63,15 @@ RenderContentStart("Forum: $thisForumTitle");
         <?php
         echo "<div class='navpath'>";
         echo "<a href='/forum.php'>Forum Index</a>";
-        echo " &raquo; <a href='/forum.php?c=$thisCategoryID'>$thisCategoryName</a>";
+        if ($thisCategoryName) {
+            echo " &raquo; <a href='/forum.php?c=$thisCategoryID'>$thisCategoryName</a>";
+        }
         echo " &raquo; <b>$requestedForum</b></a>";
         echo "</div>";
 
         if ($numUnofficialLinks > 0) {
             echo "<div class='my-3 bg-embedded p-2 rounded-sm'>";
-            echo "<b>Administrator Notice:</b> <a href='/viewforum.php?f=0'>$numUnofficialLinks unofficial posts need authorising: please verify them!</a>";
+            echo "<b>Administrator Notice:</b> <a href='/viewforum.php?f=0'>$numUnofficialLinks unverified posts need authorising: please verify them!</a>";
             echo "</div>";
         }
 
