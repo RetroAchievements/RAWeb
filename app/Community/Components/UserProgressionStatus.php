@@ -100,7 +100,7 @@ class UserProgressionStatus extends Component
 
         // Loop through joinedData to calculate counts.
         foreach ($joinedData as $consoleId => $games) {
-            if (!$consoleId || $consoleId == 101) { // Exclude the "Events" console.
+            if (!$consoleId || $consoleId == 101 || !isValidConsoleId($consoleId)) {
                 continue;
             }
 

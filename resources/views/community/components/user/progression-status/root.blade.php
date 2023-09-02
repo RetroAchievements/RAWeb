@@ -54,11 +54,11 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
             <p class="text-xs">Most Recent</p>
             <x-user.progression-status.console-progression-list-item
                 :consoleId="$topConsole"
-                :unfinishedCount="$consoleProgress[$topConsole]['unfinishedCount']"
-                :beatenSoftcoreCount="$consoleProgress[$topConsole]['beatenSoftcoreCount']"
-                :beatenHardcoreCount="$consoleProgress[$topConsole]['beatenHardcoreCount']"
-                :completedCount="$consoleProgress[$topConsole]['completedCount']"
-                :masteredCount="$consoleProgress[$topConsole]['masteredCount']"
+                :unfinishedCount="$consoleProgress[$topConsole]['unfinishedCount'] ?? 1"
+                :beatenSoftcoreCount="$consoleProgress[$topConsole]['beatenSoftcoreCount'] ?? 0"
+                :beatenHardcoreCount="$consoleProgress[$topConsole]['beatenHardcoreCount'] ?? 0"
+                :completedCount="$consoleProgress[$topConsole]['completedCount'] ?? 0"
+                :masteredCount="$consoleProgress[$topConsole]['masteredCount'] ?? 0"
             />
         </div>
     @endif
