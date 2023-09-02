@@ -7,6 +7,7 @@ import { hideEarnedCheckboxComponent, newsCarouselComponent, tooltipComponent } 
 import {
   autoExpandTextInput,
   copyToClipboard,
+  getStringByteCount,
   handleLeaderboardTabClick,
   initializeTextareaCounter,
   injectShortcode,
@@ -28,6 +29,7 @@ lazyLoadModuleOnIdFound({
 // Global Utils
 window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
+window.getStringByteCount = getStringByteCount;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;

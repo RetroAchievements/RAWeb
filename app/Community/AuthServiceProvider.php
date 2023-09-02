@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Models\AchievementComment;
+use App\Community\Models\AchievementSetClaim;
 use App\Community\Models\Comment;
 use App\Community\Models\Forum;
 use App\Community\Models\ForumCategory;
@@ -19,6 +20,7 @@ use App\Community\Models\UserActivity;
 use App\Community\Models\UserActivityLegacy;
 use App\Community\Models\UserComment;
 use App\Community\Policies\AchievementCommentPolicy;
+use App\Community\Policies\AchievementSetClaimPolicy;
 use App\Community\Policies\CommentPolicy;
 use App\Community\Policies\ForumCategoryPolicy;
 use App\Community\Policies\ForumPolicy;
@@ -38,6 +40,7 @@ class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
         AchievementComment::class => AchievementCommentPolicy::class,
+        AchievementSetClaim::class => AchievementSetClaimPolicy::class,
         Comment::class => CommentPolicy::class,
         Forum::class => ForumPolicy::class,
         ForumCategory::class => ForumCategoryPolicy::class,
