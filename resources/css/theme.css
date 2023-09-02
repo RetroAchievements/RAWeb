@@ -49,6 +49,7 @@ a:hover {
   --text-color: rgb(200, 200, 200);
   --text-color-danger: rgb(255, 0, 0);
   --text-color-muted: rgb(75, 75, 75);
+  --divider-color: rgb(90, 90, 90);
 }
 
 [data-scheme="black"] {
@@ -60,6 +61,7 @@ a:hover {
   --heading-color: rgb(200, 200, 200);
   --menu-link-color: rgb(190, 190, 190);
   --text-color: rgb(190, 190, 190);
+  --divider-color: rgb(70, 70, 70);
 }
 
 [data-scheme="light"] {
@@ -76,6 +78,7 @@ a:hover {
   --menu-link-hover-color: rgb(0, 0, 0);
   --text-color: rgb(66, 66, 66);
   --text-color-muted: rgb(130, 130, 130);
+  --divider-color: rgb(190, 190, 190);
 }
 
 /* Theme */
