@@ -30,7 +30,6 @@ class UserGameListTest extends TestCase
         $this->assertEquals($requestInfo, [
             'total' => 0,
             'pointsForNext' => 1250,
-            'maxSoftcoreReached' => false,
         ]);
     }
 
@@ -46,7 +45,6 @@ class UserGameListTest extends TestCase
         $this->assertEquals($requestInfo, [
             'total' => 1,
             'pointsForNext' => 1250,
-            'maxSoftcoreReached' => false,
         ]);
     }
 
@@ -76,7 +74,6 @@ class UserGameListTest extends TestCase
         $this->assertEquals($requestInfo, [
             'total' => 1,
             'pointsForNext' => 1250,
-            'maxSoftcoreReached' => false,
         ]);
     }
 
@@ -90,7 +87,6 @@ class UserGameListTest extends TestCase
         $this->assertEquals($requestInfo, [
             'total' => 25,
             'pointsForNext' => 6544, // 130000 - 123456
-            'maxSoftcoreReached' => false,
         ]);
     }
 
@@ -104,7 +100,6 @@ class UserGameListTest extends TestCase
         $this->assertEquals($requestInfo, [
             'total' => 1247,
             'pointsForNext' => 4322, // 12350000 - 12345678
-            'maxSoftcoreReached' => false,
         ]);
     }
 
@@ -118,11 +113,10 @@ class UserGameListTest extends TestCase
         $this->assertEquals($requestInfo, [
             'total' => 7, // 1250, 2500, 5000, 7500, 10000, 15000, 20000
             'pointsForNext' => 433, // 25000 - 23456 - 1111
-            'maxSoftcoreReached' => false,
         ]);
     }
 
-    public function testSetRequestLimitFromSoftcorePointsLimit(): void
+    public function testSetRequestLimitFromManySoftcorePoints(): void
     {
         /** @var User $user */
         $user = User::factory()->create(['RAPoints' => 1234, 'RASoftcorePoints' => 11111]);
@@ -131,8 +125,7 @@ class UserGameListTest extends TestCase
 
         $this->assertEquals($requestInfo, [
             'total' => 5,
-            'pointsForNext' => 3766, // 15000 - 1234 - 10000
-            'maxSoftcoreReached' => true,
+            'pointsForNext' => 2655, // 15000 - 1234 - 11111
         ]);
     }
 

@@ -203,7 +203,7 @@ class GameCard extends Component
             $isEvent,
         );
 
-        $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => $claim['Status'] == ClaimStatus::Active);
+        $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => ClaimStatus::isActive($claim['Status']));
         $activeDeveloperUsernames = array_map(fn ($activeClaim) => $activeClaim['User'], array_values($activeClaims));
         $activeDevelopersLabel = $this->buildActiveDevelopersLabel($activeDeveloperUsernames);
 

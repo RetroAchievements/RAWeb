@@ -276,24 +276,33 @@ function getRecentUnlocksPlayersData(
     ?string $user = null,
     bool $friendsOnly = false
 ): array {
-    sanitize_sql_inputs($user);
+    $retVal = [
+        'NumEarned' => 0,
+        'GameID' => 0,
+        'TotalPlayers' => 0,
+        'RecentWinner' => [],
+    ];
 
-    $retVal = [];
+    $achievement = Achievement::find($achID);
+    if (!$achievement) {
+        return $retVal;
+    }
+
+    $game = Game::find($achievement->GameID);
+    if (!$game) {
+        return $retVal;
+    }
+    $retVal['GameID'] = $game->ID;
 
     // Fetch the number of times this has been earned whatsoever (excluding hardcore)
-    $query = "SELECT COUNT(*) AS NumEarned, ach.GameID
-              FROM Awarded AS aw
-              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              WHERE AchievementID=$achID AND aw.HardcoreMode = " . UnlockMode::Softcore;
-
-    $dbResult = s_mysql_query($query);
-    $data = mysqli_fetch_assoc($dbResult);
-
+    $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
+              WHERE AchievementID=$achID AND HardcoreMode = " . UnlockMode::Softcore;
+    $data = legacyDbFetch($query);
     $retVal['NumEarned'] = (int) $data['NumEarned'];
-    $retVal['GameID'] = (int) $data['GameID'];
 
     // Fetch the total number of players for this game:
-    $retVal['TotalPlayers'] = getUniquePlayersByUnlocks($retVal['GameID']);
+    $parentGameID = getParentGameIdFromGameTitle($game->Title, $game->ConsoleID);
+    $retVal['TotalPlayers'] = getTotalUniquePlayers($game->ID, $parentGameID, achievementFlag: AchievementFlag::OfficialCore);
 
     $extraWhere = "";
     if ($friendsOnly && isset($user) && $user) {
@@ -302,39 +311,20 @@ function getRecentUnlocksPlayersData(
     }
 
     // Get recent winners, and their most recent activity:
-    $query = "SELECT aw.User, ua.RAPoints, UNIX_TIMESTAMP(aw.Date) AS DateAwarded
+    $query = "SELECT aw.User, ua.RAPoints, " . unixTimestampStatement('aw.Date', 'DateAwarded') . "
               FROM Awarded AS aw
               LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
               WHERE AchievementID=$achID AND aw.HardcoreMode = " . UnlockMode::Softcore . " $extraWhere
               ORDER BY aw.Date DESC
               LIMIT $offset, $count";
 
-    $dbResult = s_mysql_query($query);
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+    foreach (legacyDbFetchAll($query) as $db_entry) {
         $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
         $db_entry['DateAwarded'] = (int) $db_entry['DateAwarded'];
         $retVal['RecentWinner'][] = $db_entry;
     }
 
     return $retVal;
-}
-
-function getUniquePlayersByUnlocks(int $gameID): int
-{
-    $query = "SELECT MAX( Inner1.MaxAwarded ) AS TotalPlayers FROM
-              (
-                  SELECT ach.ID, COUNT(*) AS MaxAwarded
-                  FROM Awarded AS aw
-                  LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                  LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                  WHERE gd.ID = $gameID AND aw.HardcoreMode = " . UnlockMode::Softcore . "
-                  GROUP BY ach.ID
-              ) AS Inner1";
-
-    $dbResult = s_mysql_query($query);
-    $data = mysqli_fetch_assoc($dbResult);
-
-    return (int) $data['TotalPlayers'];
 }
 
 /**
