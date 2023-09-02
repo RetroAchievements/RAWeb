@@ -483,7 +483,7 @@ RenderContentStart($userPage);
 
         // The component isn't as useful if we don't have data for the
         // Completion Progress component.
-        if (config('feature.beat') && $user) {
+        if (config('feature.beat') && $user && count($userCompletedGamesList) > 0) {
             echo "<div class='mt-2 mb-8'>";
             echo Blade::render('
                 <x-user-progression-status

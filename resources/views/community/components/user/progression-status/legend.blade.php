@@ -7,7 +7,6 @@
 
 <div class="{{ ($totalCompletedCount || $totalBeatenSoftcoreCount) ? 'grid grid-cols-2' : 'flex' }} sm:flex gap-x-4 [&>div]:flex [&>div]:items-center [&>div]:gap-x-1">
     <div class="order-1">
-        <div class="rounded-full w-2 h-2 bg-zinc-500"></div>
         <p class="text-zinc-500 font-bold text-xs">Unfinished</p>
     </div>
 

@@ -153,7 +153,7 @@ class UserProgressionStatus extends Component
         array $userSiteAwards
     ): array {
         $mostRecentlyPlayedConsole = collect($userRecentlyPlayed)
-            ->reject(fn ($game) => $game['ConsoleID'] == 101) // Exclude the "Events" console.
+            ->reject(fn ($game) => $game['ConsoleID'] == 101 || !isValidConsoleId($game['ConsoleID']))
             ->groupBy('ConsoleID')
             ->map(fn ($games) => $games->max('LastPlayed'))
             ->sortDesc()
@@ -168,7 +168,10 @@ class UserProgressionStatus extends Component
         });
 
         $mostRecentlyAwardedConsole = collect($userSiteAwardsWithConsoleID)
-            ->reject(fn ($award) => $award['ConsoleID'] == 101) // Exclude the "Events" console.
+            ->reject(fn ($award) =>
+                $award['ConsoleID'] == 101
+                || (isset($award['ConsoleID']) && !isValidConsoleId($award['ConsoleID']))
+            )
             ->groupBy('ConsoleID')
             ->map(fn ($awards) => $awards->max('AwardedAt'))
             ->sortDesc()
