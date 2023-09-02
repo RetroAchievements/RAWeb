@@ -1,149 +1,37 @@
-#innermenu {
+nav {
+  /*padding-left: 1em;
+  padding-right: 1em;*/
   position: relative;
-  margin: auto;
   /*overflow:hidden; this breaks the dropdown! :S*/
-  border-radius: 4px;
+  /*border-radius: 4px;*/
+  background-color: var(--embed-color);
 }
 
-#innermenu li.divider {
-  border-bottom: 1px solid var(--menu-link-color);
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 2px;
-  margin-bottom: 2px;
+.nav-item {
+  position: relative;
+  line-height: 20px;
+  height: 42px; /* Only for main menu elements for mobile to make tap space */
 }
 
-#innermenu > ul > li > a {
-  display: block;
+.nav-link {
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
   color: var(--menu-link-color);
-  /*font-size: 1.2em;*/
   height: 42px;
-  line-height: 42px;
-  text-align: center;
   border-bottom: 0;
   overflow: hidden;
   padding-left: 10px;
   padding-right: 10px;
 }
 
-#innermenu > ul {
-  background-color: var(--embed-color);
-  padding-left: 1em;
-  list-style: none;
-}
-
-#innermenu > ul > li {
-  float: left;
-  position: relative;
-  height: 22px;
-  line-height: 20px;
-}
-
-#innermenu > ul > li {
-  height: 42px; /* Only for main menu elements for mobile to make tap space */
-}
-
-#innermenu > ul > li > div {
-  display: none;
-  position: absolute;
-  top: 42px;
-  left: 0;
-  margin: 0;
-
-  /* Use Tailwind z-index sane defaults rather than a magic number. */
-  @apply z-20;
-}
-
-#innermenu > ul > li > div > ul > li:last-child {
-  margin-bottom: 4px;
-}
-
-#innermenu > ul > li:hover > a {
+.nav-item:hover > .nav-link {
   color: var(--menu-link-color);
   background-color: var(--embed-highlight-color);
+  position: relative;
 }
 
-#innermenu > ul > li:hover > div {
-  background-color: var(--embed-highlight-color);
-  box-shadow: var(--box-shadow-color) 0 30px 60px -12px, var(--box-shadow-color) 0px 18px 36px -18px;
-}
-
-@media all and (max-width: 549px) {
-  #innermenu > ul > li:hover > div {
-    display: block;
-  }
-}
-
-@media all and (min-width: 550px) {
-  #innermenu > ul > li:hover > div {
-    display: flex;
-  }
-}
-
-#innermenu > ul > li:hover > div > ul {
-  margin: 0;
-  padding: 0;
-}
-
-#innermenu > ul > li:hover > div > ul:not(:last-child) {
-  border-right: 1px solid var(--embed-color);
-}
-
-#innermenu > ul > li:hover > div > ul > li > ul {
+/* TODO what is this for? */
+.dropdown-menu > ul {
   display: none;
-}
-
-#innermenu > ul > li > a > img {
-  position: relative;
-  top: 4px;
-  left: 2px;
-}
-
-#innermenu > ul > li:hover > div > ul > li > a,
-#innermenu > ul > li:hover > div > ul > li button {
-  display: block;
-  color: var(--menu-link-color);
-  line-height: 1.4em;
-  width: 200px;
-  text-align: left;
-  margin: 0;
-  padding: 4px 12px;
-  border: none;
-  border-radius: 0;
-  font-size: 10px;
-}
-
-#innermenu > ul > li:hover > div > ul {
-  padding: 0;
-}
-
-#innermenu > ul > li:hover > a.nosub {
-}
-
-#innermenu > ul > li:hover > a {
-  position: relative;
-}
-
-#innermenu > ul > li:hover > div > ul > .selected {
-  margin-right: 1px;
-}
-
-#innermenu > ul > li:hover > div > ul > li > a:hover,
-#innermenu > ul > li:hover > div > ul > li button:hover {
-  color: var(--link-color);
-  background: var(--embed-color);
-}
-
-#innermenu > ul > li:hover > div > ul > li:hover > ul {
-  display: block;
-  position: absolute;
-  left: 105px;
-  top: 0;
-}
-
-.dropdown-header {
-  padding: 0 12px;
-  text-align: center;
-  color: var(--text-color);
 }

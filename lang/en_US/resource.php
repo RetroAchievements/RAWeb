@@ -187,6 +187,9 @@ return [
     'system' => [
         'title' => __('system') . '|' . __('systems'),
     ],
+    'ticket' => [
+        'title' => __('ticket') . '|' . __('tickets'),
+    ],
     'user' => [
         'title' => __('user') . '|' . __('users'),
         'avatar' => [
