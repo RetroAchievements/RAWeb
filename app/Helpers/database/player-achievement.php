@@ -43,12 +43,11 @@ function playerHasUnlock(?string $user, int $achievementId): array
 function recalculatePlayerBeatenGames(string $username): bool
 {
     // Get the list of games the user has played.
-    $gamesPlayedQuery = <<<SQL
-        SELECT DISTINCT Achievements.GameID 
+    $gamesPlayedQuery = "SELECT DISTINCT Achievements.GameID 
         FROM Awarded 
         INNER JOIN Achievements ON Awarded.AchievementID = Achievements.ID 
         WHERE Awarded.User = :username
-    SQL;
+    ";
 
     $gamesPlayed = legacyDbFetchAll($gamesPlayedQuery, ['username' => $username])->toArray();
 
