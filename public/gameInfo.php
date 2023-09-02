@@ -2,10 +2,12 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
@@ -185,6 +187,15 @@ $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
 $claimData = null;
 $claimListLength = 0;
+$isGameBeatable = false;
+$isBeatenHardcore = false;
+$isBeatenSoftcore = false;
+$userGameProgressionAwards = [
+    'beaten-softcore' => null,
+    'beaten-hardcore' => null,
+    'completed' => null,
+    'mastered' => null,
+];
 
 if ($isFullyFeaturedGame) {
     $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
@@ -197,6 +208,16 @@ if ($isFullyFeaturedGame) {
 
     $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
+    if (isset($user)) {
+        // Determine if the logged in user is the sole author of the set
+        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+
+        // Determine if the logged in user has any progression awards for this set
+        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
+        $isBeatenHardcore = !is_null($userGameProgressionAwards['beaten-hardcore']);
+        $isBeatenSoftcore = !is_null($userGameProgressionAwards['beaten-softcore']);
+    }
+
     $screenshotWidth = 200;
     $screenshotMaxHeight = 240; // corresponds to the DS screen aspect ratio
 
@@ -207,6 +228,12 @@ if ($isFullyFeaturedGame) {
     $numEarnedHardcore = 0;
     $totalPossible = 0;
 
+    // Quickly calculate if the player potentially has an unawarded beaten game award
+    $totalProgressionAchievements = 0;
+    $totalWinConditionAchievements = 0;
+    $totalEarnedProgression = 0;
+    $totalEarnedWinCondition = 0;
+
     $totalEarnedTrueRatio = 0;
     $totalPossibleTrueRatio = 0;
 
@@ -214,17 +241,41 @@ if ($isFullyFeaturedGame) {
     $authorCount = [];
     if (isset($achievementData)) {
         foreach ($achievementData as &$nextAch) {
+            $lowercasedAuthor = mb_strtolower($nextAch['Author']);
+
             // Add author to array if it's not already there and initialize achievement count for that author.
             if (!in_array($nextAch['Author'], $authorName)) {
-                $authorName[mb_strtolower($nextAch['Author'])] = $nextAch['Author'];
-                $authorCount[mb_strtolower($nextAch['Author'])] = 1;
+                $authorName[$lowercasedAuthor] = $nextAch['Author'];
+                $authorCount[$lowercasedAuthor] = 1;
             } // If author is already in array then increment the achievement count for that author.
             else {
-                $authorCount[mb_strtolower($nextAch['Author'])]++;
+                $authorCount[$lowercasedAuthor]++;
             }
 
             $totalPossible += $nextAch['Points'];
             $totalPossibleTrueRatio += $nextAch['TrueRatio'];
+
+            // Tally up how many Progression and Win Condition achievements the user has earned.
+            // We'll use this to determine if they're potentially missing a beaten game award.
+            if (
+                $user
+                && isset($nextAch['type'])
+                && ($nextAch['type'] == AchievementType::Progression || $nextAch['type'] == AchievementType::WinCondition)
+            ) {
+                $isGameBeatable = true;
+
+                if ($nextAch['type'] == AchievementType::Progression) {
+                    $totalProgressionAchievements++;
+                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedProgression++;
+                    }
+                } elseif ($nextAch['type'] == AchievementType::WinCondition) {
+                    $totalWinConditionAchievements++;
+                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedWinCondition++;
+                    }
+                }
+            }
 
             if (isset($nextAch['DateEarnedHardcore'])) {
                 $numEarnedHardcore++;
@@ -240,13 +291,25 @@ if ($isFullyFeaturedGame) {
         array_multisort($authorCount, SORT_DESC, $authorInfo);
     }
 
+    // If the game is beatable, the user has met the requirements to receive the
+    // beaten game award, and they do not currently have that award, give it to them.
+    if ($isGameBeatable) {
+        $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
+        $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
+        if (
+            $totalEarnedProgression === $neededProgressions
+            && $totalEarnedWinCondition >= $neededWinConditions
+            && !$isBeatenHardcore
+            && !$isBeatenSoftcore
+        ) {
+            $beatenGameRetVal = testBeatenGame($gameID, $user, true);
+            $isBeatenHardcore = $beatenGameRetVal['isBeatenHardcore'];
+            $isBeatenSoftcore = $beatenGameRetVal['isBeatenSoftcore'];
+        }
+    }
+
     // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID);
-
-    // Determine if the logged in user is the sole author of the set
-    if (isset($user)) {
-        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
-    }
 
     $claimData = getClaimData($gameID, true);
     $claimListLength = count($claimData);
@@ -768,19 +831,6 @@ sanitize_outputs(
             getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
         }
     });
-
-    function ResetProgress() {
-        if (confirm('Are you sure you want to reset this progress?')) {
-            showStatusMessage('Updating...');
-
-            $.post('/request/user/reset-achievements.php', {
-                game: <?= $gameID ?>
-            })
-                .done(function () {
-                    location.reload();
-                });
-        }
-    }
     </script>
 <?php endif ?>
 <div id="mainpage">
@@ -832,6 +882,40 @@ sanitize_outputs(
                 'released' => $released,
                 'user' => $user,
             ];
+
+            $initializedProgressComponent = Blade::render('
+                <x-game.current-progress.root
+                    :gameId="$gameId"
+                    :isBeatable="$isBeatable"
+                    :isBeatenHardcore="$isBeatenHardcore"
+                    :isBeatenSoftcore="$isBeatenSoftcore"
+                    :isCompleted="$isCompleted"
+                    :isMastered="$isMastered"
+                    :isEvent="$isEvent"
+                    :numEarnedHardcoreAchievements="$numEarnedHardcoreAchievements"
+                    :numEarnedHardcorePoints="$numEarnedHardcorePoints"
+                    :numEarnedSoftcoreAchievements="$numEarnedSoftcoreAchievements"
+                    :numEarnedSoftcorePoints="$numEarnedSoftcorePoints"
+                    :numEarnedWeightedPoints="$numEarnedWeightedPoints"
+                    :totalAchievementsCount="$totalAchievementsCount"
+                    :totalPointsCount="$totalPointsCount"
+                />
+            ', [
+                'gameId' => $gameID,
+                'isBeatable' => $isGameBeatable && config('feature.beat') === true,
+                'isBeatenHardcore' => $isBeatenHardcore,
+                'isBeatenSoftcore' => $isBeatenSoftcore,
+                'isCompleted' => !is_null($userGameProgressionAwards['completed']),
+                'isMastered' => !is_null($userGameProgressionAwards['mastered']),
+                'isEvent' => $isEventGame,
+                'numEarnedHardcoreAchievements' => $numEarnedHardcore,
+                'numEarnedHardcorePoints' => $totalEarnedHardcore,
+                'numEarnedSoftcoreAchievements' => $numEarnedCasual,
+                'numEarnedSoftcorePoints' => $totalEarnedCasual,
+                'numEarnedWeightedPoints' => $totalEarnedTrueRatio,
+                'totalAchievementsCount' => $numAchievements,
+                'totalPointsCount' => $totalPossible,
+            ]);
 
             echo Blade::render('
                 <x-game.heading
@@ -1260,8 +1344,12 @@ sanitize_outputs(
                     $primaryClaim = 1;
                     if ($claimListLength > 0) {
                         echo "Claimed by: ";
+                        $reviewText = '';
                         foreach ($claimData as $claim) {
                             $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
+                            if ($claim['Status'] == ClaimStatus::InReview) {
+                                $reviewText = " (" . ClaimStatus::toString(ClaimStatus::InReview) . ")";
+                            }
                             $claimExpiration = Carbon::parse($claim['Expiration']);
                             echo userAvatar($claim['User'], icon: false) . $revisionText;
                             if ($claimListLength > 1) {
@@ -1270,6 +1358,7 @@ sanitize_outputs(
                             $claimListLength--;
                             $primaryClaim = 0;
                         }
+                        echo $reviewText;
 
                         if ($claimExpiration) {
                             $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast() ? "Expired" : "Expires";
@@ -1297,40 +1386,21 @@ sanitize_outputs(
                 if ($flagParam == $unofficialFlag) {
                     echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
                 } else {
-                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
-                }
-
-                if ($user !== null && $numAchievements > 0) {
-                    if ($numEarnedHardcore > 0) {
-                        echo "You have earned <b>$numEarnedHardcore</b> HARDCORE achievements, worth <b>" . number_format($totalEarnedHardcore) . "</b> <span class='TrueRatio'>(" . number_format($totalEarnedTrueRatio) . ")</span> points.<br>";
-                        if ($numEarnedCasual > 0) { // Some Hardcore earns
-                            echo "You have also earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
-                        }
-                    } elseif ($numEarnedCasual > 0) {
-                        echo "You have earned <b> $numEarnedCasual </b> SOFTCORE achievements worth <b>" . number_format($totalEarnedCasual) . "</b> points.<br>";
-                    } else {
-                        echo "You have not earned any achievements for this game.<br/>";
-                    }
-                }
-
-                if ($user !== null && $numAchievements > 0) {
-                    if ($numEarnedCasual > 0 || $numEarnedHardcore > 0) {
-                        echo "<div class='devbox mb-4'>";
-                        echo "<span onclick=\"$('#resetboxcontent').toggle(); return false;\">Reset Progress ▼</span>";
-                        echo "<div id='resetboxcontent' style='display: none'>";
-                        echo "<button class='btn btn-danger' type='button' onclick='ResetProgress()'>Reset your progress for this game</button>";
-                        echo "</div></div>";
-                    }
+                    echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b>";
+                    $localizedTotalPossibleWeightedPoints = localized_number($totalPossibleTrueRatio);
+                    echo Blade::render("<x-points-weighted-container>($localizedTotalPossibleWeightedPoints)</x-points-weighted-container>");
+                    echo "points.<br>";
                 }
                 echo "</div>";
 
-                if (isset($user) && $numAchievements > 0 && ($numEarnedCasual > 0 || $numEarnedHardcore > 0)) {
-                    echo "<div class='mb-2 w-full md:mb-4 lg:max-w-[160px]'>";
-                    RenderGameProgress($numAchievements, $numEarnedCasual, $numEarnedHardcore);
+                echo "</div>";
+
+                // Progression component (desktop only)
+                if ($user !== null && $numAchievements > 0) {
+                    echo "<div class='mt-4 mb-4 lg:hidden'>";
+                    echo $initializedProgressComponent;
                     echo "</div>";
                 }
-
-                echo "</div>";
 
                 /*
                 if( $user !== NULL && $numAchievements > 0 ) {
@@ -1572,6 +1642,13 @@ sanitize_outputs(
             }
 
             echo "</div>";
+
+            // Progression component (mobile only)
+            if ($user !== null && $numAchievements > 0 && $isOfficial) {
+                echo "<div class='mb-5 hidden lg:block'>";
+                echo $initializedProgressComponent;
+                echo "</div>";
+            }
 
             if (!empty($gameSubsets)) {
                 RenderGameAlts($gameSubsets, 'Subsets');

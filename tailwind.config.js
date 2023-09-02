@@ -43,6 +43,7 @@ module.exports = {
       animation: {
         'fade-in': 'fade-in 100ms ease',
         'collapse-open': 'collapse-open 200ms ease-in-out',
+        tilt: 'tilt 10s infinite linear',
       },
       keyframes: {
         'fade-in': {
@@ -53,6 +54,12 @@ module.exports = {
         'collapse-open': {
           '0%': { opacity: 0, maxHeight: 0, transform: 'translateY(-0.5rem)' },
           '100%': { opacity: 1, maxHeight: 9000, transform: 'translateY(0)' },
+        },
+
+        tilt: {
+          '0%, 50%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(1.5deg)' },
+          '75%': { transform: 'rotate(-1.5deg)' },
         },
       },
     },
@@ -78,6 +85,12 @@ module.exports = {
       lg: '1024px',
       xl: '1280px',
       '2xl': '1536px',
+    },
+  },
+
+  variants: {
+    extend: {
+      animation: ['motion-safe'],
     },
   },
 

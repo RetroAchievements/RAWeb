@@ -348,7 +348,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
     LEFT JOIN
         Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
     LEFT JOIN
-        SetClaim AS sc ON (sc.User = ua.User AND sc.Status = " . ClaimStatus::Active . ")
+        SetClaim AS sc ON (sc.User = ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "))
     LEFT JOIN (
         SELECT ua2.User,
         SUM(CASE WHEN t.ReportState = 2 THEN 1 ELSE 0 END) AS total

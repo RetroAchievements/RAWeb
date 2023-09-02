@@ -1,14 +1,3 @@
-<?php
-// Kept in the template as these are view-oriented concerns.
-$completedColor = 'rgb(11, 113, 193)';
-$masteredColor = 'gold';
-
-$highestProgressionColor = $completedColor;
-if ($highestProgressionStatus === 'Mastered') {
-    $highestProgressionColor = $masteredColor;
-} 
-?>
-
 <x-card.container imgSrc="{{ $badgeUrl }}" imgKind="game">
     <div class="relative h-full text-2xs">
         <!-- Game Name -->
@@ -25,13 +14,11 @@ if ($highestProgressionStatus === 'Mastered') {
         @if ($achievementsCount > 0 || mb_strpos($rawTitle, '~Z~') !== false)
             <!-- Progression Status -->
             @if ($highestProgressionStatus && $highestProgressionAwardDate)
-                <div class="my-1 flex items-center gap-x-1">
-                    @if (!$isEvent)
-                        <div class="rounded-full w-2 h-2" style="background-color: {{ $highestProgressionColor }}"></div>
-                    @endif
-
-                    <span>{{ $highestProgressionStatus }} {{ $highestProgressionAwardDate->format('j F Y') }}</span>
-                </div>
+                <x-cards.game.highest-progression-status
+                    :highestProgressionStatus="$highestProgressionStatus"
+                    :highestProgressionAwardDate="$highestProgressionAwardDate"
+                    :isEvent="$isEvent"
+                />
             @else
                 <div class="mb-2"></div>
             @endif
@@ -39,7 +26,7 @@ if ($highestProgressionStatus === 'Mastered') {
 
         @if ($achievementsCount > 0)
             @if (!$isEvent)
-                <div class="leading-4">
+                <div class="-mt-0.5 leading-[0.98rem]">
                     <!-- Achievement Count -->
                     <x-card.info-row label="Achievements">
                         {{ localized_number($achievementsCount) }}

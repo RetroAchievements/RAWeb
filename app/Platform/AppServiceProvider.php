@@ -22,6 +22,7 @@ use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAllAchievementsMetrics;
 use App\Platform\Commands\UpdateAllGamesMetrics;
 use App\Platform\Commands\UpdateAllPlayerGamesMetrics;
+use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGameWeightedPoints;
@@ -91,6 +92,8 @@ class AppServiceProvider extends ServiceProvider
 
                 UpdatePlayerGameMetrics::class,
                 UpdateAllPlayerGamesMetrics::class,
+
+                UpdateAwardsStaticData::class,
 
                 /*
                  * Sync

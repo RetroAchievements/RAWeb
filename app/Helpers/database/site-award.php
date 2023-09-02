@@ -260,3 +260,44 @@ function getUserEventAwardCount(string $user): int
 
     return $dataOut['TotalAwards'];
 }
+
+/**
+ * Retrieves a target user's site award metadata for a given game ID.
+ * An array is returned with keys "beaten-softcore", "beaten-hardcore",
+ * "completed", and "mastered", which contain corresponding award details.
+ * If no progression awards are found, or if the target username is not provided,
+ * no awards are fetched or returned.
+ *
+ * @return array the array of a target user's site award metadata for a given game ID
+ */
+function getUserGameProgressionAwards(int $gameId, string $username): array
+{
+    $userGameProgressionAwards = [
+        'beaten-softcore' => null,
+        'beaten-hardcore' => null,
+        'completed' => null,
+        'mastered' => null,
+    ];
+
+    $foundAwards = PlayerBadge::where('User', '=', $username)
+        ->where('AwardData', '=', $gameId)
+        ->get();
+
+    foreach ($foundAwards as $award) {
+        $awardExtra = $award['AwardDataExtra'];
+        $awardType = $award->AwardType;
+
+        $key = '';
+        if ($awardType == AwardType::Mastery) {
+            $key = $awardExtra == UnlockMode::Softcore ? 'completed' : 'mastered';
+        } elseif ($awardType == AwardType::GameBeaten) {
+            $key = $awardExtra == UnlockMode::Softcore ? 'beaten-softcore' : 'beaten-hardcore';
+        }
+
+        if ($key && is_null($userGameProgressionAwards[$key])) {
+            $userGameProgressionAwards[$key] = $award;
+        }
+    }
+
+    return $userGameProgressionAwards;
+}
