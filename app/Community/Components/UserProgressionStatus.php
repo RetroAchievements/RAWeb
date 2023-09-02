@@ -168,8 +168,7 @@ class UserProgressionStatus extends Component
         });
 
         $mostRecentlyAwardedConsole = collect($userSiteAwardsWithConsoleID)
-            ->reject(fn ($award) =>
-                $award['ConsoleID'] == 101
+            ->reject(fn ($award) => $award['ConsoleID'] == 101
                 || (isset($award['ConsoleID']) && !isValidConsoleId($award['ConsoleID']))
             )
             ->groupBy('ConsoleID')
