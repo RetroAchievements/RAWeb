@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
-   abort(401);
+    abort(401);
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [

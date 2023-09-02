@@ -839,7 +839,7 @@ sanitize_outputs(
                 <x-game.heading
                     :consoleName="$consoleName"
                     :gameTitle="$gameTitle"
-                    :gameID="$gameID"
+                    :gameId="$gameID"
                     :iconUrl="$iconUrl"
                     :user="$user"
                     :userPermissions="$permissions"
