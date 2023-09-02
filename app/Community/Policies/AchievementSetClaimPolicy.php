@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Community\Policies;
 
-use App\Community\Models\TriggerTicket;
+use App\Community\Models\AchievementSetClaim;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class TriggerTicketPolicy
+class AchievementSetClaimPolicy
 {
     use HandlesAuthorization;
 
@@ -18,32 +18,32 @@ class TriggerTicketPolicy
         return $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
-    public function view(User $user, TriggerTicket $achievementTicket): bool
+    public function view(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         return false;
     }
 
     public function create(User $user): bool
     {
-        return $user->email_verified_at !== null;
+        return false;
     }
 
-    public function update(User $user, TriggerTicket $achievementTicket): bool
+    public function update(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         return false;
     }
 
-    public function delete(User $user, TriggerTicket $achievementTicket): bool
+    public function delete(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         return false;
     }
 
-    public function restore(User $user, TriggerTicket $achievementTicket): bool
+    public function restore(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, TriggerTicket $achievementTicket): bool
+    public function forceDelete(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         return false;
     }
