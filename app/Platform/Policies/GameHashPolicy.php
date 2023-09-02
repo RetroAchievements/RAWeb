@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Policies;
 
 use App\Platform\Models\GameHash;
+use App\Site\Enums\Permissions;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -15,9 +16,10 @@ class GameHashPolicy
 
     public function manage(User $user): bool
     {
-        return $user->hasAnyRole([
-            Role::HUB_MANAGER,
-        ]);
+        return $user->getAttribute('Permissions') >= Permissions::Developer;
+        // return $user->hasAnyRole([
+        //     Role::HUB_MANAGER,
+        // ]);
     }
 
     public function viewAny(?User $user): bool
