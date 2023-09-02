@@ -32,16 +32,18 @@ abstract class ClaimFilters
 
     public const JuniorDeveloperClaim = 1 << 12;
 
+    public const InReviewClaim = 1 << 13;
+
     // This should be updated every time a new filter is added so it has all possible filter bits set
-    public const AllFilters = (1 << 13) - 1;
+    public const AllFilters = (1 << 14) - 1;
 
     // Filter to show all Complete Primary claims
-    public const AllCompletedPrimaryClaims = self::AllFilters & ~self::ActiveClaim & ~self::DroppedClaim & ~self::CollaborationClaim;
+    public const AllCompletedPrimaryClaims = self::AllFilters & ~self::ActiveClaim & ~self::InReviewClaim & ~self::DroppedClaim & ~self::CollaborationClaim;
 
     // Default filter is everything except Complete and Dropped claims
     public const AllActiveClaims = self::AllFilters & ~self::CompleteClaim & ~self::DroppedClaim;
 
-    public const AllDroppedClaims = self::AllFilters & ~self::CompleteClaim & ~self::ActiveClaim;
+    public const AllDroppedClaims = self::AllFilters & ~self::CompleteClaim & ~self::ActiveClaim & ~self::InReviewClaim;
 
     public static function cases(): array
     {
@@ -59,6 +61,7 @@ abstract class ClaimFilters
             self::SpecialScheduledRelease,
             self::DeveloperClaim,
             self::JuniorDeveloperClaim,
+            self::InReviewClaim,
             self::AllFilters,
             self::AllCompletedPrimaryClaims,
             self::AllActiveClaims,

@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
@@ -1343,8 +1344,12 @@ sanitize_outputs(
                     $primaryClaim = 1;
                     if ($claimListLength > 0) {
                         echo "Claimed by: ";
+                        $reviewText = '';
                         foreach ($claimData as $claim) {
                             $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
+                            if ($claim['Status'] == ClaimStatus::InReview) {
+                                $reviewText = " (" . ClaimStatus::toString(ClaimStatus::InReview) . ")";
+                            }
                             $claimExpiration = Carbon::parse($claim['Expiration']);
                             echo userAvatar($claim['User'], icon: false) . $revisionText;
                             if ($claimListLength > 1) {
@@ -1353,6 +1358,7 @@ sanitize_outputs(
                             $claimListLength--;
                             $primaryClaim = 0;
                         }
+                        echo $reviewText;
 
                         if ($claimExpiration) {
                             $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast() ? "Expired" : "Expires";
