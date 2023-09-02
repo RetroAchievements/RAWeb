@@ -180,7 +180,7 @@ function ListGames(
         // Totals:
         echo "<tr class='do-not-highlight'>";
         echo "<td></td>";
-        echo "<td><b>Totals: $gameCount games</b></td>";
+        echo "<td><b>Totals: $gameCount " . trans_choice(__('resource.game.title'), $gameCount) . "</b></td>";
         echo "<td><b>$achievementsTally</b></td>";
         echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
         echo "<td></td>";
@@ -260,7 +260,7 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
             } else {
                 echo renderConsoleHeading($consoleIDInput, $consoleName);
 
-                echo "<div style='float:left'>$gamesCount Games</div>";
+                echo "<div style='float:left'>$gamesCount " . trans_choice(__('resource.game.title'), $gamesCount) . "</div>";
 
                 $queryParamArray = [];
                 if ($listType !== null) {
