@@ -1,7 +1,8 @@
 @props([
-    'consoleName' => 'Unknown Console',
-    'gameTitle' => 'Unknown Game',
     'gameId' => 0,
+    'gameTitle' => 'Unknown Game',
+    'consoleId' => 0,
+    'consoleName' => 'Unknown Console',
     'iconUrl' => asset("assets/images/system/unknown.png"),
     'user' => null,
     'userPermissions' => null,
@@ -9,6 +10,7 @@
 
 <?php
 use App\Community\Enums\UserGameListType;
+use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
 
 // TODO: Migrate renderGameTitle to a Blade component.
@@ -25,7 +27,7 @@ $type = UserGameListType::Play;
             <span class="block text-sm tracking-tighter">{{ $consoleName }}</span>
         </div>
 
-        @if (!empty($user) && $userPermissions >= Permissions::Registered)
+        @if (!empty($user) && $userPermissions >= Permissions::Registered && System::isGameSystem($consoleId))
             <x-game.add-to-list :gameId="$gameId" :type="$type" :user="$user" />
         @endif
     </div>

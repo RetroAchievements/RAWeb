@@ -837,9 +837,10 @@ sanitize_outputs(
 
             echo Blade::render('
                 <x-game.heading
-                    :consoleName="$consoleName"
-                    :gameTitle="$gameTitle"
                     :gameId="$gameID"
+                    :gameTitle="$gameTitle"
+                    :consoleId="$consoleID"
+                    :consoleName="$consoleName"
                     :iconUrl="$iconUrl"
                     :user="$user"
                     :userPermissions="$permissions"
