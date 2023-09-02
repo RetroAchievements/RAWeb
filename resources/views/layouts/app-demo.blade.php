@@ -14,7 +14,7 @@
     data-theme="{{ request()->cookie('theme', '') }}"
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
 >
-<x-navbar fluid class="lg:h-14 bg-embedded px-4 flex flex-col justify-center lg:sticky top-0">
+<x-navbar fluid class="bg-embedded px-4 flex flex-col justify-center lg:sticky top-0">
     <x-slot name="brand">
        <x-menu.brand />
    </x-slot>

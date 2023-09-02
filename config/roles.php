@@ -1,5 +1,6 @@
 <?php
 
+use App\Site\Enums\Permissions;
 use App\Site\Models\Role;
 
 $rootAssignable = [
@@ -48,6 +49,7 @@ return [
         // ],
         'assign' => array_merge($rootAssignable, $adminAssignable),
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
     [
         'name' => Role::ADMINISTRATOR,
@@ -59,6 +61,7 @@ return [
         // ],
         'assign' => $adminAssignable,
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
     [
         'name' => Role::DEVELOPER, // development access
@@ -67,6 +70,7 @@ return [
         //     'manage',
         //     'develop',
         // ],
+        'legacy_role' => Permissions::JuniorDeveloper,
     ],
     [
         'name' => Role::DEVELOPER_LEVEL_1, // staff dev
@@ -77,6 +81,7 @@ return [
         // ],
         'assign' => $level1DevAssignable,
         'staff' => true,
+        'legacy_role' => Permissions::Developer,
     ],
     [
         'name' => Role::DEVELOPER_LEVEL_2, // dev
@@ -86,6 +91,7 @@ return [
         //     'manageAchievements',
         //     'develop',
         // ],
+        'legacy_role' => Permissions::Developer,
     ],
     [
         'name' => Role::DEVELOPER_LEVEL_3, // jr. dev
@@ -94,6 +100,7 @@ return [
         //     'manage',
         //     'develop',
         // ],
+        'legacy_role' => Permissions::JuniorDeveloper,
     ],
 
     /*
@@ -107,6 +114,7 @@ return [
         //     'manageReleases',
         // ],
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
 
     /*
@@ -120,6 +128,7 @@ return [
         //     'moderate',
         // ],
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
     [
         'name' => Role::FORUM_MANAGER,
@@ -129,6 +138,7 @@ return [
         //     'manageForums',
         // ],
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
     [
         'name' => Role::HUB_MANAGER,
@@ -139,6 +149,7 @@ return [
         //     'manageSystems',
         // ],
         'staff' => true,
+        'legacy_role' => Permissions::Developer,
     ],
     [
         'name' => Role::NEWS_MANAGER,
@@ -148,6 +159,7 @@ return [
         //     'manageNews',
         // ],
         'staff' => true,
+        'legacy_role' => Permissions::Developer,
     ],
     [
         'name' => Role::TICKET_MANAGER,
@@ -157,6 +169,7 @@ return [
         //     'manageTickets',
         // ],
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
     [
         'name' => Role::EVENT_MANAGER,
@@ -166,6 +179,7 @@ return [
         //     'manageEvents',
         // ],
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
 
     /*
@@ -178,6 +192,7 @@ return [
         //     'manage',
         //     'develop',
         // ],
+        'legacy_role' => Permissions::JuniorDeveloper,
     ],
 
     /*
@@ -186,6 +201,7 @@ return [
     [
         'name' => Role::DEVELOPER_VETERAN,
         'display' => 5,
+        'legacy_role' => Permissions::Developer,
     ],
 
     /*
@@ -195,16 +211,19 @@ return [
         'name' => Role::FOUNDER,
         'display' => 1,
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
     [
         'name' => Role::ARCHITECT,
         'display' => 1,
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
     [
         'name' => Role::ENGINEER,
         'display' => 1,
         'staff' => true,
+        'legacy_role' => Permissions::Moderator,
     ],
 
     /*
@@ -213,11 +232,12 @@ return [
     [
         'name' => Role::BETA,
         'display' => 0,
+        'legacy_role' => Permissions::Registered,
     ],
 
-/*
- * assigned by system
- */
+    /*
+     * assigned by system
+     */
     // [
     //     'name' => Role::SUPPORTER,
     //     'display' => 5,

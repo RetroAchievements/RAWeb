@@ -45,6 +45,7 @@ class AuthServiceProvider extends ServiceProvider
                     return true;
                 }
 
+                // TODO remove as soon as permission matrix is in place
                 if ($user->Permissions >= Permissions::Moderator) {
                     return true;
                 }
@@ -64,29 +65,32 @@ class AuthServiceProvider extends ServiceProvider
          * which actions are allowed specifically has to be defined in the respective policies
          * Note: this ability should not be called 'manage' or policies might default to true if manage() method does not exist there
          */
-        Gate::define('accessManagementTools', fn (User $user) => $user->hasAnyRole([
-            Role::ADMINISTRATOR,
-            Role::MODERATOR,
-            // Role::COMMUNITY_MANAGER, // rather a mix of moderator and specialized management role?
-            Role::EVENT_MANAGER,
-            Role::FORUM_MANAGER,
-            Role::HUB_MANAGER,
-            Role::NEWS_MANAGER,
-            Role::RELEASE_MANAGER,
-            Role::TICKET_MANAGER,
-            Role::DEVELOPER,
-            Role::ARTIST,
-            Role::WRITER,
-        ]));
+        // Gate::define('accessManagementTools', fn (User $user) => $user->hasAnyRole([
+        //     Role::ADMINISTRATOR,
+        //     Role::MODERATOR,
+        //     // Role::COMMUNITY_MANAGER, // rather a mix of moderator and specialized management role?
+        //     Role::EVENT_MANAGER,
+        //     Role::FORUM_MANAGER,
+        //     Role::HUB_MANAGER,
+        //     Role::NEWS_MANAGER,
+        //     Role::RELEASE_MANAGER,
+        //     Role::TICKET_MANAGER,
+        //     Role::DEVELOPER,
+        //     Role::ARTIST,
+        //     Role::WRITER,
+        // ]));
+        // TODO remove as soon as permission matrix is in place
+        Gate::define('accessManagementTools', fn (User $user) => $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
 
         /*
          * can "create". meant for creator tools opt-in
          */
-        Gate::define('develop', fn (User $user) => $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::ARTIST,
-            Role::WRITER,
-        ]));
+        // Gate::define('develop', fn (User $user) => $user->hasAnyRole([
+        //     Role::DEVELOPER,
+        //     Role::ARTIST,
+        //     Role::WRITER,
+        // ]));
+        Gate::define('develop', fn (User $user) => $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
 
         /*
          * settings

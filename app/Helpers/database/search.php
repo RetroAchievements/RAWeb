@@ -158,14 +158,14 @@ function performSearch(
             END AS Type,
             cua.User AS ID,
             CASE
-                WHEN c.articletype=" . ArticleType::Game . " THEN CONCAT('/game/', c.ArticleID)
-                WHEN c.articletype=" . ArticleType::Achievement . " THEN CONCAT('/achievement/', c.ArticleID)
-                WHEN c.articletype=" . ArticleType::Leaderboard . " THEN CONCAT('/leaderboardinfo.php?i=', c.ArticleID)
-                WHEN c.articletype=" . ArticleType::AchievementTicket . " THEN CONCAT('/ticketmanager.php?i=', c.ArticleID)
-                WHEN c.articletype=" . ArticleType::User . " THEN CONCAT('/user/', ua.User)
-                WHEN c.articletype=" . ArticleType::UserModeration . " THEN CONCAT('/user/', ua.User)
-                WHEN c.articletype=" . ArticleType::GameHash . " THEN CONCAT('/managehashes.php?g=', c.ArticleID)
-                WHEN c.articletype=" . ArticleType::SetClaim . " THEN CONCAT('/manageclaims.php?g=', c.ArticleID)
+                WHEN c.articletype=" . ArticleType::Game . " THEN CONCAT('/game/', c.ArticleID, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::Achievement . " THEN CONCAT('/achievement/', c.ArticleID, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::Leaderboard . " THEN CONCAT('/leaderboardinfo.php?i=', c.ArticleID, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::AchievementTicket . " THEN CONCAT('/ticketmanager.php?i=', c.ArticleID, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::User . " THEN CONCAT('/user/', ua.User, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::UserModeration . " THEN CONCAT('/user/', ua.User, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::GameHash . " THEN CONCAT('/managehashes.php?g=', c.ArticleID, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::SetClaim . " THEN CONCAT('/manageclaims.php?g=', c.ArticleID, '#comment_', c.ID)
                 ELSE CONCAT(c.articletype, '/', c.ArticleID)
             END AS Target,
             CASE
@@ -174,7 +174,7 @@ function performSearch(
             END AS Title
             FROM Comment AS c
             LEFT JOIN UserAccounts AS cua ON cua.ID=c.UserID
-            LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype=" . ArticleType::User . "
+            LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype in (" . ArticleType::User . "," . ArticleType::UserModeration . ")
             WHERE c.Payload LIKE '%$searchQuery%'
             AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
             AND ua.Deleted IS NULL AND (ua.UserWallActive OR ua.UserWallActive IS NULL)

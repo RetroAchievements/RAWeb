@@ -64,32 +64,9 @@ if ($user) {
     @endguest
     @auth
         <div class="flex justify-between items-start gap-2">
-            <a class="order-2" href="{{ $user->canonicalUrl }}">
-                <img class="userpic rounded-sm" src="{{ $user->avatarUrl }}" alt="Profile Picture" width="64" height="64">
-            </a>
             <div class="grow flex flex-col justify-between">
                 <div>
                     <strong><a href="{{ $user->canonicalUrl }}">{{ $user->User }}</a></strong>
-                </div>
-                <div class="flex gap-2 mb-0.5">
-                    @if ($user->RAPoints)
-                        <span>
-                            ({{ localized_number($user->RAPoints) }})
-                        </span>
-
-                        <x-points-weighted-container>
-                            ({{ localized_number($user->TrueRAPoints) }})
-                        </x-points-weighted-container>
-                    @endif
-                    @if ($user->RASoftcorePoints)
-                        <span class="softcore cursor-help" title="Softcore Points">
-                            @if ($user->RAPoints)
-                                ({{ localized_number($user->RASoftcorePoints) }})
-                            @else
-                                ({{ localized_number($user->RASoftcorePoints) }} softcore)
-                            @endif
-                        </span>
-                    @endif
                 </div>
                 <div class="flex gap-5 items-center">
                     <a href="/inbox.php" class="flex items-center gap-x-1" title="Unread messages: {{ $user->UnreadMessageCount }}">

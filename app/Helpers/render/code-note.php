@@ -53,8 +53,8 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
                 <div class="font-mono note-display block" style="word-break: break-word;">$memNote</div>
                 <textarea class="w-full font-mono note-edit hidden">$originalMemNote</textarea>
                 <div class="mt-[6px] flex justify-between">
-                    <button class="save-btn hidden" onclick="saveCodeNote($rowIndex)">Save</button>
-                    <button class="delete-btn btn-danger hidden" onclick="deleteCodeNote($rowIndex)">Delete</button>
+                    <button class="btn save-btn hidden" type="button" onclick="saveCodeNote($rowIndex)">Save</button>
+                    <button class="btn delete-btn btn-danger hidden" type="button" onclick="deleteCodeNote($rowIndex)">Delete</button>
                 </div>
             </td>
         HTML;
@@ -65,8 +65,8 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
 
         if ($canEditNote) {
             echo "<td>";
-            echo "<button class='edit-btn inline' onclick='beginEditMode($rowIndex)'>Edit</button>";
-            echo "<button class='cancel-btn hidden' onclick='cancelEditMode($rowIndex)'>Cancel</button>";
+            echo "<button class='btn edit-btn inline' type='button' onclick='beginEditMode($rowIndex)'>Edit</button>";
+            echo "<button class='btn cancel-btn hidden' type='button' onclick='cancelEditMode($rowIndex)'>Cancel</button>";
             echo "</td>";
         } elseif ($isEditable) {
             echo "<td></td>";

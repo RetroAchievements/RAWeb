@@ -64,16 +64,16 @@ $claimBlockedByMissingForumTopic = !$isRevision && $userPermissions == Permissio
 // User has an open claim or is claiming own set or is making a collaboration claim and missing forum topic is not blocking
 $canClaim = ($userHasClaimSlot || $isSoleAuthor || $isCollaboration) && !$hasGameClaimed && !$claimBlockedByMissingForumTopic;
 
-$revisionDialogFlag = ($isRevision && !$isSoleAuthor) ? 'true' : 'false';
-$ticketDialogFlag = $hasOpenTickets ? 'true' : 'false';
-$isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440 ? 'true' : 'false';
+$revisionDialogFlag = $isRevision && !$isSoleAuthor;
+$ticketDialogFlag = $hasOpenTickets;
+$isRecentPrimaryClaim = $primaryClaimMinutesActive <= 1440;
 ?>
 
 <script>
 function makeClaim() {
     const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
-    const hasRevisionFlag = {{ $revisionDialogFlag }};
-    const hasTicketFlag = {{ $ticketDialogFlag }};
+    const hasRevisionFlag = {{ (int) $revisionDialogFlag }};
+    const hasTicketFlag = {{ (int) $ticketDialogFlag}};
 
     let revisionMessage = '';
     if (hasRevisionFlag) {
@@ -105,7 +105,7 @@ function extendClaim() {
 
 function completeClaim() {
     const gameTitle = "{!! html_entity_decode($gameTitle) !!}";
-    const showEarlyReleaseWarning = {{ $isRecentPrimaryClaim }};
+    const showEarlyReleaseWarning = {{ (int) $isRecentPrimaryClaim }};
 
     let earlyReleaseMessage = '';
     if (showEarlyReleaseWarning) {
@@ -131,7 +131,7 @@ function completeClaim() {
         @if ($createTopic)
             <input type="hidden" name="create_topic" value="1">
         @endif
-        <button>
+        <button class="btn">
             Make
             {{ ClaimSetType::toString($claimSetType) }}
             {{ ClaimType::toString($claimType) }}
@@ -147,14 +147,14 @@ function completeClaim() {
 
 @elseif ($hasGameClaimed)
     @if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080)
-        <form 
+        <form
             action="/request/set-claim/extend-claim.php"
             method="post"
             onsubmit="return extendClaim()"
         >
             {!! csrf_field() !!}
             <input type="hidden" name="game" value="{{ $gameId }}">
-            <button>Extend Claim</button>
+            <button class="btn">Extend Claim</button>
         </form>
     @endif
 
@@ -168,7 +168,7 @@ function completeClaim() {
         <input type="hidden" name="game" value="{{ $gameId }}">
         <input type="hidden" name="claim_type" value="{{ $claimType }}">
         <input type="hidden" name="set_type" value="{{ $claimSetType }}">
-        <button>Drop {{ ClaimType::toString($claimType) }} Claim</button>
+        <button class="btn">Drop {{ ClaimType::toString($claimType) }} Claim</button>
     </form>
 @endif
 
@@ -186,7 +186,7 @@ function completeClaim() {
         >
             {!! csrf_field() !!}
             <input type="hidden" name="game" value="{{ $gameId }}">
-            <button>Complete Claim</button>
+            <button class="btn">Complete Claim</button>
             @if ($isRecentPrimaryClaim)
                 <a
                     href="https://docs.retroachievements.org/Claims-System/#how-to-complete-a-claim"

@@ -159,7 +159,7 @@ function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$last
     return false;
 }
 
-function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0): array
+function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
 {
     if (!getAccountDetails($user, $userInfo)) {
         return [];
@@ -186,7 +186,8 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
 
     $libraryOut['Rank'] = getUserRank($user);
 
-    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
+    $recentlyPlayedData = [];
+    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData) : 0;
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {
@@ -394,6 +395,10 @@ function GetUserFields(string $username, array $fields): ?array
 function getMostAwardedUsers(array $gameIDs): array
 {
     $retVal = [];
+    if (empty($gameIDs)) {
+        return $retVal;
+    }
+
     $query = "SELECT ua.User,
               SUM(IF(AwardDataExtra LIKE '0', 1, 0)) AS Completed,
               SUM(IF(AwardDataExtra LIKE '1', 1, 0)) AS Mastered
@@ -421,6 +426,10 @@ function getMostAwardedUsers(array $gameIDs): array
 function getMostAwardedGames(array $gameIDs): array
 {
     $retVal = [];
+    if (empty($gameIDs)) {
+        return $retVal;
+    }
+
     $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
               SUM(IF(AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
               SUM(IF(AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
