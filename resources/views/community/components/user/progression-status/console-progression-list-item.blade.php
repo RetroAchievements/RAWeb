@@ -19,93 +19,80 @@ $unfinishedGamesWidth = sprintf("%1.2f", ($unfinishedCount / $totalGamesCount) *
 $beatenGamesWidth = sprintf("%1.2f", ($totalBeatenGamesCount / $totalGamesCount) * 100.0);
 $masteredGamesWidth = sprintf("%1.2f", ($totalMasteredGamesCount / $totalGamesCount) * 100.0);
 
-$widthMode = "equal"; // equal or dynamic
+$widthsPreference = request()->cookie('progression_status_widths_preference');
+
+$widthMode = $widthsPreference;
+if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
+    $widthMode = 'equal';
+}
+
+$displayLabel = $label ?? config('systems')[$consoleId]['name_short'];
+$consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 ?>
 
-<li
-    class="
-        w-full h-[26px] bg-embed rounded flex items-center [&>*:last-child]:rounded-r 
-        [&>a]:h-full [&>a]:border [&>a]:flex [&>a]:items-center [&>a]:gap-x-2 [&>a]:whitespace-nowrap [&>a]:min-w-fit [&>a]:px-2
-        [&>a:not(:first-child)]:justify-center
-    "
->
+<li class="progression-status-row">
     <a
         href="#"
-        class="border-embed-highlight w-[102px] !min-w-[92px] pl-2 rounded-l"
+        class="border-embed-highlight w-[102px] !min-w-[92px] pl-2 rounded-l hover:border-link-hover"
+        @if (!$label) title="{{ $consoleTooltipLabel }}" @endif
     >
-        <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $label ? 'RA icon' : config('systems')[$consoleId]['name'] }} console icon">
-        <p class="block tracking-tighter">{{ $label ?? config('systems')[$consoleId]['name_short'] }}</p>
+        <img
+            src="{{ $gameSystemIconSrc }}"
+            width="18"
+            height="18"
+            alt="{{ $label ? 'RA icon' : $consoleTooltipLabel }} console icon"
+        >
+        <p class="block tracking-tighter">{{ $displayLabel }}</p>
     </a>
 
-    @if ($unfinishedCount > 0 || $widthMode === "equal")
-        <a
-            href="#"
-            class="border-embed-highlight text-neutral-500 transition-all"
-            style="width: {{ $widthMode === 'equal' ? '100' : $unfinishedGamesWidth }}%"
-            x-show="widthMode === 'equal' || {{ $unfinishedCount }} > 0"
-            x-transition:leave="100ms"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            x-transition:enter="100ms"
-            x-bind:style="'width: ' + (widthMode === 'equal' ? '100' : '{{ $unfinishedGamesWidth }}') + '%'"
-        >
-            {{ $unfinishedCount }}
-        </a>
-    @endif
+    <x-user.progression-status.list-item-cell-link
+        cellType="unfinished"
+        :widthMode="$widthMode"
+        :cellGamesCounts="[$unfinishedCount]"
+        :totalGamesCount="$totalGamesCount"
+    >
+        {{ $unfinishedCount }}
+    </x-user.progression-status.list-item-cell-link>
 
-    @if ($beatenSoftcoreCount > 0 || $beatenHardcoreCount > 0 || $widthMode === "equal")
-        <a
-            href="#"
-            class="border-zinc-400/50 bg-neutral-400/10 text-zinc-300 transition-all flex gap-x-4"
-            style="width: {{ $widthMode === 'equal' ? '100' : $beatenGamesWidth }}%"
-            x-show="widthMode === 'equal' || {{ $beatenSoftcoreCount }} > 0 || {{ $beatenHardcoreCount }} > 0"
-            x-transition:leave="100ms"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            x-transition:enter="100ms"
-            x-bind:style="'width: ' + (widthMode === 'equal' ? '100' : '{{ $beatenGamesWidth }}') + '%'"
-        >
-            @if ($beatenSoftcoreCount > 0)
-                <div class="flex items-center gap-x-1 text-zinc-400">
-                    <div class="rounded-full w-2 h-2 border border-zinc-400"></div>
-                    {{ $beatenSoftcoreCount }}
-                </div>
-            @endif
+    <x-user.progression-status.list-item-cell-link
+        cellType="beaten"
+        :widthMode="$widthMode"
+        :cellGamesCounts="[$beatenSoftcoreCount, $beatenHardcoreCount]"
+        :totalGamesCount="$totalGamesCount"
+    >
+        @if ($beatenSoftcoreCount > 0)
+            <div class="tally text-zinc-400 light:text-zinc-600">
+                <div class="dot border border-zinc-400 light:border-zinc-600"></div>
+                {{ $beatenSoftcoreCount }}
+            </div>
+        @endif
 
-            @if ($beatenHardcoreCount > 0 || !$beatenSoftcoreCount)
-                <div class="flex items-center gap-x-1">
-                    <div class="rounded-full w-2 h-2 bg-zinc-300"></div>
-                    {{ $beatenHardcoreCount }}
-                </div>
-            @endif
-        </a>
-    @endif
+        @if ($beatenHardcoreCount > 0 || !$beatenSoftcoreCount)
+            <div class="tally">
+                <div class="dot bg-zinc-300 light:bg-zinc-500"></div>
+                {{ $beatenHardcoreCount }}
+            </div>
+        @endif
+    </x-user.progression-status.list-item-cell-link>
 
-    @if ($completedCount > 0 || $masteredCount > 0 || $widthMode === "equal")
-        <a
-            href="#"
-            class="border-yellow-600 bg-yellow-600/10 text-[gold] transition-all flex gap-x-4"
-            style="width: {{ $widthMode === 'equal' ? '100' : $masteredGamesWidth }}%"
-            x-show="widthMode === 'equal' || {{ $completedCount }} > 0 || {{ $masteredCount }} > 0"
-            x-transition:leave="100ms"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            x-transition:enter="100ms"
-            x-bind:style="'width: ' + (widthMode === 'equal' ? '100' : '{{ $masteredGamesWidth }}') + '%'"
-        >
-            @if ($completedCount > 0)
-                <div class="flex items-center gap-x-1 text-yellow-600">
-                    <div class="rounded-full w-2 h-2 border border-yellow-600"></div>
-                    {{ $completedCount }}
-                </div>
-            @endif
+    <x-user.progression-status.list-item-cell-link
+        cellType="mastered"
+        :widthMode="$widthMode"
+        :cellGamesCounts="[$completedCount, $masteredCount]"
+        :totalGamesCount="$totalGamesCount"
+    >
+        @if ($completedCount > 0)
+            <div class="tally text-yellow-600">
+                <div class="dot border border-yellow-600"></div>
+                {{ $completedCount }}
+            </div>
+        @endif
 
-            @if ($masteredCount > 0 || !$completedCount)
-                <div class="flex items-center gap-x-1">
-                    <div class="rounded-full w-2 h-2 bg-[gold]"></div>
-                    {{ $masteredCount }}
-                </div>
-            @endif
-        </a>
-    @endif
+        @if ($masteredCount > 0 || !$completedCount)
+            <div class="tally">
+                <div class="dot bg-[gold] light:bg-yellow-600"></div>
+                {{ $masteredCount }}
+            </div>
+        @endif
+    </x-user.progression-status.list-item-cell-link>
 </li>

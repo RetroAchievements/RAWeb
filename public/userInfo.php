@@ -480,21 +480,25 @@ RenderContentStart($userPage);
 
             echo "</div>"; // devbox
         }
-        
+
         // The component isn't as useful if we don't have data for the
         // Completion Progress component.
-        if ($user) {
+        if (config('feature.beat') && $user) {
             echo "<div class='mt-2 mb-8'>";
             echo Blade::render('
                 <x-user-progression-status
                     :userCompletionProgress="$userCompletionProgress"
                     :userSiteAwards="$userSiteAwards"
                     :userRecentlyPlayed="$userRecentlyPlayed"
+                    :userHardcorePoints="$userHardcorePoints"
+                    :userSoftcorePoints="$userSoftcorePoints"
                 />
             ', [
                 'userCompletionProgress' => $userCompletedGamesList,
                 'userSiteAwards' => $userAwards,
                 'userRecentlyPlayed' => $userMassData['RecentlyPlayed'],
+                'userHardcorePoints' => $totalHardcorePoints,
+                'userSoftcorePoints' => $totalSoftcorePoints,
             ]);
             echo "</div>";
         }

@@ -6,6 +6,7 @@ import type {
   hideEarnedCheckboxComponent as HideEarnedCheckboxComponent,
   tooltipComponent as TooltipComponent,
 } from '@/alpine';
+import type { setCookie as SetCookie } from '@/utils/cookie';
 import type { getStringByteCount as GetStringByteCount } from '@/utils/getStringByteCount';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
@@ -25,6 +26,7 @@ declare global {
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
   var newsCarouselComponent: typeof NewsCarouselComponent;
+  var setCookie: typeof SetCookie;
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;

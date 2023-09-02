@@ -12,17 +12,23 @@ use Illuminate\View\Component;
 class UserProgressionStatus extends Component
 {
     private array $userCompletionProgress = [];
-    private array $userSiteAwards = [];
     private array $userRecentlyPlayed = [];
+    private array $userSiteAwards = [];
+    private int $userHardcorePoints = 0;
+    private int $userSoftcorePoints = 0;
 
     public function __construct(
         array $userCompletionProgress = [],
         array $userSiteAwards = [],
         array $userRecentlyPlayed = [],
+        int $userHardcorePoints = 0,
+        int $userSoftcorePoints = 0,
     ) {
         $this->userCompletionProgress = $userCompletionProgress;
         $this->userSiteAwards = $userSiteAwards;
         $this->userRecentlyPlayed = $userRecentlyPlayed;
+        $this->userHardcorePoints = $userHardcorePoints;
+        $this->userSoftcorePoints = $userSoftcorePoints;
     }
 
     public function render(): ?View
@@ -52,6 +58,8 @@ class UserProgressionStatus extends Component
             'totalBeatenHardcoreCount' => $totalBeatenHardcoreCount,
             'totalCompletedCount' => $totalCompletedCount,
             'totalMasteredCount' => $totalMasteredCount,
+            'userHardcorePoints' => $this->userHardcorePoints,
+            'userSoftcorePoints' => $this->userSoftcorePoints,
         ]);
     }
 
@@ -59,7 +67,7 @@ class UserProgressionStatus extends Component
     {
         $joinedData = [];
 
-        // Populate joinedData with userCompletionProgress information
+        // Populate joinedData with userCompletionProgress information.
         foreach ($userCompletionProgress as $progress) {
             $consoleId = $progress['ConsoleID'];
             $gameId = $progress['GameID'];
@@ -71,7 +79,7 @@ class UserProgressionStatus extends Component
             $joinedData[$consoleId][$gameId] = ['progress' => $progress, 'awards' => []];
         }
 
-        // Add userSiteAwards information into joinedData
+        // Add userSiteAwards information into joinedData.
         foreach ($userSiteAwards as $award) {
             $gameId = $award['AwardData'];
             $consoleId = $award['ConsoleID'];
@@ -87,12 +95,12 @@ class UserProgressionStatus extends Component
             $joinedData[$consoleId][$gameId]['awards'][] = $award;
         }
 
-        // Initialize the result array
+        // Initialize the result array.
         $consoleProgress = [];
 
-        // Loop through joinedData to calculate counts
+        // Loop through joinedData to calculate counts.
         foreach ($joinedData as $consoleId => $games) {
-            if (!$consoleId || $consoleId == 101) { // Skip the "Events" console
+            if (!$consoleId || $consoleId == 101) { // Exclude the "Events" console.
                 continue;
             }
 
@@ -145,7 +153,7 @@ class UserProgressionStatus extends Component
         array $userSiteAwards
     ): array {
         $mostRecentlyPlayedConsole = collect($userRecentlyPlayed)
-            ->reject(fn ($game) => $game['ConsoleID'] == 101) // Exclude the "Events" console
+            ->reject(fn ($game) => $game['ConsoleID'] == 101) // Exclude the "Events" console.
             ->groupBy('ConsoleID')
             ->map(fn ($games) => $games->max('LastPlayed'))
             ->sortDesc()
@@ -155,11 +163,12 @@ class UserProgressionStatus extends Component
         $gameToConsoleMap = collect($userCompletionProgress)->pluck('ConsoleID', 'GameID');
         $userSiteAwardsWithConsoleID = collect($userSiteAwards)->map(function ($award) use ($gameToConsoleMap) {
             $award['ConsoleID'] = $gameToConsoleMap->get($award['AwardData'], null);
+
             return $award;
         });
 
         $mostRecentlyAwardedConsole = collect($userSiteAwardsWithConsoleID)
-            ->reject(fn ($award) => $award['ConsoleID'] == 101) // Exclude the "Events" console
+            ->reject(fn ($award) => $award['ConsoleID'] == 101) // Exclude the "Events" console.
             ->groupBy('ConsoleID')
             ->map(fn ($awards) => $awards->max('AwardedAt'))
             ->sortDesc()
@@ -172,24 +181,17 @@ class UserProgressionStatus extends Component
             if ($a['ConsoleID'] === $topConsole) {
                 return -1;
             }
-        
+
             if ($b['ConsoleID'] === $topConsole) {
                 return 1;
             }
-        
+
             $sumA = $a['unfinishedCount'] + $a['beatenSoftcoreCount'] + $a['beatenHardcoreCount'] + $a['completedCount'] + $a['masteredCount'];
             $sumB = $b['unfinishedCount'] + $b['beatenSoftcoreCount'] + $b['beatenHardcoreCount'] + $b['completedCount'] + $b['masteredCount'];
-            
+
             return $sumB <=> $sumA;
         });
 
         return [$consoleProgress, $topConsole];
     }
 }
-
-// TODO: light mode
-// TODO: a11y
-// TODO: tests
-// TODO: if >10k points and no beaten awards, prompt to recalc
-// TODO: feature flag
-// TODO: make sure works with new auth changes
