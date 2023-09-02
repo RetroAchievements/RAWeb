@@ -3,6 +3,7 @@
 use App\Community\Enums\UserGameListType;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
@@ -108,7 +109,11 @@ function ListGames(
 
         echo "<tr>";
 
-        echo "<td class='pr-0'>";
+        if ($showConsoleName) {
+            echo "<td class='pr-0 py-2'>";
+        } else {
+            echo "<td class='pr-0'>";
+        }
         echo Blade::render('
             <x-game.multiline-avatar
                 :gameId="$gameId"
