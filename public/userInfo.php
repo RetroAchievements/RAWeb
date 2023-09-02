@@ -20,7 +20,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
+$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch, isAuthenticated: $user !== null);
 if (empty($userMassData)) {
     abort(404);
 }
@@ -52,7 +52,7 @@ $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
 // Get user's list of played games and pct completion
-$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
+$userCompletedGamesList = $user ? getUsersCompletedGamesAndMax($userPage) : [];
 
 $excludedConsoles = ["Hubs", "Events"];
 
@@ -630,7 +630,10 @@ RenderContentStart($userPage);
         $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_completed_sets') === 'true';
 
         RenderSiteAwards(getUsersSiteAwards($userPage), $userPage);
-        RenderCompletedGamesList($userCompletedGamesList, $userPage, $prefersHiddenUserCompletedSets);
+
+        if (count($userCompletedGamesList) >= 1) {
+            RenderCompletedGamesList($userCompletedGamesList, $userPage, $prefersHiddenUserCompletedSets);
+        }
 
         echo "<div id='achdistribution' class='component'>";
         echo "<h3>Recent Progress</h3>";

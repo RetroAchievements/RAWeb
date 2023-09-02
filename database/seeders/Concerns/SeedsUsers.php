@@ -9,12 +9,15 @@ use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 trait SeedsUsers
 {
     protected function seedUserByUsername(string $username = 'verified', array $attributes = []): User
     {
-        $safeUsername = '__' . $username;
+        // TODO move to UserFactory
+
+        $safeUsername = str_replace('-', '', Str::title($username));
 
         // see if username matches a role
         $role = (new Collection(config('roles')))->firstWhere('name', $username);
@@ -31,7 +34,7 @@ trait SeedsUsers
             'Password' => Hash::make($safeUsername),
             'TrueRAPoints' => 1010,
             'User' => $safeUsername,
-            'display_name' => strtoupper($safeUsername),
+            'display_name' => $safeUsername,
         ], $attributes));
 
         $user->rollConnectToken();
