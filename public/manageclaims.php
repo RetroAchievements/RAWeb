@@ -238,7 +238,7 @@ RenderContentStart("Manage Claims - $gameTitle");
             echo "<input id='doneDate_$claimID' size='18' value='" . $claim['DoneTime'] . "'>";
             echo "</td>";
 
-            echo "<td><button onclick=\"UpdateClaimDetails($claimID, '$claimUser', " . $claim['ClaimType'] . ", " . $claim['SetType'] . ", " . $claim['Status'] . ", " . $claim['Special'] . ", '" . $claim['Created'] . "', '" . $claim['DoneTime'] . "');\">Update</button></td>";
+            echo "<td><button class='btn' type='button' onclick=\"UpdateClaimDetails($claimID, '$claimUser', " . $claim['ClaimType'] . ", " . $claim['SetType'] . ", " . $claim['Status'] . ", " . $claim['Special'] . ", '" . $claim['Created'] . "', '" . $claim['DoneTime'] . "');\">Update</button></td>";
         }
         echo "</tbody></table></div>";
 

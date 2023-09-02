@@ -51,6 +51,12 @@
                 <code>{{ '<br>' }}</code>s are meant for single line breaks.
             </p>
         </x-section>
+
+        <x-section>
+            <h3>Feature Flags</h3>
+            <x-feature-flags />
+        </x-section>
+
         <div>
             This is not in a {{ '<section>' }}.
         </div>

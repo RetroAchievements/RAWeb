@@ -33,7 +33,7 @@ RenderContentStart("Users");
     <div id="fullcontainer">
         <?php
         echo "<div class='navpath'>";
-        echo "<b>All Users";
+        echo "<b>" . __res('user');
 
         if ($permissionName != null) {
             echo " &raquo; $permissionName";
@@ -45,7 +45,7 @@ RenderContentStart("Users");
         echo "</b></div>";
 
         echo "<div>";
-        echo "<h2>User List:</h2>";
+        echo "<h2>" . __res('user') . "</h2>";
 
         echo "<p class='embedded'>Filter: ";
 
@@ -94,7 +94,7 @@ RenderContentStart("Users");
         }
         echo "<th><a href='/userList.php?s=$sort1&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>User</a></th>";
         echo "<th><a href='/userList.php?s=$sort2&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Points</a></th>";
-        echo "<th><a href='/userList.php?s=$sort3&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Num Achievements Earned</a></th>";
+        echo "<th><a href='/userList.php?s=$sort3&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Achievements</a></th>";
         echo "<th><a href='/userList.php?s=$sort4&p=$perms" . ($showUntracked ? "&u=1" : '') . "'>Last Login</a></th>";
         echo "</tr>";
 

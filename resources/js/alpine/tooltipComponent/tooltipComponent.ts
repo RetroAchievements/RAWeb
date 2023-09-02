@@ -104,7 +104,7 @@ export function tooltipComponent(anchorEl: HTMLElement, props: Partial<TooltipPr
   const trackMouseMovement = (event: MouseEvent) => {
     store.trackedMouseX = event.pageX;
     store.trackedMouseY = event.pageY;
-    trackTooltipMouseMovement(anchorEl, event);
+    trackTooltipMouseMovement(anchorEl, event, props?.dynamicType ? 'dynamic' : 'static');
   };
 
   return {

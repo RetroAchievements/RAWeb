@@ -159,7 +159,7 @@ function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$last
     return false;
 }
 
-function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0): array
+function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
 {
     if (!getAccountDetails($user, $userInfo)) {
         return [];
@@ -186,7 +186,8 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
 
     $libraryOut['Rank'] = getUserRank($user);
 
-    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData);
+    $recentlyPlayedData = [];
+    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData) : 0;
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {
