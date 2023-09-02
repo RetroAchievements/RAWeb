@@ -61,6 +61,9 @@ RenderContentStart("Manage Claims - $gameTitle");
             case <?= ClaimStatus::Dropped ?>:
                 comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::Dropped) ?>. ";
                 break;
+            case <?= ClaimStatus::InReview ?>:
+                comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::InReview) ?>. ";
+                break;
             default:
                 comment += "Claim Status: <?= ClaimStatus::toString(ClaimStatus::Active) ?>. ";
                 break;
@@ -141,6 +144,7 @@ RenderContentStart("Manage Claims - $gameTitle");
         echo "<b>" . ClaimSetType::toString(ClaimSetType::Revision) . "</b> - Claim is for a game with core achievements.</br>";
         echo "</br><u>Claim Status</u></br>";
         echo "<b>" . ClaimStatus::toString(ClaimStatus::Active) . "</b> - Claim is currently active.</br>";
+        echo "<b>" . ClaimStatus::toString(ClaimStatus::InReview) . "</b> - Claim is active and in review.</br>";
         echo "<b>" . ClaimStatus::toString(ClaimStatus::Complete) . "</b> - Claim has been marked as complete by the developer.</br>";
         echo "<b>" . ClaimStatus::toString(ClaimStatus::Dropped) . "</b> - Claim has been dropped by the developer.</br>";
         echo "</br><u>Special</u></br>";
@@ -196,28 +200,10 @@ RenderContentStart("Manage Claims - $gameTitle");
             } else {
                 echo "<select id='status_$claimID'>";
             }
-            switch ($claim['Status']) {
-                case ClaimStatus::Active:
-                    echo "<option selected value=" . ClaimStatus::Active . ">" . ClaimStatus::toString(ClaimStatus::Active) . "</option>";
-                    echo "<option value=" . ClaimStatus::Complete . ">" . ClaimStatus::toString(ClaimStatus::Complete) . "</option>";
-                    echo "<option value=" . ClaimStatus::Dropped . ">" . ClaimStatus::toString(ClaimStatus::Dropped) . "</option>";
-                    break;
-                case ClaimStatus::Complete:
-                    echo "<option value=" . ClaimStatus::Active . ">" . ClaimStatus::toString(ClaimStatus::Active) . "</option>";
-                    echo "<option selected value=" . ClaimStatus::Complete . ">" . ClaimStatus::toString(ClaimStatus::Complete) . "</option>";
-                    echo "<option value=" . ClaimStatus::Dropped . ">" . ClaimStatus::toString(ClaimStatus::Dropped) . "</option>";
-                    break;
-                case ClaimStatus::Dropped:
-                    echo "<option value=" . ClaimStatus::Active . ">" . ClaimStatus::toString(ClaimStatus::Active) . "</option>";
-                    echo "<option value=" . ClaimStatus::Complete . ">" . ClaimStatus::toString(ClaimStatus::Complete) . "</option>";
-                    echo "<option selected value=" . ClaimStatus::Dropped . ">" . ClaimStatus::toString(ClaimStatus::Dropped) . "</option>";
-                    break;
-                default:
-                    echo "<option selected value=" . ClaimStatus::Active . ">" . ClaimStatus::toString(ClaimStatus::Active) . "</option>";
-                    echo "<option value=" . ClaimStatus::Complete . ">" . ClaimStatus::toString(ClaimStatus::Complete) . "</option>";
-                    echo "<option value=" . ClaimStatus::Dropped . ">" . ClaimStatus::toString(ClaimStatus::Dropped) . "</option>";
-                    break;
-            }
+            echo "<option " . ($claim['Status'] == ClaimStatus::Active ? "selected" : "") . " value=" . ClaimStatus::Active . ">" . ClaimStatus::toString(ClaimStatus::Active) . "</option>";
+            echo "<option " . ($claim['Status'] == ClaimStatus::InReview ? "selected" : "") . " value=" . ClaimStatus::InReview . ">" . ClaimStatus::toString(ClaimStatus::InReview) . "</option>";
+            echo "<option " . ($claim['Status'] == ClaimStatus::Complete ? "selected" : "") . " value=" . ClaimStatus::Complete . ">" . ClaimStatus::toString(ClaimStatus::Complete) . "</option>";
+            echo "<option " . ($claim['Status'] == ClaimStatus::Dropped ? "selected" : "") . " value=" . ClaimStatus::Dropped . ">" . ClaimStatus::toString(ClaimStatus::Dropped) . "</option>";
             echo "</select>";
             echo "</td>";
 
