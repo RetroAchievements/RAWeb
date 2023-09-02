@@ -58,6 +58,7 @@ if ($action === 'manual-unlock') {
 
     if (isset($awardAchievementID) && isset($awardAchievementUser)) {
         $usersToAward = preg_split('/\W+/', $awardAchievementUser);
+        $errors = [];
         foreach ($usersToAward as $nextUser) {
             $validUser = validateUsername($nextUser);
             if (!$validUser) {
@@ -66,6 +67,9 @@ if ($action === 'manual-unlock') {
             $ids = separateList($awardAchievementID);
             foreach ($ids as $nextID) {
                 $awardResponse = unlockAchievement($validUser, $nextID, $awardAchHardcore);
+                if (array_key_exists('Error', $awardResponse)) {
+                    $errors[] = $awardResponse['Error'];
+                }
             }
             recalculatePlayerPoints($validUser);
 
@@ -75,6 +79,10 @@ if ($action === 'manual-unlock') {
                 $hardcorePoints = $userPoints['RAPoints'];
                 $softcorePoints = $userPoints['RASoftcorePoints'];
             }
+        }
+
+        if (!empty($errors)) {
+            return back()->withErrors(join('. ', $errors));
         }
 
         return back()->with('success', __('legacy.success.ok'));

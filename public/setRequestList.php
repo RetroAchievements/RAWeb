@@ -152,8 +152,7 @@ RenderContentStart("Set Requests");
 
             if ($flag == 0) {
                 if ($username === $user) {
-                    $softcoreLimit = ($userSetRequestInformation['maxSoftcoreReached']) ? ' (maximum softcore contribution reached)' : '';
-                    echo "<div class='float-right'>Next request in " . $userSetRequestInformation['pointsForNext'] . " points$softcoreLimit</div>";
+                    echo "<div class='float-right'>Next request in " . $userSetRequestInformation['pointsForNext'] . " points</div>";
                 }
                 echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";
             } else {
