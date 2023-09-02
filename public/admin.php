@@ -4,6 +4,7 @@ use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\StaticData;
 use App\Site\Models\User;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     abort(401);
@@ -57,6 +58,7 @@ if ($action === 'manual-unlock') {
 
     if (isset($awardAchievementID) && isset($awardAchievementUser)) {
         $usersToAward = preg_split('/\W+/', $awardAchievementUser);
+        $errors = [];
         foreach ($usersToAward as $nextUser) {
             $validUser = validateUsername($nextUser);
             if (!$validUser) {
@@ -65,6 +67,9 @@ if ($action === 'manual-unlock') {
             $ids = separateList($awardAchievementID);
             foreach ($ids as $nextID) {
                 $awardResponse = unlockAchievement($validUser, $nextID, $awardAchHardcore);
+                if (array_key_exists('Error', $awardResponse)) {
+                    $errors[] = $awardResponse['Error'];
+                }
             }
             recalculatePlayerPoints($validUser);
 
@@ -74,6 +79,10 @@ if ($action === 'manual-unlock') {
                 $hardcorePoints = $userPoints['RAPoints'];
                 $softcorePoints = $userPoints['RASoftcorePoints'];
             }
+        }
+
+        if (!empty($errors)) {
+            return back()->withErrors(join('. ', $errors));
         }
 
         return back()->with('success', __('legacy.success.ok'));
@@ -387,6 +396,11 @@ RenderContentStart('Admin Tools');
                 </table>
                 <button class="btn">Submit</button>
             </form>
+        </div>
+
+        <div id="fullcontainer" class="w-full">
+            <h4>Feature Flags</h4>
+            <?= Blade::render('<x-feature-flags />'); ?>
         </div>
     <?php endif ?>
 </div>
