@@ -1,5 +1,5 @@
 function toggleUnlockedRows() {
-  const allUnlockedRows = document.querySelectorAll<HTMLTableRowElement>('tr.unlocked-row');
+  const allUnlockedRows = document.querySelectorAll<HTMLLIElement>('li.unlocked-row');
 
   allUnlockedRows.forEach((rowEl) => {
     if (rowEl.classList.contains('hidden')) {

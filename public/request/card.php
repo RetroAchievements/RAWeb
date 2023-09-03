@@ -10,10 +10,12 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'context' => 'sometimes|nullable|string',
 ]);
 
+$context = $input['context'] ?? null;
+
 return response()->json([
     'html' => match ($input['type']) {
-        'achievement' => renderAchievementCard($input['id'], context: $input['context']),
-        'game' => renderGameCard((int) $input['id'], targetUsername: $input['context']),
+        'achievement' => renderAchievementCard($input['id'], $context),
+        'game' => renderGameCard((int) $input['id'], $context),
         'ticket' => renderTicketCard((int) $input['id']),
         'user' => renderUserCard($input['id']),
         default => '?',

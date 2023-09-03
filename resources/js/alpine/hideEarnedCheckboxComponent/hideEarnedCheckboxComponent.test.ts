@@ -18,11 +18,11 @@ function render() {
         </input>
       </label>
 
-      <table>
-        <tr class="unlocked-row"></tr>
-        <tr class="unlocked-row"></tr>
-        <tr class=""></tr>
-      </table>
+      <ul>
+        <li class="unlocked-row"></li>
+        <li class="unlocked-row"></li>
+        <li class=""></li>
+      </ul>
     </div>
   `;
 }
@@ -47,7 +47,7 @@ describe('Component: hideEarnedCheckbox', () => {
       await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
 
       // ASSERT
-      const allRows = screen.getAllByRole('row');
+      const allRows = screen.getAllByRole('listitem');
       const visibleRows = allRows.filter((row) => !row.classList.contains('hidden'));
 
       expect(visibleRows.length).toEqual(1);
@@ -62,7 +62,7 @@ describe('Component: hideEarnedCheckbox', () => {
       await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
 
       // ASSERT
-      const allRows = screen.getAllByRole('row');
+      const allRows = screen.getAllByRole('listitem');
       const visibleRows = allRows.filter((row) => !row.classList.contains('hidden'));
 
       expect(visibleRows.length).toEqual(3);

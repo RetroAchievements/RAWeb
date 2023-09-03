@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
-use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Models\AchievementSetClaim;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameAlternative;
-use App\Platform\Models\PlayerBadge;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
@@ -39,10 +37,18 @@ class GameCard extends Component
             return null;
         }
 
-        $this->userGameProgressionAwards = $this->getUserGameProgressionAwards(
-            $this->gameId,
-            $this->usernameContext
-        );
+        $this->userGameProgressionAwards = [
+            'beaten-softcore' => null,
+            'beaten-hardcore' => null,
+            'completed' => null,
+            'mastered' => null,
+        ];
+        if ($this->usernameContext) {
+            $this->userGameProgressionAwards = getUserGameProgressionAwards(
+                $this->gameId,
+                $this->usernameContext,
+            );
+        }
 
         $cardViewValues = $this->buildAllCardViewValues(
             $rawGameData,
@@ -109,41 +115,6 @@ class GameCard extends Component
     }
 
     /**
-     * Retrieves a target user's site award metadata for a given game ID.
-     * An array is returned with keys "Completed" and "Mastered" which contain
-     * corresponding award details. If no progression awards are found, or if the
-     * target username is not provided, no awards are fetched or returned.
-     *
-     * @param ?string $usernameContext the target username to look up awards for
-     *
-     * @return array the array of a target user's site award metadata for a given game ID
-     */
-    private function getUserGameProgressionAwards(int $gameId, ?string $usernameContext): array
-    {
-        $userGameProgressionAwards = ['Completed' => null, 'Mastered' => null];
-
-        if ($usernameContext) {
-            $foundBadges = PlayerBadge::where('User', '=', $usernameContext)
-                ->where('AwardData', '=', $gameId)
-                ->get();
-
-            foreach ($foundBadges as $badge) {
-                if ($badge->AwardType === AwardType::Mastery) {
-                    if ($badge['AwardDataExtra'] === 0 && is_null($userGameProgressionAwards['Completed'])) {
-                        $userGameProgressionAwards['Completed'] = $badge;
-                    }
-
-                    if ($badge['AwardDataExtra'] === 1 && is_null($userGameProgressionAwards['Mastered'])) {
-                        $userGameProgressionAwards['Mastered'] = $badge;
-                    }
-                }
-            }
-        }
-
-        return $userGameProgressionAwards;
-    }
-
-    /**
      * Builds a human-readable label listing all active developers' usernames.
      * If no developers are active, it returns an empty string.
      * For one developer, it returns the developer's username.
@@ -203,7 +174,7 @@ class GameCard extends Component
             $isEvent,
         );
 
-        $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => $claim['Status'] == ClaimStatus::Active);
+        $activeClaims = array_filter($rawGameData['Claims'], fn ($claim) => ClaimStatus::isActive($claim['Status']));
         $activeDeveloperUsernames = array_map(fn ($activeClaim) => $activeClaim['User'], array_values($activeClaims));
         $activeDevelopersLabel = $this->buildActiveDevelopersLabel($activeDeveloperUsernames);
 
@@ -264,9 +235,6 @@ class GameCard extends Component
 
     /**
      * Builds an array containing the highest progression status and corresponding award date for a game.
-     * The method checks for "Completed" and "Mastered" awards in the received awards list.
-     * If "Mastered" is present, it takes precedence over "Completed".
-     * If neither "Mastered" nor "Completed" are present, both the status and award date are returned as null.
      *
      * @param bool $isEvent whether or not the game ID is associated with the "Events" console
      *
@@ -277,18 +245,20 @@ class GameCard extends Component
         $highestProgressionStatus = null;
         $highestProgressionAwardDate = null;
 
-        if ($userGameProgressionAwards['Completed']) {
-            $highestProgressionStatus = 'Completed';
-            $highestProgressionAwardDate = Carbon::parse($userGameProgressionAwards['Completed']['AwardDate']);
+        $progressionTypes = ['completed', 'mastered'];
+        if (config('feature.beat')) {
+            $progressionTypes = ['beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'];
         }
 
-        if ($userGameProgressionAwards['Mastered']) {
-            $highestProgressionStatus = 'Mastered';
-            $highestProgressionAwardDate = Carbon::parse($userGameProgressionAwards['Mastered']['AwardDate']);
+        foreach ($progressionTypes as $progressionType) {
+            if (isset($userGameProgressionAwards[$progressionType])) {
+                $highestProgressionStatus = $progressionType;
+                $highestProgressionAwardDate = Carbon::parse($userGameProgressionAwards[$progressionType]['AwardDate']);
+            }
         }
 
         if ($isEvent && $highestProgressionStatus !== null) {
-            $highestProgressionStatus = 'Awarded';
+            $highestProgressionStatus = 'awarded';
         }
 
         return [$highestProgressionStatus, $highestProgressionAwardDate];

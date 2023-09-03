@@ -186,7 +186,7 @@ function GetFriendList(string $user): array
 function GetFriendsSubquery(string $user, bool $includeUser = true): string
 {
     $friendsSubquery = "SELECT ua.User FROM UserAccounts ua
-         JOIN (SELECT Friend AS User FROM Friends WHERE User='$user' AND Friendship=" . UserRelationship::Following . ") as Friends1 ON Friends1.User=ua.User
+         JOIN (SELECT Friend AS User FROM Friends WHERE User=:user AND Friendship=" . UserRelationship::Following . ") as Friends1 ON Friends1.User=ua.User
          WHERE ua.Deleted IS NULL AND ua.Permissions >= " . Permissions::Unregistered;
 
     // TODO: why is it so much faster to run this query and build the IN list
@@ -194,11 +194,8 @@ function GetFriendsSubquery(string $user, bool $includeUser = true): string
     //       local testing took over 2 seconds with the subquery and < 0.01 seconds
     //       total for two separate queries
     $friends = [];
-    $dbResult = s_mysql_query($friendsSubquery);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $friends[] = "'" . $db_entry['User'] . "'";
-        }
+    foreach (legacyDbFetchAll($friendsSubquery, ['user' => $user]) as $db_entry) {
+        $friends[] = "'" . $db_entry['User'] . "'";
     }
 
     if ($includeUser) {
