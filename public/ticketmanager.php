@@ -8,6 +8,7 @@ use App\Community\Enums\TicketType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
@@ -201,9 +202,22 @@ RenderContentStart($pageTitle);
 
             echo "<tr>";
 
-            echo "<td>";
-            echo gameAvatar($nextTicket);
+            echo "<td class='py-2'>";
+            echo Blade::render('
+                <x-game.multiline-avatar
+                    :gameId="$gameId"
+                    :gameTitle="$gameTitle"
+                    :gameImageIcon="$gameImageIcon"
+                    :consoleName="$consoleName"
+                />
+            ', [
+                'gameId' => $nextTicket['GameID'],
+                'gameTitle' => $nextTicket['GameTitle'],
+                'gameImageIcon' => $nextTicket['GameIcon'],
+                'consoleName' => $nextTicket['Console'],
+            ]);
             echo "</td>";
+
             echo "<td><a href='/ticketmanager.php?g=$gameID'>$openTickets</a></td>";
 
             echo "</tr>";
