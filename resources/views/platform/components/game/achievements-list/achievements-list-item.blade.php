@@ -1,15 +1,21 @@
 @props([
     'achievement' => [],
+    'beatenGameCreditDialogContext' => 's:|h:',
     'totalPlayerCount' => 0,
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
+    'useMinimalLayout' => false,
+    'isUnlocked' => false,
+    'isUnlockedHardcore' => false,
+    'isCreditDialogEnabled' => true,
+    'totalPlayerCount' => 0,
 ])
 
 <?php
 use Illuminate\Support\Carbon;
 
-$isUnlocked = isset($achievement['DateEarnedHardcore']) || isset($achievement['DateEarned']);
-$isUnlockedOnHardcore = isset($achievement['DateEarnedHardcore']);
+$isUnlocked = $isUnlocked || isset($achievement['DateEarnedHardcore']) || isset($achievement['DateEarned']);
+$isUnlockedOnHardcore = $isUnlockedHardcore || isset($achievement['DateEarnedHardcore']);
 
 $achBadgeName = $achievement['BadgeName'];
 if (!$isUnlocked) {
@@ -63,13 +69,15 @@ if (isset($achievement['DateEarnedHardcore'])) {
                 </div>
 
                 @hasfeature("beat")
-                    @if ($achievement['type'])
+                    @if ($achievement['type'] && !$useMinimalLayout)
                         <div class="flex items-center gap-x-1 md:hidden -mt-1.5">
                             <div class="-mt-1.5">
                                 <x-game.achievements-list.type-indicator
                                     :achievementType="$achievement['type']"
                                     :progressionTypeValue="$progressionTypeValue"
                                     :winConditionTypeValue="$winConditionTypeValue"
+                                    :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                                    :isCreditDialogEnabled="$isCreditDialogEnabled"
                                 />
                             </div>
                         </div>
@@ -79,28 +87,35 @@ if (isset($achievement['DateEarnedHardcore'])) {
 
             <p class="leading-4">{{ $achievement['Description'] }}</p>
 
-            @if ($unlockDate)
-                <p class="hidden md:block mt-1.5 text-[0.6rem] text-neutral-400/70">Unlocked {{ $unlockDate }}</p>
+            @if ($isUnlocked || $isUnlockedHardcore)
+                <p class="hidden md:block mt-1.5 text-[0.6rem] text-neutral-400/70">
+                    Unlocked
+                    @if ($unlockDate) {{ $unlockDate }} @endif
+                </p>
             @endif
         </div>
 
         <div class="md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:pt-1 md:gap-y-1">
             @hasfeature("beat")
-                @if ($achievement['type'])
+                @if ($achievement['type'] && !$useMinimalLayout)
                     <div class="hidden md:flex items-center justify-end gap-x-1">
                         <x-game.achievements-list.type-indicator
                             :achievementType="$achievement['type']"
                             :progressionTypeValue="$progressionTypeValue"
                             :winConditionTypeValue="$winConditionTypeValue"
+                            :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                            :isCreditDialogEnabled="$isCreditDialogEnabled"    
                         />
                     </div>
                 @endif
             @endhasfeature
 
-            <x-game.achievements-list.list-item-global-progress
-                :achievement="$achievement"
-                :totalPlayerCount="$totalPlayerCount"
-            />
+            @if (!$useMinimalLayout)
+                <x-game.achievements-list.list-item-global-progress
+                    :achievement="$achievement"
+                    :totalPlayerCount="$totalPlayerCount"
+                />
+            @endif
         </div>
 
         @if ($unlockDate)
