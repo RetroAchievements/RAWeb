@@ -14,8 +14,12 @@
 
         #debug {
             position: fixed;
+            @if(app()->environment('local'))
+            bottom: 40px;
+            @else
             bottom: 10px;
-            right: 160px;
+            @endif
+            right: 10px;
             z-index: 100;
         }
     </style>
