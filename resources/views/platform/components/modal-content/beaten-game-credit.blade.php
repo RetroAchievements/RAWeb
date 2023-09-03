@@ -29,7 +29,7 @@ $numWinConditionAchievements = count($winConditionAchievements);
         </p>
     </div>
 
-    @if (count($progressionAchievements) > 0)
+    @if ($numProgressionAchievements > 0)
         <div class="flex items-center gap-x-2.5 mb-4">
             <div class="w-7 h-7 text-neutral-200" aria-label="Progression icon"><x-icon.progression /></div>
             <p class="text-lg">You need ALL of these:</p>
@@ -47,10 +47,14 @@ $numWinConditionAchievements = count($winConditionAchievements);
         @endforeach
     @endif
 
-    @if (count($winConditionAchievements) > 0)
+    @if ($numWinConditionAchievements > 0)
         <div class="flex items-center gap-x-2.5 mt-12 mb-4">
             <div class="w-7 h-7 text-neutral-200" aria-label="Progression icon"><x-icon.win-condition /></div>
-            <p class="text-lg">You need ANY of these:</p>
+            <p class="text-lg">
+                You
+                {{ $numProgressionAchievements > 0 && $numWinConditionAchievements > 0 ? "also" : "" }}
+                need {{ $numWinConditionAchievements > 1 ? "ANY of these": "this" }}:
+            </p>
         </div>
 
         @foreach ($winConditionAchievements as $winConditionAchievement)
