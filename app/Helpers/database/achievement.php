@@ -556,3 +556,21 @@ function updateAchievementType(int|string|array $achID, ?string $newType): bool
 
     return true;
 }
+
+function buildBeatenGameCreditDialogContext(array $achievements): string
+{
+    $softcoreUnlocks = [];
+    $hardcoreUnlocks = [];
+    foreach ($achievements as $achievementId => $achievement) {
+        if (isset($achievement['DateEarned'])) {
+            $softcoreUnlocks[] = $achievementId;
+        }
+        if (isset($achievement['DateEarnedHardcore'])) {
+            $hardcoreUnlocks[] = $achievementId;
+        }
+    }
+
+    $dialogContext = "s:" . implode(",", $softcoreUnlocks) . "|h:" . implode(",", $hardcoreUnlocks);
+
+    return $dialogContext;
+}

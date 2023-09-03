@@ -1429,12 +1429,14 @@ sanitize_outputs(
                             :totalPlayerCount="$totalPlayerCount"
                             :progressionTypeValue="$progressionTypeValue"
                             :winConditionTypeValue="$winConditionTypeValue"
+                            :isCreditDialogEnabled="$isCreditDialogEnabled"
                         />
                     ', [
                         'achievements' => $achievementData,
                         'totalPlayerCount' => $numDistinctPlayersCasual,
                         'progressionTypeValue' => AchievementType::Progression,
                         'winConditionTypeValue' => AchievementType::WinCondition,
+                        'isCreditDialogEnabled' => $flagParam != $unofficialFlag,
                     ]);
                 }
             }
