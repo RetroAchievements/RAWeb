@@ -1,7 +1,7 @@
 <x-section class="brand-top">
     <x-container>
         {{--<div class="hidden lg:flex gap-4 justify-between items-center">--}}
-        <div class="lg:grid grid-cols-[1fr_340px] gap-4 items-center">
+        <div class="lg:grid grid-cols-[1fr_380px] gap-4 items-center">
             {{-- TODO re-build settings page for logo --}}
             {{--@if(request()->cookie('logo') === 'retro')
                 <div class="logo-container lg:flex justify-start items-center pr-4 pt-4">

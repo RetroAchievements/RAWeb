@@ -51,7 +51,7 @@ main {
 }
 
 main.with-sidebar {
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 380px;
 }
 
 @media only screen and (max-width: 1023px) {
