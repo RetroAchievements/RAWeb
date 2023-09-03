@@ -239,7 +239,7 @@ function toggleAllCodeRows() {
 
             echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
             if ($partialModifyOK || $fullModifyOK) {
-                if ($achievementData[$achID]['Author'] === $user) {
+                if ($achievementData[$achID]['Author'] === $user || $permissions >= Permissions::Developer) {
                     echo "<td><span style='white-space: nowrap'><input type='checkbox' name='achievement" . $achID . "' value='" . $achID . "'> <label for='achievement'>$achID</label></span></td>";
                 } else {
                     echo "<td>$achID</td>";
