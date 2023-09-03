@@ -3,6 +3,7 @@
     'totalPlayerCount' => 0,
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
+    'isCreditDialogEnabled' => true,
 ])
 
 <?php
@@ -17,6 +18,8 @@ $lockedAchievements = array_filter($achievements, function ($achievement) {
 $winConditionAchievements = array_filter($achievements, function ($achievement) use ($winConditionTypeValue) {
     return isset($achievement['type']) && $achievement['type'] === $winConditionTypeValue;
 });
+
+$beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAchievements);
 ?>
 
 @if (count($achievements) > 0)
@@ -27,6 +30,8 @@ $winConditionAchievements = array_filter($achievements, function ($achievement) 
                 :totalPlayerCount="$totalPlayerCount"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                :isCreditDialogEnabled="$isCreditDialogEnabled"
             />
         @endforeach
 
@@ -36,6 +41,8 @@ $winConditionAchievements = array_filter($achievements, function ($achievement) 
                 :totalPlayerCount="$totalPlayerCount"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                :isCreditDialogEnabled="$isCreditDialogEnabled"
             />
         @endforeach
     </ul>
