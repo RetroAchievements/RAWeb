@@ -42,7 +42,7 @@ export const loadPostPreview = async (
     setLoadingIconVisibility(loadingElId, { isVisible: false });
   } catch (error) {
     // Legacy from all.js.
-    (window as any).showStatusFailure(error);
+    (window as unknown as Record<string, unknown>).showStatusFailure(error);
     console.error(error);
 
     setLoadingIconVisibility(loadingElId, { isVisible: false });
