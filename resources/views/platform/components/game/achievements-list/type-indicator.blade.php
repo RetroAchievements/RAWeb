@@ -5,19 +5,12 @@
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
     'isCreditDialogEnabled' => true,
-
-    // If true, always show the type as Progression, even if it's something else.
-    'useProgressionMask' => false,
 ])
 
 <?php
 use Illuminate\Http\Request;
 
 $gameId ??= request()->route('game');
-
-if ($achievementType === $winConditionTypeValue && $useProgressionMask) {
-    $achievementType = $progressionTypeValue;
-}
 ?>
 
 @if ($achievementType === $progressionTypeValue || $achievementType === $winConditionTypeValue)

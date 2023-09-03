@@ -19,9 +19,6 @@ $winConditionAchievements = array_filter($achievements, function ($achievement) 
     return isset($achievement['type']) && $achievement['type'] === $winConditionTypeValue;
 });
 
-// If there's only a single Win Condition achievement, show it as "Progression" to the user.
-$hasMultipleWinConditions = count($winConditionAchievements) > 1;
-
 $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAchievements);
 ?>
 
@@ -31,7 +28,6 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
             <x-game.achievements-list.achievements-list-item
                 :achievement="$achievement"
                 :totalPlayerCount="$totalPlayerCount"
-                :hasMultipleWinConditions="$hasMultipleWinConditions"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
@@ -43,7 +39,6 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
             <x-game.achievements-list.achievements-list-item
                 :achievement="$achievement"
                 :totalPlayerCount="$totalPlayerCount"
-                :hasMultipleWinConditions="$hasMultipleWinConditions"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
