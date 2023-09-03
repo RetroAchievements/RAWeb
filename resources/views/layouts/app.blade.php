@@ -9,7 +9,6 @@
     :canonical-url="$permalink ?? null"
 />
 <body
-    {{ ($wide ?? false) ? 'wide' : '' }}
     data-scheme="{{ request()->cookie('scheme', '') }}"
     data-theme="{{ request()->cookie('theme', '') }}"
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
