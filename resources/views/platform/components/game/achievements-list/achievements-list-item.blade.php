@@ -1,7 +1,6 @@
 @props([
     'achievement' => [],
     'totalPlayerCount' => 0,
-    'hasMultipleWinConditions' => false,
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
 ])
@@ -71,7 +70,6 @@ if (isset($achievement['DateEarnedHardcore'])) {
                                     :achievementType="$achievement['type']"
                                     :progressionTypeValue="$progressionTypeValue"
                                     :winConditionTypeValue="$winConditionTypeValue"
-                                    useProgressionMask="{{ $hasMultipleWinConditions === false }}"
                                 />
                             </div>
                         </div>
@@ -94,7 +92,6 @@ if (isset($achievement['DateEarnedHardcore'])) {
                             :achievementType="$achievement['type']"
                             :progressionTypeValue="$progressionTypeValue"
                             :winConditionTypeValue="$winConditionTypeValue"
-                            useProgressionMask="{{ $hasMultipleWinConditions === false }}"
                         />
                     </div>
                 @endif

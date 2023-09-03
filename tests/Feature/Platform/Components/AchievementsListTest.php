@@ -89,18 +89,17 @@ class AchievementsListTest extends TestCase
         $view->assertSee('unlocked-row');
     }
 
-    public function testItRendersAllProgressionIfOnlyOneWinCondition(): void {
+    public function testItRendersfOnlyOneWinConditionCorrectly(): void {
         /** @var Achievement $achievementOne */
-        $achievementOne = Achievement::factory()->create(['type' => AchievementType::Progression]);
+        $achievementOne = Achievement::factory()->create(['type' => AchievementType::Progression, 'DisplayOrder' => 0]);
         /** @var Achievement $achievementTwo */
-        $achievementTwo = Achievement::factory()->create(['type' => AchievementType::WinCondition]);
+        $achievementTwo = Achievement::factory()->create(['type' => AchievementType::WinCondition, 'DisplayOrder' => 1]);
 
         $view = $this->blade('<x-game.achievements-list.root :achievements="$achievements" :totalPlayerCount="$totalPlayerCount" />', [
             'achievements' => compact('achievementOne', 'achievementTwo'),
             'totalPlayerCount' => 1000,
         ]);
 
-        $view->assertSeeTextInOrder(['Progression', 'Progression']);
-        $view->assertDontSeeText('Win Condition');
+        $view->assertSeeTextInOrder(['Progression', 'Win Condition']);
     }
 }

@@ -2,16 +2,7 @@
     'achievementType' => null,
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
-
-    // If true, always show the type as Progression, even if it's something else.
-    'useProgressionMask' => false,
 ])
-
-<?php
-if ($achievementType === $winConditionTypeValue && $useProgressionMask) {
-    $achievementType = $progressionTypeValue;
-}
-?>
 
 @if ($achievementType === $progressionTypeValue || $achievementType === $winConditionTypeValue)
     <div class="flex items-center group bg-embed light:bg-neutral-50 light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500">

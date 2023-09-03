@@ -17,9 +17,6 @@ $lockedAchievements = array_filter($achievements, function ($achievement) {
 $winConditionAchievements = array_filter($achievements, function ($achievement) use ($winConditionTypeValue) {
     return isset($achievement['type']) && $achievement['type'] === $winConditionTypeValue;
 });
-
-// If there's only a single Win Condition achievement, show it as "Progression" to the user.
-$hasMultipleWinConditions = count($winConditionAchievements) > 1;
 ?>
 
 @if (count($achievements) > 0)
@@ -28,7 +25,6 @@ $hasMultipleWinConditions = count($winConditionAchievements) > 1;
             <x-game.achievements-list.achievements-list-item
                 :achievement="$achievement"
                 :totalPlayerCount="$totalPlayerCount"
-                :hasMultipleWinConditions="$hasMultipleWinConditions"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
             />
@@ -38,7 +34,6 @@ $hasMultipleWinConditions = count($winConditionAchievements) > 1;
             <x-game.achievements-list.achievements-list-item
                 :achievement="$achievement"
                 :totalPlayerCount="$totalPlayerCount"
-                :hasMultipleWinConditions="$hasMultipleWinConditions"
                 :progressionTypeValue="$progressionTypeValue"
                 :winConditionTypeValue="$winConditionTypeValue"
             />
