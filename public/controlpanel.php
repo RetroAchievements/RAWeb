@@ -394,7 +394,7 @@ function confirmEmailChange(event) {
                         for (const game of data) {
                             const option = document.createElement('option');
                             option.value = game.ID;
-                            option.textContent = `${htmlEntities(game.GameTitle)} (${htmlEntities(game.ConsoleName)}) (${game.NumAwarded} / ${game.NumPossible} won)`;
+                            option.textContent = `${game.GameTitle} (${game.ConsoleName}) (${game.NumAwarded} / ${game.NumPossible} won)`;
                             fragment.appendChild(option);
                         }
 
@@ -422,8 +422,8 @@ function confirmEmailChange(event) {
                             achievementSelect.replaceChildren();
                             achievementSelect.innerHTML += '<option value=\'all\' >All achievements for this game</option>';
                             data.forEach(function (achievement) {
-                                var achTitle = htmlEntities(achievement.Title);
-                                var achID = htmlEntities(achievement.ID);
+                                var achTitle = achievement.Title;
+                                var achID = achievement.ID;
                                 achievementSelect.innerHTML += '<option value=\'' + achID + '\'>' + achTitle + (achievement.HardcoreMode ? ' (Hardcore)' : '') + '</option>';
                             });
                             gameSelect.removeAttribute('disabled');
