@@ -208,13 +208,13 @@ class ResetPlayerAchievementActionTest extends TestCase
         $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
         /** @var Game $game */
         $game = Game::factory()->create();
-        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
         /** @var Achievement $unofficialAchievement */
-        $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
         /** @var Achievement $game2Achievement */
-        $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID]);
+        $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'TrueRatio' => 0]);
 
         $this->addHardcoreUnlock($user, $achievements->get(0));
         $this->addHardcoreUnlock($user, $achievements->get(1));
@@ -278,13 +278,13 @@ class ResetPlayerAchievementActionTest extends TestCase
         $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
         /** @var Game $game */
         $game = Game::factory()->create();
-        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
         /** @var Achievement $unofficialAchievement */
-        $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
         /** @var Achievement $game2Achievement */
-        $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $author->User]);
+        $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
 
         $this->addHardcoreUnlock($user, $achievements->get(0));
         $this->addHardcoreUnlock($user, $achievements->get(1));
@@ -348,11 +348,11 @@ class ResetPlayerAchievementActionTest extends TestCase
         $author2 = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
         /** @var Game $game */
         $game = Game::factory()->create();
-        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
         /** @var Achievement $game2Achievement */
-        $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $author2->User]);
+        $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $author2->User, 'TrueRatio' => 0]);
 
         $this->addHardcoreUnlock($user, $achievements->get(0));
         $this->addHardcoreUnlock($user, $achievements->get(1));
