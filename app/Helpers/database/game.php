@@ -87,24 +87,8 @@ function getGameMetadata(
         if (config('feature.aggregate_queries')) {
             $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
-            if ($parentGameId === null) {
-                $query = "SELECT players_total AS NumDistinctPlayers FROM GameData WHERE ID=$gameID";
-                $gameMetrics = legacyDbFetch($query);
-            } else {
-                $bindings['parentGameId'] = $parentGameId;
-                $gameIdStatement = 'game_id IN (:gameId, :parentGameId)';
-
-                $bindings = ['gameId' => $gameID];
-                $query = "SELECT COUNT(*) AS NumDistinctPlayers
-                            FROM (
-                                SELECT user_id, SUM(achievements_unlocked) as NumAchievementsUnlocked
-                                FROM player_games WHERE $gameIdStatement
-                                GROUP BY user_id
-                                HAVING NumAchievementsUnlocked > 0
-                            ) AS InnerTable";
-                $gameMetrics = legacyDbFetch($query, $bindings);
-            }
-
+            $query = "SELECT players_total AS NumDistinctPlayers FROM GameData WHERE ID=" . ($parentGameId ?? $gameID);
+            $gameMetrics = legacyDbFetch($query);
             $gameMetrics['ParentGameID'] = $parentGameId;
         } else {
             $cacheKey = "game:$gameID:playercount";
