@@ -37,10 +37,6 @@ body {
   }
 }*/
 
-body:not([wide]) .container {
-  max-width: theme('screens.lg');
-}
-
 header {
   overflow-x: hidden;
 }

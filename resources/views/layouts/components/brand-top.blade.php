@@ -30,7 +30,7 @@
                     </a>
                 </div>
             @endif--}}
-            <div class="p-4 text-center">
+            <div class="p-4">
                 <a href="{{ route('home') }}">
                     <img class="max-w-[550px] w-full" fetchpriority="high" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo">
                 </a>
