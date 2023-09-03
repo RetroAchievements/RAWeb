@@ -174,8 +174,6 @@ function toggleAllCodeRows() {
                     changes you make on this page will instantly take effect on the website, but you will need to press 'Refresh List'
                     to see the new order on this page.
                 </p>
-            HTML;
-            echo <<<HTML
                 <p align="justify">
                     You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
                     checkboxes in the far-left column and click either the 'Set Selected as $progressionLabel' or 'Set Selected as $winConditionLabel'
