@@ -9,18 +9,6 @@
 [$softcoreUnlocks, $hardcoreUnlocks] = explode("|", $unlockContext);
 $softcoreIds = explode(",", substr($softcoreUnlocks, 2)); // skip "s:"
 $hardcoreIds = explode(",", substr($hardcoreUnlocks, 2)); // skip "h:"
-
-// If there's only a single win condition achievement, we need to show it as
-// progression to the user.
-if (count($winConditionAchievements) === 1) {
-    // Move it to the progression achievements array.
-    $progressionAchievements[] = array_pop($winConditionAchievements);
-
-    // Make sure the array is still sorted by DisplayOrder.
-    usort($progressionAchievements, function($a, $b) {
-        return $a['DisplayOrder'] <=> $b['DisplayOrder'];
-    });
-}
 ?>
 
 <div>

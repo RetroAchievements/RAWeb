@@ -45,7 +45,7 @@ class BeatenGameCreditDialogTest extends TestCase
             'winConditionAchievements' => [$achievements[3]],
         ]);
 
-        $view->assertSeeTextInOrder(['Sonic the Hedgehog', '4 progression', '0 win condition']);
+        $view->assertSeeTextInOrder(['Sonic the Hedgehog', '4 progression', '1 win condition']);
     }
 
     public function testItRendersUnlockedContext(): void
