@@ -209,58 +209,53 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
     HTML;
 }
 ?>
-<div id="mainpage">
-    <div id="fullcontainer">
-        <div>
-            <?php
-            if ($dev !== null) {
-                // Determine which consoles the dev has created content for
-                $devConsoles = [];
-                foreach ($consoleList as $consoleID => $consoleName) {
-                    $consoleGames = array_filter($gamesList, fn ($game) => $game['ConsoleID'] == $consoleID);
-                    if (!empty($consoleGames)) {
-                        $devConsoles[$consoleName] = ['consoleID' => $consoleID, 'consoleGames' => $consoleGames];
-                    }
-                }
-
-                ksort($devConsoles);
-
-                foreach ($devConsoles as $consoleName => $consoleData) {
-                    sanitize_outputs($consoleName);
-
-                    echo renderConsoleHeading($consoleData['consoleID'], $consoleName, $isSmall = true);
-                    ListGames($consoleData['consoleGames'], $dev, '', $sortBy, $showTickets, false, true);
-
-                    echo "<br/>";
-                }
-            } else {
-                echo renderConsoleHeading($consoleIDInput, $consoleName);
-
-                echo "<div style='float:left'>$gamesCount Games</div>";
-
-                echo "<div align='right'>";
-                echo "<select class='gameselector' onchange='window.location = \"/gameList.php?s=$sortBy&c=$consoleIDInput\" + this.options[this.selectedIndex].value'>";
-                echo "<option value=''" . (($filter == 0) ? " selected" : "") . ">Games with achievements</option>";
-                echo "<option value='&f=1'" . (($filter == 1) ? " selected" : "") . ">Games without achievements</option>";
-                echo "<option value='&f=2'" . (($filter == 2) ? " selected" : "") . ">All games</option>";
-                echo "</select>";
-                echo "</div>";
-
-                echo "<br/>";
-
-                $queryParams = "c=$consoleIDInput&f=$filter";
-                ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
-
-                if ($maxCount != 0 && $gamesCount > $maxCount) {
-                    // Add page traversal links
-                    echo "\n<br/><div class='float-right row'>";
-                    RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=");
-                    echo "</div>";
-                }
+<article>
+    <?php
+    if ($dev !== null) {
+        // Determine which consoles the dev has created content for
+        $devConsoles = [];
+        foreach ($consoleList as $consoleID => $consoleName) {
+            $consoleGames = array_filter($gamesList, fn ($game) => $game['ConsoleID'] == $consoleID);
+            if (!empty($consoleGames)) {
+                $devConsoles[$consoleName] = ['consoleID' => $consoleID, 'consoleGames' => $consoleGames];
             }
-            ?>
-            <br>
-        </div>
-    </div>
-</div>
+        }
+
+        ksort($devConsoles);
+
+        foreach ($devConsoles as $consoleName => $consoleData) {
+            sanitize_outputs($consoleName);
+
+            echo renderConsoleHeading($consoleData['consoleID'], $consoleName, $isSmall = true);
+            ListGames($consoleData['consoleGames'], $dev, '', $sortBy, $showTickets, false, true);
+
+            echo "<br/>";
+        }
+    } else {
+        echo renderConsoleHeading($consoleIDInput, $consoleName);
+
+        echo "<div style='float:left'>$gamesCount Games</div>";
+
+        echo "<div align='right'>";
+        echo "<select class='gameselector' onchange='window.location = \"/gameList.php?s=$sortBy&c=$consoleIDInput\" + this.options[this.selectedIndex].value'>";
+        echo "<option value=''" . (($filter == 0) ? " selected" : "") . ">Games with achievements</option>";
+        echo "<option value='&f=1'" . (($filter == 1) ? " selected" : "") . ">Games without achievements</option>";
+        echo "<option value='&f=2'" . (($filter == 2) ? " selected" : "") . ">All games</option>";
+        echo "</select>";
+        echo "</div>";
+
+        echo "<br/>";
+
+        $queryParams = "c=$consoleIDInput&f=$filter";
+        ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
+
+        if ($maxCount != 0 && $gamesCount > $maxCount) {
+            // Add page traversal links
+            echo "<div class='text-right'>";
+            RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=");
+            echo "</div>";
+        }
+    }
+    ?>
+</article>
 <?php RenderContentEnd(); ?>

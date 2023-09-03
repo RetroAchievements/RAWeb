@@ -42,7 +42,7 @@
     </x-slot>
     @if ($bufferedOutput ?? false)
         <x-container>
-            <main class="mb-5" data-scroll-target>
+            <main class="mb-5 {{ trim($sidebar ?? false) ? 'with-sidebar' : '' }}" data-scroll-target>
                 {!! $bufferedOutput ?? '' !!}
             </main>
         </x-container>
