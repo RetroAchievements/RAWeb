@@ -225,6 +225,62 @@ class GameCardTest extends TestCase
         $view->assertSeeText("has been retired");
     }
 
+    public function testItRendersSoftcoreBeatenAwards(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create(['User' => 'AAA']);
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+
+        $awardDate = '2015-07-02 16:44:46';
+        PlayerBadge::factory()->create([
+            'User' => $user->User,
+            'AwardType' => AwardType::GameBeaten,
+            'AwardData' => $game->ID,
+            'AwardDataExtra' => 0,
+            'AwardDate' => $awardDate,
+            'DisplayOrder' => 0,
+        ]);
+
+        // Act
+        $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
+
+        // Assert
+        $view->assertSeeTextInOrder(['Beaten (softcore)',  '2 July 2015']);
+    }
+
+    public function testItRendersHardcoreBeatenAwards(): void
+    {
+        // Arrange
+        /** @var User $user */
+        $user = User::factory()->create(['User' => 'AAA']);
+        /** @var System $system */
+        $system = System::factory()->create();
+        /** @var Game $game */
+        $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+
+        $awardDate = '2015-07-02 16:44:46';
+        PlayerBadge::factory()->create([
+            'User' => $user->User,
+            'AwardType' => AwardType::GameBeaten,
+            'AwardData' => $game->ID,
+            'AwardDataExtra' => 1,
+            'AwardDate' => $awardDate,
+            'DisplayOrder' => 0,
+        ]);
+
+        // Act
+        $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
+
+        // Assert
+        $view->assertSeeTextInOrder(['Beaten',  '2 July 2015']);
+    }
+
     public function testItRendersCompletions(): void
     {
         // Arrange
@@ -250,7 +306,7 @@ class GameCardTest extends TestCase
         $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
 
         // Assert
-        $view->assertSeeText('Completed 2 July 2015');
+        $view->assertSeeTextInOrder(['Completed',  '2 July 2015']);
     }
 
     public function testItRendersMasteries(): void
@@ -278,7 +334,7 @@ class GameCardTest extends TestCase
         $view = $this->blade('<x-game-card gameId="1" targetUsername="AAA" />');
 
         // Assert
-        $view->assertSeeText('Mastered 2 July 2015');
+        $view->assertSeeTextInOrder(['Mastered',  '2 July 2015']);
     }
 
     public function testItRendersEvents(): void
@@ -311,6 +367,6 @@ class GameCardTest extends TestCase
         $view->assertDontSeeText('Mastered');
 
         $view->assertSeeText('Events');
-        $view->assertSeeText('Awarded 2 July 2015');
+        $view->assertSeeTextInOrder(['Awarded',  '2 July 2015']);
     }
 }

@@ -8,7 +8,7 @@ if ($claim['SetType'] !== ClaimSetType::NewSet) {
     $claimSetTypeCopy = ClaimSetType::toString(ClaimSetType::Revision);
 }
 
-$targetTimestamp = $claim['Status'] === ClaimStatus::Active ? $claim['Created'] : $claim['DoneTime'];
+$targetTimestamp = ClaimStatus::isActive($claim['Status']) ? $claim['Created'] : $claim['DoneTime'];
 $timeAgo = Carbon::createFromFormat("Y-m-d H:i:s", $targetTimestamp)->diffForHumans();
 
 $gameSystemIconSrc = getSystemIconUrl($claim['ConsoleID']);
