@@ -175,9 +175,6 @@ function toggleAllCodeRows() {
                     to see the new order on this page.
                 </p>
             HTML;
-        }
-
-        if ($partialModifyOK || $fullModifyOK) {
             echo <<<HTML
                 <p align="justify">
                     You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
@@ -330,12 +327,11 @@ function toggleAllCodeRows() {
                 }
                 echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
             }
-
-            if ($fullModifyOK || $partialModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to $progressionLabel</a>";
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to $winConditionLabel</a>";
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
-            }
+                
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to $progressionLabel</a>";
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to $winConditionLabel</a>";
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
+            
         }
 
         if ($fullModifyOK) {
