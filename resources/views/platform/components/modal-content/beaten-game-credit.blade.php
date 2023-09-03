@@ -9,6 +9,9 @@
 [$softcoreUnlocks, $hardcoreUnlocks] = explode("|", $unlockContext);
 $softcoreIds = explode(",", substr($softcoreUnlocks, 2)); // skip "s:"
 $hardcoreIds = explode(",", substr($hardcoreUnlocks, 2)); // skip "h:"
+
+$numProgressionAchievements = count($progressionAchievements);
+$numWinConditionAchievements = count($winConditionAchievements);
 ?>
 
 <div>
@@ -19,9 +22,10 @@ $hardcoreIds = explode(",", substr($hardcoreUnlocks, 2)); // skip "h:"
         </p>
 
         <p>
-            {{ $gameTitle }} has {{ count($progressionAchievements ) }} progression
-            achievements and {{ count($winConditionAchievements ) }} win condition
-            achievements.
+            {{ $gameTitle }} has {{ $numProgressionAchievements }} progression
+            {{ trans_choice(__('resource.achievement.title'), $numProgressionAchievements) }} and
+            {{ $numWinConditionAchievements }} win condition
+            {{ trans_choice(__('resource.achievement.title'), $numWinConditionAchievements) }}.
         </p>
     </div>
 
