@@ -106,14 +106,20 @@ function testBeatenGame(int $gameId, string $user, bool $postBeaten): array
         $awardMode = $isBeatenHardcore ? UnlockMode::Hardcore : UnlockMode::Softcore;
 
         if (!HasSiteAward($user, AwardType::GameBeaten, $gameId, $awardMode)) {
+            $awardDate = Carbon::parse(calculateBeatenGameTimestamp($userAchievements));
+
             AddSiteAward(
                 $user,
                 AwardType::GameBeaten,
                 $gameId,
                 $awardMode,
-                awardDate: Carbon::parse(calculateBeatenGameTimestamp($userAchievements)),
+                $awardDate,
                 displayOrder: 0
             );
+
+            if ($isBeatenHardcore && $awardDate->gte(Carbon::now()->subMinutes(10))) {
+                static_addnewhardcoregamebeaten($gameId, $user);
+            }
         }
     }
 
@@ -204,6 +210,10 @@ function testFullyCompletedGame(int $gameID, string $user, bool $isHardcore, boo
         if ($awardBadge !== null) {
             if (!HasSiteAward($user, AwardType::Mastery, $gameID, $awardBadge)) {
                 AddSiteAward($user, AwardType::Mastery, $gameID, $awardBadge);
+
+                if ($awardBadge === UnlockMode::Hardcore) {
+                    static_addnewhardcoremastery($gameID, $user);
+                }
             }
 
             if (!RecentlyPostedProgressionActivity($user, $gameID, $awardBadge, ActivityType::CompleteGame)) {

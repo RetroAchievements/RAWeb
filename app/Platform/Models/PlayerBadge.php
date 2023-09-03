@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Models;
 
 use App\Community\Enums\AwardType;
+use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\PlayerBadgeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerBadge extends BaseModel
 {
@@ -111,5 +113,13 @@ class PlayerBadge extends BaseModel
         }
 
         return null;
+    }
+
+    /**
+     * @return BelongsTo<User, PlayerBadge>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'User', 'User');
     }
 }

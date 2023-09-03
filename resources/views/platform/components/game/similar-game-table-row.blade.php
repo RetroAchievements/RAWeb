@@ -27,13 +27,13 @@
                     </span>
                 </p>
 
-                <x-points-weighted-container>
-                    <p class="text-2xs whitespace-nowrap {{ $totalRetroPoints === 0 ? 'text-text-muted' : '' }}">
+                <p class="text-2xs whitespace-nowrap {{ $totalRetroPoints === 0 ? 'text-text-muted' : '' }}">
+                    <x-points-weighted-container>
                         @if ($totalRetroPoints > 0)
                             ({{ localized_number($totalRetroPoints) }})
                         @endif
-                    </p>
-                </x-points-weighted-container>
+                    </x-points-weighted-container>
+                </p>
             </div>
         </td>
     @elseif ($isFullyFeaturedGame && $totalPoints === 0)
