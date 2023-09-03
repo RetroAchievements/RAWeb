@@ -110,10 +110,12 @@ if (isset($achievement['DateEarnedHardcore'])) {
                 @endif
             @endhasfeature
 
-            <x-game.achievements-list.list-item-global-progress
-                :achievement="$achievement"
-                :totalPlayerCount="$totalPlayerCount"
-            />
+            @if (!$useMinimalLayout)
+                <x-game.achievements-list.list-item-global-progress
+                    :achievement="$achievement"
+                    :totalPlayerCount="$totalPlayerCount"
+                />
+            @endif
         </div>
 
         @if ($unlockDate)
