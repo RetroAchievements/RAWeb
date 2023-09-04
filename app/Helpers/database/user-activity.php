@@ -337,7 +337,7 @@ function expireRecentlyPlayedGames(string $user): void
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
 {
-    if ($offset == 0 && $count <= 5) {
+    if ($offset == 0 && $count <= 5 && !config('feature.aggregate_queries')) {
         $userRecentGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
         $recentlyPlayedGames = Cache::remember($userRecentGamesCacheKey, Carbon::now()->addDays(30), fn () => _getRecentlyPlayedGameIds($user, 0, 5));
     } else {
@@ -393,24 +393,15 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
 
 function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
 {
-    // $query = "SELECT g.ID AS GameID, g.ConsoleID, c.Name AS ConsoleName, g.Title, MAX(act.lastupdate) AS LastPlayed, g.ImageIcon
-    // FROM Activity AS act
-    // LEFT JOIN GameData AS g ON g.ID = act.data
-    // LEFT JOIN Console AS c ON c.ID = g.ConsoleID
-    // WHERE act.user='$user' AND act.activitytype=3
-    // GROUP BY g.ID
-    // ORDER BY MAX(act.lastupdate) DESC
-    // LIMIT $offset, $count ";
-    // 19:30 02/02/2014 rewritten without MAX() and using an inner query. ~300% faster but I don't know why... :(
-    // 02:51 03/02/2014 re-rewritten with MAX()
-    // 01:38 15/02/2014 re-readded 'AND act.activitytype = 3' to inner query. act.data is not necessarily a game, therefore we need this '3' part.
-    // 22:56 18/02/2014 re-re-readded 'MAX() to inner.
-    // 08:05 01/10/2014 removed outer activitytype=3, added rating
-    // {$RatingType::Game}
-
+    if (config('feature.aggregate_queries')) {
+        $query = "SELECT pg.last_played_at AS LastPlayed, pg.game_id AS GameID
+                  FROM player_games pg
+                  LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
+                  WHERE ua.User = :username
+                  ORDER BY pg.last_played_at desc
+                  LIMIT $offset, $count";
+    } else {
     // TODO slow query (15)
-    // $games = User::find($user->ID)->playerGames()->orderByDesc('last_played_at')->get();
-    // $games = User::find($user->ID)->achievementSets()->get();
     $query = "
         SELECT MAX(act.ID) as ActivityID, MAX(act.lastupdate) AS LastPlayed, act.data as GameID
         FROM Activity AS act
@@ -418,6 +409,7 @@ function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
         GROUP BY act.data
         ORDER BY MAX( act.lastupdate ) DESC
         LIMIT $offset, $count";
+    }
 
     return legacyDbFetchAll($query, ['username' => $user])->toArray();
 }

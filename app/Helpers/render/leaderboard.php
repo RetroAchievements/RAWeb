@@ -389,7 +389,7 @@ function getGlobalRankingData(
     $singleUserAwardCond = "";
     $singleUserCond = "";
     if ($user !== null) {
-        $singleUserAchievementCond = "AND aw.User LIKE '$user'";
+        $singleUserAchievementCond = "AND ua.User LIKE '$user'";
         $singleUserAwardCond = "AND sa.User LIKE '$user'";
         $singleUserCond = "AND ua.User LIKE '$user'";
     }
@@ -401,7 +401,7 @@ function getGlobalRankingData(
     if ($friendsOf !== null) {
         $friendsSubquery = GetFriendsSubquery($friendsOf);
 
-        $friendCondAchievement = "AND aw.User IN ($friendsSubquery)";
+        $friendCondAchievement = "AND ua.User IN ($friendsSubquery)";
         $friendCondAward = "AND sa.User IN ($friendsSubquery)";
         $friendCondAllTime = "AND ua.User IN ($friendsSubquery)";
     }
@@ -538,21 +538,42 @@ function getGlobalRankingData(
     }
 
     if ($info == 1) {
-        // TODO slow query (17)
-        $query = "SELECT aw.User AS User,
-              SUM(ach.Points) AS Points,
-              SUM(ach.TrueRatio) AS RetroPoints
-              FROM Awarded AS aw
-              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE TRUE $whereDateAchievement $typeCond
-              $friendCondAchievement
-              $singleUserAchievementCond
-              $untrackedCond
-              AND HardcoreMode = " . $unlockMode . "
-              GROUP BY aw.User
-              $orderCond
-              LIMIT $offset, $count";
+        if (config('feature.aggregate_queries')) {
+            if ($unlockMode == UnlockMode::Hardcore) {
+                $whereDateAchievement = str_replace('aw.Date', 'aw.unlocked_hardcore_at', $whereDateAchievement);
+            } else {
+                $whereDateAchievement = str_replace('aw.Date', 'aw.unlocked_at', $whereDateAchievement);
+            }
+            $query = "SELECT ua.User AS User,
+                SUM(ach.Points) AS Points,
+                SUM(ach.TrueRatio) AS RetroPoints
+                FROM player_achievements AS aw
+                LEFT JOIN Achievements AS ach ON ach.ID = aw.achievement_id
+                LEFT JOIN UserAccounts AS ua ON ua.ID = aw.user_id
+                WHERE TRUE $whereDateAchievement $typeCond
+                $friendCondAchievement
+                $singleUserAchievementCond
+                $untrackedCond
+                GROUP BY ua.User
+                $orderCond
+                LIMIT $offset, $count";
+        } else {
+            // TODO slow query (17)
+            $query = "SELECT aw.User AS User,
+                SUM(ach.Points) AS Points,
+                SUM(ach.TrueRatio) AS RetroPoints
+                FROM Awarded AS aw
+                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                WHERE TRUE $whereDateAchievement $typeCond
+                $friendCondAchievement
+                $singleUserAchievementCond
+                $untrackedCond
+                AND HardcoreMode = " . $unlockMode . "
+                GROUP BY aw.User
+                $orderCond
+                LIMIT $offset, $count";
+        }
     } else {
         if ($unlockMode == UnlockMode::Hardcore) {
             $achPoints = "CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN ach.Points ELSE 0 END";

@@ -171,7 +171,7 @@ $commentData = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
-$numDistinctPlayersCasual = null;
+$numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
 $numLeaderboards = null;
@@ -196,11 +196,10 @@ $userGameProgressionAwards = [
 ];
 
 if ($isFullyFeaturedGame) {
-    $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
-    $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
+    $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayersCasual);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayersCasual);
+    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
+    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
@@ -1430,7 +1429,7 @@ sanitize_outputs(
                     />
                 ', [
                     'achievements' => $achievementData,
-                    'totalPlayerCount' => $numDistinctPlayersCasual,
+                    'totalPlayerCount' => $numDistinctPlayers,
                     'progressionTypeValue' => AchievementType::Progression,
                     'winConditionTypeValue' => AchievementType::WinCondition,
                     'isCreditDialogEnabled' => $user && $flagParam != $unofficialFlag,

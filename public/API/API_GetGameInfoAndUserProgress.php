@@ -10,8 +10,9 @@
  *  int        ConsoleID                  unique identifier of the console associated to the game
  *  string     ConsoleName                name of the console associated to the game
  *  int?       ParentGameID               unique identifier of the parent game if this is a subset
- *  int        NumDistinctPlayersCasual   number of unique players who have earned achievements for the game
- *  int        NumDistinctPlayersHardcore number of unique players who have earned achievements for the game in hardcore
+ *  int        NumDistinctPlayers         number of unique players who have earned achievements for the game
+ *  int        NumDistinctPlayersCasual   [deprecated] equal to NumDistinctPlayers
+ *  int        NumDistinctPlayersHardcore [deprecated] equal to NumDistinctPlayers
  *  int        NumAchievements            count of core achievements associated to the game
  *  int        NumAwardedToUser           number of achievements earned by the user
  *  int        NumAwardedToUserHardcore   number of achievements earned by the user in hardcore
@@ -69,6 +70,9 @@ $gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 
 $gameData['NumAwardedToUser'] = 0;
 $gameData['NumAwardedToUserHardcore'] = 0;
+
+$gameData['NumDistinctPlayersCasual'] = $gameData['NumDistinctPlayers'];
+$gameData['NumDistinctPlayersHardcore'] = $gameData['NumDistinctPlayers'];
 
 if (!empty($achData)) {
     foreach ($achData as $nextAch) {
