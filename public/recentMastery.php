@@ -7,8 +7,7 @@ use Illuminate\Support\Facades\Blade;
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 25;
-// First day with Game Awards
-$minDate = '2014-08-22';
+$minDate = '2013-03-02';
 
 $offset = requestInputSanitized('o', 0, 'integer');
 $offset = max($offset, 0);
@@ -48,121 +47,118 @@ if ($followed == 1) {
 
 RenderContentStart("Recent " . $lbUsers . " Progression Awards");
 ?>
+<article>
+    <?php
+    echo "<h2>Recent " . $lbUsers . " Progression Awards</h2>";
 
-<div id='mainpage'>
-    <div id='fullcontainer'>
-        <?php
-        echo "<h2>Recent " . $lbUsers . " Progression Awards</h2>";
+    echo Blade::render('
+        <x-recent-awards.meta-panel
+            :minAllowedDate="$minAllowedDate"
+            :selectedAwardType="$selectedAwardType"
+            :selectedDate="$selectedDate"
+            :selectedUsers="$selectedUsers"
+        />
+    ', [
+        'minAllowedDate' => $minDate,
+        'selectedAwardType' => $selectedAwardType,
+        'selectedDate' => $date,
+        'selectedUsers' => $followed == 1 ? 'followed' : 'all',
+    ]);
 
-        echo Blade::render('
-            <x-recent-awards.meta-panel
-                :minAllowedDate="$minAllowedDate"
-                :selectedAwardType="$selectedAwardType"
-                :selectedDate="$selectedDate"
-                :selectedUsers="$selectedUsers"
-            />
-        ', [
-            'minAllowedDate' => $minDate,
-            'selectedAwardType' => $selectedAwardType,
-            'selectedDate' => $date,
-            'selectedUsers' => $followed == 1 ? 'followed' : 'all',
-        ]);
+    echo "<table class='table-highlight'><tbody>";
 
-        echo "<table class='table-highlight'><tbody>";
+    // Headers
+    echo "<tr class='do-not-highlight'>";
+    echo "<th>User</th>";
+    echo "<th>Type</th>";
+    echo "<th>Game</th>";
+    echo "<th>Date</th>";
+    echo "</tr>";
 
-        // Headers
-        echo "<tr class='do-not-highlight'>";
-        echo "<th>User</th>";
-        echo "<th>Type</th>";
-        echo "<th>Game</th>";
-        echo "<th>Date</th>";
-        echo "</tr>";
+    $userCount = 0;
+    $skip = false;
+    // Create the table rows
+    foreach ($data as $dataPoint) {
+        // Break if we have hit the maxCount + 1 user
+        if ($userCount == $maxCount) {
+            $userCount++;
+            $skip = true;
+        }
 
-        $userCount = 0;
-        $skip = false;
-        // Create the table rows
-        foreach ($data as $dataPoint) {
-            // Break if we have hit the maxCount + 1 user
-            if ($userCount == $maxCount) {
-                $userCount++;
-                $skip = true;
-            }
+        if (!$skip) {
+            echo "<tr>";
 
-            if (!$skip) {
-                echo "<tr>";
+            echo "<td class='py-2.5'>";
+            echo userAvatar($dataPoint['User']);
+            echo "</td>";
 
-                echo "<td class='py-2.5'>";
-                echo userAvatar($dataPoint['User']);
-                echo "</td>";
-
-                echo "<td>";
-                if ($dataPoint['AwardType'] == AwardType::Mastery) {
-                    if ($dataPoint['AwardDataExtra'] == 1) {
-                        echo "Mastered";
-                    } else {
-                        echo "Completed";
-                    }
-                } elseif ($dataPoint['AwardType'] == AwardType::GameBeaten) {
-                    if ($dataPoint['AwardDataExtra'] == 1) {
-                        echo "Beaten";
-                    } else {
-                        echo "Beaten (softcore)";
-                    }
+            echo "<td>";
+            if ($dataPoint['AwardType'] == AwardType::Mastery) {
+                if ($dataPoint['AwardDataExtra'] == 1) {
+                    echo "Mastered";
+                } else {
+                    echo "Completed";
                 }
-                echo "</td>";
-
-                echo "<td>";
-                echo Blade::render('
-                    <x-game.multiline-avatar
-                        :gameId="$gameId"
-                        :gameTitle="$gameTitle"
-                        :gameImageIcon="$gameImageIcon"
-                        :consoleName="$consoleName"
-                    />
-                ', [
-                    'gameId' => $dataPoint['GameID'],
-                    'gameTitle' => $dataPoint['GameTitle'],
-                    'gameImageIcon' => $dataPoint['GameIcon'],
-                    'consoleName' => $dataPoint['ConsoleName'],
-                ]);
-                echo "</td>";
-
-                echo "<td>";
-                echo $dataPoint['AwardedAt'];
-                echo "</td>";
-
-                echo "</tr>";
-                $userCount++;
+            } elseif ($dataPoint['AwardType'] == AwardType::GameBeaten) {
+                if ($dataPoint['AwardDataExtra'] == 1) {
+                    echo "Beaten";
+                } else {
+                    echo "Beaten (softcore)";
+                }
             }
-        }
-        echo "</tbody></table>";
+            echo "</td>";
 
-        // Add page traversal
-        echo "<div class='float-right row'>";
-        if ($date > $minDate) {
-            $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
-            echo "<a href='/recentMastery.php?d=$prevDate&f=$followed&o=0'>&lt; Prev Day </a>";
-            if ($date < date("Y-m-d")) {
-                echo " | ";
-            }
+            echo "<td>";
+            echo Blade::render('
+                <x-game.multiline-avatar
+                    :gameId="$gameId"
+                    :gameTitle="$gameTitle"
+                    :gameImageIcon="$gameImageIcon"
+                    :consoleName="$consoleName"
+                />
+            ', [
+                'gameId' => $dataPoint['GameID'],
+                'gameTitle' => $dataPoint['GameTitle'],
+                'gameImageIcon' => $dataPoint['GameIcon'],
+                'consoleName' => $dataPoint['ConsoleName'],
+            ]);
+            echo "</td>";
+
+            echo "<td>";
+            echo $dataPoint['AwardedAt'];
+            echo "</td>";
+
+            echo "</tr>";
+            $userCount++;
         }
-        if ($offset > 0) {
-            $prevOffset = $offset - $maxCount;
-            echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$prevOffset'>&lt; Prev $maxCount </a>";
-        }
-        if ($userCount > $maxCount) {
-            if ($offset > 0) {
-                echo " - ";
-            }
-            $nextOffset = $offset + $maxCount;
-            echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$nextOffset'>Next $maxCount &gt;</a>";
-        }
+    }
+    echo "</tbody></table>";
+
+    // Add page traversal
+    echo "<div class='text-right'>";
+    if ($date > $minDate) {
+        $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
+        echo "<a href='/recentMastery.php?d=$prevDate&f=$followed&o=0'>&lt; Prev Day </a>";
         if ($date < date("Y-m-d")) {
-            $nextDate = date('Y-m-d', strtotime($date . "+1 days"));
-            echo " | <a href='/recentMastery.php?d=$nextDate&f=$followed&o=0'>Next Day &gt;</a>";
+            echo " | ";
         }
-        echo "</div>";
-        ?>
-    </div>
-</div>
+    }
+    if ($offset > 0) {
+        $prevOffset = $offset - $maxCount;
+        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$prevOffset'>&lt; Prev $maxCount </a>";
+    }
+    if ($userCount > $maxCount) {
+        if ($offset > 0) {
+            echo " - ";
+        }
+        $nextOffset = $offset + $maxCount;
+        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$nextOffset'>Next $maxCount &gt;</a>";
+    }
+    if ($date < date("Y-m-d")) {
+        $nextDate = date('Y-m-d', strtotime($date . "+1 days"));
+        echo " | <a href='/recentMastery.php?d=$nextDate&f=$followed&o=0'>Next Day &gt;</a>";
+    }
+    echo "</div>";
+    ?>
+</article>
 <?php RenderContentEnd(); ?>

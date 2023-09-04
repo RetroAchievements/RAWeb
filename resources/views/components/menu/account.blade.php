@@ -42,7 +42,7 @@ $user = request()->user();
     </div>
     <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right">
         <x-slot name="trigger">
-            <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false"/>
+            <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false" class="rounded-sm" />
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
         <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>

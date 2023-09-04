@@ -16,6 +16,7 @@ import type { updateUrlParameter as UpdateUrlParameter } from '@/utils/updateUrl
 
 declare global {
   var Alpine: Alpine;
+  var assetUrl: string;
   var autoExpandTextInput: typeof AutoExpandTextInput;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
@@ -26,6 +27,7 @@ declare global {
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
   var newsCarouselComponent: typeof NewsCarouselComponent;
+  var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;
