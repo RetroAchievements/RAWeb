@@ -154,32 +154,32 @@ switch ($articleTypeID) {
 
 RenderContentStart("$commentsLabel: $pageTitle");
 ?>
-<div id="mainpage">
-    <div id="fullcontainer">
-        <?php
-            echo "<div class='navpath'>";
-            if (array_key_first($navPath) === '_GamePrefix') {
-                // Render game breadcrumb prefix
-                echo $navPath['_GamePrefix'] . " &raquo; ";
-                array_shift($navPath);
-            }
-            foreach ($navPath as $text => $link) {
-                echo "<a href='$link'>$text</a> &raquo; ";
-            }
-            echo "<b>$commentsLabel</b></div>";
+<article>
+    <?php
+        echo "<div class='navpath'>";
+        if (array_key_first($navPath) === '_GamePrefix') {
+            // Render game breadcrumb prefix
+            echo $navPath['_GamePrefix'] . " &raquo; ";
+            array_shift($navPath);
+        }
+        foreach ($navPath as $text => $link) {
+            echo "<a href='$link'>$text</a> &raquo; ";
+        }
+        echo "<b>$commentsLabel</b></div>";
 
-            echo "<h3>$pageTitle</h3>";
+        echo "<h3>$pageTitle</h3>";
 
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $articleID, $articleTypeID, $permissions, $count, $offset, embedded: false);
-        ?>
-        <br>
-        <div class='flex justify-between mb-3'><div>
-        <?php
-            if ($numArticleComments > count($commentData)) {
-                RenderPaginator($numArticleComments, $count, $offset, "/comments.php?t=$articleTypeID&i=$articleID&o=");
-            }
-        ?>
-        </div></div>
+        RenderCommentsComponent($user, $numArticleComments, $commentData, $articleID, $articleTypeID, $permissions, $count, $offset, embedded: false);
+    ?>
+    <br>
+    <div class='flex justify-between mb-3'>
+        <div>
+            <?php
+                if ($numArticleComments > count($commentData)) {
+                    RenderPaginator($numArticleComments, $count, $offset, "/comments.php?t=$articleTypeID&i=$articleID&o=");
+                }
+            ?>
+        </div>
     </div>
-</div>
+</article>
 <?php RenderContentEnd(); ?>

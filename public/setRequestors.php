@@ -20,21 +20,19 @@ $requestors = getSetRequestorsList($gameID);
 
 RenderContentStart("Set Requests");
 ?>
-<div id="mainpage">
-    <div id='fullcontainer'>
-        <h2>List of Set Requests</h2>
-        <?php
-        echo gameAvatar($gameData, iconSize: 96);
-        echo "<br><br>";
-        echo "A set for this game has been requested by the following users:<br><br>";
-        echo "<ul>";
-        foreach ($requestors as $requestor) {
-            echo "<code><li>" . userAvatar($requestor['Requestor']) . "</code></li>";
-        }
-        echo "</ul>";
-        echo "<br>";
-        ?>
-        <br>
-    </div>
-</div>
+<article>
+    <h2>List of Set Requests</h2>
+    <?php
+    echo gameAvatar($gameData, iconSize: 96);
+    echo "<br><br>";
+    echo "A set for this game has been requested by the following users:<br><br>";
+    echo "<ul>";
+    foreach ($requestors as $requestor) {
+        echo "<code><li>" . userAvatar($requestor['Requestor']) . "</code></li>";
+    }
+    echo "</ul>";
+    echo "<br>";
+    ?>
+    <br>
+</article>
 <?php RenderContentEnd(); ?>

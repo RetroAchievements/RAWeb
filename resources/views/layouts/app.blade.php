@@ -9,7 +9,6 @@
     :canonical-url="$permalink ?? null"
 />
 <body
-    {{ ($wide ?? false) ? 'wide' : '' }}
     data-scheme="{{ request()->cookie('scheme', '') }}"
     data-theme="{{ request()->cookie('theme', '') }}"
     class="{{ config('app.debug') ? 'debug' : '' }} {{ !Route::is('news.index') ? 'with-news' : '' }} with-footer"
@@ -43,7 +42,7 @@
     </x-slot>
     @if ($bufferedOutput ?? false)
         <x-container>
-            <main class="mb-5" data-scroll-target>
+            <main class="mb-5 {{ trim($sidebar ?? false) ? 'with-sidebar' : '' }}" data-scroll-target>
                 {!! $bufferedOutput ?? '' !!}
             </main>
         </x-container>

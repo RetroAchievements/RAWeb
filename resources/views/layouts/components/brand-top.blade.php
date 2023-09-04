@@ -1,7 +1,7 @@
 <x-section class="brand-top">
     <x-container>
         {{--<div class="hidden lg:flex gap-4 justify-between items-center">--}}
-        <div class="lg:grid grid-cols-[1fr_340px] gap-4 items-center">
+        <div class="lg:grid lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px] gap-4 items-center">
             {{-- TODO re-build settings page for logo --}}
             {{--@if(request()->cookie('logo') === 'retro')
                 <div class="logo-container lg:flex justify-start items-center pr-4 pt-4">
@@ -30,9 +30,9 @@
                     </a>
                 </div>
             @endif--}}
-            <div class="p-4 text-center">
+            <div class="p-4 text-center xl:text-left">
                 <a href="{{ route('home') }}">
-                    <img class="max-w-[550px] w-full" fetchpriority="high" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo">
+                    <img class="max-w-[550px] w-full xl:w-auto xl:max-h-[80px]" fetchpriority="high" src="{{ asset('assets/images/ra-logo-sm.webp') }}" alt="RetroAchievements logo">
                 </a>
             </div>
             <x-user.top-card/>
