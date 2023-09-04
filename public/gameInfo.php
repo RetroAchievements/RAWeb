@@ -1422,11 +1422,11 @@ sanitize_outputs(
             if (isset($achievementData)) {
                 echo Blade::render('
                     <x-game.achievements-list.root
-                    :achievements="$achievements"
-                    :totalPlayerCount="$totalPlayerCount"
-                    :progressionTypeValue="$progressionTypeValue"
+                        :achievements="$achievements"
+                        :totalPlayerCount="$totalPlayerCount"
+                        :progressionTypeValue="$progressionTypeValue"
                         :winConditionTypeValue="$winConditionTypeValue"
-                    :isCreditDialogEnabled="$isCreditDialogEnabled"
+                        :isCreditDialogEnabled="$isCreditDialogEnabled"
                     />
                 ', [
                     'achievements' => $achievementData,
