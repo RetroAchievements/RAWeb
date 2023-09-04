@@ -73,3 +73,11 @@ rules:
 
   # tailwind.config.js
   global-require: off
+
+
+# don't enforce explicit-any rule in test files
+overrides:
+  - files:
+      - '*.test.ts'
+    rules:
+      '@typescript-eslint/no-explicit-any': 'off'
