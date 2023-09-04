@@ -174,11 +174,6 @@ function toggleAllCodeRows() {
                     changes you make on this page will instantly take effect on the website, but you will need to press 'Refresh List'
                     to see the new order on this page.
                 </p>
-            HTML;
-        }
-
-        if ($fullModifyOK) {
-            echo <<<HTML
                 <p align="justify">
                     You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
                     checkboxes in the far-left column and click either the 'Set Selected as $progressionLabel' or 'Set Selected as $winConditionLabel'
@@ -188,7 +183,9 @@ function toggleAllCodeRows() {
                     if any $winConditionLabel achievements are unlocked.
                 </p>
             HTML;
+        }
 
+        if ($fullModifyOK) {
             echo "<p>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
                 "the desired checkboxes in the far left column and clicking the '" . ($flag === AchievementFlag::Unofficial ? "Promote" : "Demote") . " Selected' " .
                 "link. You can check or uncheck all checkboxes by clicking the 'All' or 'None' links in the first row of the table.</p>";
@@ -236,8 +233,12 @@ function toggleAllCodeRows() {
             sanitize_outputs($achTitle, $achDesc);
 
             echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
-            if ($fullModifyOK) {
-                echo "<td><span style='white-space: nowrap'><input type='checkbox' name='achievement" . $achID . "' value='" . $achID . "'> <label for='achievement'>$achID</label></span></td>";
+            if ($partialModifyOK || $fullModifyOK) {
+                if ($achievementData[$achID]['Author'] === $user || $permissions >= Permissions::Developer) {
+                    echo "<td><span style='white-space: nowrap'><input type='checkbox' name='achievement" . $achID . "' value='" . $achID . "'> <label for='achievement'>$achID</label></span></td>";
+                } else {
+                    echo "<td>$achID</td>";
+                }
             } else {
                 echo "<td>$achID</td>";
             }
@@ -325,11 +326,10 @@ function toggleAllCodeRows() {
                 echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
             }
 
-            if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to $progressionLabel</a>";
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to $winConditionLabel</a>";
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
-            }
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to $progressionLabel</a>";
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to $winConditionLabel</a>";
+            echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
+
         }
 
         if ($fullModifyOK) {
