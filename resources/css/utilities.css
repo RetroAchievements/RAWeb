@@ -1,6 +1,6 @@
 @layer components {
   .container {
-    @apply sm:max-w-[1024px] xl:max-w-[1280px];
+    @apply sm:max-w-[theme('screens.lg')] xl:max-w-[theme('screens.xl')];
   }
 }
 
