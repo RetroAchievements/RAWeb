@@ -17,8 +17,7 @@
   right: 0;
 }
 
-.dropdown:hover > .dropdown-menu,
-.dropdown:focus-within > .dropdown-menu {
+.dropdown:hover > .dropdown-menu {
   display: block;
 }
 
