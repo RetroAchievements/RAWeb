@@ -38,6 +38,7 @@ class AchievementFactory extends Factory
             'TrueRatio' => rand(1, 1000),
             'BadgeName' => '00001',
             'DateModified' => Carbon::now(),
+            'DisplayOrder' => rand(0, 500),
         ];
     }
 
