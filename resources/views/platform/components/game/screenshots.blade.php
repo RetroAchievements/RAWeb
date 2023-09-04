@@ -41,8 +41,8 @@ function carousel() {
 <!-- SM+ -->
 <div class="
     hidden sm:flex justify-around items-center mb-3 px-6 pt-2 pb-2.5 w-full
-    bg-embed border border-embed-highlight gap-y-1 gap-x-5
-    xl:px-4 xl:pt-4 xl:pb-5 xl:rounded-lg xl:mx-0 xl:w-full xl:min-h-[180px]
+    bg-zinc-900/50 light:bg-embed border border-embed-highlight gap-y-1 gap-x-5
+    xl:px-4 xl:py-2 xl:rounded-lg xl:mx-0 xl:w-full xl:min-h-[180px]
 "
 >
     <div class="flex justify-center items-center">

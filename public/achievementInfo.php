@@ -438,7 +438,7 @@ RenderContentStart($pageTitle);
         echo "Nobody yet! Will you be the first?!<br>";
     } else {
         echo "<table class='table-highlight'><tbody>";
-        echo "<tr class='do-not-highlight'><th width='40%'>User</th><th>Mode</th><th class='text-right'>Unlocked</th></tr>";
+        echo "<tr class='do-not-highlight'><th class='w-[50%] xl:w-[60%]'>User</th><th>Mode</th><th class='text-right'>Unlocked</th></tr>";
         $iter = 0;
         foreach ($unlocks as $userObject) {
             $userWinner = $userObject['User'];
