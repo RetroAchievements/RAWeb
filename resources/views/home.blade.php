@@ -6,7 +6,6 @@ if (Auth::user()) {
     $isNewAccount = Carbon::now()->diffInMonths(Auth::user()->Created) < 1;
 }
 ?>
-
 <x-app-layout>
     @guest
         @include('content.welcome')
@@ -31,15 +30,17 @@ if (Auth::user()) {
     @slot('sidebar')
         @include('content.top-links')
 
-        @if(isset($eventAchievement))
-            <x-event.aotw
-                :achievement="$eventAchievement"
-                :game="$eventGame"
-                :consoleName="$eventConsoleName"
-                :forumTopicId="$eventForumTopicId"
-            />
-        @endif
+        <div class="mt-6 flex flex-col gap-y-3">
+            @if(isset($eventAchievement))
+                <x-event.aotw
+                    :achievement="$eventAchievement"
+                    :game="$eventGame"
+                    :consoleName="$eventConsoleName"
+                    :forumTopicId="$eventForumTopicId"
+                />
+            @endif
 
-        @include('content.static-data')
+            <x-global-statistics />
+        </div>
     @endslot
 </x-app-layout>

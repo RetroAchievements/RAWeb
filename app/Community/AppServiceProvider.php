@@ -14,6 +14,7 @@ use App\Community\Commands\SyncRatings;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Commands\SyncVotes;
+use App\Community\Components\GlobalStatistics;
 use App\Community\Components\UserCard;
 use App\Community\Models\AchievementComment;
 use App\Community\Models\AchievementSetClaim;
@@ -100,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
         TriggerTicketComment::disableSearchSyncing();
         UserComment::disableSearchSyncing();
 
+        Blade::component('global-statistics', GlobalStatistics::class);
         Blade::component('user-card', UserCard::class);
 
         // Livewire::component('forum-topics', ForumTopics::class);

@@ -1,3 +1,9 @@
+@layer components {
+  .container {
+    @apply sm:max-w-[theme('screens.lg')] xl:max-w-[theme('screens.xl')];
+  }
+}
+
 .bg-body {
   background-color: var(--bg-color);
 }
@@ -33,4 +39,9 @@
 
 span.smalldate {
   display: inline-block;
+}
+
+/* @see https://alpinejs.dev/directives/cloak */
+[x-cloak] {
+  display: none !important;
 }

@@ -17,7 +17,6 @@ class AppLayout extends Component
         public ?string $pageType = null,
         public ?string $canonicalUrl = null,
         public string $sidebarPosition = 'right',
-        public bool $wide = false,
     ) {
     }
 

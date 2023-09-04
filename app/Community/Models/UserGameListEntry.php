@@ -67,12 +67,9 @@ class UserGameListEntry extends BaseModel
         $requests = [];
         $requests['total'] = 0;
         $requests['pointsForNext'] = 0;
-        $requests['maxSoftcoreReached'] = false;
         $points = 0;
-        $maxSoftcoreThreshold = 10000; // Softcore points count towards requests up to 10000 points
 
-        $points += $user->RAPoints + min($user->RASoftcorePoints, $maxSoftcoreThreshold);
-        $requests['maxSoftcoreReached'] = ($user->RASoftcorePoints >= $maxSoftcoreThreshold);
+        $points += $user->RAPoints + $user->RASoftcorePoints;
 
         // logic behind the amount of requests based on player's score:
         $boundariesAndChunks = [

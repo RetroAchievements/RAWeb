@@ -55,7 +55,7 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
 
     }
 
-    // echo "<div class='float-right'><a href='/forumposthistory.php'>more...</a></div>";
+    // echo "<div class='text-right'><a href='/forumposthistory.php'>more...</a></div>";
 
     echo "</div>";
 }

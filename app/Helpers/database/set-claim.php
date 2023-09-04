@@ -42,7 +42,7 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
             SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
         VALUES
             ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '" . ClaimSpecial::None . "', NOW(),
-            (SELECT Finished FROM (SELECT Finished FROM SetClaim WHERE GameID = '$gameID' AND Status = " . ClaimStatus::Active . " AND ClaimType = " . ClaimType::Primary . ") AS sc),
+            (SELECT Finished FROM (SELECT Finished FROM SetClaim WHERE GameID = '$gameID' AND Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ") AND ClaimType = " . ClaimType::Primary . ") AS sc),
             NOW())";
 
     return legacyDbStatement($query);
@@ -54,7 +54,6 @@ function insertClaim(string $user, int $gameID, int $claimType, int $setType, in
 function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = false, ?int $setType = null): bool
 {
     $bindings = [
-        'status' => ClaimStatus::Active,
         'username' => $username,
         'gameId' => $gameID,
     ];
@@ -77,7 +76,7 @@ function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = fal
         FROM
             SetClaim
         WHERE
-            Status = :status
+            Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
             $claimTypeCondition
             $setTypeCondition
             AND User = :username
@@ -97,6 +96,7 @@ function completeClaim(string $user, int $gameID): bool
     if (hasSetClaimed($user, $gameID, true)) {
         $now = Carbon::now();
 
+        // cannot complete In Review claim
         $query = "
             UPDATE
                 SetClaim
@@ -121,6 +121,7 @@ function dropClaim(string $user, int $gameID): bool
 {
     $now = Carbon::now();
 
+    // cannot drop In Review claim
     $query = "
         UPDATE
             SetClaim
@@ -153,7 +154,7 @@ function extendClaim(string $user, int $gameID): bool
                 Finished = DATE_ADD(Finished, INTERVAL 3 MONTH),
                 Updated = NOW()
             WHERE
-                Status = " . ClaimStatus::Active . "
+                Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
                 AND GameID = '$gameID'
                 AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
@@ -174,13 +175,13 @@ function getClaimData(int $gameID, bool $getFullData = true): array
         sc.ClaimType as ClaimType, sc.Created as Created, sc.Finished as Expiration";
 
     if ($getFullData) {
-        $query .= ", sc.Status as Status, ";
+        $query .= ", sc.Status as Status, sc.ID, ";
         $query .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft') . ",";
         $query .= diffMinutesPassedStatement('sc.Created', 'MinutesActive');
     }
 
     $query .= " FROM SetClaim sc WHERE sc.GameID = '$gameID'
-                 AND sc.Status = " . ClaimStatus::Active . "
+                 AND sc.Status IN (" . ClaimStatus::Active . "," . ClaimStatus::InReview . ")
                ORDER BY sc.ClaimType ASC";
 
     return legacyDbFetchAll($query)->toArray();
@@ -208,9 +209,6 @@ function getFilteredClaims(
     $collaborationClaim = ($claimFilter & ClaimFilters::CollaborationClaim);
     $newSetClaim = ($claimFilter & ClaimFilters::NewSetClaim);
     $revisionClaim = ($claimFilter & ClaimFilters::RevisionClaim);
-    $activeClaim = ($claimFilter & ClaimFilters::ActiveClaim);
-    $completeClaim = ($claimFilter & ClaimFilters::CompleteClaim);
-    $droppedClaim = ($claimFilter & ClaimFilters::DroppedClaim);
     $specialNoneClaim = ($claimFilter & ClaimFilters::SpecialNone);
     $specialRevisionClaim = ($claimFilter & ClaimFilters::SpecialOwnRevision);
     $specialRolloutClaim = ($claimFilter & ClaimFilters::SpecialFreeRollout);
@@ -239,21 +237,25 @@ function getFilteredClaims(
     }
 
     // Create the claim status condition
-    $statusCondition = '';
-    if ($activeClaim && $completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Active . ', ' . ClaimStatus::Complete . ')';
-    } elseif ($activeClaim && !$completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Active . ', ' . ClaimStatus::Dropped . ')';
-    } elseif ($activeClaim && !$completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Active;
-    } elseif (!$activeClaim && $completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status IN (' . ClaimStatus::Complete . ', ' . ClaimStatus::Dropped . ')';
-    } elseif (!$activeClaim && $completeClaim && !$droppedClaim) {
-        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Complete;
-    } elseif (!$activeClaim && !$completeClaim && $droppedClaim) {
-        $statusCondition = 'AND sc.Status = ' . ClaimStatus::Dropped;
-    } elseif (!$activeClaim && !$completeClaim && !$droppedClaim) {
+    $statuses = [];
+    if ($claimFilter & ClaimFilters::ActiveClaim) {
+        $statuses[] = ClaimStatus::Active;
+    }
+    if ($claimFilter & ClaimFilters::InReviewClaim) {
+        $statuses[] = ClaimStatus::InReview;
+    }
+    if ($claimFilter & ClaimFilters::CompleteClaim) {
+        $statuses[] = ClaimStatus::Complete;
+    }
+    if ($claimFilter & ClaimFilters::DroppedClaim) {
+        $statuses[] = ClaimStatus::Dropped;
+    }
+    if (empty($statuses)) {
         return collect();
+    }
+    $statusCondition = '';
+    if ($statuses != ClaimStatus::cases()) {
+        $statusCondition = 'AND sc.Status IN (' . join(',', $statuses) . ')';
     }
 
     // Create the special condition
@@ -388,9 +390,7 @@ function getFilteredClaims(
  */
 function getActiveClaimCount(?string $user = null, bool $countCollaboration = true, bool $countSpecial = false): int
 {
-    $bindings = [
-        'status' => ClaimStatus::Active,
-    ];
+    $bindings = [];
 
     $userCondition = '';
     if (isset($user)) {
@@ -420,7 +420,7 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
             $userCondition
             $claimTypeCondition
             $specialCondition
-            AND Status = :status";
+            AND Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")";
 
     return (int) legacyDbFetch($query, $bindings)['ActiveClaims'];
 }
@@ -465,7 +465,7 @@ function getExpiringClaim(string $user): array
             SetClaim AS sc
         WHERE
             sc.User = '$user'
-            AND sc.Status = " . ClaimStatus::Active . "
+            AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
             AND sc.Special != " . ClaimSpecial::ScheduledRelease;
 
     $dbResult = s_mysql_query($query);

@@ -90,9 +90,14 @@ export async function loadDynamicTooltip(
  * @returns A promise resolving to an HTML string containing the tooltip content.
  */
 async function fetchDynamicTooltipContent(type: string, id: string, context?: unknown) {
+  let bodyString = `type=${type}&id=${id}`;
+  if (context) {
+    bodyString += `&context=${context}`;
+  }
+
   const contentResponse = await fetcher<{ html: string }>('/request/card.php', {
     method: 'POST',
-    body: `type=${type}&id=${id}&context=${context}`,
+    body: bodyString,
   });
 
   return contentResponse.html;
