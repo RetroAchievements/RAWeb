@@ -1433,7 +1433,7 @@ sanitize_outputs(
                     'totalPlayerCount' => $numDistinctPlayersCasual,
                     'progressionTypeValue' => AchievementType::Progression,
                     'winConditionTypeValue' => AchievementType::WinCondition,
-                    'isCreditDialogEnabled' => $flagParam != $unofficialFlag,
+                    'isCreditDialogEnabled' => $user && $flagParam != $unofficialFlag,
                 ]);
             }
         }
