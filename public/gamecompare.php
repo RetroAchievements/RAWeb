@@ -115,14 +115,14 @@ RenderContentStart("Game Compare");
 
         echo "<th class='text-right'>";
         echo "<a href='/user/$user'>$user</a><br>";
-        echo userAvatar($user, label: false, iconSize: $iconSize);
+        echo userAvatar($user, label: false, iconSize: $iconSize, iconClass: 'rounded-sm');
         echo "</th>";
 
         echo "<th><center>Achievement</center></th>";
 
         echo "<th>";
         echo "<a href='/user/$user2'>$user2</a><br>";
-        echo userAvatar($user2, label: false, iconSize: $iconSize);
+        echo userAvatar($user2, label: false, iconSize: $iconSize, iconClass: 'rounded-sm');
         echo "</th>";
 
         echo "</tr>";
@@ -220,7 +220,7 @@ RenderContentStart("Game Compare");
 
         echo "<td>";
         echo "<div class='text-right'>";
-        echo userAvatar($user, label: false, iconSize: $iconSize);
+        echo userAvatar($user, label: false, iconSize: $iconSize, iconClass: 'rounded-sm');
         echo "</div>";
         echo "</td>";
 
@@ -228,7 +228,7 @@ RenderContentStart("Game Compare");
 
         echo "<td>";
         echo "<div>";
-        echo userAvatar($user2, label: false, iconSize: $iconSize);
+        echo userAvatar($user2, label: false, iconSize: $iconSize, iconClass: 'rounded-sm');
         echo "</div>";
         echo "</td>";
 

@@ -2,6 +2,7 @@
 
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\System;
+use Illuminate\Support\Facades\Blade;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = (int) request()->input('z', 0);
@@ -135,7 +136,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
     if (!$mobileBrowser) {
         echo "<th class='whitespace-nowrap'>";
         echo "<a href='/achievementList.php?s=$sort3&p=$params$dev_param'>Points</a>$mark3 ";
-        echo "<br><span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>Retro Ratio</a>$mark4)</span>";
+        echo "<br><span class='TrueRatio'>(<a href='/achievementList.php?s=$sort4&p=$params$dev_param'>RetroPoints</a>$mark4)</span>";
         echo "</th>";
         echo "<th><a href='/achievementList.php?s=$sort5&p=$params$dev_param'>Author</a>$mark5</th>";
     }
@@ -184,7 +185,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         echo "<td class='pr-0'>";
         echo achievementAvatar($achEntry, label: false);
         echo "</td>";
-        echo "<td class='w-full'>";
+        echo "<td class='w-full xl:w-[50%]'>";
         echo achievementAvatar($achEntry, icon: false);
         echo "<br>$achDesc";
         echo "</td>";
@@ -192,7 +193,7 @@ RenderContentStart("Achievement List" . $requestedConsole);
         if (!$mobileBrowser) {
             echo "<td>";
             echo "$achPoints ";
-            echo "<span class='TrueRatio'>($achTruePoints)</span>";
+            echo Blade::render("<x-points-weighted-container>(" . localized_number($achTruePoints) . ")</x-points-weighted-container>");
             echo "</td>";
 
             echo "<td>";

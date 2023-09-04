@@ -172,7 +172,7 @@ RenderContentStart($pageTitle);
             $gameIDGiven,
             $achievementIDGiven
         );
-        echo "<h3>$pageTitle - " . $openTicketsCount . " Open " . ($gamesTableFlag == AchievementFlag::Unofficial ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
+        echo "<h3>$pageTitle - " . localized_number($openTicketsCount) . " Open " . ($gamesTableFlag == AchievementFlag::Unofficial ? 'Unofficial ' : '') . " Ticket" . ($openTicketsCount == 1 ? "" : "s") . "</h3>";
     }
 
     echo "<div class='detaillist'>";
@@ -183,7 +183,7 @@ RenderContentStart($pageTitle);
 
         echo "<tr class='do-not-highlight'>";
         echo "<th>Game</th>";
-        echo "<th>Number of Open Tickets</th>";
+        echo "<th class='text-right'>Number of Open Tickets</th>";
         echo "</tr>";
 
         $rowCount = 0;
@@ -218,14 +218,14 @@ RenderContentStart($pageTitle);
             ]);
             echo "</td>";
 
-            echo "<td><a href='/ticketmanager.php?g=$gameID'>$openTickets</a></td>";
+            echo "<td class='text-right'><a href='/ticketmanager.php?g=$gameID'>$openTickets</a></td>";
 
             echo "</tr>";
         }
         echo "</tbody></table>";
     } else {
         if ($ticketID == 0) {
-            echo "<h4>Filters - " . $filteredTicketsCount . " Ticket" . ($filteredTicketsCount == 1 ? "" : "s") . " Filtered</h4>";
+            echo "<h4>Filters - " . localized_number($filteredTicketsCount) . " Ticket" . ($filteredTicketsCount == 1 ? "" : "s") . " Filtered</h4>";
             echo "<div class='embedded mb-1'>";
 
             /*

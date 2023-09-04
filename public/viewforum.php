@@ -93,10 +93,10 @@ RenderContentStart("Forum: $thisForumTitle");
 
     echo "<tr class='do-not-highlight'>";
     echo "<th></th>";
-    echo "<th class='w-full'>Topics</th>";
+    echo "<th class='w-full xl:w-[60%]'>Topics</th>";
     echo "<th>Author</th>";
     echo "<th>Replies</th>";
-    echo "<th class='whitespace-nowrap'>Last post</th>";
+    echo "<th class='whitespace-nowrap xl:text-right'>Last post</th>";
     echo "</tr>";
 
     $topicCount = is_countable($topicList) ? count($topicList) : 0;
@@ -143,10 +143,10 @@ RenderContentStart("Forum: $thisForumTitle");
         echo "<td>";
         echo "<div>" . userAvatar($nextTopicAuthor, icon: false) . "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
         echo "</td>";
-        echo "<td>$nextTopicNumReplies</td>";
+        echo "<td>" . localized_number($nextTopicNumReplies) . "</td>";
         echo "<td>";
-        echo "<div>" . userAvatar($nextTopicLastCommentAuthor, icon: false) . "<br><span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
-        echo "<br><a class='btn btn-link' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
+        echo "<div class='xl:flex xl:flex-col xl:items-end xl:gap-y-0.5'>" . userAvatar($nextTopicLastCommentAuthor, icon: false) . "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
+        echo "<a class='text-2xs' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
         echo "</div>";
         echo "</td>";
         echo "</tr>";

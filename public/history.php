@@ -228,13 +228,13 @@ RenderContentStart("$userPage's Legacy");
     echo "<h3>History</h3>";
 
     echo "<div>";
-    echo "<img src='" . media_asset('/UserPic/' . $userPage . '.png') . "' alt='$userPage' align='right' width='64' height='64'>";
+    echo "<img src='" . media_asset('/UserPic/' . $userPage . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-sm'>";
     echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
     if ($userPageHardcorePoints > 0) {
-        echo "($userPageHardcorePoints) ";
+        echo "(" . localized_number($userPageHardcorePoints) . ") ";
     }
     if ($userPageSoftcorePoints > 0) {
-        echo "<span class ='softcore'>($userPageSoftcorePoints softcore)</span>";
+        echo "<span class ='softcore'>(" . localized_number($userPageSoftcorePoints) . " softcore)</span>";
     }
     echo "</b><br>";
 
@@ -256,7 +256,7 @@ RenderContentStart("$userPage's Legacy");
     echo "<h3>Best Days</h3>";
     echo "<div id='chart_bestdays' class='min-h-[250px]'></div>";
 
-    echo "<table class='table-highlight'><tbody>";
+    echo "<table class='mt-4 table-highlight'><tbody>";
 
     $sort1 = ($sortBy == 1) ? 11 : 1;
     $sort2 = ($sortBy == 2) ? 12 : 2;
@@ -264,8 +264,8 @@ RenderContentStart("$userPage's Legacy");
 
     echo "<tr class='do-not-highlight'>";
     echo "<th><a href='/history.php?s=$sort1&u=$userPage'>Date</a></th>";
-    echo "<th><a href='/history.php?s=$sort2&u=$userPage'>Num Achievements</a></th>";
-    echo "<th><a href='/history.php?s=$sort3&u=$userPage'>Score Earned</a></th>";
+    echo "<th class='text-right'><a href='/history.php?s=$sort2&u=$userPage'>Num Achievements</a></th>";
+    echo "<th class='text-right'><a href='/history.php?s=$sort3&u=$userPage'>Score Earned</a></th>";
     echo "</tr>";
 
     $dayCount = 0;
@@ -281,8 +281,8 @@ RenderContentStart("$userPage's Legacy");
 
         echo "<tr>";
         echo "<td>$dateStr</td>";
-        echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextNumAwarded</a></td>";
-        echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextTotalPointsEarned</a></td>";
+        echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextNumAwarded</a></td>";
+        echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=$userPage'>" . localized_number($nextTotalPointsEarned) . "</a></td>";
         echo "</tr>";
     }
 

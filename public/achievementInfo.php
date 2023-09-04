@@ -438,7 +438,7 @@ RenderContentStart($pageTitle);
         echo "Nobody yet! Will you be the first?!<br>";
     } else {
         echo "<table class='table-highlight'><tbody>";
-        echo "<tr class='do-not-highlight'><th></th><th>User</th><th>Mode</th><th>Unlocked</th></tr>";
+        echo "<tr class='do-not-highlight'><th width='40%'>User</th><th>Mode</th><th class='text-right'>Unlocked</th></tr>";
         $iter = 0;
         foreach ($unlocks as $userObject) {
             $userWinner = $userObject['User'];
@@ -448,19 +448,14 @@ RenderContentStart($pageTitle);
             $niceDateWon = date("d M, Y H:i", strtotime($userObject['DateAwarded']));
             echo "<tr>";
             echo "<td class='w-[32px]'>";
-            echo userAvatar($userWinner, label: false);
-            echo "</td>";
-            echo "<td>";
-            echo userAvatar($userWinner, icon: false);
+            echo userAvatar($userWinner, iconClass: 'mr-2');
             echo "</td>";
             echo "<td>";
             if ($userObject['HardcoreMode']) {
                 echo "Hardcore";
             }
             echo "</td>";
-            echo "<td>";
-            echo "<small>$niceDateWon</small>";
-            echo "</td>";
+            echo "<td class='text-right'>$niceDateWon</td>";
             echo "</tr>";
         }
 

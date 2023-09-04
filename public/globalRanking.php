@@ -2,6 +2,7 @@
 
 use App\Community\Enums\RankType;
 use App\Platform\Enums\UnlockMode;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -167,7 +168,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
     echo "<th>User</th>";
 
     // Sortable Achievements header
-    echo "<th>";
+    echo "<th class='text-right'>";
     if ($unlockMode == UnlockMode::Hardcore) {
         $sortFilter('Hardcore Achievements', 4);
     } else {
@@ -176,10 +177,10 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
     echo "</th>";
 
     // Sortable Points header
-    echo "<th>";
+    echo "<th class='text-right'>";
     if ($unlockMode == UnlockMode::Hardcore) {
         $sortFilter('Hardcore Points', 5);
-        $sortFilter(' (Retro Points)', 6);
+        $sortFilter(' (RetroPoints)', 6);
     } else {
         $sortFilter('Softcore Points', 2);
     }
@@ -187,13 +188,13 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
 
     // Sortable Retro Ratio header
     if ($unlockMode == UnlockMode::Hardcore) {
-        echo "<th>";
+        echo "<th class='text-right'>";
         $sortFilter('Retro Ratio', 7);
         echo "</th>";
     }
 
     // Sortable Mastered Awards header
-    echo "<th>";
+    echo "<th class='text-right'>";
     if ($unlockMode == UnlockMode::Hardcore) {
         if ($type == 2) { // Disable sorting if All Time
             echo "Mastered";
@@ -261,29 +262,30 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 echo "<td>" . $rank . "</td>";
             }
             echo "<td>";
-            echo userAvatar($dataPoint['User']);
+            echo userAvatar($dataPoint['User'], iconClass: 'mr-1');
             echo "</td>";
 
             // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
             if ($type == 0) {
-                echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . $dataPoint['AchievementCount'] . "</a></td>";
+                echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . localized_number($dataPoint['AchievementCount']) . "</a></td>";
             } else {
-                echo "<td>" . $dataPoint['AchievementCount'] . "</td>";
+                echo "<td class='text-right'>" . localized_number($dataPoint['AchievementCount']) . "</td>";
             }
 
             if ($unlockMode == UnlockMode::Hardcore) {
-                echo "<td>" . $dataPoint['Points'];
-                echo " <span class='TrueRatio'>(" . $dataPoint['RetroPoints'] . ")</span></td>";
+                echo "<td class='text-right'>" . localized_number($dataPoint['Points']);
+                echo Blade::render("<x-points-weighted-container>(" . localized_number($dataPoint['RetroPoints']) . ")</x-points-weighted-container>");
+                echo "</td>";
                 if ($dataPoint['Points'] == 0) {
-                    echo "<td>0.00</td>";
+                    echo "<td class='text-right'>0.00</td>";
                 } else {
-                    echo "<td>" . $dataPoint['RetroRatio'] . "</td>";
+                    echo "<td class='text-right'>" . $dataPoint['RetroRatio'] . "</td>";
                 }
             } else {
-                echo "<td>" . $dataPoint['Points'] . "</td>";
+                echo "<td class='text-right'>" . localized_number($dataPoint['Points']) . "</td>";
             }
 
-            echo "<td>" . $dataPoint['TotalAwards'] . "</td></tr>";
+            echo "<td class='text-right'>" . localized_number($dataPoint['TotalAwards']) . "</td></tr>";
 
             $rowRank++;
             $userCount++;
@@ -320,36 +322,37 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                     }
                 }
                 echo "<td>";
-                echo userAvatar($userData[0]['User']);
+                echo userAvatar($userData[0]['User'], iconClass: 'mr-1');
                 echo "</td>";
 
                 // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
                 if ($type == 0) {
-                    echo "<td><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['AchievementCount'] . "</a></td>";
+                    echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['AchievementCount'] . "</a></td>";
                 } else {
-                    echo "<td>" . $userData[0]['AchievementCount'] . "</a></td>";
+                    echo "<td class='text-right'>" . localized_number($userData[0]['AchievementCount']) . "</a></td>";
                 }
 
                 if ($unlockMode == UnlockMode::Hardcore) {
-                    echo "<td>" . $userData[0]['Points'];
-                    echo " <span class='TrueRatio'>(" . $userData[0]['RetroPoints'] . ")</span></td>";
+                    echo "<td class='text-right'>" . localized_number($userData[0]['Points']);
+                    echo Blade::render("<x-points-weighted-container>(" . localized_number($userData[0]['RetroPoints']) . ")</x-points-weighted-container>");
+                    echo "</td>";
                     if ($userData[0]['Points'] == 0) {
-                        echo "<td>0.00</td>";
+                        echo "<td class='text-right'>0.00</td>";
                     } else {
-                        echo "<td>" . $userData[0]['RetroRatio'] . "</td>";
+                        echo "<td class='text-right'>" . $userData[0]['RetroRatio'] . "</td>";
                     }
                 } else {
-                    echo "<td>" . $userData[0]['Points'] . "</td>";
+                    echo "<td class='text-right'>" . localized_number($userData[0]['Points']) . "</td>";
                 }
 
-                echo "<td>" . $userData[0]['TotalAwards'] . "</td></tr>";
+                echo "<td class='text-right'>" . localized_number($userData[0]['TotalAwards']) . "</td></tr>";
             }
         }
     }
     echo "</tbody></table>";
 
     // Add page traversal
-    echo "<div class='text-right'>";
+    echo "<div class='text-right mt-2'>";
     if ($offset > 0) {
         $prevOffset = $offset - $maxCount;
         echo "<a href='/globalRanking.php?s=$sort&t=$type&d=$date&f=$friends'>First</a> - ";

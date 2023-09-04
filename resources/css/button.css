@@ -38,7 +38,8 @@
   background: none;
 }
 .btn-link:hover {
-  border: none;
+  background: none !important;
+  border: none !important;
 }
 
 .btn-warning {

@@ -82,7 +82,7 @@ RenderContentStart("Forum Recent Posts");
 
         echo "<tr>";
 
-        echo "<td>";
+        echo "<td class='py-2.5'>";
         echo userAvatar($postAuthor, iconSize: 24);
         echo "</td>";
 

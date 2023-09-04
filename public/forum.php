@@ -74,10 +74,10 @@ RenderContentStart($pageTitle);
             echo "<tbody>";
             echo "<tr class='do-not-highlight'>";
             echo "<th></th>";
-            echo "<th class='w-full'>Forum</th>";
+            echo "<th class='w-full xl:w-[60%]'>Forum</th>";
             echo "<th>Topics</th>";
             echo "<th>Posts</th>";
-            echo "<th>Last Post</th>";
+            echo "<th class='xl:text-right'>Last Post</th>";
             echo "</tr>";
 
             $lastCategory = $nextCategory;
@@ -112,15 +112,15 @@ RenderContentStart($pageTitle);
         echo "<td class='p-1'><img alt='$nextForumTitle' src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='32' height='32'></td>";
         echo "<td><a href='/viewforum.php?f=$nextForumID'>$nextForumTitle</a><br>";
         echo "$nextForumDesc</td>";
-        echo "<td>$nextForumNumTopics</td>";
-        echo "<td>$nextForumNumPosts</td>";
+        echo "<td>" . localized_number($nextForumNumTopics) . "</td>";
+        echo "<td>" . localized_number($nextForumNumPosts) . "</td>";
         echo "<td>";
-        echo "<div>";
+        echo "<div class='xl:flex xl:flex-col xl:items-end xl:gap-y-0.5'>";
         if (isset($nextForumLastPostAuthor) && mb_strlen($nextForumLastPostAuthor) > 1) {
             echo userAvatar($nextForumLastPostAuthor, icon: false);
         }
-        echo "<br><span class='smalldate'>$nextForumCreatedNiceDate</span>";
-        echo "<br><a class='btn btn-link' href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>View</a>";
+        echo "<span class='smalldate'>$nextForumCreatedNiceDate</span>";
+        echo "<a class='text-2xs' href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>View</a>";
         echo "</div>";
         echo "</td>";
         echo "</tr>";

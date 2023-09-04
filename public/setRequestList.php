@@ -84,7 +84,7 @@ RenderContentStart("Set Requests");
 
         // Create table headers
         echo "<tr class='do-not-highlight'>";
-        echo "<th>Game</th>";
+        echo "<th class='xl:w-[70%]'>Game</th>";
         echo "<th>Claimed By</th>";
         echo "<th class='text-right'>Requests</th>";
         echo "</tr>";
@@ -93,7 +93,7 @@ RenderContentStart("Set Requests");
         foreach ($setRequestList as $request) {
             echo $gameCounter++ % 2 == 0 ? "<tr>" : "<tr class=\"alt\">";
 
-            echo "<td class='py-2.5'>";
+            echo "<td class='py-2.5 xl:w-[70%]'>";
 
             echo Blade::render('
                 <x-game.multiline-avatar
@@ -151,7 +151,7 @@ RenderContentStart("Set Requests");
 
         if ($flag == 0) {
             if ($username === $user) {
-                echo "<div class='float-right'>Next request in " . $userSetRequestInformation['pointsForNext'] . " points</div>";
+                echo "<div class='float-right'>Next request in " . localized_number($userSetRequestInformation['pointsForNext']) . " points</div>";
             }
             echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";
         } else {
