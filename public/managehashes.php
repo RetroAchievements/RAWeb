@@ -33,6 +33,20 @@ sanitize_outputs(
 RenderContentStart("Manage Game Hashes - $gameTitle");
 ?>
 <script>
+var shortMonths = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec'];
+
 function UpdateHashDetails(user, hash) {
     var name = $.trim($('#HASH_' + hash + '_Name').val());
     var labels = $.trim($('#HASH_' + hash + '_Labels').val());
