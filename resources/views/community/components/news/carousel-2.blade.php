@@ -14,7 +14,7 @@ if ($newsData->isEmpty()) {
     <h2 class="sr-only">News</h2>
 
     <div 
-        class="mt-2 relative h-[300px] max-h-[300px] sm:h-[270px] sm:max-h-[270px] xl:max-w-[700px]"
+        class="mt-2 relative h-[300px] max-h-[300px] sm:h-[270px] sm:max-h-[270px] xl:w-[624px]"
         @mouseenter="pause()"
         @mouseleave="resume()"
     >
