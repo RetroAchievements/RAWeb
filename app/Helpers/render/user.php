@@ -145,11 +145,20 @@ function RenderCompletedGamesList(
 
         echo "<tr class='$isCompletedClassName'>";
 
-        echo "<td>";
-        echo gameAvatar($userCompletedGamesList[$i], label: false, context: $username);
-        echo "</td>";
-        echo "<td class='smaller'>";
-        echo gameAvatar($userCompletedGamesList[$i], icon: false, context: $username);
+        echo "<td class='py-2'>";
+        echo Blade::render('
+            <x-game.multiline-avatar
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :gameImageIcon="$gameImageIcon"
+                :consoleName="$consoleName"
+            />
+        ', [
+            'gameId' => $userCompletedGamesList[$i]['GameID'],
+            'gameTitle' => $userCompletedGamesList[$i]['Title'],
+            'gameImageIcon' => $userCompletedGamesList[$i]['ImageIcon'],
+            'consoleName' => $userCompletedGamesList[$i]['ConsoleName'],
+        ]);
         echo "</td>";
         echo "<td>";
 

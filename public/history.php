@@ -199,96 +199,94 @@ RenderContentStart("$userPage's Legacy");
   }
 </script>
 
-<div id='mainpage'>
-    <div id='fullcontainer'>
-        <?php
-        echo "<div class='navpath'>";
-        echo "<a href='/userList.php'>All Users</a>";
-        echo " &raquo; <a href='/user/$userPage'>$userPage</a>";
-        echo " &raquo; <b>History</b>";
-        echo "</div>";
-        ?>
+<article>
+    <?php
+    echo "<div class='navpath'>";
+    echo "<a href='/userList.php'>All Users</a>";
+    echo " &raquo; <a href='/user/$userPage'>$userPage</a>";
+    echo " &raquo; <b>History</b>";
+    echo "</div>";
+    ?>
 
-        <?php if ($user !== null): ?>
-            <div class="flex flex-wrap justify-between">
-                <div>
-                </div>
-                <div>
-                    <form action="history.php">
-                        <label>
-                            Filter by user:<br>
-                            <input size="28" name="u" type="text" value="<?= $userPage ?>">
-                        </label>
-                        <button class="btn">Select</button>
-                    </form>
-                </div>
+    <?php if ($user !== null): ?>
+        <div class="flex flex-wrap justify-between">
+            <div>
             </div>
-        <?php endif ?>
-        <?php
+            <div>
+                <form action="history.php">
+                    <label>
+                        Filter by user:<br>
+                        <input size="28" name="u" type="text" value="<?= $userPage ?>">
+                    </label>
+                    <button class="btn">Select</button>
+                </form>
+            </div>
+        </div>
+    <?php endif ?>
+    <?php
 
-        echo "<h3>History</h3>";
+    echo "<h3>History</h3>";
 
-        echo "<div>";
-        echo "<img src='" . media_asset('/UserPic/' . $userPage . '.png') . "' alt='$userPage' align='right' width='64' height='64'>";
-        echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
-        if ($userPageHardcorePoints > 0) {
-            echo "($userPageHardcorePoints) ";
-        }
-        if ($userPageSoftcorePoints > 0) {
-            echo "<span class ='softcore'>($userPageSoftcorePoints softcore)</span>";
-        }
-        echo "</b><br>";
+    echo "<div>";
+    echo "<img src='" . media_asset('/UserPic/' . $userPage . '.png') . "' alt='$userPage' align='right' width='64' height='64' class='rounded-sm'>";
+    echo "<b><a href='/user/$userPage'><strong>$userPage</strong></a> ";
+    if ($userPageHardcorePoints > 0) {
+        echo "(" . localized_number($userPageHardcorePoints) . ") ";
+    }
+    if ($userPageSoftcorePoints > 0) {
+        echo "<span class ='softcore'>(" . localized_number($userPageSoftcorePoints) . " softcore)</span>";
+    }
+    echo "</b><br>";
 
-        $memberSince = !empty($userSignedUp) ? getNiceDate(strtotime($userSignedUp), true) : '';
-        echo "Member since: " . $memberSince . "<br>";
-        echo "<br>";
-        echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
-        echo "<label for='d' class='font-bold'>Jump to Date: </label>";
-        echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateUnix) . "' />";
-        echo "<input type='hidden' name='d' value='$dateUnix' />";
-        echo "<input type='hidden' name='u' value='$userPage' />";
-        echo "<button class='btn ml-1'>Go to Date</button>";
-        echo "</form>";
+    $memberSince = !empty($userSignedUp) ? getNiceDate(strtotime($userSignedUp), true) : '';
+    echo "Member since: " . $memberSince . "<br>";
+    echo "<br>";
+    echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
+    echo "<label for='d' class='font-bold'>Jump to Date: </label>";
+    echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateUnix) . "' />";
+    echo "<input type='hidden' name='d' value='$dateUnix' />";
+    echo "<input type='hidden' name='u' value='$userPage' />";
+    echo "<button class='btn ml-1'>Go to Date</button>";
+    echo "</form>";
 
-        echo "</div>";
+    echo "</div>";
 
-        echo "<div id='chart_scoreprogress' class='min-h-[250px]'></div>";
+    echo "<div id='chart_scoreprogress' class='min-h-[250px]'></div>";
 
-        echo "<h3>Best Days</h3>";
-        echo "<div id='chart_bestdays' class='min-h-[250px]'></div>";
+    echo "<h3>Best Days</h3>";
+    echo "<div id='chart_bestdays' class='min-h-[250px]'></div>";
 
-        echo "<table class='table-highlight'><tbody>";
+    echo "<table class='mt-4 table-highlight'><tbody>";
 
-        $sort1 = ($sortBy == 1) ? 11 : 1;
-        $sort2 = ($sortBy == 2) ? 12 : 2;
-        $sort3 = ($sortBy == 3) ? 13 : 3;
+    $sort1 = ($sortBy == 1) ? 11 : 1;
+    $sort2 = ($sortBy == 2) ? 12 : 2;
+    $sort3 = ($sortBy == 3) ? 13 : 3;
 
-        echo "<tr class='do-not-highlight'>";
-        echo "<th><a href='/history.php?s=$sort1&u=$userPage'>Date</a></th>";
-        echo "<th><a href='/history.php?s=$sort2&u=$userPage'>Num Achievements</a></th>";
-        echo "<th><a href='/history.php?s=$sort3&u=$userPage'>Score Earned</a></th>";
+    echo "<tr class='do-not-highlight'>";
+    echo "<th><a href='/history.php?s=$sort1&u=$userPage'>Date</a></th>";
+    echo "<th class='text-right'><a href='/history.php?s=$sort2&u=$userPage'>Num Achievements</a></th>";
+    echo "<th class='text-right'><a href='/history.php?s=$sort3&u=$userPage'>Score Earned</a></th>";
+    echo "</tr>";
+
+    $dayCount = 0;
+    foreach ($userBestDaysList as $dayInfo) {
+        $nextDay = $dayInfo['Day'];
+        $nextMonth = $dayInfo['Month'];
+        $nextYear = $dayInfo['Year'];
+        $nextNumAwarded = $dayInfo['NumAwarded'];
+        $nextTotalPointsEarned = $dayInfo['TotalPointsEarned'];
+
+        $dateUnix = strtotime("$nextDay-$nextMonth-$nextYear");
+        $dateStr = getNiceDate($dateUnix, true);
+
+        echo "<tr>";
+        echo "<td>$dateStr</td>";
+        echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextNumAwarded</a></td>";
+        echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=$userPage'>" . localized_number($nextTotalPointsEarned) . "</a></td>";
         echo "</tr>";
+    }
 
-        $dayCount = 0;
-        foreach ($userBestDaysList as $dayInfo) {
-            $nextDay = $dayInfo['Day'];
-            $nextMonth = $dayInfo['Month'];
-            $nextYear = $dayInfo['Year'];
-            $nextNumAwarded = $dayInfo['NumAwarded'];
-            $nextTotalPointsEarned = $dayInfo['TotalPointsEarned'];
-
-            $dateUnix = strtotime("$nextDay-$nextMonth-$nextYear");
-            $dateStr = getNiceDate($dateUnix, true);
-
-            echo "<tr>";
-            echo "<td>$dateStr</td>";
-            echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextNumAwarded</a></td>";
-            echo "<td><a href='historyexamine.php?d=$dateUnix&u=$userPage'>$nextTotalPointsEarned</a></td>";
-            echo "</tr>";
-        }
-
-        echo "</tbody></table>";
-        ?>
-    </div>
-</div>
+    echo "</tbody></table>";
+    ?>
+</article>
 <?php RenderContentEnd(); ?>

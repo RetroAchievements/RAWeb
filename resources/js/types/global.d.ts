@@ -16,6 +16,7 @@ import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibi
 
 declare global {
   var Alpine: Alpine;
+  var assetUrl: string;
   var autoExpandTextInput: typeof AutoExpandTextInput;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
@@ -27,6 +28,7 @@ declare global {
   var loadPostPreview: typeof LoadPostPreview;
   var newsCarouselComponent: typeof NewsCarouselComponent;
   var setCookie: typeof SetCookie;
+  var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;

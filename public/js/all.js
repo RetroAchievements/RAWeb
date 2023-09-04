@@ -1,7 +1,3 @@
-function asset(uri) {
-  return window.assetUrl + '/' + uri.replace(/^\/|\/$/g, '');
-}
-
 function mediaAsset(uri) {
   return window.mediaAssetUrl + '/' + uri.replace(/^\/|\/$/g, '');
 }
@@ -44,40 +40,6 @@ $(document).ajaxSuccess(function (event, xhr) {
   }
 });
 
-var shortMonths = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec'];
-
-function htmlEntities(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-/**
- * Pads a number with 0s
- */
-function strPad(input, padLength, padString) {
-  input += '';
-  if (input.length >= width) {
-    return input;
-  }
-  padString = padString || '0';
-  return new Array(padLength - input.length + 1).join(padString) + input;
-}
-
 function getParameterByName(name) {
   name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
   var regexS = '[\\?&]' + name + '=([^&#]*)';
@@ -89,12 +51,10 @@ function getParameterByName(name) {
   return decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
-function focusOnArticleID(id) {
-  $('#art_' + id).scrollIntoView();
-}
-
 var cardsCache = {};
 
+// - used by avatar.php and activePlayersBootstrap.js
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function useCard(type, id, context = null, html = '') {
   var cardId = `tooltip_card_${type}_${id}`;
 
@@ -109,11 +69,6 @@ function useCard(type, id, context = null, html = '') {
   cardsCache[cardId] = html;
 
   return html;
-}
-
-function UpdateMailboxCount(messageCount) {
-  $('#mailboxicon').attr('src', messageCount > 0 ? asset('/assets/images/icon/mail-unread.png') : asset('/assets/images/icon/mail.png'));
-  $('#mailboxcount').html(messageCount);
 }
 
 jQuery(document).ready(function onReady($) {
@@ -156,6 +111,7 @@ jQuery(document).ready(function onReady($) {
     minLength: 2
   });
   $seachBoxCompareUser.autocomplete({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     select: function (event, ui) {
       return false;
     },
@@ -215,6 +171,8 @@ $(function () {
   repeatFade($('.trophyimageincomplete'), 200, 300);
 });
 
+// - used by comment widget, which may exist multiple times on a single page
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function removeComment(artTypeID, artID, commentID) {
   if (!window.confirm('Are you sure you want to permanently delete this comment?')) {
     return false;
@@ -232,6 +190,8 @@ function removeComment(artTypeID, artID, commentID) {
   return true;
 }
 
+// - used by many pages
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function showStatusMessage(message) {
   var status = $('#status');
   status.removeClass('success');
@@ -257,8 +217,4 @@ function showStatusFailure(message) {
   } else if (!message) {
     console.trace();
   }
-}
-
-function hideStatusMessage() {
-  $('#status').hide();
 }
