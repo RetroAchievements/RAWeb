@@ -170,238 +170,236 @@ RenderContentStart('Admin Tools');
 ?>
 <script src="/vendor/jquery.datetimepicker.full.min.js"></script>
 <link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
-<div id="mainpage" class="flex-wrap">
-    <?php if ($message): ?>
-        <div class="w-full mb-6">
-            <?= $message ?>
-        </div>
-    <?php endif ?>
+<?php if ($message): ?>
+    <div class="w-full mb-6">
+        <?= $message ?>
+    </div>
+<?php endif ?>
 
-    <?php if ($permissions >= Permissions::Moderator) : ?>
-        <div id="fullcontainer" class="w-full">
-            <h4>Get Game Achievement IDs</h4>
-            <form action="admin.php">
-                <input type="hidden" name="action" value="achievement-ids">
-                <table class="mb-1">
-                    <colgroup>
-                        <col>
-                        <col class="w-full">
-                    </colgroup>
-                    <tbody>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="achievements_game_id">Game ID</label>
-                        </td>
-                        <td>
-                            <input id="achievements_game_id" name="g">
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <button class="btn">Submit</button>
-            </form>
-        </div>
+<?php if ($permissions >= Permissions::Moderator) : ?>
+    <article>
+        <h4>Get Game Achievement IDs</h4>
+        <form action="admin.php">
+            <input type="hidden" name="action" value="achievement-ids">
+            <table class="mb-1">
+                <colgroup>
+                    <col>
+                    <col class="w-full">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="achievements_game_id">Game ID</label>
+                    </td>
+                    <td>
+                        <input id="achievements_game_id" name="g">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn">Submit</button>
+        </form>
+    </article>
 
-        <div id="fullcontainer" class="w-full">
-            <?php
-            $winnersStartTime = $staticData['winnersStartTime'] ?? null;
-            $winnersEndTime = $staticData['winnersEndTime'] ?? null;
-            ?>
-            <h4>Get Achievement Unlocks</h4>
-            <form action="admin.php">
-                <input type="hidden" name="action" value="unlocks">
-                <table class="mb-1">
-                    <colgroup>
-                        <col>
-                        <col>
-                        <col>
-                        <col class="w-full">
-                    </colgroup>
-                    <tbody>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="winnersAchievementIDs">Achievement IDs</label>
-                        </td>
-                        <td>
-                            <input id="winnersAchievementIDs" name="a">
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="startTime">Start At (UTC time)</label>
-                        </td>
-                        <td>
-                            <input id="startTime" name="s" value="<?= $winnersStartTime ?>">
-                        </td>
-                        <td class="whitespace-nowrap">
-                            <label for="endTime">End At (UTC time)</label>
-                        </td>
-                        <td>
-                            <input id="endTime" name="e" value="<?= $winnersEndTime ?>">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="hardcoreWinners">Hardcore winners?</label>
-                        </td>
-                        <td>
-                            <input id="hardcoreWinners" type="checkbox" name="h" value="1">
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    </tbody>
-                </table>
-                <button class="btn">Submit</button>
-            </form>
+    <article>
+        <?php
+        $winnersStartTime = $staticData['winnersStartTime'] ?? null;
+        $winnersEndTime = $staticData['winnersEndTime'] ?? null;
+        ?>
+        <h4>Get Achievement Unlocks</h4>
+        <form action="admin.php">
+            <input type="hidden" name="action" value="unlocks">
+            <table class="mb-1">
+                <colgroup>
+                    <col>
+                    <col>
+                    <col>
+                    <col class="w-full">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="winnersAchievementIDs">Achievement IDs</label>
+                    </td>
+                    <td>
+                        <input id="winnersAchievementIDs" name="a">
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="startTime">Start At (UTC time)</label>
+                    </td>
+                    <td>
+                        <input id="startTime" name="s" value="<?= $winnersStartTime ?>">
+                    </td>
+                    <td class="whitespace-nowrap">
+                        <label for="endTime">End At (UTC time)</label>
+                    </td>
+                    <td>
+                        <input id="endTime" name="e" value="<?= $winnersEndTime ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="hardcoreWinners">Hardcore winners?</label>
+                    </td>
+                    <td>
+                        <input id="hardcoreWinners" type="checkbox" name="h" value="1">
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn">Submit</button>
+        </form>
 
-            <script>
-            jQuery('#startTime').datetimepicker({
+        <script>
+        jQuery('#startTime').datetimepicker({
+            format: 'Y-m-d H:i:s',
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+        });
+        jQuery('#endTime').datetimepicker({
+            format: 'Y-m-d H:i:s',
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+        });
+        </script>
+    </article>
+
+    <article>
+        <h4>Unlock Achievement</h4>
+        <form method="post" action="admin.php">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="manual-unlock">
+            <table class="mb-1">
+                <colgroup>
+                    <col>
+                    <col class="w-full">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="award_achievement_user">User to unlock achievement</label>
+                    </td>
+                    <td>
+                        <input id="award_achievement_user" name="u">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="award_achievement_id">Achievement IDs</label>
+                    </td>
+                    <td>
+                        <input id="award_achievement_id" name="a">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="award_achievement_hardcore">Include hardcore?</label>
+                    </td>
+                    <td>
+                        <input id="award_achievement_hardcore" type="checkbox" name="h" value="1">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn">Submit</button>
+        </form>
+    </article>
+
+    <article>
+        <?php
+        $eventAotwAchievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
+        $eventAotwStartAt = $staticData['Event_AOTW_StartAt'] ?? null;
+        $eventAotwForumTopicID = $staticData['Event_AOTW_ForumID'] ?? null;
+        ?>
+        <h4>Achievement of the Week</h4>
+        <form method="post" action="admin.php">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="aotw">
+            <table class="mb-1">
+                <colgroup>
+                    <col>
+                    <col>
+                    <col class="w-full">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="event_aotw_achievement_id">Achievement ID</label>
+                    </td>
+                    <td>
+                        <input id="event_aotw_achievement_id" name="a" value="<?= $eventAotwAchievementID ?>">
+                    </td>
+                    <td>
+                        <a href="/achievement/<?= $eventAotwAchievementID ?>">Link</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="event_aotw_start_at">Start At (UTC time)</label>
+                    </td>
+                    <td>
+                        <input id="event_aotw_start_at" name="s" value="<?= $eventAotwStartAt ?>">
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="event_aotw_forum_topic_id">Forum Topic ID</label>
+                    </td>
+                    <td>
+                        <input id="event_aotw_forum_topic_id" name="f" value="<?= $eventAotwForumTopicID ?>">
+                    </td>
+                    <td>
+                        <a href="/viewtopic.php?t=<?= $eventAotwForumTopicID ?>">Link</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn">Submit</button>
+        </form>
+
+        <div id="aotw_entries"></div>
+
+        <script>
+            jQuery('#event_aotw_start_at').datetimepicker({
                 format: 'Y-m-d H:i:s',
                 mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
             });
-            jQuery('#endTime').datetimepicker({
-                format: 'Y-m-d H:i:s',
-                mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-            });
-            </script>
-        </div>
+        </script>
+    </article>
 
-        <div id="fullcontainer" class="w-full">
-            <h4>Unlock Achievement</h4>
-            <form method="post" action="admin.php">
-                <?= csrf_field() ?>
-                <input type="hidden" name="action" value="manual-unlock">
-                <table class="mb-1">
-                    <colgroup>
-                        <col>
-                        <col class="w-full">
-                    </colgroup>
-                    <tbody>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="award_achievement_user">User to unlock achievement</label>
-                        </td>
-                        <td>
-                            <input id="award_achievement_user" name="u">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="award_achievement_id">Achievement IDs</label>
-                        </td>
-                        <td>
-                            <input id="award_achievement_id" name="a">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="award_achievement_hardcore">Include hardcore?</label>
-                        </td>
-                        <td>
-                            <input id="award_achievement_hardcore" type="checkbox" name="h" value="1">
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <button class="btn">Submit</button>
-            </form>
-        </div>
+    <article>
+        <h4>Alt Identifier</h4>
+        <form action="admin.php">
+            <input type="hidden" name="action" value="alt_identifier">
+            <table class="mb-1">
+                <colgroup>
+                    <col>
+                    <col class="w-full">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="alts_of_user">User to query for alts</label>
+                    </td>
+                    <td>
+                        <input id="alts_of_user" name="u">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn">Submit</button>
+        </form>
+    </article>
 
-        <div id="fullcontainer" class="w-full">
-            <?php
-            $eventAotwAchievementID = $staticData['Event_AOTW_AchievementID'] ?? null;
-            $eventAotwStartAt = $staticData['Event_AOTW_StartAt'] ?? null;
-            $eventAotwForumTopicID = $staticData['Event_AOTW_ForumID'] ?? null;
-            ?>
-            <h4>Achievement of the Week</h4>
-            <form method="post" action="admin.php">
-                <?= csrf_field() ?>
-                <input type="hidden" name="action" value="aotw">
-                <table class="mb-1">
-                    <colgroup>
-                        <col>
-                        <col>
-                        <col class="w-full">
-                    </colgroup>
-                    <tbody>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="event_aotw_achievement_id">Achievement ID</label>
-                        </td>
-                        <td>
-                            <input id="event_aotw_achievement_id" name="a" value="<?= $eventAotwAchievementID ?>">
-                        </td>
-                        <td>
-                            <a href="/achievement/<?= $eventAotwAchievementID ?>">Link</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="event_aotw_start_at">Start At (UTC time)</label>
-                        </td>
-                        <td>
-                            <input id="event_aotw_start_at" name="s" value="<?= $eventAotwStartAt ?>">
-                        </td>
-                        <td>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="event_aotw_forum_topic_id">Forum Topic ID</label>
-                        </td>
-                        <td>
-                            <input id="event_aotw_forum_topic_id" name="f" value="<?= $eventAotwForumTopicID ?>">
-                        </td>
-                        <td>
-                            <a href="/viewtopic.php?t=<?= $eventAotwForumTopicID ?>">Link</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <button class="btn">Submit</button>
-            </form>
-
-            <div id="aotw_entries"></div>
-
-            <script>
-                jQuery('#event_aotw_start_at').datetimepicker({
-                    format: 'Y-m-d H:i:s',
-                    mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-                });
-            </script>
-        </div>
-
-        <div id="fullcontainer" class="w-full">
-            <h4>Alt Identifier</h4>
-            <form action="admin.php">
-                <input type="hidden" name="action" value="alt_identifier">
-                <table class="mb-1">
-                    <colgroup>
-                        <col>
-                        <col class="w-full">
-                    </colgroup>
-                    <tbody>
-                    <tr>
-                        <td class="whitespace-nowrap">
-                            <label for="alts_of_user">User to query for alts</label>
-                        </td>
-                        <td>
-                            <input id="alts_of_user" name="u">
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <button class="btn">Submit</button>
-            </form>
-        </div>
-
-        <div id="fullcontainer" class="w-full">
-            <h4>Feature Flags</h4>
-            <?= Blade::render('<x-feature-flags />'); ?>
-        </div>
-    <?php endif ?>
-</div>
+    <article>
+        <h4>Feature Flags</h4>
+        <?= Blade::render('<x-feature-flags />'); ?>
+    </article>
+<?php endif ?>
 <?php RenderContentEnd(); ?>
