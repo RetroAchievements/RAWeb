@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b2e83b744434343325560270e48c9a9",
+    "content-hash": "a6bd143b9c73905f8fdb9abfa88b5ef0",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -556,17 +556,17 @@
             "time": "2022-04-14T14:58:06+00:00"
         },
         {
-            "name": "codeat3/blade-pixelarticons",
-            "version": "1.4.0",
+            "name": "codeat3/blade-google-material-design-icons",
+            "version": "1.18.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/codeat3/blade-pixelarticons.git",
-                "reference": "e50a2f4e6215ccb8b73c12c3e963457ebd679521"
+                "url": "https://github.com/codeat3/blade-google-material-design-icons.git",
+                "reference": "f1736007c3b98d25d515b45dc3b0eaf3444234e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeat3/blade-pixelarticons/zipball/e50a2f4e6215ccb8b73c12c3e963457ebd679521",
-                "reference": "e50a2f4e6215ccb8b73c12c3e963457ebd679521",
+                "url": "https://api.github.com/repos/codeat3/blade-google-material-design-icons/zipball/f1736007c3b98d25d515b45dc3b0eaf3444234e1",
+                "reference": "f1736007c3b98d25d515b45dc3b0eaf3444234e1",
                 "shasum": ""
             },
             "require": {
@@ -584,13 +584,13 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "Codeat3\\BladePixelArtIcons\\BladePixelArtIconsServiceProvider"
+                        "Codeat3\\BladeGoogleMaterialDesignIcons\\BladeGoogleMaterialDesignIconsServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Codeat3\\BladePixelArtIcons\\": "src"
+                    "Codeat3\\BladeGoogleMaterialDesignIcons\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -607,16 +607,18 @@
                     "homepage": "https://driesvints.com"
                 }
             ],
-            "description": "A package to easily make use of \"Pixelarticons\" in your Laravel Blade views.",
-            "homepage": "https://github.com/codeat3/blade-pixelarticons",
+            "description": "A package to easily make use of \"Google Fonts Material Icons\" in your Laravel Blade views.",
+            "homepage": "https://github.com/codeat3/blade-google-material-design-icons",
             "keywords": [
                 "blade",
+                "google",
+                "icons",
                 "laravel",
-                "pixelarticons"
+                "material"
             ],
             "support": {
-                "issues": "https://github.com/codeat3/blade-pixelarticons/issues",
-                "source": "https://github.com/codeat3/blade-pixelarticons/tree/1.4.0"
+                "issues": "https://github.com/codeat3/blade-google-material-design-icons/issues",
+                "source": "https://github.com/codeat3/blade-google-material-design-icons/tree/1.18.2"
             },
             "funding": [
                 {
@@ -624,7 +626,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-21T05:43:30+00:00"
+            "time": "2023-03-29T07:25:49+00:00"
         },
         {
             "name": "dasprid/enum",
