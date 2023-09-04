@@ -18,7 +18,6 @@
         "ext-simplexml": "*",
         "aws/aws-sdk-php": "^3.235",
         "beyondcode/laravel-websockets": "^1.13",
-        "codeat3/blade-pixelarticons": "^1.2",
         "doctrine/dbal": "^3.4",
         "graham-campbell/markdown": "^15.0",
         "guzzlehttp/guzzle": "^7.5",
