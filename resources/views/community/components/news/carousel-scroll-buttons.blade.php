@@ -12,7 +12,7 @@ EOT;
     aria-label="Go to previous slide"
     class="{{ "btn left-0 top-1/2 translate-x-[-18px] " . $buttonClassNames }}"
 >
-    <x-pixelarticons-chevron-left class="w-10 h-10"/>
+    <x-fas-chevron-left class="w-5 h-5"/>
 </button>
 
 <button
@@ -20,5 +20,5 @@ EOT;
     aria-label="Go to next slide"
     class="{{ "btn right-0 top-1/2 translate-x-[18px] " . $buttonClassNames }}"
 >
-    <x-pixelarticons-chevron-right class="w-10 h-10"/>
+    <x-fas-chevron-right class="w-5 h-5"/>
 </button>

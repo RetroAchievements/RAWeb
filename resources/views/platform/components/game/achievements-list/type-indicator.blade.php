@@ -22,7 +22,7 @@ $gameId ??= request()->route('game');
         :disabled="!$isCreditDialogEnabled"
     >
         <x-slot name="trigger">
-            <div class="flex items-center group bg-embed light:bg-neutral-50 light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500">
+            <div class="flex items-center group bg-embed light:bg-neutral-50 light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500 overflow-hidden">
                 @if ($achievementType === $progressionTypeValue)
                     <span class="
                         text-[0.6rem] transition translate-x-4 duration-300 ease-out w-0 opacity-0 invisible 
