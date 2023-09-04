@@ -108,7 +108,7 @@ function ListGames(
 
         if ($dev == null) {
             echo "<td class='text-right'>$numAchievements</td>";
-            echo "<td class='whitespace-nowrap text-right'>" . localized_number($maxPoints); 
+            echo "<td class='whitespace-nowrap text-right'>" . localized_number($maxPoints);
             echo Blade::render("<x-points-weighted-container>(" . localized_number($numTrueRatio) . ")</x-points-weighted-container>");
             echo "</td>";
         } else {
