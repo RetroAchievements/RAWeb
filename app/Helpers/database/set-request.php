@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\RequestStatus;
+use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
 use App\Site\Models\User;
@@ -31,7 +32,7 @@ function getUserRequestList(?string $user = null): array
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
         WHERE
-            sr.user = '$user'
+            sr.user = '$user' AND sr.type='" . UserGameListType::AchievementSetRequest . "'
         GROUP BY
             sr.GameID
         ORDER BY
@@ -118,7 +119,8 @@ function getSetRequestCount(int $gameID): int
 
     $query = "SELECT COUNT(*) AS Request FROM
                 SetRequest
-                WHERE GameID = $gameID";
+                WHERE GameID = $gameID
+                AND type='" . UserGameListType::AchievementSetRequest . "'";
 
     $dbResult = s_mysql_query($query);
 
@@ -155,7 +157,8 @@ function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
         LEFT JOIN
             GameData gd ON sr.GameID = gd.ID
         WHERE
-        GameID = $gameID";
+        GameID = $gameID
+        AND sr.type='" . UserGameListType::AchievementSetRequest . "'";
     } else {
         $query = "
             SELECT
@@ -204,7 +207,8 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
         WHERE
-            sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
+            sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
+            AND sr.type='" . UserGameListType::AchievementSetRequest . "'";
 
     if (is_array($console)) {
         $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
@@ -261,7 +265,8 @@ function getGamesWithRequests(array|int|null $console, int $requestStatus = Requ
         $query .= "LEFT OUTER JOIN SetClaim sc ON (sr.GameID = sc.GameID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")) ";
     }
 
-    $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3') ";
+    $query .= "WHERE sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
+               AND sr.type='" . UserGameListType::AchievementSetRequest . "'";
 
     if (is_array($console)) {
         $query .= ' AND c.ID IN (' . implode(',', $console) . ') ';
@@ -283,4 +288,14 @@ function getGamesWithRequests(array|int|null $console, int $requestStatus = Requ
     }
 
     return (int) mysqli_fetch_assoc($dbResult)['Games'];
+}
+
+function getUserGameListsContaining(string $user, int $gameID): array
+{
+    $query = "SELECT type FROM SetRequest WHERE User=:user AND GameID=$gameID";
+    $bindings = ['user' => $user];
+
+    return collect(legacyDbSelect($query, $bindings))
+        ->map(fn ($row) => $row->type)
+        ->toArray();
 }
