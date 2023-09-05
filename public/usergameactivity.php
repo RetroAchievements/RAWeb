@@ -39,66 +39,62 @@ $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
 
 RenderContentStart("$user2's activity for $gameTitle");
 ?>
-<div id="mainpage">
-    <div id="leftcontainer">
-        <div id="gamecompare">
-            <?php
-            echo "<div class='navpath'>";
-            echo renderGameBreadcrumb($gameData);
-            echo " &raquo; <b>$user2</b>";
-            echo "</div>";
+<article>
+    <?php
+    echo "<div class='navpath'>";
+    echo renderGameBreadcrumb($gameData);
+    echo " &raquo; <b>$user2</b>";
+    echo "</div>";
 
-            echo "<h3>$gameTitle</h3>";
+    echo "<h3>$gameTitle</h3>";
 
-            $pageTitleAttr = attributeEscape($gameTitle);
-            $imageIcon = media_asset($gameData['ImageIcon']);
+    $pageTitleAttr = attributeEscape($gameTitle);
+    $imageIcon = media_asset($gameData['ImageIcon']);
 
-            echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
-            echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
-            echo "<table class='table-highlight'><colgroup><col class='w-48'></colgroup><tbody>";
-            echo "<tr><td>User:</td><td>" . userAvatar($user2, icon: false) . "</td></tr>";
-            echo "<tr><td>Total Playtime:</td><td>" . formatHMS($activity['TotalTime']) . "$estimated</td></tr>";
-            echo "<tr><td>Achievement Sessions:</td><td>$sessionInfo</td></tr>";
-            echo "<tr><td>Achievements Unlocked:</td><td>" . $activity['AchievementsUnlocked'] . "$userProgress</td></tr>";
-            echo "</tbody></table>";
-            echo "</div>";
+    echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
+    echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
+    echo "<table class='table-highlight'><colgroup><col class='w-48'></colgroup><tbody>";
+    echo "<tr><td>User:</td><td>" . userAvatar($user2, icon: false) . "</td></tr>";
+    echo "<tr><td>Total Playtime:</td><td>" . formatHMS($activity['TotalTime']) . "$estimated</td></tr>";
+    echo "<tr><td>Achievement Sessions:</td><td>$sessionInfo</td></tr>";
+    echo "<tr><td>Achievements Unlocked:</td><td>" . $activity['AchievementsUnlocked'] . "$userProgress</td></tr>";
+    echo "</tbody></table>";
+    echo "</div>";
 
-            echo "<div id='activity'>";
-            echo "<table class='table-highlight'>";
-            echo "<tr class='do-not-highlight'><th style='width: 20'></th><th style='width: 250'></th><th></th></tr>";
+    echo "<div id='activity'>";
+    echo "<table class='table-highlight'>";
+    echo "<tr class='do-not-highlight'><th style='width: 20'></th><th style='width: 250'></th><th></th></tr>";
 
-            foreach ($activity['Sessions'] as $session) {
-                $startDate = getNiceDate($session['StartTime']);
-                if ($session['IsGenerated'] ?? false) {
-                    echo "<tr><td colspan=2>$startDate</td><td>Generated Session</td></tr>";
-                } else {
-                    echo "<tr><td colspan=2>$startDate</td><td>Started Playing</td></tr>";
-                }
+    foreach ($activity['Sessions'] as $session) {
+        $startDate = getNiceDate($session['StartTime']);
+        if ($session['IsGenerated'] ?? false) {
+            echo "<tr><td colspan=2>$startDate</td><td>Generated Session</td></tr>";
+        } else {
+            echo "<tr><td colspan=2>$startDate</td><td>Started Playing</td></tr>";
+        }
 
-                $prevWhen = $session['StartTime'];
-                foreach ($session['Achievements'] as $achievement) {
-                    $when = getNiceDate($achievement['When']);
-                    $formatted = formatHMS($achievement['When'] - $prevWhen);
-                    $prevWhen = $achievement['When'];
+        $prevWhen = $session['StartTime'];
+        foreach ($session['Achievements'] as $achievement) {
+            $when = getNiceDate($achievement['When']);
+            $formatted = formatHMS($achievement['When'] - $prevWhen);
+            $prevWhen = $achievement['When'];
 
-                    echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>";
-                    echo achievementAvatar($achievement);
+            echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>";
+            echo achievementAvatar($achievement);
 
-                    if ($achievement['Flags'] != AchievementFlag::OfficialCore) {
-                        echo " (Unofficial)";
-                    }
-
-                    if ($achievement['UnlockedLater'] ?? false) {
-                        echo " (unlocked again later)";
-                    }
-
-                    echo "</td></tr>";
-                }
+            if ($achievement['Flags'] != AchievementFlag::OfficialCore) {
+                echo " (Unofficial)";
             }
 
-            echo "</table></div>";
-            ?>
-        </div>
-    </div>
-</div>
+            if ($achievement['UnlockedLater'] ?? false) {
+                echo " (unlocked again later)";
+            }
+
+            echo "</td></tr>";
+        }
+    }
+
+    echo "</table></div>";
+    ?>
+</article>
 <?php RenderContentEnd(); ?>

@@ -64,7 +64,7 @@ if ($user) {
     @endguest
     @auth
         <div class="flex justify-between items-start gap-2">
-            <div class="grow flex flex-col justify-between">
+            <div class="grow flex flex-col items-end">
                 <div>
                     <strong><a href="{{ $user->canonicalUrl }}">{{ $user->User }}</a></strong>
                 </div>

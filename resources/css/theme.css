@@ -7,11 +7,11 @@ h1, h2, h3, h4, .text-heading {
   color: var(--heading-color);
 }
 
-h1, h2, h3 {
+main h1, main h2, main h3 {
   border-bottom: 1px solid var(--heading-color);
 }
 
-#mainpage .text-h4, #mainpage .text-h5, #mainpage .text-h6 {
+main .text-h4, main .text-h5, main .text-h6 {
   border-bottom: unset;
 }
 
