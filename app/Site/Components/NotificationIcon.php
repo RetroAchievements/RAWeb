@@ -23,7 +23,7 @@ class NotificationIcon extends Component
         $notifications = collect();
 
         // Ticket notifications
-        if ($user->Permissions >= Permissions::JuniorDeveloper) {
+        if ($user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
             $openTicketsData = countOpenTicketsByDev($user->User);
             if ($openTicketsData[TicketState::Open]) {
                 $notifications->push([
@@ -48,7 +48,7 @@ class NotificationIcon extends Component
         }
 
         // Claim expiry notifications
-        if ($user->Permissions >= Permissions::JuniorDeveloper) {
+        if ($user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
             $expiringClaims = getExpiringClaim($user->User);
             if ($expiringClaims['Expired'] > 0) {
                 $notifications->push([
