@@ -1,3 +1,7 @@
+.brand-top {
+  height: 85px;
+}
+
 .brand-top h1 {
   color: var(--menu-link-color);
   font-size: 32px;
