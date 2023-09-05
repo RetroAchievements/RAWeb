@@ -22,19 +22,26 @@ class NotificationIcon extends Component
 
         $notifications = collect();
 
+        if ($user->unread_messages_count) {
+            $notifications->push([
+                'link' => url('inbox.php'),
+                'title' => $user->unread_messages_count . ' ' . __res('message', (int) $user->unread_messages_count),
+            ]);
+        }
+
         // Ticket notifications
         if ($user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
             $openTicketsData = countOpenTicketsByDev($user->User);
             if ($openTicketsData[TicketState::Open]) {
                 $notifications->push([
-                    'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest),
+                    'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest)),
                     'title' => $openTicketsData[TicketState::Open] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open]) . ' for you to resolve',
                     'class' => 'text-danger',
                 ]);
             }
             if ($openTicketsData[TicketState::Request]) {
                 $notifications->push([
-                    'link' => '/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+                    'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
                     'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
                 ]);
             }
@@ -42,7 +49,7 @@ class NotificationIcon extends Component
         $ticketFeedback = countRequestTicketsByUser($user->User);
         if ($ticketFeedback) {
             $notifications->push([
-                'link' => '/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen),
+                'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
                 'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
             ]);
         }
@@ -52,13 +59,13 @@ class NotificationIcon extends Component
             $expiringClaims = getExpiringClaim($user->User);
             if ($expiringClaims['Expired'] > 0) {
                 $notifications->push([
-                    'link' => '/expiringclaims.php?u=' . $user->User,
+                    'link' => url('/expiringclaims.php?u=' . $user->User),
                     'title' => 'Claim Expired',
                     'class' => 'text-danger',
                 ]);
             } elseif ($expiringClaims['Expiring'] > 0) {
                 $notifications->push([
-                    'link' => '/expiringclaims.php?u=' . $user->User,
+                    'link' => url('/expiringclaims.php?u=' . $user->User),
                     'title' => 'Claim Expiring Soon',
                     'class' => 'text-danger',
                 ]);

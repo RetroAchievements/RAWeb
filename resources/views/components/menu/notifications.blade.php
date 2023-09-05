@@ -5,5 +5,5 @@
         </a>
     </li>--}}
     <livewire:notification-icon class="{{$class ?? ''}}" />
-    <livewire:message-icon class="{{$class ?? ''}}" />
+    {{--<livewire:message-icon class="{{$class ?? ''}}" />--}}
 @endauth

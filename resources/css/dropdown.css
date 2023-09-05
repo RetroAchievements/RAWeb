@@ -33,7 +33,8 @@
   @apply gap-x-2;
   color: var(--menu-link-color);
   line-height: 1.4em;
-  width: 250px;
+  white-space: nowrap;
+  min-width: 200px;
   text-align: left;
   margin: 0;
   padding: 4px 12px;
@@ -50,11 +51,8 @@
   background: var(--embed-color);
 }
 
-.dropdown-item:hover > ul {
-  display: block;
-  position: absolute;
-  left: 105px;
-  top: 0;
+.dropdown-items-right .dropdown-item {
+  justify-content: end;
 }
 
 .dropdown-header {

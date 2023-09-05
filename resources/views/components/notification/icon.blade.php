@@ -1,4 +1,4 @@
-<x-nav-dropdown :class="$class ?? ''" dropdown-class="dropdown-menu-right">
+<x-nav-dropdown :class="$class ?? ''" dropdown-class="dropdown-menu-right dropdown-items-right">
     <x-slot name="trigger">
         <x-fas-bell />
         @if($count ?? 0)
@@ -9,12 +9,12 @@
     </x-slot>
     @if($count ?? 0)
         @foreach($notifications as $notification)
-            <x-dropdown-item :link="url($notification['link'])" :class="$notification['class'] ?? ''">
+            <x-dropdown-item :link="$notification['link']" :class="$notification['class'] ?? ''">
                 {{ $notification['title'] }}
             </x-dropdown-item>
         @endforeach
     @else
-        <div class="flex whitespace-nowrap text-muted p-3 m-1">{{ __('No new notifications') }}</div>
+        <div class="flex whitespace-nowrap text-muted px-3 py-2">{{ __('No new notifications') }}</div>
     @endif
     {{--<x-dropdown-item>--}}
     {{--<a class="nav-link" href="{{ route('notification.index') }}" title="{{ __res('notification') }}" data-toggle="tooltip">--}}
