@@ -10,7 +10,7 @@ use Livewire\Component;
 
 class MessageIcon extends Component
 {
-    public string $class;
+    public ?string $class = null;
 
     public function render(): View
     {

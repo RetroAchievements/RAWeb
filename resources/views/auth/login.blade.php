@@ -2,7 +2,7 @@
     :page-title="__('Login')"
 >
     <x-slot name="header">
-        <h1 class="mb-0">{{ __('Sign in to RetroAchievements') }}</h1>
+        <h1 class="text-h4 mb-0">{{ __('Sign in to RetroAchievements') }}</h1>
     </x-slot>
 
     <x-form :action="route('login')">

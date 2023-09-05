@@ -13,7 +13,7 @@ use Livewire\Component;
 
 class NotificationIcon extends Component
 {
-    public string $class;
+    public ?string $class = null;
 
     public function render(): View
     {
