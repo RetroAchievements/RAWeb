@@ -11,7 +11,6 @@
     <x-header class="mb-5 text-center">
         {{ $header ?? '' }}
     </x-header>
-    <x-messages />
     <x-main>
         {{ $slot }}
     </x-main>
