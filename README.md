@@ -1,4 +1,4 @@
-![RetroAchievements Logo](public/assets/images/ra-logo-sm.webp)
+<p align="center" dir="auto"><a href="https://retroachievements.org" rel="nofollow"><img src="https://raw.githubusercontent.com/RetroAchievements/RAWeb/master/public/assets/images/ra-icon.webp" width="200" alt="RetroAchievements Logo" style="max-width: 100%;"></a></p>
 
 **RAWeb** is [RetroAchievements.org](https://retroachievements.org)'s platform application.
 It is a Laravel application ([TALL stack](https://tallstack.dev/)) including individual php files within the `public` folder to handle requests.
