@@ -153,7 +153,8 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate --ansi",
-            "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\""
+            "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
+            "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
         ],
         "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
         "stan-clear": "vendor/bin/phpstan clear-result-cache",
