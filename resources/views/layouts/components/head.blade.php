@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ (!empty($pageTitle) ? $pageTitle . ' · ' : '') . config('app.name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset(app()->environment('local', 'stage') ? 'assets/images/favicon-gray.webp' : 'assets/images/favicon.webp') }}">
-    <link rel="preload" as="image" importance="high" href="{{ asset('assets/images/ra-logo-sm.webp') }}">
-    <link rel="image_src" href="{{ asset('assets/images/ra-logo-sm.webp') }}">
+    <link rel="preload" as="image" importance="high" href="{{ asset('assets/images/ra-icon.webp') }}">
+    <link rel="image_src" href="{{ asset('assets/images/ra-icon.webp') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="copyright" content="Copyright 2014-{{ date('Y') }}">
     <meta name="description" content="{{ $pageDescription ?? __('app.description') }}">

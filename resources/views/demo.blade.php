@@ -13,7 +13,7 @@
     </x-slot>
 
     <x-slot name="header">
-        <x-page-header :background="asset('assets/images/ra-logo-sm.webp')">
+        <x-page-header :background="asset('assets/images/ra-icon.webp')">
             <x-slot name="title">
                 <h2>Header Title</h2>
                 {{--<p>Text in title -> actions will be below</p>--}}
