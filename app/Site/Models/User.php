@@ -366,4 +366,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return $query->where('RAPoints', '>', 0)
             ->orWhere('RASoftcorePoints', '>', 0);
     }
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeVerified(Builder $query): Builder
+    {
+        return $query->where('Permissions', '>', 0);
+    }
 }

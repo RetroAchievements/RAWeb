@@ -1,6 +1,5 @@
-<x-app-demo-layout
+<x-demo-layout
     :page-title="__('Demo')"
-    wide
 >
     <x-slot name="breadcrumb">
         <li>
@@ -14,7 +13,7 @@
     </x-slot>
 
     <x-slot name="header">
-        <x-page-header :background="asset('assets/images/ra-logo-sm.webp')">
+        <x-page-header :background="asset('assets/images/ra-icon.webp')">
             <x-slot name="title">
                 <h2>Header Title</h2>
                 {{--<p>Text in title -> actions will be below</p>--}}
@@ -170,4 +169,4 @@
             <textarea class="form-textarea">Test</textarea>
         </div>
     </x-section>
-</x-app-demo-layout>
+</x-demo-layout>

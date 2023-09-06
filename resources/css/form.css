@@ -26,3 +26,12 @@ input, optgroup, select, textarea {
 [data-scheme=""] ::-webkit-calendar-picker-indicator, [data-scheme="black"] ::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
+
+.form-control {
+  display: block;
+  width: 100%;
+}
+
+.form-control:disabled, .form-control[readonly] {
+  cursor: not-allowed;
+}

@@ -9,13 +9,16 @@ use Illuminate\View\Component;
 
 class Main extends Component
 {
-    public bool $fluid = false;
-    public string $sidebarPosition = 'right';
+    public function __construct(
+        public bool $fluid = false,
+        public string $sidebarPosition = 'right',
+        public ?string $class = '',
+        public bool $withoutWrappers = false,
+    ) {
+    }
 
     public function render(): View
     {
-        return view('layouts.components.main')
-            ->with('fluid', $this->fluid)
-            ->with('sidebarPosition', $this->sidebarPosition);
+        return view('layouts.components.main');
     }
 }
