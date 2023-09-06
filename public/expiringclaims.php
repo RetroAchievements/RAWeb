@@ -83,7 +83,7 @@ RenderContentStart("Expiring Claims");
                 :consoleName="$consoleName"
             />
         ', [
-            'gameId' => $claim['ID'],
+            'gameId' => $claim['GameID'],
             'gameTitle' => $claim['GameTitle'],
             'gameImageIcon' => $claim['GameIcon'],
             'consoleName' => $claim['ConsoleName'],
