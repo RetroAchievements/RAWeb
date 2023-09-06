@@ -23,7 +23,7 @@ $gameUrl = route('game.show', $game->ID);
 <div>
     <div class="text-2xs flex lg:justify-between items-center gap-x-2 w-full mb-0.5 flex-nowrap">
         <p>{{ $headingLabel }}</p>
-        <p>({{ $timestamp }})</p>
+        <p class="smalldate !min-w-0">{{ $timestamp }}</p>
     </div>
 
     <div class="text-xs bg-embed p-4 rounded border border-embed-highlight">
