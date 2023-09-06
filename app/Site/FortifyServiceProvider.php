@@ -8,11 +8,13 @@ use App\Site\Actions\CreateNewUser;
 use App\Site\Actions\ResetUserPassword;
 use App\Site\Actions\UpdateUserPassword;
 use App\Site\Actions\UpdateUserProfileInformation;
+use App\Site\Responses\LoginResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -41,6 +43,8 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         Fortify::ignoreRoutes();
+
+        $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
     }
 
     /**
@@ -56,6 +60,14 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+
+        Fortify::loginView(function () {
+            if (!session()->has('intended_url')){
+                session(['intended_url' => url()->previous()]);
+            }
+
+            return view('auth.login');
+        });
 
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by($request->username . $request->ip()));
         RateLimiter::for('two-factor', fn (Request $request) => Limit::perMinute(5)->by($request->session()->get('login.id')));

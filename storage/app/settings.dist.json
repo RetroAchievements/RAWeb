@@ -2,8 +2,28 @@
     "sync": false,
     "tools": [
         {
+            "label": "Logs",
+            "route": "log-viewer.index",
+            "abilities": "viewLogs"
+        },
+        {
+            "label": "Horizon Queues",
+            "route": "horizon.index",
+            "abilities": "viewHorizon"
+        },
+        {
             "label": "Demo",
             "url": "demo",
+            "abilities": "tool"
+        },
+        {
+            "label": "Mailpit",
+            "url": "http://localhost:64050/",
+            "abilities": "tool"
+        },
+        {
+            "label": "Minio",
+            "url": "http://localhost:64041/",
             "abilities": "tool"
         }
     ]

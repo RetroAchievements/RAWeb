@@ -25,6 +25,13 @@ nav {
   padding-right: 10px;
 }
 
+.nav-link-themed {
+  color: var(--link-color);
+}
+.nav-link-themed:hover {
+  color: var(--link-hover-color);
+}
+
 .nav-item:hover > .nav-link {
   color: var(--menu-link-color);
   background-color: var(--embed-highlight-color);

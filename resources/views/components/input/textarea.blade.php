@@ -7,7 +7,7 @@
 >
     @if($label ?? true)
         <x-slot name="label">
-            {{ __('validation.attributes.'.$attribute) }} {{ !empty($required) ? '*' : '' }}
+            {{ __('validation.attributes.'.strtolower($attribute)) }} {{ !empty($required) ? '*' : '' }}
         </x-slot>
     @endif
     @if($shortcode ?? false)
