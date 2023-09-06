@@ -46,6 +46,11 @@ $user = request()->user();
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
         <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
+
+        @hasfeature("beat")
+            <x-dropdown-item :link="route('user.completion-progress', $user)">Completion Progress</x-dropdown-item>
+        @endhasfeature
+        
         @if($user->ContribCount > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
             <div class="dropdown-divider"></div>
             @if($user->ContribCount > 0)
