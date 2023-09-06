@@ -17,8 +17,10 @@ $user = request()->user();
     @if($settings->get('auth.registration', true))
         <div class="nav-item">
             {{--<a class="nav-link" href="{{ route('register') }}">--}}
-            <a class="nav-link" href="{{ url('createaccount.php') }}">
-                <span>{{ __('Sign up') }}</span>
+            <a class="nav-link nav-link-themed" href="{{ url('createaccount.php') }}">
+                <x-fas-user-plus class="mr-1 link-color" />
+                <span class="sr-only">{{ __('Sign up') }}</span>
+                <span class="hidden lg:inline-block link-color">{{ __('Sign up') }}</span>
             </a>
         </div>
     @endif
