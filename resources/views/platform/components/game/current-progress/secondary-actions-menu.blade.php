@@ -23,7 +23,7 @@ function beginResetProgress() {
         aria-label="Open progress secondary actions menu"
         aria-expanded="false"
         x-bind:aria-expanded="isMenuOpen.toString()"
-        class="text-link rounded-full border border-embed-highlight bg-embed p-1.5 z-50 hover:text-link-hover hover:border-menu-link hover:bg-embed-highlight" 
+        class="text-link rounded-full border border-embed-highlight bg-embed p-1.5 hover:text-link-hover hover:border-menu-link hover:bg-embed-highlight" 
         @click="isMenuOpen = true"
     >
         <div class="w-3 h-3">
@@ -48,7 +48,7 @@ function beginResetProgress() {
         x-transition:leave="ease-in duration-75"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute top-[-6px] right-0 z-20 w-56"
+        class="absolute top-[-6px] right-0 w-56"
     >
         <div class="top-0 py-2 border border-embed-highlight bg-box-bg rounded shadow-lg focus:outline-none focus-visible:ring-2">
             <button
