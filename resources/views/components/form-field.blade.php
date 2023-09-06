@@ -1,7 +1,3 @@
-{{--
-@props(['type' => 'info', 'message'])
-<code>x-form-field</code>
---}}
 <div class="{{ ($inline ?? false) ? 'lg:flex' : '' }} {{ ($fullWidth ?? false) ? '' : '' }} mb-2">
     @if($label ?? false)
         <div class="{{ ($fullWidth ?? false) ? '' : (($inline ?? false) ? 'lg:w-36 lg:pr-3 lg:text-right' : '') }} pt-1 whitespace-nowrap {{ $errors && $errors->has($attribute ?? null) ? 'text-danger' : '' }}">

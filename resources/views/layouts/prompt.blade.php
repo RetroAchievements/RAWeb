@@ -11,6 +11,7 @@
     <x-header class="mb-5 text-center">
         {{ $header ?? '' }}
     </x-header>
+    {{--<x-messages/> TODO differentiate between validation errors and custom errors --}}
     <x-main>
         {{ $slot }}
     </x-main>
