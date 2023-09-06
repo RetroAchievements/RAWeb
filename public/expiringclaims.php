@@ -57,7 +57,7 @@ RenderContentStart("Expiring Claims");
     echo "<div class='table-wrapper'><table class='table-highlight'><tbody>";
 
     echo "<tr class='do-not-highlight'>";
-    echo "<th colspan='2'>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
+    echo "<th>" . ClaimSorting::toString(ClaimSorting::UserDescending) . "</th>";
     echo "<th>" . ClaimSorting::toString(ClaimSorting::GameDescending) . "</th>";
     echo "<th>" . ClaimSorting::toString(ClaimSorting::ClaimTypeDescending) . "</th>";
     echo "<th>" . ClaimSorting::toString(ClaimSorting::SetTypeDescending) . "</th>";
@@ -71,15 +71,25 @@ RenderContentStart("Expiring Claims");
     foreach ($claimData as $claim) {
         $claimUser = $claim['User'];
         echo "<tr><td class='whitespace-nowrap'>";
-        echo userAvatar($claimUser, label: false);
-        echo "</td>";
-        echo "<td class='whitespace-nowrap'><div>";
-        echo userAvatar($claimUser, icon: false);
+        echo userAvatar($claimUser);
         echo "</div></td>";
 
-        echo "<td>";
-        echo gameAvatar($claim);
+        echo "<td class='pr-0 py-2 w-full xl:w-auto'>";
+        echo Blade::render('
+            <x-game.multiline-avatar
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :gameImageIcon="$gameImageIcon"
+                :consoleName="$consoleName"
+            />
+        ', [
+            'gameId' => $claim['ID'],
+            'gameTitle' => $claim['GameTitle'],
+            'gameImageIcon' => $claim['GameIcon'],
+            'consoleName' => $claim['ConsoleName'],
+        ]);
         echo "</td>";
+
         echo "<td>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
         echo "<td>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";
         echo "<td>" . ClaimSpecial::toString($claim['Special']) . "</td>";
