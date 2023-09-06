@@ -12,7 +12,7 @@
 .brand-top .description {
   color: var(--menu-link-color);
   font-size: 12.5px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.05px;
   line-height: 0.8em;
 }
 
