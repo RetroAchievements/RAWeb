@@ -1,4 +1,4 @@
-<!doctype html prefix="og: http://ogp.me/ns# retroachievements: http://ogp.me/ns/apps/retroachievements#">
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <x-head
     :page-title="$pageTitle ?? null"
