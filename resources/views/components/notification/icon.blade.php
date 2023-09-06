@@ -1,4 +1,8 @@
-<x-nav-dropdown :class="$class ?? ''" dropdown-class="dropdown-menu-right dropdown-items-right">
+<x-nav-dropdown
+    :class="$class ?? ''"
+    dropdown-class="dropdown-menu-right dropdown-items-right"
+    :title="__res('notification')"
+>
     <x-slot name="trigger">
         <x-fas-bell />
         @if($count ?? 0)
