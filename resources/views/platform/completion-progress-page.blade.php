@@ -20,7 +20,7 @@ if ($isMe) {
 
 <x-app-layout :pageTitle="$headingLabel">
     <div>
-        <x-completion-progress-page.breadcrumbs :user="$targetUsername" />
+        <x-completion-progress-page.breadcrumbs :targetUsername="$targetUsername" />
 
         <div class="mt-3 -mb-3 w-full flex gap-x-2">
             {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
@@ -66,7 +66,7 @@ if ($isMe) {
             @endif
         @endif
 
-        <x-completion-progress-page.game-list :completedGamesList="$completedGamesList" />
+        <x-completion-progress-page.game-list :completedGamesList="$completedGamesList" :targetUsername="$targetUsername" />
 
         @if ($totalPages > 0)
             <div class="w-full flex justify-end mt-2">
@@ -80,7 +80,7 @@ if ($isMe) {
             :milestones="$milestones"
             :isFiltering="$isFiltering"
             :isMe="$isMe"
-            :targetUser="$targetUsername"
+            :targetUsername="$targetUsername"
         />
     </x-slot>
 </x-app-layout>

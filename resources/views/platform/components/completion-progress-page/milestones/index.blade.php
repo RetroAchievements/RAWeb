@@ -2,14 +2,14 @@
     'milestones' => [],
     'isFiltering' => false,
     'isMe' => false,
-    'targetUser' => '',
+    'targetUsername' => '',
 ])
 
 <div class="sticky">
     <h2 class="text-h3">Milestones</h2>
 
     @if (count($milestones) === 0)
-        {{ $isMe ? "You don't " : $targetUser . " doesn't " }}
+        {{ $isMe ? "You don't " : $targetUsername . " doesn't " }}
         have any milestones
         {{ $isFiltering ? "matching your current filter criteria." : "yet." }}
     @else

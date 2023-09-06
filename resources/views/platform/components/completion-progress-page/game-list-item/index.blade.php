@@ -1,5 +1,6 @@
 @props([
     'game' => [],
+    'targetUsername' => '',
 ])
 
 <?php
@@ -25,7 +26,7 @@ $gameSystemIconSrc = getSystemIconUrl($consoleId);
                 class="rounded-sm w-[58px] h-[58px]"
                 loading="lazy"
                 decoding="async"
-                x-data="tooltipComponent($el, {dynamicType: 'game', dynamicId: '{{ $gameId }}'})" 
+                x-data="tooltipComponent($el, {dynamicType: 'game', dynamicId: '{{ $gameId }}', dynamicContext: '{{ $targetUsername }}'})" 
                 @mouseover="showTooltip($event)"
                 @mouseleave="hideTooltip"
                 @mousemove="trackMouseMovement($event)"
