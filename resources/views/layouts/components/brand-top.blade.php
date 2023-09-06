@@ -1,6 +1,6 @@
-<x-section class="brand-top bg-embedded">
+<x-section class="brand-top bg-embedded hidden lg:block">
     <x-container>
-        <div class="logo-container hidden lg:flex justify-start pt-6 pb-4 pl-4">
+        <div class="logo-container flex justify-start pt-6 pb-4 pl-4">
             <a href="{{ route('home') }}" class="text-inverse">
                 <div class="flex flex-row">
                     <img class="logo"
