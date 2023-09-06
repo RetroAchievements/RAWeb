@@ -30,7 +30,7 @@
         @endif
         @if($attribute ?? null)
             @error($attribute)
-            <p class="help-block text-danger mb-0">
+            <p class="help-block text-danger mb-0" id="error-{{ $fieldId ?? $attribute }}">
                 <x-fas-exclamation-triangle /> {{ $errors->first($attribute) }}
             </p>
             @enderror
