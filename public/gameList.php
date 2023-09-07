@@ -54,6 +54,7 @@ function ListGames(
         echo "<th class='text-right'><a href='/gameList.php?s=$sort2$queryParams'>Achievements</a></th>";
         echo "<th class='text-right'><a href='/gameList.php?s=$sort3$queryParams'>Points</a></th>";
         echo "<th class='text-right'><a href='/gameList.php?s=$sort7$queryParams'>Retro Ratio</a></th>";
+        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6$queryParams'>Last Updated</a></th>";
         echo "<th class='text-right'><a href='/gameList.php?s=$sort4$queryParams'>Leaderboards</a></th>";
 
         if ($showTickets) {
@@ -64,6 +65,7 @@ function ListGames(
         echo "<th class='text-right'>Achievements</th>";
         echo "<th class='text-right'>Points</th>";
         echo "<th class='text-right'>Retro Ratio</th>";
+        echo "<th style='white-space: nowrap'>Last Updated</th>";
         echo "<th class='text-right'>Leaderboards</th>";
 
         if ($showTickets) {
@@ -139,6 +141,13 @@ function ListGames(
 
         echo "<td class='text-right'>$retroRatio</td>";
 
+        if ($gameEntry['DateModified'] != null) {
+            $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
+            echo "<td class='text-right'>$lastUpdated</td>";
+        } else {
+            echo "<td/>";
+        }
+
         echo "<td class='text-right'>";
         if ($numLBs > 0) {
             if ($dev == null) {
@@ -182,6 +191,7 @@ function ListGames(
         echo "<td class='text-right'><b>" . localized_number($pointsTally) . "</b>";
         echo Blade::render("<x-points-weighted-container>(" . localized_number($truePointsTally) . ")</x-points-weighted-container>");
         echo "</td>";
+        echo "<td></td>";
         echo "<td></td>";
         echo "<td class='text-right'><b>" . localized_number($lbCount) . "</b></td>";
         if ($showTickets) {
