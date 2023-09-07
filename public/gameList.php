@@ -65,7 +65,7 @@ function ListGames(
         echo "<th class='text-right'>Achievements</th>";
         echo "<th class='text-right'>Points</th>";
         echo "<th class='text-right'>Retro Ratio</th>";
-        echo "<th style='white-space: nowrap'>Last Updated</th>";
+        echo "<th class='text-right' style='white-space: nowrap'>Last Updated</th>";
         echo "<th class='text-right'>Leaderboards</th>";
 
         if ($showTickets) {
