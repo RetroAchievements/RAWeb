@@ -1148,7 +1148,7 @@ sanitize_outputs(
                 $guideUrlHelperContent = "Must be from https://github.com/RetroAchievements/guides";
                 echo "<label for='guide_url' class='cursor-help flex items-center gap-x-1' title='$guideUrlHelperContent' aria-label='Guide URL, $guideUrlHelperContent'>";
                 echo "Guide URL";
-                echo Blade::render("<x-gmdi-info-o class='w-5 h-5' aria-hidden='true' />");
+                echo Blade::render("<x-fas-info-circle class='w-5 h-5' aria-hidden='true' />");
                 echo "</label>";
 
                 echo "<input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
