@@ -101,7 +101,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         Fortify::loginView(function () {
-            if (!session()->has('intended_url')){
+            if (!session()->has('intended_url')) {
                 session(['intended_url' => url()->previous()]);
             }
 

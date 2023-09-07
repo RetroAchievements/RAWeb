@@ -123,6 +123,7 @@ function IsMobileBrowser(): bool
         // do something
         return true;
     }
+
     // do something else
     return false;
 }
