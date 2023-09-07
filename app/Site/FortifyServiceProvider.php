@@ -59,10 +59,23 @@ class FortifyServiceProvider extends ServiceProvider
                 Features::enabled(Features::twoFactorAuthentication()) ? RedirectIfTwoFactorAuthenticatable::class : null,
                 function ($request, $next) {
                     $user = User::firstWhere(Fortify::username(), $request->input(Fortify::username()));
+
+                    // banned users should not have a password anymore. make sure they cannot get back in when a password still exists
                     if ($user && $user->getAttribute('Permissions') < Permissions::Unregistered) {
                         throw ValidationException::withMessages([
                             Fortify::username() => [trans('auth.failed')],
                         ]);
+                    }
+
+                    // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
+                    if (mb_strlen($user->SaltedPass) === 32) {
+                        $pepperedPassword = md5($request->input('password') . config('app.legacy_password_salt'));
+                        if ($user->SaltedPass !== $pepperedPassword) {
+                            throw ValidationException::withMessages([
+                                Fortify::username() => [trans('auth.failed')],
+                            ]);
+                        }
+                        migratePassword($user->User, $request->input('password'));
                     }
 
                     return $next($request);
