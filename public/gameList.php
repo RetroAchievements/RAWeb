@@ -54,7 +54,7 @@ function ListGames(
         echo "<th class='text-right'><a href='/gameList.php?s=$sort2$queryParams'>Achievements</a></th>";
         echo "<th class='text-right'><a href='/gameList.php?s=$sort3$queryParams'>Points</a></th>";
         echo "<th class='text-right'><a href='/gameList.php?s=$sort7$queryParams'>Retro Ratio</a></th>";
-        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6$queryParams'>Last Updated</a></th>";
+        echo "<th style='white-space: nowrap' class='text-right'><a href='/gameList.php?s=$sort6$queryParams'>Last Updated</a></th>";
         echo "<th class='text-right'><a href='/gameList.php?s=$sort4$queryParams'>Leaderboards</a></th>";
 
         if ($showTickets) {
