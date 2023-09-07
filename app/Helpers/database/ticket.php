@@ -5,8 +5,8 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
-use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Community\Models\Ticket;
+use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Models\User;
@@ -414,7 +414,7 @@ function countRequestTicketsByUser(string $user): int
     if ($user == null) {
         return 0;
     }
-    
+
     $count = Ticket::whereHas('achievement', function ($query) use ($user) {
         $query->where('Author', $user)
             ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
@@ -437,7 +437,7 @@ function countOpenTicketsByDev(string $dev): ?array
     ];
 
     $tickets = Ticket::with('achievement')
-        ->whereHas('achievement', function($query) use ($dev) {
+        ->whereHas('achievement', function ($query) use ($dev) {
             $query
                 ->where('Author', $dev)
                 ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);

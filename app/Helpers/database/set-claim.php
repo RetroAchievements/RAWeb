@@ -476,7 +476,7 @@ function getExpiringClaim(string $user): array
 
     return [
         'Expired' => $claims->Expired,
-        'Expiring' => $claims->Expiring
+        'Expiring' => $claims->Expiring,
     ];
 }
 
