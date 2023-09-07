@@ -166,7 +166,8 @@ function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
         FROM
             SetRequest
         WHERE
-            GameID = $gameID";
+            GameID = $gameID
+            AND type='" . UserGameListType::AchievementSetRequest . "'";
     }
 
     $dbResult = s_mysql_query($query);

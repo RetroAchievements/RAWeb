@@ -21,6 +21,7 @@
         "doctrine/dbal": "^3.4",
         "graham-campbell/markdown": "^15.0",
         "guzzlehttp/guzzle": "^7.5",
+        "jenssegers/agent": "^2.6",
         "jenssegers/optimus": "^1.1",
         "laravel-notification-channels/webhook": "^2.3",
         "laravel/fortify": "^1.13",
