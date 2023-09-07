@@ -39,7 +39,7 @@ $user = request()->user();
             <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
         @endif
     </div>
-    <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" desktopHref="{{ route('user.show', $user) }}">
+    <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" :desktopHref="route('user.show', $user)">
         <x-slot name="trigger">
             <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false" class="rounded-sm" />
         </x-slot>
