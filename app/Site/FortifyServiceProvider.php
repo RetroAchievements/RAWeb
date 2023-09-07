@@ -8,12 +8,19 @@ use App\Site\Actions\CreateNewUser;
 use App\Site\Actions\ResetUserPassword;
 use App\Site\Actions\UpdateUserPassword;
 use App\Site\Actions\UpdateUserProfileInformation;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use App\Site\Responses\LoginResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Actions\AttemptToAuthenticate;
+use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
+use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -45,6 +52,38 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::ignoreRoutes();
 
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+
+        Fortify::authenticateThrough(function (Request $request) {
+            return array_filter([
+                config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
+                Features::enabled(Features::twoFactorAuthentication()) ? RedirectIfTwoFactorAuthenticatable::class : null,
+                function ($request, $next) {
+                    $user = User::firstWhere(Fortify::username(), $request->input(Fortify::username()));
+
+                    // banned users should not have a password anymore. make sure they cannot get back in when a password still exists
+                    if ($user && $user->getAttribute('Permissions') < Permissions::Unregistered) {
+                        throw ValidationException::withMessages([
+                            Fortify::username() => [trans('auth.failed')],
+                        ]);
+                    }
+
+                    // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
+                    if (mb_strlen($user->SaltedPass) === 32) {
+                        $pepperedPassword = md5($request->input('password') . config('app.legacy_password_salt'));
+                        if ($user->SaltedPass !== $pepperedPassword) {
+                            throw ValidationException::withMessages([
+                                Fortify::username() => [trans('auth.failed')],
+                            ]);
+                        }
+                        migratePassword($user->User, $request->input('password'));
+                    }
+
+                    return $next($request);
+                },
+                AttemptToAuthenticate::class,
+                PrepareAuthenticatedSession::class,
+            ]);
+        });
     }
 
     /**
