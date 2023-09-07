@@ -8,12 +8,19 @@ use App\Site\Actions\CreateNewUser;
 use App\Site\Actions\ResetUserPassword;
 use App\Site\Actions\UpdateUserPassword;
 use App\Site\Actions\UpdateUserProfileInformation;
+use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use App\Site\Responses\LoginResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Actions\AttemptToAuthenticate;
+use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
+use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -45,6 +52,25 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::ignoreRoutes();
 
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+
+        Fortify::authenticateThrough(function (Request $request) {
+            return array_filter([
+                config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
+                Features::enabled(Features::twoFactorAuthentication()) ? RedirectIfTwoFactorAuthenticatable::class : null,
+                function ($request, $next) {
+                    $user = User::firstWhere(Fortify::username(), $request->input(Fortify::username()));
+                    if ($user && $user->getAttribute('Permissions') < Permissions::Unregistered) {
+                        throw ValidationException::withMessages([
+                            Fortify::username() => [trans('auth.failed')],
+                        ]);
+                    }
+
+                    return $next($request);
+                },
+                AttemptToAuthenticate::class,
+                PrepareAuthenticatedSession::class,
+            ]);
+        });
     }
 
     /**
