@@ -41,7 +41,7 @@ $user = request()->user();
             </x-points-weighted-container>
         @endif
 
-        @if($user->RASoftcorePoints && $user->RASoftcorePoints < $user->points_total)
+        @if($user->RASoftcorePoints && $user->RASoftcorePoints <= $user->points_total)
             <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
         @endif
     </div>
