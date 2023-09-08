@@ -126,13 +126,13 @@ class PlayerCompletionProgressController extends Controller
         $metrics['numPlayed'] = count($filteredAndJoinedGamesList);
 
         foreach ($filteredAndJoinedGamesList as $game) {
-            if (!isset($game['HighestAwardKind'])){
+            if (!isset($game['HighestAwardKind'])) {
                 $metrics['numUnfinished']++;
             } elseif ($game['HighestAwardKind'] === 'beaten-softcore') {
                 $metrics['numBeatenSoftcore']++;
             } elseif ($game['HighestAwardKind'] === 'beaten-hardcore') {
                 $metrics['numBeatenHardcore']++;
-            } elseif ($game['HighestAwardKind'] === 'completed'){
+            } elseif ($game['HighestAwardKind'] === 'completed') {
                 $metrics['numCompleted']++;
             } elseif ($game['HighestAwardKind'] === 'mastered') {
                 $metrics['numMastered']++;
