@@ -258,6 +258,7 @@ function UploadNewAchievement(
 
             return true;
         }
+
         // failed
         return false;
     }

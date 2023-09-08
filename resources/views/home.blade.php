@@ -6,7 +6,6 @@ if (Auth::user()) {
     $isNewAccount = Carbon::now()->diffInMonths(Auth::user()->Created) < 1;
 }
 ?>
-
 <x-app-layout>
     @guest
         @include('content.welcome')

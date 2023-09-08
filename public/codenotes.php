@@ -17,9 +17,9 @@ RenderContentStart('Code Notes - ' . $gameData['Title']);
 ?>
 <script>
 /**
- * Toggle the editing state of a code note row and 
+ * Toggle the editing state of a code note row and
  * show/hide the elements necessary to perform an edit.
- * 
+ *
  * @param {HTMLTableRowElement} rowEl - The row element to toggle editing state for.
  * @param {boolean} isEditing - Whether the row is transitioning to edit mode or not.
  */
@@ -35,7 +35,7 @@ function setRowEditingEnabled(rowEl, isEditing) {
 
     for (const visibility of rowElementVisibilities) {
         const targetEl = rowEl.querySelector(`.${visibility.className}`);
-        
+
         if (visibility.showWhen === true) {
             targetEl.classList.remove('hidden');
         } else {
@@ -46,7 +46,7 @@ function setRowEditingEnabled(rowEl, isEditing) {
 
 /**
  * Enable edit mode for a specific row.
- * 
+ *
  * @param {number} rowIndex - The index of the row to enable edit mode for.
  */
 function beginEditMode(rowIndex) {
@@ -64,7 +64,7 @@ function beginEditMode(rowIndex) {
 
 /**
  * Cancel edit mode for a specific row.
- * 
+ *
  * @param {number} rowIndex - The index of the row to cancel edit mode for.
  */
 function cancelEditMode(rowIndex) {
@@ -76,7 +76,7 @@ function cancelEditMode(rowIndex) {
 
     // "<br>" "<br />" "<br>\n"
     const originalValue = noteDisplayEl.innerHTML.replace(/<br\s*\/?>\n?/g, '\n');
-    
+
     noteEditEl.value = originalValue;
 
     setRowEditingEnabled(rowEl, false);
@@ -84,7 +84,7 @@ function cancelEditMode(rowIndex) {
 
 /**
  * Did the user change the contents of the note?
- * 
+ *
  * @param {number} rowIndex - The index of the row to compare view and edit values.
  * @param {string} currentNoteValue - The new note value given by the user.
  */
@@ -113,9 +113,9 @@ function deleteCodeNote(rowIndex) {
 }
 
 /**
- * Save the updated note for a specific row and 
+ * Save the updated note for a specific row and
  * go back to view mode.
- * 
+ *
  * @param {number} rowIndex - The index of the row to save the note for.
  * @param {boolean} isDeleting - Are we deleting this code note?
  */
@@ -188,26 +188,24 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     });
 }
 </script>
-<div id='mainpage'>
-    <div id="fullcontainer">
-        <div class='navpath'>
-            <?= renderGameBreadcrumb($gameData) ?>
-            &raquo; <b>Code Notes</b>
-        </div>
-        <h3>Code Notes</h3>
-        <?= gameAvatar($gameData, iconSize: 64); ?>
-        <br/>
-        <br/>
-        <p>The RetroAchievements addressing scheme for most systems is to access the system memory
-        at address $00000000, immediately followed by the cartridge memory. As such, the addresses
-        displayed below may not directly correspond to the addresses on the real hardware.</p>
-        <br/>
-        <p>There are currently <span class='font-bold code-note-count'><?= $codeNoteCount ?></span> code notes for this game.</p>
-        <?php
-        if (isset($user) && $permissions >= Permissions::Registered) {
-            RenderCodeNotes($codeNotes, $user, $permissions);
-        }
-        ?>
+<article>
+    <div class='navpath'>
+        <?= renderGameBreadcrumb($gameData) ?>
+        &raquo; <b>Code Notes</b>
     </div>
-</div>
+    <h3>Code Notes</h3>
+    <?= gameAvatar($gameData, iconSize: 64); ?>
+    <br/>
+    <br/>
+    <p>The RetroAchievements addressing scheme for most systems is to access the system memory
+    at address $00000000, immediately followed by the cartridge memory. As such, the addresses
+    displayed below may not directly correspond to the addresses on the real hardware.</p>
+    <br/>
+    <p>There are currently <span class='font-bold code-note-count'><?= $codeNoteCount ?></span> code notes for this game.</p>
+    <?php
+    if (isset($user) && $permissions >= Permissions::Registered) {
+        RenderCodeNotes($codeNotes, $user, $permissions);
+    }
+    ?>
+</article>
 <?php RenderContentEnd(); ?>

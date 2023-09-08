@@ -34,6 +34,8 @@ $showConsoleLine = $consoleId || $consoleName;
             width="36" 
             height="36" 
             class="w-9 h-9"
+            loading="lazy"
+            decoding="async"
         >
 
         <p class="{{ $showConsoleLine ? "absolute pl-4 top-0 left-7" : "" }} max-w-fit font-medium mb-0.5 text-xs">

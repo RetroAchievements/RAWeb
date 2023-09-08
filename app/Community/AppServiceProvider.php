@@ -15,6 +15,7 @@ use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Commands\SyncVotes;
 use App\Community\Components\GlobalStatistics;
+use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
 use App\Community\Models\AchievementComment;
 use App\Community\Models\AchievementSetClaim;
@@ -40,6 +41,7 @@ use App\Community\Models\Vote;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -111,8 +113,8 @@ class AppServiceProvider extends ServiceProvider
         // Livewire::component('game.comments', GameComments::class);
         // Livewire::component('news.comments', NewsComments::class);
         // Livewire::component('user.comments', UserComments::class);
-        //
-        // Livewire::component('message-icon', MessageIcon::class);
+
+        Livewire::component('message-icon', MessageIcon::class);
         // Blade::component('news-carousel', NewsCarousel::class);
         // Livewire::component('news-grid', NewsGrid::class);
         // Livewire::component('news-teaser', NewsTeaser::class);

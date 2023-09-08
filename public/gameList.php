@@ -1,11 +1,13 @@
 <?php
 
+use App\Community\Enums\UserGameListType;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
-$filter = requestInputSanitized('f', 0, 'integer'); // 0 = no filter, 1 = only complete, 2 = only incomplete
+$filter = requestInputSanitized('f', 0, 'integer'); // 0 = with achievements, 1 = without achievements, 2 = all
 $sortBy = requestInputSanitized('s', 0, 'integer');
 $dev = requestInputSanitized('d');
 
@@ -19,9 +21,13 @@ if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
+$listType = (isset($user) && !isset($dev)) ? requestInputSanitized('t') : null;
 $showTickets = (isset($user) && $permissions >= Permissions::Developer);
 $gamesList = [];
-$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList, (int) $sortBy, $showTickets, $filter, $offset, $maxCount);
+$gamesCount = getGamesListByDev($dev, $consoleIDInput, $gamesList,
+    listType: $listType, sortBy: $sortBy,
+    ticketsFlag: $showTickets, filter: $filter,
+    offset: $offset, count: $maxCount);
 
 function ListGames(
     array $gamesList,
@@ -43,28 +49,27 @@ function ListGames(
     $sort7 = ($sortBy == 7) ? 17 : 7;
 
     echo "<tr class='do-not-highlight'>";
-    echo "<th class='pr-0'></th>";
     if ($dev == null) {
-        echo "<th><a href='/gameList.php?s=$sort1&$queryParams'>Title</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort2&$queryParams'>Achievements</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort3&$queryParams'>Points</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort7&$queryParams'>Retro Ratio</a></th>";
-        echo "<th style='white-space: nowrap'><a href='/gameList.php?s=$sort6&$queryParams'>Last Updated</a></th>";
-        echo "<th><a href='/gameList.php?s=$sort4&$queryParams'>Leaderboards</a></th>";
+        echo "<th><a href='/gameList.php?s=$sort1$queryParams'>Title</a></th>";
+        echo "<th class='text-right'><a href='/gameList.php?s=$sort2$queryParams'>Achievements</a></th>";
+        echo "<th class='text-right'><a href='/gameList.php?s=$sort3$queryParams'>Points</a></th>";
+        echo "<th class='text-right'><a href='/gameList.php?s=$sort7$queryParams'>Retro Ratio</a></th>";
+        echo "<th style='white-space: nowrap' class='text-right'><a href='/gameList.php?s=$sort6$queryParams'>Last Updated</a></th>";
+        echo "<th class='text-right'><a href='/gameList.php?s=$sort4$queryParams'>Leaderboards</a></th>";
 
         if ($showTickets) {
-            echo "<th class='whitespace-nowrap'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
+            echo "<th class='whitespace-nowrap text-right'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
         }
     } else {
         echo "<th>Title</th>";
-        echo "<th>Achievements</th>";
-        echo "<th>Points</th>";
-        echo "<th>Retro Ratio</th>";
-        echo "<th style='white-space: nowrap'>Last Updated</th>";
-        echo "<th>Leaderboards</th>";
+        echo "<th class='text-right'>Achievements</th>";
+        echo "<th class='text-right'>Points</th>";
+        echo "<th class='text-right'>Retro Ratio</th>";
+        echo "<th class='text-right' style='white-space: nowrap'>Last Updated</th>";
+        echo "<th class='text-right'>Leaderboards</th>";
 
         if ($showTickets) {
-            echo "<th class='whitespace-nowrap'>Open Tickets</th>";
+            echo "<th class='whitespace-nowrap text-right'>Open Tickets</th>";
         }
     }
 
@@ -104,31 +109,46 @@ function ListGames(
 
         echo "<tr>";
 
-        echo "<td class='pr-0'>";
-        echo gameAvatar($gameEntry, label: false);
-        echo "</td>";
-        echo "<td class='w-full'>";
-        echo gameAvatar($gameEntry, title: $gameEntry['Title'], icon: false);
+        if ($showConsoleName) {
+            echo "<td class='pr-0 py-2 w-full xl:w-auto'>";
+        } else {
+            echo "<td class='pr-0 w-full xl:w-auto'>";
+        }
+        echo Blade::render('
+            <x-game.multiline-avatar
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :gameImageIcon="$gameImageIcon"
+                :consoleName="$consoleName"
+            />
+        ', [
+            'gameId' => $gameEntry['ID'],
+            'gameTitle' => $gameEntry['Title'],
+            'gameImageIcon' => $gameEntry['GameIcon'],
+            'consoleName' => $showConsoleName ? $gameEntry['ConsoleName'] : null,
+        ]);
         echo "</td>";
 
         if ($dev == null) {
-            echo "<td>$numAchievements</td>";
-            echo "<td class='whitespace-nowrap'>$maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
+            echo "<td class='text-right'>$numAchievements</td>";
+            echo "<td class='whitespace-nowrap text-right'>" . localized_number($maxPoints);
+            echo Blade::render("<x-points-weighted-container>(" . localized_number($numTrueRatio) . ")</x-points-weighted-container>");
+            echo "</td>";
         } else {
-            echo "<td>$numAchievements of $totalAchievements</td>";
-            echo "<td class='whitespace-nowrap'>$numPoints of $maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
+            echo "<td class='text-right'>$numAchievements of $totalAchievements</td>";
+            echo "<td class='whitespace-nowrap text-right'>$numPoints of $maxPoints <span class='TrueRatio'>($numTrueRatio)</span></td>";
         }
 
-        echo "<td>$retroRatio</td>";
+        echo "<td class='text-right'>$retroRatio</td>";
 
         if ($gameEntry['DateModified'] != null) {
             $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
-            echo "<td>$lastUpdated</td>";
+            echo "<td class='text-right'>$lastUpdated</td>";
         } else {
             echo "<td/>";
         }
 
-        echo "<td class=''>";
+        echo "<td class='text-right'>";
         if ($numLBs > 0) {
             if ($dev == null) {
                 echo "<a href=\"game/$gameID\">$numLBs</a>";
@@ -142,7 +162,7 @@ function ListGames(
 
         if ($showTickets) {
             $openTickets = $gameEntry['OpenTickets'];
-            echo "<td class=''>";
+            echo "<td class='text-right'>";
             if ($openTickets > 0) {
                 if ($dev == null) {
                     echo "<a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
@@ -166,15 +186,16 @@ function ListGames(
     if ($showTotals) {
         // Totals:
         echo "<tr class='do-not-highlight'>";
+        echo "<td><b>Totals: " . localized_number($gameCount) . " " . trans_choice(__('resource.game.title'), $gameCount) . "</b></td>";
+        echo "<td class='text-right'><b>" . localized_number($achievementsTally) . "</b></td>";
+        echo "<td class='text-right'><b>" . localized_number($pointsTally) . "</b>";
+        echo Blade::render("<x-points-weighted-container>(" . localized_number($truePointsTally) . ")</x-points-weighted-container>");
+        echo "</td>";
         echo "<td></td>";
-        echo "<td><b>Totals: $gameCount games</b></td>";
-        echo "<td><b>$achievementsTally</b></td>";
-        echo "<td><b>$pointsTally</b><span class='TrueRatio'> ($truePointsTally)</span></td>";
         echo "<td></td>";
-        echo "<td></td>";
-        echo "<td><b>$lbCount</b></td>";
+        echo "<td class='text-right'><b>" . localized_number($lbCount) . "</b></td>";
         if ($showTickets) {
-            echo "<td><b>$ticketsCount</b></td>";
+            echo "<td class='text-right'><b>" . localized_number($ticketsCount) . "</b></td>";
         }
         echo "</tr>";
     }
@@ -182,16 +203,27 @@ function ListGames(
     echo "</tbody></table></div>";
 }
 
+$combiningConsoleName = '';
 if ($consoleList->has($consoleIDInput)) {
     $consoleName = $consoleList[$consoleIDInput];
     $requestedConsole = $consoleName;
+    $combiningConsoleName = " $consoleName";
 } elseif ($consoleIDInput === 0) {
     $consoleName = "All Games";
     $requestedConsole = "All";
 } else {
     abort(404);
 }
-sanitize_outputs($consoleName, $requestedConsole);
+
+if ($listType === UserGameListType::Play) {
+    $requestedConsole = "Want to Play$combiningConsoleName";
+    $consoleName = $requestedConsole . " Games";
+} elseif ($listType === UserGameListType::Develop) {
+    $requestedConsole = "Want to Develop$combiningConsoleName";
+    $consoleName = $requestedConsole . " Games";
+}
+
+sanitize_outputs($consoleName, $requestedConsole, $listType);
 
 RenderContentStart($requestedConsole . " Games");
 
@@ -209,58 +241,73 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
     HTML;
 }
 ?>
-<div id="mainpage">
-    <div id="fullcontainer">
-        <div>
-            <?php
-            if ($dev !== null) {
-                // Determine which consoles the dev has created content for
-                $devConsoles = [];
-                foreach ($consoleList as $consoleID => $consoleName) {
-                    $consoleGames = array_filter($gamesList, fn ($game) => $game['ConsoleID'] == $consoleID);
-                    if (!empty($consoleGames)) {
-                        $devConsoles[$consoleName] = ['consoleID' => $consoleID, 'consoleGames' => $consoleGames];
-                    }
-                }
-
-                ksort($devConsoles);
-
-                foreach ($devConsoles as $consoleName => $consoleData) {
-                    sanitize_outputs($consoleName);
-
-                    echo renderConsoleHeading($consoleData['consoleID'], $consoleName, $isSmall = true);
-                    ListGames($consoleData['consoleGames'], $dev, '', $sortBy, $showTickets, false, true);
-
-                    echo "<br/>";
-                }
-            } else {
-                echo renderConsoleHeading($consoleIDInput, $consoleName);
-
-                echo "<div style='float:left'>$gamesCount Games</div>";
-
-                echo "<div align='right'>";
-                echo "<select class='gameselector' onchange='window.location = \"/gameList.php?s=$sortBy&c=$consoleIDInput\" + this.options[this.selectedIndex].value'>";
-                echo "<option value=''" . (($filter == 0) ? " selected" : "") . ">Games with achievements</option>";
-                echo "<option value='&f=1'" . (($filter == 1) ? " selected" : "") . ">Games without achievements</option>";
-                echo "<option value='&f=2'" . (($filter == 2) ? " selected" : "") . ">All games</option>";
-                echo "</select>";
-                echo "</div>";
-
-                echo "<br/>";
-
-                $queryParams = "c=$consoleIDInput&f=$filter";
-                ListGames($gamesList, null, $queryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
-
-                if ($maxCount != 0 && $gamesCount > $maxCount) {
-                    // Add page traversal links
-                    echo "\n<br/><div class='float-right row'>";
-                    RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?s=$sortBy&c=$consoleIDInput&f=$filter&o=");
-                    echo "</div>";
-                }
+<article>
+    <?php
+    if ($dev !== null) {
+        // Determine which consoles the dev has created content for
+        $devConsoles = [];
+        foreach ($consoleList as $consoleID => $consoleName) {
+            $consoleGames = array_filter($gamesList, fn ($game) => $game['ConsoleID'] == $consoleID);
+            if (!empty($consoleGames)) {
+                $devConsoles[$consoleName] = ['consoleID' => $consoleID, 'consoleGames' => $consoleGames];
             }
-            ?>
-            <br>
-        </div>
-    </div>
-</div>
+        }
+
+        ksort($devConsoles);
+
+        foreach ($devConsoles as $consoleName => $consoleData) {
+            sanitize_outputs($consoleName);
+
+            echo renderConsoleHeading($consoleData['consoleID'], $consoleName, $isSmall = true);
+            ListGames($consoleData['consoleGames'], $dev, '', $sortBy, $showTickets, false, true);
+
+            echo "<br/>";
+        }
+    } else {
+        echo renderConsoleHeading($consoleIDInput, $consoleName);
+
+        echo "<div style='float:left'>$gamesCount " . trans_choice(__('resource.game.title'), $gamesCount) . "</div>";
+
+        $queryParamArray = [];
+        if ($listType !== null) {
+            $queryParamArray[] = "t=$listType";
+        }
+        if ($consoleIDInput !== 0) {
+            $queryParamArray[] = "c=$consoleIDInput";
+        }
+        $queryParams = join('&', $queryParamArray);
+        if ($queryParams === '') {
+            $queryParams = 's=0'; // prevent "gameList.php?&f=X"
+        }
+
+        echo "<div align='right'>";
+        echo "<select class='gameselector' onchange='window.location = \"/gameList.php?$queryParams\" + this.options[this.selectedIndex].value'>";
+        echo "<option value=''" . (($filter == 0) ? " selected" : "") . ">Games with achievements</option>";
+        echo "<option value='&f=1'" . (($filter == 1) ? " selected" : "") . ">Games without achievements</option>";
+        echo "<option value='&f=2'" . (($filter == 2) ? " selected" : "") . ">All games</option>";
+        echo "</select>";
+        echo "</div>";
+
+        echo "<br/>";
+
+        if ($filter !== 0) {
+            $queryParamArray[] = "f=$filter";
+        }
+        $queryParams = join('&', $queryParamArray);
+        $appendQueryParams = '';
+        if ($queryParams !== '') {
+            $appendQueryParams = '&' . $queryParams;
+        }
+
+        ListGames($gamesList, null, $appendQueryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
+
+        if ($maxCount != 0 && $gamesCount > $maxCount) {
+            // Add page traversal links
+            echo "<div class='text-right'>";
+            RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?$queryParams&o=");
+            echo "</div>";
+        }
+    }
+    ?>
+</article>
 <?php RenderContentEnd(); ?>

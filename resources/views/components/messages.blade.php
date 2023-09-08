@@ -5,7 +5,6 @@ use App\Site\Models\User;
 /** @var User $user */
 $user = request()->user();
 ?>
-
 @if($settings->get('system.alert'))
     <div class="alert alert-danger mb-0 p-2">
         <x-container>
@@ -14,7 +13,6 @@ $user = request()->user();
         </x-container>
     </div>
 @endif
-
 @auth
     {{-- TODO verification message
     @if(!auth()->user()->email_verified_at && !request()->routeIs('verification.notice'))
@@ -40,7 +38,6 @@ $user = request()->user();
             </div>
         </x-container>
     @endif
-
     @if ($user->DeleteRequested)
         <x-container>
             <div class="bg-orange-500 my-2 text-gray-200 px-5 py-2 rounded-sm">
@@ -50,7 +47,6 @@ $user = request()->user();
         </x-container>
     @endif
 @endauth
-
 {{-- TODO toasts --}}
 <div class="sticky top-14 z-10 container">
     <div id="status" class="hidden absolute w-full text-gray-200 px-5 py-2 rounded-sm"></div>
@@ -86,7 +82,6 @@ $user = request()->user();
         </x-toast>
     @endif
 </div>--}}
-
 @if(session('message'))
     <x-container>
         <div class="bg-blue-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
@@ -95,7 +90,6 @@ $user = request()->user();
         </div>
     </x-container>
 @endif
-
 @if(session('success'))
     <x-container>
         <div class="bg-green-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
@@ -104,7 +98,6 @@ $user = request()->user();
         </div>
     </x-container>
 @endif
-
 @if($error = session('error'))
     <x-container>
         <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">
@@ -113,8 +106,8 @@ $user = request()->user();
         </div>
     </x-container>
 @endif
-
 @if(($errors ?? null) && $errors->count())
+    {{-- TODO differentiate between validation errors and custom errors --}}
     <x-container>
         @foreach($errors->all() as $error)
             <div class="bg-red-600 my-2 text-gray-200 px-5 py-2 rounded-sm">

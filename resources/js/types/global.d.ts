@@ -6,6 +6,7 @@ import type {
   hideEarnedCheckboxComponent as HideEarnedCheckboxComponent,
   tooltipComponent as TooltipComponent,
 } from '@/alpine';
+import type { fetcher as Fetcher } from '@/utils/fetcher';
 import type { getStringByteCount as GetStringByteCount } from '@/utils/getStringByteCount';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
@@ -15,9 +16,11 @@ import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibi
 
 declare global {
   var Alpine: Alpine;
+  var assetUrl: string;
   var autoExpandTextInput: typeof AutoExpandTextInput;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
+  var fetcher: typeof Fetcher;
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var hideEarnedCheckboxComponent: typeof HideEarnedCheckboxComponent;
@@ -25,6 +28,7 @@ declare global {
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
   var newsCarouselComponent: typeof NewsCarouselComponent;
+  var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;

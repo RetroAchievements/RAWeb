@@ -8,4 +8,5 @@
         </x-breadcrumb>
     </x-container>
 @endif
+<x-messages />
 {{ $slot }}

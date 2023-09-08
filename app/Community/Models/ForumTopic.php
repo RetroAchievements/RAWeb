@@ -7,6 +7,7 @@ namespace App\Community\Models;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -16,6 +17,7 @@ use Laravel\Scout\Searchable;
 
 class ForumTopic extends BaseModel
 {
+    use HasFactory;
     use Searchable;
     use SoftDeletes;
 
