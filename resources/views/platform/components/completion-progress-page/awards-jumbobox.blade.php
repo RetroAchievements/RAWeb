@@ -73,7 +73,7 @@ $masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQue
         </a>
 
         @if ($canShowBeatenSoftcore)
-            <a href="{{ $beatenSoftcoreUrl }}" class="flex flex-col items-center">
+            <a href="{{ $beatenSoftcoreUrl }}" class="flex flex-col items-center" data-testid="beaten-softcore-link">
                 <p class="text-lg">{{ localized_number($beatenSoftcoreCount) }}</p>
                 <p class="whitespace-nowrap">Beaten (softcore)</p>
             </a>
@@ -87,7 +87,7 @@ $masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQue
         @endif
 
         @if ($canShowCompleted)
-            <a href="{{ $completedUrl }}" class="flex flex-col items-center">
+            <a href="{{ $completedUrl }}" class="flex flex-col items-center" data-testid="completed-link">
                 <p class="text-lg">{{ localized_number($completedCount) }}</p>
                 <p>Completed</p>
             </a>

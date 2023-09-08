@@ -24,7 +24,7 @@ if ($milestone['kind'] === 'mastered') {
     $kindLabel .= ' beaten game*';
 }
 
-$dateLabel = Carbon::parse($milestone['when'])->format('M j Y');
+$dateLabel = Carbon::createFromTimestamp($milestone['when'])->format('M j Y');
 
 $showRecentBeatenSoftcoreTooltip = $milestone['kind'] === 'beaten-softcore' && $milestone['which'] === 'most recent';
 ?>

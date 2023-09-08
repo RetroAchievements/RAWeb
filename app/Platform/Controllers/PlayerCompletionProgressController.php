@@ -34,7 +34,7 @@ class PlayerCompletionProgressController extends Controller
             abort(401);
         }
 
-        $foundTargetUser = User::where('User', $targetUsername)->first();
+        $foundTargetUser = User::where('User', 'like', $targetUsername)->first();
         if (!$this->getCanViewTargetUser($foundTargetUser, $me)) {
             abort(404);
         }
@@ -260,19 +260,23 @@ class PlayerCompletionProgressController extends Controller
 
         foreach ($siteAwards as $award) {
             $key = $award['AwardData']; // Game ID
-            if ($award['AwardType'] == AwardType::GameBeaten) {
-                $awardsLookup[$key] =
-                    $award['AwardDataExtra'] == UnlockMode::Softcore
-                        ? 'beaten-softcore'
-                        : 'beaten-hardcore';
 
-                $awardsDateLookup[$key] = $award['AwardedAt'];
+            if ($award['AwardType'] == AwardType::GameBeaten) {
+                // Check if a higher-ranked award ('completed' or 'mastered') is already present.
+                if (!isset($awardsLookup[$key]) || ($awardsLookup[$key] != 'completed' && $awardsLookup[$key] != 'mastered')) {
+                    $awardsLookup[$key] =
+                        $award['AwardDataExtra'] == UnlockMode::Softcore
+                            ? 'beaten-softcore'
+                            : 'beaten-hardcore';
+    
+                    $awardsDateLookup[$key] = $award['AwardedAt'];
+                }
             } elseif ($award['AwardType'] == AwardType::Mastery) {
                 $awardsLookup[$key] =
                     $award['AwardDataExtra'] == UnlockMode::Softcore
                         ? 'completed'
                         : 'mastered';
-
+    
                 $awardsDateLookup[$key] = $award['AwardedAt'];
                 $hasMasteryAwardLookup[$key] = true;
             }

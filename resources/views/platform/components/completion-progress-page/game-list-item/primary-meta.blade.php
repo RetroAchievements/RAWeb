@@ -19,7 +19,7 @@ $timeToSiteAwardLabelPartOne = '';
 $timeToSiteAwardLabelPartTwo = '';
 $mostRecentUnlockDateLabel = $mostRecentUnlockDate->format('F j Y');
 if ($highestAwardKind && $highestAwardDate) {
-    $highestAwardedAt = Carbon::parse($highestAwardDate);
+    $highestAwardedAt = Carbon::createFromTimestamp($highestAwardDate);
 
     $awardLabelMap = [
         'beaten-softcore' => 'Beaten',

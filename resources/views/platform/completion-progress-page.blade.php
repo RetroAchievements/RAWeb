@@ -6,7 +6,7 @@ $isMe = $me->User === $targetUsername;
 
 $headingLabel = '';
 if ($isMe) {
-    $headingLabel = 'My Completion Progress';
+    $headingLabel = 'Your Completion Progress';
 } elseif (substr($targetUsername, -1) === 's') {
     $headingLabel = $targetUsername . "' Completion Progress";
 } else {
@@ -22,7 +22,7 @@ if ($isMe) {
     <div>
         <x-completion-progress-page.breadcrumbs :targetUsername="$targetUsername" />
 
-        <div class="mt-3 -mb-3 w-full flex gap-x-2">
+        <div class="mt-3 -mb-3 w-full flex gap-x-3">
             {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
             <h1 class="mt-[10px] w-full">{{ $headingLabel }}</h1>
         </div>
@@ -54,16 +54,16 @@ if ($isMe) {
                     @endif
                     {{ trans_choice(__('resource.game.title'), $isFiltering ? $primaryCountsMetrics['numPlayed'] : $totalInList) }}
                 </p>
-            @else
-                <div class="w-full flex flex-col gap-y-2 items-center justify-center bg-embed rounded py-8">
-                    <img src="/assets/images/cheevo/confused.webp" alt="No sets in progress">
-                    <p>
-                        {{ $isMe ? "You don't" : $targetUsername . " doesn't" }}
-                        have any
-                        {{ $isFiltering ? "games matching your current filter criteria." : "games with achievement unlocks yet." }}
-                    </p>
-                </div>
             @endif
+        @elseif ($totalInList === 0)
+            <div class="w-full flex flex-col gap-y-2 items-center justify-center bg-embed rounded py-8">
+                <img src="/assets/images/cheevo/confused.webp" alt="No sets in progress">
+                <p>
+                    {{ $isMe ? "You don't" : $targetUsername . " doesn't" }}
+                    have any
+                    {{ $isFiltering ? "games matching your current filter criteria." : "games with achievement unlocks yet." }}
+                </p>
+            </div>
         @endif
 
         <x-completion-progress-page.game-list :completedGamesList="$completedGamesList" :targetUsername="$targetUsername" />
