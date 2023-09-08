@@ -415,11 +415,7 @@ function countRequestTicketsByUser(?User $user = null): int
         return 0;
     }
 
-    return Ticket::whereHas('achievement', function ($query) use ($user) {
-        $query->where('Author', $user->username)
-            ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
-    })
-        ->where('ReportState', TicketState::Request)
+    return Ticket::where('ReportState', TicketState::Request)
         ->where('ReportedByUserID', $user->ID)
         ->count();
 }
