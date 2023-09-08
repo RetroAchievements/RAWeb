@@ -5,13 +5,15 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
-use App\Community\ViewModels\Ticket;
+use App\Community\Models\Ticket;
+use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 function isAllowedToSubmitTickets(string $user): bool
 {
@@ -413,22 +415,12 @@ function countRequestTicketsByUser(string $user): int
         return 0;
     }
 
-    sanitize_sql_inputs($dev);
-
-    $query = "
-        SELECT count(*) as count
-        FROM Ticket AS tick
-        LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-        LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
-        WHERE ua.User = '$user' AND ach.Flags IN (3, 5) AND tick.ReportState = " . TicketState::Request;
-
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    return (int) mysqli_fetch_assoc($dbResult)['count'];
+    return Ticket::whereHas('achievement', function ($query) use ($user) {
+        $query->where('Author', $user)
+            ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
+    })
+        ->where('ReportState', TicketState::Request)
+        ->count();
 }
 
 function countOpenTicketsByDev(string $dev): ?array
@@ -437,28 +429,24 @@ function countOpenTicketsByDev(string $dev): ?array
         return null;
     }
 
-    sanitize_sql_inputs($dev);
-
     $retVal = [
         TicketState::Open => 0,
         TicketState::Request => 0,
     ];
 
-    $query = "
-        SELECT tick.ReportState, count(*) as Count
-        FROM Ticket AS tick
-        LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-        LEFT JOIN UserAccounts AS ua ON ua.User = ach.Author
-        WHERE ach.Author = '$dev' AND ach.Flags IN (3, 5)
-        AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . ")
-        GROUP BY tick.ReportState";
+    $tickets = Ticket::with('achievement')
+        ->whereHas('achievement', function ($query) use ($dev) {
+            $query
+                ->where('Author', $dev)
+                ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
+        })
+        ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
+        ->select('AchievementID', 'ReportState', DB::raw('count(*) as Count'))
+        ->groupBy('ReportState')
+        ->get();
 
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[$nextData['ReportState']] = $nextData['Count'];
-        }
+    foreach ($tickets as $ticket) {
+        $retVal[$ticket->ReportState] = $ticket->Count;
     }
 
     return $retVal;
@@ -1016,7 +1004,7 @@ function getNumberOfTicketsClosed(string $user): array
     return $retVal;
 }
 
-function GetTicketModel(int $ticketId): ?Ticket
+function GetTicketModel(int $ticketId): ?TicketViewModel
 {
     $ticketDbResult = getTicket($ticketId);
 
@@ -1024,5 +1012,5 @@ function GetTicketModel(int $ticketId): ?Ticket
         return null;
     }
 
-    return new Ticket($ticketDbResult);
+    return new TicketViewModel($ticketDbResult);
 }
