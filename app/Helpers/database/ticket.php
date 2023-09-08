@@ -409,17 +409,14 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function countRequestTicketsByUser(string $user): int
+function countRequestTicketsByUser(?User $user = null): int
 {
-    if ($user == null) {
+    if ($user === null) {
         return 0;
     }
 
-    return Ticket::whereHas('achievement', function ($query) use ($user) {
-        $query->where('Author', $user)
-            ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
-    })
-        ->where('ReportState', TicketState::Request)
+    return Ticket::where('ReportState', TicketState::Request)
+        ->where('ReportedByUserID', $user->ID)
         ->count();
 }
 
