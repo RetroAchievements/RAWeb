@@ -194,6 +194,7 @@ class ConnectApiController extends Controller
                     // 'trace' => $exception->getTrace(),
                 ];
             }
+
             /*
              * Everything else is a server error with status 500
              * We don't want any database error codes forwarded as http status here

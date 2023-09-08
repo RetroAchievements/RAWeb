@@ -27,19 +27,25 @@ $user = request()->user();
 @endguest
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
+        @if($user->RASoftcorePoints && $user->RASoftcorePoints > $user->points_total)
+            <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
+        @endif
+
         @if($user->points_total)
             <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ localized_number($user->points_total) }}</div>
         @endif
+
         @if($user->points_weighted_total)
             <x-points-weighted-container>
                 <span class='trueratio'>{{ localized_number($user->points_weighted_total) }}</span>
             </x-points-weighted-container>
         @endif
-        @if($user->RASoftcorePoints)
+
+        @if($user->RASoftcorePoints && $user->RASoftcorePoints <= $user->points_total)
             <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
         @endif
     </div>
-    <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right">
+    <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" :desktopHref="route('user.show', $user)">
         <x-slot name="trigger">
             <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false" class="rounded-sm" />
         </x-slot>
