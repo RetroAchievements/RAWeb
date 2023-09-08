@@ -51,6 +51,12 @@ function beginResetProgress() {
         class="absolute top-[-6px] right-0 w-56"
     >
         <div class="top-0 py-2 border border-embed-highlight bg-box-bg rounded shadow-lg focus:outline-none focus-visible:ring-2">
+            <div class="w-full px-4 py-2">
+                <p class="text-2xs font-bold">Secondary actions</p>
+            </div>
+
+            <hr class="w-full border-embed-highlight mb-2">
+
             <button
                 @click="isMenuOpen = false; beginResetProgress();"
                 role="menuitem"
