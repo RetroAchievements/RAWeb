@@ -73,6 +73,8 @@ class NotificationIcon extends Component
             }
         }
 
+        $unreadCount = $notifications->filter(fn ($notification) => !($notification['read'] ?? false))->count();
+
         return view('components.notification.icon')
             ->with('notifications', $notifications)
             ->with('count', $unreadCount);
