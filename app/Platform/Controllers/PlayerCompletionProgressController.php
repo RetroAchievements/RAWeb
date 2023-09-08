@@ -268,7 +268,7 @@ class PlayerCompletionProgressController extends Controller
                         $award['AwardDataExtra'] == UnlockMode::Softcore
                             ? 'beaten-softcore'
                             : 'beaten-hardcore';
-    
+
                     $awardsDateLookup[$key] = $award['AwardedAt'];
                 }
             } elseif ($award['AwardType'] == AwardType::Mastery) {
@@ -276,7 +276,7 @@ class PlayerCompletionProgressController extends Controller
                     $award['AwardDataExtra'] == UnlockMode::Softcore
                         ? 'completed'
                         : 'mastered';
-    
+
                 $awardsDateLookup[$key] = $award['AwardedAt'];
                 $hasMasteryAwardLookup[$key] = true;
             }

@@ -6,16 +6,15 @@ namespace Tests\Feature\Platform;
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Site\Enums\Permissions;
 use Illuminate\Support\Carbon;
+use Tests\TestCase;
 
 class PlayerCompletionProgressTest extends TestCase
 {
@@ -30,14 +29,14 @@ class PlayerCompletionProgressTest extends TestCase
         $this->actingAs($user)->get('/user/MockUser/progress')->assertStatus(200);
     }
 
-    public function test_it_returns_401_if_unauthenticated(): void
+    public function testItReturns401IfUnauthenticated(): void
     {
         User::factory()->create(['User' => 'mockUser']);
 
         $this->get('/user/MockUser/progress')->assertStatus(401);
     }
 
-    public function test_it_returns_404_if_target_user_is_banned(): void
+    public function testItReturns404IfTargetUserIsBanned(): void
     {
         /** @var User $me */
         $me = User::factory()->create(['User' => 'myUser']);
@@ -180,7 +179,7 @@ class PlayerCompletionProgressTest extends TestCase
         // Assert
         $view->assertSeeText("1 Played");
         $view->assertDontSeeText("Viewing");
-        $view->assertDontSeeText((config('systems')[2]['name_short']));
+        $view->assertDontSeeText(config('systems')[2]['name_short']);
     }
 
     public function testFilterByAwardStatus(): void
@@ -217,8 +216,8 @@ class PlayerCompletionProgressTest extends TestCase
         $view->assertSeeText("2 Played");
         $view->assertSeeText("1 Mastered");
         $view->assertSeeTextInOrder(["Viewing", "1", "of", "2", "games"]);
-        $view->assertSeeText((config('systems')[1]['name_short']));
-        $view->assertDontSeeText((config('systems')[2]['name_short']));
+        $view->assertSeeText(config('systems')[1]['name_short']);
+        $view->assertDontSeeText(config('systems')[2]['name_short']);
     }
 
     public function testCorrectAwardsCountsDisplayed(): void
