@@ -8,6 +8,7 @@
     'isUnlocked' => false,
     'isUnlockedHardcore' => false,
     'isCreditDialogEnabled' => true,
+    'showAuthorName' => false,
     'totalPlayerCount' => 0,
 ])
 
@@ -85,7 +86,18 @@ if (isset($achievement['DateEarnedHardcore'])) {
                 @endhasfeature
             </div>
 
-            <p class="leading-4">{{ $achievement['Description'] }}</p>
+            <p class="leading-4">
+                {{ $achievement['Description'] }}
+
+                @if ($showAuthorName)
+                    <span class="flex gap-x-1 text-[0.6rem] mt-2">
+                        Author:
+                        <a href="{{ route('user.show', $achievement['Author']) }}">
+                            {{ $achievement['Author'] }}
+                        </a>
+                    </span>
+                @endif
+            </p>
 
             @if ($isUnlocked || $isUnlockedHardcore)
                 <p class="hidden md:block mt-1.5 text-[0.6rem] text-neutral-400/70">

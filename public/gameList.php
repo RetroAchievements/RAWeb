@@ -218,9 +218,15 @@ if ($consoleList->has($consoleIDInput)) {
 if ($listType === UserGameListType::Play) {
     $requestedConsole = "Want to Play$combiningConsoleName";
     $consoleName = $requestedConsole . " Games";
+
+    $maxCount = 50;
+    $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
 } elseif ($listType === UserGameListType::Develop) {
     $requestedConsole = "Want to Develop$combiningConsoleName";
     $consoleName = $requestedConsole . " Games";
+
+    $maxCount = 50;
+    $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
 }
 
 sanitize_outputs($consoleName, $requestedConsole, $listType);
@@ -302,6 +308,11 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
         ListGames($gamesList, null, $appendQueryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
 
         if ($maxCount != 0 && $gamesCount > $maxCount) {
+            if ($sortBy != 0) {
+                $queryParamArray[] = "s=$sortBy";
+                $queryParams = join('&', $queryParamArray);
+            }
+
             // Add page traversal links
             echo "<div class='text-right'>";
             RenderPaginator($gamesCount, $maxCount, $offset, "/gameList.php?$queryParams&o=");
