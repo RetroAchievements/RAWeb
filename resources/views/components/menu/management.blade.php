@@ -14,7 +14,7 @@ $tools = $settings['tools'] ?? null;
         <span class="ml-1 hidden sm:inline-block">{{ __('Manage') }}</span>
     </x-slot>
     <div class="md:flex">
-        @if($tools && count($tools) > 0)
+        @if($tools && !empty($tools))
             <div class="dropdown-column">
                 <x-dropdown-header>{{ __('System') }}</x-dropdown-header>
                 @foreach ($tools as $tool)
