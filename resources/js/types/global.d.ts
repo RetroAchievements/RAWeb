@@ -2,6 +2,7 @@ import type { Alpine } from 'alpinejs';
 
 import { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
 import type {
+  modalComponent as ModalComponent,
   newsCarouselComponent as NewsCarouselComponent,
   hideEarnedCheckboxComponent as HideEarnedCheckboxComponent,
   tooltipComponent as TooltipComponent,
@@ -18,6 +19,7 @@ declare global {
   var Alpine: Alpine;
   var assetUrl: string;
   var autoExpandTextInput: typeof AutoExpandTextInput;
+  var cachedDialogHtmlContent: string | undefined;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
   var fetcher: typeof Fetcher;
@@ -27,6 +29,7 @@ declare global {
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
+  var modalComponent: typeof ModalComponent;
   var newsCarouselComponent: typeof NewsCarouselComponent;
   var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;
