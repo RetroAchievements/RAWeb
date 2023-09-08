@@ -40,6 +40,7 @@
   padding: 4px 12px;
   border: none;
   border-radius: 0;
+  font-size: 12px;
 }
 
 .dropdown-item:last-child {
