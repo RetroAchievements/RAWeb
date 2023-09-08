@@ -51,6 +51,7 @@ class UserGrid extends Grid
         ])
             ->map(function ($column) use ($sort) {
                 $column['active'] = $column['key'] === $sort;
+
                 // $column['visible'] = $column['key'] === $sort;
                 return $column;
             });

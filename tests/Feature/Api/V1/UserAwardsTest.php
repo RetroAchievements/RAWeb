@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\AwardType;
+use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\System;
@@ -82,11 +83,11 @@ class UserAwardsTest extends TestCase
         $user = User::factory()->create();
 
         // Mastery award
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => 1, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Hardcore, 'User' => $user->User]);
 
         // Completion awards
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => 0, 'User' => $user->User]);
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => 0, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
             ->assertSuccessful()
@@ -95,6 +96,26 @@ class UserAwardsTest extends TestCase
                 'CompletionAwardsCount' => 2,
             ])
             ->assertJsonCount(3, 'VisibleUserAwards');
+    }
+
+    public function testGetCorrectBeatenAwardsCount(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+
+        // Beaten hardcore award
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Hardcore, 'User' => $user->User]);
+
+        // Beaten softcore awards
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
+
+        $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'BeatenHardcoreAwardsCount' => 1,
+                'BeatenSoftcoreAwardsCount' => 2,
+            ]);
     }
 
     public function testGetCorrectAwardShape(): void
@@ -111,7 +132,7 @@ class UserAwardsTest extends TestCase
             'User' => $user->User,
             'AwardType' => AwardType::Mastery,
             'AwardData' => $game->ID,
-            'AwardDataExtra' => 1,
+            'AwardDataExtra' => UnlockMode::Hardcore,
             'AwardDate' => $awardDate,
             'DisplayOrder' => 0,
         ]);

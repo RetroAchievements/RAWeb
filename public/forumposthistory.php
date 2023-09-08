@@ -11,11 +11,14 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $websitePrefs = $userDetails['websitePrefs'] ?? 0;
 
+$messageLength = 120;
+
 $forUser = requestInputSanitized('u');
 if (empty($forUser)) {
-    $recentPosts = getRecentForumTopics($offset, $count, $permissions);
+    $recentPosts = getRecentForumTopics($offset, $count, $permissions, $messageLength);
 } else {
-    $recentPosts = getRecentForumPosts($offset, $count, 90, $permissions, $forUser);
+    $messageLength = 150;
+    $recentPosts = getRecentForumPosts($offset, $count, $messageLength, $permissions, $forUser);
 }
 
 RenderContentStart("Forum Recent Posts");
@@ -95,7 +98,7 @@ RenderContentStart("Forum Recent Posts");
         echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID#$commentID'>$forumTopicTitle</a>";
         echo " <span class='smalldate $tooltipClassName' $titleAttribute>$postedAt</span>";
         echo "<div class='comment text-overflow-wrap'>";
-        echo Shortcode::stripAndClamp($postMessage);
+        echo Shortcode::stripAndClamp($postMessage, $messageLength);
         echo "</div>";
         echo "</td>";
 
