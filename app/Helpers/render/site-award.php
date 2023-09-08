@@ -141,7 +141,7 @@ function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsern
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
     echo "<div class='flex justify-center'>";
-    echo "<div class='component flex flex-wrap gap-2 justify-start bg-embed w-full xl:rounded xl:py-2 xl:px-5'>";
+    echo "<div class='component flex flex-wrap gap-2 justify-center bg-embed w-full xl:rounded xl:py-2 xl:px-5'>";
     $imageSize = 48;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
