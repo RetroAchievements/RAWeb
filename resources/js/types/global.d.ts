@@ -6,6 +6,7 @@ import type {
   hideEarnedCheckboxComponent as HideEarnedCheckboxComponent,
   tooltipComponent as TooltipComponent,
 } from '@/alpine';
+import type { fetcher as Fetcher } from '@/utils/fetcher';
 import type { getStringByteCount as GetStringByteCount } from '@/utils/getStringByteCount';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
@@ -19,6 +20,7 @@ declare global {
   var autoExpandTextInput: typeof AutoExpandTextInput;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
+  var fetcher: typeof Fetcher;
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var hideEarnedCheckboxComponent: typeof HideEarnedCheckboxComponent;
