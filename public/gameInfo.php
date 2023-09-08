@@ -6,6 +6,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
+use App\Community\Enums\UserGameListType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
@@ -171,7 +172,7 @@ $commentData = null;
 $gameTopAchievers = null;
 $lbData = null;
 $numArticleComments = null;
-$numDistinctPlayersCasual = null;
+$numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
 $numLeaderboards = null;
@@ -196,11 +197,10 @@ $userGameProgressionAwards = [
 ];
 
 if ($isFullyFeaturedGame) {
-    $numDistinctPlayersCasual = $gameData['NumDistinctPlayersCasual'];
-    $numDistinctPlayersHardcore = $gameData['NumDistinctPlayersHardcore'];
+    $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayersCasual);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayersCasual);
+    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
+    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
@@ -778,7 +778,7 @@ sanitize_outputs(
     });
 
     function getSetRequestInformation(user, gameID) {
-        $.post('/request/set-request/list.php', {
+        $.post('/request/user-game-list/set-requests.php', {
             game: gameID,
             user: user,
         })
@@ -811,8 +811,9 @@ sanitize_outputs(
     }
 
     function submitSetRequest(user, gameID) {
-        $.post('/request/set-request/update.php', {
+        $.post('/request/user-game-list/toggle.php', {
             game: gameID,
+            type: '<?= UserGameListType::AchievementSetRequest ?>'
         })
             .done(function () {
                 getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
@@ -916,9 +917,13 @@ sanitize_outputs(
 
         echo Blade::render('
             <x-game.heading
-                :consoleName="$consoleName"
+                :gameId="$gameID"
                 :gameTitle="$gameTitle"
+                :consoleId="$consoleID"
+                :consoleName="$consoleName"
                 :iconUrl="$iconUrl"
+                :user="$user"
+                :userPermissions="$permissions"
             />
         ', $gameMetaBindings);
 
@@ -1143,7 +1148,7 @@ sanitize_outputs(
                 $guideUrlHelperContent = "Must be from https://github.com/RetroAchievements/guides";
                 echo "<label for='guide_url' class='cursor-help flex items-center gap-x-1' title='$guideUrlHelperContent' aria-label='Guide URL, $guideUrlHelperContent'>";
                 echo "Guide URL";
-                echo Blade::render("<x-pixelarticons-info-box class='w-5 h-5' aria-hidden='true' />");
+                echo Blade::render("<x-fas-info-circle class='w-5 h-5' aria-hidden='true' />");
                 echo "</label>";
 
                 echo "<input type='url' name='guide_url' id='guide_url' value='" . attributeEscape($guideURL) . "' class='w-full'>";
@@ -1422,18 +1427,18 @@ sanitize_outputs(
             if (isset($achievementData)) {
                 echo Blade::render('
                     <x-game.achievements-list.root
-                    :achievements="$achievements"
-                    :totalPlayerCount="$totalPlayerCount"
-                    :progressionTypeValue="$progressionTypeValue"
+                        :achievements="$achievements"
+                        :totalPlayerCount="$totalPlayerCount"
+                        :progressionTypeValue="$progressionTypeValue"
                         :winConditionTypeValue="$winConditionTypeValue"
-                    :isCreditDialogEnabled="$isCreditDialogEnabled"
+                        :isCreditDialogEnabled="$isCreditDialogEnabled"
                     />
                 ', [
                     'achievements' => $achievementData,
-                    'totalPlayerCount' => $numDistinctPlayersCasual,
+                    'totalPlayerCount' => $numDistinctPlayers,
                     'progressionTypeValue' => AchievementType::Progression,
                     'winConditionTypeValue' => AchievementType::WinCondition,
-                    'isCreditDialogEnabled' => $flagParam != $unofficialFlag,
+                    'isCreditDialogEnabled' => $user && $flagParam != $unofficialFlag,
                 ]);
             }
         }

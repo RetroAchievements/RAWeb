@@ -67,6 +67,16 @@ class System extends BaseModel implements HasMedia
         'Name',
     ];
 
+    // == constants
+
+    public const Hubs = 100;
+    public const Events = 101;
+
+    public static function isGameSystem(int $type): bool
+    {
+        return $type != System::Hubs && $type != System::Events;
+    }
+
     // == media
 
     public function registerMediaCollections(): void

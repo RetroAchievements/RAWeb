@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Community\Listeners;
 
+use App\Community\Enums\ActivityType;
 use App\Community\Enums\UserActivityType;
 use App\Community\Models\UserActivity;
+use App\Community\Models\UserActivityLegacy;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementSetCompleted;
 use App\Platform\Events\AchievementUpdated;
@@ -31,6 +33,10 @@ class WriteUserActivity
         $subjectId = null;
         $context = null;
 
+        $legacyActivityType = null;
+        $data = null;
+        $data2 = null;
+
         /** @var User $user */
         $user = $event->user;
 
@@ -38,15 +44,18 @@ class WriteUserActivity
             case Login::class:
                 /**
                  * login will only be called when user was logged out in-between
-                 */
-                $userActivityType = UserActivityType::Login;
-                /**
                  * ignore login activity within 6 hours after the last login activity
                  */
-                $storeActivity = $user->activities()
-                    ->where('UserActivityType', '=', $userActivityType)
-                    ->where('created_at', '>', Carbon::now()->subHours(6))
+                $legacyActivityType = ActivityType::Login;
+                $storeActivity = $user->legacyActivities()
+                    ->where('activitytype', '=', $legacyActivityType)
+                    ->where('timestamp', '>', Carbon::now()->subHours(6))
                     ->doesntExist();
+                // $userActivityType = UserActivityType::Login;
+                // $storeActivity = $user->activities()
+                //     ->where('type', '=', $userActivityType)
+                //     ->where('created_at', '>', Carbon::now()->subHours(6))
+                //     ->doesntExist();
                 break;
             case AchievementCreated::class:
                 $userActivityType = UserActivityType::UploadAchievement;
@@ -94,9 +103,17 @@ class WriteUserActivity
             default:
         }
 
+        if ($legacyActivityType && $storeActivity) {
+            $user->legacyActivities()->save(new UserActivityLegacy([
+                'activitytype' => $legacyActivityType,
+                'data' => $data,
+                'data2' => $data2,
+            ]));
+        }
+
         if ($userActivityType && $storeActivity) {
             $user->activities()->save(new UserActivity([
-                'UserActivityType' => $userActivityType,
+                'type' => $userActivityType,
                 'subject_type' => $subjectType,
                 'subject_id' => $subjectId,
                 'subject_context' => $context,

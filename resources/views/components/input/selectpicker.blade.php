@@ -10,7 +10,7 @@ $displayAttribute = str_replace('[]', '', $attribute);
 
 $model->getAttribute($attribute);
 ?>
-<div class="form-group row {{ $errors->has($attribute) ? 'has-error' : '' }}">
+<div class="flex row {{ $errors->has($attribute) ? 'has-error' : '' }}">
     <label class="col-form-label lg:col-3 lg:pr-0 lg:text-right whitespace-nowrap {{ $errors && $errors->has($attribute) ? 'text-danger' : '' }}"
            for="{{ $attribute }}">
         {{ __('validation.attributes.'.$displayAttribute) }} {{ !empty($required) ? '*' : '' }}

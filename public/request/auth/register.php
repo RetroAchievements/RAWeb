@@ -14,6 +14,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     ],
     'password' => 'required|min:8|different:username',
     'email' => 'required|email:filter|confirmed',
+    'terms' => 'accepted',
 ]);
 
 $username = $input['username'];

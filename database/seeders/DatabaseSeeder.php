@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call(EmulatorsTableSeeder::class);
         $this->call(ReleaseTablesSeeder::class);
         $this->call(ForumTableSeeder::class);
-        $this->call(StaticTableSeeder::class);
 
         // local seeds
         if (app()->environment('local')) {
@@ -24,6 +23,9 @@ class DatabaseSeeder extends Seeder
             $this->call(GamesTableSeeder::class);
             $this->call(NewsTableSeeder::class);
             $this->call(AchievementSetClaimSeeder::class);
+            $this->call(ForumTopicSeeder::class);
         }
+
+        $this->call(StaticTableSeeder::class);
     }
 }

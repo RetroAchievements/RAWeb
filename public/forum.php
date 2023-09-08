@@ -32,7 +32,7 @@ RenderContentStart($pageTitle);
         echo "<b>Forum Index</b>";
     } else {
         echo "<a href='/forum.php'>Forum Index</a>";
-        echo " &raquo; <b>$requestedCategory</b></a>";
+        echo " &raquo; <b>$requestedCategory</b>";
     }
     echo "</div>";
 

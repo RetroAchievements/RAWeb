@@ -15,5 +15,5 @@ $postCommentUrl = config('app.url') . "/viewtopic.php?t=$forumTopicId&c=$comment
 >
     {{-- TODO: Re-enable this once unauthorized comments are filtered at the query level. --}}
     {{-- #{{ $threadPostNumber }} --}}
-    <x-pixelarticons-link class='w-3 h-3' />
+    <x-fas-link class='w-3 h-3' />
 </button>
