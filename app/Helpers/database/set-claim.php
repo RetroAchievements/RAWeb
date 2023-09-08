@@ -455,9 +455,9 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
 /**
  * Gets the number of expiring and expired claims for a specific user.
  */
-function getExpiringClaim(string $user): array
+function getExpiringClaim(string $username): array
 {
-    if (empty($user)) {
+    if (empty($username)) {
         return [];
     }
 
@@ -465,10 +465,10 @@ function getExpiringClaim(string $user): array
         DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 0 THEN 1 ELSE 0 END), 0) AS Expired'),
         DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring')
     )
-    ->where('User', $user)
-    ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
-    ->where('Special', '!=', ClaimSpecial::ScheduledRelease)
-    ->first();
+        ->where('User', $username)
+        ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+        ->where('Special', '!=', ClaimSpecial::ScheduledRelease)
+        ->first();
 
     if (!$claims) {
         return [];
