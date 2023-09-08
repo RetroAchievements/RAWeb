@@ -468,10 +468,12 @@ function getAchievementDistribution(
     // join becomes very expensive. will be addressed when denormalized data is captured
     $joinStatement = '';
     $joinStatementNew = '';
+    $joinStatementNewUnofficial = '';
     $requestedByStatement = '';
     if ($numPlayers < 100) {
         $joinStatement = 'LEFT JOIN UserAccounts AS ua ON ua.User = aw.User';
         $joinStatementNew = 'LEFT JOIN UserAccounts AS ua ON ua.ID = pg.user_id';
+        $joinStatementNewUnofficial = 'LEFT JOIN UserAccounts AS ua ON ua.ID = pa.user_id';
         $requestedByStatement = 'AND (NOT ua.Untracked';
         if ($requestedBy) {
             $bindings['requestedBy'] = $requestedBy;
@@ -499,7 +501,7 @@ function getAchievementDistribution(
                         SELECT COUNT(*) AS AwardedCount
                         FROM player_achievements AS pa
                         LEFT JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                        $joinStatementNew
+                        $joinStatementNewUnofficial
                         WHERE ach.GameID = :gameId
                         $hardcoreStatement
                         AND ach.Flags = :achievementFlag
