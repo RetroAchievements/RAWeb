@@ -23,7 +23,7 @@ function beginResetProgress() {
         aria-label="Open progress secondary actions menu"
         aria-expanded="false"
         x-bind:aria-expanded="isMenuOpen.toString()"
-        class="text-link rounded-full border border-embed-highlight bg-embed p-1.5 hover:text-link-hover hover:border-menu-link hover:bg-embed-highlight transition-transform md:active:scale-95" 
+        class="text-link rounded border border-embed-highlight bg-embed p-1.5 hover:text-link-hover hover:border-menu-link hover:bg-embed-highlight transition-transform md:active:scale-95" 
         @click="isMenuOpen = true"
     >
         <div class="w-3 h-3">
@@ -42,21 +42,15 @@ function beginResetProgress() {
         @click.away="isMenuOpen = false"
         @keydown.escape.window="isMenuOpen = false"
         role="menu"
-        x-transition:enter="ease-out duration-100"
-        x-transition:enter-start="opacity-0 scale-95 translate-x-2"
-        x-transition:enter-end="opacity-100 scale-100 translate-x-0"
-        x-transition:leave="ease-in duration-75"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-        class="absolute top-[-6px] right-0 w-56"
+        x-transition:enter="transition ease-out duration-200 transform"
+        x-transition:enter-start="opacity-0 -translate-y-2 translate-x-1"
+        x-transition:enter-end="opacity-100 translate-y-0 translate-x-0"
+        x-transition:leave="transition ease-in duration-150 transform"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"  
+        class="absolute top-5 right-0 w-56"
     >
         <div class="top-0 py-2 border border-embed-highlight bg-box-bg rounded shadow-lg focus:outline-none focus-visible:ring-2">
-            <div class="w-full px-4 py-2">
-                <p class="text-2xs font-bold">Secondary actions</p>
-            </div>
-
-            <hr class="w-full border-embed-highlight mb-2">
-
             <button
                 @click="isMenuOpen = false; beginResetProgress();"
                 role="menuitem"
