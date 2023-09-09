@@ -1,5 +1,6 @@
 @props([
     'achievements' => [],
+    'beatenGameCreditDialogContext' => 's:|h:',
     'totalPlayerCount' => 0,
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
@@ -18,8 +19,6 @@ $lockedAchievements = array_filter($achievements, function ($achievement) {
 $winConditionAchievements = array_filter($achievements, function ($achievement) use ($winConditionTypeValue) {
     return isset($achievement['type']) && $achievement['type'] === $winConditionTypeValue;
 });
-
-$beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAchievements);
 ?>
 
 @if (count($achievements) > 0)

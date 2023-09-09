@@ -67,6 +67,11 @@ $isEventGame = $consoleName == 'Events';
 
 $pageTitle = "$gameTitle ($consoleName)";
 
+$unlockedAchievements = array_filter($achievementData, function ($achievement) {
+    return !empty($achievement['DateEarned']) || !empty($achievement['DateEarnedHardcore']);
+});
+$beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAchievements);
+
 $relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
 $gameAlts = [];
 $gameHubs = [];
@@ -883,6 +888,7 @@ sanitize_outputs(
 
         $initializedProgressComponent = Blade::render('
             <x-game.current-progress.root
+                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                 :gameId="$gameId"
                 :isBeatable="$isBeatable"
                 :isBeatenHardcore="$isBeatenHardcore"
@@ -899,6 +905,7 @@ sanitize_outputs(
                 :totalPointsCount="$totalPointsCount"
             />
         ', [
+            'beatenGameCreditDialogContext' => $beatenGameCreditDialogContext,
             'gameId' => $gameID,
             'isBeatable' => $isGameBeatable && config('feature.beat') === true,
             'isBeatenHardcore' => $isBeatenHardcore,
@@ -1428,6 +1435,7 @@ sanitize_outputs(
                 echo Blade::render('
                     <x-game.achievements-list.root
                         :achievements="$achievements"
+                        :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                         :totalPlayerCount="$totalPlayerCount"
                         :progressionTypeValue="$progressionTypeValue"
                         :winConditionTypeValue="$winConditionTypeValue"
@@ -1435,6 +1443,7 @@ sanitize_outputs(
                     />
                 ', [
                     'achievements' => $achievementData,
+                    'beatenGameCreditDialogContext' => $beatenGameCreditDialogContext,
                     'totalPlayerCount' => $numDistinctPlayers,
                     'progressionTypeValue' => AchievementType::Progression,
                     'winConditionTypeValue' => AchievementType::WinCondition,
