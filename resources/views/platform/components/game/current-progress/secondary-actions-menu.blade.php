@@ -47,7 +47,7 @@ function beginResetProgress() {
         x-transition:enter-end="opacity-100 translate-y-0 translate-x-0"
         x-transition:leave="transition ease-in duration-150 transform"
         x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2"  
+        x-transition:leave-end="opacity-0 -translate-y-2"
         class="absolute top-5 right-0 w-56"
     >
         <div class="top-0 py-2 border border-embed-highlight bg-box-bg rounded shadow-lg focus:outline-none focus-visible:ring-2">
