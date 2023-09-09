@@ -43,18 +43,22 @@ $showConsoleLine = $consoleId || $consoleName;
         </p>
     </a>
 
-    @if($showConsoleLine)
+    @if ($showConsoleLine)
         <div>
             <!-- Provide invisible space to slide the console underneath -->
             <p class="invisible max-w-fit font-medium mb-0.5 text-xs">{!! $renderedGameTitle !!}</p>
 
             <div class="flex items-center gap-x-1">
-                @if($consoleId && $consoleName)
+                @if ($consoleId && $consoleName)
                     <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $consoleName }} console icon">
                 @endif
 
-                @if($consoleName)
+                @if ($consoleName && !$consoleId)
                     <span class="block text-xs tracking-tighter mt-px">{{ $consoleName }}</span>
+                @endif
+
+                @if ($consoleId && !$consoleName)
+                    <span class="block text-xs tracking-tighter mt-px">{{ config('systems')[$consoleId]['name'] }}</span>
                 @endif
             </div>
         </div>

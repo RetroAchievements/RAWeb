@@ -79,6 +79,9 @@ return [
     'avatar' => [
         'title' => __('avatar') . '|' . __('avatars'),
     ],
+    'award' => [
+        'title' => __('award') . '|' . __('awards'),
+    ],
     'badge' => [
         'title' => __('badge') . '|' . __('badges'),
     ],

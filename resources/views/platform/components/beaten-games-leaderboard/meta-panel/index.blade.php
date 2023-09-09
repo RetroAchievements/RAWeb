@@ -1,0 +1,41 @@
+@props([
+    'gameKindFilterOptions' => [],
+    'selectedConsoleId' => null,
+    'selectedAllowHacks' => true,
+])
+
+<script>
+function handleConsoleChanged(event) {
+    const newQueryParamValue = event.target.value;
+    window.updateUrlParameter('filter[system]', newQueryParamValue);
+}
+
+function handleAllowHacksChanged(event) {
+    const newQueryParamValue = event.target.value;
+    window.updateUrlParameter('filter[hacks]', newQueryParamValue);
+}
+
+function handleGameKindsChanged(event, kind) {
+    window.updateUrlParameter(`filter[${kind}]`, event.target.checked);
+}
+</script>
+
+<div x-init="{}">
+    <div class="embedded p-4 my-4 w-full">
+        <p class="sr-only">Filters</p>
+
+        <div class="grid sm:flex gap-y-4 sm:divide-x-2 divide-embed-highlight">
+            <div class="grid gap-y-1 sm:pr-[40px]">
+                <x-beaten-games-leaderboard.meta-panel.console-filter
+                    :selectedConsoleId="$selectedConsoleId"
+                />
+            </div>
+
+            <div class="grid gap-y-1 sm:px-8">
+                <x-beaten-games-leaderboard.meta-panel.game-kind-filters
+                    :gameKindFilterOptions="$gameKindFilterOptions"
+                />
+            </div>
+        </div>
+    </div>
+</div>
