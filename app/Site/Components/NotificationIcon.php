@@ -43,10 +43,11 @@ class NotificationIcon extends Component
                 $notifications->push([
                     'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
                     'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
+                    'read' => true,
                 ]);
             }
         }
-        $ticketFeedback = countRequestTicketsByUser($user->User);
+        $ticketFeedback = countRequestTicketsByUser($user);
         if ($ticketFeedback) {
             $notifications->push([
                 'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
@@ -72,8 +73,10 @@ class NotificationIcon extends Component
             }
         }
 
+        $unreadCount = $notifications->filter(fn ($notification) => !($notification['read'] ?? false))->count();
+
         return view('components.notification.icon')
             ->with('notifications', $notifications)
-            ->with('count', $notifications->count());
+            ->with('count', $unreadCount);
     }
 }

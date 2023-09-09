@@ -68,7 +68,7 @@ class FortifyServiceProvider extends ServiceProvider
                     }
 
                     // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
-                    if (mb_strlen($user->SaltedPass) === 32) {
+                    if ($user && mb_strlen($user->SaltedPass) === 32) {
                         $pepperedPassword = md5($request->input('password') . config('app.legacy_password_salt'));
                         if ($user->SaltedPass !== $pepperedPassword) {
                             throw ValidationException::withMessages([

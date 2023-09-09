@@ -1436,18 +1436,20 @@ sanitize_outputs(
                     <x-game.achievements-list.root
                         :achievements="$achievements"
                         :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                        :totalPlayerCount="$totalPlayerCount"
-                        :progressionTypeValue="$progressionTypeValue"
-                        :winConditionTypeValue="$winConditionTypeValue"
                         :isCreditDialogEnabled="$isCreditDialogEnabled"
+                        :progressionTypeValue="$progressionTypeValue"
+                        :showAuthorNames="$showAuthorNames"
+                        :totalPlayerCount="$totalPlayerCount"
+                        :winConditionTypeValue="$winConditionTypeValue"
                     />
                 ', [
                     'achievements' => $achievementData,
                     'beatenGameCreditDialogContext' => $beatenGameCreditDialogContext,
-                    'totalPlayerCount' => $numDistinctPlayers,
-                    'progressionTypeValue' => AchievementType::Progression,
-                    'winConditionTypeValue' => AchievementType::WinCondition,
                     'isCreditDialogEnabled' => $user && $flagParam != $unofficialFlag,
+                    'progressionTypeValue' => AchievementType::Progression,
+                    'showAuthorNames' => !$isOfficial && isset($user) && $permissions >= Permissions::JuniorDeveloper,
+                    'totalPlayerCount' => $numDistinctPlayers,
+                    'winConditionTypeValue' => AchievementType::WinCondition,
                 ]);
             }
         }

@@ -11,7 +11,7 @@
             </div>
         @endif
     </x-slot>
-    @if($count ?? 0)
+    @if($notifications->isNotEmpty())
         @foreach($notifications as $notification)
             <x-dropdown-item :link="$notification['link']" :class="$notification['class'] ?? ''">
                 {{ $notification['title'] }}
