@@ -4,6 +4,7 @@
     'progressionTypeValue' => 'progression', // `AchievementType`
     'winConditionTypeValue' => 'win_condition', // `AchievementType`
     'isCreditDialogEnabled' => true,
+    'showAuthorNames' => false,
 ])
 
 <?php
@@ -27,22 +28,24 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
         @foreach ($unlockedAchievements as $achievement)
             <x-game.achievements-list.achievements-list-item
                 :achievement="$achievement"
-                :totalPlayerCount="$totalPlayerCount"
-                :progressionTypeValue="$progressionTypeValue"
-                :winConditionTypeValue="$winConditionTypeValue"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                 :isCreditDialogEnabled="$isCreditDialogEnabled"
+                :progressionTypeValue="$progressionTypeValue"
+                :showAuthorName="$showAuthorNames"
+                :totalPlayerCount="$totalPlayerCount"
+                :winConditionTypeValue="$winConditionTypeValue"
             />
         @endforeach
 
         @foreach ($lockedAchievements as $achievement)
             <x-game.achievements-list.achievements-list-item
                 :achievement="$achievement"
-                :totalPlayerCount="$totalPlayerCount"
-                :progressionTypeValue="$progressionTypeValue"
-                :winConditionTypeValue="$winConditionTypeValue"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                 :isCreditDialogEnabled="$isCreditDialogEnabled"
+                :progressionTypeValue="$progressionTypeValue"
+                :showAuthorName="$showAuthorNames"
+                :totalPlayerCount="$totalPlayerCount"
+                :winConditionTypeValue="$winConditionTypeValue"
             />
         @endforeach
     </ul>
