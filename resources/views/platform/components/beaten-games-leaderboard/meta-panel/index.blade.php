@@ -1,4 +1,5 @@
 @props([
+    'allSystems' => null,
     'gameKindFilterOptions' => [],
     'selectedConsoleId' => null,
     'selectedAllowHacks' => true,
@@ -8,11 +9,6 @@
 function handleConsoleChanged(event) {
     const newQueryParamValue = event.target.value;
     window.updateUrlParameter('filter[system]', newQueryParamValue);
-}
-
-function handleAllowHacksChanged(event) {
-    const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('filter[hacks]', newQueryParamValue);
 }
 
 function handleGameKindsChanged(event, kind) {
@@ -27,6 +23,7 @@ function handleGameKindsChanged(event, kind) {
         <div class="grid sm:flex gap-y-4 sm:divide-x-2 divide-embed-highlight">
             <div class="grid gap-y-1 sm:pr-[40px]">
                 <x-beaten-games-leaderboard.meta-panel.console-filter
+                    :allSystems="$allSystems"
                     :selectedConsoleId="$selectedConsoleId"
                 />
             </div>

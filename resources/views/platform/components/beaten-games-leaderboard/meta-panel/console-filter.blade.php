@@ -1,12 +1,7 @@
 @props([
-    'selectedConsoleId' => null,
+    'allSystems' => null,
+    'selectedConsoleId' => 0,
 ])
-
-<?php
-use App\Platform\Models\System;
-
-$allSystems = System::orderBy('Name')->get(['ID', 'Name']);
-?>
 
 <label class="text-xs font-bold" for="filter-by-console-select">System</label>
 <select id="filter-by-console-id" class="w-full sm:max-w-[240px]" @change="handleConsoleChanged" autocomplete="off">

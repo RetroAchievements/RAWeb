@@ -8,6 +8,7 @@ use App\Community\Enums\AwardType;
 use App\Http\Controller;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\PlayerBadge;
+use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -41,33 +42,36 @@ class BeatenGamesLeaderboardController extends Controller
             'prototypes' => $allowPrototypesQuery !== 'false',
         ];
 
-        $currentPage = $request->input('page.number', 1);
-        $offset = (int) ($currentPage - 1) * $this->pageSize;
-        $startingRank = (int) ($currentPage - 1) * $this->pageSize + 1;
-
-        $awardsCount = PlayerBadge::where('AwardType', AwardType::GameBeaten)
-            ->where('AwardDataExtra', UnlockMode::Hardcore)
-            ->distinct('User')
-            ->count('User');
-
-            $awardsCountQuery = $this->buildFilteredGamesQuery($targetSystemId, $gameKindFilterOptions);
-            $awardsCount = $awardsCountQuery->distinct('filteredGames.User')->count('filteredGames.User');
-
+        // Where do I currently rank? This is a separate query that doesn't include the page/offset.
         $me = Auth::user() ?? null;
         $myRankingData = null;
-
-        $beatenGameAwards = $this->buildBeatenGameAwardsRankings($offset, $targetSystemId, $gameKindFilterOptions);
-
         if ($me) {
             $myRankingData = $this->buildUserRanking($me, $targetSystemId, $gameKindFilterOptions);
         }
 
-        $paginator = new LengthAwarePaginator($beatenGameAwards, $awardsCount, $this->pageSize, $currentPage, [
+        // Now get the current page's rows.
+        $currentPage = $request->input('page.number', 1);
+        $offset = (int) ($currentPage - 1) * $this->pageSize;
+        $startingRank = (int) ($currentPage - 1) * $this->pageSize + 1;
+
+        $beatenGameAwardsRankedRows = $this->buildBeatenGameAwardsRankings($offset, $targetSystemId, $gameKindFilterOptions);
+
+        // We also need to know how many rows there are, otherwise the
+        // paginator can't determine what the max page number should be.
+        $rankedRowsCount = $this->buildFilteredGamesQuery($targetSystemId, $gameKindFilterOptions)
+            ->distinct('filteredGames.user')
+            ->count('filteredGames.user');
+
+        $paginator = new LengthAwarePaginator($beatenGameAwardsRankedRows, $rankedRowsCount, $this->pageSize, $currentPage, [
             'path' => $request->url(),
             'query' => $request->query(),
         ]);
 
+        // Grab all the systems so we can build the system filter options.
+        $allSystems = System::orderBy('Name')->get(['ID', 'Name']);
+
         return view('platform.beaten-games-leaderboard-page', [
+            'allSystems' => $allSystems,
             'gameKindFilterOptions' => $gameKindFilterOptions,
             'myRankingData' => $myRankingData,
             'paginator' => $paginator,
@@ -124,7 +128,7 @@ class BeatenGamesLeaderboardController extends Controller
 
     private function buildBaseLeaderboardQuery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
     {
-        // Create a subquery that applies all the filters
+        // Create the subquery that applies all the filters.
         $filteredGames = $this->buildFilteredGamesQuery($targetSystemId, $gameKindFilterOptions);
 
         // Now, use the filtered subquery to compute the FIRST_VALUE and other aggregations.

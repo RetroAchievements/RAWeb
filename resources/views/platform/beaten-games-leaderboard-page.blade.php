@@ -15,6 +15,7 @@ $userPageNumber = $myRankingData ? (int) ceil($myRankingData['userRank'] / $pagi
     <h1>Beaten Games Leaderboard</h1>
 
     <x-beaten-games-leaderboard.meta-panel
+        :allSystems="$allSystems"
         :gameKindFilterOptions="$gameKindFilterOptions"
         :selectedConsoleId="$selectedConsoleId"
     />
