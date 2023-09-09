@@ -23,7 +23,7 @@ function beginResetProgress() {
         aria-label="Open progress secondary actions menu"
         aria-expanded="false"
         x-bind:aria-expanded="isMenuOpen.toString()"
-        class="text-link rounded-full border border-embed-highlight bg-embed p-1.5 hover:text-link-hover hover:border-menu-link hover:bg-embed-highlight" 
+        class="text-link rounded-full border border-embed-highlight bg-embed p-1.5 hover:text-link-hover hover:border-menu-link hover:bg-embed-highlight transition-transform md:active:scale-95" 
         @click="isMenuOpen = true"
     >
         <div class="w-3 h-3">
