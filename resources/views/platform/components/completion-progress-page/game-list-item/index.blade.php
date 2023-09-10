@@ -55,7 +55,7 @@ $gameSystemIconSrc = getSystemIconUrl($consoleId);
             <x-completion-progress-page.game-list-item.progress-bar
                 :softcoreCompletionPercentage="$totalCompletionPercentage"
                 :hardcoreCompletionPercentage="$hardcoreCompletionPercentage"
-                :highestAwardKind="$game['HighestAwardKind'] ?? null"
+                :numPossible="$game['MaxPossible']"
             />
 
             <x-completion-progress-page.game-list-item.award-indicator

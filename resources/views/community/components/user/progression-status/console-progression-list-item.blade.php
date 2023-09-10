@@ -28,11 +28,19 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
 
 $displayLabel = $label ?? config('systems')[$consoleId]['name_short'];
 $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
+
+$targetUser = request('user');
+$cellUrls = [
+    'totals' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId]),
+    'unfinished' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'unawarded']),
+    'any-beaten' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'any-beaten']),
+    'any-mastery' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'gte-completed']),
+];
 ?>
 
 <li class="progression-status-row">
     <a
-        href="#"
+        href="{{ $cellUrls['totals'] }}"
         class="border-embed-highlight w-[102px] !min-w-[92px] pl-2 rounded-l hover:border-link-hover"
         @if (!$label) title="{{ $consoleTooltipLabel }}" @endif
     >
@@ -47,6 +55,7 @@ $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 
     <x-user.progression-status.list-item-cell-link
         cellType="unfinished"
+        :href="$cellUrls['unfinished']"
         :widthMode="$widthMode"
         :cellGamesCounts="[$unfinishedCount]"
         :totalGamesCount="$totalGamesCount"
@@ -56,6 +65,7 @@ $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 
     <x-user.progression-status.list-item-cell-link
         cellType="beaten"
+        :href="$cellUrls['any-beaten']"
         :widthMode="$widthMode"
         :cellGamesCounts="[$beatenSoftcoreCount, $beatenHardcoreCount]"
         :totalGamesCount="$totalGamesCount"
@@ -77,6 +87,7 @@ $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 
     <x-user.progression-status.list-item-cell-link
         cellType="mastered"
+        :href="$cellUrls['any-mastery']"
         :widthMode="$widthMode"
         :cellGamesCounts="[$completedCount, $masteredCount]"
         :totalGamesCount="$totalGamesCount"

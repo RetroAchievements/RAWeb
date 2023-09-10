@@ -28,7 +28,7 @@ if ($highestAwardKind && $highestAwardDate) {
         'mastered' => 'Mastered',
     ];
 
-    $timeToSiteAwardLabelPartOne = $awardLabelMap[$highestAwardKind] . " in ";
+    $timeToSiteAwardLabelPartOne = $awardLabelMap[$highestAwardKind];
 
     $datesDiff = $highestAwardedAt->diff($firstUnlockDate);
     $timeUnits = [
@@ -64,13 +64,15 @@ if ($highestAwardKind && $highestAwardDate) {
     </a>
 
     {{-- c.progress-pmeta__root > p --}}
-    <p>
-        @if ($numAwarded === $numPossible)
-            All <span class="font-bold">{{ $numAwarded }} achievements
-        @else
-            <span class="font-bold">{{ $numAwarded }}</span> of <span class="font-bold">{{ $numPossible }} achievements
-        @endif
-    </p>
+    @if ($numPossible > 0)
+        <p>
+            @if ($numAwarded === $numPossible)
+                All <span class="font-bold">{{ $numAwarded }} achievements
+            @else
+                <span class="font-bold">{{ $numAwarded }}</span> of <span class="font-bold">{{ $numPossible }} achievements
+            @endif
+        </p>
+    @endif
 
     {{-- c.progress-pmeta__root > div --}}
     <div>
@@ -79,7 +81,11 @@ if ($highestAwardKind && $highestAwardDate) {
             <p>
                 <span class="hidden md:inline lg:hidden">•</span>
                 {{ $timeToSiteAwardLabelPartOne }}
-                <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
+                
+                @if ($numPossible > 0)
+                    in
+                    <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
+                @endif
             </p>
         @endif
     </div>

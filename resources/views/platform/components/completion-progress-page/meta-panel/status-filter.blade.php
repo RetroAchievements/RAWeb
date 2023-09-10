@@ -10,6 +10,7 @@ $statuses = [
     'eq-beaten-hardcore' => 'Beaten',
     'eq-completed' => 'Completed',
     'eq-mastered' => 'Mastered',
+    'any-beaten' => 'Beaten, either hardcore or softcore',
     'gte-completed' => 'Completed or mastered',
     'awarded' => 'Games with any award',
     'eq-revised' => 'Games with awards for revised sets',

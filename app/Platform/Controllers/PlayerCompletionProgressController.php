@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\AwardType;
 use App\Http\Controller;
-use App\Platform\Enums\UnlockMode;
+use App\Platform\Services\PlayerProgressionService;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
@@ -15,7 +14,13 @@ use Illuminate\Support\Facades\Auth;
 
 class PlayerCompletionProgressController extends Controller
 {
+    protected PlayerProgressionService $playerProgressionService;
     private int $pageSize = 100;
+
+    public function __construct(PlayerProgressionService $playerProgressionService)
+    {
+        $this->playerProgressionService = $playerProgressionService;
+    }
 
     public function __invoke(Request $request): View
     {
@@ -57,7 +62,7 @@ class PlayerCompletionProgressController extends Controller
         // If the user is only wanting to see results for a specific console,
         // filter out every game and award that doesn't have that console ID.
         if ($targetSystemId) {
-            [$userGamesList, $userSiteAwards] = $this->useSystemId(
+            [$userGamesList, $userSiteAwards] = $this->playerProgressionService->useSystemId(
                 $targetSystemId,
                 $userGamesList,
                 $userSiteAwards
@@ -65,12 +70,11 @@ class PlayerCompletionProgressController extends Controller
         }
 
         // Remove invalid consoles and add some awards metadata to each entity.
-        $filteredAndJoinedGamesList = $this->filterAndJoinGames(
+        $filteredAndJoinedGamesList = $this->playerProgressionService->filterAndJoinGames(
             $userGamesList,
             $userSiteAwards,
         );
-
-        $primaryCountsMetrics = $this->buildPrimaryCountsMetrics($filteredAndJoinedGamesList);
+        $primaryCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics($filteredAndJoinedGamesList);
 
         // The user may only be wanting to see a certain subset of games, such
         // as only mastered games, or only unawarded games. Perform this filtering now.
@@ -80,6 +84,8 @@ class PlayerCompletionProgressController extends Controller
                 $filteredAndJoinedGamesList
             );
         }
+
+        $filteredAndJoinedGamesList = array_filter($filteredAndJoinedGamesList, fn ($game) => $game['ConsoleID'] !== -1);
 
         usort($filteredAndJoinedGamesList, function ($a, $b) {
             return strtotime($b['MostRecentWonDate']) - strtotime($a['MostRecentWonDate']);
@@ -116,36 +122,6 @@ class PlayerCompletionProgressController extends Controller
             'totalPages' => $totalPages,
             'user' => $foundTargetUser,
         ]);
-    }
-
-    private function buildPrimaryCountsMetrics(array $filteredAndJoinedGamesList): array
-    {
-        $metrics = [
-            'numPlayed' => 0,
-            'numUnfinished' => 0,
-            'numBeatenSoftcore' => 0,
-            'numBeatenHardcore' => 0,
-            'numCompleted' => 0,
-            'numMastered' => 0,
-        ];
-
-        $metrics['numPlayed'] = count($filteredAndJoinedGamesList);
-
-        foreach ($filteredAndJoinedGamesList as $game) {
-            if (!isset($game['HighestAwardKind'])) {
-                $metrics['numUnfinished']++;
-            } elseif ($game['HighestAwardKind'] === 'beaten-softcore') {
-                $metrics['numBeatenSoftcore']++;
-            } elseif ($game['HighestAwardKind'] === 'beaten-hardcore') {
-                $metrics['numBeatenHardcore']++;
-            } elseif ($game['HighestAwardKind'] === 'completed') {
-                $metrics['numCompleted']++;
-            } elseif ($game['HighestAwardKind'] === 'mastered') {
-                $metrics['numMastered']++;
-            }
-        }
-
-        return $metrics;
     }
 
     private function buildMilestones(array $filteredAndJoinedGamesList): array
@@ -253,68 +229,6 @@ class PlayerCompletionProgressController extends Controller
         return true;
     }
 
-    private function filterAndJoinGames(array $gamesList, array $siteAwards): array
-    {
-        /**
-         * We need to append the most prestigious award kind+date to the game entities,
-         * and we need to do it extremely fast. We'll [A] prepare some lookup tables,
-         * then [B] iterate once while appending the entities with constant time O(1).
-         */
-
-        // [A] Prepare the lookup tables.
-        $awardsLookup = [];
-        $awardsDateLookup = [];
-        $hasMasteryAwardLookup = [];
-
-        foreach ($siteAwards as $award) {
-            $key = $award['AwardData']; // Game ID
-
-            if ($award['AwardType'] == AwardType::GameBeaten) {
-                // Check if a higher-ranked award ('completed' or 'mastered') is already present.
-                if (!isset($awardsLookup[$key]) || ($awardsLookup[$key] != 'completed' && $awardsLookup[$key] != 'mastered')) {
-                    $awardsLookup[$key] =
-                        $award['AwardDataExtra'] == UnlockMode::Softcore
-                            ? 'beaten-softcore'
-                            : 'beaten-hardcore';
-
-                    $awardsDateLookup[$key] = $award['AwardedAt'];
-                }
-            } elseif ($award['AwardType'] == AwardType::Mastery) {
-                $awardsLookup[$key] =
-                    $award['AwardDataExtra'] == UnlockMode::Softcore
-                        ? 'completed'
-                        : 'mastered';
-
-                $awardsDateLookup[$key] = $award['AwardedAt'];
-                $hasMasteryAwardLookup[$key] = true;
-            }
-        }
-
-        // [B] Iterate once while appending the entities with constant time O(1).
-        $filteredAndJoined = [];
-        foreach ($gamesList as &$game) {
-            if ($game['ConsoleID'] !== 101 && isValidConsoleId($game['ConsoleID'])) {
-                if (isset($awardsLookup[$game['GameID']])) {
-                    $game['HighestAwardKind'] = $awardsLookup[$game['GameID']];
-                    $game['HighestAwardDate'] = $awardsDateLookup[$game['GameID']];
-
-                    // Check if the game has been beaten but not mastered.
-                    if (
-                        $game['HighestAwardKind'] != 'mastered'
-                        && $game['HighestAwardKind'] != 'completed'
-                        && !isset($hasMasteryAwardLookup[$game['GameID']])
-                    ) {
-                        $game['HasNoAssociatedMasteryAward'] = true;
-                    }
-                }
-
-                $filteredAndJoined[] = $game;
-            }
-        }
-
-        return $filteredAndJoined;
-    }
-
     private function useGameStatusFilter(string $statusValue, array $filteredAndJoinedGamesList): array
     {
         $filters = [
@@ -323,6 +237,9 @@ class PlayerCompletionProgressController extends Controller
 
             'pristine-mastered' => fn ($game) => isset($game['HighestAwardKind'])
                 && ($game['HighestAwardKind'] === 'mastered' && $game['PctWonHC'] == 1),
+
+            'any-beaten' => fn ($game) => isset($game['HighestAwardKind'])
+                && ($game['HighestAwardKind'] === 'beaten-softcore' || $game['HighestAwardKind'] === 'beaten-hardcore'),
 
             'any-hardcore' => fn ($game) => $game['PctWonHC'] > 0,
             'any-softcore' => fn ($game) => $game['PctWon'] !== $game['PctWonHC'],
@@ -351,18 +268,6 @@ class PlayerCompletionProgressController extends Controller
         }
 
         return $filteredAndJoinedGamesList;
-    }
-
-    private function useSystemId(int $targetSystemId, array $userGamesList, array $userSiteAwards): array
-    {
-        if (!isValidConsoleId($targetSystemId)) {
-            return [$userGamesList, $userSiteAwards];
-        }
-
-        $filteredGamesList = array_filter($userGamesList, fn ($game) => $game['ConsoleID'] == $targetSystemId);
-        $filteredSiteAwards = array_filter($userSiteAwards, fn ($award) => $award['ConsoleID'] == $targetSystemId);
-
-        return [$filteredGamesList, $filteredSiteAwards];
     }
 
     private function getAllAvailableConsoleIds(array $userGamesList, array $userSiteAwards): array

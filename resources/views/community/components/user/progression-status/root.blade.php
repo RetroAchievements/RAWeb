@@ -68,10 +68,10 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
     @if (count($consoleProgress) > 1)
         <ol>
             <x-user.progression-status.hidden-consoles totalConsoleCount="{{ count($consoleProgress) }}">
-                <p class="text-xs mt-3 -mb-1.5">Sorted by Most Games Played</p>
+                <p class="text-xs mt-3 -mb-1.5 select-none">Sorted by Most Games Played</p>
 
                 @foreach ($consoleProgress as $consoleId => $progress)
-                    @if ($consoleId != $topConsole)
+                    @if ($consoleId != $topConsole && isValidConsoleId($consoleId))
                         <x-user.progression-status.console-progression-list-item
                             :consoleId="$consoleId"
                             :unfinishedCount="$progress['unfinishedCount']"
