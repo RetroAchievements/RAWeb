@@ -44,7 +44,7 @@ if ($isMe) {
             />
         </div>
 
-        @if ($totalInList !== $primaryCountsMetrics['numPlayed'])
+        @if ($totalInList !== $primaryCountsMetrics['numPlayed'] && $totalInList > 0)
             @if ($totalInList > 0)
                 <p class="text-xs mb-2">
                     Viewing
@@ -55,7 +55,9 @@ if ($isMe) {
                     {{ trans_choice(__('resource.game.title'), $isFiltering ? $primaryCountsMetrics['numPlayed'] : $totalInList) }}
                 </p>
             @endif
-        @elseif ($totalInList === 0)
+        @endif
+
+        @if ($totalInList === 0)
             <div class="w-full flex flex-col gap-y-2 items-center justify-center bg-embed rounded py-8">
                 <img src="/assets/images/cheevo/confused.webp" alt="No sets in progress">
                 <p>
