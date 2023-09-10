@@ -36,7 +36,7 @@ class BeatenGamesLeaderboardController extends Controller
             'filter.prototypes' => 'sometimes|in:true,false',
         ]);
 
-        $targetSystemId = (int) $validatedData['filter']['system'] ?? 0;
+        $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
 
         $gameKindFilterOptions = [
             'retail' => ($validatedData['filter']['retail'] ?? true) !== 'false',
