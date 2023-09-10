@@ -18,6 +18,7 @@ import {
   initializeTextareaCounter,
   injectShortcode,
   loadPostPreview,
+  setCookie,
   themeChange,
   toggleUserCompletedSetsVisibility,
 } from './utils';
@@ -40,6 +41,7 @@ window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.loadPostPreview = loadPostPreview;
+window.setCookie = setCookie;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 
 // Alpine.js Components
