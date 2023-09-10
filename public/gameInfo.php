@@ -1427,7 +1427,7 @@ sanitize_outputs(
                 }
                 echo "</div>";
 
-                RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
+                RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
             }
 
