@@ -334,7 +334,7 @@ class PlayerCompletionProgressController extends Controller
 
             'eq-revised' => fn ($game) => isset($game['HighestAwardKind'])
                 && ($game['HighestAwardKind'] === 'completed' || $game['HighestAwardKind'] === 'mastered')
-                && ($game['PctWon'] < 1 || $game['PctWonHC'] < 1),
+                && ($game['PctWon'] < 1),
 
             'gte-beaten-softcore' => fn ($game) => isset($game['HighestAwardKind'])
                 && ($game['HighestAwardKind'] === 'beaten-softcore' || $game['HighestAwardKind'] === 'completed'),
