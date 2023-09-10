@@ -66,7 +66,7 @@ if ($highestAwardKind && $highestAwardDate) {
     {{-- c.progress-pmeta__root > p --}}
     @if ($numPossible > 0)
         <p>
-            @if ($numAwarded === $numPossible)
+            @if ((int) $numAwarded === (int) $numPossible)
                 All <span class="font-bold">{{ $numAwarded }} achievements
             @else
                 <span class="font-bold">{{ $numAwarded }}</span> of <span class="font-bold">{{ $numPossible }} achievements
