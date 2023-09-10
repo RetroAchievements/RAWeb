@@ -34,6 +34,7 @@ class BeatenGamesLeaderboardController extends Controller
             'filter.homebrew' => 'sometimes|in:true,false',
             'filter.unlicensed' => 'sometimes|in:true,false',
             'filter.prototypes' => 'sometimes|in:true,false',
+            'filter.demos' => 'sometimes|in:true,false',
         ]);
 
         $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
@@ -44,6 +45,7 @@ class BeatenGamesLeaderboardController extends Controller
             'homebrew' => ($validatedData['filter']['homebrew'] ?? true) !== 'false',
             'unlicensed' => ($validatedData['filter']['unlicensed'] ?? true) !== 'false',
             'prototypes' => ($validatedData['filter']['prototypes'] ?? true) !== 'false',
+            'demos' => ($validatedData['filter']['demos'] ?? true) !== 'false',
         ];
 
         // Where do I currently rank? This is a separate query that doesn't include the page/offset.
@@ -94,7 +96,6 @@ class BeatenGamesLeaderboardController extends Controller
             ->join('Console as c', 'gd.ConsoleID', '=', 'c.ID')
             ->join('UserAccounts as ua', 'filteredGames.User', '=', 'ua.User')
             ->where('ua.Untracked', false)
-            ->where('gd.Title', 'not like', '~Demo~%')
             ->where('gd.Title', 'not like', '~Subset~%')
             ->where('gd.Title', 'not like', '~Test Kit~%')
             ->where('gd.Title', 'not like', '~Multi~%')
@@ -125,6 +126,10 @@ class BeatenGamesLeaderboardController extends Controller
 
         if (!$gameKindFilterOptions['prototypes']) {
             $query->where('gd.Title', 'not like', '~Prototype~%');
+        }
+
+        if (!$gameKindFilterOptions['demos']) {
+            $query->where('gd.Title', 'not like', '~Demo~%');
         }
 
         return $query;

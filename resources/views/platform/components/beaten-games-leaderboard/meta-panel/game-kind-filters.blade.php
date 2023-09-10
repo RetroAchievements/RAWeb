@@ -43,5 +43,12 @@
         >
             Prototypes
         </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
+
+        <x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox
+            kind="demos"
+            :isPreChecked="$gameKindFilterOptions['demos']"
+        >
+            Demos
+        </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
     </div>
 </div>
