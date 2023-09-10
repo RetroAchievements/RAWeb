@@ -137,28 +137,24 @@ class PlayerCompletionProgressController extends Controller
             });
         }
 
-        if ($sortOrder === 'pct_won') {
+        if ($sortOrder === 'pct_won' || $sortOrder === '-pct_won') {
             usort($filteredAndJoinedGamesList, function ($a, $b) {
                 if ($a['PctWon'] == $b['PctWon']) {
                     return $b['MaxPossible'] - $a['MaxPossible'];
                 }
-
                 if ($a['PctWon'] === 1) {
                     return -1;
                 }
-
                 if ($b['PctWon'] === 1) {
                     return 1;
                 }
 
                 return $a['PctWon'] - $b['PctWon'];
             });
-        }
 
-        if ($sortOrder === '-pct_won') {
-            usort($filteredAndJoinedGamesList, function ($a, $b) {
-                return $b['PctWon'] < $a['PctWon'];
-            });
+            if ($sortOrder === '-pct_won') {
+                $filteredAndJoinedGamesList = array_reverse($filteredAndJoinedGamesList);
+            }
         }
 
         return $filteredAndJoinedGamesList;
