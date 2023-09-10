@@ -29,7 +29,7 @@ if ($userPageNumber) {
             class="btn transition-transform lg:active:scale-95"
             href="{{ $userPageUrl }}"
         >
-            Jump to your rating's page
+            Jump to your ranking's page
         </a>
     @else
         <div></div>

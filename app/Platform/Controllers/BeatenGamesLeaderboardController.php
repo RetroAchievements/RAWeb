@@ -89,7 +89,13 @@ class BeatenGamesLeaderboardController extends Controller
     private function buildFilteredGamesQuery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
     {
         $query = PlayerBadge::from('SiteAwards as filteredGames')
-            ->select('filteredGames.*', 'gd.*', 'c.name AS ConsoleName', 'ua.User AS AuthUser')
+            ->select(
+                'filteredGames.*',
+                'gd.*',
+                'c.name AS ConsoleName',
+                'ua.User AS AuthUser',
+                DB::raw('ROW_NUMBER() OVER (PARTITION BY gd.ID ORDER BY filteredGames.AwardDate desc) rownum')
+            )
             ->where('filteredGames.AwardType', AwardType::GameBeaten)
             ->where('filteredGames.AwardDataExtra', UnlockMode::Hardcore)
             ->join('GameData as gd', 'filteredGames.AwardData', '=', 'gd.ID')
@@ -99,7 +105,8 @@ class BeatenGamesLeaderboardController extends Controller
             ->where('gd.Title', 'not like', '~Subset~%')
             ->where('gd.Title', 'not like', '~Test Kit~%')
             ->where('gd.Title', 'not like', '~Multi~%')
-            ->whereNotIn('gd.ConsoleID', [100, 101]); // Exclude events and hubs.
+            ->whereNotIn('gd.ConsoleID', [100, 101]) // Exclude events and hubs.
+            ->orderBy('filteredGames.AwardDate', 'desc');
 
         if ($targetSystemId) {
             $query->where('c.ID', $targetSystemId);
@@ -146,7 +153,7 @@ class BeatenGamesLeaderboardController extends Controller
                 'aggregated.User',
                 DB::raw('count(*) as total_awards'),
                 DB::raw('MAX(aggregated.AwardDate) as last_beaten_date'),
-                DB::raw('FIRST_VALUE(aggregated.ID) OVER(PARTITION BY aggregated.User ORDER BY aggregated.AwardDate DESC) as most_recent_game_id'),
+                'aggregated.ID AS most_recent_game_id',
                 'aggregated.Title AS GameTitle',
                 'aggregated.ImageIcon AS GameIcon',
                 'aggregated.ConsoleName AS ConsoleName'
@@ -154,7 +161,7 @@ class BeatenGamesLeaderboardController extends Controller
 
         return $query->groupBy('aggregated.User')
             ->orderBy('total_awards', 'desc')
-            ->orderBy('last_beaten_date', 'desc');
+            ->orderBy('last_beaten_date', 'asc');
     }
 
     private function buildBeatenGameAwardsRankings(
