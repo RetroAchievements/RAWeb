@@ -329,7 +329,7 @@ class PlayerCompletionProgressTest extends TestCase
     {
         /**
          * Two beaten games, six masteries, all unique games.
-         * We should see 1st beaten game, 1st mastery, 5th mastery, latest mastery, and latest beaten game. 
+         * We should see 1st beaten game, 1st mastery, 5th mastery, latest mastery, and latest beaten game.
          */
 
         // Arrange
