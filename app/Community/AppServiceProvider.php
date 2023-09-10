@@ -17,6 +17,7 @@ use App\Community\Commands\SyncVotes;
 use App\Community\Components\GlobalStatistics;
 use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
+use App\Community\Components\UserProgressionStatus;
 use App\Community\Models\AchievementComment;
 use App\Community\Models\AchievementSetClaim;
 use App\Community\Models\Comment;
@@ -105,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
 
         Blade::component('global-statistics', GlobalStatistics::class);
         Blade::component('user-card', UserCard::class);
+        Blade::component('user-progression-status', UserProgressionStatus::class);
 
         // Livewire::component('forum-topics', ForumTopics::class);
         //
