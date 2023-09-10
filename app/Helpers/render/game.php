@@ -171,8 +171,14 @@ function renderGameCard(int|array $game, ?string $targetUsername): string
     ]);
 }
 
-function RenderGameSort(bool $isFullyFeaturedGame, ?int $flag, int $officialFlag, int $gameID, ?int $sortBy): void
-{
+function RenderGameSort(
+    bool $isFullyFeaturedGame,
+    ?int $flag,
+    int $officialFlag,
+    int $gameID,
+    ?int $sortBy,
+    bool $canSortByType = false,
+): void {
     echo "<div><span>";
     echo "Sort: ";
 
@@ -212,7 +218,7 @@ function RenderGameSort(bool $isFullyFeaturedGame, ?int $flag, int $officialFlag
         // }
         echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
         echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
-        if (config('feature.beat')) {
+        if (config('feature.beat') && $canSortByType) {
             echo " - ";
             echo "<a href='/game/$gameID?$flagParam&s=$sort6'>Type$mark6</a>";
         }
