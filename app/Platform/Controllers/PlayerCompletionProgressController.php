@@ -33,11 +33,13 @@ class PlayerCompletionProgressController extends Controller
             'page.number' => 'sometimes|integer|min:1',
             'filter.system' => 'sometimes|integer|between:0,99|not_in:101',
             'filter.status' => 'sometimes|string|min:2|max:30',
+            'sort' => 'sometimes|string|in:unlock_date,pct_won,-unlock_date,-pct_won',
         ]);
 
         $currentPage = (int) ($validatedData['page']['number'] ?? 1);
         $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
         $targetGameStatus = $validatedData['filter']['status'] ?? null;
+        $sortOrder = $validatedData['sort'] ?? 'unlock_date';
 
         $me = Auth::user() ?? null;
         // TODO: Remove when denormalized data is ready.
@@ -85,13 +87,9 @@ class PlayerCompletionProgressController extends Controller
             );
         }
 
-        $filteredAndJoinedGamesList = array_filter($filteredAndJoinedGamesList, fn ($game) => $game['ConsoleID'] !== -1);
-
-        usort($filteredAndJoinedGamesList, function ($a, $b) {
-            return strtotime($b['MostRecentWonDate']) - strtotime($a['MostRecentWonDate']);
-        });
-
         $milestones = $this->buildMilestones($filteredAndJoinedGamesList);
+
+        $filteredAndJoinedGamesList = $this->useSortedList($filteredAndJoinedGamesList, $sortOrder);
 
         $totalInList = count($filteredAndJoinedGamesList);
         $totalPages = ceil($totalInList / $this->pageSize);
@@ -116,12 +114,54 @@ class PlayerCompletionProgressController extends Controller
             'milestones' => $milestones,
             'primaryCountsMetrics' => $primaryCountsMetrics,
             'selectedConsoleId' => $targetSystemId,
+            'selectedSortOrder' => $sortOrder,
             'selectedStatus' => $targetGameStatus,
             'siteAwards' => $userSiteAwards,
             'totalInList' => $totalInList,
             'totalPages' => $totalPages,
             'user' => $foundTargetUser,
         ]);
+    }
+
+    private function useSortedList(array $filteredAndJoinedGamesList, string $sortOrder): array
+    {
+        if ($sortOrder === 'unlock_date') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                return strtotime($b['MostRecentWonDate']) - strtotime($a['MostRecentWonDate']);
+            });
+        }
+
+        if ($sortOrder === '-unlock_date') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                return strtotime($a['MostRecentWonDate']) - strtotime($b['MostRecentWonDate']);
+            });
+        }
+
+        if ($sortOrder === 'pct_won') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                if ($a['PctWon'] == $b['PctWon']) {
+                    return $b['MaxPossible'] - $a['MaxPossible'];
+                }
+
+                if ($a['PctWon'] === 1) {
+                    return -1;
+                }
+
+                if ($b['PctWon'] === 1) {
+                    return 1;
+                }
+
+                return $a['PctWon'] - $b['PctWon'];
+            });
+        }
+
+        if ($sortOrder === '-pct_won') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                return $b['PctWon'] < $a['PctWon'];
+            });
+        }
+
+        return $filteredAndJoinedGamesList;
     }
 
     private function buildMilestones(array $filteredAndJoinedGamesList): array

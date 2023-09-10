@@ -137,7 +137,7 @@ class PlayerProgressionService
                         'NumAwarded' => 0,
                         'MaxPossible' => 0,
                         'PctWonHC' => 0,
-                        'PctWon' => 0,
+                        'PctWon' => 1,
                         'FirstWonDate' => null,
                     ];
 

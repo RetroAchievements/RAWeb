@@ -81,7 +81,7 @@
   }
 
   > div[role='progressbar'] > div:first-child {
-    @apply bg-[gold] light:bg-yellow-500 h-full rounded-l;
+    @apply bg-gradient-to-r from-amber-500/80 to-[gold] light:bg-yellow-500 h-full rounded-l;
   }
 
   > div[role='progressbar'] > div:last-child {

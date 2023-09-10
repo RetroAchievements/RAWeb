@@ -30,6 +30,7 @@ if ($isMe) {
         <x-completion-progress-page.meta-panel
             :availableConsoleIds="$allAvailableConsoleIds"
             :selectedConsoleId="$selectedConsoleId"
+            :selectedSortOrder="$selectedSortOrder"
             :selectedStatus="$selectedStatus"
         />
 
@@ -44,18 +45,29 @@ if ($isMe) {
             />
         </div>
 
-        @if ($totalInList !== $primaryCountsMetrics['numPlayed'] && $totalInList > 0)
+        <div class="w-full flex justify-between items-center mb-2">
             @if ($totalInList > 0)
-                <p class="text-xs mb-2">
+                <p class="text-xs">
                     Viewing
                     <span class="font-bold">{{ localized_number($totalInList) }}</span>
                     @if ($isFiltering)
-                        of {{ $primaryCountsMetrics['numPlayed' ]}}
+                        of {{ $primaryCountsMetrics['numPlayed'] }}
                     @endif
                     {{ trans_choice(__('resource.game.title'), $isFiltering ? $primaryCountsMetrics['numPlayed'] : $totalInList) }}
                 </p>
+            @else
+                <span></span>
             @endif
-        @endif
+
+            @if ($isFiltering || $selectedSortOrder !== 'unlock_date')
+                <a href="{{ route('user.completion-progress', $targetUsername) }}" class="btn flex items-center gap-x-0.5">
+                    <x-fas-undo />
+                    <span>Reset filters/sort</span>
+                </a>
+            @else
+                <span></span>
+            @endif
+        </div>
 
         @if ($totalInList === 0)
             <div class="w-full flex flex-col gap-y-2 items-center justify-center bg-embed rounded py-8">
