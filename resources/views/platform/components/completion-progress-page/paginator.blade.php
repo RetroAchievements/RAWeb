@@ -54,7 +54,7 @@ function handlePageSelected(event) {
 
     of {{ $totalPages }}
 
-    @if ($currentPage < $totalPages - 1)
+    @if ($currentPage < $totalPages)
         <a title="Next" href="{{ $nextPageUrl }}">></a>
         <a title="Last" href="{{ $lastPageUrl }}">≫</a>
     @endif

@@ -10,20 +10,21 @@
 <?php
 $currentQueryParams = request()->query();
 
+if (isset($currentQueryParams['filter']['status'])) {
+    unset($currentQueryParams['filter']['status']);
+}
+
 $canShowBeatenSoftcore = $beatenSoftcoreCount > 0;
 $canShowBeatenHardcore = $beatenHardcoreCount > 0 || ($beatenHardcoreCount === 0 && $beatenSoftcoreCount === 0);
 $canShowCompleted = $completedCount > 0;
 $canShowMastered = $masteredCount > 0 || ($masteredCount === 0 && $completedCount === 0);
 
-$currentQueryParams = request()->query();
-$baseQueryParams = array_merge($currentQueryParams, ['s' => null]);
-
-$playedUrl = url()->current() . '?' . http_build_query(array_merge($baseQueryParams, ['s' => 'null']));
-$unfinishedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['s' => 'unawarded']));
-$beatenSoftcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['s' => 'eq-beaten-softcore']));
-$beatenHardcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['s' => 'eq-beaten-hardcore']));
-$completedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['s' => 'eq-completed']));
-$masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['s' => 'eq-mastered']));
+$playedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'null']));
+$unfinishedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'unawarded']));
+$beatenSoftcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-softcore']));
+$beatenHardcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-hardcore']));
+$completedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-completed']));
+$masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-mastered']));
 ?>
 
 <div class="bg-embed rounded px-4 py-2">
