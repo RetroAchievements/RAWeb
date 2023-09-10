@@ -17,7 +17,7 @@ $gameId ??= request()->route('game');
     <x-modal-trigger
         modalTitleLabel="Beaten Game Credit"
         resourceApiRoute="/request/game/beaten-credit.php"
-        resourceId="{{ $gameId }}"
+        :resourceId="$gameId"
         :resourceContext="$beatenGameCreditDialogContext"
         :disabled="!$isCreditDialogEnabled"
     >

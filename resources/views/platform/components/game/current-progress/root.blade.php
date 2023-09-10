@@ -1,4 +1,5 @@
 @props([
+    'beatenGameCreditDialogContext' => 's:|h:',
     'gameId' => 0,
     'isBeatable' => false,
     'isBeatenHardcore' => false,
@@ -42,30 +43,32 @@ $canShowGlow = $hasUnlockedAnyAchievements && $hasAnyProgressionAward;
                     <p class="leading-4 mt-2">You haven't unlocked any achievements for this game.</p>
                 @else
                     <x-game.current-progress.big-status-label
-                        isBeatable="{{ $isBeatable }}"
-                        isBeatenHardcore="{{ $isBeatenHardcore }}"
-                        isBeatenSoftcore="{{ $isBeatenSoftcore }}"
-                        isCompleted="{{ $isCompleted }}"
-                        isMastered="{{ $isMastered }}"
-                        isEvent="{{ $isEvent }}"
+                        :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                        :gameId="$gameId"
+                        :isBeatable="$isBeatable"
+                        :isBeatenHardcore="$isBeatenHardcore"
+                        :isBeatenSoftcore="$isBeatenSoftcore"
+                        :isCompleted="$isCompleted"
+                        :isMastered="$isMastered"
+                        :isEvent="$isEvent"
                     />
 
                     <x-game.current-progress.stats
-                        totalAchievementsCount="{{ $totalAchievementsCount }}"
-                        totalPointsCount="{{ $totalPointsCount }}"
-                        numEarnedSoftcoreAchievements="{{ $numEarnedSoftcoreAchievements }}"
-                        numEarnedHardcoreAchievements="{{ $numEarnedHardcoreAchievements }}"
-                        numEarnedSoftcorePoints="{{ $numEarnedSoftcorePoints }}"
-                        numEarnedHardcorePoints="{{ $numEarnedHardcorePoints }}"
-                        numEarnedWeightedPoints="{{ $numEarnedWeightedPoints }}"
+                        :totalAchievementsCount="$totalAchievementsCount"
+                        :totalPointsCount="$totalPointsCount"
+                        :numEarnedSoftcoreAchievements="$numEarnedSoftcoreAchievements"
+                        :numEarnedHardcoreAchievements="$numEarnedHardcoreAchievements"
+                        :numEarnedSoftcorePoints="$numEarnedSoftcorePoints"
+                        :numEarnedHardcorePoints="$numEarnedHardcorePoints"
+                        :numEarnedWeightedPoints="$numEarnedWeightedPoints"
                     />
                 @endif
             </div>
 
             <x-game.current-progress.progress-bar
-                totalAchievementsCount="{{ $totalAchievementsCount }}"
-                numEarnedSoftcoreAchievements="{{ $numEarnedSoftcoreAchievements }}"
-                numEarnedHardcoreAchievements="{{ $numEarnedHardcoreAchievements }}"
+                :totalAchievementsCount="$totalAchievementsCount"
+                :numEarnedSoftcoreAchievements="$numEarnedSoftcoreAchievements"
+                :numEarnedHardcoreAchievements="$numEarnedHardcoreAchievements"
             />
         </div>
     </div>
