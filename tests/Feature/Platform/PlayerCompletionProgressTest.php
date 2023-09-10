@@ -20,6 +20,7 @@ class PlayerCompletionProgressTest extends TestCase
 {
     use RefreshDatabase;
     use TestsPlayerAchievements;
+    use TestsPlayerBadges;
 
     public function testItRendersWithoutCrashing(): void
     {
@@ -294,23 +295,23 @@ class PlayerCompletionProgressTest extends TestCase
 
         // Now, grant the various awards.
         // 3 Beaten (hardcore)
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameOne->ID, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()->subMinutes(30)]);
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameTwo->ID, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()->subMinutes(30)]);
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameThree->ID, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()]);
+        $this->addGameBeatenAward($me, $gameOne, awardTime: Carbon::now()->subMinutes(30));
+        $this->addGameBeatenAward($me, $gameTwo, awardTime: Carbon::now()->subMinutes(30));
+        $this->addGameBeatenAward($me, $gameThree, awardTime: Carbon::now());
 
         // 1 Beaten (softcore)
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameFour->ID, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'AwardDate' => Carbon::now()->subMinutes(30)]);
+        $this->addGameBeatenAward($me, $gameFour, UnlockMode::Softcore, Carbon::now()->subMinutes(30));
 
         // 3 Completed
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameFour->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Softcore, 'AwardDate' => Carbon::now()]);
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameFive->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Softcore, 'AwardDate' => Carbon::now()]);
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameSix->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Softcore, 'AwardDate' => Carbon::now()]);
+        $this->addMasteryBadge($me, $gameFour, UnlockMode::Softcore, Carbon::now());
+        $this->addMasteryBadge($me, $gameFive, UnlockMode::Softcore, Carbon::now());
+        $this->addMasteryBadge($me, $gameSix, UnlockMode::Softcore, Carbon::now());
 
         // 4 Mastered
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameOne->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()]);
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameTwo->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()]);
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameSeven->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()]);
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameEight->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()]);
+        $this->addMasteryBadge($me, $gameOne, awardTime: Carbon::now());
+        $this->addMasteryBadge($me, $gameTwo, awardTime: Carbon::now());
+        $this->addMasteryBadge($me, $gameSeven, awardTime: Carbon::now());
+        $this->addMasteryBadge($me, $gameEight, awardTime: Carbon::now());
 
         // Act
         $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress');
@@ -322,5 +323,76 @@ class PlayerCompletionProgressTest extends TestCase
         $view->assertSeeText("1 Beaten");
         $view->assertSeeText("3 Completed");
         $view->assertSeeText("4 Mastered");
+    }
+
+    public function testMilestones(): void
+    {
+        /**
+         * Two beaten games, six masteries, all unique games.
+         * We should see 1st beaten game, 1st mastery, 5th mastery, latest mastery, and latest beaten game. 
+         */
+
+        // Arrange
+        /** @var User $me */
+        $me = User::factory()->create(['User' => 'myUser']);
+
+        /** @var System $system */
+        $system = System::factory()->create(['ID' => 1]);
+
+        /** @var Game $gameOne */
+        $gameOne = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game One']);
+        $gameOneAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->ID]);
+        /** @var Game $gameTwo */
+        $gameTwo = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game Two']);
+        $gameTwoAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->ID]);
+        /** @var Game $gameThree */
+        $gameThree = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game Three']);
+        $gameThreeAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->ID]);
+        /** @var Game $gameFour */
+        $gameFour = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game Four']);
+        $gameFourAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFour->ID]);
+        /** @var Game $gameFive */
+        $gameFive = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game Five']);
+        $gameFiveAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameFive->ID]);
+        /** @var Game $gameSix */
+        $gameSix = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game Six']);
+        $gameSixAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSix->ID]);
+        /** @var Game $gameSeven */
+        $gameSeven = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game Seven']);
+        $gameSevenAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameSeven->ID]);
+        /** @var Game $gameEight */
+        $gameEight = Game::factory()->create(['ConsoleID' => $system->ID, 'Title' => 'Game Eight']);
+        $gameEightAchievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameEight->ID]);
+
+        // Unlocks on every game to be sure we have some progress.
+        $this->addHardcoreUnlock($me, $gameOneAchievements->get(0));
+        $this->addHardcoreUnlock($me, $gameTwoAchievements->get(0));
+        $this->addHardcoreUnlock($me, $gameThreeAchievements->get(0));
+        $this->addHardcoreUnlock($me, $gameFourAchievements->get(0));
+        $this->addHardcoreUnlock($me, $gameFiveAchievements->get(0));
+        $this->addHardcoreUnlock($me, $gameSixAchievements->get(0));
+        $this->addHardcoreUnlock($me, $gameSevenAchievements->get(0));
+        $this->addHardcoreUnlock($me, $gameEightAchievements->get(0));
+
+        $this->addGameBeatenAward($me, $gameOne, awardTime: Carbon::now()->subMinutes(60));
+        $this->addGameBeatenAward($me, $gameTwo, awardTime: Carbon::now()->subMinutes(55));
+        $this->addMasteryBadge($me, $gameThree, awardTime: Carbon::now()->subMinutes(50));
+        $this->addMasteryBadge($me, $gameFour, awardTime: Carbon::now()->subMinutes(45));
+        $this->addMasteryBadge($me, $gameFive, awardTime: Carbon::now()->subMinutes(40));
+        $this->addMasteryBadge($me, $gameSix, awardTime: Carbon::now()->subMinutes(35));
+        $this->addMasteryBadge($me, $gameSeven, awardTime: Carbon::now()->subMinutes(30));
+        $this->addMasteryBadge($me, $gameEight, awardTime: Carbon::now()->subMinutes(25));
+
+        // Act
+        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress');
+
+        // Assert
+        $view->assertSeeTextInOrder([
+            $gameEight->Title, 'Latest mastery',
+            $gameSeven->Title, '5th mastery',
+            $gameThree->Title, '1st mastery',
+            $gameTwo->Title, 'Latest game beaten',
+            $gameOne->Title, '1st game beaten',
+        ]);
     }
 }

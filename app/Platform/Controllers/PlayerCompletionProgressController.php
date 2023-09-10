@@ -88,7 +88,7 @@ class PlayerCompletionProgressController extends Controller
         $milestones = $this->buildMilestones($filteredAndJoinedGamesList);
 
         $totalInList = count($filteredAndJoinedGamesList);
-        $totalPages = ceil($totalInList / $this->pageSize) - 1;
+        $totalPages = ceil($totalInList / $this->pageSize);
 
         // Ensure the user isn't trying to go out of bounds.
         if ($currentPage < 1 || $currentPage > $totalPages) {
@@ -189,6 +189,8 @@ class PlayerCompletionProgressController extends Controller
         };
 
         $milestoneAwardKinds = [
+            'beaten-softcore' => 'beaten-softcore',
+            'beaten-hardcore' => 'beaten-hardcore',
             'completed' => 'completed',
             'mastered' => 'mastered',
         ];
