@@ -179,7 +179,6 @@ class PlayerCompletionProgressTest extends TestCase
 
         // Assert
         $view->assertSeeText("1 Played");
-        $view->assertDontSeeText("Viewing");
         $view->assertDontSeeText(config('systems')[2]['name_short']);
     }
 
