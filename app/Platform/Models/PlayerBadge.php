@@ -18,6 +18,9 @@ class PlayerBadge extends BaseModel
     // Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge
     protected $table = 'SiteAwards';
 
+    protected $primaryKey;
+    public $incrementing = false;
+
     public const CREATED_AT = 'AwardDate';
     public const UPDATED_AT = null;
 

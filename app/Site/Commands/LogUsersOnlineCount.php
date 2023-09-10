@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 class LogUsersOnlineCount extends Command
 {
-    protected $signature = 'ra:site:log-online-users-count';
+    protected $signature = 'ra:site:user:log-online-count';
     protected $description = 'Log users online count';
 
     /**
