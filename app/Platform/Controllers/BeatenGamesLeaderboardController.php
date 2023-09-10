@@ -146,7 +146,6 @@ class BeatenGamesLeaderboardController extends Controller
                 'aggregated.User',
                 DB::raw('count(*) as total_awards'),
                 DB::raw('MAX(aggregated.AwardDate) as last_beaten_date'),
-                DB::raw('MIN(aggregated.AwardDate) as earliest_beaten_date_for_count'),
                 DB::raw('FIRST_VALUE(aggregated.ID) OVER(PARTITION BY aggregated.User ORDER BY aggregated.AwardDate DESC) as most_recent_game_id'),
                 'aggregated.Title AS GameTitle',
                 'aggregated.ImageIcon AS GameIcon',
@@ -155,7 +154,6 @@ class BeatenGamesLeaderboardController extends Controller
 
         return $query->groupBy('aggregated.User')
             ->orderBy('total_awards', 'desc')
-            ->orderBy('earliest_beaten_date_for_count', 'asc')
             ->orderBy('last_beaten_date', 'desc');
     }
 
