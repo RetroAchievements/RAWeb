@@ -5,7 +5,7 @@
 
 <label class="text-xs font-bold" for="filter-by-console-select">System</label>
 <select id="filter-by-console-id" class="w-full sm:max-w-[240px]" @change="handleConsoleChanged" autocomplete="off">
-    <option @if (!$selectedConsoleId) selected @endif>All systems</option>
+    <option @if (!$selectedConsoleId) selected @endif value="0">All systems</option>
 
     @foreach ($allSystems as $system)
         @if (isValidConsoleId($system['ID']))

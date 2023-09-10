@@ -26,20 +26,24 @@ class BeatenGamesLeaderboardController extends Controller
             abort(404);
         }
 
-        $targetSystemId = (int) $request->input('filter.system', 0);
+        $validatedData = $request->validate([
+            'page.number' => 'sometimes|integer|min:1',
+            'filter.system' => 'sometimes|integer',
+            'filter.retail' => 'sometimes|in:true,false',
+            'filter.hacks' => 'sometimes|in:true,false',
+            'filter.homebrew' => 'sometimes|in:true,false',
+            'filter.unlicensed' => 'sometimes|in:true,false',
+            'filter.prototypes' => 'sometimes|in:true,false',
+        ]);
 
-        $allowRetailQuery = $request->input('filter.retail');
-        $allowHacksQuery = $request->input('filter.hacks');
-        $allowHomebrewQuery = $request->input('filter.homebrew');
-        $allowUnlicensedQuery = $request->input('filter.unlicensed');
-        $allowPrototypesQuery = $request->input('filter.prototypes');
+        $targetSystemId = (int) $validatedData['filter']['system'] ?? 0;
 
         $gameKindFilterOptions = [
-            'retail' => $allowRetailQuery !== 'false',
-            'hacks' => $allowHacksQuery !== 'false',
-            'homebrew' => $allowHomebrewQuery !== 'false',
-            'unlicensed' => $allowUnlicensedQuery !== 'false',
-            'prototypes' => $allowPrototypesQuery !== 'false',
+            'retail' => ($validatedData['filter']['retail'] ?? true) !== 'false',
+            'hacks' => ($validatedData['filter']['hacks'] ?? true) !== 'false',
+            'homebrew' => ($validatedData['filter']['homebrew'] ?? true) !== 'false',
+            'unlicensed' => ($validatedData['filter']['unlicensed'] ?? true) !== 'false',
+            'prototypes' => ($validatedData['filter']['prototypes'] ?? true) !== 'false',
         ];
 
         // Where do I currently rank? This is a separate query that doesn't include the page/offset.
@@ -50,7 +54,7 @@ class BeatenGamesLeaderboardController extends Controller
         }
 
         // Now get the current page's rows.
-        $currentPage = $request->input('page.number', 1);
+        $currentPage = $validatedData['page']['number'] ?? 1;
         $offset = (int) ($currentPage - 1) * $this->pageSize;
         $startingRank = (int) ($currentPage - 1) * $this->pageSize + 1;
 
