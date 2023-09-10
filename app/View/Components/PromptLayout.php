@@ -11,6 +11,13 @@ class PromptLayout extends Component
 {
     public function __construct(
         public ?string $pageTitle = null,
+        public ?string $pageDescription = null,
+        public ?string $pageImage = null,
+        public ?string $permalink = null,
+        public ?string $pageType = null,
+        public ?string $canonicalUrl = null,
+        public string $sidebarPosition = 'right',
+        public bool $withoutMainWrappers = false,
         public bool $withTop = true,
     ) {
     }

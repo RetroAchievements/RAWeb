@@ -29,7 +29,7 @@ $canShowGlow = $hasUnlockedAnyAchievements && $hasAnyProgressionAward;
         @endif
 
         @if ($hasUnlockedAnyAchievements)
-            <div class="absolute top-2 right-2 z-20">
+            <div class="absolute top-2 right-2 z-10">
                 <x-game.current-progress.secondary-actions-menu gameId="{{ $gameId }}" />
             </div>
         @endif

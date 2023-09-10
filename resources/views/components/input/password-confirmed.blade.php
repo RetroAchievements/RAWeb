@@ -1,4 +1,4 @@
-<div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
+<div class="flex {{ $errors->has('password') ? 'has-error' : '' }}">
     <label class="col-form-label lg:col-3 lg:pr-0" for="password">
         @if($errors->has('password'))
             <x-fas-times-circle-o /> {{ $errors->first('password') }}
@@ -16,7 +16,7 @@
                value="{{ old('password') }}">
     </div>
 </div>
-<div class="form-group {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
+<div class="flex {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
     <label class="col-form-label lg:col-3 lg:pr-0" for="password_confirmation">
         @if($errors->has('password_confirmation'))
             <x-fas-times-circle-o /> {{ $errors->first('password_confirmation') }}

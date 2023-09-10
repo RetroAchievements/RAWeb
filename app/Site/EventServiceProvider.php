@@ -26,7 +26,7 @@ class EventServiceProvider extends ServiceProvider
         //     'App\Listeners\LogAuthenticated',
         // ],
         Login::class => [
-            // Upd eUserTimezone::class,
+            // UpdateUserTimezone::class,
         ],
         // Failed::class => [
         //     'App\Listeners\LogFailedLogin',

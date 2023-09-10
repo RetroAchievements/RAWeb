@@ -3,7 +3,6 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketState;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Carbon;
@@ -85,88 +84,87 @@ function getGameMetadata(
     $metricsJoin = '';
     $metricsBindings = [];
     if ($metrics) {
-        $cacheKey = "game:$gameID:playercount";
-        $gameMetrics = Cache::get($cacheKey);
-        if ($gameMetrics === null) {
+        if (config('feature.aggregate_queries')) {
             $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
-            $bindings = [
-                'gameId' => $gameID,
-                'achievementFlag' => $flag,
-            ];
+            $query = "SELECT players_total AS NumDistinctPlayers FROM GameData WHERE ID=" . ($parentGameId ?? $gameID);
+            $gameMetrics = legacyDbFetch($query);
+            $gameMetrics['ParentGameID'] = $parentGameId;
+        } else {
+            $cacheKey = "game:$gameID:playercount";
+            $gameMetrics = Cache::get($cacheKey);
+            if ($gameMetrics === null || !array_key_exists('NumDistinctPlayers', $gameMetrics)) {
+                $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
 
-            $gameIdStatement = 'ach.GameID = :gameId';
-            if ($parentGameId !== null) {
-                $bindings['parentGameId'] = $parentGameId;
-                $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
-            }
+                $bindings = [
+                    'gameId' => $gameID,
+                    'achievementFlag' => AchievementFlag::OfficialCore,
+                ];
 
-            $query = "SELECT aw.HardcoreMode, COUNT(DISTINCT aw.User) as Users
-                        FROM Awarded AS aw
-                        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                        WHERE $gameIdStatement AND ach.Flags = :achievementFlag
-                        AND NOT ua.Untracked
-                    GROUP BY aw.HardcoreMode";
-
-            $gameMetaData = legacyDbFetchAll($query, $bindings);
-
-            $numDistinctPlayersCasual = 0;
-            $numDistinctPlayersHardcore = 0;
-            foreach ($gameMetaData as $data) {
-                if ($data['HardcoreMode'] == UnlockMode::Hardcore) {
-                    $numDistinctPlayersHardcore = $data['Users'];
-                } else {
-                    $numDistinctPlayersCasual = $data['Users'];
+                $gameIdStatement = 'ach.GameID = :gameId';
+                if ($parentGameId !== null) {
+                    $bindings['parentGameId'] = $parentGameId;
+                    $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
                 }
-            }
 
-            $gameMetrics = [
-                'ParentGameID' => $parentGameId,
-                'NumDistinctPlayersCasual' => $numDistinctPlayersCasual,
-                'NumDistinctPlayersHardcore' => $numDistinctPlayersHardcore,
-            ];
+                $query = "SELECT COUNT(DISTINCT aw.User) as Users
+                            FROM Awarded AS aw
+                            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                            LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                            WHERE $gameIdStatement AND ach.Flags = :achievementFlag
+                            AND NOT ua.Untracked AND aw.HardcoreMode = 0";
 
-            // if a game has more than 100 players, only update the player count once an hour
-            if ($numDistinctPlayersCasual > 100) {
-                Cache::put($cacheKey, $gameMetrics, Carbon::now()->addHours(1));
+                $numDistinctPlayers = legacyDbFetch($query, $bindings)['Users'];
+
+                $gameMetrics = [
+                    'ParentGameID' => $parentGameId,
+                    'NumDistinctPlayers' => $numDistinctPlayers,
+                ];
+
+                // if a game has more than 100 players, only update the player count once an hour
+                if ($numDistinctPlayers > 100) {
+                    Cache::put($cacheKey, $gameMetrics, Carbon::now()->addHours(1));
+                }
             }
         }
 
         $gameDataOut['ParentGameID'] = $gameMetrics['ParentGameID'];
-        $gameDataOut['NumDistinctPlayersCasual'] = $gameMetrics['NumDistinctPlayersCasual'];
-        $gameDataOut['NumDistinctPlayersHardcore'] = $gameMetrics['NumDistinctPlayersHardcore'];
+        $gameDataOut['NumDistinctPlayers'] = $gameMetrics['NumDistinctPlayers'] ?? 0;
 
-        $metricsBindings = [
-            'metricsGameId' => $gameID,
-            'metricsAchievementFlag' => $flag,
-        ];
-        $metricsColumns = 'IFNULL(tracked_aw.NumAwarded, 0) AS NumAwarded,
-                           IFNULL(tracked_aw.NumAwardedHardcore, 0) AS NumAwardedHardcore,';
-
-        // if a game has more than 100 players, don't filter out the untracked users as the
-        // join becomes very expensive. will be addressed when denormalized data is captured
-        if ($gameMetrics['NumDistinctPlayersCasual'] > 100) {
-            $metricsJoin = "LEFT JOIN (
-                SELECT ach.ID AS AchievementID,
-                    (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
-                    (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
-                FROM Achievements AS ach
-                LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
-                WHERE ach.GameID = :metricsGameId AND ach.Flags = :metricsAchievementFlag
-                GROUP BY ach.ID
-            ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+        if (config('feature.aggregate_queries')) {
+            $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
         } else {
-            $metricsJoin = "LEFT JOIN (
-                SELECT ach.ID AS AchievementID,
-                    (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
-                    (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
-                FROM Achievements AS ach
-                LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
-                LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE ach.GameID = :metricsGameId AND ach.Flags = :metricsAchievementFlag AND NOT ua.Untracked
-                GROUP BY ach.ID
-            ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+            $metricsBindings = [
+                'metricsGameId' => $gameID,
+                'metricsAchievementFlag' => $flag,
+            ];
+            $metricsColumns = 'IFNULL(tracked_aw.NumAwarded, 0) AS NumAwarded,
+                            IFNULL(tracked_aw.NumAwardedHardcore, 0) AS NumAwardedHardcore,';
+
+            // if a game has more than 100 players, don't filter out the untracked users as the
+            // join becomes very expensive. will be addressed when denormalized data is captured
+            if ($gameMetrics['NumDistinctPlayers'] > 100) {
+                $metricsJoin = "LEFT JOIN (
+                    SELECT ach.ID AS AchievementID,
+                        (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
+                        (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
+                    FROM Achievements AS ach
+                    LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+                    WHERE ach.GameID = :metricsGameId AND ach.Flags = :metricsAchievementFlag
+                    GROUP BY ach.ID
+                ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+            } else {
+                $metricsJoin = "LEFT JOIN (
+                    SELECT ach.ID AS AchievementID,
+                        (COUNT(aw.AchievementID) - SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwarded,
+                        (SUM(IFNULL(aw.HardcoreMode, 0))) AS NumAwardedHardcore
+                    FROM Achievements AS ach
+                    LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID
+                    LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                    WHERE ach.GameID = :metricsGameId AND ach.Flags = :metricsAchievementFlag AND NOT ua.Untracked
+                    GROUP BY ach.ID
+                ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID";
+            }
         }
     }
 
@@ -292,16 +290,18 @@ function getGamesListByDev(
     bool $ticketsFlag = false,
     ?int $filter = 0,
     int $offset = 0,
-    int $count = 0
+    int $count = 0,
+    ?string $listType = null
 ): int {
     // Specify 0 for $consoleID to fetch games for all consoles, or an ID for just that console
 
-    $whereCond = '';
+    $whereConds = [];
     $moreSelectCond = '';
     $havingCond = '';
     $bindings = [];
-    $selectTickets = null;
-    $joinTicketsTable = null;
+    $selectTickets = '';
+    $joinTicketsTable = '';
+    $joinUserListsTable = '';
 
     if ($dev != null) {
         $bindings['myAchDev'] = $dev;
@@ -343,7 +343,18 @@ function getGamesListByDev(
     }
 
     if ($consoleID != 0) {
-        $whereCond .= "WHERE gd.ConsoleID=$consoleID ";
+        $whereConds[] = "gd.ConsoleID=$consoleID ";
+    }
+
+    if ($listType !== null) {
+        $joinUserListsTable = "JOIN SetRequest sr ON sr.GameID = gd.ID";
+        $whereConds[] = "sr.user_id = " . request()->user()->ID . " AND sr.type = :listType";
+        $bindings['listType'] = $listType;
+    }
+
+    $whereCond = '';
+    if (!empty($whereConds)) {
+        $whereCond = 'WHERE ' . join(' AND ', $whereConds);
     }
 
     // TODO slow query
@@ -360,7 +371,7 @@ function getGamesListByDev(
                                    SUM(CASE WHEN lbd.Author LIKE '$dev' THEN 1 ELSE 0 END) AS MyLBs
                             FROM LeaderboardDef AS lbd
                             GROUP BY lbd.GameID ) AS lbdi ON lbdi.GameID = gd.ID
-                $joinTicketsTable
+                $joinTicketsTable $joinUserListsTable
                 $whereCond
                 GROUP BY gd.ID
                 $havingCond";

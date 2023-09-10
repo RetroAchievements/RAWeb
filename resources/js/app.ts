@@ -7,11 +7,13 @@ import { hideEarnedCheckboxComponent, newsCarouselComponent, tooltipComponent } 
 import {
   autoExpandTextInput,
   copyToClipboard,
+  fetcher,
   getStringByteCount,
   handleLeaderboardTabClick,
   initializeTextareaCounter,
   injectShortcode,
   loadPostPreview,
+  setCookie,
   themeChange,
   toggleUserCompletedSetsVisibility,
   updateUrlParameter,
@@ -29,11 +31,13 @@ lazyLoadModuleOnIdFound({
 // Global Utils
 window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
+window.fetcher = fetcher;
 window.getStringByteCount = getStringByteCount;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.initializeTextareaCounter = initializeTextareaCounter;
 window.injectShortcode = injectShortcode;
 window.loadPostPreview = loadPostPreview;
+window.setCookie = setCookie;
 window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 window.updateUrlParameter = updateUrlParameter;
 

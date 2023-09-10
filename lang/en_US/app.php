@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'description' => 'Adding achievements to your favourite retro games since 2012',
+    'description' => 'Adding achievements to retro games since 2012',
 ];

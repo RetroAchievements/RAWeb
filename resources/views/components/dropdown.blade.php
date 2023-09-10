@@ -1,17 +1,32 @@
+@props([
+    'class' => '',
+    'active' => false,
+    'triggerClass' => '',
+    'title' => '',
+    'dropdownClass' => '',
+    'trigger' => '',
+    'desktopHref' => null, // string | null
+])
+
 <?php
+use Jenssegers\Agent\Agent;
+
 $id = uniqid();
+
+$agent = new Agent();
+$canUseDesktopHref = !$agent->isMobile();
 ?>
+
 <div class="dropdown {{ $class ?? '' }} {{ ($active ?? false) ? 'active' : '' }}">
-    <button
-        class="{{ $triggerClass ?? '' }}"
+    <x-dropdown-trigger
+        triggerClass="{{ $triggerClass ?? '' }}"
         id="dropdownTrigger{{ $id }}"
-        role="button"
-        aria-haspopup="true"
-        aria-expanded="false"
         title="{{ $title ?? '' }}"
+        :desktopHref="($desktopHref && $canUseDesktopHref) ? $desktopHref : null"
     >
         {{ $trigger }}
-    </button>
+    </x-dropdown-trigger>
+
     <div class="dropdown-menu {{ $dropdownClass ?? '' }}" aria-labelledby="dropdownTrigger{{ $id }}">
         {{ $slot }}
     </div>

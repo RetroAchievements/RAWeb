@@ -12,6 +12,7 @@ use App\Site\Commands\LogUsersOnlineCount;
 use App\Site\Commands\SyncUsers;
 use App\Site\Commands\SystemAlert;
 use App\Site\Commands\UpdateUserTimestamps;
+use App\Site\Components\NotificationIcon;
 use App\Site\Models\User;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -77,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
         /*
          * Register Livewire components
          */
+        Livewire::component('notification-icon', NotificationIcon::class);
         // Livewire::component('supersearch', Supersearch::class);
         // Livewire::component('user-grid', UserGrid::class);
 

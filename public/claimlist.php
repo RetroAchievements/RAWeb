@@ -170,9 +170,7 @@ RenderContentStart("Claim List");
     // Sortable table headers
     echo "<tr class='do-not-highlight'>";
     echo $linkSorting(ClaimSorting::toString(ClaimSorting::GameDescending), ClaimSorting::GameDescending, ClaimSorting::GameAscending);
-    echo "<th></th>";
     echo $linkSorting(ClaimSorting::toString(ClaimSorting::UserDescending), ClaimSorting::UserDescending, ClaimSorting::UserAscending);
-    echo "<th></th>";
     echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimTypeDescending), ClaimSorting::ClaimTypeDescending, ClaimSorting::ClaimTypeAscending);
     echo $linkSorting(ClaimSorting::toString(ClaimSorting::SetTypeDescending), ClaimSorting::SetTypeDescending, ClaimSorting::SetTypeAscending);
     echo $linkSorting(ClaimSorting::toString(ClaimSorting::ClaimStatusDescending), ClaimSorting::ClaimStatusDescending, ClaimSorting::ClaimStatusAscending);
@@ -190,17 +188,24 @@ RenderContentStart("Claim List");
         }
 
         echo "<tr>";
-        echo "<td>";
-        echo gameAvatar($claim, label: false);
+
+        echo "<td class='pr-0 py-2 w-full xl:w-auto'>";
+        echo Blade::render('
+            <x-game.multiline-avatar
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :gameImageIcon="$gameImageIcon"
+                :consoleName="$consoleName"
+            />
+        ', [
+            'gameId' => $claim['GameID'],
+            'gameTitle' => $claim['GameTitle'],
+            'gameImageIcon' => $claim['GameIcon'],
+            'consoleName' => $claim['ConsoleName'],
+        ]);
         echo "</td>";
-        echo "<td width='300'>";
-        echo gameAvatar($claim, icon: false);
-        echo "</td>";
         echo "<td>";
-        echo userAvatar($claimUser, label: false);
-        echo "</td>";
-        echo "<td>";
-        echo userAvatar($claimUser, icon: false);
+        echo userAvatar($claimUser);
         echo "</td>";
         echo "<td class='text-center'>" . ($claim['ClaimType'] == ClaimType::Primary ? ClaimType::toString(ClaimType::Primary) : ClaimType::toString(ClaimType::Collaboration)) . "</td>";
         echo "<td class='text-center'>" . ($claim['SetType'] == ClaimSetType::NewSet ? ClaimSetType::toString(ClaimSetType::NewSet) : ClaimSetType::toString(ClaimSetType::Revision)) . "</td>";

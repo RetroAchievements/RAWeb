@@ -19,25 +19,25 @@ RenderContentStart("Create Account");
                 <tr>
                     <td class="text-right"><label for="username">Username</label></td>
                     <td>
-                        <div><input type="text" id="username" name='username' value="<?= old('username') ?>"></div>
+                        <div><input type="text" id="username" name="username" value="<?= old('username') ?>" required></div>
                     </td>
                 </tr>
                 <tr>
                     <td class="text-right"><label for="email">Email</label></td>
                     <td>
-                        <div><input type="text" id="email" name='email' value="<?= old('email') ?>"></div>
+                        <div><input type="text" id="email" name="email" value="<?= old('email') ?>" required></div>
                     </td>
                 </tr>
                 <tr>
                     <td class="text-right"><label for="email_confirmation">Confirm Email</label></td>
                     <td>
-                        <div><input type="text" id="email_confirmation" name='email_confirmation' value="<?= old('email_confirmation') ?>"></div>
+                        <div><input type="text" id="email_confirmation" name="email_confirmation" value="<?= old('email_confirmation') ?>" required></div>
                     </td>
                 </tr>
                 <tr>
                     <td class="text-right"><label for="password">Password</label></td>
                     <td>
-                        <div><input type="password" id="password" name='password'></div>
+                        <div><input type="password" id="password" name="password" required></div>
                     </td>
                 </tr>
                 <?php if (config('services.google.recaptcha_key')): ?>
@@ -51,13 +51,19 @@ RenderContentStart("Create Account");
                 <tr>
                     <td></td>
                     <td>
-                        By clicking 'Create User', you agree to the <a href="<?= route('terms') ?>">Terms and Conditions</a>.<br>
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>
-                        <button class="btn">Create User</button>
+                        <input type="checkbox" name="terms" required> I agree to the <a href="<?= route('terms') ?>">Terms and Conditions</a>.<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button class="btn">Create User</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <?= __('Already have an account?') ?> <a href="<?= route('login') ?>"><?= __('Sign in') ?></a>
                     </td>
                 </tr>
                 </tbody>

@@ -285,7 +285,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                 echo "<td class='text-right'>" . localized_number($dataPoint['Points']) . "</td>";
             }
 
-            echo "<td class='text-right'>" . localized_number($dataPoint['TotalAwards']) . "</td></tr>";
+            echo "<td class='text-right'>" . localized_number($dataPoint['TotalAwards'] ?? 0) . "</td></tr>";
 
             $rowRank++;
             $userCount++;
@@ -345,7 +345,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
                     echo "<td class='text-right'>" . localized_number($userData[0]['Points']) . "</td>";
                 }
 
-                echo "<td class='text-right'>" . localized_number($userData[0]['TotalAwards']) . "</td></tr>";
+                echo "<td class='text-right'>" . localized_number($userData[0]['TotalAwards'] ?? 0) . "</td></tr>";
             }
         }
     }

@@ -117,12 +117,5 @@ class AuthServiceProvider extends ServiceProvider
 
             return $user->can('root');
         });
-
-        /*
-         * root features
-         */
-        Gate::define('viewLogs', fn (Authenticatable $user) => $user->can('root'));
-        Gate::define('viewRouteUsage', fn (Authenticatable $user) => $user->can('root'));
-        Gate::define('viewWebSocketsDashboard', fn (Authenticatable $user) => $user->can('root'));
     }
 }

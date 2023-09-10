@@ -20,7 +20,6 @@
   color: inherit;
   width: 60px;
   padding-left: 0;
-  margin-right: 2px;
 }
 
 .searchbox-top .searchboxinput:focus {
@@ -28,9 +27,15 @@
   padding-left: 10px;
 }
 
-@media only screen and (max-width: 375px) {
+@media only screen and (max-width: 374px) {
   .searchbox-top .searchboxinput:focus {
-    width: 150px;
-    padding-left: 10px;
+    width: 80px;
+    padding-left: 5px;
+  }
+}
+
+@media only screen and (min-width: 375px) and (max-width: theme('screens.sm')) {
+  .searchbox-top .searchboxinput:focus {
+    width: 130px;
   }
 }

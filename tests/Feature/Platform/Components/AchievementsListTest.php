@@ -68,7 +68,8 @@ class AchievementsListTest extends TestCase
         $view->assertSeeText("Progression");
     }
 
-    public function testUnlockedRowsHaveCorrectClassName(): void {
+    public function testUnlockedRowsHaveCorrectClassName(): void
+    {
         // Arrange
         /** @var User $user */
         $user = User::factory()->create();
@@ -89,7 +90,8 @@ class AchievementsListTest extends TestCase
         $view->assertSee('unlocked-row');
     }
 
-    public function testItRendersfOnlyOneWinConditionCorrectly(): void {
+    public function testItRendersfOnlyOneWinConditionCorrectly(): void
+    {
         /** @var Achievement $achievementOne */
         $achievementOne = Achievement::factory()->create(['type' => AchievementType::Progression, 'DisplayOrder' => 0]);
         /** @var Achievement $achievementTwo */
@@ -101,5 +103,20 @@ class AchievementsListTest extends TestCase
         ]);
 
         $view->assertSeeTextInOrder(['Progression', 'Win Condition']);
+    }
+
+    public function testItRendersAuthorNameIfInstructed(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->create(['Author' => $user->User]);
+
+        $view = $this->blade('<x-game.achievements-list.root :achievements="$achievements" :showAuthorNames="$showAuthorNames" />', [
+            'achievements' => compact('achievement'),
+            'showAuthorNames' => true,
+        ]);
+
+        $view->assertSeeTextInOrder(['Author', $user->User]);
     }
 }

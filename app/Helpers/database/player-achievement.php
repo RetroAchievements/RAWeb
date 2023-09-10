@@ -182,8 +182,13 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
 
 function getAchievementUnlockCount(int $achID): int
 {
-    $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
-              WHERE AchievementID=$achID AND HardcoreMode=0";
+    if (config('feature.aggregate_queries')) {
+        $query = "SELECT COUNT(*) AS NumEarned FROM player_achievements
+                  WHERE achievement_id=$achID";
+    } else {
+        $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
+                  WHERE AchievementID=$achID AND HardcoreMode=0";
+    }
 
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
@@ -462,9 +467,13 @@ function getAchievementDistribution(
     // if a game has more than 100 players, don't filter out the untracked users as the
     // join becomes very expensive. will be addressed when denormalized data is captured
     $joinStatement = '';
+    $joinStatementNew = '';
+    $joinStatementNewUnofficial = '';
     $requestedByStatement = '';
     if ($numPlayers < 100) {
         $joinStatement = 'LEFT JOIN UserAccounts AS ua ON ua.User = aw.User';
+        $joinStatementNew = 'LEFT JOIN UserAccounts AS ua ON ua.ID = pg.user_id';
+        $joinStatementNewUnofficial = 'LEFT JOIN UserAccounts AS ua ON ua.ID = pa.user_id';
         $requestedByStatement = 'AND (NOT ua.Untracked';
         if ($requestedBy) {
             $bindings['requestedBy'] = $requestedBy;
@@ -474,15 +483,44 @@ function getAchievementDistribution(
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
-    $query = "
+    if (config('feature.aggregate_queries')) {
+        if ($flag === AchievementFlag::OfficialCore) {
+            $countColumn = $hardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked';
+            $query = "SELECT pg.$countColumn AS AwardedCount, COUNT(*) AS NumUniquePlayers
+                      FROM player_games AS pg
+                      $joinStatementNew
+                      WHERE pg.game_id = :gameId AND pg.$countColumn > 0
+                      $requestedByStatement
+                      GROUP BY AwardedCount
+                      ORDER BY AwardedCount DESC";
+            unset($bindings['achievementFlag']);
+        } else {
+            $hardcoreStatement = $hardcore ? 'AND pa.unlocked_hardcore_at IS NOT NULL' : '';
+            $query = "SELECT InnerTable.AwardedCount AS AwardedCount, COUNT(*) AS NumUniquePlayers
+                    FROM (
+                        SELECT COUNT(*) AS AwardedCount
+                        FROM player_achievements AS pa
+                        LEFT JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+                        $joinStatementNewUnofficial
+                        WHERE ach.GameID = :gameId
+                        $hardcoreStatement
+                        AND ach.Flags = :achievementFlag
+                        $requestedByStatement
+                        GROUP BY pa.user_id
+                        ORDER BY AwardedCount DESC
+                    ) AS InnerTable
+                    GROUP BY InnerTable.AwardedCount";
+        }
+        unset($bindings['unlockMode']);
+    } else {
+        $query = "
         SELECT InnerTable.AwardedCount, COUNT(*) AS NumUniquePlayers
         FROM (
             SELECT COUNT(*) AS AwardedCount
             FROM Awarded AS aw
             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
             $joinStatement
-            WHERE gd.ID = :gameId
+            WHERE ach.GameID = :gameId
               AND aw.HardcoreMode = :unlockMode
               AND ach.Flags = :achievementFlag
               $requestedByStatement
@@ -490,6 +528,7 @@ function getAchievementDistribution(
             ORDER BY AwardedCount DESC
         ) AS InnerTable
         GROUP BY InnerTable.AwardedCount";
+    }
 
     $data = legacyDbFetchAll($query, $bindings)
         ->mapWithKeys(fn ($distribution) => [(int) $distribution['AwardedCount'] => (int) $distribution['NumUniquePlayers']]);
