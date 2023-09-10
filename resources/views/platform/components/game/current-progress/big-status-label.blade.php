@@ -37,13 +37,13 @@ if ($isEvent && $statusLabel !== 'Unfinished') {
     $statusLabel = "Awarded";
 }
 
-$isBeaten = $isBeatable && ($isBeatenHardcore || $isBeatenSoftcore);
+$isBeaten = $isBeatenHardcore || $isBeatenSoftcore;
 
 // This case can occur on legacy completion/mastery awards
 // where progression achievements were added after the user
 // had already mastered the game. It's an edge case, but we
 // try to gracefully handle it anyway.
-if (($isCompleted || $isMastered) && !$isBeaten) {
+if (($isCompleted || $isMastered) && !$isBeaten && $isBeatable) {
     $statusLabel = "Unbeaten";
 }
 ?>
@@ -52,7 +52,7 @@ if (($isCompleted || $isMastered) && !$isBeaten) {
     <p>{{ $statusLabel }}</p>
 
     @hasfeature('beat')
-        @if (!$isBeaten)
+        @if (!$isBeaten && $isBeatable)
             <x-modal-trigger
                 modalTitleLabel="Beaten Game Credit"
                 resourceApiRoute="/request/game/beaten-credit.php"
