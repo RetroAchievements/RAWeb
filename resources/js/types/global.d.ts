@@ -12,6 +12,7 @@ import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/u
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
 import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview';
+import type { setCookie as SetCookie } from '@/utils/cookie';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 
 declare global {
@@ -28,6 +29,7 @@ declare global {
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
   var newsCarouselComponent: typeof NewsCarouselComponent;
+  var setCookie: typeof SetCookie;
   var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
