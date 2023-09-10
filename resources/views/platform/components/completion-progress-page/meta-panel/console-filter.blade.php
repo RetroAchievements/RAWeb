@@ -10,11 +10,11 @@ usort($availableConsoleIds, function ($a, $b) {
 });
 ?>
 
-<label class="text-xs font-bold" for="filter-by-console-select">Console</label>
+<label class="text-xs font-bold" for="filter-by-console-select">System</label>
 <select
     id="filter-by-console-select"
     class="w-full sm:max-w-[240px]"
-    onchange="handleConsoleChanged(event)"
+    onchange="handleSystemChanged(event)"
     autocomplete="off"
 >
     <option @if (!$selectedConsoleId) selected @endif value="0">All systems</option>

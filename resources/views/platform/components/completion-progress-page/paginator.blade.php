@@ -4,23 +4,35 @@
 ])
 
 <?php
-$currentQueryParams = request()->query();
+$baseUrl = request()->url();
+$queryParams = request()->query();
 
-$firstPageUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['p' => 0]));
-$previousPageUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['p' => $currentPage - 1]));
-$nextPageUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['p' => $currentPage + 1]));
-$lastPageUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['p' => $totalPages - 1]));
+$previousPageNumber = $currentPage - 1;
+$queryParams['page'] = ['number' => $previousPageNumber];
+$previousPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+
+$nextPageNumber = $currentPage + 1;
+$queryParams['page'] = ['number' => $nextPageNumber];
+$nextPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+
+$firstPageNumber = 1;
+$queryParams['page'] = ['number' => $firstPageNumber];
+$firstPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+
+$lastPageNumber = $totalPages;
+$queryParams['page'] = ['number' => $lastPageNumber];
+$lastPageUrl = $baseUrl . '?' . http_build_query($queryParams);
 ?>
 
 <script>
 function handlePageSelected(event) {
     const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('p', newQueryParamValue);
+    window.updateUrlParameter('page[number]', newQueryParamValue);
 }
 </script>
 
 <div class="flex items-center gap-x-1">
-    @if ($currentPage > 0)
+    @if ($currentPage > 1)
         <a title="First" href="{{ $firstPageUrl }}">≪</a>
         <a title="Previous" href="{{ $previousPageUrl }}"><</a>
     @endif
@@ -30,9 +42,9 @@ function handlePageSelected(event) {
     @if ($totalPages > 1)
         <label class="sr-only" for="pagination-dropdown">Page select</label>
         <select id="pagination-dropdown" onchange="handlePageSelected(event)">
-            @for ($i = 0; $i < $totalPages; $i++)
+            @for ($i = 1; $i <= $totalPages; $i++)
                 <option value="{{ $i }}" {{ $i == $currentPage ? 'selected' : '' }}>
-                    {{ $i+1 }}
+                    {{ $i }}
                 </option>
             @endfor
         </select>

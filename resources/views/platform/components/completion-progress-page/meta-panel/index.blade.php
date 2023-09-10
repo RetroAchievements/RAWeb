@@ -5,14 +5,14 @@
 ])
 
 <script>
-function handleConsoleChanged(event) {
+function handleSystemChanged(event) {
     const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('c', newQueryParamValue);
+    window.updateUrlParameter('filter[system]', newQueryParamValue);
 }
 
 function handleStatusChanged(event) {
     const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('s', newQueryParamValue);
+    window.updateUrlParameter('filter[status]', newQueryParamValue);
 }
 </script>
 

@@ -10,25 +10,31 @@ use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PlayerCompletionProgressController extends Controller
 {
-    private int $limit = 100;
+    private int $pageSize = 100;
 
-    public function __invoke(): View
+    public function __invoke(Request $request): View
     {
         if (!config('feature.beat')) {
             abort(404);
         }
 
-        $targetUsername = request()->route()->parameters['user'];
-        $targetConsoleId = (int) request('c');
-        $targetGameStatus = request('s');
-        $currentPage = request('p', 0);
+        $targetUsername = $request->route()->parameters['user'];
+        $validatedData = $request->validate([
+            'page.number' => 'sometimes|integer|min:1',
+            'filter.system' => 'sometimes|integer|between:0,99|not_in:101',
+            'filter.status' => 'sometimes|string|min:2|max:30',
+        ]);
+
+        $currentPage = (int) ($validatedData['page']['number'] ?? 1);
+        $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
+        $targetGameStatus = $validatedData['filter']['status'] ?? null;
 
         $me = Auth::user() ?? null;
-
         // TODO: Remove when denormalized data is ready.
         if (!config('feature.aggregate_queries') && !$me) {
             abort(401);
@@ -50,9 +56,9 @@ class PlayerCompletionProgressController extends Controller
 
         // If the user is only wanting to see results for a specific console,
         // filter out every game and award that doesn't have that console ID.
-        if ($targetConsoleId) {
-            [$userGamesList, $userSiteAwards] = $this->useConsoleId(
-                $targetConsoleId,
+        if ($targetSystemId) {
+            [$userGamesList, $userSiteAwards] = $this->useSystemId(
+                $targetSystemId,
                 $userGamesList,
                 $userSiteAwards
             );
@@ -82,33 +88,33 @@ class PlayerCompletionProgressController extends Controller
         $milestones = $this->buildMilestones($filteredAndJoinedGamesList);
 
         $totalInList = count($filteredAndJoinedGamesList);
-        $totalPages = ceil($totalInList / $this->limit) - 1;
+        $totalPages = ceil($totalInList / $this->pageSize) - 1;
 
         // Ensure the user isn't trying to go out of bounds.
-        if ($currentPage < 0 || $currentPage > $totalPages) {
-            $currentPage = 0;
+        if ($currentPage < 1 || $currentPage > $totalPages) {
+            $currentPage = 1;
         }
 
         $paginatedGamesList = array_slice(
             $filteredAndJoinedGamesList,
-            $currentPage * $this->limit,
-            $this->limit
+            ($currentPage - 1) * $this->pageSize,
+            $this->pageSize,
         );
 
         return view('platform.completion-progress-page', [
-            'user' => $foundTargetUser,
-            'completedGamesList' => $paginatedGamesList,
-            'siteAwards' => $userSiteAwards,
-            'primaryCountsMetrics' => $primaryCountsMetrics,
             'allAvailableConsoleIds' => $allAvailableConsoleIds,
-            'selectedConsoleId' => $targetConsoleId,
-            'selectedStatus' => $targetGameStatus,
-            'totalPages' => $totalPages,
+            'completedGamesList' => $paginatedGamesList,
             'currentPage' => $currentPage,
-            'totalInList' => $totalInList,
+            'isFiltering' => $targetGameStatus || $targetSystemId,
             'me' => $me,
             'milestones' => $milestones,
-            'isFiltering' => $targetGameStatus || $targetConsoleId,
+            'primaryCountsMetrics' => $primaryCountsMetrics,
+            'selectedConsoleId' => $targetSystemId,
+            'selectedStatus' => $targetGameStatus,
+            'siteAwards' => $userSiteAwards,
+            'totalInList' => $totalInList,
+            'totalPages' => $totalPages,
+            'user' => $foundTargetUser,
         ]);
     }
 
@@ -345,14 +351,14 @@ class PlayerCompletionProgressController extends Controller
         return $filteredAndJoinedGamesList;
     }
 
-    private function useConsoleId(int $targetConsoleId, array $userGamesList, array $userSiteAwards): array
+    private function useSystemId(int $targetSystemId, array $userGamesList, array $userSiteAwards): array
     {
-        if (!isValidConsoleId($targetConsoleId) || $targetConsoleId == 101) { // 101 is "Events"
+        if (!isValidConsoleId($targetSystemId)) {
             return [$userGamesList, $userSiteAwards];
         }
 
-        $filteredGamesList = array_filter($userGamesList, fn ($game) => $game['ConsoleID'] == $targetConsoleId);
-        $filteredSiteAwards = array_filter($userSiteAwards, fn ($award) => $award['ConsoleID'] == $targetConsoleId);
+        $filteredGamesList = array_filter($userGamesList, fn ($game) => $game['ConsoleID'] == $targetSystemId);
+        $filteredSiteAwards = array_filter($userSiteAwards, fn ($award) => $award['ConsoleID'] == $targetSystemId);
 
         return [$filteredGamesList, $filteredSiteAwards];
     }

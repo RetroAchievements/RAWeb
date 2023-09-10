@@ -148,7 +148,7 @@ class PlayerCompletionProgressTest extends TestCase
         $view->assertDontSee("completed-link");
     }
 
-    public function testFilterByConsole(): void
+    public function testFilterBySystem(): void
     {
         // Arrange
         /** @var User $me */
@@ -174,7 +174,7 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addHardcoreUnlock($me, $gameTwoAchievements->get(2));
 
         // Act
-        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress?c=1');
+        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress?filter[system]=1');
 
         // Assert
         $view->assertSeeText("1 Played");
@@ -210,7 +210,7 @@ class PlayerCompletionProgressTest extends TestCase
         PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameOne->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()]);
 
         // Act
-        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress?s=eq-mastered');
+        $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress?filter[status]=eq-mastered');
 
         // Assert
         $view->assertSeeText("2 Played");
