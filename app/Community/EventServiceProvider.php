@@ -25,7 +25,7 @@ class EventServiceProvider extends ServiceProvider
          * framework
          */
         Login::class => [
-            // WriteUserActivity::class,
+            WriteUserActivity::class,
         ],
 
         /*

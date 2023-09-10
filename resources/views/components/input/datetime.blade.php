@@ -1,4 +1,4 @@
-<div class="form-group {{ $errors->has($attribute) ? 'has-error' : '' }}">
+<div class="flex {{ $errors->has($attribute) ? 'has-error' : '' }}">
     <label class="col-form-label lg:col-3 lg:pr-0" for="{{ $attribute }}">
         @if($errors->has($attribute))
             <x-fas-times-circle-o /> {{ $errors->first($attribute) }}

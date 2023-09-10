@@ -6,9 +6,11 @@ use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
+use App\Community\Models\AchievementSetClaim;
 use App\Site\Enums\Permissions;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Checks if the user is able to make a claim and inserts the claim into the database. If the claim
@@ -453,28 +455,29 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
 /**
  * Gets the number of expiring and expired claims for a specific user.
  */
-function getExpiringClaim(string $user): array
+function getExpiringClaim(string $username): array
 {
-    sanitize_sql_inputs($user);
-
-    $query = "
-        SELECT
-            COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), sc.Finished) <= 0 THEN 1 ELSE 0 END), 0) AS Expired,
-            COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), sc.Finished) BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring
-        FROM
-            SetClaim AS sc
-        WHERE
-            sc.User = '$user'
-            AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
-            AND sc.Special != " . ClaimSpecial::ScheduledRelease;
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult);
+    if (empty($username)) {
+        return [];
     }
 
-    return [];
+    $claims = AchievementSetClaim::select(
+        DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 0 THEN 1 ELSE 0 END), 0) AS Expired'),
+        DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring')
+    )
+        ->where('User', $username)
+        ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
+        ->where('Special', '!=', ClaimSpecial::ScheduledRelease)
+        ->first();
+
+    if (!$claims) {
+        return [];
+    }
+
+    return [
+        'Expired' => $claims->Expired,
+        'Expiring' => $claims->Expiring,
+    ];
 }
 
 /**

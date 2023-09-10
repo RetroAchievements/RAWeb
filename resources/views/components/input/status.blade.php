@@ -1,4 +1,4 @@
-<div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+<div class="flex {{ $errors->has('status') ? 'has-error' : '' }}">
     <label class="col-form-label lg:col-3 lg:pr-0" for="status">
         @if($errors->has('status'))
             <x-fas-times-circle-o /> {{ $errors->first('status') }}

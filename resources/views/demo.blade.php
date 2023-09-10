@@ -1,6 +1,5 @@
-<x-app-demo-layout
+<x-demo-layout
     :page-title="__('Demo')"
-    wide
 >
     <x-slot name="breadcrumb">
         <li>
@@ -14,7 +13,7 @@
     </x-slot>
 
     <x-slot name="header">
-        <x-page-header :background="asset('assets/images/ra-logo-sm.webp')">
+        <x-page-header :background="asset('assets/images/ra-icon.webp')">
             <x-slot name="title">
                 <h2>Header Title</h2>
                 {{--<p>Text in title -> actions will be below</p>--}}
@@ -73,7 +72,7 @@
             <x-slot name="actions">
                 @foreach([null, 'warning', 'danger'] as $modifier)
                     <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }}">
-                        <x-pixelarticons-heart/>
+                        <x-fas-heart/>
                         Action
                     </x-button>
                 @endforeach
@@ -127,10 +126,10 @@
             <x-fas-heart class="text-red-500"/>
         </p>
         <p>
-            <x-pixelarticons-notification class="h-6 w-6"/>
-            <x-pixelarticons-mail class="h-6 w-6"/>
-            <x-pixelarticons-search class="h-6 w-6"/>
-            <x-pixelarticons-mail-arrow-right class="h-6 w-6"/>
+            <x-fas-bell class="h-6 w-6"/>
+            <x-fas-envelope class="h-6 w-6"/>
+            <x-fas-search class="h-6 w-6"/>
+            <x-fas-paper-plane class="h-6 w-6"/>
         </p>
         <p>
             <x-flag-4x3-gb/>
@@ -170,4 +169,4 @@
             <textarea class="form-textarea">Test</textarea>
         </div>
     </x-section>
-</x-app-demo-layout>
+</x-demo-layout>

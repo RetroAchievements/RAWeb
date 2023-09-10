@@ -15,6 +15,10 @@ main .text-h4, main .text-h5, main .text-h6 {
   border-bottom: unset;
 }
 
+header h1, header h2, header h3 {
+  color: var(--menu-link-color);
+}
+
 a {
   color: var(--link-color);
 }

@@ -6,12 +6,13 @@ import type {
   hideEarnedCheckboxComponent as HideEarnedCheckboxComponent,
   tooltipComponent as TooltipComponent,
 } from '@/alpine';
-import type { setCookie as SetCookie } from '@/utils/cookie';
+import type { fetcher as Fetcher } from '@/utils/fetcher';
 import type { getStringByteCount as GetStringByteCount } from '@/utils/getStringByteCount';
 import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/utils/handleLeaderboardTabClick';
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
 import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview';
+import type { setCookie as SetCookie } from '@/utils/cookie';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 
 declare global {
@@ -20,6 +21,7 @@ declare global {
   var autoExpandTextInput: typeof AutoExpandTextInput;
   var cfg: Record<string, unknown> | undefined;
   var copyToClipboard: (text: string) => void;
+  var fetcher: typeof Fetcher;
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var hideEarnedCheckboxComponent: typeof HideEarnedCheckboxComponent;

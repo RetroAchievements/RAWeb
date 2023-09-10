@@ -1,13 +1,19 @@
+.brand-top {
+  height: 85px;
+}
+
 .brand-top h1 {
-  color: inherit;
-  font-size: 45px;
+  color: var(--menu-link-color);
+  font-size: 32px;
   border: none;
+  line-height: 0.8em;
 }
 
 .brand-top .description {
+  color: var(--menu-link-color);
   font-size: 12.5px;
-  font-weight: bold;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.05px;
+  line-height: 0.8em;
 }
 
 .brand-top .logo-container a {
@@ -15,14 +21,5 @@
 }
 
 .brand-top .logo {
-  max-height: 83px;
-}
-
-.brand-top .logo .logo-legacy {
-  width: 100%;
-  max-width: 500px;
-}
-
-.brand-top .logo:not(.logo-legacy-lg) {
-  max-width: 500px;
+  max-height: 42px;
 }

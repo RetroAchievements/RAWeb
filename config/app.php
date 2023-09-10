@@ -222,6 +222,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Jenssegers\Agent\AgentServiceProvider::class,
 
         /*
         * Application Service Providers...
@@ -265,7 +266,7 @@ return [
         App\Site\AuthServiceProvider::class,
         // App\Site\BroadcastServiceProvider::class,
         App\Site\EventServiceProvider::class,
-        // App\Site\FortifyServiceProvider::class,
+        App\Site\FortifyServiceProvider::class,
         App\Site\HorizonServiceProvider::class,
         App\Site\RouteServiceProvider::class,
     ],
@@ -282,7 +283,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'ExampleClass' => App\Example\ExampleClass::class,
+        'Agent' => Jenssegers\Agent\Facades\Agent::class,
     ])->toArray(),
 
 ];

@@ -320,7 +320,7 @@ RenderContentStart($pageTitle);
             echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
             echo "Type";
             echo "<span>";
-            echo Blade::render("<x-pixelarticons-info-box class='w-5 h-5' aria-hidden='true' />");
+            echo Blade::render("<x-fas-info-circle class='w-5 h-5' aria-hidden='true' />");
             echo ":";
             echo "</span>";
             echo "</label>";

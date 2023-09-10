@@ -1,4 +1,3 @@
-version: '3.7'
 services:
     laravel.test:
         build:
@@ -40,7 +39,10 @@ services:
         depends_on:
             - laravel.test
     mysql:
-        image: 'mysql:8'
+        build:
+            context: ./docker/mysql
+            dockerfile: Dockerfile
+        image: 'mysql-pv:8'
         environment:
             MYSQL_DATABASE: '${DB_DATABASE}'
             MYSQL_USER: '${DB_USERNAME}'

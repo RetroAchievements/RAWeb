@@ -25,7 +25,7 @@ class Message extends BaseModel
     // TODO rename TimeSent column to sent_at
     // TODO drop Unread, migrate to read_at
     // TODO drop Type
-    protected $table = 'Message';
+    protected $table = 'Messages';
 
     protected $primaryKey = 'ID';
 
