@@ -37,6 +37,7 @@ function ListGames(
     bool $showTickets = false,
     bool $showConsoleName = false,
     bool $showTotals = false,
+    bool $showClaims = false,
 ): void {
     echo "\n<div class='table-wrapper'><table class='table-highlight'><tbody>";
 
@@ -59,6 +60,10 @@ function ListGames(
 
         if ($showTickets) {
             echo "<th class='whitespace-nowrap text-right'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
+        }
+
+        if ($showClaims) {
+            echo "<th class='whitespace-nowrap'>Claimed By</th>";
         }
     } else {
         echo "<th>Title</th>";
@@ -175,6 +180,17 @@ function ListGames(
             echo "</td>";
         }
 
+        if ($showClaims) {
+            echo "<td>";
+            if (array_key_exists('ClaimedBy', $gameEntry)) {
+                foreach ($gameEntry['ClaimedBy'] as $claimUser) {
+                    echo userAvatar($claimUser);
+                    echo "</br>";
+                }
+            }
+            echo "</td>";
+        }
+
         echo "</tr>";
 
         $gameCount++;
@@ -222,11 +238,34 @@ if ($listType === UserGameListType::Play) {
     $maxCount = 50;
     $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
 } elseif ($listType === UserGameListType::Develop) {
+    if ($permissions < Permissions::JuniorDeveloper) {
+        abort(401);
+    }
     $requestedConsole = "Want to Develop$combiningConsoleName";
     $consoleName = $requestedConsole . " Games";
 
     $maxCount = 50;
     $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
+}
+
+$showClaims = false;
+if ($filter !== 0) { // if not viewing "games with achievements", fetch claim info
+    $showClaims = true;
+
+    $gameIDs = [];
+    foreach ($gamesList as $game) {
+        $gameIDs[] = $game['ID'];
+    }
+
+    $claimData = getClaimData($gameIDs, false);
+    $claimUsers = [];
+    foreach ($claimData as $claim) {
+        $claimUsers[$claim['GameID']][] = $claim['User'];
+    }
+
+    foreach ($gamesList as &$game) {
+        $game['ClaimedBy'] = $claimUsers[$game['ID']] ?? [];
+    }
 }
 
 sanitize_outputs($consoleName, $requestedConsole, $listType);
@@ -305,7 +344,11 @@ function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall
             $appendQueryParams = '&' . $queryParams;
         }
 
-        ListGames($gamesList, null, $appendQueryParams, $sortBy, $showTickets, $consoleIDInput == 0, $maxCount == 0);
+        ListGames($gamesList, null, $appendQueryParams, $sortBy, $showTickets,
+                  showConsoleName: ($consoleIDInput == 0), // only show console name if viewing all consoles
+                  showTotals: ($maxCount == 0),            // don't show totals if paginating
+                  showClaims: $showClaims,
+                 );
 
         if ($maxCount != 0 && $gamesCount > $maxCount) {
             if ($sortBy != 0) {

@@ -58,6 +58,11 @@ $user = request()->user();
             <div class="dropdown-divider"></div>
             @if($user->ContribCount > 0)
                 <x-dropdown-item :link="url('individualdevstats.php?u=' . $user->username)">Developer Profile</x-dropdown-item>
+            @endif
+            @if($user->Permissions >= Permissions::Registered)
+                <x-dropdown-item :link="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
+            @endif
+            @if($user->ContribCount > 0)
                 <x-dropdown-item :link="url('ticketmanager.php?u=' . $user->username)">Tickets</x-dropdown-item>
                 <x-dropdown-item :link="url('gameList.php?d=' . $user->username)">Sets</x-dropdown-item>
             @endif
