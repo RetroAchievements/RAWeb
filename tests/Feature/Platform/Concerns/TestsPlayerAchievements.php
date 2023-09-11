@@ -42,7 +42,7 @@ trait TestsPlayerAchievements
 
         if ($needsHardcore) {
             $user->playerAchievementsLegacy()->save(
-                PlayerAchievementLegacy::make([
+                new PlayerAchievementLegacy([
                     'User' => $user->User,
                     'AchievementID' => $achievement->ID,
                     'HardcoreMode' => UnlockMode::Hardcore,
@@ -55,7 +55,7 @@ trait TestsPlayerAchievements
 
         if ($needsSoftcore) {
             $user->playerAchievementsLegacy()->save(
-                PlayerAchievementLegacy::make([
+                new PlayerAchievementLegacy([
                     'User' => $user->User,
                     'AchievementID' => $achievement->ID,
                     'HardcoreMode' => UnlockMode::Softcore,
