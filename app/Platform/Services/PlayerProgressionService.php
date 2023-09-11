@@ -29,7 +29,6 @@ class PlayerProgressionService
 
         $metrics['numPlayed'] = count($filteredAndJoinedGamesList);
 
-        $masteredIds = [];
         foreach ($filteredAndJoinedGamesList as $game) {
             if (!isset($game['HighestAwardKind'])) {
                 $metrics['numUnfinished']++;
@@ -41,21 +40,8 @@ class PlayerProgressionService
                 $metrics['numCompleted']++;
             } elseif ($game['HighestAwardKind'] === 'mastered') {
                 $metrics['numMastered']++;
-                $masteredIds[] = $game['GameID'];
             }
         }
-
-        $userAwards = getUsersSiteAwards("QRS666");
-        [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
-        $gameAwardIds = [];
-        foreach ($gameAwards as $award) {
-            if ($award['AwardDataExtra'] == 1) {
-                $gameAwardIds[] = $award['AwardData'];
-            }
-        }
-
-        $diff = array_diff($masteredIds, $gameAwardIds);
-        // dd($diff);
 
         return $metrics;
     }
