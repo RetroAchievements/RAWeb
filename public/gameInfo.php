@@ -3,10 +3,12 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\UserGameListType;
+use App\Community\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
@@ -997,6 +999,20 @@ sanitize_outputs(
                     echo "<div><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
                 }
 
+                $primaryClaimUser = null;
+                foreach ($claimData as $claim) {
+                    if ($claimData[0]['ClaimType'] == ClaimType::Primary) {
+                        $primaryClaimUser = $claimData[0]['User'];
+                        break;
+                    }
+                }
+                if ($permissions >= Permissions::Moderator || $primaryClaimUser === $user) {
+                    $interestedUsers = UserGameListEntry::where('type', UserGameListType::Develop)
+                        ->where('GameID', $gameID)
+                        ->count();
+                    echo "<div><a class='btn btn-link' href='/dev-interest.php?g=$gameID'>View Developer Interest ($interestedUsers)</a></div>";
+                }
+
                 if ($permissions >= Permissions::Moderator && !$isEventGame) {
                     echo "<div><a class='btn btn-link' href='/manageclaims.php?g=$gameID'>Manage Claims</a></div>";
                 }
@@ -1031,6 +1047,15 @@ sanitize_outputs(
 
                 // Display the claims links if not an event game
                 if (!$isEventGame) {
+                    $gameMetaBindings['develop'] = UserGameListType::Develop;
+                    echo Blade::render('
+                        <x-game.add-to-list
+                            :gameId="$gameID"
+                            :type="$develop"
+                            :user="$user"
+                        />
+                    ', $gameMetaBindings);
+
                     echo Blade::render('
                         <x-game.devbox-claim-management
                             :claimData="$claimData"
@@ -1045,6 +1070,7 @@ sanitize_outputs(
                             :userPermissions="$permissions"
                         />
                     ', $gameMetaBindings);
+
                 }
 
                 echo "</div>"; // end right column
