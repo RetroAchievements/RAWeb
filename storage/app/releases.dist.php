@@ -188,6 +188,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
             ],
         ],
         Emulators::PPSSPP => [
+            'minimum_version' => '1.16.0',
             'name' => 'PPSSPP',
             'handle' => 'PPSSPP',
             'active' => true,
