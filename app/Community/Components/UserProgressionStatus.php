@@ -38,7 +38,11 @@ class UserProgressionStatus extends Component
 
     public function render(): ?View
     {
-        $consoleProgress = $this->buildConsoleProgress($this->userCompletionProgress, $this->userSiteAwards);
+        [$totalCountsMetrics, $consoleProgress] = $this->buildProgressMetrics(
+            $this->userCompletionProgress,
+            $this->userSiteAwards
+        );
+
         [$consoleProgress, $topConsole] = $this->sortConsoleProgress(
             $consoleProgress,
             $this->userRecentlyPlayed,
@@ -46,11 +50,11 @@ class UserProgressionStatus extends Component
             $this->userSiteAwards
         );
 
-        $totalUnfinishedCount = array_sum(array_column($consoleProgress, 'unfinishedCount'));
-        $totalBeatenSoftcoreCount = array_sum(array_column($consoleProgress, 'beatenSoftcoreCount'));
-        $totalBeatenHardcoreCount = array_sum(array_column($consoleProgress, 'beatenHardcoreCount'));
-        $totalCompletedCount = array_sum(array_column($consoleProgress, 'completedCount'));
-        $totalMasteredCount = array_sum(array_column($consoleProgress, 'masteredCount'));
+        $totalUnfinishedCount = $totalCountsMetrics['numUnfinished'];
+        $totalBeatenSoftcoreCount = $totalCountsMetrics['numBeatenSoftcore'];
+        $totalBeatenHardcoreCount = $totalCountsMetrics['numBeatenHardcore'];
+        $totalCompletedCount = $totalCountsMetrics['numCompleted'];
+        $totalMasteredCount = $totalCountsMetrics['numMastered'];
 
         return view('community.components.user.progression-status.root', [
             'userCompletionProgress' => $this->userCompletionProgress,
@@ -68,7 +72,7 @@ class UserProgressionStatus extends Component
         ]);
     }
 
-    private function buildConsoleProgress(array $userCompletionProgress, array $userSiteAwards): array
+    private function buildProgressMetrics(array $userCompletionProgress, array $userSiteAwards): array
     {
         $filteredAndJoinedGamesList = $this->playerProgressionService->filterAndJoinGames(
             $userCompletionProgress,
@@ -82,28 +86,32 @@ class UserProgressionStatus extends Component
         // Initialize the result array.
         $consoleProgress = [];
 
-        // Loop through joinedData to calculate counts.
+        $totalCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
+            $filteredAndJoinedGamesList
+        );
+
+        // Loop through joinedData to calculate counts for individual consoles.
         foreach ($allConsoleIds as $consoleId) {
             if ($consoleId !== -1 && (!$consoleId || $consoleId == 101 || !isValidConsoleId($consoleId))) {
                 continue;
             }
 
-            $countsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
+            $consoleCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
                 $filteredAndJoinedGamesList,
                 $consoleId
             );
 
             $consoleProgress[$consoleId] = [
-                'unfinishedCount' => $countsMetrics['numUnfinished'],
-                'beatenSoftcoreCount' => $countsMetrics['numBeatenSoftcore'],
-                'beatenHardcoreCount' => $countsMetrics['numBeatenHardcore'],
-                'completedCount' => $countsMetrics['numCompleted'],
-                'masteredCount' => $countsMetrics['numMastered'],
+                'unfinishedCount' => $consoleCountsMetrics['numUnfinished'],
+                'beatenSoftcoreCount' => $consoleCountsMetrics['numBeatenSoftcore'],
+                'beatenHardcoreCount' => $consoleCountsMetrics['numBeatenHardcore'],
+                'completedCount' => $consoleCountsMetrics['numCompleted'],
+                'masteredCount' => $consoleCountsMetrics['numMastered'],
                 'ConsoleID' => $consoleId,
             ];
         }
 
-        return $consoleProgress;
+        return [$totalCountsMetrics, $consoleProgress];
     }
 
     private function sortConsoleProgress(

@@ -51,7 +51,7 @@ if ($isMe) {
                     Viewing
                     <span class="font-bold">{{ localized_number($totalInList) }}</span>
                     @if ($isFiltering)
-                        of {{ $primaryCountsMetrics['numPlayed'] }}
+                        of {{ localized_number($primaryCountsMetrics['numPlayed']) }}
                     @endif
                     {{ trans_choice(__('resource.game.title'), $isFiltering ? $primaryCountsMetrics['numPlayed'] : $totalInList) }}
                 </p>
