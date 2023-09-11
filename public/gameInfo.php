@@ -1047,14 +1047,16 @@ sanitize_outputs(
 
                 // Display the claims links if not an event game
                 if (!$isEventGame) {
-                    $gameMetaBindings['develop'] = UserGameListType::Develop;
-                    echo Blade::render('
-                        <x-game.add-to-list
-                            :gameId="$gameID"
-                            :type="$develop"
-                            :user="$user"
-                        />
-                    ', $gameMetaBindings);
+                    if ($permissions >= Permissions::Developer) {
+                        $gameMetaBindings['developListType'] = UserGameListType::Develop;
+                        echo Blade::render('
+                            <x-game.add-to-list
+                                :gameId="$gameID"
+                                :type="$developListType"
+                                :user="$user"
+                            />
+                        ', $gameMetaBindings);
+                    }
 
                     echo Blade::render('
                         <x-game.devbox-claim-management

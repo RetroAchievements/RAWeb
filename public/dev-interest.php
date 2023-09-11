@@ -4,7 +4,7 @@ use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
 use App\Site\Enums\Permissions;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     abort(401);
 }
 

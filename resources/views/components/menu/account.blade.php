@@ -59,7 +59,7 @@ $user = request()->user();
             @if($user->ContribCount > 0)
                 <x-dropdown-item :link="url('individualdevstats.php?u=' . $user->username)">Developer Profile</x-dropdown-item>
             @endif
-            @if($user->Permissions >= Permissions::Registered)
+            @if($user->Permissions >= Permissions::Developer)
                 <x-dropdown-item :link="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
