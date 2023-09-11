@@ -7,12 +7,17 @@
 
 <script>
 function handleConsoleChanged(event) {
-    const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('filter[system]', newQueryParamValue);
+    window.updateUrlParameter(
+        ['page[number]', 'filter[system]'],
+        [1, event.target.value],
+    );
 }
 
 function handleGameKindsChanged(event, kind) {
-    window.updateUrlParameter(`filter[${kind}]`, event.target.checked);
+    window.updateUrlParameter(
+        ['page[number]', `filter[${kind}]`],
+        [1, event.target.checked],
+    );
 }
 </script>
 

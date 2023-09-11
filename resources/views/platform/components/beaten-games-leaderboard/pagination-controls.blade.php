@@ -16,12 +16,21 @@ $nextPageNumber = $paginator->currentPage() + 1;
 $queryParams['page'] = ['number' => $nextPageNumber];
 $nextPageUrl = $baseUrl . '?' . http_build_query($queryParams);
 
+$queryParams['page'] = ['number' => 1];
+$firstPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+
 $userPageUrl = null;
 if ($userPageNumber) {
     $queryParams['page'] = ['number' => $userPageNumber];
     $userPageUrl = $baseUrl . '?' . http_build_query($queryParams);
 }
 ?>
+
+<script>
+function handlePageChanged(event) {
+    window.updateUrlParameter('page[number]', event.target.value);
+}
+</script>
 
 <div class="flex flex-col sm:flex-row gap-y-4 items-center justify-between md:justify-between md:gap-x-4">
     @if (!$isHighlightedRankOnCurrentPage && $userPageNumber)
@@ -36,18 +45,30 @@ if ($userPageNumber) {
     @endif
 
     <div class="flex gap-x-4 items-center">
-        @if ($paginator->onFirstPage())
-            <span class="btn btn-disabled pointer-events-none" disabled>« Previous</span>
-        @else
-            <a class="btn transition-transform lg:active:scale-95" disabled href="{{ $previousPageUrl }}">« Previous</a>
-        @endif
+        <div class="flex items-center gap-x-1">
+            @if (!$paginator->onFirstPage())
+                @if ($paginator->currentPage() > 2)
+                    <a class="btn transition-transform lg:active:scale-95" href="{{ $firstPageUrl }}">« First</a>
+                @endif
 
-        <p class="text-2xs">Viewing Page {{ $paginator->currentPage() }} of {{ $paginator->lastPage() }}</p>
+                <a class="btn transition-transform lg:active:scale-95" disabled href="{{ $previousPageUrl }}">< Previous</a>
+            @endif
+        </div>
+
+        <div x-init="{}" class="text-xs flex items-center gap-x-2">
+            Viewing Page
+            <select @change="handlePageChanged">
+                @for ($i = 1; $i <= $paginator->lastPage(); $i++)
+                    <option value="{{ $i }}" @if ($i == $paginator->currentPage()) selected @endif>
+                        {{ $i }}
+                    </option>
+                @endfor
+            </select>
+            of {{ localized_number($paginator->lastPage()) }}
+        </div>
 
         @if ($paginator->hasMorePages())
-            <a class="btn transition-transform lg:active:scale-95" href="{{ $nextPageUrl }}">Next »</a>
-        @else
-            <span class="btn btn-disabled pointer-events-none" disabled>Next »</span>
+            <a class="btn transition-transform lg:active:scale-95" href="{{ $nextPageUrl }}">Next ></a>
         @endif
     </div>
 </div>

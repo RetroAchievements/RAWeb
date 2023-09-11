@@ -8,12 +8,12 @@
     <option @if (!$selectedConsoleId) selected @endif value="0">All systems</option>
 
     @foreach ($allSystems as $system)
-        @if (isValidConsoleId($system['ID']))
+        @if (isValidConsoleId($system['ID']) && $system['ID'] != 101)
             <option
                 value="{{ $system['ID'] }}"
                 @if ($system['ID'] == $selectedConsoleId) selected @endif
             >
-                {{ config('systems')[$system['ID']]['name']}}
+                {{ $system->Name }}
             </option>
         @endif
     @endforeach 
