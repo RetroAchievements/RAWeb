@@ -67,9 +67,9 @@ if ($highestAwardKind && $highestAwardDate) {
     @if ($numPossible > 0)
         <p>
             @if ((int) $numAwarded === (int) $numPossible)
-                All <span class="font-bold">{{ $numAwarded }} achievements
+                All <span class="font-bold">{{ $numAwarded }}</span> achievements
             @else
-                <span class="font-bold">{{ $numAwarded }}</span> of <span class="font-bold">{{ $numPossible }} achievements
+                <span class="font-bold">{{ $numAwarded }}</span> of <span class="font-bold">{{ $numPossible }}</span> achievements
             @endif
         </p>
     @endif
