@@ -56,7 +56,7 @@ class BeatenGamesLeaderboardController extends Controller
 
         $beatenGameAwardsRankedRows = $this->getLeaderboardDataForCurrentPage($offset, $targetSystemId, $gameKindFilterOptions);
 
-        // Where does the authed user currently rank? 
+        // Where does the authed user currently rank?
         // This is a separate query that doesn't include the page/offset.
         $isUserOnCurrentPage = false;
         $myRankingData = null;
