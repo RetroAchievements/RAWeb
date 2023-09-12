@@ -1,18 +1,19 @@
 @props([
-    'highlightedRank' => null,
-    'isHighlightedRankOnCurrentPage' => null,
+    'isUserOnCurrentPage' => null,
     'myRankingData' => null, // always null if unauthenticated or no rank
+    'myUsername' => null,
     'paginator' => null,
 ])
 
 <div class="sm:hidden flex flex-col gap-y-1">
     @foreach ($paginator as $paginatedRow)
         <x-beaten-games-leaderboard.leaderboard-card-row
+            :myUsername="$myUsername"
             :paginatedRow="$paginatedRow"
         />
     @endforeach
 
-    @if ($myRankingData && !$isHighlightedRankOnCurrentPage)
+    @if ($myRankingData && !$isUserOnCurrentPage)
         <x-beaten-games-leaderboard.leaderboard-card-row
             :isHighlighted="true"
             :paginatedRow="$myRankingData['userRankingData']"
@@ -35,11 +36,12 @@
     <tbody>
         @foreach ($paginator as $paginatedRow)
             <x-beaten-games-leaderboard.leaderboard-table-row
+                :myUsername="$myUsername"
                 :paginatedRow="$paginatedRow"
             />
         @endforeach
 
-        @if ($myRankingData && !$isHighlightedRankOnCurrentPage)
+        @if ($myRankingData && !$isUserOnCurrentPage)
             <tr class="do-not-highlight"><td colspan="4">&nbsp;</td></tr>
 
             <x-beaten-games-leaderboard.leaderboard-table-row

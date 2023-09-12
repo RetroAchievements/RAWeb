@@ -1,7 +1,12 @@
 @props([
     'isHighlighted' => false,
+    'myUsername' => null,
     'paginatedRow' => null,
 ])
+
+<?php
+$isHighlighted = $isHighlighted || ($paginatedRow->User === $myUsername);
+?>
 
 <div class="rounded bg-embed p-2 {{ $isHighlighted ? 'my-2' : '' }}" @if ($isHighlighted) style="outline: thin solid;" @endif>
     <div class="flex items-center justify-between">

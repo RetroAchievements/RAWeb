@@ -1,16 +1,16 @@
-<?php
-$highlightedRank = $myRankingData ? $myRankingData['userRank'] : null;
-$isHighlightedRankOnCurrentPage = 
-    $highlightedRank
-    && ($highlightedRank >= $startingRank)
-    && ($highlightedRank < ($startingRank + count($paginator)));
-
-$userPageNumber = $myRankingData ? (int) ceil($myRankingData['userRank'] / $paginator->perPage()) : null;
-?>
+@props([
+    'allSystems' => [],
+    'gameKindFilterOptions' => [],
+    'isUserOnCurrentPage' => false,
+    'myRankingData' => null,
+    'myUsername' => null,
+    'paginator' => null,
+    'selectedConsoleId' => null,
+])
 
 <x-app-layout
     pageTitle="Beaten Games Leaderboard"
-    pageDescription="Where do you rank? Dive into detailed rankings, filter by console, and discover top players on our Beaten Game Leaderboard."
+    pageDescription="Where do you rank? Dive into detailed rankings, filter by console, and discover top players on our Beaten Games Leaderboard."
 >
     <h1>Beaten Games Leaderboard</h1>
 
@@ -28,18 +28,15 @@ $userPageNumber = $myRankingData ? (int) ceil($myRankingData['userRank'] / $pagi
     @else
         <div class="mb-4">
             <x-beaten-games-leaderboard.leaderboard-table
-                :highlightedRank="$highlightedRank"
-                :isHighlightedRankOnCurrentPage="$isHighlightedRankOnCurrentPage"
+                :isUserOnCurrentPage="$isUserOnCurrentPage"
                 :myRankingData="$myRankingData"
+                :myUsername="$myUsername"
                 :paginator="$paginator"
-                :startingRank="$startingRank"
             />
         </div>
 
         <x-beaten-games-leaderboard.pagination-controls
-            :isHighlightedRankOnCurrentPage="$isHighlightedRankOnCurrentPage"
             :paginator="$paginator"
-            :userPageNumber="$userPageNumber"
         />
     @endif
 </x-app-layout>
