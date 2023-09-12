@@ -54,6 +54,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
+            Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
@@ -62,8 +63,6 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
             // Route::resource('game-hash', GameHashController::class)->only('show')->names(['show' => 'game-hash.show']);
-
-            Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
 
             // Route::resource('leaderboards', LeaderboardController::class)->only('index')->names(['index' => 'leaderboard.index']);
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
