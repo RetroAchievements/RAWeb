@@ -3,25 +3,13 @@
     'isHighlightedRankOnCurrentPage' => null,
     'myRankingData' => null, // always null if unauthenticated or no rank
     'paginator' => null,
-    'startingRank' => 0,
 ])
-
-<?php
-$cardRank = $startingRank;
-$tableRank = $startingRank;
-?>
 
 <div class="sm:hidden flex flex-col gap-y-1">
     @foreach ($paginator as $paginatedRow)
         <x-beaten-games-leaderboard.leaderboard-card-row
             :paginatedRow="$paginatedRow"
-            :rank="$cardRank"
-            :isHighlighted="$isHighlightedRankOnCurrentPage && ($cardRank === $highlightedRank)"
         />
-
-        @php
-            $cardRank += 1;
-        @endphp
     @endforeach
 
     @if ($myRankingData && !$isHighlightedRankOnCurrentPage)
@@ -48,13 +36,7 @@ $tableRank = $startingRank;
         @foreach ($paginator as $paginatedRow)
             <x-beaten-games-leaderboard.leaderboard-table-row
                 :paginatedRow="$paginatedRow"
-                :rank="$tableRank"
-                :isHighlighted="$isHighlightedRankOnCurrentPage && ($tableRank === $highlightedRank)"
             />
-
-            @php
-                $tableRank += 1;
-            @endphp
         @endforeach
 
         @if ($myRankingData && !$isHighlightedRankOnCurrentPage)

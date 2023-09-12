@@ -1,3 +1,4 @@
 [mysqld]
 skip-host-cache
 skip-name-resolve
+sql_mode=IGNORE_SPACE,STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION

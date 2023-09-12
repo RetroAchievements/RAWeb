@@ -52,7 +52,7 @@ class BeatenGamesLeaderboardController extends Controller
         $me = Auth::user() ?? null;
         $myRankingData = null;
         if ($me) {
-            $myRankingData = $this->buildUserRanking($me, $targetSystemId, $gameKindFilterOptions);
+            $myRankingData = $this->buildUserRanking2($me, $targetSystemId, $gameKindFilterOptions);
         }
 
         // Now get the current page's rows.
@@ -60,13 +60,11 @@ class BeatenGamesLeaderboardController extends Controller
         $offset = (int) ($currentPage - 1) * $this->pageSize;
         $startingRank = (int) ($currentPage - 1) * $this->pageSize + 1;
 
-        $beatenGameAwardsRankedRows = $this->buildBeatenGameAwardsRankings($offset, $targetSystemId, $gameKindFilterOptions);
+        $beatenGameAwardsRankedRows = $this->buildBaseLeaderboardQuery2($offset, $targetSystemId, $gameKindFilterOptions);
 
         // We also need to know how many rows there are, otherwise the
         // paginator can't determine what the max page number should be.
-        $rankedRowsCount = $this->buildFilteredGamesQuery($targetSystemId, $gameKindFilterOptions)
-            ->distinct('filteredGames.user')
-            ->count('filteredGames.user');
+        $rankedRowsCount = $this->buildLeaderboardRowCountQuery($targetSystemId, $gameKindFilterOptions);
 
         $paginator = new LengthAwarePaginator($beatenGameAwardsRankedRows, $rankedRowsCount, $this->pageSize, $currentPage, [
             'path' => $request->url(),
@@ -84,6 +82,227 @@ class BeatenGamesLeaderboardController extends Controller
             'selectedConsoleId' => $targetSystemId,
             'startingRank' => $startingRank,
         ]);
+    }
+
+    private function buildLeaderboardRowCountQuery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+    {
+        $subquery = DB::table('SiteAwards as sa')
+            ->join('GameData as gd', 'sa.AwardData', '=', 'gd.ID')
+            ->join('Console as c', 'gd.ConsoleID', '=', 'c.ID')
+            ->join('UserAccounts as ua', 'sa.User', '=', 'ua.User')
+            ->select('ua.User as AuthUser',
+                DB::raw('FIRST_VALUE(gd.ID) OVER (PARTITION BY ua.User ORDER BY sa.AwardDate desc) as most_recent_game_id'),
+                'gd.Title',
+                'c.name as ConsoleName',
+                'sa.AwardDate',
+            )
+            ->where('sa.AwardType', 8)
+            ->where('sa.AwardDataExtra', 1)
+            ->where('ua.Untracked', 0)
+            ->where('gd.Title', 'not like', '~Subset~%')
+            ->where('gd.Title', 'not like', '~Test Kit~%')
+            ->where('gd.Title', 'not like', '~Multi~%')
+            ->whereNotIn('gd.ConsoleID', [100, 101]);
+
+        if ($targetSystemId) {
+            $subquery->where('gd.ConsoleID', $targetSystemId);
+        }
+
+        if (!$gameKindFilterOptions['retail']) {
+            // Exclude all games that don't have two "~" characters in their title.
+            $subquery->whereRaw('LENGTH(gd.Title) - LENGTH(REPLACE(gd.Title, "~", "")) >= 2');
+        }
+
+        if (!$gameKindFilterOptions['hacks']) {
+            $subquery->where('gd.Title', 'not like', '~Hack~%');
+        }
+
+        if (!$gameKindFilterOptions['homebrew']) {
+            $subquery->where('gd.Title', 'not like', '~Homebrew~%')
+                // Exclude Arduboy, WASM-4, and Uzebox. These consoles exclusively have homebrew games.
+                ->whereNotIn('gd.ConsoleID', [71, 72, 80]);
+        }
+
+        if (!$gameKindFilterOptions['unlicensed']) {
+            $subquery->where('gd.Title', 'not like', '~Unlicensed~%');
+        }
+
+        if (!$gameKindFilterOptions['prototypes']) {
+            $subquery->where('gd.Title', 'not like', '~Prototype~%');
+        }
+
+        if (!$gameKindFilterOptions['demos']) {
+            $subquery->where('gd.Title', 'not like', '~Demo~%');
+        }
+    
+        $ranked = DB::table(DB::raw("({$subquery->toSql()}) as s"))
+            ->mergeBindings($subquery)
+            ->select('AuthUser',
+                DB::raw('RANK() OVER (ORDER BY COUNT(s.AuthUser) DESC) as RankNum'),
+                DB::raw('COUNT(s.AuthUser) as total'),
+                'most_recent_game_id',
+                'Title',
+                'ConsoleName',
+                'AwardDate',
+            )
+            ->groupBy('AuthUser');
+    
+        $result = DB::table(DB::raw("({$ranked->toSql()}) as b"))
+            ->mergeBindings($ranked)
+            ->select(DB::raw('count(*) as total_row_count'))
+            ->get();
+
+        return $result->get(0)->total_row_count;
+    }
+
+    private function buildUserRanking2(User $user, ?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+    {
+        $subquery = DB::table('SiteAwards as sa')
+            ->join('GameData as gd', 'sa.AwardData', '=', 'gd.ID')
+            ->join('Console as c', 'gd.ConsoleID', '=', 'c.ID')
+            ->join('UserAccounts as ua', 'sa.User', '=', 'ua.User')
+            ->select('ua.User as User',
+                DB::raw('FIRST_VALUE(gd.ID) OVER (PARTITION BY ua.User ORDER BY sa.AwardDate desc) as most_recent_game_id'),
+                'gd.Title',
+                'gd.ImageIcon',
+                'c.name as ConsoleName',
+                'sa.AwardDate',
+            )
+            ->where('sa.AwardType', 8)
+            ->where('sa.AwardDataExtra', 1)
+            ->where('ua.Untracked', 0)
+            ->where('gd.Title', 'not like', '~Subset~%')
+            ->where('gd.Title', 'not like', '~Test Kit~%')
+            ->where('gd.Title', 'not like', '~Multi~%')
+            ->whereNotIn('gd.ConsoleID', [100, 101]);
+
+        if ($targetSystemId) {
+            $subquery->where('gd.ConsoleID', $targetSystemId);
+        }
+
+        if (!$gameKindFilterOptions['retail']) {
+            // Exclude all games that don't have two "~" characters in their title.
+            $subquery->whereRaw('LENGTH(gd.Title) - LENGTH(REPLACE(gd.Title, "~", "")) >= 2');
+        }
+
+        if (!$gameKindFilterOptions['hacks']) {
+            $subquery->where('gd.Title', 'not like', '~Hack~%');
+        }
+
+        if (!$gameKindFilterOptions['homebrew']) {
+            $subquery->where('gd.Title', 'not like', '~Homebrew~%')
+                // Exclude Arduboy, WASM-4, and Uzebox. These consoles exclusively have homebrew games.
+                ->whereNotIn('gd.ConsoleID', [71, 72, 80]);
+        }
+
+        if (!$gameKindFilterOptions['unlicensed']) {
+            $subquery->where('gd.Title', 'not like', '~Unlicensed~%');
+        }
+
+        if (!$gameKindFilterOptions['prototypes']) {
+            $subquery->where('gd.Title', 'not like', '~Prototype~%');
+        }
+
+        if (!$gameKindFilterOptions['demos']) {
+            $subquery->where('gd.Title', 'not like', '~Demo~%');
+        }
+    
+        $ranked = DB::table(DB::raw("({$subquery->toSql()}) as s"))
+            ->mergeBindings($subquery)
+            ->select('User',
+                DB::raw('RANK() OVER (ORDER BY COUNT(s.User) DESC) as rank_number'),
+                DB::raw('COUNT(s.User) as total_awards'),
+                'most_recent_game_id',
+                'Title as GameTitle',
+                'ImageIcon as GameIcon',
+                'ConsoleName',
+                'AwardDate as last_beaten_date',
+            )
+            ->groupBy('User');
+    
+        $result = DB::table(DB::raw("({$ranked->toSql()}) as b"))
+            ->mergeBindings($ranked)
+            ->where('User', 'SirWillis')
+            ->get();
+
+        $userRankingData = $result->get(0);
+
+        return ['userRankingData' => $userRankingData, 'userRank' => $userRankingData->rank_number];
+    }
+
+    private function buildBaseLeaderboardQuery2(int $currentOffset, ?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+    {
+        $subquery = DB::table('SiteAwards as sa')
+            ->join('GameData as gd', 'sa.AwardData', '=', 'gd.ID')
+            ->join('Console as c', 'gd.ConsoleID', '=', 'c.ID')
+            ->join('UserAccounts as ua', 'sa.User', '=', 'ua.User')
+            ->select('ua.User as User',
+                DB::raw('FIRST_VALUE(gd.ID) OVER (PARTITION BY ua.User ORDER BY sa.AwardDate desc) as most_recent_game_id'),
+                'gd.Title',
+                'gd.ImageIcon',
+                'c.name as ConsoleName',
+                'sa.AwardDate',
+            )
+            ->where('sa.AwardType', AwardType::GameBeaten)
+            ->where('sa.AwardDataExtra', UnlockMode::Hardcore)
+            ->where('ua.Untracked', 0)
+            ->where('gd.Title', 'not like', '~Subset~%')
+            ->where('gd.Title', 'not like', '~Test Kit~%')
+            ->where('gd.Title', 'not like', '~Multi~%')
+            ->whereNotIn('gd.ConsoleID', [100, 101]);
+
+        if ($targetSystemId) {
+            $subquery->where('gd.ConsoleID', $targetSystemId);
+        }
+
+        if (!$gameKindFilterOptions['retail']) {
+            // Exclude all games that don't have two "~" characters in their title.
+            $subquery->whereRaw('LENGTH(gd.Title) - LENGTH(REPLACE(gd.Title, "~", "")) >= 2');
+        }
+
+        if (!$gameKindFilterOptions['hacks']) {
+            $subquery->where('gd.Title', 'not like', '~Hack~%');
+        }
+
+        if (!$gameKindFilterOptions['homebrew']) {
+            $subquery->where('gd.Title', 'not like', '~Homebrew~%')
+                // Exclude Arduboy, WASM-4, and Uzebox. These consoles exclusively have homebrew games.
+                ->whereNotIn('gd.ConsoleID', [71, 72, 80]);
+        }
+
+        if (!$gameKindFilterOptions['unlicensed']) {
+            $subquery->where('gd.Title', 'not like', '~Unlicensed~%');
+        }
+
+        if (!$gameKindFilterOptions['prototypes']) {
+            $subquery->where('gd.Title', 'not like', '~Prototype~%');
+        }
+
+        if (!$gameKindFilterOptions['demos']) {
+            $subquery->where('gd.Title', 'not like', '~Demo~%');
+        }
+    
+        $ranked = DB::table(DB::raw("({$subquery->toSql()}) as s"))
+            ->mergeBindings($subquery)
+            ->select(
+                'User',
+                DB::raw('RANK() OVER (ORDER BY COUNT(s.User) DESC) as rank_number'),
+                DB::raw('COUNT(s.User) as total_awards'),
+                'most_recent_game_id',
+                'Title as GameTitle',
+                'ImageIcon as GameIcon',
+                'ConsoleName',
+                'AwardDate as last_beaten_date',
+            )
+            ->groupBy('User');
+    
+        $result = DB::table(DB::raw("({$ranked->toSql()}) as b"))
+            ->mergeBindings($ranked)
+            ->offset($currentOffset)
+            ->limit($this->pageSize)
+            ->get();
+
+        return $result;
     }
 
     private function buildFilteredGamesQuery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
