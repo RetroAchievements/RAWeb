@@ -56,7 +56,7 @@ class BeatenGamesLeaderboardController extends Controller
 
         $beatenGameAwardsRankedRows = $this->getLeaderboardDataForCurrentPage($offset, $targetSystemId, $gameKindFilterOptions);
 
-        // Where does the authed user currently rank?
+        // Where does the authed user currently rank? 
         // This is a separate query that doesn't include the page/offset.
         $isUserOnCurrentPage = false;
         $myRankingData = null;
@@ -152,7 +152,10 @@ class BeatenGamesLeaderboardController extends Controller
     {
         $subquery = $this->buildLeaderboardBaseSubquery($targetSystemId, $gameKindFilterOptions);
 
-        return DB::table(DB::raw("({$subquery->toSql()}) as s"))
+        /** @var string $subqueryTable */
+        $subqueryTable = DB::raw("({$subquery->toSql()}) as s");
+
+        return DB::table($subqueryTable)
             ->mergeBindings($subquery)
             ->select(
                 'User',
@@ -171,7 +174,10 @@ class BeatenGamesLeaderboardController extends Controller
     {
         $subquery = $this->buildRankingsSubquery($targetSystemId, $gameKindFilterOptions);
 
-        $result = DB::table(DB::raw("({$subquery->toSql()}) as b"))
+        /** @var string $subqueryTable */
+        $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
+
+        $result = DB::table($subqueryTable)
             ->mergeBindings($subquery)
             ->select(DB::raw('count(*) as total_row_count'))
             ->get();
@@ -183,7 +189,10 @@ class BeatenGamesLeaderboardController extends Controller
     {
         $subquery = $this->buildRankingsSubquery($targetSystemId, $gameKindFilterOptions);
 
-        $result = DB::table(DB::raw("({$subquery->toSql()}) as b"))
+        /** @var string $subqueryTable */
+        $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
+
+        $result = DB::table($subqueryTable)
             ->mergeBindings($subquery)
             ->where('User', $username)
             ->get();
@@ -200,7 +209,10 @@ class BeatenGamesLeaderboardController extends Controller
     {
         $subquery = $this->buildRankingsSubquery($targetSystemId, $gameKindFilterOptions);
 
-        $result = DB::table(DB::raw("({$subquery->toSql()}) as b"))
+        /** @var string $subqueryTable */
+        $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
+
+        $result = DB::table($subqueryTable)
             ->mergeBindings($subquery)
             ->offset($currentOffset)
             ->limit($this->pageSize)
