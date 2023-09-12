@@ -41,14 +41,12 @@ class GameDevInterestController extends Controller
             ->pluck('UserAccounts.User');
 
         return view('platform.components.game.dev-interest-page', [
-            'users' => $listUsers,
             'gameId' => $gameData['ID'],
             'gameTitle' => $gameData['Title'],
             'consoleId' => $gameData['ConsoleID'],
             'consoleName' => $gameData['ConsoleName'],
-            'iconUrl' => getSystemIconUrl($gameData['ConsoleID']),
             'imageIcon' => media_asset($gameData['ImageIcon']),
-            'metaKind' => 'Game',
+            'users' => $listUsers,
         ]);
     }
 }

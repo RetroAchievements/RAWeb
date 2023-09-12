@@ -930,7 +930,6 @@ sanitize_outputs(
                 :gameTitle="$gameTitle"
                 :consoleId="$consoleID"
                 :consoleName="$consoleName"
-                :iconUrl="$iconUrl"
                 :user="$user"
                 :userPermissions="$permissions"
             />

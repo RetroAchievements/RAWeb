@@ -1,3 +1,12 @@
+@props([
+    'gameId' => 0,
+    'gameTitle' => 'Unknown Game',
+    'consoleId' => 0,
+    'consoleName' => 'Unknown Console',
+    'imageIcon' => null,
+    'users' => [],
+])
+
 <x-app-layout
     pageTitle="{{ $gameTitle }} - Developer Interest"
     pageDescription="Developers interested in working on {{ $gameTitle }}"
@@ -12,9 +21,9 @@
         :gameTitle="$gameTitle"
         :consoleId="$consoleId"
         :consoleName="$consoleName"
-        :iconUrl="$iconUrl"
     />
 
+    <?php $metaKind = 'Game'; ?>
     <x-game.primary-meta
         :imageIcon="$imageIcon"
         :metaKind="$metaKind"
@@ -22,15 +31,13 @@
 
     <p>The following users have added this game to their Want to Develop list:</p>
 
+    <table>
     @if (count($users) < 1)
-        <p>None</p>
+        <tr><td>None</td></tr>
     @else
-        <table>
         @foreach ($users as $user)
-            <tr><td>
-            {!! userAvatar($user) !!}
-            </td></tr>
+            <tr><td>{!! userAvatar($user) !!}</td></tr>
         @endforeach
-        </table>
     @endif
+    </table>
 </x-app-layout>
