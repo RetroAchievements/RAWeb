@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Platform\Controllers\ApiDocsController;
+use App\Platform\Controllers\GameDevInterestController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,8 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
             // Route::resource('game-hash', GameHashController::class)->only('show')->names(['show' => 'game-hash.show']);
+
+            Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
 
             // Route::resource('leaderboards', LeaderboardController::class)->only('index')->names(['index' => 'leaderboard.index']);
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');

@@ -1010,7 +1010,7 @@ sanitize_outputs(
                     $interestedUsers = UserGameListEntry::where('type', UserGameListType::Develop)
                         ->where('GameID', $gameID)
                         ->count();
-                    echo "<div><a class='btn btn-link' href='/dev-interest.php?g=$gameID'>View Developer Interest ($interestedUsers)</a></div>";
+                    echo "<div><a class='btn btn-link' href='" . route('game.dev-interest', $gameID) . "'>View Developer Interest ($interestedUsers)</a></div>";
                 }
 
                 if ($permissions >= Permissions::Moderator && !$isEventGame) {
