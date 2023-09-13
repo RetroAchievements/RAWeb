@@ -636,7 +636,7 @@ RenderContentStart($userPage);
     <?php
     $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_completed_sets') === 'true';
 
-    RenderSiteAwards(getUsersSiteAwards($userPage), $userPage);
+    RenderSiteAwards($userAwards, $userPage);
 
     if (count($userCompletedGamesList) >= 1) {
         RenderCompletedGamesList($userCompletedGamesList, $userPage, $prefersHiddenUserCompletedSets);
