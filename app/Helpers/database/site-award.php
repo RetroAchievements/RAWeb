@@ -151,6 +151,15 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     // Remove blank indexes
     $dbResult = array_values(array_filter($dbResult));
 
+    foreach ($dbResult as &$award) {
+        if ($award['ConsoleID']) {
+            settype($award['AwardType'], 'integer');
+            settype($award['AwardData'], 'integer');
+            settype($award['AwardDataExtra'], 'integer');
+            settype($award['ConsoleID'], 'integer');
+        }
+    }
+
     return $dbResult;
 }
 
