@@ -9,8 +9,13 @@
 }
 
 .searchbox-top {
-  background-color: var(--embed-color);
-  border-radius: 4px;
+  height: 22px;
+  background-color: var(--embed-highlight-color);
+  border: 1px solid var(--divider-color);
+  border-radius: 15px;
+  padding: 12px 0 12px 15px;
+  align-items: center;
+  margin-right: 10px;
 }
 
 .searchbox-top .searchboxinput {
@@ -20,6 +25,7 @@
   color: inherit;
   width: 60px;
   padding-left: 0;
+  transition: width 0.2s;
 }
 
 .searchbox-top .searchboxinput:focus {
