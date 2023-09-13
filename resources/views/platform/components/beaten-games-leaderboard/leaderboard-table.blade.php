@@ -13,7 +13,7 @@
         />
     @endforeach
 
-    @if ($myRankingData && !$isUserOnCurrentPage)
+    @if ($myRankingData && $myRankingData['userRank'] && !$isUserOnCurrentPage)
         <x-beaten-games-leaderboard.leaderboard-card-row
             :isHighlighted="true"
             :paginatedRow="$myRankingData['userRankingData']"
@@ -41,7 +41,7 @@
             />
         @endforeach
 
-        @if ($myRankingData && !$isUserOnCurrentPage)
+        @if ($myRankingData && $myRankingData['userRank'] && !$isUserOnCurrentPage)
             <tr class="do-not-highlight"><td colspan="5">&nbsp;</td></tr>
 
             <x-beaten-games-leaderboard.leaderboard-table-row

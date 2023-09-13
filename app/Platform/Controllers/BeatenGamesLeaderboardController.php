@@ -146,28 +146,29 @@ class BeatenGamesLeaderboardController extends Controller
         return $subquery;
     }
 
-private function buildRankingsSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
-{
-    $subquery = $this->buildLeaderboardBaseSubquery($targetSystemId, $gameKindFilterOptions);
+    private function buildRankingsSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+    {
+        $subquery = $this->buildLeaderboardBaseSubquery($targetSystemId, $gameKindFilterOptions);
 
-    /** @var string $subqueryTable */
-    $subqueryTable = DB::raw("({$subquery->toSql()}) as s");
+        /** @var string $subqueryTable */
+        $subqueryTable = DB::raw("({$subquery->toSql()}) as s");
 
-    return DB::table($subqueryTable)
-        ->mergeBindings($subquery)
-        ->select(
-            'User',
-            DB::raw('RANK() OVER (ORDER BY COUNT(s.User) DESC) as rank_number'),
-            DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(s.User) DESC) as leaderboard_row_number'),
-            DB::raw('COUNT(s.User) as total_awards'),
-            'most_recent_game_id',
-            'Title as GameTitle',
-            'ImageIcon as GameIcon',
-            'ConsoleName',
-            'AwardDate as last_beaten_date',
-        )
-        ->groupBy('User');
-}
+        return DB::table($subqueryTable)
+            ->mergeBindings($subquery)
+            ->select(
+                'User',
+                DB::raw('RANK() OVER (ORDER BY COUNT(s.User) DESC) as rank_number'),
+                DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(s.User) DESC) as leaderboard_row_number'),
+                DB::raw('COUNT(s.User) as total_awards'),
+                'most_recent_game_id',
+                'Title as GameTitle',
+                'ImageIcon as GameIcon',
+                'ConsoleName',
+                'AwardDate as last_beaten_date',
+            )
+            ->orderBy('rank_number')
+            ->groupBy('User');
+    }
 
     private function getLeaderboardRowCount(?int $targetSystemId = null, array $gameKindFilterOptions): int
     {
@@ -216,6 +217,7 @@ private function buildRankingsSubquery(?int $targetSystemId = null, array $gameK
 
         $result = DB::table($subqueryTable)
             ->mergeBindings($subquery)
+            ->orderBy('rank_number')
             ->offset($currentOffset)
             ->limit($this->pageSize)
             ->get();
