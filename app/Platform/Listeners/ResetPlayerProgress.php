@@ -6,17 +6,10 @@ namespace App\Platform\Listeners;
 
 use App\Platform\Actions\ResetPlayerProgressAction;
 use App\Site\Events\UserDeleted;
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
 
 class ResetPlayerProgress implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithSockets;
-    use SerializesModels;
-
     public function __construct(
         public object $event,
     ) {
