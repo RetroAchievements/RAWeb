@@ -21,7 +21,7 @@ class GameDevInterestController extends Controller
 
         $permissions = $request->user()->getAttribute('Permissions');
         if ($permissions < Permissions::Developer) {
-            abort(401);
+            abort(403);
         }
 
         $gameId = (int) $request->route('game');
@@ -31,7 +31,7 @@ class GameDevInterestController extends Controller
         }
 
         if ($permissions < Permissions::Moderator && !hasSetClaimed($request->user()->User, $gameId, true)) {
-            abort(401);
+            abort(403);
         }
 
         $listUsers = UserGameListEntry::where('type', UserGameListType::Develop)

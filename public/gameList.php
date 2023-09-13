@@ -239,7 +239,7 @@ if ($listType === UserGameListType::Play) {
     $offset = max(requestInputSanitized('o', 0, 'integer'), 0);
 } elseif ($listType === UserGameListType::Develop) {
     if ($permissions < Permissions::Developer) {
-        abort(401);
+        abort(403);
     }
     $requestedConsole = "Want to Develop$combiningConsoleName";
     $consoleName = $requestedConsole . " Games";
