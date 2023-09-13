@@ -116,7 +116,7 @@ class BeatenGamesLeaderboardTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $system = System::factory()->create();
-        
+
         $subset = Game::factory()->create(['Title' => '~Subset~ Beat Super Mario Bros in 42 seconds', 'ConsoleID' => $system->ID]);
         $testKit = Game::factory()->create(['Title' => '~Test Kit~ Make Sure Your N64 Turns On', 'ConsoleID' => $system->ID]);
         $multi = Game::factory()->create(['Title' => '~Multi~ Donkey Kong: Two Players But One Joystick', 'ConsoleID' => $system->ID]);
@@ -163,7 +163,7 @@ class BeatenGamesLeaderboardTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $system = System::factory()->create();
-        
+
         $hack = Game::factory()->create(['Title' => '~Hack~ Beat Super Mario Bros in 42 seconds', 'ConsoleID' => $system->ID]);
         $retail = Game::factory()->create(['Title' => 'Donkey Kong', 'ConsoleID' => $system->ID]);
 
