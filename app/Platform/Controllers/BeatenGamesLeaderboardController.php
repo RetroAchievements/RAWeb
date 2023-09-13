@@ -61,11 +61,13 @@ class BeatenGamesLeaderboardController extends Controller
         $isUserOnCurrentPage = false;
         $myRankingData = null;
         $myUsername = null;
+        $userPageNumber = null;
         $me = Auth::user() ?? null;
         if ($me) {
             $myUsername = $me->User;
             $myRankingData = $this->getUserRankingData($myUsername, $targetSystemId, $gameKindFilterOptions);
-            $isUserOnCurrentPage = $this->getIsUserOnCurrentPage($myUsername, $beatenGameAwardsRankedRows);
+            $userPageNumber = (int) $myRankingData['userPageNumber'];
+            $isUserOnCurrentPage = (int) $currentPage === $userPageNumber;
         }
 
         $paginator = new LengthAwarePaginator($beatenGameAwardsRankedRows, $rankedRowsCount, $this->pageSize, $currentPage, [
@@ -84,12 +86,8 @@ class BeatenGamesLeaderboardController extends Controller
             'myUsername' => $myUsername,
             'paginator' => $paginator,
             'selectedConsoleId' => $targetSystemId,
+            'userPageNumber' => $userPageNumber,
         ]);
-    }
-
-    private function getIsUserOnCurrentPage(string $username, mixed $pageRankingData): bool
-    {
-        return in_array($username, array_column($pageRankingData->toArray(), 'User'));
     }
 
     private function buildLeaderboardBaseSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
@@ -148,27 +146,28 @@ class BeatenGamesLeaderboardController extends Controller
         return $subquery;
     }
 
-    private function buildRankingsSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
-    {
-        $subquery = $this->buildLeaderboardBaseSubquery($targetSystemId, $gameKindFilterOptions);
+private function buildRankingsSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+{
+    $subquery = $this->buildLeaderboardBaseSubquery($targetSystemId, $gameKindFilterOptions);
 
-        /** @var string $subqueryTable */
-        $subqueryTable = DB::raw("({$subquery->toSql()}) as s");
+    /** @var string $subqueryTable */
+    $subqueryTable = DB::raw("({$subquery->toSql()}) as s");
 
-        return DB::table($subqueryTable)
-            ->mergeBindings($subquery)
-            ->select(
-                'User',
-                DB::raw('RANK() OVER (ORDER BY COUNT(s.User) DESC) as rank_number'),
-                DB::raw('COUNT(s.User) as total_awards'),
-                'most_recent_game_id',
-                'Title as GameTitle',
-                'ImageIcon as GameIcon',
-                'ConsoleName',
-                'AwardDate as last_beaten_date',
-            )
-            ->groupBy('User');
-    }
+    return DB::table($subqueryTable)
+        ->mergeBindings($subquery)
+        ->select(
+            'User',
+            DB::raw('RANK() OVER (ORDER BY COUNT(s.User) DESC) as rank_number'),
+            DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(s.User) DESC) as leaderboard_row_number'),
+            DB::raw('COUNT(s.User) as total_awards'),
+            'most_recent_game_id',
+            'Title as GameTitle',
+            'ImageIcon as GameIcon',
+            'ConsoleName',
+            'AwardDate as last_beaten_date',
+        )
+        ->groupBy('User');
+}
 
     private function getLeaderboardRowCount(?int $targetSystemId = null, array $gameKindFilterOptions): int
     {
@@ -202,6 +201,9 @@ class BeatenGamesLeaderboardController extends Controller
         return [
             'userRankingData' => $userRankingData,
             'userRank' => isset($userRankingData) ? $userRankingData->rank_number : null,
+            'userPageNumber' => isset($userRankingData)
+                ? ceil($userRankingData->leaderboard_row_number / $this->pageSize)
+                : null,
         ];
     }
 

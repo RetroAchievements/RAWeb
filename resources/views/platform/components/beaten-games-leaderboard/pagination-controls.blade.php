@@ -1,5 +1,6 @@
 @props([
     'paginator' => null,
+    'userPageNumber' => null,
 ])
 
 <?php
@@ -16,6 +17,14 @@ $nextPageUrl = $baseUrl . '?' . http_build_query($queryParams);
 
 $queryParams['page'] = ['number' => 1];
 $firstPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+
+$userPageUrl = null;
+if ($userPageNumber) {
+    $queryParams['page'] = ['number' => $userPageNumber];
+    $userPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+}
+
+$isHighlightedRankOnCurrentPage = $paginator->currentPage() === $userPageNumber;
 ?>
 
 <script>
@@ -24,7 +33,18 @@ function handlePageChanged(event) {
 }
 </script>
 
-<div class="flex flex-col sm:flex-row gap-y-4 items-center justify-between md:justify-end md:gap-x-4">
+<div class="flex flex-col sm:flex-row gap-y-4 items-center justify-between md:gap-x-4">
+    @if (!$isHighlightedRankOnCurrentPage && $userPageNumber)
+        <a
+            class="btn transition-transform lg:active:scale-95"
+            href="{{ $userPageUrl }}"
+        >
+            Jump to your ranking's page
+        </a>
+    @else
+        <div></div>
+    @endif
+
     <div class="flex gap-x-4 items-center">
         <div class="flex items-center gap-x-1">
             @if (!$paginator->onFirstPage())

@@ -6,6 +6,7 @@
     'myUsername' => null,
     'paginator' => null,
     'selectedConsoleId' => null,
+    'userPageNumber' => null,
 ])
 
 <x-app-layout
@@ -37,6 +38,7 @@
 
         <x-beaten-games-leaderboard.pagination-controls
             :paginator="$paginator"
+            :userPageNumber="$userPageNumber"
         />
     @endif
 </x-app-layout>

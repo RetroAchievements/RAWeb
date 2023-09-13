@@ -1,5 +1,5 @@
 @props([
-    'isUserOnCurrentPage' => null,
+    'isUserOnCurrentPage' => false,
     'myRankingData' => null, // always null if unauthenticated or no rank
     'myUsername' => null,
     'paginator' => null,
