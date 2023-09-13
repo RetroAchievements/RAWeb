@@ -42,7 +42,7 @@
         @endforeach
 
         @if ($myRankingData && !$isUserOnCurrentPage)
-            <tr class="do-not-highlight"><td colspan="4">&nbsp;</td></tr>
+            <tr class="do-not-highlight"><td colspan="5">&nbsp;</td></tr>
 
             <x-beaten-games-leaderboard.leaderboard-table-row
                 :isHighlighted="true"
