@@ -9,59 +9,8 @@
     'trigger' => null, // Optional, provide a custom button
 ])
 
-<script>
-function modalComponent() {
-    return {
-        isModalOpen: false,
-        dynamicHtmlContent: '',
-        dynamicHtmlStatus: 'idle',
-        dynamicResourceApiRoute: '{{ $resourceApiRoute }}',
-
-        openModal() {
-            this.isModalOpen = true;
-
-            if (this.dynamicResourceApiRoute) {
-                this.fetchDynamicHtmlContent();
-            }
-        },
-
-        closeModal() {
-            this.isModalOpen = false;
-        },
-
-        fetchDynamicHtmlContent() {
-            if (window.cachedDialogHtmlContent) {
-                this.dynamicHtmlContent = window.cachedDialogHtmlContent;
-                return;
-            }
-
-            if (this.dynamicHtmlStatus !== 'idle') {
-                return;
-            }
-
-            if (this.dynamicResourceApiRoute) {
-                this.dynamicHtmlStatus = 'loading';
-
-                const resourceId = '{{ $resourceId }}';
-                const resourceContext = '{{ $resourceContext }}';
-
-                $.post(this.dynamicResourceApiRoute, {
-                    id: resourceId,
-                    context: resourceContext,
-                }).done(({ html }) => {
-                    this.dynamicHtmlContent = html;
-                    this.dynamicHtmlStatus = 'success';
-
-                    window.cachedDialogHtmlContent = html;
-                });
-            }
-        }
-    }
-}
-</script>
-
 <div
-    x-data="modalComponent()"
+    x-data="window.modalComponent('{{ $resourceApiRoute }}', '{{ $resourceId }}', '{{ $resourceContext }}')"
     @keydown.escape.window="closeModal"
     class="relative w-auto h-auto inline"
 >

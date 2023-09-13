@@ -3,7 +3,12 @@ import focus from '@alpinejs/focus';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-import { hideEarnedCheckboxComponent, newsCarouselComponent, tooltipComponent } from './alpine';
+import {
+  hideEarnedCheckboxComponent,
+  modalComponent,
+  newsCarouselComponent,
+  tooltipComponent,
+} from './alpine';
 import {
   autoExpandTextInput,
   copyToClipboard,
@@ -43,6 +48,7 @@ window.updateUrlParameter = updateUrlParameter;
 
 // Alpine.js Components
 window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
+window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
 window.tooltipComponent = tooltipComponent;
 

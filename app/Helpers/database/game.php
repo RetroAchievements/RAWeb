@@ -68,6 +68,27 @@ function getGameMetadata(
         14 => "ORDER BY ach.Points DESC, ach.ID DESC ",
         5 => "ORDER BY ach.Title, ach.ID ASC ",
         15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
+
+        6 => "ORDER BY 
+            CASE 
+                WHEN ach.type = 'progression' THEN 0 
+                WHEN ach.type = 'win_condition' THEN 1 
+                WHEN ach.type IS NULL THEN 2 
+                ELSE 3 
+            END, 
+            ach.DisplayOrder, 
+            ach.ID ASC ",
+
+        16 => "ORDER BY 
+            CASE 
+                WHEN ach.type = 'progression' THEN 0 
+                WHEN ach.type = 'win_condition' THEN 1 
+                WHEN ach.type IS NULL THEN 2 
+                ELSE 3 
+            END DESC, 
+            ach.DisplayOrder DESC, 
+            ach.ID DESC ",
+
         // 1
         default => "ORDER BY ach.DisplayOrder, ach.ID ASC ",
     };
