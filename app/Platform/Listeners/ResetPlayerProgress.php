@@ -10,9 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ResetPlayerProgress implements ShouldQueue
 {
-    public function __construct(
-        public object $event,
-    ) {
+    public function __construct()
+    {
     }
 
     public function handle(object $event): void
@@ -30,6 +29,6 @@ class ResetPlayerProgress implements ShouldQueue
         }
 
         // reset all achievements earned by the player
-        app()->make(ResetPlayerProgressAction::class)->execute($event->user);
+        app()->make(ResetPlayerProgressAction::class)->execute($user);
     }
 }
