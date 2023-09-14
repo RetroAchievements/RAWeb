@@ -171,9 +171,9 @@ function extendClaim(string $user, int $gameID): bool
 /**
  * Gets the claim data for a specific game to display to the users.
  */
-function getClaimData(int $gameID, bool $getFullData = true): array
+function getClaimData(int|array $gameID, bool $getFullData = true): array
 {
-    $query = "SELECT sc.User as User, sc.SetType as SetType,
+    $query = "SELECT sc.User as User, sc.SetType as SetType, sc.GameID as GameID,
         sc.ClaimType as ClaimType, sc.Created as Created, sc.Finished as Expiration";
 
     if ($getFullData) {
@@ -182,7 +182,16 @@ function getClaimData(int $gameID, bool $getFullData = true): array
         $query .= diffMinutesPassedStatement('sc.Created', 'MinutesActive');
     }
 
-    $query .= " FROM SetClaim sc WHERE sc.GameID = '$gameID'
+    if (is_array($gameID)) {
+        if (empty($gameID)) {
+            return [];
+        }
+        $gameIDs = implode(',', $gameID);
+    } else {
+        $gameIDs = $gameID;
+    }
+
+    $query .= " FROM SetClaim sc WHERE sc.GameID IN ($gameIDs)
                  AND sc.Status IN (" . ClaimStatus::Active . "," . ClaimStatus::InReview . ")
                ORDER BY sc.ClaimType ASC";
 

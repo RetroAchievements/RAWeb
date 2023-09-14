@@ -27,13 +27,13 @@ if (in_array($type, $onLists)) {
 <button id='{{ $type }}-list-button' class='btn' type='button' title='{{ $buttonTooltip }}'
         onClick="toggleListItem('{{ $type }}')">
     <div class="flex items-center gap-x-1">
-        <div id='add-to-{{ $type }}-list' class="w-[18px] h-[18px] {{ $addVisibility }}">
-            <x-icon.add-to-list />
+        <div id='add-to-{{ $type }}-list' class="{{ $addVisibility }}">
+            <x-fas-plus class="-mt-0.5 w-[12px] h-[12px]" />
         </div>
-        <div id='remove-from-{{ $type }}-list' class="w-[18px] h-[18px] {{ $removeVisibility }}">
-            <x-icon.remove-from-list />
+        <div id='remove-from-{{ $type }}-list' class="{{ $removeVisibility }}">
+            <x-fas-check class="-mt-0.5 w-[12px] h-[12px]" />
         </div>
-        <span class="block text-sm tracking-tighter">{{ __('user-game-list.' . $type . '.name') }}</span>
+        <span>{{ __('user-game-list.' . $type . '.name') }}</span>
     </div>
 </button>
 
