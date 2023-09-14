@@ -194,7 +194,6 @@ class BeatenGamesLeaderboardController extends Controller
 
         $result = DB::table($subqueryTable)
             ->mergeBindings($subquery)
-            ->orderBy('rank_number')
             ->where('User', $username)
             ->get();
 
@@ -218,6 +217,7 @@ class BeatenGamesLeaderboardController extends Controller
 
         $result = DB::table($subqueryTable)
             ->mergeBindings($subquery)
+            ->orderBy('rank_number')
             ->offset($currentOffset)
             ->limit($this->pageSize)
             ->get();
