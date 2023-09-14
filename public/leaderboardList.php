@@ -245,28 +245,32 @@ foreach ($lbData as $nextLB) {
         echo "<tr>";
         echo "<td style='width:10%;'>Start:</td>";
         echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem1' value='$memStart' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+        echo "<p>$memStart</p>";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem1' value='$memStart' readonly />";
         echo "</td>";
         echo "</tr>";
 
         echo "<tr>";
         echo "<td style='width:10%;'>Cancel:</td>";
         echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem2' value='$memCancel' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+        echo "<p>$memCancel</p>";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem2' value='$memCancel' readonly />";
         echo "</td>";
         echo "</tr>";
 
         echo "<tr>";
         echo "<td style='width:10%;'>Submit:</td>";
         echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem3' value='$memSubmit' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+        echo "<p>$memSubmit</p>";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem3' value='$memSubmit' readonly />";
         echo "</td>";
         echo "</tr>";
 
         echo "<tr>";
         echo "<td style='width:10%;'>Value:</td>";
         echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem4' value='$memValue' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
+        echo "<p>$memValue</p>";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem4' value='$memValue' readonly />";
         echo "</td>";
         echo "</tr>";
 
