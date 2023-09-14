@@ -187,6 +187,17 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 12, // PlayStation
             ],
         ],
+        Emulators::PPSSPP => [
+            'minimum_version' => '1.16.0',
+            'name' => 'PPSSPP',
+            'handle' => 'PPSSPP',
+            'active' => true,
+            'link' => 'https://www.ppsspp.org/docs/intro',
+            'download_url' => 'https://www.ppsspp.org/download/',
+            'systems' => [
+                41, // PlayStation Portable
+            ],
+        ],
         Emulators::WinArcadia => [
             'minimum_version' => '29.41',
             'name' => 'WinArcadia',

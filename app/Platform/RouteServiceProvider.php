@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Platform\Controllers\ApiDocsController;
+use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
+            Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
