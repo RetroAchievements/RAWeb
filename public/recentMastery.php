@@ -45,11 +45,11 @@ if ($followed == 1) {
     $data = getRecentProgressionAwardData($date, null, $offset, $maxCount + 1, $awardType, $unlockMode);
 }
 
-RenderContentStart("Recent " . $lbUsers . " Progression Awards");
+RenderContentStart("Recent " . $lbUsers . " Game Awards");
 ?>
 <article>
     <?php
-    echo "<h2>Recent " . $lbUsers . " Progression Awards</h2>";
+    echo "<h2>Recent " . $lbUsers . " Game Awards</h2>";
 
     echo Blade::render('
         <x-recent-awards.meta-panel
