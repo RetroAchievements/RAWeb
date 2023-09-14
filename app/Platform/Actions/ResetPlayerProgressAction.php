@@ -4,11 +4,12 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Models\Achievement;
 use App\Site\Models\User;
 
-class ResetPlayerAchievementAction
+class ResetPlayerProgressAction
 {
-    public function execute(User $user, ?int $achievementID = null, ?int $gameID = null): bool
+    public function execute(User $user, ?int $achievementID = null, ?int $gameID = null): void
     {
         $clause = '';
         if ($achievementID !== null) {
@@ -49,13 +50,25 @@ class ResetPlayerAchievementAction
 
         $clause = '';
         if ($achievementID !== null) {
+            $user->playerAchievements()->where('achievement_id', $achievementID)->delete();
+            // TODO one achievement reset PlayerAchievementLocked::dispatch($user, $achievementID);
+
             $clause = "AND AchievementID=$achievementID";
         } elseif ($gameID !== null) {
+            $user->playerAchievements()
+                ->whereIn('achievement_id', Achievement::where('GameID', $gameID)->pluck('ID'))
+                ->delete();
+            // TODO one game reset PlayerGameProgressReset::dispatch($user, $gameID);
+
             $clause = "AND AchievementID IN (SELECT ID FROM Achievements WHERE GameID=$gameID)";
+        } else {
+            $user->playerAchievements()->delete();
+            // TODO multiple games reset PlayerGameProgressReset::dispatch($user, $gameIDs);
         }
 
         legacyDbStatement("DELETE FROM Awarded WHERE User = :username $clause", ['username' => $user->User]);
 
+        // TODO everything below should be queued based on the events dispatched above
         foreach ($affectedGames as $affectedGameID) {
             // delete the mastery badge (if the player had it)
             $user->playerBadges()
@@ -78,7 +91,5 @@ class ResetPlayerAchievementAction
         }
 
         $user->save();
-
-        return true;
     }
 }
