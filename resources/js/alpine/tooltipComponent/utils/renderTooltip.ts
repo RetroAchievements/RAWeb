@@ -46,6 +46,7 @@ export function renderTooltip(
     'top-0',
     'left-0',
     'rounded',
+    'pointer-events-none',
     'overflow-hidden',
     'z-10',
   );
