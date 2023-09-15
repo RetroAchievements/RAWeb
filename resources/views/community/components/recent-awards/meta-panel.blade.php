@@ -47,7 +47,7 @@ function handleAwardTypeChanged(event) {
     
     if (queryParamsMap[selectedValue]) {
         const [awardType, unlockMode] = queryParamsMap[selectedValue];
-        window.updateUrlParameter(['t', 'm'], [awardType, unlockMode]);
+        window.updateUrlParameter(['t', 'm', 'o'], [awardType, unlockMode, '']);
     } else {
         // Revert back to "All".
         window.updateUrlParameter(['t', 'm'], ['', '']);

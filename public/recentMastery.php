@@ -138,25 +138,25 @@ RenderContentStart("Recent " . $lbUsers . " Game Awards");
     echo "<div class='text-right'>";
     if ($date > $minDate) {
         $prevDate = date('Y-m-d', strtotime($date . "-1 days"));
-        echo "<a href='/recentMastery.php?d=$prevDate&f=$followed&o=0'>&lt; Prev Day </a>";
+        echo "<a href='/recentMastery.php?d=$prevDate&f=$followed&o=0&t=$awardType&m=$unlockMode'>&lt; Prev Day </a>";
         if ($date < date("Y-m-d")) {
             echo " | ";
         }
     }
     if ($offset > 0) {
         $prevOffset = $offset - $maxCount;
-        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$prevOffset'>&lt; Prev $maxCount </a>";
+        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$prevOffset&t=$awardType&m=$unlockMode'>&lt; Prev $maxCount </a>";
     }
     if ($userCount > $maxCount) {
         if ($offset > 0) {
             echo " - ";
         }
         $nextOffset = $offset + $maxCount;
-        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$nextOffset'>Next $maxCount &gt;</a>";
+        echo "<a href='/recentMastery.php?d=$date&f=$followed&o=$nextOffset&t=$awardType&m=$unlockMode'>Next $maxCount &gt;</a>";
     }
     if ($date < date("Y-m-d")) {
         $nextDate = date('Y-m-d', strtotime($date . "+1 days"));
-        echo " | <a href='/recentMastery.php?d=$nextDate&f=$followed&o=0'>Next Day &gt;</a>";
+        echo " | <a href='/recentMastery.php?d=$nextDate&f=$followed&o=0&t=$awardType&m=$unlockMode'>Next Day &gt;</a>";
     }
     echo "</div>";
     ?>
