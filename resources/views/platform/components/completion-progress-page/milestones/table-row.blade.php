@@ -26,7 +26,7 @@ if ($milestone['kind'] === 'mastered') {
 
 $dateLabel = Carbon::createFromTimestamp($milestone['when'])->format('M j Y');
 
-$showRecentBeatenSoftcoreTooltip = $milestone['kind'] === 'beaten-softcore' && $milestone['which'] === 'most recent';
+$showRecentBeatenSoftcoreTooltip = $milestone['kind'] === 'beaten-softcore';
 ?>
 
 <tr>

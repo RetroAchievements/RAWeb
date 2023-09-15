@@ -68,6 +68,10 @@ class ResetPlayerProgressAction
 
         legacyDbStatement("DELETE FROM Awarded WHERE User = :username $clause", ['username' => $user->User]);
 
+        // expire the cached awarded data for the user's profile
+        // TODO: Remove when denormalized data is ready.
+        expireUserCompletedGamesCacheValue($user->User);
+
         // TODO everything below should be queued based on the events dispatched above
         foreach ($affectedGames as $affectedGameID) {
             // delete the mastery badge (if the player had it)
@@ -81,10 +85,6 @@ class ResetPlayerProgressAction
 
             // expire the cached unlocks for the game for the user
             expireUserAchievementUnlocksForGame($user->User, $affectedGameID);
-
-            // expire the cached awarded data for the user's profile
-            // TODO: Remove when denormalized data is ready.
-            expireUserCompletedGamesCacheValue($user->User);
 
             // revoke beaten game awards if necessary
             testBeatenGame($affectedGameID, $user->User, false);
