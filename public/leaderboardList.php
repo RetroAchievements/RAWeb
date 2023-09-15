@@ -82,37 +82,6 @@ if (isset($gameData['ID'])) {
     echo "</div>";
 }
 
-if ($permissions >= Permissions::JuniorDeveloper) {
-    $numGames = getGamesList(0, $gamesList);
-
-    echo "<div class='devbox'>";
-    echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-    echo "<div id='devboxcontent' style='display: none'>";
-
-    echo "<ul>";
-    echo "<li>";
-    echo "<form method='post' action='/request/leaderboard/create.php'>";
-    echo csrf_field();
-    echo "<input type='hidden' name='game' value='$gameID' />";
-    echo "<button class='btn'>Create Leaderboard</button>";
-    echo "</form>";
-    echo "<form method='post' action='/request/leaderboard/create.php'>";
-    echo csrf_field();
-    echo "<input type='hidden' name='game' value='$gameID'>";
-    echo "Duplicate leaderboard ID: ";
-    echo "<input style='width: 10%;' min='1' name='leaderboard'> ";
-    echo "Amount: ";
-    echo "<input style='width: 10%;' type='number' min='1' max='25' value='1' name='amount'>";
-    echo "&nbsp;&nbsp;";
-    echo "<button class='btn'>Duplicate</button>";
-    echo "</form>";
-    echo "</li>";
-    echo "</ul>";
-
-    echo "</div>";
-    echo "</div>";
-}
-
 echo "<table><tbody>";
 
 $sort1 = ($sortBy == 1) ? 11 : 1;
