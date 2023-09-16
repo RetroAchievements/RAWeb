@@ -11,6 +11,7 @@ function activePlayersComponent() {
     const cookieName = 'active_players_search';
 
     return {
+        canShowEmptyState: {{ $totalActivePlayers === 0 ? 'true' : 'false' }},
         hasFetchedFullList: false,
         hasSavedSearchInput: {{ $initialSearch ? 'true' : 'false' }},
         isMenuOpen: {{ $initialSearch ? 'true' : 'false' }},
@@ -19,8 +20,6 @@ function activePlayersComponent() {
         searchInput: "{{ $initialSearch ?? '' }}",
 
         init() {
-            // TODO: set refresh interval
-
             const FIVE_MINUTES = 300000; // milliseconds
             setInterval(() => {
                 this.refreshActivePlayers(this.hasFetchedFullList);
@@ -136,6 +135,8 @@ function activePlayersComponent() {
 
             viewingCountEl.innerHTML = viewing.toLocaleString();
             totalCountEl.innerHTML = total.toLocaleString();
+
+            this.canShowEmptyState = (viewing === 0 || total === 0);
         },
 
         /**
@@ -204,50 +205,59 @@ function activePlayersComponent() {
 <section class="component" x-data="activePlayersComponent()">
     <h3>Active Players</h3>
 
-    @if ($totalActivePlayers === 0)
+    <div class="mb-2">
+        <div class="flex w-full justify-between items-center">
+            <x-active-players.active-players-count-label
+                :activePlayersCount="$activePlayersCount"
+                :totalActivePlayers="$totalActivePlayers"
+            />
+
+            <button
+                class="btn transition-all duration-200 lg:active:scale-95 -mb-px"
+                :class="{
+                    '!border-b-transparent !rounded-b-none': isMenuOpen
+                }"
+                aria-label="Open search and filter menu"
+                @click="isMenuOpen = !isMenuOpen"
+            >
+                <x-fas-bars />
+            </button>
+        </div>
+
+        <x-active-players.active-players-search-filter-panel
+            :initialSearch="$initialSearch"
+        />
+    </div>
+
+    <div
+        id="active-players-empty-state"
+        @if ($activePlayersCount !== 0) class="hidden" @endif
+        :class="{'!block': canShowEmptyState}"
+    >
         <x-active-players.active-players-empty-state />
-    @else
-        <div class="mb-2">
-            <div class="flex w-full justify-between items-center">
-                <x-active-players.active-players-count-label
-                    :activePlayersCount="$activePlayersCount"
-                    :totalActivePlayers="$totalActivePlayers"
-                />
+    </div>
 
-                <button
-                    class="btn transition-all duration-200 lg:active:scale-95 -mb-px"
-                    :class="{
-                        '!border-b-transparent !rounded-b-none': isMenuOpen
-                    }"
-                    aria-label="Open search and filter menu"
-                    @click="isMenuOpen = !isMenuOpen"
-                >
-                    <x-fas-bars />
-                </button>
-            </div>
+    <div
+        id="active-players-scroll-area"
+        class="h-[325px] max-h-[325px] overflow-y-auto border border-embed-highlight rounded {{ $activePlayersCount === 0 ? 'hidden' : '' }}"
+        @scroll="handleScroll()"
+        x-show="!canShowEmptyState"
+    >
+        <x-active-players.active-players-table
+            :activePlayers="$initialActivePlayers"
+        />
+    </div>
 
-            <x-active-players.active-players-search-filter-panel
-                :initialSearch="$initialSearch"
-            />
-        </div>
+    <div class="mt-0.5 flex w-full justify-end">
+        <p class="text-2xs" id="active-players-last-updated-text" x-text="lastUpdatedAtLabel">
+            {{-- Use a placeholder time before hydration kicks in. --}}
+            Last updated at 9:00am
+        </p>
+    </div>
 
-        <div id="active-players-scroll-area" class="max-h-[325px] overflow-y-auto" @scroll="handleScroll()">
-            <x-active-players.active-players-table
-                :activePlayers="$initialActivePlayers"
-            />
-        </div>
-
-        <div class="flex w-full justify-end">
-            <p class="text-2xs" id="active-players-last-updated-text" x-text="lastUpdatedAtLabel">
-                {{-- Use a placeholder time before hydration kicks in. --}}
-                Last updated at 9:00am
-            </p>
-        </div>
-
-        @if (!empty($trendingGames) && count($trendingGames) === 4)
-            <x-active-players.active-players-trending-games
-                :trendingGames="$trendingGames"
-            />
-        @endif
+    @if (!empty($trendingGames) && count($trendingGames) === 4)
+        <x-active-players.active-players-trending-games
+            :trendingGames="$trendingGames"
+        />
     @endif
 </section>
