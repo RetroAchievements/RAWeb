@@ -203,15 +203,8 @@ class UpdatePlayerGameMetricsAction
         } else {
             $query = $user->playerBadges()
                 ->where('AwardType', AwardType::Mastery)
-                ->where('AwardData', $game->id);
-
-            if ($query->exists()) {
-                // TODO
-                $user->playerBadges()
-                    ->where('AwardType', AwardType::Mastery)
-                    ->where('AwardData', $game->id)
-                    ->delete();
-            }
+                ->where('AwardData', $game->id)
+                ->delete();
         }
     }
 
