@@ -15,7 +15,7 @@ use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Platform\TestsPlayerAchievements;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class AwardAchievementTest extends TestCase

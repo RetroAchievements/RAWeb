@@ -10,7 +10,7 @@ use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Platform\TestsPlayerAchievements;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class UserRecentAchievementsTest extends TestCase
