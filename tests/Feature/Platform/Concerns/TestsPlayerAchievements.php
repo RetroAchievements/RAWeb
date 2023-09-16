@@ -8,7 +8,7 @@ use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerAchievementLegacy;
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 trait TestsPlayerAchievements
 {
