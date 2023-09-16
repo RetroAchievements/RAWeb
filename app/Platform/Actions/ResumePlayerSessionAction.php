@@ -39,14 +39,12 @@ class ResumePlayerSessionAction
 
         if ($playerSession) {
             // if the session hasn't been updated in the last 10 minutes, start a new session
-            if ($timestamp->diffInMinutes($playerSession->updated_at) < 10) {
+            if ($timestamp->diffInMinutes($playerSession->rich_presence_updated_at) < 10) {
                 $playerSession->duration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
-
                 if ($presence) {
                     $playerSession->rich_presence = $presence;
-                    $playerSession->rich_presence_updated_at = $timestamp;
                 }
-
+                $playerSession->rich_presence_updated_at = $timestamp;
                 $playerSession->save(['touch' => true]);
 
                 PlayerSessionResumed::dispatch($user, $game, $presence);

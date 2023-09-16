@@ -259,15 +259,16 @@ switch ($requestType) {
         $achIDToAward = (int) request()->input('a', 0);
         $hardcore = (bool) request()->input('h', 0);
 
-        // no checks, just dispatch
-        dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
-            ->onQueue('player-achievements');
-
         /**
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
          * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
          */
         $response = array_merge($response, unlockAchievement($username, $achIDToAward, $hardcore));
+
+        // no checks, just dispatch
+        dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
+            ->onQueue('player-achievements');
+
         if (empty($response['Score']) && getPlayerPoints($username, $userPoints)) {
             $response['Score'] = $userPoints['RAPoints'] ?? 0;
             $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'] ?? 0;

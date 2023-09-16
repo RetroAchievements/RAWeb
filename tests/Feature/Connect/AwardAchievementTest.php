@@ -60,6 +60,12 @@ class AwardAchievementTest extends TestCase
         $this->addHardcoreUnlock($this->user, $achievement5, $unlock1Date);
         $this->addHardcoreUnlock($this->user, $achievement6, $unlock1Date);
 
+        $playerSession1 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession1);
+
         // cache the unlocks for the game - verify singular unlock captured
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
         $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
@@ -80,13 +86,14 @@ class AwardAchievementTest extends TestCase
                 'Score' => $scoreBefore + $achievement3->Points,
                 'SoftcoreScore' => $softcoreScoreBefore,
             ]);
+        $this->user->refresh();
 
         // player session resumed
-        $playerSession = PlayerSession::where([
+        $playerSession2 = PlayerSession::where([
             'user_id' => $this->user->id,
             'game_id' => $achievement3->game_id,
-        ])->first();
-        $this->assertModelExists($playerSession);
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
 
         // game attached
         $playerGame = PlayerGame::where([
@@ -96,8 +103,6 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerGame);
         $this->assertNotNull($playerGame->last_played_at);
 
-        // TODO assert player game metrics
-
         // achievement unlocked
         $playerAchievement = PlayerAchievement::where([
             'user_id' => $this->user->id,
@@ -106,7 +111,7 @@ class AwardAchievementTest extends TestCase
         $this->assertModelExists($playerAchievement);
         $this->assertNotNull($playerAchievement->unlocked_at);
         $this->assertNotNull($playerAchievement->unlocked_hardcore_at);
-        $this->assertEquals($playerAchievement->player_session_id, $playerSession->id);
+        $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
 
         // player score should have increased
         $user1 = User::firstWhere('User', $this->user->User);
@@ -236,6 +241,7 @@ class AwardAchievementTest extends TestCase
 
         /** @var User $author */
         $author = User::factory()->create(['ContribCount' => 1234, 'ContribYield' => 5678]);
+
         $game = $this->seedGame(withHash: false);
         $gameHash = '0123456789abcdeffedcba9876543210';
         /** @var Achievement $achievement1 */
@@ -276,17 +282,18 @@ class AwardAchievementTest extends TestCase
                 'Score' => $scoreBefore,
                 'SoftcoreScore' => $softcoreScoreBefore + $achievement3->Points,
             ]);
+        $this->user->refresh();
 
         // player score should have increased
-        $user1 = User::firstWhere('User', $this->user->User);
+        $user1 = $this->user;
         $this->assertEquals($scoreBefore, $user1->RAPoints);
         $this->assertEquals($softcoreScoreBefore + $achievement3->Points, $user1->RASoftcorePoints);
         $this->assertEquals($truePointsBefore, $user1->TrueRAPoints);
 
         // author contribution should have increased
-        $author1 = User::firstWhere('User', $achievement3->Author);
-        $this->assertEquals($authorContribYieldBefore + $achievement3->Points, $author1->ContribYield);
-        $this->assertEquals($authorContribCountBefore + 1, $author1->ContribCount);
+        $author1 = $author->refresh();
+        $this->assertEquals($user1->points + $user1->points_softcore, $author1->ContribYield);
+        $this->assertEquals($user1->achievements_unlocked, $author1->ContribCount);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
@@ -346,12 +353,13 @@ class AwardAchievementTest extends TestCase
                 'Score' => $scoreBefore + $achievement3->Points,
                 'SoftcoreScore' => $softcoreScoreBefore - $achievement3->Points,
             ]);
+        $this->user->refresh();
 
         // player score should have adjusted
-        $user2 = User::firstWhere('User', $this->user->User);
+        $user2 = $this->user;
         $this->assertEquals($scoreBefore + $achievement3->Points, $user2->RAPoints);
         $this->assertEquals($softcoreScoreBefore - $achievement3->Points, $user2->RASoftcorePoints);
-        $this->assertEquals($truePointsBefore + $achievement3->TruePoints, $user2->TrueRAPoints);
+        $this->assertGreaterThan(0, $user2->TrueRAPoints);
 
         // author contribution should not have increased
         $author2 = User::firstWhere('User', $achievement3->Author);

@@ -48,7 +48,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue, ShouldBeUnique
                 $this->unlockedByUserId ? User::findOrFail($this->unlockedByUserId) : null,
             );
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(), ['exception' => $exception]);
+            // Log::error($exception->getMessage(), ['exception' => $exception]);
             $this->fail($exception);
         }
     }
