@@ -192,7 +192,7 @@ class Achievement extends BaseModel implements HasComments
 
     public function getPointsWeightedAttribute(): ?int
     {
-        return $this->attributes['TrueRatio'] ?? null;
+        return (int) $this->attributes['TrueRatio'] ?? null;
     }
 
     // == mutators
