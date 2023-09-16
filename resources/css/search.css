@@ -9,7 +9,7 @@
 }
 
 .searchbox-top {
-  height: 22px;
+  height: 30px;
   background-color: var(--embed-highlight-color);
   border: 1px solid var(--divider-color);
   border-radius: 15px;
@@ -28,20 +28,23 @@
   transition: width 0.2s;
 }
 
-.searchbox-top .searchboxinput:focus {
+.searchbox-top .searchboxinput:focus,
+.searchbox-top .searchboxinput:not(:placeholder-shown) {
   width: 190px;
   padding-left: 10px;
 }
 
 @media only screen and (max-width: 374px) {
-  .searchbox-top .searchboxinput:focus {
+  .searchbox-top .searchboxinput:focus,
+  .searchbox-top .searchboxinput:not(:placeholder-shown) {
     width: 80px;
     padding-left: 5px;
   }
 }
 
 @media only screen and (min-width: 375px) and (max-width: theme('screens.sm')) {
-  .searchbox-top .searchboxinput:focus {
+  .searchbox-top .searchboxinput:focus,
+  .searchbox-top .searchboxinput:not(:placeholder-shown) {
     width: 130px;
   }
 }
