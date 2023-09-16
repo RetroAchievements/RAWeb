@@ -16,9 +16,7 @@ if (Auth::user()) {
     <x-news.carousel-2 />
     <x-claims.finished-claims count="6" />
 
-    <?php
-        RenderActivePlayersComponent();
-    ?>
+    <x-active-players />
 
     <x-user.online-count-chart />
     <x-claims.new-claims count="5" />

@@ -14,6 +14,7 @@ use App\Community\Commands\SyncRatings;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Commands\SyncVotes;
+use App\Community\Components\ActivePlayers;
 use App\Community\Components\GlobalStatistics;
 use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
@@ -104,6 +105,7 @@ class AppServiceProvider extends ServiceProvider
         TriggerTicketComment::disableSearchSyncing();
         UserComment::disableSearchSyncing();
 
+        Blade::component('active-players', ActivePlayers::class);
         Blade::component('global-statistics', GlobalStatistics::class);
         Blade::component('user-card', UserCard::class);
         Blade::component('user-progression-status', UserProgressionStatus::class);

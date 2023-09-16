@@ -73,6 +73,24 @@ function unixTimestampStatement(string $column, string $alias): string
     };
 }
 
+function timestampAddMinutesStatement(string $column, int $minutes): string
+{
+    return match (DB::getDriverName()) {
+        'sqlite' => "datetime($column, '" . ($minutes > 0 ? '+' : '-') . abs($minutes) . " minutes')",
+        // mysql
+        default => "TIMESTAMPADD(MINUTE, $minutes, $column)",
+    };
+}
+
+function ifStatement(string $condition, $trueValue, $falseValue): string
+{
+    return match (DB::getDriverName()) {
+        'sqlite' => "CASE WHEN $condition THEN $trueValue ELSE $falseValue END",
+        // mysql
+        default => "IF($condition, $trueValue, $falseValue)"
+    };
+}
+
 /**
  * @deprecated
  */
