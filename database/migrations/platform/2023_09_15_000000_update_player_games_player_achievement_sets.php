@@ -10,9 +10,6 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('player_games', function (Blueprint $table) {
-        });
-
-        Schema::table('player_games', function (Blueprint $table) {
             $table->string('achievement_set_version_hash')->nullable()->after('game_hash_id');
             $table->string('update_status')->nullable()->after('achievement_set_version_hash');
 

@@ -38,6 +38,10 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
                 break;
         }
 
+        if ($user === null) {
+            return;
+        }
+
         dispatch(new UpdateDeveloperContributionYieldJob($user->id))
             ->onQueue('developer-metrics');
     }

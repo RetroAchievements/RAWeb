@@ -10,7 +10,7 @@ use App\Platform\Models\Game;
 use App\Platform\Models\GameHash;
 use App\Platform\Models\PlayerSession;
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 class ResumePlayerSessionAction
 {

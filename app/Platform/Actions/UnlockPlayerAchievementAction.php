@@ -8,7 +8,8 @@ use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerAchievement;
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
+use Exception;
 
 class UnlockPlayerAchievementAction
 {
@@ -20,6 +21,10 @@ class UnlockPlayerAchievementAction
         ?User $unlockedBy = null
     ): void {
         $timestamp ??= Carbon::now();
+
+        if (!$achievement->game) {
+            throw new Exception('Achievement does not belong to any game');
+        }
 
         // make sure to resume the player session which will attach the game to the player, too
         $achievement->loadMissing('game');

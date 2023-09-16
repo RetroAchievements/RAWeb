@@ -19,10 +19,9 @@ class UpdatePlayerMetricsAction
         $user->completion_percentage_average_hardcore = $playerGames->average('completion_percentage_hardcore');
 
         // TODO refactor to use aggregated player_games metrics
-        $unlockedAchievements = $user->achievements()->published();
-        $user->RAPoints = $unlockedAchievements->wherePivotNotNull('unlocked_hardcore_at')->sum('Points');
-        $user->RASoftcorePoints = $unlockedAchievements->wherePivotNull('unlocked_hardcore_at')->sum('Points');
-        $user->TrueRAPoints = $unlockedAchievements->wherePivotNotNull('unlocked_hardcore_at')->sum('TrueRatio');
+        $user->RAPoints = $user->achievements()->published()->wherePivotNotNull('unlocked_hardcore_at')->sum('Points');
+        $user->RASoftcorePoints = $user->achievements()->published()->wherePivotNull('unlocked_hardcore_at')->sum('Points');
+        $user->TrueRAPoints = $user->achievements()->published()->wherePivotNotNull('unlocked_hardcore_at')->sum('TrueRatio');
 
         // TODO refactor to use the above implementation only
         // legacyDbStatement(

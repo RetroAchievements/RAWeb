@@ -73,7 +73,7 @@ class WriteUserActivity
                 $userActivityType = UserActivityType::UnlockedAchievement;
                 // TODO: subject_context = create
                 $subjectType = 'achievement';
-                $subjectId = $event->achievement->ID;
+                $subjectId = $event->achievement->id;
                 $context = $event->hardcore ? 1 : null;
                 break;
             case AchievementSetCompleted::class:

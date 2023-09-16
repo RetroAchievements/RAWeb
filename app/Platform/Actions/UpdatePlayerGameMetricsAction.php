@@ -18,7 +18,7 @@ use App\Platform\Models\Game;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerGame;
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 class UpdatePlayerGameMetricsAction
 {
