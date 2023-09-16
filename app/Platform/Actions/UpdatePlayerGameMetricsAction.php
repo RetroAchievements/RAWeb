@@ -225,7 +225,7 @@ class UpdatePlayerGameMetricsAction
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $game->id);
         $softcoreBadge = $badge->where('AwardDataExtra', UnlockMode::Softcore);
-        $hardcoreBadge = $badge->where('AwardDataExtra', UnlockMode::Softcore);
+        $hardcoreBadge = $badge->where('AwardDataExtra', UnlockMode::Hardcore);
 
         // Revoke pre-existing awards that no longer satisfy the game's "beaten" criteria.
         // If the platform changes the definition of beating a game and the user no
