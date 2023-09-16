@@ -82,7 +82,7 @@ function timestampAddMinutesStatement(string $column, int $minutes): string
     };
 }
 
-function ifStatement(string $condition, $trueValue, $falseValue): string
+function ifStatement(string $condition, mixed $trueValue, mixed $falseValue): string
 {
     return match (DB::getDriverName()) {
         'sqlite' => "CASE WHEN $condition THEN $trueValue ELSE $falseValue END",
