@@ -166,6 +166,9 @@ class UpdatePlayerGameMetricsAction
     private function checkCompletionBadge(User $user, Game $game, bool $hardcore): void
     {
         $data = getUnlockCounts($game->id, $user->username, $hardcore);
+        if (empty($data)) {
+            return;
+        }
 
         $minToCompleteGame = 6;
 

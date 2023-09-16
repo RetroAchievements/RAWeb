@@ -111,7 +111,7 @@ function purgeAllPlayerBeatenGameAwardsForGame(string $username, int $gameId): v
         ->delete();
 }
 
-function getUnlockCounts(int $gameID, string $username, bool $hardcore = false): array
+function getUnlockCounts(int $gameID, string $username, bool $hardcore = false): ?array
 {
     $data = legacyDbFetch(
         "SELECT COUNT(DISTINCT ach.ID) AS NumAch,
