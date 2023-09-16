@@ -80,10 +80,27 @@ $(document).ready(onUserChange);
     echo "<tr><td>Message:</td><td colspan='2'>";
     RenderShortcodeButtons();
     echo "<textarea oninput='autoExpandTextInput(this)' id='commentTextarea' class='w-full forum messageTextarea' style='height:160px' rows='5' cols='61' name='message' placeholder='Enter your message here...' required>$messageOutgoingPayload</textarea></td></tr>";
-    echo "<tr><td></td><td colspan='2' class='w-full'><button class='btn' style='float:right'>Send Message</button></td></tr>";
+
+    $loadingIconSrc = asset('assets/images/icon/loading.gif');
+
+    echo <<<HTML
+        <tr>
+            <td></td>
+            <td colspan="2">
+                <div class="flex justify-end items-center">
+                    <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
+                    <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()">Preview</button>
+                    <button class="btn">Send Message</button>
+                </div>
+            </td>
+        </tr>
+    HTML;
+
     echo "</tbody>";
     echo "</table>";
     echo "</form>";
+
+    echo "<div id='post-preview'></div>";
     ?>
 </article>
 <?php RenderContentEnd(); ?>
