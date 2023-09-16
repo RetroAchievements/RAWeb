@@ -73,12 +73,12 @@ function unixTimestampStatement(string $column, string $alias): string
     };
 }
 
-function timestampAddMinutesStatement(string $column, int $minutes): string
+function timestampAddMinutesStatement(int $minutes): string
 {
     return match (DB::getDriverName()) {
-        'sqlite' => "datetime($column, '" . ($minutes > 0 ? '+' : '-') . abs($minutes) . " minutes')",
+        'sqlite' => "datetime('now', '" . ($minutes > 0 ? '+' : '-') . abs($minutes) . " minutes')",
         // mysql
-        default => "TIMESTAMPADD(MINUTE, $minutes, $column)",
+        default => "TIMESTAMPADD(MINUTE, $minutes, NOW())",
     };
 }
 

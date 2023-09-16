@@ -481,7 +481,7 @@ function getLatestRichPresenceUpdates(): array
 
     $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.RAPoints');
     $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.RASoftcorePoints');
-    $timestampStatement = timestampAddMinutesStatement('ua.RichPresenceMsgDate', -$recentMinutes);
+    $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
     $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
                      ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName

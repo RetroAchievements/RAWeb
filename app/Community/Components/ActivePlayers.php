@@ -25,7 +25,8 @@ class ActivePlayers extends Component
     public function render(): View
     {
         $loadedActivePlayers = $this->activePlayersService->loadActivePlayers(
-            $this->initialSearch
+            $this->initialSearch,
+            false
         );
 
         return view('community.components.active-players.active-players', [
