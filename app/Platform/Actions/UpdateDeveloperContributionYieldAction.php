@@ -18,8 +18,6 @@ class UpdateDeveloperContributionYieldAction
         // TODO refactor to player_achievements
         // TODO instead of iterating over all unlocks, aggregate the sums in the query
 
-        return;
-
         $username = $user->username;
 
         $points = 0;
@@ -111,7 +109,7 @@ class UpdateDeveloperContributionYieldAction
     /**
      * @deprecated TODO still needed?
      */
-    private function attributeDevelopmentAuthor(string $author, int $count, int $points): void
+    public function attributeDevelopmentAuthor(string $author, int $count, int $points): void
     {
         $user = User::firstWhere('User', $author);
         if ($user === null) {

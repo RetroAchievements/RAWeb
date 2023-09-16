@@ -45,7 +45,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue, ShouldBeUnique
                 Achievement::findOrFail($this->achievementId),
                 $this->hardcore,
                 $this->timestamp,
-                $this->unlockedByUserId,
+                $this->unlockedByUserId ? User::findOrFail($this->unlockedByUserId) : null,
             );
         } catch (Exception $exception) {
             Log::error($exception->getMessage(), ['exception' => $exception]);

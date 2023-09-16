@@ -168,43 +168,46 @@ class UpdatePlayerGameMetricsAction
         $data = getUnlockCounts($game->id, $user->username);
 
         $minToCompleteGame = 6;
-        if ($data['NumAch'] >= $minToCompleteGame) {
-            $awardBadge = null;
-            if ($hardcore && $data['NumAwardedHC'] === $data['NumAch']) {
-                // all hardcore achievements unlocked, award mastery
-                $awardBadge = UnlockMode::Hardcore;
-            } elseif ($data['NumAwardedSC'] === $data['NumAch']) {
-                if ($hardcore && $this->playerBadgeExists($user->username, AwardType::Mastery, $game->id, UnlockMode::Softcore)) {
-                    // when unlocking a hardcore achievement, don't update the completion
-                    // date if the user already has a completion badge
-                } else {
-                    $awardBadge = UnlockMode::Softcore;
-                }
-            }
 
-            if ($awardBadge !== null) {
-                if (!$this->playerBadgeExists($user->username, AwardType::Mastery, $game->id, $awardBadge)) {
-                    $badge = AddSiteAward($user->username, AwardType::Mastery, $game->id, $awardBadge);
-
-                    PlayerBadgeAwarded::dispatch($badge);
-                    PlayerGameCompleted::dispatch($user, $game->id);
-
-                    if ($awardBadge === UnlockMode::Hardcore) {
-                        static_addnewhardcoremastery($game->id, $user->username);
-                    }
-                }
-
-                if (!RecentlyPostedProgressionActivity($user->username, $game->id, $awardBadge, ActivityType::CompleteGame)) {
-                    postActivity($user->username, ActivityType::CompleteGame, $game->id, $awardBadge);
-                }
-
-                expireGameTopAchievers($game->id);
-            }
-        } else {
-            $query = $user->playerBadges()
+        if ($data['NumAch'] < $minToCompleteGame) {
+            $user->playerBadges()
                 ->where('AwardType', AwardType::Mastery)
                 ->where('AwardData', $game->id)
                 ->delete();
+
+            return;
+        }
+
+        $awardBadge = null;
+        if ($hardcore && $data['NumAwardedHC'] === $data['NumAch']) {
+            // all hardcore achievements unlocked, award mastery
+            $awardBadge = UnlockMode::Hardcore;
+        } elseif ($data['NumAwardedSC'] === $data['NumAch']) {
+            if ($hardcore && $this->playerBadgeExists($user->username, AwardType::Mastery, $game->id, UnlockMode::Softcore)) {
+                // when unlocking a hardcore achievement, don't update the completion
+                // date if the user already has a completion badge
+            } else {
+                $awardBadge = UnlockMode::Softcore;
+            }
+        }
+
+        if ($awardBadge !== null) {
+            if (!$this->playerBadgeExists($user->username, AwardType::Mastery, $game->id, $awardBadge)) {
+                $badge = AddSiteAward($user->username, AwardType::Mastery, $game->id, $awardBadge);
+
+                PlayerBadgeAwarded::dispatch($badge);
+                PlayerGameCompleted::dispatch($user, $game->id);
+
+                if ($awardBadge === UnlockMode::Hardcore) {
+                    static_addnewhardcoremastery($game->id, $user->username);
+                }
+            }
+
+            if (!RecentlyPostedProgressionActivity($user->username, $game->id, $awardBadge, ActivityType::CompleteGame)) {
+                postActivity($user->username, ActivityType::CompleteGame, $game->id, $awardBadge);
+            }
+
+            expireGameTopAchievers($game->id);
         }
     }
 

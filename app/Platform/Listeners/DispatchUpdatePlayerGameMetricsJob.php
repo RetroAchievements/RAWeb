@@ -12,6 +12,7 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
 {
     public function handle(object $event): void
     {
+        /** @var User|string|int|null $user */
         $user = null;
         $game = null;
         $hardcore = null;
