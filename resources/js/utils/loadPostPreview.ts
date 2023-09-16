@@ -5,7 +5,7 @@ let mostRecentPreviewContent = '';
 export const loadPostPreview = async (
   textareaElId = 'commentTextarea',
   previewElId = 'post-preview',
-  loadingElId = 'preview-loading-icon'
+  loadingElId = 'preview-loading-icon',
 ) => {
   // Locate the element on the page where we'll be dumping preview content.
   // If the element isn't on the page, we can prematurely bail.
@@ -32,7 +32,7 @@ export const loadPostPreview = async (
       {
         method: 'POST',
         body: `body=${encodeURIComponent(postContent)}`,
-      }
+      },
     );
 
     if (postPreviewHtml) {
@@ -42,7 +42,10 @@ export const loadPostPreview = async (
     setLoadingIconVisibility(loadingElId, { isVisible: false });
   } catch (error) {
     // Legacy from all.js.
-    window.showStatusFailure(error);
+    if (typeof error === 'string') {
+      window.showStatusFailure(error);
+    }
+
     console.error(error);
 
     setLoadingIconVisibility(loadingElId, { isVisible: false });
