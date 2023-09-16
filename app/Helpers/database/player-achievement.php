@@ -100,7 +100,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
-    $completion = getUnlockCounts($achievement->GameID, $user->username);
+    $completion = getUnlockCounts($achievement->GameID, $user->username, $isHardcore);
     if (array_key_exists('NumAwarded', $completion)) {
         $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
     }
@@ -119,29 +119,11 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
-    // Use raw statement to ensure updates are atomic. Modifying the user model and
-    // committing via save() leaves a window where multiple simultaneous unlocks can
-    // increment the score separately and miss the merged result. For example:
-    // * unlock A => read points = 10
-    // * unlock B => read points = 10
-    // * unlock A => award 5 points, total = 15
-    // * unlock B => award 10 points, total = 20
-    // * unlock A => commit points (15)
-    // * unlock B => commit points (20)
-    // -- actual points is 20, expected points should be 25: 10 + 5 (A) + 10 (B)
-    $updateClause = '';
-    if ($isHardcore) {
-        $updateClause = 'RAPoints = RAPoints + ' . $achievement->Points;
-        $updateClause .= ', TrueRAPoints = TrueRAPoints + ' . $achievement->TrueRatio;
-        if ($hasRegular) {
-            $updateClause .= ', RASoftcorePoints = RASoftcorePoints - ' . $achievement->Points;
-        }
-    } else {
-        $updateClause = 'RASoftcorePoints = RASoftcorePoints + ' . $achievement->Points;
+    // Optimistic update for async metrics updates
+    if (config('queue.default') !== 'sync') {
+        $retVal['SoftcoreScore'] = $user->points_softcore + $achievement->points;
+        $retVal['Score'] = $isHardcore ? $user->points + $achievement->points : $user->points;
     }
-
-    legacyDbStatement("UPDATE UserAccounts SET $updateClause, Updated=:now WHERE User=:user",
-                      ['user' => $user->User, 'now' => Carbon::now()]);
 
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)

@@ -225,7 +225,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addMasteryBadge($user, $game);
 
         $this->assertHasMasteryBadge($user, $game);
-        $this->assertEquals(4, $user->achievements()->published()->count());
+        $this->assertEquals(4, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
         $this->assertGreaterThan(0, $user->TrueRAPoints);
@@ -295,14 +295,14 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addMasteryBadge($user, $game);
 
         $this->assertHasMasteryBadge($user, $game);
-        $this->assertEquals(4, $user->achievements()->published()->count());
+        $this->assertEquals(4, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
         $this->assertGreaterThan(0, $user->TrueRAPoints);
 
         $author->refresh();
-        $this->assertEquals($user->achievements()->published()->count(), $author->ContribCount);
-        $this->assertEquals($user->achievements()->published()->sum('Points'), $author->ContribYield);
+        $this->assertEquals($user->achievements_unlocked, $author->ContribCount);
+        $this->assertEquals($user->points, $author->ContribYield);
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -359,7 +359,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->get(2));
         $this->addHardcoreUnlock($user, $game2Achievement);
 
-        $this->assertEquals(4, $user->achievements()->published()->count());
+        $this->assertEquals(4, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
         $this->assertGreaterThan(0, $user->TrueRAPoints);

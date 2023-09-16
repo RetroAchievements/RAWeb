@@ -111,9 +111,9 @@ function purgeAllPlayerBeatenGameAwardsForGame(string $username, int $gameId): v
         ->delete();
 }
 
-function getUnlockCounts(int $gameID, string $username): array
+function getUnlockCounts(int $gameID, string $username, bool $hardcore = false): array
 {
-    return legacyDbFetch(
+    $data = legacyDbFetch(
         "SELECT COUNT(DISTINCT ach.ID) AS NumAch,
                      COUNT(CASE WHEN aw.HardcoreMode=1 THEN 1 ELSE NULL END) AS NumAwardedHC,
                      COUNT(CASE WHEN aw.HardcoreMode=0 THEN 1 ELSE NULL END) AS NumAwardedSC
@@ -122,6 +122,14 @@ function getUnlockCounts(int $gameID, string $username): array
               WHERE ach.GameID = $gameID AND ach.Flags = " . AchievementFlag::OfficialCore,
         ['username' => $username]
     );
+
+    if ($data === null) {
+        return $data;
+    }
+
+    $data['NumAwarded'] = $hardcore ? $data['NumAwardedHC'] : $data['NumAwardedSC'];
+
+    return $data;
 }
 
 function getGameRankAndScore(int $gameID, string $username): array

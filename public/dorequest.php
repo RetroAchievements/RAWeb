@@ -268,11 +268,9 @@ switch ($requestType) {
          * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
          */
         $response = array_merge($response, unlockAchievement($username, $achIDToAward, $hardcore));
-        $response['Score'] = 0;
-        $response['SoftcoreScore'] = 0;
-        if (getPlayerPoints($username, $userPoints)) {
-            $response['Score'] = $userPoints['RAPoints'];
-            $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'];
+        if (empty($response['Score']) && getPlayerPoints($username, $userPoints)) {
+            $response['Score'] = $userPoints['RAPoints'] ?? 0;
+            $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'] ?? 0;
         }
         $response['AchievementID'] = $achIDToAward;
         break;
