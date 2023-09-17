@@ -221,8 +221,10 @@ class ActivePlayersTest extends TestCase
     {
         // Arrange
         $mockedRequest = Mockery::mock(Request::class);
-        $mockedRequest->shouldReceive('cookie')
-            ->with('active_players_search')
+
+        /** @var \Mockery\Expectation|\Mockery\MockInterface $mockExpectation */
+        $mockExpectation = $mockedRequest->shouldReceive('cookie');
+        $mockExpectation->with('active_players_search')
             ->andReturn('Having fun'); // The user's pre-set filter, stored in a cookie.
 
         $this->instance(Request::class, $mockedRequest);
