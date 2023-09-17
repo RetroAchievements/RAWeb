@@ -57,6 +57,8 @@ RenderContentStart($pageTitle);
                 + '::VAL:' + $.trim($('#LB_' + lbID + '_Mem4').val()),
             lowerIsBetter: $('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0',
             order:  $.trim($('#LB_' + lbID + '_DisplayOrder').val())
+        }).then(() => {
+            window.location.reload();
         });
     }
     </script>
@@ -111,7 +113,13 @@ if ($permissions >= Permissions::JuniorDeveloper) {
 
 $listCount = 0;
 
+$bgColorClassNames = ["!bg-box-bg", "!bg-embed"];
+$currentBgColorIndex = 1;
+
 foreach ($lbData as $nextLB) {
+    // Alternate the background color of the achievement rows.
+    $currentBgColorIndex = $currentBgColorIndex === 1 ? 0 : 1;
+
     $lbID = $nextLB['ID'];
     $lbTitle = attributeEscape($nextLB['Title']);
     $lbDesc = attributeEscape($nextLB['Description']);
@@ -129,7 +137,7 @@ foreach ($lbData as $nextLB) {
 
     $niceFormat = ($lbLowerIsBetter ? "Smallest " : "Largest ") . (($lbFormat == "SCORE") ? "Score" : "Time");
 
-    echo "<tr>";
+    echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
 
     if ($permissions >= Permissions::JuniorDeveloper) {
         // Allow leaderboard edits for devs and jr. devs if they are the author
@@ -186,7 +194,7 @@ foreach ($lbData as $nextLB) {
 
         echo "</tr>";
 
-        echo "<tr>";
+        echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
 
         echo "<td>";
         // echo "Memory:";
@@ -211,37 +219,10 @@ foreach ($lbData as $nextLB) {
         }
 
         echo "<table class='table-highlight mb-3'><tbody>";
-        echo "<tr>";
-        echo "<td style='width:10%;'>Start:</td>";
-        echo "<td>";
-        echo "<p>$memStart</p>";
         echo "<input type='hidden' id='LB_" . $lbID . "_Mem1' value='$memStart' readonly />";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='width:10%;'>Cancel:</td>";
-        echo "<td>";
-        echo "<p>$memCancel</p>";
         echo "<input type='hidden' id='LB_" . $lbID . "_Mem2' value='$memCancel' readonly />";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='width:10%;'>Submit:</td>";
-        echo "<td>";
-        echo "<p>$memSubmit</p>";
         echo "<input type='hidden' id='LB_" . $lbID . "_Mem3' value='$memSubmit' readonly />";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='width:10%;'>Value:</td>";
-        echo "<td>";
-        echo "<p>$memValue</p>";
         echo "<input type='hidden' id='LB_" . $lbID . "_Mem4' value='$memValue' readonly />";
-        echo "</td>";
-        echo "</tr>";
 
         echo "</tbody></table>";
 
