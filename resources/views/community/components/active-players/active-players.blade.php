@@ -231,6 +231,7 @@ function activePlayersComponent() {
 
     <div
         id="active-players-empty-state"
+        data-testid="{{ $activePlayersCount === 0 ? 'empty-state-visible' : 'empty-state-hidden' }}"
         @if ($activePlayersCount !== 0) class="hidden" @endif
         :class="{'!block': canShowEmptyState}"
     >
