@@ -113,7 +113,7 @@ if ($permissions >= Permissions::JuniorDeveloper) {
 
 $listCount = 0;
 
-$bgColorClassNames = ["!bg-box-bg", "!bg-embed"];
+$bgColorClassNames = ["!bg-embed", "!bg-box-bg"];
 $currentBgColorIndex = 1;
 
 foreach ($lbData as $nextLB) {
