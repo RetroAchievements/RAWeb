@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform;
+namespace Tests\Feature\Platform\Concerns;
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\UnlockMode;
@@ -40,24 +40,24 @@ trait TestsPlayerBadges
         $this->addPlayerBadge($user, AwardType::Mastery, $game->ID, $mode, $awardTime);
     }
 
-    protected function findMasteryBadge(User $user, Game $game): ?PlayerBadge
+    protected function masteryBadgeExists(User $user, Game $game): bool
     {
-        return $user->playerBadges()->where('AwardType', AwardType::Mastery)->where('AwardData', $game->ID)->first();
+        return $user->playerBadges()->where('AwardType', AwardType::Mastery)->where('AwardData', $game->ID)->exists();
     }
 
     protected function assertHasMasteryBadge(User $user, Game $game): void
     {
-        $badge = $this->findMasteryBadge($user, $game);
-        if ($badge === null) {
-            $this->fail("No mastery badge for game " . $game->ID . "/user " . $user->ID);
-        }
+        $this->assertTrue(
+            $this->masteryBadgeExists($user, $game),
+            "No mastery badge for game " . $game->ID . "/user " . $user->ID,
+        );
     }
 
     protected function assertDoesNotHaveMasteryBadge(User $user, Game $game): void
     {
-        $badge = $this->findMasteryBadge($user, $game);
-        if ($badge !== null) {
-            $this->fail("Found mastery badge for game " . $game->ID . "/user " . $user->ID);
-        }
+        $this->assertFalse(
+            $this->masteryBadgeExists($user, $game),
+            "Found mastery badge for game " . $game->ID . "/user " . $user->ID,
+        );
     }
 }

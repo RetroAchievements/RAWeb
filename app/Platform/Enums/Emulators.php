@@ -41,6 +41,8 @@ abstract class Emulators
 
     public const PCSX2 = 'pcsx2';
 
+    public const PPSSPP = 'ppsspp';
+
     public const DuckStation = 'duckstation';
 
     public const Bizhawk = 'bizhawk';

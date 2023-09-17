@@ -3,7 +3,6 @@
     'gameTitle' => 'Unknown Game',
     'consoleId' => 0,
     'consoleName' => 'Unknown Console',
-    'iconUrl' => asset("assets/images/system/unknown.png"),
     'user' => null,
     'userPermissions' => null,
 ])
@@ -16,6 +15,7 @@ use App\Site\Enums\Permissions;
 // TODO: Migrate renderGameTitle to a Blade component.
 $renderedTitle = renderGameTitle($gameTitle);
 $type = UserGameListType::Play;
+$iconUrl = getSystemIconUrl($consoleId);
 ?>
 
 <h1 class="text-h3">

@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 class DeleteExpiredEmailVerificationTokens extends Command
 {
-    protected $signature = 'ra:site:delete-expired-email-verification-tokens';
+    protected $signature = 'ra:site:user:delete-expired-email-verification-tokens';
     protected $description = 'Delete expired email verification tokens';
 
     /**

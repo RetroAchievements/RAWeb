@@ -200,17 +200,16 @@ RenderContentStart($pageTitle);
     echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
     echo "</div>";
 
-    $systemIconUrl = getSystemIconUrl($consoleID);
     echo Blade::render('
         <x-game.heading
+            :consoleId="$consoleId"
             :consoleName="$consoleName"
             :gameTitle="$gameTitle"
-            :iconUrl="$iconUrl"
         />
     ', [
+        'consoleId' => $consoleID,
         'consoleName' => $consoleName,
         'gameTitle' => $gameTitle,
-        'iconUrl' => $systemIconUrl,
     ]);
 
     $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
