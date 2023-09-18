@@ -127,13 +127,13 @@ class PlayerCompletionProgressController extends Controller
     {
         if ($sortOrder === 'unlock_date') {
             usort($filteredAndJoinedGamesList, function ($a, $b) {
-                return strtotime($b['MostRecentWonDate']) - strtotime($a['MostRecentWonDate']);
+                return strtotime($b['MostRecentWonDate'] ?? '') - strtotime($a['MostRecentWonDate'] ?? '');
             });
         }
 
         if ($sortOrder === '-unlock_date') {
             usort($filteredAndJoinedGamesList, function ($a, $b) {
-                return strtotime($a['MostRecentWonDate']) - strtotime($b['MostRecentWonDate']);
+                return strtotime($a['MostRecentWonDate'] ?? '') - strtotime($b['MostRecentWonDate'] ?? '');
             });
         }
 
