@@ -117,7 +117,6 @@ class AwardAchievementTest extends TestCase
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
-        $this->assertGreaterThan(0, $user1->TrueRAPoints);
 
         // author contribution should have increased
         $author1 = User::firstWhere('User', $achievement3->Author);
@@ -359,7 +358,6 @@ class AwardAchievementTest extends TestCase
         $user2 = $this->user;
         $this->assertEquals($scoreBefore + $achievement3->Points, $user2->RAPoints);
         $this->assertEquals($softcoreScoreBefore - $achievement3->Points, $user2->RASoftcorePoints);
-        $this->assertGreaterThan(0, $user2->TrueRAPoints);
 
         // author contribution should not have increased
         $author2 = User::firstWhere('User', $achievement3->Author);

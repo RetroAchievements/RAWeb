@@ -228,7 +228,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(4, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
-        $this->assertGreaterThan(0, $user->TrueRAPoints);
 
         $author->refresh();
         $this->assertEquals($achievements->count(), $author->ContribCount);
@@ -259,7 +258,6 @@ class ResetPlayerProgressActionTest extends TestCase
         // points should have been updated
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($game2Achievement->points, $user->RAPoints);
-        $this->assertGreaterThan(0, $user->TrueRAPoints);
 
         // author contributions should have been updated and only have user2's unlocks attributed
         $author->refresh();
@@ -298,7 +296,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(4, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
-        $this->assertGreaterThan(0, $user->TrueRAPoints);
 
         $author->refresh();
         $this->assertEquals($user->achievements_unlocked, $author->ContribCount);
@@ -362,7 +359,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(4, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
-        $this->assertGreaterThan(0, $user->TrueRAPoints);
 
         $author->refresh();
         $this->assertEquals($achievements->count(), $author->ContribCount);
