@@ -293,13 +293,4 @@ echo "</tbody></table>";
 echo "</div>";
 ?>
 </article>
-<?php
-if (!empty($codeNotes) && $permissions >= Permissions::JuniorDeveloper) {
-    view()->share('sidebar', true);
-    echo "<aside>";
-    echo "<h3>Code Notes</h3>";
-    RenderCodeNotes($codeNotes);
-    echo "</aside>";
-}
-?>
 <?php RenderContentEnd(); ?>
