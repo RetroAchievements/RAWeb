@@ -9,8 +9,13 @@
 }
 
 .searchbox-top {
-  background-color: var(--embed-color);
-  border-radius: 4px;
+  height: 30px;
+  background-color: var(--embed-highlight-color);
+  border: 1px solid var(--divider-color);
+  border-radius: 15px;
+  padding: 12px 0 12px 15px;
+  align-items: center;
+  margin-right: 10px;
 }
 
 .searchbox-top .searchboxinput {
@@ -20,22 +25,26 @@
   color: inherit;
   width: 60px;
   padding-left: 0;
+  transition: width 0.2s;
 }
 
-.searchbox-top .searchboxinput:focus {
+.searchbox-top .searchboxinput:focus,
+.searchbox-top .searchboxinput:not(:placeholder-shown) {
   width: 190px;
   padding-left: 10px;
 }
 
 @media only screen and (max-width: 374px) {
-  .searchbox-top .searchboxinput:focus {
+  .searchbox-top .searchboxinput:focus,
+  .searchbox-top .searchboxinput:not(:placeholder-shown) {
     width: 80px;
     padding-left: 5px;
   }
 }
 
 @media only screen and (min-width: 375px) and (max-width: theme('screens.sm')) {
-  .searchbox-top .searchboxinput:focus {
+  .searchbox-top .searchboxinput:focus,
+  .searchbox-top .searchboxinput:not(:placeholder-shown) {
     width: 130px;
   }
 }
