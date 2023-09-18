@@ -41,9 +41,9 @@ class ActivePlayersService
 
         $records = $filteredActivePlayers->values();
 
-        // If we have no search or filter, take the top 100 players on the list.
+        // If we have no search or filter, take the top 50 players on the list.
         if (!$searchValue && !$fetchAll) {
-            $records = $records->take(100);
+            $records = $records->take(50);
         }
 
         $records = $records->toArray();
@@ -85,7 +85,7 @@ class ActivePlayersService
             ->reject(function ($player) use ($mostPopularNewMemberGameIds) {
                 return in_array($player['GameID'], $mostPopularNewMemberGameIds);
             })
-            ->groupBy('GameTitle')
+            ->groupBy('GameID')
             ->map(function ($gameGroup) {
                 return [
                     'count' => count($gameGroup), // Number of players for each game
