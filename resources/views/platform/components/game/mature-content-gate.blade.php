@@ -10,24 +10,19 @@
 use App\Site\Enums\UserPreference;
 
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
+$newPreferencesValue = ($userWebsitePrefs ?? 0) | (1 << $matureContentPref);
 ?>
 
 <script>
 function matureContentNoticeComponent() {
     return {
         async disableMatureContentWarningPreference() {
-            const existingUserPrefs = {{ $userWebsitePrefs }} ?? 0;
-            const matureContentPref = {{ $matureContentPref }} ?? 0;
-
-            const newPreferencesValue = {{ ($userWebsitePrefs ?? 0) | (1 << $matureContentPref) }};
-            const gameId = {{ $gameId }};
-
             await fetcher('/request/user/update-preferences.php', {
                 method: 'POST',
-                body: `preferences=${newPreferencesValue}`
+                body: "preferences={{ $newPreferencesValue }}"
             });
 
-            window.location = '{{ route('game.show', $gameId) }}';
+            window.location.reload();
         }
     };
 }
