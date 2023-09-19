@@ -480,9 +480,13 @@ RenderContentStart($userPage);
         echo "</div>"; // devbox
     }
 
-    // The component isn't as useful if we don't have data for the
-    // Completion Progress component.
-    if (config('feature.beat') && $user && count($userCompletedGamesList) > 0) {
+    $canShowProgressionStatusComponent =
+        config('feature.beat')
+        && !empty($userCompletedGamesList)
+        // Needs at least one non-event game.
+        && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
+
+    if ($canShowProgressionStatusComponent) {
         echo "<div class='mt-2 mb-8'>";
         echo Blade::render('
             <x-user-progression-status
