@@ -984,13 +984,7 @@ sanitize_outputs(
                 }
 
                 // Display leaderboard management options depending on the current number of leaderboards
-                if ($numLeaderboards == 0) {
-                    echo "<form action='/request/leaderboard/create.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<button class='btn'>Create First Leaderboard</button>";
-                    echo "</form>";
-                } else {
+                if ($numLeaderboards != 0) {
                     echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }
 
