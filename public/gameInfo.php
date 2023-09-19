@@ -109,66 +109,25 @@ if ($v != 1) {
 }
 ?>
 <?php if ($gate): ?>
-    <?php RenderContentStart($pageTitle) ?>
-    <script>
-        function disableMatureContentWarningPreference() {
-            const isLoggedIn = <?= isset($userDetails) ?>;
-            if (!isLoggedIn) {
-                throw new Error('Tried to modify settings for an unauthenticated user.');
-            }
-
-            const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
-            const gameId = <?= $gameID ?>;
-
-            fetch('/request/user/update-preferences.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: `preferences=${newPreferencesValue}`,
-                credentials: 'same-origin'
-            }).then(() => {
-                window.location = `/game/<?= $gameID ?>`;
-            })
-        }
-    </script>
     <article>
-        <div class='navpath'>
-            <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
-        </div>
-        <h1 class="text-h3"><?= renderGameTitle($pageTitle) ?></h1>
-        <h4>WARNING: THIS PAGE MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
-        <br/>
-        <div id="confirmation">
-            Are you sure that you want to view this page?
-            <br/>
-            <br/>
-
-            <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
-                <form id='escapeform' action='/gameList.php'>
-                    <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                    <button class='btn leading-normal'>No. Get me out of here.</button>
-                </form>
-
-                <form id='consentform' action='/game/<?= $gameID ?>'>
-                    <input type='hidden' name='v' value='1'/>
-                    <button class='btn leading-normal'>Yes. I'm an adult.</button>
-                </form>
-
-                <?php if ($userWebsitePrefs): ?>
-                    <button
-                        type="button"
-                        class='btn break-words whitespace-normal leading-normal'
-                        onclick='disableMatureContentWarningPreference()'
-                    >
-                        Yes. And never ask me again for pages with mature content.
-                    </button>
-                <?php endif; ?>
-            </div>
-        </div>
+    <?php
+        echo Blade::render('
+            <x-game.mature-content-gate
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :consoleId="$consoleId"
+                :consoleName="$consoleName"
+                :userWebsitePrefs="$userWebsitePrefs"
+            />
+        ', [
+            'gameId' => $gameID,
+            'gameTitle' => $gameTitle,
+            'consoleId' => $consoleID,
+            'consoleName' => $consoleName,
+            'userWebsitePrefs' => $userDetails['websitePrefs'] ?? 0,
+        ]);
+    ?>
     </article>
-    <?php RenderContentEnd(); ?>
     <?php return ?>
 <?php endif ?>
 <?php
@@ -984,13 +943,7 @@ sanitize_outputs(
                 }
 
                 // Display leaderboard management options depending on the current number of leaderboards
-                if ($numLeaderboards == 0) {
-                    echo "<form action='/request/leaderboard/create.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<button class='btn'>Create First Leaderboard</button>";
-                    echo "</form>";
-                } else {
+                if ($numLeaderboards != 0) {
                     echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }
 
