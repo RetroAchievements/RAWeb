@@ -165,8 +165,8 @@ class UpdatePlayerGameMetrics
         $beatAchievementsUnlockedCount = $progressionUnlocksSoftcoreCount + min($neededWinConditionAchievements, $winConditionUnlocksSoftcoreCount);
         $beatAchievementsUnlockedHardcoreCount = $progressionUnlocksHardcoreCount + min($neededWinConditionAchievements, $winConditionUnlocksHardcoreCount);
 
-        $beatenAt = $playerGame->beaten_at;
-        $beatenHardcoreAt = $playerGame->beaten_hardcore_at;
+        $beatenAt = $isBeatenSoftcore ? $playerGame->beaten_at : null;
+        $beatenHardcoreAt = $isBeatenHardcore ? $playerGame->beaten_hardcore_at : null;
         $beatenDates = $playerGame->beaten_dates;
         $beatenDatesHardcore = $playerGame->beaten_dates_hardcore;
         if (!$beatenAt && $isBeatenSoftcore) {
@@ -215,16 +215,16 @@ class UpdatePlayerGameMetrics
         $isCompleted = $playerGame->achievements_unlocked === $playerGame->achievements_total;
         $isCompletedHardcore = $playerGame->achievements_unlocked_hardcore === $playerGame->achievements_total;
 
-        $completedAt = $playerGame->completed_at;
-        $completedHardcoreAt = $playerGame->completed_hardcore_at;
+        $completedAt = $isCompleted ? $playerGame->completed_at : null;
+        $completedHardcoreAt = $isCompletedHardcore ? $playerGame->completed_hardcore_at : null;
         $completionDates = $playerGame->completion_dates;
         $completionDatesHardcore = $playerGame->completion_dates_hardcore;
-        if (!$completedAt && $isCompleted) {
+        if ($isCompleted && !$completedAt) {
             $completedAt = $playerGame->last_unlock_at;
             $completionDates = (new Collection($completionDates))
                 ->push($completedAt);
         }
-        if (!$completedHardcoreAt && $isCompletedHardcore) {
+        if ($isCompletedHardcore && !$completedHardcoreAt) {
             $completedHardcoreAt = $playerGame->last_unlock_hardcore_at;
             $completionDatesHardcore = (new Collection($completionDates))
                 ->push($completedHardcoreAt);

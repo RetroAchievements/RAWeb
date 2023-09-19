@@ -2,7 +2,9 @@
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\UnlockMode;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Achievement;
@@ -48,7 +50,18 @@ class ResetPlayerProgress
         }
 
         if ($achievementID !== null) {
-            $user->playerAchievements()->where('achievement_id', $achievementID)->delete();
+            $playerAchievement = $user->playerAchievements()->where('achievement_id', $achievementID)->first();
+            $achievement = $playerAchievement->achievement;
+            if ($playerAchievement->unlocked_hardcore_at && $achievement->isPublished) {
+                // resetting a hardcore unlock removes hardcore mastery badges
+                $user->playerBadges()
+                    ->where('AwardType', AwardType::Mastery)
+                    ->where('AwardData', $achievement->game_id)
+                    ->where('AwardDataExtra', UnlockMode::Hardcore)
+                    ->delete();
+            }
+            $playerAchievement->delete();
+
             $user->playerAchievementsLegacy()->where('AchievementID', $achievementID)->delete();
         } elseif ($gameID !== null) {
             $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');

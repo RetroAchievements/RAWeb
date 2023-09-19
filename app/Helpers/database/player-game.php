@@ -37,6 +37,7 @@ function testBeatenGame(int $gameId, string $user): array
     // If the game has no beaten-tier achievements assigned, it is not considered beatable.
     // Bail.
     if ($totalProgressions === 0 && $totalWinConditions === 0) {
+        // TODO use $playerGame->achievements_beat for isBeatable, remove rest
         return [
             'isBeatenSoftcore' => false,
             'isBeatenHardcore' => false,
@@ -53,14 +54,14 @@ function testBeatenGame(int $gameId, string $user): array
             $join->on('Achievements.ID', '=', 'Awarded.AchievementID')
                 ->where('Awarded.User', '=', $user);
         })
-        ->select(['Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID', 'Awarded.Date'])
+        ->addSelect(['Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID', 'Awarded.Date'])
         ->orderByDesc('Awarded.Date')
-        ->get();
+        ->get(['Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID', 'Awarded.Date']);
 
-    $numUnlockedSoftcoreProgressions = $userAchievements->where('type', AchievementType::Progression)->where('HardcoreMode', UnlockMode::Softcore)->count();
-    $numUnlockedHardcoreProgressions = $userAchievements->where('type', AchievementType::Progression)->where('HardcoreMode', UnlockMode::Hardcore)->count();
-    $numUnlockedSoftcoreWinConditions = $userAchievements->where('type', AchievementType::WinCondition)->where('HardcoreMode', UnlockMode::Softcore)->count();
-    $numUnlockedHardcoreWinConditions = $userAchievements->where('type', AchievementType::WinCondition)->where('HardcoreMode', UnlockMode::Hardcore)->count();
+    $numUnlockedSoftcoreProgressions = $userAchievements->where('type', AchievementType::Progression)->whereNotNull('Date')->where('HardcoreMode', UnlockMode::Softcore)->count();
+    $numUnlockedHardcoreProgressions = $userAchievements->where('type', AchievementType::Progression)->whereNotNull('Date')->where('HardcoreMode', UnlockMode::Hardcore)->count();
+    $numUnlockedSoftcoreWinConditions = $userAchievements->where('type', AchievementType::WinCondition)->whereNotNull('Date')->where('HardcoreMode', UnlockMode::Softcore)->count();
+    $numUnlockedHardcoreWinConditions = $userAchievements->where('type', AchievementType::WinCondition)->whereNotNull('Date')->where('HardcoreMode', UnlockMode::Hardcore)->count();
 
     // If there are no Win Condition achievements in the set, the game is considered beaten
     // if the user unlocks all the progression achievements.
@@ -74,6 +75,7 @@ function testBeatenGame(int $gameId, string $user): array
         $numUnlockedHardcoreProgressions === $totalProgressions
         && $numUnlockedHardcoreWinConditions >= $neededWinConditionAchievements;
 
+    // TODO use $playerGame->beaten_at for isBeatenSoftcore, $playerGame->beaten_hardcore_at for isBeatenHardcore, remove rest
     return [
         'isBeatenSoftcore' => $isBeatenSoftcore,
         'isBeatenHardcore' => $isBeatenHardcore,

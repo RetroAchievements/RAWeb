@@ -164,6 +164,11 @@ class Achievement extends BaseModel implements HasComments
         return $badge;
     }
 
+    public function getIsPublishedAttribute(): bool
+    {
+        return $this->Flags === AchievementFlag::OfficialCore;
+    }
+
     // TODO remove after rename
 
     public function getIdAttribute(): int

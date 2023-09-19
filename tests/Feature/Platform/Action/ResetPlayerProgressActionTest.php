@@ -169,7 +169,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->get(0));
         $this->addHardcoreUnlock($user, $achievements->get(1));
         $this->addHardcoreUnlock($user, $achievements->get(2));
-        $this->addMasteryBadge($user, $game);
         $this->assertHasMasteryBadge($user, $game);
 
         (new ResetPlayerProgress())->execute($user, $achievements->get(1)->ID);
@@ -192,7 +191,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->get(0));
         $this->addHardcoreUnlock($user, $achievements->get(1));
         $this->addHardcoreUnlock($user, $achievements->get(2));
-        $this->addMasteryBadge($user, $game);
         $this->assertHasMasteryBadge($user, $game);
 
         $this->assertHasHardcoreUnlock($user, $unofficialAchievement);
@@ -222,7 +220,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->get(2));
         $this->addHardcoreUnlock($user, $unofficialAchievement);
         $this->addHardcoreUnlock($user, $game2Achievement);
-        $this->addMasteryBadge($user, $game);
 
         $this->assertHasMasteryBadge($user, $game);
         $this->assertEquals(4, $user->achievements_unlocked);
@@ -238,7 +235,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user2, $achievements->get(0));
         $this->addHardcoreUnlock($user2, $achievements->get(1));
         $this->addHardcoreUnlock($user2, $achievements->get(2));
-        $this->addMasteryBadge($user2, $game);
         $this->assertHasMasteryBadge($user2, $game);
         $this->assertEquals(3, $user2->achievements()->published()->count());
 
@@ -290,7 +286,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user, $achievements->get(2));
         $this->addHardcoreUnlock($user, $unofficialAchievement);
         $this->addHardcoreUnlock($user, $game2Achievement);
-        $this->addMasteryBadge($user, $game);
 
         $this->assertHasMasteryBadge($user, $game);
         $this->assertEquals(4, $user->achievements_unlocked);
@@ -306,7 +301,6 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addHardcoreUnlock($user2, $achievements->get(0));
         $this->addHardcoreUnlock($user2, $achievements->get(1));
         $this->addHardcoreUnlock($user2, $achievements->get(2));
-        $this->addMasteryBadge($user2, $game);
         $this->assertHasMasteryBadge($user2, $game);
 
         (new ResetPlayerProgress())->execute($user);
