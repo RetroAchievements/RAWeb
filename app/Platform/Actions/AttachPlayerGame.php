@@ -8,7 +8,7 @@ use App\Platform\Events\PlayerGameAttached;
 use App\Platform\Models\Game;
 use App\Site\Models\User;
 
-class AttachPlayerGameAction
+class AttachPlayerGame
 {
     public function execute(User $user, Game $game): Game
     {

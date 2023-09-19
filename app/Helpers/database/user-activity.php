@@ -8,7 +8,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -42,21 +42,6 @@ function updateActivity(int $activityID): void
               WHERE Activity.ID = $activityID ";
 
     legacyDbStatement($query);
-}
-
-/**
- * @deprecated see UserActivity model
- */
-function RecentlyPostedProgressionActivity(string $user, int $gameId, int $isHardcore, int $activityType): bool
-{
-    $activity = UserActivityLegacy::where('User', $user)
-        ->where('activitytype', $activityType)
-        ->where('data', $gameId)
-        ->where('data2', $isHardcore)
-        ->where('lastupdate', '>=', Carbon::now()->subHours(1))
-        ->first();
-
-    return $activity != null;
 }
 
 /**

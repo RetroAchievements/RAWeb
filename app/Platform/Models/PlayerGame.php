@@ -18,8 +18,14 @@ class PlayerGame extends BasePivot
 
     protected $casts = [
         'last_played_at' => 'datetime',
+        'beaten_at' => 'datetime',
+        'beaten_hardcore_at' => 'datetime',
+        'beaten_dates' => 'json',
+        'beaten_dates_hardcore' => 'json',
         'completed_at' => 'datetime',
         'completed_hardcore_at' => 'datetime',
+        'completion_dates' => 'json',
+        'completion_dates_hardcore' => 'json',
         'last_unlock_at' => 'datetime',
         'last_unlock_hardcore_at' => 'datetime',
         'first_unlock_at' => 'datetime',

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-class CopyAchievementSetToGameAction
+class CopyAchievementSetToGame
 {
     public function execute(): void
     {

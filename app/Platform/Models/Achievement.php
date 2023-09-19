@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -308,9 +309,9 @@ class Achievement extends BaseModel implements HasComments
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeType(Builder $query, string $type): Builder
+    public function scopeType(Builder $query, string|array $type): Builder
     {
-        return $query->where('type', $type);
+        return $query->whereIn('type', Arr::wrap($type));
     }
 
     /**

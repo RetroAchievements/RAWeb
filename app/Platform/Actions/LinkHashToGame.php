@@ -9,7 +9,7 @@ use App\Platform\Models\GameHash;
 use App\Platform\Models\GameHashSet;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class LinkHashToGameAction
+class LinkHashToGame
 {
     public function execute(string $hash, Game $game, ?string $gameHashTitle = null): GameHash
     {

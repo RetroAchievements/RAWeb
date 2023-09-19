@@ -6,6 +6,9 @@ use App\Platform\Events\SiteBadgeAwarded;
 use App\Platform\Models\PlayerBadge;
 use Carbon\Carbon;
 
+/**
+ * @deprecated use PlayerBadge model
+ */
 function AddSiteAward(
     string $user,
     int $awardType,

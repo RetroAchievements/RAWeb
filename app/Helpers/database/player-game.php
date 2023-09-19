@@ -1,23 +1,19 @@
 <?php
 
-use App\Community\Enums\ActivityType;
-use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerBadge;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * @deprecated TODO refactor to action, move to UpdatePlayerGameMetricsAction
+ * @deprecated TODO read from PlayerGame model, badge eligibility checks moved to UpdatePlayerGameBadgeMetrics
  */
 function testBeatenGame(int $gameId, string $user): array
 {
@@ -27,7 +23,7 @@ function testBeatenGame(int $gameId, string $user): array
     $gameTierAchievementCounts = Achievement::where('GameID', $gameId)
         ->whereIn('type', [AchievementType::Progression, AchievementType::WinCondition])
         ->where('Flags', AchievementFlag::OfficialCore)
-        ->select('type', DB::raw('count(*) as total'))
+        ->select(['type', DB::raw('count(*) as total')])
         ->groupBy('type')
         ->get()
         ->keyBy('type')
@@ -41,8 +37,6 @@ function testBeatenGame(int $gameId, string $user): array
     // If the game has no beaten-tier achievements assigned, it is not considered beatable.
     // Bail.
     if ($totalProgressions === 0 && $totalWinConditions === 0) {
-        purgeAllPlayerBeatenGameAwardsForGame($user, $gameId);
-
         return [
             'isBeatenSoftcore' => false,
             'isBeatenHardcore' => false,
@@ -52,7 +46,6 @@ function testBeatenGame(int $gameId, string $user): array
 
     // We can now start checking if the user has beaten the game.
     // Start by querying for their unlocked beaten-tier achievements.
-    // TODO refactor to player_achievements
     $userAchievements = Achievement::where('Achievements.GameID', $gameId)
         ->whereIn('Achievements.type', [AchievementType::Progression, AchievementType::WinCondition])
         ->where('Achievements.Flags', AchievementFlag::OfficialCore)
@@ -60,25 +53,14 @@ function testBeatenGame(int $gameId, string $user): array
             $join->on('Achievements.ID', '=', 'Awarded.AchievementID')
                 ->where('Awarded.User', '=', $user);
         })
-        ->select('Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID', 'Awarded.Date')
+        ->select(['Achievements.type', 'Awarded.HardcoreMode', 'Awarded.AchievementID', 'Awarded.Date'])
         ->orderByDesc('Awarded.Date')
         ->get();
 
-    // Create a Laravel collection and then group the collection items by generating a unique
-    // key for each item. The key is a combination of the achievement type and HardcoreMode
-    // status, separated by "|". For example, a Progression achievement accomplished in
-    // hardcore mode will have the key "Progression|1". After the groupBy, use the map
-    // method to apply the count function to each group. This approach allows us to
-    // both classify and count in a single loop with minimal conditional logic.
-    /** @var Collection<string, int> $achievements */
-    $achievements = collect($userAchievements)->groupBy(function ($item) {
-        return implode('|', [$item->type, $item->HardcoreMode]);
-    })->map->count();
-
-    $numUnlockedSoftcoreProgressions = $achievements[AchievementType::Progression . '|0'] ?? 0;
-    $numUnlockedHardcoreProgressions = $achievements[AchievementType::Progression . '|1'] ?? 0;
-    $numUnlockedSoftcoreWinConditions = $achievements[AchievementType::WinCondition . '|0'] ?? 0;
-    $numUnlockedHardcoreWinConditions = $achievements[AchievementType::WinCondition . '|1'] ?? 0;
+    $numUnlockedSoftcoreProgressions = $userAchievements->where('type', AchievementType::Progression)->where('HardcoreMode', UnlockMode::Softcore)->count();
+    $numUnlockedHardcoreProgressions = $userAchievements->where('type', AchievementType::Progression)->where('HardcoreMode', UnlockMode::Hardcore)->count();
+    $numUnlockedSoftcoreWinConditions = $userAchievements->where('type', AchievementType::WinCondition)->where('HardcoreMode', UnlockMode::Softcore)->count();
+    $numUnlockedHardcoreWinConditions = $userAchievements->where('type', AchievementType::WinCondition)->where('HardcoreMode', UnlockMode::Hardcore)->count();
 
     // If there are no Win Condition achievements in the set, the game is considered beaten
     // if the user unlocks all the progression achievements.
@@ -93,22 +75,10 @@ function testBeatenGame(int $gameId, string $user): array
         && $numUnlockedHardcoreWinConditions >= $neededWinConditionAchievements;
 
     return [
-        'achievementsTotal' => $totalProgressions + $neededWinConditionAchievements,
-        'achievementsUnlocked' => $numUnlockedSoftcoreProgressions + min($neededWinConditionAchievements, $numUnlockedSoftcoreWinConditions),
-        'achievementsUnlockedHardcore' => $numUnlockedHardcoreProgressions + min($neededWinConditionAchievements, $numUnlockedHardcoreWinConditions),
-        'playerAchievements' => $userAchievements,
         'isBeatenSoftcore' => $isBeatenSoftcore,
         'isBeatenHardcore' => $isBeatenHardcore,
         'isBeatable' => true,
     ];
-}
-
-function purgeAllPlayerBeatenGameAwardsForGame(string $username, int $gameId): void
-{
-    PlayerBadge::where('User', $username)
-        ->where('AwardType', AwardType::GameBeaten)
-        ->where('AwardData', $gameId)
-        ->delete();
 }
 
 function getUnlockCounts(int $gameID, string $username, bool $hardcore = false): ?array

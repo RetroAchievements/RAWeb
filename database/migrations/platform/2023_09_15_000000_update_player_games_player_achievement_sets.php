@@ -16,9 +16,11 @@ return new class() extends Migration {
             $table->unsignedDecimal('completion_percentage', 10, 9)->nullable()
                 ->change();
 
-            $table->unsignedInteger('achievements_beat')->nullable()->after('achievements_total');
+            $table->unsignedInteger('achievements_beat')->nullable()->after('achievements_unlocked_hardcore');
+            $table->unsignedInteger('achievements_beat_unlocked')->nullable()->after('achievements_beat_total');
+            $table->unsignedInteger('achievements_beat_unlocked_hardcore')->nullable()->after('achievements_beat_unlocked');
 
-            $table->unsignedDecimal('beaten_percentage', 10, 9)->nullable()->after('achievements_unlocked_hardcore');
+            $table->unsignedDecimal('beaten_percentage', 10, 9)->nullable()->after('achievements_beat_unlocked_hardcore');
             $table->unsignedDecimal('beaten_percentage_hardcore', 10, 9)->nullable()->after('beaten_percentage');
 
             $table->jsonb('beaten_dates')->nullable()->after('time_taken_hardcore');
@@ -31,12 +33,14 @@ return new class() extends Migration {
         });
 
         Schema::table('player_achievement_sets', function (Blueprint $table) {
-            $table->unsignedDecimal('achievements_beat')->nullable()->after('achievements_total');
-
             $table->unsignedDecimal('completion_percentage', 10, 9)->nullable()
                 ->change();
 
-            $table->unsignedDecimal('beaten_percentage', 10, 9)->nullable()->after('achievements_unlocked_hardcore');
+            $table->unsignedInteger('achievements_beat')->nullable()->after('achievements_unlocked_hardcore');
+            $table->unsignedInteger('achievements_beat_unlocked')->nullable()->after('achievements_beat_total');
+            $table->unsignedInteger('achievements_beat_unlocked_hardcore')->nullable()->after('achievements_beat_unlocked');
+
+            $table->unsignedDecimal('beaten_percentage', 10, 9)->nullable()->after('achievements_beat_unlocked_hardcore');
             $table->unsignedDecimal('beaten_percentage_hardcore', 10, 9)->nullable()->after('beaten_percentage');
 
             $table->jsonb('beaten_dates')->nullable()->after('time_taken_hardcore');

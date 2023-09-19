@@ -2,7 +2,7 @@
 
 namespace App\Platform\Jobs;
 
-use App\Platform\Actions\UnlockPlayerAchievementAction;
+use App\Platform\Actions\UnlockPlayerAchievement;
 use App\Platform\Models\Achievement;
 use App\Site\Models\User;
 use Exception;
@@ -40,7 +40,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue, ShouldBeUnique
     public function handle(): void
     {
         try {
-            app()->make(UnlockPlayerAchievementAction::class)->execute(
+            app()->make(UnlockPlayerAchievement::class)->execute(
                 User::findOrFail($this->userId),
                 Achievement::findOrFail($this->achievementId),
                 $this->hardcore,

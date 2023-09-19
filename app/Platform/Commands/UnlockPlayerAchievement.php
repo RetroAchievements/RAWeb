@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\UnlockPlayerAchievementAction;
+use App\Platform\Actions\UnlockPlayerAchievement as UnlockPlayerAchievementAction;
 use App\Platform\Models\Achievement;
 use App\Site\Models\User;
 use Exception;
@@ -19,7 +19,7 @@ class UnlockPlayerAchievement extends Command
     protected $description = 'Unlock achievement(s) for user';
 
     public function __construct(
-        private readonly UnlockPlayerAchievementAction $unlockPlayerAchievementAction,
+        private readonly UnlockPlayerAchievementAction $unlockPlayerAchievement,
     ) {
         parent::__construct();
     }
@@ -44,7 +44,7 @@ class UnlockPlayerAchievement extends Command
         $progressBar->start();
 
         foreach ($achievements as $achievement) {
-            $this->unlockPlayerAchievementAction->execute(
+            $this->unlockPlayerAchievement->execute(
                 $user,
                 $achievement,
                 $hardcore,

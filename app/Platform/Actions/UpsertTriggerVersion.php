@@ -8,7 +8,7 @@ use App\Platform\Contracts\HasVersionedTrigger;
 use App\Platform\Models\Trigger;
 use Illuminate\Database\Eloquent\Model;
 
-class UpsertTriggerVersionAction
+class UpsertTriggerVersion
 {
     public function execute(Model $triggerable, string $conditions, bool $versioned = true): ?Trigger
     {

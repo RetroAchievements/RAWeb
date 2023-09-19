@@ -42,7 +42,7 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
             return;
         }
 
-        dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id, $hardcore))
+        dispatch(new UpdatePlayerGameMetricsJob($user->id, $game->id))
             ->onQueue('player-game-metrics');
     }
 }

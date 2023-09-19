@@ -8,7 +8,7 @@ use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Achievement;
 use App\Site\Models\User;
 
-class ResetPlayerProgressAction
+class ResetPlayerProgress
 {
     public function execute(User $user, ?int $achievementID = null, ?int $gameID = null): void
     {

@@ -25,7 +25,6 @@ use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
-use App\Platform\Commands\UpdatePlayerMasteries;
 use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerRanks;
 use App\Platform\Components\GameCard;
@@ -74,7 +73,6 @@ class AppServiceProvider extends ServiceProvider
                 // Players
                 UnlockPlayerAchievement::class,
                 UpdatePlayerGameMetrics::class,
-                UpdatePlayerMasteries::class,
                 UpdatePlayerMetrics::class,
                 UpdatePlayerRanks::class,
 

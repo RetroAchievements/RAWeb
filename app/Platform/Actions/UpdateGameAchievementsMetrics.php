@@ -8,7 +8,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 
-class UpdateGameAchievementsMetricsAction
+class UpdateGameAchievementsMetrics
 {
     public function execute(Game $game): void
     {

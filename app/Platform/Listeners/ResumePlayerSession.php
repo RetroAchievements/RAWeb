@@ -2,7 +2,7 @@
 
 namespace App\Platform\Listeners;
 
-use App\Platform\Actions\ResumePlayerSessionAction;
+use App\Platform\Actions\ResumePlayerSession as ResumePlayerSessionAction;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Models\Game;
 use App\Site\Models\User;

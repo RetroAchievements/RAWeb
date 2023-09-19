@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Concerns;
 
-use App\Platform\Actions\UnlockPlayerAchievementAction;
+use App\Platform\Actions\UnlockPlayerAchievement;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerAchievementLegacy;
@@ -53,7 +53,7 @@ trait TestsPlayerAchievements
             );
         }
 
-        (new UnlockPlayerAchievementAction())
+        (new UnlockPlayerAchievement())
             ->execute(
                 $user,
                 $achievement,

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
 use App\Site\Models\User;
 
-class UpdatePlayerMetricsAction
+class UpdatePlayerMetrics
 {
     public function execute(User $user): void
     {

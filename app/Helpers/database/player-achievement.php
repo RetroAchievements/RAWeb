@@ -121,7 +121,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
 
     // Optimistic update for async metrics updates
     if (config('queue.default') !== 'sync') {
-        $retVal['SoftcoreScore'] = $user->points_softcore + $achievement->points;
+        $retVal['SoftcoreScore'] = $isHardcore ? $user->points_softcore : $user->points_softcore + $achievement->points;
         $retVal['Score'] = $isHardcore ? $user->points + $achievement->points : $user->points;
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Platform\Jobs;
 
-use App\Platform\Actions\UpdateDeveloperContributionYieldAction;
+use App\Platform\Actions\UpdateDeveloperContributionYield;
 use App\Site\Models\User;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -33,7 +33,7 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
     public function handle(): void
     {
         try {
-            app()->make(UpdateDeveloperContributionYieldAction::class)
+            app()->make(UpdateDeveloperContributionYield::class)
                 ->execute(User::findOrFail($this->userId));
         } catch (Exception $exception) {
             Log::error($exception->getMessage(), ['exception' => $exception]);

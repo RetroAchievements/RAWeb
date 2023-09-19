@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Action;
 
-use App\Platform\Actions\ResetPlayerProgressAction;
+use App\Platform\Actions\ResetPlayerProgress;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Site\Models\User;
@@ -42,7 +42,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(1, $author->ContribCount);
         $this->assertEquals($achievement->points, $author->ContribYield);
 
-        (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
+        (new ResetPlayerProgress())->execute($user, $achievement->ID);
         $user->refresh();
 
         // unlock should have been deleted
@@ -81,7 +81,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(1, $author->ContribCount);
         $this->assertEquals($achievement->points, $author->ContribYield);
 
-        (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
+        (new ResetPlayerProgress())->execute($user, $achievement->ID);
         $user->refresh();
 
         // unlock should have been deleted
@@ -119,7 +119,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(0, $user->ContribCount);
         $this->assertEquals(0, $user->ContribYield);
 
-        (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
+        (new ResetPlayerProgress())->execute($user, $achievement->ID);
         $user->refresh();
 
         // unlock should have been deleted
@@ -151,7 +151,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertHasSoftcoreUnlock($user2, $achievement);
         $this->assertHasHardcoreUnlock($user2, $achievement);
 
-        (new ResetPlayerProgressAction())->execute($user, $achievement->ID);
+        (new ResetPlayerProgress())->execute($user, $achievement->ID);
         $user->refresh();
 
         $this->assertDoesNotHaveAnyUnlock($user, $achievement);
@@ -172,7 +172,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addMasteryBadge($user, $game);
         $this->assertHasMasteryBadge($user, $game);
 
-        (new ResetPlayerProgressAction())->execute($user, $achievements->get(1)->ID);
+        (new ResetPlayerProgress())->execute($user, $achievements->get(1)->ID);
 
         $this->assertDoesNotHaveMasteryBadge($user, $game);
     }
@@ -197,7 +197,7 @@ class ResetPlayerProgressActionTest extends TestCase
 
         $this->assertHasHardcoreUnlock($user, $unofficialAchievement);
 
-        (new ResetPlayerProgressAction())->execute($user, $unofficialAchievement->ID);
+        (new ResetPlayerProgress())->execute($user, $unofficialAchievement->ID);
 
         $this->assertHasMasteryBadge($user, $game);
         $this->assertDoesNotHaveAnyUnlock($user, $unofficialAchievement);
@@ -242,7 +242,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertHasMasteryBadge($user2, $game);
         $this->assertEquals(3, $user2->achievements()->published()->count());
 
-        (new ResetPlayerProgressAction())->execute($user, gameID: $game->ID);
+        (new ResetPlayerProgress())->execute($user, gameID: $game->ID);
         $user->refresh();
 
         // unlocks and badge should have been revoked
@@ -309,7 +309,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->addMasteryBadge($user2, $game);
         $this->assertHasMasteryBadge($user2, $game);
 
-        (new ResetPlayerProgressAction())->execute($user);
+        (new ResetPlayerProgress())->execute($user);
         $user->refresh();
 
         // unlocks and badge should have been revoked
@@ -368,7 +368,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals(1, $author2->ContribCount);
         $this->assertEquals($game2Achievement->points, $author2->ContribYield);
 
-        (new ResetPlayerProgressAction())->execute($user);
+        (new ResetPlayerProgress())->execute($user);
         $user->refresh();
 
         // unlocks and badge should have been revoked

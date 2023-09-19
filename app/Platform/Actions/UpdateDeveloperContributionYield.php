@@ -11,7 +11,7 @@ use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class UpdateDeveloperContributionYieldAction
+class UpdateDeveloperContributionYield
 {
     public function execute(User $user): void
     {

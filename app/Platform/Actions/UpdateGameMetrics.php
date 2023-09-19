@@ -7,7 +7,7 @@ namespace App\Platform\Actions;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Models\Game;
 
-class UpdateGameMetricsAction
+class UpdateGameMetrics
 {
     public function execute(Game $game): void
     {
@@ -62,7 +62,7 @@ class UpdateGameMetricsAction
         $game->save();
 
         // dispatch(new UpdateGameAchievementsMetricsJob($game->id))->onQueue('game-metrics');
-        app()->make(UpdateGameAchievementsMetricsAction::class)
+        app()->make(UpdateGameAchievementsMetrics::class)
             ->execute($game);
         $game->refresh();
         $pointsWeightedChange = $game->TotalTruePoints - $pointsWeightedBeforeUpdate;

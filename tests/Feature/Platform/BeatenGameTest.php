@@ -264,7 +264,6 @@ class BeatenGameTest extends TestCase
 
     public function testSoftcoreAwardAssignment(): void
     {
-        // Arrange
         Carbon::setTestNow();
 
         /** @var User $user */
@@ -284,17 +283,14 @@ class BeatenGameTest extends TestCase
         $this->addSoftcoreUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(15));
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now()->subMinutes(10));
 
-        // Act
-        testBeatenGame($game->ID, $user->User);
-
-        // Assert
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
-        $this->assertNotNull(PlayerBadge::where('User', $user->User)
-            ->where('AwardType', AwardType::GameBeaten)
-            ->where('AwardData', $game->ID)
-            ->where('AwardDataExtra', UnlockMode::Softcore)
-            ->where('AwardDate', Carbon::now()->subMinutes(10))
-            ->first()
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count(), 1);
+        $this->assertNotNull(
+            $user->playerBadges()
+                ->where('AwardType', AwardType::GameBeaten)
+                ->where('AwardData', $game->ID)
+                ->where('AwardDataExtra', UnlockMode::Softcore)
+                ->where('AwardDate', Carbon::now()->subMinutes(10))
+                ->first()
         );
     }
 
@@ -320,11 +316,8 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(25));
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now()->subMinutes(20));
 
-        // Act
-        testBeatenGame($game->ID, $user->User);
-
         // Assert
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count(), 1);
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $game->ID)
@@ -404,7 +397,7 @@ class BeatenGameTest extends TestCase
         // The user unlocks it in softcore.
         $this->addSoftcoreUnlock($user, $newAchievement, Carbon::now()->subMinutes(10));
         testBeatenGame($game->ID, $user->User);
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count(), 1);
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $game->ID)
@@ -416,7 +409,7 @@ class BeatenGameTest extends TestCase
         // The user unlocks it in hardcore.
         $this->addHardcoreUnlock($user, $newAchievement, Carbon::now()->subMinutes(5));
         testBeatenGame($game->ID, $user->User);
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 2);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count(), 2);
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $game->ID)
@@ -444,7 +437,7 @@ class BeatenGameTest extends TestCase
         // The user unlocks the one progression achievement. They should be given beaten game credit.
         $this->addHardcoreUnlock($user, $progressionAchievement);
         testBeatenGame($game->ID, $user->User);
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count(), 1);
 
         // Now, pretend a dev removes the progression type from the achievement.
         $progressionAchievement->type = null;
@@ -485,7 +478,7 @@ class BeatenGameTest extends TestCase
 
         testBeatenGame($game->ID, $user->User);
 
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count(), 1);
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $game->ID)
@@ -514,7 +507,7 @@ class BeatenGameTest extends TestCase
 
         testBeatenGame($game->ID, $user->User);
 
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
+        $this->assertEquals(PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count(), 1);
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $game->ID)
@@ -559,7 +552,6 @@ class BeatenGameTest extends TestCase
 
         testBeatenGame($game->ID, $user->User);
 
-        $this->assertEquals(PlayerBadge::where('User', $user->User)->count(), 1);
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardData', $game->ID)

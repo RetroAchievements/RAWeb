@@ -6,12 +6,11 @@ namespace App\Platform\Actions;
 
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerAchievement;
 use App\Site\Models\User;
 use Carbon\Carbon;
 use Exception;
 
-class UnlockPlayerAchievementAction
+class UnlockPlayerAchievement
 {
     public function execute(
         User $user,
@@ -28,21 +27,13 @@ class UnlockPlayerAchievementAction
 
         // make sure to resume the player session which will attach the game to the player, too
         $achievement->loadMissing('game');
-        $playerSession = app()->make(ResumePlayerSessionAction::class)
+        $playerSession = app()->make(ResumePlayerSession::class)
             ->execute($user, $achievement->game, timestamp: $timestamp);
 
-        $unlock = $user->playerAchievements()
-            ->where('achievement_id', $achievement->id)
-            ->first();
-
-        if ($unlock === null) {
-            $unlock = new PlayerAchievement([
-                'user_id' => $user->id,
-                'achievement_id' => $achievement->id,
-                // TODO 'trigger_id' => assume trigger_id from most recent version of the achievement trigger
-            ]);
-            $user->playerAchievements()->save($unlock);
-        }
+        $unlock = $user->playerAchievements()->firstOrCreate([
+            'achievement_id' => $achievement->id,
+            // TODO 'trigger_id' => assume trigger_id from most recent version of the achievement trigger
+        ]);
 
         // determine if the unlock needs to occur
         $alreadyUnlockedInThisMode = false;

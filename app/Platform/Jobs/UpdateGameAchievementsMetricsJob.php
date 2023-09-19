@@ -2,7 +2,7 @@
 
 namespace App\Platform\Jobs;
 
-use App\Platform\Actions\UpdateGameAchievementsMetricsAction;
+use App\Platform\Actions\UpdateGameAchievementsMetrics;
 use App\Platform\Models\Game;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -33,7 +33,7 @@ class UpdateGameAchievementsMetricsJob implements ShouldQueue, ShouldBeUnique
     public function handle(): void
     {
         try {
-            app()->make(UpdateGameAchievementsMetricsAction::class)
+            app()->make(UpdateGameAchievementsMetrics::class)
                 ->execute(Game::findOrFail($this->gameId));
         } catch (Exception $exception) {
             Log::error($exception->getMessage(), ['exception' => $exception]);

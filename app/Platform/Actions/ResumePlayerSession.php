@@ -12,7 +12,7 @@ use App\Platform\Models\PlayerSession;
 use App\Site\Models\User;
 use Carbon\Carbon;
 
-class ResumePlayerSessionAction
+class ResumePlayerSession
 {
     public function execute(
         User $user,
@@ -22,7 +22,7 @@ class ResumePlayerSessionAction
         ?Carbon $timestamp = null,
     ): PlayerSession {
         // upsert player game and update last played date right away
-        $attachPlayerGameAction = app()->make(AttachPlayerGameAction::class);
+        $attachPlayerGameAction = app()->make(AttachPlayerGame::class);
         $game = $attachPlayerGameAction->execute($user, $game);
         $playerGame = $game->pivot;
         $playerGame->last_played_at = $timestamp;

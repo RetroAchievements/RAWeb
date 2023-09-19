@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\UpdateDeveloperContributionYieldAction;
+use App\Platform\Actions\UpdateDeveloperContributionYield as UpdateDeveloperContributionYieldAction;
 use App\Site\Models\User;
 use Illuminate\Console\Command;
 
@@ -12,6 +12,12 @@ class UpdateDeveloperContributionYield extends Command
 {
     protected $signature = 'ra:platform:developer:update-contribution-yield {username?}';
     protected $description = 'Calculate developer contributions and badge tiers';
+
+    public function __construct(
+        private readonly UpdateDeveloperContributionYieldAction $updateDeveloperContributionYield
+    ) {
+        parent::__construct();
+    }
 
     public function handle(): void
     {
@@ -32,8 +38,7 @@ class UpdateDeveloperContributionYield extends Command
 
         /** @var User $user */
         foreach ($users as $user) {
-            app()->make(UpdateDeveloperContributionYieldAction::class)
-                ->execute($user);
+            $this->updateDeveloperContributionYield->execute($user);
             $progressBar->advance();
         }
 
