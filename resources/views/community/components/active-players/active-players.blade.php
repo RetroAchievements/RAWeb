@@ -82,7 +82,7 @@ function activePlayersComponent() {
             if (!this.searchInput) {
                 const scrollAreaEl = document.getElementById('active-players-scroll-area');
 
-                if (scrollAreaEl.scrollTop > 600 && !this.hasFetchedFullList) {
+                if (!this.hasFetchedFullList) {
                     this.hasFetchedFullList = true;
                     this.refreshActivePlayers(true);
                 }

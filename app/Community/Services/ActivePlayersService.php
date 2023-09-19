@@ -41,9 +41,9 @@ class ActivePlayersService
 
         $records = $filteredActivePlayers->values();
 
-        // If we have no search or filter, take the top 50 players on the list.
+        // If we have no search or filter, take the top 20 players on the list.
         if (!$searchValue && !$fetchAll) {
-            $records = $records->take(50);
+            $records = $records->take(20);
         }
 
         $records = $records->toArray();
@@ -88,7 +88,7 @@ class ActivePlayersService
             ->groupBy('GameID')
             ->map(function ($gameGroup) {
                 return [
-                    'count' => count($gameGroup), // Number of players for each game
+                    'ActivePlayerCount' => count($gameGroup),
                     'GameID' => $gameGroup[0]['GameID'],
                     'GameTitle' => $gameGroup[0]['GameTitle'],
                     'GameIcon' => $gameGroup[0]['GameIcon'], // Assuming all games of the same title have the same icon
