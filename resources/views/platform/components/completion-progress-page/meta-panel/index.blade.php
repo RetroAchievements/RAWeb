@@ -8,17 +8,26 @@
 <script>
 function handleSystemChanged(event) {
     const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('filter[system]', newQueryParamValue);
+    window.updateUrlParameter(
+        ['filter[system]', 'page[number]'],
+        [newQueryParamValue, 1],
+    );
 }
 
 function handleSortOrderChanged(event) {
     const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('sort', newQueryParamValue);
+    window.updateUrlParameter(
+        ['sort', 'page[number]'],
+        [newQueryParamValue, 1],
+    );
 }
 
 function handleStatusChanged(event) {
     const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('filter[status]', newQueryParamValue);
+    window.updateUrlParameter(
+        ['filter[status]', 'page[number]'],
+        [newQueryParamValue, 1],
+    );
 }
 </script>
 
