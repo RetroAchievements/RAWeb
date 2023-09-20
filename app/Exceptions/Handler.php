@@ -146,6 +146,29 @@ class Handler extends ExceptionHandler
                     ],
                 ], 403);
             }
+            if ($request->is('dorequest.php')) {
+                // strip out any queries in the exception, the client won't know what to do with
+                // them, and we don't want to expose anything sensitive that might be in the query.
+                $message = $e->getMessage();
+                $index = strpos($message, '(SQL:');
+                if ($index !== false) {
+                    $message = trim(substr($message, 0, $index));
+                }
+
+                // if it's a resource error, return 503 Temporarily Unavailable, otherwise return
+                // 500 Internal Server Error
+                $statusCode = 500;
+                if (str_contains($message, 'Too many connections')) {
+                    $statusCode = 503;
+                }
+
+                // dorequest response expects these fields capitalized and at the top level
+                return response()->json([
+                    'Success' => false,
+                    'Error' => $message,
+                    'Status' => $statusCode,
+                ], $statusCode);
+            }
         }
 
         if ($e instanceof AuthenticationException) {
