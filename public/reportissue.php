@@ -44,21 +44,43 @@ sanitize_outputs(
 
 RenderContentStart("Report Broken Achievement");
 ?>
+
 <script>
-function displayCore() {
-    if (['RetroArch', 'RALibRetro'].indexOf(document.getElementById('emulator').value) > -1) {
-        document.getElementById('core-row').style.display = '';
-    } else {
-        document.getElementById('core-row').style.display = 'none';
+function reportIssueComponent() {
+    return {
+        description: document.getElementById('description').value ?? '',
+        emulator: document.getElementById('emulator').value ?? '',
+
+        displayCore() {
+            if (['RetroArch', 'RALibRetro'].includes(this.emulator)) {
+                document.getElementById('core-row').style.display = '';
+            } else {
+                document.getElementById('core-row').style.display = 'none';
+            }
+        },
+
+        get descriptionIsNetworkProblem() {
+            const networkRegex = /(manual\s+unlock|internet)/ig;
+            return networkRegex.test(this.description);
+        },
+        
+        get descriptionIsUnhelpful() {
+            const unhelpfulRegex = /(n'?t|not?).*work/ig;
+            return this.description.length < 25 && unhelpfulRegex.test(this.description);
+        }
     }
 }
 </script>
-<article>
+
+<article x-data="reportIssueComponent()">
     <div class="navpath">
         <?= renderGameBreadcrumb($dataOut) ?>
-        &raquo; <a href="/achievement/<?= $achievementID ?>"><?=
-            renderAchievementTitle($achievementTitle, tags: false) ?></a>
-        &raquo; <b>Issue Report</b>
+        &raquo;
+        <a href="/achievement/<?= $achievementID ?>">
+            <?= renderAchievementTitle($achievementTitle, tags: false) ?>
+        </a>
+        &raquo;
+        <b>Issue Report</b>
     </div>
 
     <h3 class="longheader">Report Broken Achievement</h3>
@@ -101,11 +123,22 @@ function displayCore() {
             <tr>
                 <td><label for="emulator">Emulator</label></td>
                 <td>
-                    <select name="emulator" id="emulator" required data-bind="value: emulator">
+                    <select
+                        name="emulator"
+                        id="emulator"
+                        required
+                        x-model="emulator"
+                        @change="displayCore()"
+                    >
                         <option <?= empty(old('emulator')) ? 'selected' : '' ?> disabled hidden>Select your emulator...</option>
                         <?php foreach ($emulators as $emulator): ?>
                             <?php if (array_key_exists($consoleID, $emulator['systems'])): ?>
-                                <option value="<?= $emulator['handle'] ?>" <?= old('emulator') === $emulator['handle'] ? 'selected' : '' ?>><?= $emulator['handle'] ?></option>
+                                <option
+                                    value="<?= $emulator['handle'] ?>"
+                                    <?= old('emulator') === $emulator['handle'] ? 'selected' : '' ?>
+                                >
+                                    <?= $emulator['handle'] ?>
+                                </option>
                             <?php endif ?>
                         <?php endforeach ?>
                     </select>
@@ -114,9 +147,13 @@ function displayCore() {
             <tr>
                 <td><label for="emulator_version">Emulator Version</label></td>
                 <td>
-                    <input type="text" name="emulator_version" id="emulator_version" required
-                           placeholder="Emulator version"
-                           value="<?= old('emulator_version') ?>"
+                    <input
+                        type="text"
+                        name="emulator_version"
+                        id="emulator_version"
+                        required
+                        placeholder="Emulator version"
+                        value="<?= old('emulator_version') ?>"
                     >
 
                     <?=
@@ -133,9 +170,13 @@ function displayCore() {
                     <label for="core">Core</label>
                 </td>
                 <td>
-                    <input class="w-full" type="text" name="core" id="core"
-                           placeholder="Which core did you use?"
-                           value="<?= old('core') ?>"
+                    <input
+                        class="w-full"
+                        type="text"
+                        name="core"
+                        id="core"
+                        placeholder="Which core did you use?"
+                        value="<?= old('core') ?>"
                     >
                 </td>
             </tr>
@@ -181,43 +222,40 @@ function displayCore() {
             <tr>
                 <td><label for="description">Description</label></td>
                 <td colspan="2">
-                    <textarea class="w-full forum" name="description" id="description"
-                              style="height:160px" rows="5" cols="61" placeholder="Describe your issue here..."
-                              required data-bind="textInput: description"><?= old('description') ?></textarea>
-                    <p data-bind="visible: descriptionIsNetworkProblem">Please do not use this tool for network issues. See <a href='https://docs.retroachievements.org/FAQ/#how-can-i-get-credit-for-an-achievement-i-earned-but-wasnt-awarded'>here</a> for instructions on how to request a manual unlock.</p>
-                    <p data-bind="visible: descriptionIsUnhelpful">Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.</p>
+                    <textarea
+                        class="w-full forum"
+                        name="description"
+                        id="description"
+                        style="height:160px"
+                        rows="5"
+                        cols="61"
+                        placeholder="Describe your issue here..."
+                        required
+                        x-model="description"
+                    >
+                        <?= old('description') ?>
+                    </textarea>
+
+                    <p x-show="descriptionIsNetworkProblem">
+                        Please do not use this tool for network issues.
+                        See <a href='https://docs.retroachievements.org/FAQ/#how-can-i-get-credit-for-an-achievement-i-earned-but-wasnt-awarded'>here</a>
+                        for instructions on how to request a manual unlock.
+                    </p>
+                    <p x-show="descriptionIsUnhelpful">
+                        Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you 
+                        did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.
+                    </p>
                 </td>
             </tr>
             <tr>
                 <td></td>
                 <td colspan="2" class="text-right">
-                    <button class="btn" data-bind="disable: descriptionIsUnhelpful">Submit Issue Report</button>
+                    <button class="btn" :disabled="descriptionIsUnhelpful">Submit Issue Report</button>
                 </td>
             </tr>
             </tbody>
         </table>
     </form>
 </article>
-<script type="text/javascript">
-    // TODO replace with alpine
-    let ReportViewModel = function () {
-        this.description = ko.observable($('#description').val());
-        this.emulator = ko.observable($('#emulator').val());
-        this.emulator.subscribe(function () {
-            displayCore();
-        });
 
-        this.descriptionIsNetworkProblem = ko.pureComputed(function () {
-            let networkRegex = /(manual\s+unlock|internet)/ig;
-            return networkRegex.test(this.description());
-        }, this);
-
-        this.descriptionIsUnhelpful = ko.pureComputed(function () {
-            let unhelpfulRegex = /(n'?t|not?).*work/ig;
-            return this.description().length < 25 && unhelpfulRegex.test(this.description());
-        }, this);
-    };
-
-    ko.applyBindings(new ReportViewModel());
-</script>
 <?php RenderContentEnd(); ?>
