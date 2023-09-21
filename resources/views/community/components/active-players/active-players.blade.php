@@ -112,8 +112,6 @@ function activePlayersComponent() {
         },
 
         toggleSavedSearch() {
-            this.isRememberingSearch = !this.isRememberingSearch;
-
             if (this.hasSavedSearchInput) {
                 window.deleteCookie(cookieName);
                 this.searchInput = '';
