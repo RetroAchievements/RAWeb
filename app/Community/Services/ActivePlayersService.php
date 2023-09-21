@@ -12,7 +12,7 @@ class ActivePlayersService
     public function loadActivePlayers(?string $searchValue = null, bool $fetchAll = false): array
     {
         $allActivePlayers = Cache::remember(
-            'currently-active',
+            'currently-active:20230921',
             Carbon::now()->addMinutes(2),
             function () {
                 return collect(getLatestRichPresenceUpdates())

@@ -46,16 +46,13 @@ function activePlayersComponent() {
             }
 
             this.$watch('searchInput', (newValue) => {
-                if (this.searchInput.length >= 3 && this.isRememberingSearch) {
+                if (this.searchInput.length > 0 && this.isRememberingSearch) {
                     window.setCookie(cookieName, this.searchInput);
                 } else if (this.searchInput.length === 0 && this.isRememberingSearch) {
                     window.deleteCookie(cookieName);
                 }
 
-                if (this.searchInput.length < 3) {
-                    this.hasFetchedFullList = false;
-                }
-
+                this.hasFetchedFullList = true;
                 this.refreshActivePlayers();
             });
         },
@@ -93,11 +90,11 @@ function activePlayersComponent() {
             let requestUrl = '/request/user/list-currently-active.php';
             const params = new URLSearchParams();
 
-            if (this.searchInput.length >= 3) {
+            if (this.searchInput.length > 0) {
                 params.set('search', this.searchInput);
             }
 
-            if (getFullList) {
+            if (getFullList || this.hasFetchedFullList) {
                 params.set('all', true);
             }
 
