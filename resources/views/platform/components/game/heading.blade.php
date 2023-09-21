@@ -12,14 +12,14 @@ use App\Community\Enums\UserGameListType;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
 
-// TODO: Migrate renderGameTitle to a Blade component.
-$renderedTitle = renderGameTitle($gameTitle);
 $type = UserGameListType::Play;
 $iconUrl = getSystemIconUrl($consoleId);
 ?>
 
 <h1 class="text-h3">
-    <span class="block mb-1">{!! $renderedTitle !!}</span>
+    <span class="block mb-1">
+        <x-game-title :rawTitle="$gameTitle" />
+    </span>
 
     <div class="flex justify-between">
         <div class="flex items-center gap-x-1">

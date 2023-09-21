@@ -14,7 +14,6 @@ $achievementRetroPoints = $achievement->TrueRatio;
 $achievementBadgeName = $achievement->BadgeName;
 
 $renderedAchievementTitle = renderAchievementTitle($achievementName);
-$renderedGameTitle = renderGameTitle($game->Title);
 $achievementIconSrc = media_asset("/Badge/$achievementBadgeName.png");
 $gameSystemIconUrl = getSystemIconUrl($game->ConsoleID);
 
@@ -42,7 +41,7 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
         <hr class="border-embed-highlight mt-2 mb-3">
 
         <div class="gap-x-2 flex relative">
-            <!-- Keep the image and game title in a single tooltipped container. Do not tooltip the console name. -->
+            {{-- Keep the image and game title in a single tooltipped container. Do not tooltip the console name. --}}
             <a 
                 href="{{ $gameUrl }}" 
                 x-data="tooltipComponent($el, {dynamicType: 'game', dynamicId: '{{ $achievement->GameID }}'})"
@@ -59,13 +58,13 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
                 >
 
                 <p class="absolute max-w-fit pl-4 top-[-4px] left-6 font-semibold mb-0.5 text-xs">
-                    {!! $renderedGameTitle !!}
+                    <x-game-title :rawTitle="$game->Title" />
                 </p>
             </a>
 
             <div>
-                <!-- Provide invisible space to slide the console underneath -->
-                <p class="invisible">{!! $renderedGameTitle !!}</p>
+                {{-- Provide invisible space to slide the console underneath --}}
+                <p class="invisible"><x-game-title :rawTitle="$game->Title" /></p>
 
                 <a href="{{ $gameSystemUrl }}" class="flex items-center gap-x-1 -mt-1">
                     <img src="{{ $gameSystemIconUrl }}" width="18" height="18" alt="Console icon">

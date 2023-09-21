@@ -9,7 +9,6 @@
 ])
 
 <?php
-$renderedGameTitle = renderGameTitle($gameTitle);
 $gameHref = route('game.show', $gameId);
 
 $gameSystemIconSrc = $consoleId ? getSystemIconUrl($consoleId) : null;
@@ -17,7 +16,7 @@ $showConsoleLine = $consoleId || $consoleName;
 ?>
 
 <div class="gap-x-2 flex relative items-center">
-    <!-- Keep the image and game title in a single tooltipped container. Do not tooltip the console name. -->
+    {{-- Keep the image and game title in a single tooltipped container. Do not tooltip the console name. --}}
     <a 
         href="{{ $href ?? $gameHref }}" 
         @if(!$showConsoleLine) class="flex items-center gap-x-2" @endif
@@ -39,14 +38,16 @@ $showConsoleLine = $consoleId || $consoleName;
         >
 
         <p class="{{ $showConsoleLine ? "absolute pl-4 top-0 left-7" : "" }} max-w-fit font-medium mb-0.5 text-xs">
-            {!! $renderedGameTitle !!}
+            <x-game-title :rawTitle="$gameTitle" />
         </p>
     </a>
 
     @if($showConsoleLine)
         <div>
-            <!-- Provide invisible space to slide the console underneath -->
-            <p class="invisible max-w-fit font-medium mb-0.5 text-xs">{!! $renderedGameTitle !!}</p>
+            {{-- Provide invisible space to slide the console underneath --}}
+            <p class="invisible max-w-fit font-medium mb-0.5 text-xs">
+                <x-game-title :rawTitle="$gameTitle" />
+            </p>
 
             <div class="flex items-center gap-x-1">
                 @if($consoleId && $consoleName)

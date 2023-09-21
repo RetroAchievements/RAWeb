@@ -33,6 +33,7 @@ use App\Platform\Commands\UpdatePlayerMetrics;
 use App\Platform\Commands\UpdatePlayerPoints;
 use App\Platform\Commands\UpdatePlayerRanks;
 use App\Platform\Components\GameCard;
+use App\Platform\Components\GameTitle;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Badge;
 use App\Platform\Models\BadgeStage;
@@ -159,6 +160,7 @@ class AppServiceProvider extends ServiceProvider
         System::disableSearchSyncing();
 
         Blade::component('game-card', GameCard::class);
+        Blade::component('game-title', GameTitle::class);
 
         // Livewire::component('achievement-grid', AchievementGrid::class);
         // Livewire::component('achievement-player-grid', AchievementPlayerGrid::class);
