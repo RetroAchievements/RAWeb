@@ -10,10 +10,10 @@
 
 .searchbox-top {
   height: 30px;
-  background-color: var(--embed-highlight-color);
+  background-color: var(--embed-color);
   border: 1px solid var(--divider-color);
-  border-radius: 15px;
-  padding: 12px 0 12px 15px;
+  border-radius: 4px;
+  padding: 6px 0 6px 0;
   align-items: center;
   margin-right: 10px;
 }
@@ -23,8 +23,8 @@
   background-color: transparent;
   vertical-align: top;
   color: inherit;
-  width: 60px;
-  padding-left: 0;
+  width: 70px;
+  padding-left: 10px;
   transition: width 0.2s;
 }
 
