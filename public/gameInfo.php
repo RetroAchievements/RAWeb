@@ -269,7 +269,7 @@ sanitize_outputs(
 );
 ?>
 
-<?php if ($gate || $isFullyFeaturedGame): ?>
+<?php if ($isFullyFeaturedGame): ?>
     <?php
         function generateGameMetaDescription(
             string $gameTitle,
