@@ -109,6 +109,7 @@ if ($v != 1) {
 }
 ?>
 <?php if ($gate): ?>
+    <?php RenderContentStart($pageTitle) ?>
     <article>
     <?php
         echo Blade::render('
