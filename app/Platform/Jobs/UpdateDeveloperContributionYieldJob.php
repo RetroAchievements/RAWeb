@@ -4,14 +4,12 @@ namespace App\Platform\Jobs;
 
 use App\Platform\Actions\UpdateDeveloperContributionYield;
 use App\Site\Models\User;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
 
 class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
@@ -27,12 +25,7 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
 
     public function handle(): void
     {
-        try {
-            app()->make(UpdateDeveloperContributionYield::class)
-                ->execute(User::findOrFail($this->userId));
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage(), ['exception' => $exception]);
-            $this->fail($exception);
-        }
+        app()->make(UpdateDeveloperContributionYield::class)
+            ->execute(User::findOrFail($this->userId));
     }
 }

@@ -5,6 +5,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -266,9 +267,10 @@ switch ($requestType) {
          */
         $response = array_merge($response, unlockAchievement($username, $achIDToAward, $hardcore));
 
-        // no checks, just dispatch
-        dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
-            ->onQueue('player-achievements');
+        if (Achievement::where('ID', $achIDToAward)->exists()) {
+            dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
+                ->onQueue('player-achievements');
+        }
 
         if (empty($response['Score']) && getPlayerPoints($username, $userPoints)) {
             $response['Score'] = $userPoints['RAPoints'] ?? 0;

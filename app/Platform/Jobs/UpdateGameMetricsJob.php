@@ -4,14 +4,12 @@ namespace App\Platform\Jobs;
 
 use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Models\Game;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
 
 class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
@@ -27,12 +25,7 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function handle(): void
     {
-        try {
-            app()->make(UpdateGameMetrics::class)
-                ->execute(Game::findOrFail($this->gameId));
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage(), ['exception' => $exception]);
-            $this->fail($exception);
-        }
+        app()->make(UpdateGameMetrics::class)
+            ->execute(Game::findOrFail($this->gameId));
     }
 }
