@@ -234,7 +234,7 @@ class Achievement extends BaseModel implements HasComments
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playersLegacy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'Awarded', 'AchievementID', 'User')
             ->using(PlayerAchievementLegacy::class);
@@ -246,6 +246,15 @@ class Achievement extends BaseModel implements HasComments
     public function playerAchievementsLegacy(): HasMany
     {
         return $this->hasMany(PlayerAchievementLegacy::class);
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function players(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'player_achievements', 'achievement_id', 'user_id')
+            ->using(PlayerAchievement::class);
     }
 
     /**
