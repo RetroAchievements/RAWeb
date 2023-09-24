@@ -36,6 +36,7 @@ abstract class UserActivityType
             self::UploadAchievement,
             self::EditAchievement,
             self::CompleteAchievementSet,
+            self::BeatAchievementSet,
             self::NewLeaderboardEntry,
             self::ImprovedLeaderboardEntry,
             self::OpenedTicket,
