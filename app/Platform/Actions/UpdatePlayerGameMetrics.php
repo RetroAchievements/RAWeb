@@ -21,8 +21,6 @@ class UpdatePlayerGameMetrics
         // TODO do this for each player_achievement_set as soon as achievement set separation is introduced
         // TODO store aggregates of all player_achievement_set on player_games metrics
 
-        // ray('UpdatePlayerGameMetricsAction');
-
         $game = $playerGame->game;
         $user = $playerGame->user;
 

@@ -25,11 +25,6 @@ class UpdateGameAchievementsMetricsJob implements ShouldQueue, ShouldBeUnique
     ) {
     }
 
-    public function uniqueId(): string
-    {
-        return (string) $this->gameId;
-    }
-
     public function handle(): void
     {
         try {

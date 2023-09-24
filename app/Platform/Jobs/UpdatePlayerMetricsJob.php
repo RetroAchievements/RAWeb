@@ -25,11 +25,6 @@ class UpdatePlayerMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessi
     ) {
     }
 
-    public function uniqueId(): string
-    {
-        return (string) $this->userId;
-    }
-
     public function handle(): void
     {
         try {

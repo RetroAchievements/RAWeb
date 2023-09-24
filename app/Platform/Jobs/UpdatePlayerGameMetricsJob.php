@@ -24,11 +24,6 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
     ) {
     }
 
-    public function uniqueId(): string
-    {
-        return $this->userId . '-' . $this->gameId;
-    }
-
     public function handle(): void
     {
         app()->make(UpdatePlayerGameMetrics::class)

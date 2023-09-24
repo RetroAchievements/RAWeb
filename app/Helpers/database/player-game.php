@@ -637,7 +637,7 @@ function getUsersCompletedGamesAndMax(string $user): array
 }
 
 /**
- * @depreacted TODO use denormalized game metrics players_total and players_hardcore
+ * @deprecated TODO use denormalized game metrics players_total and players_hardcore
  */
 function getTotalUniquePlayers(
     int $gameID,

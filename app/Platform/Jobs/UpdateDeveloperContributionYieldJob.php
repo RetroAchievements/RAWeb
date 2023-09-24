@@ -25,11 +25,6 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
     ) {
     }
 
-    public function uniqueId(): string
-    {
-        return (string) $this->userId;
-    }
-
     public function handle(): void
     {
         try {
