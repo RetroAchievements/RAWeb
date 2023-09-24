@@ -56,26 +56,30 @@ return new class() extends Migration {
     public function down(): void
     {
         Schema::table('player_games', function (Blueprint $table) {
+            $table->dropColumn('achievement_set_version_hash');
+            $table->dropColumn('update_status');
             $table->dropColumn('achievements_beat');
+            $table->dropColumn('achievements_beat_unlocked');
+            $table->dropColumn('achievements_beat_unlocked_hardcore');
             $table->dropColumn('beaten_percentage');
             $table->dropColumn('beaten_percentage_hardcore');
             $table->dropColumn('beaten_dates');
             $table->dropColumn('beaten_dates_hardcore');
             $table->dropColumn('beaten_at');
             $table->dropColumn('beaten_hardcore_at');
-
             $table->dropColumn('points_hardcore');
         });
 
         Schema::table('player_achievement_sets', function (Blueprint $table) {
             $table->dropColumn('achievements_beat');
+            $table->dropColumn('achievements_beat_unlocked');
+            $table->dropColumn('achievements_beat_unlocked_hardcore');
             $table->dropColumn('beaten_percentage');
             $table->dropColumn('beaten_percentage_hardcore');
             $table->dropColumn('beaten_dates');
             $table->dropColumn('beaten_dates_hardcore');
             $table->dropColumn('beaten_at');
             $table->dropColumn('beaten_hardcore_at');
-
             $table->dropColumn('points_hardcore');
         });
     }
