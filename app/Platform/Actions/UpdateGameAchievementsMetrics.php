@@ -13,8 +13,18 @@ class UpdateGameAchievementsMetrics
 
         // TODO refactor to do this for each achievement set
 
+        $parentGameId = getParentGameIdFromGameId($game->id);
+        if (config('feature.aggregate_queries')) {
+            $parentGame = $parentGameId ? Game::find($parentGameId) : null;
+            $playersTotal = $parentGame ? $parentGame->players_total : $game->players_total;
+            $playersHardcore = $parentGame ? $parentGame->players_hardcore : $game->players_hardcore;
+        } else {
+            $playersTotal = getTotalUniquePlayers($game->id, $parentGameId);
+            $playersHardcore = getTotalUniquePlayers($game->id, $parentGameId, null, true);
+        }
+
         // force all unachieved to be 1
-        $playersHardcoreCalc = $game->players_hardcore ?: 1;
+        $playersHardcoreCalc = $playersHardcore ?: 1;
         $pointsWeightedTotal = 0;
         $achievements = $game->achievements()->published()->get();
         foreach ($achievements as $achievement) {
@@ -36,8 +46,8 @@ class UpdateGameAchievementsMetrics
 
             $achievement->unlocks_total = $unlocksCount;
             $achievement->unlocks_hardcore_total = $unlocksHardcoreCount;
-            $achievement->unlock_percentage = $game->players_total ? $unlocksCount / $game->players_total : 0;
-            $achievement->unlock_hardcore_percentage = $game->players_hardcore ? $unlocksHardcoreCount / $game->players_hardcore : 0;
+            $achievement->unlock_percentage = $playersTotal ? $unlocksCount / $playersTotal : 0;
+            $achievement->unlock_hardcore_percentage = $playersHardcore ? $unlocksHardcoreCount / $playersHardcore : 0;
             $achievement->TrueRatio = $pointsWeighted;
             $achievement->save();
         }
