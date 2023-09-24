@@ -27,7 +27,6 @@ class UnlockPlayerAchievement
         }
 
         // make sure to resume the player session which will attach the game to the player, too
-        $achievement->loadMissing('game');
         $playerSession = app()->make(ResumePlayerSession::class)
             ->execute($user, $achievement->game, timestamp: $timestamp);
 
