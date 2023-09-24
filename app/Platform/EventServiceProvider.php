@@ -84,6 +84,7 @@ class EventServiceProvider extends ServiceProvider
             ResumePlayerSession::class,
         ],
         PlayerRankedStatusChanged::class => [
+            // TODO Update all affected games
             // TODO Notify player
         ],
         UserDeleted::class => [
