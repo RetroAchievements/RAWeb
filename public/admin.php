@@ -71,9 +71,10 @@ if ($action === 'manual-unlock') {
                 if (array_key_exists('Error', $awardResponse)) {
                     $errors[] = $awardResponse['Error'];
                 }
+                $player = User::firstWhere('User', $validUser);
                 dispatch(
                     new UnlockPlayerAchievementJob(
-                        $user->id,
+                        $player->id,
                         $nextID,
                         (bool) $awardAchHardcore,
                         unlockedByUserId: request()->user()->id

@@ -26,9 +26,15 @@ class UnlockPlayerAchievement
             throw new Exception('Achievement does not belong to any game');
         }
 
-        // make sure to resume the player session which will attach the game to the player, too
-        $playerSession = app()->make(ResumePlayerSession::class)
-            ->execute($user, $achievement->game, timestamp: $timestamp);
+        if ($unlockedBy) {
+            // only attach the game if it's a manual unlock
+            $attachPlayerGameAction = app()->make(AttachPlayerGame::class);
+            $attachPlayerGameAction->execute($user, $achievement->game);
+        } else {
+            // make sure to resume the player session which will attach the game to the player, too
+            $playerSession = app()->make(ResumePlayerSession::class)
+                ->execute($user, $achievement->game, timestamp: $timestamp);
+        }
 
         $unlock = $user->playerAchievements()->firstOrCreate([
             'achievement_id' => $achievement->id,

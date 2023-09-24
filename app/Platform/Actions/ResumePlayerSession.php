@@ -44,7 +44,7 @@ class ResumePlayerSession
                 if ($presence) {
                     $playerSession->rich_presence = $presence;
                 }
-                $playerSession->rich_presence_updated_at = $timestamp;
+                $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
                 $playerSession->save(['touch' => true]);
 
                 PlayerSessionResumed::dispatch($user, $game, $presence);
