@@ -35,18 +35,18 @@ class EventServiceProvider extends ServiceProvider
         AchievementCreated::class => [
         ],
         AchievementPublished::class => [
-            // TODO DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class, // dispatches DeveloperContributionYieldUpdated
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
         AchievementUnpublished::class => [
-            // TODO DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class, // dispatches DeveloperContributionYieldUpdated
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
             // TODO Notify player/developer when moved to AchievementSetUnpublished event
         ],
         AchievementPointsChanged::class => [
             DispatchUpdateGameMetricsJob::class,
-            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches DeveloperContributionYieldUpdated
+            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
         ],
         AchievementTypeChanged::class => [
         ],
@@ -58,7 +58,7 @@ class EventServiceProvider extends ServiceProvider
             // dispatches PlayerGameAttached
             // NOTE ResumePlayerSessionAction is executed synchronously during PlayerAchievementUnlockAction
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
-            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches DeveloperContributionYieldUpdated
+            DispatchUpdateDeveloperContributionYieldJob::class,
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
