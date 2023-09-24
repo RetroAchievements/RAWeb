@@ -332,7 +332,7 @@ return [
             'model' => PlayerGame::class,
             'strategy' => SyncStrategy::UPSERT,
             'reference_model' => PlayerAchievement::class,
-            'reference_key' => PlayerAchievement::CREATED_AT,
+            'reference_key' => 'unlocked_at',
             'unique_key' => ['user_id', 'game_id'],
             'require' => [
             ],
