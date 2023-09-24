@@ -43,7 +43,7 @@ trait HeartbeatRequests
 
         // Behave like ping, ignore the rest
         if ($activityType === ActivityType::StartedPlaying) {
-            PlayerSessionHeartbeat::dispatch($request->user('connect-token')->id, (int) $messagePayload);
+            PlayerSessionHeartbeat::dispatch($request->user('connect-token'), Game::find($messagePayload));
         }
 
         return [];
@@ -78,7 +78,7 @@ trait HeartbeatRequests
 
         // TODO: pass game hash here if set
 
-        PlayerSessionHeartbeat::dispatch($request->user('connect-token')->id, $gameId, $richPresence);
+        PlayerSessionHeartbeat::dispatch($request->user('connect-token'), $gameId, $richPresence);
 
         return [];
     }

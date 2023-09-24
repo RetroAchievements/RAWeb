@@ -37,19 +37,7 @@ class ResumePlayerSession implements ShouldQueue
             //     break;
         }
 
-        if (!$game instanceof Game && is_int($game)) {
-            $game = Game::find($game);
-        }
-
-        if (!$user instanceof User) {
-            if (is_string($user)) {
-                $user = User::firstWhere('User', $user);
-            } elseif (is_int($user)) {
-                $user = User::find($user);
-            }
-        }
-
-        if (!$user || !$game) {
+        if (!$user instanceof User || !$game instanceof Game) {
             return;
         }
 

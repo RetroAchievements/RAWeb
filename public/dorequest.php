@@ -5,6 +5,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Media\FilenameIterator;
@@ -233,7 +234,7 @@ switch ($requestType) {
         } else {
             $activityMessage = request()->post('m');
 
-            PlayerSessionHeartbeat::dispatch($user, $gameID, $activityMessage);
+            PlayerSessionHeartbeat::dispatch($user, Game::find($gameID), $activityMessage);
             // TODO remove double-writes below
 
             if (isset($activityMessage)) {
@@ -314,7 +315,7 @@ switch ($requestType) {
         }
 
         // TODO remove postActivity() above - handled by ResumePlayerSessionAction
-        PlayerSessionHeartbeat::dispatch($user->id, $gameID);
+        PlayerSessionHeartbeat::dispatch($user, Game::find($gameID));
 
         $response['Success'] = true;
         $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);

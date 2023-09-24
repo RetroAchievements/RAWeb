@@ -20,10 +20,10 @@ class PlayerSessionHeartbeat
     use SerializesModels;
 
     public function __construct(
-        public User|string|int $user,
-        public Game|int $game,
+        public User $user,
+        public Game $game,
         public ?string $message = null,
-        public GameHash|string|null $gameHash = null,
+        public ?GameHash $gameHash = null,
         public ?Carbon $timestamp = null,
     ) {
         $this->timestamp ??= Carbon::now();

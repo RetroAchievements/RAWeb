@@ -17,7 +17,7 @@ class GameMetricsUpdated
     use SerializesModels;
 
     public function __construct(
-        public Game|int $game,
+        public Game $game,
     ) {
     }
 

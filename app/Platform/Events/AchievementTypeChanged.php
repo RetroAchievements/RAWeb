@@ -17,7 +17,7 @@ class AchievementTypeChanged
     use SerializesModels;
 
     public function __construct(
-        public Achievement|int $achievement,
+        public Achievement $achievement,
     ) {
     }
 

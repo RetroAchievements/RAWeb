@@ -17,7 +17,7 @@ class DeveloperContributionYieldUpdated
     use SerializesModels;
 
     public function __construct(
-        public User|string|int $user,
+        public User $user,
     ) {
     }
 

@@ -20,14 +20,6 @@ class DispatchUpdatePlayerMetricsJob implements ShouldQueue
         }
 
         if (!$user instanceof User) {
-            if (is_int($user)) {
-                $user = User::find($user);
-            } elseif (is_string($user)) {
-                $user = User::firstWhere('User', $user);
-            }
-        }
-
-        if ($user === null) {
             return;
         }
 

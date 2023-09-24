@@ -259,7 +259,7 @@ function UploadNewAchievement(
             );
 
             // uploaded new achievement
-            AchievementCreated::dispatch($idInOut);
+            AchievementCreated::dispatch(Achievement::find($idInOut));
 
             return true;
         }
@@ -329,6 +329,8 @@ function UploadNewAchievement(
 
             postActivity($author, ActivityType::EditAchievement, $idInOut);
 
+            $achievement = Achievement::find($idInOut);
+
             if ($changingAchSet) {
                 if ($flag === AchievementFlag::OfficialCore) {
                     addArticleComment(
@@ -338,7 +340,7 @@ function UploadNewAchievement(
                         "$author promoted this achievement to the Core set.",
                         $author
                     );
-                    AchievementPublished::dispatch($idInOut);
+                    AchievementPublished::dispatch($achievement);
                 } elseif ($flag === AchievementFlag::Unofficial) {
                     addArticleComment(
                         "Server",
@@ -347,7 +349,7 @@ function UploadNewAchievement(
                         "$author demoted this achievement to Unofficial.",
                         $author
                     );
-                    AchievementUnpublished::dispatch($idInOut);
+                    AchievementUnpublished::dispatch($achievement);
                 }
                 expireGameTopAchievers($gameID);
             } else {
@@ -384,7 +386,7 @@ function UploadNewAchievement(
             }
 
             if ($changingPoints) {
-                AchievementPointsChanged::dispatch($idInOut);
+                AchievementPointsChanged::dispatch($achievement);
             }
 
             return true;
@@ -530,12 +532,16 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
         return false;
     }
 
-    if ($newFlag === AchievementFlag::OfficialCore) {
-        AchievementPublished::dispatch($updatedAchIDs);
-    }
+    foreach ($updatedAchIDs as $achievementId) {
+        $achievement = Achievement::find($achievementId);
 
-    if ($newFlag === AchievementFlag::Unofficial) {
-        AchievementUnpublished::dispatch($updatedAchIDs);
+        if ($newFlag === AchievementFlag::OfficialCore) {
+            AchievementPublished::dispatch($achievement);
+        }
+
+        if ($newFlag === AchievementFlag::Unofficial) {
+            AchievementUnpublished::dispatch($achievement);
+        }
     }
 
     return true;

@@ -17,7 +17,7 @@ class AchievementPublished
     use SerializesModels;
 
     public function __construct(
-        public Achievement|int|array $achievement
+        public Achievement $achievement
     ) {
     }
 

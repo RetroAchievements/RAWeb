@@ -18,7 +18,7 @@ class AchievementSetBeaten
     use SerializesModels;
 
     public function __construct(
-        public User|string|int $user,
+        public User $user,
         public AchievementSet $achievementSet,
         public ?bool $hardcore = false,
     ) {

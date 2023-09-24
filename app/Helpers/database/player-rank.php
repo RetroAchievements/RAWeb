@@ -12,7 +12,7 @@ function SetUserUntrackedStatus(string $usernameIn, int $isUntracked): void
 {
     legacyDbStatement("UPDATE UserAccounts SET Untracked = $isUntracked, Updated=NOW() WHERE User = '$usernameIn'");
 
-    PlayerRankedStatusChanged::dispatch($usernameIn, (bool) $isUntracked);
+    PlayerRankedStatusChanged::dispatch(User::firstWhere('User', $usernameIn), (bool) $isUntracked);
 
     // TODO update games that are affected by this user's library
 }

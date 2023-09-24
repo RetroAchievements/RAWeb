@@ -18,8 +18,8 @@ class PlayerGameRemoved
     use SerializesModels;
 
     public function __construct(
-        public User|string|int $user,
-        public Game|int $game,
+        public User $user,
+        public Game $game,
     ) {
     }
 
