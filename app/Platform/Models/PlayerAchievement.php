@@ -16,7 +16,7 @@ class PlayerAchievement extends BasePivot
 
     protected $table = 'player_achievements';
 
-    public const CREATED_AT = null;
+    public const CREATED_AT = 'unlocked_at';
     public const UPDATED_AT = null;
 
     protected static function newFactory(): PlayerAchievementFactory

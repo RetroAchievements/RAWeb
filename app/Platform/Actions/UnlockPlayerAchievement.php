@@ -21,6 +21,7 @@ class UnlockPlayerAchievement
     ): void {
         $timestamp ??= Carbon::now();
 
+        $achievement->loadMissing('game');
         if (!$achievement->game) {
             throw new Exception('Achievement does not belong to any game');
         }
@@ -43,12 +44,12 @@ class UnlockPlayerAchievement
             } else {
                 $unlock->unlocked_hardcore_at = $timestamp;
 
-                if ($unlock->unlocked_at === null) {
+                if ($unlock->wasRecentlyCreated) {
                     $unlock->unlocked_at = $unlock->unlocked_hardcore_at;
                 }
             }
         } else {
-            if ($unlock->unlocked_at !== null) {
+            if (!$unlock->wasRecentlyCreated) {
                 $alreadyUnlockedInThisMode = true;
             } else {
                 $unlock->unlocked_at = $timestamp;
