@@ -26,19 +26,24 @@ function AddSiteAward(
         }
     }
 
-    $award = PlayerBadge::firstOrNew([
-        'User' => $user,
-        'AwardType' => $awardType,
-        'AwardData' => $data,
-        'AwardDataExtra' => $dataExtra,
-    ], [
-        'DisplayOrder' => $displayOrder,
-    ]);
+    PlayerBadge::updateOrInsert(
+        [
+            'User' => $user,
+            'AwardType' => $awardType,
+            'AwardData' => $data,
+            'AwardDataExtra' => $dataExtra,
+        ],
+        [
+            'AwardDate' => $awardDate ?? Carbon::now(),
+            'DisplayOrder' => $displayOrder,
+        ]
+    );
 
-    $award->AwardDate = $awardDate ?? Carbon::now();
-    $award->save();
-
-    return $award;
+    return PlayerBadge::where('User', $user)
+        ->where('AwardType', $awardType)
+        ->where('AwardData', $data)
+        ->where('AwardDataExtra', $dataExtra)
+        ->first();
 }
 
 function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): array
