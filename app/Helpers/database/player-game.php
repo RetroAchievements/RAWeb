@@ -695,7 +695,6 @@ function getUsersCompletedGamesAndMax(string $user): array
     if (config('feature.aggregate_queries')) {
         $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, 
                          gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
-                IF(pg.achievements_unlocked_hardcore > 0, 1, 0), 
                 pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate, 
                 pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
                 floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
@@ -716,7 +715,7 @@ function getUsersCompletedGamesAndMax(string $user): array
 
         // TODO slow query. optimize with denormalized data.
         $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
-                MAX(aw.HardcoreMode), SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, 
+                SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, 
                 MAX(aw.Date) AS MostRecentWonDate, MIN(aw.Date) AS FirstWonDate, " .
                 floatDivisionStatement('SUM(aw.HardcoreMode = 0)', 'inner1.MaxPossible') . " AS PctWon, " .
                 floatDivisionStatement('SUM(aw.HardcoreMode = 1)', 'inner1.MaxPossible') . " AS PctWonHC
