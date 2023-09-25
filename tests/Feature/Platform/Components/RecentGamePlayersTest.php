@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Components;
 
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class RecentGamePlayersTest extends TestCase
@@ -23,7 +23,7 @@ class RecentGamePlayersTest extends TestCase
                 'User' => $user->User,
                 'Date' => $mockDate,
                 'Activity' => 'Playing Sonic the Hedgehog',
-            ]
+            ],
         ];
 
         $view = $this->blade('
@@ -49,7 +49,7 @@ class RecentGamePlayersTest extends TestCase
                 'User' => $user->User,
                 'Date' => Carbon::now(),
                 'Activity' => 'Unknown macro this should not appear',
-            ]
+            ],
         ];
 
         $view = $this->blade('
