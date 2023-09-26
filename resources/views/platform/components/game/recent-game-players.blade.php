@@ -59,7 +59,7 @@ foreach ($recentPlayerData as $recentPlayer) {
                 <td class="whitespace-nowrap smalldate">{{ $recentPlayer['Date'] }}</td>
                 <td>
                     @if ($recentPlayer['IsBroken'])
-                        <div class="cursor-help text-xs" title="{{ $recentPlayer['Activity'] }}">
+                        <div class="cursor-help" title="{{ $recentPlayer['Activity'] }}">
                             <span>⚠️</span>
                             <span>Playing {{ $gameTitle }}</span>
                         </div>
