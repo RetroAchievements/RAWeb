@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ClaimSetType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
@@ -14,8 +13,8 @@ $fullModifyOK = $permissions >= Permissions::Developer;
 $gameID = requestInputSanitized('g', null, 'integer');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = 
-    $permissions == Permissions::JuniorDeveloper 
+$partialModifyOK =
+    $permissions == Permissions::JuniorDeveloper
     && (
         checkIfSoleDeveloper($user, $gameID)
         || hasSetClaimed($user, $gameID, false)
