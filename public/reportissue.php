@@ -232,19 +232,19 @@ function reportIssueComponent() {
                         placeholder="Describe your issue here..."
                         required
                         x-model="description"
-                    >
-                        <?= old('description') ?>
-                    </textarea>
+                    ><?= old('description') ?></textarea>
 
-                    <p x-show="descriptionIsNetworkProblem">
-                        Please do not use this tool for network issues.
-                        See <a href='https://docs.retroachievements.org/FAQ/#how-can-i-get-credit-for-an-achievement-i-earned-but-wasnt-awarded'>here</a>
-                        for instructions on how to request a manual unlock.
-                    </p>
-                    <p x-show="descriptionIsUnhelpful">
-                        Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you 
-                        did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.
-                    </p>
+                    <div x-cloak>
+                        <p x-show="descriptionIsNetworkProblem">
+                            Please do not use this tool for network issues.
+                            See <a href='https://docs.retroachievements.org/FAQ/#how-can-i-get-credit-for-an-achievement-i-earned-but-wasnt-awarded'>here</a>
+                            for instructions on how to request a manual unlock.
+                        </p>
+                        <p x-show="descriptionIsUnhelpful">
+                            Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you 
+                            did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.
+                        </p>
+                    </div>
                 </td>
             </tr>
             <tr>
