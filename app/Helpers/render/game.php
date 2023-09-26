@@ -89,10 +89,10 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
         $renderedMain = Blade::render('
             <x-game-title
                 :rawTitle="$rawTitle"
-                :isDisplayingTags="$isDisplayingTags"
+                :showTags="$showTags"
             />', [
                 'rawTitle' => $mainTitle,
-                'isDisplayingTags' => false,
+                'showTags' => false,
             ]
         );
 

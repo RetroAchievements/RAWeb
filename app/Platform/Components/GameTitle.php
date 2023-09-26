@@ -10,12 +10,12 @@ use Illuminate\View\Component;
 class GameTitle extends Component
 {
     public string $rawTitle = '';
-    public bool $isDisplayingTags = true;
+    public bool $showTags = true;
 
-    public function __construct(string $rawTitle, bool $isDisplayingTags = true)
+    public function __construct(string $rawTitle, bool $showTags = true)
     {
         $this->rawTitle = $rawTitle;
-        $this->isDisplayingTags = $isDisplayingTags;
+        $this->showTags = $showTags;
     }
 
     public function render(): View
@@ -23,7 +23,7 @@ class GameTitle extends Component
         $strippedTitleAndTags = $this->stripTagsFromTitle($this->rawTitle);
 
         return view('platform.components.game.title', [
-            'isDisplayingTags' => $this->isDisplayingTags,
+            'showTags' => $this->showTags,
             'nonSubsetTags' => $strippedTitleAndTags['nonSubsetTags'],
             'strippedTitle' => $strippedTitleAndTags['strippedTitle'],
             'subsetKind' => $strippedTitleAndTags['subsetKind'],

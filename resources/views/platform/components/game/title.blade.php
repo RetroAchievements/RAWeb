@@ -1,13 +1,13 @@
 @props([
-    'isDisplayingTags' => true,
     'nonSubsetTags' => [],
+    'showTags' => true,
     'strippedTitle' => '',
     'subsetKind' => null,
 ])
 
 {{ $strippedTitle }}
 
-@if ($isDisplayingTags)
+@if ($showTags)
     @foreach ($nonSubsetTags as $nonSubsetTag)
         <span class="tag">
             <span>{{ $nonSubsetTag }}</span>

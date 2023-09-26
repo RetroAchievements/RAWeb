@@ -46,9 +46,9 @@ class GameTitleTest extends TestCase
         $view = $this->blade('
             <x-game-title
                 rawTitle="~Prototype~ Hello, world! [Subset - Bonus]"
-                :isDisplayingTags="$isDisplayingTags"
+                :showTags="$showTags"
             />', [
-                'isDisplayingTags' => false,
+                'showTags' => false,
             ]
         );
 
