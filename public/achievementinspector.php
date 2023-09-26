@@ -14,7 +14,12 @@ $fullModifyOK = $permissions >= Permissions::Developer;
 $gameID = requestInputSanitized('g', null, 'integer');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = $permissions == Permissions::JuniorDeveloper && (checkIfSoleDeveloper($user, $gameID) || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet));
+$partialModifyOK = 
+    $permissions == Permissions::JuniorDeveloper 
+    && (
+        checkIfSoleDeveloper($user, $gameID)
+        || hasSetClaimed($user, $gameID, false)
+    );
 
 $achievementList = [];
 $gamesList = [];
