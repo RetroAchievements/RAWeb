@@ -28,8 +28,8 @@ class ForumRecentPosts extends Component
     {
         $recentForumPosts = $this->prepareRecentForumPosts(
             $this->numToFetch,
-            $this->user?->Permissions,
-            $this->user?->websitePrefs,
+            $this->user?->Permissions ?? Permissions::Unregistered,
+            $this->user?->websitePrefs ?? 0,
         );
 
         return view('community.components.forum.recent-posts', [
