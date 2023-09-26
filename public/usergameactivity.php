@@ -7,8 +7,12 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
     abort(401);
 }
 
-$gameID = requestInputSanitized('ID', null, 'integer');
+$gameID = requestInputSanitized('ID', 0, 'integer');
 $user2 = requestInputSanitized('f');
+
+if (empty($user2) || $gameID <= 0) {
+    abort(404);
+}
 
 $gameData = getGameData($gameID);
 $gameTitle = $gameData['Title'];

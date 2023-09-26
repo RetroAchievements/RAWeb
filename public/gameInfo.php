@@ -108,28 +108,7 @@ if ($v != 1) {
     }
 }
 ?>
-<?php if ($gate): ?>
-    <article>
-    <?php
-        echo Blade::render('
-            <x-game.mature-content-gate
-                :gameId="$gameId"
-                :gameTitle="$gameTitle"
-                :consoleId="$consoleId"
-                :consoleName="$consoleName"
-                :userWebsitePrefs="$userWebsitePrefs"
-            />
-        ', [
-            'gameId' => $gameID,
-            'gameTitle' => $gameTitle,
-            'consoleId' => $consoleID,
-            'consoleName' => $consoleName,
-            'userWebsitePrefs' => $userDetails['websitePrefs'] ?? 0,
-        ]);
-    ?>
-    </article>
-    <?php return ?>
-<?php endif ?>
+
 <?php
 $achDist = null;
 $achDistHardcore = null;
@@ -289,6 +268,7 @@ sanitize_outputs(
     $user,
 );
 ?>
+
 <?php if ($isFullyFeaturedGame): ?>
     <?php
         function generateGameMetaDescription(
@@ -323,6 +303,31 @@ sanitize_outputs(
         );
     ?>
 <?php endif ?>
+
+<?php if ($gate): ?>
+    <?php RenderContentStart($pageTitle) ?>
+    <article>
+    <?php
+        echo Blade::render('
+            <x-game.mature-content-gate
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :consoleId="$consoleId"
+                :consoleName="$consoleName"
+                :userWebsitePrefs="$userWebsitePrefs"
+            />
+        ', [
+            'gameId' => $gameID,
+            'gameTitle' => $gameTitle,
+            'consoleId' => $consoleID,
+            'consoleName' => $consoleName,
+            'userWebsitePrefs' => $userDetails['websitePrefs'] ?? 0,
+        ]);
+    ?>
+    </article>
+    <?php return ?>
+<?php endif ?>
+
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
     <script defer src="https://www.gstatic.com/charts/loader.js"></script>
