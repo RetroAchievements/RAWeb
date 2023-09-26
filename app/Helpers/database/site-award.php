@@ -22,17 +22,18 @@ function AddSiteAward(
         }
     }
 
-    $award = PlayerBadge::firstOrNew([
-        'User' => $user,
-        'AwardType' => $awardType,
-        'AwardData' => $data,
-        'AwardDataExtra' => $dataExtra,
-    ], [
-        'DisplayOrder' => $displayOrder,
-    ]);
-
-    $award->AwardDate = $awardDate ?? Carbon::now();
-    $award->save();
+    PlayerBadge::updateOrInsert(
+        [
+            'User' => $user,
+            'AwardType' => $awardType,
+            'AwardData' => $data,
+            'AwardDataExtra' => $dataExtra,
+        ],
+        [
+            'AwardDate' => $awardDate ?? Carbon::now(),
+            'DisplayOrder' => $displayOrder,
+        ]
+    );
 }
 
 function HasBeatenSiteAwards(string $username, int $gameId): bool
