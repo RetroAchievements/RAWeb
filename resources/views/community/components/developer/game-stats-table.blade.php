@@ -140,7 +140,7 @@
         </x-developer.game-stats-table-row>
 
         <x-developer.game-stats-table-row headingLabel="Own Beaten Softcore/Hardcore Awards:">
-            @if ($ownAwards['BeatenSoftcore'] === 0 && $ownAwards['BeatenHardcore'] === 0)
+            @if (($ownAwards['BeatenSoftcore'] ?? 0) === 0 && ($ownAwards['BeatenHardcore'] ?? 0) === 0)
                 N/A
             @else
                 {{ $ownAwards['BeatenSoftcore'] }}
@@ -149,7 +149,7 @@
         </x-developer.game-stats-table-row>
 
         <x-developer.game-stats-table-row headingLabel="Own Completed/Mastered Awards:">
-            @if ($ownAwards['Completed'] === 0 && $ownAwards['Mastered'] === 0)
+            @if (($ownAwards['Completed'] ?? 0) === 0 && ($ownAwards['Mastered'] ?? 0) === 0)
                 N/A
             @else
                 {{ $ownAwards['Completed'] }}
