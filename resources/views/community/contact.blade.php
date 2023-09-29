@@ -64,7 +64,7 @@
 
                 <p class="mb-3">
                     <a href="/createmessage.php?t=RACheats">Send a message to RACheats</a>
-                    if you believe someone is in violating of our
+                    if you believe someone is in violation of our
                     <a href="https://docs.retroachievements.org/Global-Leaderboard-and-Achievement-Hunting-Rules/#not-allowed">Global Leaderboard and Achievement Hunting Rules</a>.
                 </p>
 
