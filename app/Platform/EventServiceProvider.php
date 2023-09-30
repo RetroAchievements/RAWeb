@@ -49,6 +49,7 @@ class EventServiceProvider extends ServiceProvider
             // TODO DispatchUpdateDeveloperContributionYieldJob::class,
         ],
         AchievementTypeChanged::class => [
+            DispatchUpdateGameMetricsJob::class,
         ],
         GameMetricsUpdated::class => [
         ],

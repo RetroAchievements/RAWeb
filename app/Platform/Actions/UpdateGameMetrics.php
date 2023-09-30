@@ -48,10 +48,11 @@ class UpdateGameMetrics
         $playersTotalChange = 0;
         $playersHardcoreChange = 0;
         if ($game->achievements_published || $game->achievements_unpublished) {
+            $versionHashFields = ['ID', 'MemAddr', 'type', 'Points'];
             $achievementSetVersionHashPayload = $game->achievements()->published()
                 ->orderBy('ID')
-                ->get(['ID', 'MemAddr', 'Points'])
-                ->map(fn ($achievement) => implode('-', $achievement->only(['ID', 'MemAddr', 'Points'])))
+                ->get($versionHashFields)
+                ->map(fn ($achievement) => implode('-', $achievement->only($versionHashFields)))
                 ->implode('-');
             $game->achievement_set_version_hash = hash('sha256', $achievementSetVersionHashPayload);
 
