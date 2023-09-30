@@ -1445,7 +1445,14 @@ sanitize_outputs(
         if ($isFullyFeaturedGame) {
             $recentPlayerData = getGameRecentPlayers($gameID, 10);
             if (!empty($recentPlayerData)) {
-                RenderRecentGamePlayers($recentPlayerData, $gameTitle);
+                echo "<div class='mt-6 mb-8'>";
+                echo Blade::render('
+                    <x-game.recent-game-players :recentPlayerData="$recentPlayerData" :gameTitle="$gameTitle" />
+                ', [
+                    'recentPlayerData' => $recentPlayerData,
+                    'gameTitle' => $gameTitle,
+                ]);
+                echo "</div>";
             }
 
             RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
