@@ -963,7 +963,7 @@ sanitize_outputs(
                         break;
                     }
                 }
-                if ($permissions >= Permissions::Moderator || $primaryClaimUser === $user) {
+                if ($permissions >= Permissions::Moderator || ($permissions >= Permissions::Developer && $primaryClaimUser === $user)) {
                     $interestedUsers = UserGameListEntry::where('type', UserGameListType::Develop)
                         ->where('GameID', $gameID)
                         ->count();
