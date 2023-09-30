@@ -20,7 +20,7 @@ class AchievementSetCompleted
     public function __construct(
         public User $user,
         public AchievementSet $achievementSet,
-        public ?bool $hardcore = false,
+        public bool $hardcore = false,
     ) {
     }
 
