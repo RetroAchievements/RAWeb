@@ -21,29 +21,6 @@ class UpdatePlayerMetrics
         $user->RASoftcorePoints = $user->achievements()->published()->wherePivotNull('unlocked_hardcore_at')->sum('Points');
         $user->TrueRAPoints = $user->achievements()->published()->wherePivotNotNull('unlocked_hardcore_at')->sum('TrueRatio');
 
-        // TODO refactor to use the above implementation only
-        // legacyDbStatement(
-        //     "UPDATE UserAccounts ua
-        //         LEFT JOIN (
-        //             SELECT aw.User AS UserAwarded,
-        //             SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
-        //             SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.TrueRatio, 0)) AS TruePoints,
-        //             SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", ach.Points, 0)) AS TotalPoints
-        //             FROM Awarded AS aw
-        //             LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        //             WHERE aw.User = :joinUsername AND ach.Flags = " . AchievementFlag::OfficialCore . "
-        //         ) hc ON ua.User = hc.UserAwarded
-        //         SET RAPoints = COALESCE(hc.HardcorePoints, 0),
-        //             TrueRAPoints = COALESCE(hc.TruePoints, 0),
-        //             RASoftcorePoints = COALESCE(hc.TotalPoints - hc.HardcorePoints, 0)
-        //         WHERE User = :username
-        //     ",
-        //     [
-        //         'joinUsername' => $user->username,
-        //         'username' => $user->username,
-        //     ]
-        // );
-
         $user->save();
     }
 }
