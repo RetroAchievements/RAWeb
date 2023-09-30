@@ -83,6 +83,9 @@ function testBeatenGame(int $gameId, string $user): array
     ];
 }
 
+/**
+ * @deprecated TODO read from PlayerGame model
+ */
 function getUnlockCounts(int $gameID, string $username, bool $hardcore = false): ?array
 {
     $data = legacyDbFetch(

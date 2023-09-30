@@ -6,7 +6,7 @@ namespace Tests\Feature\Platform\Action;
 
 use App\Platform\Actions\ResetPlayerProgress;
 use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
+use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -164,11 +164,13 @@ class ResetPlayerProgressActionTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
-        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $achievements = Achievement::factory()->published()
+            ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
+            ->create(['GameID' => $game->ID]);
 
-        $this->addHardcoreUnlock($user, $achievements->get(0));
-        $this->addHardcoreUnlock($user, $achievements->get(1));
-        $this->addHardcoreUnlock($user, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user, $achievement);
+        }
         $this->assertHasMasteryBadge($user, $game);
 
         (new ResetPlayerProgress())->execute($user, $achievements->get(1)->ID);
@@ -181,16 +183,18 @@ class ResetPlayerProgressActionTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
-        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        $achievements = Achievement::factory()->published()
+            ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
+            ->create(['GameID' => $game->ID]);
 
         // normally, a user can only have an unofficial unlock if the achievement was demoted after it was unlocked
         /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($user, $unofficialAchievement);
 
-        $this->addHardcoreUnlock($user, $achievements->get(0));
-        $this->addHardcoreUnlock($user, $achievements->get(1));
-        $this->addHardcoreUnlock($user, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user, $achievement);
+        }
         $this->assertHasMasteryBadge($user, $game);
 
         $this->assertHasHardcoreUnlock($user, $unofficialAchievement);
@@ -208,21 +212,23 @@ class ResetPlayerProgressActionTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
         $game = $this->seedGame(withHash: false);
-        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 7]);
+        $achievements = Achievement::factory()->published()
+            ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
+            ->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 7]);
         /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 7]);
         $game2 = $this->seedGame(withHash: false);
         /** @var Achievement $game2Achievement */
         $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'TrueRatio' => 7]);
 
-        $this->addHardcoreUnlock($user, $achievements->get(0));
-        $this->addHardcoreUnlock($user, $achievements->get(1));
-        $this->addHardcoreUnlock($user, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user, $achievement);
+        }
         $this->addHardcoreUnlock($user, $unofficialAchievement);
         $this->addHardcoreUnlock($user, $game2Achievement);
 
         $this->assertHasMasteryBadge($user, $game);
-        $this->assertEquals(4, $user->achievements_unlocked);
+        $this->assertEquals(7, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
 
@@ -232,19 +238,19 @@ class ResetPlayerProgressActionTest extends TestCase
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
-        $this->addHardcoreUnlock($user2, $achievements->get(0));
-        $this->addHardcoreUnlock($user2, $achievements->get(1));
-        $this->addHardcoreUnlock($user2, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user2, $achievement);
+        }
         $this->assertHasMasteryBadge($user2, $game);
-        $this->assertEquals(3, $user2->achievements()->published()->count());
+        $this->assertEquals(6, $user2->achievements()->published()->count());
 
         (new ResetPlayerProgress())->execute($user, gameID: $game->ID);
         $user->refresh();
 
         // unlocks and badge should have been revoked
-        $this->assertDoesNotHaveAnyUnlock($user, $achievements->get(0));
-        $this->assertDoesNotHaveAnyUnlock($user, $achievements->get(1));
-        $this->assertDoesNotHaveAnyUnlock($user, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->assertDoesNotHaveAnyUnlock($user, $achievement);
+        }
         $this->assertDoesNotHaveAnyUnlock($user, $unofficialAchievement);
         $this->assertDoesNotHaveMasteryBadge($user, $game);
 
@@ -274,21 +280,23 @@ class ResetPlayerProgressActionTest extends TestCase
         /** @var User $author */
         $author = User::factory()->create(['ContribCount' => 111, 'ContribYield' => 2222]);
         $game = $this->seedGame(withHash: false);
-        $achievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
+        $achievements = Achievement::factory()->published()
+            ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
+            ->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
         /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
         $game2 = $this->seedGame(withHash: false);
         /** @var Achievement $game2Achievement */
         $game2Achievement = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $author->User, 'TrueRatio' => 0]);
 
-        $this->addHardcoreUnlock($user, $achievements->get(0));
-        $this->addHardcoreUnlock($user, $achievements->get(1));
-        $this->addHardcoreUnlock($user, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user, $achievement);
+        }
         $this->addHardcoreUnlock($user, $unofficialAchievement);
         $this->addHardcoreUnlock($user, $game2Achievement);
 
         $this->assertHasMasteryBadge($user, $game);
-        $this->assertEquals(4, $user->achievements_unlocked);
+        $this->assertEquals(7, $user->achievements_unlocked);
         $this->assertEquals(0, $user->RASoftcorePoints);
         $this->assertEquals($achievements->sum('Points') + $game2Achievement->points, $user->RAPoints);
 
@@ -298,18 +306,18 @@ class ResetPlayerProgressActionTest extends TestCase
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
-        $this->addHardcoreUnlock($user2, $achievements->get(0));
-        $this->addHardcoreUnlock($user2, $achievements->get(1));
-        $this->addHardcoreUnlock($user2, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->addHardcoreUnlock($user2, $achievement);
+        }
         $this->assertHasMasteryBadge($user2, $game);
 
         (new ResetPlayerProgress())->execute($user);
         $user->refresh();
 
         // unlocks and badge should have been revoked
-        $this->assertDoesNotHaveAnyUnlock($user, $achievements->get(0));
-        $this->assertDoesNotHaveAnyUnlock($user, $achievements->get(1));
-        $this->assertDoesNotHaveAnyUnlock($user, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->assertDoesNotHaveAnyUnlock($user, $achievement);
+        }
         $this->assertDoesNotHaveAnyUnlock($user, $unofficialAchievement);
         $this->assertDoesNotHaveMasteryBadge($user, $game);
         $this->assertDoesNotHaveAnyUnlock($user, $game2Achievement);
@@ -325,9 +333,9 @@ class ResetPlayerProgressActionTest extends TestCase
         $this->assertEquals($user2->achievements()->sum('Points'), $author->ContribYield);
 
         // secondary user should not have been affected
-        $this->assertHasHardcoreUnlock($user2, $achievements->get(0));
-        $this->assertHasHardcoreUnlock($user2, $achievements->get(1));
-        $this->assertHasHardcoreUnlock($user2, $achievements->get(2));
+        foreach ($achievements as $achievement) {
+            $this->assertHasHardcoreUnlock($user2, $achievement);
+        }
         $this->assertHasMasteryBadge($user2, $game);
     }
 
