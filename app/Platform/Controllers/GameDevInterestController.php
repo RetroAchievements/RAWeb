@@ -20,9 +20,6 @@ class GameDevInterestController extends Controller
         }
 
         $permissions = $request->user()->getAttribute('Permissions');
-        if ($permissions < Permissions::Developer) {
-            abort(403);
-        }
 
         $gameId = (int) $request->route('game');
         $gameData = getGameData($gameId);
