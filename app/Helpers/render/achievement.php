@@ -70,7 +70,7 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
         return '';
     }
     if (!Str::contains($title, '[m]')) {
-        return $title;
+        return htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
     }
 
     $missableTag = '';
@@ -83,7 +83,7 @@ function renderAchievementTitle(?string $title, bool $tags = true): string
     // browser doesn't collapse them in forum <pre> tags.
     $title = preg_replace('/\s+/', ' ', $title);
 
-    return trim("$title$missableTag");
+    return trim(htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . $missableTag);
 }
 
 function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
