@@ -261,8 +261,12 @@ if ($isFullyFeaturedGame) {
         );
 
         // TODO: Remove this side effect when switching to aggregate queries.
-        if ($isBeatenSoftcore !== $hasBeatenSoftcoreAward || $isBeatenHardcore !== $hasBeatenHardcoreAward) {
-            $beatenGameRetVal = testBeatenGame($gameID, $user, true);
+        // Without aggregate queries, the side effect is part of the beaten games
+        // self-healing mechanism.
+        if (!config('feature.aggregate_queries')) {
+            if ($isBeatenSoftcore !== $hasBeatenSoftcoreAward || $isBeatenHardcore !== $hasBeatenHardcoreAward) {
+                $beatenGameRetVal = testBeatenGame($gameID, $user, true);
+            }
         }
     }
 
