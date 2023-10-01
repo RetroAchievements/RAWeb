@@ -579,6 +579,11 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('SiteAwards')) {
             Schema::create('SiteAwards', function (Blueprint $table) {
+                if (DB::connection()->getDriverName() === 'sqlite') {
+                    // SQLite does not allow changing a primary key after a table has been created so it has to be done here
+                    $table->bigIncrements('id')->first();
+                }
+
                 $table->dateTimeTz('AwardDate');
                 $table->string('User', 50)->index();
                 $table->integer('AwardType')->index();
