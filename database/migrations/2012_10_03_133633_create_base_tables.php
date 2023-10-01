@@ -40,20 +40,20 @@ return new class() extends Migration {
                 $table->increments('ID');
                 $table->unsignedInteger('GameID');
                 $table->string('Title', 64);
-                $table->string('Description');
+                $table->string('Description')->nullable();
                 $table->text('MemAddr');
                 $table->string('Progress')->nullable();
                 $table->string('ProgressMax')->nullable();
                 $table->string('ProgressFormat', 50)->nullable();
                 $table->unsignedSmallInteger('Points')->default(0);
-                $table->unsignedTinyInteger('Flags')->default(0);
+                $table->unsignedTinyInteger('Flags')->default(5);
                 $table->string('Author', 32);
                 $table->timestampTz('DateCreated')->nullable();
                 $table->timestampTz('DateModified')->nullable()->useCurrent();
                 $table->unsignedSmallInteger('VotesPos')->default(0);
                 $table->unsignedSmallInteger('VotesNeg')->default(0);
-                $table->string('BadgeName', 8)->default('00001');
-                $table->unsignedSmallInteger('DisplayOrder')->default(0);
+                $table->string('BadgeName', 8)->nullable()->default('00001');
+                $table->smallInteger('DisplayOrder')->default(0);
                 $table->string('AssocVideo')->nullable();
                 $table->unsignedInteger('TrueRatio')->default(0);
 
@@ -80,10 +80,10 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('Activity')) {
             Schema::create('Activity', function (Blueprint $table) {
-                $table->increments('ID');
+                $table->increments('ID'); // NOTE not unsigned on production but table will be dropped
                 $table->timestampTz('timestamp')->useCurrent();
                 $table->timestampTz('lastupdate')->nullable();
-                $table->unsignedSmallInteger('activitytype');
+                $table->smallInteger('activitytype');
                 $table->string('User', 32);
                 $table->string('data', 20)->nullable();
                 $table->string('data2', 12)->nullable();
@@ -103,9 +103,9 @@ return new class() extends Migration {
                 $table->primary(['User', 'AchievementID', 'HardcoreMode']);
 
                 $table->string('User', 32);
-                $table->unsignedInteger('AchievementID');
+                $table->integer('AchievementID');
                 $table->timestampTz('Date')->nullable()->useCurrent();
-                $table->boolean('HardcoreMode')->default(0);
+                $table->unsignedTinyInteger('HardcoreMode')->default(0);
 
                 $table->index('User');
                 $table->index('AchievementID');
@@ -185,7 +185,7 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('EmailConfirmations')) {
             Schema::create('EmailConfirmations', function (Blueprint $table) {
-                $table->string('User', 32);
+                $table->string('User', 20);
                 $table->string('EmailCookie', 20)->index();
                 $table->date('Expires');
             });
@@ -196,9 +196,9 @@ return new class() extends Migration {
                 $table->increments('ID');
                 $table->unsignedInteger('CategoryID')->index();
                 $table->string('Title', 50);
-                $table->string('Description');
+                $table->string('Description', 250);
                 $table->unsignedInteger('LatestCommentID')->nullable();
-                $table->unsignedInteger('DisplayOrder')->default(0);
+                $table->integer('DisplayOrder')->default(0);
             });
         }
 
@@ -220,8 +220,8 @@ return new class() extends Migration {
         if (!Schema::hasTable('ForumCategory')) {
             Schema::create('ForumCategory', function (Blueprint $table) {
                 $table->increments('ID');
-                $table->string('Name');
-                $table->string('Description');
+                $table->string('Name', 250);
+                $table->string('Description', 250);
                 $table->unsignedInteger('DisplayOrder')->default(0);
             });
         }
@@ -246,11 +246,11 @@ return new class() extends Migration {
                 $table->increments('ID');
                 $table->unsignedInteger('ForumID')->index();
                 $table->string('Title');
-                $table->string('Author', 32);
+                $table->string('Author', 50);
                 $table->unsignedInteger('AuthorID');
                 $table->timestampTz('DateCreated')->useCurrent();
                 $table->unsignedInteger('LatestCommentID');
-                $table->unsignedSmallInteger('RequiredPermissions')->default(0);
+                $table->smallInteger('RequiredPermissions')->default(0);
             });
         }
 
@@ -271,10 +271,10 @@ return new class() extends Migration {
                 $table->increments('ID');
                 $table->unsignedInteger('ForumTopicID')->index();
                 $table->text('Payload');
-                $table->string('Author', 32);
+                $table->string('Author', 50);
                 $table->unsignedInteger('AuthorID');
-                $table->timestampTz('DateCreated')->index();
-                $table->timestampTz('DateModified')->useCurrent()->useCurrentOnUpdate();
+                $table->timestampTz('DateCreated')->nullable()->index();
+                $table->timestampTz('DateModified')->nullable()->useCurrent()->useCurrentOnUpdate();
                 $table->unsignedTinyInteger('Authorised')->nullable();
             });
         }
@@ -309,8 +309,8 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('GameAlternatives')) {
             Schema::create('GameAlternatives', function (Blueprint $table) {
-                $table->unsignedInteger('gameID')->index();
-                $table->unsignedInteger('gameIDAlt')->index();
+                $table->unsignedInteger('gameID')->nullable()->index();
+                $table->unsignedInteger('gameIDAlt')->nullable()->index();
             });
         }
 
@@ -334,8 +334,8 @@ return new class() extends Migration {
                 $table->increments('ID');
                 $table->string('Title', 80);
                 $table->unsignedTinyInteger('ConsoleID')->index();
-                $table->unsignedInteger('ForumTopicID')->nullable();
-                $table->unsignedInteger('Flags')->nullable();
+                $table->integer('ForumTopicID')->nullable();
+                $table->integer('Flags')->nullable();
                 $table->string('ImageIcon', 50)->nullable()->default('/Images/000001.png');
                 $table->string('ImageTitle', 50)->nullable()->default('/Images/000002.png');
                 $table->string('ImageIngame', 50)->nullable()->default('/Images/000002.png');
@@ -411,9 +411,9 @@ return new class() extends Migration {
         if (!Schema::hasTable('LeaderboardDef')) {
             Schema::create('LeaderboardDef', function (Blueprint $table) {
                 $table->increments('ID');
-                $table->unsignedInteger('GameID')->index();
+                $table->unsignedInteger('GameID')->default(0)->index();
                 $table->text('Mem');
-                $table->string('Format', 50);
+                $table->string('Format', 50)->nullable()->default('');
                 $table->string('Title')->default('Leaderboard Title');
                 $table->string('Description')->default('Leaderboard Description');
                 $table->boolean('LowerIsBetter')->default(0);
@@ -447,8 +447,8 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('LeaderboardEntry')) {
             Schema::create('LeaderboardEntry', function (Blueprint $table) {
-                $table->unsignedInteger('LeaderboardID')->index();
-                $table->unsignedInteger('UserID');
+                $table->unsignedInteger('LeaderboardID')->default(0)->index();
+                $table->unsignedInteger('UserID')->default(0);
                 $table->integer('Score')->default(0);
                 $table->dateTimeTz('DateSubmitted');
 
@@ -493,7 +493,7 @@ return new class() extends Migration {
                 $table->timestampTz('Timestamp')->useCurrent();
                 $table->string('Title')->nullable();
                 $table->text('Payload');
-                $table->string('Author', 32);
+                $table->string('Author', 50)->nullable();
                 $table->string('Link')->nullable();
                 $table->string('Image')->nullable();
             });
@@ -515,10 +515,10 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('Rating')) {
             Schema::create('Rating', function (Blueprint $table) {
-                $table->string('User', 32);
-                $table->unsignedSmallInteger('RatingObjectType');
-                $table->unsignedSmallInteger('RatingID');
-                $table->unsignedSmallInteger('RatingValue');
+                $table->string('User');
+                $table->smallInteger('RatingObjectType');
+                $table->smallInteger('RatingID');
+                $table->smallInteger('RatingValue');
 
                 if (DB::connection()->getDriverName() === 'sqlite') {
                     // SQLite does not allow changing a primary key after a table has been created so it has to be done here
@@ -551,13 +551,13 @@ return new class() extends Migration {
                 $table->increments('ID');
                 $table->string('User', 32);
                 $table->unsignedInteger('GameID');
-                $table->unsignedInteger('ClaimType');
-                $table->unsignedInteger('SetType');
-                $table->unsignedInteger('Status');
-                $table->unsignedInteger('Extension');
-                $table->unsignedInteger('Special');
+                $table->unsignedInteger('ClaimType')->comment('0 - Primary (counts against claim total), 1 - Collaboration (does not count against claim total)');
+                $table->unsignedInteger('SetType')->comment('0 - New set, 1 - Revision');
+                $table->unsignedInteger('Status')->comment('0 - Active, 1 - Complete, 2 - Dropped');
+                $table->unsignedInteger('Extension')->comment('Number of times the claim has been extended');
+                $table->unsignedInteger('Special')->comment('0 - Standard claim, 1 - Own Revision, 2 - Free Rollout claim, 3 - Future release approved. >=1 does not count against claim count');
                 $table->timestampTz('Created')->useCurrent();
-                $table->timestampTz('Finished')->useCurrent();
+                $table->timestampTz('Finished')->useCurrent()->comment('Timestamp for when the claim is completed, dropped or will expire');
                 $table->timestampTz('Updated')->useCurrent();
             });
         }
@@ -566,7 +566,7 @@ return new class() extends Migration {
             Schema::create('SetRequest', function (Blueprint $table) {
                 $table->string('User', 32);
                 $table->unsignedInteger('GameID');
-                $table->timestampTz('Updated')->useCurrent();
+                $table->timestampTz('Updated')->useCurrent()->nullable();
 
                 if (DB::connection()->getDriverName() === 'sqlite') {
                     // SQLite does not allow changing a primary key after a table has been created so it has to be done here
@@ -585,10 +585,10 @@ return new class() extends Migration {
                 }
 
                 $table->dateTimeTz('AwardDate');
-                $table->string('User', 32)->index();
-                $table->unsignedInteger('AwardType')->index();
-                $table->unsignedInteger('AwardData')->nullable();
-                $table->unsignedInteger('AwardDataExtra')->nullable();
+                $table->string('User', 50)->index();
+                $table->integer('AwardType')->index();
+                $table->integer('AwardData')->nullable();
+                $table->integer('AwardDataExtra')->default(0);
 
                 $table->unique(['User', 'AwardData', 'AwardType', 'AwardDataExtra']);
             });
@@ -597,7 +597,7 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20190702_233400_Add_DisplayOrder_to_SiteAwards.sql
         if (!Schema::hasColumn('SiteAwards', 'DisplayOrder')) {
             Schema::table('SiteAwards', function (Blueprint $table) {
-                $table->unsignedSmallInteger('DisplayOrder')->default(0)->after('AwardDataExtra')->comment('Display order to show site awards in');
+                $table->smallInteger('DisplayOrder')->default(0)->after('AwardDataExtra')->comment('Display order to show site awards in');
             });
         }
 
@@ -609,9 +609,9 @@ return new class() extends Migration {
                 $table->unsignedInteger('NumRegisteredUsers');
                 $table->unsignedInteger('TotalPointsEarned');
                 $table->unsignedInteger('LastAchievementEarnedID');
-                $table->string('LastAchievementEarnedByUser', 32);
+                $table->string('LastAchievementEarnedByUser', 50);
                 $table->timestampTz('LastAchievementEarnedAt')->useCurrent()->useCurrentOnUpdate();
-                $table->string('LastRegisteredUser', 32);
+                $table->string('LastRegisteredUser', 50);
                 $table->timestampTz('LastRegisteredUserAt')->nullable();
                 $table->unsignedInteger('LastUpdatedGameID');
                 $table->unsignedInteger('LastUpdatedAchievementID');
@@ -643,7 +643,7 @@ return new class() extends Migration {
                 ]);
                 $table->unsignedInteger('SubjectID');
                 $table->unsignedInteger('UserID');
-                $table->boolean('State');
+                $table->unsignedTinyInteger('State')->comment('Whether UserID is subscribed (1) or unsubscribed (0)');
 
                 $table->primary(['SubjectType', 'SubjectID', 'UserID']);
             });
@@ -673,7 +673,7 @@ return new class() extends Migration {
                 $table->timestampTz('ReportedAt')->nullable()->index();
                 $table->timestampTz('ResolvedAt')->nullable();
                 $table->unsignedInteger('ResolvedByUserID')->nullable();
-                $table->unsignedTinyInteger('ReportState')->default(1);
+                $table->unsignedTinyInteger('ReportState')->default(1)->comment('1=submitted,2=resolved,3=declined');
 
                 $table->unique(['AchievementID', 'ReportedByUserID']);
             });
@@ -700,34 +700,34 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('UserAccounts')) {
             Schema::create('UserAccounts', function (Blueprint $table) {
-                $table->increments('ID');
+                $table->increments('ID'); // NOTE PRIMARY KEY ('ID', 'User') on production
                 $table->string('User', 32)->unique();
                 $table->string('SaltedPass', 32);
                 $table->string('EmailAddress', 64);
-                $table->tinyInteger('Permissions')->comment('-2=spam, -1=ban, 0=unconfirmed, 1=confirmed, 2=jr-dev, 3=dev, 4=admin');
-                $table->unsignedInteger('RAPoints');
-                $table->unsignedBigInteger('fbUser');
-                $table->unsignedSmallInteger('fbPrefs')->nullable();
+                $table->tinyInteger('Permissions')->comment('-2=spam, -1=banned, 0=unconfirmed, 1=confirmed, 2=jr-developer, 3=developer, 4=moderator');
+                $table->integer('RAPoints');
+                $table->bigInteger('fbUser');
+                $table->smallInteger('fbPrefs')->nullable();
                 $table->string('cookie', 100)->nullable();
                 $table->string('appToken', 60)->nullable();
                 $table->dateTimeTz('appTokenExpiry')->nullable();
-                $table->unsignedSmallInteger('websitePrefs')->default(0);
+                $table->unsignedSmallInteger('websitePrefs')->nullable()->default(0);
                 $table->timestampTz('LastLogin')->nullable();
-                $table->unsignedInteger('LastActivityID')->nullable();
-                $table->string('Motto', 50)->nullable();
-                $table->unsignedInteger('ContribCount')->nullable()->comment('The Number of awarded achievements that this user was the author of');
-                $table->unsignedInteger('ContribYield')->nullable()->comment('The total points allocated for achievements that this user has been the author of');
+                $table->unsignedInteger('LastActivityID')->default(0);
+                $table->string('Motto', 50)->default('');
+                $table->unsignedInteger('ContribCount')->default(0)->comment('The Number of awarded achievements that this user was the author of');
+                $table->unsignedInteger('ContribYield')->default(0)->comment('The total points allocated for achievements that this user has been the author of');
                 $table->string('APIKey', 60)->nullable();
-                $table->unsignedInteger('APIUses')->nullable();
-                $table->unsignedInteger('LastGameID')->nullable();
+                $table->unsignedInteger('APIUses')->default(0);
+                $table->unsignedInteger('LastGameID')->default(0);
                 $table->string('RichPresenceMsg', 100)->nullable();
                 $table->dateTimeTz('RichPresenceMsgDate')->nullable();
-                $table->boolean('ManuallyVerified')->default(0)->comment('If 0, cannot post directly to forums without manual permission');
+                $table->unsignedTinyInteger('ManuallyVerified')->nullable()->default(0)->comment('If 0, cannot post directly to forums without manual permission');
                 $table->unsignedInteger('UnreadMessageCount')->nullable();
                 $table->unsignedInteger('TrueRAPoints')->nullable();
                 $table->boolean('UserWallActive')->default(1)->comment('Allow Posting to user wall');
                 $table->string('PasswordResetToken', 32)->nullable();
-                $table->boolean('Untracked');
+                $table->boolean('Untracked')->default(0);
                 $table->string('email_backup')->nullable();
 
                 $table->index(['User', 'Untracked']);
@@ -779,7 +779,7 @@ return new class() extends Migration {
         // https://github.com/RetroAchievements/RAWeb/blob/master/database/20220615_000000_Add_UserAccount_SoftcorePoints.sql
         if (!Schema::hasColumns('UserAccounts', ['RASoftcorePoints'])) {
             Schema::table('UserAccounts', function (Blueprint $table) {
-                $table->unsignedInteger('RASoftcorePoints')->default(0)->after('RAPoints');
+                $table->integer('RASoftcorePoints')->nullable()->default(0)->after('RAPoints');
 
                 // https://github.com/RetroAchievements/RAWeb/blob/master/database/20220810_000000_Add_UserAccount_SoftcorePoints_Key.sql
                 $table->index(['RASoftcorePoints', 'Untracked']);
@@ -788,9 +788,9 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('Votes')) {
             Schema::create('Votes', function (Blueprint $table) {
-                $table->string('User', 32);
+                $table->string('User', 50);
                 $table->unsignedInteger('AchievementID');
-                $table->unsignedTinyInteger('Vote');
+                $table->tinyInteger('Vote');
 
                 if (DB::connection()->getDriverName() === 'sqlite') {
                     // SQLite does not allow changing a primary key after a table has been created so it has to be done here
