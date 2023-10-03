@@ -56,8 +56,17 @@ function displayCore() {
 <article>
     <div class="navpath">
         <?= renderGameBreadcrumb($dataOut) ?>
-        &raquo; <a href="/achievement/<?= $achievementID ?>"><?=
-            renderAchievementTitle($achievementTitle, tags: false) ?></a>
+        &raquo; <a href="/achievement/<?= $achievementID ?>">
+        <?=
+            Blade::render('
+                <x-achievement.title
+                    :rawTitle="$rawTitle"
+                    :isDisplayingTags="$isDisplayingTags"
+                />', [
+                'rawTitle' => $achievementTitle,
+                'isDisplayingTags' => false,
+            ]);
+        ?></a>
         &raquo; <b>Issue Report</b>
     </div>
 
