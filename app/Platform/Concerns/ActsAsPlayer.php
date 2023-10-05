@@ -91,7 +91,7 @@ trait ActsAsPlayer
      */
     public function games(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'player_games', 'user_id', 'game_id')
+        return $this->belongsToMany(Game::class, 'player_games', 'user_id', 'game_id', 'ID', 'ID')
             ->using(PlayerGame::class)
             ->withTimestamps('created_at', 'updated_at');
     }
