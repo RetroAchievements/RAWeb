@@ -16,7 +16,7 @@ return new class() extends Migration {
 
         Schema::table('CodeNotes', function (Blueprint $table) {
             // TODO clean up failing relations
-            $table->foreign('AuthorID', 'memory_notes_user_id_foreign')->references('ID')->on('UserAccounts')->onDelete('cascade');
+            $table->foreign('AuthorID', 'memory_notes_user_id_foreign')->references('ID')->on('UserAccounts')->onDelete('set null');
         });
 
         Schema::table('Comment', function (Blueprint $table) {

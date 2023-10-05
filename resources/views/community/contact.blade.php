@@ -46,9 +46,37 @@
                     <li>Getting involved in a QA sub-team.</li>
                 </ul>
             </x-section>
+
+            <x-section>
+                <h2>DevQuest</h2>
+
+                <p class="mb-3">
+                    <a href='/createmessage.php?t=DevQuest'>Send a message to DevQuest</a> for
+                    submissions, questions, ideas, or reporting issues related to
+                    <a href='/game/5686'>DevQuest</a>.
+                </p>
+            </x-section>
         </div>
 
         <div>
+            <x-section>
+                <h2>Cheating Reports</h2>
+
+                <p class="mb-3">
+                    <a href="/createmessage.php?t=RACheats">Send a message to RACheats</a>
+                    if you believe someone is in violation of our
+                    <a href="https://docs.retroachievements.org/Global-Leaderboard-and-Achievement-Hunting-Rules/#not-allowed">Global Leaderboard and Achievement Hunting Rules</a>.
+                </p>
+
+                <p>
+                    Please include as much evidence as possible to support your claim. This could
+                    include screenshots, videos, links to suspicious profiles, or any other relevant
+                    information that demonstrates the alleged violation. Describe each piece of evidence in
+                    detail, explaining why it suggests a violation of the rules. The more comprehensive and clear
+                    your submission, the more efficiently we can evaluate and address the issue.
+                </p>
+            </x-section>
+
             <x-section>
                 <h2>RANews</h2>
 
@@ -77,16 +105,6 @@
                     <a href='/createmessage.php?t=TheUnwanted'>Send a message to TheUnwanted</a> for
                     submissions, questions, ideas, or reporting issues specifically related to
                     <a href='/game/4271'>The Unwanted</a>.
-                </p>
-            </x-section>
-
-            <x-section>
-                <h2>DevQuest</h2>
-
-                <p class="mb-3">
-                    <a href='/createmessage.php?t=DevQuest'>Send a message to DevQuest</a> for
-                    submissions, questions, ideas, or reporting issues related to
-                    <a href='/game/5686'>DevQuest</a>.
                 </p>
             </x-section>
         </div>

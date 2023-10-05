@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Site;
 
+use App\Platform\Events\SiteBadgeAwarded;
+use App\Site\Events\UserDeleted;
 use App\Site\Listeners\SendUserRegistrationNotification;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
@@ -43,6 +45,12 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             // SendEmailVerificationNotification::class,
             SendUserRegistrationNotification::class,
+        ],
+        SiteBadgeAwarded::class => [
+            // TODO Notify user
+        ],
+        UserDeleted::class => [
+            // TODO Notify user/moderation
         ],
         Verified::class => [
             // UserVerifiedEmail::class,
