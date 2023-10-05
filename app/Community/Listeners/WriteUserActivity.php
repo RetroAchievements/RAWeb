@@ -8,9 +8,8 @@ use App\Community\Enums\ActivityType;
 use App\Community\Enums\UserActivityType;
 use App\Community\Models\UserActivity;
 use App\Community\Models\UserActivityLegacy;
-use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementSetBeaten;
 use App\Platform\Events\AchievementSetCompleted;
-use App\Platform\Events\AchievementUpdated;
 use App\Platform\Events\LeaderboardEntryCreated;
 use App\Platform\Events\LeaderboardEntryUpdated;
 use App\Platform\Events\PlayerAchievementUnlocked;
@@ -33,6 +32,7 @@ class WriteUserActivity
         $subjectId = null;
         $context = null;
 
+        $storeLegacyActivity = true;
         $legacyActivityType = null;
         $data = null;
         $data2 = null;
@@ -47,27 +47,15 @@ class WriteUserActivity
                  * ignore login activity within 6 hours after the last login activity
                  */
                 $legacyActivityType = ActivityType::Login;
-                $storeActivity = $user->legacyActivities()
+                $storeLegacyActivity = $user->legacyActivities()
                     ->where('activitytype', '=', $legacyActivityType)
                     ->where('timestamp', '>', Carbon::now()->subHours(6))
                     ->doesntExist();
-                // $userActivityType = UserActivityType::Login;
-                // $storeActivity = $user->activities()
-                //     ->where('type', '=', $userActivityType)
-                //     ->where('created_at', '>', Carbon::now()->subHours(6))
-                //     ->doesntExist();
-                break;
-            case AchievementCreated::class:
-                $userActivityType = UserActivityType::UploadAchievement;
-                // TODO: subject_context = create
-                // TODO: subject_id
-                $subjectType = 'achievement';
-                break;
-            case AchievementUpdated::class:
-                $userActivityType = UserActivityType::EditAchievement;
-                // TODO: subject_context = update
-                // TODO: subject_id
-                $subjectType = 'achievement';
+                $userActivityType = UserActivityType::Login;
+                $storeActivity = $user->activities()
+                    ->where('type', '=', $userActivityType)
+                    ->where('created_at', '>', Carbon::now()->subHours(6))
+                    ->doesntExist();
                 break;
             case LeaderboardEntryCreated::class:
                 $userActivityType = UserActivityType::NewLeaderboardEntry;
@@ -89,10 +77,16 @@ class WriteUserActivity
                 $context = $event->hardcore ? 1 : null;
                 break;
             case AchievementSetCompleted::class:
-                $userActivityType = UserActivityType::CompleteGame;
+                $userActivityType = UserActivityType::CompleteAchievementSet;
                 // TODO: subject_context = complete
                 // TODO: subject_id
-                $subjectType = 'game';
+                // TODO $subjectType = 'achievement_set';
+                break;
+            case AchievementSetBeaten::class:
+                $userActivityType = UserActivityType::BeatAchievementSet;
+                // TODO: subject_context = beat
+                // TODO: subject_id
+                // TODO $subjectType = 'achievement_set';
                 break;
             case PlayerGameAttached::class:
                 $userActivityType = UserActivityType::StartedPlaying;
@@ -103,7 +97,7 @@ class WriteUserActivity
             default:
         }
 
-        if ($legacyActivityType && $storeActivity) {
+        if ($legacyActivityType && $storeLegacyActivity) {
             $user->legacyActivities()->save(new UserActivityLegacy([
                 'activitytype' => $legacyActivityType,
                 'data' => $data,

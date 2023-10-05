@@ -9,7 +9,7 @@ use App\Support\MediaLibrary\Actions\AddMediaAction;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 
-class AddImageToGameAction
+class AddImageToGame
 {
     public function __construct(private AddMediaAction $addMediaAction, private Filesystem $filesystem)
     {

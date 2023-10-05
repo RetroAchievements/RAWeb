@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Platform\Events;
 
 use App\Platform\Models\Game;
+use App\Platform\Models\GameHash;
 use App\Site\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 
 class PlayerSessionHeartbeat
 {
@@ -20,8 +22,11 @@ class PlayerSessionHeartbeat
     public function __construct(
         public User $user,
         public Game $game,
-        public ?string $message = null
+        public ?string $message = null,
+        public ?GameHash $gameHash = null,
+        public ?Carbon $timestamp = null,
     ) {
+        $this->timestamp ??= Carbon::now();
     }
 
     public function broadcastOn(): PrivateChannel

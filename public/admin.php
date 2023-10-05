@@ -1,5 +1,6 @@
 <?php
 
+use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\StaticData;
@@ -70,14 +71,15 @@ if ($action === 'manual-unlock') {
                 if (array_key_exists('Error', $awardResponse)) {
                     $errors[] = $awardResponse['Error'];
                 }
-            }
-            recalculatePlayerPoints($validUser);
-
-            $hardcorePoints = 0;
-            $softcorePoints = 0;
-            if (getPlayerPoints($validUser, $userPoints)) {
-                $hardcorePoints = $userPoints['RAPoints'];
-                $softcorePoints = $userPoints['RASoftcorePoints'];
+                $player = User::firstWhere('User', $validUser);
+                dispatch(
+                    new UnlockPlayerAchievementJob(
+                        $player->id,
+                        $nextID,
+                        (bool) $awardAchHardcore,
+                        unlockedByUserId: request()->user()->id
+                    )
+                );
             }
         }
 
@@ -133,7 +135,7 @@ if ($action === 'alt_identifier') {
                 ->select('User', 'Permissions', 'LastLogin', 'Deleted')
                 ->where(function ($query) use ($emailAddresses) {
                     $query->whereIn('EmailAddress', $emailAddresses)
-                          ->orWhereIn('email_backup', $emailAddresses);
+                        ->orWhereIn('email_backup', $emailAddresses);
                 })
                 ->orderBy('LastLogin', 'desc')
                 ->get();

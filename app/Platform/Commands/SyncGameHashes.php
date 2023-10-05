@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\LinkHashToGameAction;
+use App\Platform\Actions\LinkHashToGame;
 use App\Platform\Models\Game;
 use App\Support\Sync\SyncTrait;
 use Exception;
@@ -17,8 +17,9 @@ class SyncGameHashes extends Command
     protected $signature = 'ra:sync:game-hashes {id?} {--f|full} {--p|no-post}';
     protected $description = 'Sync game hashes';
 
-    public function __construct(private LinkHashToGameAction $linkHashToGameAction)
-    {
+    public function __construct(
+        private readonly LinkHashToGame $linkHashToGameAction
+    ) {
         parent::__construct();
     }
 

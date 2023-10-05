@@ -44,17 +44,7 @@ trait ActsAsPlayer
 
     public function getPointsRatioAttribute(): float|string
     {
-        return $this->points_total ? ($this->points_weighted / $this->points_total) : 0;
-    }
-
-    public function getPointsTotalAttribute(): int
-    {
-        return (int) ($this->attributes['RAPoints'] ?? 0);
-    }
-
-    public function getPointsWeightedTotalAttribute(): int
-    {
-        return (int) ($this->attributes['TrueRAPoints'] ?? 0);
+        return $this->points ? ($this->points_weighted / $this->points) : 0;
     }
 
     // == relations
@@ -119,7 +109,7 @@ trait ActsAsPlayer
      */
     public function lastGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'LastGameID', 'user_id');
+        return $this->belongsTo(Game::class, 'LastGameID', 'ID');
     }
 
     /**

@@ -37,6 +37,8 @@ class PlayerBadge extends BaseModel
         'DisplayOrder' => 'int',
     ];
 
+    public const MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY = 6;
+
     private const DEVELOPER_COUNT_BOUNDARIES = [
         100,
         250,
