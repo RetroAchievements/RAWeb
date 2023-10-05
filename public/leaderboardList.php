@@ -57,6 +57,8 @@ RenderContentStart($pageTitle);
                 + '::VAL:' + $.trim($('#LB_' + lbID + '_Mem4').val()),
             lowerIsBetter: $('#LB_' + lbID + '_LowerIsBetter').is(':checked') ? '1' : '0',
             order:  $.trim($('#LB_' + lbID + '_DisplayOrder').val())
+        }).then(() => {
+            window.location.reload();
         });
     }
     </script>
@@ -79,37 +81,6 @@ echo "<h3>Leaderboards</h3>";
 if (isset($gameData['ID'])) {
     echo "<div>";
     echo gameAvatar($gameData, iconSize: 64);
-    echo "</div>";
-}
-
-if ($permissions >= Permissions::JuniorDeveloper) {
-    $numGames = getGamesList(0, $gamesList);
-
-    echo "<div class='devbox'>";
-    echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-    echo "<div id='devboxcontent' style='display: none'>";
-
-    echo "<ul>";
-    echo "<li>";
-    echo "<form method='post' action='/request/leaderboard/create.php'>";
-    echo csrf_field();
-    echo "<input type='hidden' name='game' value='$gameID' />";
-    echo "<button class='btn'>Create Leaderboard</button>";
-    echo "</form>";
-    echo "<form method='post' action='/request/leaderboard/create.php'>";
-    echo csrf_field();
-    echo "<input type='hidden' name='game' value='$gameID'>";
-    echo "Duplicate leaderboard ID: ";
-    echo "<input style='width: 10%;' min='1' name='leaderboard'> ";
-    echo "Amount: ";
-    echo "<input style='width: 10%;' type='number' min='1' max='25' value='1' name='amount'>";
-    echo "&nbsp;&nbsp;";
-    echo "<button class='btn'>Duplicate</button>";
-    echo "</form>";
-    echo "</li>";
-    echo "</ul>";
-
-    echo "</div>";
     echo "</div>";
 }
 
@@ -142,7 +113,13 @@ if ($permissions >= Permissions::JuniorDeveloper) {
 
 $listCount = 0;
 
+$bgColorClassNames = ["!bg-embed", "!bg-box-bg"];
+$currentBgColorIndex = 1;
+
 foreach ($lbData as $nextLB) {
+    // Alternate the background color of the achievement rows.
+    $currentBgColorIndex = $currentBgColorIndex === 1 ? 0 : 1;
+
     $lbID = $nextLB['ID'];
     $lbTitle = attributeEscape($nextLB['Title']);
     $lbDesc = attributeEscape($nextLB['Description']);
@@ -160,7 +137,7 @@ foreach ($lbData as $nextLB) {
 
     $niceFormat = ($lbLowerIsBetter ? "Smallest " : "Largest ") . (($lbFormat == "SCORE") ? "Score" : "Time");
 
-    echo "<tr>";
+    echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
 
     if ($permissions >= Permissions::JuniorDeveloper) {
         // Allow leaderboard edits for devs and jr. devs if they are the author
@@ -217,7 +194,7 @@ foreach ($lbData as $nextLB) {
 
         echo "</tr>";
 
-        echo "<tr>";
+        echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
 
         echo "<td>";
         // echo "Memory:";
@@ -242,33 +219,10 @@ foreach ($lbData as $nextLB) {
         }
 
         echo "<table class='table-highlight mb-3'><tbody>";
-        echo "<tr>";
-        echo "<td style='width:10%;'>Start:</td>";
-        echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem1' value='$memStart' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='width:10%;'>Cancel:</td>";
-        echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem2' value='$memCancel' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='width:10%;'>Submit:</td>";
-        echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem3' value='$memSubmit' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='width:10%;'>Value:</td>";
-        echo "<td>";
-        echo "<input type='text' id='LB_" . $lbID . "_Mem4' value='$memValue' style='width: 100%;' " . ($editAllowed ? "" : "readonly") . "/>";
-        echo "</td>";
-        echo "</tr>";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem1' value='$memStart' readonly />";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem2' value='$memCancel' readonly />";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem3' value='$memSubmit' readonly />";
+        echo "<input type='hidden' id='LB_" . $lbID . "_Mem4' value='$memValue' readonly />";
 
         echo "</tbody></table>";
 
@@ -339,13 +293,4 @@ echo "</tbody></table>";
 echo "</div>";
 ?>
 </article>
-<?php
-if (!empty($codeNotes) && $permissions >= Permissions::JuniorDeveloper) {
-    view()->share('sidebar', true);
-    echo "<aside>";
-    echo "<h3>Code Notes</h3>";
-    RenderCodeNotes($codeNotes);
-    echo "</aside>";
-}
-?>
 <?php RenderContentEnd(); ?>

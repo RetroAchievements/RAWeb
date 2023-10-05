@@ -5,6 +5,11 @@ use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementPointsChanged;
+use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementTypeChanged;
+use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Carbon;
@@ -255,6 +260,7 @@ function UploadNewAchievement(
             );
 
             // uploaded new achievement
+            AchievementCreated::dispatch(Achievement::find($idInOut));
 
             return true;
         }
@@ -324,6 +330,8 @@ function UploadNewAchievement(
 
             postActivity($author, ActivityType::EditAchievement, $idInOut);
 
+            $achievement = Achievement::find($idInOut);
+
             if ($changingAchSet) {
                 if ($flag === AchievementFlag::OfficialCore) {
                     addArticleComment(
@@ -333,6 +341,7 @@ function UploadNewAchievement(
                         "$author promoted this achievement to the Core set.",
                         $author
                     );
+                    AchievementPublished::dispatch($achievement);
                 } elseif ($flag === AchievementFlag::Unofficial) {
                     addArticleComment(
                         "Server",
@@ -341,6 +350,7 @@ function UploadNewAchievement(
                         "$author demoted this achievement to Unofficial.",
                         $author
                     );
+                    AchievementUnpublished::dispatch($achievement);
                 }
                 expireGameTopAchievers($gameID);
             } else {
@@ -376,22 +386,11 @@ function UploadNewAchievement(
                 }
             }
 
-            if ($changingPoints || $changingAchSet) {
-                $numUnlocks = getAchievementUnlockCount($idInOut);
-                if ($numUnlocks > 0) {
-                    if ($changingAchSet) {
-                        if ($flag === AchievementFlag::OfficialCore) {
-                            // promoted to core, restore point attribution
-                            attributeDevelopmentAuthor($data['Author'], $numUnlocks, $numUnlocks * $points);
-                        } else {
-                            // demoted from core, remove point attribution
-                            attributeDevelopmentAuthor($data['Author'], -$numUnlocks, -$numUnlocks * $points);
-                        }
-                    } else {
-                        // points changed, adjust point attribution
-                        attributeDevelopmentAuthor($data['Author'], 0, $numUnlocks * ($points - (int) $data['Points']));
-                    }
-                }
+            if ($changingPoints) {
+                AchievementPointsChanged::dispatch($achievement);
+            }
+            if ($changingType) {
+                AchievementTypeChanged::dispatch($achievement);
             }
 
             return true;
@@ -537,13 +536,16 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
         return false;
     }
 
-    foreach ($authorCount as $author => $count) {
-        $points = $authorPoints[$author];
-        if ($newFlag != AchievementFlag::OfficialCore) {
-            $count = -$count;
-            $points = -$points;
+    foreach ($updatedAchIDs as $achievementId) {
+        $achievement = Achievement::find($achievementId);
+
+        if ($newFlag === AchievementFlag::OfficialCore) {
+            AchievementPublished::dispatch($achievement);
         }
-        attributeDevelopmentAuthor($author, $count, $points);
+
+        if ($newFlag === AchievementFlag::Unofficial) {
+            AchievementUnpublished::dispatch($achievement);
+        }
     }
 
     return true;

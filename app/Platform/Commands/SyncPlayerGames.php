@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\UpdatePlayerGameMetricsAction;
 use App\Platform\Models\PlayerGame;
 use App\Support\Sync\SyncTrait;
 use Exception;
@@ -18,11 +17,6 @@ class SyncPlayerGames extends Command
 
     protected $signature = 'ra:sync:player-games {username?} {--f|full} {--p|no-post}';
     protected $description = 'Sync player games';
-
-    public function __construct(private UpdatePlayerGameMetricsAction $updatePlayerGameMetricsAction)
-    {
-        parent::__construct();
-    }
 
     /**
      * @throws Exception

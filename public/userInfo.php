@@ -431,14 +431,6 @@ RenderContentStart($userPage);
         echo HasCertifiedLegendBadge($userPage) ? "Certified Legend" : "Not Yet Legendary";
         echo "</td></tr>";
 
-        echo "<tr><td class='text-right'>";
-        echo "<form method='post' action='/request/user/recalculate-score.php'>";
-        echo csrf_field();
-        echo "<input type='hidden' name='user' value='$userPage' />";
-        echo "<button class='btn'>Recalculate Score</button>";
-        echo "</form>";
-        echo "</td></tr>";
-
         $newValue = $userIsUntracked ? 0 : 1;
         echo "<tr><td class='text-right'>";
         echo "<form method='post' action='/request/user/update.php'>";
@@ -480,9 +472,13 @@ RenderContentStart($userPage);
         echo "</div>"; // devbox
     }
 
-    // The component isn't as useful if we don't have data for the
-    // Completion Progress component.
-    if (config('feature.beat') && $user && count($userCompletedGamesList) > 0) {
+    $canShowProgressionStatusComponent =
+        config('feature.beat')
+        && !empty($userCompletedGamesList)
+        // Needs at least one non-event game.
+        && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
+
+    if ($canShowProgressionStatusComponent) {
         echo "<div class='mt-2 mb-8'>";
         echo Blade::render('
             <x-user-progression-status
