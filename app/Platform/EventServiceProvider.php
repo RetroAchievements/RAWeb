@@ -59,7 +59,7 @@ class EventServiceProvider extends ServiceProvider
             // dispatches PlayerGameAttached
             // NOTE ResumePlayerSessionAction is executed synchronously during PlayerAchievementUnlockAction
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
-            DispatchUpdateDeveloperContributionYieldJob::class,
+            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
