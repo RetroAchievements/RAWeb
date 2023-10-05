@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\TicketState;
 use App\Site\Enums\Permissions;
@@ -400,11 +401,13 @@ function getMostAwardedUsers(array $gameIDs): array
     }
 
     $query = "SELECT ua.User,
-              SUM(IF(AwardDataExtra LIKE '0', 1, 0)) AS Completed,
-              SUM(IF(AwardDataExtra LIKE '1', 1, 0)) AS Mastered
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0', 1, 0)) AS BeatenSoftcore,
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1', 1, 0)) AS BeatenHardcore,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0', 1, 0)) AS Completed,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1', 1, 0)) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE AwardType LIKE '1'
+              WHERE sa.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
               AND AwardData IN (" . implode(",", $gameIDs) . ")
               AND Untracked = 0
               GROUP BY User
@@ -431,13 +434,15 @@ function getMostAwardedGames(array $gameIDs): array
     }
 
     $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
-              SUM(IF(AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
-              SUM(IF(AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS BeatenSoftcore,
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS BeatenHardcore,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE sa.AwardType LIKE '1'
+              WHERE sa.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
               AND AwardData IN(" . implode(",", $gameIDs) . ")
               GROUP BY sa.AwardData, gd.Title
               ORDER BY Title";

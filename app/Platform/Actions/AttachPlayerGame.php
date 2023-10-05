@@ -13,19 +13,21 @@ class AttachPlayerGame
     public function execute(User $user, Game $game): Game
     {
         // upsert game attachment without running into unique constraints
-        /** @var ?Game $playerGame */
-        $playerGame = $user->games()->find($game);
+        /** @var ?Game $gameWithPivot */
+        $gameWithPivot = $user->games()->find($game);
 
-        if ($playerGame) {
-            return $playerGame;
+        if ($gameWithPivot) {
+            return $gameWithPivot;
         }
 
         $user->games()->attach($game);
-        /** @var Game $playerGame */
-        $playerGame = $user->games()->find($game);
-        // let everyone know that this user started this game for first time
-        PlayerGameAttached::dispatch($user, $playerGame);
 
-        return $playerGame;
+        /** @var Game $gameWithPivot */
+        $gameWithPivot = $user->games()->find($game);
+
+        // let everyone know that this user started this game for first time
+        PlayerGameAttached::dispatch($user, $gameWithPivot);
+
+        return $gameWithPivot;
     }
 }

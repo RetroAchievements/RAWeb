@@ -42,8 +42,6 @@ class Kernel extends ConsoleKernel
                     // $this->call('ra:sync:game-hashes');
                     // $this->call('ra:sync:memory-notes');
 
-                    $this->call('ra:sync:player-achievements');
-                    $this->call('ra:sync:player-games');
                     // $this->call('ra:sync:user-awards');
                     // $this->call('ra:sync:game-relations');
                     // $this->call('ra:sync:leaderboards');

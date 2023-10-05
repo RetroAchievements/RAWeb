@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
-use App\Platform\Actions\LinkLatestIntegrationReleaseAction;
+use App\Platform\Actions\LinkLatestIntegrationRelease;
 use App\Platform\Models\IntegrationRelease;
 use App\Platform\Requests\IntegrationReleaseRequest;
 use App\Support\MediaLibrary\Actions\AddMediaAction;
@@ -47,7 +47,7 @@ class IntegrationReleaseController extends Controller
     public function store(
         IntegrationReleaseRequest $request,
         AddMediaAction $addMediaAction,
-        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction
+        LinkLatestIntegrationRelease $linkLatestReleaseAction
     ): RedirectResponse {
         $this->authorize('create', $this->resourceClass());
 
@@ -82,7 +82,7 @@ class IntegrationReleaseController extends Controller
         IntegrationReleaseRequest $request,
         IntegrationRelease $release,
         AddMediaAction $addMediaAction,
-        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction
+        LinkLatestIntegrationRelease $linkLatestReleaseAction
     ): RedirectResponse {
         $this->authorize('update', $release);
 
@@ -100,7 +100,7 @@ class IntegrationReleaseController extends Controller
 
     public function destroy(
         IntegrationRelease $release,
-        LinkLatestIntegrationReleaseAction $linkLatestReleaseAction
+        LinkLatestIntegrationRelease $linkLatestReleaseAction
     ): RedirectResponse {
         $this->authorize('delete', $release);
 
@@ -134,7 +134,7 @@ class IntegrationReleaseController extends Controller
             ->with('success', $this->resourceActionSuccessMessage('integration.release', 'delete'));
     }
 
-    public function restore(int $release, LinkLatestIntegrationReleaseAction $linkLatestReleaseAction): RedirectResponse
+    public function restore(int $release, LinkLatestIntegrationRelease $linkLatestReleaseAction): RedirectResponse
     {
         $release = IntegrationRelease::withTrashed()->find($release);
 
