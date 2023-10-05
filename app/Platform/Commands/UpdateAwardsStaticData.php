@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 class UpdateAwardsStaticData extends Command
 {
-    protected $signature = 'ra:platform:update-awards-static-data';
+    protected $signature = 'ra:platform:static:update-awards-data';
 
     protected $description = 'Update mastery and beaten awards statistics in the StaticData table';
 
@@ -55,6 +55,9 @@ class UpdateAwardsStaticData extends Command
         StaticData::query()->update(['num_hardcore_game_beaten_awards' => $hardcoreGameBeatenAwardsCount]);
     }
 
+    /**
+     * @deprecated use a query in the component instead - most "last of something" queries are not expensive
+     */
     private function updateLastGameHardcoreMastered(): void
     {
         $foundAward = PlayerBadge::with('user')
@@ -75,6 +78,9 @@ class UpdateAwardsStaticData extends Command
         }
     }
 
+    /**
+     * @deprecated use a query in the component instead - most "last of something" queries are not expensive
+     */
     private function updateLastGameHardcoreBeaten(): void
     {
         $foundAward = PlayerBadge::with('user')

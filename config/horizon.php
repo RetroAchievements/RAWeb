@@ -41,7 +41,7 @@ return [
     |
     */
 
-    'use' => 'default',
+    'use' => 'queue',
 
     /*
     |--------------------------------------------------------------------------
@@ -182,7 +182,14 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default'],
+            'queue' => [
+                'default',
+                'player-achievements',
+                'player-game-metrics',
+                'game-metrics',
+                'player-metrics',
+                'developer-metrics',
+            ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,

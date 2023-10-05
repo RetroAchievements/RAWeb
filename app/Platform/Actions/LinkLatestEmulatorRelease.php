@@ -6,7 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Platform\Models\Emulator;
 
-class LinkLatestEmulatorReleaseAction
+class LinkLatestEmulatorRelease
 {
     public function execute(Emulator $emulator): void
     {

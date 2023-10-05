@@ -8,7 +8,7 @@ use App\Platform\Models\IntegrationRelease;
 use Illuminate\Filesystem\Filesystem;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class LinkLatestIntegrationReleaseAction
+class LinkLatestIntegrationRelease
 {
     public function __construct(private Filesystem $filesystem)
     {

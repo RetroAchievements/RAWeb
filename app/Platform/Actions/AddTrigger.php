@@ -7,7 +7,7 @@ namespace App\Platform\Actions;
 use App\Platform\Models\Achievement;
 use Illuminate\Http\Request;
 
-class AddTriggerAction
+class AddTrigger
 {
     public function execute(Request $request, Achievement $achievement, string $trigger): void
     {

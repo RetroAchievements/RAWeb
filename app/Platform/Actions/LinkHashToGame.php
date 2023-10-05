@@ -9,7 +9,7 @@ use App\Platform\Models\GameHash;
 use App\Platform\Models\GameHashSet;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class LinkHashToGameAction
+class LinkHashToGame
 {
     public function execute(string $hash, Game $game, ?string $gameHashTitle = null): GameHash
     {
@@ -25,7 +25,7 @@ class LinkHashToGameAction
          */
 
         $game->load(['gameHashSets.hashes' => function (BelongsToMany $query) use ($hash) {
-            $query->where('hash', $hash);
+            $query->where('Hash', $hash);
         }]);
         $linkedHashes = $game->gameHashSets->pluck('hashes')->collapse()->unique();
         /** @var ?GameHash $linkedHash */
@@ -51,9 +51,8 @@ class LinkHashToGameAction
             $gameHashSet = $game->gameHashSets()->compatible()->first();
         }
 
-        /** @var GameHash $gameHash */
         $gameHash = GameHash::firstOrCreate(['hash' => $hash, 'system_id' => $game->system_id], [
-            'name' => $gameHashTitle,
+            'Name' => $gameHashTitle,
             'description' => $gameHashTitle,
         ]);
         $gameHashSet->hashes()->save($gameHash);

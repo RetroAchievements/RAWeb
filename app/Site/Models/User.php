@@ -262,6 +262,18 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return app(Optimus::class)->encode($this->getAttribute('ID'));
     }
 
+    public function getAvatarUrlAttribute(): string
+    {
+        return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
+    }
+
+    // TODO remove after rename
+
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
     public function getDisplayNameAttribute(): ?string
     {
         // return $this->attributes['display_name'] ?? $this->attributes['username'] ?? null;
@@ -273,9 +285,29 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return $this->getAttribute('User');
     }
 
-    public function getAvatarUrlAttribute(): string
+    public function getPermissionsAttribute(): int
     {
-        return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
+        return $this->attributes['Permissions'];
+    }
+
+    public function getLastActivityAtAttribute(): string
+    {
+        return $this->getAttribute('LastLogin');
+    }
+
+    public function getPointsAttribute(): int
+    {
+        return (int) $this->getAttribute('RAPoints');
+    }
+
+    public function getPointsSoftcoreAttribute(): int
+    {
+        return (int) $this->getAttribute('RASoftcorePoints');
+    }
+
+    public function getPointsWeightedAttribute(): int
+    {
+        return (int) $this->getAttribute('TrueRAPoints');
     }
 
     // Email verification
