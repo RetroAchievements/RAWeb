@@ -7,11 +7,9 @@ namespace App\Site;
 use App\Site\Commands\CleanupAvatars;
 use App\Site\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Site\Commands\DeleteOverdueUserAccounts;
-use App\Site\Commands\DeleteUsers;
 use App\Site\Commands\LogUsersOnlineCount;
 use App\Site\Commands\SyncUsers;
 use App\Site\Commands\SystemAlert;
-use App\Site\Commands\UpdateUserTimestamps;
 use App\Site\Components\NotificationIcon;
 use App\Site\Models\User;
 use Exception;
@@ -33,13 +31,11 @@ class AppServiceProvider extends ServiceProvider
                 LogUsersOnlineCount::class,
                 DeleteExpiredEmailVerificationTokens::class,
                 DeleteOverdueUserAccounts::class,
-                UpdateUserTimestamps::class,
 
                 /*
                  * User Accounts
                  */
                 CleanupAvatars::class,
-                DeleteUsers::class,
                 SyncUsers::class,
 
                 /*

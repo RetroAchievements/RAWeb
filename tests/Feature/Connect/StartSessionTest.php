@@ -8,11 +8,12 @@ use App\Community\Enums\ActivityType;
 use App\Community\Models\UserActivityLegacy;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Platform\TestsPlayerAchievements;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class StartSessionTest extends TestCase
@@ -70,6 +71,15 @@ class StartSessionTest extends TestCase
                 'ServerNow' => Carbon::now()->timestamp,
             ]);
 
+        // player session resumed
+        $playerSession = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $achievement3->game_id,
+        ])->first();
+        $this->assertModelExists($playerSession);
+        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
+
         /** @var UserActivityLegacy $activity */
         $activity = UserActivityLegacy::latest()->first();
         $this->assertNotNull($activity);
@@ -89,6 +99,13 @@ class StartSessionTest extends TestCase
                 'Error' => 'Unknown game',
             ]);
 
+        // no player session
+        $playerSession = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => 999999,
+        ])->first();
+        $this->assertNull($playerSession);
+
         // ----------------------------
         // game with no unlocks
         /** @var Game $game2 */
@@ -100,6 +117,15 @@ class StartSessionTest extends TestCase
                 'Success' => true,
                 'ServerNow' => Carbon::now()->timestamp,
             ]);
+
+        // player session resumed
+        $playerSession = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $game2->id,
+        ])->first();
+        $this->assertModelExists($playerSession);
+        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals('Playing ' . $game2->title, $playerSession->rich_presence);
 
         $activity = UserActivityLegacy::latest()->first();
         $this->assertNotNull($activity);

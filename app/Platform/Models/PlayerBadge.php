@@ -15,7 +15,7 @@ class PlayerBadge extends BaseModel
 {
     use HasFactory;
 
-    // Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge
+    // TODO Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge
     protected $table = 'SiteAwards';
 
     public const CREATED_AT = 'AwardDate';
@@ -36,6 +36,8 @@ class PlayerBadge extends BaseModel
         'AwardDataExtra' => 'int',
         'DisplayOrder' => 'int',
     ];
+
+    public const MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY = 6;
 
     private const DEVELOPER_COUNT_BOUNDARIES = [
         100,

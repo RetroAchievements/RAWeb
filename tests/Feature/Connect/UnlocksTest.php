@@ -8,7 +8,7 @@ use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Platform\TestsPlayerAchievements;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class UnlocksTest extends TestCase
@@ -19,8 +19,7 @@ class UnlocksTest extends TestCase
 
     public function testUnlocks(): void
     {
-        /** @var Game $game */
-        $game = Game::factory()->create();
+        $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         /** @var Achievement $achievement2 */

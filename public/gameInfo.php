@@ -3,10 +3,12 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\UserGameListType;
+use App\Community\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
@@ -106,69 +108,7 @@ if ($v != 1) {
     }
 }
 ?>
-<?php if ($gate): ?>
-    <?php RenderContentStart($pageTitle) ?>
-    <script>
-        function disableMatureContentWarningPreference() {
-            const isLoggedIn = <?= isset($userDetails) ?>;
-            if (!isLoggedIn) {
-                throw new Error('Tried to modify settings for an unauthenticated user.');
-            }
 
-            const newPreferencesValue = <?= ($userDetails['websitePrefs'] ?? 0) | (1 << $matureContentPref) ?>;
-            const gameId = <?= $gameID ?>;
-
-            fetch('/request/user/update-preferences.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: `preferences=${newPreferencesValue}`,
-                credentials: 'same-origin'
-            }).then(() => {
-                window.location = `/game/<?= $gameID ?>`;
-            })
-        }
-    </script>
-    <article>
-        <div class='navpath'>
-            <?= renderGameBreadcrumb($gameData, addLinkToLastCrumb: false) ?>
-        </div>
-        <h1 class="text-h3"><?= renderGameTitle($pageTitle) ?></h1>
-        <h4>WARNING: THIS PAGE MAY CONTAIN CONTENT NOT APPROPRIATE FOR ALL AGES.</h4>
-        <br/>
-        <div id="confirmation">
-            Are you sure that you want to view this page?
-            <br/>
-            <br/>
-
-            <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
-                <form id='escapeform' action='/gameList.php'>
-                    <input type='hidden' name='c' value='<?= $consoleID ?>'/>
-                    <button class='btn leading-normal'>No. Get me out of here.</button>
-                </form>
-
-                <form id='consentform' action='/game/<?= $gameID ?>'>
-                    <input type='hidden' name='v' value='1'/>
-                    <button class='btn leading-normal'>Yes. I'm an adult.</button>
-                </form>
-
-                <?php if ($userWebsitePrefs): ?>
-                    <button
-                        type="button"
-                        class='btn break-words whitespace-normal leading-normal'
-                        onclick='disableMatureContentWarningPreference()'
-                    >
-                        Yes. And never ask me again for pages with mature content.
-                    </button>
-                <?php endif; ?>
-            </div>
-        </div>
-    </article>
-    <?php RenderContentEnd(); ?>
-    <?php return ?>
-<?php endif ?>
 <?php
 $achDist = null;
 $achDistHardcore = null;
@@ -194,6 +134,8 @@ $claimListLength = 0;
 $isGameBeatable = false;
 $isBeatenHardcore = false;
 $isBeatenSoftcore = false;
+$hasBeatenHardcoreAward = false;
+$hasBeatenSoftcoreAward = false;
 $userGameProgressionAwards = [
     'beaten-softcore' => null,
     'beaten-hardcore' => null,
@@ -217,8 +159,8 @@ if ($isFullyFeaturedGame) {
 
         // Determine if the logged in user has any progression awards for this set
         $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
-        $isBeatenHardcore = !is_null($userGameProgressionAwards['beaten-hardcore']);
-        $isBeatenSoftcore = !is_null($userGameProgressionAwards['beaten-softcore']);
+        $hasBeatenSoftcoreAward = !is_null($userGameProgressionAwards['beaten-hardcore']);
+        $hasBeatenHardcoreAward = !is_null($userGameProgressionAwards['beaten-softcore']);
     }
 
     $screenshotWidth = 200;
@@ -231,11 +173,13 @@ if ($isFullyFeaturedGame) {
     $numEarnedHardcore = 0;
     $totalPossible = 0;
 
-    // Quickly calculate if the player potentially has an unawarded beaten game award
+    // Quickly calculate the player's beaten status on an optimistic basis
     $totalProgressionAchievements = 0;
     $totalWinConditionAchievements = 0;
     $totalEarnedProgression = 0;
+    $totalEarnedProgressionHardcore = 0;
     $totalEarnedWinCondition = 0;
+    $totalEarnedWinConditionHardcore = 0;
 
     $totalEarnedTrueRatio = 0;
     $totalPossibleTrueRatio = 0;
@@ -269,13 +213,19 @@ if ($isFullyFeaturedGame) {
 
                 if ($nextAch['type'] == AchievementType::Progression) {
                     $totalProgressionAchievements++;
-                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                    if (isset($nextAch['DateEarned'])) {
                         $totalEarnedProgression++;
+                    }
+                    if (isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedProgressionHardcore++;
                     }
                 } elseif ($nextAch['type'] == AchievementType::WinCondition) {
                     $totalWinConditionAchievements++;
-                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                    if (isset($nextAch['DateEarned'])) {
                         $totalEarnedWinCondition++;
+                    }
+                    if (isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedWinConditionHardcore++;
                     }
                 }
             }
@@ -294,20 +244,29 @@ if ($isFullyFeaturedGame) {
         array_multisort($authorCount, SORT_DESC, $authorInfo);
     }
 
-    // If the game is beatable, the user has met the requirements to receive the
-    // beaten game award, and they do not currently have that award, give it to them.
+    // Show the beaten award display in the progress component optimistically.
+    // The actual award metadata is updated async via actions/background jobs.
     if ($isGameBeatable) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
-        if (
-            $totalEarnedProgression === $neededProgressions
+
+        $isBeatenSoftcore = (
+            $totalEarnedProgression === $totalProgressionAchievements
             && $totalEarnedWinCondition >= $neededWinConditions
-            && !$isBeatenHardcore
-            && !$isBeatenSoftcore
-        ) {
-            $beatenGameRetVal = testBeatenGame($gameID, $user, true);
-            $isBeatenHardcore = $beatenGameRetVal['isBeatenHardcore'];
-            $isBeatenSoftcore = $beatenGameRetVal['isBeatenSoftcore'];
+        );
+
+        $isBeatenHardcore = (
+            $totalEarnedProgressionHardcore === $totalProgressionAchievements
+            && $totalEarnedWinConditionHardcore >= $neededWinConditions
+        );
+
+        // TODO: Remove this side effect when switching to aggregate queries.
+        // Without aggregate queries, the side effect is part of the beaten games
+        // self-healing mechanism.
+        if (!config('feature.aggregate_queries')) {
+            if ($isBeatenSoftcore !== $hasBeatenSoftcoreAward || $isBeatenHardcore !== $hasBeatenHardcoreAward) {
+                $beatenGameRetVal = testBeatenGame($gameID, $user);
+            }
         }
     }
 
@@ -328,6 +287,7 @@ sanitize_outputs(
     $user,
 );
 ?>
+
 <?php if ($isFullyFeaturedGame): ?>
     <?php
         function generateGameMetaDescription(
@@ -362,6 +322,31 @@ sanitize_outputs(
         );
     ?>
 <?php endif ?>
+
+<?php if ($gate): ?>
+    <?php RenderContentStart($pageTitle) ?>
+    <article>
+    <?php
+        echo Blade::render('
+            <x-game.mature-content-gate
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :consoleId="$consoleId"
+                :consoleName="$consoleName"
+                :userWebsitePrefs="$userWebsitePrefs"
+            />
+        ', [
+            'gameId' => $gameID,
+            'gameTitle' => $gameTitle,
+            'consoleId' => $consoleID,
+            'consoleName' => $consoleName,
+            'userWebsitePrefs' => $userDetails['websitePrefs'] ?? 0,
+        ]);
+    ?>
+    </article>
+    <?php return ?>
+<?php endif ?>
+
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
     <script defer src="https://www.gstatic.com/charts/loader.js"></script>
@@ -928,7 +913,6 @@ sanitize_outputs(
                 :gameTitle="$gameTitle"
                 :consoleId="$consoleID"
                 :consoleName="$consoleName"
-                :iconUrl="$iconUrl"
                 :user="$user"
                 :userPermissions="$permissions"
             />
@@ -983,18 +967,26 @@ sanitize_outputs(
                 }
 
                 // Display leaderboard management options depending on the current number of leaderboards
-                if ($numLeaderboards == 0) {
-                    echo "<form action='/request/leaderboard/create.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<button class='btn'>Create First Leaderboard</button>";
-                    echo "</form>";
-                } else {
+                if ($numLeaderboards != 0) {
                     echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }
 
                 if ($permissions >= Permissions::Developer) {
                     echo "<div><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
+                }
+
+                $primaryClaimUser = null;
+                foreach ($claimData as $claim) {
+                    if ($claimData[0]['ClaimType'] == ClaimType::Primary) {
+                        $primaryClaimUser = $claimData[0]['User'];
+                        break;
+                    }
+                }
+                if ($permissions >= Permissions::Moderator || $primaryClaimUser === $user) {
+                    $interestedUsers = UserGameListEntry::where('type', UserGameListType::Develop)
+                        ->where('GameID', $gameID)
+                        ->count();
+                    echo "<div><a class='btn btn-link' href='" . route('game.dev-interest', $gameID) . "'>View Developer Interest ($interestedUsers)</a></div>";
                 }
 
                 if ($permissions >= Permissions::Moderator && !$isEventGame) {
@@ -1021,16 +1013,19 @@ sanitize_outputs(
                     'Tickets'
                 );
 
-                if ($permissions >= Permissions::Developer) {
-                    echo "<form action='/request/game/recalculate-points-ratio.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<button class='btn'>Recalculate True Ratios</button>";
-                    echo "</form>";
-                }
-
                 // Display the claims links if not an event game
                 if (!$isEventGame) {
+                    if ($permissions >= Permissions::Developer) {
+                        $gameMetaBindings['developListType'] = UserGameListType::Develop;
+                        echo Blade::render('
+                            <x-game.add-to-list
+                                :gameId="$gameID"
+                                :type="$developListType"
+                                :user="$user"
+                            />
+                        ', $gameMetaBindings);
+                    }
+
                     echo Blade::render('
                         <x-game.devbox-claim-management
                             :claimData="$claimData"
@@ -1045,6 +1040,7 @@ sanitize_outputs(
                             :userPermissions="$permissions"
                         />
                     ', $gameMetaBindings);
+
                 }
 
                 echo "</div>"; // end right column
@@ -1468,7 +1464,14 @@ sanitize_outputs(
         if ($isFullyFeaturedGame) {
             $recentPlayerData = getGameRecentPlayers($gameID, 10);
             if (!empty($recentPlayerData)) {
-                RenderRecentGamePlayers($recentPlayerData, $gameTitle);
+                echo "<div class='mt-6 mb-8'>";
+                echo Blade::render('
+                    <x-game.recent-game-players :recentPlayerData="$recentPlayerData" :gameTitle="$gameTitle" />
+                ', [
+                    'recentPlayerData' => $recentPlayerData,
+                    'gameTitle' => $gameTitle,
+                ]);
+                echo "</div>";
             }
 
             RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);

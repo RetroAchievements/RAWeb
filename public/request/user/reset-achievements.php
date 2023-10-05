@@ -1,11 +1,11 @@
 <?php
 
-use App\Platform\Actions\ResetPlayerAchievementAction;
-use App\Site\Models\User;
+use App\Platform\Actions\ResetPlayerProgress;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+$user = request()->user();
+if ($user === null) {
     abort(401);
 }
 
@@ -14,17 +14,16 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required_without:game|integer|exists:Achievements,ID',
 ]);
 
-$userModel = User::firstWhere('User', $user);
-$action = new ResetPlayerAchievementAction();
+$action = app()->make(ResetPlayerProgress::class);
 
 if (!empty($input['achievement'])) {
-    $action->execute($userModel, achievementID: (int) $input['achievement']);
+    $action->execute($user, achievementID: (int) $input['achievement']);
 
     return response()->json(['message' => __('legacy.success.reset')]);
 }
 
 if (!empty($input['game'])) {
-    $action->execute($userModel, gameID: (int) $input['game']);
+    $action->execute($user, gameID: (int) $input['game']);
 
     return response()->json(['message' => __('legacy.success.reset')]);
 }
