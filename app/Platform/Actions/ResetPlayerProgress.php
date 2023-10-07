@@ -78,10 +78,11 @@ class ResetPlayerProgress
             $user->playerAchievementsLegacy()->delete();
         }
 
-        $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
-        foreach ($authors as $author) {
-            dispatch(new UpdateDeveloperContributionYieldJob($author->id));
-        }
+        // TODO
+        // $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
+        // foreach ($authors as $author) {
+        //     dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+        // }
 
         $affectedGames = $affectedGames->unique();
         foreach ($affectedGames as $affectedGameID) {
