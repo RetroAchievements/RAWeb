@@ -11,6 +11,11 @@ class CacheKey
         return self::buildNormalizedCacheKey("game", $gameId, "card-data");
     }
 
+    public static function buildUserLastLoginCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "last-login");
+    }
+
     public static function buildUserCompletedGamesCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "completed-games");
