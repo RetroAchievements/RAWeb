@@ -77,23 +77,14 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
             break;
 
         case ActivityType::Login:
-            $lastLoginActivity = getMostRecentActivity($user->User, $type);
-            if ($lastLoginActivity) {
-                $nowTimestamp = time();
-                $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
-                $diff = $nowTimestamp - $lastLoginTimestamp;
-
-                /*
-                 * record login activity only every 6 hours
-                 */
-                if ($diff < 60 * 60 * 6) {
-                    /*
-                     * new login activity from $user, duplicate of recent login " . ($diff/60) . " mins ago,
-                     * ignoring!
-                     */
-                    return true;
-                }
+            /* only record login activity every six hours */
+            $cacheKey = CacheKey::buildUserLastLoginCacheKey($user->User);
+            $lastLogin = Cache::get($cacheKey);
+            if ($lastLogin && $lastLogin > Carbon::now()->subHours(6)) {
+                /* ignore event, login recorded recently */
+                return true;
             }
+            Cache::put($cacheKey, Carbon::now(), Carbon::now()->addHours(6));
             break;
 
         case ActivityType::StartedPlaying:
