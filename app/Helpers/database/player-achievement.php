@@ -5,6 +5,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerAchievementLegacy;
 use App\Site\Models\User;
 use Carbon\Carbon;
@@ -136,24 +137,13 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
     return $retVal;
 }
 
+/**
+ * @deprecated use Achievements.unlocks_total
+ */
 function getAchievementUnlockCount(int $achID): int
 {
-    if (config('feature.aggregate_queries')) {
-        $query = "SELECT COUNT(*) AS NumEarned FROM player_achievements
-                  WHERE achievement_id=$achID";
-    } else {
-        $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
-                  WHERE AchievementID=$achID AND HardcoreMode=0";
-    }
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
-
-    return $data['NumEarned'] ?? 0;
+    return PlayerAchievement::where('achievement_id', $achID)
+        ->count();
 }
 
 /**
