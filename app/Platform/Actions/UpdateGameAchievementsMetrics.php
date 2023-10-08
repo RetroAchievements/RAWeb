@@ -10,18 +10,11 @@ class UpdateGameAchievementsMetrics
 {
     public function execute(Game $game): void
     {
-
         // TODO refactor to do this for each achievement set
 
-        $parentGameId = getParentGameIdFromGameId($game->id);
-        if (config('feature.aggregate_queries')) {
-            $parentGame = $parentGameId ? Game::find($parentGameId) : null;
-            $playersTotal = $parentGame ? $parentGame->players_total : $game->players_total;
-            $playersHardcore = $parentGame ? $parentGame->players_hardcore : $game->players_hardcore;
-        } else {
-            $playersTotal = getTotalUniquePlayers($game->id, $parentGameId);
-            $playersHardcore = getTotalUniquePlayers($game->id, $parentGameId, null, true);
-        }
+        // NOTE if game has a parent game it contains the parent game's players metrics
+        $playersTotal = $game->players_total;
+        $playersHardcore = $game->players_hardcore;
 
         // force all unachieved to be 1
         $playersHardcoreCalc = $playersHardcore ?: 1;
