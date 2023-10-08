@@ -84,7 +84,7 @@ class UpdateGameMetrics
         $tmp = $playersTotalChange;
         $tmp = $playersHardcoreChange;
 
-        // Ad-hoc updates for player games, so they can be updated the next time a player updates their profile
+        // Ad-hoc updates for player games metrics and player metrics after achievement set version changes
         // Note: this might dispatch multiple thousands of jobs depending on a game's players count
 
         $affectedPlayerGamesQuery = $game->playerGames()
