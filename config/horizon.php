@@ -1,5 +1,9 @@
 <?php
 
+use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
+use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use Illuminate\Support\Str;
 
 return [
@@ -119,7 +123,11 @@ return [
     */
 
     'silenced' => [
-        // App\Jobs\ExampleJob::class,
+        // silence listeners which only dispatch unique jobs
+        DispatchUpdateDeveloperContributionYieldJob::class,
+        DispatchUpdateGameMetricsJob::class,
+        DispatchUpdatePlayerGameMetricsJob::class,
+        DispatchUpdatePlayerMetricsJob::class,
     ],
 
     /*
