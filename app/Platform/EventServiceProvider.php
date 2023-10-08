@@ -21,6 +21,7 @@ use App\Platform\Events\PlayerGameRemoved;
 use App\Platform\Events\PlayerMetricsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
+use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
@@ -33,20 +34,21 @@ class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         AchievementCreated::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementPublished::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class,
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
         AchievementUnpublished::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class,
             // TODO Notify player/developer when moved to AchievementSetUnpublished event
         ],
         AchievementPointsChanged::class => [
             DispatchUpdateGameMetricsJob::class,
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class,
         ],
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,
@@ -59,7 +61,7 @@ class EventServiceProvider extends ServiceProvider
             // dispatches PlayerGameAttached
             // NOTE ResumePlayerSessionAction is executed synchronously during PlayerAchievementUnlockAction
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class,
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
