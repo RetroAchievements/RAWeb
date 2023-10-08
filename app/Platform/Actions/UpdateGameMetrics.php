@@ -31,14 +31,12 @@ class UpdateGameMetrics
         //     $game->players_total = $game->playerGames()
         //         ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
         //         ->where('player_games.achievements_unlocked', '>', 0)
-        //         ->whereNull('user.Deleted')
         //         ->where('user.Untracked', false)
         //         ->count();
         //     $game->players_hardcore = $game->playerGames()
         //         ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
         //         ->where('player_games.achievements_unlocked_hardcore', '>', 0)
         //         ->where('user.Untracked', false)
-        //         ->whereNull('user.Deleted')
         //         ->count();
         $parentGameId = getParentGameIdFromGameId($game->id);
         $game->players_total = getTotalUniquePlayers($game->id, $parentGameId);
@@ -86,31 +84,24 @@ class UpdateGameMetrics
         // ad-hoc updates for player games, so they can be updated the next time a player updates their profile
         // Note that those might be multiple thousand entries depending on a game's players count
 
-        $updateReason = null;
-        if ($pointsWeightedChange) {
-            $updateReason = 'weighted_points_outdated';
-        }
-        if ($achievementSetVersionChanged) {
-            $updateReason = 'version_mismatch';
-        }
-        if ($updateReason) {
-            $game->playerGames()
-                ->where(function ($query) use ($game, $updateReason) {
-                    if ($updateReason === 'weighted_points_outdated') {
-                        $query->whereNot('points_weighted_total', '=', $game->TotalTruePoints)
-                            ->orWhereNull('points_weighted_total');
-                    }
-                    if ($updateReason === 'version_mismatch') {
-                        $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
-                            ->orWhereNull('achievement_set_version_hash');
-                    }
-                })
-                ->update([
-                    'update_status' => $updateReason,
-                    'achievements_total' => $game->achievements_published,
-                    'points_total' => $game->points_total,
-                    'points_weighted_total' => $game->TotalTruePoints,
-                ]);
-        }
+        $game->playerGames()
+            ->where(function ($query) use ($game) {
+                $query->whereNot('points_weighted_total', '=', $game->TotalTruePoints);
+            })
+            ->update([
+                'update_status' => 'weighted_points_outdated',
+                'points_weighted_total' => $game->TotalTruePoints,
+            ]);
+
+        $game->playerGames()
+            ->where(function ($query) use ($game) {
+                $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
+                    ->orWhereNull('achievement_set_version_hash');
+            })
+            ->update([
+                'update_status' => 'version_mismatch',
+                'points_total' => $game->points_total,
+                'achievements_total' => $game->achievements_published,
+            ]);
     }
 }
