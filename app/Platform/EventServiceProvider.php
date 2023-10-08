@@ -18,6 +18,7 @@ use App\Platform\Events\PlayerGameBeaten;
 use App\Platform\Events\PlayerGameCompleted;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerGameRemoved;
+use App\Platform\Events\PlayerMetricsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
@@ -79,6 +80,8 @@ class EventServiceProvider extends ServiceProvider
         PlayerGameMetricsUpdated::class => [
             DispatchUpdatePlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
+        PlayerMetricsUpdated::class => [
         ],
         PlayerSessionHeartbeat::class => [
             ResumePlayerSession::class,

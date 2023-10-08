@@ -28,15 +28,6 @@ class UpdatePlayerGameMetrics
             return;
         }
 
-        // TODO use pre-aggregated values instead of fetching models
-        // TODO $game->achievements_published
-        // TODO $game->points_total
-        // TODO $game->TotalTruePoints
-        $achievements = $game->achievements()->published()->get();
-        $achievementsTotal = $achievements->count();
-        $pointsTotal = $achievements->sum('Points');
-        $pointsWeightedTotal = $achievements->sum('TrueRatio');
-
         $achievementsUnlocked = $user->achievements()->where('GameID', $game->id)
             ->published()
             ->withPivot([
@@ -84,7 +75,7 @@ class UpdatePlayerGameMetrics
         $playerGame->fill([
             'update_status' => null, // reset previously added update reason
             'achievement_set_version_hash' => $game->achievement_set_version_hash,
-            'achievements_total' => $achievementsTotal,
+            'achievements_total' => $game->achievements_published,
             'achievements_unlocked' => $achievementsUnlockedCount,
             'achievements_unlocked_hardcore' => $achievementsUnlockedHardcoreCount,
             'last_played_at' => $lastPlayedAt,
@@ -95,15 +86,15 @@ class UpdatePlayerGameMetrics
             'last_unlock_hardcore_at' => $lastUnlockHardcoreAt,
             'first_unlock_at' => $firstUnlockAt,
             'first_unlock_hardcore_at' => $firstUnlockHardcoreAt,
-            'points_total' => $pointsTotal,
+            'points_total' => $game->points_total,
             'points' => $points,
             'points_hardcore' => $pointsHardcore,
-            'points_weighted_total' => $pointsWeightedTotal,
+            'points_weighted_total' => $game->TotalTruePoints,
             'points_weighted' => $pointsWeighted,
             'created_at' => $createdAt,
         ]);
 
-        $playerGame->fill($this->beatProgressMetrics($playerGame, $achievementsUnlocked, $achievements));
+        $playerGame->fill($this->beatProgressMetrics($playerGame, $achievementsUnlocked));
         $playerGame->fill($this->completionProgressMetrics($playerGame));
 
         $playerGame->save();
@@ -117,10 +108,10 @@ class UpdatePlayerGameMetrics
 
     /**
      * @param Collection<int, Achievement> $achievementsUnlocked
-     * @param Collection<int, Achievement> $achievements
      */
-    public function beatProgressMetrics(PlayerGame $playerGame, Collection $achievementsUnlocked, Collection $achievements): array
+    public function beatProgressMetrics(PlayerGame $playerGame, Collection $achievementsUnlocked): array
     {
+        $achievements = $playerGame->game->achievements()->published()->get();
         $totalProgressions = $achievements->where('type', AchievementType::Progression)->count();
         $totalWinConditions = $achievements->where('type', AchievementType::WinCondition)->count();
 

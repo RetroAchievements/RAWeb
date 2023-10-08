@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Platform\Events\PlayerMetricsUpdated;
 use App\Site\Models\User;
 
 class UpdatePlayerMetrics
@@ -22,5 +23,7 @@ class UpdatePlayerMetrics
         $user->TrueRAPoints = $user->achievements()->published()->wherePivotNotNull('unlocked_hardcore_at')->sum('TrueRatio');
 
         $user->save();
+
+        PlayerMetricsUpdated::dispatch($user);
     }
 }
