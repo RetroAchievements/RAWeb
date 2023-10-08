@@ -31,12 +31,10 @@ class UpdateGameAchievementsMetrics
             $unlocksCount = $achievement->playerAchievements()
                 ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
                 ->where('user.Untracked', false)
-                ->whereNull('user.Deleted')
                 ->count();
             $unlocksHardcoreCount = $achievement->playerAchievements()
                 ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_achievements.user_id')
                 ->where('user.Untracked', false)
-                ->whereNull('user.Deleted')
                 ->whereNotNull('unlocked_hardcore_at')
                 ->count();
 
