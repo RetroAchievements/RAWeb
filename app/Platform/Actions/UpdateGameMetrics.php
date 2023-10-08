@@ -76,6 +76,8 @@ class UpdateGameMetrics
 
         GameMetricsUpdated::dispatch($game);
 
+        return;
+
         // TODO dispatch events for achievement set and game metrics changes
         $tmp = $achievementsPublishedChange;
         $tmp = $pointsTotalChange;
