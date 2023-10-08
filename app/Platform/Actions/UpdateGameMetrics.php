@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Platform\Events\GameMetricsUpdated;
+use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerMetricsJob;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 
 class UpdateGameMetrics
 {
@@ -66,7 +71,6 @@ class UpdateGameMetrics
 
         $game->save();
 
-        // dispatch(new UpdateGameAchievementsMetricsJob($game->id))->onQueue('game-metrics');
         app()->make(UpdateGameAchievementsMetrics::class)
             ->execute($game);
         $game->refresh();
@@ -81,23 +85,33 @@ class UpdateGameMetrics
         $tmp = $playersTotalChange;
         $tmp = $playersHardcoreChange;
 
-        // ad-hoc updates for player games, so they can be updated the next time a player updates their profile
-        // Note that those might be multiple thousand entries depending on a game's players count
+        // Ad-hoc updates for player games, so they can be updated the next time a player updates their profile
+        // Note: this might dispatch multiple thousands of jobs depending on a game's players count
 
-        $game->playerGames()
-            ->where(function ($query) use ($game) {
-                $query->whereNot('points_weighted_total', '=', $game->TotalTruePoints);
-            })
-            ->update([
-                'update_status' => 'weighted_points_outdated',
-                'points_weighted_total' => $game->TotalTruePoints,
-            ]);
-
-        $game->playerGames()
+        $affectedPlayerGamesQuery = $game->playerGames()
             ->where(function ($query) use ($game) {
                 $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
                     ->orWhereNull('achievement_set_version_hash');
-            })
+            });
+
+
+        if (config('queue.default') !== 'sync') {
+            (clone $affectedPlayerGamesQuery)
+                ->whereNull('update_status')
+                ->orderByDesc('last_played_at')
+                ->chunk(1000, function (Collection $chunk) {
+                    // map and dispatch this chunk as a batch of jobs
+                    Bus::batch(
+                        $chunk->map(
+                            fn (PlayerGame $playerGame) => new UpdatePlayerGameMetricsJob($playerGame->user_id, $playerGame->game_id)
+                        )
+                    )
+                        ->onQueue('player-game-metrics-batch')
+                        ->dispatch();
+                });
+        }
+
+        (clone $affectedPlayerGamesQuery)
             ->update([
                 'update_status' => 'version_mismatch',
                 'points_total' => $game->points_total,
