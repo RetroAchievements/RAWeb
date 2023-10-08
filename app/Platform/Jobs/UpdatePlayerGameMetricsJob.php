@@ -26,11 +26,16 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
 
     public function handle(): void
     {
+        $playerGame = PlayerGame::where('user_id', '=', $this->userId)
+            ->where('game_id', '=', $this->gameId)
+            ->first();
+
+        if (!$playerGame) {
+            // game player might not exist anymore
+            return;
+        }
+
         app()->make(UpdatePlayerGameMetrics::class)
-            ->execute(
-                PlayerGame::where('user_id', '=', $this->userId)
-                    ->where('game_id', '=', $this->gameId)
-                    ->firstOrFail()
-            );
+            ->execute($playerGame);
     }
 }

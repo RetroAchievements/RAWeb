@@ -31,12 +31,14 @@ class UpdateGameMetrics
         //     $game->players_total = $game->playerGames()
         //         ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
         //         ->where('player_games.achievements_unlocked', '>', 0)
+        //         ->whereNull('user.Deleted')
         //         ->where('user.Untracked', false)
         //         ->count();
         //     $game->players_hardcore = $game->playerGames()
         //         ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
         //         ->where('player_games.achievements_unlocked_hardcore', '>', 0)
         //         ->where('user.Untracked', false)
+        //         ->whereNull('user.Deleted')
         //         ->count();
         $parentGameId = getParentGameIdFromGameId($game->id);
         $game->players_total = getTotalUniquePlayers($game->id, $parentGameId);
