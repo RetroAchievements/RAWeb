@@ -140,6 +140,10 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($author->ContribCount, 1);
         $this->assertEquals($author->ContribYield, 10);
 
+        $game->refresh();
+        $this->assertEquals($game->players_total, 2);
+        $this->assertEquals($game->players_hardcore, 2);
+
         // ====================================================
         // rescore achievement; contrib yield changes
         $params['z'] = 5;
@@ -165,6 +169,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->achievements_published, 1);
         $this->assertEquals($game->achievements_unpublished, 0);
         $this->assertEquals($game->points_total, 5);
+        $this->assertEquals($game->players_total, 2);
+        $this->assertEquals($game->players_hardcore, 2);
 
         $author->refresh();
         $this->assertEquals($author->ContribCount, 1);
@@ -194,6 +200,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->achievements_published, 0);
         $this->assertEquals($game->achievements_unpublished, 1);
         $this->assertEquals($game->points_total, 0);
+        $this->assertEquals($game->players_total, 0);
+        $this->assertEquals($game->players_hardcore, 0);
 
         $author->refresh();
         $this->assertEquals($author->ContribCount, 0);
@@ -223,6 +231,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->achievements_published, 0);
         $this->assertEquals($game->achievements_unpublished, 1);
         $this->assertEquals($game->points_total, 0);
+        $this->assertEquals($game->players_total, 0);
+        $this->assertEquals($game->players_hardcore, 0);
 
         $author->refresh();
         $this->assertEquals($author->ContribCount, 0);
@@ -252,6 +262,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->achievements_published, 1);
         $this->assertEquals($game->achievements_unpublished, 0);
         $this->assertEquals($game->points_total, 10);
+        $this->assertEquals($game->players_total, 2);
+        $this->assertEquals($game->players_hardcore, 2);
 
         $author->refresh();
         $this->assertEquals($author->ContribCount, 1);
