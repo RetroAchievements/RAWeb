@@ -270,7 +270,9 @@ RenderContentStart($userPage);
 
         $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
         echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span><br>";
-        echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        if ($user) {
+            echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        }
 
         echo "Site Rank: ";
         if ($userIsUntracked) {
@@ -313,7 +315,9 @@ RenderContentStart($userPage);
         echo "<br>";
     }
 
-    echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    if ($user) {
+        echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    }
 
     echo "<a href='/forumposthistory.php?u=$userPage'>Forum Post History</a>";
     echo "<br>";

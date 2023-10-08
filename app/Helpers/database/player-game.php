@@ -589,7 +589,6 @@ function getUsersCompletedGamesAndMax(string $user): array
         return [];
     }
 
-    $requiredFlag = AchievementFlag::OfficialCore;
     $minAchievementsForCompletion = 5;
 
     if (config('feature.aggregate_queries')) {
@@ -611,6 +610,8 @@ function getUsersCompletedGamesAndMax(string $user): array
         if ($cachedAwardedValues) {
             return getLightweightUsersCompletedGamesAndMax($user, $cachedAwardedValues);
         }
+
+        $requiredFlag = AchievementFlag::OfficialCore;
 
         // TODO slow query. optimize with denormalized data.
         $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
