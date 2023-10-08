@@ -74,6 +74,8 @@ class ResetPlayerProgress
                 ->whereIn('AchievementID', $achievementIds)
                 ->delete();
         } else {
+            // fulfill deletion request
+            $user->playerGames()->forceDelete();
             $user->playerAchievements()->delete();
             $user->playerAchievementsLegacy()->delete();
         }
