@@ -6,7 +6,6 @@ namespace App\Platform\Actions;
 
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
-use App\Platform\Jobs\UpdatePlayerMetricsJob;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use Illuminate\Support\Collection;
@@ -93,7 +92,6 @@ class UpdateGameMetrics
                 $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
                     ->orWhereNull('achievement_set_version_hash');
             });
-
 
         if (config('queue.default') !== 'sync') {
             (clone $affectedPlayerGamesQuery)
