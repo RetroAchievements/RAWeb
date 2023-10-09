@@ -191,10 +191,10 @@ return [
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => [
-                'default',
                 'player-achievements',
-                'player-game-metrics',
                 'player-metrics',
+                'default',
+                'player-game-metrics',
                 'game-metrics',
                 'developer-metrics',
                 'player-game-metrics-batch',
@@ -214,7 +214,7 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -222,7 +222,7 @@ return [
 
         'stage' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
