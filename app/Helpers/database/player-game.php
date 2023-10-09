@@ -652,11 +652,15 @@ function getTotalUniquePlayers(
     $bindings = [
         'gameId' => $gameID,
     ];
+    $gameIdStatement = 'a.GameID = :gameId';
+    if ($parentGameID !== null) {
+        $gameIdStatement = 'a.GameID IN (:gameId, :parentGameId)';
+        $bindings['parentGameId'] = $parentGameID;
+    }
 
     $unlockModeStatement = '';
     if ($hardcoreOnly) {
-        $bindings['unlockMode'] = UnlockMode::Hardcore;
-        $unlockModeStatement = ' AND aw.HardcoreMode = :unlockMode';
+        $unlockModeStatement = ' AND pa.unlocked_hardcore_at IS NOT NULL';
     }
 
     $bindings['achievementFlag'] = AchievementFlag::OfficialCore;
@@ -664,26 +668,24 @@ function getTotalUniquePlayers(
     $requestedByStatement = '';
     if ($requestedBy) {
         $bindings['requestedBy'] = $requestedBy;
-        $requestedByStatement = 'OR ua.User = :requestedBy';
-    }
-
-    $gameIdStatement = 'ach.GameID = :gameId';
-    if ($parentGameID !== null) {
-        $gameIdStatement = 'ach.GameID IN (:gameId, :parentGameId)';
-        $bindings['parentGameId'] = $parentGameID;
+        $requestedByStatement = 'OR u.User = :requestedBy';
     }
 
     $query = "
-        SELECT COUNT(DISTINCT aw.User) As UniquePlayers
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE $gameIdStatement
-        $unlockModeStatement AND ach.Flags = :achievementFlag
-        AND (NOT ua.Untracked $requestedByStatement)
+        SELECT
+            COUNT(DISTINCT pa.user_id) players_count
+        FROM
+            player_achievements pa
+            LEFT JOIN Achievements a ON a.ID = pa.achievement_id
+            LEFT JOIN UserAccounts u ON u.ID = pa.user_id
+        WHERE
+            $gameIdStatement
+            AND a.Flags = :achievementFlag
+            AND (u.Untracked = 0 $requestedByStatement)
+            $unlockModeStatement
     ";
 
-    return (int) (legacyDbFetch($query, $bindings)['UniquePlayers'] ?? 0);
+    return (int) (legacyDbFetch($query, $bindings)['players_count'] ?? 0);
 }
 
 function getGameRecentPlayers(int $gameID, int $maximum_results = 0): array

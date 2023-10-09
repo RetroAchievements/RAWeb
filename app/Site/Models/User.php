@@ -78,7 +78,8 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     // TODO drop LastActivityID, LastGameID, UnreadMessageCount -> derived
     // TODO drop PasswordResetToken -> password_resets table
     // TODO move UserWallActive to preferences, allow comments to be visible to/writable for public, friends, private etc
-    // TODO drop Untracked in favor of unranked_at
+    // TODO rename Untracked to unranked or drop in favor of unranked_at (update indexes)
+    // TODO rename ID index to unranked or drop in favor of unranked_at (update indexes)
     // TODO drop ManuallyVerified in favor of forum_verified_at
     // TODO drop SaltedPass in favor of Password
     // TODO drop Permissions in favor of RBAC tables
