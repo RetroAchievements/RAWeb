@@ -103,7 +103,9 @@ class UpdatePlayerGameMetrics
 
         app()->make(RevalidateAchievementSetBadgeEligibility::class)->execute($playerGame);
 
-        expireGameTopAchievers($playerGame->game->id);
+        expireUserCompletedGamesCacheValue($user->username);
+        expireUserAchievementUnlocksForGame($user->username, $game->id);
+        expireGameTopAchievers($game->id);
     }
 
     /**
