@@ -34,7 +34,10 @@ class UpdateGameAchievementsMetrics
             // force all unachieved to be 1
             $unlocksHardcoreCalc = $unlocksHardcoreCount ?: 1;
             $weight = 0.4;
-            $pointsWeighted = (int) ($achievement->points * (1 - $weight)) + ($achievement->points * (($playersHardcoreCalc / $unlocksHardcoreCalc) * $weight));
+            $pointsWeighted = (int) (
+                $achievement->points * (1 - $weight)
+                + $achievement->points * (($playersHardcoreCalc / $unlocksHardcoreCalc) * $weight)
+            );
             $pointsWeightedTotal += $pointsWeighted;
 
             $achievement->unlocks_total = $unlocksCount;
