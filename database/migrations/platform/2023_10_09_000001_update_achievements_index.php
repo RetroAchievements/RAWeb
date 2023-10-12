@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        // add the inverse indexes for user_id so lookups for untracked and deleted are more likely using indexes
-
         Schema::table('Achievements', function (Blueprint $table) {
             $sm = Schema::getConnection()->getDoctrineSchemaManager();
             $indexesFound = $sm->listTableIndexes('Achievements');
