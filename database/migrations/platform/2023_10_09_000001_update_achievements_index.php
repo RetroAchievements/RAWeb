@@ -17,7 +17,7 @@ return new class() extends Migration {
 
             if (!array_key_exists('achievements_game_id_published_index', $indexesFound)) {
                 $table->index(
-                    ['game_id', 'Flags'],
+                    ['GameID', 'Flags'],
                     'achievements_game_id_published_index'
                 );
             }
