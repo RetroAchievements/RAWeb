@@ -33,15 +33,15 @@ class UpdateGameAchievementsMetricsTest extends TestCase
         $achievements = Achievement::all();
         $this->assertEquals(
             [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-            $achievements->pluck('unlocks_total')->values()->toArray()
+            $achievements->pluck('unlocks_total')->toArray()
         );
         $this->assertEquals(
             [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1],
-            $achievements->pluck('unlock_percentage')->values()->toArray()
+            $achievements->pluck('unlock_percentage')->toArray()
         );
         $this->assertEquals(
             [3, 3, 3, 3, 3, 4, 4, 5, 7, 13],
-            $achievements->pluck('points_weighted')->values()->toArray()
+            $achievements->pluck('points_weighted')->toArray()
         );
     }
 }
