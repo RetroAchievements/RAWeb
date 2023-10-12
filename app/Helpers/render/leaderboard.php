@@ -467,32 +467,48 @@ function getGlobalRankingData(
         }
 
         if ($info == 0) {
-            if ($unlockMode == UnlockMode::Hardcore) {
-                $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . "
-                                                  THEN 1 ELSE 0 END), 0)
-                            FROM Awarded AS aw
-                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID
-                            JOIN GameData as gd ON ach.GameID = gd.ID
-                            WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
-                            AND ach.Flags = " . AchievementFlag::OfficialCore . "
-                        ) AS AchievementCount,
-                        COALESCE(ua.RAPoints, 0) AS Points,
-                        COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
-                        COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
+            if (config('feature.aggregate_queries')) {
+                if ($unlockMode == UnlockMode::Hardcore) {
+                    $selectQuery = "SELECT ua.User,
+                            COALESCE(ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
+                            COALESCE(ua.RAPoints, 0) AS Points,
+                            COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
+                            COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
+                } else {
+                    $selectQuery = "SELECT ua.User,
+                            COALESCE(ua.achievements_unlocked - ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
+                            COALESCE(ua.RASoftcorePoints, 0) AS Points,
+                            0 AS RetroPoints,
+                            0 AS RetroRatio ";
+                }
             } else {
-                $selectQuery = "SELECT ua.User,
-                        (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . "
-                                                  THEN 1 ELSE -1 END), 0)
-                            FROM Awarded AS aw
-                            JOIN Achievements AS ach ON aw.AchievementID = ach.ID
-                            JOIN GameData as gd ON ach.GameID = gd.ID
-                            WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
-                            AND ach.Flags = " . AchievementFlag::OfficialCore . "
-                        ) AS AchievementCount,
-                        COALESCE(ua.RASoftcorePoints, 0) AS Points,
-                        0 AS RetroPoints,
-                        0 AS RetroRatio ";
+                if ($unlockMode == UnlockMode::Hardcore) {
+                    $selectQuery = "SELECT ua.User,
+                            (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Hardcore . "
+                                                    THEN 1 ELSE 0 END), 0)
+                                FROM Awarded AS aw
+                                JOIN Achievements AS ach ON aw.AchievementID = ach.ID
+                                JOIN GameData as gd ON ach.GameID = gd.ID
+                                WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
+                                AND ach.Flags = " . AchievementFlag::OfficialCore . "
+                            ) AS AchievementCount,
+                            COALESCE(ua.RAPoints, 0) AS Points,
+                            COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
+                            COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
+                } else {
+                    $selectQuery = "SELECT ua.User,
+                            (SELECT COALESCE(SUM(CASE WHEN aw.HardcoreMode = " . UnlockMode::Softcore . "
+                                                    THEN 1 ELSE -1 END), 0)
+                                FROM Awarded AS aw
+                                JOIN Achievements AS ach ON aw.AchievementID = ach.ID
+                                JOIN GameData as gd ON ach.GameID = gd.ID
+                                WHERE aw.User = ua.User AND gd.ConsoleID NOT IN (100, 101)
+                                AND ach.Flags = " . AchievementFlag::OfficialCore . "
+                            ) AS AchievementCount,
+                            COALESCE(ua.RASoftcorePoints, 0) AS Points,
+                            0 AS RetroPoints,
+                            0 AS RetroRatio ";
+                }
             }
         } else {
             if ($unlockMode == UnlockMode::Hardcore) {

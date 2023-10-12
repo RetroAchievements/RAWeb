@@ -37,7 +37,7 @@ class UpdatePlayerGameMetrics
 
         $points = $achievementsUnlocked->sum('Points');
         $pointsHardcore = $achievementsUnlockedHardcore->sum('Points');
-        $pointsWeighted = $achievementsUnlocked->sum('TrueRatio');
+        $pointsWeighted = $achievementsUnlockedHardcore->sum('TrueRatio');
 
         $playerAchievements = $achievementsUnlocked->pluck('pivot');
         $playerAchievementsHardcore = $playerAchievements->whereNotNull('unlocked_hardcore_at');
