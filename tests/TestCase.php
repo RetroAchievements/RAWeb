@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use App\Platform\Actions\LinkHashToGameAction;
+use App\Platform\Actions\LinkHashToGame;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
@@ -71,7 +71,7 @@ abstract class TestCase extends BaseTestCase
         $games = $system->games()->saveMany(Game::factory()->count($amount)->create());
 
         if ($withHash) {
-            $games->each(fn (Game $game) => (bool) (new LinkHashToGameAction())->execute($game->ID . '_hash', $game));
+            $games->each(fn (Game $game) => (bool) (new LinkHashToGame())->execute($game->ID . '_hash', $game));
         }
 
         if ($achievementsAmount > 0) {

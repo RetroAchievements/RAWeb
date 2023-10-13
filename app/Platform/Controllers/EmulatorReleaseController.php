@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
-use App\Platform\Actions\LinkLatestEmulatorReleaseAction;
+use App\Platform\Actions\LinkLatestEmulatorRelease;
 use App\Platform\Models\Emulator;
 use App\Platform\Models\EmulatorRelease;
 use App\Platform\Requests\EmulatorReleaseRequest;
@@ -57,7 +57,7 @@ class EmulatorReleaseController extends Controller
         EmulatorReleaseRequest $request,
         Emulator $emulator,
         AddMediaAction $addFileToCollectionAction,
-        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction
+        LinkLatestEmulatorRelease $linkLatestReleaseAction
     ): RedirectResponse {
         $this->authorize('create', $this->resourceClass());
 
@@ -95,7 +95,7 @@ class EmulatorReleaseController extends Controller
         EmulatorReleaseRequest $request,
         EmulatorRelease $release,
         AddMediaAction $addFileToCollectionAction,
-        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction
+        LinkLatestEmulatorRelease $linkLatestReleaseAction
     ): RedirectResponse {
         $this->authorize('update', $release);
 
@@ -115,7 +115,7 @@ class EmulatorReleaseController extends Controller
 
     public function destroy(
         EmulatorRelease $release,
-        LinkLatestEmulatorReleaseAction $linkLatestReleaseAction
+        LinkLatestEmulatorRelease $linkLatestReleaseAction
     ): RedirectResponse {
         $this->authorize('delete', $release);
 
@@ -151,7 +151,7 @@ class EmulatorReleaseController extends Controller
         );
     }
 
-    public function restore(int $release, LinkLatestEmulatorReleaseAction $linkLatestReleaseAction): RedirectResponse
+    public function restore(int $release, LinkLatestEmulatorRelease $linkLatestReleaseAction): RedirectResponse
     {
         $release = EmulatorRelease::withTrashed()->find($release);
 

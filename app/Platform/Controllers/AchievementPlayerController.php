@@ -6,7 +6,6 @@ namespace App\Platform\Controllers;
 
 use App\Http\Controller;
 use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerAchievement;
 use Illuminate\Contracts\View\View;
 
 class AchievementPlayerController extends Controller
@@ -24,15 +23,7 @@ class AchievementPlayerController extends Controller
             'game',
         ]);
 
-        $unlocks = $achievement->hasMany(PlayerAchievement::class);
-        $numWinners = $unlocks->count();
-        $numPossibleWinners = $achievement->game()->first()->players()->count();
-
-        return view('achievement.player.index', [
-                'numWinners' => $numWinners,
-                'numPossibleWinners' => $numPossibleWinners,
-                'winnerPercent' => round($numWinners * 100 / $numPossibleWinners, 2),
-            ])
+        return view('achievement.player.index')
             ->with('achievement', $achievement);
     }
 }

@@ -270,7 +270,9 @@ RenderContentStart($userPage);
 
         $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
         echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span><br>";
-        echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        if ($user) {
+            echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        }
 
         echo "Site Rank: ";
         if ($userIsUntracked) {
@@ -313,7 +315,9 @@ RenderContentStart($userPage);
         echo "<br>";
     }
 
-    echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    if ($user) {
+        echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    }
 
     echo "<a href='/forumposthistory.php?u=$userPage'>Forum Post History</a>";
     echo "<br>";
@@ -429,14 +433,6 @@ RenderContentStart($userPage);
         echo "</form>";
         echo "</td><td>";
         echo HasCertifiedLegendBadge($userPage) ? "Certified Legend" : "Not Yet Legendary";
-        echo "</td></tr>";
-
-        echo "<tr><td class='text-right'>";
-        echo "<form method='post' action='/request/user/recalculate-score.php'>";
-        echo csrf_field();
-        echo "<input type='hidden' name='user' value='$userPage' />";
-        echo "<button class='btn'>Recalculate Score</button>";
-        echo "</form>";
         echo "</td></tr>";
 
         $newValue = $userIsUntracked ? 0 : 1;

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Connect\Concerns;
 
-use App\Platform\Actions\ResumePlayerSessionAction;
-use App\Platform\Actions\UnlockPlayerAchievementAction;
+use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\PlayerGame;
 use App\Site\Models\User;
-use Exception;
 use Illuminate\Http\Request;
 
 trait AchievementRequests
@@ -115,24 +114,32 @@ trait AchievementRequests
         $achievement = Achievement::find($achievementId);
         abort_if($achievement === null, 404, 'Achievement with ID "' . $achievementId . '" not found');
 
+        // TODO "Unofficial achievements cannot be unlocked"
+
         /** @var User $user */
         $user = $request->user('connect-token');
 
         // TODO: validate sent hash
         // $request->input('v') === $achievement->unlockValidationHash($user, (int) $hardcore);
 
-        // resume the player session before unlocking the achievement so they'll get associated together
-        try {
-            /** @var ResumePlayerSessionAction $resumePlayerSessionAction */
-            $resumePlayerSessionAction = app()->make(ResumePlayerSessionAction::class);
-            $resumePlayerSessionAction->execute($request, $achievement->game);
-        } catch (Exception) {
-            // fail silently - might be an unauthenticated request (RetroArch)
+        // fail silently - might be an unauthenticated request (RetroArch)
+        dispatch(new UnlockPlayerAchievementJob($user->id, $achievement->id, (bool) $hardcore))
+            ->onQueue('player-achievements');
+
+        $playerGame = PlayerGame::where('user_id', $user->id)
+            ->where('game_id', $achievement->game_id)
+            ->first();
+        $remaining = 0;
+        if ($playerGame) {
+            $remaining = $playerGame->achievements_total - $playerGame->achievements_unlocked;
         }
 
-        /** @var UnlockPlayerAchievementAction $unlockPlayerAchievementAction */
-        $unlockPlayerAchievementAction = app()->make(UnlockPlayerAchievementAction::class);
-
-        return $unlockPlayerAchievementAction->execute($user, $achievement, (bool) $hardcore);
+        // TODO respond with optimistically updated score values
+        return [
+            'Score' => $user->points,
+            'SoftcoreScore' => (int) $user->points_softcore,
+            'AchievementID' => (int) $achievementId,
+            'AchievementsRemaining' => $remaining,
+        ];
     }
 }
