@@ -13,7 +13,7 @@ use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
-class ResetPlayerProgressActionTest extends TestCase
+class ResetPlayerProgressTest extends TestCase
 {
     use RefreshDatabase;
 
