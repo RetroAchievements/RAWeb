@@ -206,7 +206,7 @@ return [
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 240,
+            'timeout' => 240, // NOTE this should match queue config's retry_after
             'nice' => 0,
         ],
     ],
