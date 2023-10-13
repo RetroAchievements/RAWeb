@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 
 class NoIntroImport extends Command
 {
-    protected $signature = 'ra:platform:rom:no-intro:import {jsonDatFile} {systemId?} {--seed} {--ignore-system-mismatch}';
+    protected $signature = 'ra:platform:game-hash:no-intro:import {jsonDatFile} {systemId?} {--seed} {--ignore-system-mismatch}';
     protected $description = 'Imports JSON converted no-intro.org DAT files';
 
     public function __construct()

@@ -1,5 +1,9 @@
 <?php
 
+use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
+use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use Illuminate\Support\Str;
 
 return [
@@ -41,7 +45,7 @@ return [
     |
     */
 
-    'use' => 'default',
+    'use' => 'queue',
 
     /*
     |--------------------------------------------------------------------------
@@ -119,7 +123,11 @@ return [
     */
 
     'silenced' => [
-        // App\Jobs\ExampleJob::class,
+        // silence listeners which only dispatch unique jobs
+        DispatchUpdateDeveloperContributionYieldJob::class,
+        DispatchUpdateGameMetricsJob::class,
+        DispatchUpdatePlayerGameMetricsJob::class,
+        DispatchUpdatePlayerMetricsJob::class,
     ],
 
     /*
@@ -153,7 +161,7 @@ return [
     |
     */
 
-    'fast_termination' => false,
+    'fast_termination' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -182,7 +190,15 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default'],
+            'queue' => [
+                'player-achievements',
+                'player-metrics',
+                'default',
+                'player-game-metrics',
+                'game-metrics',
+                'developer-metrics',
+                'player-game-metrics-batch',
+            ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
@@ -190,7 +206,7 @@ return [
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 60,
+            'timeout' => 240,
             'nice' => 0,
         ],
     ],
@@ -198,7 +214,7 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -206,7 +222,7 @@ return [
 
         'stage' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

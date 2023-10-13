@@ -30,11 +30,11 @@ class AchievementsListTest extends TestCase
         // Arrange
         /** @var User $user */
         $user = User::factory()->create();
-
-        $achievementOne = Achievement::factory()->create(['Title' => 'One', 'DisplayOrder' => 0]);
-        $achievementTwo = Achievement::factory()->create(['Title' => 'Two', 'DisplayOrder' => 1]);
-        $achievementThree = Achievement::factory()->create(['Title' => 'Three', 'DisplayOrder' => 2]);
-        $achievementFour = Achievement::factory()->create(['Title' => 'Four', 'DisplayOrder' => 3]);
+        $game = $this->seedGame(withHash: false);
+        $achievementOne = Achievement::factory()->create(['GameID' => $game->id, 'Title' => 'One', 'DisplayOrder' => 0]);
+        $achievementTwo = Achievement::factory()->create(['GameID' => $game->id, 'Title' => 'Two', 'DisplayOrder' => 1]);
+        $achievementThree = Achievement::factory()->create(['GameID' => $game->id, 'Title' => 'Three', 'DisplayOrder' => 2]);
+        $achievementFour = Achievement::factory()->create(['GameID' => $game->id, 'Title' => 'Four', 'DisplayOrder' => 3]);
 
         $this->addHardcoreUnlock($user, $achievementThree);
 
@@ -63,7 +63,7 @@ class AchievementsListTest extends TestCase
 
         $view->assertSeeText($achievement->Title);
         $view->assertSeeText($achievement->Description);
-        $view->assertSeeText($achievement->Points);
+        $view->assertSeeText((string) $achievement->Points);
         $view->assertSeeText("5,000");
         $view->assertSeeText("Progression");
     }
@@ -73,8 +73,9 @@ class AchievementsListTest extends TestCase
         // Arrange
         /** @var User $user */
         $user = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->create(['type' => AchievementType::Progression, 'TrueRatio' => 5000]);
+        $achievement = Achievement::factory()->create(['GameID' => $game->id, 'type' => AchievementType::Progression, 'TrueRatio' => 5000]);
 
         $this->addHardcoreUnlock($user, $achievement);
         $achievement = $achievement->toArray();

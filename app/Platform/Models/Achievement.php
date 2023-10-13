@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -43,6 +44,7 @@ class Achievement extends BaseModel implements HasComments
     // TODO rename Points column to points
     // TODO drop AssocVideo, move to guides or something
     // TODO rename TrueRation column to points_weighted
+    // TODO rename unlocks_hardcore_total to unlocks_hardcore
     // TODO drop MemAddr, migrate to triggerable morph
     // TODO drop Progress, ProgressMax, ProgressFormat migrate to triggerable morph
     // TODO drop Flags, derived from being included in an achievement set
@@ -162,10 +164,42 @@ class Achievement extends BaseModel implements HasComments
         return $badge;
     }
 
-    // public function getTitleAttribute(): string
-    // {
-    //     return !empty(trim($this->attributes['Title'])) ? $this->attributes['Title'] : 'Untitled';
-    // }
+    public function getIsPublishedAttribute(): bool
+    {
+        return $this->Flags === AchievementFlag::OfficialCore;
+    }
+
+    // TODO remove after rename
+
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
+    public function getGameIdAttribute(): int
+    {
+        return $this->attributes['GameID'];
+    }
+
+    public function getTitleAttribute(): ?string
+    {
+        return $this->attributes['Title'] ?? null;
+    }
+
+    public function getDescriptionAttribute(): ?string
+    {
+        return $this->attributes['Description'] ?? null;
+    }
+
+    public function getPointsAttribute(): int
+    {
+        return (int) $this->attributes['Points'];
+    }
+
+    public function getPointsWeightedAttribute(): int
+    {
+        return (int) $this->attributes['TrueRatio'];
+    }
 
     // == mutators
 
@@ -176,7 +210,17 @@ class Achievement extends BaseModel implements HasComments
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'ID');
+    }
+
+    /**
+     * @return BelongsTo<User, Achievement>
+     *
+     * @deprecated make this multiple developers
+     */
+    public function developer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'Author', 'User');
     }
 
     /**
@@ -190,7 +234,7 @@ class Achievement extends BaseModel implements HasComments
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playersLegacy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'Awarded', 'AchievementID', 'User')
             ->using(PlayerAchievementLegacy::class);
@@ -201,7 +245,16 @@ class Achievement extends BaseModel implements HasComments
      */
     public function playerAchievementsLegacy(): HasMany
     {
-        return $this->hasMany(PlayerAchievementLegacy::class);
+        return $this->hasMany(PlayerAchievementLegacy::class, 'AchievementID');
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function players(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'player_achievements', 'achievement_id', 'user_id')
+            ->using(PlayerAchievement::class);
     }
 
     /**
@@ -209,7 +262,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function playerAchievements(): HasMany
     {
-        return $this->hasMany(PlayerAchievement::class);
+        return $this->hasMany(PlayerAchievement::class, 'achievement_id');
     }
 
     /**
@@ -270,9 +323,9 @@ class Achievement extends BaseModel implements HasComments
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
-    public function scopeType(Builder $query, string $type): Builder
+    public function scopeType(Builder $query, string|array $type): Builder
     {
-        return $query->where('type', $type);
+        return $query->whereIn('type', Arr::wrap($type));
     }
 
     /**
@@ -300,10 +353,10 @@ class Achievement extends BaseModel implements HasComments
     public function scopeWithUnlocksByUser(Builder $query, User $user): Builder
     {
         $query->leftJoin('player_achievements', function ($join) use ($user) {
-            $join->on('player_achievements.achievement_id', '=', 'achievements.id');
+            $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
             $join->where('player_achievements.user_id', '=', $user->id);
         });
-        $query->addSelect('achievements.*');
+        $query->addSelect('Achievements.*');
         $query->addSelect('player_achievements.unlocked_at');
         $query->addSelect('player_achievements.unlocked_hardcore_at');
         $query->addSelect(DB::raw('player_achievements.id as player_achievement_id'));

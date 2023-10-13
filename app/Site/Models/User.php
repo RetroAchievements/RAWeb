@@ -78,7 +78,9 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     // TODO drop LastActivityID, LastGameID, UnreadMessageCount -> derived
     // TODO drop PasswordResetToken -> password_resets table
     // TODO move UserWallActive to preferences, allow comments to be visible to/writable for public, friends, private etc
-    // TODO drop Untracked in favor of unranked_at
+    // TODO rename Untracked to unranked or drop in favor of unranked_at (update indexes)
+    // TODO drop ID index
+    // TODO remove User from PRIMARY, there's already a unique index on username (User)
     // TODO drop ManuallyVerified in favor of forum_verified_at
     // TODO drop SaltedPass in favor of Password
     // TODO drop Permissions in favor of RBAC tables
@@ -262,6 +264,18 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return app(Optimus::class)->encode($this->getAttribute('ID'));
     }
 
+    public function getAvatarUrlAttribute(): string
+    {
+        return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
+    }
+
+    // TODO remove after rename
+
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
     public function getDisplayNameAttribute(): ?string
     {
         // return $this->attributes['display_name'] ?? $this->attributes['username'] ?? null;
@@ -273,9 +287,29 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return $this->getAttribute('User');
     }
 
-    public function getAvatarUrlAttribute(): string
+    public function getPermissionsAttribute(): int
     {
-        return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
+        return $this->attributes['Permissions'];
+    }
+
+    public function getLastActivityAtAttribute(): string
+    {
+        return $this->getAttribute('LastLogin');
+    }
+
+    public function getPointsAttribute(): int
+    {
+        return (int) $this->getAttribute('RAPoints');
+    }
+
+    public function getPointsSoftcoreAttribute(): int
+    {
+        return (int) $this->getAttribute('RASoftcorePoints');
+    }
+
+    public function getPointsWeightedAttribute(): int
+    {
+        return (int) $this->getAttribute('TrueRAPoints');
     }
 
     // Email verification
