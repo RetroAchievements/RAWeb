@@ -245,7 +245,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function playerAchievementsLegacy(): HasMany
     {
-        return $this->hasMany(PlayerAchievementLegacy::class);
+        return $this->hasMany(PlayerAchievementLegacy::class, 'AchievementID');
     }
 
     /**
@@ -262,7 +262,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function playerAchievements(): HasMany
     {
-        return $this->hasMany(PlayerAchievement::class);
+        return $this->hasMany(PlayerAchievement::class, 'achievement_id');
     }
 
     /**

@@ -14,12 +14,14 @@ use App\Site\Models\StaticData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Api\V1\BootstrapsApiV1;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class V1Test extends TestCase
 {
     use RefreshDatabase;
     use BootstrapsApiV1;
+    use TestsPlayerAchievements;
 
     public function testUnauthorizedResponse(): void
     {
@@ -125,8 +127,7 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
-        /** @var PlayerAchievementLegacy $unlock */
-        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+        $this->addSoftcoreUnlock($this->user, $achievement);
 
         $staticData = StaticData::factory()->create([
             'Event_AOTW_AchievementID' => $achievement->ID,
@@ -154,7 +155,7 @@ class V1Test extends TestCase
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
-                        'HardcoreMode' => $unlock->HardcoreMode,
+                        'HardcoreMode' => 0,
                     ],
                 ],
                 'UnlocksCount' => 1,
@@ -256,8 +257,7 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
-        /** @var PlayerAchievementLegacy $unlock */
-        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+        $this->addSoftcoreUnlock($this->user, $achievement);
 
         $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => $achievement->ID]))
             ->assertSuccessful()
@@ -276,7 +276,7 @@ class V1Test extends TestCase
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
-                        'HardcoreMode' => $unlock->HardcoreMode,
+                        'HardcoreMode' => 0,
                     ],
                 ],
                 'UnlocksCount' => 1,
