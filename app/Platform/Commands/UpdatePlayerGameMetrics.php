@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Platform\Actions\UpdatePlayerGameMetrics as UpdatePlayerGameMetricsAction;
+use App\Platform\Actions\UpdatePlayerMetrics as UpdatePlayerMetricsAction;
 use App\Platform\Models\Game;
 use App\Site\Models\User;
 use Illuminate\Console\Command;
@@ -18,7 +19,8 @@ class UpdatePlayerGameMetrics extends Command
     protected $description = 'Update player game(s) metrics';
 
     public function __construct(
-        private readonly UpdatePlayerGameMetricsAction $updatePlayerGameMetrics
+        private readonly UpdatePlayerGameMetricsAction $updatePlayerGameMetrics,
+        private readonly UpdatePlayerMetricsAction $updatePlayerMetrics
     ) {
         parent::__construct();
     }
@@ -49,9 +51,17 @@ class UpdatePlayerGameMetrics extends Command
         $progressBar = $this->output->createProgressBar($playerGames->count());
         $progressBar->start();
 
+        // if running in sync mode, just call updatePlayerMetrics once manually after updating
+        // all of the player_games instead of letting it cascade for every player_game updated.
+        $isSync = (config('queue.default') === 'sync');
+
         foreach ($playerGames as $playerGame) {
-            $this->updatePlayerGameMetrics->execute($playerGame);
+            $this->updatePlayerGameMetrics->execute($playerGame, silent: $isSync);
             $progressBar->advance();
+        }
+
+        if ($isSync) {
+            $this->updatePlayerMetrics->execute($user);
         }
 
         $progressBar->finish();
