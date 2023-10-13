@@ -6,6 +6,7 @@ namespace App\Community\Enums;
 
 abstract class AwardType
 {
+    // TODO refactor to AchievementSetCompleted
     public const Mastery = 1;
 
     public const AchievementUnlocksYield = 2;
@@ -20,6 +21,7 @@ abstract class AwardType
 
     public const CertifiedLegend = 7;
 
+    // TODO refactor to AchievementSetBeaten
     public const GameBeaten = 8;
 
     public static function cases(): array

@@ -6,7 +6,7 @@ namespace App\Connect\Concerns;
 
 use App\Community\Enums\ActivityType;
 use App\Community\Models\UserActivity;
-use App\Platform\Actions\ResumePlayerSessionAction;
+use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Models\Game;
 use Exception;
 use Illuminate\Http\Request;
@@ -15,7 +15,6 @@ trait HeartbeatRequests
 {
     /**
      * Used by RAIntegration
-     * Sends out events
      * Called on
      * - game load -> StartedPlaying
      *
@@ -42,17 +41,9 @@ trait HeartbeatRequests
         $activityType = $request->input('a');
         $messagePayload = $request->input('m');
 
-        /*
-         * any activity event will update the last_activity_at timestamp on the user
-         */
+        // Behave like ping, ignore the rest
         if ($activityType === ActivityType::StartedPlaying) {
-            /** @var ?Game $game */
-            $game = Game::find($messagePayload);
-            if ($game) {
-                /** @var ResumePlayerSessionAction $resumePlayerSessionAction */
-                $resumePlayerSessionAction = app()->make(ResumePlayerSessionAction::class);
-                $resumePlayerSessionAction->execute($request, $game);
-            }
+            PlayerSessionHeartbeat::dispatch($request->user('connect-token'), Game::find($messagePayload));
         }
 
         return [];
@@ -70,10 +61,6 @@ trait HeartbeatRequests
     {
         $this->authorize('create', UserActivity::class);
 
-        // if (isset($activityMessage)) {
-        //     UpdateUserRichPresence($user, $gameID, $activityMessage);
-        // }
-
         $request->validate(
             [
                 'g' => 'required|integer',
@@ -87,24 +74,11 @@ trait HeartbeatRequests
         );
 
         $gameId = $request->input('g');
-
-        // TODO: should be $request->user('connect-token')->games()->find($gameId)
-        /** @var ?Game $game */
-        $game = Game::find($gameId);
-        abort_if($game === null, 404, 'Game with ID "' . $gameId . '" not found');
-        /**
-         * TODO: abort if game has not yet been assigned to user
-         */
-        // abort_unless($game !== null, 404, 'Game with ID "' . $gameId . '" is not attached to this user');
-
         $richPresence = $request->input('m');
 
-        /**
-         * TODO: pass game hash here if set
-         */
-        /** @var ResumePlayerSessionAction $resumePlayerSessionAction */
-        $resumePlayerSessionAction = app()->make(ResumePlayerSessionAction::class);
-        $resumePlayerSessionAction->execute($request, $game, null, $richPresence);
+        // TODO: pass game hash here if set
+
+        PlayerSessionHeartbeat::dispatch($request->user('connect-token'), $gameId, $richPresence);
 
         return [];
     }

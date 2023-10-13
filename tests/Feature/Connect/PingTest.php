@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -36,6 +37,15 @@ class PingTest extends TestCase
                 'Success' => true,
             ]);
 
+        // player session resumed
+        $playerSession = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
+        ])->first();
+        $this->assertModelExists($playerSession);
+        $this->assertEquals(1, $playerSession->duration);
+        $this->assertEquals('Doing good', $playerSession->rich_presence);
+
         /** @var User $user1 */
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($game->ID, $user1->LastGameID);
@@ -47,6 +57,15 @@ class PingTest extends TestCase
             ->assertExactJson([
                 'Success' => true,
             ]);
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
+        ])->first();
+        $this->assertEquals($playerSession->id, $playerSession2->id);
+        $this->assertEquals(1, $playerSession2->duration);
+        $this->assertEquals('Doing good', $playerSession2->rich_presence);
 
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($game->ID, $user1->LastGameID);

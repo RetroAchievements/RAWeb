@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Concerns;
 
+use App\Platform\Actions\UnlockPlayerAchievement;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerAchievementLegacy;
@@ -18,16 +19,6 @@ trait TestsPlayerAchievements
         ?Carbon $hardcoreUnlockTime,
         Carbon $softcoreUnlockTime
     ): void {
-        // TODO use unlock action instead as soon as it's been refactored, drop the rest
-        $user->achievements()->syncWithPivotValues(
-            $achievement,
-            [
-                'unlocked_at' => $softcoreUnlockTime,
-                'unlocked_hardcore_at' => $hardcoreUnlockTime,
-            ],
-            detaching: false
-        );
-
         $needsHardcore = ($hardcoreUnlockTime !== null);
         $needsSoftcore = true;
 
@@ -49,8 +40,6 @@ trait TestsPlayerAchievements
                     'Date' => $hardcoreUnlockTime,
                 ])
             );
-        } elseif (!$needsSoftcore) {
-            return;
         }
 
         if ($needsSoftcore) {
@@ -63,6 +52,17 @@ trait TestsPlayerAchievements
                 ])
             );
         }
+
+        (new UnlockPlayerAchievement())
+            ->execute(
+                $user,
+                $achievement,
+                $hardcoreUnlockTime !== null,
+                $hardcoreUnlockTime ?? $softcoreUnlockTime,
+            );
+
+        // refresh user, unlocking achievements cascades into metrics recalculations
+        $user->refresh();
     }
 
     protected function addHardcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\AddImageToGameAction;
-use App\Platform\Actions\UpsertTriggerVersionAction;
+use App\Platform\Actions\AddImageToGame;
+use App\Platform\Actions\UpsertTriggerVersion;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameHashSet;
 use App\Support\Sync\SyncTrait;
@@ -22,8 +22,8 @@ class SyncGames extends Command
     protected $description = 'Sync games';
 
     public function __construct(
-        private AddImageToGameAction $addImageToGameAction,
-        private UpsertTriggerVersionAction $upsertTriggerVersionAction
+        private readonly AddImageToGame $addImageToGameAction,
+        private readonly UpsertTriggerVersion $upsertTriggerVersionAction
     ) {
         parent::__construct();
     }

@@ -10,6 +10,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 
 class PlayerAchievementUnlocked
 {
@@ -20,8 +21,10 @@ class PlayerAchievementUnlocked
     public function __construct(
         public User $user,
         public Achievement $achievement,
-        public bool $hardcore
+        public bool $hardcore,
+        public ?Carbon $timestamp = null,
     ) {
+        $this->timestamp ??= Carbon::now();
     }
 
     public function broadcastOn(): PrivateChannel

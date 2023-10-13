@@ -265,7 +265,7 @@ if ($isFullyFeaturedGame) {
         // self-healing mechanism.
         if (!config('feature.aggregate_queries')) {
             if ($isBeatenSoftcore !== $hasBeatenSoftcoreAward || $isBeatenHardcore !== $hasBeatenHardcoreAward) {
-                $beatenGameRetVal = testBeatenGame($gameID, $user, true);
+                $beatenGameRetVal = testBeatenGame($gameID, $user);
             }
         }
     }
@@ -1012,14 +1012,6 @@ sanitize_outputs(
                     isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID),
                     'Tickets'
                 );
-
-                if ($permissions >= Permissions::Developer) {
-                    echo "<form action='/request/game/recalculate-points-ratio.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<button class='btn'>Recalculate True Ratios</button>";
-                    echo "</form>";
-                }
 
                 // Display the claims links if not an event game
                 if (!$isEventGame) {

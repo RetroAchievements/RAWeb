@@ -58,7 +58,7 @@ if (!$dbResult) {
 }
 
 // TODO let the framework handle registration events (sending out validation email, triggering notifications, ...)
-// dispatch(new Registered($user));
+// Registered::dispatch($user);
 
 // Create an email validation token and send an email
 sendValidationEmail($username, $email);

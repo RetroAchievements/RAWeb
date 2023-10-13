@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Concerns;
 
 use App\Community\Enums\AwardType;
-use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
@@ -33,11 +32,6 @@ trait TestsPlayerBadges
             ]);
             $user->playerBadges()->save($badge);
         }
-    }
-
-    protected function addMasteryBadge(User $user, Game $game, int $mode = UnlockMode::Hardcore, ?Carbon $awardTime = null): void
-    {
-        $this->addPlayerBadge($user, AwardType::Mastery, $game->ID, $mode, $awardTime);
     }
 
     protected function masteryBadgeExists(User $user, Game $game): bool
