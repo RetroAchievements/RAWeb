@@ -90,16 +90,13 @@ class UpdateGameMetrics
 
         // Ad-hoc updates for player games metrics and player metrics after achievement set version changes
         // Note: this might dispatch multiple thousands of jobs depending on a game's players count
-        $affectedPlayerGamesQuery = $game->playerGames()
-            ->where(function ($query) use ($game) {
-                $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
-                    ->orWhereNull('achievement_set_version_hash');
-            });
-
         // add all affected player games to the update queue in batches
         if (config('queue.default') !== 'sync') {
-            (clone $affectedPlayerGamesQuery)
-                ->whereNull('update_status')
+            $game->playerGames()
+                ->where(function ($query) use ($game) {
+                    $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
+                        ->orWhereNull('achievement_set_version_hash');
+                })
                 ->orderByDesc('last_played_at')
                 ->chunk(1000, function (Collection $chunk) {
                     // map and dispatch this chunk as a batch of jobs
@@ -112,14 +109,5 @@ class UpdateGameMetrics
                         ->dispatch();
                 });
         }
-
-        // directly update player games to make sure they aren't added to a batch again
-        // and contain the most important updates right away for presentation
-        (clone $affectedPlayerGamesQuery)
-            ->update([
-                'update_status' => 'version_mismatch',
-                'points_total' => $game->points_total,
-                'achievements_total' => $game->achievements_published,
-            ]);
     }
 }
