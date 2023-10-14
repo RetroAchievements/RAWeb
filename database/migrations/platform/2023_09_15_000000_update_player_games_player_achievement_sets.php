@@ -11,7 +11,6 @@ return new class() extends Migration {
     {
         Schema::table('player_games', function (Blueprint $table) {
             $table->string('achievement_set_version_hash')->nullable()->after('game_hash_id');
-            $table->string('update_status')->nullable()->after('achievement_set_version_hash');
 
             $table->unsignedDecimal('completion_percentage', 10, 9)->nullable()
                 ->change();
@@ -57,7 +56,6 @@ return new class() extends Migration {
     {
         Schema::table('player_games', function (Blueprint $table) {
             $table->dropColumn('achievement_set_version_hash');
-            $table->dropColumn('update_status');
             $table->dropColumn('achievements_beat');
             $table->dropColumn('achievements_beat_unlocked');
             $table->dropColumn('achievements_beat_unlocked_hardcore');
