@@ -12,7 +12,6 @@ use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class UpdateGameMetrics
 {
@@ -84,6 +83,8 @@ class UpdateGameMetrics
             return;
         }
 
+        Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
+
         // TODO dispatch events for achievement set and game metrics changes
         $tmp = $achievementsPublishedChange;
         $tmp = $pointsTotalChange;
@@ -100,8 +101,7 @@ class UpdateGameMetrics
                     $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
                         ->orWhereNull('achievement_set_version_hash');
                 })
-                ->orderBy('id')
-                ->chunkById(1000, function (Collection $chunk) {
+                ->chunkById(1000, function (Collection $chunk, $page) use ($game) {
                     // map and dispatch this chunk as a batch of jobs
                     Bus::batch(
                         $chunk->map(
@@ -109,10 +109,7 @@ class UpdateGameMetrics
                         )
                     )
                         ->onQueue('player-game-metrics-batch')
-                        ->catch(function (Batch $batch, Throwable $e) {
-                            // First batch job failure detected...
-                            Log::error('Batch error: ' . $batch->id, ['exception' => $e]);
-                        })
+                        ->name('player-game-metrics ' . $game->id . ' ' . $page)
                         ->dispatch();
                 });
         }

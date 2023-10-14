@@ -206,7 +206,7 @@ return [
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 240, // NOTE this should match queue config's retry_after
+            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
             'nice' => 0,
         ],
     ],
