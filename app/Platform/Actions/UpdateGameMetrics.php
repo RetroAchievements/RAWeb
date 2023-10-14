@@ -98,7 +98,6 @@ class UpdateGameMetrics
                     $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
                         ->orWhereNull('achievement_set_version_hash');
                 })
-                ->orderBy('id')
                 ->chunkById(1000, function (Collection $chunk, $page) use ($game) {
                     // map and dispatch this chunk as a batch of jobs
                     Bus::batch(
