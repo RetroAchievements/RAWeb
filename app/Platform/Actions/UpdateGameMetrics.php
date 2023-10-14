@@ -9,6 +9,7 @@ use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use Illuminate\Bus\Batch;
+use Illuminate\Bus\BatchRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -110,6 +111,13 @@ class UpdateGameMetrics
                     )
                         ->onQueue('player-game-metrics-batch')
                         ->name('player-game-metrics ' . $game->id . ' ' . $page)
+                        ->allowFailures()
+                        ->finally(function (Batch $batch) {
+                            // mark batch as finished even if jobs failed
+                            if (!$batch->finished()) {
+                                resolve(BatchRepository::class)->markAsFinished($batch->id);
+                            }
+                        })
                         ->dispatch();
                 });
         }
