@@ -23,6 +23,13 @@ class UpdateGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     ) {
     }
 
+    public $uniqueFor = 3600;
+
+    public function uniqueId(): string
+    {
+        return config('queue.default') === 'sync' ? '' : $this->gameId;
+    }
+
     public function handle(): void
     {
         app()->make(UpdateGameMetrics::class)
