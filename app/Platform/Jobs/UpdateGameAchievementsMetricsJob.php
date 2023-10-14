@@ -30,6 +30,16 @@ class UpdateGameAchievementsMetricsJob implements ShouldQueue, ShouldBeUnique
         return config('queue.default') === 'sync' ? '' : $this->gameId;
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return [
+            Game::class . ':' . $this->gameId,
+        ];
+    }
+
     public function handle(): void
     {
         app()->make(UpdateGameAchievementsMetrics::class)

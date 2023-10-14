@@ -3,7 +3,9 @@
 namespace App\Platform\Jobs;
 
 use App\Platform\Actions\UpdatePlayerGameMetrics;
+use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
+use App\Site\Models\User;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -31,6 +33,17 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
     public function uniqueId(): string
     {
         return config('queue.default') === 'sync' ? '' : $this->userId . '-' . $this->gameId;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return [
+            User::class . ':' . $this->userId,
+            Game::class . ':' . $this->gameId,
+        ];
     }
 
     public function handle(): void

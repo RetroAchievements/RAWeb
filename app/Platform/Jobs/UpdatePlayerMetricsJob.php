@@ -32,6 +32,16 @@ class UpdatePlayerMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessi
         return config('queue.default') === 'sync' ? '' : $this->userId;
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return [
+            User::class . ':' . $this->userId,
+        ];
+    }
+
     public function handle(): void
     {
         if ($this->batch()?->cancelled()) {
