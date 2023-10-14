@@ -25,7 +25,7 @@ class UpdatePlayerMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProcessi
     ) {
     }
 
-    public $uniqueFor = 3600;
+    public int $uniqueFor = 3600;
 
     public function uniqueId(): string
     {
