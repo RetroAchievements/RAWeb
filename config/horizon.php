@@ -206,7 +206,7 @@ return [
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 240,
+            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
             'nice' => 0,
         ],
     ],
@@ -214,7 +214,7 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 16,
+                'maxProcesses' => 20,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -222,7 +222,7 @@ return [
 
         'stage' => [
             'supervisor-1' => [
-                'maxProcesses' => 16,
+                'maxProcesses' => 20,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

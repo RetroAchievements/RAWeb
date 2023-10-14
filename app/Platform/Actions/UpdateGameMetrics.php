@@ -8,8 +8,10 @@ use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
+use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class UpdateGameMetrics
 {
@@ -81,6 +83,8 @@ class UpdateGameMetrics
             return;
         }
 
+        Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
+
         // TODO dispatch events for achievement set and game metrics changes
         $tmp = $achievementsPublishedChange;
         $tmp = $pointsTotalChange;
@@ -90,18 +94,14 @@ class UpdateGameMetrics
 
         // Ad-hoc updates for player games metrics and player metrics after achievement set version changes
         // Note: this might dispatch multiple thousands of jobs depending on a game's players count
-        $affectedPlayerGamesQuery = $game->playerGames()
-            ->where(function ($query) use ($game) {
-                $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
-                    ->orWhereNull('achievement_set_version_hash');
-            });
-
         // add all affected player games to the update queue in batches
         if (config('queue.default') !== 'sync') {
-            (clone $affectedPlayerGamesQuery)
-                ->whereNull('update_status')
-                ->orderByDesc('last_played_at')
-                ->chunk(1000, function (Collection $chunk) {
+            $game->playerGames()
+                ->where(function ($query) use ($game) {
+                    $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
+                        ->orWhereNull('achievement_set_version_hash');
+                })
+                ->chunkById(1000, function (Collection $chunk, $page) use ($game) {
                     // map and dispatch this chunk as a batch of jobs
                     Bus::batch(
                         $chunk->map(
@@ -109,17 +109,9 @@ class UpdateGameMetrics
                         )
                     )
                         ->onQueue('player-game-metrics-batch')
+                        ->name('player-game-metrics ' . $game->id . ' ' . $page)
                         ->dispatch();
                 });
         }
-
-        // directly update player games to make sure they aren't added to a batch again
-        // and contain the most important updates right away for presentation
-        (clone $affectedPlayerGamesQuery)
-            ->update([
-                'update_status' => 'version_mismatch',
-                'points_total' => $game->points_total,
-                'achievements_total' => $game->achievements_published,
-            ]);
     }
 }

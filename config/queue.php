@@ -63,7 +63,7 @@ return [
             'driver' => 'redis',
             'connection' => 'queue',
             'queue' => env('REDIS_QUEUE', 'default'),
-            'retry_after' => 90,
+            'retry_after' => 305, // NOTE this should be longer than horizon config's timeout
             'block_for' => null,
         ],
 
