@@ -11,6 +11,7 @@ use App\Platform\Models\PlayerGame;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class UpdateGameMetrics
 {
@@ -81,6 +82,8 @@ class UpdateGameMetrics
         if (!$achievementSetVersionChanged) {
             return;
         }
+
+        Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
 
         // TODO dispatch events for achievement set and game metrics changes
         $tmp = $achievementsPublishedChange;
