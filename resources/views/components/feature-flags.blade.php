@@ -1,3 +1,7 @@
+<?php
+$aggregateQueriesSource = \Request::cookie('feature_aggregate_queries') !== null ? 'cookie' : 'env';
+?>
+
 <script>
 function handleToggleCookie() {
     const currentValue = getCookie('feature_aggregate_queries');
@@ -29,8 +33,8 @@ function handleToggleCookie() {
     </button>
 
     @hasfeature("aggregate_queries")
-        Enabled
+        Enabled (Source: {{ $aggregateQueriesSource }})
     @else
-        Disabled
+        Disabled (Source: {{ $aggregateQueriesSource }})
     @endhasfeature
 </div>
