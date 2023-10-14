@@ -23,6 +23,13 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
     ) {
     }
 
+    public $uniqueFor = 3600;
+
+    public function uniqueId(): string
+    {
+        return config('queue.default') === 'sync' ? '' : $this->userId;
+    }
+
     public function handle(): void
     {
         app()->make(UpdateDeveloperContributionYield::class)
