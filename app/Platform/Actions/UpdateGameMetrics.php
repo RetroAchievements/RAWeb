@@ -100,8 +100,8 @@ class UpdateGameMetrics
                     $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
                         ->orWhereNull('achievement_set_version_hash');
                 })
-                ->orderByDesc('last_played_at')
-                ->chunk(500, function (Collection $chunk) {
+                ->orderBy('id')
+                ->chunkById(1000, function (Collection $chunk) {
                     // map and dispatch this chunk as a batch of jobs
                     Bus::batch(
                         $chunk->map(
