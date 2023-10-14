@@ -6,3 +6,12 @@
         Disabled
     @endhasfeature
 </div>
+
+<div class="flex justify-between">
+    <p>Aggregate Queries</p>
+    @hasfeature("aggregate_queries")
+        Enabled
+    @else
+        Disabled
+    @endhasfeature
+</div>
