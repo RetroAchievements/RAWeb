@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class FeatureFlagMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         // Check for the presence of the 'aggregate_queries' cookie.
         $cookieValue = $request->cookie('feature_aggregate_queries');
