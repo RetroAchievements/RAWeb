@@ -8,8 +8,11 @@ use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
+use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class UpdateGameMetrics
 {
@@ -98,7 +101,7 @@ class UpdateGameMetrics
                         ->orWhereNull('achievement_set_version_hash');
                 })
                 ->orderByDesc('last_played_at')
-                ->chunk(1000, function (Collection $chunk) {
+                ->chunk(500, function (Collection $chunk) {
                     // map and dispatch this chunk as a batch of jobs
                     Bus::batch(
                         $chunk->map(
@@ -106,6 +109,10 @@ class UpdateGameMetrics
                         )
                     )
                         ->onQueue('player-game-metrics-batch')
+                        ->catch(function (Batch $batch, Throwable $e) {
+                            // First batch job failure detected...
+                            Log::error('Batch error: ' . $batch->id, ['exception' => $e]);
+                        })
                         ->dispatch();
                 });
         }
