@@ -23,8 +23,7 @@ class ResumePlayerSession
     ): PlayerSession {
         // upsert player game and update last played date right away
         $attachPlayerGameAction = app()->make(AttachPlayerGame::class);
-        $game = $attachPlayerGameAction->execute($user, $game);
-        $playerGame = $game->pivot;
+        $playerGame = $attachPlayerGameAction->execute($user, $game);
         $playerGame->last_played_at = $timestamp;
         $playerGame->save();
 
