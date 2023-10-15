@@ -36,7 +36,7 @@ class UpdatePlayerGameMetrics extends Command
 
         $user = is_numeric($userId)
             ? User::findOrFail($userId)
-            : User::where('User', $this->argument('username'))->firstOrFail();
+            : User::where('User', $userId)->firstOrFail();
 
         $query = $user->playerGames()
             ->with(['user', 'game']);
