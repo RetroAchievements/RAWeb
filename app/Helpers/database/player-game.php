@@ -751,7 +751,7 @@ function getGameTopAchievers(int $gameID): array
         $query = "SELECT ua.User, pg.achievements_unlocked_hardcore AS NumAchievements,
                          pg.points_hardcore AS TotalScore, pg.last_unlock_hardcore_at AS LastAward
                     FROM player_games pg
-                    LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
+                    INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
                     WHERE ua.Untracked = 0
                     AND pg.game_id = $gameID
                     AND pg.achievements_unlocked_hardcore > 0
