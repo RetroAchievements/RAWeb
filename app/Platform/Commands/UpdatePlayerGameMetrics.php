@@ -13,7 +13,7 @@ use Illuminate\Console\Command;
 class UpdatePlayerGameMetrics extends Command
 {
     protected $signature = 'ra:platform:player:update-game-metrics
-                            {username}
+                            {userId : User ID or username. Usernames containing only numbers are not applicable and must be referenced by user ID}
                             {gameIds? : Comma-separated list of game IDs. Leave empty to update all games in player library}
                             {--outdated}';
     protected $description = 'Update player game(s) metrics';
@@ -27,13 +27,16 @@ class UpdatePlayerGameMetrics extends Command
 
     public function handle(): void
     {
+        $userId = $this->argument('userId');
         $outdated = $this->option('outdated');
 
         $gameIds = collect(explode(',', $this->argument('gameIds') ?? ''))
             ->filter()
             ->map(fn ($id) => (int) $id);
 
-        $user = User::where('User', $this->argument('username'))->firstOrFail();
+        $user = is_numeric($userId)
+            ? User::findOrFail($userId)
+            : User::where('User', $this->argument('username'))->firstOrFail();
 
         $query = $user->playerGames()
             ->with(['user', 'game']);

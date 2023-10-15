@@ -13,7 +13,7 @@ use Illuminate\Console\Command;
 class UnlockPlayerAchievement extends Command
 {
     protected $signature = 'ra:platform:player:unlock-achievement
-                            {username}
+                            {userId : User ID or username. Usernames containing only numbers are not applicable and must be referenced by user ID}
                             {achievementIds : Comma-separated list of achievement IDs}
                             {--hardcore}';
     protected $description = 'Unlock achievement(s) for user';
@@ -29,12 +29,14 @@ class UnlockPlayerAchievement extends Command
      */
     public function handle(): void
     {
-        $username = $this->argument('username');
+        $userId = $this->argument('userId');
         $achievementIds = collect(explode(',', $this->argument('achievementIds')))
             ->map(fn ($id) => (int) $id);
         $hardcore = (bool) $this->option('hardcore');
 
-        $user = User::where('User', $this->argument('username'))->firstOrFail();
+        $user = is_numeric($userId)
+            ? User::findOrFail($userId)
+            : User::where('User', $this->argument('username'))->firstOrFail();
 
         $achievements = Achievement::whereIn('id', $achievementIds)->get();
 
