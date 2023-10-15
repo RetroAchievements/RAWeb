@@ -16,7 +16,7 @@ class AttachPlayerGame
     {
         // upsert game attachment without running into unique constraints
 
-        $playerGame = $user->playerGames()->firstWhere('game_id', $game->id);
+        $playerGame = $user->playerGame($game);
         if ($playerGame) {
             return $playerGame;
         }
@@ -30,6 +30,6 @@ class AttachPlayerGame
             // prevent race conditions where the game might've been attached by another job
         }
 
-        return $user->playerGames()->firstWhere('game_id', $game->id);
+        return $user->playerGame($game);
     }
 }
