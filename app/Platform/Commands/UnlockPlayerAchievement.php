@@ -40,7 +40,7 @@ class UnlockPlayerAchievement extends Command
 
         $achievements = Achievement::whereIn('id', $achievementIds)->get();
 
-        $this->info('Unlocking ' . $achievements->count() . ' [' . ($hardcore ? 'hardcore' : 'softcore') . '] ' . __res('achievement', $achievements->count()) . ' for user [' . $username . '] [' . $user->id . ']');
+        $this->info('Unlocking ' . $achievements->count() . ' [' . ($hardcore ? 'hardcore' : 'softcore') . '] ' . __res('achievement', $achievements->count()) . ' for user [' . $user->username . '] [' . $user->id . ']');
 
         $progressBar = $this->output->createProgressBar($achievements->count());
         $progressBar->start();
@@ -55,5 +55,7 @@ class UnlockPlayerAchievement extends Command
         }
 
         $progressBar->finish();
+
+        $this->info('Done');
     }
 }

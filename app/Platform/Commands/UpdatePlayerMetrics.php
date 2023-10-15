@@ -23,7 +23,10 @@ class UpdatePlayerMetrics extends Command
     {
         $user = User::where('User', $this->argument('username'))->firstOrFail();
 
-        $this->info('Update metrics for player ' . $user->username . ' [' . $user->id . ']');
+        $this->info('Updating metrics for player ' . $user->username . ' [' . $user->id . ']');
+
         $this->updatePlayerMetrics->execute($user);
+
+        $this->info('Done');
     }
 }
