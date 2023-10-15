@@ -13,7 +13,7 @@ use Illuminate\Console\Command;
 class UnlockPlayerAchievement extends Command
 {
     protected $signature = 'ra:platform:player:unlock-achievement
-                            {userId : User ID or username. Usernames containing only numbers are not applicable and must be referenced by user ID}
+                            {userId : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}
                             {achievementIds : Comma-separated list of achievement IDs}
                             {--hardcore}';
     protected $description = 'Unlock achievement(s) for user';

@@ -13,7 +13,7 @@ use Illuminate\Console\Command;
 class UpdatePlayerGameMetrics extends Command
 {
     protected $signature = 'ra:platform:player:update-game-metrics
-                            {userId : User ID or username. Usernames containing only numbers are not applicable and must be referenced by user ID}
+                            {userId : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}
                             {gameIds? : Comma-separated list of game IDs. Leave empty to update all games in player library}
                             {--outdated}';
     protected $description = 'Update player game(s) metrics';
