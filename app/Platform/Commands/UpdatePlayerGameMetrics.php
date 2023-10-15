@@ -51,7 +51,7 @@ class UpdatePlayerGameMetrics extends Command
         }
         $playerGames = $query->get();
 
-        $this->info('Updating ' . $playerGames->count() . ' ' . __res('game', $playerGames->count()) . ' for user [' . $user->username . '] [' . $user->id . ']');
+        $this->info('Updating ' . $playerGames->count() . ' ' . __res('game', $playerGames->count()) . ' for user [' . $user->id . ':' . $user->username . ']');
 
         $progressBar = $this->output->createProgressBar($playerGames->count());
         $progressBar->start();

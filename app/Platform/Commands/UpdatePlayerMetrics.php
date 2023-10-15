@@ -28,7 +28,7 @@ class UpdatePlayerMetrics extends Command
             ? User::findOrFail($userId)
             : User::where('User', $userId)->firstOrFail();
 
-        $this->info('Updating metrics for player [' . $user->username . '] [' . $user->id . ']');
+        $this->info('Updating metrics for player [' . $user->id . ':' . $user->username . ']');
 
         $this->updatePlayerMetrics->execute($user);
     }
