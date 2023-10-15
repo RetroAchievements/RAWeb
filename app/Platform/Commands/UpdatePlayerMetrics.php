@@ -10,7 +10,8 @@ use Illuminate\Console\Command;
 
 class UpdatePlayerMetrics extends Command
 {
-    protected $signature = 'ra:platform:player:update-metrics {username}';
+    protected $signature = 'ra:platform:player:update-metrics
+                            {userId : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}';
     protected $description = 'Update player metrics';
 
     public function __construct(
@@ -21,9 +22,13 @@ class UpdatePlayerMetrics extends Command
 
     public function handle(): void
     {
-        $user = User::where('User', $this->argument('username'))->firstOrFail();
+        $userId = $this->argument('userId');
 
-        $this->info('Updating metrics for player ' . $user->username . ' [' . $user->id . ']');
+        $user = is_numeric($userId)
+            ? User::findOrFail($userId)
+            : User::where('User', $userId)->firstOrFail();
+
+        $this->info('Updating metrics for player [' . $user->username . '] [' . $user->id . ']');
 
         $this->updatePlayerMetrics->execute($user);
     }
