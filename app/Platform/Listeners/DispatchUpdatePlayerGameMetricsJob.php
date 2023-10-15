@@ -3,6 +3,7 @@
 namespace App\Platform\Listeners;
 
 use App\Platform\Events\PlayerAchievementUnlocked;
+use App\Platform\Events\PlayerGameAttached;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Site\Models\User;
@@ -23,6 +24,10 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
                 $achievement = $event->achievement;
                 $game = $achievement->game;
                 $hardcore = $event->hardcore;
+                break;
+            case PlayerGameAttached::class:
+                $user = $event->user;
+                $game = $event->game;
                 break;
         }
 

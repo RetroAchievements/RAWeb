@@ -22,8 +22,8 @@ class ResumePlayerSession
         ?Carbon $timestamp = null,
     ): PlayerSession {
         // upsert player game and update last played date right away
-        $attachPlayerGameAction = app()->make(AttachPlayerGame::class);
-        $playerGame = $attachPlayerGameAction->execute($user, $game);
+        $playerGame = app()->make(AttachPlayerGame::class)
+            ->execute($user, $game);
         $playerGame->last_played_at = $timestamp;
         $playerGame->save();
 
