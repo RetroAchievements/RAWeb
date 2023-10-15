@@ -193,6 +193,7 @@ return [
             'queue' => [
                 'player-achievements',
                 'player-metrics',
+                'player-sessions',
                 'default',
                 'player-game-metrics',
                 'game-metrics',
