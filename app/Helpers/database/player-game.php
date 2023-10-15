@@ -752,7 +752,7 @@ function getGameTopAchievers(int $gameID): array
                          pg.points_hardcore AS TotalScore, pg.last_unlock_hardcore_at AS LastAward
                     FROM player_games pg
                     LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-                    WHERE NOT ua.Untracked
+                    WHERE ua.Untracked = 0
                     AND pg.game_id = $gameID
                     AND pg.achievements_unlocked_hardcore > 0
                     ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
