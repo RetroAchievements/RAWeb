@@ -747,18 +747,28 @@ function getGameTopAchievers(int $gameID): array
         $numAchievementsInSet = $data['NumAchievementsInSet'];
     }
 
-    // TODO config('feature.aggregate_queries') slow query (17)
-    $query = "SELECT aw.User, COUNT(*) AS NumAchievements, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                WHERE NOT ua.Untracked
-                  AND ach.Flags = " . AchievementFlag::OfficialCore . "
-                  AND gd.ID = $gameID
-                  AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
-                GROUP BY aw.User
-                ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
+    if (config('feature.aggregate_queries')) {
+        $query = "SELECT ua.User, pg.achievements_unlocked_hardcore AS NumAchievements,
+                         pg.points_hardcore AS TotalScore, pg.last_unlock_hardcore_at AS LastAward
+                    FROM player_games pg
+                    LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
+                    WHERE NOT ua.Untracked
+                    AND pg.game_id = $gameID
+                    AND pg.achievements_unlocked_hardcore > 0
+                    ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
+    } else {
+        $query = "SELECT aw.User, COUNT(*) AS NumAchievements, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
+                    FROM Awarded AS aw
+                    LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
+                    LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
+                    LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
+                    WHERE NOT ua.Untracked
+                    AND ach.Flags = " . AchievementFlag::OfficialCore . "
+                    AND gd.ID = $gameID
+                    AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
+                    GROUP BY aw.User
+                    ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
+    }
 
     $mastersCounter = 0;
     foreach (legacyDbFetchAll($query) as $data) {
