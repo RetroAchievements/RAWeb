@@ -26,7 +26,5 @@ class UpdatePlayerMetrics extends Command
         $this->info('Updating metrics for player ' . $user->username . ' [' . $user->id . ']');
 
         $this->updatePlayerMetrics->execute($user);
-
-        $this->info('Done');
     }
 }

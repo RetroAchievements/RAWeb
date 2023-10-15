@@ -55,7 +55,6 @@ class UnlockPlayerAchievement extends Command
         }
 
         $progressBar->finish();
-
-        $this->info('Done');
+        $this->line(PHP_EOL);
     }
 }
