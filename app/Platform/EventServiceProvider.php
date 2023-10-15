@@ -14,6 +14,7 @@ use App\Platform\Events\PlayerAchievementLocked;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
+use App\Platform\Events\PlayerGameAttached;
 use App\Platform\Events\PlayerGameBeaten;
 use App\Platform\Events\PlayerGameCompleted;
 use App\Platform\Events\PlayerGameMetricsUpdated;
@@ -67,6 +68,9 @@ class EventServiceProvider extends ServiceProvider
         PlayerBadgeLost::class => [
             // TODO Notify player
         ],
+        PlayerGameAttached::class => [
+            DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
+        ],
         PlayerGameBeaten::class => [
             // TODO Refactor to AchievementSetBeaten
             // TODO Notify player
@@ -84,7 +88,7 @@ class EventServiceProvider extends ServiceProvider
         PlayerMetricsUpdated::class => [
         ],
         PlayerSessionHeartbeat::class => [
-            ResumePlayerSession::class,
+            ResumePlayerSession::class, // dispatches PlayerGameAttached for new entries
         ],
         PlayerRankedStatusChanged::class => [
             // TODO Update all affected games
