@@ -322,11 +322,18 @@ function getUserAchievementUnlocksForGame(string $username, int $gameID, int $fl
                 'unlocked_hardcore_at',
             ])
             ->mapWithKeys(function (PlayerAchievement $unlock, int $key) {
-                return [$unlock->achievement_id => [
-                    // TODO move this transformation to where it's needed (web api) and use models everywhere else
-                    'DateEarned' => $unlock->unlocked_at?->format('Y-m-d H:i:s'),
-                    'DateEarnedHardcore' => $unlock->unlocked_hardcore_at?->format('Y-m-d H:i:s'),
-                ]];
+                $result = [];
+
+                // TODO move this transformation to where it's needed (web api) and use models everywhere else
+                if ($unlock->unlocked_at) {
+                    $result['DateEarned'] = $unlock->unlocked_at->format('Y-m-d H:i:s');
+                }
+
+                if ($unlock->unlocked_hardcore_at) {
+                    $result['DateEarnedHardcore'] = $unlock->unlocked_hardcore_at->format('Y-m-d H:i:s');
+                }
+
+                return [$unlock->achievement_id => $result];
             });
 
         return $playerAchievements->toArray();
