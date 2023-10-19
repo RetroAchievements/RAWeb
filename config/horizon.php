@@ -201,7 +201,9 @@ return [
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'size',
-            'maxProcesses' => 1,
+            'maxProcesses' => 15,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
@@ -213,6 +215,7 @@ return [
             'connection' => 'redis',
             'queue' => [
                 'player-game-metrics-batch',
+                'game-outdated-player-games',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
@@ -221,7 +224,7 @@ return [
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
+            'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
             'nice' => 0,
         ],
     ],
@@ -229,17 +232,11 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 15,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
             ],
         ],
 
         'stage' => [
             'supervisor-1' => [
-                'maxProcesses' => 15,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
             ],
         ],
 
