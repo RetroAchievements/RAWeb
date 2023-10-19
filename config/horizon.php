@@ -215,7 +215,7 @@ return [
             'connection' => 'redis',
             'queue' => [
                 'player-game-metrics-batch',
-                'game-outdated-player-games',
+                'game-player-games',
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',

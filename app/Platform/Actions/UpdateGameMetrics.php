@@ -87,7 +87,7 @@ class UpdateGameMetrics
         if ($achievementSetVersionChanged) {
             Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
             dispatch(new UpdateGamePlayerGamesJob($game->id))
-                ->onQueue('game-outdated-player-games');
+                ->onQueue('game-player-games');
         }
     }
 }
