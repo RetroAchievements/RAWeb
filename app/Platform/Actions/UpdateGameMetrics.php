@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Platform\Events\GameMetricsUpdated;
-use App\Platform\Jobs\UpdateOutdatedPlayerGameMetricsJob;
+use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use App\Platform\Models\Game;
 use Illuminate\Support\Facades\Log;
 
@@ -86,7 +86,7 @@ class UpdateGameMetrics
 
         if ($achievementSetVersionChanged) {
             Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
-            dispatch(new UpdateOutdatedPlayerGameMetricsJob($game->id))
+            dispatch(new UpdateGamePlayerGamesJob($game->id))
                 ->onQueue('game-outdated-player-games');
         }
     }

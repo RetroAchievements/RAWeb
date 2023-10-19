@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\UpdateOutdatedPlayerGameMetrics as UpdateOutdatedPlayerGameMetricsAction;
+use App\Platform\Actions\UpdateGamePlayerGames as UpdateOutdatedPlayerGameMetricsAction;
 use App\Platform\Models\Game;
 use Illuminate\Console\Command;
 
-class UpdateOutdatedPlayerGameMetrics extends Command
+class UpdateGamePlayerGames extends Command
 {
-    protected $signature = 'ra:platform:game:update-outdated-player-metrics
+    protected $signature = 'ra:platform:game:update-player-games
                             {gameIds : Comma-separated list of game IDs}';
     protected $description = "Update game(s) outdated player game metrics";
 

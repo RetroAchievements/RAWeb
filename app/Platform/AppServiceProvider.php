@@ -23,6 +23,7 @@ use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
+use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
@@ -62,6 +63,7 @@ class AppServiceProvider extends ServiceProvider
                 // Games
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGamePlayerGames::class,
 
                 // Game Hashes
                 NoIntroImport::class,
