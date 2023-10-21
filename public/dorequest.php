@@ -230,7 +230,7 @@ switch ($requestType) {
      */
 
     case "ping":
-        if ($user === null) {
+        if ($user === null || !$gameID) {
             $response['Success'] = false;
         } else {
             $activityMessage = request()->post('m');
