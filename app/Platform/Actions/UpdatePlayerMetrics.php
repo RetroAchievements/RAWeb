@@ -20,15 +20,9 @@ class UpdatePlayerMetrics
         $user->completion_percentage_average = $playerGames->average('completion_percentage');
         $user->completion_percentage_average_hardcore = $playerGames->average('completion_percentage_hardcore');
 
-        if (config('feature.aggregate_queries')) {
-            $user->RAPoints = $playerGames->sum('points_hardcore');
-            $user->RASoftcorePoints = $playerGames->sum('points') - $user->RAPoints;
-            $user->TrueRAPoints = $playerGames->sum('points_weighted');
-        } else {
-            $user->RAPoints = $user->achievements()->published()->wherePivotNotNull('unlocked_hardcore_at')->sum('Points');
-            $user->RASoftcorePoints = $user->achievements()->published()->wherePivotNull('unlocked_hardcore_at')->sum('Points');
-            $user->TrueRAPoints = $user->achievements()->published()->wherePivotNotNull('unlocked_hardcore_at')->sum('TrueRatio');
-        }
+        $user->RAPoints = $playerGames->sum('points_hardcore');
+        $user->RASoftcorePoints = $playerGames->sum('points') - $user->RAPoints;
+        $user->TrueRAPoints = $playerGames->sum('points_weighted');
 
         $user->save();
 

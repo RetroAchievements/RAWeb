@@ -62,6 +62,7 @@ $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 $numWinners = 0;
 $numPossibleWinners = 0;
 
+// TODO use achievement's aggregated data
 $unlocks = getAchievementUnlocksData($achievementID, $user, $numWinners, $numPossibleWinners, $parentGameID, 0, 50);
 
 $dateWonLocal = "";

@@ -66,7 +66,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         return $retVal;
     }
 
-    // TODO config('feature.aggregate_queries')
+    // TODO use aggregated data
     $hasAwardTypes = playerHasUnlock($user->User, $achievement->ID);
     $hasRegular = $hasAwardTypes['HasRegular'];
     $hasHardcore = $hasAwardTypes['HasHardcore'];
@@ -141,6 +141,8 @@ function getAchievementUnlockCount(int $achID): int
 
 /**
  * @return Collection<int, array>
+ *
+ * @deprecated use aggregated data and/or achievement relationships
  */
 function getAchievementUnlocksData(
     int $achievementId,
@@ -180,8 +182,8 @@ function getAchievementUnlocksData(
     $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    // TODO use $game->players_total
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username);
+
+    $numPossibleWinners = Game::find($parentGameId ?? $data['GameID'])->players_total;
 
     // Get recent winners, and their most recent activity
     $bindings = [
@@ -410,52 +412,34 @@ function getAchievementDistribution(
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
-    if (config('feature.aggregate_queries')) {
-        if ($flag === AchievementFlag::OfficialCore) {
-            $countColumn = $hardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked';
-            $query = "SELECT pg.$countColumn AS AwardedCount, COUNT(*) AS NumUniquePlayers
-                      FROM player_games AS pg
-                      $joinStatementNew
-                      WHERE pg.game_id = :gameId AND pg.$countColumn > 0
-                      $requestedByStatement
-                      GROUP BY AwardedCount
-                      ORDER BY AwardedCount DESC";
-            unset($bindings['achievementFlag']);
-        } else {
-            $hardcoreStatement = $hardcore ? 'AND pa.unlocked_hardcore_at IS NOT NULL' : '';
-            $query = "SELECT InnerTable.AwardedCount AS AwardedCount, COUNT(*) AS NumUniquePlayers
-                    FROM (
-                        SELECT COUNT(*) AS AwardedCount
-                        FROM player_achievements AS pa
-                        LEFT JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                        $joinStatementNewUnofficial
-                        WHERE ach.GameID = :gameId
-                        $hardcoreStatement
-                        AND ach.Flags = :achievementFlag
-                        $requestedByStatement
-                        GROUP BY pa.user_id
-                        ORDER BY AwardedCount DESC
-                    ) AS InnerTable
-                    GROUP BY InnerTable.AwardedCount";
-        }
-        unset($bindings['unlockMode']);
+    if ($flag === AchievementFlag::OfficialCore) {
+        $countColumn = $hardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked';
+        $query = "SELECT pg.$countColumn AS AwardedCount, COUNT(*) AS NumUniquePlayers
+                  FROM player_games AS pg
+                  $joinStatementNew
+                  WHERE pg.game_id = :gameId AND pg.$countColumn > 0
+                  $requestedByStatement
+                  GROUP BY AwardedCount
+                  ORDER BY AwardedCount DESC";
+        unset($bindings['achievementFlag']);
     } else {
-        $query = "
-        SELECT InnerTable.AwardedCount, COUNT(*) AS NumUniquePlayers
-        FROM (
-            SELECT COUNT(*) AS AwardedCount
-            FROM Awarded AS aw
-            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-            $joinStatement
-            WHERE ach.GameID = :gameId
-              AND aw.HardcoreMode = :unlockMode
-              AND ach.Flags = :achievementFlag
-              $requestedByStatement
-            GROUP BY aw.User
-            ORDER BY AwardedCount DESC
-        ) AS InnerTable
-        GROUP BY InnerTable.AwardedCount";
+        $hardcoreStatement = $hardcore ? 'AND pa.unlocked_hardcore_at IS NOT NULL' : '';
+        $query = "SELECT InnerTable.AwardedCount AS AwardedCount, COUNT(*) AS NumUniquePlayers
+                FROM (
+                    SELECT COUNT(*) AS AwardedCount
+                    FROM player_achievements AS pa
+                    LEFT JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+                    $joinStatementNewUnofficial
+                    WHERE ach.GameID = :gameId
+                    $hardcoreStatement
+                    AND ach.Flags = :achievementFlag
+                    $requestedByStatement
+                    GROUP BY pa.user_id
+                    ORDER BY AwardedCount DESC
+                ) AS InnerTable
+                GROUP BY InnerTable.AwardedCount";
     }
+    unset($bindings['unlockMode']);
 
     $data = legacyDbFetchAll($query, $bindings)
         ->mapWithKeys(fn ($distribution) => [(int) $distribution['AwardedCount'] => (int) $distribution['NumUniquePlayers']]);
