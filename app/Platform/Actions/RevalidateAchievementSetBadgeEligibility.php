@@ -107,15 +107,6 @@ class RevalidateAchievementSetBadgeEligibility
         }
 
         if ($playerGame->achievements_total < PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY) {
-            if ($softcoreBadge->exists()) {
-                PlayerBadgeLost::dispatch($softcoreBadge->first());
-                $softcoreBadge->delete();
-            }
-            if ($hardcoreBadge->exists()) {
-                PlayerBadgeLost::dispatch($hardcoreBadge->first());
-                $hardcoreBadge->delete();
-            }
-
             return;
         }
 

@@ -5,13 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Platform\Events\GameMetricsUpdated;
-use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
-use Illuminate\Bus\Batch;
-use Illuminate\Bus\BatchRepository;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class UpdateGameMetrics
@@ -75,16 +70,12 @@ class UpdateGameMetrics
 
         app()->make(UpdateGameAchievementsMetrics::class)
             ->execute($game);
+
         $game->refresh();
+
         $pointsWeightedChange = $game->TotalTruePoints - $pointsWeightedBeforeUpdate;
 
         GameMetricsUpdated::dispatch($game);
-
-        if (!$achievementSetVersionChanged) {
-            return;
-        }
-
-        Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
 
         // TODO dispatch events for achievement set and game metrics changes
         $tmp = $achievementsPublishedChange;
@@ -93,33 +84,10 @@ class UpdateGameMetrics
         $tmp = $playersTotalChange;
         $tmp = $playersHardcoreChange;
 
-        // Ad-hoc updates for player games metrics and player metrics after achievement set version changes
-        // Note: this might dispatch multiple thousands of jobs depending on a game's players count
-        // add all affected player games to the update queue in batches
-        if (config('queue.default') !== 'sync') {
-            $game->playerGames()
-                ->where(function ($query) use ($game) {
-                    $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
-                        ->orWhereNull('achievement_set_version_hash');
-                })
-                ->chunkById(1000, function (Collection $chunk, $page) use ($game) {
-                    // map and dispatch this chunk as a batch of jobs
-                    Bus::batch(
-                        $chunk->map(
-                            fn (PlayerGame $playerGame) => new UpdatePlayerGameMetricsJob($playerGame->user_id, $playerGame->game_id)
-                        )
-                    )
-                        ->onQueue('player-game-metrics-batch')
-                        ->name('player-game-metrics ' . $game->id . ' ' . $page)
-                        ->allowFailures()
-                        ->finally(function (Batch $batch) {
-                            // mark batch as finished even if jobs failed
-                            if (!$batch->finished()) {
-                                resolve(BatchRepository::class)->markAsFinished($batch->id);
-                            }
-                        })
-                        ->dispatch();
-                });
+        if ($achievementSetVersionChanged) {
+            Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
+            dispatch(new UpdateGamePlayerGamesJob($game->id))
+                ->onQueue('game-player-games');
         }
     }
 }
