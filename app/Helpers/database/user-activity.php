@@ -1,9 +1,7 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Community\Models\Comment;
-use App\Community\Models\UserActivityLegacy;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
@@ -13,99 +11,6 @@ use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-
-/**
- * @deprecated see WriteUserActivity listener
- */
-function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $data2 = null): bool
-{
-    if (!ActivityType::isValid($type)) {
-        return false;
-    }
-
-    if ($userIn instanceof User) {
-        $user = $userIn;
-    } else {
-        $user = User::firstWhere('User', $userIn);
-        if ($user === null) {
-            return false;
-        }
-    }
-
-    $activity = new UserActivityLegacy([
-        'User' => $user->User,
-        'activitytype' => $type,
-    ]);
-
-    switch ($type) {
-        case ActivityType::UnlockedAchievement:
-            if ($data === null) {
-                return false;
-            }
-            $activity->data = (string) $data;
-            $activity->data2 = (string) $data2;
-            break;
-
-        case ActivityType::Login:
-            /* only record login activity every six hours */
-            $cacheKey = CacheKey::buildUserLastLoginCacheKey($user->User);
-            $lastLogin = Cache::get($cacheKey);
-            if ($lastLogin && $lastLogin > Carbon::now()->subHours(6)) {
-                /* ignore event, login recorded recently */
-                return true;
-            }
-            Cache::put($cacheKey, Carbon::now(), Carbon::now()->addHours(6));
-            break;
-
-        case ActivityType::StartedPlaying:
-            if ($data === null) {
-                return false;
-            }
-
-            $game = getGameData($data);
-            if (!$game) {
-                return false;
-            }
-
-            $activity->data = (string) $data;
-            break;
-
-        case ActivityType::UploadAchievement:
-        case ActivityType::EditAchievement:
-        case ActivityType::OpenedTicket:
-        case ActivityType::ClosedTicket:
-            $activity->data = (string) $data;
-            break;
-
-        case ActivityType::CompleteGame:
-        case ActivityType::NewLeaderboardEntry:
-        case ActivityType::ImprovedLeaderboardEntry:
-            $activity->data = (string) $data;
-            $activity->data2 = (string) $data2;
-            break;
-    }
-
-    $activity->save();
-
-    // update UserAccount
-    $user->LastLogin = Carbon::now();
-    $user->LastActivityID = $activity->ID;
-    $user->timestamps = false;
-    $user->save();
-
-    return true;
-}
-
-/**
- * @deprecated see UserActivity model
- */
-function getActivityMetadata(int $activityID): ?array
-{
-    $query = "SELECT * FROM Activity
-              WHERE ID='$activityID'";
-
-    return legacyDbFetch($query);
-}
 
 function RemoveComment(int $commentID, int $userID, int $permissions): bool
 {
@@ -367,6 +272,7 @@ function getLatestRichPresenceUpdates(): array
     return $playersFound;
 }
 
+// TODO dead code?
 function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
 {
     $numFound = 0;
@@ -591,7 +497,7 @@ function getUserGameActivity(string $username, int $gameID): array
         $sessionAdjustment = 0;
     }
 
-    $activity = [
+    return [
         'Sessions' => $sessions,
         'TotalTime' => $totalTime,
         'AchievementsTime' => $achievementsTime,
@@ -603,6 +509,4 @@ function getUserGameActivity(string $username, int $gameID): array
         'TotalUnlockTime' => ($lastAchievementTime != null) ? $lastAchievementTime - $firstAchievementTime : 0,
         'CoreAchievementCount' => $game->achievements_published,
     ];
-
-    return $activity;
 }

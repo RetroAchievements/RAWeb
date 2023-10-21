@@ -36,7 +36,7 @@ use App\Community\Models\Subscription;
 use App\Community\Models\Ticket;
 use App\Community\Models\TriggerTicket;
 use App\Community\Models\TriggerTicketComment;
-use App\Community\Models\UserActivityLegacy;
+use App\Community\Models\UserActivity;
 use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;
 use App\Community\Models\UserRelation;
@@ -85,8 +85,7 @@ class AppServiceProvider extends ServiceProvider
             'trigger.ticket' => TriggerTicket::class,
             'trigger.ticket.comment' => TriggerTicketComment::class,
             'user.comment' => UserComment::class,
-            'user-activity' => UserActivityLegacy::class,
-            // TODO 'user-activity' => UserActivity::class,
+            'user-activity' => UserActivity::class,
             'user-game-list-entry' => UserGameListEntry::class,
             'user-relation' => UserRelation::class,
             'vote' => Vote::class,

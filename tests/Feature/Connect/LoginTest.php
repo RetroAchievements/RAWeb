@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\ActivityType;
-use App\Community\Models\UserActivityLegacy;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -51,10 +49,11 @@ class LoginTest extends TestCase
         $user1 = User::firstWhere('User', $user->User);
         $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $user1->appTokenExpiry);
 
-        /** @var UserActivityLegacy $activity */
-        $activity = UserActivityLegacy::latest()->first();
-        $this->assertEquals(ActivityType::Login, $activity->activitytype);
-        $this->assertEquals($user->User, $activity->User);
+        // TODO replace or remove this
+//        /** @var UserActivityLegacy $activity */
+//        $activity = UserActivityLegacy::latest()->first();
+//        $this->assertEquals(ActivityType::Login, $activity->activitytype);
+//        $this->assertEquals($user->User, $activity->User);
 
         // === with token ===
 

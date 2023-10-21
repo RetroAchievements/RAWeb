@@ -295,6 +295,7 @@ switch ($requestType) {
 
     case "postactivity":
         $activityType = (int) request()->input('a');
+        // TODO LegacyActivityType
         if ($activityType != ActivityType::StartedPlaying) {
             return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
         }

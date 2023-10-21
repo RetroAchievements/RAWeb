@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -64,11 +63,9 @@ function SubmitLeaderboardEntry(
             } elseif ($numRowsAffected == 1) {
                 // (New) Entry added!
                 $retVal['BestScore'] = $newEntry;
-                postActivity($user, ActivityType::NewLeaderboardEntry, $lbID, $newEntry);
             } else { // if ( $numRowsAffected == 2 )
                 // Improved Entry added!
                 $retVal['BestScore'] = $newEntry;
-                postActivity($user, ActivityType::ImprovedLeaderboardEntry, $lbID, $newEntry);
             }
 
             // If you fall through to here, populate $dataOut with some juicy info :)

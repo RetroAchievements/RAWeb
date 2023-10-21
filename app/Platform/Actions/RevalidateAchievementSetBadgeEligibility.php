@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeAwarded;
@@ -122,15 +121,6 @@ class RevalidateAchievementSetBadgeEligibility
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game);
 
             // TODO WriteUserActivity
-            $recentActivity = $playerGame->user->legacyActivities()
-                ->where('activitytype', ActivityType::CompleteGame)
-                ->where('data', $playerGame->game->id)
-                ->where('data2', UnlockMode::Softcore)
-                ->where('lastupdate', '>=', Carbon::now()->subHour())
-                ->first();
-            if ($recentActivity === null) {
-                postActivity($playerGame->user->username, ActivityType::CompleteGame, $playerGame->game->id, UnlockMode::Softcore);
-            }
         }
 
         if ($playerGame->completed_hardcore_at !== null && !$hardcoreBadge->exists()) {
@@ -147,15 +137,6 @@ class RevalidateAchievementSetBadgeEligibility
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game, true);
 
             // TODO WriteUserActivity
-            $recentActivity = $playerGame->user->legacyActivities()
-                ->where('activitytype', ActivityType::CompleteGame)
-                ->where('data', $playerGame->game->id)
-                ->where('data2', UnlockMode::Hardcore)
-                ->where('lastupdate', '>=', Carbon::now()->subHour())
-                ->first();
-            if ($recentActivity === null) {
-                postActivity($playerGame->user->username, ActivityType::CompleteGame, $playerGame->game->id, UnlockMode::Hardcore);
-            }
 
             if ($playerGame->completed_hardcore_at->gte(Carbon::now()->subMinutes(10))) {
                 static_addnewhardcoremastery($playerGame->game->id, $playerGame->user->username);

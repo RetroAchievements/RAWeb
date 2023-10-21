@@ -45,14 +45,14 @@
  *   string     ImageIcon              site-relative path to te game's icon
  *   datetime   LastPlayed             when the user last played the game
  *  object     LastActivity
- *   int        ID                     unique identifier of the activity
+ *   int        ID                     always 0
  *   datetime   timestamp              when the activity occurred
  *   datetime   lastupdate             when the activity was last modified
- *   int        activitytype           the type of activity
+ *   int        activitytype           always 3 "Started Playing"
  *   string     User                   the user associated to the activity
  *   string     data                   additional information about the activity
  *   string     data2                  additional information about the activity
- *  string     Status                  "Offline" if the last activity is more than 10 minute ago, otherwise "Online"
+ *  string     Status                  Always "Offline"
  *  map        Awarded
  *   string     [key]                  unique identifier of the game
  *    int        NumAchieved           count of Core achievements unlocked by the user
@@ -104,24 +104,18 @@ if (empty($retVal)) {
 $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
+// TODO replace this
 // assume caller doesn't care about the rich presence script for the last game played
 if (array_key_exists('LastGame', $retVal)) {
-    unset($retVal['LastGame']['RichPresencePatch']);
-    unset($retVal['LastGame']['system']);
+   unset($retVal['LastGame']['RichPresencePatch']);
+   unset($retVal['LastGame']['system']);
 }
 
-// Find out if we're online or offline
-if (array_key_exists('LastActivityID', $retVal)) {
-    $retVal['LastActivity'] = getActivityMetadata((int) ($retVal['LastActivityID'] ?? 0));
-    unset($retVal['LastActivityID']);
-}
+$retVal['LastActivity'] = [
 
-$status = 'Offline';
-if ($retVal['LastActivity']) {
-    $lastUpdate = (int) date("U", strtotime($retVal['LastActivity']['lastupdate']));
-    $now = (int) date("U");
-    $status = ($lastUpdate + 600) > $now ? 'Online' : 'Offline';
-}
-$retVal['Status'] = $status;
+];
+unset($retVal['LastActivityID']);
+
+$retVal['Status'] = 'Online';
 
 return response()->json($retVal);

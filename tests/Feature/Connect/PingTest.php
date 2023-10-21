@@ -69,10 +69,6 @@ class PingTest extends TestCase
         $this->assertEquals($playerSession->id, $playerSession2->id);
         $this->assertEquals(1, $playerSession2->duration);
         $this->assertEquals('Doing good', $playerSession2->rich_presence);
-
-        $user1 = User::firstWhere('User', $this->user->User);
-        $this->assertEquals($game->ID, $user1->LastGameID);
-        $this->assertEquals('Doing good', $user1->RichPresenceMsg);
     }
 
     public function testPingInvalidUser(): void
