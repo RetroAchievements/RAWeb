@@ -145,8 +145,6 @@ function dropClaim(string $user, int $gameID): bool
  */
 function extendClaim(string $user, int $gameID): bool
 {
-    sanitize_sql_inputs($gameID);
-
     if (hasSetClaimed($user, $gameID, true)) {
         $query = "
             UPDATE
@@ -442,7 +440,7 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
  */
 function updateClaim(int $claimID, int $claimType, int $setType, int $status, int $special, string $claimDate, string $finishedDate): bool
 {
-    sanitize_sql_inputs($claimID, $claimType, $setType, $status, $special, $claimDate, $finishedDate);
+    sanitize_sql_inputs($claimDate, $finishedDate);
 
     $query = "
         UPDATE

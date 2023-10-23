@@ -69,24 +69,24 @@ function getGameMetadata(
         5 => "ORDER BY ach.Title, ach.ID ASC ",
         15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
 
-        6 => "ORDER BY 
-            CASE 
-                WHEN ach.type = 'progression' THEN 0 
-                WHEN ach.type = 'win_condition' THEN 1 
-                WHEN ach.type IS NULL THEN 2 
-                ELSE 3 
-            END, 
-            ach.DisplayOrder, 
+        6 => "ORDER BY
+            CASE
+                WHEN ach.type = 'progression' THEN 0
+                WHEN ach.type = 'win_condition' THEN 1
+                WHEN ach.type IS NULL THEN 2
+                ELSE 3
+            END,
+            ach.DisplayOrder,
             ach.ID ASC ",
 
-        16 => "ORDER BY 
-            CASE 
-                WHEN ach.type = 'progression' THEN 0 
-                WHEN ach.type = 'win_condition' THEN 1 
-                WHEN ach.type IS NULL THEN 2 
-                ELSE 3 
-            END DESC, 
-            ach.DisplayOrder DESC, 
+        16 => "ORDER BY
+            CASE
+                WHEN ach.type = 'progression' THEN 0
+                WHEN ach.type = 'win_condition' THEN 1
+                WHEN ach.type IS NULL THEN 2
+                ELSE 3
+            END DESC,
+            ach.DisplayOrder DESC,
             ach.ID DESC ",
 
         // 1
@@ -576,7 +576,7 @@ function modifyGameData(
         return true;
     }
 
-    sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released, $guideURL);
+    sanitize_sql_inputs($developer, $publisher, $genre, $released, $guideURL);
 
     $query = "UPDATE GameData AS gd
               SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released', gd.GuideURL = '$guideURL'
@@ -681,8 +681,6 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
 
 function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bool
 {
-    sanitize_sql_inputs($gameID, $newForumTopic);
-
     if ($gameID == 0 || $newForumTopic == 0) {
         return false;
     }
@@ -740,7 +738,7 @@ function getGameListSearch(int $offset, int $count, int $method, ?int $consoleID
 
 function createNewGame(string $title, int $consoleID): ?array
 {
-    sanitize_sql_inputs($title, $consoleID);
+    sanitize_sql_inputs($title);
     // $title = str_replace( "--", "-", $title );    // subtle non-comment breaker
 
     $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints)
@@ -872,7 +870,7 @@ function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
         return true;
     }
 
-    sanitize_sql_inputs($gameID, $dataIn);
+    sanitize_sql_inputs($dataIn);
     $query = "UPDATE GameData SET RichPresencePatch='$dataIn' WHERE ID=$gameID";
 
     $db = getMysqliConnection();

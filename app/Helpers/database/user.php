@@ -62,8 +62,6 @@ function getUserIDFromUser(?string $user): int
 
 function getUserMetadataFromID(int $userID): ?array
 {
-    sanitize_sql_inputs($userID);
-
     $query = "SELECT * FROM UserAccounts WHERE ID ='$userID'";
     $dbResult = s_mysql_query($query);
 
@@ -76,7 +74,7 @@ function getUserMetadataFromID(int $userID): ?array
 
 function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
 {
-    sanitize_sql_inputs($user, $gameID);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
         FROM Achievements ach
@@ -111,7 +109,7 @@ function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
  */
 function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
 {
-    sanitize_sql_inputs($user, $gameID);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT ach.Title, ach.ID, ach.Points, aw.HardcoreMode
         FROM Achievements AS ach
