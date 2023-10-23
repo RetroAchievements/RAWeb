@@ -236,11 +236,13 @@ switch ($requestType) {
             $activityMessage = request()->post('m');
 
             PlayerSessionHeartbeat::dispatch($user, Game::find($gameID), $activityMessage);
-            // TODO remove double-writes below
 
-            if (isset($activityMessage)) {
-                UpdateUserRichPresence($user, $gameID, $activityMessage);
+            // legacy rich presence support (deprecated - see ResumePlayerSession)
+            if (isset($activityMessage) && $user->LastGameID == $gameID) {
+                $user->RichPresenceMsg = utf8_sanitize($activityMessage);
+                $user->RichPresenceMsgDate = Carbon::now();
             }
+
             $user->LastLogin = Carbon::now();
             $user->save();
 
@@ -301,8 +303,30 @@ switch ($requestType) {
 
     case "postactivity":
         $activityType = (int) request()->input('a');
-        $activityMessage = (int) request()->input('m');
-        $response['Success'] = postActivity($username, $activityType, $activityMessage);
+        if ($activityType != ActivityType::StartedPlaying) {
+            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
+        }
+
+        $gameID = (int) request()->input('m');
+        $game = Game::find($gameID);
+        if (!$game) {
+            return DoRequestError("Unknown game");
+        }
+
+        if ($user->LastGameID != $gameID) {
+            expireRecentlyPlayedGames($user->User);
+            $user->LastGameID = $gameID;
+        }
+
+        // legacy rich presence support (deprecated - see ResumePlayerSession)
+        $user->RichPresenceMsg = "Playing {$game->Title}";
+        $user->RichPresenceMsgDate = Carbon::now();
+
+        $user->LastLogin = Carbon::now();
+        $user->save();
+
+        PlayerSessionHeartbeat::dispatch($user, $game);
+        $response['Success'] = true;
         break;
 
     case "richpresencepatch":
@@ -311,13 +335,24 @@ switch ($requestType) {
         break;
 
     case "startsession":
-        // TODO replace game existence with validation
-        if (!postActivity($username, ActivityType::StartedPlaying, $gameID)) {
+        $game = Game::find($gameID);
+        if (!$game) {
             return DoRequestError("Unknown game");
         }
 
-        // TODO remove postActivity() above - handled by ResumePlayerSessionAction
-        PlayerSessionHeartbeat::dispatch($user, Game::find($gameID));
+        if ($user->LastGameID != $gameID) {
+            expireRecentlyPlayedGames($user->User);
+            $user->LastGameID = $gameID;
+        }
+
+        // legacy rich presence support (deprecated - see ResumePlayerSession)
+        $user->RichPresenceMsg = "Playing {$game->Title}";
+        $user->RichPresenceMsgDate = Carbon::now();
+
+        $user->LastLogin = Carbon::now();
+        $user->save();
+
+        PlayerSessionHeartbeat::dispatch($user, $game);
 
         $response['Success'] = true;
         $userUnlocks = getUserAchievementUnlocksForGame($username, $gameID);

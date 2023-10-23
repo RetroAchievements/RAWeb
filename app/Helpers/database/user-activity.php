@@ -12,39 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * @deprecated see UserActivity model
- */
-function getMostRecentActivity(string $user, ?int $type = null, ?int $data = null): ?array
-{
-    $innerClause = "Activity.user = :user";
-    if (isset($type)) {
-        $innerClause .= " AND Activity.activityType = $type";
-    }
-    if (isset($data)) {
-        $innerClause .= " AND Activity.data = $data";
-    }
-
-    $query = "SELECT * FROM Activity AS act
-              WHERE act.ID =
-                ( SELECT MAX(Activity.ID) FROM Activity WHERE $innerClause ) ";
-
-    return legacyDbFetch($query, ['user' => $user]);
-}
-
-/**
- * @deprecated see WriteUserActivity listener
- */
-function updateActivity(int $activityID): void
-{
-    // Update the last update value of given activity
-    $query = "UPDATE Activity
-              SET Activity.lastupdate = NOW()
-              WHERE Activity.ID = $activityID ";
-
-    legacyDbStatement($query);
-}
-
-/**
  * @deprecated see WriteUserActivity listener
  */
 function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $data2 = null): bool
@@ -91,67 +58,13 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
             if ($data === null) {
                 return false;
             }
-            $gameID = $data;
 
-            /*
-             * Switch the rich presence to the new game immediately
-             */
-            $game = getGameData($gameID);
+            $game = getGameData($data);
             if (!$game) {
                 return false;
             }
 
-            UpdateUserRichPresence($user, $gameID, "Playing {$game['Title']}");
-
-            /**
-             * Check for recent duplicate (check cache first, then query DB)
-             */
-            $lastPlayedTimestamp = null;
-            $activityID = null;
-            $recentlyPlayedGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user->User);
-            $recentlyPlayedGames = Cache::get($recentlyPlayedGamesCacheKey);
-            if (!empty($recentlyPlayedGames)) {
-                foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
-                    if ($recentlyPlayedGame['GameID'] == $gameID) {
-                        $activityID = $recentlyPlayedGame['ActivityID'];
-                        $lastPlayedTimestamp = strtotime($recentlyPlayedGame['LastPlayed']);
-                        break;
-                    }
-                }
-            }
-
-            if ($activityID === null) {
-                // not in recent activity, look back farther
-                $lastPlayedActivityData = getMostRecentActivity($user->User, $type, $gameID);
-                if (isset($lastPlayedActivityData)) {
-                    $lastPlayedTimestamp = strtotime($lastPlayedActivityData['timestamp']);
-                    $activityID = $lastPlayedActivityData['ID'];
-                }
-            }
-
-            if ($activityID !== null) {
-                $diff = time() - $lastPlayedTimestamp;
-
-                /*
-                 * record game session activity only every 12 hours
-                 */
-                if ($diff < 60 * 60 * 12) {
-                    /*
-                     * new playing $gameTitle activity from $user, duplicate of recent activity " . ($diff/60) . " mins ago
-                     * Updating db, but not posting!
-                     */
-                    updateActivity($activityID);
-                    expireRecentlyPlayedGames($user->User);
-
-                    return true;
-                }
-                /*
-                 * recognises that $user has played $gameTitle recently, but longer than 12 hours ago (" . ($diff/60) . " mins) so still posting activity!
-                 * $nowTimestamp - $lastPlayedTimestamp = $diff
-                 */
-            }
-
-            $activity->data = (string) $gameID;
+            $activity->data = (string) $data;
             break;
 
         case ActivityType::UploadAchievement:
@@ -171,12 +84,6 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
 
     $activity->save();
 
-    if ($type == ActivityType::StartedPlaying) {
-        // have to do this after the activity is saved to prevent a race condition where
-        // it may get re-cached before the activity is committed.
-        expireRecentlyPlayedGames($user->User);
-    }
-
     // update UserAccount
     $user->LastLogin = Carbon::now();
     $user->LastActivityID = $activity->ID;
@@ -184,16 +91,6 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
     $user->save();
 
     return true;
-}
-
-/**
- * @deprecated see ResumePlayerSessionAction
- */
-function UpdateUserRichPresence(User $user, int $gameID, string $presenceMsg): void
-{
-    $user->RichPresenceMsg = utf8_sanitize($presenceMsg);
-    $user->LastGameID = $gameID;
-    $user->RichPresenceMsgDate = Carbon::now();
 }
 
 /**
