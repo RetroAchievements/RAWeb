@@ -313,8 +313,6 @@ function getArticleComments(
     ?array &$dataOut,
     bool $recent = false
 ): int {
-    sanitize_sql_inputs($articleTypeID, $articleID, $offset, $count);
-
     $dataOut = [];
     $numArticleComments = 0;
     $order = $recent ? ' DESC' : '';
@@ -397,8 +395,6 @@ function getLatestRichPresenceUpdates(): array
 
 function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
 {
-    sanitize_sql_inputs($numToFetch);
-
     $numFound = 0;
 
     $query = "SELECT ach.ID, ach.GameID, ach.Title, ach.Description, ach.Points, gd.Title AS GameTitle, gd.ImageIcon as GameIcon, ach.DateCreated, UNIX_TIMESTAMP(ach.DateCreated) AS timestamp, ach.BadgeName, c.Name AS ConsoleName
@@ -424,8 +420,6 @@ function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
 
 function GetMostPopularTitles(int $daysRange = 7, int $offset = 0, int $count = 10): array
 {
-    sanitize_sql_inputs($daysRange, $offset, $count);
-
     $data = [];
 
     $query = "SELECT COUNT(*) as PlayedCount, gd.ID, gd.Title, gd.ImageIcon, c.Name as ConsoleName

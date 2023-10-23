@@ -495,7 +495,7 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
 {
     $achievementIDs = is_array($achID) ? implode(', ', $achID) : $achID;
 
-    sanitize_sql_inputs($achievementIDs, $newFlag);
+    sanitize_sql_inputs($achievementIDs);
 
     $query = "SELECT ID, Author, Points FROM Achievements WHERE ID IN ($achievementIDs) AND Flags != $newFlag";
     $dbResult = s_mysql_query($query);

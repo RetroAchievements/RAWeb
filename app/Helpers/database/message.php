@@ -86,7 +86,7 @@ function GetSentMessageCount(string $user): int
 
 function GetMessage(string $user, int $id): ?array
 {
-    sanitize_sql_inputs($user, $id);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT * FROM Messages AS msg
               WHERE msg.ID='$id' AND msg.UserTo='$user'";
@@ -107,7 +107,7 @@ function GetMessage(string $user, int $id): ?array
 
 function GetAllMessages(string $user, int $offset, int $count, bool $unreadOnly): array
 {
-    sanitize_sql_inputs($user, $offset, $count);
+    sanitize_sql_inputs($user);
 
     $retval = [];
 
@@ -136,7 +136,7 @@ function GetAllMessages(string $user, int $offset, int $count, bool $unreadOnly)
 
 function GetSentMessages(string $user, int $offset, int $count): array
 {
-    sanitize_sql_inputs($user, $offset, $count);
+    sanitize_sql_inputs($user);
 
     $retval = [];
 
