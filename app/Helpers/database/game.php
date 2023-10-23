@@ -206,7 +206,7 @@ function getGameMetadata(
         ach.type
     FROM Achievements AS ach
     $metricsJoin
-    WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag
+    WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND ach.deleted_at IS NULL
     $orderBy";
 
     $achievementDataOut = legacyDbFetchAll($query, array_merge([
