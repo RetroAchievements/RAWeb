@@ -100,6 +100,13 @@ RenderContentStart("$user2's activity for $gameTitle");
             echo "</td></tr>";
         }
 
+        if (array_key_exists('RichPresence', $session) && !empty($session['RichPresence'])) {
+            $when = getNiceDate($session['RichPresenceTime']);
+            $formatted = formatHMS($session['RichPresenceTime'] - $prevWhen);
+            echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>Rich Presence: {$session['RichPresence']}</td></tr>";
+            $prevWhen = $session['RichPresenceTime'];
+        }
+
         if ($session['EndTime'] != $prevWhen) {
             $when = getNiceDate($session['EndTime']);
             $formatted = formatHMS($session['EndTime'] - $prevWhen);

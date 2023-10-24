@@ -463,12 +463,17 @@ function getUserGameActivity(string $username, int $gameID): array
         ->where('game_id', '=', $gameID)
         ->get();
     foreach ($playerSessions as $playerSession) {
-        $sessions[] = [
+        $session = [
             'StartTime' => $playerSession->created_at->unix(),
             'EndTime' => $playerSession->updated_at->unix(),
             'IsGenerated' => $playerSession->created_at < Carbon::create(2023, 10, 14, 13, 16, 42),
             'Achievements' => [],
         ];
+        if (!empty($playerSession->rich_presence)) {
+            $session['RichPresence'] = $playerSession->rich_presence;
+            $session['RichPresenceTime'] = $playerSession->rich_presence_updated_at->unix();
+        }
+        $sessions[] = $session;
     }
 
     // reverse sort by date so we can update the appropriate session when we find it
@@ -602,10 +607,12 @@ function getUserGameActivity(string $username, int $gameID): array
     // approximate time per achievement earned. add this value to each session to account
     // for time played after getting the last achievement of the session.
     $achievementsUnlocked = count($achievements);
-    if ($hasGenerated && $achievementsUnlocked > 0 && $unlockSessionCount > 1) {
+    if ($hasGenerated && $achievementsUnlocked > 0) {
         $sessionAdjustment = $achievementsTime / $achievementsUnlocked;
-        $totalTime += $sessionAdjustment * $unlockSessionCount;
-        $achievementsTime += $sessionAdjustment * $unlockSessionCount;
+        $totalTime += $sessionAdjustment * count($sessions);
+        if ($unlockSessionCount > 1) {
+            $achievementsTime += $sessionAdjustment * $unlockSessionCount;
+        }
     } else {
         $sessionAdjustment = 0;
     }

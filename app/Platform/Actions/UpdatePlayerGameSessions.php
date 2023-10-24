@@ -97,7 +97,7 @@ class UpdatePlayerGameSessions
 
         $query = "SELECT a.timestamp, a.data AS AchievementID, a.data2 AS HardcoreMode, ach.Flags
                   FROM Activity a
-                  LEFT JOIN Achievements ach ON ach.ID = a.data
+                  INNER JOIN Achievements ach ON ach.ID = a.data
                   WHERE ach.GameID={$game->ID} AND a.User=:user
                   AND a.activitytype=" . ActivityType::UnlockedAchievement;
 
@@ -150,7 +150,15 @@ class UpdatePlayerGameSessions
             }
         }
 
-        // step four: merge rich presence from UserAccounts
+        // step four: eliminate sessions created after v5 deployment
+        $firstNonGeneratedPlayerSessionTimestamp = Carbon::create(2023, 10, 14, 13, 16, 42);
+
+        $index = count($sessions);
+        while ($index > 0 && $sessions[--$index]['StartTime'] >= $firstNonGeneratedPlayerSessionTimestamp->unix()) {
+            unset($sessions[$index]);
+        }
+
+        // step five: merge rich presence from UserAccounts
         if ($user->LastGameID == $game->ID && !empty($user->RichPresenceMsg)) {
             $when = $user->RichPresenceMsgDate->unix();
 
@@ -168,14 +176,7 @@ class UpdatePlayerGameSessions
             }
         }
 
-        $firstNonGeneratedPlayerSessionTimestamp = Carbon::create(2023, 10, 14, 13, 16, 42);
-
-        $index = count($sessions);
-        while ($index > 0 && $sessions[--$index]['StartTime'] >= $firstNonGeneratedPlayerSessionTimestamp->unix()) {
-            unset($sessions[$index]);
-        }
-
-        // step five: flush player_sessions
+        // step six: flush player_sessions
         $playerSessions = PlayerSession::where('user_id', '=', $user->id)
             ->where('game_id', '=', $game->id)
             ->where('created_at', '<', $firstNonGeneratedPlayerSessionTimestamp);
@@ -212,7 +213,7 @@ class UpdatePlayerGameSessions
             }
             if ($hasHardcore && !$hasSoftcore) {
                 $playerSessionAttrs['hardcore'] = 1;
-            } else if ($hasSoftcore && !hasHardcore) {
+            } else if ($hasSoftcore && !$hasHardcore) {
                 $playerSessionAttrs['hardcore'] = 0;
             }
 
