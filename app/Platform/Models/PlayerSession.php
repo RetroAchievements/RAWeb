@@ -18,9 +18,13 @@ class PlayerSession extends BasePivot
         'game_id',
         'game_hash_id',
         'game_hash_set_id',
+        'hardcore',
         'duration',
         'rich_presence',
         'rich_presence_updated_at',
+        // necessary for UpdatePlayerGameSessions action to backdate
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [

@@ -465,15 +465,15 @@ function getUserGameActivity(string $username, int $gameID): array
     foreach ($playerSessions as $playerSession) {
         $sessions[] = [
             'StartTime' => $playerSession->created_at->unix(),
-            'EndTime' => $playerSession->created_at->addMinutes($playerSession->duration)->unix(),
-            'IsGenerated' => false,
+            'EndTime' => $playerSession->updated_at->unix(),
+            'IsGenerated' => $playerSession->created_at < Carbon::create(2023, 10, 14, 13, 16, 42),
             'Achievements' => [],
         ];
     }
 
     // reverse sort by date so we can update the appropriate session when we find it
     usort($sessions, fn ($a, $b) => $b['StartTime'] - $a['StartTime']);
-
+ 
     $addAchievementToSession = function(&$sessions, $playerAchievement, $when, $hardcore): void {
         $createSessionAchievement = function($playerAchievement, $when, $hardcore): array {
             return [
