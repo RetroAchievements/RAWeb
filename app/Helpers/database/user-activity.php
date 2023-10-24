@@ -478,9 +478,9 @@ function getUserGameActivity(string $username, int $gameID): array
 
     // reverse sort by date so we can update the appropriate session when we find it
     usort($sessions, fn ($a, $b) => $b['StartTime'] - $a['StartTime']);
- 
-    $addAchievementToSession = function(&$sessions, $playerAchievement, $when, $hardcore): void {
-        $createSessionAchievement = function($playerAchievement, $when, $hardcore): array {
+
+    $addAchievementToSession = function (&$sessions, $playerAchievement, $when, $hardcore): void {
+        $createSessionAchievement = function ($playerAchievement, $when, $hardcore): array {
             return [
                 'When' => $when,
                 'AchievementID' => $playerAchievement->achievement_id,
@@ -502,6 +502,7 @@ function getUserGameActivity(string $username, int $gameID): array
                 if ($session['EndTime'] + $maxSessionGap > $when) {
                     $session['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
                     $session['EndTime'] = $when;
+
                     return;
                 }
                 $possibleSession = $session;
@@ -512,6 +513,7 @@ function getUserGameActivity(string $username, int $gameID): array
             if ($when - $possibleSession['EndTime'] < $maxSessionGap) {
                 $possibleSession['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
                 $possibleSession['EndTime'] = $when;
+
                 return;
             }
 
@@ -521,11 +523,12 @@ function getUserGameActivity(string $username, int $gameID): array
                 if ($possibleSession['StartTime'] - $when < $maxSessionGap) {
                     $possibleSession['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
                     $possibleSession['StartTime'] = $when;
+
                     return;
                 }
             }
         }
-        
+
         $sessions[] = [
             'StartTime' => $when,
             'EndTime' => $when,
@@ -539,7 +542,7 @@ function getUserGameActivity(string $username, int $gameID): array
         ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
         ->where('Achievements.GameID', '=', $gameID)
         ->orderBy('player_achievements.unlocked_at')
-        ->select(['player_achievements.*', 'Achievements.Flags', 'Achievements.Title', 
+        ->select(['player_achievements.*', 'Achievements.Flags', 'Achievements.Title',
                   'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName'])
         ->get();
     foreach ($playerAchievements as $playerAchievement) {
