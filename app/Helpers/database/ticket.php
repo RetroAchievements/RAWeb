@@ -152,6 +152,8 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $gameID = $achData['GameID'];
     $gameTitle = $achData['GameTitle'];
 
+    expireUserTicketCounts($achAuthor);
+
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
     $bugReportDetails = "Achievement: [ach=$achID]
@@ -166,7 +168,7 @@ This ticket will be raised and will be available for all developers to inspect a
     $bugReportMessage = "Hi, $achAuthor!\r\n
 [user=$username] would like to report a bug with an achievement you've created:
 $bugReportDetails";
-    CreateNewMessage($username, $achData['Author'], "Bug Report ($gameTitle)", $bugReportMessage);
+    CreateNewMessage($username, $achAuthor, "Bug Report ($gameTitle)", $bugReportMessage);
     postActivity($username, ActivityType::OpenedTicket, $achID);
 
     // notify subscribers other than the achievement's author
@@ -384,10 +386,14 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
 
     addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
+    expireUserTicketCounts($user);
+
     $reporterData = [];
     if (!getAccountDetails($userReporter, $reporterData)) {
         return true;
     }
+
+    expireUserTicketCounts($userReporter);
 
     $email = $reporterData['EmailAddress'];
 
@@ -415,9 +421,13 @@ function countRequestTicketsByUser(?User $user = null): int
         return 0;
     }
 
-    return Ticket::where('ReportState', TicketState::Request)
-        ->where('ReportedByUserID', $user->ID)
-        ->count();
+    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->User);
+
+    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function() use($user) {
+        return Ticket::where('ReportState', TicketState::Request)
+            ->where('ReportedByUserID', $user->ID)
+            ->count();
+    });
 }
 
 function countOpenTicketsByDev(string $dev): ?array
@@ -426,27 +436,40 @@ function countOpenTicketsByDev(string $dev): ?array
         return null;
     }
 
-    $retVal = [
-        TicketState::Open => 0,
-        TicketState::Request => 0,
-    ];
+    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev);
 
-    $tickets = Ticket::with('achievement')
-        ->whereHas('achievement', function ($query) use ($dev) {
-            $query
-                ->where('Author', $dev)
-                ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
-        })
-        ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
-        ->select('AchievementID', 'ReportState', DB::raw('count(*) as Count'))
-        ->groupBy('ReportState')
-        ->get();
+    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function() use ($dev) {
+        $retVal = [
+            TicketState::Open => 0,
+            TicketState::Request => 0,
+        ];
+    
+        $tickets = Ticket::with('achievement')
+            ->whereHas('achievement', function ($query) use ($dev) {
+                $query
+                    ->where('Author', $dev)
+                    ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
+            })
+            ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
+            ->select('AchievementID', 'ReportState', DB::raw('count(*) as Count'))
+            ->groupBy('ReportState')
+            ->get();
+    
+        foreach ($tickets as $ticket) {
+            $retVal[$ticket->ReportState] = $ticket->Count;
+        }
+    
+        return $retVal;    
+    });
+}
 
-    foreach ($tickets as $ticket) {
-        $retVal[$ticket->ReportState] = $ticket->Count;
-    }
+function expireUserTicketCounts(string $username): void
+{
+    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($username);
+    Cache::forget($cacheKey);
 
-    return $retVal;
+    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($username);
+    Cache::forget($cacheKey);
 }
 
 function countOpenTicketsByAchievement(int $achievementID): int
