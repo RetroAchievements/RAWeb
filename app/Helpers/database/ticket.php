@@ -386,7 +386,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
 
     addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
-    expireUserTicketCounts($user);
+    expireUserTicketCounts($ticketData['AchievementAuthor']);
 
     $reporterData = [];
     if (!getAccountDetails($userReporter, $reporterData)) {
@@ -423,7 +423,7 @@ function countRequestTicketsByUser(?User $user = null): int
 
     $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->User);
 
-    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function() use($user) {
+    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($user) {
         return Ticket::where('ReportState', TicketState::Request)
             ->where('ReportedByUserID', $user->ID)
             ->count();
@@ -438,12 +438,12 @@ function countOpenTicketsByDev(string $dev): ?array
 
     $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev);
 
-    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function() use ($dev) {
+    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($dev) {
         $retVal = [
             TicketState::Open => 0,
             TicketState::Request => 0,
         ];
-    
+
         $tickets = Ticket::with('achievement')
             ->whereHas('achievement', function ($query) use ($dev) {
                 $query
@@ -454,12 +454,12 @@ function countOpenTicketsByDev(string $dev): ?array
             ->select('AchievementID', 'ReportState', DB::raw('count(*) as Count'))
             ->groupBy('ReportState')
             ->get();
-    
+
         foreach ($tickets as $ticket) {
             $retVal[$ticket->ReportState] = $ticket->Count;
         }
-    
-        return $retVal;    
+
+        return $retVal;
     });
 }
 
