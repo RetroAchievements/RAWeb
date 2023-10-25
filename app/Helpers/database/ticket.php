@@ -456,7 +456,7 @@ function countOpenTicketsByDev(string $dev): ?array
             ->get();
 
         foreach ($tickets as $ticket) {
-            $retVal[$ticket->ReportState] = $ticket->Count;
+            $retVal[$ticket->ReportState] = (int) $ticket->Count;
         }
 
         return $retVal;
