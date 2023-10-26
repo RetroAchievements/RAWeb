@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     abort(401);
@@ -8,6 +9,10 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unre
 
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
+
+if (!User::where('User', '=', $user2)->exists()) {
+    abort(404);
+}
 
 $totalFriends = getAllFriendsProgress($user, $gameID, $friendScores);
 

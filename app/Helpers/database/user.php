@@ -252,9 +252,8 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
         default => "ua.User ASC ",
     };
 
-    // TODO slow query (70) when ordering by NumAwarded
     $query = "SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
-                (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded
+                ua.achievements_unlocked NumAwarded
                 FROM UserAccounts AS ua
                 $whereQuery
                 ORDER BY $orderBy
