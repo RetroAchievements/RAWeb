@@ -12,14 +12,14 @@ if ($user === null) {
     abort(401);
 }
 
-if ($user->Permissions < Permissions::Moderator) {
+if ($user->getAttribute('Permissions') < Permissions::Moderator) {
     abort(403);
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'user' => 'required|string|exists:UserAccounts,User',
     'achievement' => 'required|integer|exists:Achievements,ID',
-    'hardcore' => 'required|integer|min:0|max:1'
+    'hardcore' => 'required|integer|min:0|max:1',
 ]);
 
 $player = User::firstWhere('User', $input['user']);
