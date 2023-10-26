@@ -197,14 +197,14 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
                     if ($achievement->unlocked_hardcore_at) {
                         $unlockedAchievements[] = [
                             'Achievement' => $achievement->toArray(),
-                            'When' => $achievement->unlocked_hardcore_at->__toString(),
+                            'When' => $achievement->unlocked_hardcore_at,
                             'Hardcore' => 1,
                             'Game' => $gameData,
                         ];
                     } elseif ($achievement->unlocked_at) {
                         $unlockedAchievements[] = [
                             'Achievement' => $achievement->toArray(),
-                            'When' => $achievement->unlocked_at->__toString(),
+                            'When' => $achievement->unlocked_at,
                             'Hardcore' => 0,
                             'Game' => $gameData,
                         ];
