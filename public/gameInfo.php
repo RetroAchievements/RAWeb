@@ -15,6 +15,7 @@ use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
+use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 

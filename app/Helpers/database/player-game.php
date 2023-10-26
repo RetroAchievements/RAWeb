@@ -4,7 +4,8 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
@@ -146,11 +147,79 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     $unlockedAchievements = [];
     $lockedAchievements = [];
 
-    if (is_string($user)) {
-        $user = User::firstWhere('User', $user);
-    }
-
     foreach ($gameIDs as $gameID) {
+        if (config('feature.aggregate_queries')) {
+            $game = Game::with('system')->find($gameID);
+            if (!$game) {
+                continue;
+            }
+
+            $playerGame = PlayerGame::where('user_id', '=', $user->ID)
+                ->where('game_id', $gameID)
+                ->first();
+
+            $awardedData[$gameID] = [
+                'NumPossibleAchievements' => $game->achievements_published,
+                'PossibleScore' => $game->points_total,
+                'NumAchieved' => $playerGame ? $playerGame->achievements_unlocked : 0,
+                'ScoreAchieved' => $playerGame ? $playerGame->points : 0,
+                'NumAchievedHardcore' => $playerGame ? $playerGame->achievements_unlocked_hardcore : 0,
+                'ScoreAchievedHardcore' => $playerGame ? $playerGame->points_hardcore : 0,
+            ];
+
+            if ($withGameInfo) {
+                $gameInfo[$gameID] = [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => (int) $game->system->ID,
+                    'ConsoleName' => $game->system->Name,
+                    'ForumTopicID' => (int) $game->ForumTopicID,
+                    'Flags' => (int) $game->Flags,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageTitle' => $game->ImageTitle,
+                    'ImageIngame' => $game->ImageIngame,
+                    'ImageBoxArt' => $game->ImageBoxArt,
+                    'Publisher' => $game->Publisher,
+                    'Developer' => $game->Developer,
+                    'Genre' => $game->Genre,
+                    'Released' => $game->Released,
+                    'IsFinal' => (int) $game->IsFinal,
+                ];
+            }
+
+            if ($numRecentAchievements >= 0) {
+                $gameData = $game->toArray();
+
+                $achievements = $game->achievements()->published()
+                    ->leftJoin('player_achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+                    ->where('player_achievements.user_id', $user->id);
+                foreach ($achievements->get() as $achievement) {
+                    if ($achievement->unlocked_hardcore_at) {
+                        $unlockedAchievements[] = [
+                            'Achievement' => $achievement->toArray(),
+                            'When' => $achievement->unlocked_hardcore_at->__toString(),
+                            'Hardcore' => 1,
+                            'Game' => $gameData,
+                        ];
+                    } elseif ($achievement->unlocked_at) {
+                        $unlockedAchievements[] = [
+                            'Achievement' => $achievement->toArray(),
+                            'When' => $achievement->unlocked_at->__toString(),
+                            'Hardcore' => 0,
+                            'Game' => $gameData,
+                        ];
+                    } else {
+                        $lockedAchievements[] = [
+                            'Achievement' => $achievement->toArray(),
+                            'Game' => $gameData,
+                        ];
+                    }
+                }
+            }
+
+            continue;
+        }
+
         $numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData);
 
         $possibleScore = 0;
