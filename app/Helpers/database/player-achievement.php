@@ -47,18 +47,11 @@ function playerHasUnlock(?string $user, int $achievementId): array
 /**
  * @deprecated see UnlockPlayerAchievementAction
  */
-function unlockAchievement(string $username, int $achievementId, bool $isHardcore): array
+function unlockAchievement(User $user, int $achievementId, bool $isHardcore): array
 {
     $retVal = [
         'Success' => false,
     ];
-
-    $user = User::firstWhere('User', $username);
-    if (!$user) {
-        $retVal['Error'] = "Data not found for user $username";
-
-        return $retVal;
-    }
 
     $achievement = Achievement::find($achievementId);
     if (!$achievement) {
