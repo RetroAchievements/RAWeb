@@ -15,7 +15,13 @@
  *    string     ScoreAchievedHardcore      number of points earned by the user in hardcore
  */
 
-$user = request()->query('u');
+ use App\Site\Models\User;
+
+$user = User::firstWhere('User', request()->query('u'));
+if (!$user) {
+    return response()->json([]);
+}
+
 $gameCSV = request()->query('i', "");
 
 $gameIDs = collect(explode(',', $gameCSV))

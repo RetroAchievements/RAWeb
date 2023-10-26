@@ -137,7 +137,7 @@ function getGameRankAndScore(int $gameID, string $username): array
     return legacyDbFetchAll($query, ['username' => $username])->toArray();
 }
 
-function getUserProgress(string $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
+function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
 {
     $libraryOut = [];
 
@@ -145,6 +145,10 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
     $gameInfo = [];
     $unlockedAchievements = [];
     $lockedAchievements = [];
+
+    if (is_string($user)) {
+        $user = User::firstWhere('User', $user);
+    }
 
     foreach ($gameIDs as $gameID) {
         $numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData);
@@ -307,24 +311,22 @@ function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
     Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, false));
 }
 
-function getUserAchievementUnlocksForGame(string $username, int $gameID, int $flag = AchievementFlag::OfficialCore): array
+function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $flag = AchievementFlag::OfficialCore): array
 {
     if (config('feature.aggregate_queries')) {
-        $user = User::firstWhere('User', $username);
-        if (!$user) {
-            return [];
-        }
-        $achievementIds = Achievement::where('GameID', $gameID)
+        $user = is_string($user) ? User::firstWhere('User', $user) : $user;
+
+        $playerAchievements = $user
+            ->playerAchievements()
+            ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
+            ->where('GameID', $gameID)
             ->where('Flags', $flag)
-            ->pluck('ID');
-        $playerAchievements = PlayerAchievement::where('user_id', $user->id)
-            ->whereIn('achievement_id', $achievementIds)
             ->get([
                 'achievement_id',
                 'unlocked_at',
                 'unlocked_hardcore_at',
             ])
-            ->mapWithKeys(function (PlayerAchievement $unlock, int $key) {
+            ->mapWithKeys(function ($unlock, int $key) {
                 $result = [];
 
                 // TODO move this transformation to where it's needed (web api) and use models everywhere else
@@ -341,6 +343,8 @@ function getUserAchievementUnlocksForGame(string $username, int $gameID, int $fl
 
         return $playerAchievements->toArray();
     }
+
+    $username = $user = is_string($user) ? $user : $user->User;
     $cacheKey = CacheKey::buildUserGameUnlocksCacheKey(
         $username,
         $gameID,

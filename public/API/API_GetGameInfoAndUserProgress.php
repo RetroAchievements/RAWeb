@@ -49,12 +49,18 @@
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
  */
 
+ use App\Site\Models\User;
+
 $gameID = (int) request()->query('g');
-$targetUser = request()->query('u');
+$targetUser = User::firstWhere('User', request()->query('u'));
+if (!$targetUser) {
+    return response()->json([]);
+}
+
 getGameMetadata($gameID, $targetUser, $achData, $gameData, metrics: true);
 
 if ($gameData === null) {
-    return response()->json();
+    return response()->json([]);
 }
 
 if (empty($achData)) {

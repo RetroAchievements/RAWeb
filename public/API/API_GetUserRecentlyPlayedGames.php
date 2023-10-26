@@ -23,6 +23,7 @@
  */
 
 use App\Support\Rules\CtypeAlnum;
+use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -32,12 +33,16 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'o' => 'nullable|integer|min:0',
 ]);
 
-$user = request()->query('u');
+$user = User::firstWhere('User', request()->query('u'));
+if (!$user) {
+    return response()->json([]);
+}
+
 $count = min((int) request()->query('c', '10'), 50);
 $offset = (int) request()->query('o');
 
 $recentlyPlayedData = [];
-$numRecentlyPlayed = getRecentlyPlayedGames($user, $offset, $count, $recentlyPlayedData);
+$numRecentlyPlayed = getRecentlyPlayedGames($user->User, $offset, $count, $recentlyPlayedData);
 
 if (!empty($recentlyPlayedData)) {
     $gameIDs = [];
