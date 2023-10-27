@@ -20,7 +20,7 @@ class GameDevInterestController extends Controller
         }
 
         $permissions = $request->user()->getAttribute('Permissions');
-        if ($permissions < Permissions::Developer) {
+        if ($permissions < Permissions::JuniorDeveloper) {
             abort(403);
         }
 
