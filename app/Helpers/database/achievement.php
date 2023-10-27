@@ -12,6 +12,7 @@ use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -19,7 +20,7 @@ use Illuminate\Support\Collection;
  * @return Collection<int, array>
  */
 function getAchievementsList(
-    ?string $username,
+    ?User $user,
     int $sortBy,
     int $params,
     int $limit,
@@ -34,15 +35,14 @@ function getAchievementsList(
 
     $innerJoin = "";
     $withAwardedDate = "";
-    if ($params > 0 && isValidUsername($username)) {
-        $bindings['username'] = $username;
-        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = :username";
-        $withAwardedDate = ", aw.Date AS AwardedDate";
+    if ($params > 0 && $user) {
+        $innerJoin = "LEFT JOIN player_achievements AS pa ON pa.achievement_id = ach.ID AND pa.user_id = " . $user->id;
+        $withAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
     }
 
     // We can't run a sort on a user's achievements AwardedDate
     // if we don't have a user. Bail from the sort.
-    if (($sortBy == 9 || $sortBy == 19) && !isValidUsername($username)) {
+    if (($sortBy == 9 || $sortBy == 19) && !$user) {
         $sortBy = 0;
     }
 
@@ -53,27 +53,29 @@ function getAchievementsList(
                     $withAwardedDate
                 FROM Achievements AS ach
                 $innerJoin
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID ";
+                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+                INNER JOIN Console AS c ON c.ID = gd.ConsoleID ";
 
     $bindings['achievementFlag'] = $achievementFlag;
     $query .= "WHERE ach.Flags = :achievementFlag ";
+
+    // 1 = my unlocked achievements
+    // 2 = achievements i haven't unlocked
+    // 3 = official
+    // 5 = unofficial
     if ($params == 1) {
-        $query .= "AND ( !ISNULL( aw.User ) ) AND aw.HardcoreMode = 0 ";
+        $query .= "AND pa.unlocked_at IS NOT NULL ";
+    } elseif ($params == 2) {
+        $query .= "AND pa.unlocked_at IS NULL ";
     }
-    if ($params == 2) {
-        $query .= "AND ( ISNULL( aw.User ) )  ";
-    }
+
     if (isValidUsername($developer)) {
         $bindings['author'] = $developer;
         $query .= "AND ach.Author = :author ";
     }
+
     if ($sortBy == 4) {
         $query .= "AND ach.TrueRatio > 0 ";
-    }
-
-    if ($params > 0 && isValidUsername($username)) {
-        $query .= "GROUP BY ach.ID ";
     }
 
     switch ($sortBy) {
