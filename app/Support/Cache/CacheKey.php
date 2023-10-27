@@ -62,6 +62,21 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "recent-games");
     }
 
+    public static function buildUserOpenTicketsCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "open-tickets");
+    }
+
+    public static function buildUserRequestTicketsCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "request-tickets");
+    }
+
+    public static function buildUserExpiringClaimsCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "expiring-claims");
+    }
+
     /**
      * Constructs a normalized cache key.
      *
