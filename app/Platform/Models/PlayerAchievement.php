@@ -50,7 +50,7 @@ class PlayerAchievement extends BasePivot
      */
     public function achievement(): BelongsTo
     {
-        return $this->belongsTo(Achievement::class);
+        return $this->belongsTo(Achievement::class, 'achievement_id');
     }
 
     /**

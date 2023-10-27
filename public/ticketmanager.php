@@ -7,7 +7,9 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
+use App\Platform\Models\PlayerAchievement;
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
@@ -137,7 +139,12 @@ RenderContentStart($pageTitle);
             if (!empty($gameIDGiven)) {
                 echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
                 if (!empty($achievementIDGiven)) {
-                    echo " &raquo; " . renderAchievementTitle($achievementTitle, tags: false);
+                    echo " &raquo; " . Blade::render('
+                        <x-achievement.title :rawTitle="$rawTitle" :isDisplayingTags="$isDisplayingTags" />
+                    ', [
+                        'rawTitle' => $achievementTitle,
+                        'isDisplayingTags' => false,
+                    ]);
                 }
             }
         } else {
@@ -528,6 +535,7 @@ RenderContentStart($pageTitle);
             $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
 
             $reportedAt = $nextTicket['ReportedAt'];
+            $reportedAtTime = strtotime($reportedAt);
             $niceReportedAt = getNiceDate(strtotime($reportedAt));
             $reportedBy = $nextTicket['ReportedBy'];
             $resolvedAt = $nextTicket['ResolvedAt'];
@@ -768,29 +776,78 @@ RenderContentStart($pageTitle);
             }
             echo "<td colspan='7'>";
 
-            $numAchievements = getUserUnlockDates($reportedBy, $gameID, $unlockData);
-            $unlockData[] = ['ID' => 0, 'Title' => 'Ticket Created', 'Date' => $reportedAt, 'HardcoreMode' => 0];
-            usort($unlockData, fn ($a, $b) => strtotime($b["Date"]) - strtotime($a["Date"]));
+            $unlocks = PlayerAchievement::join('UserAccounts', 'UserAccounts.ID', '=', 'player_achievements.user_id')
+                ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
+                ->where('GameID', '=', $gameID)
+                ->where('UserAccounts.User', '=', $reportedBy)
+                ->orderByRaw('IFNULL(unlocked_hardcore_at, unlocked_at) DESC')
+                ->select(['player_achievements.*', 'Achievements.Title',
+                          'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName']);
+            $numAchievements = $unlocks->count();
 
-            $unlockDate = null;
-            foreach ($unlockData as $unlockEntry) {
-                if ($unlockEntry['ID'] == $achID) {
-                    $unlockDate = $unlockEntry['Date'];
+            $unlocks = $unlocks->get();
+            $existingUnlock = null;
+            foreach ($unlocks as $unlock) {
+                if ($unlock->achievement_id == $achID) {
+                    $existingUnlock = $unlock;
                     break;
                 }
             }
 
-            if ($unlockDate != null) {
-                echo "$reportedBy earned this achievement at " . getNiceDate(strtotime($unlockDate));
-                if ($unlockDate >= $reportedAt) {
-                    echo " (after the report).";
+            if ($existingUnlock != null) {
+                if ($existingUnlock->unlocked_hardcore_at) {
+                    $unlockDate = $existingUnlock->unlocked_hardcore_at->unix();
                 } else {
-                    echo " (before the report).";
+                    $unlockDate = $existingUnlock->unlocked_at->unix();
                 }
-            } elseif ($numAchievements == 0) {
-                echo "$reportedBy has not earned any achievements for this game.";
+
+                if ($existingUnlock->unlocker_id) {
+                    $unlocker = User::firstWhere('ID', $existingUnlock->unlocker_id);
+                    echo "$reportedBy was manually awarded this achievement at " . getNiceDate($unlockDate) . " by " . $unlocker->User . ".";
+                } else {
+                    echo "$reportedBy earned this achievement at " . getNiceDate($unlockDate);
+
+                    if ($unlockDate >= $reportedAtTime) {
+                        echo " (after the report).";
+                    } else {
+                        echo " (before the report).";
+                    }
+                }
             } else {
-                echo "$reportedBy did not earn this achievement.";
+                if ($numAchievements == 0) {
+                    echo "$reportedBy has not earned any achievements for this game.";
+                } else {
+                    echo "$reportedBy did not earn this achievement.";
+                }
+
+                if ($permissions >= Permissions::Moderator) {
+                    $hasHardcoreUnlock = false;
+                    foreach ($unlocks as $unlock) {
+                        if ($unlock->unlocked_hardcore_at) {
+                            $hasHardcoreUnlock = true;
+                            break;
+                        }
+                    }
+
+                    echo "<script>
+                    function AwardManually(hardcore) {
+                        showStatusMessage('Awarding...');
+
+                        $.post('/request/user/award-achievement.php', {
+                            user: '$reportedBy',
+                            achievement: $achID,
+                            hardcore: hardcore
+                        })
+                            .done(function () {
+                                location.reload();
+                            });
+                    }
+                    </script>";
+                    echo "<button class='btn ml-2' onclick='AwardManually(0)'>Award Softcore</button>";
+                    if ($hasHardcoreUnlock || $numAchievements == 0) {
+                        echo "<button class='btn ml-1' onclick='AwardManually(1)'>Award Hardcore</button>";
+                    }
+                }
             }
             echo "</td></tr>";
 
@@ -802,29 +859,51 @@ RenderContentStart($pageTitle);
                 echo "<div id='unlockhistory' style='display: none'>";
                 echo "<table class='table-highlight'>";
 
-                foreach ($unlockData as $unlockEntry) {
-                    echo "<tr><td>";
-                    if ($unlockEntry['ID'] == 0) {
-                        echo "Ticket Created - ";
-                        echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
+                $ticketEntryCreated = false;
+                foreach ($unlocks as $unlock) {
+                    if ($unlock->unlocked_hardcore_at) {
+                        $unlockDate = $unlock->unlocked_hardcore_at->unix();
                     } else {
-                        echo achievementAvatar($unlockEntry);
+                        $unlockDate = $unlock->unlocked_at->unix();
                     }
-                    echo "</td><td>";
-                    $unlockDate = getNiceDate(strtotime($unlockEntry['Date']));
-                    if ($unlockEntry['ID'] == $achID) {
+
+                    if (!$ticketEntryCreated && $unlockDate < $reportedAtTime) {
+                        echo "<tr><td class='smalldate whitespace-nowrap'>";
+                        echo $niceReportedAt;
+                        echo "</td><td>Ticket Created - ";
+                        echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
+                        echo "</td></tr>";
+                        $ticketEntryCreated = true;
+                    }
+
+                    echo "</td><td class='smalldate whitespace-nowrap'>";
+                    $unlockDate = getNiceDate($unlockDate);
+                    if ($unlock->achievement_id == $achID) {
                         echo "<b>$unlockDate</b>";
                     } else {
                         echo $unlockDate;
                     }
-                    echo "</td><td>";
-                    if ($unlockEntry['HardcoreMode'] == 1) {
-                        if ($unlockEntry['ID'] == $achID) {
-                            echo "<b>Hardcore</b>";
-                        } else {
-                            echo "Hardcore";
-                        }
+                    if ($unlock->unlocker_id) {
+                        echo "<br/>&nbsp;(manually awarded)";
                     }
+                    echo "</td><td style='width:99%'>";
+
+                    echo achievementAvatar([
+                        'AchievementID' => $unlock->achievement_id,
+                        'AchievementTitle' => $unlock->Title,
+                        'AchievementDesc' => $unlock->Description,
+                        'Points' => $unlock->Points,
+                        'BadgeName' => $unlock->BadgeName,
+                        'HardcoreMode' => ($unlock->unlocked_hardcore_at != null),
+                    ]);
+                    echo "</td></tr>";
+                }
+
+                if (!$ticketEntryCreated) {
+                    echo "<tr><td class='smalldate whitespace-nowrap'>";
+                    echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
+                    echo "</td><td>Ticket Created - ";
+                    echo $niceReportedAt;
                     echo "</td></tr>";
                 }
 

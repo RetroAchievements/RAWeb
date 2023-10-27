@@ -22,6 +22,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Site\Middleware\RedirectsMissingPages::class,
         \App\Site\Middleware\RobotsMiddleware::class,
+        \App\Site\Middleware\FeatureFlagMiddleware::class,
     ];
 
     /**

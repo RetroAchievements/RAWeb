@@ -1,4 +1,3 @@
-FROM mysql:8
+FROM mariadb:10
 
-RUN microdnf install -y epel-release
-RUN microdnf install -y pv
+RUN apt-get update && apt-get install -y pv

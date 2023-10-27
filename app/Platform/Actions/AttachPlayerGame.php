@@ -6,26 +6,30 @@ namespace App\Platform\Actions;
 
 use App\Platform\Events\PlayerGameAttached;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Site\Models\User;
+use Exception;
 
 class AttachPlayerGame
 {
-    public function execute(User $user, Game $game): Game
+    public function execute(User $user, Game $game): PlayerGame
     {
         // upsert game attachment without running into unique constraints
-        /** @var ?Game $playerGame */
-        $playerGame = $user->games()->find($game);
 
+        $playerGame = $user->playerGame($game);
         if ($playerGame) {
             return $playerGame;
         }
 
-        $user->games()->attach($game);
-        /** @var Game $playerGame */
-        $playerGame = $user->games()->find($game);
-        // let everyone know that this user started this game for first time
-        PlayerGameAttached::dispatch($user, $playerGame);
+        try {
+            $user->games()->attach($game);
 
-        return $playerGame;
+            // let everyone know that this user started this game for first time
+            PlayerGameAttached::dispatch($user, $game);
+        } catch (Exception) {
+            // prevent race conditions where the game might've been attached by another job
+        }
+
+        return $user->playerGame($game);
     }
 }

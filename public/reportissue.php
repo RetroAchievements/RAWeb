@@ -75,12 +75,18 @@ function reportIssueComponent() {
 <article x-data="reportIssueComponent()">
     <div class="navpath">
         <?= renderGameBreadcrumb($dataOut) ?>
-        &raquo;
-        <a href="/achievement/<?= $achievementID ?>">
-            <?= renderAchievementTitle($achievementTitle, tags: false) ?>
-        </a>
-        &raquo;
-        <b>Issue Report</b>
+        &raquo; <a href="/achievement/<?= $achievementID ?>">
+        <?=
+            Blade::render('
+                <x-achievement.title
+                    :rawTitle="$rawTitle"
+                    :isDisplayingTags="$isDisplayingTags"
+                />', [
+                'rawTitle' => $achievementTitle,
+                'isDisplayingTags' => false,
+            ]);
+        ?></a>
+        &raquo; <b>Issue Report</b>
     </div>
 
     <h3 class="longheader">Report Broken Achievement</h3>
