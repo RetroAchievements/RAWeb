@@ -148,36 +148,13 @@ function getAchievementUnlocksData(
     int $limit = 50
 ): Collection {
 
-    $bindings = [
-        'unlockMode' => UnlockMode::Softcore,
-        'joinAchievementId' => $achievementId,
-        'achievementId' => $achievementId,
-    ];
-
-    $requestedByStatement = '';
-    if ($username) {
-        $bindings['username'] = $username;
-        $requestedByStatement = 'OR ua.User = :username';
+    $achievement = Achievement::firstWhere('ID', $achievementId);
+    if (!$achievement) {
+        return Collection();
     }
 
-    $query = "
-        SELECT ach.GameID, COUNT(tracked_aw.AchievementID) AS NumEarned
-        FROM Achievements AS ach
-        LEFT JOIN (
-            SELECT aw.AchievementID
-            FROM Awarded AS aw
-            INNER JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE aw.AchievementID = :joinAchievementId AND aw.HardcoreMode = :unlockMode
-              AND (NOT ua.Untracked $requestedByStatement)
-        ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
-        WHERE ach.ID = :achievementId
-    ";
-
-    $data = legacyDbFetch($query, $bindings);
-
-    $numWinners = $data['NumEarned'];
-    // TODO use $game->players_total
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username);
+    $numWinners = $achievement->unlocks_total;
+    $numPossibleWinners = $achievement->game->players_total;
 
     // Get recent winners, and their most recent activity
     $bindings = [
@@ -235,16 +212,8 @@ function getRecentUnlocksPlayersData(
     }
     $retVal['GameID'] = $game->ID;
 
-    // Fetch the number of times this has been earned whatsoever (excluding hardcore)
-    $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
-              WHERE AchievementID=$achID AND HardcoreMode = " . UnlockMode::Softcore;
-    $data = legacyDbFetch($query);
-    $retVal['NumEarned'] = (int) $data['NumEarned'];
-
-    // Fetch the total number of players for this game:
-    $parentGameID = getParentGameIdFromGameTitle($game->Title, $game->ConsoleID);
-    // TODO use $game->players_total
-    $retVal['TotalPlayers'] = getTotalUniquePlayers($game->ID, $parentGameID);
+    $retVal['NumEarned'] = $achievement->unlocks_total;
+    $retVal['TotalPlayers'] = $game->players_total;
 
     $extraWhere = "";
     if ($friendsOnly && isset($user) && $user) {

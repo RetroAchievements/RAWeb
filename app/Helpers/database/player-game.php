@@ -565,54 +565,6 @@ function getUsersCompletedGamesAndMax(string $user): array
     return legacyDbFetchAll($query, ['user' => $user])->toArray();
 }
 
-/**
- * @deprecated TODO use denormalized game metrics players_total and players_hardcore
- */
-function getTotalUniquePlayers(
-    int $gameID,
-    ?int $parentGameID = null,
-    ?string $requestedBy = null,
-    bool $hardcoreOnly = false,
-): int {
-    $bindings = [
-        'gameId' => $gameID,
-    ];
-    $gameIdStatement = 'a.GameID = :gameId';
-    if ($parentGameID !== null) {
-        $gameIdStatement = 'a.GameID IN (:gameId, :parentGameId)';
-        $bindings['parentGameId'] = $parentGameID;
-    }
-
-    $unlockModeStatement = '';
-    if ($hardcoreOnly) {
-        $unlockModeStatement = ' AND pa.unlocked_hardcore_at IS NOT NULL';
-    }
-
-    $bindings['achievementFlag'] = AchievementFlag::OfficialCore;
-
-    $requestedByStatement = '';
-    if ($requestedBy) {
-        $bindings['requestedBy'] = $requestedBy;
-        $requestedByStatement = 'OR u.User = :requestedBy';
-    }
-
-    $query = "
-        SELECT
-            COUNT(DISTINCT pa.user_id) players_count
-        FROM
-            player_achievements pa
-            LEFT JOIN Achievements a ON a.ID = pa.achievement_id
-            LEFT JOIN UserAccounts u ON u.ID = pa.user_id
-        WHERE
-            $gameIdStatement
-            AND a.Flags = :achievementFlag
-            AND (u.Untracked = 0 $requestedByStatement)
-            $unlockModeStatement
-    ";
-
-    return (int) (legacyDbFetch($query, $bindings)['players_count'] ?? 0);
-}
-
 function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
 {
     $retval = [];
