@@ -267,7 +267,7 @@ switch ($requestType) {
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
          * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
          */
-        $response = array_merge($response, unlockAchievement($username, $achIDToAward, $hardcore));
+        $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
 
         if (Achievement::where('ID', $achIDToAward)->exists()) {
             dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))

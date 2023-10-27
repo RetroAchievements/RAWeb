@@ -195,9 +195,18 @@ RenderContentStart($pageTitle);
     <?php
     echo "<div id='achievement'>";
 
+    $breadcrumbAchievementTitle = Blade::render('
+        <x-achievement.title
+            :rawTitle="$rawTitle"
+            :isDisplayingTags="$isDisplayingTags"
+        />', [
+        'rawTitle' => $achievementTitle,
+        'isDisplayingTags' => false,
+    ]);
+
     echo "<div class='navpath'>";
     echo renderGameBreadcrumb($dataOut);
-    echo " &raquo; <b>" . renderAchievementTitle($achievementTitle, tags: false) . "</b>";
+    echo " &raquo; <b>" . $breadcrumbAchievementTitle . "</b>";
     echo "</div>";
 
     echo Blade::render('
@@ -228,7 +237,9 @@ RenderContentStart($pageTitle);
     echo "<td>";
     echo "<div id='achievemententry'>";
 
-    $renderedTitle = renderAchievementTitle($achievementTitle);
+    $renderedTitle = Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
+        'rawTitle' => $achievementTitle,
+    ]);
 
     echo "<div class='flex flex-col justify-between gap-y-2'>";
     echo "<div>";
