@@ -18,7 +18,7 @@ class CacheKey
 
     public static function buildUserCompletedGamesCacheKey(string $username): string
     {
-        return self::buildNormalizedUserCacheKey($username, "completed-games");
+        return self::buildNormalizedUserCacheKey($username, "completed-games-20230910");
     }
 
     public static function buildUserCanTicketCacheKey(string $username): string

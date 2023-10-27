@@ -452,12 +452,14 @@ function getLightweightUsersCompletedGamesAndMax(string $user, string $cachedAwa
     // Parse the cached value.
     $awardedCache = [];
     foreach (explode(',', $cachedAwardedValues) as $row) {
-        [$gameId, $maxPossible, $numAwarded, $numAwardedHC] = explode('|', $row);
+        list($gameId, $maxPossible, $numAwarded, $numAwardedHC, $mostRecentWonDate, $firstWonDate) = explode('|', $row);
 
         $awardedCache[$gameId] = [
             'MaxPossible' => $maxPossible,
             'NumAwarded' => $numAwarded,
             'NumAwardedHC' => $numAwardedHC,
+            'MostRecentWonDate' => $mostRecentWonDate,
+            'FirstWonDate' => $firstWonDate,
         ];
     }
 
@@ -488,12 +490,16 @@ function getLightweightUsersCompletedGamesAndMax(string $user, string $cachedAwa
             $numAwarded = (int) $awardedCache[$gameId]['NumAwarded'];
             $numAwardedHC = (int) $awardedCache[$gameId]['NumAwardedHC'];
             $maxPossible = (int) $awardedCache[$gameId]['MaxPossible'];
+            $mostRecentWonDate = $awardedCache[$gameId]['MostRecentWonDate'];
+            $firstWonDate = $awardedCache[$gameId]['FirstWonDate'];
 
             $game['MaxPossible'] = $maxPossible;
             $game['NumAwarded'] = $numAwarded;
             $game['NumAwardedHC'] = $numAwardedHC;
             $game['PctWon'] = $maxPossible ? $numAwarded / $maxPossible : 0;
             $game['PctWonHC'] = $maxPossible ? $numAwardedHC / $maxPossible : 0;
+            $game['MostRecentWonDate'] = $mostRecentWonDate;
+            $game['FirstWonDate'] = $firstWonDate;
         }
     }
 
@@ -540,8 +546,10 @@ function prepareUserCompletedGamesCacheValue(array $allFetchedResults): string
         $maxPossible = $result['MaxPossible'];
         $numAwarded = $result['NumAwarded'];
         $numAwardedHC = $result['NumAwardedHC'];
+        $mostRecentWonDate = $result['MostRecentWonDate'];
+        $firstWonDate = $result['FirstWonDate'];
 
-        $awardedCacheString .= "$gameId|$maxPossible|$numAwarded|$numAwardedHC,";
+        $awardedCacheString .= "$gameId|$maxPossible|$numAwarded|$numAwardedHC|$mostRecentWonDate|$firstWonDate,";
     }
 
     // Remove last comma
@@ -569,6 +577,7 @@ function getUsersCompletedGamesAndMax(string $user): array
     if (config('feature.aggregate_queries')) {
         $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
                          gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
+                pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate, 
                 pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
                 floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
                 floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
@@ -590,7 +599,8 @@ function getUsersCompletedGamesAndMax(string $user): array
 
         // TODO slow query. optimize with denormalized data.
         $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
-                SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, " .
+                SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, 
+                MAX(aw.Date) AS MostRecentWonDate, MIN(aw.Date) AS FirstWonDate, " .
                 floatDivisionStatement('SUM(aw.HardcoreMode = 0)', 'inner1.MaxPossible') . " AS PctWon, " .
                 floatDivisionStatement('SUM(aw.HardcoreMode = 1)', 'inner1.MaxPossible') . " AS PctWonHC
             FROM Awarded AS aw
