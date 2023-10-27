@@ -5,6 +5,7 @@ use App\Community\Enums\TicketState;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -46,11 +47,11 @@ function getParentGameIdFromGameId(int $gameID): ?int
 
 function getGameMetadata(
     int $gameID,
-    ?string $user,
+    ?User $user,
     ?array &$achievementDataOut,
     ?array &$gameDataOut,
     int $sortBy = 1,
-    ?string $user2 = null,
+    ?User $user2 = null,
     int $flag = AchievementFlag::OfficialCore,
     bool $metrics = false,
 ): int {
@@ -69,24 +70,24 @@ function getGameMetadata(
         5 => "ORDER BY ach.Title, ach.ID ASC ",
         15 => "ORDER BY ach.Title DESC, ach.ID DESC ",
 
-        6 => "ORDER BY 
-            CASE 
-                WHEN ach.type = 'progression' THEN 0 
-                WHEN ach.type = 'win_condition' THEN 1 
-                WHEN ach.type IS NULL THEN 2 
-                ELSE 3 
-            END, 
-            ach.DisplayOrder, 
+        6 => "ORDER BY
+            CASE
+                WHEN ach.type = 'progression' THEN 0
+                WHEN ach.type = 'win_condition' THEN 1
+                WHEN ach.type IS NULL THEN 2
+                ELSE 3
+            END,
+            ach.DisplayOrder,
             ach.ID ASC ",
 
-        16 => "ORDER BY 
-            CASE 
-                WHEN ach.type = 'progression' THEN 0 
-                WHEN ach.type = 'win_condition' THEN 1 
-                WHEN ach.type IS NULL THEN 2 
-                ELSE 3 
-            END DESC, 
-            ach.DisplayOrder DESC, 
+        16 => "ORDER BY
+            CASE
+                WHEN ach.type = 'progression' THEN 0
+                WHEN ach.type = 'win_condition' THEN 1
+                WHEN ach.type IS NULL THEN 2
+                ELSE 3
+            END DESC,
+            ach.DisplayOrder DESC,
             ach.ID DESC ",
 
         // 1
@@ -206,7 +207,7 @@ function getGameMetadata(
         ach.type
     FROM Achievements AS ach
     $metricsJoin
-    WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag
+    WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND ach.deleted_at IS NULL
     $orderBy";
 
     $achievementDataOut = legacyDbFetchAll($query, array_merge([
@@ -228,7 +229,7 @@ function getGameMetadata(
         }
     }
 
-    if (isset($user)) {
+    if ($user) {
         $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $flag);
         foreach ($userUnlocks as $achID => $userUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
@@ -242,7 +243,7 @@ function getGameMetadata(
         }
     }
 
-    if (isset($user2)) {
+    if ($user2) {
         $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $flag);
         foreach ($friendUnlocks as $achID => $friendUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
@@ -576,7 +577,7 @@ function modifyGameData(
         return true;
     }
 
-    sanitize_sql_inputs($gameID, $developer, $publisher, $genre, $released, $guideURL);
+    sanitize_sql_inputs($developer, $publisher, $genre, $released, $guideURL);
 
     $query = "UPDATE GameData AS gd
               SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released', gd.GuideURL = '$guideURL'
@@ -681,8 +682,6 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
 
 function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bool
 {
-    sanitize_sql_inputs($gameID, $newForumTopic);
-
     if ($gameID == 0 || $newForumTopic == 0) {
         return false;
     }
@@ -740,7 +739,7 @@ function getGameListSearch(int $offset, int $count, int $method, ?int $consoleID
 
 function createNewGame(string $title, int $consoleID): ?array
 {
-    sanitize_sql_inputs($title, $consoleID);
+    sanitize_sql_inputs($title);
     // $title = str_replace( "--", "-", $title );    // subtle non-comment breaker
 
     $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints)
@@ -872,7 +871,7 @@ function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
         return true;
     }
 
-    sanitize_sql_inputs($gameID, $dataIn);
+    sanitize_sql_inputs($dataIn);
     $query = "UPDATE GameData SET RichPresencePatch='$dataIn' WHERE ID=$gameID";
 
     $db = getMysqliConnection();

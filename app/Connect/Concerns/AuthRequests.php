@@ -136,7 +136,7 @@ trait AuthRequests
 
         $response = [
             'displayName' => $user->display_name,
-            'pointsTotal' => $user->points_total,
+            'pointsTotal' => $user->points,
             'unreadMessagesCount' => $user->unread_messages_count,
             'username' => $user->username,
             'token' => $user->connect_token,
