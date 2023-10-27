@@ -7,6 +7,7 @@ use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
+use App\Site\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
@@ -38,7 +39,7 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
                 break;
         }
 
-        if ($user === null) {
+        if (!$user instanceof User) {
             return;
         }
 

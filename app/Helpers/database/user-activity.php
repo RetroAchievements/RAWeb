@@ -5,44 +5,14 @@ use App\Community\Enums\ArticleType;
 use App\Community\Models\Comment;
 use App\Community\Models\UserActivityLegacy;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\PlayerSession;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-
-/**
- * @deprecated see UserActivity model
- */
-function getMostRecentActivity(string $user, ?int $type = null, ?int $data = null): ?array
-{
-    $innerClause = "Activity.user = :user";
-    if (isset($type)) {
-        $innerClause .= " AND Activity.activityType = $type";
-    }
-    if (isset($data)) {
-        $innerClause .= " AND Activity.data = $data";
-    }
-
-    $query = "SELECT * FROM Activity AS act
-              WHERE act.ID =
-                ( SELECT MAX(Activity.ID) FROM Activity WHERE $innerClause ) ";
-
-    return legacyDbFetch($query, ['user' => $user]);
-}
-
-/**
- * @deprecated see WriteUserActivity listener
- */
-function updateActivity(int $activityID): void
-{
-    // Update the last update value of given activity
-    $query = "UPDATE Activity
-              SET Activity.lastupdate = NOW()
-              WHERE Activity.ID = $activityID ";
-
-    legacyDbStatement($query);
-}
 
 /**
  * @deprecated see WriteUserActivity listener
@@ -77,90 +47,27 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
             break;
 
         case ActivityType::Login:
-            $lastLoginActivity = getMostRecentActivity($user->User, $type);
-            if ($lastLoginActivity) {
-                $nowTimestamp = time();
-                $lastLoginTimestamp = strtotime($lastLoginActivity['timestamp']);
-                $diff = $nowTimestamp - $lastLoginTimestamp;
-
-                /*
-                 * record login activity only every 6 hours
-                 */
-                if ($diff < 60 * 60 * 6) {
-                    /*
-                     * new login activity from $user, duplicate of recent login " . ($diff/60) . " mins ago,
-                     * ignoring!
-                     */
-                    return true;
-                }
+            /* only record login activity every six hours */
+            $cacheKey = CacheKey::buildUserLastLoginCacheKey($user->User);
+            $lastLogin = Cache::get($cacheKey);
+            if ($lastLogin && $lastLogin > Carbon::now()->subHours(6)) {
+                /* ignore event, login recorded recently */
+                return true;
             }
+            Cache::put($cacheKey, Carbon::now(), Carbon::now()->addHours(6));
             break;
 
         case ActivityType::StartedPlaying:
             if ($data === null) {
                 return false;
             }
-            $gameID = $data;
 
-            /*
-             * Switch the rich presence to the new game immediately
-             */
-            $game = getGameData($gameID);
+            $game = getGameData($data);
             if (!$game) {
                 return false;
             }
 
-            UpdateUserRichPresence($user, $gameID, "Playing {$game['Title']}");
-
-            /**
-             * Check for recent duplicate (check cache first, then query DB)
-             */
-            $lastPlayedTimestamp = null;
-            $activityID = null;
-            $recentlyPlayedGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user->User);
-            $recentlyPlayedGames = Cache::get($recentlyPlayedGamesCacheKey);
-            if (!empty($recentlyPlayedGames)) {
-                foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
-                    if ($recentlyPlayedGame['GameID'] == $gameID) {
-                        $activityID = $recentlyPlayedGame['ActivityID'];
-                        $lastPlayedTimestamp = strtotime($recentlyPlayedGame['LastPlayed']);
-                        break;
-                    }
-                }
-            }
-
-            if ($activityID === null) {
-                // not in recent activity, look back farther
-                $lastPlayedActivityData = getMostRecentActivity($user->User, $type, $gameID);
-                if (isset($lastPlayedActivityData)) {
-                    $lastPlayedTimestamp = strtotime($lastPlayedActivityData['timestamp']);
-                    $activityID = $lastPlayedActivityData['ID'];
-                }
-            }
-
-            if ($activityID !== null) {
-                $diff = time() - $lastPlayedTimestamp;
-
-                /*
-                 * record game session activity only every 12 hours
-                 */
-                if ($diff < 60 * 60 * 12) {
-                    /*
-                     * new playing $gameTitle activity from $user, duplicate of recent activity " . ($diff/60) . " mins ago
-                     * Updating db, but not posting!
-                     */
-                    updateActivity($activityID);
-                    expireRecentlyPlayedGames($user->User);
-
-                    return true;
-                }
-                /*
-                 * recognises that $user has played $gameTitle recently, but longer than 12 hours ago (" . ($diff/60) . " mins) so still posting activity!
-                 * $nowTimestamp - $lastPlayedTimestamp = $diff
-                 */
-            }
-
-            $activity->data = (string) $gameID;
+            $activity->data = (string) $data;
             break;
 
         case ActivityType::UploadAchievement:
@@ -180,12 +87,6 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
 
     $activity->save();
 
-    if ($type == ActivityType::StartedPlaying) {
-        // have to do this after the activity is saved to prevent a race condition where
-        // it may get re-cached before the activity is committed.
-        expireRecentlyPlayedGames($user->User);
-    }
-
     // update UserAccount
     $user->LastLogin = Carbon::now();
     $user->LastActivityID = $activity->ID;
@@ -193,16 +94,6 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
     $user->save();
 
     return true;
-}
-
-/**
- * @deprecated see ResumePlayerSessionAction
- */
-function UpdateUserRichPresence(User $user, int $gameID, string $presenceMsg): void
-{
-    $user->RichPresenceMsg = utf8_sanitize($presenceMsg);
-    $user->LastGameID = $gameID;
-    $user->RichPresenceMsgDate = Carbon::now();
 }
 
 /**
@@ -425,8 +316,6 @@ function getArticleComments(
     ?array &$dataOut,
     bool $recent = false
 ): int {
-    sanitize_sql_inputs($articleTypeID, $articleID, $offset, $count);
-
     $dataOut = [];
     $numArticleComments = 0;
     $order = $recent ? ' DESC' : '';
@@ -509,8 +398,6 @@ function getLatestRichPresenceUpdates(): array
 
 function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
 {
-    sanitize_sql_inputs($numToFetch);
-
     $numFound = 0;
 
     $query = "SELECT ach.ID, ach.GameID, ach.Title, ach.Description, ach.Points, gd.Title AS GameTitle, gd.ImageIcon as GameIcon, ach.DateCreated, UNIX_TIMESTAMP(ach.DateCreated) AS timestamp, ach.BadgeName, c.Name AS ConsoleName
@@ -536,8 +423,6 @@ function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
 
 function GetMostPopularTitles(int $daysRange = 7, int $offset = 0, int $count = 10): array
 {
-    sanitize_sql_inputs($daysRange, $offset, $count);
-
     $data = [];
 
     $query = "SELECT COUNT(*) as PlayedCount, gd.ID, gd.Title, gd.ImageIcon, c.Name as ConsoleName
@@ -558,100 +443,165 @@ function GetMostPopularTitles(int $daysRange = 7, int $offset = 0, int $count = 
     return $data;
 }
 
-function getUserGameActivity(string $user, int $gameID): array
+function getUserGameActivity(string $username, int $gameID): array
 {
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT a.timestamp, a.lastupdate, a.data
-              FROM Activity a
-              WHERE a.User='$user' AND a.data=$gameID
-              AND a.activitytype=" . ActivityType::StartedPlaying;
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        log_sql_fail();
-
+    $user = User::firstWhere('User', $username);
+    if (!$user) {
         return [];
     }
 
-    $sessions = [];
-    while ($row = mysqli_fetch_assoc($dbResult)) {
-        $sessions[] = [
-            'StartTime' => strtotime($row['timestamp']),
-        ];
-
-        if ($row['lastupdate'] !== $row['timestamp']) {
-            $sessions[] = [
-                'StartTime' => strtotime($row['lastupdate']),
-            ];
-        }
-    }
-
-    // create a dummy placeholder session for any achievements unlocked before the first session
-    $sessions[] = [
-        'StartTime' => 0,
-        'IsGenerated' => true,
-    ];
-
-    // reverse sort by date so we can update the appropriate session when we find it
-    usort($sessions, fn ($a, $b) => $b['StartTime'] - $a['StartTime']);
-
-    $query = "SELECT a.timestamp, a.data, a.data2, ach.Title, ach.Description, ach.Points, ach.BadgeName, ach.Flags
-              FROM Activity a
-              LEFT JOIN Achievements ach ON ach.ID = a.data
-              WHERE ach.GameID=$gameID AND a.User='$user'
-              AND a.activitytype=" . ActivityType::UnlockedAchievement;
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        log_sql_fail();
-
+    $game = Game::firstWhere('ID', $gameID);
+    if (!$game) {
         return [];
     }
 
     $achievements = [];
     $unofficialAchievements = [];
-    while ($row = mysqli_fetch_assoc($dbResult)) {
-        $when = strtotime($row['timestamp']);
-        $achievements[$row['data']] = $when;
+    $sessions = [];
 
-        if ($row['Flags'] != AchievementFlag::OfficialCore) {
-            $unofficialAchievements[$row['data']] = 1;
+    $playerSessions = PlayerSession::where('user_id', '=', $user->ID)
+        ->where('game_id', '=', $gameID)
+        ->get();
+    foreach ($playerSessions as $playerSession) {
+        $session = [
+            'StartTime' => $playerSession->created_at->unix(),
+            'EndTime' => $playerSession->updated_at->unix(),
+            'IsGenerated' => $playerSession->created_at < Carbon::create(2023, 10, 14, 13, 16, 42),
+            'Achievements' => [],
+        ];
+        if (!empty($playerSession->rich_presence)) {
+            $session['RichPresence'] = $playerSession->rich_presence;
+            $session['RichPresenceTime'] = $playerSession->rich_presence_updated_at->unix();
         }
-
-        foreach ($sessions as &$session) {
-            if ($session['StartTime'] < $when) {
-                $session['Achievements'][] = [
-                    'When' => $when,
-                    'AchievementID' => $row['data'],
-                    'Title' => $row['Title'],
-                    'Description' => $row['Description'],
-                    'Points' => $row['Points'],
-                    'BadgeName' => $row['BadgeName'],
-                    'Flags' => $row['Flags'],
-                    'HardcoreMode' => $row['data2'],
-                ];
-                break;
-            }
-        }
+        $sessions[] = $session;
     }
 
-    // calculate the duration of each session
-    $totalTime = _updateUserGameSessionDurations($sessions, $achievements);
+    // reverse sort by date so we can update the appropriate session when we find it
+    usort($sessions, fn ($a, $b) => $b['StartTime'] - $a['StartTime']);
+
+    $addAchievementToSession = function (&$sessions, $playerAchievement, $when, $hardcore): void {
+        $createSessionAchievement = function ($playerAchievement, $when, $hardcore): array {
+            return [
+                'When' => $when,
+                'AchievementID' => $playerAchievement->achievement_id,
+                'HardcoreMode' => $hardcore,
+                'Flags' => $playerAchievement->Flags,
+                // used by avatar function to avoid additional query
+                'Title' => $playerAchievement->Title,
+                'Description' => $playerAchievement->Description,
+                'Points' => $playerAchievement->Points,
+                'BadgeName' => $playerAchievement->BadgeName,
+            ];
+        };
+
+        $maxSessionGap = 4 * 60 * 60; // 4 hours
+
+        $possibleSession = null;
+        foreach ($sessions as &$session) {
+            if ($session['StartTime'] <= $when) {
+                if ($session['EndTime'] + $maxSessionGap > $when) {
+                    $session['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
+                    $session['EndTime'] = $when;
+
+                    return;
+                }
+                $possibleSession = $session;
+            }
+        }
+
+        if ($possibleSession) {
+            if ($when - $possibleSession['EndTime'] < $maxSessionGap) {
+                $possibleSession['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
+                $possibleSession['EndTime'] = $when;
+
+                return;
+            }
+
+            $index = array_search($sessions, $possibleSession);
+            if ($index < count($sessions)) {
+                $possibleSession = $sessions[$index + 1];
+                if ($possibleSession['StartTime'] - $when < $maxSessionGap) {
+                    $possibleSession['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
+                    $possibleSession['StartTime'] = $when;
+
+                    return;
+                }
+            }
+        }
+
+        $sessions[] = [
+            'StartTime' => $when,
+            'EndTime' => $when,
+            'IsGenerated' => true,
+            'Achievements' => [$createSessionAchievement($playerAchievement, $when, $hardcore)],
+        ];
+        usort($sessions, fn ($a, $b) => $b['StartTime'] - $a['StartTime']);
+    };
+
+    $playerAchievements = PlayerAchievement::where('player_achievements.user_id', '=', $user->ID)
+        ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+        ->where('Achievements.GameID', '=', $gameID)
+        ->orderBy('player_achievements.unlocked_at')
+        ->select(['player_achievements.*', 'Achievements.Flags', 'Achievements.Title',
+                  'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName'])
+        ->get();
+    foreach ($playerAchievements as $playerAchievement) {
+        if ($playerAchievement->Flags != AchievementFlag::OfficialCore) {
+            $unofficialAchievements[$playerAchievement->achievement_id] = 1;
+        }
+
+        $achievements[$playerAchievement->achievement_id] = $playerAchievement->unlocked_at->unix();
+
+        if ($playerAchievement->unlocked_hardcore_at) {
+            $addAchievementToSession($sessions, $playerAchievement, $playerAchievement->unlocked_hardcore_at->unix(), true);
+
+            if ($playerAchievement->unlocked_hardcore_at != $playerAchievement->unlocked_at) {
+                $addAchievementToSession($sessions, $playerAchievement, $playerAchievement->unlocked_at->unix(), false);
+            }
+        } else {
+            $addAchievementToSession($sessions, $playerAchievement, $playerAchievement->unlocked_at->unix(), false);
+        }
+    }
 
     // sort everything and find the first and last achievement timestamps
     usort($sessions, fn ($a, $b) => $a['StartTime'] - $b['StartTime']);
 
+    $hasGenerated = false;
+    $totalTime = 0;
+    $achievementsTime = 0;
+    $intermediateTime = 0;
     $unlockSessionCount = 0;
+    $intermediateSessionCount = 0;
     $firstAchievementTime = null;
     $lastAchievementTime = null;
     foreach ($sessions as &$session) {
+        $elapsed = ($session['EndTime'] - $session['StartTime']);
+        $totalTime += $elapsed;
+
         if (!empty($session['Achievements'])) {
+            if ($achievementsTime > 0) {
+                $achievementsTime += $intermediateTime;
+                $unlockSessionCount += $intermediateSessionCount;
+            }
+            $achievementsTime += $elapsed;
+            $intermediateTime = 0;
+            $intermediateSessionCount = 0;
+
             $unlockSessionCount++;
+            usort($session['Achievements'], fn ($a, $b) => $a['When'] - $b['When']);
             foreach ($session['Achievements'] as &$achievement) {
                 if ($firstAchievementTime === null) {
                     $firstAchievementTime = $achievement['When'];
                 }
                 $lastAchievementTime = $achievement['When'];
             }
+
+            if ($session['IsGenerated']) {
+                $hasGenerated = true;
+            }
+        } else {
+            $intermediateTime += $elapsed;
+            $intermediateSessionCount++;
         }
     }
 
@@ -660,9 +610,12 @@ function getUserGameActivity(string $user, int $gameID): array
     // approximate time per achievement earned. add this value to each session to account
     // for time played after getting the last achievement of the session.
     $achievementsUnlocked = count($achievements);
-    if ($achievementsUnlocked > 0 && $unlockSessionCount > 1) {
-        $sessionAdjustment = $totalTime / $achievementsUnlocked;
-        $totalTime += $sessionAdjustment * $unlockSessionCount;
+    if ($hasGenerated && $achievementsUnlocked > 0) {
+        $sessionAdjustment = $achievementsTime / $achievementsUnlocked;
+        $totalTime += $sessionAdjustment * count($sessions);
+        if ($unlockSessionCount > 1) {
+            $achievementsTime += $sessionAdjustment * $unlockSessionCount;
+        }
     } else {
         $sessionAdjustment = 0;
     }
@@ -670,99 +623,15 @@ function getUserGameActivity(string $user, int $gameID): array
     $activity = [
         'Sessions' => $sessions,
         'TotalTime' => $totalTime,
+        'AchievementsTime' => $achievementsTime,
         'PerSessionAdjustment' => $sessionAdjustment,
         'AchievementsUnlocked' => count($achievements) - count($unofficialAchievements),
         'UnlockSessionCount' => $unlockSessionCount,
         'FirstUnlockTime' => $firstAchievementTime,
         'LastUnlockTime' => $lastAchievementTime,
         'TotalUnlockTime' => ($lastAchievementTime != null) ? $lastAchievementTime - $firstAchievementTime : 0,
+        'CoreAchievementCount' => $game->achievements_published,
     ];
 
-    // Count num possible achievements
-    $query = "SELECT COUNT(*) as Count FROM Achievements ach
-              WHERE ach.Flags=" . AchievementFlag::OfficialCore . " AND ach.GameID=$gameID";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult) {
-        $activity['CoreAchievementCount'] = mysqli_fetch_assoc($dbResult)['Count'];
-    }
-
     return $activity;
-}
-
-function _updateUserGameSessionDurations(array &$sessions, array $achievements): int
-{
-    $totalTime = 0;
-    $newSessions = [];
-    foreach ($sessions as &$session) {
-        if (!array_key_exists('Achievements', $session)) {
-            if ($session['StartTime'] > 0) {
-                $session['Achievements'] = [];
-                $session['EndTime'] = $session['StartTime'];
-                $newSessions[] = $session;
-            }
-        } else {
-            usort($session['Achievements'], fn ($a, $b) => $a['When'] - $b['When']);
-
-            if ($session['StartTime'] === 0) {
-                $session['StartTime'] = $session['Achievements'][0]['When'];
-            }
-
-            foreach ($session['Achievements'] as &$achievement) {
-                if ($achievement['When'] != $achievements[$achievement['AchievementID']]) {
-                    $achievement['UnlockedLater'] = true;
-                }
-            }
-
-            // if there are any gaps in the achievements earned within a session that
-            // are more than four hours apart, split into separate sessions
-            $split = [];
-            $prevTime = $session['StartTime'];
-            $itemsCount = count($session['Achievements']);
-            for ($i = 0; $i < $itemsCount; $i++) {
-                $distance = $session['Achievements'][$i]['When'] - $prevTime;
-                if ($distance > 4 * 60 * 60) {
-                    $split[] = $i;
-                }
-                $prevTime = $session['Achievements'][$i]['When'];
-            }
-
-            if (empty($split)) {
-                $session['EndTime'] = end($session['Achievements'])['When'];
-                $totalTime += ($session['EndTime'] - $session['StartTime']);
-                $newSessions[] = $session;
-            } else {
-                $split[] = count($session['Achievements']);
-                $firstIndex = 0;
-                $isGenerated = false;
-                foreach ($split as $i) {
-                    if ($i === 0) {
-                        $newSession = [
-                            'StartTime' => $session['StartTime'],
-                            'EndTime' => $session['StartTime'],
-                            'Achievements' => [],
-                        ];
-                    } else {
-                        $newSession = [
-                            'StartTime' => $isGenerated ? $session['Achievements'][$firstIndex]['When'] :
-                                $session['StartTime'],
-                            'EndTime' => $session['Achievements'][$i - 1]['When'],
-                            'Achievements' => array_slice($session['Achievements'], $firstIndex, $i - $firstIndex),
-                        ];
-                    }
-
-                    $newSession['IsGenerated'] = $isGenerated;
-                    $isGenerated = true;
-
-                    $totalTime += ($newSession['EndTime'] - $newSession['StartTime']);
-                    $newSessions[] = $newSession;
-
-                    $firstIndex = $i;
-                }
-            }
-        }
-    }
-
-    $sessions = $newSessions;
-
-    return $totalTime;
 }

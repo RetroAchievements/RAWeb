@@ -36,5 +36,6 @@ class UpdateGameAchievementsMetrics extends Command
         }
 
         $progressBar->finish();
+        $this->line(PHP_EOL);
     }
 }

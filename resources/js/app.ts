@@ -13,6 +13,7 @@ import {
   autoExpandTextInput,
   copyToClipboard,
   fetcher,
+  getCookie,
   getStringByteCount,
   handleLeaderboardTabClick,
   initializeTextareaCounter,
@@ -37,6 +38,7 @@ lazyLoadModuleOnIdFound({
 window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.fetcher = fetcher;
+window.getCookie = getCookie;
 window.getStringByteCount = getStringByteCount;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.initializeTextareaCounter = initializeTextareaCounter;

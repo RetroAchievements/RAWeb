@@ -54,7 +54,6 @@ class RevalidateAchievementSetBadgeEligibility
                 $playerGame->game->id,
                 UnlockMode::Softcore,
                 $playerGame->beaten_at,
-                displayOrder: 0
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameBeaten::dispatch($playerGame->user, $playerGame->game);
@@ -69,7 +68,6 @@ class RevalidateAchievementSetBadgeEligibility
                 $playerGame->game->id,
                 UnlockMode::Hardcore,
                 $playerGame->beaten_hardcore_at,
-                displayOrder: 0
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameBeaten::dispatch($playerGame->user, $playerGame->game, true);
@@ -109,15 +107,6 @@ class RevalidateAchievementSetBadgeEligibility
         }
 
         if ($playerGame->achievements_total < PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY) {
-            if ($softcoreBadge->exists()) {
-                PlayerBadgeLost::dispatch($softcoreBadge->first());
-                $softcoreBadge->delete();
-            }
-            if ($hardcoreBadge->exists()) {
-                PlayerBadgeLost::dispatch($hardcoreBadge->first());
-                $hardcoreBadge->delete();
-            }
-
             return;
         }
 
@@ -128,7 +117,6 @@ class RevalidateAchievementSetBadgeEligibility
                 $playerGame->game->id,
                 UnlockMode::Softcore,
                 $playerGame->completed_at,
-                displayOrder: 0
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game);
@@ -154,7 +142,6 @@ class RevalidateAchievementSetBadgeEligibility
                 $playerGame->game->id,
                 UnlockMode::Hardcore,
                 $playerGame->completed_hardcore_at,
-                displayOrder: 0
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game, true);
