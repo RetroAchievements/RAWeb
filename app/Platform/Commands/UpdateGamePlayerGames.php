@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\UpdateGamePlayerGames as UpdateOutdatedPlayerGameMetricsAction;
+use App\Platform\Actions\UpdateGamePlayerGames as UpdatePlayerGameMetricsAction;
 use App\Platform\Models\Game;
 use Illuminate\Console\Command;
 
@@ -15,7 +15,7 @@ class UpdateGamePlayerGames extends Command
     protected $description = "Update game(s) outdated player game metrics";
 
     public function __construct(
-        private readonly UpdateOutdatedPlayerGameMetricsAction $updateOutdatedPlayerGameMetrics
+        private readonly UpdatePlayerGameMetricsAction $updatePlayerGameMetrics
     ) {
         parent::__construct();
     }
@@ -31,7 +31,7 @@ class UpdateGamePlayerGames extends Command
         $progressBar->start();
 
         foreach ($games as $game) {
-            $this->updateOutdatedPlayerGameMetrics->execute($game);
+            $this->updatePlayerGameMetrics->execute($game);
             $progressBar->advance();
         }
 

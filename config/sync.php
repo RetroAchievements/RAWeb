@@ -305,43 +305,6 @@ return [
         // ],
 
         /*
-         * Awarded             60000k    incremental by Date
-         *
-         * Populates player_achievements and player_games
-         *
-         * @see \App\Platform\Commands\SyncPlayerAchievements
-         */
-        'player_achievements' => [
-            'model' => PlayerAchievement::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => PlayerAchievementLegacy::class,
-            'reference_key' => 'Date',
-            'unique_key' => ['user_id', 'achievement_id'],
-            'require' => [
-            ],
-            'map' => [
-                /* no map. everything is handled in preProcessEntity */
-            ],
-        ],
-
-        /*
-         * syncing from Activity (type 3 = started playing) is too expensive
-         * sync from player achievements instead
-         */
-        'player_games' => [
-            'model' => PlayerGame::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => PlayerAchievement::class,
-            'reference_key' => PlayerAchievement::CREATED_AT,
-            'unique_key' => ['user_id', 'game_id'],
-            'require' => [
-            ],
-            'map' => [
-                /* no map. everything is handled in preProcessEntity */
-            ],
-        ],
-
-        /*
          * SiteAwards            106k    incremental by AwardDate
          */
         // TODO
