@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class UserProgressTest extends TestCase
 {
     use RefreshDatabase;
+    use TestsPlayerAchievements;
     use BootstrapsApiV1;
 
     public function testGetUserProgressUnknownUser(): void
@@ -30,11 +32,12 @@ class UserProgressTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
-        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(0)->ID, 'User' => $this->user->User]);
-        PlayerAchievementLegacy::factory()->create(['AchievementID' => $publishedAchievements->get(1)->ID, 'User' => $this->user->User]);
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
+        $this->addSoftcoreUnlock($this->user, $publishedAchievements->get(1));
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         $publishedAchievements2 = Achievement::factory()->published()->count(5)->create(['GameID' => $game2->ID]);
+        (new UpdateGameMetrics())->execute($game2);
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
 
@@ -50,8 +53,9 @@ class UserProgressTest extends TestCase
                                        $publishedAchievements->get(2)->Points,
                     'NumAchievedHardcore' => 1,
                     'ScoreAchievedHardcore' => $publishedAchievements->get(0)->Points,
-                    'NumAchieved' => 1,
-                    'ScoreAchieved' => $publishedAchievements->get(1)->Points,
+                    'NumAchieved' => 2,
+                    'ScoreAchieved' => $publishedAchievements->get(0)->Points +
+                                       $publishedAchievements->get(1)->Points,
                 ],
                 $game2->ID => [
                     'NumPossibleAchievements' => 5,

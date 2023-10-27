@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
@@ -132,8 +133,6 @@ RenderContentStart($pageTitle);
 </article>
 <?php view()->share('sidebar', true) ?>
 <aside>
-    <?php
-    RenderRecentForumPostsComponent(8);
-    ?>
+    <?= Blade::render('<x-forum-recent-posts :numToFetch="8" />') ?>
 </aside>
 <?php RenderContentEnd(); ?>

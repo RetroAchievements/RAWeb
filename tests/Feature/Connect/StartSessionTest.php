@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Enums\ActivityType;
-use App\Community\Models\UserActivityLegacy;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerSession;
@@ -71,7 +69,7 @@ class StartSessionTest extends TestCase
                 'ServerNow' => Carbon::now()->timestamp,
             ]);
 
-        // player session resumed
+        // player session created
         $playerSession = PlayerSession::where([
             'user_id' => $this->user->id,
             'game_id' => $achievement3->game_id,
@@ -79,12 +77,6 @@ class StartSessionTest extends TestCase
         $this->assertModelExists($playerSession);
         $this->assertEquals(1, $playerSession->duration);
         $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
-
-        /** @var UserActivityLegacy $activity */
-        $activity = UserActivityLegacy::latest()->first();
-        $this->assertNotNull($activity);
-        $this->assertEquals(ActivityType::StartedPlaying, $activity->activitytype);
-        $this->assertEquals($game->ID, $activity->data);
 
         /** @var User $user1 */
         $user1 = User::firstWhere('User', $this->user->User);
@@ -118,7 +110,7 @@ class StartSessionTest extends TestCase
                 'ServerNow' => Carbon::now()->timestamp,
             ]);
 
-        // player session resumed
+        // player session created
         $playerSession = PlayerSession::where([
             'user_id' => $this->user->id,
             'game_id' => $game2->id,
@@ -127,13 +119,46 @@ class StartSessionTest extends TestCase
         $this->assertEquals(1, $playerSession->duration);
         $this->assertEquals('Playing ' . $game2->title, $playerSession->rich_presence);
 
-        $activity = UserActivityLegacy::latest()->first();
-        $this->assertNotNull($activity);
-        $this->assertEquals(ActivityType::StartedPlaying, $activity->activitytype);
-        $this->assertEquals($game2->ID, $activity->data);
-
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($game2->ID, $user1->LastGameID);
         $this->assertEquals("Playing " . $game2->Title, $user1->RichPresenceMsg);
+
+        // ----------------------------
+        // recently active session is extended
+        Carbon::setTestNow($now->addMinutes(8));
+        $this->get($this->apiUrl('startsession', ['g' => $game2->ID]))
+            ->assertExactJson([
+                'Success' => true,
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // player session created
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $game2->id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+        $this->assertEquals($playerSession->id, $playerSession2->id);
+        $this->assertEquals(8, $playerSession2->duration);
+        $this->assertEquals('Playing ' . $game2->title, $playerSession2->rich_presence);
+
+        // ----------------------------
+        // new session created after long absence
+        Carbon::setTestNow($now->addHours(4));
+        $this->get($this->apiUrl('startsession', ['g' => $game2->ID]))
+            ->assertExactJson([
+                'Success' => true,
+                'ServerNow' => Carbon::now()->timestamp,
+            ]);
+
+        // player session created
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $game2->id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+        $this->assertNotEquals($playerSession->id, $playerSession2->id);
+        $this->assertEquals(1, $playerSession2->duration);
+        $this->assertEquals('Playing ' . $game2->title, $playerSession2->rich_presence);
     }
 }

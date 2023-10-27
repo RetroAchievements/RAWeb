@@ -2,6 +2,7 @@
 
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
@@ -9,6 +10,8 @@ $consoleIDInput = (int) request()->input('z', 0);
 $mobileBrowser = IsMobileBrowser();
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$userModel = $user ? User::firstWhere('User', $user) : null;
 
 $maxCount = 25;
 
@@ -31,7 +34,7 @@ if ($dev != null) {
 }
 
 $sortBy = (int) request()->input('s', 17);
-$achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $dev);
+$achData = getAchievementsList($userModel, $sortBy, $params, $count, $offset, $flags, $dev);
 
 // Is the user looking at their own achievements list?
 $isOwnEarnedAchievementsList = $user !== null && $params === 1;

@@ -28,8 +28,8 @@ class UnlockPlayerAchievement
 
         if ($unlockedBy) {
             // only attach the game if it's a manual unlock
-            $attachPlayerGameAction = app()->make(AttachPlayerGame::class);
-            $attachPlayerGameAction->execute($user, $achievement->game);
+            app()->make(AttachPlayerGame::class)
+                ->execute($user, $achievement->game);
         } else {
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSession::class)

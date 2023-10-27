@@ -1,4 +1,16 @@
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+
 [mysqld]
 skip-host-cache
 skip-name-resolve
-sql_mode=IGNORE_SPACE,STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+character-set-client-handshake = FALSE
+init_connect = "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+sql_mode = IGNORE_SPACE,STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
