@@ -61,17 +61,16 @@ if ($action === 'manual-unlock') {
         $usersToAward = preg_split('/\W+/', $awardAchievementUser);
         $errors = [];
         foreach ($usersToAward as $nextUser) {
-            $validUser = validateUsername($nextUser);
-            if (!$validUser) {
+            $player = User::firstWhere('User', $nextUser);
+            if (!$player) {
                 continue;
             }
             $ids = separateList($awardAchievementID);
             foreach ($ids as $nextID) {
-                $awardResponse = unlockAchievement($validUser, $nextID, $awardAchHardcore);
+                $awardResponse = unlockAchievement($player, $nextID, $awardAchHardcore);
                 if (array_key_exists('Error', $awardResponse)) {
                     $errors[] = $awardResponse['Error'];
                 }
-                $player = User::firstWhere('User', $validUser);
                 dispatch(
                     new UnlockPlayerAchievementJob(
                         $player->id,
