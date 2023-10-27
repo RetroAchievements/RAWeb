@@ -128,7 +128,7 @@ return new class() extends Migration {
                 } else {
                     $table->primary(['GameID', 'Address']);
                 }
-                $table->index('GameID');
+                $table->index('GameID', 'memory_notes_game_id_index');
             });
         }
 
@@ -157,7 +157,7 @@ return new class() extends Migration {
                 $table->timestampTz('Submitted')->useCurrent();
                 $table->timestampTz('Edited')->nullable();
 
-                $table->index('ArticleID');
+                $table->index('ArticleID', 'comments_commentable_id_index');
             });
         }
 
@@ -194,7 +194,7 @@ return new class() extends Migration {
         if (!Schema::hasTable('Forum')) {
             Schema::create('Forum', function (Blueprint $table) {
                 $table->increments('ID');
-                $table->unsignedInteger('CategoryID')->index();
+                $table->unsignedInteger('CategoryID')->index('forums_forum_category_id_index');
                 $table->string('Title', 50);
                 $table->string('Description', 250);
                 $table->unsignedInteger('LatestCommentID')->nullable();
@@ -244,7 +244,7 @@ return new class() extends Migration {
         if (!Schema::hasTable('ForumTopic')) {
             Schema::create('ForumTopic', function (Blueprint $table) {
                 $table->increments('ID');
-                $table->unsignedInteger('ForumID')->index();
+                $table->unsignedInteger('ForumID')->index('forum_topics_forum_id_index');
                 $table->string('Title');
                 $table->string('Author', 50);
                 $table->unsignedInteger('AuthorID');
@@ -269,11 +269,11 @@ return new class() extends Migration {
         if (!Schema::hasTable('ForumTopicComment')) {
             Schema::create('ForumTopicComment', function (Blueprint $table) {
                 $table->increments('ID');
-                $table->unsignedInteger('ForumTopicID')->index();
+                $table->unsignedInteger('ForumTopicID')->index('forum_topic_comments_forum_topic_id_index');
                 $table->text('Payload');
                 $table->string('Author', 50);
                 $table->unsignedInteger('AuthorID');
-                $table->timestampTz('DateCreated')->nullable()->index();
+                $table->timestampTz('DateCreated')->nullable()->index('forum_topic_comments_created_at_index');
                 $table->timestampTz('DateModified')->nullable()->useCurrent()->useCurrentOnUpdate();
                 $table->unsignedTinyInteger('Authorised')->nullable();
             });
@@ -286,8 +286,8 @@ return new class() extends Migration {
                     $table->bigIncrements('id')->first();
                 }
 
-                $table->string('User', 32)->index();
-                $table->string('Friend', 32)->index();
+                $table->string('User', 32)->index('user_relations_user_id_index');
+                $table->string('Friend', 32)->index('user_relations_related_user_id_index');
                 $table->tinyInteger('Friendship');
             });
         }
@@ -333,7 +333,7 @@ return new class() extends Migration {
             Schema::create('GameData', function (Blueprint $table) {
                 $table->increments('ID');
                 $table->string('Title', 80);
-                $table->unsignedTinyInteger('ConsoleID')->index();
+                $table->unsignedTinyInteger('ConsoleID')->index('games_system_id_index');
                 $table->integer('ForumTopicID')->nullable();
                 $table->integer('Flags')->nullable();
                 $table->string('ImageIcon', 50)->nullable()->default('/Images/000001.png');
@@ -348,7 +348,7 @@ return new class() extends Migration {
                 $table->text('RichPresencePatch')->nullable();
                 $table->unsignedInteger('TotalTruePoints')->default(0);
 
-                $table->unique(['Title', 'ConsoleID']);
+                $table->unique(['Title', 'ConsoleID'], 'games_title_system_id_unique');
             });
         }
 
@@ -411,7 +411,7 @@ return new class() extends Migration {
         if (!Schema::hasTable('LeaderboardDef')) {
             Schema::create('LeaderboardDef', function (Blueprint $table) {
                 $table->increments('ID');
-                $table->unsignedInteger('GameID')->default(0)->index();
+                $table->unsignedInteger('GameID')->default(0)->index('leaderboards_game_id_index');
                 $table->text('Mem');
                 $table->string('Format', 50)->nullable()->default('');
                 $table->string('Title')->default('Leaderboard Title');
@@ -670,12 +670,12 @@ return new class() extends Migration {
                 $table->unsignedInteger('ReportedByUserID');
                 $table->unsignedTinyInteger('ReportType');
                 $table->text('ReportNotes');
-                $table->timestampTz('ReportedAt')->nullable()->index();
+                $table->timestampTz('ReportedAt')->nullable()->index('tickets_created_at_index');
                 $table->timestampTz('ResolvedAt')->nullable();
                 $table->unsignedInteger('ResolvedByUserID')->nullable();
                 $table->unsignedTinyInteger('ReportState')->default(1)->comment('1=submitted,2=resolved,3=declined');
 
-                $table->unique(['AchievementID', 'ReportedByUserID']);
+                $table->unique(['AchievementID', 'ReportedByUserID'], 'tickets_achievement_id_reporter_id_unique');
             });
         }
 
@@ -701,7 +701,7 @@ return new class() extends Migration {
         if (!Schema::hasTable('UserAccounts')) {
             Schema::create('UserAccounts', function (Blueprint $table) {
                 $table->increments('ID'); // NOTE PRIMARY KEY ('ID', 'User') on production
-                $table->string('User', 32)->unique();
+                $table->string('User', 32)->unique('users_username_unique');
                 $table->string('SaltedPass', 32);
                 $table->string('EmailAddress', 64);
                 $table->tinyInteger('Permissions')->comment('-2=spam, -1=banned, 0=unconfirmed, 1=confirmed, 2=jr-developer, 3=developer, 4=moderator');
@@ -730,13 +730,13 @@ return new class() extends Migration {
                 $table->boolean('Untracked')->default(0);
                 $table->string('email_backup')->nullable();
 
-                $table->index(['User', 'Untracked']);
-                $table->index(['TrueRAPoints', 'Untracked']);
-                $table->index(['Untracked', 'RAPoints']);
-                $table->index('LastActivityID');
+                $table->index(['User', 'Untracked'], 'users_username_untracked_index');
+                $table->index(['TrueRAPoints', 'Untracked'], 'users_points_weighted_untracked_index');
+                $table->index(['Untracked', 'RAPoints'], 'users_untracked_points_index');
+                $table->index('LastActivityID', 'users_last_activity_id_index');
 
                 // https://github.com/RetroAchievements/RAWeb/blob/master/database/20200402_230000_Add_UserAccount_Index.sql
-                $table->index(['RAPoints', 'Untracked']);
+                $table->index(['RAPoints', 'Untracked'], 'users_points_untracked_index');
             });
         }
 
@@ -782,7 +782,7 @@ return new class() extends Migration {
                 $table->integer('RASoftcorePoints')->nullable()->default(0)->after('RAPoints');
 
                 // https://github.com/RetroAchievements/RAWeb/blob/master/database/20220810_000000_Add_UserAccount_SoftcorePoints_Key.sql
-                $table->index(['RASoftcorePoints', 'Untracked']);
+                $table->index(['RASoftcorePoints', 'Untracked'], 'users_points_softcore_unranked_index');
             });
         }
 
