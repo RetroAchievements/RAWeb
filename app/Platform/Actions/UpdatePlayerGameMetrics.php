@@ -7,16 +7,14 @@ namespace App\Platform\Actions;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerGame;
-use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class UpdatePlayerGameMetrics
 {
-    public function execute(PlayerGame $playerGame): void
+    public function execute(PlayerGame $playerGame, bool $silent = false): void
     {
         // TODO do this for each player_achievement_set as soon as achievement set separation is introduced
         // TODO store aggregates of all player_achievement_set on player_games metrics
@@ -39,7 +37,7 @@ class UpdatePlayerGameMetrics
 
         $points = $achievementsUnlocked->sum('Points');
         $pointsHardcore = $achievementsUnlockedHardcore->sum('Points');
-        $pointsWeighted = $achievementsUnlocked->sum('TrueRatio');
+        $pointsWeighted = $achievementsUnlockedHardcore->sum('TrueRatio');
 
         $playerAchievements = $achievementsUnlocked->pluck('pivot');
         $playerAchievementsHardcore = $playerAchievements->whereNotNull('unlocked_hardcore_at');
@@ -99,11 +97,15 @@ class UpdatePlayerGameMetrics
 
         $playerGame->save();
 
-        PlayerGameMetricsUpdated::dispatch($user, $game);
+        if (!$silent) {
+            PlayerGameMetricsUpdated::dispatch($user, $game);
+        }
 
         app()->make(RevalidateAchievementSetBadgeEligibility::class)->execute($playerGame);
 
-        expireGameTopAchievers($playerGame->game->id);
+        expireUserCompletedGamesCacheValue($user->username);
+        expireUserAchievementUnlocksForGame($user->username, $game->id);
+        expireGameTopAchievers($game->id);
     }
 
     /**

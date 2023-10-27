@@ -43,5 +43,6 @@ class UpdateDeveloperContributionYield extends Command
         }
 
         $progressBar->finish();
+        $this->line(PHP_EOL);
     }
 }

@@ -29,6 +29,18 @@ class UnlockPlayerAchievementJob implements ShouldQueue
         $this->timestamp ??= Carbon::now();
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function tags(): array
+    {
+        return [
+            User::class . ':' . $this->userId,
+            Achievement::class . ':' . $this->achievementId,
+            'unlock:' . ($this->unlockedByUserId ? 'manual' : 'organic'),
+        ];
+    }
+
     public function handle(): void
     {
         app()->make(UnlockPlayerAchievement::class)->execute(

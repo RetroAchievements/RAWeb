@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('websockets:clean')->daily();
 
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
+        $schedule->command('queue:prune-batches --hours=48 --unfinished=72 --cancelled=72')->daily();
 
         /** @var Settings $settings */
         $settings = $this->app->get(Settings::class);
