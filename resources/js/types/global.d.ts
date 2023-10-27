@@ -15,6 +15,7 @@ import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode
 import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview';
 import type { getCookie as GetCookie, setCookie as SetCookie } from '@/utils/cookie';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
+import type { updateUrlParameter as UpdateUrlParameter } from '@/utils/updateUrlParameter';
 
 declare global {
   var Alpine: Alpine;
@@ -38,4 +39,5 @@ declare global {
   var showStatusSuccess: (message: string) => void;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;
+  var updateUrlParameter: typeof UpdateUrlParameter;
 }

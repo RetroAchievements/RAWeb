@@ -16,7 +16,7 @@ if ($cellType === 'beaten') {
     $classNames = "border-yellow-600 bg-yellow-600/10 text-[gold] light:text-yellow-600";
 }
 
-$classNames .= " cell";
+$classNames .= " cell group";
 
 if ($widthMode === 'dynamic' && $cellGamesCount > 0) {
     $classNames .= " min-w-fit px-2";

@@ -4,26 +4,31 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Enums\AwardType;
-use App\Platform\Enums\UnlockMode;
+use App\Platform\Services\PlayerProgressionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class UserProgressionStatus extends Component
 {
-    private array $userCompletionProgress = [];
-    private array $userRecentlyPlayed = [];
-    private array $userSiteAwards = [];
-    private int $userHardcorePoints = 0;
-    private int $userSoftcorePoints = 0;
+    protected PlayerProgressionService $playerProgressionService;
+    public array $userCompletionProgress = [];
+    public array $userRecentlyPlayed = [];
+    public array $userSiteAwards = [];
+    public int $userHardcorePoints = 0;
+    public int $userSoftcorePoints = 0;
 
     public function __construct(
+        PlayerProgressionService $playerProgressionService,
         array $userCompletionProgress = [],
         array $userSiteAwards = [],
         array $userRecentlyPlayed = [],
         int $userHardcorePoints = 0,
         int $userSoftcorePoints = 0,
     ) {
+        // DI
+        $this->playerProgressionService = $playerProgressionService;
+
+        // Props
         $this->userCompletionProgress = $userCompletionProgress;
         $this->userSiteAwards = $userSiteAwards;
         $this->userRecentlyPlayed = $userRecentlyPlayed;
@@ -33,7 +38,11 @@ class UserProgressionStatus extends Component
 
     public function render(): ?View
     {
-        $consoleProgress = $this->buildConsoleProgress($this->userCompletionProgress, $this->userSiteAwards);
+        [$totalCountsMetrics, $consoleProgress] = $this->buildProgressMetrics(
+            $this->userCompletionProgress,
+            $this->userSiteAwards
+        );
+
         [$consoleProgress, $topConsole] = $this->sortConsoleProgress(
             $consoleProgress,
             $this->userRecentlyPlayed,
@@ -41,11 +50,11 @@ class UserProgressionStatus extends Component
             $this->userSiteAwards
         );
 
-        $totalUnfinishedCount = array_sum(array_column($consoleProgress, 'unfinishedCount'));
-        $totalBeatenSoftcoreCount = array_sum(array_column($consoleProgress, 'beatenSoftcoreCount'));
-        $totalBeatenHardcoreCount = array_sum(array_column($consoleProgress, 'beatenHardcoreCount'));
-        $totalCompletedCount = array_sum(array_column($consoleProgress, 'completedCount'));
-        $totalMasteredCount = array_sum(array_column($consoleProgress, 'masteredCount'));
+        $totalUnfinishedCount = $totalCountsMetrics['numUnfinished'];
+        $totalBeatenSoftcoreCount = $totalCountsMetrics['numBeatenSoftcore'];
+        $totalBeatenHardcoreCount = $totalCountsMetrics['numBeatenHardcore'];
+        $totalCompletedCount = $totalCountsMetrics['numCompleted'];
+        $totalMasteredCount = $totalCountsMetrics['numMastered'];
 
         return view('community.components.user.progression-status.root', [
             'userCompletionProgress' => $this->userCompletionProgress,
@@ -63,87 +72,46 @@ class UserProgressionStatus extends Component
         ]);
     }
 
-    private function buildConsoleProgress(array $userCompletionProgress, array $userSiteAwards): array
+    private function buildProgressMetrics(array $userCompletionProgress, array $userSiteAwards): array
     {
-        $joinedData = [];
+        $filteredAndJoinedGamesList = $this->playerProgressionService->filterAndJoinGames(
+            $userCompletionProgress,
+            $userSiteAwards,
+        );
 
-        // Populate joinedData with userCompletionProgress information.
-        foreach ($userCompletionProgress as $progress) {
-            $consoleId = $progress['ConsoleID'];
-            $gameId = $progress['GameID'];
-
-            if (!isset($joinedData[$consoleId])) {
-                $joinedData[$consoleId] = [];
-            }
-
-            $joinedData[$consoleId][$gameId] = ['progress' => $progress, 'awards' => []];
-        }
-
-        // Add userSiteAwards information into joinedData.
-        foreach ($userSiteAwards as $award) {
-            $gameId = $award['AwardData'];
-            $consoleId = $award['ConsoleID'];
-
-            if (!isset($joinedData[$consoleId])) {
-                $joinedData[$consoleId] = [];
-            }
-
-            if (!isset($joinedData[$consoleId][$gameId])) {
-                $joinedData[$consoleId][$gameId] = ['progress' => null, 'awards' => []];
-            }
-
-            $joinedData[$consoleId][$gameId]['awards'][] = $award;
-        }
+        $allConsoleIds = array_unique(array_map(function ($game) {
+            return $game['ConsoleID'] ?? 0;
+        }, $filteredAndJoinedGamesList));
 
         // Initialize the result array.
         $consoleProgress = [];
 
-        // Loop through joinedData to calculate counts.
-        foreach ($joinedData as $consoleId => $games) {
-            if (!$consoleId || $consoleId == 101 || !isValidConsoleId($consoleId)) {
+        $totalCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
+            $filteredAndJoinedGamesList
+        );
+
+        // Loop through joinedData to calculate counts for individual consoles.
+        foreach ($allConsoleIds as $consoleId) {
+            if ($consoleId !== -1 && (!$consoleId || $consoleId == 101 || !isValidConsoleId($consoleId))) {
                 continue;
             }
 
-            $unfinishedCount = 0;
-            $beatenSoftcoreCount = 0;
-            $beatenHardcoreCount = 0;
-            $completedCount = 0;
-            $masteredCount = 0;
-
-            foreach ($games as $gameData) {
-                $awards = $gameData['awards'];
-                $awardFlag = false;
-
-                foreach ($awards as $award) {
-                    $awardFlag = true;
-
-                    if ($award['AwardType'] === AwardType::Mastery && $award['AwardDataExtra'] === UnlockMode::Hardcore) {
-                        $masteredCount++;
-                    } elseif ($award['AwardType'] === AwardType::Mastery && $award['AwardDataExtra'] === UnlockMode::Softcore) {
-                        $completedCount++;
-                    } elseif ($award['AwardType'] === AwardType::GameBeaten && $award['AwardDataExtra'] === UnlockMode::Softcore) {
-                        $beatenSoftcoreCount++;
-                    } elseif ($award['AwardType'] === AwardType::GameBeaten && $award['AwardDataExtra'] === UnlockMode::Hardcore) {
-                        $beatenHardcoreCount++;
-                    }
-                }
-
-                if (!$awardFlag && $gameData['progress'] !== null) {
-                    $unfinishedCount++;
-                }
-            }
+            $consoleCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
+                $filteredAndJoinedGamesList,
+                $consoleId
+            );
 
             $consoleProgress[$consoleId] = [
-                'unfinishedCount' => $unfinishedCount,
-                'beatenSoftcoreCount' => $beatenSoftcoreCount,
-                'beatenHardcoreCount' => $beatenHardcoreCount,
-                'completedCount' => $completedCount,
-                'masteredCount' => $masteredCount,
+                'unfinishedCount' => $consoleCountsMetrics['numUnfinished'],
+                'beatenSoftcoreCount' => $consoleCountsMetrics['numBeatenSoftcore'],
+                'beatenHardcoreCount' => $consoleCountsMetrics['numBeatenHardcore'],
+                'completedCount' => $consoleCountsMetrics['numCompleted'],
+                'masteredCount' => $consoleCountsMetrics['numMastered'],
                 'ConsoleID' => $consoleId,
             ];
         }
 
-        return $consoleProgress;
+        return [$totalCountsMetrics, $consoleProgress];
     }
 
     private function sortConsoleProgress(

@@ -6,6 +6,7 @@ namespace App\Platform;
 
 use App\Platform\Controllers\ApiDocsController;
 use App\Platform\Controllers\GameDevInterestController;
+use App\Platform\Controllers\PlayerCompletionProgressController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -79,9 +80,9 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('tools', [ToolController::class, 'index'])->name('tool.index');
             // Route::get('tool/hash-check', [ToolController::class, 'hashCheck'])->name('tool.hash-check');
 
-            // Route::group([
-            //     'middleware' => ['auth', 'verified'],
-            // ], function () {
+            Route::group([
+                'middleware' => ['auth', 'verified'],
+            ], function () {
             //     /*
             //      * Release Management Routes
             //      */
@@ -136,9 +137,11 @@ class RouteServiceProvider extends ServiceProvider
             //     Route::resource('system', SystemController::class)->only('edit', 'update', 'destroy');
             //     Route::resource('game', GameController::class)->only('edit', 'update', 'destroy');
             //
+                Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');
+
             //     Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])
             //         ->name('user.game.compare');
-            // });
+            });
         });
     }
 }
