@@ -3,6 +3,7 @@
 namespace App\Platform\Listeners;
 
 use App\Platform\Events\PlayerAchievementUnlocked;
+use App\Platform\Events\PlayerGameAttached;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Site\Models\User;
@@ -12,9 +13,9 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
 {
     public function handle(object $event): void
     {
-        /** @var User|string|int|null $user */
         $user = null;
         $game = null;
+        // TODO forward hardcore flag
         $hardcore = null;
 
         switch ($event::class) {
@@ -24,21 +25,17 @@ class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue
                 $game = $achievement->game;
                 $hardcore = $event->hardcore;
                 break;
+            case PlayerGameAttached::class:
+                $user = $event->user;
+                $game = $event->game;
+                break;
         }
 
         if (!$user instanceof User) {
-            if (is_int($user)) {
-                $user = User::find($user);
-            } elseif (is_string($user)) {
-                $user = User::firstWhere('User', $user);
-            }
+            return;
         }
 
-        if (is_int($game)) {
-            $game = Game::find($game);
-        }
-
-        if ($user === null || $game === null) {
+        if (!$game instanceof Game) {
             return;
         }
 

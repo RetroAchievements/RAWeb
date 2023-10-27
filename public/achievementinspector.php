@@ -31,7 +31,7 @@ $gameIcon = null;
 $gameTitle = null;
 $gameIDSpecified = isset($gameID) && $gameID != 0;
 if ($gameIDSpecified) {
-    getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
+    getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];

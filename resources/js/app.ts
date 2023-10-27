@@ -14,6 +14,7 @@ import {
   copyToClipboard,
   deleteCookie,
   fetcher,
+  getCookie,
   getStringByteCount,
   handleLeaderboardTabClick,
   initializeTextareaCounter,
@@ -38,6 +39,7 @@ window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
 window.deleteCookie = deleteCookie;
 window.fetcher = fetcher;
+window.getCookie = getCookie;
 window.getStringByteCount = getStringByteCount;
 window.handleLeaderboardTabClick = handleLeaderboardTabClick;
 window.initializeTextareaCounter = initializeTextareaCounter;

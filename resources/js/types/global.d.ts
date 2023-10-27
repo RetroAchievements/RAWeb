@@ -13,7 +13,11 @@ import type { handleLeaderboardTabClick as HandleLeaderboardTabClick } from '@/u
 import type { initializeTextareaCounter as InitializeTextareaCounter } from '@/utils/initializeTextareaCounter';
 import type { injectShortcode as InjectShortcode } from '@/utils/injectShortcode';
 import type { loadPostPreview as LoadPostPreview } from '@/utils/loadPostPreview';
-import type { deleteCookie as DeleteCookie, setCookie as SetCookie } from '@/utils/cookie';
+import type {
+  deleteCookie as DeleteCookie,
+  getCookie as GetCookie,
+  setCookie as SetCookie,
+} from '@/utils/cookie';
 import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibility } from '@/utils/toggleUserCompletedSetsVisibility';
 
 declare global {
@@ -25,6 +29,7 @@ declare global {
   var copyToClipboard: (text: string) => void;
   var deleteCookie: typeof DeleteCookie;
   var fetcher: typeof Fetcher;
+  var getCookie: typeof GetCookie;
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var hideEarnedCheckboxComponent: typeof HideEarnedCheckboxComponent;

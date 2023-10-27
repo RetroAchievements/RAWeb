@@ -125,7 +125,7 @@ class AwardAchievementTest extends TestCase
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
 
@@ -296,7 +296,7 @@ class AwardAchievementTest extends TestCase
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertArrayNotHasKey('DateEarnedHardcore', $unlocks[$achievement3->ID]);
 
@@ -366,7 +366,7 @@ class AwardAchievementTest extends TestCase
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
-        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
         $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
         $this->assertEquals($newNow, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
 
