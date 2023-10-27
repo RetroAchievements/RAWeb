@@ -35,8 +35,6 @@ $renderedAchievementAvatar = achievementAvatar(
     tooltip: false
 );
 
-$renderedAchievementTitle = renderAchievementTitle($achievement['Title']);
-
 $unlockDate = '';
 if (isset($achievement['DateEarned'])) {
     $unlockDate = Carbon::parse($achievement['DateEarned'])->format('F j Y, g:ia');
@@ -56,7 +54,7 @@ if (isset($achievement['DateEarnedHardcore'])) {
             <div class="flex justify-between gap-x-2 mb-0.5">
                 <div>
                     <a class="inline mr-1" href="{{ route('achievement.show', $achievement['ID']) }}">
-                        {!! $renderedAchievementTitle !!}
+                        <x-achievement.title :rawTitle="$achievement['Title']" />
                     </a>
 
                     @if ($achievement['Points'] > 0 || $achievement['TrueRatio'] > 0)

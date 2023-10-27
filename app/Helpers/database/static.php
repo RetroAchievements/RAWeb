@@ -8,12 +8,9 @@ use Carbon\Carbon;
  */
 function static_addnewachievement(int $id): void
 {
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.NumAchievements=sd.NumAchievements+1, sd.LastCreatedAchievementID='$id'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    $query = "UPDATE StaticData ";
+    $query .= "SET NumAchievements=NumAchievements+1, LastCreatedAchievementID=$id";
+    legacyDbStatement($query);
 }
 
 /**
@@ -113,12 +110,8 @@ function static_setlastearnedachievement(int $id, string $user, int $points): vo
  */
 function static_setlastupdatedgame(int $id): void
 {
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.LastUpdatedGameID = '$id'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    $query = "UPDATE StaticData SET LastUpdatedGameID = $id";
+    legacyDbStatement($query);
 }
 
 /**
@@ -126,10 +119,6 @@ function static_setlastupdatedgame(int $id): void
  */
 function static_setlastupdatedachievement(int $id): void
 {
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.LastUpdatedAchievementID = '$id'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    $query = "UPDATE StaticData SET LastUpdatedAchievementID = $id";
+    legacyDbStatement($query);
 }

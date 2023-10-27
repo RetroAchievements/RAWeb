@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Platform\Events\GameMetricsUpdated;
+use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use App\Platform\Models\Game;
+use Illuminate\Support\Facades\Log;
 
 class UpdateGameMetrics
 {
@@ -66,10 +68,11 @@ class UpdateGameMetrics
 
         $game->save();
 
-        // dispatch(new UpdateGameAchievementsMetricsJob($game->id))->onQueue('game-metrics');
         app()->make(UpdateGameAchievementsMetrics::class)
             ->execute($game);
+
         $game->refresh();
+
         $pointsWeightedChange = $game->TotalTruePoints - $pointsWeightedBeforeUpdate;
 
         GameMetricsUpdated::dispatch($game);
@@ -81,34 +84,10 @@ class UpdateGameMetrics
         $tmp = $playersTotalChange;
         $tmp = $playersHardcoreChange;
 
-        // ad-hoc updates for player games, so they can be updated the next time a player updates their profile
-        // Note that those might be multiple thousand entries depending on a game's players count
-
-        $updateReason = null;
-        if ($pointsWeightedChange) {
-            $updateReason = 'weighted_points_outdated';
-        }
         if ($achievementSetVersionChanged) {
-            $updateReason = 'version_mismatch';
-        }
-        if ($updateReason) {
-            $game->playerGames()
-                ->where(function ($query) use ($game, $updateReason) {
-                    if ($updateReason === 'weighted_points_outdated') {
-                        $query->whereNot('points_weighted_total', '=', $game->TotalTruePoints)
-                            ->orWhereNull('points_weighted_total');
-                    }
-                    if ($updateReason === 'version_mismatch') {
-                        $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
-                            ->orWhereNull('achievement_set_version_hash');
-                    }
-                })
-                ->update([
-                    'update_status' => $updateReason,
-                    'achievements_total' => $game->achievements_published,
-                    'points_total' => $game->points_total,
-                    'points_weighted_total' => $game->TotalTruePoints,
-                ]);
+            Log::info('Achievement set version changed for ' . $game->id . '. Queueing all outdated player games.');
+            dispatch(new UpdateGamePlayerGamesJob($game->id))
+                ->onQueue('game-player-games');
         }
     }
 }

@@ -11,6 +11,11 @@ class CacheKey
         return self::buildNormalizedCacheKey("game", $gameId, "card-data");
     }
 
+    public static function buildUserLastLoginCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "last-login");
+    }
+
     public static function buildUserCompletedGamesCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "completed-games-20230910");
@@ -55,6 +60,21 @@ class CacheKey
     public static function buildUserRecentGamesCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "recent-games");
+    }
+
+    public static function buildUserOpenTicketsCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "open-tickets");
+    }
+
+    public static function buildUserRequestTicketsCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "request-tickets");
+    }
+
+    public static function buildUserExpiringClaimsCacheKey(string $username): string
+    {
+        return self::buildNormalizedUserCacheKey($username, "expiring-claims");
     }
 
     /**

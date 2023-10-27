@@ -4,171 +4,171 @@
   "license": "GPL-3.0-only",
   "type": "project",
   "require": {
-    "php": "^8.2",
-    "ext-curl": "*",
-    "ext-dom": "*",
-    "ext-gd": "*",
-    "ext-gmp": "*",
-    "ext-intl": "*",
-    "ext-json": "*",
-    "ext-libxml": "*",
-    "ext-mbstring": "*",
-    "ext-mysqli": "*",
-    "ext-pdo": "*",
-    "ext-simplexml": "*",
-    "aws/aws-sdk-php": "^3.235",
-    "beyondcode/laravel-websockets": "^1.13",
-    "doctrine/dbal": "^3.4",
-    "graham-campbell/markdown": "^15.0",
-    "guzzlehttp/guzzle": "^7.5",
-    "jenssegers/agent": "^2.6",
-    "jenssegers/optimus": "^1.1",
-    "laravel-notification-channels/webhook": "^2.3",
-    "laravel/fortify": "^1.13",
-    "laravel/framework": "^9.30",
-    "laravel/horizon": "^5.10",
-    "laravel/octane": "^1.3",
-    "laravel/passport": "^11.2",
-    "laravel/scout": "^10.2",
-    "laravel/socialite": "^5.5",
-    "laravel/tinker": "^2.7",
-    "league/flysystem-aws-s3-v3": "^3.3",
-    "livewire/livewire": "^2.10",
-    "matomo/device-detector": "^6.0",
-    "opcodesio/log-viewer": "^2.5",
-    "owenvoke/blade-fontawesome": "^2.0",
-    "socialiteproviders/discord": "^4.1",
-    "socialiteproviders/patreon": "^5.0",
-    "socialiteproviders/twitch": "^5.3",
-    "socialiteproviders/twitter": "^4.1",
-    "spatie/eloquent-sortable": "^4.0",
-    "spatie/laravel-activitylog": "^4.5",
-    "spatie/laravel-csp": "^2.8",
-    "spatie/laravel-feed": "^4.1",
-    "spatie/laravel-medialibrary": "^10.5",
-    "spatie/laravel-missing-page-redirector": "^2.9",
-    "spatie/laravel-permission": "^5.5",
-    "spatie/laravel-query-builder": "^5.0",
-    "spatie/laravel-responsecache": "^7.4",
-    "spatie/laravel-robots-middleware": "^1.3",
-    "spatie/laravel-tags": "^4.3",
-    "spatie/query-string": "^1.0",
-    "spatie/valuestore": "^1.3",
-    "stijnvanouplines/blade-country-flags": "^1.0",
-    "sunspikes/clamav-validator": "^2.6",
-    "symfony/filesystem": "^6.3",
-    "symfony/intl": "^6.0",
-    "thunderer/shortcode": "^0.7",
-    "torann/geoip": "^3.0"
+      "php": "^8.2",
+      "ext-curl": "*",
+      "ext-dom": "*",
+      "ext-gd": "*",
+      "ext-gmp": "*",
+      "ext-intl": "*",
+      "ext-json": "*",
+      "ext-libxml": "*",
+      "ext-mbstring": "*",
+      "ext-mysqli": "*",
+      "ext-pdo": "*",
+      "ext-simplexml": "*",
+      "aws/aws-sdk-php": "^3.235",
+      "beyondcode/laravel-websockets": "^1.13",
+      "doctrine/dbal": "^3.4",
+      "graham-campbell/markdown": "^15.0",
+      "guzzlehttp/guzzle": "^7.5",
+      "jenssegers/agent": "^2.6",
+      "jenssegers/optimus": "^1.1",
+      "laravel-notification-channels/webhook": "^2.3",
+      "laravel/fortify": "^1.13",
+      "laravel/framework": "^9.30",
+      "laravel/horizon": "^5.10",
+      "laravel/octane": "^1.3",
+      "laravel/passport": "^11.2",
+      "laravel/scout": "^10.2",
+      "laravel/socialite": "^5.5",
+      "laravel/tinker": "^2.7",
+      "league/flysystem-aws-s3-v3": "^3.3",
+      "livewire/livewire": "^2.10",
+      "matomo/device-detector": "^6.0",
+      "opcodesio/log-viewer": "^2.5",
+      "owenvoke/blade-fontawesome": "^2.0",
+      "socialiteproviders/discord": "^4.1",
+      "socialiteproviders/patreon": "^5.0",
+      "socialiteproviders/twitch": "^5.3",
+      "socialiteproviders/twitter": "^4.1",
+      "spatie/eloquent-sortable": "^4.0",
+      "spatie/laravel-activitylog": "^4.5",
+      "spatie/laravel-csp": "^2.8",
+      "spatie/laravel-feed": "^4.1",
+      "spatie/laravel-medialibrary": "^10.5",
+      "spatie/laravel-missing-page-redirector": "^2.9",
+      "spatie/laravel-permission": "^5.5",
+      "spatie/laravel-query-builder": "^5.0",
+      "spatie/laravel-responsecache": "^7.4",
+      "spatie/laravel-robots-middleware": "^1.3",
+      "spatie/laravel-tags": "^4.3",
+      "spatie/query-string": "^1.0",
+      "spatie/valuestore": "^1.3",
+      "stijnvanouplines/blade-country-flags": "^1.0",
+      "sunspikes/clamav-validator": "^2.6",
+      "symfony/filesystem": "^6.3",
+      "symfony/intl": "^6.0",
+      "thunderer/shortcode": "^0.7",
+      "torann/geoip": "^3.0"
   },
   "require-dev": {
-    "barryvdh/laravel-debugbar": "^3.7",
-    "barryvdh/laravel-ide-helper": "^2.12",
-    "brianium/paratest": "^6.4",
-    "driftingly/rector-laravel": "^0.21.0",
-    "fakerphp/faker": "^1.20",
-    "laravel/pint": "^1.5",
-    "laravel/sail": "^1.21",
-    "mockery/mockery": "^1.5",
-    "nunomaduro/collision": "^6.3",
-    "nunomaduro/larastan": "^2.2",
-    "phpunit/phpunit": "^9.5",
-    "predis/predis": "^2.0",
-    "qossmic/deptrac-shim": "^1.0",
-    "rector/rector": "^0.17.6",
-    "spatie/laravel-ignition": "^1.4",
-    "worksome/envy": "^0.5"
+      "barryvdh/laravel-debugbar": "^3.7",
+      "barryvdh/laravel-ide-helper": "^2.12",
+      "brianium/paratest": "^6.4",
+      "driftingly/rector-laravel": "^0.21.0",
+      "fakerphp/faker": "^1.20",
+      "laravel/pint": "^1.5",
+      "laravel/sail": "^1.21",
+      "mockery/mockery": "^1.5",
+      "nunomaduro/collision": "^6.3",
+      "nunomaduro/larastan": "^2.2",
+      "phpunit/phpunit": "^9.5",
+      "predis/predis": "^2.0",
+      "qossmic/deptrac-shim": "^1.0",
+      "rector/rector": "^0.17.6",
+      "spatie/laravel-ignition": "^1.4",
+      "worksome/envy": "^0.5"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "autoload": {
-    "psr-4": {
-      "App\\": "app/",
-      "Database\\Factories\\": "database/factories/",
-      "Database\\Seeders\\": "database/seeders/"
-    },
-    "files": [
-      "app/Helpers/helpers.php"
-    ]
+      "psr-4": {
+          "App\\": "app/",
+          "Database\\Factories\\": "database/factories/",
+          "Database\\Seeders\\": "database/seeders/"
+      },
+      "files": [
+          "app/Helpers/helpers.php"
+      ]
   },
   "autoload-dev": {
-    "psr-4": {
-      "Tests\\": "tests/"
-    }
+      "psr-4": {
+          "Tests\\": "tests/"
+      }
   },
   "config": {
-    "optimize-autoloader": true,
-    "platform": {
-      "ext-pcntl": "8.2",
-      "ext-posix": "8.2",
-      "php": "8.2.8"
-    },
-    "process-timeout": 0,
-    "sort-packages": true
+      "optimize-autoloader": true,
+      "platform": {
+          "ext-pcntl": "8.2",
+          "ext-posix": "8.2",
+          "php": "8.2.8"
+      },
+      "process-timeout": 0,
+      "sort-packages": true
   },
   "extra": {
-    "laravel": {
-      "dont-discover": [
-        "beyondcode/laravel-websockets",
-        "laravel/passport"
-      ]
-    }
+      "laravel": {
+          "dont-discover": [
+              "beyondcode/laravel-websockets",
+              "laravel/passport"
+          ]
+      }
   },
   "scripts": {
-    "post-install-cmd": [
-      "[ $COMPOSER_DEV_MODE -eq 0 ] || git config core.hooksPath ./.hooks"
-    ],
-    "post-autoload-dump": [
-      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-      "@php artisan package:discover --ansi",
-      "@php artisan vendor:publish --force --tag=livewire:assets --ansi",
-      "@php artisan vendor:publish --force --tag=horizon-assets --ansi"
-    ],
-    "post-root-package-install": [
-      "@setup"
-    ],
-    "post-create-project-cmd": [
-      "@setup"
-    ],
-    "analyse": [
-      "@deptrac",
-      "@stan"
-    ],
-    "coverage": "export XDEBUG_MODE=coverage && php artisan test --coverage --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
-    "debug": "export XDEBUG_MODE=debug && php artisan serve --port=64000",
-    "deptrac": "vendor/bin/deptrac analyse",
-    "fix": "vendor/bin/pint",
-    "ide-helpers": [
-      "php artisan ide-helper:generate",
-      "php artisan ide-helper:meta",
-      "php artisan ide-helper:models --nowrite"
-    ],
-    "lint": "vendor/bin/pint --test",
-    "log": "tail -f -n 450 storage/logs/laravel*.log | grep -i -E \"^\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\]|Next [\\w\\W]+?\\:\" --color",
-    "mfs": "php artisan migrate:refresh --seed",
-    "octane": "php artisan octane:start --watch --port=64888",
-    "paratest": "php artisan test --parallel",
-    "rector": "vendor/bin/rector process",
-    "setup": [
-      "composer install",
-      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-      "@php artisan key:generate --ansi",
-      "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
-      "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
-    ],
-    "stan": "vendor/bin/phpstan analyse --memory-limit 768M --ansi",
-    "stan-clear": "vendor/bin/phpstan clear-result-cache",
-    "start": "php artisan serve --port=64000",
-    "test": "php artisan test"
+      "post-install-cmd": [
+          "[ $COMPOSER_DEV_MODE -eq 0 ] || git config core.hooksPath ./.hooks"
+      ],
+      "post-autoload-dump": [
+          "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+          "@php artisan package:discover --ansi",
+          "@php artisan vendor:publish --force --tag=livewire:assets --ansi",
+          "@php artisan vendor:publish --force --tag=horizon-assets --ansi"
+      ],
+      "post-root-package-install": [
+          "@setup"
+      ],
+      "post-create-project-cmd": [
+          "@setup"
+      ],
+      "analyse": [
+          "@deptrac",
+          "@stan"
+      ],
+      "coverage": "export XDEBUG_MODE=coverage && php artisan test --coverage --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
+      "debug": "export XDEBUG_MODE=debug && php artisan serve --port=64000",
+      "deptrac": "vendor/bin/deptrac analyse",
+      "fix": "vendor/bin/pint",
+      "ide-helpers": [
+          "php artisan ide-helper:generate",
+          "php artisan ide-helper:meta",
+          "php artisan ide-helper:models --nowrite"
+      ],
+      "lint": "vendor/bin/pint --test",
+      "log": "tail -f -n 450 storage/logs/laravel*.log | grep -i -E \"^\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\]|Next [\\w\\W]+?\\:\" --color",
+      "mfs": "php artisan migrate:refresh --seed",
+      "octane": "php artisan octane:start --watch --port=64888",
+      "paratest": "php artisan test --parallel",
+      "rector": "vendor/bin/rector process",
+      "setup": [
+          "composer install",
+          "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+          "@php artisan key:generate --ansi",
+          "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
+          "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
+      ],
+      "stan": "vendor/bin/phpstan analyse --memory-limit 768M --ansi",
+      "stan-clear": "vendor/bin/phpstan clear-result-cache",
+      "start": "php artisan serve --port=64000",
+      "test": "php artisan test"
   },
   "scripts-descriptions": {
-    "analyse": "Run static analysis",
-    "coverage": "Run tests and create coverage report",
-    "log": "Tail and follow Laravel logs",
-    "mfs": "Migrate (re)fresh and seed data",
-    "octane": "Note: not yet supported for legacy routes due to dynamic legacy script imports",
-    "paratest": "Run tests in parallel",
-    "setup": "First time setup",
-    "stan": "Run PHPStan static analysis"
+      "analyse": "Run static analysis",
+      "coverage": "Run tests and create coverage report",
+      "log": "Tail and follow Laravel logs",
+      "mfs": "Migrate (re)fresh and seed data",
+      "octane": "Note: not yet supported for legacy routes due to dynamic legacy script imports",
+      "paratest": "Run tests in parallel",
+      "setup": "First time setup",
+      "stan": "Run PHPStan static analysis"
   }
 }

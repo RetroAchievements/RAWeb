@@ -13,7 +13,7 @@ use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
-class ResetPlayerProgressActionTest extends TestCase
+class ResetPlayerProgressTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -70,6 +70,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5, 'TrueRatio' => 7, 'Author' => $author->User]);
 
         $this->addHardcoreUnlock($user, $achievement);
+        $achievement->refresh();
 
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);
@@ -108,6 +109,7 @@ class ResetPlayerProgressActionTest extends TestCase
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5, 'TrueRatio' => 7, 'Author' => $user->User]);
 
         $this->addHardcoreUnlock($user, $achievement);
+        $achievement->refresh();
 
         $this->assertHasSoftcoreUnlock($user, $achievement);
         $this->assertHasHardcoreUnlock($user, $achievement);

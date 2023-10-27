@@ -59,7 +59,10 @@ RenderContentStart("$user2's activity for $gameTitle");
     echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
     echo "<table class='table-highlight'><colgroup><col class='w-48'></colgroup><tbody>";
     echo "<tr><td>User:</td><td>" . userAvatar($user2, icon: false) . "</td></tr>";
-    echo "<tr><td>Total Playtime:</td><td>" . formatHMS($activity['TotalTime']) . "$estimated</td></tr>";
+    if ($activity['TotalTime'] != $activity['AchievementsTime']) {
+        echo "<tr><td>Total Playtime:</td><td>" . formatHMS($activity['TotalTime']) . "$estimated</td></tr>";
+    }
+    echo "<tr><td>Achievement Playtime:</td><td>" . formatHMS($activity['AchievementsTime']) . "$estimated</td></tr>";
     echo "<tr><td>Achievement Sessions:</td><td>$sessionInfo</td></tr>";
     echo "<tr><td>Achievements Unlocked:</td><td>" . $activity['AchievementsUnlocked'] . "$userProgress</td></tr>";
     echo "</tbody></table>";
@@ -95,6 +98,19 @@ RenderContentStart("$user2's activity for $gameTitle");
             }
 
             echo "</td></tr>";
+        }
+
+        if (array_key_exists('RichPresence', $session) && !empty($session['RichPresence'])) {
+            $when = getNiceDate($session['RichPresenceTime']);
+            $formatted = formatHMS($session['RichPresenceTime'] - $prevWhen);
+            echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>Rich Presence: {$session['RichPresence']}</td></tr>";
+            $prevWhen = $session['RichPresenceTime'];
+        }
+
+        if ($session['EndTime'] != $prevWhen) {
+            $when = getNiceDate($session['EndTime']);
+            $formatted = formatHMS($session['EndTime'] - $prevWhen);
+            echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>End of session</td></tr>";
         }
     }
 

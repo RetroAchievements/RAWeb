@@ -136,8 +136,6 @@ function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
 
 function getTopicComments(int $topicID, int $offset, int $count, ?int &$maxCountOut): ?array
 {
-    sanitize_sql_inputs($topicID);
-
     $query = "    SELECT COUNT(*) FROM ForumTopicComment AS ftc
                 WHERE ftc.ForumTopicID = $topicID ";
 
@@ -349,7 +347,7 @@ function submitTopicComment(
 
 function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
 {
-    sanitize_sql_inputs($topicID, $author, $commentID);
+    sanitize_sql_inputs($author);
 
     // $author has made a post in the topic $topicID
     // Find all people involved in this forum topic, and if they are not the author and prefer to
@@ -382,8 +380,6 @@ function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $co
     if ($commentID == -1) {
         $commentID = 99_999_999;
     }
-
-    sanitize_sql_inputs($forumTopicID, $commentID);
 
     $query = "SELECT COUNT(ID) AS CommentOffset
               FROM ForumTopicComment

@@ -20,12 +20,12 @@ if (Auth::user()) {
         RenderActivePlayersComponent();
     ?>
 
-    <x-user.online-count-chart />
+    <div class="mb-8">
+        <x-user.online-count-chart />
+    </div>
+    
     <x-claims.new-claims count="5" />
-
-    <?php
-        RenderRecentForumPostsComponent();
-    ?>
+    <x-forum-recent-posts />
 
     @slot('sidebar')
         @include('content.top-links')

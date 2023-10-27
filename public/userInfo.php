@@ -270,7 +270,9 @@ RenderContentStart($userPage);
 
         $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
         echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span><br>";
-        echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        if ($user) {
+            echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        }
 
         echo "Site Rank: ";
         if ($userIsUntracked) {
@@ -313,7 +315,9 @@ RenderContentStart($userPage);
         echo "<br>";
     }
 
-    echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    if ($user) {
+        echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    }
 
     echo "<a href='/forumposthistory.php?u=$userPage'>Forum Post History</a>";
     echo "<br>";
@@ -645,7 +649,8 @@ RenderContentStart($userPage);
     echo "</div>";
 
     if ($user !== null && $user === $userPage) {
-        RenderScoreLeaderboardComponent($user, true);
+        // FIXME: https://discord.com/channels/476211979464343552/1026595325038833725/1162746245996093450
+        // RenderScoreLeaderboardComponent($user, true);
     }
     ?>
 </aside>

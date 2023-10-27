@@ -30,6 +30,9 @@ class PingTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
+        $this->user->LastGameID = $game->ID;
+        $this->user->save();
+
         // this API requires POST
         $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => 'Doing good']))
             ->assertStatus(200)

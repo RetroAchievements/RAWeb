@@ -87,6 +87,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         'RichPresencePatch',
         'GuideURL',
         'Updated',
+        'achievement_set_version_hash',
     ];
 
     protected static function newFactory(): GameFactory
