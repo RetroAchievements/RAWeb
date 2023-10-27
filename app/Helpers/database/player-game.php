@@ -311,6 +311,9 @@ function getUserAchievementUnlocksForGame(string $username, int $gameID, int $fl
 {
     if (config('feature.aggregate_queries')) {
         $user = User::firstWhere('User', $username);
+        if (!$user) {
+            return [];
+        }
         $achievementIds = Achievement::where('GameID', $gameID)
             ->where('Flags', $flag)
             ->pluck('ID');

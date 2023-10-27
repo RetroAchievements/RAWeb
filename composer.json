@@ -156,7 +156,7 @@
             "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
             "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
         ],
-        "stan": "vendor/bin/phpstan analyse --memory-limit 512M --ansi",
+        "stan": "vendor/bin/phpstan analyse --memory-limit 768M --ansi",
         "stan-clear": "vendor/bin/phpstan clear-result-cache",
         "start": "php artisan serve --port=64000",
         "test": "php artisan test"
