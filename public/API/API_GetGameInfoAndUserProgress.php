@@ -92,6 +92,8 @@ if (!empty($achData)) {
 }
 
 unset($gameData['system']);
+unset($gameData['achievement_set_version_hash']);
+unset($gameData['Updated']);
 
 $gameData['UserCompletion'] = '0.00%';
 $gameData['UserCompletionHardcore'] = '0.00%';
