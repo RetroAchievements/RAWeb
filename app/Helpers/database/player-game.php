@@ -731,11 +731,15 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
         }
     }
 
+    $userFilter = '';
+    if (count($retval)) {
+        $userFilter = 'AND ua.ID NOT IN (' . implode(',', array_column($retval, 'UserID')) . ')';
+    }
+
     $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
               FROM UserAccounts AS ua
               WHERE ua.LastGameID = $gameID AND ua.Permissions >= " . Permissions::Unregistered . "
-              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW())
-              AND ua.ID NOT IN (" . implode(',', array_column($retval, 'UserID')) . ")
+              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW()) $userFilter
               ORDER BY ua.RichPresenceMsgDate DESC";
 
     if ($maximum_results > 0) {
