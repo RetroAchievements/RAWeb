@@ -45,19 +45,10 @@ function getUserIDFromUser(?string $user): int
         return 0;
     }
 
-    sanitize_sql_inputs($user);
+    $query = "SELECT ID FROM UserAccounts WHERE User = :user";
+    $row = legacyDbFetch($query, ['user' => $user]);
 
-    $query = "SELECT ID FROM UserAccounts WHERE User LIKE '$user'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return (int) ($data['ID'] ?? 0);
-    }
-
-    // cannot find user $user
-    return 0;
+    return $row ? (int) $row['ID'] : 0;
 }
 
 function getUserMetadataFromID(int $userID): ?array
@@ -70,64 +61,6 @@ function getUserMetadataFromID(int $userID): ?array
     }
 
     return null;
-}
-
-function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
-        FROM Achievements ach
-        INNER JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = $gameID AND aw.User = '$user'
-        ORDER BY ach.ID, aw.HardcoreMode DESC";
-
-    $dbResult = s_mysql_query($query);
-
-    $dataOut = [];
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $lastID = 0;
-    while ($data = mysqli_fetch_assoc($dbResult)) {
-        $achID = $data['ID'];
-        if ($lastID == $achID) {
-            continue;
-        }
-
-        $dataOut[] = $data;
-        $lastID = $achID;
-    }
-
-    return count($dataOut);
-}
-
-/**
- * @param array<string, mixed>|null $dataOut
- */
-function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ach.Title, ach.ID, ach.Points, aw.HardcoreMode
-        FROM Achievements AS ach
-        LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = '$gameID' AND aw.User = '$user'
-        ORDER BY ach.ID, aw.HardcoreMode ";
-
-    $dbResult = s_mysql_query($query);
-
-    $dataOut = [];
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[] = $data;
-        }
-    }
-
-    return count($dataOut);
 }
 
 function validateUsername(string $userIn): ?string
@@ -158,35 +91,36 @@ function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$last
     return false;
 }
 
-function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
+function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
 {
-    if (!getAccountDetails($user, $userInfo)) {
+    $user = User::firstWhere('User', $username);
+    if (!$user) {
         return [];
     }
 
     $libraryOut = [];
 
-    $libraryOut['User'] = $userInfo['User'];
-    $libraryOut['MemberSince'] = $userInfo['Created'];
-    $libraryOut['LastActivity'] = $userInfo['LastLogin'];
-    $libraryOut['LastActivityID'] = $userInfo['LastActivityID'];
-    $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : $userInfo['RichPresenceMsg'];
-    $libraryOut['LastGameID'] = (int) $userInfo['LastGameID'];
-    $libraryOut['ContribCount'] = (int) $userInfo['ContribCount'];
-    $libraryOut['ContribYield'] = (int) $userInfo['ContribYield'];
-    $libraryOut['TotalPoints'] = (int) $userInfo['RAPoints'];
-    $libraryOut['TotalSoftcorePoints'] = (int) $userInfo['RASoftcorePoints'];
-    $libraryOut['TotalTruePoints'] = (int) $userInfo['TrueRAPoints'];
-    $libraryOut['Permissions'] = (int) $userInfo['Permissions'];
-    $libraryOut['Untracked'] = (int) $userInfo['Untracked'];
-    $libraryOut['ID'] = (int) $userInfo['ID'];
-    $libraryOut['UserWallActive'] = (int) $userInfo['UserWallActive'];
-    $libraryOut['Motto'] = $userInfo['Motto'];
+    $libraryOut['User'] = $user->User;
+    $libraryOut['MemberSince'] = $user->Created?->__toString();
+    $libraryOut['LastActivity'] = $user->LastLogin?->__toString();
+    $libraryOut['LastActivityID'] = $user->LastActivityID;
+    $libraryOut['RichPresenceMsg'] = empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg;
+    $libraryOut['LastGameID'] = (int) $user->LastGameID;
+    $libraryOut['ContribCount'] = (int) $user->ContribCount;
+    $libraryOut['ContribYield'] = (int) $user->ContribYield;
+    $libraryOut['TotalPoints'] = (int) $user->RAPoints;
+    $libraryOut['TotalSoftcorePoints'] = (int) $user->RASoftcorePoints;
+    $libraryOut['TotalTruePoints'] = (int) $user->TrueRAPoints;
+    $libraryOut['Permissions'] = (int) $user->getAttribute('Permissions');
+    $libraryOut['Untracked'] = (int) $user->Untracked;
+    $libraryOut['ID'] = (int) $user->ID;
+    $libraryOut['UserWallActive'] = (int) $user->UserWallActive;
+    $libraryOut['Motto'] = $user->Motto;
 
-    $libraryOut['Rank'] = getUserRank($user);
+    $libraryOut['Rank'] = getUserRank($user->User);
 
     $recentlyPlayedData = [];
-    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData) : 0;
+    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user->User, 0, $numGames, $recentlyPlayedData) : 0;
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {
@@ -195,58 +129,20 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
             $gameIDs[] = $recentlyPlayed['GameID'];
         }
 
-        if ($userInfo['LastGameID'] && !in_array($userInfo['LastGameID'], $gameIDs)) {
-            $gameIDs[] = $userInfo['LastGameID'];
+        if ($user->LastGameID && !in_array($user->LastGameID, $gameIDs)) {
+            $gameIDs[] = $user->LastGameID;
         }
 
         $userProgress = getUserProgress($user, $gameIDs, $numRecentAchievements, withGameInfo: true);
 
         $libraryOut['Awarded'] = $userProgress['Awarded'];
         $libraryOut['RecentAchievements'] = $userProgress['RecentAchievements'];
-        if (array_key_exists($userInfo['LastGameID'], $userProgress['GameInfo'])) {
-            $libraryOut['LastGame'] = $userProgress['GameInfo'][$userInfo['LastGameID']];
+        if (array_key_exists($user->LastGameID, $userProgress['GameInfo'])) {
+            $libraryOut['LastGame'] = $userProgress['GameInfo'][$user->LastGameID];
         }
     }
 
     return $libraryOut;
-}
-
-function getControlPanelUserInfo(string $user, ?array &$libraryOut): bool
-{
-    sanitize_sql_inputs($user);
-
-    $libraryOut = [];
-    $libraryOut['Played'] = [];
-    // getUserActivityRange( $user, $firstLogin, $lastLogin );
-    // $libraryOut['MemberSince'] = $firstLogin;
-    // $libraryOut['LastLogin'] = $lastLogin;
-
-    $query = "SELECT gd.ID, c.Name AS ConsoleName, gd.Title AS GameTitle, COUNT(*) AS NumAwarded, Inner1.NumPossible
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                LEFT JOIN (
-                    SELECT ach.GameID, COUNT(*) AS NumPossible
-                    FROM Achievements AS ach
-                    WHERE ach.Flags = 3
-                    GROUP BY ach.GameID ) AS Inner1 ON Inner1.GameID = gd.ID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = 0
-                GROUP BY gd.ID, gd.ConsoleID, gd.Title
-                ORDER BY gd.Title, gd.ConsoleID";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        $libraryOut['Played'][] = $db_entry;
-    }   // use as raw array to preserve order!
-
-    return true;
 }
 
 function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
