@@ -8,6 +8,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Models\AchievementSetClaim;
 use App\Site\Enums\Permissions;
+use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -145,8 +146,6 @@ function dropClaim(string $user, int $gameID): bool
  */
 function extendClaim(string $user, int $gameID): bool
 {
-    sanitize_sql_inputs($gameID);
-
     if (hasSetClaimed($user, $gameID, true)) {
         $query = "
             UPDATE
@@ -442,7 +441,7 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
  */
 function updateClaim(int $claimID, int $claimType, int $setType, int $status, int $special, string $claimDate, string $finishedDate): bool
 {
-    sanitize_sql_inputs($claimID, $claimType, $setType, $status, $special, $claimDate, $finishedDate);
+    sanitize_sql_inputs($claimDate, $finishedDate);
 
     $query = "
         UPDATE
@@ -470,23 +469,38 @@ function getExpiringClaim(string $username): array
         return [];
     }
 
+    $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($username);
+
+    $value = Cache::get($cacheKey);
+    if ($value !== null) {
+        return $value;
+    }
+
     $claims = AchievementSetClaim::select(
         DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 0 THEN 1 ELSE 0 END), 0) AS Expired'),
-        DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring')
+        DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring'),
+        DB::raw('COUNT(*) AS Count')
     )
         ->where('User', $username)
         ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
         ->where('Special', '!=', ClaimSpecial::ScheduledRelease)
         ->first();
 
-    if (!$claims) {
-        return [];
+    if (!$claims || $claims['Count'] == 0) {
+        $value = [];
+        // new claim expiration is 30 days and expiration warning is 7 days, so this guarantees a refresh before expiration
+        Cache::put($cacheKey, $value, Carbon::now()->addDays(20));
+    } else {
+        $value = [
+            'Expired' => $claims->Expired,
+            'Expiring' => $claims->Expiring,
+        ];
+        // refresh once an hour. this query only takes about 2ms, so it's not super expensive, but
+        // we want to avoid doing it on every page load.
+        Cache::put($cacheKey, $value, Carbon::now()->addHours(1));
     }
 
-    return [
-        'Expired' => $claims->Expired,
-        'Expiring' => $claims->Expiring,
-    ];
+    return $value;
 }
 
 /**

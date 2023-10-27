@@ -8,8 +8,6 @@ function getCodeNotesData(int $gameID): array
 {
     $codeNotesOut = [];
 
-    sanitize_sql_inputs($gameID);
-
     $query = "SELECT ua.User, cn.Address, cn.Note
               FROM CodeNotes AS cn
               LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID
@@ -32,8 +30,6 @@ function getCodeNotesData(int $gameID): array
 
 function getCodeNotes(int $gameID, ?array &$codeNotesOut): bool
 {
-    sanitize_sql_inputs($gameID);
-
     $query = "SELECT ua.User, cn.Address, cn.Note
               FROM CodeNotes AS cn
               LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID

@@ -1,5 +1,9 @@
 <?php
 
+use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
+use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use Illuminate\Support\Str;
 
 return [
@@ -119,7 +123,11 @@ return [
     */
 
     'silenced' => [
-        // App\Jobs\ExampleJob::class,
+        // silence listeners which only dispatch unique jobs
+        DispatchUpdateDeveloperContributionYieldJob::class,
+        DispatchUpdateGameMetricsJob::class,
+        DispatchUpdatePlayerGameMetricsJob::class,
+        DispatchUpdatePlayerMetricsJob::class,
     ],
 
     /*
@@ -153,7 +161,7 @@ return [
     |
     */
 
-    'fast_termination' => false,
+    'fast_termination' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -183,21 +191,40 @@ return [
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => [
-                'default',
                 'player-achievements',
+                'player-metrics',
+                'player-sessions',
+                'default',
                 'player-game-metrics',
                 'game-metrics',
-                'player-metrics',
                 'developer-metrics',
             ],
             'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
+            'autoScalingStrategy' => 'size',
+            'maxProcesses' => 15,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 60,
+            'timeout' => 300, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
+            'nice' => 0,
+        ],
+        'supervisor-2' => [
+            'connection' => 'redis',
+            'queue' => [
+                'player-game-metrics-batch',
+                'game-player-games',
+            ],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 20,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 600, // NOTE timeout should always be at least several seconds shorter than the queue config's retry_after configuration value
             'nice' => 0,
         ],
     ],
@@ -205,17 +232,11 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
             ],
         ],
 
         'stage' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
             ],
         ],
 

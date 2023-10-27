@@ -62,8 +62,6 @@ function getUserIDFromUser(?string $user): int
 
 function getUserMetadataFromID(int $userID): ?array
 {
-    sanitize_sql_inputs($userID);
-
     $query = "SELECT * FROM UserAccounts WHERE ID ='$userID'";
     $dbResult = s_mysql_query($query);
 
@@ -76,7 +74,7 @@ function getUserMetadataFromID(int $userID): ?array
 
 function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
 {
-    sanitize_sql_inputs($user, $gameID);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
         FROM Achievements ach
@@ -111,7 +109,7 @@ function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
  */
 function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
 {
-    sanitize_sql_inputs($user, $gameID);
+    sanitize_sql_inputs($user);
 
     $query = "SELECT ach.Title, ach.ID, ach.Points, aw.HardcoreMode
         FROM Achievements AS ach
@@ -286,9 +284,8 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
         default => "ua.User ASC ",
     };
 
-    // TODO slow query (70) when ordering by NumAwarded
     $query = "SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
-                (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded
+                ua.achievements_unlocked NumAwarded
                 FROM UserAccounts AS ua
                 $whereQuery
                 ORDER BY $orderBy
