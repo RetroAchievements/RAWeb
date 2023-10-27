@@ -114,7 +114,7 @@ class AppServiceProvider extends ServiceProvider
                 if (!$db) {
                     throw new Exception('Could not connect to database. Please try again later.');
                 }
-                mysqli_set_charset($db, 'latin1');
+                mysqli_set_charset($db, config('database.connections.mysql.charset'));
                 mysqli_query($db, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
 
                 return $db;

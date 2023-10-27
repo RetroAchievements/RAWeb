@@ -22,6 +22,7 @@ use App\Platform\Events\PlayerGameRemoved;
 use App\Platform\Events\PlayerMetricsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
+// use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
@@ -34,6 +35,7 @@ class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         AchievementCreated::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementPublished::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
