@@ -702,44 +702,40 @@ function getTotalUniquePlayers(
 function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
 {
     $retval = [];
-    $filter = '';
 
-    if (config('feature.aggregate_queries')) {
-        $sessions = PlayerSession::where('game_id', $gameID)
-            ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
-            ->where('UserAccounts.Permissions', '>=', Permissions::Unregistered)
-            ->whereNotNull('rich_presence')
-            ->orderBy('rich_presence_updated_at', 'DESC')
-            ->groupBy('user_id')
-            ->select(['user_id', 'User', 'rich_presence', DB::raw('MAX(rich_presence_updated_at) AS rich_presence_updated_at')]);
+    $sessions = PlayerSession::where('game_id', $gameID)
+        ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
+        ->where('UserAccounts.Permissions', '>=', Permissions::Unregistered)
+        ->whereNotNull('rich_presence')
+        ->orderBy('rich_presence_updated_at', 'DESC')
+        ->groupBy('user_id')
+        ->select(['user_id', 'User', 'rich_presence', DB::raw('MAX(rich_presence_updated_at) AS rich_presence_updated_at')]);
 
-        if ($maximum_results) {
-            $sessions = $sessions->limit($maximum_results);
+    if ($maximum_results) {
+        $sessions = $sessions->limit($maximum_results);
+    }
+
+    foreach ($sessions->get() as $session) {
+        $retval[] = [
+            'UserID' => $session->user_id,
+            'User' => $session->User,
+            'Date' => $session->rich_presence_updated_at->__toString(),
+            'Activity' => $session->rich_presence,
+        ];
+    }
+
+    if ($maximum_results) {
+        $maximum_results -= count($retval);
+        if ($maximum_results == 0) {
+            return $retval;
         }
-
-        foreach ($sessions->get() as $session) {
-            $retval[] = [
-                'UserID' => $session->user_id,
-                'User' => $session->User,
-                'Date' => $session->rich_presence_updated_at->__toString(),
-                'Activity' => $session->rich_presence,
-            ];
-        }
-
-        if ($maximum_results) {
-            $maximum_results -= count($retval);
-            if ($maximum_results == 0) {
-                return $retval;
-            }
-        }
-
-        $filter = 'AND ua.ID NOT IN (' . implode(',', array_column($retval, 'UserID')) . ')';
     }
 
     $query = "SELECT ua.ID as UserID, ua.User, ua.RichPresenceMsgDate AS Date, ua.RichPresenceMsg AS Activity
               FROM UserAccounts AS ua
               WHERE ua.LastGameID = $gameID AND ua.Permissions >= " . Permissions::Unregistered . "
-              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW()) $filter
+              AND ua.RichPresenceMsgDate > TIMESTAMPADD(MONTH, -6, NOW())
+              AND ua.ID NOT IN (" . implode(',', array_column($retval, 'UserID')) . ")
               ORDER BY ua.RichPresenceMsgDate DESC";
 
     if ($maximum_results > 0) {
