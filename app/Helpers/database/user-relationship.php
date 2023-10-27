@@ -1,7 +1,6 @@
 <?php
 
 use App\Community\Enums\UserRelationship;
-use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 

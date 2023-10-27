@@ -2,7 +2,6 @@
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
-use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 
 function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void

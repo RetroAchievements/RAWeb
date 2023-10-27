@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
@@ -49,7 +48,7 @@ class UpdateGamePlayerGames
                             resolve(BatchRepository::class)->markAsFinished($batch->id);
                         }
                         // some game metrics depend on the player_games rows
-                        (new UpdateGameMetrics)->execute($game);
+                        (new UpdateGameMetrics())->execute($game);
                     })
                     ->dispatch();
             });

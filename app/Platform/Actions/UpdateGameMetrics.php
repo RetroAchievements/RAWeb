@@ -7,7 +7,6 @@ namespace App\Platform\Actions;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Jobs\UpdateGamePlayerGamesJob;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
 use Illuminate\Support\Facades\Log;
 
 class UpdateGameMetrics

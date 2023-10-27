@@ -6,8 +6,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array

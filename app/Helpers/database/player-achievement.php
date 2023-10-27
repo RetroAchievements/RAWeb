@@ -150,7 +150,7 @@ function getAchievementUnlocksData(
 
     $achievement = Achievement::firstWhere('ID', $achievementId);
     if (!$achievement) {
-        return Collection();
+        return new Collection();
     }
 
     $numWinners = $achievement->unlocks_total;
