@@ -47,18 +47,11 @@ function playerHasUnlock(?string $user, int $achievementId): array
 /**
  * @deprecated see UnlockPlayerAchievementAction
  */
-function unlockAchievement(string $username, int $achievementId, bool $isHardcore): array
+function unlockAchievement(User $user, int $achievementId, bool $isHardcore): array
 {
     $retVal = [
         'Success' => false,
     ];
-
-    $user = User::firstWhere('User', $username);
-    if (!$user) {
-        $retVal['Error'] = "Data not found for user $username";
-
-        return $retVal;
-    }
 
     $achievement = Achievement::find($achievementId);
     if (!$achievement) {
@@ -285,28 +278,14 @@ function getRecentUnlocksPlayersData(
  */
 function getUnlocksSince(int $id, string $date): array
 {
-    sanitize_sql_inputs($date);
-
-    $query = "
-        SELECT
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END), 0) AS softcoreCount,
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END), 0) AS hardcoreCount
-        FROM
-            Awarded
-        WHERE
-            AchievementID = $id
-        AND
-            Date > '$date'";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult);
-    }
+    $softcoreCount = PlayerAchievement::where('achievement_id', $id)
+        ->where('unlocked_at', '>', $date)->count();
+    $hardcoreCount = PlayerAchievement::where('achievement_id', $id)
+        ->where('unlocked_hardcore_at', '>', $date)->count();
 
     return [
-        'softcoreCount' => 0,
-        'hardcoreCount' => 0,
+        'softcoreCount' => $softcoreCount,
+        'hardcoreCount' => $hardcoreCount,
     ];
 }
 

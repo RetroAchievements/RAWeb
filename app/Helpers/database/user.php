@@ -45,19 +45,10 @@ function getUserIDFromUser(?string $user): int
         return 0;
     }
 
-    sanitize_sql_inputs($user);
+    $query = "SELECT ID FROM UserAccounts WHERE User = :user";
+    $row = legacyDbFetch($query, ['user' => $user]);
 
-    $query = "SELECT ID FROM UserAccounts WHERE User LIKE '$user'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return (int) ($data['ID'] ?? 0);
-    }
-
-    // cannot find user $user
-    return 0;
+    return $row ? (int) $row['ID'] : 0;
 }
 
 function getUserMetadataFromID(int $userID): ?array
@@ -70,38 +61,6 @@ function getUserMetadataFromID(int $userID): ?array
     }
 
     return null;
-}
-
-function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
-        FROM Achievements ach
-        INNER JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = $gameID AND aw.User = '$user'
-        ORDER BY ach.ID, aw.HardcoreMode DESC";
-
-    $dbResult = s_mysql_query($query);
-
-    $dataOut = [];
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $lastID = 0;
-    while ($data = mysqli_fetch_assoc($dbResult)) {
-        $achID = $data['ID'];
-        if ($lastID == $achID) {
-            continue;
-        }
-
-        $dataOut[] = $data;
-        $lastID = $achID;
-    }
-
-    return count($dataOut);
 }
 
 /**

@@ -29,6 +29,7 @@ class UpdatePlayerGameMetrics
         $achievementsUnlocked = $user->achievements()->where('GameID', $game->id)
             ->published()
             ->withPivot([
+                'unlocker_id',
                 'unlocked_at',
                 'unlocked_hardcore_at',
             ])
@@ -61,8 +62,8 @@ class UpdatePlayerGameMetrics
             ? $playerGame->created_at
             : $startedAt;
 
-        $lastPlayedAt = $playerAchievements->pluck('unlocked_at')
-            ->merge($playerAchievementsHardcore->pluck('unlocked_hardcore_at'))
+        $lastPlayedAt = $playerAchievements->whereNull('unlocker_id')->pluck('unlocked_at')
+            ->merge($playerAchievementsHardcore->whereNull('unlocker_id')->pluck('unlocked_hardcore_at'))
             ->add($playerGame->last_played_at)
             ->filter()
             ->max();
