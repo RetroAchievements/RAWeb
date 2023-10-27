@@ -10,13 +10,19 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unre
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
 
-if (!User::where('User', '=', $user2)->exists()) {
+$user2Model = User::firstWhere('User', $user2);
+if (!$user2Model) {
     abort(404);
+}
+
+$userModel = User::firstWhere('User', $user);
+if (!$userModel) {
+    abort(401);
 }
 
 $totalFriends = getAllFriendsProgress($user, $gameID, $friendScores);
 
-$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, 0, $user2);
+$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, 0, $user2Model);
 if ($gameData === null) {
     abort(404);
 }

@@ -15,6 +15,7 @@ use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
+use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 
@@ -40,8 +41,10 @@ if ($flagParam !== $unofficialFlag) {
     $flagParam = $officialFlag;
 }
 
+$userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
+    $userModel = User::firstWhere('User', $user);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');
@@ -50,7 +53,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
+$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
 
 if (empty($gameData)) {
     abort(404);

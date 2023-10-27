@@ -91,35 +91,36 @@ function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$last
     return false;
 }
 
-function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
+function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
 {
-    if (!getAccountDetails($user, $userInfo)) {
+    $user = User::firstWhere('User', $username);
+    if (!$user) {
         return [];
     }
 
     $libraryOut = [];
 
-    $libraryOut['User'] = $userInfo['User'];
-    $libraryOut['MemberSince'] = $userInfo['Created'];
-    $libraryOut['LastActivity'] = $userInfo['LastLogin'];
-    $libraryOut['LastActivityID'] = $userInfo['LastActivityID'];
-    $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : $userInfo['RichPresenceMsg'];
-    $libraryOut['LastGameID'] = (int) $userInfo['LastGameID'];
-    $libraryOut['ContribCount'] = (int) $userInfo['ContribCount'];
-    $libraryOut['ContribYield'] = (int) $userInfo['ContribYield'];
-    $libraryOut['TotalPoints'] = (int) $userInfo['RAPoints'];
-    $libraryOut['TotalSoftcorePoints'] = (int) $userInfo['RASoftcorePoints'];
-    $libraryOut['TotalTruePoints'] = (int) $userInfo['TrueRAPoints'];
-    $libraryOut['Permissions'] = (int) $userInfo['Permissions'];
-    $libraryOut['Untracked'] = (int) $userInfo['Untracked'];
-    $libraryOut['ID'] = (int) $userInfo['ID'];
-    $libraryOut['UserWallActive'] = (int) $userInfo['UserWallActive'];
-    $libraryOut['Motto'] = $userInfo['Motto'];
+    $libraryOut['User'] = $user->User;
+    $libraryOut['MemberSince'] = $user->Created?->__toString();
+    $libraryOut['LastActivity'] = $user->LastLogin?->__toString();
+    $libraryOut['LastActivityID'] = $user->LastActivityID;
+    $libraryOut['RichPresenceMsg'] = empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg;
+    $libraryOut['LastGameID'] = (int) $user->LastGameID;
+    $libraryOut['ContribCount'] = (int) $user->ContribCount;
+    $libraryOut['ContribYield'] = (int) $user->ContribYield;
+    $libraryOut['TotalPoints'] = (int) $user->RAPoints;
+    $libraryOut['TotalSoftcorePoints'] = (int) $user->RASoftcorePoints;
+    $libraryOut['TotalTruePoints'] = (int) $user->TrueRAPoints;
+    $libraryOut['Permissions'] = (int) $user->getAttribute('Permissions');
+    $libraryOut['Untracked'] = (int) $user->Untracked;
+    $libraryOut['ID'] = (int) $user->ID;
+    $libraryOut['UserWallActive'] = (int) $user->UserWallActive;
+    $libraryOut['Motto'] = $user->Motto;
 
-    $libraryOut['Rank'] = getUserRank($user);
+    $libraryOut['Rank'] = getUserRank($user->User);
 
     $recentlyPlayedData = [];
-    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData) : 0;
+    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user->User, 0, $numGames, $recentlyPlayedData) : 0;
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {
@@ -128,16 +129,16 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
             $gameIDs[] = $recentlyPlayed['GameID'];
         }
 
-        if ($userInfo['LastGameID'] && !in_array($userInfo['LastGameID'], $gameIDs)) {
-            $gameIDs[] = $userInfo['LastGameID'];
+        if ($user->LastGameID && !in_array($user->LastGameID, $gameIDs)) {
+            $gameIDs[] = $user->LastGameID;
         }
 
         $userProgress = getUserProgress($user, $gameIDs, $numRecentAchievements, withGameInfo: true);
 
         $libraryOut['Awarded'] = $userProgress['Awarded'];
         $libraryOut['RecentAchievements'] = $userProgress['RecentAchievements'];
-        if (array_key_exists($userInfo['LastGameID'], $userProgress['GameInfo'])) {
-            $libraryOut['LastGame'] = $userProgress['GameInfo'][$userInfo['LastGameID']];
+        if (array_key_exists($user->LastGameID, $userProgress['GameInfo'])) {
+            $libraryOut['LastGame'] = $userProgress['GameInfo'][$user->LastGameID];
         }
     }
 
