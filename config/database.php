@@ -48,7 +48,7 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
-            'host' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'mysql' : env('DB_HOST', '127.0.0.1'),
+            'host' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'mariadb' : env('DB_HOST', '127.0.0.1'),
             'port' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? '3306' : env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
