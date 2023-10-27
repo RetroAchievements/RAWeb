@@ -115,36 +115,13 @@ function getAllFriendsProgress(string $user, int $gameID, ?array &$friendScoresO
 
     $friendSubquery = GetFriendsSubquery($user, false);
 
-    // Less dependent subqueries :)
-    if (config('feature.aggregate_queries')) {
-        $query = "SELECT ua.User, ua.Motto, ua.RAPoints, ua.RichPresenceMsg,
-                         pg.points_hardcore AS TotalPoints
-                  FROM player_games pg
-                  LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-                  WHERE ua.User IN ( $friendSubquery ) AND pg.game_id = $gameID
-                  AND pg.points_hardcore > 0
-                  ORDER BY TotalPoints DESC, ua.User";
-    } else {
-        $query = "SELECT aw.User, ua.Motto, SUM( ach.Points ) AS TotalPoints, ua.RAPoints, ua.RichPresenceMsg, act.LastUpdate
-                FROM
-                (
-                    SELECT aw.User, aw.AchievementID, aw.Date
-                    FROM Awarded AS aw
-                    RIGHT JOIN
-                    (
-                        SELECT ID
-                        FROM Achievements AS ach
-                        WHERE ach.GameID = '$gameID' AND ach.Flags = 3
-                    ) AS Inner1 ON Inner1.ID = aw.AchievementID
-                    WHERE aw.HardcoreMode = " . UnlockMode::Hardcore . "
-                ) AS aw
-                LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN Activity AS act ON act.ID = ua.LastActivityID
-                WHERE aw.User IN ( $friendSubquery )
-                GROUP BY aw.User
-                ORDER BY TotalPoints DESC, aw.User";
-    }
+    $query = "SELECT ua.User, ua.Motto, ua.RAPoints, ua.RichPresenceMsg,
+                     pg.points_hardcore AS TotalPoints
+              FROM player_games pg
+              INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
+              WHERE ua.User IN ( $friendSubquery ) AND pg.game_id = $gameID
+              AND pg.points_hardcore > 0
+              ORDER BY TotalPoints DESC, ua.User";
 
     $dbResult = s_mysql_query($query);
 
