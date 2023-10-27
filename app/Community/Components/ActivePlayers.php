@@ -11,14 +11,12 @@ use Illuminate\View\Component;
 
 class ActivePlayers extends Component
 {
-    protected ActivePlayersService $activePlayersService;
     public ?string $initialSearch = null;
 
-    public function __construct(ActivePlayersService $activePlayersService, Request $request)
-    {
-        // DI
-        $this->activePlayersService = $activePlayersService;
-
+    public function __construct(
+        protected ActivePlayersService $activePlayersService,
+        Request $request
+    ) {
         $this->initialSearch = $request->cookie('active_players_search');
     }
 
