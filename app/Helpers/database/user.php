@@ -63,32 +63,6 @@ function getUserMetadataFromID(int $userID): ?array
     return null;
 }
 
-/**
- * @param array<string, mixed>|null $dataOut
- */
-function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ach.Title, ach.ID, ach.Points, aw.HardcoreMode
-        FROM Achievements AS ach
-        LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = '$gameID' AND aw.User = '$user'
-        ORDER BY ach.ID, aw.HardcoreMode ";
-
-    $dbResult = s_mysql_query($query);
-
-    $dataOut = [];
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[] = $data;
-        }
-    }
-
-    return count($dataOut);
-}
-
 function validateUsername(string $userIn): ?string
 {
     $user = User::firstWhere('User', $userIn);
@@ -168,44 +142,6 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
     }
 
     return $libraryOut;
-}
-
-function getControlPanelUserInfo(string $user, ?array &$libraryOut): bool
-{
-    sanitize_sql_inputs($user);
-
-    $libraryOut = [];
-    $libraryOut['Played'] = [];
-    // getUserActivityRange( $user, $firstLogin, $lastLogin );
-    // $libraryOut['MemberSince'] = $firstLogin;
-    // $libraryOut['LastLogin'] = $lastLogin;
-
-    $query = "SELECT gd.ID, c.Name AS ConsoleName, gd.Title AS GameTitle, COUNT(*) AS NumAwarded, Inner1.NumPossible
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                LEFT JOIN (
-                    SELECT ach.GameID, COUNT(*) AS NumPossible
-                    FROM Achievements AS ach
-                    WHERE ach.Flags = 3
-                    GROUP BY ach.GameID ) AS Inner1 ON Inner1.GameID = gd.ID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = 0
-                GROUP BY gd.ID, gd.ConsoleID, gd.Title
-                ORDER BY gd.Title, gd.ConsoleID";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        $libraryOut['Played'][] = $db_entry;
-    }   // use as raw array to preserve order!
-
-    return true;
 }
 
 function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
