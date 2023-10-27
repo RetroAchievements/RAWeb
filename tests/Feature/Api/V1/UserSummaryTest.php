@@ -7,9 +7,9 @@ namespace Tests\Feature\Api\V1;
 use App\Community\Enums\ActivityType;
 use App\Community\Enums\Rank;
 use App\Community\Models\UserActivityLegacy;
+use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -81,7 +81,7 @@ class UserSummaryTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create([
             'ConsoleID' => $system->ID,
-            'Released' => new Carbon('2000-01-20'),
+            'Released' => 'Jan 2000',
             'ForumTopicID' => 222334,
             'Publisher' => 'WeSellGames',
             'Developer' => 'WeMakeGames',
@@ -92,11 +92,10 @@ class UserSummaryTest extends TestCase
             'ImageBoxArt' => '/Images/001237.png',
         ]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
+        (new UpdateGameMetrics())->execute($game);
 
         /** @var User $user */
         $user = User::factory()->create([
-            'RASoftcorePoints' => random_int(Rank::MIN_POINTS, 1000),
-            'RAPoints' => random_int(Rank::MIN_POINTS, 10000),
             'TrueRAPoints' => random_int(10000, 20000),
             'Motto' => 'I play games.',
             'ContribCount' => random_int(10, 500),
@@ -109,7 +108,7 @@ class UserSummaryTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'ConsoleID' => $system->ID,
-            'Released' => new Carbon('1994-06-07'),
+            'Released' => '07 Jun 1994',
             'ForumTopicID' => 23543,
             'Publisher' => 'WeAlsoSellGames',
             'Developer' => 'WeAlsoMakeGames',
@@ -119,6 +118,8 @@ class UserSummaryTest extends TestCase
             'ImageIngame' => '/Images/002347.png',
             'ImageBoxArt' => '/Images/002348.png',
         ]);
+        (new UpdateGameMetrics())->execute($game2);
+
         $activity = new UserActivityLegacy([
             'User' => $user->User,
             'timestamp' => Carbon::now()->subDays(1),
@@ -139,7 +140,13 @@ class UserSummaryTest extends TestCase
         $user->save();
 
         $earnedAchievement = $publishedAchievements->get(0);
-        $unlock = PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $earnedAchievement->ID, 'User' => $user->User]);
+        $unlockTime = Carbon::now()->subDays(5);
+        $this->addHardcoreUnlock($user, $earnedAchievement, $unlockTime);
+
+        // ensure $user has enough points to be ranked
+        $user->refresh();
+        $user['RAPoints'] = random_int(Rank::MIN_POINTS, 10000);
+        $user->save();
 
         // make sure $this->user is ranked higher than $user
         $this->user->RAPoints = 1_234_567;
@@ -218,8 +225,8 @@ class UserSummaryTest extends TestCase
                                            $publishedAchievements->get(2)->Points,
                         'NumAchievedHardcore' => 1,
                         'ScoreAchievedHardcore' => $earnedAchievement->Points,
-                        'NumAchieved' => 0,
-                        'ScoreAchieved' => 0,
+                        'NumAchieved' => 1,
+                        'ScoreAchieved' => $earnedAchievement->Points,
                     ],
                     $game2->ID => [
                         'NumPossibleAchievements' => 0,
@@ -241,7 +248,7 @@ class UserSummaryTest extends TestCase
                             'GameID' => $game->ID,
                             'GameTitle' => $game->Title,
                             'IsAwarded' => '1',
-                            'DateAwarded' => $unlock->Date->__toString(),
+                            'DateAwarded' => $unlockTime->__toString(),
                             'HardcoreAchieved' => '1',
                         ],
                     ],
@@ -314,8 +321,8 @@ class UserSummaryTest extends TestCase
                                        $publishedAchievements->get(2)->Points,
                     'NumAchievedHardcore' => 1,
                     'ScoreAchievedHardcore' => $earnedAchievement->Points,
-                    'NumAchieved' => 0,
-                    'ScoreAchieved' => 0,
+                    'NumAchieved' => 1,
+                    'ScoreAchieved' => $earnedAchievement->Points,
                 ],
             ],
             'RecentAchievements' => [
@@ -329,7 +336,7 @@ class UserSummaryTest extends TestCase
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'IsAwarded' => '1',
-                        'DateAwarded' => $unlock->Date->__toString(),
+                        'DateAwarded' => $unlockTime->__toString(),
                         'HardcoreAchieved' => '1',
                     ],
                 ],

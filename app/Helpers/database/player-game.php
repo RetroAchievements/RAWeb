@@ -4,7 +4,8 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -138,7 +139,7 @@ function getGameRankAndScore(int $gameID, string $username): array
     return legacyDbFetchAll($query, ['username' => $username])->toArray();
 }
 
-function getUserProgress(string $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
+function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
 {
     $libraryOut = [];
 
@@ -148,82 +149,80 @@ function getUserProgress(string $user, array $gameIDs, int $numRecentAchievement
     $lockedAchievements = [];
 
     foreach ($gameIDs as $gameID) {
-        $numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData);
+        $game = Game::with('system')->find($gameID);
+        if (!$game) {
+            $awardedData[$gameID] = [
+                'NumPossibleAchievements' => 0,
+                'PossibleScore' => 0,
+                'NumAchieved' => 0,
+                'ScoreAchieved' => 0,
+                'NumAchievedHardcore' => 0,
+                'ScoreAchievedHardcore' => 0,
+            ];
+            continue;
+        }
 
-        $possibleScore = 0;
-        $numAchieved = 0;
-        $scoreAchieved = 0;
-        $numAchievedHardcore = 0;
-        $scoreAchievedHardcore = 0;
+        $playerGame = PlayerGame::where('user_id', '=', $user->ID)
+            ->where('game_id', $gameID)
+            ->first();
 
-        foreach ($achievementData as $achievement) {
-            $points = $achievement['Points'];
-            $possibleScore += $points;
+        $awardedData[$gameID] = [
+            'NumPossibleAchievements' => $game->achievements_published ?? 0,
+            'PossibleScore' => $game->points_total ?? 0,
+            'NumAchieved' => $playerGame ? $playerGame->achievements_unlocked : 0,
+            'ScoreAchieved' => $playerGame ? $playerGame->points : 0,
+            'NumAchievedHardcore' => $playerGame ? $playerGame->achievements_unlocked_hardcore : 0,
+            'ScoreAchievedHardcore' => $playerGame ? $playerGame->points_hardcore : 0,
+        ];
 
-            $dateEarned = $achievement['DateEarned'] ?? null;
-            $dateEarnedHardcore = $achievement['DateEarnedHardcore'] ?? null;
+        if ($withGameInfo) {
+            $gameInfo[$gameID] = [
+                'ID' => $game->ID,
+                'Title' => $game->Title,
+                'ConsoleID' => (int) $game->system->ID,
+                'ConsoleName' => $game->system->Name,
+                'ForumTopicID' => (int) $game->ForumTopicID,
+                'Flags' => (int) $game->Flags,
+                'ImageIcon' => $game->ImageIcon,
+                'ImageTitle' => $game->ImageTitle,
+                'ImageIngame' => $game->ImageIngame,
+                'ImageBoxArt' => $game->ImageBoxArt,
+                'Publisher' => $game->Publisher,
+                'Developer' => $game->Developer,
+                'Genre' => $game->Genre,
+                'Released' => $game->Released,
+                'IsFinal' => (int) $game->IsFinal,
+            ];
+        }
 
-            if ($dateEarned !== null) {
-                $numAchieved++;
-                $scoreAchieved += $points;
-            }
+        if ($numRecentAchievements >= 0) {
+            $gameData = $game->toArray();
 
-            if ($dateEarnedHardcore !== null) {
-                $numAchievedHardcore++;
-                $scoreAchievedHardcore += $points;
-            }
-
-            if ($numRecentAchievements >= 0) {
-                if ($dateEarnedHardcore !== null) {
+            $achievements = $game->achievements()->published()
+                ->leftJoin('player_achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
+                ->where('player_achievements.user_id', $user->id);
+            foreach ($achievements->get() as $achievement) {
+                if ($achievement->unlocked_hardcore_at) {
                     $unlockedAchievements[] = [
-                        'Achievement' => $achievement,
-                        'When' => $dateEarnedHardcore,
+                        'Achievement' => $achievement->toArray(),
+                        'When' => $achievement->unlocked_hardcore_at,
                         'Hardcore' => 1,
                         'Game' => $gameData,
                     ];
-                } elseif ($dateEarned !== null) {
+                } elseif ($achievement->unlocked_at) {
                     $unlockedAchievements[] = [
-                        'Achievement' => $achievement,
-                        'When' => $dateEarned,
+                        'Achievement' => $achievement->toArray(),
+                        'When' => $achievement->unlocked_at,
                         'Hardcore' => 0,
                         'Game' => $gameData,
                     ];
                 } else {
                     $lockedAchievements[] = [
-                        'Achievement' => $achievement,
+                        'Achievement' => $achievement->toArray(),
                         'Game' => $gameData,
                     ];
                 }
             }
-        }
-
-        $awardedData[$gameID] = [
-            'NumPossibleAchievements' => $numAchievements,
-            'PossibleScore' => $possibleScore,
-            'NumAchieved' => $numAchieved,
-            'ScoreAchieved' => $scoreAchieved,
-            'NumAchievedHardcore' => $numAchievedHardcore,
-            'ScoreAchievedHardcore' => $scoreAchievedHardcore,
-        ];
-
-        if ($withGameInfo && $gameData !== null) {
-            $gameInfo[$gameID] = [
-                'ID' => (int) $gameData['ID'],
-                'Title' => $gameData['Title'],
-                'ConsoleID' => (int) $gameData['ConsoleID'],
-                'ConsoleName' => $gameData['ConsoleName'],
-                'ForumTopicID' => (int) $gameData['ForumTopicID'],
-                'Flags' => (int) $gameData['Flags'],
-                'ImageIcon' => $gameData['ImageIcon'],
-                'ImageTitle' => $gameData['ImageTitle'],
-                'ImageIngame' => $gameData['ImageIngame'],
-                'ImageBoxArt' => $gameData['ImageBoxArt'],
-                'Publisher' => $gameData['Publisher'],
-                'Developer' => $gameData['Developer'],
-                'Genre' => $gameData['Genre'],
-                'Released' => $gameData['Released'],
-                'IsFinal' => (int) $gameData['IsFinal'],
-            ];
         }
     }
     $libraryOut['Awarded'] = $awardedData;
@@ -308,71 +307,36 @@ function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
     Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, false));
 }
 
-function getUserAchievementUnlocksForGame(string $username, int $gameID, int $flag = AchievementFlag::OfficialCore): array
+function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $flag = AchievementFlag::OfficialCore): array
 {
-    if (config('feature.aggregate_queries')) {
-        $user = User::firstWhere('User', $username);
-        if (!$user) {
-            return [];
-        }
-        $achievementIds = Achievement::where('GameID', $gameID)
-            ->where('Flags', $flag)
-            ->pluck('ID');
-        $playerAchievements = PlayerAchievement::where('user_id', $user->id)
-            ->whereIn('achievement_id', $achievementIds)
-            ->get([
-                'achievement_id',
-                'unlocked_at',
-                'unlocked_hardcore_at',
-            ])
-            ->mapWithKeys(function (PlayerAchievement $unlock, int $key) {
-                $result = [];
+    $user = is_string($user) ? User::firstWhere('User', $user) : $user;
 
-                // TODO move this transformation to where it's needed (web api) and use models everywhere else
-                if ($unlock->unlocked_at) {
-                    $result['DateEarned'] = $unlock->unlocked_at->format('Y-m-d H:i:s');
-                }
+    $playerAchievements = $user
+        ->playerAchievements()
+        ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
+        ->where('GameID', $gameID)
+        ->where('Flags', $flag)
+        ->get([
+            'achievement_id',
+            'unlocked_at',
+            'unlocked_hardcore_at',
+        ])
+        ->mapWithKeys(function ($unlock, int $key) {
+            $result = [];
 
-                if ($unlock->unlocked_hardcore_at) {
-                    $result['DateEarnedHardcore'] = $unlock->unlocked_hardcore_at->format('Y-m-d H:i:s');
-                }
-
-                return [$unlock->achievement_id => $result];
-            });
-
-        return $playerAchievements->toArray();
-    }
-    $cacheKey = CacheKey::buildUserGameUnlocksCacheKey(
-        $username,
-        $gameID,
-        isOfficial: $flag === AchievementFlag::OfficialCore
-    );
-
-    return Cache::remember($cacheKey,
-        Carbon::now()->addDays(7),
-        function () use ($username, $gameID, $flag) {
-            $query = "SELECT ach.ID, aw.Date, aw.HardcoreMode
-                      FROM Awarded AS aw
-                      LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                      WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND aw.User = :username";
-
-            $userUnlocks = legacyDbFetchAll($query, [
-                'gameId' => $gameID,
-                'achievementFlag' => $flag,
-                'username' => $username,
-            ]);
-
-            $achievementUnlocks = [];
-            foreach ($userUnlocks as $userUnlock) {
-                if ($userUnlock['HardcoreMode'] == UnlockMode::Hardcore) {
-                    $achievementUnlocks[$userUnlock['ID']]['DateEarnedHardcore'] = $userUnlock['Date'];
-                } else {
-                    $achievementUnlocks[$userUnlock['ID']]['DateEarned'] = $userUnlock['Date'];
-                }
+            // TODO move this transformation to where it's needed (web api) and use models everywhere else
+            if ($unlock->unlocked_at) {
+                $result['DateEarned'] = $unlock->unlocked_at->__toString();
             }
 
-            return $achievementUnlocks;
+            if ($unlock->unlocked_hardcore_at) {
+                $result['DateEarnedHardcore'] = $unlock->unlocked_hardcore_at->__toString();
+            }
+
+            return [$unlock->achievement_id => $result];
         });
+
+    return $playerAchievements->toArray();
 }
 
 function GetAllUserProgress(string $user, int $consoleID): array

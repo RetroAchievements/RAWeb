@@ -21,24 +21,19 @@ class ResetPlayerProgress
             $clause = "AND ach.GameID=$gameID";
         }
 
-        // TODO refactor, do not use Awarded
         $affectedAchievements = legacyDbFetchAll("
             SELECT
                 ach.Author,
                 ach.GameID,
-                aw_ach.HardcoreMode,
+                CASE WHEN pa.unlocked_hardcore_at THEN 1 ELSE 0 END AS HardcoreMode,
                 COUNT(ach.ID) AS Count, SUM(ach.Points) AS Points,
                 SUM(ach.TrueRatio) AS TruePoints
-            FROM (
-                SELECT aw.AchievementID, MAX(aw.HardcoreMode) as HardcoreMode
-                FROM Awarded aw
-                LEFT JOIN Achievements ach ON ach.ID=aw.AchievementID
-                WHERE aw.User = :username $clause GROUP BY aw.AchievementID
-            ) as aw_ach
-            LEFT JOIN Achievements ach ON ach.ID = aw_ach.AchievementID
+            FROM player_achievements pa
+            INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
             WHERE ach.Flags = " . AchievementFlag::OfficialCore . "
-            GROUP BY ach.Author, ach.GameID, aw_ach.HardcoreMode
-        ", ['username' => $user->User]);
+            AND pa.user_id = {$user->id} $clause
+            GROUP BY ach.Author, ach.GameID, HardcoreMode
+        ");
 
         $affectedGames = collect();
         $authorUsernames = collect();

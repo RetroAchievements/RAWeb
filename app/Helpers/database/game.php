@@ -5,6 +5,7 @@ use App\Community\Enums\TicketState;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -46,11 +47,11 @@ function getParentGameIdFromGameId(int $gameID): ?int
 
 function getGameMetadata(
     int $gameID,
-    ?string $user,
+    ?User $user,
     ?array &$achievementDataOut,
     ?array &$gameDataOut,
     int $sortBy = 1,
-    ?string $user2 = null,
+    ?User $user2 = null,
     int $flag = AchievementFlag::OfficialCore,
     bool $metrics = false,
 ): int {
@@ -228,7 +229,7 @@ function getGameMetadata(
         }
     }
 
-    if (isset($user)) {
+    if ($user) {
         $userUnlocks = getUserAchievementUnlocksForGame($user, $gameID, $flag);
         foreach ($userUnlocks as $achID => $userUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
@@ -242,7 +243,7 @@ function getGameMetadata(
         }
     }
 
-    if (isset($user2)) {
+    if ($user2) {
         $friendUnlocks = getUserAchievementUnlocksForGame($user2, $gameID, $flag);
         foreach ($friendUnlocks as $achID => $friendUnlock) {
             if (array_key_exists($achID, $achievementDataOut)) {
