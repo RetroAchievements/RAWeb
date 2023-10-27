@@ -15,6 +15,7 @@ use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Commands\SyncVotes;
 use App\Community\Components\DeveloperGameStatsTable;
+use App\Community\Components\ForumRecentPosts;
 use App\Community\Components\GlobalStatistics;
 use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
@@ -107,6 +108,7 @@ class AppServiceProvider extends ServiceProvider
 
         Blade::component('developer-game-stats-table', DeveloperGameStatsTable::class);
         Blade::component('global-statistics', GlobalStatistics::class);
+        Blade::component('forum-recent-posts', ForumRecentPosts::class);
         Blade::component('user-card', UserCard::class);
         Blade::component('user-progression-status', UserProgressionStatus::class);
 
