@@ -325,11 +325,11 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $f
 
             // TODO move this transformation to where it's needed (web api) and use models everywhere else
             if ($unlock->unlocked_at) {
-                $result['DateEarned'] = $unlock->unlocked_at->format('Y-m-d H:i:s');
+                $result['DateEarned'] = $unlock->unlocked_at->__toString();
             }
 
             if ($unlock->unlocked_hardcore_at) {
-                $result['DateEarnedHardcore'] = $unlock->unlocked_hardcore_at->format('Y-m-d H:i:s');
+                $result['DateEarnedHardcore'] = $unlock->unlocked_hardcore_at->__toString();
             }
 
             return [$unlock->achievement_id => $result];
