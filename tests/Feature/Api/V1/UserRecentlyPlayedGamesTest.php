@@ -8,17 +8,18 @@ use App\Community\Enums\ActivityType;
 use App\Community\Models\UserActivityLegacy;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class UserRecentlyPlayedGamesTest extends TestCase
 {
     use RefreshDatabase;
     use BootstrapsApiV1;
+    use TestsPlayerAchievements;
 
     public function testItValidates(): void
     {
@@ -72,9 +73,9 @@ class UserRecentlyPlayedGamesTest extends TestCase
         $activity2->save();
 
         $hardcoreAchievement = $publishedAchievements->get(0);
-        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $hardcoreAchievement->ID, 'User' => $user->User]);
+        $this->addHardcoreUnlock($user, $hardcoreAchievement);
         $softcoreAchievement = $publishedAchievements->get(0);
-        PlayerAchievementLegacy::factory()->create(['AchievementID' => $softcoreAchievement->ID, 'User' => $user->User]);
+        $this->addSoftcoreUnlock($user, $softcoreAchievement);
 
         $this->get($this->apiUrl('GetUserRecentlyPlayedGames', ['u' => $user->User]))
             ->assertSuccessful()

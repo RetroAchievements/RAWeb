@@ -1,10 +1,7 @@
 <?php
 
-use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\PlayerBadge;
-use App\Site\Models\User;
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
@@ -147,61 +144,4 @@ function checkIfSoleDeveloper(string $user, int $gameID): bool
     }
 
     return $authors->first()['Author'] === $user;
-}
-
-function attributeDevelopmentAuthor(string $author, int $count, int $points): void
-{
-    $user = User::firstWhere('User', $author);
-    if ($user === null) {
-        return;
-    }
-
-    $oldContribCount = $user->ContribCount;
-    $oldContribYield = $user->ContribYield;
-
-    // use raw statement to perform atomic update
-    legacyDbStatement("UPDATE UserAccounts SET ContribCount = ContribCount + $count," .
-                            " ContribYield = ContribYield + $points WHERE User=:user", ['user' => $author]);
-
-    $newContribTier = PlayerBadge::getNewBadgeTier(AwardType::AchievementUnlocksYield, $oldContribCount, $oldContribCount + $count);
-    if ($newContribTier !== null) {
-        AddSiteAward($author, AwardType::AchievementUnlocksYield, $newContribTier);
-    }
-
-    $newPointsTier = PlayerBadge::getNewBadgeTier(AwardType::AchievementPointsYield, $oldContribYield, $oldContribYield + $points);
-    if ($newPointsTier !== null) {
-        AddSiteAward($author, AwardType::AchievementPointsYield, $newPointsTier);
-    }
-}
-
-function recalculateDeveloperContribution(string $author): void
-{
-    sanitize_sql_inputs($author);
-
-    $query = "SELECT COUNT(*) AS ContribCount, SUM(Points) AS ContribYield
-              FROM (SELECT aw.User, ach.ID, MAX(aw.HardcoreMode) as HardcoreMode, ach.Points
-                    FROM Achievements ach LEFT JOIN Awarded aw ON aw.AchievementID=ach.ID
-                    WHERE ach.Author='$author' AND aw.User != '$author'
-                    AND ach.Flags=" . AchievementFlag::OfficialCore . "
-                    GROUP BY 1,2) AS UniqueUnlocks";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $contribCount = 0;
-        $contribYield = 0;
-
-        if ($data = mysqli_fetch_assoc($dbResult)) {
-            $contribCount = $data['ContribCount'] ?? 0;
-            $contribYield = $data['ContribYield'] ?? 0;
-        }
-
-        $query = "UPDATE UserAccounts
-                  SET ContribCount = $contribCount, ContribYield = $contribYield
-                  WHERE User = '$author'";
-
-        $dbResult = s_mysql_query($query);
-        if (!$dbResult) {
-            log_sql_fail();
-        }
-    }
 }

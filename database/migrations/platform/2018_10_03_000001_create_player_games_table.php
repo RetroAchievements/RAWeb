@@ -32,7 +32,7 @@ return new class() extends Migration {
             $table->unsignedInteger('achievements_total')->nullable();
             $table->unsignedInteger('achievements_unlocked')->nullable();
             $table->unsignedInteger('achievements_unlocked_hardcore')->nullable();
-            $table->unsignedDecimal('completion_percentage', 20, 16)->nullable(); // calculated completion (unlocked_hardcore * 2 + unlocked_casual-unlocked_hardcore) / achievements_total * 2
+            $table->unsignedDecimal('completion_percentage', 20, 16)->nullable();
             $table->unsignedDecimal('completion_percentage_hardcore', 10, 9)->nullable();
             $table->timestampTz('last_played_at')->nullable();
             $table->unsignedBigInteger('playtime_total')->nullable();
@@ -42,9 +42,9 @@ return new class() extends Migration {
             $table->jsonb('completion_dates_hardcore')->nullable();
             $table->timestampTz('completed_at')->nullable();
             $table->timestampTz('completed_hardcore_at')->nullable();
-            $table->timestampTz('last_unlock_at')->nullable(); // any, hardcore or casual
+            $table->timestampTz('last_unlock_at')->nullable(); // any, hardcore or softcore
             $table->timestampTz('last_unlock_hardcore_at')->nullable();
-            $table->timestampTz('first_unlock_at')->nullable(); // any, hardcore or casual
+            $table->timestampTz('first_unlock_at')->nullable(); // any, hardcore or softcore
             $table->timestampTz('first_unlock_hardcore_at')->nullable();
             $table->unsignedInteger('points_total')->nullable();
             $table->unsignedInteger('points')->nullable();

@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'file'),
+    'driver' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'redis' : env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------

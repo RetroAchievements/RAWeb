@@ -11,7 +11,7 @@ return new class() extends Migration {
     {
         Schema::table('player_achievements', function (Blueprint $table) {
             $sm = Schema::getConnection()->getDoctrineSchemaManager();
-            $indexesFound = $sm->listTableIndexes('Ticket');
+            $indexesFound = $sm->listTableIndexes('player_achievements');
 
             if (!array_key_exists('player_achievements_unlocked_hardcore_at_index', $indexesFound)) {
                 $table->index(['unlocked_hardcore_at']);

@@ -3,16 +3,19 @@
 use App\Site\Models\User;
 use Carbon\Carbon;
 
+/**
+ * @deprecated
+ */
 function static_addnewachievement(int $id): void
 {
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.NumAchievements=sd.NumAchievements+1, sd.LastCreatedAchievementID='$id'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    $query = "UPDATE StaticData ";
+    $query .= "SET NumAchievements=NumAchievements+1, LastCreatedAchievementID=$id";
+    legacyDbStatement($query);
 }
 
+/**
+ * @deprecated
+ */
 function static_addnewgame(int $id): void
 {
     // Subquery to get # of games that have achievements
@@ -28,6 +31,9 @@ function static_addnewgame(int $id): void
     }
 }
 
+/**
+ * @deprecated
+ */
 function static_addnewregistereduser(string $user): void
 {
     sanitize_sql_inputs($user);
@@ -40,6 +46,9 @@ function static_addnewregistereduser(string $user): void
     }
 }
 
+/**
+ * @deprecated
+ */
 function static_addnewhardcoremastery(int $gameId, string $username): void
 {
     $foundUser = User::firstWhere('User', $username);
@@ -58,6 +67,9 @@ function static_addnewhardcoremastery(int $gameId, string $username): void
     legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
 }
 
+/**
+ * @deprecated
+ */
 function static_addnewhardcoregamebeaten(int $gameId, string $username): void
 {
     $foundUser = User::firstWhere('User', $username);
@@ -76,6 +88,9 @@ function static_addnewhardcoregamebeaten(int $gameId, string $username): void
     legacyDbStatement($query, ['gameId' => $gameId, 'userId' => $foundUser->ID, 'now' => Carbon::now()]);
 }
 
+/**
+ * @deprecated
+ */
 function static_setlastearnedachievement(int $id, string $user, int $points): void
 {
     $query = "UPDATE StaticData
@@ -90,22 +105,20 @@ function static_setlastearnedachievement(int $id, string $user, int $points): vo
     }
 }
 
+/**
+ * @deprecated
+ */
 function static_setlastupdatedgame(int $id): void
 {
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.LastUpdatedGameID = '$id'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    $query = "UPDATE StaticData SET LastUpdatedGameID = $id";
+    legacyDbStatement($query);
 }
 
+/**
+ * @deprecated
+ */
 function static_setlastupdatedachievement(int $id): void
 {
-    $query = "UPDATE StaticData AS sd ";
-    $query .= "SET sd.LastUpdatedAchievementID = '$id'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-    }
+    $query = "UPDATE StaticData SET LastUpdatedAchievementID = $id";
+    legacyDbStatement($query);
 }

@@ -5,11 +5,15 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerAchievementLegacy;
 use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
+/**
+ * @deprecated see PlayerAchievement model
+ */
 function playerHasUnlock(?string $user, int $achievementId): array
 {
     $retVal = [
@@ -40,36 +44,14 @@ function playerHasUnlock(?string $user, int $achievementId): array
     return $retVal;
 }
 
-function recalculatePlayerBeatenGames(string $username): bool
-{
-    // Get the list of games the user has played.
-    $gamesPlayedQuery = "SELECT DISTINCT Achievements.GameID 
-        FROM Awarded 
-        INNER JOIN Achievements ON Awarded.AchievementID = Achievements.ID 
-        WHERE Awarded.User = :username
-    ";
-
-    $gamesPlayed = legacyDbFetchAll($gamesPlayedQuery, ['username' => $username])->toArray();
-
-    foreach ($gamesPlayed as $game) {
-        testBeatenGame($game['GameID'], $username, true);
-    }
-
-    return true;
-}
-
-function unlockAchievement(string $username, int $achievementId, bool $isHardcore): array
+/**
+ * @deprecated see UnlockPlayerAchievementAction
+ */
+function unlockAchievement(User $user, int $achievementId, bool $isHardcore): array
 {
     $retVal = [
         'Success' => false,
     ];
-
-    $user = User::firstWhere('User', $username);
-    if (!$user) {
-        $retVal['Error'] = "Data not found for user $username";
-
-        return $retVal;
-    }
 
     $achievement = Achievement::find($achievementId);
     if (!$achievement) {
@@ -84,6 +66,7 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
+    // TODO config('feature.aggregate_queries')
     $hasAwardTypes = playerHasUnlock($user->User, $achievement->ID);
     $hasRegular = $hasAwardTypes['HasRegular'];
     $hasHardcore = $hasAwardTypes['HasHardcore'];
@@ -107,18 +90,11 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         ]);
     }
 
-    // TODO dispatch user unlock event to start/extend player session, upsert user game entry
-
     if (!$alreadyAwarded) {
-        // testFullyCompletedGame could post a mastery notification. make sure to post
-        // the achievement unlock notification first
         postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
-    // TODO: Should the return value from this function be attaching anything to $retVal?
-    testBeatenGame($achievement->GameID, $user->User, !$alreadyAwarded);
-
-    $completion = testFullyCompletedGame($achievement->GameID, $user->User, $isHardcore, !$alreadyAwarded);
+    $completion = getUnlockCounts($achievement->GameID, $user->username, $isHardcore);
     if (array_key_exists('NumAwarded', $completion)) {
         $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
     }
@@ -137,29 +113,11 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
         return $retVal;
     }
 
-    // Use raw statement to ensure updates are atomic. Modifying the user model and
-    // committing via save() leaves a window where multiple simultaneous unlocks can
-    // increment the score separately and miss the merged result. For example:
-    // * unlock A => read points = 10
-    // * unlock B => read points = 10
-    // * unlock A => award 5 points, total = 15
-    // * unlock B => award 10 points, total = 20
-    // * unlock A => commit points (15)
-    // * unlock B => commit points (20)
-    // -- actual points is 20, expected points should be 25: 10 + 5 (A) + 10 (B)
-    $updateClause = '';
-    if ($isHardcore) {
-        $updateClause = 'RAPoints = RAPoints + ' . $achievement->Points;
-        $updateClause .= ', TrueRAPoints = TrueRAPoints + ' . $achievement->TrueRatio;
-        if ($hasRegular) {
-            $updateClause .= ', RASoftcorePoints = RASoftcorePoints - ' . $achievement->Points;
-        }
-    } else {
-        $updateClause = 'RASoftcorePoints = RASoftcorePoints + ' . $achievement->Points;
+    // Optimistic update for async metrics updates
+    if (config('queue.default') !== 'sync') {
+        $retVal['SoftcoreScore'] = $isHardcore ? $user->points_softcore : $user->points_softcore + $achievement->points;
+        $retVal['Score'] = $isHardcore ? $user->points + $achievement->points : $user->points;
     }
-
-    legacyDbStatement("UPDATE UserAccounts SET $updateClause, Updated=:now WHERE User=:user",
-                      ['user' => $user->User, 'now' => Carbon::now()]);
 
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
@@ -169,35 +127,16 @@ function unlockAchievement(string $username, int $achievementId, bool $isHardcor
 
     static_setlastearnedachievement($achievement->ID, $user->User, $achievement->Points);
 
-    if ($user->User != $achievement->Author) {
-        if ($isHardcore && $hasRegular) {
-            // developer received contribution points when the regular version was unlocked
-        } else {
-            attributeDevelopmentAuthor($achievement->Author, 1, $achievement->Points);
-        }
-    }
-
     return $retVal;
 }
 
+/**
+ * @deprecated use Achievements.unlocks_total
+ */
 function getAchievementUnlockCount(int $achID): int
 {
-    if (config('feature.aggregate_queries')) {
-        $query = "SELECT COUNT(*) AS NumEarned FROM player_achievements
-                  WHERE achievement_id=$achID";
-    } else {
-        $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
-                  WHERE AchievementID=$achID AND HardcoreMode=0";
-    }
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
-
-    return $data['NumEarned'] ?? 0;
+    return PlayerAchievement::where('achievement_id', $achID)
+        ->count();
 }
 
 /**
@@ -241,7 +180,8 @@ function getAchievementUnlocksData(
     $data = legacyDbFetch($query, $bindings);
 
     $numWinners = $data['NumEarned'];
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username, achievementFlag: AchievementFlag::OfficialCore);
+    // TODO use $game->players_total
+    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username);
 
     // Get recent winners, and their most recent activity
     $bindings = [
@@ -307,7 +247,8 @@ function getRecentUnlocksPlayersData(
 
     // Fetch the total number of players for this game:
     $parentGameID = getParentGameIdFromGameTitle($game->Title, $game->ConsoleID);
-    $retVal['TotalPlayers'] = getTotalUniquePlayers($game->ID, $parentGameID, achievementFlag: AchievementFlag::OfficialCore);
+    // TODO use $game->players_total
+    $retVal['TotalPlayers'] = getTotalUniquePlayers($game->ID, $parentGameID);
 
     $extraWhere = "";
     if ($friendsOnly && isset($user) && $user) {
@@ -337,28 +278,14 @@ function getRecentUnlocksPlayersData(
  */
 function getUnlocksSince(int $id, string $date): array
 {
-    sanitize_sql_inputs($date);
-
-    $query = "
-        SELECT
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE 0 END), 0) AS softcoreCount,
-            COALESCE(SUM(CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END), 0) AS hardcoreCount
-        FROM
-            Awarded
-        WHERE
-            AchievementID = $id
-        AND
-            Date > '$date'";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        return mysqli_fetch_assoc($dbResult);
-    }
+    $softcoreCount = PlayerAchievement::where('achievement_id', $id)
+        ->where('unlocked_at', '>', $date)->count();
+    $hardcoreCount = PlayerAchievement::where('achievement_id', $id)
+        ->where('unlocked_hardcore_at', '>', $date)->count();
 
     return [
-        'softcoreCount' => 0,
-        'hardcoreCount' => 0,
+        'softcoreCount' => $softcoreCount,
+        'hardcoreCount' => $hardcoreCount,
     ];
 }
 

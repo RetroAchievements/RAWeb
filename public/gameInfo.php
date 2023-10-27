@@ -15,6 +15,7 @@ use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
+use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 
@@ -40,8 +41,10 @@ if ($flagParam !== $unofficialFlag) {
     $flagParam = $officialFlag;
 }
 
+$userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
+    $userModel = User::firstWhere('User', $user);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');
@@ -50,7 +53,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
+$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
 
 if (empty($gameData)) {
     abort(404);
@@ -134,6 +137,8 @@ $claimListLength = 0;
 $isGameBeatable = false;
 $isBeatenHardcore = false;
 $isBeatenSoftcore = false;
+$hasBeatenHardcoreAward = false;
+$hasBeatenSoftcoreAward = false;
 $userGameProgressionAwards = [
     'beaten-softcore' => null,
     'beaten-hardcore' => null,
@@ -157,8 +162,8 @@ if ($isFullyFeaturedGame) {
 
         // Determine if the logged in user has any progression awards for this set
         $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
-        $isBeatenHardcore = !is_null($userGameProgressionAwards['beaten-hardcore']);
-        $isBeatenSoftcore = !is_null($userGameProgressionAwards['beaten-softcore']);
+        $hasBeatenSoftcoreAward = !is_null($userGameProgressionAwards['beaten-hardcore']);
+        $hasBeatenHardcoreAward = !is_null($userGameProgressionAwards['beaten-softcore']);
     }
 
     $screenshotWidth = 200;
@@ -171,11 +176,13 @@ if ($isFullyFeaturedGame) {
     $numEarnedHardcore = 0;
     $totalPossible = 0;
 
-    // Quickly calculate if the player potentially has an unawarded beaten game award
+    // Quickly calculate the player's beaten status on an optimistic basis
     $totalProgressionAchievements = 0;
     $totalWinConditionAchievements = 0;
     $totalEarnedProgression = 0;
+    $totalEarnedProgressionHardcore = 0;
     $totalEarnedWinCondition = 0;
+    $totalEarnedWinConditionHardcore = 0;
 
     $totalEarnedTrueRatio = 0;
     $totalPossibleTrueRatio = 0;
@@ -209,13 +216,19 @@ if ($isFullyFeaturedGame) {
 
                 if ($nextAch['type'] == AchievementType::Progression) {
                     $totalProgressionAchievements++;
-                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                    if (isset($nextAch['DateEarned'])) {
                         $totalEarnedProgression++;
+                    }
+                    if (isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedProgressionHardcore++;
                     }
                 } elseif ($nextAch['type'] == AchievementType::WinCondition) {
                     $totalWinConditionAchievements++;
-                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                    if (isset($nextAch['DateEarned'])) {
                         $totalEarnedWinCondition++;
+                    }
+                    if (isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedWinConditionHardcore++;
                     }
                 }
             }
@@ -234,20 +247,29 @@ if ($isFullyFeaturedGame) {
         array_multisort($authorCount, SORT_DESC, $authorInfo);
     }
 
-    // If the game is beatable, the user has met the requirements to receive the
-    // beaten game award, and they do not currently have that award, give it to them.
+    // Show the beaten award display in the progress component optimistically.
+    // The actual award metadata is updated async via actions/background jobs.
     if ($isGameBeatable) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
-        if (
-            $totalEarnedProgression === $neededProgressions
+
+        $isBeatenSoftcore = (
+            $totalEarnedProgression === $totalProgressionAchievements
             && $totalEarnedWinCondition >= $neededWinConditions
-            && !$isBeatenHardcore
-            && !$isBeatenSoftcore
-        ) {
-            $beatenGameRetVal = testBeatenGame($gameID, $user, true);
-            $isBeatenHardcore = $beatenGameRetVal['isBeatenHardcore'];
-            $isBeatenSoftcore = $beatenGameRetVal['isBeatenSoftcore'];
+        );
+
+        $isBeatenHardcore = (
+            $totalEarnedProgressionHardcore === $totalProgressionAchievements
+            && $totalEarnedWinConditionHardcore >= $neededWinConditions
+        );
+
+        // TODO: Remove this side effect when switching to aggregate queries.
+        // Without aggregate queries, the side effect is part of the beaten games
+        // self-healing mechanism.
+        if (!config('feature.aggregate_queries')) {
+            if ($isBeatenSoftcore !== $hasBeatenSoftcoreAward || $isBeatenHardcore !== $hasBeatenHardcoreAward) {
+                $beatenGameRetVal = testBeatenGame($gameID, $user);
+            }
         }
     }
 
@@ -993,14 +1015,6 @@ sanitize_outputs(
                     isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID),
                     'Tickets'
                 );
-
-                if ($permissions >= Permissions::Developer) {
-                    echo "<form action='/request/game/recalculate-points-ratio.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<button class='btn'>Recalculate True Ratios</button>";
-                    echo "</form>";
-                }
 
                 // Display the claims links if not an event game
                 if (!$isEventGame) {

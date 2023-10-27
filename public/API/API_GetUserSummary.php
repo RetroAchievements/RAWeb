@@ -58,8 +58,8 @@
  *    int        NumAchieved           count of Core achievements unlocked by the user
  *    int        NumAchievedHardcore   count of Core achievements unlocked by the user in Hardcore mode
  *    int        NumPossibleAchievements count of Core achievements for the game
- *    string     ScoreAchieved         points earned by the user from the game
- *    string     ScoreAchievedHardcore additional points earned by the user from the game for playing in Hardcore mode
+ *    string     ScoreAchieved         total points earned by the user from the game
+ *    string     ScoreAchievedHardcore points earned by the user from the game for playing in Hardcore mode
  *    string     PossibleScore         maximum points attainable from the game
  *  map        RecentAchievements
  *   string     [key]                  unique identifier of the game

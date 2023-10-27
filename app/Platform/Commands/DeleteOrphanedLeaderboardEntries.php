@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class DeleteOrphanedLeaderboardEntries extends Command
 {
-    protected $signature = 'ra:platform:delete-orphaned-leaderboard-entries';
+    protected $signature = 'ra:platform:leaderboard:delete-orphaned-entries';
     protected $description = 'Delete orphaned leaderboard entries';
 
     public function handle(): void
