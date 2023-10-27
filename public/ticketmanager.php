@@ -139,7 +139,12 @@ RenderContentStart($pageTitle);
             if (!empty($gameIDGiven)) {
                 echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
                 if (!empty($achievementIDGiven)) {
-                    echo " &raquo; " . renderAchievementTitle($achievementTitle, tags: false);
+                    echo " &raquo; " . Blade::render('
+                        <x-achievement.title :rawTitle="$rawTitle" :isDisplayingTags="$isDisplayingTags" />
+                    ', [
+                        'rawTitle' => $achievementTitle,
+                        'isDisplayingTags' => false,
+                    ]);
                 }
             }
         } else {
