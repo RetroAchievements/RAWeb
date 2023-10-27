@@ -169,8 +169,6 @@ function addArticleComment(
         return false;
     }
 
-    sanitize_sql_inputs($commentPayload);
-
     // Note: $user is the person who just made a comment.
 
     $userID = getUserIDFromUser($user);
@@ -183,33 +181,27 @@ function addArticleComment(
         return true;
     }
 
-    // Replace all single quotes with double quotes (to work with MYSQL DB)
-    // $commentPayload = str_replace( "'", "''", $commentPayload );
-
     if (is_array($articleID)) {
+        $bindings = [];
+
         $articleIDs = $articleID;
         $arrayCount = count($articleID);
         $count = 0;
         $query = "INSERT INTO Comment (ArticleType, ArticleID, UserID, Payload) VALUES";
         foreach ($articleID as $id) {
-            $query .= "( $articleType, $id, $userID, '$commentPayload' )";
+            $bindings['commentPayload' . $count] = $commentPayload;
+            $query .= "( $articleType, $id, $userID, :commentPayload$count )";
             if (++$count !== $arrayCount) {
                 $query .= ",";
             }
         }
     } else {
-        $query = "INSERT INTO Comment (ArticleType, ArticleID, UserID, Payload) VALUES( $articleType, $articleID, $userID, '$commentPayload' )";
+        $query = "INSERT INTO Comment (ArticleType, ArticleID, UserID, Payload) VALUES( $articleType, $articleID, $userID, :commentPayload)";
+        $bindings = ['commentPayload' => $commentPayload];
         $articleIDs = [$articleID];
     }
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
+    legacyDbStatement($query, $bindings);
 
     // Inform Subscribers of this comment:
     foreach ($articleIDs as $id) {
