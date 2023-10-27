@@ -74,18 +74,33 @@ class ResetPlayerProgress
                 ->whereIn('AchievementID', $achievementIds)
                 ->delete();
         } else {
+            // fulfill deletion request
+            $user->playerGames()->forceDelete();
+            $user->playerBadges()->delete();
             $user->playerAchievements()->delete();
             $user->playerAchievementsLegacy()->delete();
+
+            $user->RAPoints = 0;
+            $user->RASoftcorePoints = null;
+            $user->TrueRAPoints = null;
+            $user->ContribCount = 0;
+            $user->ContribYield = 0;
+            $user->save();
         }
 
-        $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
-        foreach ($authors as $author) {
-            dispatch(new UpdateDeveloperContributionYieldJob($author->id));
-        }
+        // TODO
+        // $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
+        // foreach ($authors as $author) {
+        //     dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+        // }
 
+        $isFullReset = $achievementID === null && $gameID === null;
         $affectedGames = $affectedGames->unique();
         foreach ($affectedGames as $affectedGameID) {
-            dispatch(new UpdatePlayerGameMetricsJob($user->id, $affectedGameID));
+            // no use updating deleted player games if it's a full reset
+            if (!$isFullReset) {
+                dispatch(new UpdatePlayerGameMetricsJob($user->id, $affectedGameID));
+            }
 
             // force the top achievers for the game to be recalculated
             expireGameTopAchievers($affectedGameID);

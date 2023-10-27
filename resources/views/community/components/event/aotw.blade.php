@@ -13,7 +13,6 @@ $achievementPoints = $achievement->Points;
 $achievementRetroPoints = $achievement->TrueRatio;
 $achievementBadgeName = $achievement->BadgeName;
 
-$renderedAchievementTitle = renderAchievementTitle($achievementName);
 $renderedGameTitle = renderGameTitle($game->Title);
 $achievementIconSrc = media_asset("/Badge/$achievementBadgeName.png");
 $gameSystemIconUrl = getSystemIconUrl($game->ConsoleID);
@@ -33,7 +32,9 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
             </a>
 
             <div>
-                <a href={{ $achievementUrl }} class="font-semibold leading-4 text-link">{!! $renderedAchievementTitle !!}</a>
+                <a href={{ $achievementUrl }} class="font-semibold leading-4 text-link">
+                    <x-achievement.title :rawTitle="$achievementName" />
+                </a>
                 <p class="text-xs mb-1">{{ $achievementPoints }} <span class="TrueRatio">({{ $achievementRetroPoints }})</span> Points</p>
                 <p class="text-xs">{{ $achievement->Description }}</p>
             </div>

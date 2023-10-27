@@ -10,6 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ResumePlayerSession implements ShouldQueue
 {
+    public string $queue = 'player-sessions';
+
     public function handle(object $event): void
     {
         $user = null;
