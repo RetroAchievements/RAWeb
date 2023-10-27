@@ -63,38 +63,6 @@ function getUserMetadataFromID(int $userID): ?array
     return null;
 }
 
-function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
-        FROM Achievements ach
-        INNER JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = $gameID AND aw.User = '$user'
-        ORDER BY ach.ID, aw.HardcoreMode DESC";
-
-    $dbResult = s_mysql_query($query);
-
-    $dataOut = [];
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $lastID = 0;
-    while ($data = mysqli_fetch_assoc($dbResult)) {
-        $achID = $data['ID'];
-        if ($lastID == $achID) {
-            continue;
-        }
-
-        $dataOut[] = $data;
-        $lastID = $achID;
-    }
-
-    return count($dataOut);
-}
-
 function validateUsername(string $userIn): ?string
 {
     $user = User::firstWhere('User', $userIn);
