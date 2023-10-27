@@ -157,7 +157,7 @@ return new class() extends Migration {
                 $table->timestampTz('Submitted')->useCurrent();
                 $table->timestampTz('Edited')->nullable();
 
-                $table->index('ArticleID', 'comments_commentable_id_index');
+                $table->index('ArticleID');
             });
         }
 
@@ -286,8 +286,8 @@ return new class() extends Migration {
                     $table->bigIncrements('id')->first();
                 }
 
-                $table->string('User', 32)->index('user_relations_user_id_index');
-                $table->string('Friend', 32)->index('user_relations_related_user_id_index');
+                $table->string('User', 32)->index();
+                $table->string('Friend', 32)->index();
                 $table->tinyInteger('Friendship');
             });
         }
@@ -782,7 +782,7 @@ return new class() extends Migration {
                 $table->integer('RASoftcorePoints')->nullable()->default(0)->after('RAPoints');
 
                 // https://github.com/RetroAchievements/RAWeb/blob/master/database/20220810_000000_Add_UserAccount_SoftcorePoints_Key.sql
-                $table->index(['RASoftcorePoints', 'Untracked'], 'users_points_softcore_unranked_index');
+                $table->index(['RASoftcorePoints', 'Untracked'], 'users_points_softcore_untracked_index');
             });
         }
 
