@@ -17,16 +17,16 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
         $user = null;
 
         switch ($event::class) {
-            // TODO case AchievementPublished::class:
-            //     $achievement = $event->achievement;
-            //     $achievement->loadMissing('developer');
-            //     $user = $achievement->developer;
-            //     break;
-            // TODO case AchievementUnpublished::class:
-            //     $achievement = $event->achievement;
-            //     $achievement->loadMissing('developer');
-            //     $user = $achievement->developer;
-            //     break;
+            case AchievementPublished::class:
+                $achievement = $event->achievement;
+                $achievement->loadMissing('developer');
+                $user = $achievement->developer;
+                break;
+            case AchievementUnpublished::class:
+                $achievement = $event->achievement;
+                $achievement->loadMissing('developer');
+                $user = $achievement->developer;
+                break;
             case AchievementPointsChanged::class:
                 $achievement = $event->achievement;
                 $achievement->loadMissing('developer');

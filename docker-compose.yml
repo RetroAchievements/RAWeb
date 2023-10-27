@@ -22,7 +22,7 @@ services:
         networks:
             - raweb
         depends_on:
-            - mysql
+            - mariadb
             - redis
             - minio
     nginx:
@@ -38,31 +38,36 @@ services:
             - raweb
         depends_on:
             - laravel.test
-    mysql:
+    mariadb:
         build:
             context: ./docker/mysql
             dockerfile: Dockerfile
-        image: 'mysql-pv:8'
+        image: 'mariadb-pv:10'
         environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: "%"
             MYSQL_DATABASE: '${DB_DATABASE}'
             MYSQL_USER: '${DB_USERNAME}'
-            MYSQL_PASSWORD: '${DB_PASSWORD:-secret}'
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-secret}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         volumes:
-            - 'mysql-data:/var/lib/mysql'
-            - './database:/docker-entrypoint-initdb.d/'
+            - 'mariadb-data:/var/lib/mysql'
+            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+            - './database:/docker-entrypoint-initdb.d/database'
             - './docker/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro'
         networks:
             - raweb
-        command:
-            - '--default-authentication-plugin=mysql_native_password'
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 5s
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         environment:
             PMA_ARBITRARY: 1
-            PMA_HOST: mysql
+            PMA_HOST: mariadb
             PMA_USER: '${DB_USERNAME}'
             PMA_PASSWORD: '${DB_PASSWORD}'
             PMA_PORT: 3306
@@ -117,7 +122,7 @@ networks:
     raweb:
         driver: bridge
 volumes:
-    mysql-data:
+    mariadb-data:
         driver: local
     minio-data:
         driver: local

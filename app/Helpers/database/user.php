@@ -45,19 +45,10 @@ function getUserIDFromUser(?string $user): int
         return 0;
     }
 
-    sanitize_sql_inputs($user);
+    $query = "SELECT ID FROM UserAccounts WHERE User = :user";
+    $row = legacyDbFetch($query, ['user' => $user]);
 
-    $query = "SELECT ID FROM UserAccounts WHERE User LIKE '$user'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return (int) ($data['ID'] ?? 0);
-    }
-
-    // cannot find user $user
-    return 0;
+    return $row ? (int) $row['ID'] : 0;
 }
 
 function getUserMetadataFromID(int $userID): ?array
