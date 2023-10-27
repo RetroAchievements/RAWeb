@@ -2,6 +2,7 @@
 
 use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -167,6 +168,6 @@ RenderContentStart("Forum: $thisForumTitle");
 </article>
 <?php view()->share('sidebar', true) ?>
 <aside>
-    <?php RenderRecentForumPostsComponent(8); ?>
+    <?= Blade::render('<x-forum-recent-posts :numToFetch="8" />') ?>
 </aside>
 <?php RenderContentEnd(); ?>

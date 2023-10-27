@@ -38,7 +38,6 @@ require_once __DIR__ . '/render/achievement.php';
 require_once __DIR__ . '/render/avatar.php';
 require_once __DIR__ . '/render/code-note.php';
 require_once __DIR__ . '/render/comment.php';
-require_once __DIR__ . '/render/forum.php';
 require_once __DIR__ . '/render/game.php';
 require_once __DIR__ . '/render/layout.php';
 require_once __DIR__ . '/render/leaderboard.php';
