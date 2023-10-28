@@ -387,57 +387,24 @@ function GetAllUserProgress(string $user, int $consoleID): array
     return $retVal;
 }
 
-function getUsersGameList(string $user, ?array &$dataOut): int
+function getUsersGameList(User $user): array
 {
     $dataOut = [];
 
-    sanitize_sql_inputs($user);
+    $query = "SELECT gd.ID, gd.Title, c.Name AS ConsoleName,
+                     gd.achievements_published AS NumAchievements,
+                     pg.achievements_unlocked AS NumAchieved
+              FROM player_games pg
+              INNER JOIN GameData AS gd ON gd.ID = pg.game_id
+              INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE pg.user_id = {$user->id}
+              AND pg.achievements_unlocked > 0";
 
-    $query = "SELECT gd.Title, c.Name AS ConsoleName, gd.ID, COUNT(AchievementID) AS NumAchieved
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        LEFT JOIN ( SELECT ach1.GameID AS GameIDInner, ach1.ID, COUNT(ach1.ID) AS TotalAch
-                    FROM Achievements AS ach1
-                    GROUP BY GameID ) AS gt ON gt.GameIDInner = gd.ID
-        WHERE aw.User = '$user'
-        AND aw.HardcoreMode = " . UnlockMode::Softcore . "
-        AND ach.Flags = " . AchievementFlag::OfficialCore . "
-        GROUP BY gd.ID";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
+    foreach (legacyDbFetchAll($query) as $row) {
+        $dataOut[$row['ID']] = $row;
     }
 
-    $gamelistCSV = '0';
-
-    while ($nextData = mysqli_fetch_assoc($dbResult)) {
-        $dataOut[$nextData['ID']] = $nextData;
-        $gamelistCSV .= ', ' . $nextData['ID'];
-    }
-
-    // Get totals:
-    $query = "SELECT ach.GameID, gd.Title, COUNT(ach.ID) AS NumAchievements
-            FROM Achievements AS ach
-            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            WHERE ach.Flags = " . AchievementFlag::OfficialCore . " AND ach.GameID IN ( $gamelistCSV )
-            GROUP BY ach.GameID ";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $i = 0;
-    while ($nextData = mysqli_fetch_assoc($dbResult)) {
-        $dataOut[$nextData['GameID']]['Title'] = $nextData['Title'];
-        $dataOut[$nextData['GameID']]['NumAchievements'] = $nextData['NumAchievements'];
-        $i++;
-    }
-
-    return $i;
+    return $dataOut;
 }
 
 /**
