@@ -65,7 +65,6 @@ class Game extends BaseModel implements HasComments, HasMedia
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'system_id',
         'release',
         'Title',
     ];
@@ -74,6 +73,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         'ID',
         'Title',
         'ForumTopicID',
+        'ConsoleID',
         'Flags',
         'ImageIcon',
         'ImageTitle',

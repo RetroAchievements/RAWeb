@@ -109,34 +109,30 @@ function getUnlockCounts(int $gameID, string $username, bool $hardcore = false):
     return $data;
 }
 
-function getGameRankAndScore(int $gameID, string $username): array
+function getGameRankAndScore(int $gameID, User $user): array
 {
-    $user = User::firstWhere('User', $username);
-    if (!$user || empty($gameID)) {
+    if (empty($gameID)) {
         return [];
     }
 
-    $rankClause = "ROW_NUMBER() OVER (ORDER BY SUM(ach.points) DESC, MAX(aw.Date) ASC) UserRank";
-    $untrackedClause = "AND NOT ua.Untracked";
+    $dateClause = greatestStatement(['MAX(pg.last_unlock_hardcore_at)', 'MAX(pg.last_unlock_at)']);
+    $rankClause = "ROW_NUMBER() OVER (ORDER BY pg.Points DESC, $dateClause ASC) UserRank";
+    $untrackedClause = "AND ua.Untracked = 0";
     if ($user->Untracked) {
         $rankClause = "NULL AS UserRank";
         $untrackedClause = "";
     }
 
     $query = "WITH data
-    AS (SELECT aw.User, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward,
-        $rankClause
-        FROM Awarded AS aw
-        LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-        WHERE ach.Flags = " . AchievementFlag::OfficialCore . "
-          AND gd.ID = $gameID $untrackedClause
-        GROUP BY aw.User
+    AS (SELECT ua.User, $rankClause, pg.Points AS TotalScore, $dateClause AS LastAward
+        FROM player_games AS pg
+        INNER JOIN UserAccounts AS ua ON ua.ID = pg.user_id
+        WHERE pg.game_id = $gameID $untrackedClause
+        GROUP BY ua.User
         ORDER BY TotalScore DESC, LastAward ASC
    ) SELECT * FROM data WHERE User = :username";
 
-    return legacyDbFetchAll($query, ['username' => $username])->toArray();
+    return legacyDbFetchAll($query, ['username' => $user->User])->toArray();
 }
 
 function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements = -1, bool $withGameInfo = false): array
