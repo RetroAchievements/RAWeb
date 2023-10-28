@@ -15,8 +15,6 @@ trait BootstrapsConnect
     {
         parent::setUp();
 
-        config(['feature.aggregate_queries' => true]);
-
         /** @var User $user */
         $user = User::factory()->create(['appToken' => Str::random(16)]);
         $this->user = $user;

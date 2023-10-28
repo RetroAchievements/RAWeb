@@ -10,6 +10,7 @@ use App\Community\Models\UserActivityLegacy;
 use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -120,12 +121,25 @@ class UserSummaryTest extends TestCase
         ]);
         (new UpdateGameMetrics())->execute($game2);
 
+        $earnedAchievement = $publishedAchievements->get(0);
+        $unlockTime = Carbon::now()->subDays(5);
+        $this->addHardcoreUnlock($user, $earnedAchievement, $unlockTime);
+
+        // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
+        $playerGame2 = new PlayerGame([
+            'user_id' => $user->ID,
+            'game_id' => $game2->ID,
+            'created_at' => Carbon::now()->subDays(1),
+            'last_played_at' => Carbon::now()->subMinutes(5),
+        ]);
+        $playerGame2->save();
+
         $activity = new UserActivityLegacy([
             'User' => $user->User,
-            'timestamp' => Carbon::now()->subDays(1),
-            'lastupdate' => Carbon::now()->subDays(1),
+            'timestamp' => $unlockTime,
+            'lastupdate' => $unlockTime,
             'activitytype' => ActivityType::StartedPlaying,
-            'data' => $game2->ID,
+            'data' => $game->ID,
         ]);
         $activity->save();
         $activity2 = new UserActivityLegacy([
@@ -133,15 +147,11 @@ class UserSummaryTest extends TestCase
             'timestamp' => Carbon::now()->subHours(1),
             'lastupdate' => Carbon::now()->subMinutes(5), // active less than 5 minutes ago is Online
             'activitytype' => ActivityType::StartedPlaying,
-            'data' => $game->ID,
+            'data' => $game2->ID,
         ]);
         $activity2->save();
         $user->LastActivityID = $activity2->ID;
         $user->save();
-
-        $earnedAchievement = $publishedAchievements->get(0);
-        $unlockTime = Carbon::now()->subDays(5);
-        $this->addHardcoreUnlock($user, $earnedAchievement, $unlockTime);
 
         // ensure $user has enough points to be ranked
         $user->refresh();
@@ -191,19 +201,19 @@ class UserSummaryTest extends TestCase
                 'RecentlyPlayedCount' => 2,
                 'RecentlyPlayed' => [
                     [
-                        'GameID' => $game->ID,
-                        'Title' => $game->Title,
-                        'ConsoleID' => $system->ID,
-                        'ConsoleName' => $system->Name,
-                        'ImageIcon' => $game->ImageIcon,
-                        'LastPlayed' => $activity2->lastupdate->__toString(),
-                    ],
-                    [
                         'GameID' => $game2->ID,
                         'Title' => $game2->Title,
                         'ConsoleID' => $system->ID,
                         'ConsoleName' => $system->Name,
                         'ImageIcon' => $game2->ImageIcon,
+                        'LastPlayed' => $activity2->lastupdate->__toString(),
+                    ],
+                    [
+                        'GameID' => $game->ID,
+                        'Title' => $game->Title,
+                        'ConsoleID' => $system->ID,
+                        'ConsoleName' => $system->Name,
+                        'ImageIcon' => $game->ImageIcon,
                         'LastPlayed' => $activity->lastupdate->__toString(),
                     ],
                 ],
@@ -213,7 +223,7 @@ class UserSummaryTest extends TestCase
                     'lastupdate' => $activity2->lastupdate->__toString(),
                     'activitytype' => '3',
                     'User' => $user->User,
-                    'data' => $game->ID,
+                    'data' => $game2->ID,
                     'data2' => null,
                 ],
                 'Status' => 'Online',
@@ -295,11 +305,11 @@ class UserSummaryTest extends TestCase
             'RecentlyPlayedCount' => 1,
             'RecentlyPlayed' => [
                 [
-                    'GameID' => $game->ID,
-                    'Title' => $game->Title,
+                    'GameID' => $game2->ID,
+                    'Title' => $game2->Title,
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
-                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIcon' => $game2->ImageIcon,
                     'LastPlayed' => $activity2->lastupdate->__toString(),
                 ],
             ],
@@ -309,7 +319,7 @@ class UserSummaryTest extends TestCase
                 'lastupdate' => $activity2->lastupdate->__toString(),
                 'activitytype' => '3',
                 'User' => $user->User,
-                'data' => $game->ID,
+                'data' => $game2->ID,
                 'data2' => null,
             ],
             'Status' => 'Online',

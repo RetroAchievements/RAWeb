@@ -9,7 +9,6 @@ use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
-use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -165,10 +164,10 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
         $awardedData[$gameID] = [
             'NumPossibleAchievements' => $game->achievements_published ?? 0,
             'PossibleScore' => $game->points_total ?? 0,
-            'NumAchieved' => $playerGame ? $playerGame->achievements_unlocked : 0,
-            'ScoreAchieved' => $playerGame ? $playerGame->points : 0,
-            'NumAchievedHardcore' => $playerGame ? $playerGame->achievements_unlocked_hardcore : 0,
-            'ScoreAchievedHardcore' => $playerGame ? $playerGame->points_hardcore : 0,
+            'NumAchieved' => $playerGame ? ($playerGame->achievements_unlocked ?? 0) : 0,
+            'ScoreAchieved' => $playerGame ? ($playerGame->points ?? 0) : 0,
+            'NumAchievedHardcore' => $playerGame ? ($playerGame->achievements_unlocked_hardcore ?? 0) : 0,
+            'ScoreAchievedHardcore' => $playerGame ? ($playerGame->points_hardcore ?? 0) : 0,
         ];
 
         if ($withGameInfo) {
@@ -292,15 +291,6 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
     }
 
     return $libraryOut;
-}
-
-/**
- * @deprecated not used anymore after denormalization
- */
-function expireUserAchievementUnlocksForGame(string $user, int $gameID): void
-{
-    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, true));
-    Cache::forget(CacheKey::buildUserGameUnlocksCacheKey($user, $gameID, false));
 }
 
 function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $flag = AchievementFlag::OfficialCore): array
@@ -490,14 +480,6 @@ function prepareUserCompletedGamesCacheValue(array $allFetchedResults): string
     return $awardedCacheString;
 }
 
-/**
- * @deprecated TODO Remove when denormalized data is ready. See comments in getUsersCompletedGamesAndMax().
- */
-function expireUserCompletedGamesCacheValue(string $user): void
-{
-    Cache::delete(CacheKey::buildUserCompletedGamesCacheKey($user));
-}
-
 function getUsersCompletedGamesAndMax(string $user): array
 {
     if (!isValidUsername($user)) {
@@ -506,103 +488,21 @@ function getUsersCompletedGamesAndMax(string $user): array
 
     $minAchievementsForCompletion = 5;
 
-    if (config('feature.aggregate_queries')) {
-        $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
-                         gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
-                pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate, 
-                pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
-                floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
-                floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
-            FROM player_games AS pg
-            LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-            WHERE ua.User = '$user'
-            AND gd.achievements_published > $minAchievementsForCompletion
-            ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
-    } else {
-        // TODO: Remove when denormalized data is ready. The cache call and conditional can be deleted.
-        $cachedAwardedValues = Cache::get(CacheKey::buildUserCompletedGamesCacheKey($user));
-        if ($cachedAwardedValues) {
-            return getLightweightUsersCompletedGamesAndMax($user, $cachedAwardedValues);
-        }
+    $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID,
+            gd.ImageIcon, gd.Title, gd.achievements_published as MaxPossible,
+            pg.first_unlock_at AS FirstWonDate, pg.last_unlock_at AS MostRecentWonDate,
+            pg.achievements_unlocked AS NumAwarded, pg.achievements_unlocked_hardcore AS NumAwardedHC, " .
+            floatDivisionStatement('pg.achievements_unlocked', 'gd.achievements_published') . " AS PctWon, " .
+            floatDivisionStatement('pg.achievements_unlocked_hardcore', 'gd.achievements_published') . " AS PctWonHC
+        FROM player_games AS pg
+        LEFT JOIN GameData AS gd ON gd.ID = pg.game_id
+        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+        LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
+        WHERE ua.User = :user
+        AND gd.achievements_published > $minAchievementsForCompletion
+        ORDER BY PctWon DESC, PctWonHC DESC, MaxPossible DESC, gd.Title";
 
-        $requiredFlag = AchievementFlag::OfficialCore;
-
-        // TODO slow query. optimize with denormalized data.
-        $query = "SELECT gd.ID AS GameID, c.Name AS ConsoleName, c.ID AS ConsoleID, gd.ImageIcon, gd.Title, inner1.MaxPossible,
-                SUM(aw.HardcoreMode = 0) AS NumAwarded, SUM(aw.HardcoreMode = 1) AS NumAwardedHC, 
-                MAX(aw.Date) AS MostRecentWonDate, MIN(aw.Date) AS FirstWonDate, " .
-                floatDivisionStatement('SUM(aw.HardcoreMode = 0)', 'inner1.MaxPossible') . " AS PctWon, " .
-                floatDivisionStatement('SUM(aw.HardcoreMode = 1)', 'inner1.MaxPossible') . " AS PctWonHC
-            FROM Awarded AS aw
-            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-            LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-            LEFT JOIN
-                ( SELECT COUNT(*) AS MaxPossible, ach1.GameID FROM Achievements AS ach1 WHERE Flags = $requiredFlag GROUP BY GameID )
-                AS inner1 ON inner1.GameID = ach.GameID AND inner1.MaxPossible > $minAchievementsForCompletion
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            WHERE aw.User = '$user' AND ach.Flags = $requiredFlag
-            GROUP BY ach.GameID, gd.Title
-            ORDER BY PctWon DESC, PctWonHC DESC, inner1.MaxPossible DESC, gd.Title";
-    }
-
-    $fullResults = legacyDbFetchAll($query)->toArray();
-
-    // Extract and cache data from Awarded.
-    // TODO: Remove when denormalized data is ready. The function call and Cache put can be deleted.
-    $awardedCacheString = prepareUserCompletedGamesCacheValue($fullResults);
-    Cache::put(CacheKey::buildUserCompletedGamesCacheKey($user), $awardedCacheString, Carbon::now()->addDays(7));
-
-    return $fullResults;
-}
-
-/**
- * @deprecated TODO use denormalized game metrics players_total and players_hardcore
- */
-function getTotalUniquePlayers(
-    int $gameID,
-    ?int $parentGameID = null,
-    ?string $requestedBy = null,
-    bool $hardcoreOnly = false,
-): int {
-    $bindings = [
-        'gameId' => $gameID,
-    ];
-    $gameIdStatement = 'a.GameID = :gameId';
-    if ($parentGameID !== null) {
-        $gameIdStatement = 'a.GameID IN (:gameId, :parentGameId)';
-        $bindings['parentGameId'] = $parentGameID;
-    }
-
-    $unlockModeStatement = '';
-    if ($hardcoreOnly) {
-        $unlockModeStatement = ' AND pa.unlocked_hardcore_at IS NOT NULL';
-    }
-
-    $bindings['achievementFlag'] = AchievementFlag::OfficialCore;
-
-    $requestedByStatement = '';
-    if ($requestedBy) {
-        $bindings['requestedBy'] = $requestedBy;
-        $requestedByStatement = 'OR u.User = :requestedBy';
-    }
-
-    $query = "
-        SELECT
-            COUNT(DISTINCT pa.user_id) players_count
-        FROM
-            player_achievements pa
-            LEFT JOIN Achievements a ON a.ID = pa.achievement_id
-            LEFT JOIN UserAccounts u ON u.ID = pa.user_id
-        WHERE
-            $gameIdStatement
-            AND a.Flags = :achievementFlag
-            AND (u.Untracked = 0 $requestedByStatement)
-            $unlockModeStatement
-    ";
-
-    return (int) (legacyDbFetch($query, $bindings)['players_count'] ?? 0);
+    return legacyDbFetchAll($query, ['user' => $user])->toArray();
 }
 
 function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
@@ -693,28 +593,14 @@ function getGameTopAchievers(int $gameID): array
         $numAchievementsInSet = $data['NumAchievementsInSet'];
     }
 
-    if (config('feature.aggregate_queries')) {
-        $query = "SELECT ua.User, pg.achievements_unlocked_hardcore AS NumAchievements,
-                         pg.points_hardcore AS TotalScore, pg.last_unlock_hardcore_at AS LastAward
-                    FROM player_games pg
-                    INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
-                    WHERE ua.Untracked = 0
-                    AND pg.game_id = $gameID
-                    AND pg.achievements_unlocked_hardcore > 0
-                    ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
-    } else {
-        $query = "SELECT aw.User, COUNT(*) AS NumAchievements, SUM(ach.points) AS TotalScore, MAX(aw.Date) AS LastAward
-                    FROM Awarded AS aw
-                    LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                    LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                    LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                    WHERE NOT ua.Untracked
-                    AND ach.Flags = " . AchievementFlag::OfficialCore . "
-                    AND gd.ID = $gameID
-                    AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
-                    GROUP BY aw.User
-                    ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
-    }
+    $query = "SELECT ua.User, pg.achievements_unlocked_hardcore AS NumAchievements,
+                        pg.points_hardcore AS TotalScore, pg.last_unlock_hardcore_at AS LastAward
+                FROM player_games pg
+                INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
+                WHERE ua.Untracked = 0
+                AND pg.game_id = $gameID
+                AND pg.achievements_unlocked_hardcore > 0
+                ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
 
     $mastersCounter = 0;
     foreach (legacyDbFetchAll($query) as $data) {
@@ -745,62 +631,6 @@ function getGameTopAchievers(int $gameID): array
         // that way we only have to expire it when there's a new mastery
         // or an achievement gets promoted or demoted
         Cache::put($cacheKey, $retval, Carbon::now()->addDays(30));
-    }
-
-    return $retval;
-}
-
-function getMostPopularGames(int $offset, int $count, int $method): array
-{
-    $retval = [];
-
-    if ($method == 0) {
-        // By num awards given:
-        $query = "    SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, gd.Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, gd.TotalTruePoints, c.Name AS ConsoleName,     SUM(NumTimesAwarded) AS NumRecords
-                    FROM GameData AS gd
-                    LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                    LEFT OUTER JOIN (
-                        SELECT
-                            COALESCE(aw.cnt, 0) AS NumTimesAwarded,
-                            GameID
-                        FROM
-                            Achievements AS ach
-                        LEFT OUTER JOIN (
-                            SELECT
-                                AchievementID,
-                                count(*) cnt
-                            FROM
-                                Awarded
-                            GROUP BY
-                                AchievementID) aw ON ach.ID = aw.AchievementID
-                        GROUP BY
-                            ach.ID) aw ON aw.GameID = gd.ID
-                    GROUP BY gd.ID
-                    ORDER BY NumRecords DESC
-                    LIMIT $offset, $count";
-    } else {
-        return $retval;
-        // $query = "    SELECT COUNT(*) AS NumRecords, Inner1.*
-        //         FROM
-        //         (
-        //             SELECT gd.ID, gd.Title, gd.ConsoleID, gd.ForumTopicID, gd.Flags, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt, gd.Publisher, gd.Developer, gd.Genre, gd.Released, gd.IsFinal, gd.TotalTruePoints, c.Name AS ConsoleName
-        //             FROM Activity AS act
-        //             LEFT JOIN GameData AS gd ON gd.ID = act.data
-        //             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        //             WHERE act.activitytype = " . AchievementFlag::OfficialCore . " AND !ISNULL( gd.ID )
-        //             GROUP BY gd.ID, act.User
-        //         ) AS Inner1
-        //         GROUP BY Inner1.ID
-        //         ORDER BY NumRecords DESC
-        //         LIMIT $offset, $count";
-    }
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $retval[] = $data;
-        }
     }
 
     return $retval;

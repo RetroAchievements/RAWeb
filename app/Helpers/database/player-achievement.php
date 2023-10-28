@@ -66,7 +66,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         return $retVal;
     }
 
-    // TODO config('feature.aggregate_queries')
     $hasAwardTypes = playerHasUnlock($user->User, $achievement->ID);
     $hasRegular = $hasAwardTypes['HasRegular'];
     $hasHardcore = $hasAwardTypes['HasHardcore'];
@@ -122,9 +121,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
     $retVal['Success'] = true;
     // Achievements all awarded. Now housekeeping (no error handling?)
 
-    expireUserCompletedGamesCacheValue($user->User);
-    expireUserAchievementUnlocksForGame($user->User, $achievement->GameID);
-
     static_setlastearnedachievement($achievement->ID, $user->User, $achievement->Points);
 
     return $retVal;
@@ -152,36 +148,13 @@ function getAchievementUnlocksData(
     int $limit = 50
 ): Collection {
 
-    $bindings = [
-        'unlockMode' => UnlockMode::Softcore,
-        'joinAchievementId' => $achievementId,
-        'achievementId' => $achievementId,
-    ];
-
-    $requestedByStatement = '';
-    if ($username) {
-        $bindings['username'] = $username;
-        $requestedByStatement = 'OR ua.User = :username';
+    $achievement = Achievement::firstWhere('ID', $achievementId);
+    if (!$achievement) {
+        return new Collection();
     }
 
-    $query = "
-        SELECT ach.GameID, COUNT(tracked_aw.AchievementID) AS NumEarned
-        FROM Achievements AS ach
-        LEFT JOIN (
-            SELECT aw.AchievementID
-            FROM Awarded AS aw
-            INNER JOIN UserAccounts AS ua ON ua.User = aw.User
-            WHERE aw.AchievementID = :joinAchievementId AND aw.HardcoreMode = :unlockMode
-              AND (NOT ua.Untracked $requestedByStatement)
-        ) AS tracked_aw ON tracked_aw.AchievementID = ach.ID
-        WHERE ach.ID = :achievementId
-    ";
-
-    $data = legacyDbFetch($query, $bindings);
-
-    $numWinners = $data['NumEarned'];
-    // TODO use $game->players_total
-    $numPossibleWinners = getTotalUniquePlayers((int) $data['GameID'], $parentGameId, requestedBy: $username);
+    $numWinners = $achievement->unlocks_total;
+    $numPossibleWinners = $achievement->game->players_total;
 
     // Get recent winners, and their most recent activity
     $bindings = [
@@ -239,16 +212,8 @@ function getRecentUnlocksPlayersData(
     }
     $retVal['GameID'] = $game->ID;
 
-    // Fetch the number of times this has been earned whatsoever (excluding hardcore)
-    $query = "SELECT COUNT(*) AS NumEarned FROM Awarded
-              WHERE AchievementID=$achID AND HardcoreMode = " . UnlockMode::Softcore;
-    $data = legacyDbFetch($query);
-    $retVal['NumEarned'] = (int) $data['NumEarned'];
-
-    // Fetch the total number of players for this game:
-    $parentGameID = getParentGameIdFromGameTitle($game->Title, $game->ConsoleID);
-    // TODO use $game->players_total
-    $retVal['TotalPlayers'] = getTotalUniquePlayers($game->ID, $parentGameID);
+    $retVal['NumEarned'] = $achievement->unlocks_total;
+    $retVal['TotalPlayers'] = $game->players_total;
 
     $extraWhere = "";
     if ($friendsOnly && isset($user) && $user) {
@@ -360,21 +325,17 @@ function getAchievementDistribution(
 
     $bindings = [
         'gameId' => $gameID,
-        'unlockMode' => $hardcore,
-        'achievementFlag' => $flag,
     ];
 
     // if a game has more than 100 players, don't filter out the untracked users as the
     // join becomes very expensive. will be addressed when denormalized data is captured
     $joinStatement = '';
-    $joinStatementNew = '';
-    $joinStatementNewUnofficial = '';
+    $joinStatementUnofficial = '';
     $requestedByStatement = '';
     if ($numPlayers < 100) {
-        $joinStatement = 'LEFT JOIN UserAccounts AS ua ON ua.User = aw.User';
-        $joinStatementNew = 'LEFT JOIN UserAccounts AS ua ON ua.ID = pg.user_id';
-        $joinStatementNewUnofficial = 'LEFT JOIN UserAccounts AS ua ON ua.ID = pa.user_id';
-        $requestedByStatement = 'AND (NOT ua.Untracked';
+        $joinStatement = 'INNER JOIN UserAccounts AS ua ON ua.ID = pg.user_id';
+        $joinStatementUnofficial = 'INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id';
+        $requestedByStatement = 'AND (ua.Untracked = 0';
         if ($requestedBy) {
             $bindings['requestedBy'] = $requestedBy;
             $requestedByStatement .= ' OR ua.User = :requestedBy';
@@ -383,51 +344,31 @@ function getAchievementDistribution(
     }
 
     // Returns an array of the number of players who have achieved each total, up to the max.
-    if (config('feature.aggregate_queries')) {
-        if ($flag === AchievementFlag::OfficialCore) {
-            $countColumn = $hardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked';
-            $query = "SELECT pg.$countColumn AS AwardedCount, COUNT(*) AS NumUniquePlayers
-                      FROM player_games AS pg
-                      $joinStatementNew
-                      WHERE pg.game_id = :gameId AND pg.$countColumn > 0
-                      $requestedByStatement
-                      GROUP BY AwardedCount
-                      ORDER BY AwardedCount DESC";
-            unset($bindings['achievementFlag']);
-        } else {
-            $hardcoreStatement = $hardcore ? 'AND pa.unlocked_hardcore_at IS NOT NULL' : '';
-            $query = "SELECT InnerTable.AwardedCount AS AwardedCount, COUNT(*) AS NumUniquePlayers
-                    FROM (
-                        SELECT COUNT(*) AS AwardedCount
-                        FROM player_achievements AS pa
-                        LEFT JOIN Achievements AS ach ON ach.ID = pa.achievement_id
-                        $joinStatementNewUnofficial
-                        WHERE ach.GameID = :gameId
-                        $hardcoreStatement
-                        AND ach.Flags = :achievementFlag
-                        $requestedByStatement
-                        GROUP BY pa.user_id
-                        ORDER BY AwardedCount DESC
-                    ) AS InnerTable
-                    GROUP BY InnerTable.AwardedCount";
-        }
-        unset($bindings['unlockMode']);
+    if ($flag === AchievementFlag::OfficialCore) {
+        $countColumn = $hardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked';
+        $query = "SELECT pg.$countColumn AS AwardedCount, COUNT(*) AS NumUniquePlayers
+                    FROM player_games AS pg
+                    $joinStatement
+                    WHERE pg.game_id = :gameId AND pg.$countColumn > 0
+                    $requestedByStatement
+                    GROUP BY AwardedCount
+                    ORDER BY AwardedCount DESC";
     } else {
-        $query = "
-        SELECT InnerTable.AwardedCount, COUNT(*) AS NumUniquePlayers
-        FROM (
-            SELECT COUNT(*) AS AwardedCount
-            FROM Awarded AS aw
-            LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-            $joinStatement
-            WHERE ach.GameID = :gameId
-              AND aw.HardcoreMode = :unlockMode
-              AND ach.Flags = :achievementFlag
-              $requestedByStatement
-            GROUP BY aw.User
-            ORDER BY AwardedCount DESC
-        ) AS InnerTable
-        GROUP BY InnerTable.AwardedCount";
+        $hardcoreStatement = $hardcore ? 'AND pa.unlocked_hardcore_at IS NOT NULL' : '';
+        $query = "SELECT InnerTable.AwardedCount AS AwardedCount, COUNT(*) AS NumUniquePlayers
+                FROM (
+                    SELECT COUNT(*) AS AwardedCount
+                    FROM player_achievements AS pa
+                    INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+                    $joinStatementUnofficial
+                    WHERE ach.GameID = :gameId
+                    $hardcoreStatement
+                    AND ach.Flags = $flag
+                    $requestedByStatement
+                    GROUP BY pa.user_id
+                    ORDER BY AwardedCount DESC
+                ) AS InnerTable
+                GROUP BY InnerTable.AwardedCount";
     }
 
     $data = legacyDbFetchAll($query, $bindings)

@@ -8,7 +8,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\System;
 use App\Site\Models\StaticData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -62,14 +61,14 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
-        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(0)->ID, 'User' => $this->user->User]);
-        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $publishedAchievements->get(1)->ID, 'User' => $this->user->User]);
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(0));
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(1));
 
         $unpublishedAchievements = Achievement::factory()->count(5)->create(['GameID' => $game->ID]);
-        PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $unpublishedAchievements->get(0)->ID, 'User' => $this->user->User]);
-        PlayerAchievementLegacy::factory()->create(['AchievementID' => $unpublishedAchievements->get(1)->ID, 'User' => $this->user->User]);
-        PlayerAchievementLegacy::factory()->create(['AchievementID' => $unpublishedAchievements->get(2)->ID, 'User' => $this->user->User]);
-        PlayerAchievementLegacy::factory()->create(['AchievementID' => $unpublishedAchievements->get(3)->ID, 'User' => $this->user->User]);
+        $this->addHardcoreUnlock($this->user, $unpublishedAchievements->get(0));
+        $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(1));
+        $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(2));
+        $this->addSoftcoreUnlock($this->user, $unpublishedAchievements->get(3));
 
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => -1]))
             ->assertSuccessful()
@@ -87,7 +86,7 @@ class V1Test extends TestCase
             ->assertSuccessful()
             ->assertExactJson([
                 '1' => 0,
-                '2' => 0,
+                '2' => 1, // hardcore unlock also grants softcore unlock
                 '3' => 0,
             ]);
 
@@ -106,8 +105,8 @@ class V1Test extends TestCase
             ->assertExactJson([
                 '1' => 0,
                 '2' => 0,
-                '3' => 1,
-                '4' => 0,
+                '3' => 0,
+                '4' => 1, // hardcore unlock also counts as a softcore unlock (3+1=4)
                 '5' => 0,
             ]);
     }
