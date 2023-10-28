@@ -159,8 +159,8 @@ function getAchievementUnlocksData(
         return new Collection();
     }
 
-    $numWinners = $achievement->unlocks_total;
-    $numPossibleWinners = $achievement->game->players_total;
+    $numWinners = $achievement->unlocks_total ?? 0;
+    $numPossibleWinners = $achievement->game->players_total ?? 0;
 
     // Get recent winners, and their most recent activity
     return PlayerAchievement::where('achievement_id', $achievementId)
