@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
@@ -16,12 +17,9 @@ class UpdateGamePlayerGames
 {
     public function execute(Game $game): void
     {
-        // don't do this without a proper queue
-        if (config('queue.default') === 'sync') {
-            // do allow this to cascade in the unit tests
-            if (!app()->environment('testing')) {
-                return;
-            }
+        // don't do this without a proper queue (unless testing)
+        if (config('queue.default') === 'sync' && !app()->environment('testing')) {
+            return;
         }
 
         // Ad-hoc updates for player games metrics and player metrics after achievement set version changes
@@ -48,7 +46,7 @@ class UpdateGamePlayerGames
                             resolve(BatchRepository::class)->markAsFinished($batch->id);
                         }
                         // some game metrics depend on the player_games rows
-                        (new UpdateGameMetrics())->execute($game);
+                        GamePlayerGameMetricsUpdated::dispatch($game);
                     })
                     ->dispatch();
             });

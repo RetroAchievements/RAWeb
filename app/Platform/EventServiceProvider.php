@@ -10,6 +10,7 @@ use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Events\GameMetricsUpdated;
+use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerBadgeAwarded;
@@ -55,6 +56,9 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsJob::class,
         ],
         GameMetricsUpdated::class => [
+        ],
+        GamePlayerGameMetricsUpdated::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         PlayerAchievementLocked::class => [
         ],
