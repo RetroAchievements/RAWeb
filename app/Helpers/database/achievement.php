@@ -462,54 +462,22 @@ function updateAchievementEmbedVideo(int $achID, ?string $newURL): bool
     return $dbResult !== false;
 }
 
-function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
+function updateAchievementFlag(int|string|array $achID, int $newFlag): void
 {
-    $achievementIDs = is_array($achID) ? implode(', ', $achID) : $achID;
+    $achievementIDs = is_array($achID) ? $achID : [$achID];
 
-    sanitize_sql_inputs($achievementIDs);
+    $achievements = Achievement::whereIn('ID', $achievementIDs)
+        ->whereNot('Flags', $newFlag);
 
-    $query = "SELECT ID, Author, Points FROM Achievements WHERE ID IN ($achievementIDs) AND Flags != $newFlag";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        log_sql_fail();
-
-        return false;
+    if (!$achievements->count()) {
+        return;
     }
 
-    $updatedAchIDs = [];
-    $authorCount = [];
-    $authorPoints = [];
-    while ($data = mysqli_fetch_assoc($dbResult)) {
-        $updatedAchID = (int) $data['ID'];
-        $updatedAchIDs[] = $updatedAchID;
+    $achievements->update(['Flags' => $newFlag]);
 
-        $numUnlocks = Achievement::find($achID)->unlocks_total;
-        if ($numUnlocks > 0) {
-            if (array_key_exists($data['Author'], $authorCount)) {
-                $authorCount[$data['Author']] += $numUnlocks;
-                $authorPoints[$data['Author']] += $numUnlocks * (int) $data['Points'];
-            } else {
-                $authorCount[$data['Author']] = $numUnlocks;
-                $authorPoints[$data['Author']] = $numUnlocks * (int) $data['Points'];
-            }
-        }
-    }
+    $updatedAchievements = $achievements->get();
 
-    $updatedAchievementIDs = implode(',', $updatedAchIDs);
-    if (empty($updatedAchievementIDs)) {
-        return true;
-    }
-
-    $query = "UPDATE Achievements SET Flags=$newFlag, Updated=NOW() WHERE ID IN ($updatedAchievementIDs)";
-    if (!s_mysql_query($query)) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    foreach ($updatedAchIDs as $achievementId) {
-        $achievement = Achievement::find($achievementId);
-
+    foreach ($updatedAchievements as $achievement) {
         if ($newFlag === AchievementFlag::OfficialCore) {
             AchievementPublished::dispatch($achievement);
         }
@@ -518,8 +486,6 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
             AchievementUnpublished::dispatch($achievement);
         }
     }
-
-    return true;
 }
 
 function updateAchievementType(int|string|array $achID, ?string $newType): bool
