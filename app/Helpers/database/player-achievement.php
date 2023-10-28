@@ -61,15 +61,17 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         // Also update user points for the response, but don't immediately commit them to avoid uncessary
         // DB writes.
         if ($isHardcore && !$hasHardcore) {
-            $playerGame->achievements_unlocked_hardcore++;
-            $user->RAPoints += $achievement->Points;
+            if ($playerGame) {
+                $playerGame->achievements_unlocked_hardcore++;
+                $user->RAPoints += $achievement->Points;
 
-            if ($hasRegular) {
-                $playerGame->achievements_unlocked--;
-                $user->RASoftcorePoints -= $achievement->Points;
+                if ($hasRegular) {
+                    $playerGame->achievements_unlocked--;
+                    $user->RASoftcorePoints -= $achievement->Points;
+                }
+
+                $playerGame->save();
             }
-
-            $playerGame->save();
 
             PlayerAchievementLegacy::firstOrCreate([
                 'User' => $user->User,
@@ -80,8 +82,10 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         } elseif (!$isHardcore && !$hasRegular) {
             $user->RASoftcorePoints += $achievement->Points;
 
-            $playerGame->achievements_unlocked++;
-            $playerGame->save();
+            if ($playerGame) {
+                $playerGame->achievements_unlocked++;
+                $playerGame->save();
+            }
         }
 
         if (!$hasRegular) {
