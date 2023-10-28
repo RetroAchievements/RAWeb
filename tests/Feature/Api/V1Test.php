@@ -177,8 +177,10 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100]);
-        /** @var PlayerAchievementLegacy $unlock */
-        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+
+        $unlockTime = Carbon::now()->subMinutes(5);
+        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
+        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedBetween', [
@@ -193,7 +195,7 @@ class V1Test extends TestCase
                     'AchievementID' => $achievement->ID,
                     'ConsoleName' => $system->Name,
                     'CumulScore' => 100,
-                    'Date' => $unlock->Date->format('Y-m-d H:i:s'),
+                    'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
                     'GameID' => $game->ID,
                     'GameIcon' => $game->ImageIcon,
@@ -214,13 +216,15 @@ class V1Test extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User]);
-        /** @var PlayerAchievementLegacy $unlock */
-        $unlock = PlayerAchievementLegacy::factory()->create(['AchievementID' => $achievement->ID, 'User' => $this->user->User]);
+
+        $unlockTime = Carbon::now()->subMinutes(5);
+        $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
+        $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
 
         $this->get(
             $this->apiUrl('GetAchievementsEarnedOnDay', [
                 'u' => $this->user->User,
-                'd' => $unlock->Date->format('Y-m-d'),
+                'd' => $unlockTime->format('Y-m-d'),
             ])
         )
             ->assertSuccessful()
@@ -232,7 +236,7 @@ class V1Test extends TestCase
                     'BadgeURL' => '/Badge/' . $achievement->BadgeName . '.png',
                     'ConsoleName' => $system->Name,
                     'CumulScore' => 100,
-                    'Date' => $unlock->Date->format('Y-m-d H:i:s'),
+                    'Date' => $unlockTime->format('Y-m-d H:i:s'),
                     'Description' => $achievement->Description,
                     'GameID' => $game->ID,
                     'GameIcon' => $game->ImageIcon,
