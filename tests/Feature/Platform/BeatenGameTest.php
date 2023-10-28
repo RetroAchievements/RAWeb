@@ -23,7 +23,6 @@ class BeatenGameTest extends TestCase
 
     public function testNoProgressionAchievementsAvailable(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -31,18 +30,14 @@ class BeatenGameTest extends TestCase
 
         $this->addHardcoreUnlock($user, $publishedAchievements->get(0), Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertFalse($beaten['isBeatable']);
-        $this->assertFalse($beaten['isBeatenSoftcore']);
-        $this->assertFalse($beaten['isBeatenHardcore']);
+        $this->assertNull($playerGame->beaten_at);
+        $this->assertNull($playerGame->beaten_hardcore_at);
     }
 
     public function testNoProgressionAchievementsUnlocked(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -52,18 +47,14 @@ class BeatenGameTest extends TestCase
 
         $this->addHardcoreUnlock($user, $achievement, Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertFalse($beaten['isBeatenSoftcore']);
-        $this->assertFalse($beaten['isBeatenHardcore']);
+        $this->assertNull($playerGame->beaten_at);
+        $this->assertNull($playerGame->beaten_hardcore_at);
     }
 
     public function testSomeProgressionAchievementsUnlocked(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -75,18 +66,14 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(1), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(2), Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertFalse($beaten['isBeatenSoftcore']);
-        $this->assertFalse($beaten['isBeatenHardcore']);
+        $this->assertNull($playerGame->beaten_at);
+        $this->assertNull($playerGame->beaten_hardcore_at);
     }
 
     public function testAllProgressionButNoWinConditionAchievementsUnlocked(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -100,18 +87,14 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(3), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertFalse($beaten['isBeatenSoftcore']);
-        $this->assertFalse($beaten['isBeatenHardcore']);
+        $this->assertNull($playerGame->beaten_at);
+        $this->assertNull($playerGame->beaten_hardcore_at);
     }
 
     public function testAllProgressionAchievementsUnlockedAndNoWinConditionExists(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -124,18 +107,14 @@ class BeatenGameTest extends TestCase
         $this->addSoftcoreUnlock($user, $progressionAchievements->get(3), Carbon::now());
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertTrue($beaten['isBeatenSoftcore']);
-        $this->assertFalse($beaten['isBeatenHardcore']);
+        $this->assertNotNull($playerGame->beaten_at);
+        $this->assertNull($playerGame->beaten_hardcore_at);
     }
 
     public function testAllProgressionAndOneWinConditionAchievementsUnlocked(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -150,18 +129,14 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertTrue($beaten['isBeatenSoftcore']);
-        $this->assertTrue($beaten['isBeatenHardcore']);
+        $this->assertNotNull($playerGame->beaten_at);
+        $this->assertNotNull($playerGame->beaten_hardcore_at);
     }
 
     public function testNoProgressionAndOneWinConditionAchievementUnlocked(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -171,18 +146,14 @@ class BeatenGameTest extends TestCase
 
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertFalse($beaten['isBeatenSoftcore']);
-        $this->assertFalse($beaten['isBeatenHardcore']);
+        $this->assertNull($playerGame->beaten_at);
+        $this->assertNull($playerGame->beaten_hardcore_at);
     }
 
     public function testSomeHardcoreAndSomeSoftcoreUnlocks(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -197,18 +168,14 @@ class BeatenGameTest extends TestCase
         $this->addSoftcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertTrue($beaten['isBeatenSoftcore']);
-        $this->assertFalse($beaten['isBeatenHardcore']);
+        $this->assertNotNull($playerGame->beaten_at);
+        $this->assertNull($playerGame->beaten_hardcore_at);
     }
 
     public function testSomeHardcoreAndSomeSoftcoreUnlocks2(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -224,13 +191,10 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $winConditionAchievements->get(0), Carbon::now());
         $this->addSoftcoreUnlock($user, $winConditionAchievements->get(1), Carbon::now());
 
-        // Act
-        $beaten = testBeatenGame($game->ID, $user->User);
+        $playerGame = $user->playerGame($game);
 
-        // Assert
-        $this->assertTrue($beaten['isBeatable']);
-        $this->assertTrue($beaten['isBeatenSoftcore']);
-        $this->assertTrue($beaten['isBeatenHardcore']);
+        $this->assertNotNull($playerGame->beaten_at);
+        $this->assertNotNull($playerGame->beaten_hardcore_at);
     }
 
     public function testSoftcoreAwardAssignment(): void
@@ -264,7 +228,6 @@ class BeatenGameTest extends TestCase
 
     public function testHardcoreAwardAssignment(): void
     {
-        // Arrange
         Carbon::setTestNow(Carbon::now());
 
         /** @var User $user */
@@ -281,7 +244,6 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now()->subMinutes(25));
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now()->subMinutes(20));
 
-        // Assert
         $this->assertEquals(1, PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
@@ -294,7 +256,6 @@ class BeatenGameTest extends TestCase
 
     public function testBeatenAwardRevocation(): void
     {
-        // Arrange
         /** @var User $user */
         $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
@@ -309,13 +270,11 @@ class BeatenGameTest extends TestCase
         $this->addHardcoreUnlock($user, $progressionAchievements->get(4), Carbon::now());
         $this->addHardcoreUnlock($user, $winConditionAchievement, Carbon::now());
 
-        // Act
         Achievement::factory()->published()->progression()->create(['GameID' => $game->ID]);
 
         // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics
         (new UpdatePlayerGameMetrics())->execute($user->playerGame($game));
 
-        // Assert
         $this->assertEquals(0, PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count());
     }
 

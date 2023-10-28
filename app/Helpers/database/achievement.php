@@ -483,7 +483,7 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
         $updatedAchID = (int) $data['ID'];
         $updatedAchIDs[] = $updatedAchID;
 
-        $numUnlocks = getAchievementUnlockCount($updatedAchID);
+        $numUnlocks = Achievement::find($achID)->unlocks_total;
         if ($numUnlocks > 0) {
             if (array_key_exists($data['Author'], $authorCount)) {
                 $authorCount[$data['Author']] += $numUnlocks;

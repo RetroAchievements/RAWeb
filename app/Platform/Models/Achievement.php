@@ -234,23 +234,6 @@ class Achievement extends BaseModel implements HasComments
     /**
      * @return BelongsToMany<User>
      */
-    public function playersLegacy(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'Awarded', 'AchievementID', 'User')
-            ->using(PlayerAchievementLegacy::class);
-    }
-
-    /**
-     * @return HasMany<PlayerAchievementLegacy>
-     */
-    public function playerAchievementsLegacy(): HasMany
-    {
-        return $this->hasMany(PlayerAchievementLegacy::class, 'AchievementID');
-    }
-
-    /**
-     * @return BelongsToMany<User>
-     */
     public function players(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_achievements', 'achievement_id', 'user_id')
@@ -263,31 +246,6 @@ class Achievement extends BaseModel implements HasComments
     public function playerAchievements(): HasMany
     {
         return $this->hasMany(PlayerAchievement::class, 'achievement_id');
-    }
-
-    /**
-     * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
-     *
-     * @return HasMany<PlayerAchievementLegacy>
-     */
-    public function rawUnlocks(): HasMany
-    {
-        return $this->hasMany(PlayerAchievementLegacy::class, 'AchievementID');
-    }
-
-    /**
-     * Merge softcore with hardcore entries if the unlock mode is not specified
-     *
-     * @return HasMany<PlayerAchievementLegacy>
-     */
-    public function unlocks(?int $mode = null): HasMany
-    {
-        if ($mode !== null) {
-            return $this->rawUnlocks()->where('HardcoreMode', $mode);
-        }
-
-        return $this->rawUnlocks()->selectRaw('AchievementID, User, MAX(Date) Date, MAX(HardcoreMode) HardcoreMode')
-            ->groupBy(['AchievementID', 'User']);
     }
 
     // == scopes
