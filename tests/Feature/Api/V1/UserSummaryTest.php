@@ -297,7 +297,7 @@ class UserSummaryTest extends TestCase
                     'Developer' => $game->Developer,
                     'Genre' => $game->Genre,
                     'Released' => $game->Released,
-                    'IsFinal' => false,
+                    'IsFinal' => 0,
                 ],
                 'RichPresenceMsg' => 'Playing ' . $game->title,
                 'RecentlyPlayedCount' => 1,
