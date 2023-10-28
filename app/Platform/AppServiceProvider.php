@@ -13,9 +13,7 @@ use App\Platform\Commands\SyncGameSets;
 use App\Platform\Commands\SyncLeaderboardEntries;
 use App\Platform\Commands\SyncLeaderboards;
 use App\Platform\Commands\SyncMemoryNotes;
-use App\Platform\Commands\SyncPlayerAchievements;
 use App\Platform\Commands\SyncPlayerBadges;
-use App\Platform\Commands\SyncPlayerGames;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\UnlockPlayerAchievement;
@@ -91,8 +89,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncLeaderboards::class,
                 SyncLeaderboardEntries::class,
                 SyncMemoryNotes::class,
-                SyncPlayerAchievements::class,
-                SyncPlayerGames::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,
                 SyncPlayerSession::class,

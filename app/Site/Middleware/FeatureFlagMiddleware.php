@@ -11,14 +11,17 @@ class FeatureFlagMiddleware
 {
     public function handle(Request $request, Closure $next): mixed
     {
-        $cookieValue = $request->cookie('feature_aggregate_queries');
+        // EXAMPLE (also add cookie to EncryptCookies.php)
+        // =======
+        // $cookieValue = $request->cookie('feature_aggregate_queries');
 
-        // Override the feature flag configuration if the cookie is set to 'true'.
-        if ($cookieValue === 'true') {
-            config(['feature.aggregate_queries' => true]);
-        } elseif ($cookieValue === 'false') {
-            config(['feature.aggregate_queries' => false]);
-        }
+        // // Override the feature flag configuration if the cookie is set to 'true'.
+        // if ($cookieValue === 'true') {
+        //     config(['feature.aggregate_queries' => true]);
+        // } elseif ($cookieValue === 'false') {
+        //     config(['feature.aggregate_queries' => false]);
+        // }
+        // =======
 
         return $next($request);
     }

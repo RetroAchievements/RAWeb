@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
@@ -16,8 +17,8 @@ class UpdateGamePlayerGames
 {
     public function execute(Game $game): void
     {
-        // don't do this without a proper queue
-        if (config('queue.default') === 'sync') {
+        // don't do this without a proper queue (unless testing)
+        if (config('queue.default') === 'sync' && !app()->environment('testing')) {
             return;
         }
 
@@ -39,11 +40,13 @@ class UpdateGamePlayerGames
                     ->onQueue('player-game-metrics-batch')
                     ->name('player-game-metrics ' . $game->id . ' ' . $page)
                     ->allowFailures()
-                    ->finally(function (Batch $batch) {
+                    ->finally(function (Batch $batch) use ($game) {
                         // mark batch as finished even if jobs failed
                         if (!$batch->finished()) {
                             resolve(BatchRepository::class)->markAsFinished($batch->id);
                         }
+                        // some game metrics depend on the player_games rows
+                        GamePlayerGameMetricsUpdated::dispatch($game);
                     })
                     ->dispatch();
             });

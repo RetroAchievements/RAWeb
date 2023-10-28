@@ -29,20 +29,31 @@ class UpdateGameMetrics
         $game->points_total = $game->achievements()->published()->sum('points');
         // NOTE $game->TotalTruePoints are updated separately
 
-        // TODO switch as soon as all player_games have been populated
-        //     $game->players_total = $game->playerGames()
-        //         ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
-        //         ->where('player_games.achievements_unlocked', '>', 0)
-        //         ->where('user.Untracked', false)
-        //         ->count();
-        //     $game->players_hardcore = $game->playerGames()
-        //         ->leftJoin('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
-        //         ->where('player_games.achievements_unlocked_hardcore', '>', 0)
-        //         ->where('user.Untracked', false)
-        //         ->count();
-        $parentGameId = getParentGameIdFromGameId($game->id);
-        $game->players_total = getTotalUniquePlayers($game->id, $parentGameId);
-        $game->players_hardcore = getTotalUniquePlayers($game->id, $parentGameId, null, true);
+        $parentGameId = getParentGameIdFromGameTitle($game->Title, $game->system_id);
+        if ($parentGameId) {
+            // NOTE: This assumes everyone who plays a child set also plays the parent set.
+            //       These counts should technically be the union of users from both sets.
+            $parentGame = Game::firstWhere('ID', $parentGameId);
+            if ($parentGame) {
+                $game->players_total = $parentGame->players_total;
+                $game->players_hardcore = $parentGame->players_hardcore;
+            } else {
+                $parentGameId = null;
+            }
+        }
+
+        if (!$parentGameId) {
+            $game->players_total = $game->playerGames()
+                ->join('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
+                ->where('player_games.achievements_unlocked', '>', 0)
+                ->where('user.Untracked', false)
+                ->count();
+            $game->players_hardcore = $game->playerGames()
+                ->join('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
+                ->where('player_games.achievements_unlocked_hardcore', '>', 0)
+                ->where('user.Untracked', false)
+                ->count();
+        }
 
         $achievementSetVersionChanged = false;
         $achievementsPublishedChange = 0;
