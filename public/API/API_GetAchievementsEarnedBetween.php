@@ -25,7 +25,13 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-$user = request()->query('u');
+use App\Site\Models\User;
+
+$user = User::firstWhere('User', request()->query('u'));
+if (!$user) {
+    return response()->json([]);
+}
+
 $unixTimeInputStart = (int) request()->query('f');
 $unixTimeInputEnd = (int) request()->query('t');
 

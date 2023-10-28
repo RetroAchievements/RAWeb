@@ -1,7 +1,7 @@
 <?php
 
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
+use App\Site\Models\User;
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
@@ -70,56 +70,76 @@ function getUserAchievementInformation(string $username): array
 /**
  * Gets the number of time the user has obtained (softcore and hardcore) their own achievements.
  */
-function getOwnAchievementsObtained(string $username): array
+function getOwnAchievementsObtained(User $user): array
 {
     $query = "SELECT
-              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeSoftcore THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeHardcore THEN 1 ELSE 0 END) AS HardcoreCount
-              FROM Achievements AS a
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE a.Author LIKE :author
-              AND aw.User LIKE :username
-              AND a.Flags = :achievementFlag
+              SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount
+              FROM player_achievements AS pa
+              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              WHERE ach.Author = :author
+              AND pa.user_id = :userid
+              AND ach.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)";
 
     return legacyDbFetch($query, [
-        'author' => $username,
-        'username' => $username,
+        'author' => $user->User,
+        'userid' => $user->ID,
         'achievementFlag' => AchievementFlag::OfficialCore,
-        'sumUnlockModeSoftcore' => UnlockMode::Softcore,
-        'sumUnlockModeHardcore' => UnlockMode::Hardcore,
     ]);
 }
 
 /**
  * Gets data for other users that have earned achievements for the input user.
  */
-function getObtainersOfSpecificUser(string $username): array
+function getObtainersOfSpecificUser(User $user): array
 {
-    $query = "SELECT aw.User, COUNT(aw.User) AS ObtainCount,
-              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeSoftcore THEN 1 ELSE 0 END) AS SoftcoreCount,
-              SUM(CASE WHEN aw.HardcoreMode = :sumUnlockModeHardcore THEN 1 ELSE 0 END) AS HardcoreCount
-              FROM Achievements AS a
-              LEFT JOIN Awarded AS aw ON aw.AchievementID = a.ID
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE a.Author LIKE :author
-              AND aw.User NOT LIKE :username
-              AND a.Flags = :achievementFlag
+    $query = "SELECT ua.User, COUNT(ua.User) AS ObtainCount,
+              SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS SoftcoreCount,
+              SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount
+              FROM player_achievements AS pa
+              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              INNER JOIN UserAccounts AS ua ON ua.User = pa.user_id
+              WHERE ach.Author = :author
+              AND pa.user_id != :userid
+              AND ach.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
-              AND Untracked = 0
-              GROUP BY aw.User
+              AND ua.Untracked = 0
+              GROUP BY ua.User
               ORDER BY ObtainCount DESC";
 
     return legacyDbFetchAll($query, [
-        'author' => $username,
-        'username' => $username,
+        'author' => $user->User,
+        'userid' => $user->ID,
         'achievementFlag' => AchievementFlag::OfficialCore,
-        'sumUnlockModeSoftcore' => UnlockMode::Softcore,
-        'sumUnlockModeHardcore' => UnlockMode::Hardcore,
+    ])->toArray();
+}
+
+/**
+ * Get recent unlocks of a set of achievements
+ */
+function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): array
+{
+    $query = "SELECT ua.User,
+                     COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
+                     CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
+                     ach.ID AS AchievementID, ach.GameID, ach.Title, ach.Description,
+                     ach.BadgeName, ach.Points, ach.TrueRatio,
+                     gd.Title AS GameTitle, gd.ImageIcon as GameIcon, c.Name AS ConsoleName
+              FROM player_achievements pa
+              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+              INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
+              WHERE ach.Author = :author
+              AND gd.ConsoleID NOT IN (100, 101)
+              ORDER BY Date DESC
+              LIMIT $offset, $count";
+
+    return legacyDbFetchAll($query, [
+        'author' => $user->User,
     ])->toArray();
 }
 

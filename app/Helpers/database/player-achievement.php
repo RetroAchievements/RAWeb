@@ -255,35 +255,6 @@ function getUnlocksSince(int $id, string $date): array
 }
 
 /**
- * Get recent unlocks of a set of achievements
- */
-function getRecentUnlocks(array $achievementIDs, int $offset = 0, int $count = 200): array
-{
-    $achievementIDs = implode(",", $achievementIDs);
-    sanitize_sql_inputs($achievementIDs);
-
-    $retVal = [];
-    $query = "SELECT aw.User, c.Name AS ConsoleName, aw.Date, aw.AchievementID, a.GameID, aw.HardcoreMode, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, gd.Title AS GameTitle, gd.ImageIcon as GameIcon
-              FROM Awarded AS aw
-              LEFT JOIN Achievements as a ON a.ID = aw.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE aw.AchievementID IN (" . $achievementIDs . ")
-              AND gd.ConsoleID NOT IN (100, 101)
-              ORDER BY aw.Date DESC
-              LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
-        }
-    }
-
-    return $retVal;
-}
-
-/**
  * Gets a list of users who have unlocked an achievement or list of achievements within a given time-range.
  */
 function getUnlocksInDateRange(array $achievementIDs, string $startTime, string $endTime, int $hardcoreMode): array
@@ -292,19 +263,21 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
         return [];
     }
 
+    $column = $hardcoreMode ? 'unlocked_hardcore_at' : 'unlocked_at';
+
     $dateQuery = "";
     if (strtotime($startTime)) {
         if (strtotime($endTime)) {
             // valid start and end
-            $dateQuery = "AND aw.Date BETWEEN '$startTime' AND '$endTime'";
+            $dateQuery = "AND pa.$column BETWEEN '$startTime' AND '$endTime'";
         } else {
             // valid start, invalid end
-            $dateQuery = "AND aw.Date >= '$startTime'";
+            $dateQuery = "AND pa.$column >= '$startTime'";
         }
     } else {
         if (strtotime($endTime)) {
             // invalid start, valid end
-            $dateQuery = "AND aw.Date <= '$endTime'";
+            $dateQuery = "AND pa.$column <= '$endTime'";
         } else {
             // invalid start and end
             // no date query needed
@@ -313,13 +286,13 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
 
     $userArray = [];
     foreach ($achievementIDs as $nextID) {
-        $query = "SELECT aw.User
-                      FROM Awarded AS aw
-                      LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-                      WHERE aw.AchievementID = '$nextID'
-                      AND aw.HardcoreMode = '$hardcoreMode'
+        $query = "SELECT ua.User
+                      FROM player_achievements AS pa
+                      INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
+                      WHERE pa.achievement_id = $nextID
                       AND ua.Untracked = 0
-                      $dateQuery";
+                      $dateQuery
+                      ORDER BY ua.User";
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
