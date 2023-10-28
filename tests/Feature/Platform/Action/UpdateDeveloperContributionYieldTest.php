@@ -11,7 +11,6 @@ use App\Platform\Models\Achievement;
 use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
@@ -19,8 +18,35 @@ class UpdateDeveloperContributionYieldTest extends TestCase
 {
     use RefreshDatabase;
 
-    use TestsPlayerAchievements;
     use TestsPlayerBadges;
+
+    // don't want to use TestsPlayerAchievements because it causes the UpdateDeveloperContributionYield
+    // event to be risen, which makes it hard to do the testing in a controlled manner.
+
+    protected function addHardcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void
+    {
+        if ($when === null) {
+            $when = Carbon::now();
+        }
+
+        $user->playerAchievements()->Create([
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => $when,
+            'unlocked_hardcore_at' => $when,
+        ]);
+    }
+
+    protected function addSoftcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void
+    {
+        if ($when === null) {
+            $when = Carbon::now();
+        }
+
+        $user->playerAchievements()->Create([
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => $when,
+        ]);
+    }
 
     protected function assertPointBadgeTier(User $user, int $expectedTier, ?int $displayOrder = null): void
     {
@@ -34,6 +60,11 @@ class UpdateDeveloperContributionYieldTest extends TestCase
         if ($displayOrder !== null) {
             $this->assertEquals($displayOrder, $badge?->DisplayOrder);
         }
+    }
+
+    protected function removeUnlock(User $user, Achievement $achievement): void
+    {
+        $user->playerAchievements()->where('achievement_id', $achievement->ID)->delete();
     }
 
     public function testBadgeUpgrades(): void
