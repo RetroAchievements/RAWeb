@@ -274,10 +274,8 @@ switch ($requestType) {
                 ->onQueue('player-achievements');
         }
 
-        if (empty($response['Score']) && getPlayerPoints($username, $userPoints)) {
-            $response['Score'] = $userPoints['RAPoints'] ?? 0;
-            $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'] ?? 0;
-        }
+        $response['SoftcoreScore'] = $user->RASoftcorePoints;
+        $response['Score'] = $user->RAPoints;
         $response['AchievementID'] = $achIDToAward;
         break;
 
