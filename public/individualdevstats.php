@@ -155,7 +155,6 @@ $easiestAchievement = [];
 $hardestAchievement = [];
 $firstAchievement = [];
 $lastAchievement = [];
-$achievementIDs = [];
 foreach ($userArchInfo as $achievement) {
     if ($achievementCount == 0) {
         $shortestMemAchievement = $achievement;
@@ -187,7 +186,6 @@ foreach ($userArchInfo as $achievement) {
     $totalPoints += $achievement['Points'];
     $totalTruePoints += $achievement['TrueRatio'];
     $lastAchievement = $achievement;
-    $achievementIDs[] = $achievement['ID'];
 }
 
 $averagePoints = $totalPoints / $achievementCount;
@@ -195,14 +193,14 @@ $averageTruePoints = $totalTruePoints / $achievementCount;
 $averageMemLength = $totalMemLegth / $achievementCount;
 
 // Get own achievements earned info
-$ownAchievementsObtained = getOwnAchievementsObtained($dev);
+$ownAchievementsObtained = getOwnAchievementsObtained($devUser);
 
 // Initialize unique obtainers variables
 $uniqueObtainers = 0;
 $mostAchievementObtainer = [];
 
 // Get unique obtainers for user
-$obtainers = getObtainersOfSpecificUser($dev);
+$obtainers = getObtainersOfSpecificUser($devUser);
 foreach ($obtainers as $obtainer) {
     if ($uniqueObtainers == 0) {
         $mostAchievementObtainer = $obtainer;
@@ -217,7 +215,7 @@ foreach ($obtainers as $obtainer) {
 // Get last 200 achievements obtained by others
 // Only 100 will be displayed but 200 are needed to remove potential SC HC duplicates
 $maxRecentAchievements = 200;
-$recentlyObtainedAchievements = getRecentUnlocks($achievementIDs, 0, $maxRecentAchievements);
+$recentlyObtainedAchievements = getRecentUnlocksForDev($devUser, 0, $maxRecentAchievements);
 
 // Initialize code note variables
 $mostNotedGame = [];

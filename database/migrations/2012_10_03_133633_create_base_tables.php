@@ -674,8 +674,6 @@ return new class() extends Migration {
                 $table->timestampTz('ResolvedAt')->nullable();
                 $table->unsignedInteger('ResolvedByUserID')->nullable();
                 $table->unsignedTinyInteger('ReportState')->default(1)->comment('1=submitted,2=resolved,3=declined');
-
-                $table->unique(['AchievementID', 'ReportedByUserID'], 'tickets_achievement_id_reporter_id_unique');
             });
         }
 
