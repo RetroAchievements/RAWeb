@@ -23,14 +23,10 @@ class UpdateDeveloperContributionYield extends Command
     {
         $username = $this->argument('username');
 
-        $users = collect();
-
         if (!empty($username)) {
-            $users->push(User::where('User', $username)->firstOrFail());
+            $users = User::where('User', $username)->get();
         } else {
-            $users = User::select('User')
-                ->where('ContribCount', '>', 0)
-                ->get();
+            $users = User::where('ContribCount', '>', 0)->get();
         }
 
         $progressBar = $this->output->createProgressBar($users->count());

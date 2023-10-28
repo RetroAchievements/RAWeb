@@ -75,6 +75,12 @@ trait TestsPlayerAchievements
         $this->addPlayerAchievement($user, $achievement, null, $when ?? Carbon::now());
     }
 
+    protected function removeUnlock(User $user, Achievement $achievement): void
+    {
+        $user->playerAchievementsLegacy()->where('AchievementID', $achievement->ID)->delete();
+        $user->playerAchievements()->where('achievement_id', $achievement->ID)->delete();
+    }
+
     protected function assertHasUnlock(User $user, Achievement $achievement, int $mode): void
     {
         $query = $user->playerAchievements()->where('achievement_id', $achievement->ID);
