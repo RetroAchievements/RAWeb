@@ -6,16 +6,17 @@ namespace Tests\Feature\Api\V1;
 
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
 class UserCompletedGamesTest extends TestCase
 {
     use RefreshDatabase;
     use BootstrapsApiV1;
+    use TestsPlayerAchievements;
 
     public function testItValidates(): void
     {
@@ -68,8 +69,7 @@ class UserCompletedGamesTest extends TestCase
         $publishedAchievements4 = Achievement::factory()->published()->count(8)->create(['GameID' => $game4->ID]);
 
         foreach ($publishedAchievements as $ach) {
-            PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
-            PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+            $this->addHardcoreUnlock($user, $ach);
         }
 
         $index = 0;
@@ -77,11 +77,10 @@ class UserCompletedGamesTest extends TestCase
             if ($index % 3 != 0) {
                 if ($index % 2 == 0) {
                     // 2,4,8,10,14,16 hardcore
-                    PlayerAchievementLegacy::factory()->hardcore()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
-                    PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+                    $this->addHardcoreUnlock($user, $ach);
                 } else {
                     // 1,5,7,11,13,17,19 softcore
-                    PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+                    $this->addSoftcoreUnlock($user, $ach);
                 }
             }
             $index++;
@@ -89,7 +88,7 @@ class UserCompletedGamesTest extends TestCase
 
         for ($index = 0; $index < 3; $index++) {
             $ach = $publishedAchievements4->get($index);
-            PlayerAchievementLegacy::factory()->create(['AchievementID' => $ach->ID, 'User' => $user->User]);
+            $this->addSoftcoreUnlock($user, $ach);
         }
 
         $this->get($this->apiUrl('GetUserCompletedGames', ['u' => $user->User]))

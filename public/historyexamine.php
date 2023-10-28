@@ -1,6 +1,7 @@
 <?php
 
 use App\Platform\Enums\UnlockMode;
+use App\Site\Models\User;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -9,16 +10,17 @@ if (empty($userPage)) {
     abort(404);
 }
 
-if (!getAccountDetails($userPage, $userDetails)) {
+$userDetails = User::firstWhere('User', $userPage);
+if (!$userDetails) {
     abort(404);
 }
 
 $dateInput = (int) request()->input('d', 0);
 
-$userPageHardcorePoints = $userDetails['RAPoints'];
-$userPageSoftcorePoints = $userDetails['RASoftcorePoints'];
+$userPageHardcorePoints = $userDetails->RAPoints;
+$userPageSoftcorePoints = $userDetails->RASoftcorePoints;
 
-$achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userPage);
+$achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userDetails);
 
 $dateStr = strftime("%d %b %Y", $dateInput);
 

@@ -16,11 +16,6 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "last-login");
     }
 
-    public static function buildUserCompletedGamesCacheKey(string $username): string
-    {
-        return self::buildNormalizedUserCacheKey($username, "completed-games-20230910");
-    }
-
     public static function buildUserCanTicketCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "can-ticket");
@@ -29,17 +24,6 @@ class CacheKey
     public static function buildUserCardDataCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "card-data");
-    }
-
-    /**
-     * @param string $username the name of the user for which the cache key is being constructed
-     * @param int $gameID the target game ID for the unlocks data
-     */
-    public static function buildUserGameUnlocksCacheKey(string $username, int $gameID, bool $isOfficial = true): string
-    {
-        $achievementKind = $isOfficial ? 'official' : 'unofficial';
-
-        return self::buildNormalizedUserCacheKey($username, "game-unlocks", [$gameID, $achievementKind]);
     }
 
     /**
