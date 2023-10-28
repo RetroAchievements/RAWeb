@@ -103,8 +103,6 @@ class UserSummaryTest extends TestCase
             'ContribYield' => random_int(50, 1000),
             'Created' => Carbon::now()->subMonths(2),
             'LastLogin' => Carbon::now()->subDays(5),
-            'LastGameID' => $game->ID,
-            'RichPresenceMsg' => 'Hi',
         ]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
@@ -179,7 +177,7 @@ class UserSummaryTest extends TestCase
                 'ContribYield' => $user->ContribYield,
                 'Rank' => 2,
                 'TotalRanked' => 2, // $this->user and $user
-                'LastGameID' => $user->LastGameID,
+                'LastGameID' => $game->id,
                 'LastGame' => [
                     'ID' => $game->ID,
                     'Title' => $game->Title,
@@ -195,9 +193,9 @@ class UserSummaryTest extends TestCase
                     'Developer' => $game->Developer,
                     'Genre' => $game->Genre,
                     'Released' => $game->Released,
-                    'IsFinal' => false,
+                    'IsFinal' => 0,
                 ],
-                'RichPresenceMsg' => 'Hi',
+                'RichPresenceMsg' => 'Playing ' . $game->title,
                 'RecentlyPlayedCount' => 2,
                 'RecentlyPlayed' => [
                     [
@@ -267,91 +265,91 @@ class UserSummaryTest extends TestCase
 
         // repeat the call, but only ask for one game
         $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User, 'g' => 1]))
-        ->assertSuccessful()
-        ->assertJson([
-            'ID' => $user->ID,
-            'TotalPoints' => $user->RAPoints,
-            'TotalSoftcorePoints' => $user->RASoftcorePoints,
-            'TotalTruePoints' => $user->TrueRAPoints,
-            'Permissions' => $user->Permissions,
-            'MemberSince' => $user->Created->__toString(),
-            'Untracked' => $user->Untracked,
-            'UserPic' => '/UserPic/' . $user->User . '.png',
-            'Motto' => $user->Motto,
-            'UserWallActive' => $user->UserWallActive,
-            'ContribCount' => $user->ContribCount,
-            'ContribYield' => $user->ContribYield,
-            'Rank' => 2,
-            'TotalRanked' => 2, // $this->user and $user
-            'LastGameID' => $user->LastGameID,
-            'LastGame' => [
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $system->ID,
-                'ConsoleName' => $system->Name,
-                'ForumTopicID' => $game->ForumTopicID,
-                'Flags' => 0,
-                'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
-                'Released' => $game->Released,
-                'IsFinal' => false,
-            ],
-            'RichPresenceMsg' => 'Hi',
-            'RecentlyPlayedCount' => 1,
-            'RecentlyPlayed' => [
-                [
-                    'GameID' => $game2->ID,
-                    'Title' => $game2->Title,
+            ->assertSuccessful()
+            ->assertJson([
+                'ID' => $user->ID,
+                'TotalPoints' => $user->RAPoints,
+                'TotalSoftcorePoints' => $user->RASoftcorePoints,
+                'TotalTruePoints' => $user->TrueRAPoints,
+                'Permissions' => $user->Permissions,
+                'MemberSince' => $user->Created->__toString(),
+                'Untracked' => $user->Untracked,
+                'UserPic' => '/UserPic/' . $user->User . '.png',
+                'Motto' => $user->Motto,
+                'UserWallActive' => $user->UserWallActive,
+                'ContribCount' => $user->ContribCount,
+                'ContribYield' => $user->ContribYield,
+                'Rank' => 2,
+                'TotalRanked' => 2, // $this->user and $user
+                'LastGameID' => $game->id,
+                'LastGame' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
-                    'ImageIcon' => $game2->ImageIcon,
-                    'LastPlayed' => $activity2->lastupdate->__toString(),
+                    'ForumTopicID' => $game->ForumTopicID,
+                    'Flags' => 0,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageTitle' => $game->ImageTitle,
+                    'ImageIngame' => $game->ImageIngame,
+                    'ImageBoxArt' => $game->ImageBoxArt,
+                    'Publisher' => $game->Publisher,
+                    'Developer' => $game->Developer,
+                    'Genre' => $game->Genre,
+                    'Released' => $game->Released,
+                    'IsFinal' => 0,
                 ],
-            ],
-            'LastActivity' => [
-                'ID' => $activity2->ID,
-                'timestamp' => $activity2->timestamp->__toString(),
-                'lastupdate' => $activity2->lastupdate->__toString(),
-                'activitytype' => '3',
-                'User' => $user->User,
-                'data' => $game2->ID,
-                'data2' => null,
-            ],
-            'Status' => 'Online',
-            'Awarded' => [
-                $game->ID => [
-                    'NumPossibleAchievements' => 3,
-                    'PossibleScore' => $publishedAchievements->get(0)->Points +
-                                       $publishedAchievements->get(1)->Points +
-                                       $publishedAchievements->get(2)->Points,
-                    'NumAchievedHardcore' => 1,
-                    'ScoreAchievedHardcore' => $earnedAchievement->Points,
-                    'NumAchieved' => 1,
-                    'ScoreAchieved' => $earnedAchievement->Points,
-                ],
-            ],
-            'RecentAchievements' => [
-                $game->ID => [
-                    $earnedAchievement->ID => [
-                        'ID' => $earnedAchievement->ID,
-                        'Title' => $earnedAchievement->Title,
-                        'Description' => $earnedAchievement->Description,
-                        'Points' => $earnedAchievement->Points,
-                        'BadgeName' => $earnedAchievement->BadgeName,
-                        'GameID' => $game->ID,
-                        'GameTitle' => $game->Title,
-                        'IsAwarded' => '1',
-                        'DateAwarded' => $unlockTime->__toString(),
-                        'HardcoreAchieved' => '1',
+                'RichPresenceMsg' => 'Playing ' . $game->title,
+                'RecentlyPlayedCount' => 1,
+                'RecentlyPlayed' => [
+                    [
+                        'GameID' => $game2->ID,
+                        'Title' => $game2->Title,
+                        'ConsoleID' => $system->ID,
+                        'ConsoleName' => $system->Name,
+                        'ImageIcon' => $game2->ImageIcon,
+                        'LastPlayed' => $activity2->lastupdate->__toString(),
                     ],
                 ],
-            ],
-        ]);
+                'LastActivity' => [
+                    'ID' => $activity2->ID,
+                    'timestamp' => $activity2->timestamp->__toString(),
+                    'lastupdate' => $activity2->lastupdate->__toString(),
+                    'activitytype' => '3',
+                    'User' => $user->User,
+                    'data' => $game2->ID,
+                    'data2' => null,
+                ],
+                'Status' => 'Online',
+                'Awarded' => [
+                    $game->ID => [
+                        'NumPossibleAchievements' => 3,
+                        'PossibleScore' => $publishedAchievements->get(0)->Points +
+                                           $publishedAchievements->get(1)->Points +
+                                           $publishedAchievements->get(2)->Points,
+                        'NumAchievedHardcore' => 1,
+                        'ScoreAchievedHardcore' => $earnedAchievement->Points,
+                        'NumAchieved' => 1,
+                        'ScoreAchieved' => $earnedAchievement->Points,
+                    ],
+                ],
+                'RecentAchievements' => [
+                    $game->ID => [
+                        $earnedAchievement->ID => [
+                            'ID' => $earnedAchievement->ID,
+                            'Title' => $earnedAchievement->Title,
+                            'Description' => $earnedAchievement->Description,
+                            'Points' => $earnedAchievement->Points,
+                            'BadgeName' => $earnedAchievement->BadgeName,
+                            'GameID' => $game->ID,
+                            'GameTitle' => $game->Title,
+                            'IsAwarded' => '1',
+                            'DateAwarded' => $unlockTime->__toString(),
+                            'HardcoreAchieved' => '1',
+                        ],
+                    ],
+                ],
+            ]);
     }
 
     public function testGetUserSummaryLimitRecentAchievements(): void
