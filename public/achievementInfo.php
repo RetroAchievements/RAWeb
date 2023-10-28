@@ -4,7 +4,9 @@ use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Models\PlayerAchievement;
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Blade;
 
@@ -72,12 +74,19 @@ foreach ($unlocks as $userObject) {
     }
 }
 
-if ($dateWonLocal === "") {
-    $hasAward = playerHasUnlock($user, $achievementID);
-    if ($hasAward['HasHardcore']) {
-        $dateWonLocal = $hasAward['HardcoreDate'];
-    } elseif ($hasAward['HasRegular']) {
-        $dateWonLocal = $hasAward['RegularDate'];
+if ($dateWonLocal === "" && isset($user)) {
+    $userModel = User::firstWhere('User', $user);
+    if ($userModel) {
+        $playerAchievement = PlayerAchievement::where('user_id', $user->ID)
+            ->where('achievement_id', $achievementID)
+            ->first();
+        if ($playerAchievement) {
+            if ($playerAchievement->unlocked_hardcore_at) {
+                $dateWonLocal = $playerAchievement->unlocked_hardcore_at->__toString();
+            } elseif ($playerAchievement->unlocked_at) {
+                $dateWonLocal = $playerAchievement->unlocked_at->__toString();
+            }
+        }
     }
 }
 
