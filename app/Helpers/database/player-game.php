@@ -115,7 +115,7 @@ function getGameRankAndScore(int $gameID, User $user): array
         return [];
     }
 
-    $dateClause = greatestStatement(['MAX(pg.last_unlock_hardcore_at)', 'MAX(pg.last_unlock_at)']);
+    $dateClause = greatestStatement(['pg.last_unlock_hardcore_at', 'pg.last_unlock_at']);
     $rankClause = "ROW_NUMBER() OVER (ORDER BY pg.Points DESC, $dateClause ASC) UserRank";
     $untrackedClause = "AND ua.Untracked = 0";
     if ($user->Untracked) {
@@ -335,53 +335,22 @@ function getUserAchievementUnlocksForGame(User|string $user, int $gameID, int $f
     return $playerAchievements->toArray();
 }
 
-function GetAllUserProgress(string $user, int $consoleID): array
+function GetAllUserProgress(User $user, int $consoleID): array
 {
     $retVal = [];
-    sanitize_sql_inputs($user);
 
-    // Title,
-    $query = "SELECT ID, IFNULL( AchCounts.NumAch, 0 ) AS NumAch, IFNULL( MyAwards.NumIAchieved, 0 ) AS Earned, IFNULL( MyAwardsHC.NumIAchieved, 0 ) AS HCEarned
+    $query = "SELECT gd.ID, gd.achievements_published AS NumAch,
+                     COALESCE(pg.achievements_unlocked, 0) AS Earned,
+                     COALESCE(pg.achievements_unlocked_hardcore, 0) AS HCEarned
             FROM GameData AS gd
-            LEFT JOIN (
-                SELECT COUNT(ach.ID) AS NumAch, GameID
-                FROM Achievements AS ach
-                GROUP BY ach.GameID ) AchCounts ON AchCounts.GameID = gd.ID
+            LEFT JOIN player_games pg ON pg.game_id = gd.ID AND pg.user_id={$user->id}
+            WHERE gd.achievements_published > 0 AND gd.ConsoleID = $consoleID";
 
-            LEFT JOIN (
-                SELECT gd.ID AS GameID, COUNT(*) AS NumIAchieved
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = " . UnlockMode::Softcore . "
-                GROUP BY gd.ID ) MyAwards ON MyAwards.GameID = gd.ID
+    foreach (legacyDbFetchAll($query) as $row) {
+        $id = $row['ID'];
+        unset($row['ID']);
 
-            LEFT JOIN (
-                SELECT gd.ID AS GameID, COUNT(*) AS NumIAchieved
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = " . UnlockMode::Hardcore . "
-                GROUP BY gd.ID ) MyAwardsHC ON MyAwardsHC.GameID = gd.ID
-
-            WHERE NumAch > 0 && gd.ConsoleID = $consoleID
-            ORDER BY ID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            // Auto:
-            // $retVal[] = $nextData;
-            // Manual:
-            $nextID = $nextData['ID'];
-            unset($nextData['ID']);
-
-            $nextData['NumAch'] = (int) $nextData['NumAch'];
-            $nextData['Earned'] = (int) $nextData['Earned'];
-            $nextData['HCEarned'] = (int) $nextData['HCEarned'];
-
-            $retVal[$nextID] = $nextData;
-        }
+        $retVal[$id] = $row;
     }
 
     return $retVal;

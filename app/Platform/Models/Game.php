@@ -73,7 +73,6 @@ class Game extends BaseModel implements HasComments, HasMedia
         'ID',
         'Title',
         'ForumTopicID',
-        'ConsoleID',
         'Flags',
         'ImageIcon',
         'ImageTitle',
