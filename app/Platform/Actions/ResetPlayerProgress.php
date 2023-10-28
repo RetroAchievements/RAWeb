@@ -56,24 +56,17 @@ class ResetPlayerProgress
                     ->delete();
             }
             $playerAchievement->delete();
-
-            $user->playerAchievementsLegacy()->where('AchievementID', $achievementID)->delete();
         } elseif ($gameID !== null) {
             $achievementIds = Achievement::where('GameID', $gameID)->pluck('ID');
 
             $user->playerAchievements()
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
-
-            $user->playerAchievementsLegacy()
-                ->whereIn('AchievementID', $achievementIds)
-                ->delete();
         } else {
             // fulfill deletion request
             $user->playerGames()->forceDelete();
             $user->playerBadges()->delete();
             $user->playerAchievements()->delete();
-            $user->playerAchievementsLegacy()->delete();
 
             $user->RAPoints = 0;
             $user->RASoftcorePoints = null;
@@ -83,11 +76,10 @@ class ResetPlayerProgress
             $user->save();
         }
 
-        // TODO
-        // $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
-        // foreach ($authors as $author) {
-        //     dispatch(new UpdateDeveloperContributionYieldJob($author->id));
-        // }
+        $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
+        foreach ($authors as $author) {
+            dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+        }
 
         $isFullReset = $achievementID === null && $gameID === null;
         $affectedGames = $affectedGames->unique();

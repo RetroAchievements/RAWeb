@@ -488,7 +488,7 @@ RenderContentStart($pageTitle);
     <?php
     if ($user !== null) {
         // FIXME: https://discord.com/channels/476211979464343552/1026595325038833725/1162746245996093450
-        // RenderScoreLeaderboardComponent($user, true);
+        // RenderPointsRankingComponent($user, true);
     }
     RenderGameLeaderboardsComponent($lbData, null);
     ?>

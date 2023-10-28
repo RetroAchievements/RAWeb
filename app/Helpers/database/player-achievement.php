@@ -2,11 +2,9 @@
 
 use App\Community\Enums\ActivityType;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerGame;
 use App\Site\Models\User;
 use Carbon\Carbon;
@@ -72,13 +70,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
 
                 $playerGame->save();
             }
-
-            PlayerAchievementLegacy::firstOrCreate([
-                'User' => $user->User,
-                'AchievementID' => $achievement->ID,
-                'HardcoreMode' => UnlockMode::Hardcore,
-                'Date' => $now,
-            ]);
         } elseif (!$isHardcore && !$hasRegular) {
             $user->RASoftcorePoints += $achievement->Points;
 
@@ -86,15 +77,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
                 $playerGame->achievements_unlocked++;
                 $playerGame->save();
             }
-        }
-
-        if (!$hasRegular) {
-            PlayerAchievementLegacy::firstOrCreate([
-                'User' => $user->User,
-                'AchievementID' => $achievement->ID,
-                'HardcoreMode' => UnlockMode::Softcore,
-                'Date' => $now,
-            ]);
         }
 
         postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
@@ -133,15 +115,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
 }
 
 /**
- * @deprecated use Achievements.unlocks_total
- */
-function getAchievementUnlockCount(int $achID): int
-{
-    return PlayerAchievement::where('achievement_id', $achID)
-        ->count();
-}
-
-/**
  * @return Collection<int, mixed>
  */
 function getAchievementUnlocksData(
@@ -159,8 +132,8 @@ function getAchievementUnlocksData(
         return new Collection();
     }
 
-    $numWinners = $achievement->unlocks_total;
-    $numPossibleWinners = $achievement->game->players_total;
+    $numWinners = $achievement->unlocks_total ?? 0;
+    $numPossibleWinners = $achievement->game->players_total ?? 0;
 
     // Get recent winners, and their most recent activity
     return PlayerAchievement::where('achievement_id', $achievementId)
@@ -211,15 +184,15 @@ function getRecentUnlocksPlayersData(
     $extraWhere = "";
     if ($friendsOnly && isset($user) && $user) {
         $friendSubquery = GetFriendsSubquery($user, false);
-        $extraWhere = " AND aw.User IN ( $friendSubquery ) ";
+        $extraWhere = " AND u.User IN ( $friendSubquery ) ";
     }
 
     // Get recent winners, and their most recent activity:
-    $query = "SELECT aw.User, ua.RAPoints, " . unixTimestampStatement('aw.Date', 'DateAwarded') . "
-              FROM Awarded AS aw
-              LEFT JOIN UserAccounts AS ua ON ua.User = aw.User
-              WHERE AchievementID=$achID AND aw.HardcoreMode = " . UnlockMode::Softcore . " $extraWhere
-              ORDER BY aw.Date DESC
+    $query = "SELECT u.User, u.RAPoints, " . unixTimestampStatement('pa.unlocked_at', 'DateAwarded') . "
+              FROM player_achievements AS pa
+              LEFT JOIN UserAccounts AS u ON u.ID = pa.user_id
+              WHERE pa.achievement_id = $achID $extraWhere
+              ORDER BY pa.unlocked_at DESC
               LIMIT $offset, $count";
 
     foreach (legacyDbFetchAll($query) as $db_entry) {
