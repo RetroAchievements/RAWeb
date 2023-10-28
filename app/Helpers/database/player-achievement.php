@@ -58,11 +58,15 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         // player_game (and commit it) as soon as possible so whichever reqeust is processed last _should_
         // return the correct number of remaining achievements. It will be accurately recalculated by the
         // UpdatePlayerGameMetrics action triggered by an asynchronous UnlockPlayerAchievementJob.
+        // Also update user points for the response, but don't immediately commit them to avoid uncessary
+        // DB writes.
         if ($isHardcore && !$hasHardcore) {
             $playerGame->achievements_unlocked_hardcore++;
+            $user->RAPoints += $achievement->Points;
 
             if ($hasRegular) {
                 $playerGame->achievements_unlocked--;
+                $user->RASoftcorePoints -= $achievement->Points;
             }
 
             $playerGame->save();
@@ -74,6 +78,8 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
                 'Date' => $now,
             ]);
         } elseif (!$isHardcore && !$hasRegular) {
+            $user->RASoftcorePoints += $achievement->Points;
+
             $playerGame->achievements_unlocked++;
             $playerGame->save();
         }
@@ -86,7 +92,7 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
                 'Date' => $now,
             ]);
         }
-    
+
         postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
