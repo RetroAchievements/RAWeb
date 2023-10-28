@@ -58,13 +58,13 @@ class NotificationIcon extends Component
         // Claim expiry notifications
         if ($user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
             $expiringClaims = getExpiringClaim($user->User);
-            if ($expiringClaims['Expired'] > 0) {
+            if ($expiringClaims['Expired'] ?? 0) {
                 $notifications->push([
                     'link' => url('/expiringclaims.php?u=' . $user->User),
                     'title' => 'Claim Expired',
                     'class' => 'text-danger',
                 ]);
-            } elseif ($expiringClaims['Expiring'] > 0) {
+            } elseif ($expiringClaims['Expiring'] ?? 0) {
                 $notifications->push([
                     'link' => url('/expiringclaims.php?u=' . $user->User),
                     'title' => 'Claim Expiring Soon',

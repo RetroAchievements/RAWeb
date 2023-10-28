@@ -7,42 +7,10 @@ use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\PlayerGame;
 use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-
-/**
- * @deprecated see PlayerAchievement model
- */
-function playerHasUnlock(?string $user, int $achievementId): array
-{
-    $retVal = [
-        'HasRegular' => false,
-        'HasHardcore' => false,
-        'RegularDate' => null,
-        'HardcoreDate' => null,
-    ];
-
-    if (empty($user)) {
-        return $retVal;
-    }
-
-    $query = "SELECT HardcoreMode, Date
-              FROM Awarded
-              WHERE AchievementID = '$achievementId' AND User = :user";
-
-    foreach (legacyDbFetchAll($query, ['user' => $user]) as $nextData) {
-        if ($nextData['HardcoreMode'] == 0) {
-            $retVal['HasRegular'] = true;
-            $retVal['RegularDate'] = $nextData['Date'];
-        } elseif ($nextData['HardcoreMode'] == 1) {
-            $retVal['HasHardcore'] = true;
-            $retVal['HardcoreDate'] = $nextData['Date'];
-        }
-    }
-
-    return $retVal;
-}
 
 /**
  * @deprecated see UnlockPlayerAchievementAction
@@ -66,36 +34,80 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         return $retVal;
     }
 
-    $hasAwardTypes = playerHasUnlock($user->User, $achievement->ID);
-    $hasRegular = $hasAwardTypes['HasRegular'];
-    $hasHardcore = $hasAwardTypes['HasHardcore'];
+    $hasRegular = false;
+    $hasHardcore = false;
+    $playerAchievement = PlayerAchievement::where('user_id', $user->ID)
+        ->where('achievement_id', $achievementId)
+        ->first();
+    if ($playerAchievement) {
+        $hasRegular = ($playerAchievement->unlocked_at != null);
+        $hasHardcore = ($playerAchievement->unlocked_hardcore_at != null);
+    }
     $alreadyAwarded = $isHardcore ? $hasHardcore : $hasRegular;
 
-    $now = Carbon::now();
-    if ($isHardcore && !$hasHardcore) {
-        PlayerAchievementLegacy::firstOrCreate([
-            'User' => $user->User,
-            'AchievementID' => $achievement->ID,
-            'HardcoreMode' => UnlockMode::Hardcore,
-            'Date' => $now,
-        ]);
-    }
-    if (!$hasRegular) {
-        PlayerAchievementLegacy::firstOrCreate([
-            'User' => $user->User,
-            'AchievementID' => $achievement->ID,
-            'HardcoreMode' => UnlockMode::Softcore,
-            'Date' => $now,
-        ]);
-    }
+    $playerGame = PlayerGame::where('user_id', $user->id)
+        ->where('game_id', $achievement->GameID)
+        ->first();
 
     if (!$alreadyAwarded) {
+        $now = Carbon::now();
+
+        // The client is expecting to receive the number of AchievementsRemaining in the response, and if
+        // it's 0, a mastery placard will be shown. Multiple achievements may be unlocked by the client at
+        // the same time using separate requests, so we need to update the unlock counts for the
+        // player_game (and commit it) as soon as possible so whichever reqeust is processed last _should_
+        // return the correct number of remaining achievements. It will be accurately recalculated by the
+        // UpdatePlayerGameMetrics action triggered by an asynchronous UnlockPlayerAchievementJob.
+        // Also update user points for the response, but don't immediately commit them to avoid uncessary
+        // DB writes.
+        if ($isHardcore && !$hasHardcore) {
+            if ($playerGame) {
+                $playerGame->achievements_unlocked_hardcore++;
+                $user->RAPoints += $achievement->Points;
+
+                if ($hasRegular) {
+                    $playerGame->achievements_unlocked--;
+                    $user->RASoftcorePoints -= $achievement->Points;
+                }
+
+                $playerGame->save();
+            }
+
+            PlayerAchievementLegacy::firstOrCreate([
+                'User' => $user->User,
+                'AchievementID' => $achievement->ID,
+                'HardcoreMode' => UnlockMode::Hardcore,
+                'Date' => $now,
+            ]);
+        } elseif (!$isHardcore && !$hasRegular) {
+            $user->RASoftcorePoints += $achievement->Points;
+
+            if ($playerGame) {
+                $playerGame->achievements_unlocked++;
+                $playerGame->save();
+            }
+        }
+
+        if (!$hasRegular) {
+            PlayerAchievementLegacy::firstOrCreate([
+                'User' => $user->User,
+                'AchievementID' => $achievement->ID,
+                'HardcoreMode' => UnlockMode::Softcore,
+                'Date' => $now,
+            ]);
+        }
+
         postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
-    $completion = getUnlockCounts($achievement->GameID, $user->username, $isHardcore);
-    if (array_key_exists('NumAwarded', $completion)) {
-        $retVal['AchievementsRemaining'] = $completion['NumAch'] - $completion['NumAwarded'];
+    if ($playerGame) {
+        if ($isHardcore) {
+            $retVal['AchievementsRemaining'] = $achievement->game->achievements_published - $playerGame->achievements_unlocked_hardcore;
+        } else {
+            $retVal['AchievementsRemaining'] = $achievement->game->achievements_published - $playerGame->achievements_unlocked;
+        }
+    } else {
+        $retVal['AchievementsRemaining'] = $achievement->game->achievements_published - 1;
     }
 
     if ($alreadyAwarded) {
@@ -110,12 +122,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
         // =============================================================================
 
         return $retVal;
-    }
-
-    // Optimistic update for async metrics updates
-    if (config('queue.default') !== 'sync') {
-        $retVal['SoftcoreScore'] = $isHardcore ? $user->points_softcore : $user->points_softcore + $achievement->points;
-        $retVal['Score'] = $isHardcore ? $user->points + $achievement->points : $user->points;
     }
 
     $retVal['Success'] = true;
@@ -136,7 +142,7 @@ function getAchievementUnlockCount(int $achID): int
 }
 
 /**
- * @return Collection<int, array>
+ * @return Collection<int, mixed>
  */
 function getAchievementUnlocksData(
     int $achievementId,
@@ -157,34 +163,21 @@ function getAchievementUnlocksData(
     $numPossibleWinners = $achievement->game->players_total ?? 0;
 
     // Get recent winners, and their most recent activity
-    $bindings = [
-        'joinSoftcoreAchievementId' => $achievementId,
-        'joinHardcoreAchievementId' => $achievementId,
-        'offset' => $offset,
-        'limit' => $limit,
-    ];
-
-    $requestedByStatement = '';
-    if ($username) {
-        $bindings['username'] = $username;
-        $requestedByStatement = 'OR ua.User = :username';
-    }
-
-    $query = "SELECT ua.User, ua.RAPoints,
-                     IFNULL(aw_hc.Date, aw_sc.Date) AS DateAwarded,
-                     CASE WHEN aw_hc.Date IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode
-              FROM UserAccounts ua
-              INNER JOIN
-                     (SELECT User, Date FROM Awarded WHERE AchievementID = :joinSoftcoreAchievementId AND HardcoreMode = 0) AS aw_sc
-                     ON aw_sc.User = ua.User
-              LEFT JOIN
-                     (SELECT User, Date FROM Awarded WHERE AchievementID = :joinHardcoreAchievementId AND HardcoreMode = 1) AS aw_hc
-                     ON aw_hc.User = ua.User
-              WHERE (NOT ua.Untracked $requestedByStatement)
-              ORDER BY DateAwarded DESC
-              LIMIT :offset, :limit";
-
-    return legacyDbFetchAll($query, $bindings);
+    return PlayerAchievement::where('achievement_id', $achievementId)
+        ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
+        ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
+        ->select(['UserAccounts.User', 'UserAccounts.RAPoints', 'unlocked_at', 'unlocked_hardcore_at'])
+        ->offset($offset)
+        ->limit($limit)
+        ->get()
+        ->map(function ($row) {
+            return [
+                'User' => $row->User,
+                'RAPoints' => $row->RAPoints,
+                'DateAwarded' => $row->unlocked_hardcore_at ?? $row->unlocked_at,
+                'HardcoreMode' => $row->unlocked_hardcore_at ? 1 : 0,
+            ];
+        });
 }
 
 function getRecentUnlocksPlayersData(

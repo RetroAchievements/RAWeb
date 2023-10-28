@@ -139,7 +139,7 @@ switch ($requestType) {
      */
     case "allprogress":
         $consoleID = (int) request()->input('c');
-        $response['Response'] = GetAllUserProgress($user, $consoleID);
+        $response['Response'] = GetAllUserProgress($username, $consoleID);
         break;
 
     case "badgeiter":
@@ -274,10 +274,11 @@ switch ($requestType) {
                 ->onQueue('player-achievements');
         }
 
-        if (empty($response['Score']) && getPlayerPoints($username, $userPoints)) {
-            $response['Score'] = $userPoints['RAPoints'] ?? 0;
-            $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'] ?? 0;
+        if (empty($response['Score'])) {
+            $response['Score'] = $user->RAPoints;
+            $response['SoftcoreScore'] = $user->RASoftcorePoints;
         }
+
         $response['AchievementID'] = $achIDToAward;
         break;
 
