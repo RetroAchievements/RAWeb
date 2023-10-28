@@ -115,13 +115,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
 }
 
 /**
- * @deprecated use Achievements.unlocks_total
- */
-function getAchievementUnlockCount(int $achID): int
-{
-}
-
-/**
  * @return Collection<int, mixed>
  */
 function getAchievementUnlocksData(

@@ -6,10 +6,8 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class UpdateDeveloperContributionYield
 {
@@ -27,68 +25,6 @@ class UpdateDeveloperContributionYield
         $count = 0;
         $countLevel = 0;
         $nextCountThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $countLevel);
-
-        // get all unlocks for achievements created by the user ordered by date
-        $unlocks = PlayerAchievementLegacy::select('Awarded.Date', DB::raw('MAX(Awarded.HardcoreMode)'), 'Achievements.Points')
-            ->leftJoin('Achievements', 'Achievements.ID', '=', 'Awarded.AchievementID')
-            ->where('Achievements.Author', '=', $username)
-            ->where('Awarded.User', '!=', $username)
-            ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
-            ->groupBy(['Awarded.User', 'Awarded.AchievementID'])
-            ->orderBy('Awarded.Date')
-            ->get();
-
-        /** @var PlayerAchievementLegacy $unlock */
-        foreach ($unlocks as $unlock) {
-            // when a threshold is crossed, award a badge
-            $count++;
-            if ($count === $nextCountThreshold) {
-                PlayerBadge::upsert(
-                    [
-                        [
-                            'User' => $username,
-                            'AwardType' => AwardType::AchievementUnlocksYield,
-                            'AwardData' => $countLevel,
-                            'AwardDate' => $unlock->Date,
-                        ],
-                    ],
-                    ['User', 'AwardType', 'AwardData'],
-                    ['AwardDate']
-                );
-
-                // TODO SiteBadgeAwarded::dispatch($badge);
-
-                $countLevel++;
-
-                $nextCountThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $countLevel);
-            }
-
-            $points += $unlock['Points'];
-            if ($points >= $nextPointThreshold) {
-                PlayerBadge::upsert(
-                    [
-                        [
-                            'User' => $username,
-                            'AwardType' => AwardType::AchievementPointsYield,
-                            'AwardData' => $pointLevel,
-                            'AwardDate' => $unlock->Date,
-                        ],
-                    ],
-                    ['User', 'AwardType', 'AwardData'],
-                    ['AwardDate']
-                );
-
-                // TODO SiteBadgeAwarded::dispatch($badge);
-
-                $pointLevel++;
-
-                $nextPointThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementPointsYield, $pointLevel);
-                if ($nextPointThreshold == 0) {
-                    // if we run out of tiers, getBadgeThreshold returns 0, so everything will be >=. set to MAXINT
-                    $nextPointThreshold = PHP_INT_MAX;
-                }
-            }
-        }
 
         // remove any extra badge tiers
         PlayerBadge::where('User', '=', $username)
