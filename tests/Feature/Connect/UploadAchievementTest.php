@@ -137,13 +137,8 @@ class UploadAchievementTest extends TestCase
         $this->addHardcoreUnlock($this->user, $achievement2);
 
         $author->refresh();
-        // When DispatchUpdateDeveloperContributionYieldJob is enabled, update all
-        // of the TODO blocks in this file to expect the contribution changes.
-        $this->assertEquals($author->ContribCount, 0);
-        /* TODO
         $this->assertEquals($author->ContribCount, 1);
         $this->assertEquals($author->ContribYield, 10);
-        */
 
         $game->refresh();
         $this->assertEquals($game->players_total, 2);
@@ -178,10 +173,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->players_hardcore, 2);
 
         $author->refresh();
-        /* TODO
         $this->assertEquals($author->ContribCount, 1);
         $this->assertEquals($author->ContribYield, 5);
-        */
 
         // ====================================================
         // demote achievement; contrib yield changes
@@ -273,10 +266,8 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->players_hardcore, 2);
 
         $author->refresh();
-        /* TODO
         $this->assertEquals($author->ContribCount, 1);
         $this->assertEquals($author->ContribYield, 10);
-        */
     }
 
     public function testNonDevPermissions(): void

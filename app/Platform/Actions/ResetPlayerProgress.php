@@ -76,11 +76,10 @@ class ResetPlayerProgress
             $user->save();
         }
 
-        // TODO
-        // $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
-        // foreach ($authors as $author) {
-        //     dispatch(new UpdateDeveloperContributionYieldJob($author->id));
-        // }
+        $authors = User::whereIn('User', $authorUsernames->unique())->get('ID');
+        foreach ($authors as $author) {
+            dispatch(new UpdateDeveloperContributionYieldJob($author->id));
+        }
 
         $isFullReset = $achievementID === null && $gameID === null;
         $affectedGames = $affectedGames->unique();

@@ -6,101 +6,117 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Events\SiteBadgeAwarded;
+use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class UpdateDeveloperContributionYield
 {
     public function execute(User $user): void
     {
-        // TODO refactor to player_achievements
-        // TODO instead of iterating over all unlocks, aggregate the sums in the query
+        $contribAchievements = PlayerAchievement::where('player_achievements.user_id', '!=', $user->id)
+            ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
+            ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
+            ->where('Achievements.Author', '=', $user->User)
+            ->select([DB::raw('SUM(Achievements.Points) AS Points'), DB::raw('COUNT(*) as Count')])
+            ->first();
 
-        $username = $user->username;
+        $newContribYield = (int) $contribAchievements['Points'];
+        $this->ensureBadge($user, AwardType::AchievementPointsYield, $newContribYield);
 
-        $points = 0;
-        $pointLevel = 0;
-        $nextPointThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementPointsYield, $pointLevel);
+        $newContribCount = (int) $contribAchievements['Count'];
+        $this->ensureBadge($user, AwardType::AchievementUnlocksYield, $newContribCount);
 
-        $count = 0;
-        $countLevel = 0;
-        $nextCountThreshold = PlayerBadge::getBadgeThreshold(AwardType::AchievementUnlocksYield, $countLevel);
-
-        // remove any extra badge tiers
-        PlayerBadge::where('User', '=', $username)
-            ->where('AwardType', '=', AwardType::AchievementUnlocksYield)
-            ->where('AwardData', '>=', $countLevel)
-            ->delete();
-
-        PlayerBadge::where('User', '=', $username)
-            ->where('AwardType', '=', AwardType::AchievementPointsYield)
-            ->where('AwardData', '>=', $pointLevel)
-            ->delete();
-
-        // update the denormalized data
-        User::where('User', '=', $username)
-            ->update(['ContribCount' => $count, 'ContribYield' => $points]);
+        $user->ContribYield = $newContribYield;
+        $user->ContribCount = $newContribCount;
+        $user->save();
     }
 
-    /**
-     * @deprecated TODO still needed?
-     */
-    public function attributeDevelopmentAuthor(string $author, int $count, int $points): void
+    private function ensureBadge(User $user, int $type, int $newContrib): void
     {
-        $user = User::firstWhere('User', $author);
-        if ($user === null) {
+        $tier = PlayerBadge::getNewBadgeTier($type, 0, $newContrib);
+        if ($tier === null) {
+            // no badge earned, or no more badges to earn
             return;
         }
 
-        $oldContribCount = $user->ContribCount;
-        $oldContribYield = $user->ContribYield;
+        $badge = PlayerBadge::where('User', $user->User)
+            ->where('AwardType', '=', $type)
+            ->orderBy('AwardData', 'DESC')
+            ->first();
 
-        // use raw statement to perform atomic update
-        legacyDbStatement("UPDATE UserAccounts SET ContribCount = ContribCount + $count," .
-            " ContribYield = ContribYield + $points WHERE User=:user", ['user' => $author]);
-
-        $newContribTier = PlayerBadge::getNewBadgeTier(AwardType::AchievementUnlocksYield, $oldContribCount, $oldContribCount + $count);
-        if ($newContribTier !== null) {
-            $badge = AddSiteAward($author, AwardType::AchievementUnlocksYield, $newContribTier);
+        if ($badge && $badge->AwardData >= $tier) {
+            // badge already awarded
+            return;
         }
 
-        $newPointsTier = PlayerBadge::getNewBadgeTier(AwardType::AchievementPointsYield, $oldContribYield, $oldContribYield + $points);
-        if ($newPointsTier !== null) {
-            $badge = AddSiteAward($author, AwardType::AchievementPointsYield, $newPointsTier);
+        $displayOrder = $badge ? $badge->DisplayOrder : PlayerBadge::getNextDisplayOrder($user);
+
+        // if there's a gap between tiers, backfill the missing awards
+        $oldTier = $badge ? $badge->AwardData : -1;
+        if ($tier - $oldTier > 1) {
+            $this->backfillMissingBadges($user, $type, $oldTier, $tier, $displayOrder);
         }
+
+        // add new award
+        $badge = PlayerBadge::create([
+            'User' => $user->User,
+            'AwardType' => $type,
+            'AwardData' => $tier,
+            'DisplayOrder' => $displayOrder,
+        ]);
+
+        SiteBadgeAwarded::dispatch($badge);
     }
 
-    /**
-     * @deprecated TODO still needed?
-     */
-    public function recalculateDeveloperContribution(string $author): void
+    private function backfillMissingBadges(User $user, int $type, int $lastAwardedTier, int $newTier, int $displayOrder): void
     {
-        sanitize_sql_inputs($author);
+        $unlocks = PlayerAchievement::where('player_achievements.user_id', '!=', $user->id)
+            ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
+            ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
+            ->where('Achievements.Author', '=', $user->User)
+            ->orderBy('unlocked_at');
 
-        $query = "SELECT COUNT(*) AS ContribCount, SUM(Points) AS ContribYield
-              FROM (SELECT aw.User, ach.ID, MAX(aw.HardcoreMode) as HardcoreMode, ach.Points
-                    FROM Achievements ach LEFT JOIN Awarded aw ON aw.AchievementID=ach.ID
-                    WHERE ach.Author='$author' AND aw.User != '$author'
-                    AND ach.Flags=" . AchievementFlag::OfficialCore . "
-                    GROUP BY 1,2) AS UniqueUnlocks";
+        if ($type == AwardType::AchievementPointsYield) {
+            $unlocks = $unlocks->select('unlocked_at', 'Points');
+        } else {
+            $unlocks = $unlocks->select('unlocked_at');
+        }
 
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            $contribCount = 0;
-            $contribYield = 0;
+        $total = 0;
+        $tier = 0;
+        $nextThreshold = PlayerBadge::getBadgeThreshold($type, $tier);
 
-            if ($data = mysqli_fetch_assoc($dbResult)) {
-                $contribCount = $data['ContribCount'] ?? 0;
-                $contribYield = $data['ContribYield'] ?? 0;
+        foreach ($unlocks->get() as $unlock) {
+            if ($type == AwardType::AchievementPointsYield) {
+                $total += $unlock->Points;
+            } else {
+                $total++;
             }
 
-            $query = "UPDATE UserAccounts
-                  SET ContribCount = $contribCount, ContribYield = $contribYield
-                  WHERE User = '$author'";
+            while ($total >= $nextThreshold) {
+                if ($tier > $lastAwardedTier) {
+                    PlayerBadge::create([
+                        'User' => $user->User,
+                        'AwardType' => $type,
+                        'AwardData' => $tier,
+                        'AwardDate' => $unlock->unlocked_at,
+                        'DisplayOrder' => $displayOrder,
+                    ]);
+                }
 
-            $dbResult = s_mysql_query($query);
-            if (!$dbResult) {
-                log_sql_fail();
+                $tier++;
+                if ($tier == $newTier) {
+                    return;
+                }
+
+                $nextThreshold = PlayerBadge::getBadgeThreshold($type, $tier);
+                if ($nextThreshold < $total) {
+                    // unexpected. bail
+                    return;
+                }
             }
         }
     }
