@@ -24,6 +24,7 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
+use App\Site\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -33,7 +34,11 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'd' => ['required', 'date'],
 ]);
 
-$user = request()->query('u');
+$user = User::firstWhere('User', request()->query('u'));
+if (!$user) {
+    return response()->json([]);
+}
+
 $dateInput = request()->query('d');
 
 $data = getAchievementsEarnedOnDay(strtotime($dateInput), $user);
