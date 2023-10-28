@@ -8,7 +8,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\System;
 use App\Site\Models\StaticData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
