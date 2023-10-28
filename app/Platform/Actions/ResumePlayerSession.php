@@ -40,28 +40,25 @@ class ResumePlayerSession
             expireRecentlyPlayedGames($user->User);
             // TODO deprecated, read from last player_sessions entry where needed
             $user->LastGameID = $game->id;
-            $user->save();
         }
 
-        if ($playerSession) {
-            // if the session hasn't been updated in the last 10 minutes, start a new session
-            if ($timestamp->diffInMinutes($playerSession->rich_presence_updated_at) < 10) {
-                $playerSession->duration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
-                if ($presence) {
-                    $playerSession->rich_presence = $presence;
+        // if the session hasn't been updated in the last 10 minutes resume session
+        if ($playerSession && $timestamp->diffInMinutes($playerSession->rich_presence_updated_at) < 10) {
+            $playerSession->duration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
+            if ($presence) {
+                $playerSession->rich_presence = $presence;
 
-                    // TODO deprecated, read from last player_sessions entry where needed
-                    $user->RichPresenceMsg = utf8_sanitize($presence);
-                    $user->RichPresenceMsgDate = Carbon::now();
-                    $user->save();
-                }
-                $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
-                $playerSession->save(['touch' => true]);
-
-                PlayerSessionResumed::dispatch($user, $game, $presence);
-
-                return $playerSession;
+                // TODO deprecated, read from last player_sessions entry where needed
+                $user->RichPresenceMsg = utf8_sanitize($presence);
+                $user->RichPresenceMsgDate = Carbon::now();
+                $user->save();
             }
+            $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
+            $playerSession->save(['touch' => true]);
+
+            PlayerSessionResumed::dispatch($user, $game, $presence);
+
+            return $playerSession;
         }
 
         // provide a default presence for the new session if none was provided
