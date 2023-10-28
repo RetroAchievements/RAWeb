@@ -40,6 +40,7 @@ class ResumePlayerSession
             expireRecentlyPlayedGames($user->User);
             // TODO deprecated, read from last player_sessions entry where needed
             $user->LastGameID = $game->id;
+            $user->save();
         }
 
         // if the session hasn't been updated in the last 10 minutes resume session
