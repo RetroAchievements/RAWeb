@@ -24,18 +24,16 @@ if ($value === AchievementFlag::OfficialCore && !isValidConsoleId($achievement['
     abort(400, 'Invalid console');
 }
 
-if (updateAchievementFlag($achievementIds, $value)) {
-    $commentText = '';
-    if ($value == AchievementFlag::OfficialCore) {
-        $commentText = 'promoted this achievement to the Core set';
-    }
-    if ($value == AchievementFlag::Unofficial) {
-        $commentText = 'demoted this achievement to Unofficial';
-    }
-    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
-    expireGameTopAchievers($achievement['GameID']);
+updateAchievementFlag($achievementIds, $value);
 
-    return response()->json(['message' => __('legacy.success.ok')]);
+$commentText = '';
+if ($value == AchievementFlag::OfficialCore) {
+    $commentText = 'promoted this achievement to the Core set';
 }
+if ($value == AchievementFlag::Unofficial) {
+    $commentText = 'demoted this achievement to Unofficial';
+}
+addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
+expireGameTopAchievers($achievement['GameID']);
 
-abort(400);
+return response()->json(['message' => __('legacy.success.ok')]);
