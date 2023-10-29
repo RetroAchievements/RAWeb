@@ -28,8 +28,7 @@ function isAllowedToSubmitTickets(string $user): bool
         return $value;
     }
 
-    $value = getUserActivityRange($user, $firstLogin, $lastLogin)
-        && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
+    $value = $userModel->Created->diffInDays() > 1
         && getRecentlyPlayedGames($user, 0, 1, $userInfo)
         && $userInfo[0]['GameID'];
 
