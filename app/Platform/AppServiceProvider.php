@@ -13,9 +13,7 @@ use App\Platform\Commands\SyncGameSets;
 use App\Platform\Commands\SyncLeaderboardEntries;
 use App\Platform\Commands\SyncLeaderboards;
 use App\Platform\Commands\SyncMemoryNotes;
-use App\Platform\Commands\SyncPlayerAchievements;
 use App\Platform\Commands\SyncPlayerBadges;
-use App\Platform\Commands\SyncPlayerGames;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\UnlockPlayerAchievement;
@@ -44,7 +42,7 @@ use App\Platform\Models\IntegrationRelease;
 use App\Platform\Models\Leaderboard;
 use App\Platform\Models\LeaderboardEntryLegacy;
 use App\Platform\Models\MemoryNote;
-use App\Platform\Models\PlayerAchievementLegacy;
+use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerBadgeStage;
 use App\Platform\Models\PlayerSession;
@@ -91,8 +89,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncLeaderboards::class,
                 SyncLeaderboardEntries::class,
                 SyncMemoryNotes::class,
-                SyncPlayerAchievements::class,
-                SyncPlayerGames::class,
                 SyncPlayerBadges::class,
                 SyncPlayerRichPresence::class,
                 SyncPlayerSession::class,
@@ -128,8 +124,7 @@ class AppServiceProvider extends ServiceProvider
             'memory-note' => MemoryNote::class,
             'player.badge' => PlayerBadge::class,
             'player.badge-stage' => PlayerBadgeStage::class,
-            // TODO 'player.achievement' => PlayerAchievement::class,
-            'player.achievement' => PlayerAchievementLegacy::class,
+            'player.achievement' => PlayerAchievement::class,
             'player-session' => PlayerSession::class,
             'system' => System::class,
         ]);

@@ -1,18 +1,21 @@
 <?php
-$aggregateQueriesSource = \Request::cookie('feature_aggregate_queries') !== null ? 'cookie' : 'env';
+// EXAMPLE
+// =======
+// $aggregateQueriesSource = \Request::cookie('feature_aggregate_queries') !== null ? 'cookie' : 'env';
+// =======
 ?>
 
 <script>
-function handleToggleCookie() {
-    const currentValue = getCookie('feature_aggregate_queries');
+function handleToggleCookie(cookieName) {
+    const currentValue = getCookie(`${cookieName}`);
 
     let newValue = true;
     if (currentValue === 'true') {
         newValue = false;
     }
 
-    setCookie('feature_aggregate_queries', `${newValue}`);
-    showStatusSuccess(`feature_aggregate_queries cookie set to ${newValue}.`);
+    setCookie(`${cookieName}`, `${newValue}`);
+    showStatusSuccess(`${cookieName} cookie set to ${newValue}.`);
 }
 </script>
 
@@ -25,10 +28,11 @@ function handleToggleCookie() {
     @endhasfeature
 </div>
 
+{{-- EXAMPLE
 <div class="flex justify-between">
     <p>Aggregate Queries</p>
 
-    <button class="btn" onClick="handleToggleCookie()">
+    <button class="btn" onClick="handleToggleCookie('feature_aggregate_queries')">
         Toggle cookie
     </button>
 
@@ -37,4 +41,4 @@ function handleToggleCookie() {
     @else
         Disabled (Source: {{ $aggregateQueriesSource }})
     @endhasfeature
-</div>
+</div> --}}

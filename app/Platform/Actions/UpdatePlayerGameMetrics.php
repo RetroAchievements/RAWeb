@@ -72,7 +72,6 @@ class UpdatePlayerGameMetrics
         $timeTakenHardcore = $startedAt ? $startedAt->diffInSeconds($lastPlayedAt) : $playerGame->time_taken_hardcore;
 
         $playerGame->fill([
-            'update_status' => null, // reset previously added update reason
             'achievement_set_version_hash' => $game->achievement_set_version_hash,
             'achievements_total' => $game->achievements_published,
             'achievements_unlocked' => $achievementsUnlockedCount,
@@ -104,8 +103,6 @@ class UpdatePlayerGameMetrics
 
         app()->make(RevalidateAchievementSetBadgeEligibility::class)->execute($playerGame);
 
-        expireUserCompletedGamesCacheValue($user->username);
-        expireUserAchievementUnlocksForGame($user->username, $game->id);
         expireGameTopAchievers($game->id);
     }
 

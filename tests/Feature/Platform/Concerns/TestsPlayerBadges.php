@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Concerns;
 
 use App\Community\Enums\AwardType;
+use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
@@ -12,8 +13,13 @@ use Carbon\Carbon;
 
 trait TestsPlayerBadges
 {
-    protected function addPlayerBadge(User $user, int $type, int $id, int $extra = 0, ?Carbon $awardTime = null): void
-    {
+    protected function addPlayerBadge(
+        User $user,
+        int $type,
+        int $id,
+        int $extra = 0,
+        ?Carbon $awardTime = null
+    ): void {
         if ($awardTime === null) {
             $awardTime = Carbon::now();
         }
@@ -32,6 +38,24 @@ trait TestsPlayerBadges
             ]);
             $user->playerBadges()->save($badge);
         }
+    }
+
+    protected function addGameBeatenAward(
+        User $user,
+        Game $game,
+        int $mode = UnlockMode::Hardcore,
+        ?Carbon $awardTime = null
+    ): void {
+        $this->addPlayerBadge($user, AwardType::GameBeaten, $game->ID, $mode, $awardTime);
+    }
+
+    protected function addMasteryBadge(
+        User $user,
+        Game $game,
+        int $mode = UnlockMode::Hardcore,
+        ?Carbon $awardTime = null
+    ): void {
+        $this->addPlayerBadge($user, AwardType::Mastery, $game->ID, $mode, $awardTime);
     }
 
     protected function masteryBadgeExists(User $user, Game $game): bool

@@ -1,0 +1,94 @@
+/* 
+ * The completion progress page uses a lot of repeated Tailwind classnames that 
+ * bulk up the document size and slow the page down. We use PostCSS in this file
+ * to optimize that repetition as much as possible.
+*/
+
+/** award-indicator.blade.php **/
+.cprogress-ind__root {
+  @apply flex flex-col items-center gap-y-1 pl-2 relative -mt-5 sm:mt-0 sm:pl-4 cursor-help;
+
+  > div {
+    @apply w-6 h-6 rounded-full bg-neutral-800/30 light:bg-neutral-300/30 flex items-center justify-center relative;
+  }
+
+  > div > div:first-child {
+    @apply w-5 h-5 rounded-full absolute;
+  }
+
+  > div > div:last-child {
+    @apply w-5 h-5 rounded-full z-10;
+  }
+}
+
+/* For 'mastered' */
+.cprogress-ind__root[data-award='mastered'] > div > div:first-child {
+  @apply bg-yellow-700 blur-[10px] light:bg-yellow-400;
+}
+
+.cprogress-ind__root[data-award='mastered'] > div > div:last-child {
+  @apply bg-gradient-to-br from-yellow-300 to-yellow-500 light:to-yellow-500;
+}
+
+/* For 'completed' */
+.cprogress-ind__root[data-award='completed'] > div > div:first-child {
+  @apply bg-yellow-700/50 blur-[8px] light:bg-yellow-600/40;
+}
+
+.cprogress-ind__root[data-award='completed'] > div > div:last-child {
+  @apply border-[3px] border-yellow-600 light:border-yellow-500;
+}
+
+/* For 'beaten-hardcore' */
+.cprogress-ind__root[data-award='beaten-hardcore'] > div > div:first-child {
+  @apply bg-zinc-600/50 blur-[10px];
+}
+
+.cprogress-ind__root[data-award='beaten-hardcore'] > div > div:last-child {
+  @apply bg-gradient-to-br from-zinc-300 to-zinc-500 light:to-zinc-100;
+}
+
+/* For 'beaten-softcore' */
+.cprogress-ind__root[data-award='beaten-softcore'] > div > div:first-child {
+  @apply bg-zinc-600/50 blur-[8px] light:bg-zinc-400/90;
+}
+
+.cprogress-ind__root[data-award='beaten-softcore'] > div > div:last-child {
+  @apply border-[3px] border-zinc-300 light:border-zinc-500;
+}
+
+/** primary-meta.blade.php **/
+.cprogress-pmeta__root {
+  > a {
+    @apply text-sm leading-4 line-clamp-2;
+  }
+
+  > p {
+    @apply text-xs mt-0.5;
+  }
+
+  > div {
+    @apply text-2xs flex flex-col md:flex-row md:gap-x-1 lg:flex-col tracking-tighter;
+  }
+}
+
+/** progress-bar.blade.php **/
+.cprogress-pbar__root {
+  @apply flex flex-col w-full sm:w-auto items-center gap-y-1 sm:pl-4;
+
+  > div[role='progressbar'] {
+    @apply min-w-[120px] w-full sm:w-auto md:min-w-[150px] lg:min-w-[120px] xl:min-w-[150px] h-1.5 bg-zinc-950 light:bg-zinc-300 rounded flex;
+  }
+
+  > div[role='progressbar'] > div:first-child {
+    @apply bg-gradient-to-r from-amber-500/80 to-[gold] light:bg-yellow-500 h-full rounded-l;
+  }
+
+  > div[role='progressbar'] > div:last-child {
+    @apply bg-neutral-500 h-full;
+  }
+
+  > p {
+    @apply text-2xs flex justify-between w-full;
+  }
+}

@@ -73,6 +73,17 @@ function unixTimestampStatement(string $column, string $alias): string
     };
 }
 
+function greatestStatement(array $columns): string
+{
+    $columnCSV = implode(',', $columns);
+
+    return match (DB::getDriverName()) {
+        'sqlite' => "MAX($columnCSV)",
+        // mysql
+        default => "GREATEST($columnCSV)",
+    };
+}
+
 function timestampAddMinutesStatement(int $minutes): string
 {
     return match (DB::getDriverName()) {

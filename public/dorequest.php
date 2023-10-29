@@ -237,15 +237,6 @@ switch ($requestType) {
 
             PlayerSessionHeartbeat::dispatch($user, Game::find($gameID), $activityMessage);
 
-            // legacy rich presence support (deprecated - see ResumePlayerSession)
-            if (isset($activityMessage) && $user->LastGameID == $gameID) {
-                $user->RichPresenceMsg = utf8_sanitize($activityMessage);
-                $user->RichPresenceMsgDate = Carbon::now();
-            }
-
-            $user->LastLogin = Carbon::now();
-            $user->save();
-
             $response['Success'] = true;
         }
         break;
@@ -274,10 +265,11 @@ switch ($requestType) {
                 ->onQueue('player-achievements');
         }
 
-        if (empty($response['Score']) && getPlayerPoints($username, $userPoints)) {
-            $response['Score'] = $userPoints['RAPoints'] ?? 0;
-            $response['SoftcoreScore'] = $userPoints['RASoftcorePoints'] ?? 0;
+        if (empty($response['Score'])) {
+            $response['Score'] = $user->RAPoints;
+            $response['SoftcoreScore'] = $user->RASoftcorePoints;
         }
+
         $response['AchievementID'] = $achIDToAward;
         break;
 
@@ -313,18 +305,6 @@ switch ($requestType) {
             return DoRequestError("Unknown game");
         }
 
-        if ($user->LastGameID != $gameID) {
-            expireRecentlyPlayedGames($user->User);
-            $user->LastGameID = $gameID;
-        }
-
-        // legacy rich presence support (deprecated - see ResumePlayerSession)
-        $user->RichPresenceMsg = "Playing {$game->Title}";
-        $user->RichPresenceMsgDate = Carbon::now();
-
-        $user->LastLogin = Carbon::now();
-        $user->save();
-
         PlayerSessionHeartbeat::dispatch($user, $game);
         $response['Success'] = true;
         break;
@@ -339,18 +319,6 @@ switch ($requestType) {
         if (!$game) {
             return DoRequestError("Unknown game");
         }
-
-        if ($user->LastGameID != $gameID) {
-            expireRecentlyPlayedGames($user->User);
-            $user->LastGameID = $gameID;
-        }
-
-        // legacy rich presence support (deprecated - see ResumePlayerSession)
-        $user->RichPresenceMsg = "Playing {$game->Title}";
-        $user->RichPresenceMsgDate = Carbon::now();
-
-        $user->LastLogin = Carbon::now();
-        $user->save();
 
         PlayerSessionHeartbeat::dispatch($user, $game);
 

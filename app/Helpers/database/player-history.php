@@ -1,12 +1,10 @@
 <?php
 
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
+use App\Site\Models\User;
 
-function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy): array
+function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [];
 
     if ($sortBy < 1 || $sortBy > 13) {
@@ -14,26 +12,25 @@ function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy)
     }
     $orderCond = "";
     if ($sortBy == 1) {        // Date, asc
-        $orderCond = "ORDER BY aw.Date DESC ";
+        $orderCond = "ORDER BY Date DESC ";
     } elseif ($sortBy == 2) {    // Num Awarded, asc
         $orderCond = "ORDER BY NumAwarded DESC ";
     } elseif ($sortBy == 3) {    // Total Points earned, asc
         $orderCond = "ORDER BY TotalPointsEarned DESC ";
     } elseif ($sortBy == 11) {// Date, desc
-        $orderCond = "ORDER BY aw.Date ASC ";
+        $orderCond = "ORDER BY Date ASC ";
     } elseif ($sortBy == 12) {// Num Awarded, desc
         $orderCond = "ORDER BY NumAwarded ASC ";
     } elseif ($sortBy == 13) {// Total Points earned, desc
         $orderCond = "ORDER BY TotalPointsEarned ASC ";
     }
 
-    $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                WHERE User='$user'
-                AND aw.HardcoreMode = " . UnlockMode::Softcore . "
+    $query = "SELECT DATE(pa.unlocked_at) AS Date, COUNT(*) AS NumAwarded, SUM(Points) AS TotalPointsEarned
+                FROM player_achievements pa
+                INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+                WHERE pa.user_id={$user->id}
                 AND ach.Flags = " . AchievementFlag::OfficialCore . "
-                GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
+                GROUP BY Date
                 $orderCond
                 LIMIT $offset, $limit";
 
@@ -52,31 +49,28 @@ function getUserBestDaysList(string $user, int $offset, int $limit, int $sortBy)
     return $retVal;
 }
 
-function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?string $username = null): array
+function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, User $user): array
 {
-    if (!isValidUsername($username)) {
-        return [];
-    }
-
     $bindings = [
         'dateStart' => $dateStart,
         'dateEnd' => $dateEnd,
-        'username' => $username,
+        'userid' => $user->id,
         'achievementFlag' => AchievementFlag::OfficialCore,
     ];
 
-    $query = "SELECT aw.Date, aw.HardcoreMode,
+    $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
+                     CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END AS HardcoreMode,
                      ach.ID AS AchievementID, ach.Title, ach.Description,
                      ach.BadgeName, ach.Points, ach.Author,
                      gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, ach.GameID,
                      c.Name AS ConsoleName
-              FROM Awarded AS aw
-              LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE User = :username AND ach.Flags = :achievementFlag
-              AND Date BETWEEN :dateStart AND :dateEnd
-              ORDER BY aw.Date, aw.HardcoreMode DESC
+              FROM player_achievements pa
+              INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+              INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+              INNER JOIN Console AS c ON c.ID = gd.ConsoleID
+              WHERE pa.user_id = :userid AND ach.Flags = :achievementFlag
+              AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN :dateStart AND :dateEnd
+              ORDER BY Date, HardcoreMode DESC
               LIMIT 500";
 
     $cumulativeScore = 0;
@@ -96,7 +90,7 @@ function getAchievementsEarnedBetween(string $dateStart, string $dateEnd, ?strin
         ->toArray();
 }
 
-function getAchievementsEarnedOnDay(int $unixTimestamp, string $user): array
+function getAchievementsEarnedOnDay(int $unixTimestamp, User $user): array
 {
     $dateStrStart = date("Y-m-d 00:00:00", $unixTimestamp);
     $dateStrEnd = date("Y-m-d 23:59:59", $unixTimestamp);
@@ -105,19 +99,13 @@ function getAchievementsEarnedOnDay(int $unixTimestamp, string $user): array
 }
 
 function getAwardedList(
-    string $user,
+    User $user,
     ?int $offset = null,
     ?int $limit = null,
     ?string $dateFrom = null,
     ?string $dateTo = null
 ): array {
-    sanitize_sql_inputs($user, $dateFrom, $dateTo);
-
     $retVal = [];
-
-    if (!isValidUsername($user)) {
-        return $retVal;
-    }
 
     $cumulHardcoreScore = 0;
     $cumulSoftcoreScore = 0;
@@ -135,21 +123,20 @@ function getAwardedList(
     if (isset($dateFrom) && isset($dateTo)) {
         $dateFromFormatted = $dateFrom; // 2013-07-01
         $dateToFormatted = $dateTo;
-        $dateCondition .= "AND aw.Date BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
+        $dateCondition .= "AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
     }
 
-    $query = "SELECT YEAR(aw.Date) AS Year, MONTH(aw.Date) AS Month, DAY(aw.Date) AS Day, aw.Date,
-                SUM(IF(aw.HardcoreMode = " . UnlockMode::Hardcore . ", ach.Points, 0)) AS HardcorePoints,
-                SUM(IF(aw.HardcoreMode = " . UnlockMode::Softcore . ", ach.Points, 0)) AS SoftcorePoints
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                WHERE aw.user = '$user'
+    $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
+                SUM(IF(pa.unlocked_hardcore_at IS NOT NULL, ach.Points, 0)) AS HardcorePoints,
+                SUM(ach.Points) AS SoftcorePoints
+                FROM player_achievements pa
+                INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
+                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+                WHERE pa.user_id = {$user->id}
                 AND ach.Flags = " . AchievementFlag::OfficialCore . "
-
                 $dateCondition
-                GROUP BY YEAR(aw.Date), MONTH(aw.Date), DAY(aw.Date)
-                ORDER BY aw.Date ASC
+                GROUP BY Date
+                ORDER BY Date ASC
                 $limitCondition";
 
     $dbResult = s_mysql_query($query);
