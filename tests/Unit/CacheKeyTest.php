@@ -10,15 +10,6 @@ use Tests\TestCase;
 
 final class CacheKeyTest extends TestCase
 {
-    public function testBuildUserCanTicketCacheKey(): void
-    {
-        $username = "UserName";
-
-        $cacheKey = CacheKey::buildUserCanTicketCacheKey($username);
-
-        $this->assertEquals("user:username:can-ticket", $cacheKey);
-    }
-
     public function testBuildUserCardDataCacheKey(): void
     {
         $username = "UserName";
@@ -26,17 +17,6 @@ final class CacheKeyTest extends TestCase
         $cacheKey = CacheKey::buildUserCardDataCacheKey($username);
 
         $this->assertEquals("user:username:card-data", $cacheKey);
-    }
-
-    public function testBuildUserGameUnlocksCacheKey(): void
-    {
-        $username = "UserName";
-        $gameID = 14402;
-        $isOfficial = false;
-
-        $cacheKey = CacheKey::buildUserGameUnlocksCacheKey($username, $gameID, $isOfficial);
-
-        $this->assertEquals("user:username:game-unlocks:14402:unofficial", $cacheKey);
     }
 
     public function testBuildUserRankCacheKey(): void

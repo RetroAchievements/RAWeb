@@ -9,7 +9,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
 <h4 class="!leading-none mb-2">Progression Status</h4>
 
 <div x-data="{ widthMode: '{{ $widthMode }}' }">
-    <div class="flex flex-col sm:flex-row sm:justify-between w-full mb-2">
+    <div class="flex flex-col-reverse gap-y-2 sm:gap-y-0 sm:flex-row sm:justify-between w-full mb-2">
         <x-user.progression-status.legend
             :totalBeatenHardcoreCount="$totalBeatenHardcoreCount"
             :totalBeatenSoftcoreCount="$totalBeatenSoftcoreCount"
@@ -17,17 +17,16 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
             :totalMasteredCount="$totalMasteredCount"
         />
 
-        <div class="hidden sm:flex items-center gap-x-1 select-none cursor-pointer text-xs transition md:active:scale-95">
+        <label class="flex items-center gap-x-1 select-none cursor-pointer text-xs transition md:active:scale-95">
             <input
-                id="toggle-row-width-mode-checkbox"
                 type="checkbox"
                 autocomplete="off"
                 @if ($widthMode === 'dynamic') checked @endif
                 @change="newWidthMode = widthMode === 'equal' ? 'dynamic' : 'equal';  widthMode = newWidthMode;  setCookie('progression_status_widths_preference', newWidthMode);"
                 class="cursor-pointer"
             >
-            <label for="toggle-row-width-mode-checkbox" class="cursor-pointer">Dynamic widths</label>
-        </div>
+            Dynamic widths
+        </label>
     </div>
 
     @if (count($consoleProgress) > 2)
@@ -62,10 +61,10 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
     @if (count($consoleProgress) > 1)
         <ol>
             <x-user.progression-status.hidden-consoles totalConsoleCount="{{ count($consoleProgress) }}">
-                <p class="text-xs mt-3 -mb-1.5">Sorted by Most Games Played</p>
+                <p class="text-xs mt-3 -mb-1.5 select-none">Sorted by Most Games Played</p>
 
                 @foreach ($consoleProgress as $consoleId => $progress)
-                    @if ($consoleId != $topConsole)
+                    @if ($consoleId != $topConsole && isValidConsoleId($consoleId))
                         <x-user.progression-status.console-progression-list-item
                             :consoleId="$consoleId"
                             :unfinishedCount="$progress['unfinishedCount']"

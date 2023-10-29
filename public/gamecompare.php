@@ -35,7 +35,8 @@ $gameIcon = $gameData['ImageIcon'];
 
 $gamesPlayedWithAchievements = [];
 
-$numGamesPlayed = getUsersGameList($user, $userGamesList);
+$userGamesList = getUsersGameList($userModel);
+$numGamesPlayed = count($userGamesList);
 
 foreach ($userGamesList as $nextGameID => $nextGameData) {
     $nextGameTitle = $nextGameData['Title'];

@@ -9,41 +9,23 @@ use App\Community\Models\Ticket;
 use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\PlayerGame;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-function isAllowedToSubmitTickets(string $user): bool
+function isAllowedToSubmitTickets(string $username): bool
 {
-    if (!isValidUsername($user)) {
+    $user = User::firstWhere('User', $username);
+    if (!$user || $user->Created->diffInDays() < 1) {
         return false;
     }
 
-    $cacheKey = CacheKey::buildUserCanTicketCacheKey($user);
-
-    $value = Cache::get($cacheKey);
-    if ($value !== null) {
-        return $value;
-    }
-
-    $value = getUserActivityRange($user, $firstLogin, $lastLogin)
-        && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
-        && getRecentlyPlayedGames($user, 0, 1, $userInfo)
-        && $userInfo[0]['GameID'];
-
-    if ($value) {
-        // if the user can create tickets, they should be able to create tickets forever
-        // more. expire once every 30 days so we can purge inactive users
-        Cache::put($cacheKey, $value, Carbon::now()->addDays(30));
-    } else {
-        // user can't create tickets, which means the account is less than a day old
-        // or has no games played. only cache the value for an hour
-        Cache::put($cacheKey, $value, Carbon::now()->addHour());
-    }
-
-    return $value;
+    return PlayerGame::where('user_id', $user->id)
+        ->where('time_taken', '>', 5)
+        ->exists();
 }
 
 function submitNewTicketsJSON(

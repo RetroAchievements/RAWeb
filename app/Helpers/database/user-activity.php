@@ -90,7 +90,6 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
     // update UserAccount
     $user->LastLogin = Carbon::now();
     $user->LastActivityID = $activity->ID;
-    $user->timestamps = false;
     $user->save();
 
     return true;
@@ -223,12 +222,14 @@ function expireRecentlyPlayedGames(string $user): void
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
 {
-    if ($offset == 0 && $count <= 5 && !config('feature.aggregate_queries')) {
-        $userRecentGamesCacheKey = CacheKey::buildUserRecentGamesCacheKey($user);
-        $recentlyPlayedGames = Cache::remember($userRecentGamesCacheKey, Carbon::now()->addDays(30), fn () => _getRecentlyPlayedGameIds($user, 0, 5));
-    } else {
-        $recentlyPlayedGames = _getRecentlyPlayedGameIds($user, $offset, $count);
-    }
+    $query = "SELECT pg.last_played_at AS LastPlayed, pg.game_id AS GameID
+              FROM player_games pg
+              INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
+              WHERE ua.User = :username
+              ORDER BY pg.last_played_at desc
+              LIMIT $offset, $count";
+
+    $recentlyPlayedGames = legacyDbFetchAll($query, ['username' => $user])->toArray();
 
     $numFound = 0;
     $dataOut = [];
@@ -275,29 +276,6 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
     }
 
     return $numFound;
-}
-
-function _getRecentlyPlayedGameIDs(string $user, int $offset, int $count): array
-{
-    if (config('feature.aggregate_queries')) {
-        $query = "SELECT pg.last_played_at AS LastPlayed, pg.game_id AS GameID
-                  FROM player_games pg
-                  LEFT JOIN UserAccounts ua ON ua.ID = pg.user_id
-                  WHERE ua.User = :username
-                  ORDER BY pg.last_played_at desc
-                  LIMIT $offset, $count";
-    } else {
-    // TODO slow query (15)
-    $query = "
-        SELECT MAX(act.ID) as ActivityID, MAX(act.lastupdate) AS LastPlayed, act.data as GameID
-        FROM Activity AS act
-        WHERE act.user=:username AND act.activitytype = " . ActivityType::StartedPlaying . "
-        GROUP BY act.data
-        ORDER BY MAX( act.lastupdate ) DESC
-        LIMIT $offset, $count";
-    }
-
-    return legacyDbFetchAll($query, ['username' => $user])->toArray();
 }
 
 function getArticleComments(

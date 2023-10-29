@@ -10,6 +10,7 @@ use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Events\GameMetricsUpdated;
+use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerBadgeAwarded;
@@ -22,7 +23,7 @@ use App\Platform\Events\PlayerGameRemoved;
 use App\Platform\Events\PlayerMetricsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
-// use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
+use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
@@ -39,30 +40,34 @@ class EventServiceProvider extends ServiceProvider
         ],
         AchievementPublished::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             // TODO Notify player/developer when moved to AchievementSetPublished event
         ],
         AchievementUnpublished::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             // TODO Notify player/developer when moved to AchievementSetUnpublished event
         ],
         AchievementPointsChanged::class => [
             DispatchUpdateGameMetricsJob::class,
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
         ],
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,
         ],
         GameMetricsUpdated::class => [
         ],
+        GamePlayerGameMetricsUpdated::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
         PlayerAchievementLocked::class => [
+            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
         ],
         PlayerAchievementUnlocked::class => [
             // dispatches PlayerGameAttached
             // NOTE ResumePlayerSessionAction is executed synchronously during PlayerAchievementUnlockAction
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
-            // TODO DispatchUpdateDeveloperContributionYieldJob::class,
+            DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
