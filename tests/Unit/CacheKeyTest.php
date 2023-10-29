@@ -10,15 +10,6 @@ use Tests\TestCase;
 
 final class CacheKeyTest extends TestCase
 {
-    public function testBuildUserCanTicketCacheKey(): void
-    {
-        $username = "UserName";
-
-        $cacheKey = CacheKey::buildUserCanTicketCacheKey($username);
-
-        $this->assertEquals("user:username:can-ticket", $cacheKey);
-    }
-
     public function testBuildUserCardDataCacheKey(): void
     {
         $username = "UserName";
