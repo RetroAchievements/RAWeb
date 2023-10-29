@@ -28,6 +28,7 @@ function isAllowedToSubmitTickets(string $user): bool
         return $value;
     }
 
+    $userModel = request()->user();
     $value = $userModel->Created->diffInDays() > 1
         && getRecentlyPlayedGames($user, 0, 1, $userInfo)
         && $userInfo[0]['GameID'];
