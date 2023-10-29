@@ -15,22 +15,22 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-function isAllowedToSubmitTickets(string $user): bool
+function isAllowedToSubmitTickets(string $username): bool
 {
-    if (!isValidUsername($user)) {
+    if (!isValidUsername($username)) {
         return false;
     }
 
-    $cacheKey = CacheKey::buildUserCanTicketCacheKey($user);
+    $cacheKey = CacheKey::buildUserCanTicketCacheKey($username);
 
     $value = Cache::get($cacheKey);
     if ($value !== null) {
         return $value;
     }
 
-    $userModel = request()->user();
-    $value = $userModel->Created->diffInDays() > 1
-        && getRecentlyPlayedGames($user, 0, 1, $userInfo)
+    $user = User::firstWhere('User', $username);
+    $value = $user->Created->diffInDays() > 1
+        && getRecentlyPlayedGames($username, 0, 1, $userInfo)
         && $userInfo[0]['GameID'];
 
     if ($value) {
