@@ -23,27 +23,28 @@ function isAllowedToSubmitTickets(string $username): bool
 
     $cacheKey = CacheKey::buildUserCanTicketCacheKey($username);
 
-    $value = Cache::get($cacheKey);
-    if ($value !== null) {
-        return $value;
+    if (Cache::has($cacheKey)) {
+        return Cache::get($cacheKey);
     }
 
     $user = User::firstWhere('User', $username);
-    $value = $user->Created->diffInDays() > 1
+    $isAllowed = $user->Created->diffInDays() > 1
         && getRecentlyPlayedGames($username, 0, 1, $userInfo)
         && $userInfo[0]['GameID'];
 
-    if ($value) {
-        // if the user can create tickets, they should be able to create tickets forever
-        // more. expire once every 30 days so we can purge inactive users
-        Cache::put($cacheKey, $value, Carbon::now()->addDays(30));
-    } else {
-        // user can't create tickets, which means the account is less than a day old
-        // or has no games played. only cache the value for an hour
-        Cache::put($cacheKey, $value, Carbon::now()->addHour());
-    }
+    Cache::put(
+        $cacheKey,
+        $isAllowed,
+        $isAllowed
+            // if the user can create tickets, they should be able to create tickets forever
+            // more. expire once every 30 days so we can purge inactive users
+            ? Carbon::now()->addDays(30)
+            // user can't create tickets, which means the account is less than a day old
+            // or has no games played. only cache the value for an hour
+            : Carbon::now()->addHour()
+    );
 
-    return $value;
+    return $isAllowed;
 }
 
 function submitNewTicketsJSON(
