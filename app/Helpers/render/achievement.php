@@ -78,9 +78,9 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
     }
 
-    $title = Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
+    $title = trim(Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
         'rawTitle' => $data['AchievementTitle'] ?? $data['Title'] ?? '',
-    ]);
+    ]));
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
