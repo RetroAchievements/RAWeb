@@ -54,7 +54,7 @@ abstract class AwardType
         };
     }
 
-    public static function progress(): array
+    public static function game(): array
     {
         return [
             self::Mastery,
@@ -62,8 +62,8 @@ abstract class AwardType
         ];
     }
 
-    public static function isProgress(int $type): bool
+    public static function isGame(int $type): bool
     {
-        return !in_array($type, static::progress());
+        return !in_array($type, static::game());
     }
 }

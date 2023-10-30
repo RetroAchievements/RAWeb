@@ -300,7 +300,7 @@ function getMostAwardedUsers(array $gameIDs): array
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1', 1, 0)) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE sa.AwardType IN (" . implode(',', AwardType::progress()) . ")
+              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN (" . implode(",", $gameIDs) . ")
               AND Untracked = 0
               GROUP BY User
@@ -335,7 +335,7 @@ function getMostAwardedGames(array $gameIDs): array
               LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE sa.AwardType IN (" . implode(',', AwardType::progress()) . ")
+              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN(" . implode(",", $gameIDs) . ")
               GROUP BY sa.AwardData, gd.Title
               ORDER BY Title";
