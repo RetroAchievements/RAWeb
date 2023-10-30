@@ -53,4 +53,17 @@ abstract class AwardType
             default => 'Invalid or deprecated award type',
         };
     }
+
+    public static function game(): array
+    {
+        return [
+            self::Mastery,
+            self::GameBeaten,
+        ];
+    }
+
+    public static function isGame(int $type): bool
+    {
+        return in_array($type, static::game());
+    }
 }

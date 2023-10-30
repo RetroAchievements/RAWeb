@@ -39,7 +39,6 @@
 @import "tooltip.css";
 
 /* TODO split into components or replace with utility classes */
-@import "active-players.css";
 @import "award-count.css";
 @import "comment.css";
 @import "devbox.css";

@@ -96,8 +96,10 @@ function getUserProgress(User $user, array $gameIDs, int $numRecentAchievements 
             $gameData = $game->toArray();
 
             $achievements = $game->achievements()->published()
-                ->leftJoin('player_achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-                ->where('player_achievements.user_id', $user->id);
+                ->leftJoin('player_achievements', function ($join) use ($user) {
+                    $join->on('player_achievements.achievement_id', '=', 'Achievements.ID');
+                    $join->where('player_achievements.user_id', $user->id);
+                });
             foreach ($achievements->get() as $achievement) {
                 if ($achievement->unlocked_hardcore_at) {
                     $unlockedAchievements[] = [

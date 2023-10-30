@@ -247,26 +247,29 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $query = "SELECT ua.User, IF(ua.Untracked, 0, ua.RAPoints) as RAPoints, IF(ua.Untracked, 0, ua.RASoftcorePoints) as RASoftcorePoints,
+    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.RAPoints');
+    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.RASoftcorePoints');
+    $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
+
+    $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
                      ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
+              WHERE ua.RichPresenceMsgDate > $timestampStatement
                 AND ua.LastGameID != 0
                 AND ua.Permissions >= $permissionsCutoff
               ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.User ASC";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = legacyDbFetchAll($query);
+
     if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $db_entry['GameID'] = (int) $db_entry['GameID'];
-            $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
-            $db_entry['RASoftcorePoints'] = (int) $db_entry['RASoftcorePoints'];
-            $playersFound[] = $db_entry;
+        foreach ($dbResult as $dbEntry) {
+            $dbEntry['GameID'] = (int) $dbEntry['GameID'];
+            $dbEntry['RAPoints'] = (int) $dbEntry['RAPoints'];
+            $dbEntry['RASoftcorePoints'] = (int) $dbEntry['RASoftcorePoints'];
+            $playersFound[] = $dbEntry;
         }
-    } else {
-        log_sql_fail();
     }
 
     return $playersFound;

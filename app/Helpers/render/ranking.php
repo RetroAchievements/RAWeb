@@ -463,9 +463,9 @@ function getGlobalRankingData(
     }
 
     if ($unlockMode == UnlockMode::Hardcore) {
-        $whereDateAchievement = 'aw.unlocked_hardcore_at';
+        $whereDateAchievement = 'AND aw.unlocked_hardcore_at';
     } else {
-        $whereDateAchievement = 'aw.unlocked_at';
+        $whereDateAchievement = 'AND aw.unlocked_at';
     }
 
     // Just Hardcore Points and Retro Points. Used for the sidebar rankings
@@ -490,12 +490,12 @@ function getGlobalRankingData(
     // All ranking stats
 
     if ($unlockMode == UnlockMode::Hardcore) {
-        $achPoints = "CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN ach.Points ELSE 0 END";
-        $achCount = "CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN 1 ELSE 0 END";
-        $achTruePoints = "CASE WHEN HardcoreMode = " . UnlockMode::Hardcore . " THEN ach.TrueRatio ELSE 0 END";
+        $achPoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.Points ELSE 0 END";
+        $achCount = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END";
+        $achTruePoints = "CASE WHEN aw.unlocked_hardcore_at IS NOT NULL THEN ach.TrueRatio ELSE 0 END";
     } else {
-        $achPoints = "CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN ach.Points ELSE -ach.Points END";
-        $achCount = "CASE WHEN HardcoreMode = " . UnlockMode::Softcore . " THEN 1 ELSE -1 END";
+        $achPoints = "CASE WHEN aw.unlocked_at IS NOT NULL THEN ach.Points ELSE -ach.Points END";
+        $achCount = "CASE WHEN aw.unlocked_at IS NOT NULL THEN 1 ELSE -1 END";
         $achTruePoints = 0;
     }
 

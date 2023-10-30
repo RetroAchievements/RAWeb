@@ -14,6 +14,7 @@ use App\Community\Commands\SyncRatings;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Commands\SyncVotes;
+use App\Community\Components\ActivePlayers;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentPosts;
 use App\Community\Components\GlobalStatistics;
@@ -105,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
         TriggerTicketComment::disableSearchSyncing();
         UserComment::disableSearchSyncing();
 
+        Blade::component('active-players', ActivePlayers::class);
         Blade::component('developer-game-stats-table', DeveloperGameStatsTable::class);
         Blade::component('global-statistics', GlobalStatistics::class);
         Blade::component('forum-recent-posts', ForumRecentPosts::class);

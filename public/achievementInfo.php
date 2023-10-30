@@ -77,7 +77,7 @@ foreach ($unlocks as $userObject) {
 if ($dateWonLocal === "" && isset($user)) {
     $userModel = User::firstWhere('User', $user);
     if ($userModel) {
-        $playerAchievement = PlayerAchievement::where('user_id', $user->ID)
+        $playerAchievement = PlayerAchievement::where('user_id', $userModel->id)
             ->where('achievement_id', $achievementID)
             ->first();
         if ($playerAchievement) {

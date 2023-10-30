@@ -77,7 +77,6 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
 
     // update appTokenExpiry
     $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
-    $user->timestamps = false;
     $user->save();
 
     return [
@@ -205,7 +204,6 @@ function authenticateFromCookie(
 
     // valid active account. update the last activity timestamp
     $user->LastLogin = Carbon::now();
-    $user->timestamps = false;
     $user->save();
 
     // validate permissions for the current page if required
