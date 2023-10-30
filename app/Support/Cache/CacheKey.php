@@ -16,11 +16,6 @@ class CacheKey
         return self::buildNormalizedUserCacheKey($username, "last-login");
     }
 
-    public static function buildUserCanTicketCacheKey(string $username): string
-    {
-        return self::buildNormalizedUserCacheKey($username, "can-ticket");
-    }
-
     public static function buildUserCardDataCacheKey(string $username): string
     {
         return self::buildNormalizedUserCacheKey($username, "card-data");
