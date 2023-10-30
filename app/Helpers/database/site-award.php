@@ -92,18 +92,24 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     ];
 
     $query = "
-    SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
-                  FROM SiteAwards AS saw
-                  LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND (saw.AwardType = " . AwardType::Mastery . " OR saw.AwardType = " . AwardType::GameBeaten . ") )
-                  LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE (saw.AwardType = " . AwardType::Mastery . " OR saw.AwardType = " . AwardType::GameBeaten . ") AND saw.User = :username
-                  GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
-    UNION
-    SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
-                  FROM SiteAwards AS saw
-                  WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = :username2
-                  GROUP BY saw.AwardType
-    ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
+        -- game awards (mastery, beaten)
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+            FROM SiteAwards AS saw
+            LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType IN (" . implode(',', AwardType::game()) . ") )
+            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            WHERE
+                saw.AwardType IN(" . implode(',', AwardType::game()) . ")
+                AND saw.User = :username
+            GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
+        UNION
+        -- non-game awards (developer contribution, ...)
+        SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
+            FROM SiteAwards AS saw
+            WHERE
+                saw.AwardType NOT IN(" . implode(',', AwardType::game()) . ")
+                AND saw.User = :username2
+            GROUP BY saw.AwardType
+        ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
