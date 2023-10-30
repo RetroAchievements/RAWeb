@@ -18,8 +18,8 @@ return new class() extends Migration {
     public function down(): void
     {
         Schema::table('player_games', function (Blueprint $table) {
-            $table->dropIndex('player_games_game_id_achievements_unlocked_index');
-            $table->dropIndex('player_games_game_id_achievements_unlocked_hardcore_index');
+            $table->dropIndex(['game_id', 'achievements_unlocked']);
+            $table->dropIndex(['game_id', 'achievements_unlocked_hardcore']);
         });
     }
 };
