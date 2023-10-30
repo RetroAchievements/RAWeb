@@ -474,7 +474,9 @@ function getUserGameActivity(string $username, int $gameID): array
             if ($session['StartTime'] <= $when) {
                 if ($session['EndTime'] + $maxSessionGap > $when) {
                     $session['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
-                    $session['EndTime'] = $when;
+                    if ($when > $session['EndTime']) {
+                        $session['EndTime'] = $when;
+                    }
 
                     return;
                 }
@@ -485,7 +487,9 @@ function getUserGameActivity(string $username, int $gameID): array
         if ($possibleSession) {
             if ($when - $possibleSession['EndTime'] < $maxSessionGap) {
                 $possibleSession['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
-                $possibleSession['EndTime'] = $when;
+                if ($when > $possibleSession['EndTime']) {
+                    $possibleSession['EndTime'] = $when;
+                }
 
                 return;
             }
