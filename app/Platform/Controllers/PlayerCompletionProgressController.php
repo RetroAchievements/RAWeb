@@ -14,12 +14,10 @@ use Illuminate\Support\Facades\Auth;
 
 class PlayerCompletionProgressController extends Controller
 {
-    protected PlayerProgressionService $playerProgressionService;
     private int $pageSize = 100;
 
-    public function __construct(PlayerProgressionService $playerProgressionService)
+    public function __construct(protected PlayerProgressionService $playerProgressionService)
     {
-        $this->playerProgressionService = $playerProgressionService;
     }
 
     public function __invoke(Request $request): View
@@ -43,7 +41,7 @@ class PlayerCompletionProgressController extends Controller
 
         $me = Auth::user() ?? null;
         // TODO: Remove when denormalized data is ready.
-        if (!config('feature.aggregate_queries') && !$me) {
+        if (!$me) {
             abort(401);
         }
 
