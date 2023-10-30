@@ -111,8 +111,6 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
             GROUP BY saw.AwardType
         ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
-    ray($query);
-
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
     // Updated way to "squash" duplicate awards to work with the new site award ordering implementation
