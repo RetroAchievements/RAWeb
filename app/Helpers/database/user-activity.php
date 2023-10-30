@@ -275,54 +275,6 @@ function getLatestRichPresenceUpdates(): array
     return $playersFound;
 }
 
-// TODO dead code?
-function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
-{
-    $numFound = 0;
-
-    $query = "SELECT ach.ID, ach.GameID, ach.Title, ach.Description, ach.Points, gd.Title AS GameTitle, gd.ImageIcon as GameIcon, ach.DateCreated, UNIX_TIMESTAMP(ach.DateCreated) AS timestamp, ach.BadgeName, c.Name AS ConsoleName
-              FROM Achievements AS ach
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ach.Flags = 3
-              ORDER BY DateCreated DESC
-              LIMIT 0, $numToFetch ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numFound] = $db_entry;
-            $numFound++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $numFound;
-}
-
-function GetMostPopularTitles(int $daysRange = 7, int $offset = 0, int $count = 10): array
-{
-    $data = [];
-
-    $query = "SELECT COUNT(*) as PlayedCount, gd.ID, gd.Title, gd.ImageIcon, c.Name as ConsoleName
-        FROM Activity AS act
-        LEFT JOIN GameData AS gd ON gd.ID = act.data
-        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        WHERE ( act.timestamp BETWEEN TIMESTAMPADD( DAY, -$daysRange, NOW() ) AND NOW() ) AND ( act.activitytype = 3 ) AND ( act.data > 0 )
-        GROUP BY act.data
-        ORDER BY PlayedCount DESC
-        LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-
-    while ($nextData = mysqli_fetch_assoc($dbResult)) {
-        $data[] = $nextData;
-    }
-
-    return $data;
-}
-
 function getUserGameActivity(string $username, int $gameID): array
 {
     $user = User::firstWhere('User', $username);
