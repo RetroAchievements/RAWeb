@@ -13,4 +13,3 @@ collation-server = utf8mb4_unicode_ci
 
 character-set-client-handshake = FALSE
 init_connect = "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-sql_mode = IGNORE_SPACE,STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
