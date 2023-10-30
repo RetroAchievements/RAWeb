@@ -1,20 +1,11 @@
 <?php
 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
+use App\Community\Services\ActivePlayersService;
 
-$currentlyActive = Cache::remember(
-    'currently-active',
-    Carbon::now()->addMinutes(2),
-    fn () => collect(getLatestRichPresenceUpdates())
-        ->keyBy('User')
-        ->map(function ($user) {
-            $user['InGame'] = true;
+$searchValue = request('search');
+$fetchAll = request('all', false);
 
-            return $user;
-        })
-        ->values()
-        ->toArray()
-);
+$activePlayersService = new ActivePlayersService();
+$loadedActivePlayers = $activePlayersService->loadActivePlayers($searchValue, $fetchAll);
 
-return response()->json($currentlyActive);
+return response()->json($loadedActivePlayers);
