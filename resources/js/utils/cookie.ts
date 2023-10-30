@@ -2,6 +2,10 @@ import Cookies from 'js-cookie';
 
 const DEFAULT_COOKIE_EXPIRY_DAYS = 30;
 
+export const deleteCookie = (cookieName: string) => {
+  Cookies.remove(cookieName);
+};
+
 export const setCookie = (cookieName: string, value: string | null) => {
   if (value === null) {
     return;
