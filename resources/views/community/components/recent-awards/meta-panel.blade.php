@@ -59,7 +59,7 @@ function handleAwardTypeChanged(event) {
  */
 function handleUsersChanged(event) {
     const newValue = event.target.value === 'followed' ? 1 : 0;
-    window.updateUrlParameter('f', newValue);
+    window.updateUrlParameter(['f', 'o'], [newValue, '']);
 }
 </script>
 
