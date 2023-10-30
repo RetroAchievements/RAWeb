@@ -90,7 +90,7 @@ class BeatenGamesLeaderboardController extends Controller
         ]);
     }
 
-    private function buildLeaderboardBaseSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+    private function buildLeaderboardBaseSubquery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
     {
         $subquery = DB::table('SiteAwards as sa')
             ->join('GameData as gd', 'sa.AwardData', '=', 'gd.ID')
@@ -148,7 +148,7 @@ class BeatenGamesLeaderboardController extends Controller
 
     private function buildRankingsSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
     {
-        $subquery = $this->buildLeaderboardBaseSubquery($targetSystemId, $gameKindFilterOptions);
+        $subquery = $this->buildLeaderboardBaseSubquery($gameKindFilterOptions, $targetSystemId);
 
         /** @var string $subqueryTable */
         $subqueryTable = DB::raw("({$subquery->toSql()}) as s");
@@ -172,7 +172,7 @@ class BeatenGamesLeaderboardController extends Controller
 
     private function getLeaderboardRowCount(?int $targetSystemId = null, array $gameKindFilterOptions): int
     {
-        $subquery = $this->buildRankingsSubquery($targetSystemId, $gameKindFilterOptions);
+        $subquery = $this->buildLeaderboardBaseSubquery($gameKindFilterOptions, $targetSystemId);
 
         /** @var string $subqueryTable */
         $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
