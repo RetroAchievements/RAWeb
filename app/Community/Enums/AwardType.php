@@ -64,6 +64,6 @@ abstract class AwardType
 
     public static function isGame(int $type): bool
     {
-        return !in_array($type, static::game());
+        return in_array($type, static::game());
     }
 }

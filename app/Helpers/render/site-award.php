@@ -24,14 +24,13 @@ function SeparateAwards(array $userAwards): array
 
     $eventAwards = array_values(array_filter($eventAwards, fn ($award) => !in_array($award, $devEventAwards)));
 
-    $filterSiteAwards = function ($userAward) use ($devEventAwards) {
+    $siteAwards = array_values(array_filter($userAwards, function ($userAward) use ($devEventAwards) {
         $isNotMasteryOrGameBeaten = !AwardType::isGame((int) $userAward['AwardType']);
         $isActiveAwardType = AwardType::isActive((int) $userAward['AwardType']);
         $isDevEventAward = in_array($userAward, $devEventAwards);
 
         return ($isNotMasteryOrGameBeaten && $isActiveAwardType) || $isDevEventAward;
-    };
-    $siteAwards = array_values(array_filter($userAwards, $filterSiteAwards));
+    }));
 
     return [$gameAwards, $eventAwards, $siteAwards];
 }
