@@ -90,7 +90,6 @@ function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $d
     // update UserAccount
     $user->LastLogin = Carbon::now();
     $user->LastActivityID = $activity->ID;
-    $user->timestamps = false;
     $user->save();
 
     return true;

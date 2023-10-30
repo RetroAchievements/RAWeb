@@ -35,9 +35,9 @@ $canShowGlow = $hasUnlockedAnyAchievements && $hasAnyProgressionAward;
             </div>
         @endif
 
-        <div class="lg:rounded bg-embed border border-embed-highlight p-5 relative">
+        <div class="lg:rounded bg-embed border border-embed-highlight px-5 pt-3.5 pb-5 relative">
             <div class="mb-2">
-                <p class="text-lg">Your Progress</p>
+                <p class="sr-only">Your Progress</p>
 
                 @if (!$hasUnlockedAnyAchievements)
                     <p class="leading-4 mt-2">You haven't unlocked any achievements for this game.</p>
