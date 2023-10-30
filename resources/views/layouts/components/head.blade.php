@@ -41,9 +41,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 
-    {{-- TODO replace with ESM imports, Alpine, tailwind --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
-
     @if(app()->environment('local'))
         <script src="/js/all.js?v={{ random_int(0, mt_getrandmax()) }}"></script>
     @else
