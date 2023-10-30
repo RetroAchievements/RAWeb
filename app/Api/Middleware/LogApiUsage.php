@@ -15,7 +15,6 @@ class LogApiUsage
         /** @var User $user */
         $user = $request->user('api-token');
 
-        $user->timestamps = false;
         $user->increment('APIUses');
 
         return $next($request);

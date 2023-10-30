@@ -117,6 +117,11 @@ class PlayerBadge extends BaseModel
         return null;
     }
 
+    public static function getNextDisplayOrder(User $user): int
+    {
+        return PlayerBadge::where('User', $user->User)->max('DisplayOrder') + 1;
+    }
+
     /**
      * @return BelongsTo<User, PlayerBadge>
      */

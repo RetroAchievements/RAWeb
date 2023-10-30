@@ -102,8 +102,9 @@ function RenderCompletedGamesList(
     $checkedAttribute = $isInitiallyHidingCompletedSets ? 'checked' : '';
     $setsCounts = getCompletedAndIncompletedSetsCounts($userCompletedGamesList);
     if ($setsCounts['completedSetsCount'] > 0 && $setsCounts['incompletedSetsCount'] > 0) {
+        echo "<div class='flex w-full items-center justify-between mb-2'>";
         echo <<<HTML
-            <label class="flex items-center gap-x-1 mb-2">
+            <label class="flex items-center gap-x-1">
                 <input 
                     type="checkbox" 
                     id="hide-user-completed-sets-checkbox" 
@@ -114,6 +115,12 @@ function RenderCompletedGamesList(
                 </input>
             </label>
         HTML;
+
+        if (config('feature.beat')) {
+            echo "<a href='" . route('user.completion-progress', $username) . "'>See more...</a>";
+        }
+
+        echo "</div>";
     }
 
     echo "<div id='usercompletedgamescomponent'>";

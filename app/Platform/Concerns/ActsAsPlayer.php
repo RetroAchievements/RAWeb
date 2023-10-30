@@ -8,7 +8,6 @@ use App\Connect\Controllers\ConnectApiController;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
@@ -56,16 +55,6 @@ trait ActsAsPlayer
     {
         return $this->belongsToMany(Achievement::class, 'player_achievements', 'user_id', 'achievement_id')
             ->using(PlayerAchievement::class);
-    }
-
-    /**
-     * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
-     *
-     * @return HasMany<PlayerAchievementLegacy>
-     */
-    public function playerAchievementsLegacy(): HasMany
-    {
-        return $this->hasMany(PlayerAchievementLegacy::class, 'User', 'User');
     }
 
     /**

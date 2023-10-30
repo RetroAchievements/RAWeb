@@ -28,11 +28,19 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
 
 $displayLabel = $label ?? config('systems')[$consoleId]['name_short'];
 $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
+
+$targetUser = request('user');
+$cellUrls = [
+    'totals' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId]),
+    'unfinished' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'unawarded']),
+    'any-beaten' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'any-beaten']),
+    'any-mastery' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'gte-completed']),
+];
 ?>
 
 <li class="progression-status-row">
     <a
-        href="#"
+        href="{{ $cellUrls['totals'] }}"
         class="border-embed-highlight w-[102px] !min-w-[92px] pl-2 rounded-l hover:border-link-hover"
         @if (!$label) title="{{ $consoleTooltipLabel }}" @endif
     >
@@ -47,6 +55,7 @@ $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 
     <x-user.progression-status.list-item-cell-link
         cellType="unfinished"
+        :href="$cellUrls['unfinished']"
         :widthMode="$widthMode"
         :cellGamesCounts="[$unfinishedCount]"
         :totalGamesCount="$totalGamesCount"
@@ -56,20 +65,21 @@ $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 
     <x-user.progression-status.list-item-cell-link
         cellType="beaten"
+        :href="$cellUrls['any-beaten']"
         :widthMode="$widthMode"
         :cellGamesCounts="[$beatenSoftcoreCount, $beatenHardcoreCount]"
         :totalGamesCount="$totalGamesCount"
     >
         @if ($beatenSoftcoreCount > 0)
-            <div class="tally text-zinc-400 light:text-zinc-600">
-                <div class="dot border border-zinc-400 light:border-zinc-600"></div>
+            <div class="tally text-zinc-400 light:text-zinc-600 group-hover:text-link-hover">
+                <div class="dot border border-zinc-400 light:border-zinc-600 group-hover:border-link-hover"></div>
                 {{ $beatenSoftcoreCount }}
             </div>
         @endif
 
         @if ($beatenHardcoreCount > 0 || !$beatenSoftcoreCount)
-            <div class="tally">
-                <div class="dot bg-zinc-300 light:bg-zinc-500"></div>
+            <div class="tally group-hover:text-link-hover">
+                <div class="dot bg-zinc-300 light:bg-zinc-500 group-hover:bg-link-hover"></div>
                 {{ $beatenHardcoreCount }}
             </div>
         @endif
@@ -77,20 +87,21 @@ $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 
     <x-user.progression-status.list-item-cell-link
         cellType="mastered"
+        :href="$cellUrls['any-mastery']"
         :widthMode="$widthMode"
         :cellGamesCounts="[$completedCount, $masteredCount]"
         :totalGamesCount="$totalGamesCount"
     >
         @if ($completedCount > 0)
-            <div class="tally text-yellow-600">
-                <div class="dot border border-yellow-600"></div>
+            <div class="tally text-yellow-600 group-hover:text-link-hover">
+                <div class="dot border border-yellow-600 group-hover:border-link-hover"></div>
                 {{ $completedCount }}
             </div>
         @endif
 
         @if ($masteredCount > 0 || !$completedCount)
-            <div class="tally">
-                <div class="dot bg-[gold] light:bg-yellow-600"></div>
+            <div class="tally group-hover:text-link-hover">
+                <div class="dot bg-[gold] light:bg-yellow-600 group-hover:bg-link-hover"></div>
                 {{ $masteredCount }}
             </div>
         @endif

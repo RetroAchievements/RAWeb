@@ -8,6 +8,7 @@ use App\Community\Enums\ActivityType;
 use App\Community\Models\UserActivityLegacy;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,7 +61,7 @@ class UserRecentlyPlayedGamesTest extends TestCase
             'timestamp' => Carbon::now()->subDays(1),
             'lastupdate' => Carbon::now()->subDays(1),
             'activitytype' => ActivityType::StartedPlaying,
-            'data' => $game2->ID,
+            'data' => $game->ID,
         ]);
         $activity->save();
         $activity2 = new UserActivityLegacy([
@@ -68,47 +69,56 @@ class UserRecentlyPlayedGamesTest extends TestCase
             'timestamp' => Carbon::now()->subHours(1),
             'lastupdate' => Carbon::now()->subMinutes(5), // active less than 5 minutes ago is Online
             'activitytype' => ActivityType::StartedPlaying,
-            'data' => $game->ID,
+            'data' => $game2->ID,
         ]);
         $activity2->save();
 
         $hardcoreAchievement = $publishedAchievements->get(0);
-        $this->addHardcoreUnlock($user, $hardcoreAchievement);
-        $softcoreAchievement = $publishedAchievements->get(0);
-        $this->addSoftcoreUnlock($user, $softcoreAchievement);
+        $this->addHardcoreUnlock($user, $hardcoreAchievement, $activity->lastupdate);
+        $softcoreAchievement = $publishedAchievements->get(1);
+        $this->addSoftcoreUnlock($user, $softcoreAchievement, $activity->lastupdate);
+
+        // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
+        $playerGame2 = new PlayerGame([
+            'user_id' => $user->ID,
+            'game_id' => $game2->ID,
+            'created_at' => $activity2->timestamp,
+            'last_played_at' => $activity2->lastupdate,
+        ]);
+        $playerGame2->save();
 
         $this->get($this->apiUrl('GetUserRecentlyPlayedGames', ['u' => $user->User]))
             ->assertSuccessful()
             ->assertJson([
-                [
-                    'GameID' => $game->ID,
-                    'Title' => $game->Title,
-                    'ConsoleID' => $system->ID,
-                    'ConsoleName' => $system->Name,
-                    'ImageIcon' => $game->ImageIcon,
-                    'LastPlayed' => $activity2->lastupdate->__toString(),
-                    'NumPossibleAchievements' => 3,
-                    'PossibleScore' => $publishedAchievements->get(0)->Points +
-                                       $publishedAchievements->get(1)->Points +
-                                       $publishedAchievements->get(2)->Points,
-                    'NumAchieved' => 1,
-                    'ScoreAchieved' => $softcoreAchievement->Points,
-                    'NumAchievedHardcore' => 1,
-                    'ScoreAchievedHardcore' => $hardcoreAchievement->Points,
-                ],
                 [
                     'GameID' => $game2->ID,
                     'Title' => $game2->Title,
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
                     'ImageIcon' => $game2->ImageIcon,
-                    'LastPlayed' => $activity->lastupdate->__toString(),
+                    'LastPlayed' => $activity2->lastupdate->__toString(),
                     'NumPossibleAchievements' => 0,
                     'PossibleScore' => 0,
                     'NumAchieved' => 0,
                     'ScoreAchieved' => 0,
                     'NumAchievedHardcore' => 0,
                     'ScoreAchievedHardcore' => 0,
+                ],
+                [
+                    'GameID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $system->ID,
+                    'ConsoleName' => $system->Name,
+                    'ImageIcon' => $game->ImageIcon,
+                    'LastPlayed' => $activity->lastupdate->__toString(),
+                    'NumPossibleAchievements' => 3,
+                    'PossibleScore' => $publishedAchievements->get(0)->Points +
+                                       $publishedAchievements->get(1)->Points +
+                                       $publishedAchievements->get(2)->Points,
+                    'NumAchieved' => 2, // hardcore also unlocks softcore
+                    'ScoreAchieved' => $softcoreAchievement->Points + $hardcoreAchievement->Points,
+                    'NumAchievedHardcore' => 1,
+                    'ScoreAchievedHardcore' => $hardcoreAchievement->Points,
                 ],
             ]);
     }

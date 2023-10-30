@@ -14,8 +14,7 @@ class UpdatePlayerGameMetrics extends Command
 {
     protected $signature = 'ra:platform:player:update-game-metrics
                             {userId : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}
-                            {gameIds? : Comma-separated list of game IDs. Leave empty to update all games in player library}
-                            {--outdated}';
+                            {gameIds? : Comma-separated list of game IDs. Leave empty to update all games in player library}';
     protected $description = 'Update player game(s) metrics';
 
     public function __construct(
@@ -28,7 +27,6 @@ class UpdatePlayerGameMetrics extends Command
     public function handle(): void
     {
         $userId = $this->argument('userId');
-        $outdated = $this->option('outdated');
 
         $gameIds = collect(explode(',', $this->argument('gameIds') ?? ''))
             ->filter()
@@ -45,9 +43,6 @@ class UpdatePlayerGameMetrics extends Command
                 'game_id',
                 Game::whereIn('id', $gameIds)->get()->pluck('id')
             );
-        }
-        if ($outdated) {
-            $query->whereNotNull('update_status');
         }
         $playerGames = $query->get();
 

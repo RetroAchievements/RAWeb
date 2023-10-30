@@ -1,5 +1,8 @@
 <?php
 
+use App\Site\Models\User;
+use Carbon\Carbon;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $userPage = requestInputSanitized('u', $user);
@@ -8,14 +11,15 @@ if (!isset($userPage) || !isValidUsername($userPage)) {
     abort(404);
 }
 
-if (!getAccountDetails($userPage, $userDetails)) {
+$userDetails = User::firstWhere('User', $userPage);
+if (!$userDetails) {
     abort(404);
 }
 
 $listOffset = requestInputSanitized('o', 0, 'integer');
 $sortBy = requestInputSanitized('s', 3, 'integer');
 $maxDays = requestInputSanitized('c', 15, 'integer');
-$userBestDaysList = getUserBestDaysList($userPage, $listOffset, $maxDays, $sortBy);
+$userBestDaysList = getUserBestDaysList($userDetails, $listOffset, $maxDays, $sortBy);
 $date = requestInputSanitized('d', date("Y-m-d"));
 $dateUnix = strtotime("$date");
 
@@ -24,13 +28,13 @@ if ($sortBy == 2 || $sortBy == 12) {
     $sortByGraphName = 'Num Achievements Earned';
 }
 
-$userPageHardcorePoints = $userDetails['RAPoints'];
-$userPageSoftcorePoints = $userDetails['RASoftcorePoints'];
+$userPageHardcorePoints = $userDetails->RAPoints;
+$userPageSoftcorePoints = $userDetails->RASoftcorePoints;
 
 getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
 
 //	the past week
-$userScoreData = getAwardedList($userPage);
+$userScoreData = getAwardedList($userDetails);
 
 RenderContentStart("$userPage's Legacy");
 ?>
@@ -57,12 +61,12 @@ RenderContentStart("$userPage's Legacy");
                 echo ", ";
             }
 
-            $nextDay = (int) $dayInfo['Day'];
-            $nextMonth = (int) $dayInfo['Month'] - 1;
-            $nextYear = (int) $dayInfo['Year'];
-            $nextDate = $dayInfo['Date'];
+            $nextDate = Carbon::parse($dayInfo['Date']);
+            $nextYear = $nextDate->year;
+            $nextMonth = $nextDate->month;
+            $nextDay = $nextDate->day;
+            $dateStr = $nextDate->format('d M Y');
 
-            $dateStr = !empty($nextDate) ? getNiceDate(strtotime($nextDate), true) : '';
             $hardcoreValue = $dayInfo['CumulHardcoreScore'];
             $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
@@ -102,15 +106,7 @@ RenderContentStart("$userPage's Legacy");
                 echo ", ";
             }
 
-            $nextDay = $dayInfo['Day'];
-            $nextMonth = $dayInfo['Month'];
-            $nextYear = $dayInfo['Year'];
-
-            $dateStr = "$nextDay/$nextMonth";
-            if ($nextYear != date('Y')) {
-                $dateStr = "$nextDay/$nextMonth/$nextYear";
-            }
-
+            $dateStr = Carbon::parse($dayInfo['Date'])->format("d M Y");
             $nextNumAwarded = $dayInfo['NumAwarded'];
             $nextTotalPointsEarned = $dayInfo['TotalPointsEarned'];
 
@@ -144,20 +140,8 @@ RenderContentStart("$userPage's Legacy");
     function selectHandlerBestDays(e) {
       if (chartBestDays.getSelection().length >= 1) {
         var dateAbbr = dataBestDays.getFormattedValue(chartBestDays.getSelection()[0].row, 0);
-        var firstSlashAt = dateAbbr.indexOf('/');
-        var secondSlashAt = dateAbbr.lastIndexOf('/');
-
-        var d = new Date;
-
-        var day = dateAbbr.split('/')[0];
-        var month = dateAbbr.split('/')[1];
-
-        if (firstSlashAt != secondSlashAt) {
-          d.setFullYear(dateAbbr.split('/')[2], month - 1, day);
-        } else {
-          d.setFullYear(new Date().getFullYear(), month - 1, day);
-        }
-        window.location = '/historyexamine.php?d=' + parseInt(d.getTime() / 1000) + '&u=' + <?php echo "'$userPage'"; ?>;
+        var dateParsed = Date.parse(dateAbbr) / 1000;
+        window.location = '/historyexamine.php?d=' + dateParsed + '&u=<?= $userPage ?>';
       }
     }
 
@@ -270,14 +254,11 @@ RenderContentStart("$userPage's Legacy");
 
     $dayCount = 0;
     foreach ($userBestDaysList as $dayInfo) {
-        $nextDay = $dayInfo['Day'];
-        $nextMonth = $dayInfo['Month'];
-        $nextYear = $dayInfo['Year'];
         $nextNumAwarded = $dayInfo['NumAwarded'];
         $nextTotalPointsEarned = $dayInfo['TotalPointsEarned'];
-
-        $dateUnix = strtotime("$nextDay-$nextMonth-$nextYear");
-        $dateStr = getNiceDate($dateUnix, true);
+        $date = Carbon::parse($dayInfo['Date']);
+        $dateUnix = $date->unix();
+        $dateStr = $date->format("d M Y");
 
         echo "<tr>";
         echo "<td>$dateStr</td>";

@@ -39,7 +39,7 @@ class AwardAchievementTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 1234, 'ContribYield' => 5678]);
+        $author = User::factory()->create();
         $game = $this->seedGame(withHash: false);
         $gameHash = '0123456789abcdeffedcba9876543210';
         /** @var Achievement $achievement1 */
@@ -75,8 +75,6 @@ class AwardAchievementTest extends TestCase
         $scoreBefore = $this->user->RAPoints;
         $softcoreScoreBefore = $this->user->RASoftcorePoints;
         $truePointsBefore = $this->user->TrueRAPoints;
-        $authorContribCountBefore = $author->ContribCount;
-        $authorContribYieldBefore = $author->ContribYield;
 
         $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
             ->assertExactJson([
@@ -118,11 +116,6 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
 
-        // author contribution should have increased
-        $author1 = User::firstWhere('User', $achievement3->Author);
-        // $this->assertEquals($this->user->points, $author1->ContribYield);
-        // $this->assertEquals($this->user->achievements_unlocked, $author1->ContribCount);
-
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
@@ -145,8 +138,6 @@ class AwardAchievementTest extends TestCase
         $scoreBefore = $user1->RAPoints;
         $softcoreScoreBefore = $user1->RASoftcorePoints;
         $truePointsBefore = $user1->TrueRAPoints;
-        $authorContribCountBefore = $author1->ContribCount;
-        $authorContribYieldBefore = $author1->ContribYield;
 
         $newNow = $now->clone()->addMinutes(5);
         Carbon::setTestNow($newNow);
@@ -168,11 +159,6 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($scoreBefore, $user2->RAPoints);
         $this->assertEquals($softcoreScoreBefore, $user2->RASoftcorePoints);
         $this->assertEquals($truePointsBefore, $user2->TrueRAPoints);
-
-        // author contribution should not have increased
-        $author2 = User::firstWhere('User', $achievement3->Author);
-        // $this->assertEquals($authorContribYieldBefore, $author2->ContribYield);
-        // $this->assertEquals($authorContribCountBefore, $author2->ContribCount);
 
         // make sure the unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement3, UnlockMode::Hardcore);
@@ -239,7 +225,7 @@ class AwardAchievementTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 1234, 'ContribYield' => 5678]);
+        $author = User::factory()->create();
 
         $game = $this->seedGame(withHash: false);
         $gameHash = '0123456789abcdeffedcba9876543210';
@@ -270,8 +256,6 @@ class AwardAchievementTest extends TestCase
         $scoreBefore = $this->user->RAPoints;
         $softcoreScoreBefore = $this->user->RASoftcorePoints;
         $truePointsBefore = $this->user->TrueRAPoints;
-        $authorContribCountBefore = $author->ContribCount;
-        $authorContribYieldBefore = $author->ContribYield;
 
         $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 0, 'm' => $gameHash, 'v' => $validationHash]))
             ->assertExactJson([
@@ -289,11 +273,6 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore + $achievement3->Points, $user1->RASoftcorePoints);
         $this->assertEquals($truePointsBefore, $user1->TrueRAPoints);
 
-        // author contribution should have increased
-        $author1 = $author->refresh();
-        // $this->assertEquals($user1->points + $user1->points_softcore, $author1->ContribYield);
-        // $this->assertEquals($user1->achievements_unlocked, $author1->ContribCount);
-
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
         $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
@@ -303,8 +282,6 @@ class AwardAchievementTest extends TestCase
         // repeat the softcore unlock
         $scoreBefore = $user1->RAPoints;
         $softcoreScoreBefore = $user1->RASoftcorePoints;
-        $authorContribCountBefore = $author1->ContribCount;
-        $authorContribYieldBefore = $author1->ContribYield;
 
         $newNow = $now->clone()->addMinutes(5);
         Carbon::setTestNow($newNow);
@@ -327,11 +304,6 @@ class AwardAchievementTest extends TestCase
         $this->assertEquals($softcoreScoreBefore, $user2->RASoftcorePoints);
         $this->assertEquals($truePointsBefore, $user2->TrueRAPoints);
 
-        // author contribution should not have increased
-        $author2 = User::firstWhere('User', $achievement3->Author);
-        // $this->assertEquals($authorContribYieldBefore, $author2->ContribYield);
-        // $this->assertEquals($authorContribCountBefore, $author2->ContribCount);
-
         // make sure the unlock time didn't change
         $unlockTime = $this->getUnlockTime($user2, $achievement3, UnlockMode::Softcore);
         $this->assertEquals($now, $unlockTime);
@@ -341,8 +313,6 @@ class AwardAchievementTest extends TestCase
         $validationHash = $this->buildValidationHash($achievement3, $this->user, 1);
         $scoreBefore = $user1->RAPoints;
         $softcoreScoreBefore = $user1->RASoftcorePoints;
-        $authorContribCountBefore = $author1->ContribCount;
-        $authorContribYieldBefore = $author1->ContribYield;
 
         $this->get($this->apiUrl('awardachievement', ['a' => $achievement3->ID, 'h' => 1, 'm' => $gameHash, 'v' => $validationHash]))
             ->assertExactJson([
@@ -358,11 +328,6 @@ class AwardAchievementTest extends TestCase
         $user2 = $this->user;
         $this->assertEquals($scoreBefore + $achievement3->Points, $user2->RAPoints);
         $this->assertEquals($softcoreScoreBefore - $achievement3->Points, $user2->RASoftcorePoints);
-
-        // author contribution should not have increased
-        $author2 = User::firstWhere('User', $achievement3->Author);
-        // $this->assertEquals($authorContribYieldBefore, $author2->ContribYield);
-        // $this->assertEquals($authorContribCountBefore, $author2->ContribCount);
 
         // make sure the unlock cache was updated
         $unlocks = getUserAchievementUnlocksForGame($this->user->User, $game->ID);
@@ -438,7 +403,7 @@ class AwardAchievementTest extends TestCase
         Carbon::setTestNow($now);
 
         /** @var User $author */
-        $author = User::factory()->create(['ContribCount' => 1234, 'ContribYield' => 5678]);
+        $author = User::factory()->create();
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
