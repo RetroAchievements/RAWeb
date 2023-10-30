@@ -97,7 +97,7 @@ function RenderCompletedGamesList(
     HTML;
 
     if (config('feature.beat')) {
-        echo "<a href='" . route('user.completion-progress', $username) . "'>See more...</a>";
+        echo "<a href='" . route('user.completion-progress', $username) . "'>more...</a>";
     }
     echo "</div>";
 
