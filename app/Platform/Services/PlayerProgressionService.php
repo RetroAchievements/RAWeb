@@ -89,7 +89,13 @@ class PlayerProgressionService
         // [B] Iterate once while appending the entities with constant time O(1).
         $filteredAndJoined = [];
         foreach ($gamesList as &$game) {
-            if ($game['ConsoleID'] != 101 && isValidConsoleId($game['ConsoleID'])) {
+            $canUseGame = (
+                isValidConsoleId($game['ConsoleID'])
+                && $game['ConsoleID'] != 101
+                && $game['NumAwarded'] != 0
+            );
+
+            if ($canUseGame) {
                 if (isset($awardsLookup[$game['GameID']])) {
                     $game['HighestAwardKind'] = $awardsLookup[$game['GameID']];
                     $game['HighestAwardDate'] = $awardsDateLookup[$game['GameID']];
