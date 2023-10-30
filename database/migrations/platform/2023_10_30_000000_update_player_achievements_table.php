@@ -12,7 +12,7 @@ return new class() extends Migration {
         Schema::table('player_achievements', function (Blueprint $table) {
             $table->index(
                 ['user_id', 'unlocked_at', 'unlocked_hardcore_at', 'achievement_id'],
-                'idx_user_date_achievement'
+                'player_achievements_user_date_achievement'
             );
         });
     }
@@ -20,7 +20,7 @@ return new class() extends Migration {
     public function down(): void
     {
         Schema::table('player_achievements', function (Blueprint $table) {
-            $table->dropIndex('idx_user_date_achievement');
+            $table->dropIndex('player_achievements_user_date_achievement');
         });
     }
 };
