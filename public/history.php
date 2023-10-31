@@ -222,7 +222,6 @@ RenderContentStart("$userPage's Legacy");
 
     echo "Member since: " . getNiceDate(strtotime($userDetails->Created)) . "<br>";
     echo "<br>";
-
     echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
     echo "<label for='d' class='font-bold'>Jump to Date: </label>";
     echo "<input type='date' id='dateinput' value='" . strftime("%Y-%m-%d", $dateUnix) . "' />";
