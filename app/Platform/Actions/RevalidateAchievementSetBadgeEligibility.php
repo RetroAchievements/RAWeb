@@ -119,8 +119,6 @@ class RevalidateAchievementSetBadgeEligibility
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game);
-
-            // TODO WriteUserActivity
         }
 
         if ($playerGame->completed_hardcore_at !== null && !$hardcoreBadge->exists()) {
@@ -135,8 +133,6 @@ class RevalidateAchievementSetBadgeEligibility
             );
             PlayerBadgeAwarded::dispatch($badge);
             PlayerGameCompleted::dispatch($playerGame->user, $playerGame->game, true);
-
-            // TODO WriteUserActivity
 
             if ($playerGame->completed_hardcore_at->gte(Carbon::now()->subMinutes(10))) {
                 static_addnewhardcoremastery($playerGame->game->id, $playerGame->user->username);
