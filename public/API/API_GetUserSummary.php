@@ -104,11 +104,10 @@ if (empty($retVal)) {
 $retVal['UserPic'] = "/UserPic/" . $user . ".png";
 $retVal['TotalRanked'] = countRankedUsers();
 
-// TODO replace this
 // assume caller doesn't care about the rich presence script for the last game played
 if (array_key_exists('LastGame', $retVal)) {
-   unset($retVal['LastGame']['RichPresencePatch']);
-   unset($retVal['LastGame']['system']);
+    unset($retVal['LastGame']['RichPresencePatch']);
+    unset($retVal['LastGame']['system']);
 }
 
 $retVal['LastActivity'] = [
@@ -116,6 +115,6 @@ $retVal['LastActivity'] = [
 ];
 unset($retVal['LastActivityID']);
 
-$retVal['Status'] = 'Online';
+$retVal['Status'] = 'Offline';
 
 return response()->json($retVal);
