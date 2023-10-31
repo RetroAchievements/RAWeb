@@ -41,7 +41,7 @@ trait HeartbeatRequests
         $activityType = $request->input('a');
         $messagePayload = $request->input('m');
 
-        // Behave like ping, ignore the rest, 3 is legacy "started playing"
+        // Behave like ping, ignore the rest
         if ($activityType === ActivityType::StartedPlaying) {
             PlayerSessionHeartbeat::dispatch($request->user('connect-token'), Game::find($messagePayload));
         }
