@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\Rank;
 use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Models\Achievement;
@@ -122,6 +121,8 @@ class UserSummaryTest extends TestCase
         $unlockTime = Carbon::now()->subDays(5);
         $this->addHardcoreUnlock($user, $earnedAchievement, $unlockTime);
 
+        $playerGame = $user->playerGame($game);
+
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
             'user_id' => $user->ID,
@@ -139,8 +140,6 @@ class UserSummaryTest extends TestCase
         // make sure $this->user is ranked higher than $user
         $this->user->RAPoints = 1_234_567;
         $this->user->save();
-
-        $now = Carbon::now();
 
         $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User]))
             ->assertSuccessful()
@@ -186,7 +185,7 @@ class UserSummaryTest extends TestCase
                         'ConsoleID' => $system->ID,
                         'ConsoleName' => $system->Name,
                         'ImageIcon' => $game2->ImageIcon,
-                        'LastPlayed' => $now,
+                        'LastPlayed' => $playerGame2->last_played_at->__toString(),
                     ],
                     [
                         'GameID' => $game->ID,
@@ -194,19 +193,19 @@ class UserSummaryTest extends TestCase
                         'ConsoleID' => $system->ID,
                         'ConsoleName' => $system->Name,
                         'ImageIcon' => $game->ImageIcon,
-                        'LastPlayed' => $now,
+                        'LastPlayed' => $playerGame->last_played_at->__toString(),
                     ],
                 ],
                 'LastActivity' => [
                     'ID' => 0,
-                    'timestamp' => $now,
-                    'lastupdate' => $now,
-                    'activitytype' => (string) ActivityType::StartedPlaying,
+                    'timestamp' => null,
+                    'lastupdate' => null,
+                    'activitytype' => null,
                     'User' => $user->User,
-                    'data' => $game2->ID,
+                    'data' => null,
                     'data2' => null,
                 ],
-                'Status' => 'Online',
+                'Status' => 'Offline',
                 'Awarded' => [
                     $game->ID => [
                         'NumPossibleAchievements' => 3,
@@ -239,7 +238,7 @@ class UserSummaryTest extends TestCase
                             'GameTitle' => $game->Title,
                             'IsAwarded' => '1',
                             'DateAwarded' => $unlockTime->__toString(),
-                            'HardcoreAchieved' => '1',
+                            'HardcoreAchieved' => 1,
                         ],
                     ],
                 ],
@@ -290,19 +289,19 @@ class UserSummaryTest extends TestCase
                         'ConsoleID' => $system->ID,
                         'ConsoleName' => $system->Name,
                         'ImageIcon' => $game2->ImageIcon,
-                        'LastPlayed' => $now,
+                        'LastPlayed' => $playerGame2->last_played_at->__toString(),
                     ],
                 ],
                 'LastActivity' => [
                     'ID' => 0,
-                    'timestamp' => $now,
-                    'lastupdate' => $now,
-                    'activitytype' => '3',
+                    'timestamp' => null,
+                    'lastupdate' => null,
+                    'activitytype' => null,
                     'User' => $user->User,
-                    'data' => $game2->ID,
+                    'data' => null,
                     'data2' => null,
                 ],
-                'Status' => 'Online',
+                'Status' => 'Offline',
                 'Awarded' => [
                     $game->ID => [
                         'NumPossibleAchievements' => 3,
@@ -327,7 +326,7 @@ class UserSummaryTest extends TestCase
                             'GameTitle' => $game->Title,
                             'IsAwarded' => '1',
                             'DateAwarded' => $unlockTime->__toString(),
-                            'HardcoreAchieved' => '1',
+                            'HardcoreAchieved' => 1,
                         ],
                     ],
                 ],

@@ -45,14 +45,14 @@
  *   string     ImageIcon              site-relative path to te game's icon
  *   datetime   LastPlayed             when the user last played the game
  *  object     LastActivity
- *   int        ID                     always 0
+ *   int        ID                     unique identifier of the activity (always 0)
  *   datetime   timestamp              when the activity occurred
  *   datetime   lastupdate             when the activity was last modified
- *   int        activitytype           always 3 "Started Playing"
+ *   int        activitytype           the type of activity
  *   string     User                   the user associated to the activity
  *   string     data                   additional information about the activity
  *   string     data2                  additional information about the activity
- *  string     Status                  Always "Offline"
+ *  string     Status                  "Offline" if the last activity is more than 10 minute ago, otherwise "Online"
  *  map        Awarded
  *   string     [key]                  unique identifier of the game
  *    int        NumAchieved           count of Core achievements unlocked by the user
@@ -111,7 +111,13 @@ if (array_key_exists('LastGame', $retVal)) {
 }
 
 $retVal['LastActivity'] = [
-
+    'ID' => 0,
+    'timestamp' => null,
+    'lastupdate' => null,
+    'activitytype' => null,
+    'User' => $user,
+    'data' => null,
+    'data2' => null,
 ];
 unset($retVal['LastActivityID']);
 
