@@ -49,12 +49,6 @@ class LoginTest extends TestCase
         $user1 = User::firstWhere('User', $user->User);
         $this->assertEquals(Carbon::now()->clone()->addDays(14)->startOfSecond(), $user1->appTokenExpiry);
 
-        // TODO replace or remove this
-//        /** @var UserActivityLegacy $activity */
-//        $activity = UserActivityLegacy::latest()->first();
-//        $this->assertEquals(ActivityType::Login, $activity->activitytype);
-//        $this->assertEquals($user->User, $activity->User);
-
         // === with token ===
 
         $this->get($this->apiUrl('login', ['u' => $user->User, 't' => $user->appToken], credentials: false))
