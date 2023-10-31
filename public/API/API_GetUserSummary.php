@@ -45,7 +45,7 @@
  *   string     ImageIcon              site-relative path to te game's icon
  *   datetime   LastPlayed             when the user last played the game
  *  object     LastActivity
- *   int        ID                     unique identifier of the activity (always 0)
+ *   int        ID                     unique identifier of the activity
  *   datetime   timestamp              when the activity occurred
  *   datetime   lastupdate             when the activity was last modified
  *   int        activitytype           the type of activity
