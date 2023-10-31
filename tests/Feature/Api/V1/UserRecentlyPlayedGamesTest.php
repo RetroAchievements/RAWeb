@@ -55,19 +55,19 @@ class UserRecentlyPlayedGamesTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
 
-        $now = Carbon::now();
-
         $hardcoreAchievement = $publishedAchievements->get(0);
-        $this->addHardcoreUnlock($user, $hardcoreAchievement, $now);
+        $this->addHardcoreUnlock($user, $hardcoreAchievement, Carbon::now()->subDays(1));
         $softcoreAchievement = $publishedAchievements->get(1);
-        $this->addSoftcoreUnlock($user, $softcoreAchievement, $now);
+        $this->addSoftcoreUnlock($user, $softcoreAchievement, Carbon::now()->subDays(1));
+
+        $playerGame = $user->playerGame($game);
 
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
             'user_id' => $user->ID,
             'game_id' => $game2->ID,
-            'created_at' => $now,
-            'last_played_at' => $now,
+            'created_at' => Carbon::now()->subHours(1),
+            'last_played_at' => Carbon::now()->subMinutes(5),
         ]);
         $playerGame2->save();
 
@@ -80,7 +80,7 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
                     'ImageIcon' => $game2->ImageIcon,
-                    'LastPlayed' => $now,
+                    'LastPlayed' => $playerGame2->last_played_at->__toString(),
                     'NumPossibleAchievements' => 0,
                     'PossibleScore' => 0,
                     'NumAchieved' => 0,
@@ -94,7 +94,7 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
                     'ImageIcon' => $game->ImageIcon,
-                    'LastPlayed' => $now,
+                    'LastPlayed' => $playerGame->last_played_at->__toString(),
                     'NumPossibleAchievements' => 3,
                     'PossibleScore' => $publishedAchievements->get(0)->Points +
                                        $publishedAchievements->get(1)->Points +
