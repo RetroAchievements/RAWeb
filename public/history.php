@@ -220,10 +220,8 @@ RenderContentStart("$userPage's Legacy");
     }
     echo "</b><br>";
 
-    // TODO replace this with created date
-//    $memberSince = !empty($userSignedUp) ? getNiceDate(strtotime($userSignedUp), true) : '';
-//    echo "Member since: " . $memberSince . "<br>";
-//    echo "<br>";
+    echo "Member since: " . getNiceDate(strtotime($userDetails->Created)) . "<br>";
+    echo "<br>";
 
     echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
     echo "<label for='d' class='font-bold'>Jump to Date: </label>";
