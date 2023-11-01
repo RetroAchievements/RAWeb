@@ -70,27 +70,6 @@ function validateUsername(string $userIn): ?string
     return ($user !== null) ? $user->User : null;
 }
 
-// TODO replace with created and lastLogin timestamps on user
-function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$lastLogin): bool
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT MIN(act.timestamp) AS FirstLogin, MAX(act.timestamp) AS LastLogin
-              FROM Activity AS act
-              WHERE act.User = '$user' AND act.activitytype=2";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $firstLogin = $data['FirstLogin'];
-        $lastLogin = $data['LastLogin'];
-
-        return !empty($firstLogin) || !empty($lastLogin);
-    }
-
-    return false;
-}
-
 function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
 {
     $user = User::firstWhere('User', $username);

@@ -50,7 +50,7 @@ class PostActivityTest extends TestCase
         $this->assertEquals("Playing " . $game->Title, $user1->RichPresenceMsg);
 
         // disallow anything other than StartedPlaying messages
-        $this->get($this->apiUrl('postactivity', ['a' => ActivityType::CompleteGame, 'm' => $game->ID]))
+        $this->get($this->apiUrl('postactivity', ['a' => ActivityType::StartedPlaying + 1, 'm' => $game->ID]))
             ->assertExactJson([
                 "Success" => false,
                 "Error" => "You do not have permission to do that.",

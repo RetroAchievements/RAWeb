@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Support\Carbon;
@@ -79,8 +78,6 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
     // update appTokenExpiry
     $user->appTokenExpiry = Carbon::now()->clone()->addDays(14);
     $user->save();
-
-    postActivity($user, ActivityType::Login);
 
     return [
         'Success' => true,

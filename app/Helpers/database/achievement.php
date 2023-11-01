@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
@@ -236,7 +235,6 @@ function UploadNewAchievement(
 
         $achievement->save();
         $idInOut = $achievement->ID;
-        postActivity($author, ActivityType::UploadAchievement, $idInOut);
 
         static_addnewachievement($idInOut);
         addArticleComment(
@@ -322,8 +320,6 @@ function UploadNewAchievement(
 
             static_setlastupdatedgame($gameID);
             static_setlastupdatedachievement($idInOut);
-
-            postActivity($author, ActivityType::EditAchievement, $idInOut);
 
             if ($changingAchSet) {
                 if ($flag === AchievementFlag::OfficialCore) {
