@@ -67,7 +67,9 @@ function activePlayersComponent() {
             hours = hours % 12;
 
             // 12-hour format should treat 0 as 12.
-            hours = hours ?? 12;
+            if (hours === 0) {
+                hours = 12;
+            }
 
             // Pad the minutes with a 0 if necessary.
             const minutesLabel = minutes < 10 ? `0${minutes}` : minutes;
