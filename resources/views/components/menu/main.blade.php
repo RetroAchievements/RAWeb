@@ -103,7 +103,7 @@ $menuSystemsList = [
                         $iconName = Str::kebab($cleanSystemShortName);
                         ?>
                         <x-dropdown-item :link="url('gameList.php?c=' . $listId)">
-                            <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" width="16" height="16" alt='{{ $systemName }}'>
+                            <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" loading="lazy" width="16" height="16" alt='{{ $systemName }}'>
                             <span>{{ $systemName }}</span>
                         </x-dropdown-item>
                     @endforeach

@@ -154,7 +154,7 @@ if ($isFullyFeaturedGame) {
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
-    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
+    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user, retrieveHidden: false);
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
