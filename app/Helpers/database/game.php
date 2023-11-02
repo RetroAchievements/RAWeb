@@ -347,7 +347,7 @@ function getGamesListByDev(
             if ($sortBy < 10) {
                 $orderBy .= ", IF(gd.Title LIKE '~%',1,0), gd.Title";
             } else {
-                $orderBy .= ", IF(gd.Title LIKE '~%',1,0), gd.Title";
+                $orderBy .= ", IF(gd.Title LIKE '~%',0,1), gd.Title DESC";
             }
         }
         if ($consoleID == 0) {
