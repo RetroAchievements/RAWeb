@@ -164,7 +164,7 @@ class BeatenGamesLeaderboardController extends Controller
                 'Title as GameTitle',
                 'ImageIcon as GameIcon',
                 'ConsoleName',
-                'AwardDate as last_beaten_date',
+                DB::raw('MAX(AwardDate) as last_beaten_date'),
             )
             ->orderBy('rank_number')
             ->groupBy('User');
@@ -215,6 +215,7 @@ class BeatenGamesLeaderboardController extends Controller
 
         $result = applyFoundRows(DB::table($subqueryTable)->mergeBindings($subquery))
             ->orderBy('rank_number')
+            ->orderBy('last_beaten_date')
             ->offset($currentOffset)
             ->limit($this->pageSize)
             ->get();
