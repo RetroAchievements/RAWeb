@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Community\Enums\ActivityType;
-use App\Community\Models\UserActivityLegacy;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
@@ -56,34 +54,20 @@ class UserRecentlyPlayedGamesTest extends TestCase
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var User $user */
         $user = User::factory()->create();
-        $activity = new UserActivityLegacy([
-            'User' => $user->User,
-            'timestamp' => Carbon::now()->subDays(1),
-            'lastupdate' => Carbon::now()->subDays(1),
-            'activitytype' => ActivityType::StartedPlaying,
-            'data' => $game->ID,
-        ]);
-        $activity->save();
-        $activity2 = new UserActivityLegacy([
-            'User' => $user->User,
-            'timestamp' => Carbon::now()->subHours(1),
-            'lastupdate' => Carbon::now()->subMinutes(5), // active less than 5 minutes ago is Online
-            'activitytype' => ActivityType::StartedPlaying,
-            'data' => $game2->ID,
-        ]);
-        $activity2->save();
 
         $hardcoreAchievement = $publishedAchievements->get(0);
-        $this->addHardcoreUnlock($user, $hardcoreAchievement, $activity->lastupdate);
+        $this->addHardcoreUnlock($user, $hardcoreAchievement, Carbon::now()->subDays(1));
         $softcoreAchievement = $publishedAchievements->get(1);
-        $this->addSoftcoreUnlock($user, $softcoreAchievement, $activity->lastupdate);
+        $this->addSoftcoreUnlock($user, $softcoreAchievement, Carbon::now()->subDays(1));
+
+        $playerGame = $user->playerGame($game);
 
         // addHardcoreUnlock will create a player_game for game. need to manually create one for game2
         $playerGame2 = new PlayerGame([
             'user_id' => $user->ID,
             'game_id' => $game2->ID,
-            'created_at' => $activity2->timestamp,
-            'last_played_at' => $activity2->lastupdate,
+            'created_at' => Carbon::now()->subHours(1),
+            'last_played_at' => Carbon::now()->subMinutes(5),
         ]);
         $playerGame2->save();
 
@@ -96,7 +80,7 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
                     'ImageIcon' => $game2->ImageIcon,
-                    'LastPlayed' => $activity2->lastupdate->__toString(),
+                    'LastPlayed' => $playerGame2->last_played_at->__toString(),
                     'NumPossibleAchievements' => 0,
                     'PossibleScore' => 0,
                     'NumAchieved' => 0,
@@ -110,7 +94,7 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
                     'ImageIcon' => $game->ImageIcon,
-                    'LastPlayed' => $activity->lastupdate->__toString(),
+                    'LastPlayed' => $playerGame->last_played_at->__toString(),
                     'NumPossibleAchievements' => 3,
                     'PossibleScore' => $publishedAchievements->get(0)->Points +
                                        $publishedAchievements->get(1)->Points +

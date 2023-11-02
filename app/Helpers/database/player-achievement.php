@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
@@ -78,8 +77,6 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
                 $playerGame->save();
             }
         }
-
-        postActivity($user, ActivityType::UnlockedAchievement, $achievement->ID, (int) $isHardcore);
     }
 
     if ($playerGame) {

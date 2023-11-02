@@ -20,7 +20,7 @@ function avatar(
     }
 
     if ($iconUrl) {
-        $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='$iconUrl' alt='$escapedName' class='$iconClass'>";
+        $iconLabel = "<img loading='lazy' decoding='async' width='$iconSize' height='$iconSize' src='$iconUrl' alt='$escapedName' class='$iconClass'>";
 
         $label = $iconLabel . ' ' . $label;
     }

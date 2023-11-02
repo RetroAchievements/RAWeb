@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Models;
 
-use App\Community\Enums\ActivityType;
+use App\Community\Enums\UserActivityType;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Site\Models\User;
@@ -38,11 +38,11 @@ class UserActivity extends BaseModel
     public function isAchievementActivity(): bool
     {
         return in_array($this->type, [
-            ActivityType::UnlockedAchievement,
-            ActivityType::UploadAchievement,
-            ActivityType::EditAchievement,
-            ActivityType::OpenedTicket,
-            ActivityType::ClosedTicket,
+            UserActivityType::UnlockedAchievement,
+            UserActivityType::UploadAchievement,
+            UserActivityType::EditAchievement,
+            UserActivityType::OpenedTicket,
+            UserActivityType::ClosedTicket,
         ]);
     }
 
@@ -52,10 +52,10 @@ class UserActivity extends BaseModel
     public function isGameActivity(): bool
     {
         return in_array($this->type, [
-            ActivityType::StartedPlaying,
-            ActivityType::CompleteGame,
-            ActivityType::NewLeaderboardEntry,
-            ActivityType::ImprovedLeaderboardEntry,
+            UserActivityType::StartedPlaying,
+            UserActivityType::CompleteAchievementSet,
+            UserActivityType::NewLeaderboardEntry,
+            UserActivityType::ImprovedLeaderboardEntry,
         ]);
     }
 
@@ -63,16 +63,16 @@ class UserActivity extends BaseModel
     {
         $icon = null;
         switch ($this->activitytype) {
-            case ActivityType::UnlockedAchievement:
+            case UserActivityType::UnlockedAchievement:
                 /*
                  * TODO
                  * $this->achievement->badge
                  */
                 break;
-            case ActivityType::Login:
+            case UserActivityType::Login:
                 $icon = 'assets/images/activity/login.webp';
                 break;
-            case ActivityType::StartedPlaying:
+            case UserActivityType::StartedPlaying:
                 $icon = 'assets/images/activity/playing.webp';
                 break;
         }

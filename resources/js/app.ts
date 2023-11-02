@@ -12,6 +12,7 @@ import {
 import {
   autoExpandTextInput,
   copyToClipboard,
+  deleteCookie,
   fetcher,
   getCookie,
   getStringByteCount,
@@ -37,6 +38,7 @@ lazyLoadModuleOnIdFound({
 // Global Utils
 window.autoExpandTextInput = autoExpandTextInput;
 window.copyToClipboard = copyToClipboard;
+window.deleteCookie = deleteCookie;
 window.fetcher = fetcher;
 window.getCookie = getCookie;
 window.getStringByteCount = getStringByteCount;

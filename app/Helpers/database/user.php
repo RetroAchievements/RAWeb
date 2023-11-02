@@ -70,27 +70,6 @@ function validateUsername(string $userIn): ?string
     return ($user !== null) ? $user->User : null;
 }
 
-// TODO replace with created and lastLogin timestamps on user
-function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$lastLogin): bool
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT MIN(act.timestamp) AS FirstLogin, MAX(act.timestamp) AS LastLogin
-              FROM Activity AS act
-              WHERE act.User = '$user' AND act.activitytype=2";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $firstLogin = $data['FirstLogin'];
-        $lastLogin = $data['LastLogin'];
-
-        return !empty($firstLogin) || !empty($lastLogin);
-    }
-
-    return false;
-}
-
 function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
 {
     $user = User::firstWhere('User', $username);
@@ -300,7 +279,7 @@ function getMostAwardedUsers(array $gameIDs): array
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1', 1, 0)) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE sa.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
+              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN (" . implode(",", $gameIDs) . ")
               AND Untracked = 0
               GROUP BY User
@@ -335,7 +314,7 @@ function getMostAwardedGames(array $gameIDs): array
               LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE sa.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
+              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN(" . implode(",", $gameIDs) . ")
               GROUP BY sa.AwardData, gd.Title
               ORDER BY Title";

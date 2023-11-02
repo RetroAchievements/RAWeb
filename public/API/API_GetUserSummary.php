@@ -110,18 +110,17 @@ if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['system']);
 }
 
-// Find out if we're online or offline
-if (array_key_exists('LastActivityID', $retVal)) {
-    $retVal['LastActivity'] = getActivityMetadata((int) ($retVal['LastActivityID'] ?? 0));
-    unset($retVal['LastActivityID']);
-}
+$retVal['LastActivity'] = [
+    'ID' => 0,
+    'timestamp' => null,
+    'lastupdate' => null,
+    'activitytype' => null,
+    'User' => $user,
+    'data' => null,
+    'data2' => null,
+];
+unset($retVal['LastActivityID']);
 
-$status = 'Offline';
-if ($retVal['LastActivity']) {
-    $lastUpdate = (int) date("U", strtotime($retVal['LastActivity']['lastupdate']));
-    $now = (int) date("U");
-    $status = ($lastUpdate + 600) > $now ? 'Online' : 'Offline';
-}
-$retVal['Status'] = $status;
+$retVal['Status'] = 'Offline';
 
 return response()->json($retVal);

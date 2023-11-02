@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -64,11 +63,9 @@ function SubmitLeaderboardEntry(
             } elseif ($numRowsAffected == 1) {
                 // (New) Entry added!
                 $retVal['BestScore'] = $newEntry;
-                postActivity($user, ActivityType::NewLeaderboardEntry, $lbID, $newEntry);
             } else { // if ( $numRowsAffected == 2 )
                 // Improved Entry added!
                 $retVal['BestScore'] = $newEntry;
-                postActivity($user, ActivityType::ImprovedLeaderboardEntry, $lbID, $newEntry);
             }
 
             // If you fall through to here, populate $dataOut with some juicy info :)
@@ -196,9 +193,14 @@ function getLeaderboardRanking(string $user, int $lbID, ?int &$rankOut = 0, ?int
     return false;
 }
 
-function getLeaderboardsForGame(int $gameID, ?array &$dataOut, ?string $localUser): int
+function getLeaderboardsForGame(int $gameID, ?array &$dataOut, ?string $localUser, bool $retrieveHidden = true): int
 {
     sanitize_sql_inputs($localUser);
+
+    $retrieveHiddenClause = '';
+    if (!$retrieveHidden) {
+        $retrieveHiddenClause = "AND lbd.DisplayOrder != -1";
+    }
 
     $query = "SELECT lbd.ID AS LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder,
                      le2.UserID, ua.User, le2.DateSubmitted, BestEntries.Score
@@ -209,12 +211,12 @@ function getLeaderboardsForGame(int $gameID, ?array &$dataOut, ?string $localUse
                   FROM LeaderboardDef AS lbd
                   LEFT JOIN LeaderboardEntry AS le2 ON lbd.ID = le2.LeaderboardID
                   LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
-                  WHERE ua.Untracked = 0 AND lbd.GameID = $gameID
+                  WHERE ua.Untracked = 0 AND lbd.GameID = $gameID $retrieveHiddenClause
                   GROUP BY lbd.ID
               ) AS BestEntries ON BestEntries.LeaderboardID = lbd.ID
               LEFT JOIN LeaderboardEntry AS le2 ON le2.LeaderboardID = lbd.ID AND le2.Score = BestEntries.Score
               LEFT JOIN UserAccounts ua ON le2.UserID = ua.ID
-              WHERE lbd.GameID = $gameID AND (ua.User IS NULL OR ua.Untracked = 0)
+              WHERE lbd.GameID = $gameID AND (ua.User IS NULL OR ua.Untracked = 0) $retrieveHiddenClause
               ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC";
 
     $dataOut = [];

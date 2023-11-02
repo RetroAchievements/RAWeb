@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Community\Enums\ActivityType;
+use App\Community\Enums\UserActivityType;
 use App\Community\Models\UserActivity;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,7 +24,7 @@ class UserActivityFactory extends Factory
     public function definition(): array
     {
         return [
-            'type' => ActivityType::Login,
+            'type' => UserActivityType::Login,
             'user_id' => 1,
         ];
     }

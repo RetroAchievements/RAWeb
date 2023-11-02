@@ -31,8 +31,6 @@ if ($sortBy == 2 || $sortBy == 12) {
 $userPageHardcorePoints = $userDetails->RAPoints;
 $userPageSoftcorePoints = $userDetails->RASoftcorePoints;
 
-getUserActivityRange($userPage, $userSignedUp, $userLastLogin);
-
 //	the past week
 $userScoreData = getAwardedList($userDetails);
 
@@ -222,8 +220,7 @@ RenderContentStart("$userPage's Legacy");
     }
     echo "</b><br>";
 
-    $memberSince = !empty($userSignedUp) ? getNiceDate(strtotime($userSignedUp), true) : '';
-    echo "Member since: " . $memberSince . "<br>";
+    echo "Member since: " . getNiceDate(strtotime($userDetails->Created)) . "<br>";
     echo "<br>";
     echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
     echo "<label for='d' class='font-bold'>Jump to Date: </label>";

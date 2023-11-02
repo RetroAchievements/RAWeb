@@ -230,13 +230,6 @@ function informAllSubscribersAboutActivity(
         case ArticleType::News:  // News
             break;
 
-        case ArticleType::Activity:  // Activity (feed)
-            $activityData = getActivityMetadata($articleID);
-            $subscribers = getSubscribersOfFeedActivity($articleID, $activityData['User']);
-            $subjectAuthor = $activityData['User'];
-            $articleTitle = $activityData['User'];
-            break;
-
         case ArticleType::Leaderboard:  // Leaderboard
             // cannot currently subscribe to leaderboard
             $urlTarget = "leaderboardinfo.php?i=$articleID";
