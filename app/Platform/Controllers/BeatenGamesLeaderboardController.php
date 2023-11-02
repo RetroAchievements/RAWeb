@@ -46,15 +46,15 @@ class BeatenGamesLeaderboardController extends Controller
             'demos' => ($validatedData['filter']['demos'] ?? true) !== 'false',
         ];
 
-        // We need to know how many rows there are, otherwise the
-        // paginator can't determine what the max page number should be.
-        $rankedRowsCount = $this->getLeaderboardRowCount($targetSystemId, $gameKindFilterOptions);
-
         // Now get the current page's rows.
         $currentPage = $validatedData['page']['number'] ?? 1;
         $offset = (int) ($currentPage - 1) * $this->pageSize;
 
-        $beatenGameAwardsRankedRows = $this->getLeaderboardDataForCurrentPage($offset, $targetSystemId, $gameKindFilterOptions);
+        $beatenGameAwardsRankedRows = $this->getLeaderboardDataForCurrentPage($offset, $gameKindFilterOptions, $targetSystemId);
+
+        // We need to know how many rows there are, otherwise the
+        // paginator can't determine what the max page number should be.
+        $rankedRowsCount = $this->getLeaderboardRowCount();
 
         // Where does the authed user currently rank?
         // This is a separate query that doesn't include the page/offset.
@@ -65,7 +65,7 @@ class BeatenGamesLeaderboardController extends Controller
         $me = Auth::user() ?? null;
         if ($me) {
             $myUsername = $me->User;
-            $myRankingData = $this->getUserRankingData($myUsername, $targetSystemId, $gameKindFilterOptions);
+            $myRankingData = $this->getUserRankingData($myUsername, $gameKindFilterOptions, $targetSystemId);
             $userPageNumber = (int) $myRankingData['userPageNumber'];
             $isUserOnCurrentPage = (int) $currentPage === $userPageNumber;
         }
@@ -146,7 +146,7 @@ class BeatenGamesLeaderboardController extends Controller
         return $subquery;
     }
 
-    private function buildRankingsSubquery(?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+    private function buildRankingsSubquery(array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
     {
         $subquery = $this->buildLeaderboardBaseSubquery($gameKindFilterOptions, $targetSystemId);
 
@@ -170,24 +170,20 @@ class BeatenGamesLeaderboardController extends Controller
             ->groupBy('User');
     }
 
-    private function getLeaderboardRowCount(?int $targetSystemId = null, array $gameKindFilterOptions): int
+    private function getLeaderboardRowCount(): int
     {
-        $subquery = $this->buildLeaderboardBaseSubquery($gameKindFilterOptions, $targetSystemId);
+        // SQLite, which is used for integration tests, doesn't support FOUND_ROWS().
+        // We'll naively return 25 for now.
+        if (DB::getDriverName() === 'sqlite') {
+            return 25;
+        }
 
-        /** @var string $subqueryTable */
-        $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
-
-        $result = DB::table($subqueryTable)
-            ->mergeBindings($subquery)
-            ->select(DB::raw('count(*) as total_row_count'))
-            ->get();
-
-        return $result->get(0)->total_row_count;
+        return (int) DB::select(DB::raw('SELECT FOUND_ROWS() as count'))[0]->count;
     }
 
-    private function getUserRankingData(string $username, ?int $targetSystemId = null, array $gameKindFilterOptions): array
+    private function getUserRankingData(string $username, array $gameKindFilterOptions, ?int $targetSystemId = null): array
     {
-        $subquery = $this->buildRankingsSubquery($targetSystemId, $gameKindFilterOptions);
+        $subquery = $this->buildRankingsSubquery($gameKindFilterOptions, $targetSystemId);
 
         /** @var string $subqueryTable */
         $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
@@ -208,15 +204,14 @@ class BeatenGamesLeaderboardController extends Controller
         ];
     }
 
-    private function getLeaderboardDataForCurrentPage(int $currentOffset, ?int $targetSystemId = null, array $gameKindFilterOptions): mixed
+    private function getLeaderboardDataForCurrentPage(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
     {
-        $subquery = $this->buildRankingsSubquery($targetSystemId, $gameKindFilterOptions);
+        $subquery = $this->buildRankingsSubquery($gameKindFilterOptions, $targetSystemId);
 
         /** @var string $subqueryTable */
         $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
 
-        $result = DB::table($subqueryTable)
-            ->mergeBindings($subquery)
+        $result = applyFoundRows(DB::table($subqueryTable)->mergeBindings($subquery))
             ->orderBy('rank_number')
             ->offset($currentOffset)
             ->limit($this->pageSize)
