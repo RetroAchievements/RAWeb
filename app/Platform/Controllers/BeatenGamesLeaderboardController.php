@@ -178,7 +178,9 @@ class BeatenGamesLeaderboardController extends Controller
             return 25;
         }
 
-        return (int) DB::select(DB::raw('SELECT FOUND_ROWS() as count'))[0]->count;
+        return (int) DB::select(
+            (string) DB::raw('SELECT FOUND_ROWS() as count')
+        )[0]->count;
     }
 
     private function getUserRankingData(string $username, array $gameKindFilterOptions, ?int $targetSystemId = null): array

@@ -85,7 +85,7 @@ function greatestStatement(array $columns): string
     };
 }
 
-function applyFoundRows(Builder $query)
+function applyFoundRows(Builder $query): Builder
 {
     return match (DB::getDriverName()) {
         'sqlite' => $query,
