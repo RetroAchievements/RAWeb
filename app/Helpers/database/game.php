@@ -321,8 +321,8 @@ function getGamesListByDev(
     }
 
     $orderBy = match ($sortBy) {
-        1 => "gd.Title",
-        11 => "gd.Title DESC",
+        1 => "IF(gd.Title LIKE '~%',1,0), gd.Title",
+        11 => "IF(gd.Title LIKE '~%',0,1), gd.Title DESC",
         2 => "NumAchievements DESC, MaxPointsAvailable DESC",
         12 => "NumAchievements, MaxPointsAvailable",
         3 => "MaxPointsAvailable DESC, NumAchievements DESC",
@@ -345,9 +345,9 @@ function getGamesListByDev(
     if (!empty($orderBy)) {
         if (!Str::contains($orderBy, "Title")) {
             if ($sortBy < 10) {
-                $orderBy .= ", Title";
+                $orderBy .= ", IF(gd.Title LIKE '~%',1,0), gd.Title";
             } else {
-                $orderBy .= ", Title DESC";
+                $orderBy .= ", IF(gd.Title LIKE '~%',1,0), gd.Title";
             }
         }
         if ($consoleID == 0) {
