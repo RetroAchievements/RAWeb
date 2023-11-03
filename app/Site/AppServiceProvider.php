@@ -115,7 +115,8 @@ class AppServiceProvider extends ServiceProvider
                     throw new Exception('Could not connect to database. Please try again later.');
                 }
                 mysqli_set_charset($db, config('database.connections.mysql.charset'));
-                mysqli_query($db, "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+                $db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+                $db->query("SET collation_connection = " . config('database.connections.mysql.collation'));
 
                 return $db;
             } catch (Exception $exception) {
