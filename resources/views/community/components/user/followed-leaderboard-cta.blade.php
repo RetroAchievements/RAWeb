@@ -12,7 +12,7 @@
             to find someone to follow?
         </p>
     @else
-        <p>You're following {{ localized_number($friendCount) }} other players.</p>
+        <p>You're following {{ localized_number($friendCount) }} other {{ mb_strtolower(__res('player', $friendCount)) }}.</p>
         <p>
             <a href="{{ url('friends.php') }}">Visit your Following page</a> to see how you
             compare in daily, weekly, and monthly points.
