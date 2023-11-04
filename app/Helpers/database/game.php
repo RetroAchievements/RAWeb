@@ -345,9 +345,9 @@ function getGamesListByDev(
     if (!empty($orderBy)) {
         if (!Str::contains($orderBy, "Title")) {
             if ($sortBy < 10) {
-                $orderBy .= ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title";
+                $orderBy .= ', ' . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title";
             } else {
-                $orderBy .= ifStatement("gd.Title LIKE '~%'", 0, 1) . ", gd.Title DESC";
+                $orderBy .= ', ' . ifStatement("gd.Title LIKE '~%'", 0, 1) . ", gd.Title DESC";
             }
         }
         if ($consoleID == 0) {
