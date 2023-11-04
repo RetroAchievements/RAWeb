@@ -36,7 +36,12 @@ function getUserRequestList(?string $user = null): array
         GROUP BY
             sr.GameID
         ORDER BY
-            GameTitle ASC";
+            CASE
+                WHEN gd.Title LIKE '~%' THEN
+                    SUBSTRING(gd.Title, LOCATE(' ', gd.Title) + 1)
+                ELSE
+                    gd.Title
+            END ASC";
 
     $dbResult = s_mysql_query($query);
 
