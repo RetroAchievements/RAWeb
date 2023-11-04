@@ -157,7 +157,7 @@ if (!empty($followingList)) {
     view()->share('sidebar', true);
 
     echo "<aside>";
-    echo RenderPointsRankingComponent($user, true);
+    RenderPointsRankingComponent($user, true);
     echo "</aside>";
 }
 ?>
