@@ -28,7 +28,7 @@ function achievementAvatar(
             $points = $achievement['Points'] ?? null;
             $label = $title . ($points ? ' (' . $points . ')' : '');
             sanitize_outputs($label);   // sanitize before rendering HTML
-            $label = Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', ['rawTitle' => $label]);
+            $label = str_replace("\n", '', Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', ['rawTitle' => $label]));
         }
 
         if ($icon !== false) {
@@ -78,7 +78,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
     }
 
-    $title = trim(Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
+    $title = str_replace("\n", '', Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
         'rawTitle' => $data['AchievementTitle'] ?? $data['Title'] ?? '',
     ]));
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
