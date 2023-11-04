@@ -187,7 +187,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
         // 1 or unspecified
-        default => "ORDER BY HasAchievements DESC, SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
+        default => "ORDER BY HasAchievements DESC, " . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
     };
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
