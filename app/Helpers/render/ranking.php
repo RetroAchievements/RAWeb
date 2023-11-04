@@ -475,8 +475,8 @@ function getGlobalRankingData(
             SUM(ach.Points) AS Points,
             SUM(ach.TrueRatio) AS RetroPoints
             FROM player_achievements AS aw
-            LEFT JOIN Achievements AS ach ON ach.ID = aw.achievement_id
-            LEFT JOIN UserAccounts AS ua ON ua.ID = aw.user_id
+            INNER JOIN Achievements AS ach ON ach.ID = aw.achievement_id
+            INNER JOIN UserAccounts AS ua ON ua.ID = aw.user_id
             WHERE TRUE $whereDateAchievement $typeCond
             $friendCondAchievement
             $singleUserAchievementCond
