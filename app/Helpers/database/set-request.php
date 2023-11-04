@@ -35,8 +35,7 @@ function getUserRequestList(?string $user = null): array
             sr.user = '$user' AND sr.type='" . UserGameListType::AchievementSetRequest . "'
         GROUP BY
             sr.GameID
-        ORDER BY
-            GameTitle ASC";
+        ORDER BY " . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title";
 
     $dbResult = s_mysql_query($query);
 
