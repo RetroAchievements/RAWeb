@@ -16,6 +16,10 @@ if (empty($gameID)) {
 $gamesList = [];
 $gameData = getGameData($gameID);
 
+if (!$gameData) {
+    abort(404);
+}
+
 $hashes = getHashListByGameID($gameID);
 $numLinks = count($hashes);
 
