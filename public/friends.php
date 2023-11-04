@@ -152,4 +152,13 @@ RenderContentStart("Following");
     RenderUserList('Blocked', $blockedUsersList, UserRelationship::Blocked, $followingList);
     ?>
 </article>
+<?php
+if (!empty($followingList)) {
+    view()->share('sidebar', true);
+
+    echo "<aside>";
+    echo RenderPointsRankingComponent($user, true);
+    echo "</aside>";
+}
+?>
 <?php RenderContentEnd(); ?>
