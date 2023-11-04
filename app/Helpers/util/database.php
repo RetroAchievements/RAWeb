@@ -106,7 +106,7 @@ function timestampAddMinutesStatement(int $minutes): string
 function ifStatement(string $condition, mixed $trueValue, mixed $falseValue): string
 {
     return match (DB::getDriverName()) {
-        'sqlite' => "CASE WHEN $condition THEN $trueValue ELSE $falseValue END",
+        'sqlite' => "IIF($condition, $trueValue, $falseValue)",
         // mysql
         default => "IF($condition, $trueValue, $falseValue)"
     };

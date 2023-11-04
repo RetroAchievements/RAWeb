@@ -126,7 +126,7 @@ function getAwardedList(
         $dateCondition .= "AND COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) BETWEEN '$dateFromFormatted' AND '$dateToFormatted' ";
     }
 
-    $query = "SELECT COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS Date,
+    $query = "SELECT DATE(COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at)) AS Date,
                 SUM(IF(pa.unlocked_hardcore_at IS NOT NULL, ach.Points, 0)) AS HardcorePoints,
                 SUM(ach.Points) AS SoftcorePoints
                 FROM player_achievements pa

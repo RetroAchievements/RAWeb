@@ -187,7 +187,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
         2 => "ORDER BY gd.TotalTruePoints DESC, gd.Title ASC ",
         12 => "ORDER BY gd.TotalTruePoints, gd.Title ASC ",
         // 1 or unspecified
-        default => "ORDER BY HasAchievements DESC, SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
+        default => "ORDER BY HasAchievements DESC, " . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", SUBSTRING_INDEX(gd.Title, ' [', 1), c.Name, gd.Title ",
     };
 
     $query = "SELECT gameIDAlt, gd.Title, gd.ImageIcon, c.Name AS ConsoleName,
@@ -321,8 +321,8 @@ function getGamesListByDev(
     }
 
     $orderBy = match ($sortBy) {
-        1 => "gd.Title",
-        11 => "gd.Title DESC",
+        1 => ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title",
+        11 => ifStatement("gd.Title LIKE '~%'", 0, 1) . ", gd.Title DESC",
         2 => "NumAchievements DESC, MaxPointsAvailable DESC",
         12 => "NumAchievements, MaxPointsAvailable",
         3 => "MaxPointsAvailable DESC, NumAchievements DESC",
@@ -345,9 +345,9 @@ function getGamesListByDev(
     if (!empty($orderBy)) {
         if (!Str::contains($orderBy, "Title")) {
             if ($sortBy < 10) {
-                $orderBy .= ", Title";
+                $orderBy .= ', ' . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title";
             } else {
-                $orderBy .= ", Title DESC";
+                $orderBy .= ', ' . ifStatement("gd.Title LIKE '~%'", 0, 1) . ", gd.Title DESC";
             }
         }
         if ($consoleID == 0) {
