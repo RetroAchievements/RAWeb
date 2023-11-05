@@ -12,6 +12,10 @@ if (empty($gameID)) {
 }
 
 $gameData = getGameData($gameID);
+if (!$gameData) {
+    abort(404);
+}
+
 $consoleName = $gameData['ConsoleName'];
 $consoleID = $gameData['ConsoleID'];
 $gameTitle = $gameData['Title'];
