@@ -142,7 +142,7 @@ class PlayerCompletionProgressTest extends TestCase
 
         // Assert
         $view->assertSeeTextInOrder([$gameTwo->Title, $gameOne->Title]);
-        $view->assertSeeTextInOrder(['3 of 12 achievements', '2 of 10 achievements']);
+        $view->assertSeeTextInOrder(['3', 'of', '12', 'achievements', '2', 'of', '10', 'achievements']);
         $view->assertSeeTextInOrder([config('systems')[2]['name_short'], config('systems')[1]['name_short']]);
         $view->assertSeeTextInOrder(["2", "Played"]);
         $view->assertSeeTextInOrder(["2", "Unfinished"]);

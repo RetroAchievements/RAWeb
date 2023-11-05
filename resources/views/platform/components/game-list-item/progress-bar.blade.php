@@ -2,6 +2,7 @@
     'softcoreCompletionPercentage' => 0,
     'hardcoreCompletionPercentage' => 0,
     'numPossible' => 0,
+    'hasAward' => false,
 ])
 
 <?php
@@ -31,6 +32,8 @@ if ($softcoreCompletionPercentage > 0) {
                 style="width: {{ $softcoreBarWidth }}%"
                 class="{{ $hardcoreCompletionPercentage == 0 ? 'rounded-l' : '' }} {{ $softcoreCompletionPercentage == 100 ? 'rounded-r' : '' }}"
             ></div>
+        @elseif ($numPossible === 0 && !$hasAward)
+            {{-- render an empty bar, there are no achievements yet --}}
         @else
             {{-- .cprogress-pbar__root > div[role='progressbar'] > div:first-child --}}
             <div class="w-full rounded-l rounded-r !bg-zinc-800 light:!bg-zinc-300"></div>
@@ -39,8 +42,10 @@ if ($softcoreCompletionPercentage > 0) {
 
     {{-- .cprogress-pbar__root > p --}}
     <p class="text-2xs flex justify-between w-full">
-        @if ($numPossible === 0)
+        @if ($numPossible === 0 && $hasAward)
             Set is retired
+        @elseif ($numPossible === 0 && !$hasAward)
+            No achievements yet
         @else
             {{ $softcoreCompletionPercentage }}%
         @endif

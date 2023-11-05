@@ -574,7 +574,7 @@ return [
     101 => [
         'name' => 'Events',
         'name_full' => null,
-        'name_short' => 'events',
+        'name_short' => 'Events',
         'manufacturer' => null,
         'active' => true,
     ],

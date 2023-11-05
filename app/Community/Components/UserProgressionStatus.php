@@ -10,7 +10,6 @@ use Illuminate\View\Component;
 
 class UserProgressionStatus extends Component
 {
-    protected PlayerProgressionService $playerProgressionService;
     public array $userCompletionProgress = [];
     public array $userRecentlyPlayed = [];
     public array $userSiteAwards = [];
@@ -18,17 +17,14 @@ class UserProgressionStatus extends Component
     public int $userSoftcorePoints = 0;
 
     public function __construct(
-        PlayerProgressionService $playerProgressionService,
+        protected PlayerProgressionService $playerProgressionService,
         array $userCompletionProgress = [],
         array $userSiteAwards = [],
         array $userRecentlyPlayed = [],
         int $userHardcorePoints = 0,
         int $userSoftcorePoints = 0,
     ) {
-        // DI
-        $this->playerProgressionService = $playerProgressionService;
 
-        // Props
         $this->userCompletionProgress = $userCompletionProgress;
         $this->userSiteAwards = $userSiteAwards;
         $this->userRecentlyPlayed = $userRecentlyPlayed;
