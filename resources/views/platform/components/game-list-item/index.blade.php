@@ -20,17 +20,17 @@ $totalCompletionPercentage = round($game['PctWon'] * 100);
 $gameSystemIconSrc = getSystemIconUrl($consoleId);
 
 $doesGameHaveAchievements = !!$game['MaxPossible'];
-$isInitiallyExpanded = $isDefaultExpanded && $doesGameHaveAchievements;
 ?>
 
 <div
     @if ($isExpandable)
         x-data="{
-            isExpanded: {{ $isInitiallyExpanded ? 'true' : 'false' }},
+            isExpanded: {{ $isDefaultExpanded ? 'true' : 'false' }},
             handleToggle() { this.isExpanded = !this.isExpanded; }
         }"
     @endif
-    class="relative flex flex-col w-full pl-2 py-2 pr-4 rounded-sm {{ $hasAward ? 'bg-zinc-950/60 light:bg-stone-200' : 'bg-embed' }}"
+    class="relative flex flex-col w-full pl-2 py-2 pr-4 transition-all @if (!$isExpandable) rounded-sm @endif {{ $hasAward ? 'bg-zinc-950/60 light:bg-stone-200' : 'bg-embed' }}"
+    :class="{ 'rounded-lg': isExpanded, 'rounded-sm': !isExpanded }"
 >
     <div class="flex flex-col sm:flex-row w-full sm:justify-between sm:items-center gap-x-2">
         <div class="flex sm:items-center gap-x-2.5">
@@ -91,7 +91,7 @@ $isInitiallyExpanded = $isDefaultExpanded && $doesGameHaveAchievements;
                             @if (!$doesGameHaveAchievements) disabled @endif
                         >
                             <div
-                                class="transition-transform @if ($isInitiallyExpanded) rotate-180 @endif"
+                                class="transition-transform @if ($isDefaultExpanded) rotate-180 @endif"
                                 :class="{ 'rotate-180': isExpanded }"
                             >
                                 <x-fas-chevron-down />
@@ -105,12 +105,15 @@ $isInitiallyExpanded = $isDefaultExpanded && $doesGameHaveAchievements;
 
     @if ($isExpandable)
         <div
-            @if (!$isDefaultExpanded ) x-cloak @endif
+            @if (!$isDefaultExpanded) x-cloak @endif
             x-show="isExpanded"
-            x-transition:enter="ease-out duration-150"
-            x-transition:enter-start="opacity-0 h-0 translate-y-[-0.5rem]"
-            x-transition:enter-end="opacity-1 h-fit translate-y-0"
-            x-transition:leave="hidden"
+            x-transition:enter="ease-in-out duration-300"
+            x-transition:enter-start="opacity-0 max-h-0 translate-y-1.5 overflow-hidden"
+            x-transition:enter-end="opacity-1 max-h-[1000px] translate-y-0 overflow-hidden"
+            x-transition:leave="ease-in-out duration-200"
+            x-transition:leave-start="opacity-1 max-h-[1000px] overflow-hidden"
+            x-transition:leave-end="opacity-0 max-h-0 overflow-hidden"
+            class="transition-all"
         >
             <hr class="mt-2 border-embed-highlight">
 

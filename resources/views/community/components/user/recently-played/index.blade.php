@@ -14,12 +14,21 @@
     </h4>
 
     <div class="flex flex-col gap-y-1">
+        @php $hasPreExpandedItem = false; @endphp
+
         @foreach ($processedRecentlyPlayedEntities as $processedRecentlyPlayedEntity)
+            @php
+                $shouldExpand = !$hasPreExpandedItem && !empty($processedRecentlyPlayedEntity['AchievementAvatars']);
+                if ($shouldExpand) {
+                    $hasPreExpandedItem = true;
+                }
+            @endphp
+
             <x-game-list-item
                 :game="$processedRecentlyPlayedEntity"
                 :targetUserName="$targetUsername"
                 :isExpandable="true"
-                :isDefaultExpanded="$loop->index === 0"
+                :isDefaultExpanded="$shouldExpand"
                 variant="user-recently-played"
             >
                 @foreach ($processedRecentlyPlayedEntity['AchievementAvatars'] as $achievementAvatar)
