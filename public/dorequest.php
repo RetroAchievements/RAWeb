@@ -409,9 +409,6 @@ switch ($requestType) {
             gameID: $gameID,
             title: request()->input('n'),
             desc: request()->input('d'),
-            progress: ' ',
-            progressMax: ' ',
-            progressFmt: ' ',
             points: (int) request()->input('z', 0),
             type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),
