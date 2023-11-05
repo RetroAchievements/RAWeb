@@ -20,7 +20,8 @@
   border: 1px solid var(--menu-link-color);
 }
 .btn:disabled,
-.btn:disabled:hover {
+.btn:disabled:hover,
+.btn-disabled {
   color: var(--text-color-muted);
   border: 1px solid var(--embed-color);
   cursor: not-allowed;
