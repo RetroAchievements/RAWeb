@@ -66,14 +66,14 @@ class UserRecentlyPlayed extends Component
         if (!$isAwarded) {
             $badgeName .= '_lock';
         } else {
-            $achievementData['Unlock'] = $unlockedLabel;
-
             $unlockDate = getNiceDate(strtotime($achievementData['DateAwarded']));
             $unlockedLabel = "<br clear='all'>Unlocked: $unlockDate";
             if ($isHardcoreUnlock) {
                 $unlockedLabel .= "<br>HARDCORE";
                 $className = 'goldimage';
             }
+
+            $achievementData['Unlock'] = $unlockedLabel;
         }
 
         return achievementAvatar(
@@ -163,6 +163,9 @@ class UserRecentlyPlayed extends Component
 
         $processed['FirstWonDate'] = collect($achievementEntities)
             ->pluck('DateAwarded')
+            ->filter(function ($value) {
+                return !is_null($value) && $value !== '';
+            })
             ->sort()
             ->first();
 
