@@ -7,6 +7,7 @@ use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
 authenticateFromCookie($user, $permissions, $userDetails);
