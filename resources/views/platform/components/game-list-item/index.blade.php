@@ -108,7 +108,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
             @if (!$isDefaultExpanded) x-cloak @endif
             x-show="isExpanded"
             x-transition:enter="ease-in-out duration-300"
-            x-transition:enter-start="opacity-0 max-h-0 translate-y-1.5 overflow-hidden"
+            x-transition:enter-start="opacity-0 max-h-0 -translate-y-1.5 overflow-hidden"
             x-transition:enter-end="opacity-1 max-h-[1000px] translate-y-0 overflow-hidden"
             x-transition:leave="ease-in-out duration-200"
             x-transition:leave-start="opacity-1 max-h-[1000px] overflow-hidden"
