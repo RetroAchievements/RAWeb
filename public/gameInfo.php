@@ -2,7 +2,6 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
@@ -14,14 +13,10 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
-use App\Platform\Models\MemoryNote;
-use App\Platform\Models\PlayerSession;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\DB;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -137,7 +132,6 @@ $totalPossible = null;
 $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
 $claimData = null;
-$claimListLength = 0;
 $isGameBeatable = false;
 $isBeatenHardcore = false;
 $isBeatenSoftcore = false;
@@ -272,7 +266,6 @@ if ($isFullyFeaturedGame) {
     $gameTopAchievers = getGameTopAchievers($gameID);
 
     $claimData = getClaimData($gameID, true);
-    $claimListLength = count($claimData);
 }
 
 $gameRating = getGameRating($gameID, $user);
@@ -1342,92 +1335,13 @@ sanitize_outputs(
 
             // Display claim information
             if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
-                echo "<div>";
-                $claimExpiration = null;
-                $primaryClaim = 1;
-                if ($claimListLength > 0) {
-                    echo "Claimed by: ";
-                    $reviewText = '';
-                    foreach ($claimData as $claim) {
-                        $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
-                        if ($claim['Status'] == ClaimStatus::InReview) {
-                            $reviewText = " (" . ClaimStatus::toString(ClaimStatus::InReview) . ")";
-                        }
-                        $claimExpiration = Carbon::parse($claim['Expiration']);
-                        echo userAvatar($claim['User'], icon: false) . $revisionText;
-                        if ($claimListLength > 1) {
-                            echo ", ";
-                        }
-                        $claimListLength--;
-                        $primaryClaim = 0;
-                    }
-                    echo $reviewText;
-
-                    if ($claimExpiration) {
-                        $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast() ? "Expired" : "Expires";
-
-                        $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
-                        $claimTimeAgoDate = $permissions >= Permissions::JuniorDeveloper
-                            ? "(" . $claimExpiration->diffForHumans() . ")"
-                            : "";
-
-                        // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
-                        echo "<p>$isAlreadyExpired on: $claimFormattedDate $claimTimeAgoDate</p>";
-
-                        if ($permissions >= Permissions::Moderator) {
-                            foreach ($claimData as $claim) {
-                                $playerGame = PlayerSession::where('game_id', $gameID)
-                                    ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
-                                    ->where('UserAccounts.User', '=', $claim['User'])
-                                    ->select(DB::raw('MAX(updated_at) AS last_played'))
-                                    ->first();
-
-                                $activity = '';
-                                $lastPlayed = null;
-                                if ($playerGame && !empty($playerGame->last_played)) {
-                                    $lastPlayed = Carbon::parse($playerGame->last_played);
-                                    $activity = 'played this game';
-                                } else {
-                                    // player_sessions only exist after 14 Oct 2023
-                                    $achievement = Achievement::where('GameID', $gameID)
-                                        ->where('Author', $claim['User'])
-                                        ->select(DB::raw('MAX(Updated) AS last_updated'))
-                                        ->first();
-                                    if ($achievement && !empty($achievement->last_updated)) {
-                                        $lastPlayed = Carbon::parse($achievement->last_updated);
-                                        $activity = 'edited an achievement';
-                                    }
-
-                                    $note = MemoryNote::where('GameID', $gameID)
-                                        ->join('UserAccounts', 'UserAccounts.ID', '=', 'AuthorID')
-                                        ->where('UserAccounts.User', '=', $claim['User'])
-                                        ->select(DB::raw('MAX(CodeNotes.Updated) AS last_updated'))
-                                        ->first();
-                                    if ($note && !empty($note->last_updated)) {
-                                        $lastUpdated = Carbon::parse($note->last_updated);
-                                        if (!$lastPlayed || $lastUpdated > $lastPlayed) {
-                                            $lastPlayed = $lastUpdated;
-                                            $activity = 'edited a note';
-                                        }
-                                    }
-                                }
-
-                                if ($lastPlayed) {
-                                    $formattedDate = $lastPlayed->format('d M Y, H:i');
-                                    $timeAgo = $lastPlayed->diffForHumans();
-                                    echo "<p>{$claim['User']} last $activity on $formattedDate ($timeAgo)";
-                                } else {
-                                    echo "<p>No recent play history found for {$claim['User']}</p>";
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    if ($numAchievements < 1) {
-                        echo "No Active Claims";
-                    }
-                }
-                echo "</div>";
+                echo Blade::render('
+                    <x-game.claim-info
+                        :claimData="$claimData"
+                        :gameId="$gameID"
+                        :userPermissions="$permissions"
+                    />
+                ', $gameMetaBindings);
             }
             echo "</div>";
 
