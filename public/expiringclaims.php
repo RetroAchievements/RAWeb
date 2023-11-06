@@ -5,8 +5,13 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimType;
+use App\Community\Models\AchievementSetClaim;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+if (!request()->user() || !request()->user()->can('manage', AchievementSetClaim::class)) {
+    abort(403);
+}
 
 $username = requestInputSanitized('u', null);
 
