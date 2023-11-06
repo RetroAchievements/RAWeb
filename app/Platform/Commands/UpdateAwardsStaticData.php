@@ -10,6 +10,9 @@ use App\Platform\Models\PlayerBadge;
 use App\Site\Models\StaticData;
 use Illuminate\Console\Command;
 
+/**
+ * @deprecated use a query in the component instead - most "last of something" queries are not expensive
+ */
 class UpdateAwardsStaticData extends Command
 {
     protected $signature = 'ra:platform:static:update-awards-data';
@@ -55,9 +58,6 @@ class UpdateAwardsStaticData extends Command
         StaticData::query()->update(['num_hardcore_game_beaten_awards' => $hardcoreGameBeatenAwardsCount]);
     }
 
-    /**
-     * @deprecated use a query in the component instead - most "last of something" queries are not expensive
-     */
     private function updateLastGameHardcoreMastered(): void
     {
         $foundAward = PlayerBadge::with('user')
@@ -78,9 +78,6 @@ class UpdateAwardsStaticData extends Command
         }
     }
 
-    /**
-     * @deprecated use a query in the component instead - most "last of something" queries are not expensive
-     */
     private function updateLastGameHardcoreBeaten(): void
     {
         $foundAward = PlayerBadge::with('user')
