@@ -9,7 +9,7 @@ use App\Community\Models\AchievementSetClaim;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-if (!request()->user() || !request()->user()->can('manage', AchievementSetClaim::class)) {
+if (!request()->user()?->can('manage', AchievementSetClaim::class)) {
     abort(403);
 }
 
@@ -34,10 +34,8 @@ RenderContentStart("Expiring Claims");
     $expired = $expiring = 0;
     if (isset($user)) {
         $expiringClaims = getExpiringClaim($user);
-        if (!empty($expiringClaims)) {
-            $expired = (int) $expiringClaims["Expired"];
-            $expiring = (int) $expiringClaims["Expiring"];
-        }
+        $expired = (int) ($expiringClaims["Expired"] ?? 0);
+        $expiring = (int) ($expiringClaims["Expiring"] ?? 0);
     }
     if ((isset($user) || !empty($username)) && ($expired + $expiring) > 0) {
         echo "<p class='embedded'><b>User:</b> ";
