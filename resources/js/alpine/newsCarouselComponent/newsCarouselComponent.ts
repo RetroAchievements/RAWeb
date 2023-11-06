@@ -222,7 +222,7 @@ const newsCarouselStore = {
   init() {
     setTimeout(() => {
       this.startAutoScroll();
-    }, AUTO_SCROLL_DELAY * 2);
+    }, AUTO_SCROLL_DELAY); // Give the first item more emphasis.
 
     // Listen for window resize events. If we don't, we'll lose our tracking
     // position and nasty bugs can emerge on mobile devices.
