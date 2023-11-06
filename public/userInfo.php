@@ -514,10 +514,10 @@ RenderContentStart($userPage);
                 :userAwards="$userAwards"
             />
         ', [
-            'recentlyPlayedCount' => $userMassData['RecentlyPlayedCount'],
-            'recentlyPlayedEntities' => $userMassData['RecentlyPlayed'],
-            'recentAchievementEntities' => $userMassData['RecentAchievements'],
-            'recentAwardedEntities' => $userMassData['Awarded'],
+            'recentlyPlayedCount' => $userMassData['RecentlyPlayedCount'] ?? 0,
+            'recentlyPlayedEntities' => $userMassData['RecentlyPlayed'] ?? [],
+            'recentAchievementEntities' => $userMassData['RecentAchievements'] ?? [],
+            'recentAwardedEntities' => $userMassData['Awarded'] ?? [],
             'targetUsername' => $user,
             'userAwards' => $userAwards,
         ]);
