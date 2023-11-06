@@ -29,8 +29,10 @@ RenderContentStart("Expiring Claims");
     $expired = $expiring = 0;
     if (isset($user)) {
         $expiringClaims = getExpiringClaim($user);
-        $expired = (int) $expiringClaims["Expired"];
-        $expiring = (int) $expiringClaims["Expiring"];
+        if (!empty($expiringClaims)) {
+            $expired = (int) $expiringClaims["Expired"];
+            $expiring = (int) $expiringClaims["Expiring"];
+        }
     }
     if ((isset($user) || !empty($username)) && ($expired + $expiring) > 0) {
         echo "<p class='embedded'><b>User:</b> ";
