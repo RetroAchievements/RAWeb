@@ -170,3 +170,26 @@ function RenderCompletedGamesList(
 
     echo "</div>";
 }
+
+/**
+ * Render user breadcrumb prefix, with optional link on last crumb
+ *
+ * Format: `All Users » (user)`.
+ */
+function renderUserBreadcrumb(User|string $user): string
+{
+    if (is_string($user)) {
+        $user = User::firstWhere($user);
+        if (!$user) {
+            abort(404);
+        }
+    }
+
+    // Return next crumb (i.e `» text`), either as a link or not
+    $nextCrumb = fn ($text, $href = ''): string => " &raquo; " . ($href ? "<a href='$href'>$text</a>" : "<span class='font-bold'>$text</span>");
+
+    $html = "<a href='/userList.php'>All Users</a>"
+        . $nextCrumb($user->User, "/user/{$user->User}");
+
+    return $html;
+}
