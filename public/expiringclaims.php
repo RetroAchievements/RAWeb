@@ -5,8 +5,13 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimType;
+use App\Community\Models\AchievementSetClaim;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+if (!request()->user()?->can('manage', AchievementSetClaim::class)) {
+    abort(403);
+}
 
 $username = requestInputSanitized('u', null);
 
@@ -29,8 +34,8 @@ RenderContentStart("Expiring Claims");
     $expired = $expiring = 0;
     if (isset($user)) {
         $expiringClaims = getExpiringClaim($user);
-        $expired = (int) $expiringClaims["Expired"];
-        $expiring = (int) $expiringClaims["Expiring"];
+        $expired = (int) ($expiringClaims["Expired"] ?? 0);
+        $expiring = (int) ($expiringClaims["Expiring"] ?? 0);
     }
     if ((isset($user) || !empty($username)) && ($expired + $expiring) > 0) {
         echo "<p class='embedded'><b>User:</b> ";
