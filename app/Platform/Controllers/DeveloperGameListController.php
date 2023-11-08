@@ -27,10 +27,14 @@ class DeveloperGameListController extends Controller
 
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
-            'sole' => 'sometimes|boolean',
+            'filter.console' => 'sometimes|in:true,false',
+            'filter.sole' => 'sometimes|in:true,false',
         ]);
         $sortOrder = $validatedData['sort'] ?? 'console';
-        $soleDeveloper = $validatedData['sole'] ?? false;
+        $filterOptions = [
+            'console' => ($validatedData['filter']['console'] ?? 'true') !== 'false',
+            'sole' => ($validatedData['filter']['sole'] ?? 'false') !== 'false',
+        ];
 
         $gameAuthoredAchievementsList = $user->authoredAchievements()->published()
             ->select(['GameID',
@@ -135,71 +139,52 @@ class DeveloperGameListController extends Controller
             $games[] = $game;
         }
 
-        if ($soleDeveloper) {
+        if ($filterOptions['sole']) {
             $games = array_filter($games, function ($game) {
                 return $game['NumAuthoredAchievements'] == $game['achievements_published']
                         && $game['NumAuthoredLeaderboards'] == $game['leaderboards_count'];
             });
         }
 
-        $sortFunction = match ($sortOrder) {
+        $reverse = substr($sortOrder, 0, 1) === '-';
+        $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
+        $sortFunction = match ($sortMatch) {
             default => function ($a, $b) {
                 return $a['SortTitle'] <=> $b['SortTitle'];
-            },
-            '-title' => function ($a, $b) {
-                return $b['SortTitle'] <=> $a['SortTitle'];
             },
             'achievements' => function ($a, $b) {
                 return $a['NumAuthoredAchievements'] <=> $b['NumAuthoredAchievements'];
             },
-            '-achievements' => function ($a, $b) {
-                return $b['NumAuthoredAchievements'] <=> $a['NumAuthoredAchievements'];
-            },
             'points' => function ($a, $b) {
                 return $a['NumAuthoredPoints'] <=> $b['NumAuthoredPoints'];
-            },
-            '-points' => function ($a, $b) {
-                return $b['NumAuthoredPoints'] <=> $a['NumAuthoredPoints'];
             },
             'retroratio' => function ($a, $b) {
                 return $a['RetroRatio'] <=> $b['RetroRatio'];
             },
-            '-retroratio' => function ($a, $b) {
-                return $b['RetroRatio'] <=> $a['RetroRatio'];
-            },
             'leaderboards' => function ($a, $b) {
                 return $a['NumAuthoredLeaderboards'] <=> $b['NumAuthoredLeaderboards'];
-            },
-            '-leaderboards' => function ($a, $b) {
-                return $b['NumAuthoredLeaderboards'] <=> $a['NumAuthoredLeaderboards'];
             },
             'players' => function ($a, $b) {
                 return $a['players_total'] <=> $b['players_total'];
             },
-            '-players' => function ($a, $b) {
-                return $b['players_total'] <=> $a['players_total'];
-            },
             'tickets' => function ($a, $b) {
-                return $a['NumTickets'] <=> $b['NumTickets'];
-            },
-            '-tickets' => function ($a, $b) {
-                return $b['NumTickets'] <=> $a['NumTickets'];
+                return $a['NumAuthoredTickets'] <=> $b['NumTickets'];
             },
             'progress' => function ($a, $b) {
                 return $a['CompletionPercentage'] <=> $b['CompletionPercentage'];
             },
-            '-progress' => function ($a, $b) {
-                return $b['CompletionPercentage'] <=> $a['CompletionPercentage'];
-            },
         };
         usort($games, $sortFunction);
+        if ($reverse) {
+            $games = array_reverse($games);
+        }
 
         return view('community.components.developer.dev-sets-page', [
             'user' => $user,
             'consoles' => $consoles,
             'games' => $games,
             'sortOrder' => $sortOrder,
-            'soleDeveloper' => $soleDeveloper,
+            'filterOptions' => $filterOptions,
             'userProgress' => $userProgress,
         ]);
     }
