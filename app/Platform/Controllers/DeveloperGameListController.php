@@ -128,7 +128,7 @@ class DeveloperGameListController extends Controller
             $gameProgress = $userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
             $game['CompletionPercentage'] = $gameProgress * 100 / $gameModel->achievements_published;
 
-            $game['RetroRatio'] = $gameModel->TotalTruePoints / $gameModel->points_total;
+            $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
             $game['ConsoleName'] = $consoles->firstWhere('ID', $game['ConsoleID'])->Name;
             $game['SortTitle'] = $game['Title'];
