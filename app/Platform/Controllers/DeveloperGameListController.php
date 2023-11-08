@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Http\Controller;
 use App\Community\Enums\TicketState;
 use App\Community\Models\Ticket;
+use App\Http\Controller;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
@@ -70,7 +70,7 @@ class DeveloperGameListController extends Controller
             ])
             ->groupBy('GameID')
             ->get()
-            ->mapWithKeys(function($row, $key) {
+            ->mapWithKeys(function ($row, $key) {
                 return [$row['GameID'] => [
                     'NumTickets' => $row['NumTickets'],
                     'NumAuthoredTickets' => $row['NumAuthoredTickets'],
@@ -97,7 +97,7 @@ class DeveloperGameListController extends Controller
                 ->whereIn('game_id', $gameIDs)
                 ->select(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
                 ->get()
-                ->mapWithKeys(function($row, $key) {
+                ->mapWithKeys(function ($row, $key) {
                     return [$row['game_id'] => [
                         'achievements_unlocked' => $row['achievements_unlocked'],
                         'achievements_unlocked_hardcore' => $row['achievements_unlocked_hardcore'],
@@ -134,9 +134,9 @@ class DeveloperGameListController extends Controller
         }
 
         if ($soleDeveloper) {
-            $games = array_filter($games, function($game) {
-                return ($game['NumAuthoredAchievements'] == $game['achievements_published'] &&
-                        $game['NumAuthoredLeaderboards'] == $game['leaderboards_count']);
+            $games = array_filter($games, function ($game) {
+                return $game['NumAuthoredAchievements'] == $game['achievements_published']
+                        && $game['NumAuthoredLeaderboards'] == $game['leaderboards_count'];
             });
         }
 
