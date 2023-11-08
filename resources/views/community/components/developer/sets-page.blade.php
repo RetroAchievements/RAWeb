@@ -62,7 +62,7 @@
                 ?>
                 <tr>
                     <td>
-                    @if ($sortOrder !== 'console')
+                    @if (!$filterOptions['console'])
                         <x-game.multiline-avatar
                             :gameId="$game['ID']"
                             :gameTitle="$game['Title']"

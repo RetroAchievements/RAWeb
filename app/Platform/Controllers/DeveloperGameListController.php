@@ -30,7 +30,7 @@ class DeveloperGameListController extends Controller
             'filter.console' => 'sometimes|in:true,false',
             'filter.sole' => 'sometimes|in:true,false',
         ]);
-        $sortOrder = $validatedData['sort'] ?? 'console';
+        $sortOrder = $validatedData['sort'] ?? 'title';
         $filterOptions = [
             'console' => ($validatedData['filter']['console'] ?? 'true') !== 'false',
             'sole' => ($validatedData['filter']['sole'] ?? 'false') !== 'false',
