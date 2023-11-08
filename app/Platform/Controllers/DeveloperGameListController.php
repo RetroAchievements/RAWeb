@@ -26,7 +26,7 @@ class DeveloperGameListController extends Controller
         }
 
         $validatedData = $request->validate([
-            'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress',
+            'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
             'sole' => 'sometimes|boolean',
         ]);
         $sortOrder = $validatedData['sort'] ?? 'console';
@@ -81,8 +81,8 @@ class DeveloperGameListController extends Controller
         $gameModels = Game::whereIn('ID', $gameIDs)
             ->orderBy('Title')
             ->select([
-                'ID', 'Title', 'ImageIcon', 'ConsoleID',
-                'achievements_published', 'points_total', 'players_total',
+                'ID', 'Title', 'ImageIcon', 'ConsoleID', 'players_total',
+                'achievements_published', 'points_total', 'TotalTruePoints',
             ])
             ->withCount('leaderboards')
             ->get();
@@ -122,7 +122,9 @@ class DeveloperGameListController extends Controller
             $game['NumAuthoredTickets'] = $gameTickets['NumAuthoredTickets'] ?? 0;
 
             $gameProgress = $userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
-            $game['CompletionPercentage'] = $gameProgress * 100 / $game['achievements_published'];
+            $game['CompletionPercentage'] = $gameProgress * 100 / $gameModel->achievements_published;
+
+            $game['RetroRatio'] = $gameModel->TotalTruePoints / $gameModel->points_total;
 
             $game['ConsoleName'] = $consoles->firstWhere('ID', $game['ConsoleID'])->Name;
             $game['SortTitle'] = $game['Title'];
@@ -158,6 +160,12 @@ class DeveloperGameListController extends Controller
             },
             '-points' => function ($a, $b) {
                 return $b['NumAuthoredPoints'] <=> $a['NumAuthoredPoints'];
+            },
+            'retroratio' => function ($a, $b) {
+                return $a['RetroRatio'] <=> $b['RetroRatio'];
+            },
+            '-retroratio' => function ($a, $b) {
+                return $b['RetroRatio'] <=> $a['RetroRatio'];
             },
             'leaderboards' => function ($a, $b) {
                 return $a['NumAuthoredLeaderboards'] <=> $b['NumAuthoredLeaderboards'];

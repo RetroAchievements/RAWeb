@@ -47,6 +47,7 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                 {!! $makeLink('Title', 'title') !!},
                 {!! $makeLink('Achievements', 'achievements') !!},
                 {!! $makeLink('Points', 'points') !!},
+                {!! $makeLink('RetroRatio', 'retroratio') !!},
                 {!! $makeLink('Leaderboards', 'leaderboards') !!},
                 {!! $makeLink('Players', 'players') !!},
                 {!! $makeLink('Tickets', 'tickets') !!},
@@ -74,9 +75,10 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
             <div><table class='table-highlight mb-4'><tbody>
 
             <tr>
-                <th style='width:44%'>{!! $makeLink('Title', 'title') !!}</th>
+                <th style='width:34%'>{!! $makeLink('Title', 'title') !!}</th>
                 <th style='width:12%' class='text-right'>{!! $makeLink('Achievements', 'achievements') !!}</th>
                 <th style='width:10%' class='text-right'>{!! $makeLink('Points', 'points') !!}</th>
+                <th style='width:10%' class='text-right'>{!! $makeLink('RetroRatio', 'retroratio') !!}</th>
                 <th style='width:10%' class='text-right'>{!! $makeLink('Leaderboards', 'leaderboards') !!}</th>
                 <th style='width:8%' class='text-right'>{!! $makeLink('Players', 'players') !!}</th>
                 <th style='width:8%' class='text-right'>{!! $makeLink('Tickets', 'tickets') !!}</th>
@@ -119,6 +121,8 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                             <td class='text-right'>{{ $game['NumAuthoredAchievements'] }} of {{ $game['achievements_published'] }}</td>
                             <td class='text-right'>{{ $game['NumAuthoredPoints'] }} of {{ $game['points_total'] }}</td>
                         @endif
+
+                        <td class='text-right'>{!! sprintf("%01.2f", $game['RetroRatio']) !!}</td>
 
                         @if ($game['leaderboards_count'] == 0)
                             <td></td>
@@ -165,6 +169,7 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                     <td><b>Total:</b> {{ $count }} games</td>
                     <td class='text-right'><b>{!! localized_number($achievementCount) !!}</b></td>
                     <td class='text-right'><b>{!! localized_number($pointCount) !!}</b></td>
+                    <td></td>
                     <td class='text-right'><b>{!! localized_number($leaderboardCount) !!}</b></td>
                     <td></td>
                     <td class='text-right'><b>{!! localized_number($ticketCount) !!}</b></td>
