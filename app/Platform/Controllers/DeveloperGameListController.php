@@ -179,7 +179,7 @@ class DeveloperGameListController extends Controller
             $games = array_reverse($games);
         }
 
-        return view('community.components.developer.dev-sets-page', [
+        return view('community.components.developer.sets-page', [
             'user' => $user,
             'consoles' => $consoles,
             'games' => $games,
