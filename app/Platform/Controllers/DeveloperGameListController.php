@@ -24,8 +24,10 @@ class DeveloperGameListController extends Controller
 
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,-title,-achievements,-points,-leaderboards,-players',
+            'sole' => 'sometimes|boolean',
         ]);
         $sortOrder = $validatedData['sort'] ?? 'console';
+        $soleDeveloper = $validatedData['sole'] ?? false;
 
         $gameAuthoredAchievementsList = $user->authoredAchievements()->published()
             ->select(['GameID',
@@ -89,6 +91,13 @@ class DeveloperGameListController extends Controller
             $games[] = $game;
         }
 
+        if ($soleDeveloper) {
+            $games = array_filter($games, function($game) {
+                return ($game['NumAuthoredAchievements'] == $game['achievements_published'] &&
+                        $game['NumAuthoredLeaderboards'] == $game['leaderboards_count']);
+            });
+        }
+
         $sortFunction = match ($sortOrder) {
             default => function ($a, $b) {
                 return $a['SortTitle'] <=> $b['SortTitle'];
@@ -128,6 +137,7 @@ class DeveloperGameListController extends Controller
             'consoles' => $consoles,
             'games' => $games,
             'sortOrder' => $sortOrder,
+            'soleDeveloper' => $soleDeveloper,
         ]);
     }
 }

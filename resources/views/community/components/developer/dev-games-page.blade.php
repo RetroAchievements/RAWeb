@@ -3,19 +3,28 @@
     'consoles' => [],
     'games' => [],
     'sortOrder' => 'console',
+    'soleDeveloper' => false,
 ])
 
 <?php
-$makeLink = function($text, $value) use ($sortOrder) {
+$makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
+    if ($value == '') {
+        // sole developer toggle
+        $suffix = $soleDeveloper ? '' : '&sole=1';
+        return "<a href='?sort=$sortOrder$suffix'>$text</a>";
+    }
+
+    $suffix = $soleDeveloper ? '&sole=1' : '';
+
     if ($sortOrder === $value) {
-        return "<a href='?sort=-$value'>$text &#x25B2;</a>";
+        return "<a href='?sort=-$value$suffix'>$text &#x25B2;</a>";
     }
 
     if ($sortOrder == "-$value") {
-        return "<a href='?sort=$value'>$text &#x25BC;</a>";
+        return "<a href='?sort=$value$suffix'>$text &#x25BC;</a>";
     }
 
-    return "<a href='?sort=$value'>$text</a>";
+    return "<a href='?sort=$value$suffix'>$text</a>";
 };
 ?>
 
@@ -39,9 +48,14 @@ $makeLink = function($text, $value) use ($sortOrder) {
                 {!! $makeLink('Points', 'points') !!},
                 {!! $makeLink('Leaderboards', 'leaderboards') !!},
                 {!! $makeLink('Players', 'players') !!}
-            <?php $makeLink = function($text, $value) { return $text; }; ?>
         @else
             {!! $makeLink('Sort by console', 'console') !!}
+        @endif
+
+        @if ($soleDeveloper)
+            | {!! $makeLink('Any development', '') !!}
+        @else
+            | {!! $makeLink('Sole development', '') !!}
         @endif
         </p>
 
@@ -51,6 +65,7 @@ $makeLink = function($text, $value) use ($sortOrder) {
                     <img src="{{ getSystemIconUrl($console->ID) }}" alt="Console icon" width="24" height="24">
                     <span>{{ $console->Name }}</span>
                 </h2>
+                <?php $makeLink = function($text, $value) { return $text; }; ?>
             @endif
 
             <div><table class='table-highlight mb-4'><tbody>
