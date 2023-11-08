@@ -101,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(DeleteOrphanedLeaderboardEntries::class)->daily();
+            $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);
