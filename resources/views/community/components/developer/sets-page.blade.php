@@ -38,14 +38,21 @@
 
             <tr>
                 <th style='width:34%'>Title</th>
-                <th style='width:12%' class='text-right'>Achievements</th>
-                <th style='width:10%' class='text-right'>Points</th>
-                <th style='width:10%' class='text-right'>RetroRatio</th>
-                <th style='width:10%' class='text-right'>Leaderboards</th>
-                <th style='width:8%' class='text-right'>Players</th>
-                <th style='width:8%' class='text-right'>Tickets</th>
+                <th style='width:12%; cursor: help' class='text-right'
+                    title='The number of achievements created by {{ $user->User }} in the set'>Achievements</th>
+                <th style='width:10%; cursor: help' class='text-right'
+                    title='The number of points associated to achievements created by {{ $user->User }} in the set'>Points</th>
+                <th style='width:10%; cursor: help' class='text-right'
+                    title='As estimate of rarity for achievements created by {{ $user->User }} in the set'>RetroRatio</th>
+                <th style='width:10%; cursor: help' class='text-right'
+                    title='The number of leaderboards created by {{ $user->User }} in the set'>Leaderboards</th>
+                <th style='width:8%; cursor: help' class='text-right'
+                    title='The number of users who have played the set'>Players</th>
+                <th style='width:8%; cursor: help' class='text-right'
+                    title='The number of open tickets for achievements created by {{ $user->User }} in the set'>Tickets</th>
                 @if ($userProgress !== null)
-                    <th style='width:8%' class='text-right'>Progress</th>
+                    <th style='width:8%; cursor: help' class='text-right'
+                        title='Indicates how close you are to mastering a set'>Progress</th>
                 @endif
             </tr>
             <?php $count = $achievementCount = $pointCount = $leaderboardCount = $ticketCount = 0; ?>
@@ -111,13 +118,16 @@
                         <?php
                             $hardcoreProgressBarWidth = $softcoreProgressBarWidth = 0;
                             $gameProgress = $userProgress[$game['ID']] ?? null;
+                            $achievementsUnlocked = 0;
                             if ($gameProgress != null) {
+                                $achievementsUnlocked = $gameProgress['achievements_unlocked'];
                                 $hardcoreProgressBarWidth = sprintf("%01.2f", $gameProgress['achievements_unlocked_hardcore'] * 100 / $game['achievements_published']);
-                                $softcoreProgressBarWidth = sprintf("%01.2f", ($gameProgress['achievements_unlocked'] - $gameProgress['achievements_unlocked_hardcore']) * 100 / $game['achievements_published']);
+                                $softcoreProgressBarWidth = sprintf("%01.2f", ($achievementsUnlocked - $gameProgress['achievements_unlocked_hardcore']) * 100 / $game['achievements_published']);
                             }
                         ?>
                         <div role="progressbar" aria-valuemin="0" aria-valuemax="100"
-                                class="w-full h-1 bg-embed rounded flex">
+                             title="{{ $achievementsUnlocked }} of {{ $game['achievements_published'] }} unlocked"
+                             class="w-full h-1 bg-embed rounded flex">
                             <div style="width: {{ $hardcoreProgressBarWidth }}%"
                                     class="bg-[#cc9900] h-full {{ $hardcoreProgressBarWidth > 0 ? 'rounded-l' : '' }}"></div>
                             <div style="width: {{ $softcoreProgressBarWidth }}%"
