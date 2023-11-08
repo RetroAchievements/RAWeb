@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
-use App\Community\Enums\AwardType;
 use App\Http\Controller;
-use App\Platform\Enums\UnlockMode;
+use App\Platform\Enums\RankingType;
+use App\Platform\Models\Game;
+use App\Platform\Models\Ranking;
 use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -50,11 +52,11 @@ class BeatenGamesLeaderboardController extends Controller
         $currentPage = $validatedData['page']['number'] ?? 1;
         $offset = (int) ($currentPage - 1) * $this->pageSize;
 
-        $beatenGameAwardsRankedRows = $this->getLeaderboardDataForCurrentPage($offset, $gameKindFilterOptions, $targetSystemId);
+        $beatenGameAwardsRankedRows = $this->getAggregatedLeaderboardDataForCurrentPage($offset, $gameKindFilterOptions, $targetSystemId);
 
         // We need to know how many rows there are, otherwise the
         // paginator can't determine what the max page number should be.
-        $rankedRowsCount = $this->getLeaderboardRowCount();
+        $rankedRowsCount = $this->getLeaderboardRowCount($gameKindFilterOptions, $targetSystemId);
 
         // Where does the authed user currently rank?
         // This is a separate query that doesn't include the page/offset.
@@ -64,8 +66,7 @@ class BeatenGamesLeaderboardController extends Controller
         $userPageNumber = null;
         $me = Auth::user() ?? null;
         if ($me) {
-            $myUsername = $me->User;
-            $myRankingData = $this->getUserRankingData($myUsername, $gameKindFilterOptions, $targetSystemId);
+            $myRankingData = $this->getUserRankingData($me->id, $gameKindFilterOptions, $targetSystemId);
             $userPageNumber = (int) $myRankingData['userPageNumber'];
             $isUserOnCurrentPage = (int) $currentPage === $userPageNumber;
         }
@@ -90,110 +91,122 @@ class BeatenGamesLeaderboardController extends Controller
         ]);
     }
 
-    private function buildLeaderboardBaseSubquery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
+    private function buildAggregatedLeaderboardBaseQuery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
     {
-        $subquery = DB::table('SiteAwards as sa')
-            ->join('GameData as gd', 'sa.AwardData', '=', 'gd.ID')
-            ->join('Console as c', 'gd.ConsoleID', '=', 'c.ID')
-            ->join('UserAccounts as ua', 'sa.User', '=', 'ua.User')
-            ->select(
-                'ua.User as User',
-                DB::raw('FIRST_VALUE(gd.ID) OVER (PARTITION BY ua.User ORDER BY sa.AwardDate desc) as most_recent_game_id'),
-                'gd.Title',
-                'gd.ImageIcon',
-                'c.name as ConsoleName',
-                'sa.AwardDate',
-            )
-            ->where('sa.AwardType', AwardType::GameBeaten)
-            ->where('sa.AwardDataExtra', UnlockMode::Hardcore)
-            ->where('ua.Untracked', 0)
-            ->where('gd.Title', 'not like', '~Subset~%')
-            ->where('gd.Title', 'not like', '~Test Kit~%')
-            ->where('gd.Title', 'not like', '~Multi~%')
-            ->whereNotIn('gd.ConsoleID', [100, 101]);
+        $query = Ranking::select(
+            'user_id',
+            'game_id as most_recent_game_id',
+            'updated_at as last_beaten_date',
+            DB::raw('RANK() OVER (ORDER BY SUM(value) DESC) as rank_number'),
+            DB::raw('ROW_NUMBER() OVER (ORDER BY SUM(value) DESC) as leaderboard_row_number'),
+            DB::raw('SUM(value) as total_awards'),
+        );
 
         if ($targetSystemId) {
-            $subquery->where('gd.ConsoleID', $targetSystemId);
+            $query->where('system_id', $targetSystemId);
+        } else {
+            $query->whereNull('system_id');
         }
 
-        if (!$gameKindFilterOptions['retail']) {
-            // Exclude all games that don't have two "~" characters in their title.
-            $subquery->whereRaw('LENGTH(gd.Title) - LENGTH(REPLACE(gd.Title, "~", "")) >= 2');
+        $includedTypes = [];
+        if ($gameKindFilterOptions['retail']) {
+            $includedTypes[] = [RankingType::GamesBeatenHardcoreRetail];
+        }
+        if ($gameKindFilterOptions['hacks']) {
+            $includedTypes[] = [RankingType::GamesBeatenHardcoreHacks];
+        }
+        if ($gameKindFilterOptions['homebrew']) {
+            $includedTypes[] = [RankingType::GamesBeatenHardcoreHomebrew];
+        }
+        if ($gameKindFilterOptions['unlicensed']) {
+            $includedTypes[] = [RankingType::GamesBeatenHardcoreUnlicensed];
+        }
+        if ($gameKindFilterOptions['prototypes']) {
+            $includedTypes[] = [RankingType::GamesBeatenHardcorePrototypes];
+        }
+        if ($gameKindFilterOptions['demos']) {
+            $includedTypes[] = [RankingType::GamesBeatenHardcoreDemos];
+        }
+        if (!empty($includedTypes)) {
+            $query->whereIn('type', $includedTypes);
         }
 
-        if (!$gameKindFilterOptions['hacks']) {
-            $subquery->where('gd.Title', 'not like', '~Hack~%');
-        }
+        $query->groupBy('user_id');
 
-        if (!$gameKindFilterOptions['homebrew']) {
-            $subquery->where('gd.Title', 'not like', '~Homebrew~%')
-                // Exclude Arduboy, WASM-4, and Uzebox. These consoles exclusively have homebrew games.
-                ->whereNotIn('gd.ConsoleID', [71, 72, 80]);
-        }
-
-        if (!$gameKindFilterOptions['unlicensed']) {
-            $subquery->where('gd.Title', 'not like', '~Unlicensed~%');
-        }
-
-        if (!$gameKindFilterOptions['prototypes']) {
-            $subquery->where('gd.Title', 'not like', '~Prototype~%');
-        }
-
-        if (!$gameKindFilterOptions['demos']) {
-            $subquery->where('gd.Title', 'not like', '~Demo~%');
-        }
-
-        return $subquery;
+        return $query;
     }
 
-    private function buildRankingsSubquery(array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
+    private function attachRankingRowsMetadata(mixed $rankingRows)
     {
-        $subquery = $this->buildLeaderboardBaseSubquery($gameKindFilterOptions, $targetSystemId);
+        // Fetch all the usernames for the current page.
+        $userIds = $rankingRows->pluck('user_id')->unique();
+        $usernames = User::whereIn('ID', $userIds)->get(['ID', 'User'])->keyBy('ID');
 
-        /** @var string $subqueryTable */
-        $subqueryTable = DB::raw("({$subquery->toSql()}) as s");
+        // Fetch all the game metadata for the current page.
+        $gameIds = $rankingRows->pluck('most_recent_game_id')->unique();
+        $gameData = Game::whereIn('ID', $gameIds)->get(['ID', 'Title', 'ImageIcon', 'ConsoleID'])->keyBy('ID');
 
-        return DB::table($subqueryTable)
-            ->mergeBindings($subquery)
-            ->select(
-                'User',
-                DB::raw('RANK() OVER (ORDER BY COUNT(s.User) DESC) as rank_number'),
-                DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(s.User) DESC) as leaderboard_row_number'),
-                DB::raw('COUNT(s.User) as total_awards'),
-                'most_recent_game_id',
-                'Title as GameTitle',
-                'ImageIcon as GameIcon',
-                'ConsoleName',
-                DB::raw('MAX(AwardDate) as last_beaten_date'),
-            )
-            ->orderBy('rank_number')
-            ->groupBy('User');
+        // Fetch all the console metadata for the current page.
+        $consoleIds = $gameData->pluck('ConsoleID')->unique()->filter();
+        $consoleData = System::whereIn('ID', $consoleIds)->get(['ID', 'Name'])->keyBy('ID');
+
+        // Stitch all the fetched metadata back onto the aggregate rankings.
+        $rankingRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
+            $ranking->User = $usernames[$ranking->user_id]->User ?? null;
+            $ranking->GameTitle = $gameData[$ranking->most_recent_game_id]->Title ?? null;
+            $ranking->GameIcon = $gameData[$ranking->most_recent_game_id]->ImageIcon ?? null;
+
+            $consoleId = $gameData[$ranking->most_recent_game_id]->ConsoleID ?? null;
+            $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->Name ?? null : null;
+
+            return $ranking;
+        });
+
+        return $rankingRows;
     }
 
-    private function getLeaderboardRowCount(): int
+    private function getAggregatedLeaderboardDataForCurrentPage(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null)
     {
-        // SQLite, which is used for integration tests, doesn't support FOUND_ROWS().
-        // We'll naively return 25 for now.
-        if (DB::getDriverName() === 'sqlite') {
-            return 25;
-        }
-
-        return (int) DB::select(
-            (string) DB::raw('SELECT FOUND_ROWS() as count')
-        )[0]->count;
-    }
-
-    private function getUserRankingData(string $username, array $gameKindFilterOptions, ?int $targetSystemId = null): array
-    {
-        $subquery = $this->buildRankingsSubquery($gameKindFilterOptions, $targetSystemId);
-
-        /** @var string $subqueryTable */
-        $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
-
-        $result = DB::table($subqueryTable)
-            ->mergeBindings($subquery)
-            ->where('User', $username)
+        // Fetch the aggregated leaderboard.
+        $rankings = $this->buildAggregatedLeaderboardBaseQuery(
+            $gameKindFilterOptions,
+            $targetSystemId
+        )
+            ->orderBy('total_awards', 'desc')
+            ->offset($currentOffset)
+            ->limit($this->pageSize)
             ->get();
+
+        // Fetch extraneous metadata without doing joins.
+        // Joins are expensive - doing this as separate queries
+        // shaves a significant amount of time from page load.
+        return $this->attachRankingRowsMetadata($rankings);
+    }
+
+    // FIXME: Use FOUND_ROWS().
+    private function getLeaderboardRowCount(array $gameKindFilterOptions, ?int $targetSystemId = null): int
+    {
+        return $this->buildAggregatedLeaderboardBaseQuery(
+            $gameKindFilterOptions,
+            $targetSystemId
+        )
+            ->get()
+            ->count();
+    }
+
+    private function getUserRankingData(int $userId, array $gameKindFilterOptions, ?int $targetSystemId = null): array
+    {
+        $baseQuery = $this->buildAggregatedLeaderboardBaseQuery(
+            $gameKindFilterOptions,
+            $targetSystemId
+        );
+
+        // Then, you create an outer query that selects from the base query.
+        $result = DB::query()->fromSub($baseQuery, 'sub')
+            ->where('sub.user_id', $userId)
+            ->get();
+
+        $result = $this->attachRankingRowsMetadata($result);
 
         $userRankingData = $result->isEmpty() ? null : $result->get(0);
 
@@ -204,22 +217,5 @@ class BeatenGamesLeaderboardController extends Controller
                 ? ceil($userRankingData->leaderboard_row_number / $this->pageSize)
                 : null,
         ];
-    }
-
-    private function getLeaderboardDataForCurrentPage(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
-    {
-        $subquery = $this->buildRankingsSubquery($gameKindFilterOptions, $targetSystemId);
-
-        /** @var string $subqueryTable */
-        $subqueryTable = DB::raw("({$subquery->toSql()}) as b");
-
-        $result = applyFoundRows(DB::table($subqueryTable)->mergeBindings($subquery))
-            ->orderBy('rank_number')
-            ->orderBy('last_beaten_date')
-            ->offset($currentOffset)
-            ->limit($this->pageSize)
-            ->get();
-
-        return $result;
     }
 }
