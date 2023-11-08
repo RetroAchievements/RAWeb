@@ -79,11 +79,11 @@
                     </td>
 
                     @if ($game['NumAuthoredAchievements'] == $game['achievements_published'])
-                        <td class='text-right'>{{ $game['NumAuthoredAchievements'] }}</td>
-                        <td class='text-right'>{{ $game['NumAuthoredPoints'] }}</td>
+                        <td class='text-right'>{!! localized_number($game['NumAuthoredAchievements']) !!}</td>
+                        <td class='text-right'>{!! localized_number($game['NumAuthoredPoints']) !!}</td>
                     @else
-                        <td class='text-right'>{{ $game['NumAuthoredAchievements'] }} of {{ $game['achievements_published'] }}</td>
-                        <td class='text-right'>{{ $game['NumAuthoredPoints'] }} of {{ $game['points_total'] }}</td>
+                        <td class='text-right'>{!! localized_number($game['NumAuthoredAchievements']) !!} of {!! localized_number($game['achievements_published']) !!}</td>
+                        <td class='text-right'>{!! localized_number($game['NumAuthoredPoints']) !!} of {!! localized_number($game['points_total']) !!}</td>
                     @endif
 
                     <td class='text-right'>{!! sprintf("%01.2f", $game['RetroRatio']) !!}</td>
@@ -91,19 +91,19 @@
                     @if ($game['leaderboards_count'] == 0)
                         <td></td>
                     @elseif ($game['NumAuthoredLeaderboards'] == $game['leaderboards_count'])
-                        <td class='text-right'>{{ $game['NumAuthoredLeaderboards'] }}</td>
+                        <td class='text-right'>{!! localized_number($game['NumAuthoredLeaderboards']) !!}</td>
                     @else
-                        <td class='text-right'>{{ $game['NumAuthoredLeaderboards'] }} of {{ $game['leaderboards_count'] }}</td>
+                        <td class='text-right'>{!! localized_number($game['NumAuthoredLeaderboards']) !!} of {!! localized_number($game['leaderboards_count']) !!}</td>
                     @endif
 
-                    <td class='text-right'>{{ $game['players_total'] }}</td>
+                    <td class='text-right'>{!! localized_number($game['players_total']) !!}</td>
 
                     @if ($game['NumTickets'] == 0)
                         <td></td>
                     @elseif ($game['NumAuthoredTickets'] == $game['NumTickets'])
-                        <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{{ $game['NumAuthoredTickets'] }}</a></td>
+                        <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{!! localized_number($game['NumAuthoredTickets']) !!}</a></td>
                     @else
-                        <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{{ $game['NumAuthoredTickets'] }} of {{ $game['NumTickets'] }}</a></td>
+                        <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{!! localized_number($game['NumAuthoredTickets']) !!} of {!! localized_number($game['NumTickets']) !!}</a></td>
                     @endif
 
                     @if ($userProgress !== null)
