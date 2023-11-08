@@ -8,6 +8,7 @@ use App\Http\Controller;
 use App\Community\Enums\TicketState;
 use App\Community\Models\Ticket;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
@@ -25,7 +26,7 @@ class DeveloperGameListController extends Controller
         }
 
         $validatedData = $request->validate([
-            'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,-title,-achievements,-points,-leaderboards,-players,-tickets',
+            'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress',
             'sole' => 'sometimes|boolean',
         ]);
         $sortOrder = $validatedData['sort'] ?? 'console';
@@ -90,6 +91,21 @@ class DeveloperGameListController extends Controller
             ->orderBy('Name')
             ->get();
 
+        $userProgress = null;
+        if (request()->user()) {
+            $userProgress = PlayerGame::where('user_id', request()->user()->id)
+                ->whereIn('game_id', $gameIDs)
+                ->select(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
+                ->get()
+                ->mapWithKeys(function($row, $key) {
+                    return [$row['game_id'] => [
+                        'achievements_unlocked' => $row['achievements_unlocked'],
+                        'achievements_unlocked_hardcore' => $row['achievements_unlocked_hardcore'],
+                    ]];
+                })
+                ->toArray();
+        }
+
         $games = [];
         foreach ($gameModels as &$gameModel) {
             $game = $gameModel->toArray();
@@ -104,6 +120,9 @@ class DeveloperGameListController extends Controller
             $gameTickets = $gameTicketsList[$gameModel->ID] ?? null;
             $game['NumTickets'] = $gameTickets['NumTickets'] ?? 0;
             $game['NumAuthoredTickets'] = $gameTickets['NumAuthoredTickets'] ?? 0;
+
+            $gameProgress = $userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
+            $game['CompletionPercentage'] = $gameProgress * 100 / $game['achievements_published'];
 
             $game['ConsoleName'] = $consoles->firstWhere('ID', $game['ConsoleID'])->Name;
             $game['SortTitle'] = $game['Title'];
@@ -158,6 +177,12 @@ class DeveloperGameListController extends Controller
             '-tickets' => function ($a, $b) {
                 return $b['NumTickets'] <=> $a['NumTickets'];
             },
+            'progress' => function ($a, $b) {
+                return $a['CompletionPercentage'] <=> $b['CompletionPercentage'];
+            },
+            '-progress' => function ($a, $b) {
+                return $b['CompletionPercentage'] <=> $a['CompletionPercentage'];
+            },
         };
         usort($games, $sortFunction);
 
@@ -167,6 +192,7 @@ class DeveloperGameListController extends Controller
             'games' => $games,
             'sortOrder' => $sortOrder,
             'soleDeveloper' => $soleDeveloper,
+            'userProgress' => $userProgress,
         ]);
     }
 }

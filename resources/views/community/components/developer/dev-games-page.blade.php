@@ -4,6 +4,7 @@
     'games' => [],
     'sortOrder' => 'console',
     'soleDeveloper' => false,
+    'userProgress' => null,
 ])
 
 <?php
@@ -48,7 +49,8 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                 {!! $makeLink('Points', 'points') !!},
                 {!! $makeLink('Leaderboards', 'leaderboards') !!},
                 {!! $makeLink('Players', 'players') !!},
-                {!! $makeLink('Tickets', 'tickets') !!}
+                {!! $makeLink('Tickets', 'tickets') !!},
+                {!! $makeLink('Progress', 'progress') !!}
         @else
             {!! $makeLink('Sort by console', 'console') !!}
         @endif
@@ -72,12 +74,15 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
             <div><table class='table-highlight mb-4'><tbody>
 
             <tr>
-                <th style='width:46%'>{!! $makeLink('Title', 'title') !!}</th>
+                <th style='width:44%'>{!! $makeLink('Title', 'title') !!}</th>
                 <th style='width:12%' class='text-right'>{!! $makeLink('Achievements', 'achievements') !!}</th>
                 <th style='width:10%' class='text-right'>{!! $makeLink('Points', 'points') !!}</th>
-                <th style='width:12%' class='text-right'>{!! $makeLink('Leaderboards', 'leaderboards') !!}</th>
-                <th style='width:10%' class='text-right'>{!! $makeLink('Players', 'players') !!}</th>
-                <th style='width:10%' class='text-right'>{!! $makeLink('Tickets', 'tickets') !!}</th>
+                <th style='width:10%' class='text-right'>{!! $makeLink('Leaderboards', 'leaderboards') !!}</th>
+                <th style='width:8%' class='text-right'>{!! $makeLink('Players', 'players') !!}</th>
+                <th style='width:8%' class='text-right'>{!! $makeLink('Tickets', 'tickets') !!}</th>
+                @if ($userProgress !== null)
+                    <th style='width:8%' class='text-right'>{!! $makeLink('Progress', 'progress') !!}</th>
+                @endif
             </tr>
             <?php $count = $achievementCount = $pointCount = $leaderboardCount = $ticketCount = 0; ?>
             @foreach ($games as $game)
@@ -132,6 +137,26 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                         @else
                             <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{{ $game['NumAuthoredTickets'] }} of {{ $game['NumTickets'] }}</a></td>
                         @endif
+
+                        @if ($userProgress !== null)
+                            <td>
+                            <?php
+                                $hardcoreProgressBarWidth = $softcoreProgressBarWidth = 0;
+                                $gameProgress = $userProgress[$game['ID']] ?? null;
+                                if ($gameProgress != null) {
+                                    $hardcoreProgressBarWidth = sprintf("%01.2f", $gameProgress['achievements_unlocked_hardcore'] * 100 / $game['achievements_published']);
+                                    $softcoreProgressBarWidth = sprintf("%01.2f", ($gameProgress['achievements_unlocked'] - $gameProgress['achievements_unlocked_hardcore']) * 100 / $game['achievements_published']);
+                                }
+                            ?>
+                            <div role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                                 class="w-full h-1 bg-embed rounded flex">
+                                <div style="width: {{ $hardcoreProgressBarWidth }}%"
+                                     class="bg-[#cc9900] h-full {{ $hardcoreProgressBarWidth > 0 ? 'rounded-l' : '' }}"></div>
+                                <div style="width: {{ $softcoreProgressBarWidth }}%"
+                                     class="bg-[rgb(11,113,193)] h-full {{ $hardcoreProgressBarWidth === 0 ? 'rounded-l' : '' }}"></div>
+                            </div>
+                            </td>
+                        @endif
                     </tr>
                 @endif
             @endforeach
@@ -143,6 +168,9 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                     <td class='text-right'><b>{{ $leaderboardCount }}</b></td>
                     <td></td>
                     <td class='text-right'><b>{{ $ticketCount }}</b></td>
+                    @if ($userProgress !== null)
+                        <td></td>
+                    @endif
                 </tr>
             @endif
 
