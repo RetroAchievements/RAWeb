@@ -30,10 +30,15 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
 ?>
 
 <x-app-layout
-    pageTitle="{{ $user->User }} - Developed Games"
+    pageTitle="{{ $user->User }} - Developed Sets"
     pageDescription="Games developed by {{ $user->User }}"
 >
-    <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Developed Games" />
+    <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Developed Sets" />
+
+    <div class="mt-3 -mb-3 w-full flex gap-x-3">
+        {!! userAvatar($user->User, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">{{ $user->User }}'s Developed Sets</h1>
+    </div>
 
     @if (count($consoles) < 1)
         <p>No developed games.</p>

@@ -194,7 +194,7 @@ class DeveloperGameListController extends Controller
         };
         usort($games, $sortFunction);
 
-        return view('community.components.developer.dev-games-page', [
+        return view('community.components.developer.dev-sets-page', [
             'user' => $user,
             'consoles' => $consoles,
             'games' => $games,
