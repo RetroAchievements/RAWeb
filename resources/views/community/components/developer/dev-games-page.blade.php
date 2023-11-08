@@ -92,7 +92,7 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                         $achievementCount += $game['NumAuthoredAchievements'];
                         $pointCount += $game['NumAuthoredPoints'];
                         $leaderboardCount += $game['NumAuthoredLeaderboards'];
-                        $ticketCount += $game['NumTickets'];
+                        $ticketCount += $game['NumAuthoredTickets'];
                     ?>
                     <tr>
                         <td>
@@ -163,11 +163,11 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
             @if ($count > 1)
                 <tr>
                     <td><b>Total:</b> {{ $count }} games</td>
-                    <td class='text-right'><b>{{ $achievementCount }}</b></td>
-                    <td class='text-right'><b>{{ $pointCount }}</b></td>
-                    <td class='text-right'><b>{{ $leaderboardCount }}</b></td>
+                    <td class='text-right'><b>{!! localized_number($achievementCount) !!}</b></td>
+                    <td class='text-right'><b>{!! localized_number($pointCount) !!}</b></td>
+                    <td class='text-right'><b>{!! localized_number($leaderboardCount) !!}</b></td>
                     <td></td>
-                    <td class='text-right'><b>{{ $ticketCount }}</b></td>
+                    <td class='text-right'><b>{!! localized_number($ticketCount) !!}</b></td>
                     @if ($userProgress !== null)
                         <td></td>
                     @endif
