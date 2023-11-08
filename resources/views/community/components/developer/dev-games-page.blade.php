@@ -47,7 +47,8 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                 {!! $makeLink('Achievements', 'achievements') !!},
                 {!! $makeLink('Points', 'points') !!},
                 {!! $makeLink('Leaderboards', 'leaderboards') !!},
-                {!! $makeLink('Players', 'players') !!}
+                {!! $makeLink('Players', 'players') !!},
+                {!! $makeLink('Tickets', 'tickets') !!}
         @else
             {!! $makeLink('Sort by console', 'console') !!}
         @endif
@@ -71,13 +72,14 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
             <div><table class='table-highlight mb-4'><tbody>
 
             <tr>
-                <th style='width:56%'>{!! $makeLink('Title', 'title') !!}</th>
+                <th style='width:46%'>{!! $makeLink('Title', 'title') !!}</th>
                 <th style='width:12%' class='text-right'>{!! $makeLink('Achievements', 'achievements') !!}</th>
                 <th style='width:10%' class='text-right'>{!! $makeLink('Points', 'points') !!}</th>
                 <th style='width:12%' class='text-right'>{!! $makeLink('Leaderboards', 'leaderboards') !!}</th>
                 <th style='width:10%' class='text-right'>{!! $makeLink('Players', 'players') !!}</th>
+                <th style='width:10%' class='text-right'>{!! $makeLink('Tickets', 'tickets') !!}</th>
             </tr>
-            <?php $count = 0; $achievementCount = 0; $pointCount = 0; $leaderboardCount = 0; ?>
+            <?php $count = $achievementCount = $pointCount = $leaderboardCount = $ticketCount = 0; ?>
             @foreach ($games as $game)
                 @if ($sortOrder !== 'console' || $game['ConsoleID'] == $console['ID'])
                     <?php
@@ -85,6 +87,7 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                         $achievementCount += $game['NumAuthoredAchievements'];
                         $pointCount += $game['NumAuthoredPoints'];
                         $leaderboardCount += $game['NumAuthoredLeaderboards'];
+                        $ticketCount += $game['NumTickets'];
                     ?>
                     <tr>
                         <td>
@@ -121,6 +124,14 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                         @endif
 
                         <td class='text-right'>{{ $game['players_total'] }}</td>
+
+                        @if ($game['NumTickets'] == 0)
+                            <td></td>
+                        @elseif ($game['NumAuthoredTickets'] == $game['NumTickets'])
+                            <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{{ $game['NumAuthoredTickets'] }}</a></td>
+                        @else
+                            <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{{ $game['NumAuthoredTickets'] }} of {{ $game['NumTickets'] }}</a></td>
+                        @endif
                     </tr>
                 @endif
             @endforeach
@@ -131,6 +142,7 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
                     <td class='text-right'><b>{{ $pointCount }}</b></td>
                     <td class='text-right'><b>{{ $leaderboardCount }}</b></td>
                     <td></td>
+                    <td class='text-right'><b>{{ $ticketCount }}</b></td>
                 </tr>
             @endif
 

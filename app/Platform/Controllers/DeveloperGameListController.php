@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
+use App\Community\Enums\TicketState;
+use App\Community\Models\Ticket;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use App\Site\Models\User;
@@ -23,7 +25,7 @@ class DeveloperGameListController extends Controller
         }
 
         $validatedData = $request->validate([
-            'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,-title,-achievements,-points,-leaderboards,-players',
+            'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,-title,-achievements,-points,-leaderboards,-players,-tickets',
             'sole' => 'sometimes|boolean',
         ]);
         $sortOrder = $validatedData['sort'] ?? 'console';
@@ -58,6 +60,23 @@ class DeveloperGameListController extends Controller
         $gameIDs = array_keys($gameAuthoredAchievementsList) +
                    array_keys($gameAuthoredLeaderboardsList);
 
+        $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
+            ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
+            ->whereIn('Achievements.GameID', $gameIDs)
+            ->select(['GameID',
+                DB::raw('COUNT(Ticket.ID) AS NumTickets'),
+                DB::raw("SUM(CASE WHEN Achievements.Author='$user->User' THEN 1 ELSE 0 END) AS NumAuthoredTickets"),
+            ])
+            ->groupBy('GameID')
+            ->get()
+            ->mapWithKeys(function($row, $key) {
+                return [$row['GameID'] => [
+                    'NumTickets' => $row['NumTickets'],
+                    'NumAuthoredTickets' => $row['NumAuthoredTickets'],
+                ]];
+            })
+            ->toArray();
+
         $gameModels = Game::whereIn('ID', $gameIDs)
             ->orderBy('Title')
             ->select([
@@ -81,6 +100,10 @@ class DeveloperGameListController extends Controller
 
             $game['NumAuthoredLeaderboards'] = $gameAuthoredLeaderboardsList[$gameModel->ID] ?? 0;
             $game['leaderboards_count'] = $gameModel->leaderboards_count;
+
+            $gameTickets = $gameTicketsList[$gameModel->ID] ?? null;
+            $game['NumTickets'] = $gameTickets['NumTickets'] ?? 0;
+            $game['NumAuthoredTickets'] = $gameTickets['NumAuthoredTickets'] ?? 0;
 
             $game['ConsoleName'] = $consoles->firstWhere('ID', $game['ConsoleID'])->Name;
             $game['SortTitle'] = $game['Title'];
@@ -128,6 +151,12 @@ class DeveloperGameListController extends Controller
             },
             '-players' => function ($a, $b) {
                 return $b['players_total'] <=> $a['players_total'];
+            },
+            'tickets' => function ($a, $b) {
+                return $a['NumTickets'] <=> $b['NumTickets'];
+            },
+            '-tickets' => function ($a, $b) {
+                return $b['NumTickets'] <=> $a['NumTickets'];
             },
         };
         usort($games, $sortFunction);
