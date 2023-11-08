@@ -33,10 +33,7 @@ $makeLink = function($text, $value) use ($sortOrder, $soleDeveloper) {
     pageTitle="{{ $user->User }} - Developed Games"
     pageDescription="Games developed by {{ $user->User }}"
 >
-    <div class='navpath'>
-        {!! renderUserBreadcrumb($user) !!}
-        &raquo; <b>Developed Games</b>
-    </div>
+    <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Developed Games" />
 
     @if (count($consoles) < 1)
         <p>No developed games.</p>
