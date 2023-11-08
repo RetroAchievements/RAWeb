@@ -136,7 +136,7 @@ class BeatenGamesLeaderboardController extends Controller
         return $query;
     }
 
-    private function attachRankingRowsMetadata(mixed $rankingRows)
+    private function attachRankingRowsMetadata(mixed $rankingRows): mixed
     {
         // Fetch all the usernames for the current page.
         $userIds = $rankingRows->pluck('user_id')->unique();
@@ -165,7 +165,7 @@ class BeatenGamesLeaderboardController extends Controller
         return $rankingRows;
     }
 
-    private function getAggregatedLeaderboardDataForCurrentPage(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null)
+    private function getAggregatedLeaderboardDataForCurrentPage(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
     {
         // Fetch the aggregated leaderboard.
         $rankings = $this->buildAggregatedLeaderboardBaseQuery(
