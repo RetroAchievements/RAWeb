@@ -652,11 +652,10 @@ RenderContentStart("$dev's Developer Stats");
 
         // Number of own achievements obtained
         echo "<tr><td>Own Achievements Obtained:</td><td>";
-        if ($ownAchievementsObtained['SoftcoreCount'] > 0) {
-            echo $ownAchievementsObtained['SoftcoreCount'] . " - " . number_format($ownAchievementsObtained['SoftcoreCount'] / $achievementCount * 100, 2, '.', '') . "% <b>(" . $ownAchievementsObtained['HardcoreCount'] . " - " . number_format($ownAchievementsObtained['HardcoreCount'] / $achievementCount * 100, 2, '.', '') . "%)</b>";
-        } else {
-            echo "0 - 0.00% <b>(0 - 0.00%)</b>";
-        }
+        $softcoreCount = $ownAchievementsObtained['SoftcoreCount'] ?? 0;
+        $hardcoreCount = $ownAchievementsObtained['HardcoreCount'] ?? 0;
+        echo "$softcoreCount - " . number_format($softcoreCount / $achievementCount * 100, 2, '.', '') . "%";
+        echo " <b>($hardcoreCount - " . number_format($hardcoreCount / $achievementCount * 100, 2, '.', '') . "%)</b>";
         echo "</td></tr>";
 
         // Number of unique achievement obtainers
