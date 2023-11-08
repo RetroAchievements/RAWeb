@@ -9,7 +9,7 @@
 
 <x-app-layout
     pageTitle="{{ $user->User }} - Developed Sets"
-    pageDescription="Games developed by {{ $user->User }}"
+    pageDescription="View achievement sets developed by {{ $user->User }} for various games on RetroAchievements"
 >
     <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Developed Sets" />
 
