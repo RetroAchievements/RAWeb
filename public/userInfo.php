@@ -87,8 +87,9 @@ $daysRecentProgressToShow = 14; // fortnight
 
 $userAwards = getUsersSiteAwards($userPage);
 
+$userPageModel = User::firstWhere('User', $userPage);
 $userScoreData = getAwardedList(
-    User::firstWhere('User', $userPage),
+    $userPageModel,
     0,
     $daysRecentProgressToShow,
     date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow),
@@ -339,7 +340,7 @@ RenderContentStart($userPage);
     $contribYield = $userMassData['ContribYield'];
     if ($contribCount > 0) {
         echo "<strong>$userPage Developer Information:</strong><br>";
-        echo "<a href='/user/$userPage/dev-games'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
+        echo "<a href='" . route('user.dev-sets', $userPageModel) . "'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
         echo "<a href='/individualdevstats.php?u=$userPage'>View detailed stats for <b>$userPage</b>.</a><br>";
         echo "<a href='/claimlist.php?u=$userPage'>View claims for <b>$userPage</b>.</a></br>";
         if (isset($user) && $permissions >= Permissions::Registered) {

@@ -73,7 +73,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
-            Route::get('user/{user}/dev-games', DeveloperGameListController::class)->name('user.dev-games');
+            Route::get('user/{user}/dev/sets', DeveloperGameListController::class)->name('user.dev-sets');
 
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
