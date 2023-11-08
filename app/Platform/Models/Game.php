@@ -72,6 +72,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     protected $visible = [
         'ID',
         'Title',
+        'ConsoleID',
         'ForumTopicID',
         'Flags',
         'ImageIcon',
