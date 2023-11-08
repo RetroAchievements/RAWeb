@@ -22,6 +22,11 @@ class DeveloperGameListController extends Controller
             abort(404);
         }
 
+        $validatedData = $request->validate([
+            'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,-title,-achievements,-points,-leaderboards,-players',
+        ]);
+        $sortOrder = $validatedData['sort'] ?? 'console';
+
         $gameAuthoredAchievementsList = $user->authoredAchievements()->published()
             ->select(['GameID',
                 DB::raw('COUNT(Achievements.ID) AS NumAuthoredAchievements'),
@@ -60,6 +65,10 @@ class DeveloperGameListController extends Controller
             ->withCount('leaderboards')
             ->get();
 
+        $consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
+            ->orderBy('Name')
+            ->get();
+
         $games = [];
         foreach ($gameModels as &$gameModel) {
             $game = $gameModel->toArray();
@@ -71,17 +80,54 @@ class DeveloperGameListController extends Controller
             $game['NumAuthoredLeaderboards'] = $gameAuthoredLeaderboardsList[$gameModel->ID] ?? 0;
             $game['leaderboards_count'] = $gameModel->leaderboards_count;
 
+            $game['ConsoleName'] = $consoles->firstWhere('ID', $game['ConsoleID'])->Name;
+            $game['SortTitle'] = $game['Title'];
+            if (substr($game['Title'], 0, 1) == '~') {
+                $tilde = strrpos($game['Title'], '~');
+                $game['SortTitle'] = trim(substr($game['Title'], $tilde + 1) . ' ' . substr($game['Title'], 0, $tilde + 1));
+            }
             $games[] = $game;
         }
 
-        $consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
-            ->orderBy('Name')
-            ->get();
+        $sortFunction = match ($sortOrder) {
+            default => function ($a, $b) {
+                return $a['SortTitle'] <=> $b['SortTitle'];
+            },
+            '-title' => function ($a, $b) {
+                return $b['SortTitle'] <=> $a['SortTitle'];
+            },
+            'achievements' => function ($a, $b) {
+                return $a['NumAuthoredAchievements'] <=> $b['NumAuthoredAchievements'];
+            },
+            '-achievements' => function ($a, $b) {
+                return $b['NumAuthoredAchievements'] <=> $a['NumAuthoredAchievements'];
+            },
+            'points' => function ($a, $b) {
+                return $a['NumAuthoredPoints'] <=> $b['NumAuthoredPoints'];
+            },
+            '-points' => function ($a, $b) {
+                return $b['NumAuthoredPoints'] <=> $a['NumAuthoredPoints'];
+            },
+            'leaderboards' => function ($a, $b) {
+                return $a['NumAuthoredLeaderboards'] <=> $b['NumAuthoredLeaderboards'];
+            },
+            '-leaderboards' => function ($a, $b) {
+                return $b['NumAuthoredLeaderboards'] <=> $a['NumAuthoredLeaderboards'];
+            },
+            'players' => function ($a, $b) {
+                return $a['players_total'] <=> $b['players_total'];
+            },
+            '-players' => function ($a, $b) {
+                return $b['players_total'] <=> $a['players_total'];
+            },
+        };
+        usort($games, $sortFunction);
 
         return view('community.components.developer.dev-games-page', [
             'user' => $user,
             'consoles' => $consoles,
             'games' => $games,
+            'sortOrder' => $sortOrder,
         ]);
     }
 }

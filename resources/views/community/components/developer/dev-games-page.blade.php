@@ -2,7 +2,22 @@
     'user' => null,
     'consoles' => [],
     'games' => [],
+    'sortOrder' => 'console',
 ])
+
+<?php
+$makeLink = function($text, $value) use ($sortOrder) {
+    if ($sortOrder === $value) {
+        return "<a href='?sort=-$value'>$text &#x25B2;</a>";
+    }
+
+    if ($sortOrder == "-$value") {
+        return "<a href='?sort=$value'>$text &#x25BC;</a>";
+    }
+
+    return "<a href='?sort=$value'>$text</a>";
+};
+?>
 
 <x-app-layout
     pageTitle="{{ $user->User }} - Developed Games"
@@ -16,23 +31,40 @@
     @if (count($consoles) < 1)
         <p>No developed games.</p>
     @else
+        <p class='mb-2'>
+        @if ($sortOrder === 'console')
+            Sort by:
+                {!! $makeLink('Title', 'title') !!},
+                {!! $makeLink('Achievements', 'achievements') !!},
+                {!! $makeLink('Points', 'points') !!},
+                {!! $makeLink('Leaderboards', 'leaderboards') !!},
+                {!! $makeLink('Players', 'players') !!}
+            <?php $makeLink = function($text, $value) { return $text; }; ?>
+        @else
+            {!! $makeLink('Sort by console', 'console') !!}
+        @endif
+        </p>
+
         @foreach ($consoles as $console)
-            <h2 class="flex gap-x-2 items-center text-h3">
-                <img src="{{ getSystemIconUrl($console->ID) }}" alt="Console icon" width="24" height="24">
-                <span>{{ $console->Name }}</span>
-            </h2>
+            @if ($sortOrder === 'console')
+                <h2 class="flex gap-x-2 items-center text-h3">
+                    <img src="{{ getSystemIconUrl($console->ID) }}" alt="Console icon" width="24" height="24">
+                    <span>{{ $console->Name }}</span>
+                </h2>
+            @endif
+
             <div><table class='table-highlight mb-4'><tbody>
 
             <tr>
-                <th style='width:68%'>Title</th>
-                <th style='width:8%' class='text-right'>Achievements</th>
-                <th style='width:8%' class='text-right'>Points</th>
-                <th style='width:8%' class='text-right'>Leaderboards</th>
-                <th style='width:8%' class='text-right'>Players</th>
+                <th style='width:56%'>{!! $makeLink('Title', 'title') !!}</th>
+                <th style='width:12%' class='text-right'>{!! $makeLink('Achievements', 'achievements') !!}</th>
+                <th style='width:10%' class='text-right'>{!! $makeLink('Points', 'points') !!}</th>
+                <th style='width:12%' class='text-right'>{!! $makeLink('Leaderboards', 'leaderboards') !!}</th>
+                <th style='width:10%' class='text-right'>{!! $makeLink('Players', 'players') !!}</th>
             </tr>
             <?php $count = 0; $achievementCount = 0; $pointCount = 0; $leaderboardCount = 0; ?>
             @foreach ($games as $game)
-                @if ($game['ConsoleID'] == $console->ID)
+                @if ($sortOrder !== 'console' || $game['ConsoleID'] == $console['ID'])
                     <?php
                         $count++;
                         $achievementCount += $game['NumAuthoredAchievements'];
@@ -41,11 +73,20 @@
                     ?>
                     <tr>
                         <td>
-                        <x-game.multiline-avatar
-                            :gameId="$game['ID']"
-                            :gameTitle="$game['Title']"
-                            :gameImageIcon="$game['ImageIcon']"
-                        />
+                        @if ($sortOrder !== 'console')
+                            <x-game.multiline-avatar
+                                :gameId="$game['ID']"
+                                :gameTitle="$game['Title']"
+                                :gameImageIcon="$game['ImageIcon']"
+                                :consoleName="$game['ConsoleName']"
+                            />
+                        @else
+                            <x-game.multiline-avatar
+                                :gameId="$game['ID']"
+                                :gameTitle="$game['Title']"
+                                :gameImageIcon="$game['ImageIcon']"
+                            />
+                        @endif
                         </td>
 
                         @if ($game['NumAuthoredAchievements'] == $game['achievements_published'])
@@ -79,6 +120,10 @@
             @endif
 
             </tbody></table></div>
+
+            @if ($sortOrder != 'console')
+                @break
+            @endif
         @endforeach
     @endif
 
