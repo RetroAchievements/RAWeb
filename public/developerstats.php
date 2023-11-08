@@ -103,7 +103,7 @@ RenderContentStart("Developer Stats");
         echo "</small>";
         echo "</div></td>";
         echo "<td class='text-right'><a href='/ticketmanager.php?u=" . $devStats['Author'] . "'>" . $devStats['OpenTickets'] . "</a></td>";
-        echo "<td class='text-right'><a href='/user/" . $devStats['Author'] . "/dev-games'>" . localized_number($devStats['Achievements']) . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('user.dev-sets', $devStats['Author']) . "'>" . localized_number($devStats['Achievements']) . "</a></td>";
         echo "<td class='text-right'><a href='/ticketmanager.php?r=" . $devStats['Author'] . "&t=" . $resolvedForOthersTicketFilter . "'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribCount']) . "</td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribYield']) . "</td>";
