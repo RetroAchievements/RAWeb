@@ -246,7 +246,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
                   ORDER BY OpenTickets DESC";
         $buildDevList($query);
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
-        $query = "SELECT ua.ID, SUM(!ISNULL(tick.ID)) as total
+        $query = "SELECT ua.ID, SUM(!ISNULL(ach.ID)) as total
                   FROM UserAccounts as ua
                   LEFT JOIN Ticket tick ON tick.ResolvedByUserID = ua.ID AND tick.ReportState = 2 AND tick.ResolvedByUserID != tick.ReportedByUserID
                   LEFT JOIN Achievements as ach ON ach.ID = tick.AchievementID AND ach.flags = 3 AND ach.Author != ua.User
