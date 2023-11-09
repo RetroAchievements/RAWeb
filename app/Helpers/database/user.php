@@ -226,7 +226,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
 
         // user data (this must be a LEFT JOIN to pick up users with 0 published achievements)
         $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
-                         ua.LastLogin, COUNT(*) AS NumAchievements
+                         ua.LastLogin, SUM(!ISNULL(ach.ID)) AS NumAchievements
                   FROM UserAccounts ua
                   LEFT JOIN Achievements ach ON ach.Author=ua.User AND ach.Flags = 3
                   WHERE ua.ID IN ($devList)
