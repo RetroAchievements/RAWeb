@@ -191,7 +191,6 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
     $stateCond = "ua.ContribCount > 0 AND ua.ContribYield > 0 " . $stateCond;
 
     $devs = [];
-
     $data = [];
     $buildData = function ($query) use (&$devs, &$data) {
         $populateDevs = empty($devs);
@@ -221,7 +220,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
             $devs[] = $row['ID'];
         }
         if (empty($devs)) {
-            return [];
+            return;
         }
         $devList = implode(',', $devs);
 
