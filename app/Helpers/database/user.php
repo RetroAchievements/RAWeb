@@ -2,7 +2,6 @@
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
-use App\Community\Enums\TicketState;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 
@@ -189,61 +188,128 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         // Active + Junior + Inactive
         default => "",
     };
+    $stateCond = "ua.ContribCount > 0 AND ua.ContribYield > 0 " . $stateCond;
 
-    $order = match ($sortBy) {
-        // number of points allocated
-        1 => "ContribYield DESC",
-        // number of achievements won by others
-        2 => "ContribCount DESC",
-        3 => "OpenTickets DESC",
-        4 => "TicketsResolvedForOthers DESC",
-        5 => "LastLogin DESC",
-        6 => "Author ASC",
-        7 => "ActiveClaims DESC",
-        default => "Achievements DESC",
-    };
+    // determine the top N accounts for each search criteria
+    // - use LEFT JOINs and SUM(!ISNULL) to return entries with 0s
+    if ($sortBy == 3) { // OpenTickets DESC
+        $query = "SELECT ua.ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
+                  FROM UserAccounts ua
+                  LEFT JOIN Achievements ach ON ach.Author=ua.User
+                  LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY OpenTickets DESC";
+    } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
+        $query = "SELECT ua.ID, SUM(!ISNULL(tick.ID)) as total
+                  FROM UserAccounts as ua
+                  LEFT JOIN Ticket tick ON tick.ResolvedByUserID = ua.ID AND tick.ReportState = 2 AND tick.ResolvedByUserID != tick.ReportedByUserID
+                  LEFT JOIN Achievements as ach ON ach.ID = tick.AchievementID AND ach.flags = 3 AND ach.Author != ua.User
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY total DESC";
+    } elseif ($sortBy == 7) { // ActiveClaims DESC
+        $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
+                  FROM UserAccounts ua
+                  LEFT JOIN SetClaim sc ON sc.User=ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY ActiveClaims DESC";
+    } else {
+        $order = match ($sortBy) {
+            1 => "ua.ContribYield DESC",
+            2 => "ua.ContribCount DESC",
+            5 => "ua.LastLogin DESC",
+            6 => "ua.User ASC",
+            default => "NumAchievements DESC",
+        };
 
-    $query = "
-    SELECT
-        ua.User AS Author,
-        Permissions,
-        ContribCount,
-        ContribYield,
-        COUNT(DISTINCT(IF(ach.Flags = 3, ach.ID, NULL))) AS Achievements,
-        COUNT(DISTINCT(tick.ID)) AS OpenTickets,
-        COALESCE(resolved.total,0) AS TicketsResolvedForOthers,
-        LastLogin,
-        COUNT(DISTINCT(sc.ID)) AS ActiveClaims
-    FROM
-        UserAccounts AS ua
-    LEFT JOIN
-        Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
-    LEFT JOIN
-        Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
-    LEFT JOIN
-        SetClaim AS sc ON (sc.User = ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "))
-    LEFT JOIN (
-        SELECT ua2.User,
-        SUM(CASE WHEN t.ReportState = 2 THEN 1 ELSE 0 END) AS total
-        FROM Ticket AS t
-        LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
-        LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.ResolvedByUserID
-        LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-        WHERE ua.User NOT LIKE ua2.User
-        AND a.Author NOT LIKE ua2.User
-        AND a.Flags = '3'
-        GROUP BY ua2.User) resolved ON resolved.User = ua.User
-    WHERE
-        ContribCount > 0 AND ContribYield > 0
-        $stateCond
-    GROUP BY
-        ua.User
-    ORDER BY
-        $order,
-        OpenTickets ASC";
-    // LIMIT 0, $count";
+        $query = "SELECT ua.ID, SUM(!ISNULL(ach.ID)) AS NumAchievements
+                  FROM UserAccounts ua
+                  LEFT JOIN Achievements ach ON ach.Author=ua.User AND ach.Flags = 3
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY $order";
+    }
 
-    return legacyDbFetchAll($query)->toArray();
+    // build an ordered list of the user_ids that will be displayed
+    // these will be used to limit the query results of the subsequent queries
+    $devs = [];
+    foreach (legacyDbFetchAll($query . " LIMIT $count") as $row) {
+        $devs[] = $row['ID'];
+    }
+    if (empty($devs)) {
+        return [];
+    }
+    $devList = implode(',', $devs);
+
+    // user data (this must be a LEFT JOIN to pick up users with 0 published achievements)
+    $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
+                     ua.LastLogin, COUNT(*) AS NumAchievements
+              FROM UserAccounts ua
+              LEFT JOIN Achievements ach ON ach.Author=ua.User AND ach.Flags = 3
+              WHERE ua.ID IN ($devList)
+              GROUP BY ua.ID";
+    $data = [];
+    foreach (legacyDbFetchAll($query) as $row) {
+        $data[$row['ID']] = [
+            'Author' => $row['User'],
+            'Permissions' => $row['Permissions'],
+            'ContribCount' => $row['ContribCount'],
+            'ContribYield' => $row['ContribYield'],
+            'LastLogin' => $row['LastLogin'],
+            'Achievements' => $row['NumAchievements'],
+            'OpenTickets' => 0,
+            'TicketsResolvedForOthers' => 0,
+            'ActiveClaims' => 0,
+        ];
+    }
+
+    // merge in open tickets
+    $query = "SELECT ua.ID, COUNT(*) AS OpenTickets
+              FROM Ticket tick
+              INNER JOIN Achievements ach ON ach.ID=tick.AchievementID
+              INNER JOIN UserAccounts ua ON ua.User=ach.Author
+              WHERE ua.ID IN ($devList)
+              AND tick.ReportState IN (1,3)
+              GROUP BY ua.ID";
+    foreach (legacyDbFetchAll($query) as $row) {
+        $data[$row['ID']]['OpenTickets'] = $row['OpenTickets'];
+    }
+
+    // merge in tickets resolved for others
+    $query = "SELECT ua.ID, COUNT(*) as total
+              FROM Ticket AS tick
+              INNER JOIN UserAccounts as ua ON ua.ID = tick.ResolvedByUserID
+              INNER JOIN Achievements as ach ON ach.ID = tick.AchievementID
+              WHERE tick.ResolvedByUserID != tick.ReportedByUserID
+              AND ach.Author != ua.User
+              AND ach.Flags = 3
+              AND tick.ReportState = 2
+              AND ua.ID IN ($devList)
+              GROUP BY ua.ID";
+    foreach (legacyDbFetchAll($query) as $row) {
+        $data[$row['ID']]['TicketsResolvedForOthers'] = $row['total'];
+    }
+
+    // merge in active claims
+    $query = "SELECT ua.ID, COUNT(*) AS ActiveClaims
+              FROM SetClaim sc
+              INNER JOIN UserAccounts ua ON ua.User=sc.User
+              WHERE sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+              AND ua.ID IN ($devList)
+              GROUP BY ua.ID";
+    foreach (legacyDbFetchAll($query) as $row) {
+        $data[$row['ID']]['ActiveClaims'] = $row['ActiveClaims'];
+    }
+
+    // generate output sorted by original order
+    $results = [];
+    foreach ($devs as $dev) {
+        $results[] = $data[$dev];
+    }
+
+    return $results;
 }
 
 function GetUserFields(string $username, array $fields): ?array
