@@ -243,7 +243,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
                   LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY OpenTickets DESC";
+                  ORDER BY OpenTickets DESC, ua.User";
         $buildDevList($query);
     } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(ach.ID)) as total
@@ -252,7 +252,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
                   LEFT JOIN Achievements as ach ON ach.ID = tick.AchievementID AND ach.flags = 3 AND ach.Author != ua.User
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY total DESC";
+                  ORDER BY total DESC, ua.User";
         $buildDevList($query);
     } elseif ($sortBy == 7) { // ActiveClaims DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
@@ -260,15 +260,15 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
                   LEFT JOIN SetClaim sc ON sc.User=ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
                   WHERE $stateCond
                   GROUP BY ua.ID
-                  ORDER BY ActiveClaims DESC";
+                  ORDER BY ActiveClaims DESC, ua.User";
         $buildDevList($query);
     } else {
         $order = match ($sortBy) {
-            1 => "ua.ContribYield DESC",
-            2 => "ua.ContribCount DESC",
-            5 => "ua.LastLogin DESC",
+            1 => "ua.ContribYield DESC, ua.User",
+            2 => "ua.ContribCount DESC, ua.User",
+            5 => "ua.LastLogin DESC, ua.User",
             6 => "ua.User ASC",
-            default => "NumAchievements DESC",
+            default => "NumAchievements DESC, ua.User",
         };
 
         // ASSERT: ContribYield cannot be > 0 unless NumAchievements > 0, so use
