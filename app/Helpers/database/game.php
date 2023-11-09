@@ -291,26 +291,26 @@ function getGamesListByDev(
 
     $initialQuery = true;
     if ($sortBy === 4 || $sortBy === 14) { // NumLBs
-        $query = "SELECT $foundRows gd.ID, gd.points_total AS MaxPointsAvailable, COUNT(*) AS NumLBs
-                  FROM LeaderboardDef lb
-                  INNER JOIN GameData gd ON gd.ID = lb.GameID
+        $query = "SELECT $foundRows gd.ID, gd.points_total AS MaxPointsAvailable, SUM(!ISNULL(lb.ID)) AS NumLBs
+                  FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
+                  LEFT JOIN LeaderboardDef lb ON lb.GameID = gd.ID
                   WHERE 1=1 $whereClause
                   GROUP BY gd.ID, gd.points_total $orderBy";
     } elseif ($sortBy === 5 || $sortBy === 15) { // OpenTickets
-        $query = "SELECT $foundRows gd.ID, COUNT(*) AS OpenTickets
-                  FROM Ticket tick
-                  INNER JOIN Achievements ach ON ach.ID=tick.AchievementID
-                  INNER JOIN GameData gd ON gd.ID=ach.GameID
+        $query = "SELECT $foundRows gd.ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
+                  FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE tick.ReportState IN (1,3) $whereClause
+                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID
+                  LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
+                  WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } elseif ($sortBy === 6 || $sortBy === 16) { // DateModified
-        $query = "SELECT $foundRows gd.ID, MAX(DateModified) AS DateModified
-                  FROM Achievements ach
-                  INNER JOIN GameData gd ON gd.ID=ach.GameID
+        $query = "SELECT $foundRows gd.ID, MAX(ach.DateModified) AS DateModified
+                  FROM GameData gd
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE ach.Flags=" . AchievementFlag::OfficialCore . " $whereClause
+                  LEFT JOIN Achievements ach ON ach.GameID=gd.ID AND ach.Flags=" . AchievementFlag::OfficialCore . "
+                  WHERE 1=1 $whereClause
                   GROUP BY gd.ID $orderBy";
     } else {
         // other sorts can be handled without an initial query
@@ -455,6 +455,7 @@ function getGamesListByDev(
     $query = "SELECT GameID, MAX(DateModified) AS DateModified
               FROM Achievements
               WHERE GameID IN ($gameList)
+              AND Flags=" . AchievementFlag::OfficialCore . "
               GROUP BY GameID";
     foreach (legacyDbFetchAll($query) as $row) {
         $games[$row['GameID']]['DateModified'] = $row['DateModified'];
