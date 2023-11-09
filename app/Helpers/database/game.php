@@ -291,7 +291,7 @@ function getGamesListByDev(
 
     $initialQuery = true;
     if ($sortBy === 4 || $sortBy === 14) { // NumLBs
-        $query = "SELECT $foundRows gd.ID, gd.points_total AS MaxPointsAvailable, COUNT(*) AS NumLBs,
+        $query = "SELECT $foundRows gd.ID, gd.points_total AS MaxPointsAvailable, COUNT(*) AS NumLBs
                   FROM LeaderboardDef lb
                   INNER JOIN GameData gd ON gd.ID = lb.GameID
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
