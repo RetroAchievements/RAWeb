@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Cache;
 
 class ActivePlayersService
 {
-    public function loadActivePlayers(?string $searchValue = null, bool $fetchAll = false, ?array $targetGameIds = []): array
-    {
+    public function loadActivePlayers(
+        ?string $searchValue = null,
+        bool $fetchAll = false,
+        ?array $targetGameIds = [],
+    ): array {
         $allActivePlayers = Cache::remember(
-            'currently-active:20230921',
+            'currently-active:202309215543',
             Carbon::now()->addMinutes(2),
             function () {
                 return collect(getLatestRichPresenceUpdates())
@@ -29,7 +32,7 @@ class ActivePlayersService
         $filteredActivePlayers = $this->useDevelopmentGameTitle($filteredActivePlayers);
         $filteredActivePlayers = $this->useTargetGameIds($filteredActivePlayers, $targetGameIds);
 
-        $trendingGames = $targetGameIds ? [] : $this->computeTrendingGames($filteredActivePlayers);
+        $trendingGames = isset($targetGameIds) ? [] : $this->computeTrendingGames($filteredActivePlayers);
 
         if ($searchValue) {
             $filteredActivePlayers = $filteredActivePlayers->filter(function ($player) use ($searchValue) {
@@ -50,7 +53,7 @@ class ActivePlayersService
         $records = $records->toArray();
 
         return [
-            'total' => $targetGameIds ? $filteredActivePlayers->count() : $allActivePlayers->count(),
+            'total' => isset($targetGameIds) ? $filteredActivePlayers->count() : $allActivePlayers->count(),
             'count' => count($records),
             'records' => $records,
             'trendingGames' => $trendingGames,
@@ -119,7 +122,7 @@ class ActivePlayersService
 
     private function useTargetGameIds(mixed $activePlayers, ?array $targetGameIds): mixed
     {
-        if (!$targetGameIds) {
+        if (!isset($targetGameIds)) {
             return $activePlayers;
         }
 

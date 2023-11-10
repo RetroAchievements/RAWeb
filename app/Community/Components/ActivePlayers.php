@@ -31,7 +31,7 @@ class ActivePlayers extends Component
     {
         $loadedActivePlayers = $this->activePlayersService->loadActivePlayers(
             $this->initialSearch,
-            $this->targetGameIds ? true : false,
+            isset($this->targetGameIds) ? true : false,
             $this->targetGameIds,
         );
 

@@ -13,6 +13,7 @@ use App\Platform\Models\LeaderboardEntryLegacy;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -23,16 +24,19 @@ class DeveloperRecentActivityController extends Controller
     public function __invoke(Request $request): View
     {
         $targetUsername = $request->route()->parameters['user'];
-        $foundTargetUser = User::where('User', 'like', $targetUsername)->first();
+        $foundTargetUser = User::firstWhere('User', $targetUsername);
         if (!$this->getCanViewTargetUser($foundTargetUser)) {
             abort(404);
         }
 
         $allUserAchievements = collect(getUserAchievementInformation($foundTargetUser->User));
         $allUserAchievementIds = $allUserAchievements->pluck('ID');
-        $allUserGameIds = $allUserAchievements->where('Flags', 3)->pluck('GameID')->unique();
+        $allUserGameIds = $allUserAchievements->pluck('GameID')->unique();
 
-        $recentUnlocks = $this->fetchRecentUnlocksForDev($allUserAchievementIds);
+        $recentUnlocks = $this->fetchRecentUnlocksForDev(
+            $allUserAchievementIds,
+            shouldUseDateRange: $foundTargetUser->ContribCount > 20000
+        );
         $recentAwards = $this->fetchRecentAwardsForDev($allUserGameIds);
         $awardsContributed = $this->fetchAwardsContributedForDev($allUserGameIds);
         $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($foundTargetUser);
@@ -243,9 +247,12 @@ class DeveloperRecentActivityController extends Controller
         return $this->buildLeaderboardEntriesForDevBaseQuery($targetUser)->count();
     }
 
-    private function fetchRecentAwardsForDev(mixed $allUserGameIds, int $limit = 200): mixed
+    private function fetchRecentAwardsForDev(mixed $allUserGameIds, int $limit = 50): mixed
     {
+        $thirtyDaysAgo = Carbon::now()->subDays(30);
+
         $mostRecentAwards = $this->buildAwardsForDevBaseQuery($allUserGameIds)
+            ->whereDate('pb.AwardDate', '>=', $thirtyDaysAgo)
             ->orderByDesc('pb.AwardDate')
             ->take($limit)
             ->get();
@@ -255,7 +262,10 @@ class DeveloperRecentActivityController extends Controller
 
     private function fetchRecentLeaderboardEntriesForDev(User $targetUser, int $limit = 200): mixed
     {
+        $thirtyDaysAgo = Carbon::now()->subDays(30);
+
         $mostRecentLeaderboardEntries = $this->buildLeaderboardEntriesForDevBaseQuery($targetUser)
+            ->whereDate('LeaderboardEntry.DateSubmitted', '>=', $thirtyDaysAgo)
             ->orderByDesc('LeaderboardEntry.DateSubmitted')
             ->take($limit)
             ->get([
@@ -266,18 +276,23 @@ class DeveloperRecentActivityController extends Controller
         return $this->attachRecentLeaderboardEntryRowsMetadata($mostRecentLeaderboardEntries);
     }
 
-    private function fetchRecentUnlocksForDev(mixed $allUserAchievementIds, int $limit = 200): mixed
+    private function fetchRecentUnlocksForDev(mixed $allUserAchievementIds, int $limit = 200, bool $shouldUseDateRange = false): mixed
     {
-        $mostRecentUnlocks = PlayerAchievement::whereIn('achievement_id', $allUserAchievementIds)
-            ->orderByDesc('unlocked_at')
-            ->take($limit)
-            ->get();
+        $query = PlayerAchievement::whereIn('achievement_id', $allUserAchievementIds)
+            ->orderByDesc('unlocked_at');
+
+        if ($shouldUseDateRange) {
+            $thirtyDaysAgo = Carbon::now()->subDays(30);
+            $query->whereDate('unlocked_at', '>=', $thirtyDaysAgo);
+        }
+
+        $mostRecentUnlocks = $query->take($limit)->get();
 
         return $this->attachRecentUnlockRowsMetadata($mostRecentUnlocks);
     }
 
     private function getCanViewTargetUser(?User $user): bool
     {
-        return (bool) $user && (bool) $user->ContribCount;
+        return (bool) $user && $user->Permissions >= Permissions::Registered;
     }
 }
