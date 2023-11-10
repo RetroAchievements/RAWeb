@@ -13,7 +13,6 @@ $achievementPoints = $achievement->Points;
 $achievementRetroPoints = $achievement->TrueRatio;
 $achievementBadgeName = $achievement->BadgeName;
 
-$renderedGameTitle = renderGameTitle($game->Title);
 $achievementIconSrc = media_asset("/Badge/$achievementBadgeName.png");
 $gameSystemIconUrl = getSystemIconUrl($game->ConsoleID);
 
@@ -60,13 +59,15 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
                 >
 
                 <p class="absolute max-w-fit pl-4 top-[-4px] left-6 font-semibold mb-0.5 text-xs">
-                    {!! $renderedGameTitle !!}
+                    <x-game-title :rawTitle="$game->Title" />
                 </p>
             </a>
 
             <div>
                 {{-- Provide invisible space to slide the console underneath --}}
-                <p class="invisible max-w-fit pl-4 font-semibold mb-0.5 text-xs">{!! $renderedGameTitle !!}</p>
+                <p class="invisible max-w-fit pl-4 font-semibold mb-0.5 text-xs">
+                    <x-game-title :rawTitle="$game->Title" />
+                </p>
 
                 <a href="{{ $gameSystemUrl }}" class="flex items-center gap-x-1 -mt-1">
                     <img src="{{ $gameSystemIconUrl }}" width="18" height="18" alt="Console icon">

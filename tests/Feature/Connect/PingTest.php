@@ -73,6 +73,26 @@ class PingTest extends TestCase
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($game->ID, $user1->LastGameID);
         $this->assertEquals('Doing good', $user1->RichPresenceMsg);
+
+        // invalid UTF-8 should be sanitized
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => $game->ID, 'm' => "T\xC3\xA9st t\xC3st"]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+            ]);
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $this->user->id,
+            'game_id' => $game->id,
+        ])->first();
+        $this->assertEquals($playerSession->id, $playerSession2->id);
+        $this->assertEquals(1, $playerSession2->duration);
+        $this->assertEquals('Tést t?st', $playerSession2->rich_presence);
+
+        $user1 = User::firstWhere('User', $this->user->User);
+        $this->assertEquals($game->ID, $user1->LastGameID);
+        $this->assertEquals('Tést t?st', $user1->RichPresenceMsg);
     }
 
     public function testPingInvalidUser(): void
