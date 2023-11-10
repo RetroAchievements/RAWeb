@@ -13,7 +13,6 @@ $achievementPoints = $achievement->Points;
 $achievementRetroPoints = $achievement->TrueRatio;
 $achievementBadgeName = $achievement->BadgeName;
 
-$renderedAchievementTitle = renderAchievementTitle($achievementName);
 $achievementIconSrc = media_asset("/Badge/$achievementBadgeName.png");
 $gameSystemIconUrl = getSystemIconUrl($game->ConsoleID);
 
