@@ -15,59 +15,26 @@ class UpdatePlayerRanks
     {
         $user->loadMissing('playerGames.game');
 
+        // If the user is untracked, wipe any rankings they
+        // already have and then immediately bail. If/when they're
+        // retracked, we can regenerate their rankings.
+        if ($user->Untracked) {
+            $this->clearExistingUntrackedRanks($user);
+
+            return;
+        }
+
         $playerGames = $user
             ->playerGames()
             ->select('id', 'user_id', 'game_id', 'beaten_hardcore_at')
             ->with(['game' => function ($query) {
                 $query->select('ID', 'ConsoleID', 'Title');
             }])
-            ->orderBy('beaten_hardcore_at')
+            ->orderBy('beaten_hardcore_at', 'desc')
             ->get();
 
         $aggregatedRankingValues = $this->calculateAggregatedGameBeatenHardcoreRankingValues($playerGames);
         $this->upsertAllPlayerRanks($user, $aggregatedRankingValues);
-    }
-
-    private function upsertAllPlayerRanks(User $user, array $aggregatedRankingValues): int
-    {
-        $updatedCount = 0;
-
-        // Loop through each console ID in the aggregated values (including 'overall').
-        foreach ($aggregatedRankingValues as $aggregateSystemId => $systemRankings) {
-            // Check if it's the 'overall' key or a specific console ID.
-            $systemId = $aggregateSystemId === 'overall' ? null : $aggregateSystemId;
-
-            // Now, loop through each ranking type for this system.
-            foreach ($systemRankings as $rankingType => $values) {
-                // Extract the value and most recent game ID.
-                [$value, $gameId, $updatedAt] = $values;
-
-                if ($value > 0) {
-                    $this->upsertPlayerRank($user, $rankingType, $value, $systemId, $gameId, $updatedAt);
-                    $updatedCount++;
-                }
-            }
-        }
-
-        return $updatedCount;
-    }
-
-    private function upsertPlayerRank(User $user, string $rankingType, int $value, ?int $systemId, ?int $gameId, ?string $updatedAt): void
-    {
-        Ranking::updateOrCreate(
-            [
-                'user_id' => $user->ID,
-                'system_id' => $systemId,
-                'type' => $rankingType,
-            ],
-            [
-                'game_id' => $gameId,
-                'value' => $value,
-                'updated_at' => $updatedAt,
-            ]
-        );
-
-        PlayerRanksUpdated::dispatch($user);
     }
 
     private function calculateAggregatedGameBeatenHardcoreRankingValues(mixed $playerGames): array
@@ -129,6 +96,11 @@ class UpdatePlayerRanks
         return $rankingValues;
     }
 
+    private function clearExistingUntrackedRanks(User $user): void
+    {
+        Ranking::where('user_id', $user->ID)->delete();
+    }
+
     private function deriveGameKindFromTitle(string $gameTitle): string
     {
         $sanitizedTitle = mb_strtolower($gameTitle);
@@ -147,5 +119,47 @@ class UpdatePlayerRanks
         }
 
         return 'retail';
+    }
+
+    private function upsertAllPlayerRanks(User $user, array $aggregatedRankingValues): int
+    {
+        $updatedCount = 0;
+
+        // Loop through each console ID in the aggregated values (including 'overall').
+        foreach ($aggregatedRankingValues as $aggregateSystemId => $systemRankings) {
+            // Check if it's the 'overall' key or a specific console ID.
+            $systemId = $aggregateSystemId === 'overall' ? null : $aggregateSystemId;
+
+            // Now, loop through each ranking type for this system.
+            foreach ($systemRankings as $rankingType => $values) {
+                // Extract the value and most recent game ID.
+                [$value, $gameId, $updatedAt] = $values;
+
+                if ($value > 0) {
+                    $this->upsertPlayerRank($user, $rankingType, $value, $systemId, $gameId, $updatedAt);
+                    $updatedCount++;
+                }
+            }
+        }
+
+        return $updatedCount;
+    }
+
+    private function upsertPlayerRank(User $user, string $rankingType, int $value, ?int $systemId, ?int $gameId, ?string $updatedAt): void
+    {
+        Ranking::updateOrCreate(
+            [
+                'user_id' => $user->ID,
+                'system_id' => $systemId,
+                'type' => $rankingType,
+            ],
+            [
+                'game_id' => $gameId,
+                'value' => $value,
+                'updated_at' => $updatedAt,
+            ]
+        );
+
+        PlayerRanksUpdated::dispatch($user);
     }
 }

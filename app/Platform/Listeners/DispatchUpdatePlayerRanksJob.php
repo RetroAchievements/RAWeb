@@ -3,6 +3,7 @@
 namespace App\Platform\Listeners;
 
 use App\Platform\Events\PlayerGameMetricsUpdated;
+use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Jobs\UpdatePlayerRanksJob;
 use App\Site\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,6 +16,9 @@ class DispatchUpdatePlayerRanksJob implements ShouldQueue
 
         switch ($event::class) {
             case PlayerGameMetricsUpdated::class:
+                $user = $event->user;
+                break;
+            case PlayerRankedStatusChanged::class:
                 $user = $event->user;
                 break;
         }

@@ -104,6 +104,7 @@ class EventServiceProvider extends ServiceProvider
         PlayerRankedStatusChanged::class => [
             // TODO Update all affected games
             // TODO Notify player
+            DispatchUpdatePlayerRanksJob::class, // dispatches PlayerRanksUpdated
         ],
         PlayerRanksUpdated::class => [
         ],
