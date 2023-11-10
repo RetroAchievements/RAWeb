@@ -16,16 +16,14 @@ if (Auth::user()) {
     <x-news.carousel-2 />
     <x-claims.finished-claims count="6" />
 
-    <?php
-        RenderActivePlayersComponent();
-    ?>
+    <x-active-players />
 
-    <x-user.online-count-chart />
+    <div class="mb-8">
+        <x-user.online-count-chart />
+    </div>
+    
     <x-claims.new-claims count="5" />
-
-    <?php
-        RenderRecentForumPostsComponent();
-    ?>
+    <x-forum-recent-posts />
 
     @slot('sidebar')
         @include('content.top-links')

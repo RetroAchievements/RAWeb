@@ -1,5 +1,7 @@
 <?php
 
+use App\Site\Models\User;
+
 /*
  *  API_GetUserGameRankAndScore - gets user's High Scores entry for a game
  *    g : game id
@@ -14,6 +16,10 @@
  */
 
 $gameId = (int) request()->query('g');
-$username = request()->query('u');
 
-return response()->json(getGameRankAndScore($gameId, $username));
+$user = User::firstWhere('User', request()->query('u'));
+if (!$user) {
+    return response()->json([]);
+}
+
+return response()->json(getGameRankAndScore($gameId, $user));

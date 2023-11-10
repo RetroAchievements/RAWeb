@@ -9,19 +9,10 @@ function getUserPermissions(?string $user): int
         return 0;
     }
 
-    sanitize_sql_inputs($user);
+    $query = "SELECT Permissions FROM UserAccounts WHERE User=:user";
+    $row = legacyDbFetch($query, ['user' => $user]);
 
-    $query = "SELECT Permissions FROM UserAccounts WHERE User='$user'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return 0;
-    }
-
-    $data = mysqli_fetch_assoc($dbResult);
-
-    return (int) $data['Permissions'];
+    return $row ? (int) $row['Permissions'] : Permissions::Unregistered;
 }
 
 function SetAccountPermissionsJSON(

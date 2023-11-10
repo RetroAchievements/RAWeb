@@ -10,9 +10,12 @@ use App\Platform\Models\PlayerBadge;
 use App\Site\Models\StaticData;
 use Illuminate\Console\Command;
 
+/**
+ * @deprecated use a query in the component instead - most "last of something" queries are not expensive
+ */
 class UpdateAwardsStaticData extends Command
 {
-    protected $signature = 'ra:platform:update-awards-static-data';
+    protected $signature = 'ra:platform:static:update-awards-data';
 
     protected $description = 'Update mastery and beaten awards statistics in the StaticData table';
 

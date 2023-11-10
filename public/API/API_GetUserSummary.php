@@ -58,8 +58,8 @@
  *    int        NumAchieved           count of Core achievements unlocked by the user
  *    int        NumAchievedHardcore   count of Core achievements unlocked by the user in Hardcore mode
  *    int        NumPossibleAchievements count of Core achievements for the game
- *    string     ScoreAchieved         points earned by the user from the game
- *    string     ScoreAchievedHardcore additional points earned by the user from the game for playing in Hardcore mode
+ *    string     ScoreAchieved         total points earned by the user from the game
+ *    string     ScoreAchievedHardcore points earned by the user from the game for playing in Hardcore mode
  *    string     PossibleScore         maximum points attainable from the game
  *  map        RecentAchievements
  *   string     [key]                  unique identifier of the game
@@ -92,7 +92,7 @@ $user = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '5');
 $recentAchievementsEarned = (int) request()->query('a', '10');
 
-$retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned, true);
+$retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
 
 if (empty($retVal)) {
     return response()->json([
@@ -110,18 +110,17 @@ if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['system']);
 }
 
-// Find out if we're online or offline
-if (array_key_exists('LastActivityID', $retVal)) {
-    $retVal['LastActivity'] = getActivityMetadata((int) ($retVal['LastActivityID'] ?? 0));
-    unset($retVal['LastActivityID']);
-}
+$retVal['LastActivity'] = [
+    'ID' => 0,
+    'timestamp' => null,
+    'lastupdate' => null,
+    'activitytype' => null,
+    'User' => $user,
+    'data' => null,
+    'data2' => null,
+];
+unset($retVal['LastActivityID']);
 
-$status = 'Offline';
-if ($retVal['LastActivity']) {
-    $lastUpdate = (int) date("U", strtotime($retVal['LastActivity']['lastupdate']));
-    $now = (int) date("U");
-    $status = ($lastUpdate + 600) > $now ? 'Online' : 'Offline';
-}
-$retVal['Status'] = $status;
+$retVal['Status'] = 'Offline';
 
 return response()->json($retVal);

@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace App\Platform\Listeners;
 
-use App\Platform\Actions\ResetPlayerProgressAction;
+use App\Platform\Actions\ResetPlayerProgress as ResetPlayerProgressAction;
 use App\Site\Events\UserDeleted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ResetPlayerProgress implements ShouldQueue
 {
-    public function __construct()
-    {
-    }
-
     public function handle(object $event): void
     {
         $user = null;

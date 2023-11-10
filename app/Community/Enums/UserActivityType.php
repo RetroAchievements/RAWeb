@@ -16,7 +16,8 @@ abstract class UserActivityType
 
     public const EditAchievement = 'achievement.update';
 
-    public const CompleteGame = 'achievement-set.complete';
+    public const CompleteAchievementSet = 'achievement-set.complete';
+    public const BeatAchievementSet = 'achievement-set.beat';
 
     public const NewLeaderboardEntry = 'leaderboard-entry.create';
 
@@ -34,7 +35,8 @@ abstract class UserActivityType
             self::StartedPlaying,
             self::UploadAchievement,
             self::EditAchievement,
-            self::CompleteGame,
+            self::CompleteAchievementSet,
+            self::BeatAchievementSet,
             self::NewLeaderboardEntry,
             self::ImprovedLeaderboardEntry,
             self::OpenedTicket,

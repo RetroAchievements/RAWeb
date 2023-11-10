@@ -1,12 +1,17 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementPointsChanged;
+use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementTypeChanged;
+use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -14,7 +19,7 @@ use Illuminate\Support\Collection;
  * @return Collection<int, array>
  */
 function getAchievementsList(
-    ?string $username,
+    ?User $user,
     int $sortBy,
     int $params,
     int $limit,
@@ -29,15 +34,14 @@ function getAchievementsList(
 
     $innerJoin = "";
     $withAwardedDate = "";
-    if ($params > 0 && isValidUsername($username)) {
-        $bindings['username'] = $username;
-        $innerJoin = "LEFT JOIN Awarded AS aw ON aw.AchievementID = ach.ID AND aw.User = :username";
-        $withAwardedDate = ", aw.Date AS AwardedDate";
+    if ($params > 0 && $user) {
+        $innerJoin = "LEFT JOIN player_achievements AS pa ON pa.achievement_id = ach.ID AND pa.user_id = " . $user->id;
+        $withAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
     }
 
     // We can't run a sort on a user's achievements AwardedDate
     // if we don't have a user. Bail from the sort.
-    if (($sortBy == 9 || $sortBy == 19) && !isValidUsername($username)) {
+    if (($sortBy == 9 || $sortBy == 19) && !$user) {
         $sortBy = 0;
     }
 
@@ -48,27 +52,29 @@ function getAchievementsList(
                     $withAwardedDate
                 FROM Achievements AS ach
                 $innerJoin
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID ";
+                INNER JOIN GameData AS gd ON gd.ID = ach.GameID
+                INNER JOIN Console AS c ON c.ID = gd.ConsoleID ";
 
     $bindings['achievementFlag'] = $achievementFlag;
     $query .= "WHERE ach.Flags = :achievementFlag ";
+
+    // 1 = my unlocked achievements
+    // 2 = achievements i haven't unlocked
+    // 3 = official
+    // 5 = unofficial
     if ($params == 1) {
-        $query .= "AND ( !ISNULL( aw.User ) ) AND aw.HardcoreMode = 0 ";
+        $query .= "AND pa.unlocked_at IS NOT NULL ";
+    } elseif ($params == 2) {
+        $query .= "AND pa.unlocked_at IS NULL ";
     }
-    if ($params == 2) {
-        $query .= "AND ( ISNULL( aw.User ) )  ";
-    }
+
     if (isValidUsername($developer)) {
         $bindings['author'] = $developer;
         $query .= "AND ach.Author = :author ";
     }
+
     if ($sortBy == 4) {
         $query .= "AND ach.TrueRatio > 0 ";
-    }
-
-    if ($params > 0 && isValidUsername($username)) {
-        $query .= "GROUP BY ach.ID ";
     }
 
     switch ($sortBy) {
@@ -152,9 +158,6 @@ function UploadNewAchievement(
     int $gameID,
     string $title,
     string $desc,
-    string $progress,
-    string $progressMax,
-    string $progressFmt,
     int $points,
     ?string $type,
     string $mem,
@@ -200,11 +203,6 @@ function UploadNewAchievement(
         return false;
     }
 
-    $dbAuthor = $author;
-    $rawDesc = $desc;
-    $rawTitle = $title;
-    sanitize_sql_inputs($title, $desc, $mem, $progress, $progressMax, $progressFmt, $dbAuthor, $type);
-
     $typeValue = "";
     if ($type === null || trim($type) === '' || $type === 'not-given') {
         $typeValue = "NULL";
@@ -221,66 +219,83 @@ function UploadNewAchievement(
             return false;
         }
 
-        $query = "
-            INSERT INTO Achievements (
-                ID, GameID, Title, Description,
-                MemAddr, Progress, ProgressMax,
-                ProgressFormat, Points, Flags, type,
-                Author, DateCreated, DateModified,
-                Updated, VotesPos, VotesNeg,
-                BadgeName, DisplayOrder, AssocVideo,
-                TrueRatio
-            )
-            VALUES (
-                NULL, '$gameID', '$title', '$desc',
-                '$mem', '$progress', '$progressMax',
-                '$progressFmt', $points, $flag, $typeValue,
-                '$dbAuthor', NOW(), NOW(),
-                NOW(), 0, 0,
-                '$badge', 0, NULL,
-                0
-            )";
-        $db = getMysqliConnection();
-        if (mysqli_query($db, $query) !== false) {
-            $idInOut = mysqli_insert_id($db);
-            postActivity($author, ActivityType::UploadAchievement, $idInOut);
+        $achievement = new Achievement();
+        $achievement->GameID = $gameID;
+        $achievement->Title = $title;
+        $achievement->Description = $desc;
+        $achievement->MemAddr = $mem;
+        $achievement->Points = $points;
+        $achievement->Flags = $flag;
+        $achievement->type = ($typeValue == 'NULL') ? null : $type;
+        $achievement->Author = $author;
+        $achievement->BadgeName = $badge;
 
-            static_addnewachievement($idInOut);
-            addArticleComment(
-                "Server",
-                ArticleType::Achievement,
-                $idInOut,
-                "$author uploaded this achievement.",
-                $author
-            );
+        $achievement->save();
+        $idInOut = $achievement->ID;
 
-            // uploaded new achievement
+        static_addnewachievement($idInOut);
+        addArticleComment(
+            "Server",
+            ArticleType::Achievement,
+            $idInOut,
+            "$author uploaded this achievement.",
+            $author
+        );
 
-            return true;
+        // uploaded new achievement
+        AchievementCreated::dispatch($achievement);
+
+        return true;
+    }
+
+    // Achievement being updated
+    $achievement = Achievement::find($idInOut);
+    if ($achievement) {
+        $fields = [];
+
+        $changingPoints = ($achievement->Points != $points);
+        if ($changingPoints) {
+            $achievement->Points = $points;
+            $fields[] = "points";
         }
 
-        // failed
-        return false;
-    }
-    // Achievement being updated
-    $query = "SELECT Flags, type, MemAddr, Points, Title, Description, BadgeName, Author FROM Achievements WHERE ID='$idInOut'";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-        $data = mysqli_fetch_assoc($dbResult);
+        if ($achievement->BadgeName !== $badge) {
+            $achievement->BadgeName = $badge;
+            $fields[] = "badge";
+        }
 
-        $changingAchSet = ($data['Flags'] != $flag);
-        $changingType = ($data['type'] != $type && $type !== 'not-given');
-        $changingPoints = ($data['Points'] != $points);
-        $changingTitle = ($data['Title'] !== $rawTitle);
-        $changingDescription = ($data['Description'] !== $rawDesc);
-        $changingBadge = ($data['BadgeName'] !== $badge);
-        $changingLogic = ($data['MemAddr'] != $mem);
+        if ($achievement->Title !== $title) {
+            $achievement->Title = $title;
+            $fields[] = "title";
+        }
+
+        if ($achievement->Description !== $desc) {
+            $achievement->Description = $desc;
+            $fields[] = "description";
+        }
+
+        $changingType = ($achievement->type != $type && $type !== 'not-given');
+        if ($changingType) {
+            $achievement->type = $type;
+            $fields[] = "type";
+        }
+
+        $changingLogic = ($achievement->MemAddr != $mem);
+        if ($changingLogic) {
+            $achievement->MemAddr = $mem;
+            $fields[] = "logic";
+        }
+
+        $changingAchSet = ($achievement->Flags != $flag);
+        if ($changingAchSet) {
+            $achievement->Flags = $flag;
+        }
 
         if ($flag === AchievementFlag::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
             // changing ach set detected; user is $author, permissions is $userPermissions, target set is $flag
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
-            if ($userPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $data['Author'] !== $author)) {
+            if ($userPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $achievement->Author !== $author)) {
                 // Must be developer to modify core logic!
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
@@ -290,39 +305,18 @@ function UploadNewAchievement(
 
         if ($flag === AchievementFlag::Unofficial) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
-            if ($userPermissions == Permissions::JuniorDeveloper && $data['Author'] !== $author) {
+            if ($userPermissions == Permissions::JuniorDeveloper && $achievement->Author !== $author) {
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
                 return false;
             }
         }
 
-        // `null` is a valid type value, so we use a different fallback value.
-        if ($type === 'not-given' && $data['type'] !== null) {
-            $typeValue = "'" . $data['type'] . "'";
-        }
-
-        $query = "UPDATE Achievements SET Title='$title', Description='$desc', Progress='$progress', ProgressMax='$progressMax', ProgressFormat='$progressFmt', MemAddr='$mem', Points=$points, Flags=$flag, type=$typeValue, DateModified=NOW(), Updated=NOW(), BadgeName='$badge' WHERE ID=$idInOut";
-
-        $db = getMysqliConnection();
-        if (mysqli_query($db, $query) !== false) {
-            // if ($changingAchSet || $changingPoints) {
-            //     // When changing achievement set, all existing achievements that rely on this should be purged.
-            //     // $query = "DELETE FROM Awarded WHERE ID='$idInOut'";
-            //     // nah, that's a bit harsh... esp if you're changing something tiny like the badge!!
-            //
-            //     // if (s_mysql_query($query) !== false) {
-            //     // $rowsAffected = mysqli_affected_rows($db);
-            //     // // great
-            //     // } else {
-            //     // //meh
-            //     // }
-            // }
+        if ($achievement->isDirty()) {
+            $achievement->save();
 
             static_setlastupdatedgame($gameID);
             static_setlastupdatedachievement($idInOut);
-
-            postActivity($author, ActivityType::EditAchievement, $idInOut);
 
             if ($changingAchSet) {
                 if ($flag === AchievementFlag::OfficialCore) {
@@ -333,6 +327,7 @@ function UploadNewAchievement(
                         "$author promoted this achievement to the Core set.",
                         $author
                     );
+                    AchievementPublished::dispatch($achievement);
                 } elseif ($flag === AchievementFlag::Unofficial) {
                     addArticleComment(
                         "Server",
@@ -341,28 +336,10 @@ function UploadNewAchievement(
                         "$author demoted this achievement to Unofficial.",
                         $author
                     );
+                    AchievementUnpublished::dispatch($achievement);
                 }
                 expireGameTopAchievers($gameID);
             } else {
-                $fields = [];
-                if ($changingPoints) {
-                    $fields[] = "points";
-                }
-                if ($changingBadge) {
-                    $fields[] = "badge";
-                }
-                if ($changingLogic) {
-                    $fields[] = "logic";
-                }
-                if ($changingTitle) {
-                    $fields[] = "title";
-                }
-                if ($changingDescription) {
-                    $fields[] = "description";
-                }
-                if ($changingType) {
-                    $fields[] = "type";
-                }
                 $editString = implode(', ', $fields);
 
                 if (!empty($editString)) {
@@ -376,29 +353,15 @@ function UploadNewAchievement(
                 }
             }
 
-            if ($changingPoints || $changingAchSet) {
-                $numUnlocks = getAchievementUnlockCount($idInOut);
-                if ($numUnlocks > 0) {
-                    if ($changingAchSet) {
-                        if ($flag === AchievementFlag::OfficialCore) {
-                            // promoted to core, restore point attribution
-                            attributeDevelopmentAuthor($data['Author'], $numUnlocks, $numUnlocks * $points);
-                        } else {
-                            // demoted from core, remove point attribution
-                            attributeDevelopmentAuthor($data['Author'], -$numUnlocks, -$numUnlocks * $points);
-                        }
-                    } else {
-                        // points changed, adjust point attribution
-                        attributeDevelopmentAuthor($data['Author'], 0, $numUnlocks * ($points - (int) $data['Points']));
-                    }
-                }
+            if ($changingPoints) {
+                AchievementPointsChanged::dispatch($achievement);
             }
-
-            return true;
+            if ($changingType) {
+                AchievementTypeChanged::dispatch($achievement);
+            }
         }
-        log_sql_fail();
 
-        return false;
+        return true;
     }
 
     return false;
@@ -492,61 +455,30 @@ function updateAchievementEmbedVideo(int $achID, ?string $newURL): bool
     return $dbResult !== false;
 }
 
-function updateAchievementFlag(int|string|array $achID, int $newFlag): bool
+function updateAchievementFlag(int|string|array $achID, int $newFlag): void
 {
-    $achievementIDs = is_array($achID) ? implode(', ', $achID) : $achID;
+    $achievementIDs = is_array($achID) ? $achID : [$achID];
 
-    sanitize_sql_inputs($achievementIDs, $newFlag);
+    $achievements = Achievement::whereIn('ID', $achievementIDs)
+        ->whereNot('Flags', $newFlag);
 
-    $query = "SELECT ID, Author, Points FROM Achievements WHERE ID IN ($achievementIDs) AND Flags != $newFlag";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult === false) {
-        log_sql_fail();
-
-        return false;
+    if (!$achievements->count()) {
+        return;
     }
 
-    $updatedAchIDs = [];
-    $authorCount = [];
-    $authorPoints = [];
-    while ($data = mysqli_fetch_assoc($dbResult)) {
-        $updatedAchID = (int) $data['ID'];
-        $updatedAchIDs[] = $updatedAchID;
+    $achievements->update(['Flags' => $newFlag]);
 
-        $numUnlocks = getAchievementUnlockCount($updatedAchID);
-        if ($numUnlocks > 0) {
-            if (array_key_exists($data['Author'], $authorCount)) {
-                $authorCount[$data['Author']] += $numUnlocks;
-                $authorPoints[$data['Author']] += $numUnlocks * (int) $data['Points'];
-            } else {
-                $authorCount[$data['Author']] = $numUnlocks;
-                $authorPoints[$data['Author']] = $numUnlocks * (int) $data['Points'];
-            }
+    $updatedAchievements = $achievements->get();
+
+    foreach ($updatedAchievements as $achievement) {
+        if ($newFlag === AchievementFlag::OfficialCore) {
+            AchievementPublished::dispatch($achievement);
+        }
+
+        if ($newFlag === AchievementFlag::Unofficial) {
+            AchievementUnpublished::dispatch($achievement);
         }
     }
-
-    $updatedAchievementIDs = implode(',', $updatedAchIDs);
-    if (empty($updatedAchievementIDs)) {
-        return true;
-    }
-
-    $query = "UPDATE Achievements SET Flags=$newFlag, Updated=NOW() WHERE ID IN ($updatedAchievementIDs)";
-    if (!s_mysql_query($query)) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    foreach ($authorCount as $author => $count) {
-        $points = $authorPoints[$author];
-        if ($newFlag != AchievementFlag::OfficialCore) {
-            $count = -$count;
-            $points = -$points;
-        }
-        attributeDevelopmentAuthor($author, $count, $points);
-    }
-
-    return true;
 }
 
 function updateAchievementType(int|string|array $achID, ?string $newType): bool

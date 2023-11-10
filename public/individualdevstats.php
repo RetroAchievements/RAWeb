@@ -2,6 +2,7 @@
 
 use App\Community\Enums\TicketState;
 use App\Site\Models\User;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -129,200 +130,6 @@ foreach ($gamesList as $game) {
     }
 }
 
-// Initialize any dev game award variables
-$anyDevMostCompletedGame = [];
-$anyDevMostMasteredGame = [];
-
-// Get user award data for any developed games
-$anyDevCompletedMasteredGames = getMostAwardedGames($anyDevGameIDs);
-foreach ($anyDevCompletedMasteredGames as $game) {
-    if (empty($anyDevMostCompletedGame)) {
-        if ($game['Completed'] > 0) {
-            $anyDevMostCompletedGame = $game;
-        }
-    } else {
-        if ($anyDevMostCompletedGame['Completed'] < $game['Completed']) {
-            $anyDevMostCompletedGame = $game;
-        }
-    }
-
-    if (empty($anyDevMostMasteredGame)) {
-        if ($game['Mastered'] > 0) {
-            $anyDevMostMasteredGame = $game;
-        }
-    } else {
-        if ($anyDevMostMasteredGame['Mastered'] < $game['Mastered']) {
-            $anyDevMostMasteredGame = $game;
-        }
-    }
-}
-
-// Initialize any dev user award variables
-$anyDevOwnAwards = [];
-$anyDevCompletedAwards = 0;
-$anyDevMasteredAwards = 0;
-$anyDevUserMostCompleted = [];
-$anyDevUserMostMastered = [];
-
-// Get user award data for any developed games
-$anyDevAwardInfo = getMostAwardedUsers($anyDevGameIDs);
-foreach ($anyDevAwardInfo as $userInfo) {
-    if (empty($anyDevUserMostCompleted)) {
-        if ($userInfo['Completed'] > 0) {
-            $anyDevUserMostCompleted = $userInfo;
-        }
-    } else {
-        if ($anyDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
-            $anyDevUserMostCompleted = $userInfo;
-        }
-    }
-
-    if (empty($anyDevUserMostMastered)) {
-        if ($userInfo['Mastered'] > 0) {
-            $anyDevUserMostMastered = $userInfo;
-        }
-    } else {
-        if ($anyDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
-            $anyDevUserMostMastered = $userInfo;
-        }
-    }
-
-    if (strcmp($dev, $userInfo['User']) == 0) {
-        $anyDevOwnAwards = $userInfo;
-    }
-    $anyDevCompletedAwards += $userInfo['Completed'];
-    $anyDevMasteredAwards += $userInfo['Mastered'];
-}
-
-// Initialize majority dev game award variables
-$majorityDevMostCompletedGame = [];
-$majorityDevMostMasteredGame = [];
-
-// Get user award data for majority developed games
-$majorityDevCompletedMasteredGames = getMostAwardedGames($majorityDevGameIDs);
-foreach ($majorityDevCompletedMasteredGames as $game) {
-    if (empty($majorityDevMostCompletedGame)) {
-        if ($game['Completed'] > 0) {
-            $majorityDevMostCompletedGame = $game;
-        }
-    } else {
-        if ($majorityDevMostCompletedGame['Completed'] < $game['Completed']) {
-            $majorityDevMostCompletedGame = $game;
-        }
-    }
-
-    if (empty($majorityDevMostMasteredGame)) {
-        if ($game['Mastered'] > 0) {
-            $majorityDevMostMasteredGame = $game;
-        }
-    } else {
-        if ($majorityDevMostMasteredGame['Mastered'] < $game['Mastered']) {
-            $majorityDevMostMasteredGame = $game;
-        }
-    }
-}
-
-// Initialize majority dev user award variables
-$majorityDevOwnAwards = [];
-$majorityDevCompletedAwards = 0;
-$majorityDevMasteredAwards = 0;
-$majorityDevUserMostCompleted = [];
-$majorityDevUserMostMastered = [];
-
-// Get user award data for majority developed games
-$majorityDevAwardInfo = getMostAwardedUsers($majorityDevGameIDs);
-foreach ($majorityDevAwardInfo as $userInfo) {
-    if (empty($majorityDevUserMostCompleted)) {
-        if ($userInfo['Completed'] > 0) {
-            $majorityDevUserMostCompleted = $userInfo;
-        }
-    } else {
-        if ($majorityDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
-            $majorityDevUserMostCompleted = $userInfo;
-        }
-    }
-
-    if (empty($majorityDevUserMostMastered)) {
-        if ($userInfo['Mastered'] > 0) {
-            $majorityDevUserMostMastered = $userInfo;
-        }
-    } else {
-        if ($majorityDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
-            $majorityDevUserMostMastered = $userInfo;
-        }
-    }
-
-    if (strcmp($dev, $userInfo['User']) == 0) {
-        $majorityDevOwnAwards = $userInfo;
-    }
-    $majorityDevCompletedAwards += $userInfo['Completed'];
-    $majorityDevMasteredAwards += $userInfo['Mastered'];
-}
-
-// Initialize sole dev game award variables
-$onlyDevMostCompletedGame = [];
-$onlyDevMostMasteredGame = [];
-
-// Get user award data for solely developed games
-$onlyDevCompletedMasteredGames = getMostAwardedGames($onlyDevGameIDs);
-foreach ($onlyDevCompletedMasteredGames as $game) {
-    if (empty($onlyDevMostCompletedGame)) {
-        if ($game['Completed'] > 0) {
-            $onlyDevMostCompletedGame = $game;
-        }
-    } else {
-        if ($onlyDevMostCompletedGame['Completed'] < $game['Completed']) {
-            $onlyDevMostCompletedGame = $game;
-        }
-    }
-
-    if (empty($onlyDevMostMasteredGame)) {
-        if ($game['Mastered'] > 0) {
-            $onlyDevMostMasteredGame = $game;
-        }
-    } else {
-        if ($onlyDevMostMasteredGame['Mastered'] < $game['Mastered']) {
-            $onlyDevMostMasteredGame = $game;
-        }
-    }
-}
-
-// Initialize sole dev user award variables
-$onlyDevOwnAwards = [];
-$onlyDevCompletedAwards = 0;
-$onlyDevMasteredAwards = 0;
-$onlyDevUserMostCompleted = [];
-$onlyDevUserMostMastered = [];
-
-// Get user award data for solely developed games
-$onlyDevAwardInfo = getMostAwardedUsers($onlyDevGameIDs);
-foreach ($onlyDevAwardInfo as $userInfo) {
-    if (empty($onlyDevUserMostCompleted)) {
-        if ($userInfo['Completed'] > 0) {
-            $onlyDevUserMostCompleted = $userInfo;
-        }
-    } else {
-        if ($onlyDevUserMostCompleted['Completed'] < $userInfo['Completed']) {
-            $onlyDevUserMostCompleted = $userInfo;
-        }
-    }
-    if (empty($onlyDevUserMostMastered)) {
-        if ($userInfo['Mastered'] > 0) {
-            $onlyDevUserMostMastered = $userInfo;
-        }
-    } else {
-        if ($onlyDevUserMostMastered['Mastered'] < $userInfo['Mastered']) {
-            $onlyDevUserMostMastered = $userInfo;
-        }
-    }
-
-    if (strcmp($dev, $userInfo['User']) == 0) {
-        $onlyDevOwnAwards = $userInfo;
-    }
-    $onlyDevCompletedAwards += $userInfo['Completed'];
-    $onlyDevMasteredAwards += $userInfo['Mastered'];
-}
-
 // Initialize user achievement variables
 $defaultBadges = [
     "00000",
@@ -348,7 +155,6 @@ $easiestAchievement = [];
 $hardestAchievement = [];
 $firstAchievement = [];
 $lastAchievement = [];
-$achievementIDs = [];
 foreach ($userArchInfo as $achievement) {
     if ($achievementCount == 0) {
         $shortestMemAchievement = $achievement;
@@ -380,7 +186,6 @@ foreach ($userArchInfo as $achievement) {
     $totalPoints += $achievement['Points'];
     $totalTruePoints += $achievement['TrueRatio'];
     $lastAchievement = $achievement;
-    $achievementIDs[] = $achievement['ID'];
 }
 
 $averagePoints = $totalPoints / $achievementCount;
@@ -388,14 +193,14 @@ $averageTruePoints = $totalTruePoints / $achievementCount;
 $averageMemLength = $totalMemLegth / $achievementCount;
 
 // Get own achievements earned info
-$ownAchievementsObtained = getOwnAchievementsObtained($dev);
+$ownAchievementsObtained = getOwnAchievementsObtained($devUser);
 
 // Initialize unique obtainers variables
 $uniqueObtainers = 0;
 $mostAchievementObtainer = [];
 
 // Get unique obtainers for user
-$obtainers = getObtainersOfSpecificUser($dev);
+$obtainers = getObtainersOfSpecificUser($devUser);
 foreach ($obtainers as $obtainer) {
     if ($uniqueObtainers == 0) {
         $mostAchievementObtainer = $obtainer;
@@ -410,7 +215,7 @@ foreach ($obtainers as $obtainer) {
 // Get last 200 achievements obtained by others
 // Only 100 will be displayed but 200 are needed to remove potential SC HC duplicates
 $maxRecentAchievements = 200;
-$recentlyObtainedAchievements = getRecentUnlocks($achievementIDs, 0, $maxRecentAchievements);
+$recentlyObtainedAchievements = getRecentUnlocksForDev($devUser, 0, $maxRecentAchievements);
 
 // Initialize code note variables
 $mostNotedGame = [];
@@ -683,7 +488,7 @@ RenderContentStart("$dev's Developer Stats");
     <?php endif ?>
 
     <?php
-    echo "<h2>$dev's Developer Stats</h2>";
+    echo "<h1>$dev's Developer Stats</h1>";
 
     // Only show stats if the user has a contribute count
     if ($userContribCount > 0) {
@@ -698,342 +503,81 @@ RenderContentStart("$dev's Developer Stats");
         /*
          * Games
          */
-        echo "<H1>Games</H1>";
+        echo "<h2>Games</h2>";
 
-        /*
-         * Any Development
-         */
-        echo "<table class='table-highlight'><tbody>";
-        echo "<tr class='do-not-highlight'><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Any Development</td></tr>";
-        echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published at least one achievement for.</td></tr>";
+        // Any development
+        echo Blade::render('
+            <x-developer-game-stats-table
+                :easiestGame="$easiestGame"
+                :hardestGame="$hardestGame"
+                :numGamesWithLeaderboards="$numGamesWithLeaderboards"
+                :numGamesWithRichPresence="$numGamesWithRichPresence"
+                :numTotalLeaderboards="$numTotalLeaderboards"
+                :statsKind="$statsKind"
+                :targetDeveloperUsername="$targetDeveloperUsername"
+                :targetGameIds="$targetGameIds"
+            />
+        ', [
+            'easiestGame' => $anyDevEasiestGame,
+            'hardestGame' => $anyDevHardestGame,
+            'numGamesWithLeaderboards' => $anyDevLeaderboardCount,
+            'numGamesWithRichPresence' => $anyDevRichPresenceCount,
+            'numTotalLeaderboards' => $anyDevLeaderboardTotal,
+            'statsKind' => 'any',
+            'targetDeveloperUsername' => $dev,
+            'targetGameIds' => $anyDevGameIDs,
+        ]);
 
-        // Any Development - Games developed for
-        echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($anyDevGameIDs) . "</td></tr>";
+        // Majority development
+        echo Blade::render('
+            <x-developer-game-stats-table
+                :easiestGame="$easiestGame"
+                :hardestGame="$hardestGame"
+                :numGamesWithLeaderboards="$numGamesWithLeaderboards"
+                :numGamesWithRichPresence="$numGamesWithRichPresence"
+                :numTotalLeaderboards="$numTotalLeaderboards"
+                :statsKind="$statsKind"
+                :targetDeveloperUsername="$targetDeveloperUsername"
+                :targetGameIds="$targetGameIds"
+            />
+        ', [
+            'easiestGame' => $majorityDevEasiestGame,
+            'hardestGame' => $majorityDevHardestGame,
+            'numGamesWithLeaderboards' => $majorityDevLeaderboardCount,
+            'numGamesWithRichPresence' => $majorityDevRichPresenceCount,
+            'numTotalLeaderboards' => $majorityDevLeaderboardTotal,
+            'statsKind' => 'majority',
+            'targetDeveloperUsername' => $dev,
+            'targetGameIds' => $majorityDevGameIDs,
+        ]);
 
-        // Any Development - Games with Rich Presence
-        echo "<tr><td>Games with Rich Presence:</td><td>";
-        if (!empty($anyDevGameIDs)) {
-            echo $anyDevRichPresenceCount . " - " . number_format($anyDevRichPresenceCount / count($anyDevGameIDs) * 100, 2, '.', '') . "%";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - Games with Leaderboards and Leaderboard count
-        echo "<tr><td>Games with Leaderboards:</td><td>";
-        if (!empty($anyDevGameIDs)) {
-            echo $anyDevLeaderboardCount . " - " . number_format($anyDevLeaderboardCount / count($anyDevGameIDs) * 100, 2, '.', '') . "%</br>" . $anyDevLeaderboardTotal . " Unique Leaderboards";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - Easiest game by retro ratio
-        echo "<tr><td>Easiest Game by Retro Ratio:</td><td>";
-        if (!empty($anyDevEasiestGame)) {
-            echo number_format($anyDevEasiestGame['TotalTruePoints'] / $anyDevEasiestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-            echo gameAvatar($anyDevEasiestGame);
-            echo "</br>" . $anyDevEasiestGame['MyAchievements'] . " of " . $anyDevEasiestGame['NumAchievements'] . " Achievements Created";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - Hardest game by retro ratio
-        echo "<tr><td>Hardest Game by Retro Ratio</td><td>";
-        if (!empty($anyDevHardestGame)) {
-            echo number_format($anyDevHardestGame['TotalTruePoints'] / $anyDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-            echo gameAvatar($anyDevHardestGame);
-            echo "</br>" . $anyDevHardestGame['MyAchievements'] . " of " . $anyDevHardestGame['NumAchievements'] . " Achievements Created</br>";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - Complete/Mastered games
-        echo "<tr><td>Completed/Mastered Awards:</td><td>";
-        if (!empty($anyDevGameIDs)) {
-            echo $anyDevCompletedAwards . " <b>(" . $anyDevMasteredAwards . ")</br>";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - Own Complete/Mastered games
-        echo "<tr><td>Own Completed/Mastered Awards:</td><td>";
-        if (!empty($anyDevOwnAwards)) {
-            echo $anyDevOwnAwards['Completed'] . " <b>(" . $anyDevOwnAwards['Mastered'] . ")</br>";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - Most completed game
-        echo "<tr><td>Most Completed Game:</td><td>";
-        if (!empty($anyDevMostCompletedGame)) {
-            echo $anyDevMostCompletedGame['Completed'] . " - ";
-            echo gameAvatar($anyDevMostCompletedGame);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - Most mastered game
-        echo "<tr><td>Most Mastered Game:</td><td>";
-        if (!empty($anyDevMostMasteredGame)) {
-            echo $anyDevMostMasteredGame['Mastered'] . " - ";
-            echo gameAvatar($anyDevMostMasteredGame);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - User with most completed awards
-        echo "<tr><td>User with Most Completed Awards:</td><td>";
-        if (!empty($anyDevUserMostCompleted)) {
-            echo $anyDevUserMostCompleted['Completed'] . " - ";
-            echo userAvatar($anyDevUserMostCompleted['User']);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Any Development - User with most mastered awards
-        echo "<tr><td>User with Most Mastered Awards:</td><td>";
-        if (!empty($anyDevUserMostMastered)) {
-            echo $anyDevUserMostMastered['Mastered'] . " - ";
-            echo userAvatar($anyDevUserMostMastered['User']);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-        echo "</table></tbody>";
-        echo "</br>";
-
-        /*
-         * Majority Developer
-         */
-        echo "<table class='table-highlight'><tbody>";
-        echo "<tr class='do-not-highlight'><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Majority Developer</td></tr>";
-        echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published at least half the achievements for.</td></tr>";
-
-        // Majority Developer - Games developed for
-        echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($majorityDevGameIDs) . "</td></tr>";
-
-        // Majority Developer - Games with Rich Presence
-        echo "<tr><td>Games with Rich Presence:</td><td>";
-        if (!empty($majorityDevGameIDs)) {
-            echo $majorityDevRichPresenceCount . " - " . number_format($majorityDevRichPresenceCount / count($majorityDevGameIDs) * 100, 2, '.', '') . "%";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - Games with Leaderboards and Leaderboard count
-        echo "<tr><td>Games with Leaderboards:</td><td>";
-        if (!empty($majorityDevGameIDs)) {
-            echo $majorityDevLeaderboardCount . " - " . number_format($majorityDevLeaderboardCount / count($majorityDevGameIDs) * 100, 2, '.', '') . "%</br>" . $majorityDevLeaderboardTotal . " Unique Leaderboards";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - Easiest game by retro ratio
-        echo "<tr><td>Easiest Game by Retro Ratio:</td><td>";
-        if (!empty($majorityDevEasiestGame)) {
-            echo number_format($majorityDevEasiestGame['TotalTruePoints'] / $majorityDevEasiestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-            echo gameAvatar($majorityDevEasiestGame);
-            echo "</br>" . $majorityDevEasiestGame['MyAchievements'] . " of " . $majorityDevEasiestGame['NumAchievements'] . " Achievements Created";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - Hardest game by retro ratio
-        echo "<tr><td>Hardest Game by Retro Ratio:</td><td>";
-        if (!empty($majorityDevHardestGame)) {
-            echo number_format($majorityDevHardestGame['TotalTruePoints'] / $majorityDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-            echo gameAvatar($majorityDevHardestGame);
-            echo "</br>" . $majorityDevHardestGame['MyAchievements'] . " of " . $majorityDevHardestGame['NumAchievements'] . " Achievements Created";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - Complete/Mastered games
-        echo "<tr><td>Completed/Mastered Awards:</td><td>";
-        if (!empty($majorityDevGameIDs)) {
-            echo $majorityDevCompletedAwards . " <b>(" . $majorityDevMasteredAwards . ")</br>";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - Own Complete/Mastered games
-        echo "<tr><td>Own Completed/Mastered Awards:</td><td>";
-        if (!empty($majorityDevOwnAwards)) {
-            echo $majorityDevOwnAwards['Completed'] . " <b>(" . $majorityDevOwnAwards['Mastered'] . ")</br>";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - Most completed game
-        echo "<tr><td>Most Completed Game:</td><td>";
-        if (!empty($majorityDevMostCompletedGame)) {
-            echo $majorityDevMostCompletedGame['Completed'] . " - ";
-            echo gameAvatar($majorityDevMostCompletedGame);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - Most mastered game
-        echo "<tr><td>Most Mastered Game:</td><td>";
-        if (!empty($majorityDevMostMasteredGame)) {
-            echo $majorityDevMostMasteredGame['Mastered'] . " - ";
-            echo gameAvatar($majorityDevMostMasteredGame);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - User with most completed awards
-        echo "<tr><td>User with Most Completed Awards:</td><td>";
-        if (!empty($majorityDevUserMostCompleted)) {
-            echo $majorityDevUserMostCompleted['Completed'] . " - ";
-            echo userAvatar($majorityDevUserMostCompleted['User']);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Majority Developer - User with most mastered awards
-        echo "<tr><td>User with Most Mastered Awards:</td><td>";
-        if (!empty($majorityDevUserMostMastered)) {
-            echo $majorityDevUserMostMastered['Mastered'] . " - ";
-            echo userAvatar($majorityDevUserMostMastered['User']);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-        echo "</table></tbody>";
-        echo "</br>";
-
-        /*
-         * Sole Developer
-         */
-        echo "<table class='table-highlight'><tbody>";
-        echo "<tr class='do-not-highlight'><td colspan='2' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Sole Developer</td></tr>";
-        echo "<tr></tr><tr class='do-not-highlight'><td colspan='2' align='center'>Stats below are for games that $dev has published all the achievements for.</td></tr>";
-
-        // Sole Developer - Games developed for
-        echo "<tr><td width='50%'>Games Developed For:</td><td>" . count($onlyDevGameIDs) . "</td></tr>";
-
-        // Sole Developer - Games with Rich Presence
-        echo "<tr><td>Games with Rich Presence:</td><td>";
-        if (!empty($onlyDevGameIDs)) {
-            echo $onlyDevRichPresenceCount . " - " . number_format($onlyDevRichPresenceCount / count($onlyDevGameIDs) * 100, 2, '.', '') . "%";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - Games with Leaderboards and Leaderboard count
-        echo "<tr><td>Games with Leaderboards:</td><td>";
-        if (!empty($onlyDevGameIDs)) {
-            echo $onlyDevLeaderboardCount . " - " . number_format($onlyDevLeaderboardCount / count($onlyDevGameIDs) * 100, 2, '.', '') . "%</br>" . $onlyDevLeaderboardTotal . " Unique Leaderboards";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - Easiest game by retro ratio
-        echo "<tr><td>Easiest Game by Retro Ratio:</td><td>";
-        if (!empty($onlyDevEasiestGame)) {
-            echo number_format($onlyDevEasiestGame['TotalTruePoints'] / $onlyDevEasiestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-            echo gameAvatar($onlyDevEasiestGame);
-            echo "</br>" . $onlyDevEasiestGame['MyAchievements'] . " of " . $onlyDevEasiestGame['NumAchievements'] . " Achievements Created";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - Hardest game by retro ratio
-        echo "<tr><td>Hardest Game by Retro Ratio:</td><td>";
-        if (!empty($onlyDevHardestGame)) {
-            echo number_format($onlyDevHardestGame['TotalTruePoints'] / $onlyDevHardestGame['MaxPointsAvailable'], 2, '.', '') . " - ";
-            echo gameAvatar($onlyDevHardestGame);
-            echo "</br>" . $onlyDevHardestGame['MyAchievements'] . " of " . $onlyDevHardestGame['NumAchievements'] . " Achievements Created";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - Complete/Mastered games
-        echo "<tr><td>Completed/Mastered Awards:</td><td>";
-        if (!empty($onlyDevGameIDs)) {
-            echo $onlyDevCompletedAwards . " <b>(" . $onlyDevMasteredAwards . ")</br>";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - Own Complete/Mastered games
-        echo "<tr><td>Own Completed/Mastered Awards:</td><td>";
-        if (!empty($onlyDevOwnAwards)) {
-            echo $onlyDevOwnAwards['Completed'] . " <b>(" . $onlyDevOwnAwards['Mastered'] . ")</br>";
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - Most completed game
-        echo "<tr><td>Most Completed Game:</td><td>";
-        if (!empty($onlyDevMostCompletedGame)) {
-            echo $onlyDevMostCompletedGame['Completed'] . " - ";
-            echo gameAvatar($onlyDevMostCompletedGame);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - Most mastered game
-        echo "<tr><td>Most Mastered Game:</td><td>";
-        if (!empty($onlyDevMostMasteredGame)) {
-            echo $onlyDevMostMasteredGame['Mastered'] . " - ";
-            echo gameAvatar($onlyDevMostMasteredGame);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - User with most completed awards
-        echo "<tr><td>User with Most Completed Awards:</td><td>";
-        if (!empty($onlyDevUserMostCompleted)) {
-            echo $onlyDevUserMostCompleted['Completed'] . " - ";
-            echo userAvatar($onlyDevUserMostCompleted['User']);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-
-        // Sole Developer - User with most mastered awards
-        echo "<tr><td>User with Most Mastered Awards:</td><td>";
-        if (!empty($onlyDevUserMostMastered)) {
-            echo $onlyDevUserMostMastered['Mastered'] . " - ";
-            echo userAvatar($onlyDevUserMostMastered['User']);
-        } else {
-            echo "N/A";
-        }
-        echo "</td></tr>";
-        echo "</table></tbody>";
-        echo "</br></br>";
+        // Sole development
+        echo Blade::render('
+            <x-developer-game-stats-table
+                :easiestGame="$easiestGame"
+                :hardestGame="$hardestGame"
+                :numGamesWithLeaderboards="$numGamesWithLeaderboards"
+                :numGamesWithRichPresence="$numGamesWithRichPresence"
+                :numTotalLeaderboards="$numTotalLeaderboards"
+                :statsKind="$statsKind"
+                :targetDeveloperUsername="$targetDeveloperUsername"
+                :targetGameIds="$targetGameIds"
+            />
+        ', [
+            'easiestGame' => $onlyDevEasiestGame,
+            'hardestGame' => $onlyDevHardestGame,
+            'numGamesWithLeaderboards' => $onlyDevLeaderboardCount,
+            'numGamesWithRichPresence' => $onlyDevRichPresenceCount,
+            'numTotalLeaderboards' => $onlyDevLeaderboardTotal,
+            'statsKind' => 'sole',
+            'targetDeveloperUsername' => $dev,
+            'targetGameIds' => $onlyDevGameIDs,
+        ]);
 
         /*
          * Achievements
          */
-        echo "<H1>Achievements</H1>";
+        echo "<h2>Achievements</h2>";
         echo "<table class='table-highlight'><tbody>";
 
         // Any Development - Achievements created
@@ -1108,11 +652,10 @@ RenderContentStart("$dev's Developer Stats");
 
         // Number of own achievements obtained
         echo "<tr><td>Own Achievements Obtained:</td><td>";
-        if ($ownAchievementsObtained['SoftcoreCount'] > 0) {
-            echo $ownAchievementsObtained['SoftcoreCount'] . " - " . number_format($ownAchievementsObtained['SoftcoreCount'] / $achievementCount * 100, 2, '.', '') . "% <b>(" . $ownAchievementsObtained['HardcoreCount'] . " - " . number_format($ownAchievementsObtained['HardcoreCount'] / $achievementCount * 100, 2, '.', '') . "%)</b>";
-        } else {
-            echo "0 - 0.00% <b>(0 - 0.00%)</b>";
-        }
+        $softcoreCount = $ownAchievementsObtained['SoftcoreCount'] ?? 0;
+        $hardcoreCount = $ownAchievementsObtained['HardcoreCount'] ?? 0;
+        echo "$softcoreCount - " . number_format($softcoreCount / $achievementCount * 100, 2, '.', '') . "%";
+        echo " <b>($hardcoreCount - " . number_format($hardcoreCount / $achievementCount * 100, 2, '.', '') . "%)</b>";
         echo "</td></tr>";
 
         // Number of unique achievement obtainers
@@ -1196,7 +739,7 @@ RenderContentStart("$dev's Developer Stats");
         /*
          * Code Notes
          */
-        echo "<H1>Code Notes</H1>";
+        echo "<h2>Code Notes</h2>";
         echo "<table><tbody>";
 
         // Code notes created
@@ -1227,7 +770,7 @@ RenderContentStart("$dev's Developer Stats");
         /*
          * Tickets
          */
-        echo "<H1>Tickets</H1>";
+        echo "<h2>Tickets</h2>";
         echo "<table class='table-highlight'><tbody>";
 
         // Total tickets created

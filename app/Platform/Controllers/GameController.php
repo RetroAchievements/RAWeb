@@ -80,8 +80,6 @@ class GameController extends Controller
             'leaderboards',
             'forumTopic',
         ]);
-        $game->loadSum('achievements', 'points');
-        $game->loadCount(['players', 'achievements']);
 
         // $game->achievements->each->setRelation('game', $game);
 

@@ -32,7 +32,9 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
             </a>
 
             <div>
-                <a href={{ $achievementUrl }} class="font-semibold leading-4 text-link">{!! $renderedAchievementTitle !!}</a>
+                <a href={{ $achievementUrl }} class="font-semibold leading-4 text-link">
+                    <x-achievement.title :rawTitle="$achievementName" />
+                </a>
                 <p class="text-xs mb-1">{{ $achievementPoints }} <span class="TrueRatio">({{ $achievementRetroPoints }})</span> Points</p>
                 <p class="text-xs">{{ $achievement->Description }}</p>
             </div>
@@ -64,7 +66,9 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
 
             <div>
                 {{-- Provide invisible space to slide the console underneath --}}
-                <p class="invisible"><x-game-title :rawTitle="$game->Title" /></p>
+                <p class="invisible max-w-fit pl-4 font-semibold mb-0.5 text-xs">
+                    <x-game-title :rawTitle="$game->Title" />
+                </p>
 
                 <a href="{{ $gameSystemUrl }}" class="flex items-center gap-x-1 -mt-1">
                     <img src="{{ $gameSystemIconUrl }}" width="18" height="18" alt="Console icon">

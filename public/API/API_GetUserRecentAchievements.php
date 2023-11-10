@@ -1,6 +1,7 @@
 <?php
 
 use App\Platform\Enums\UnlockMode;
+use App\Site\Models\User;
 use Illuminate\Support\Carbon;
 
 /*
@@ -26,7 +27,11 @@ use Illuminate\Support\Carbon;
  *    string     GameURL                  site-relative path to the game page
  */
 
-$user = request()->query('u');
+$user = User::firstWhere('User', request()->query('u'));
+if (!$user) {
+    return response()->json([]);
+}
+
 $minutes = (int) request()->query('m', '60');
 
 $dateStart = Carbon::now()->subMinutes($minutes)->format('Y-m-d H:i:s');

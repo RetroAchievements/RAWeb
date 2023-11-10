@@ -27,21 +27,21 @@ $user = request()->user();
 @endguest
 @auth
     <div class="nav-link flex-col justify-center items-end text-2xs" style="line-height: 1.1em">
-        @if($user->RASoftcorePoints && $user->RASoftcorePoints > $user->points_total)
+        @if($user->points_softcore && $user->points_softcore > $user->points)
             <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
         @endif
 
-        @if($user->points_total)
-            <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ localized_number($user->points_total) }}</div>
+        @if($user->points)
+            <div class="text-color cursor-help" title="Points earned in hardcore mode">{{ localized_number($user->points) }}</div>
         @endif
 
-        @if($user->points_weighted_total)
+        @if($user->points_weighted)
             <x-points-weighted-container>
-                <span class='trueratio'>{{ localized_number($user->points_weighted_total) }}</span>
+                <span class='trueratio'>{{ localized_number($user->points_weighted) }}</span>
             </x-points-weighted-container>
         @endif
 
-        @if($user->RASoftcorePoints && $user->RASoftcorePoints <= $user->points_total)
+        @if($user->points_softcore && $user->points_softcore <= $user->points)
             <div class='softcore cursor-help' title="Points earned in softcore mode">{{ localized_number($user->RASoftcorePoints) }}</div>
         @endif
     </div>
@@ -51,6 +51,11 @@ $user = request()->user();
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
         <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
+
+        @hasfeature("beat")
+            <x-dropdown-item :link="route('user.completion-progress', $user)">Completion Progress</x-dropdown-item>
+        @endhasfeature
+        
         @if($user->Permissions >= Permissions::Registered)
             <x-dropdown-item :link="url('gameList.php?t=play')">Want to Play Games</x-dropdown-item>
         @endif

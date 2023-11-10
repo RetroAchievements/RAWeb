@@ -8,7 +8,6 @@ use App\Connect\Controllers\ConnectApiController;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerAchievementLegacy;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
@@ -44,17 +43,7 @@ trait ActsAsPlayer
 
     public function getPointsRatioAttribute(): float|string
     {
-        return $this->points_total ? ($this->points_weighted / $this->points_total) : 0;
-    }
-
-    public function getPointsTotalAttribute(): int
-    {
-        return (int) ($this->attributes['RAPoints'] ?? 0);
-    }
-
-    public function getPointsWeightedTotalAttribute(): int
-    {
-        return (int) ($this->attributes['TrueRAPoints'] ?? 0);
+        return $this->points ? ($this->points_weighted / $this->points) : 0;
     }
 
     // == relations
@@ -66,16 +55,6 @@ trait ActsAsPlayer
     {
         return $this->belongsToMany(Achievement::class, 'player_achievements', 'user_id', 'achievement_id')
             ->using(PlayerAchievement::class);
-    }
-
-    /**
-     * Return unlocks separated by unlock mode; both softcore and hardcore in "raw" form
-     *
-     * @return HasMany<PlayerAchievementLegacy>
-     */
-    public function playerAchievementsLegacy(): HasMany
-    {
-        return $this->hasMany(PlayerAchievementLegacy::class, 'User', 'User');
     }
 
     /**
@@ -119,7 +98,7 @@ trait ActsAsPlayer
      */
     public function lastGame(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'LastGameID', 'user_id');
+        return $this->belongsTo(Game::class, 'LastGameID', 'ID');
     }
 
     /**

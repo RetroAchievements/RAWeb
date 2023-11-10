@@ -259,7 +259,7 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
 
             // Only show the rank when we actually know the rank
             if ($sort < 10 && $sort % 10 != 1) {
-                echo "<td>" . $rank . "</td>";
+                echo "<td>" . localized_number($rank) . "</td>";
             }
             echo "<td>";
             echo userAvatar($dataPoint['User'], iconClass: 'mr-1');
@@ -304,18 +304,18 @@ RenderContentStart($lbUsers . " Ranking - " . $lbType);
 
                 // Get the user rank when sorting by points or retro points
                 if ($friends == 1) {
-                    echo "<td>" . $userRank . "</td>";
+                    echo "<td>" . localized_number($userRank) . "</td>";
                 } elseif ($type != 2) {
                     // Dont show rank on pages you are not actually ranked in. This would require rerunning the query just to find yourself
                     echo "<td></td>";
                 } else {
                     if ($sort < 10 && $sort % 10 != 1) {
                         if ($sort == 5) {
-                            echo "<td>" . getUserRank($user, RankType::Hardcore) . "</td>";
+                            echo "<td>" . localized_number(getUserRank($user, RankType::Hardcore)) . "</td>";
                         } elseif ($sort == 6) {
-                            echo "<td>" . getUserRank($user, RankType::TruePoints) . "</td>";
+                            echo "<td>" . localized_number(getUserRank($user, RankType::TruePoints)) . "</td>";
                         } elseif ($sort == 2) {
-                            echo "<td>" . getUserRank($user, RankType::Softcore) . "</td>";
+                            echo "<td>" . localized_number(getUserRank($user, RankType::Softcore)) . "</td>";
                         } else {
                             echo "<td></td>";
                         }

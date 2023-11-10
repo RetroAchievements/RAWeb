@@ -333,7 +333,7 @@ function postAllAwardsDisplayOrder(awards) {
                     </label>
                 </div>
 
-                <button onclick='handleSaveAllClick()' class='text-base'>Save All Changes</button>
+                <button onclick='handleSaveAllClick()' class='btn text-base'>Save All Changes</button>
             </div>
         HTML;
     } else {

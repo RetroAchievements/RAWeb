@@ -103,7 +103,7 @@ $menuSystemsList = [
                         $iconName = Str::kebab($cleanSystemShortName);
                         ?>
                         <x-dropdown-item :link="url('gameList.php?c=' . $listId)">
-                            <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" width="16" height="16" alt='{{ $systemName }}'>
+                            <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" loading="lazy" width="16" height="16" alt='{{ $systemName }}'>
                             <span>{{ $systemName }}</span>
                         </x-dropdown-item>
                     @endforeach
@@ -150,7 +150,10 @@ $menuSystemsList = [
     <x-dropdown-item :link="url('forumposthistory.php')">Recent Forum Posts</x-dropdown-item>
     <div class="dropdown-divider"></div>
     <x-dropdown-item :link="url('userList.php')">{{ __res('user') }}</x-dropdown-item>
-    <x-dropdown-item :link="url('globalRanking.php')">Global Ranking</x-dropdown-item>
+    <x-dropdown-item :link="url('globalRanking.php')">Global Points Ranking</x-dropdown-item>
+    @hasfeature("beat")
+        <x-dropdown-item :link="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>
+    @endhasfeature
     <x-dropdown-item :link="url('recentMastery.php')">Recent Masteries</x-dropdown-item>
     <x-dropdown-item :link="url('developerstats.php')">Developer Stats</x-dropdown-item>
     <div class="dropdown-divider"></div>

@@ -2,7 +2,6 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
@@ -13,9 +12,10 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
-use Carbon\Carbon;
+use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 $gameID = (int) request('game');
@@ -40,8 +40,10 @@ if ($flagParam !== $unofficialFlag) {
     $flagParam = $officialFlag;
 }
 
+$userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
+    $userModel = User::firstWhere('User', $user);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');
@@ -50,7 +52,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
+$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
 
 if (empty($gameData)) {
     abort(404);
@@ -130,10 +132,11 @@ $totalPossible = null;
 $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
 $claimData = null;
-$claimListLength = 0;
 $isGameBeatable = false;
 $isBeatenHardcore = false;
 $isBeatenSoftcore = false;
+$hasBeatenHardcoreAward = false;
+$hasBeatenSoftcoreAward = false;
 $userGameProgressionAwards = [
     'beaten-softcore' => null,
     'beaten-hardcore' => null,
@@ -149,7 +152,7 @@ if ($isFullyFeaturedGame) {
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
-    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
+    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user, retrieveHidden: false);
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
@@ -157,8 +160,8 @@ if ($isFullyFeaturedGame) {
 
         // Determine if the logged in user has any progression awards for this set
         $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
-        $isBeatenHardcore = !is_null($userGameProgressionAwards['beaten-hardcore']);
-        $isBeatenSoftcore = !is_null($userGameProgressionAwards['beaten-softcore']);
+        $hasBeatenSoftcoreAward = !is_null($userGameProgressionAwards['beaten-hardcore']);
+        $hasBeatenHardcoreAward = !is_null($userGameProgressionAwards['beaten-softcore']);
     }
 
     $screenshotWidth = 200;
@@ -171,11 +174,13 @@ if ($isFullyFeaturedGame) {
     $numEarnedHardcore = 0;
     $totalPossible = 0;
 
-    // Quickly calculate if the player potentially has an unawarded beaten game award
+    // Quickly calculate the player's beaten status on an optimistic basis
     $totalProgressionAchievements = 0;
     $totalWinConditionAchievements = 0;
     $totalEarnedProgression = 0;
+    $totalEarnedProgressionHardcore = 0;
     $totalEarnedWinCondition = 0;
+    $totalEarnedWinConditionHardcore = 0;
 
     $totalEarnedTrueRatio = 0;
     $totalPossibleTrueRatio = 0;
@@ -209,13 +214,19 @@ if ($isFullyFeaturedGame) {
 
                 if ($nextAch['type'] == AchievementType::Progression) {
                     $totalProgressionAchievements++;
-                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                    if (isset($nextAch['DateEarned'])) {
                         $totalEarnedProgression++;
+                    }
+                    if (isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedProgressionHardcore++;
                     }
                 } elseif ($nextAch['type'] == AchievementType::WinCondition) {
                     $totalWinConditionAchievements++;
-                    if (isset($nextAch['DateEarned']) || isset($nextAch['DateEarnedHardcore'])) {
+                    if (isset($nextAch['DateEarned'])) {
                         $totalEarnedWinCondition++;
+                    }
+                    if (isset($nextAch['DateEarnedHardcore'])) {
+                        $totalEarnedWinConditionHardcore++;
                     }
                 }
             }
@@ -234,28 +245,27 @@ if ($isFullyFeaturedGame) {
         array_multisort($authorCount, SORT_DESC, $authorInfo);
     }
 
-    // If the game is beatable, the user has met the requirements to receive the
-    // beaten game award, and they do not currently have that award, give it to them.
+    // Show the beaten award display in the progress component optimistically.
+    // The actual award metadata is updated async via actions/background jobs.
     if ($isGameBeatable) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
-        if (
-            $totalEarnedProgression === $neededProgressions
+
+        $isBeatenSoftcore = (
+            $totalEarnedProgression === $totalProgressionAchievements
             && $totalEarnedWinCondition >= $neededWinConditions
-            && !$isBeatenHardcore
-            && !$isBeatenSoftcore
-        ) {
-            $beatenGameRetVal = testBeatenGame($gameID, $user, true);
-            $isBeatenHardcore = $beatenGameRetVal['isBeatenHardcore'];
-            $isBeatenSoftcore = $beatenGameRetVal['isBeatenSoftcore'];
-        }
+        );
+
+        $isBeatenHardcore = (
+            $totalEarnedProgressionHardcore === $totalProgressionAchievements
+            && $totalEarnedWinConditionHardcore >= $neededWinConditions
+        );
     }
 
     // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID);
 
     $claimData = getClaimData($gameID, true);
-    $claimListLength = count($claimData);
 }
 
 $gameRating = getGameRating($gameID, $user);
@@ -330,246 +340,249 @@ sanitize_outputs(
 
 <?php RenderContentStart($pageTitle); ?>
 <?php if ($isFullyFeaturedGame): ?>
-    <script defer src="https://www.gstatic.com/charts/loader.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof google !== 'undefined') {
-            google.load('visualization', '1.0', { 'packages': ['corechart'] });
-            google.setOnLoadCallback(drawCharts);
-        }
-    });
-
-    function drawCharts() {
-        var dataTotalScore = new google.visualization.DataTable();
-
-        // Declare columns
-        dataTotalScore.addColumn('number', 'Total Achievements Won');
-        dataTotalScore.addColumn('number', 'Hardcore Users');
-        dataTotalScore.addColumn('number', 'Softcore Users');
-
-        dataTotalScore.addRows([
-            <?php
-            function generateEmptyBucketsWithBounds(int $numAchievements): array
-            {
-                $DYNAMIC_BUCKETING_THRESHOLD = 44;
-                $GENERATED_RANGED_BUCKETS_COUNT = 20;
-
-                // Enable bucketing based on the number of achievements in the set.
-                // This number was picked arbitrarily, but generally reflects when we start seeing
-                // width constraints in the Achievements Distribution bar chart.
-                $isDynamicBucketingEnabled = $numAchievements >= $DYNAMIC_BUCKETING_THRESHOLD;
-
-                // If bucketing is enabled, we'll dynamically generate 19 buckets. The final 20th
-                // bucket will contain all users who have completed/mastered the game.
-                $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements;
-
-                // Bucket size is determined based on the total number of achievements in the set.
-                // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by $bucketCount).
-                // If bucketing is not enabled, each achievement gets its own bucket (bucket size is 1).
-                $bucketSize = $isDynamicBucketingEnabled ? ($numAchievements - 1) / $bucketCount : 1;
-
-                $buckets = [];
-                $currentUpperBound = 1;
-                for ($i = 0; $i < $bucketCount; $i++) {
-                    if ($isDynamicBucketingEnabled) {
-                        $start = $i === 0 ? 1 : $currentUpperBound + 1;
-                        $end = intval(round($bucketSize * ($i + 1)));
-                        $buckets[$i] = ['start' => $start, 'end' => $end, 'hardcore' => 0, 'softcore' => 0];
-
-                        $currentUpperBound = $end;
-                    } else {
-                        $buckets[$i] = ['start' => $i + 1, 'end' => $i + 1, 'hardcore' => 0, 'softcore' => 0];
-                    }
-                }
-
-                return [$buckets, $isDynamicBucketingEnabled];
+    <?php if ($numDistinctPlayers): ?>
+        <script defer src="https://www.gstatic.com/charts/loader.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof google !== 'undefined') {
+                google.load('visualization', '1.0', { 'packages': ['corechart'] });
+                google.setOnLoadCallback(drawCharts);
             }
+        });
 
-            function findBucketIndex(array $buckets, int $achievementNumber): int
-            {
-                $low = 0;
-                $high = count($buckets) - 1;
+        function drawCharts() {
+            var dataTotalScore = new google.visualization.DataTable();
 
-                // Perform a binary search.
-                while ($low <= $high) {
-                    $mid = intdiv($low + $high, 2);
-                    if ($achievementNumber >= $buckets[$mid]['start'] && $achievementNumber <= $buckets[$mid]['end']) {
-                        return $mid;
-                    }
-                    if ($achievementNumber < $buckets[$mid]['start']) {
-                        $high = $mid - 1;
-                    } else {
-                        $low = $mid + 1;
-                    }
-                }
+            // Declare columns
+            dataTotalScore.addColumn('number', 'Total Achievements Won');
+            dataTotalScore.addColumn('number', 'Hardcore Users');
+            dataTotalScore.addColumn('number', 'Softcore Users');
 
-                // Error: This should not happen unless something is terribly wrong with the page.
-                return -1;
-            }
+            dataTotalScore.addRows([
+                <?php
+                function generateEmptyBucketsWithBounds(int $numAchievements): array
+                {
+                    $DYNAMIC_BUCKETING_THRESHOLD = 44;
+                    $GENERATED_RANGED_BUCKETS_COUNT = 20;
 
-            function calculateBuckets(
-                array &$buckets,
-                bool $isDynamicBucketingEnabled,
-                int $numAchievements,
-                array $achDist,
-                array $achDistHardcore
-            ): array {
-                $largestWonByCount = 0;
+                    // Enable bucketing based on the number of achievements in the set.
+                    // This number was picked arbitrarily, but generally reflects when we start seeing
+                    // width constraints in the Achievements Distribution bar chart.
+                    $isDynamicBucketingEnabled = $numAchievements >= $DYNAMIC_BUCKETING_THRESHOLD;
 
-                // Iterate through the achievements and distribute them into the buckets.
-                for ($i = 1; $i < $numAchievements; $i++) {
-                    // Determine the bucket index based on the current achievement number.
-                    $targetBucketIndex = $isDynamicBucketingEnabled ? findBucketIndex($buckets, $i) : $i - 1;
+                    // If bucketing is enabled, we'll dynamically generate 19 buckets. The final 20th
+                    // bucket will contain all users who have completed/mastered the game.
+                    $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements;
 
-                    // Distribute the achievements into the bucket by adding the number of hardcore
-                    // users who achieved it and the number of softcore users who achieved it to
-                    // the respective counts.
-                    $wonByUserCount = $achDist[$i];
-                    $buckets[$targetBucketIndex]['hardcore'] += $achDistHardcore[$i];
-                    $buckets[$targetBucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
+                    // Bucket size is determined based on the total number of achievements in the set.
+                    // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by $bucketCount).
+                    // If bucketing is not enabled, each achievement gets its own bucket (bucket size is 1).
+                    $bucketSize = $isDynamicBucketingEnabled ? ($numAchievements - 1) / $bucketCount : 1;
 
-                    // We need to also keep tracked of `largestWonByCount`, which is later used for chart
-                    // configuration, such as determining the number of gridlines to show.
-                    $currentTotal = $buckets[$targetBucketIndex]['hardcore'] + $buckets[$targetBucketIndex]['softcore'];
-                    $largestWonByCount = max($currentTotal, $largestWonByCount);
-                }
+                    $buckets = [];
+                    $currentUpperBound = 1;
+                    for ($i = 0; $i < $bucketCount; $i++) {
+                        if ($isDynamicBucketingEnabled) {
+                            $start = $i === 0 ? 1 : $currentUpperBound + 1;
+                            $end = intval(round($bucketSize * ($i + 1)));
+                            $buckets[$i] = ['start' => $start, 'end' => $end, 'hardcore' => 0, 'softcore' => 0];
 
-                return [$buckets, $largestWonByCount];
-            }
-
-            function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int
-            {
-                if ($numAchievements <= 0) {
-                    return 0;
-                }
-
-                // Add a bucket for the users who have earned all achievements.
-                $buckets[] = [
-                    'hardcore' => $achDistHardcore[$numAchievements],
-                    'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements],
-                ];
-
-                // Calculate the total count of users who have earned all achievements.
-                // This will later be used for chart configuration in determining the
-                // number of gridlines to show on one of the axes.
-                $allAchievementsCount = (
-                    $achDistHardcore[$numAchievements] + ($achDist[$numAchievements] - $achDistHardcore[$numAchievements])
-                );
-
-                return $allAchievementsCount;
-            }
-
-            function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void
-            {
-                echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
-            }
-
-            function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array
-            {
-                $bucketLabels = [];
-                $hAxisValues = [];
-                $bucketIteration = 0;
-                $bucketCount = count($buckets);
-
-                // Loop through each bucket to generate their labels and values.
-                foreach ($buckets as $index => $bucket) {
-                    if ($bucketIteration++ > 0) {
-                        echo ", ";
+                            $currentUpperBound = $end;
+                        } else {
+                            $buckets[$i] = ['start' => $i + 1, 'end' => $i + 1, 'hardcore' => 0, 'softcore' => 0];
+                        }
                     }
 
-                    // Is this the last bucket? If so, we only want it to include
-                    // players who have earned all the achievements, not a range.
-                    if ($index == $bucketCount - 1) {
-                        $label = "Earned $numAchievements achievements";
-                        printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+                    return [$buckets, $isDynamicBucketingEnabled];
+                }
 
-                        $hAxisValues[] = $numAchievements;
-                    } else {
-                        // For other buckets, the label indicates the range of achievements that
-                        // the bucket represents.
-                        $start = $bucket['start'];
-                        $end = $bucket['end'];
+                function findBucketIndex(array $buckets, int $achievementNumber): int
+                {
+                    $low = 0;
+                    $high = count($buckets) - 1;
 
-                        // Pluralize 'achievement' if the range contains more than one achievement.
-                        $plural = $end > 1 ? 's' : '';
-                        $label = "Earned $start achievement$plural";
-                        if ($start !== $end) {
-                            $label = "Earned $start-$end achievement$plural";
+                    // Perform a binary search.
+                    while ($low <= $high) {
+                        $mid = intdiv($low + $high, 2);
+                        if ($achievementNumber >= $buckets[$mid]['start'] && $achievementNumber <= $buckets[$mid]['end']) {
+                            return $mid;
+                        }
+                        if ($achievementNumber < $buckets[$mid]['start']) {
+                            $high = $mid - 1;
+                        } else {
+                            $low = $mid + 1;
+                        }
+                    }
+
+                    // Error: This should not happen unless something is terribly wrong with the page.
+                    return -1;
+                }
+
+                function calculateBuckets(
+                    array &$buckets,
+                    bool $isDynamicBucketingEnabled,
+                    int $numAchievements,
+                    array $achDist,
+                    array $achDistHardcore
+                ): array {
+                    $largestWonByCount = 0;
+
+                    // Iterate through the achievements and distribute them into the buckets.
+                    for ($i = 1; $i < $numAchievements; $i++) {
+                        // Determine the bucket index based on the current achievement number.
+                        $targetBucketIndex = $isDynamicBucketingEnabled ? findBucketIndex($buckets, $i) : $i - 1;
+
+                        // Distribute the achievements into the bucket by adding the number of hardcore
+                        // users who achieved it and the number of softcore users who achieved it to
+                        // the respective counts.
+                        $wonByUserCount = $achDist[$i];
+                        $buckets[$targetBucketIndex]['hardcore'] += $achDistHardcore[$i];
+                        $buckets[$targetBucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
+
+                        // We need to also keep tracked of `largestWonByCount`, which is later used for chart
+                        // configuration, such as determining the number of gridlines to show.
+                        $currentTotal = $buckets[$targetBucketIndex]['hardcore'] + $buckets[$targetBucketIndex]['softcore'];
+                        $largestWonByCount = max($currentTotal, $largestWonByCount);
+                    }
+
+                    return [$buckets, $largestWonByCount];
+                }
+
+                function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int
+                {
+                    if ($numAchievements <= 0) {
+                        return 0;
+                    }
+
+                    // Add a bucket for the users who have earned all achievements.
+                    $buckets[] = [
+                        'hardcore' => $achDistHardcore[$numAchievements],
+                        'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements],
+                    ];
+
+                    // Calculate the total count of users who have earned all achievements.
+                    // This will later be used for chart configuration in determining the
+                    // number of gridlines to show on one of the axes.
+                    $allAchievementsCount = (
+                        $achDistHardcore[$numAchievements] + ($achDist[$numAchievements] - $achDistHardcore[$numAchievements])
+                    );
+
+                    return $allAchievementsCount;
+                }
+
+                function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void
+                {
+                    echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
+                }
+
+                function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array
+                {
+                    $bucketLabels = [];
+                    $hAxisValues = [];
+                    $bucketIteration = 0;
+                    $bucketCount = count($buckets);
+
+                    // Loop through each bucket to generate their labels and values.
+                    foreach ($buckets as $index => $bucket) {
+                        if ($bucketIteration++ > 0) {
+                            echo ", ";
                         }
 
-                        printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+                        // Is this the last bucket? If so, we only want it to include
+                        // players who have earned all the achievements, not a range.
+                        if ($index == $bucketCount - 1) {
+                            $label = "Earned $numAchievements achievements";
+                            printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
 
-                        $hAxisValues[] = $start;
+                            $hAxisValues[] = $numAchievements;
+                        } else {
+                            // For other buckets, the label indicates the range of achievements that
+                            // the bucket represents.
+                            $start = $bucket['start'];
+                            $end = $bucket['end'];
+
+                            // Pluralize 'achievement' if the range contains more than one achievement.
+                            $plural = $end > 1 ? 's' : '';
+                            $label = "Earned $start achievement$plural";
+                            if ($start !== $end) {
+                                $label = "Earned $start-$end achievement$plural";
+                            }
+
+                            printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+
+                            $hAxisValues[] = $start;
+                        }
                     }
+
+                    return $hAxisValues;
                 }
 
-                return $hAxisValues;
-            }
+                [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
+                [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $achDist, $achDistHardcore);
+                $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
+                $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
 
-            [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
-            [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $achDist, $achDistHardcore);
-            $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
-            $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
-
-            $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
-            if ($largestWonByCount > 20) {
-                $largestWonByCount = -2;
-            }
-
-            $hAxisValues = generateBucketLabelsAndValues($numAchievements, $buckets);
-            ?>
-        ]);
-        var hAxisValues = <?php echo json_encode($hAxisValues); ?>;
-        var optionsTotalScore = {
-            isStacked: true,
-            backgroundColor: 'transparent',
-            titleTextStyle: { color: '#186DEE' },
-            hAxis: {
-                textStyle: { color: '#186DEE' },
-                gridlines: {
-                    count: <?= $numGridlines ?>,
-                    color: '#333333'
-                },
-                <?php
-                if ($isDynamicBucketingEnabled) {
-                    echo 'ticks: hAxisValues.map(function(value, index) { return {v: index + 1, f: value.toString()}; }),';
+                $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
+                if ($largestWonByCount > 20) {
+                    $largestWonByCount = -2;
                 }
+
+                $hAxisValues = generateBucketLabelsAndValues($numAchievements, $buckets);
                 ?>
-                minorGridlines: { count: 0 },
-                format: '#',
-                slantedTextAngle: 90,
-                maxAlternation: 0,
-            },
-            vAxis: {
-                textStyle: { color: '#186DEE' },
-                gridlines: {
-                    count: <?= $largestWonByCount + 1 ?>,
-                    color: '#333333'
+            ]);
+            var hAxisValues = <?php echo json_encode($hAxisValues); ?>;
+            var optionsTotalScore = {
+                isStacked: true,
+                backgroundColor: 'transparent',
+                titleTextStyle: { color: '#186DEE' },
+                hAxis: {
+                    textStyle: { color: '#186DEE' },
+                    gridlines: {
+                        count: <?= $numGridlines ?>,
+                        color: '#333333'
+                    },
+                    <?php
+                    if ($isDynamicBucketingEnabled) {
+                        echo 'ticks: hAxisValues.map(function(value, index) { return {v: index + 1, f: value.toString()}; }),';
+                    }
+                    ?>
+                    minorGridlines: { count: 0 },
+                    format: '#',
+                    slantedTextAngle: 90,
+                    maxAlternation: 0,
                 },
-                minorGridlines: { color: '#333333' },
-                viewWindow: { min: 0 },
-                format: '#'
-            },
-            legend: { position: 'none' },
-            chartArea: {
-                'width': '80%',
-                'height': '78%'
-            },
-            height: 260,
-            colors: ['#cc9900', '#186DEE'],
-            pointSize: 4,
-        };
+                vAxis: {
+                    textStyle: { color: '#186DEE' },
+                    gridlines: {
+                        count: <?= $largestWonByCount + 1 ?>,
+                        color: '#333333'
+                    },
+                    minorGridlines: { color: '#333333' },
+                    viewWindow: { min: 0 },
+                    format: '#'
+                },
+                legend: { position: 'none' },
+                chartArea: {
+                    'width': '80%',
+                    'height': '78%'
+                },
+                height: 260,
+                colors: ['#cc9900', '#186DEE'],
+                pointSize: 4,
+            };
 
-        function resize() {
-            chartScoreProgress = new google.visualization.ColumnChart(document.getElementById('chart_distribution'));
-            chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
-            // google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
+            function resize() {
+                chartScoreProgress = new google.visualization.ColumnChart(document.getElementById('chart_distribution'));
+                chartScoreProgress.draw(dataTotalScore, optionsTotalScore);
+                // google.visualization.events.addListener(chartScoreProgress, 'select', selectHandlerScoreProgress );
+            }
+
+            window.onload = resize();
+            window.onresize = resize;
         }
+        </script>
+    <?php endif ?>
 
-        window.onload = resize();
-        window.onresize = resize;
-    }
-    </script>
     <script>
     var lastKnownAchRating = <?= $gameRating[RatingType::Achievement]['AverageRating'] ?>;
     var lastKnownGameRating = <?= $gameRating[RatingType::Game]['AverageRating'] ?>;
@@ -993,14 +1006,6 @@ sanitize_outputs(
                     'Tickets'
                 );
 
-                if ($permissions >= Permissions::Developer) {
-                    echo "<form action='/request/game/recalculate-points-ratio.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='game' value='$gameID'>";
-                    echo "<button class='btn'>Recalculate True Ratios</button>";
-                    echo "</form>";
-                }
-
                 // Display the claims links if not an event game
                 if (!$isEventGame) {
                     if ($permissions >= Permissions::Developer) {
@@ -1332,44 +1337,13 @@ sanitize_outputs(
 
             // Display claim information
             if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
-                echo "<div>";
-                $claimExpiration = null;
-                $primaryClaim = 1;
-                if ($claimListLength > 0) {
-                    echo "Claimed by: ";
-                    $reviewText = '';
-                    foreach ($claimData as $claim) {
-                        $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
-                        if ($claim['Status'] == ClaimStatus::InReview) {
-                            $reviewText = " (" . ClaimStatus::toString(ClaimStatus::InReview) . ")";
-                        }
-                        $claimExpiration = Carbon::parse($claim['Expiration']);
-                        echo userAvatar($claim['User'], icon: false) . $revisionText;
-                        if ($claimListLength > 1) {
-                            echo ", ";
-                        }
-                        $claimListLength--;
-                        $primaryClaim = 0;
-                    }
-                    echo $reviewText;
-
-                    if ($claimExpiration) {
-                        $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast() ? "Expired" : "Expires";
-
-                        $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
-                        $claimTimeAgoDate = $permissions >= Permissions::JuniorDeveloper
-                            ? "(" . $claimExpiration->diffForHumans() . ")"
-                            : "";
-
-                        // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
-                        echo "<p>$isAlreadyExpired on: $claimFormattedDate $claimTimeAgoDate</p>";
-                    }
-                } else {
-                    if ($numAchievements < 1) {
-                        echo "No Active Claims";
-                    }
-                }
-                echo "</div>";
+                echo Blade::render('
+                    <x-game.claim-info
+                        :claimData="$claimData"
+                        :gameId="$gameID"
+                        :userPermissions="$permissions"
+                    />
+                ', $gameMetaBindings);
             }
             echo "</div>";
 
@@ -1452,7 +1426,14 @@ sanitize_outputs(
         if ($isFullyFeaturedGame) {
             $recentPlayerData = getGameRecentPlayers($gameID, 10);
             if (!empty($recentPlayerData)) {
-                RenderRecentGamePlayers($recentPlayerData, $gameTitle);
+                echo "<div class='mt-6 mb-8'>";
+                echo Blade::render('
+                    <x-game.recent-game-players :recentPlayerData="$recentPlayerData" :gameTitle="$gameTitle" />
+                ', [
+                    'recentPlayerData' => $recentPlayerData,
+                    'gameTitle' => $gameTitle,
+                ]);
+                echo "</div>";
             }
 
             RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);

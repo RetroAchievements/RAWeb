@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     abort(401);
@@ -9,9 +10,19 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unre
 $gameID = requestInputSanitized('ID', null, 'integer');
 $user2 = requestInputSanitized('f');
 
+$user2Model = User::firstWhere('User', $user2);
+if (!$user2Model) {
+    abort(404);
+}
+
+$userModel = User::firstWhere('User', $user);
+if (!$userModel) {
+    abort(401);
+}
+
 $totalFriends = getAllFriendsProgress($user, $gameID, $friendScores);
 
-$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, 0, $user2);
+$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, 0, $user2Model);
 if ($gameData === null) {
     abort(404);
 }
@@ -24,7 +35,8 @@ $gameIcon = $gameData['ImageIcon'];
 
 $gamesPlayedWithAchievements = [];
 
-$numGamesPlayed = getUsersGameList($user, $userGamesList);
+$userGamesList = getUsersGameList($userModel);
+$numGamesPlayed = count($userGamesList);
 
 foreach ($userGamesList as $nextGameID => $nextGameData) {
     $nextGameTitle = $nextGameData['Title'];

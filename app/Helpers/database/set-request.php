@@ -35,8 +35,7 @@ function getUserRequestList(?string $user = null): array
             sr.user = '$user' AND sr.type='" . UserGameListType::AchievementSetRequest . "'
         GROUP BY
             sr.GameID
-        ORDER BY
-            GameTitle ASC";
+        ORDER BY " . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title";
 
     $dbResult = s_mysql_query($query);
 
@@ -112,7 +111,6 @@ function getUserRequestsInformation(string $user, array $list, int $gameID = -1)
  */
 function getSetRequestCount(int $gameID): int
 {
-    sanitize_sql_inputs($gameID);
     if ($gameID < 1) {
         return 0;
     }
@@ -136,8 +134,6 @@ function getSetRequestCount(int $gameID): int
  */
 function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
 {
-    sanitize_sql_inputs($gameID);
-
     $retVal = [];
 
     if ($gameID < 1) {
@@ -187,8 +183,6 @@ function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
  */
 function getMostRequestedSetsList(array|int|null $console, int $offset, int $count, int $requestStatus = RequestStatus::Any): array
 {
-    sanitize_sql_inputs($offset, $count);
-
     $retVal = [];
 
     $query = "

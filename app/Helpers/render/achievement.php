@@ -3,7 +3,6 @@
 use App\Platform\Models\Achievement;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 function achievementAvatar(
     int|string|array|Achievement $achievement,
@@ -29,7 +28,7 @@ function achievementAvatar(
             $points = $achievement['Points'] ?? null;
             $label = $title . ($points ? ' (' . $points . ')' : '');
             sanitize_outputs($label);   // sanitize before rendering HTML
-            $label = renderAchievementTitle($label);
+            $label = str_replace("\n", '', Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', ['rawTitle' => $label]));
         }
 
         if ($icon !== false) {
@@ -62,31 +61,6 @@ function achievementAvatar(
     );
 }
 
-/**
- * Render achievement title, parsing `[m]` (missable) as a tag
- */
-function renderAchievementTitle(?string $title, bool $tags = true): string
-{
-    if (!$title) {
-        return '';
-    }
-    if (!Str::contains($title, '[m]')) {
-        return $title;
-    }
-
-    $missableTag = '';
-    if ($tags) {
-        $missableTag = " <span class='tag missable' title='Missable'><abbr>[<span>m</span>]</abbr></span>";
-    }
-    $title = str_replace('[m]', '', $title);
-
-    // If we don't strip consecutive spaces, the
-    // browser doesn't collapse them in forum <pre> tags.
-    $title = preg_replace('/\s+/', ' ', $title);
-
-    return trim("$title$missableTag");
-}
-
 function renderAchievementCard(int|string|array $achievement, ?string $context = null, ?string $iconUrl = null): string
 {
     $id = is_int($achievement) || is_string($achievement) ? (int) $achievement : ($achievement['AchievementID'] ?? $achievement['ID'] ?? null);
@@ -104,7 +78,9 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
     }
 
-    $title = renderAchievementTitle($data['AchievementTitle'] ?? $data['Title'] ?? null);
+    $title = str_replace("\n", '', Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
+        'rawTitle' => $data['AchievementTitle'] ?? $data['Title'] ?? '',
+    ]));
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;

@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Collection;
 
@@ -136,8 +137,6 @@ function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
 
 function getTopicComments(int $topicID, int $offset, int $count, ?int &$maxCountOut): ?array
 {
-    sanitize_sql_inputs($topicID);
-
     $query = "    SELECT COUNT(*) FROM ForumTopicComment AS ftc
                 WHERE ftc.ForumTopicID = $topicID ";
 
@@ -349,7 +348,7 @@ function submitTopicComment(
 
 function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
 {
-    sanitize_sql_inputs($topicID, $author, $commentID);
+    sanitize_sql_inputs($author);
 
     // $author has made a post in the topic $topicID
     // Find all people involved in this forum topic, and if they are not the author and prefer to
@@ -383,8 +382,6 @@ function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $co
         $commentID = 99_999_999;
     }
 
-    sanitize_sql_inputs($forumTopicID, $commentID);
-
     $query = "SELECT COUNT(ID) AS CommentOffset
               FROM ForumTopicComment
               WHERE DateCreated < (SELECT DateCreated FROM ForumTopicComment WHERE ID = $commentID)
@@ -411,25 +408,21 @@ function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $co
 
 function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID): bool
 {
-    sanitize_sql_inputs($user);
     if ($gameID == 0) {
         return false;
     }
 
-    $achievementData = null;
-    $gameData = null;
-    getGameMetaData($gameID, $user, $achievementData, $gameData);
-
-    if (isset($gameData['ForumTopicID'])
-        && $gameData['ForumTopicID'] != 0
-        && getTopicDetails($gameData['ForumTopicID'], $topic)) {
-        // Bad times?!
+    $game = Game::with('system')->find($gameID);
+    if (!$game) {
         return false;
     }
 
-    $consoleID = $gameData['ConsoleID'];
+    if ($game->ForumTopicID > 0 && getTopicDetails($game->ForumTopicID, $topic)) {
+        // valid topic already exists
+        return false;
+    }
 
-    $forumID = match ($consoleID) {
+    $forumID = match ($game->system->ID) {
         // Mega Drive
         1 => 10,
         // SNES
@@ -444,8 +437,8 @@ function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID):
         default => 10,
     };
 
-    $gameTitle = $gameData['Title'];
-    $consoleName = $gameData['ConsoleName'];
+    $gameTitle = $game->Title;
+    $consoleName = $game->system->Name;
 
     $topicTitle = $gameTitle;
 
@@ -463,16 +456,14 @@ function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID):
         "[url=$longplaysURL]Longplay[/url]\n" .
         "[url=$wikipediaURL]Wikipedia[/url]\n";
 
-    if (submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $forumTopicID)) {
-        $query = "UPDATE GameData SET ForumTopicID = $forumTopicID
-                  WHERE ID=$gameID ";
-
-        $dbResult = s_mysql_query($query);
-
-        return $dbResult !== false;
+    if (!submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $forumTopicID)) {
+        return false;
     }
 
-    return false;
+    $game->ForumTopicID = $forumTopicID;
+    $game->save();
+
+    return true;
 }
 
 /**

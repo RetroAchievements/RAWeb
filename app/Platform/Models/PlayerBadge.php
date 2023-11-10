@@ -18,10 +18,6 @@ class PlayerBadge extends BaseModel
     // TODO Note: will be renamed and split into Community/UserBadge and Platform/PlayerBadge
     protected $table = 'SiteAwards';
 
-    // TODO introduce a primary key - or do the split as mentioned above
-    protected $primaryKey;
-    public $incrementing = false;
-
     public const CREATED_AT = 'AwardDate';
     public const UPDATED_AT = null;
 
@@ -40,6 +36,8 @@ class PlayerBadge extends BaseModel
         'AwardDataExtra' => 'int',
         'DisplayOrder' => 'int',
     ];
+
+    public const MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY = 6;
 
     private const DEVELOPER_COUNT_BOUNDARIES = [
         100,
@@ -117,6 +115,11 @@ class PlayerBadge extends BaseModel
         }
 
         return null;
+    }
+
+    public static function getNextDisplayOrder(User $user): int
+    {
+        return PlayerBadge::where('User', $user->User)->max('DisplayOrder') + 1;
     }
 
     /**

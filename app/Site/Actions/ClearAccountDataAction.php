@@ -25,7 +25,6 @@ class ClearAccountDataAction
         );
 
         // TODO $user->activities()->delete();
-        DB::statement('DELETE FROM Activity WHERE User = :username', ['username' => $user->User]);
         // TODO $user->emailConfirmations()->delete();
         DB::statement('DELETE FROM EmailConfirmations WHERE User = :username', ['username' => $user->User]);
         // TODO $user->followers()->delete();
@@ -45,8 +44,6 @@ class ClearAccountDataAction
             u.SaltedPass = '',
             u.EmailAddress = '',
             u.Permissions = :permissions,
-            u.RAPoints = 0,
-            u.TrueRAPoints = null,
             u.fbUser = 0,
             u.fbPrefs = null,
             u.cookie = null,
@@ -57,8 +54,6 @@ class ClearAccountDataAction
             u.LastActivityID = 0,
             u.Motto = '',
             u.Untracked = 1,
-            u.ContribCount = 0,
-            u.ContribYield = 0,
             u.APIKey = null,
             u.UserWallActive = 0,
             u.LastGameID = 0,

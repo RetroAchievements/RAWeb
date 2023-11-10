@@ -1,7 +1,7 @@
 <?php
 
+use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
-use App\Community\Enums\TicketState;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 
@@ -44,25 +44,14 @@ function getUserIDFromUser(?string $user): int
         return 0;
     }
 
-    sanitize_sql_inputs($user);
+    $query = "SELECT ID FROM UserAccounts WHERE User = :user";
+    $row = legacyDbFetch($query, ['user' => $user]);
 
-    $query = "SELECT ID FROM UserAccounts WHERE User LIKE '$user'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return (int) ($data['ID'] ?? 0);
-    }
-
-    // cannot find user $user
-    return 0;
+    return $row ? (int) $row['ID'] : 0;
 }
 
 function getUserMetadataFromID(int $userID): ?array
 {
-    sanitize_sql_inputs($userID);
-
     $query = "SELECT * FROM UserAccounts WHERE ID ='$userID'";
     $dbResult = s_mysql_query($query);
 
@@ -73,64 +62,6 @@ function getUserMetadataFromID(int $userID): ?array
     return null;
 }
 
-function getUserUnlockDates(string $user, int $gameID, ?array &$dataOut): int
-{
-    sanitize_sql_inputs($user, $gameID);
-
-    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, aw.HardcoreMode, aw.Date
-        FROM Achievements ach
-        INNER JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = $gameID AND aw.User = '$user'
-        ORDER BY ach.ID, aw.HardcoreMode DESC";
-
-    $dbResult = s_mysql_query($query);
-
-    $dataOut = [];
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    $lastID = 0;
-    while ($data = mysqli_fetch_assoc($dbResult)) {
-        $achID = $data['ID'];
-        if ($lastID == $achID) {
-            continue;
-        }
-
-        $dataOut[] = $data;
-        $lastID = $achID;
-    }
-
-    return count($dataOut);
-}
-
-/**
- * @param array<string, mixed>|null $dataOut
- */
-function getUserUnlocksDetailed(string $user, int $gameID, ?array &$dataOut): int
-{
-    sanitize_sql_inputs($user, $gameID);
-
-    $query = "SELECT ach.Title, ach.ID, ach.Points, aw.HardcoreMode
-        FROM Achievements AS ach
-        LEFT JOIN Awarded AS aw ON ach.ID = aw.AchievementID
-        WHERE ach.GameID = '$gameID' AND aw.User = '$user'
-        ORDER BY ach.ID, aw.HardcoreMode ";
-
-    $dbResult = s_mysql_query($query);
-
-    $dataOut = [];
-
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[] = $data;
-        }
-    }
-
-    return count($dataOut);
-}
-
 function validateUsername(string $userIn): ?string
 {
     $user = User::firstWhere('User', $userIn);
@@ -138,56 +69,36 @@ function validateUsername(string $userIn): ?string
     return ($user !== null) ? $user->User : null;
 }
 
-// TODO replace with created and lastLogin timestamps on user
-function getUserActivityRange(string $user, ?string &$firstLogin, ?string &$lastLogin): bool
+function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0): array
 {
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT MIN(act.timestamp) AS FirstLogin, MAX(act.timestamp) AS LastLogin
-              FROM Activity AS act
-              WHERE act.User = '$user' AND act.activitytype=2";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $firstLogin = $data['FirstLogin'];
-        $lastLogin = $data['LastLogin'];
-
-        return !empty($firstLogin) || !empty($lastLogin);
-    }
-
-    return false;
-}
-
-function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
-{
-    if (!getAccountDetails($user, $userInfo)) {
+    $user = User::firstWhere('User', $username);
+    if (!$user) {
         return [];
     }
 
     $libraryOut = [];
 
-    $libraryOut['User'] = $userInfo['User'];
-    $libraryOut['MemberSince'] = $userInfo['Created'];
-    $libraryOut['LastActivity'] = $userInfo['LastLogin'];
-    $libraryOut['LastActivityID'] = $userInfo['LastActivityID'];
-    $libraryOut['RichPresenceMsg'] = empty($userInfo['RichPresenceMsg']) || $userInfo['RichPresenceMsg'] === 'Unknown' ? null : $userInfo['RichPresenceMsg'];
-    $libraryOut['LastGameID'] = (int) $userInfo['LastGameID'];
-    $libraryOut['ContribCount'] = (int) $userInfo['ContribCount'];
-    $libraryOut['ContribYield'] = (int) $userInfo['ContribYield'];
-    $libraryOut['TotalPoints'] = (int) $userInfo['RAPoints'];
-    $libraryOut['TotalSoftcorePoints'] = (int) $userInfo['RASoftcorePoints'];
-    $libraryOut['TotalTruePoints'] = (int) $userInfo['TrueRAPoints'];
-    $libraryOut['Permissions'] = (int) $userInfo['Permissions'];
-    $libraryOut['Untracked'] = (int) $userInfo['Untracked'];
-    $libraryOut['ID'] = (int) $userInfo['ID'];
-    $libraryOut['UserWallActive'] = (int) $userInfo['UserWallActive'];
-    $libraryOut['Motto'] = $userInfo['Motto'];
+    $libraryOut['User'] = $user->User;
+    $libraryOut['MemberSince'] = $user->Created?->__toString();
+    $libraryOut['LastActivity'] = $user->LastLogin?->__toString();
+    $libraryOut['LastActivityID'] = $user->LastActivityID;
+    $libraryOut['RichPresenceMsg'] = empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg;
+    $libraryOut['LastGameID'] = (int) $user->LastGameID;
+    $libraryOut['ContribCount'] = (int) $user->ContribCount;
+    $libraryOut['ContribYield'] = (int) $user->ContribYield;
+    $libraryOut['TotalPoints'] = (int) $user->RAPoints;
+    $libraryOut['TotalSoftcorePoints'] = (int) $user->RASoftcorePoints;
+    $libraryOut['TotalTruePoints'] = (int) $user->TrueRAPoints;
+    $libraryOut['Permissions'] = (int) $user->getAttribute('Permissions');
+    $libraryOut['Untracked'] = (int) $user->Untracked;
+    $libraryOut['ID'] = (int) $user->ID;
+    $libraryOut['UserWallActive'] = (int) $user->UserWallActive;
+    $libraryOut['Motto'] = $user->Motto;
 
-    $libraryOut['Rank'] = getUserRank($user);
+    $libraryOut['Rank'] = getUserRank($user->User);
 
     $recentlyPlayedData = [];
-    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user, 0, $numGames, $recentlyPlayedData) : 0;
+    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user->User, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {
@@ -196,58 +107,20 @@ function getUserPageInfo(string $user, int $numGames = 0, int $numRecentAchievem
             $gameIDs[] = $recentlyPlayed['GameID'];
         }
 
-        if ($userInfo['LastGameID'] && !in_array($userInfo['LastGameID'], $gameIDs)) {
-            $gameIDs[] = $userInfo['LastGameID'];
+        if ($user->LastGameID && !in_array($user->LastGameID, $gameIDs)) {
+            $gameIDs[] = $user->LastGameID;
         }
 
         $userProgress = getUserProgress($user, $gameIDs, $numRecentAchievements, withGameInfo: true);
 
         $libraryOut['Awarded'] = $userProgress['Awarded'];
         $libraryOut['RecentAchievements'] = $userProgress['RecentAchievements'];
-        if (array_key_exists($userInfo['LastGameID'], $userProgress['GameInfo'])) {
-            $libraryOut['LastGame'] = $userProgress['GameInfo'][$userInfo['LastGameID']];
+        if (array_key_exists($user->LastGameID, $userProgress['GameInfo'])) {
+            $libraryOut['LastGame'] = $userProgress['GameInfo'][$user->LastGameID];
         }
     }
 
     return $libraryOut;
-}
-
-function getControlPanelUserInfo(string $user, ?array &$libraryOut): bool
-{
-    sanitize_sql_inputs($user);
-
-    $libraryOut = [];
-    $libraryOut['Played'] = [];
-    // getUserActivityRange( $user, $firstLogin, $lastLogin );
-    // $libraryOut['MemberSince'] = $firstLogin;
-    // $libraryOut['LastLogin'] = $lastLogin;
-
-    $query = "SELECT gd.ID, c.Name AS ConsoleName, gd.Title AS GameTitle, COUNT(*) AS NumAwarded, Inner1.NumPossible
-                FROM Awarded AS aw
-                LEFT JOIN Achievements AS ach ON ach.ID = aw.AchievementID
-                LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                LEFT JOIN (
-                    SELECT ach.GameID, COUNT(*) AS NumPossible
-                    FROM Achievements AS ach
-                    WHERE ach.Flags = 3
-                    GROUP BY ach.GameID ) AS Inner1 ON Inner1.GameID = gd.ID
-                WHERE aw.User = '$user' AND aw.HardcoreMode = 0
-                GROUP BY gd.ID, gd.ConsoleID, gd.Title
-                ORDER BY gd.Title, gd.ConsoleID";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-        $libraryOut['Played'][] = $db_entry;
-    }   // use as raw array to preserve order!
-
-    return true;
 }
 
 function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataOut, ?string $requestedBy = null, int $perms = Permissions::Unregistered, bool $showUntracked = false): int
@@ -285,9 +158,8 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
         default => "ua.User ASC ",
     };
 
-    // TODO slow query (70) when ordering by NumAwarded
     $query = "SELECT ua.ID, ua.User, ua.RAPoints, ua.TrueRAPoints, ua.LastLogin,
-                (SELECT COUNT(*) AS NumAwarded FROM Awarded AS aw WHERE aw.User = ua.User) NumAwarded
+                ua.achievements_unlocked NumAwarded
                 FROM UserAccounts AS ua
                 $whereQuery
                 ORDER BY $orderBy
@@ -316,61 +188,154 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
         // Active + Junior + Inactive
         default => "",
     };
+    $stateCond = "ua.ContribCount > 0 AND ua.ContribYield > 0 " . $stateCond;
 
-    $order = match ($sortBy) {
-        // number of points allocated
-        1 => "ContribYield DESC",
-        // number of achievements won by others
-        2 => "ContribCount DESC",
-        3 => "OpenTickets DESC",
-        4 => "TicketsResolvedForOthers DESC",
-        5 => "LastLogin DESC",
-        6 => "Author ASC",
-        7 => "ActiveClaims DESC",
-        default => "Achievements DESC",
+    $devs = [];
+    $data = [];
+    $buildData = function ($query) use (&$devs, &$data) {
+        $populateDevs = empty($devs);
+        foreach (legacyDbFetchAll($query) as $row) {
+            $data[$row['ID']] = [
+                'Author' => $row['User'],
+                'Permissions' => $row['Permissions'],
+                'ContribCount' => $row['ContribCount'],
+                'ContribYield' => $row['ContribYield'],
+                'LastLogin' => $row['LastLogin'],
+                'Achievements' => $row['NumAchievements'],
+                'OpenTickets' => 0,
+                'TicketsResolvedForOthers' => 0,
+                'ActiveClaims' => 0,
+            ];
+            if ($populateDevs) {
+                $devs[] = $row['ID'];
+            }
+        }
     };
 
-    $query = "
-    SELECT
-        ua.User AS Author,
-        Permissions,
-        ContribCount,
-        ContribYield,
-        COUNT(DISTINCT(IF(ach.Flags = 3, ach.ID, NULL))) AS Achievements,
-        COUNT(DISTINCT(tick.ID)) AS OpenTickets,
-        COALESCE(resolved.total,0) AS TicketsResolvedForOthers,
-        LastLogin,
-        COUNT(DISTINCT(sc.ID)) AS ActiveClaims
-    FROM
-        UserAccounts AS ua
-    LEFT JOIN
-        Achievements AS ach ON (ach.Author = ua.User AND ach.Flags IN (3, 5))
-    LEFT JOIN
-        Ticket AS tick ON (tick.AchievementID = ach.ID AND tick.ReportState IN (" . TicketState::Open . "," . TicketState::Request . "))
-    LEFT JOIN
-        SetClaim AS sc ON (sc.User = ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "))
-    LEFT JOIN (
-        SELECT ua2.User,
-        SUM(CASE WHEN t.ReportState = 2 THEN 1 ELSE 0 END) AS total
-        FROM Ticket AS t
-        LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
-        LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.ResolvedByUserID
-        LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-        WHERE ua.User NOT LIKE ua2.User
-        AND a.Author NOT LIKE ua2.User
-        AND a.Flags = '3'
-        GROUP BY ua2.User) resolved ON resolved.User = ua.User
-    WHERE
-        ContribCount > 0 AND ContribYield > 0
-        $stateCond
-    GROUP BY
-        ua.User
-    ORDER BY
-        $order,
-        OpenTickets ASC";
-    // LIMIT 0, $count";
+    $buildDevList = function ($query) use ($count, $buildData, &$devs) {
+        // build an ordered list of the user_ids that will be displayed
+        // these will be used to limit the query results of the subsequent queries
+        $devs = [];
+        foreach (legacyDbFetchAll($query . " LIMIT $count") as $row) {
+            $devs[] = $row['ID'];
+        }
+        if (empty($devs)) {
+            return;
+        }
+        $devList = implode(',', $devs);
 
-    return legacyDbFetchAll($query)->toArray();
+        // user data (this must be a LEFT JOIN to pick up users with 0 published achievements)
+        $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
+                         ua.LastLogin, SUM(!ISNULL(ach.ID)) AS NumAchievements
+                  FROM UserAccounts ua
+                  LEFT JOIN Achievements ach ON ach.Author=ua.User AND ach.Flags = 3
+                  WHERE ua.ID IN ($devList)
+                  GROUP BY ua.ID";
+        $buildData($query);
+    };
+
+    // determine the top N accounts for each search criteria
+    // - use LEFT JOINs and SUM(!ISNULL) to return entries with 0s
+    if ($sortBy == 3) { // OpenTickets DESC
+        $query = "SELECT ua.ID, SUM(!ISNULL(tick.ID)) AS OpenTickets
+                  FROM UserAccounts ua
+                  LEFT JOIN Achievements ach ON ach.Author=ua.User
+                  LEFT JOIN Ticket tick ON tick.AchievementID=ach.ID AND tick.ReportState IN (1,3)
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY OpenTickets DESC, ua.User";
+        $buildDevList($query);
+    } elseif ($sortBy == 4) { // TicketsResolvedForOthers DESC
+        $query = "SELECT ua.ID, SUM(!ISNULL(ach.ID)) as total
+                  FROM UserAccounts as ua
+                  LEFT JOIN Ticket tick ON tick.ResolvedByUserID = ua.ID AND tick.ReportState = 2 AND tick.ResolvedByUserID != tick.ReportedByUserID
+                  LEFT JOIN Achievements as ach ON ach.ID = tick.AchievementID AND ach.flags = 3 AND ach.Author != ua.User
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY total DESC, ua.User";
+        $buildDevList($query);
+    } elseif ($sortBy == 7) { // ActiveClaims DESC
+        $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
+                  FROM UserAccounts ua
+                  LEFT JOIN SetClaim sc ON sc.User=ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY ActiveClaims DESC, ua.User";
+        $buildDevList($query);
+    } else {
+        $order = match ($sortBy) {
+            1 => "ua.ContribYield DESC, ua.User",
+            2 => "ua.ContribCount DESC, ua.User",
+            5 => "ua.LastLogin DESC, ua.User",
+            6 => "ua.User ASC",
+            default => "NumAchievements DESC, ua.User",
+        };
+
+        // ASSERT: ContribYield cannot be > 0 unless NumAchievements > 0, so use
+        //         INNER JOIN and COUNT for maximum performance.
+        // also, build the $dev list directly from these results instead of using
+        // one query to build the list and a second query to fetch the user details
+        $query = "SELECT ua.ID, ua.User, ua.Permissions, ua.ContribCount, ua.ContribYield,
+                         ua.LastLogin, COUNT(*) AS NumAchievements
+                  FROM UserAccounts ua
+                  INNER JOIN Achievements ach ON ach.Author=ua.User AND ach.Flags = 3
+                  WHERE $stateCond
+                  GROUP BY ua.ID
+                  ORDER BY $order
+                  LIMIT $count";
+        $buildData($query);
+    }
+
+    if (empty($devs)) {
+        return [];
+    }
+    $devList = implode(',', $devs);
+
+    // merge in open tickets
+    $query = "SELECT ua.ID, COUNT(*) AS OpenTickets
+              FROM Ticket tick
+              INNER JOIN Achievements ach ON ach.ID=tick.AchievementID
+              INNER JOIN UserAccounts ua ON ua.User=ach.Author
+              WHERE ua.ID IN ($devList)
+              AND tick.ReportState IN (1,3)
+              GROUP BY ua.ID";
+    foreach (legacyDbFetchAll($query) as $row) {
+        $data[$row['ID']]['OpenTickets'] = $row['OpenTickets'];
+    }
+
+    // merge in tickets resolved for others
+    $query = "SELECT ua.ID, COUNT(*) as total
+              FROM Ticket AS tick
+              INNER JOIN UserAccounts as ua ON ua.ID = tick.ResolvedByUserID
+              INNER JOIN Achievements as ach ON ach.ID = tick.AchievementID
+              WHERE tick.ResolvedByUserID != tick.ReportedByUserID
+              AND ach.Author != ua.User
+              AND ach.Flags = 3
+              AND tick.ReportState = 2
+              AND ua.ID IN ($devList)
+              GROUP BY ua.ID";
+    foreach (legacyDbFetchAll($query) as $row) {
+        $data[$row['ID']]['TicketsResolvedForOthers'] = $row['total'];
+    }
+
+    // merge in active claims
+    $query = "SELECT ua.ID, COUNT(*) AS ActiveClaims
+              FROM SetClaim sc
+              INNER JOIN UserAccounts ua ON ua.User=sc.User
+              WHERE sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+              AND ua.ID IN ($devList)
+              GROUP BY ua.ID";
+    foreach (legacyDbFetchAll($query) as $row) {
+        $data[$row['ID']]['ActiveClaims'] = $row['ActiveClaims'];
+    }
+
+    // generate output sorted by original order
+    $results = [];
+    foreach ($devs as $dev) {
+        $results[] = $data[$dev];
+    }
+
+    return $results;
 }
 
 function GetUserFields(string $username, array $fields): ?array
@@ -400,11 +365,13 @@ function getMostAwardedUsers(array $gameIDs): array
     }
 
     $query = "SELECT ua.User,
-              SUM(IF(AwardDataExtra LIKE '0', 1, 0)) AS Completed,
-              SUM(IF(AwardDataExtra LIKE '1', 1, 0)) AS Mastered
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0', 1, 0)) AS BeatenSoftcore,
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1', 1, 0)) AS BeatenHardcore,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0', 1, 0)) AS Completed,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1', 1, 0)) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE AwardType LIKE '1'
+              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN (" . implode(",", $gameIDs) . ")
               AND Untracked = 0
               GROUP BY User
@@ -431,13 +398,15 @@ function getMostAwardedGames(array $gameIDs): array
     }
 
     $query = "SELECT gd.Title, sa.AwardData AS ID, c.Name AS ConsoleName, gd.ImageIcon as GameIcon,
-              SUM(IF(AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
-              SUM(IF(AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS BeatenSoftcore,
+              SUM(IF(AwardType LIKE " . AwardType::GameBeaten . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS BeatenHardcore,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0' AND Untracked = 0, 1, 0)) AS Completed,
+              SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1' AND Untracked = 0, 1, 0)) AS Mastered
               FROM SiteAwards AS sa
               LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
-              WHERE sa.AwardType LIKE '1'
+              WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN(" . implode(",", $gameIDs) . ")
               GROUP BY sa.AwardData, gd.Title
               ORDER BY Title";

@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('websockets:clean')->daily();
 
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
+        $schedule->command('queue:prune-batches --hours=48 --unfinished=72 --cancelled=72')->daily();
 
         /** @var Settings $settings */
         $settings = $this->app->get(Settings::class);
@@ -42,8 +43,6 @@ class Kernel extends ConsoleKernel
                     // $this->call('ra:sync:game-hashes');
                     // $this->call('ra:sync:memory-notes');
 
-                    $this->call('ra:sync:player-achievements');
-                    $this->call('ra:sync:player-games');
                     // $this->call('ra:sync:user-awards');
                     // $this->call('ra:sync:game-relations');
                     // $this->call('ra:sync:leaderboards');

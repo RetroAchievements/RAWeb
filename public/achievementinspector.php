@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ClaimSetType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
@@ -14,7 +13,12 @@ $fullModifyOK = $permissions >= Permissions::Developer;
 $gameID = requestInputSanitized('g', null, 'integer');
 $flag = requestInputSanitized('f', 3, 'integer');
 
-$partialModifyOK = $permissions == Permissions::JuniorDeveloper && (checkIfSoleDeveloper($user, $gameID) || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet));
+$partialModifyOK =
+    $permissions == Permissions::JuniorDeveloper
+    && (
+        checkIfSoleDeveloper($user, $gameID)
+        || hasSetClaimed($user, $gameID, false)
+    );
 
 $achievementList = [];
 $gamesList = [];
@@ -27,7 +31,7 @@ $gameIcon = null;
 $gameTitle = null;
 $gameIDSpecified = isset($gameID) && $gameID != 0;
 if ($gameIDSpecified) {
-    getGameMetadata($gameID, $user, $achievementData, $gameData, 0, null, $flag);
+    getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
     $consoleName = $gameData['ConsoleName'];
     $gameIcon = $gameData['ImageIcon'];

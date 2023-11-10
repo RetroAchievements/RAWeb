@@ -2,9 +2,13 @@
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Events\SiteBadgeAwarded;
 use App\Platform\Models\PlayerBadge;
 use Carbon\Carbon;
 
+/**
+ * @deprecated use PlayerBadge model
+ */
 function AddSiteAward(
     string $user,
     int $awardType,
@@ -12,7 +16,7 @@ function AddSiteAward(
     int $dataExtra = 0,
     ?Carbon $awardDate = null,
     ?int $displayOrder = null,
-): void {
+): PlayerBadge {
     if (!isset($displayOrder)) {
         $displayOrder = 0;
         $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
@@ -34,26 +38,12 @@ function AddSiteAward(
             'DisplayOrder' => $displayOrder,
         ]
     );
-}
 
-function HasBeatenSiteAwards(string $username, int $gameId): bool
-{
-    return PlayerBadge::where('User', $username)
-        ->where('AwardType', AwardType::GameBeaten)
-        ->where('AwardData', $gameId)
-        ->count() > 0;
-}
-
-function HasSiteAward(string $user, int $awardType, int $data, ?int $dataExtra = null): bool
-{
-    $query = "SELECT AwardDate FROM SiteAwards WHERE User=:user AND AwardType=$awardType AND AwardData=$data";
-    if ($dataExtra !== null) {
-        $query .= " AND AwardDataExtra=$dataExtra";
-    }
-
-    $dbData = legacyDbFetch($query, ['user' => $user]);
-
-    return isset($dbData['AwardDate']);
+    return PlayerBadge::where('User', $user)
+        ->where('AwardType', $awardType)
+        ->where('AwardData', $data)
+        ->where('AwardDataExtra', $dataExtra)
+        ->first();
 }
 
 function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): array
@@ -102,18 +92,24 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     ];
 
     $query = "
-    SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
-                  FROM SiteAwards AS saw
-                  LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND (saw.AwardType = " . AwardType::Mastery . " OR saw.AwardType = " . AwardType::GameBeaten . ") )
-                  LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                  WHERE (saw.AwardType = " . AwardType::Mastery . " OR saw.AwardType = " . AwardType::GameBeaten . ") AND saw.User = :username
-                  GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
-    UNION
-    SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
-                  FROM SiteAwards AS saw
-                  WHERE saw.AwardType > " . AwardType::Mastery . " AND saw.User = :username2
-                  GROUP BY saw.AwardType
-    ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
+        -- game awards (mastery, beaten)
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+            FROM SiteAwards AS saw
+            LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType IN (" . implode(',', AwardType::game()) . ") )
+            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            WHERE
+                saw.AwardType IN(" . implode(',', AwardType::game()) . ")
+                AND saw.User = :username
+            GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
+        UNION
+        -- non-game awards (developer contribution, ...)
+        SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
+            FROM SiteAwards AS saw
+            WHERE
+                saw.AwardType NOT IN(" . implode(',', AwardType::game()) . ")
+                AND saw.User = :username2
+            GROUP BY saw.AwardType
+        ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
@@ -152,6 +148,15 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     // Remove blank indexes
     $dbResult = array_values(array_filter($dbResult));
 
+    foreach ($dbResult as &$award) {
+        if ($award['ConsoleID']) {
+            settype($award['AwardType'], 'integer');
+            settype($award['AwardData'], 'integer');
+            settype($award['AwardDataExtra'], 'integer');
+            settype($award['ConsoleID'], 'integer');
+        }
+    }
+
     return $dbResult;
 }
 
@@ -172,10 +177,13 @@ function SetPatreonSupporter(string $username, bool $enable): void
     sanitize_sql_inputs($username);
 
     if ($enable) {
-        AddSiteAward($username, AwardType::PatreonSupporter, 0, 0);
+        $badge = AddSiteAward($username, AwardType::PatreonSupporter, 0, 0);
+        SiteBadgeAwarded::dispatch($badge);
+        // TODO PatreonSupporterAdded::dispatch($user);
     } else {
         $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::PatreonSupporter;
         s_mysql_query($query);
+        // TODO PatreonSupporterRemoved::dispatch($user);
     }
 }
 
@@ -196,7 +204,8 @@ function SetCertifiedLegend(string $usernameIn, bool $enable): void
     sanitize_sql_inputs($usernameIn);
 
     if ($enable) {
-        AddSiteAward($usernameIn, AwardType::CertifiedLegend, 0, 0);
+        $badge = AddSiteAward($usernameIn, AwardType::CertifiedLegend, 0, 0);
+        SiteBadgeAwarded::dispatch($badge);
     } else {
         $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = " . AwardType::CertifiedLegend;
         s_mysql_query($query);
@@ -250,10 +259,10 @@ function getUserEventAwardCount(string $user): int
         'event' => 101,
     ];
 
-    $query = "SELECT COUNT(DISTINCT AwardData) AS TotalAwards 
+    $query = "SELECT COUNT(DISTINCT AwardData) AS TotalAwards
               FROM SiteAwards sa
               INNER JOIN GameData gd ON gd.ID = sa.AwardData
-              WHERE User = :user              
+              WHERE User = :user
               AND AwardType = :type
               AND gd.ConsoleID = :event";
 

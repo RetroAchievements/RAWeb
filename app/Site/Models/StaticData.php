@@ -13,7 +13,8 @@ class StaticData extends BaseModel
 {
     use HasFactory;
 
-    // TODO drop StaticData table
+    // TODO replace StaticData table
+    // TODO do not store references to anything "last" - most "last of something" queries are not expensive
     protected $table = 'StaticData';
 
     protected static $unguarded = true;

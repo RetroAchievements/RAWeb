@@ -50,6 +50,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     // TODO rename Genre column to genre
     // TODO rename Released to release
     // TODO rename TotalTruePoints to points_weighted
+    // TODO drop achievement_set_version_hash, migrate to achievement_sets
     // TODO drop ForumTopicID, migrate to forumable morph
     // TODO drop Flags
     // TODO drop ImageIcon, ImageTitle, ImageInGame, ImageBoxArt, migrate to media
@@ -64,7 +65,6 @@ class Game extends BaseModel implements HasComments, HasMedia
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'system_id',
         'release',
         'Title',
     ];
@@ -86,6 +86,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         'RichPresencePatch',
         'GuideURL',
         'Updated',
+        'achievement_set_version_hash',
     ];
 
     protected static function newFactory(): GameFactory
@@ -175,6 +176,23 @@ class Game extends BaseModel implements HasComments, HasMedia
         return $this->Title ? '-' . Str::slug($this->Title) : '';
     }
 
+    // TODO remove after rename
+
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
+    public function getSystemIdAttribute(): int
+    {
+        return $this->attributes['ConsoleID'];
+    }
+
+    public function getTitleAttribute(): ?string
+    {
+        return $this->attributes['Title'] ?? null;
+    }
+
     // == mutators
 
     // == relations
@@ -217,8 +235,15 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function players(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_games')
-            // ->using(BasePivot::class)
             ->using(PlayerGame::class);
+    }
+
+    /**
+     * @return HasMany<PlayerGame>
+     */
+    public function playerGames(): HasMany
+    {
+        return $this->hasMany(PlayerGame::class, 'game_id');
     }
 
     /**

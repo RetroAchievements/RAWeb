@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Concerns;
 
-use App\Platform\Actions\LinkHashToGameAction;
+use App\Platform\Actions\LinkHashToGame;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameHash;
@@ -91,8 +91,8 @@ trait DevelopmentRequests
 
         /** @var Game $game */
 
-        /** @var LinkHashToGameAction $linkHashToGameAction */
-        $linkHashToGameAction = app()->make(LinkHashToGameAction::class);
+        /** @var LinkHashToGame $linkHashToGameAction */
+        $linkHashToGameAction = app()->make(LinkHashToGame::class);
         $linkHashToGameAction->execute($hash, $game, $gameHashTitle);
 
         return [
@@ -277,9 +277,6 @@ trait DevelopmentRequests
         //         $gameID,
         //         $newTitle,
         //         $newDesc,
-        //         ' ',
-        //         ' ',
-        //         ' ',
         //         $newPoints,
         //         $newMemString,
         //         $newFlag,

@@ -41,15 +41,15 @@
         "eslint-plugin-import": "^2.27.5",
         "laravel-echo": "^1.15.1",
         "laravel-vite-plugin": "^0.7.8",
-        "postcss": "^8.4.24",
+        "postcss": "^8.4.31",
         "pusher-js": "^8.2.0",
         "tailwindcss": "^3.3.2",
         "typescript": "^4.9.5",
-        "vite": "^4.3.9",
-        "vitest": "^0.32.2"
+        "vite": "^4.5.0",
+        "vitest": "^0.34.6"
     },
     "engines": {
-        "node": "18.x",
+        "node": "20.x",
         "npm": ">=8.18.0"
     }
 }

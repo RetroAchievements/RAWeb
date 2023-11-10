@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
@@ -9,41 +8,23 @@ use App\Community\Models\Ticket;
 use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\PlayerGame;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-function isAllowedToSubmitTickets(string $user): bool
+function isAllowedToSubmitTickets(string $username): bool
 {
-    if (!isValidUsername($user)) {
+    $user = User::firstWhere('User', $username);
+    if (!$user || $user->Created->diffInDays() < 1) {
         return false;
     }
 
-    $cacheKey = CacheKey::buildUserCanTicketCacheKey($user);
-
-    $value = Cache::get($cacheKey);
-    if ($value !== null) {
-        return $value;
-    }
-
-    $value = getUserActivityRange($user, $firstLogin, $lastLogin)
-        && time() - strtotime($firstLogin) > 86400 // 86400 seconds = 1 day
-        && getRecentlyPlayedGames($user, 0, 1, $userInfo)
-        && $userInfo[0]['GameID'];
-
-    if ($value) {
-        // if the user can create tickets, they should be able to create tickets forever
-        // more. expire once every 30 days so we can purge inactive users
-        Cache::put($cacheKey, $value, Carbon::now()->addDays(30));
-    } else {
-        // user can't create tickets, which means the account is less than a day old
-        // or has no games played. only cache the value for an hour
-        Cache::put($cacheKey, $value, Carbon::now()->addHour());
-    }
-
-    return $value;
+    return PlayerGame::where('user_id', $user->id)
+        ->where('time_taken', '>', 5)
+        ->exists();
 }
 
 function submitNewTicketsJSON(
@@ -152,6 +133,8 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $gameID = $achData['GameID'];
     $gameTitle = $achData['GameTitle'];
 
+    expireUserTicketCounts($achAuthor);
+
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
     $bugReportDetails = "Achievement: [ach=$achID]
@@ -166,8 +149,7 @@ This ticket will be raised and will be available for all developers to inspect a
     $bugReportMessage = "Hi, $achAuthor!\r\n
 [user=$username] would like to report a bug with an achievement you've created:
 $bugReportDetails";
-    CreateNewMessage($username, $achData['Author'], "Bug Report ($gameTitle)", $bugReportMessage);
-    postActivity($username, ActivityType::OpenedTicket, $achID);
+    CreateNewMessage($username, $achAuthor, "Bug Report ($gameTitle)", $bugReportMessage);
 
     // notify subscribers other than the achievement's author
     // TODO dry it. why is this not (1 << 1) like in submitNewTicketsJSON?
@@ -360,7 +342,6 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
                 addArticleComment("Server", ArticleType::Achievement, $achID, "$user demoted this achievement to Unofficial.", $user);
             }
             $comment = "Ticket closed by $user. Reason: \"$reason\".";
-            postActivity($user, ActivityType::ClosedTicket, $achID);
             break;
 
         case TicketState::Open:
@@ -368,13 +349,11 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
                 $comment = "Ticket reassigned to author by $user.";
             } else {
                 $comment = "Ticket reopened by $user.";
-                postActivity($user, ActivityType::OpenedTicket, $achID);
             }
             break;
 
         case TicketState::Resolved:
             $comment = "Ticket resolved as fixed by $user.";
-            postActivity($user, ActivityType::ClosedTicket, $achID);
             break;
 
         case TicketState::Request:
@@ -384,10 +363,14 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
 
     addArticleComment("Server", ArticleType::AchievementTicket, $ticketID, $comment, $user);
 
+    expireUserTicketCounts($ticketData['AchievementAuthor']);
+
     $reporterData = [];
     if (!getAccountDetails($userReporter, $reporterData)) {
         return true;
     }
+
+    expireUserTicketCounts($userReporter);
 
     $email = $reporterData['EmailAddress'];
 
@@ -415,9 +398,13 @@ function countRequestTicketsByUser(?User $user = null): int
         return 0;
     }
 
-    return Ticket::where('ReportState', TicketState::Request)
-        ->where('ReportedByUserID', $user->ID)
-        ->count();
+    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($user->User);
+
+    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($user) {
+        return Ticket::where('ReportState', TicketState::Request)
+            ->where('ReportedByUserID', $user->ID)
+            ->count();
+    });
 }
 
 function countOpenTicketsByDev(string $dev): ?array
@@ -426,27 +413,40 @@ function countOpenTicketsByDev(string $dev): ?array
         return null;
     }
 
-    $retVal = [
-        TicketState::Open => 0,
-        TicketState::Request => 0,
-    ];
+    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev);
 
-    $tickets = Ticket::with('achievement')
-        ->whereHas('achievement', function ($query) use ($dev) {
-            $query
-                ->where('Author', $dev)
-                ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
-        })
-        ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
-        ->select('AchievementID', 'ReportState', DB::raw('count(*) as Count'))
-        ->groupBy('ReportState')
-        ->get();
+    return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($dev) {
+        $retVal = [
+            TicketState::Open => 0,
+            TicketState::Request => 0,
+        ];
 
-    foreach ($tickets as $ticket) {
-        $retVal[$ticket->ReportState] = $ticket->Count;
-    }
+        $tickets = Ticket::with('achievement')
+            ->whereHas('achievement', function ($query) use ($dev) {
+                $query
+                    ->where('Author', $dev)
+                    ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
+            })
+            ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
+            ->select('AchievementID', 'ReportState', DB::raw('count(*) as Count'))
+            ->groupBy('ReportState')
+            ->get();
 
-    return $retVal;
+        foreach ($tickets as $ticket) {
+            $retVal[$ticket->ReportState] = (int) $ticket->Count;
+        }
+
+        return $retVal;
+    });
+}
+
+function expireUserTicketCounts(string $username): void
+{
+    $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($username);
+    Cache::forget($cacheKey);
+
+    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($username);
+    Cache::forget($cacheKey);
 }
 
 function countOpenTicketsByAchievement(int $achievementID): int

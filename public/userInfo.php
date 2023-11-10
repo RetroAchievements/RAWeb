@@ -10,6 +10,8 @@ use App\Community\Enums\RankType;
 use App\Community\Enums\UserAction;
 use App\Community\Enums\UserRelationship;
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 
 $userPage = request('user');
@@ -21,7 +23,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch, isAuthenticated: $user !== null);
+$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
 if (empty($userMassData)) {
     abort(404);
 }
@@ -53,7 +55,7 @@ $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
 // Get user's list of played games and pct completion
-$userCompletedGamesList = $user ? getUsersCompletedGamesAndMax($userPage) : [];
+$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
 $excludedConsoles = ["Hubs", "Events"];
 
@@ -86,7 +88,7 @@ $daysRecentProgressToShow = 14; // fortnight
 $userAwards = getUsersSiteAwards($userPage);
 
 $userScoreData = getAwardedList(
-    $userPage,
+    User::firstWhere('User', $userPage),
     0,
     $daysRecentProgressToShow,
     date("Y-m-d H:i:s", time() - 60 * 60 * 24 * $daysRecentProgressToShow),
@@ -130,20 +132,18 @@ RenderContentStart($userPage);
 
       dataRecentProgress.addRows([
           <?php
-          $arrayToUse = $userScoreData;
-
           $count = 0;
-          foreach ($arrayToUse as $dayInfo) {
+          foreach ($userScoreData as $dayInfo) {
               if ($count++ > 0) {
                   echo ", ";
               }
 
-              $nextDay = (int) $dayInfo['Day'];
-              $nextMonth = (int) $dayInfo['Month'] - 1;
-              $nextYear = (int) $dayInfo['Year'];
-              $nextDate = $dayInfo['Date'];
+              $nextDate = Carbon::parse($dayInfo['Date']);
+              $nextYear = $nextDate->year;
+              $nextMonth = $nextDate->month;
+              $nextDay = $nextDate->day;
+              $dateStr = $nextDate->format('d M Y');
 
-              $dateStr = getNiceDate(strtotime($nextDate), true);
               $hardcoreValue = $dayInfo['CumulHardcoreScore'];
               $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
@@ -270,7 +270,9 @@ RenderContentStart($userPage);
 
         $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
         echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span><br>";
-        echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        if ($user) {
+            echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
+        }
 
         echo "Site Rank: ";
         if ($userIsUntracked) {
@@ -313,7 +315,9 @@ RenderContentStart($userPage);
         echo "<br>";
     }
 
-    echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    if ($user) {
+        echo "Average Completion: <b>$avgPctWon%</b><br><br>";
+    }
 
     echo "<a href='/forumposthistory.php?u=$userPage'>Forum Post History</a>";
     echo "<br>";
@@ -429,14 +433,6 @@ RenderContentStart($userPage);
         echo "</form>";
         echo "</td><td>";
         echo HasCertifiedLegendBadge($userPage) ? "Certified Legend" : "Not Yet Legendary";
-        echo "</td></tr>";
-
-        echo "<tr><td class='text-right'>";
-        echo "<form method='post' action='/request/user/recalculate-score.php'>";
-        echo csrf_field();
-        echo "<input type='hidden' name='user' value='$userPage' />";
-        echo "<button class='btn'>Recalculate Score</button>";
-        echo "</form>";
         echo "</td></tr>";
 
         $newValue = $userIsUntracked ? 0 : 1;
@@ -653,7 +649,8 @@ RenderContentStart($userPage);
     echo "</div>";
 
     if ($user !== null && $user === $userPage) {
-        RenderScoreLeaderboardComponent($user, true);
+        $friendCount = getFriendCount($user);
+        echo Blade::render('<x-user.followed-leaderboard-cta :friendCount="$friendCount" />', ['friendCount' => $friendCount]);
     }
     ?>
 </aside>
