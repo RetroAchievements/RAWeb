@@ -93,10 +93,35 @@ class BeatenGamesLeaderboardController extends Controller
 
     private function buildAggregatedLeaderboardBaseQuery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
     {
+        $includedTypes = $this->getIncludedTypes($gameKindFilterOptions);
+        $typeBindings = $this->getSubQueryTypeBindings($includedTypes);
+
+        $systemIdCondition = $targetSystemId ? "AND r1.system_id = {$targetSystemId}" : "AND r1.system_id IS NULL";
+        $mostRecentGameIdSubquery = DB::raw("(
+            SELECT r1.game_id
+            FROM rankings AS r1
+            WHERE r1.user_id = rankings.user_id
+                {$systemIdCondition}
+                AND r1.type IN ({$typeBindings})
+            ORDER BY r1.updated_at DESC
+            LIMIT 1
+        ) AS most_recent_game_id");
+
+        $systemIdCondition = $targetSystemId ? "AND r2.system_id = {$targetSystemId}" : "AND r2.system_id IS NULL";
+        $lastBeatenDateSubquery = DB::raw("(
+            SELECT r2.updated_at
+            FROM rankings AS r2
+            WHERE r2.user_id = rankings.user_id
+                {$systemIdCondition}
+                AND r2.type IN ({$typeBindings})
+            ORDER BY r2.updated_at DESC
+            LIMIT 1
+        ) AS last_beaten_date");
+
         $query = Ranking::select(
             'user_id',
-            'game_id as most_recent_game_id',
-            'updated_at as last_beaten_date',
+            $mostRecentGameIdSubquery,
+            $lastBeatenDateSubquery,
             DB::raw('RANK() OVER (ORDER BY SUM(value) DESC) as rank_number'),
             DB::raw('ROW_NUMBER() OVER (ORDER BY SUM(value) DESC) as leaderboard_row_number'),
             DB::raw('SUM(value) as total_awards'),
@@ -108,25 +133,6 @@ class BeatenGamesLeaderboardController extends Controller
             $query->whereNull('system_id');
         }
 
-        $includedTypes = [];
-        if ($gameKindFilterOptions['retail']) {
-            $includedTypes[] = [RankingType::GamesBeatenHardcoreRetail];
-        }
-        if ($gameKindFilterOptions['hacks']) {
-            $includedTypes[] = [RankingType::GamesBeatenHardcoreHacks];
-        }
-        if ($gameKindFilterOptions['homebrew']) {
-            $includedTypes[] = [RankingType::GamesBeatenHardcoreHomebrew];
-        }
-        if ($gameKindFilterOptions['unlicensed']) {
-            $includedTypes[] = [RankingType::GamesBeatenHardcoreUnlicensed];
-        }
-        if ($gameKindFilterOptions['prototypes']) {
-            $includedTypes[] = [RankingType::GamesBeatenHardcorePrototypes];
-        }
-        if ($gameKindFilterOptions['demos']) {
-            $includedTypes[] = [RankingType::GamesBeatenHardcoreDemos];
-        }
         if (!empty($includedTypes)) {
             $query->whereIn('type', $includedTypes);
         }
@@ -173,6 +179,7 @@ class BeatenGamesLeaderboardController extends Controller
             $targetSystemId
         )
             ->orderBy('total_awards', 'desc')
+            ->orderBy('last_beaten_date', 'asc')
             ->offset($currentOffset)
             ->limit($this->pageSize)
             ->get();
@@ -181,6 +188,32 @@ class BeatenGamesLeaderboardController extends Controller
         // Joins are expensive - doing this as separate queries
         // shaves a significant amount of time from page load.
         return $this->attachRankingRowsMetadata($rankings);
+    }
+
+    private function getIncludedTypes(array $gameKindFilterOptions = []): array
+    {
+        $includedTypes = [];
+
+        if ($gameKindFilterOptions['retail']) {
+            $includedTypes[] = RankingType::GamesBeatenHardcoreRetail;
+        }
+        if ($gameKindFilterOptions['hacks']) {
+            $includedTypes[] = RankingType::GamesBeatenHardcoreHacks;
+        }
+        if ($gameKindFilterOptions['homebrew']) {
+            $includedTypes[] = RankingType::GamesBeatenHardcoreHomebrew;
+        }
+        if ($gameKindFilterOptions['unlicensed']) {
+            $includedTypes[] = RankingType::GamesBeatenHardcoreUnlicensed;
+        }
+        if ($gameKindFilterOptions['prototypes']) {
+            $includedTypes[] = RankingType::GamesBeatenHardcorePrototypes;
+        }
+        if ($gameKindFilterOptions['demos']) {
+            $includedTypes[] = RankingType::GamesBeatenHardcoreDemos;
+        }
+
+        return $includedTypes;
     }
 
     // FIXME: Use FOUND_ROWS().
@@ -192,6 +225,13 @@ class BeatenGamesLeaderboardController extends Controller
         )
             ->get()
             ->count();
+    }
+
+    private function getSubqueryTypeBindings(array $includedTypes = []): string
+    {
+        return implode(',', array_map(function ($type) {
+            return "'" . $type . "'";
+        }, $includedTypes));
     }
 
     private function getUserRankingData(int $userId, array $gameKindFilterOptions, ?int $targetSystemId = null): array

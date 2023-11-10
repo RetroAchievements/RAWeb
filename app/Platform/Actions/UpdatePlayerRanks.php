@@ -30,7 +30,7 @@ class UpdatePlayerRanks
             ->with(['game' => function ($query) {
                 $query->select('ID', 'ConsoleID', 'Title');
             }])
-            ->orderBy('beaten_hardcore_at', 'desc')
+            ->orderBy('beaten_hardcore_at')
             ->get();
 
         $aggregatedRankingValues = $this->calculateAggregatedGameBeatenHardcoreRankingValues($playerGames);
