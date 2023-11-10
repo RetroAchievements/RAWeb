@@ -70,7 +70,7 @@ function validateUsername(string $userIn): ?string
     return ($user !== null) ? $user->User : null;
 }
 
-function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0, bool $isAuthenticated = false): array
+function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0): array
 {
     $user = User::firstWhere('User', $username);
     if (!$user) {
@@ -99,7 +99,7 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     $libraryOut['Rank'] = getUserRank($user->User);
 
     $recentlyPlayedData = [];
-    $libraryOut['RecentlyPlayedCount'] = $isAuthenticated ? getRecentlyPlayedGames($user->User, 0, $numGames, $recentlyPlayedData) : 0;
+    $libraryOut['RecentlyPlayedCount'] = getRecentlyPlayedGames($user->User, 0, $numGames, $recentlyPlayedData);
     $libraryOut['RecentlyPlayed'] = $recentlyPlayedData;
 
     if ($libraryOut['RecentlyPlayedCount'] > 0) {
