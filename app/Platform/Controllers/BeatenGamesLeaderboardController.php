@@ -13,6 +13,7 @@ use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -181,8 +182,14 @@ class BeatenGamesLeaderboardController extends Controller
         return $rankingRows;
     }
 
-    private function getAggregatedLeaderboardData(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
-    {
+    /**
+     * @return Collection<int, array|object>
+     */
+    private function getAggregatedLeaderboardData(
+        int $currentOffset,
+        array $gameKindFilterOptions,
+        ?int $targetSystemId = null
+    ): Collection {
         // TODO: If no system filter, replace checkboxes with radio buttons "Retail only" and "All".
         // TODO: If reading from cache, show in the UI when the last updated date was in timeago style.
         // TODO: Might be best to set some systems to be "cacheable" via an array of cacheables?
@@ -238,9 +245,13 @@ class BeatenGamesLeaderboardController extends Controller
         }, $includedTypes));
     }
 
-    private function getUserRankingData(int $userId, mixed $rankedRows): array
+    /**
+     * @param Collection<int, array|object> $rankedRows
+     */
+    private function getUserRankingData(int $userId, Collection $rankedRows): array
     {
         // Retrieve the user's row from the collection
+        /** @var array|object|null $userRow */
         $userRow = collect($rankedRows)->firstWhere('user_id', $userId);
 
         if (!$userRow) {
