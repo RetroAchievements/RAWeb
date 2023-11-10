@@ -688,7 +688,7 @@ RenderContentStart("$dev's Developer Stats");
         echo "</tbody></table>";
 
         // Recently Obtained achievements
-        $feedRoute = route('user.dev-feed', $devUser->User);
+        $feedRoute = route('developer.feed', $devUser->User);
         echo <<<HTML
             <p class="text-center text-lg font-semibold my-8">
                 View Recently Obtained Achievements in the

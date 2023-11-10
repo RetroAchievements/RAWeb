@@ -68,7 +68,7 @@ $user = request()->user();
                 <x-dropdown-item :link="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :link="route('user.dev-feed', $user->username)">Feed</x-dropdown-item>
+                <x-dropdown-item :link="route('developer.feed', $user->username)">Feed</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
                 <x-dropdown-item :link="url('ticketmanager.php?u=' . $user->username)">Tickets</x-dropdown-item>
