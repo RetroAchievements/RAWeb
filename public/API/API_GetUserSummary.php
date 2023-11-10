@@ -92,7 +92,7 @@ $user = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '5');
 $recentAchievementsEarned = (int) request()->query('a', '10');
 
-$retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned, true);
+$retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
 
 if (empty($retVal)) {
     return response()->json([
