@@ -20,7 +20,7 @@ $gameSystemIconSrc = getSystemIconUrl($claim['ConsoleID']);
 
         <div class="flex flex-col gap-y-0.5 w-full">
             <a href="{{ route('game.show', $claim['GameID']) }}" class="leading-4 cursor-pointer">
-                {!! renderGameTitle($claim['GameTitle']) !!}
+                <x-game-title :rawTitle="$claim['GameTitle']" />
             </a>
 
             <div class="flex justify-between w-full text-xs tracking-tighter">
