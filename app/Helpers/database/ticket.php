@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
@@ -151,7 +150,6 @@ This ticket will be raised and will be available for all developers to inspect a
 [user=$username] would like to report a bug with an achievement you've created:
 $bugReportDetails";
     CreateNewMessage($username, $achAuthor, "Bug Report ($gameTitle)", $bugReportMessage);
-    postActivity($username, ActivityType::OpenedTicket, $achID);
 
     // notify subscribers other than the achievement's author
     // TODO dry it. why is this not (1 << 1) like in submitNewTicketsJSON?
@@ -344,7 +342,6 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
                 addArticleComment("Server", ArticleType::Achievement, $achID, "$user demoted this achievement to Unofficial.", $user);
             }
             $comment = "Ticket closed by $user. Reason: \"$reason\".";
-            postActivity($user, ActivityType::ClosedTicket, $achID);
             break;
 
         case TicketState::Open:
@@ -352,13 +349,11 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
                 $comment = "Ticket reassigned to author by $user.";
             } else {
                 $comment = "Ticket reopened by $user.";
-                postActivity($user, ActivityType::OpenedTicket, $achID);
             }
             break;
 
         case TicketState::Resolved:
             $comment = "Ticket resolved as fixed by $user.";
-            postActivity($user, ActivityType::ClosedTicket, $achID);
             break;
 
         case TicketState::Request:

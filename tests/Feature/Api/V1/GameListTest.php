@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameHash;
@@ -75,6 +76,13 @@ class GameListTest extends TestCase
         $game4->hashes()->save($hash1);
         $hash2 = new GameHash(['GameID' => $game4->ID, 'MD5' => 'deadbeefdeadbeef']);
         $game4->hashes()->save($hash2);
+
+        // ensure metrics are updated
+        $action = new UpdateGameMetrics();
+        $action->execute($game1);
+        $action->execute($game2);
+        $action->execute($game3);
+        $action->execute($game4);
 
         // all games for system 1
         $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID]))

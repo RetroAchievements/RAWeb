@@ -1,12 +1,18 @@
 <x-section class="mb-3 flex flex-col gap-2">
-    <a class="btn text-center py-2" href="/globalRanking.php">
-        <span class="text-yellow-400"><x-fas-medal/></span>
-        Global Ranking
-    </a>
     <a class="btn text-center py-2" href="{{ route('download.index') }}">
         <span class="text-heading"><x-fas-gamepad/></span>
         Download Emulator
     </a>
+    <a class="btn text-center py-2" href="/globalRanking.php">
+        <span class="text-yellow-400"><x-fas-trophy/></span>
+        Global Points Ranking
+    </a>
+    @hasfeature("beat")
+        <a class="btn text-center py-2" href="{{ route('ranking.beaten-games') }}">
+            <span class="text-yellow-400"><x-fas-medal/></span>
+            Global Beaten Games Ranking
+        </a>
+    @endhasfeature
     @if(config('services.discord.invite_id'))
         <a class="btn text-center py-2" href="https://discord.gg/{{ config('services.discord.invite_id') }}">
             <span class="text-discord"><x-fab-discord/></span>

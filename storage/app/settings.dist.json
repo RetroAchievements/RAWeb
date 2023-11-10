@@ -1,5 +1,6 @@
 {
     "sync": false,
+    "system.alert": false,
     "tools": [
         {
             "label": "Logs",

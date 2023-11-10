@@ -1,9 +1,7 @@
 <?php
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\ArticleType;
 use App\Community\Models\Comment;
-use App\Community\Models\UserActivityLegacy;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
@@ -13,98 +11,6 @@ use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-
-/**
- * @deprecated see WriteUserActivity listener
- */
-function postActivity(string|User $userIn, int $type, ?int $data = null, ?int $data2 = null): bool
-{
-    if (!ActivityType::isValid($type)) {
-        return false;
-    }
-
-    if ($userIn instanceof User) {
-        $user = $userIn;
-    } else {
-        $user = User::firstWhere('User', $userIn);
-        if ($user === null) {
-            return false;
-        }
-    }
-
-    $activity = new UserActivityLegacy([
-        'User' => $user->User,
-        'activitytype' => $type,
-    ]);
-
-    switch ($type) {
-        case ActivityType::UnlockedAchievement:
-            if ($data === null) {
-                return false;
-            }
-            $activity->data = (string) $data;
-            $activity->data2 = (string) $data2;
-            break;
-
-        case ActivityType::Login:
-            /* only record login activity every six hours */
-            $cacheKey = CacheKey::buildUserLastLoginCacheKey($user->User);
-            $lastLogin = Cache::get($cacheKey);
-            if ($lastLogin && $lastLogin > Carbon::now()->subHours(6)) {
-                /* ignore event, login recorded recently */
-                return true;
-            }
-            Cache::put($cacheKey, Carbon::now(), Carbon::now()->addHours(6));
-            break;
-
-        case ActivityType::StartedPlaying:
-            if ($data === null) {
-                return false;
-            }
-
-            $game = getGameData($data);
-            if (!$game) {
-                return false;
-            }
-
-            $activity->data = (string) $data;
-            break;
-
-        case ActivityType::UploadAchievement:
-        case ActivityType::EditAchievement:
-        case ActivityType::OpenedTicket:
-        case ActivityType::ClosedTicket:
-            $activity->data = (string) $data;
-            break;
-
-        case ActivityType::CompleteGame:
-        case ActivityType::NewLeaderboardEntry:
-        case ActivityType::ImprovedLeaderboardEntry:
-            $activity->data = (string) $data;
-            $activity->data2 = (string) $data2;
-            break;
-    }
-
-    $activity->save();
-
-    // update UserAccount
-    $user->LastLogin = Carbon::now();
-    $user->LastActivityID = $activity->ID;
-    $user->save();
-
-    return true;
-}
-
-/**
- * @deprecated see UserActivity model
- */
-function getActivityMetadata(int $activityID): ?array
-{
-    $query = "SELECT * FROM Activity
-              WHERE ID='$activityID'";
-
-    return legacyDbFetch($query);
-}
 
 function RemoveComment(int $commentID, int $userID, int $permissions): bool
 {
@@ -341,76 +247,32 @@ function getLatestRichPresenceUpdates(): array
     $recentMinutes = 10;
     $permissionsCutoff = Permissions::Registered;
 
-    $query = "SELECT ua.User, IF(ua.Untracked, 0, ua.RAPoints) as RAPoints, IF(ua.Untracked, 0, ua.RASoftcorePoints) as RASoftcorePoints,
+    $ifRAPoints = ifStatement('ua.Untracked', 0, 'ua.RAPoints');
+    $ifRASoftcorePoints = ifStatement('ua.Untracked', 0, 'ua.RASoftcorePoints');
+    $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
+
+    $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
                      ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ua.RichPresenceMsgDate > TIMESTAMPADD( MINUTE, -$recentMinutes, NOW() )
+              WHERE ua.RichPresenceMsgDate > $timestampStatement
                 AND ua.LastGameID != 0
                 AND ua.Permissions >= $permissionsCutoff
               ORDER BY RAPoints DESC, RASoftcorePoints DESC, ua.User ASC";
 
-    $dbResult = s_mysql_query($query);
+    $dbResult = legacyDbFetchAll($query);
+
     if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $db_entry['GameID'] = (int) $db_entry['GameID'];
-            $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
-            $db_entry['RASoftcorePoints'] = (int) $db_entry['RASoftcorePoints'];
-            $playersFound[] = $db_entry;
+        foreach ($dbResult as $dbEntry) {
+            $dbEntry['GameID'] = (int) $dbEntry['GameID'];
+            $dbEntry['RAPoints'] = (int) $dbEntry['RAPoints'];
+            $dbEntry['RASoftcorePoints'] = (int) $dbEntry['RASoftcorePoints'];
+            $playersFound[] = $dbEntry;
         }
-    } else {
-        log_sql_fail();
     }
 
     return $playersFound;
-}
-
-function getLatestNewAchievements(int $numToFetch, ?array &$dataOut): int
-{
-    $numFound = 0;
-
-    $query = "SELECT ach.ID, ach.GameID, ach.Title, ach.Description, ach.Points, gd.Title AS GameTitle, gd.ImageIcon as GameIcon, ach.DateCreated, UNIX_TIMESTAMP(ach.DateCreated) AS timestamp, ach.BadgeName, c.Name AS ConsoleName
-              FROM Achievements AS ach
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE ach.Flags = 3
-              ORDER BY DateCreated DESC
-              LIMIT 0, $numToFetch ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numFound] = $db_entry;
-            $numFound++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $numFound;
-}
-
-function GetMostPopularTitles(int $daysRange = 7, int $offset = 0, int $count = 10): array
-{
-    $data = [];
-
-    $query = "SELECT COUNT(*) as PlayedCount, gd.ID, gd.Title, gd.ImageIcon, c.Name as ConsoleName
-        FROM Activity AS act
-        LEFT JOIN GameData AS gd ON gd.ID = act.data
-        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-        WHERE ( act.timestamp BETWEEN TIMESTAMPADD( DAY, -$daysRange, NOW() ) AND NOW() ) AND ( act.activitytype = 3 ) AND ( act.data > 0 )
-        GROUP BY act.data
-        ORDER BY PlayedCount DESC
-        LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-
-    while ($nextData = mysqli_fetch_assoc($dbResult)) {
-        $data[] = $nextData;
-    }
-
-    return $data;
 }
 
 function getUserGameActivity(string $username, int $gameID): array
@@ -471,7 +333,9 @@ function getUserGameActivity(string $username, int $gameID): array
             if ($session['StartTime'] <= $when) {
                 if ($session['EndTime'] + $maxSessionGap > $when) {
                     $session['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
-                    $session['EndTime'] = $when;
+                    if ($when > $session['EndTime']) {
+                        $session['EndTime'] = $when;
+                    }
 
                     return;
                 }
@@ -482,7 +346,9 @@ function getUserGameActivity(string $username, int $gameID): array
         if ($possibleSession) {
             if ($when - $possibleSession['EndTime'] < $maxSessionGap) {
                 $possibleSession['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
-                $possibleSession['EndTime'] = $when;
+                if ($when > $possibleSession['EndTime']) {
+                    $possibleSession['EndTime'] = $when;
+                }
 
                 return;
             }
@@ -590,7 +456,7 @@ function getUserGameActivity(string $username, int $gameID): array
         $sessionAdjustment = 0;
     }
 
-    $activity = [
+    return [
         'Sessions' => $sessions,
         'TotalTime' => $totalTime,
         'AchievementsTime' => $achievementsTime,
@@ -602,6 +468,4 @@ function getUserGameActivity(string $username, int $gameID): array
         'TotalUnlockTime' => ($lastAchievementTime != null) ? $lastAchievementTime - $firstAchievementTime : 0,
         'CoreAchievementCount' => $game->achievements_published,
     ];
-
-    return $activity;
 }

@@ -120,6 +120,7 @@ describe('Component: newsCarouselComponent', () => {
 
     // ACT
     await vi.advanceTimersByTimeAsync(8000);
+    await vi.advanceTimersToNextTimerAsync();
 
     // ASSERT
     expect(screen.getByTestId('active-index-label')).toHaveTextContent('1');

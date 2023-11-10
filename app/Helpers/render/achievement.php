@@ -28,7 +28,7 @@ function achievementAvatar(
             $points = $achievement['Points'] ?? null;
             $label = $title . ($points ? ' (' . $points . ')' : '');
             sanitize_outputs($label);   // sanitize before rendering HTML
-            $label = Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', ['rawTitle' => $label]);
+            $label = str_replace("\n", '', Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', ['rawTitle' => $label]));
         }
 
         if ($icon !== false) {
@@ -78,7 +78,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
     }
 
-    $title = trim(Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
+    $title = str_replace("\n", '', Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
         'rawTitle' => $data['AchievementTitle'] ?? $data['Title'] ?? '',
     ]));
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
@@ -86,7 +86,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $badgeName = $data['BadgeName'] ?? null;
     $unlock = $data['Unlock'] ?? null;
     $badgeImgSrc = $iconUrl ?? media_asset("Badge/{$badgeName}.png");
-    $gameTitle = renderGameTitle($data['GameTitle'] ?? null);
+    $gameTitle = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $data['GameTitle'] ?? '']);
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
     $tooltip .= "<img src='$badgeImgSrc' width='64' height='64' />";
@@ -97,7 +97,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $tooltip .= "<div>$achPoints " . __res('point', (int) $achPoints) . "</div>";
     }
     if ($gameTitle) {
-        $tooltip .= "<div><i>$gameTitle</i></div>";
+        $tooltip .= "<div><i>" . trim($gameTitle) . "</i></div>";
     }
 
     if ($unlock) {

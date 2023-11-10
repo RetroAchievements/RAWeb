@@ -14,7 +14,7 @@ abstract class ArticleType
 
     public const News = 4; // TODO commentable_type = news
 
-    public const Activity = 5;
+    // public const Activity = 5; // deprecated
 
     public const Leaderboard = 6; // TODO commentable_type = leaderboard
 
@@ -37,7 +37,6 @@ abstract class ArticleType
             self::Achievement,
             self::User,
             self::News,
-            self::Activity,
             self::Leaderboard,
             self::AchievementTicket,
             self::Forum,

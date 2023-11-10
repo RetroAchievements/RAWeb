@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -81,6 +82,33 @@ function greatestStatement(array $columns): string
         'sqlite' => "MAX($columnCSV)",
         // mysql
         default => "GREATEST($columnCSV)",
+    };
+}
+
+function applyFoundRows(Builder $query): Builder
+{
+    return match (DB::getDriverName()) {
+        'sqlite' => $query,
+        // mysql
+        default => $query->selectRaw('SQL_CALC_FOUND_ROWS *')
+    };
+}
+
+function timestampAddMinutesStatement(int $minutes): string
+{
+    return match (DB::getDriverName()) {
+        'sqlite' => "datetime('now', '" . ($minutes > 0 ? '+' : '-') . abs($minutes) . " minutes')",
+        // mysql
+        default => "TIMESTAMPADD(MINUTE, $minutes, NOW())",
+    };
+}
+
+function ifStatement(string $condition, mixed $trueValue, mixed $falseValue): string
+{
+    return match (DB::getDriverName()) {
+        'sqlite' => "IIF($condition, $trueValue, $falseValue)",
+        // mysql
+        default => "IF($condition, $trueValue, $falseValue)"
     };
 }
 

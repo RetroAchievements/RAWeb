@@ -25,7 +25,6 @@ class ClearAccountDataAction
         );
 
         // TODO $user->activities()->delete();
-        DB::statement('DELETE FROM Activity WHERE User = :username', ['username' => $user->User]);
         // TODO $user->emailConfirmations()->delete();
         DB::statement('DELETE FROM EmailConfirmations WHERE User = :username', ['username' => $user->User]);
         // TODO $user->followers()->delete();

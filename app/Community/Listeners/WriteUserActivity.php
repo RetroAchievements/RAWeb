@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Listeners;
 
-use App\Community\Enums\ActivityType;
 use App\Community\Enums\UserActivityType;
 use App\Community\Models\UserActivity;
-use App\Community\Models\UserActivityLegacy;
 use App\Platform\Events\AchievementSetBeaten;
 use App\Platform\Events\AchievementSetCompleted;
 use App\Platform\Events\LeaderboardEntryCreated;
@@ -32,11 +30,6 @@ class WriteUserActivity
         $subjectId = null;
         $context = null;
 
-        $storeLegacyActivity = true;
-        $legacyActivityType = null;
-        $data = null;
-        $data2 = null;
-
         /** @var User $user */
         $user = $event->user;
 
@@ -46,11 +39,6 @@ class WriteUserActivity
                  * login will only be called when user was logged out in-between
                  * ignore login activity within 6 hours after the last login activity
                  */
-                $legacyActivityType = ActivityType::Login;
-                $storeLegacyActivity = $user->legacyActivities()
-                    ->where('activitytype', '=', $legacyActivityType)
-                    ->where('timestamp', '>', Carbon::now()->subHours(6))
-                    ->doesntExist();
                 $userActivityType = UserActivityType::Login;
                 $storeActivity = $user->activities()
                     ->where('type', '=', $userActivityType)
@@ -95,14 +83,6 @@ class WriteUserActivity
                 $storeActivity = !empty($subjectId);
                 break;
             default:
-        }
-
-        if ($legacyActivityType && $storeLegacyActivity) {
-            $user->legacyActivities()->save(new UserActivityLegacy([
-                'activitytype' => $legacyActivityType,
-                'data' => $data,
-                'data2' => $data2,
-            ]));
         }
 
         if ($userActivityType && $storeActivity) {

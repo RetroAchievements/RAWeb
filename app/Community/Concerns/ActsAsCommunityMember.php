@@ -6,7 +6,6 @@ namespace App\Community\Concerns;
 
 use App\Community\Models\Message;
 use App\Community\Models\UserActivity;
-use App\Community\Models\UserActivityLegacy;
 use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;
 use App\Site\Models\User;
@@ -20,14 +19,6 @@ trait ActsAsCommunityMember
 {
     public static function bootActsAsCommunityMember(): void
     {
-    }
-
-    /**
-     * @return HasMany<UserActivityLegacy>
-     */
-    public function legacyActivities(): HasMany
-    {
-        return $this->hasMany(UserActivityLegacy::class, 'User', 'User');
     }
 
     /**

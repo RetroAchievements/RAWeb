@@ -28,6 +28,9 @@ if ($permissions < $topicData['RequiredPermissions']) {
 // Fetch other params
 $count = 15;
 $offset = requestInputSanitized('o', 0, 'integer');
+if ($offset < 0) {
+    $offset = 0;
+}
 
 // Fetch 'goto comment' param if available
 $gotoCommentID = requestInputSanitized('c', null, 'integer');
