@@ -199,7 +199,7 @@ class BeatenGameTest extends TestCase
 
     public function testSoftcoreAwardAssignment(): void
     {
-        Carbon::setTestNow();
+        Carbon::setTestNow(Carbon::now());
 
         /** @var User $user */
         $user = User::factory()->create();
