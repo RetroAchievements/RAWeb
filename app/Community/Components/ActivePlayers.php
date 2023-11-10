@@ -12,27 +12,37 @@ use Illuminate\View\Component;
 class ActivePlayers extends Component
 {
     public ?string $initialSearch = null;
+    public ?array $targetGameIds = null;
+    public string $variant = 'home'; // 'home' | 'focused'
 
     public function __construct(
         protected ActivePlayersService $activePlayersService,
-        Request $request
+        Request $request,
+        ?array $targetGameIds = null,
+        ?string $variant = 'home',
     ) {
         $this->initialSearch = $request->cookie('active_players_search');
+
+        $this->targetGameIds = $targetGameIds;
+        $this->variant = $variant;
     }
 
     public function render(): View
     {
         $loadedActivePlayers = $this->activePlayersService->loadActivePlayers(
             $this->initialSearch,
-            false
+            $this->targetGameIds ? true : false,
+            $this->targetGameIds,
         );
 
         return view('community.components.active-players.active-players', [
             'activePlayersCount' => $loadedActivePlayers['count'],
             'initialActivePlayers' => $loadedActivePlayers['records'],
-            'initialSearch' => $this->initialSearch,
+            'initialSearch' => $this->variant === 'focused' ? null : $this->initialSearch,
             'totalActivePlayers' => $loadedActivePlayers['total'],
+            'targetGameIds' => $this->targetGameIds,
             'trendingGames' => $loadedActivePlayers['trendingGames'],
+            'variant' => $this->variant,
         ]);
     }
 }
