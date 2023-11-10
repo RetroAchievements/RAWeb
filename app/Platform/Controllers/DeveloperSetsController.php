@@ -15,7 +15,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DeveloperGameListController extends Controller
+class DeveloperSetsController extends Controller
 {
     public function __invoke(Request $request): View
     {
@@ -179,7 +179,7 @@ class DeveloperGameListController extends Controller
             $games = array_reverse($games);
         }
 
-        return view('community.components.developer.sets-page', [
+        return view('platform.components.developer.sets-page', [
             'user' => $user,
             'consoles' => $consoles,
             'games' => $games,
