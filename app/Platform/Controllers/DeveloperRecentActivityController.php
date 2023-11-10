@@ -17,7 +17,6 @@ use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 class DeveloperRecentActivityController extends Controller
 {
