@@ -43,12 +43,7 @@ class DeveloperSetsController extends Controller
             ])
             ->groupBy('GameID')
             ->get()
-            ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => [
-                    'NumAuthoredAchievements' => $row['NumAuthoredAchievements'],
-                    'NumAuthoredPoints' => $row['NumAuthoredPoints'],
-                ]];
-            })
+            ->keyBy('GameID')
             ->toArray();
 
         $gameAuthoredLeaderboardsList = $user->authoredLeaderboards()
@@ -57,9 +52,7 @@ class DeveloperSetsController extends Controller
             ])
             ->groupBy('GameID')
             ->get()
-            ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => $row['NumAuthoredLeaderboards']];
-            })
+            ->keyBy('GameID')
             ->toArray();
 
         $gameIDs = array_keys($gameAuthoredAchievementsList) +
@@ -74,12 +67,7 @@ class DeveloperSetsController extends Controller
             ])
             ->groupBy('GameID')
             ->get()
-            ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => [
-                    'NumTickets' => $row['NumTickets'],
-                    'NumAuthoredTickets' => $row['NumAuthoredTickets'],
-                ]];
-            })
+            ->keyBy('GameID')
             ->toArray();
 
         $gameModels = Game::whereIn('ID', $gameIDs)
@@ -99,14 +87,8 @@ class DeveloperSetsController extends Controller
         if (request()->user()) {
             $userProgress = PlayerGame::where('user_id', request()->user()->id)
                 ->whereIn('game_id', $gameIDs)
-                ->select(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
-                ->get()
-                ->mapWithKeys(function ($row, $key) {
-                    return [$row['game_id'] => [
-                        'achievements_unlocked' => $row['achievements_unlocked'],
-                        'achievements_unlocked_hardcore' => $row['achievements_unlocked_hardcore'],
-                    ]];
-                })
+                ->get(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
+                ->keyBy('game_id')
                 ->toArray();
         }
 
