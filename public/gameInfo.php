@@ -2,7 +2,6 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
@@ -13,10 +12,10 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 
 $gameID = (int) request('game');
@@ -133,7 +132,6 @@ $totalPossible = null;
 $totalPossibleTrueRatio = null;
 $isSoleAuthor = false;
 $claimData = null;
-$claimListLength = 0;
 $isGameBeatable = false;
 $isBeatenHardcore = false;
 $isBeatenSoftcore = false;
@@ -268,7 +266,6 @@ if ($isFullyFeaturedGame) {
     $gameTopAchievers = getGameTopAchievers($gameID);
 
     $claimData = getClaimData($gameID, true);
-    $claimListLength = count($claimData);
 }
 
 $gameRating = getGameRating($gameID, $user);
@@ -833,7 +830,6 @@ sanitize_outputs(
         }
 
         $escapedGameTitle = attributeEscape($gameTitle);
-        $renderedTitle = renderGameTitle($gameTitle);
         $consoleName = $gameData['ConsoleName'] ?? null;
         $developer = $gameData['Developer'] ?? null;
         $publisher = $gameData['Publisher'] ?? null;
@@ -1341,44 +1337,13 @@ sanitize_outputs(
 
             // Display claim information
             if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
-                echo "<div>";
-                $claimExpiration = null;
-                $primaryClaim = 1;
-                if ($claimListLength > 0) {
-                    echo "Claimed by: ";
-                    $reviewText = '';
-                    foreach ($claimData as $claim) {
-                        $revisionText = $claim['SetType'] == ClaimSetType::Revision && $primaryClaim ? " (" . ClaimSetType::toString(ClaimSetType::Revision) . ")" : "";
-                        if ($claim['Status'] == ClaimStatus::InReview) {
-                            $reviewText = " (" . ClaimStatus::toString(ClaimStatus::InReview) . ")";
-                        }
-                        $claimExpiration = Carbon::parse($claim['Expiration']);
-                        echo userAvatar($claim['User'], icon: false) . $revisionText;
-                        if ($claimListLength > 1) {
-                            echo ", ";
-                        }
-                        $claimListLength--;
-                        $primaryClaim = 0;
-                    }
-                    echo $reviewText;
-
-                    if ($claimExpiration) {
-                        $isAlreadyExpired = Carbon::parse($claimExpiration)->isPast() ? "Expired" : "Expires";
-
-                        $claimFormattedDate = $claimExpiration->format('d M Y, H:i');
-                        $claimTimeAgoDate = $permissions >= Permissions::JuniorDeveloper
-                            ? "(" . $claimExpiration->diffForHumans() . ")"
-                            : "";
-
-                        // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
-                        echo "<p>$isAlreadyExpired on: $claimFormattedDate $claimTimeAgoDate</p>";
-                    }
-                } else {
-                    if ($numAchievements < 1) {
-                        echo "No Active Claims";
-                    }
-                }
-                echo "</div>";
+                echo Blade::render('
+                    <x-game.claim-info
+                        :claimData="$claimData"
+                        :gameId="$gameID"
+                        :userPermissions="$permissions"
+                    />
+                ', $gameMetaBindings);
             }
             echo "</div>";
 

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Blade;
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');
 $filter = requestInputSanitized('f', 0, 'integer'); // 0 = with achievements, 1 = without achievements, 2 = all
-$sortBy = requestInputSanitized('s', 0, 'integer');
+$sortBy = requestInputSanitized('s', 1, 'integer');
 $dev = requestInputSanitized('d');
 
 if ($dev == null && ($consoleIDInput == 0 || $filter != 0)) {

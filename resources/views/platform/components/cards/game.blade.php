@@ -2,7 +2,7 @@
     <div class="relative h-full text-2xs">
         <!-- Game Name -->
         <p class="font-bold -mt-1 line-clamp-2 {{ mb_strlen($rawTitle) > 24 ? 'text-sm leading-5 mb-1' : 'text-lg leading-6 mb-0.5' }}">
-            {!! $renderedTitle !!}
+            <x-game-title :rawTitle="$rawTitle" />
         </p>
 
         <!-- Console Icon and Name -->
