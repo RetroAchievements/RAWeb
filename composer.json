@@ -74,7 +74,6 @@
         "nunomaduro/larastan": "^2.2",
         "phpunit/phpunit": "^9.5",
         "predis/predis": "^2.0",
-        "qossmic/deptrac-shim": "^1.0",
         "rector/rector": "^0.17.6",
         "spatie/laravel-ignition": "^1.4",
         "worksome/envy": "^0.5"
@@ -131,12 +130,10 @@
             "@setup"
         ],
         "analyse": [
-            "@deptrac",
             "@stan"
         ],
         "coverage": "export XDEBUG_MODE=coverage && php artisan test --coverage --coverage-clover='reports/coverage/coverage.xml' --coverage-html='reports/coverage'",
         "debug": "export XDEBUG_MODE=debug && php artisan serve --port=64000",
-        "deptrac": "vendor/bin/deptrac analyse",
         "fix": "vendor/bin/pint",
         "ide-helpers": [
             "php artisan ide-helper:generate",
