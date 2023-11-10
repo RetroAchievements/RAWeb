@@ -25,7 +25,7 @@ class EmulatorsTableSeeder extends Seeder
                 'name' => $emulatorRelease['name'],
                 'handle' => $emulatorRelease['handle'],
                 'active' => $emulatorRelease['active'],
-                'link' => $emulatorRelease['link'],
+                'link' => $emulatorRelease['link'] ?? null,
                 'description' => $emulatorRelease['description'] ?? null,
             ]);
             $emulator->systems()->sync($emulatorRelease['systems'] ?? []);
