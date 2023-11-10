@@ -234,6 +234,9 @@ switch ($requestType) {
             $response['Success'] = false;
         } else {
             $activityMessage = request()->post('m');
+            if ($activityMessage) {
+                $activityMessage = utf8_sanitize($activityMessage);
+            }
 
             PlayerSessionHeartbeat::dispatch($user, Game::find($gameID), $activityMessage);
 
@@ -409,9 +412,6 @@ switch ($requestType) {
             gameID: $gameID,
             title: request()->input('n'),
             desc: request()->input('d'),
-            progress: ' ',
-            progressMax: ' ',
-            progressFmt: ' ',
             points: (int) request()->input('z', 0),
             type: request()->input('x', 'not-given'), // `null` is a valid achievement type value, so we use a different fallback value.
             mem: request()->input('m'),

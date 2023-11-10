@@ -101,7 +101,7 @@ function getObtainersOfSpecificUser(User $user): array
               FROM player_achievements AS pa
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
               INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-              INNER JOIN UserAccounts AS ua ON ua.User = pa.user_id
+              INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
               WHERE ach.Author = :author
               AND pa.user_id != :userid
               AND ach.Flags = :achievementFlag

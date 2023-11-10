@@ -23,7 +23,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch, isAuthenticated: $user !== null);
+$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
 if (empty($userMassData)) {
     abort(404);
 }
@@ -55,7 +55,7 @@ $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
 // Get user's list of played games and pct completion
-$userCompletedGamesList = $user ? getUsersCompletedGamesAndMax($userPage) : [];
+$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
 $excludedConsoles = ["Hubs", "Events"];
 
@@ -649,8 +649,8 @@ RenderContentStart($userPage);
     echo "</div>";
 
     if ($user !== null && $user === $userPage) {
-        // FIXME: https://discord.com/channels/476211979464343552/1026595325038833725/1162746245996093450
-        // RenderPointsRankingComponent($user, true);
+        $friendCount = getFriendCount($user);
+        echo Blade::render('<x-user.followed-leaderboard-cta :friendCount="$friendCount" />', ['friendCount' => $friendCount]);
     }
     ?>
 </aside>
