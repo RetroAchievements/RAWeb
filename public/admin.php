@@ -106,7 +106,7 @@ if ($action === 'migrate-achievement') {
     }
 
     // determine which game(s) the achievements are coming from
-    $oldGames = Achievement::whereIn('ID', $achievementIds)->select(['GameID'])->distinct()->pluck('GameID')->toArray();
+    $oldGames = Achievement::whereIn('ID', $achievementIds)->select(['GameID'])->distinct()->pluck('GameID');
 
     // associate the achievements to the new game
     Achievement::whereIn('ID', $achievementIds)->update(['GameID' => $gameId]);
@@ -115,10 +115,10 @@ if ($action === 'migrate-achievement') {
     addArticleComment('Server', ArticleType::GameModification, $gameId,
         "$user migrated " . Str::plural('achievement', count($achievementIds)) . ' ' .
         implode(',', $achievementIds) . ' from ' .
-        Str::plural('game', count($oldGames)) . ' ' . implode(',', $oldGames) . '.');
+        Str::plural('game', count($oldGames)) . ' ' . $oldGames->implode(',') . '.');
 
     // ensure player_game entries exist for the new game for all affected users
-    foreach (PlayerAchievement::whereIn('achievement_id', $achievementIds)->select(['user_id'])->distinct()->pluck('user_id')->toArray() as $userId) {
+    foreach (PlayerAchievement::whereIn('achievement_id', $achievementIds)->select(['user_id'])->distinct()->pluck('user_id') as $userId) {
         if (!PlayerGame::where('game_id', $gameId)->where('user_id', $userId)->exists()) {
             $playerGame = new PlayerGame(['user_id' => $userId, 'game_id' => $gameId]);
             $playerGame->save();
