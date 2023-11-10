@@ -12,7 +12,7 @@ $sortBy = requestInputSanitized('s', 1, 'integer');
 
 $dev = requestInputSanitized('d');
 if ($dev !== null) {
-    return redirect()->route('user.dev-sets', $dev);
+    return redirect()->route('developer.sets', $dev);
 }
 
 if ($consoleIDInput == 0 || $filter != 0) {
