@@ -234,6 +234,9 @@ switch ($requestType) {
             $response['Success'] = false;
         } else {
             $activityMessage = request()->post('m');
+            if ($activityMessage) {
+                $activityMessage = utf8_sanitize($activityMessage);
+            }
 
             PlayerSessionHeartbeat::dispatch($user, Game::find($gameID), $activityMessage);
 

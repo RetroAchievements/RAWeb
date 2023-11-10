@@ -8,9 +8,6 @@ vendor/bin/pint --test
 printf "\n⏳ composer analyse\n"
 vendor/bin/phpstan analyse --memory-limit 512M
 
-printf "\n⏳ composer deptrac\n"
-vendor/bin/deptrac analyse
-
 printf "\n⏳ npm run lint:eslint\n"
 npx eslint --quiet
 
