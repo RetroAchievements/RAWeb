@@ -32,8 +32,10 @@ class ActivePlayersService
 
         if ($searchValue) {
             // Split the search string by the '|' operator to support "OR" searches.
-            $searchTerms = explode('|', $searchValue);
-
+            $searchTerms = array_filter(explode('|', $searchValue), function($term) {
+                return trim($term) !== '';
+            });
+        
             $filteredActivePlayers = $filteredActivePlayers->filter(function ($player) use ($searchTerms) {
                 // Check if any of the search terms are present in any of the player's attributes.
                 foreach ($searchTerms as $term) {
@@ -44,7 +46,7 @@ class ActivePlayersService
                         return true;
                     }
                 }
-
+        
                 return false;
             });
         }
