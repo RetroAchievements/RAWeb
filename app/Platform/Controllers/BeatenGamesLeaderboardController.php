@@ -52,26 +52,27 @@ class BeatenGamesLeaderboardController extends Controller
         $currentPage = $validatedData['page']['number'] ?? 1;
         $offset = (int) ($currentPage - 1) * $this->pageSize;
 
-        $beatenGameAwardsRankedRows = $this->getAggregatedLeaderboardDataForCurrentPage($offset, $gameKindFilterOptions, $targetSystemId);
+        $allBeatenGameAwardsRankedRows = $this->getAggregatedLeaderboardData($offset, $gameKindFilterOptions, $targetSystemId);
 
         // We need to know how many rows there are, otherwise the
         // paginator can't determine what the max page number should be.
-        $rankedRowsCount = $this->getLeaderboardRowCount($gameKindFilterOptions, $targetSystemId);
+        $rankedRowsCount = $allBeatenGameAwardsRankedRows->count();
 
         // Where does the authed user currently rank?
-        // This is a separate query that doesn't include the page/offset.
         $isUserOnCurrentPage = false;
         $myRankingData = null;
         $myUsername = null;
         $userPageNumber = null;
         $me = Auth::user() ?? null;
         if ($me) {
-            $myRankingData = $this->getUserRankingData($me->id, $gameKindFilterOptions, $targetSystemId);
+            $myRankingData = $this->getUserRankingData($me->id, $allBeatenGameAwardsRankedRows);
             $userPageNumber = (int) $myRankingData['userPageNumber'];
             $isUserOnCurrentPage = (int) $currentPage === $userPageNumber;
         }
 
-        $paginator = new LengthAwarePaginator($beatenGameAwardsRankedRows, $rankedRowsCount, $this->pageSize, $currentPage, [
+        $currentPageRows = $allBeatenGameAwardsRankedRows->slice($offset, $this->pageSize);
+
+        $paginator = new LengthAwarePaginator($currentPageRows, $rankedRowsCount, $this->pageSize, $currentPage, [
             'path' => $request->url(),
             'query' => $request->query(),
         ]);
@@ -142,14 +143,18 @@ class BeatenGamesLeaderboardController extends Controller
         return $query;
     }
 
-    private function attachRankingRowsMetadata(mixed $rankingRows): mixed
+    private function attachRankingRowsMetadata(mixed $rankingRows, ?int $limit = null, ?int $offset = null): mixed
     {
+        // Only attach metadata to the current page's rows. Leave the rest alone.
+        // After we've attached metadata, we'll merge this back in to the original collection.
+        $currentPageRows = $rankingRows->slice($offset, $limit);
+
         // Fetch all the usernames for the current page.
-        $userIds = $rankingRows->pluck('user_id')->unique();
+        $userIds = $currentPageRows->pluck('user_id')->unique();
         $usernames = User::whereIn('ID', $userIds)->get(['ID', 'User'])->keyBy('ID');
 
         // Fetch all the game metadata for the current page.
-        $gameIds = $rankingRows->pluck('most_recent_game_id')->unique();
+        $gameIds = $currentPageRows->pluck('most_recent_game_id')->unique();
         $gameData = Game::whereIn('ID', $gameIds)->get(['ID', 'Title', 'ImageIcon', 'ConsoleID'])->keyBy('ID');
 
         // Fetch all the console metadata for the current page.
@@ -157,7 +162,7 @@ class BeatenGamesLeaderboardController extends Controller
         $consoleData = System::whereIn('ID', $consoleIds)->get(['ID', 'Name'])->keyBy('ID');
 
         // Stitch all the fetched metadata back onto the aggregate rankings.
-        $rankingRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
+        $currentPageRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
             $ranking->User = $usernames[$ranking->user_id]->User ?? null;
             $ranking->GameTitle = $gameData[$ranking->most_recent_game_id]->Title ?? null;
             $ranking->GameIcon = $gameData[$ranking->most_recent_game_id]->ImageIcon ?? null;
@@ -168,11 +173,21 @@ class BeatenGamesLeaderboardController extends Controller
             return $ranking;
         });
 
+        // Replace each element in the original collection with its modified version.
+        foreach ($currentPageRows as $key => $modifiedRanking) {
+            $rankingRows[$offset + $key] = $modifiedRanking;
+        }
+
         return $rankingRows;
     }
 
-    private function getAggregatedLeaderboardDataForCurrentPage(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
+    private function getAggregatedLeaderboardData(int $currentOffset, array $gameKindFilterOptions, ?int $targetSystemId = null): mixed
     {
+        // TODO: If no system filter, replace checkboxes with radio buttons "Retail only" and "All".
+        // TODO: If reading from cache, show in the UI when the last updated date was in timeago style.
+        // TODO: Might be best to set some systems to be "cacheable" via an array of cacheables?
+        // FIXME: If necessary, read from cache here.
+
         // Fetch the aggregated leaderboard.
         $rankings = $this->buildAggregatedLeaderboardBaseQuery(
             $gameKindFilterOptions,
@@ -180,14 +195,14 @@ class BeatenGamesLeaderboardController extends Controller
         )
             ->orderBy('total_awards', 'desc')
             ->orderBy('last_beaten_date', 'asc')
-            ->offset($currentOffset)
-            ->limit($this->pageSize)
             ->get();
+
+        // FIXME: If necessary, write to cache here.
 
         // Fetch extraneous metadata without doing joins.
         // Joins are expensive - doing this as separate queries
         // shaves a significant amount of time from page load.
-        return $this->attachRankingRowsMetadata($rankings);
+        return $this->attachRankingRowsMetadata($rankings, $this->pageSize, $currentOffset);
     }
 
     private function getIncludedTypes(array $gameKindFilterOptions = []): array
@@ -216,17 +231,6 @@ class BeatenGamesLeaderboardController extends Controller
         return $includedTypes;
     }
 
-    // FIXME: Use FOUND_ROWS().
-    private function getLeaderboardRowCount(array $gameKindFilterOptions, ?int $targetSystemId = null): int
-    {
-        return $this->buildAggregatedLeaderboardBaseQuery(
-            $gameKindFilterOptions,
-            $targetSystemId
-        )
-            ->get()
-            ->count();
-    }
-
     private function getSubqueryTypeBindings(array $includedTypes = []): string
     {
         return implode(',', array_map(function ($type) {
@@ -234,28 +238,35 @@ class BeatenGamesLeaderboardController extends Controller
         }, $includedTypes));
     }
 
-    private function getUserRankingData(int $userId, array $gameKindFilterOptions, ?int $targetSystemId = null): array
+    private function getUserRankingData(int $userId, mixed $rankedRows): array
     {
-        $baseQuery = $this->buildAggregatedLeaderboardBaseQuery(
-            $gameKindFilterOptions,
-            $targetSystemId
-        );
+        // Retrieve the user's row from the collection
+        $userRow = collect($rankedRows)->firstWhere('user_id', $userId);
 
-        // Then, you create an outer query that selects from the base query.
-        $result = DB::query()->fromSub($baseQuery, 'sub')
-            ->where('sub.user_id', $userId)
-            ->get();
+        if (!$userRow) {
+            return [
+                'userRankingData' => null,
+                'userRank' => null,
+                'userPageNumber' => null,
+            ];
+        }
 
-        $result = $this->attachRankingRowsMetadata($result);
+        // Create a collection with just the user's row. We'll attach metadata to this.
+        $userRowCollection = collect([$userRow]);
 
-        $userRankingData = $result->isEmpty() ? null : $result->get(0);
+        // Attach the metadata just like we do with all the other rows on the page.
+        $userRowWithMetadata = $this->attachRankingRowsMetadata($userRowCollection)->first();
 
+        // Calculate the user's page number on the leaderboard.
+        $userPageNumber = isset($userRowWithMetadata)
+            ? ceil($userRowWithMetadata->leaderboard_row_number / $this->pageSize)
+            : null;
+
+        // Return the formatted data.
         return [
-            'userRankingData' => $userRankingData,
-            'userRank' => isset($userRankingData) ? $userRankingData->rank_number : null,
-            'userPageNumber' => isset($userRankingData)
-                ? ceil($userRankingData->leaderboard_row_number / $this->pageSize)
-                : null,
+            'userRankingData' => $userRowWithMetadata,
+            'userRank' => $userRowWithMetadata ? $userRowWithMetadata->rank_number : null,
+            'userPageNumber' => $userPageNumber,
         ];
     }
 }
