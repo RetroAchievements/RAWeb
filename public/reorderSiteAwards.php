@@ -2,6 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
@@ -238,7 +239,7 @@ function postAllAwardsDisplayOrder(awards) {
             );
 
             if ($awardType == AwardType::Mastery) {
-                $awardTitle = renderGameTitle($awardTitle);
+                $awardTitle = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $awardTitle]);
             } elseif ($awardType == AwardType::AchievementUnlocksYield) {
                 $awardTitle = "Achievements Earned by Others";
             } elseif ($awardType == AwardType::AchievementPointsYield) {

@@ -64,7 +64,7 @@ if ($highestAwardKind && $highestAwardDate) {
         @mouseleave="hideTooltip"
         @mousemove="trackMouseMovement($event)"
     >
-        {!! renderGameTitle($gameTitle) !!}
+        <x-game-title :rawTitle="$gameTitle" />
     </a>
 
     {{-- c.progress-pmeta__root > p --}}

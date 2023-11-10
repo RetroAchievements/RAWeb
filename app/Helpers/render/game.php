@@ -29,7 +29,7 @@ function gameAvatar(
             }
 
             sanitize_outputs($title);   // sanitize before rendering HTML
-            $label = renderGameTitle($title);
+            $label = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $title]);
         }
 
         if ($icon === null) {
@@ -50,50 +50,6 @@ function gameAvatar(
         sanitize: $title === null,
         altText: $title ?? (is_string($label) ? $label : null),
     );
-}
-
-/**
- * Render game title, wrapping categories for styling
- */
-function renderGameTitle(?string $title = null, bool $tags = true): string
-{
-    $title ??= '';
-
-    // Update $html by appending text
-    $updateHtml = function (&$html, $text, $append) {
-        $html = trim(str_replace($text, '', $html) . $append);
-    };
-
-    $html = $title;
-    $matches = [];
-    preg_match_all('/~([^~]+)~/', $title, $matches);
-    foreach ($matches[0] as $i => $match) {
-        // The string in $matches[1][$i] may have encoded entities. We need to
-        // first decode those back to their original characters before
-        // sanitizing the string.
-        $decoded = html_entity_decode($matches[1][$i], ENT_QUOTES, 'UTF-8');
-        $category = htmlspecialchars($decoded, ENT_NOQUOTES, 'UTF-8');
-
-        $span = "<span class='tag'><span>$category</span></span>";
-        $updateHtml($html, $match, $tags ? " $span" : '');
-    }
-    $matches = [];
-    if (preg_match('/\s?\[Subset - (.+)\]/', $title, $matches)) {
-        // The string in $matches[1] may have encoded entities. We need to
-        // first decode those back to their original characters before
-        // sanitizing the string.
-        $decoded = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
-        $subset = htmlspecialchars($decoded, ENT_QUOTES, 'UTF-8');
-
-        $span = "<span class='tag'>"
-            . "<span class='tag-label'>Subset</span>"
-            . "<span class='tag-arrow'></span>"
-            . "<span>$subset</span>"
-            . "</span>";
-        $updateHtml($html, $matches[0], $tags ? " $span" : '');
-    }
-
-    return $html;
 }
 
 /**
@@ -127,17 +83,26 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
             $subset = $matches[2];
             $mainID = getGameIDFromTitle($mainTitle, $consoleID);
             $subsetID = $gameID;
-            $renderedSubset = renderGameTitle($subset);
+            $renderedSubset = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $subset]);
         }
 
-        $renderedMain = renderGameTitle($mainTitle, tags: false);
+        $renderedMain = Blade::render('
+            <x-game-title
+                :rawTitle="$rawTitle"
+                :showTags="$showTags"
+            />', [
+                'rawTitle' => $mainTitle,
+                'showTags' => false,
+            ]
+        );
+
         if ($renderedMain !== $mainTitle) {
             // In the rare case of a same-console derived game sharing identical
             // title with a base one, include category to solve ambiguity
             $baseTitle = trim(substr($mainTitle, strrpos($mainTitle, '~') + 1));
             $baseID = getGameIDFromTitle($baseTitle, $consoleID);
             if ($baseID) {
-                $renderedMain = renderGameTitle($mainTitle);
+                $renderedMain = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $mainTitle]);
             }
         }
 
