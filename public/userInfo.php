@@ -23,7 +23,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch, isAuthenticated: $user !== null);
+$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
 if (empty($userMassData)) {
     abort(404);
 }
@@ -55,7 +55,7 @@ $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
 // Get user's list of played games and pct completion
-$userCompletedGamesList = $user ? getUsersCompletedGamesAndMax($userPage) : [];
+$userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
 
 $excludedConsoles = ["Hubs", "Events"];
 
