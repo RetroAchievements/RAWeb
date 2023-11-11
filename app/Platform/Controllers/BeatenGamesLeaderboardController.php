@@ -174,6 +174,7 @@ class BeatenGamesLeaderboardController extends Controller
         switch ($selectedKind) {
             case 'retail':
                 $gameKindFilterOptions['retail'] = true;
+                $gameKindFilterOptions['unlicensed'] = true;
                 break;
             case 'homebrew':
                 $gameKindFilterOptions['homebrew'] = true;
