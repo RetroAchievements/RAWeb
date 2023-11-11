@@ -21,6 +21,16 @@ class BeatenGamesLeaderboardController extends Controller
 {
     private int $pageSize = 25;
 
+    /**
+     * If a system_id is in this array, the leaderboard results for that system
+     * will be cached with a 15-minute TTL. A "last updated..." indicator will
+     * be displayed in the UI for the system, and filtering will be trimmed down
+     * to "Retail games" and "All games".
+     */
+    private array $cacheableSystemIds = [
+        0, // "All systems"
+    ];
+
     public function __invoke(Request $request): View
     {
         if (!config('feature.beat')) {
@@ -30,24 +40,13 @@ class BeatenGamesLeaderboardController extends Controller
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
             'filter.system' => 'sometimes|integer',
-            'filter.retail' => 'sometimes|in:true,false',
-            'filter.hacks' => 'sometimes|in:true,false',
-            'filter.homebrew' => 'sometimes|in:true,false',
-            'filter.unlicensed' => 'sometimes|in:true,false',
-            'filter.prototypes' => 'sometimes|in:true,false',
-            'filter.demos' => 'sometimes|in:true,false',
+            'filter.kind' => 'sometimes|string',
         ]);
 
         $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
+        $isCurrentSystemCacheable = in_array($targetSystemId, $this->cacheableSystemIds);
 
-        $gameKindFilterOptions = [
-            'retail' => ($validatedData['filter']['retail'] ?? true) !== 'false',
-            'hacks' => ($validatedData['filter']['hacks'] ?? true) !== 'false',
-            'homebrew' => ($validatedData['filter']['homebrew'] ?? true) !== 'false',
-            'unlicensed' => ($validatedData['filter']['unlicensed'] ?? true) !== 'false',
-            'prototypes' => ($validatedData['filter']['prototypes'] ?? true) !== 'false',
-            'demos' => ($validatedData['filter']['demos'] ?? true) !== 'false',
-        ];
+        $gameKindFilterOptions = $this->determineGameKindFilterOptions($validatedData);
 
         // Now get the current page's rows.
         $currentPage = $validatedData['page']['number'] ?? 1;
@@ -84,6 +83,7 @@ class BeatenGamesLeaderboardController extends Controller
         return view('platform.beaten-games-leaderboard-page', [
             'allSystems' => $allSystems,
             'gameKindFilterOptions' => $gameKindFilterOptions,
+            'isCurrentSystemCacheable' => $isCurrentSystemCacheable,
             'isUserOnCurrentPage' => $isUserOnCurrentPage,
             'myRankingData' => $myRankingData,
             'myUsername' => $myUsername,
@@ -91,6 +91,44 @@ class BeatenGamesLeaderboardController extends Controller
             'selectedConsoleId' => $targetSystemId,
             'userPageNumber' => $userPageNumber,
         ]);
+    }
+
+    private function attachRankingRowsMetadata(mixed $rankingRows, ?int $limit = null, ?int $offset = null): mixed
+    {
+        // Only attach metadata to the current page's rows. Leave the rest alone.
+        // After we've attached metadata, we'll merge this back in to the original collection.
+        $currentPageRows = $rankingRows->slice($offset, $limit);
+
+        // Fetch all the usernames for the current page.
+        $userIds = $currentPageRows->pluck('user_id')->unique();
+        $usernames = User::whereIn('ID', $userIds)->get(['ID', 'User'])->keyBy('ID');
+
+        // Fetch all the game metadata for the current page.
+        $gameIds = $currentPageRows->pluck('most_recent_game_id')->unique();
+        $gameData = Game::whereIn('ID', $gameIds)->get(['ID', 'Title', 'ImageIcon', 'ConsoleID'])->keyBy('ID');
+
+        // Fetch all the console metadata for the current page.
+        $consoleIds = $gameData->pluck('ConsoleID')->unique()->filter();
+        $consoleData = System::whereIn('ID', $consoleIds)->get(['ID', 'Name'])->keyBy('ID');
+
+        // Stitch all the fetched metadata back onto the aggregate rankings.
+        $currentPageRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
+            $ranking->User = $usernames[$ranking->user_id]->User ?? null;
+            $ranking->GameTitle = $gameData[$ranking->most_recent_game_id]->Title ?? null;
+            $ranking->GameIcon = $gameData[$ranking->most_recent_game_id]->ImageIcon ?? null;
+
+            $consoleId = $gameData[$ranking->most_recent_game_id]->ConsoleID ?? null;
+            $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->Name ?? null : null;
+
+            return $ranking;
+        });
+
+        // Replace each element in the original collection with its modified version.
+        foreach ($currentPageRows as $key => $modifiedRanking) {
+            $rankingRows[$offset + $key] = $modifiedRanking;
+        }
+
+        return $rankingRows;
     }
 
     private function buildAggregatedLeaderboardBaseQuery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
@@ -144,42 +182,32 @@ class BeatenGamesLeaderboardController extends Controller
         return $query;
     }
 
-    private function attachRankingRowsMetadata(mixed $rankingRows, ?int $limit = null, ?int $offset = null): mixed
+    private function determineGameKindFilterOptions(array $validatedData): array
     {
-        // Only attach metadata to the current page's rows. Leave the rest alone.
-        // After we've attached metadata, we'll merge this back in to the original collection.
-        $currentPageRows = $rankingRows->slice($offset, $limit);
+        $allFilterKeys = ['retail', 'hacks', 'homebrew', 'unlicensed', 'prototypes', 'demos'];
 
-        // Fetch all the usernames for the current page.
-        $userIds = $currentPageRows->pluck('user_id')->unique();
-        $usernames = User::whereIn('ID', $userIds)->get(['ID', 'User'])->keyBy('ID');
+        // As a safeguard, set everything to false by default.
+        $filterValues = array_fill_keys($allFilterKeys, false);
 
-        // Fetch all the game metadata for the current page.
-        $gameIds = $currentPageRows->pluck('most_recent_game_id')->unique();
-        $gameData = Game::whereIn('ID', $gameIds)->get(['ID', 'Title', 'ImageIcon', 'ConsoleID'])->keyBy('ID');
+        // Show retail games only by default. It will be the default filter choice.
+        $selectedKind = $validatedData['filter']['kind'] ?? 'retail';
 
-        // Fetch all the console metadata for the current page.
-        $consoleIds = $gameData->pluck('ConsoleID')->unique()->filter();
-        $consoleData = System::whereIn('ID', $consoleIds)->get(['ID', 'Name'])->keyBy('ID');
-
-        // Stitch all the fetched metadata back onto the aggregate rankings.
-        $currentPageRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
-            $ranking->User = $usernames[$ranking->user_id]->User ?? null;
-            $ranking->GameTitle = $gameData[$ranking->most_recent_game_id]->Title ?? null;
-            $ranking->GameIcon = $gameData[$ranking->most_recent_game_id]->ImageIcon ?? null;
-
-            $consoleId = $gameData[$ranking->most_recent_game_id]->ConsoleID ?? null;
-            $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->Name ?? null : null;
-
-            return $ranking;
-        });
-
-        // Replace each element in the original collection with its modified version.
-        foreach ($currentPageRows as $key => $modifiedRanking) {
-            $rankingRows[$offset + $key] = $modifiedRanking;
+        switch ($selectedKind) {
+            case 'retail':
+                $filterValues['retail'] = true;
+                break;
+            case 'homebrew':
+                $filterValues['homebrew'] = true;
+                break;
+            case 'hacks':
+                $filterValues['hacks'] = true;
+                break;
+            case 'all':
+                $filterValues = array_fill_keys($allFilterKeys, true);
+                break;
         }
 
-        return $rankingRows;
+        return $filterValues;
     }
 
     /**
@@ -274,7 +302,7 @@ class BeatenGamesLeaderboardController extends Controller
         // This avoids an issue related to floating-point division which can result in the
         // calculated userPageNumber being incorrect.
         $userIndex = $rankedRows->search(function ($item) use ($userId) {
-            return $item->user_id === $userId;
+            return is_object($item) ? $item->user_id === $userId : 1;
         });
         $userPageNumber = ceil(($userIndex + 1) / $this->pageSize);
 

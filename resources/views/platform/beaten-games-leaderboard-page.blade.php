@@ -18,6 +18,7 @@
     <x-beaten-games-leaderboard.meta-panel
         :allSystems="$allSystems"
         :gameKindFilterOptions="$gameKindFilterOptions"
+        :isCurrentSystemCacheable="$isCurrentSystemCacheable"
         :selectedConsoleId="$selectedConsoleId"
     />
 
