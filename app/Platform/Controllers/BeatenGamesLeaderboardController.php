@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
-use App\Platform\Enums\RankingType;
+use App\Platform\Enums\PlayerStatType;
 use App\Platform\Models\Game;
-use App\Platform\Models\Ranking;
+use App\Platform\Models\PlayerStat;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
@@ -126,7 +126,7 @@ class BeatenGamesLeaderboardController extends Controller
     {
         $includedTypes = $this->getIncludedTypes($gameKindFilterOptions);
 
-        $aggregateSubquery = Ranking::selectRaw(
+        $aggregateSubquery = PlayerStat::selectRaw(
             'user_id, SUM(value) AS total_awards, MAX(updated_at) AS last_beaten_date'
         )
             ->when($targetSystemId, function ($query) use ($targetSystemId) {
@@ -137,22 +137,22 @@ class BeatenGamesLeaderboardController extends Controller
             ->whereIn('type', $includedTypes)
             ->groupBy('user_id');
 
-        $query = Ranking::selectRaw(
+        $query = PlayerStat::selectRaw(
             'sub.user_id, 
-            rankings.last_game_id, 
-            rankings.updated_at as last_beaten_date, 
+            player_stats.last_game_id, 
+            player_stats.updated_at as last_beaten_date, 
             sub.total_awards, 
             RANK() OVER (ORDER BY sub.total_awards DESC) as rank_number,
             ROW_NUMBER() OVER (ORDER BY sub.total_awards DESC, sub.last_beaten_date ASC) as leaderboard_row_number'
         )
             ->joinSub($aggregateSubquery, 'sub', function ($join) use ($targetSystemId) {
-                $join->on('sub.user_id', '=', 'rankings.user_id')
-                    ->on('sub.last_beaten_date', '=', 'rankings.updated_at');
+                $join->on('sub.user_id', '=', 'player_stats.user_id')
+                    ->on('sub.last_beaten_date', '=', 'player_stats.updated_at');
 
                 if (isset($targetSystemId) && $targetSystemId > 0) {
-                    $join->where('rankings.system_id', '=', $targetSystemId);
+                    $join->where('player_stats.system_id', '=', $targetSystemId);
                 } else {
-                    $join->whereNull('rankings.system_id');
+                    $join->whereNull('player_stats.system_id');
                 }
             })
             ->orderBy('sub.total_awards', 'desc')
@@ -212,22 +212,22 @@ class BeatenGamesLeaderboardController extends Controller
         $includedTypes = [];
 
         if ($gameKindFilterOptions['retail']) {
-            $includedTypes[] = RankingType::GamesBeatenHardcoreRetail;
+            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreRetail;
         }
         if ($gameKindFilterOptions['hacks']) {
-            $includedTypes[] = RankingType::GamesBeatenHardcoreHacks;
+            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreHacks;
         }
         if ($gameKindFilterOptions['homebrew']) {
-            $includedTypes[] = RankingType::GamesBeatenHardcoreHomebrew;
+            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreHomebrew;
         }
         if ($gameKindFilterOptions['unlicensed']) {
-            $includedTypes[] = RankingType::GamesBeatenHardcoreUnlicensed;
+            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreUnlicensed;
         }
         if ($gameKindFilterOptions['prototypes']) {
-            $includedTypes[] = RankingType::GamesBeatenHardcorePrototypes;
+            $includedTypes[] = PlayerStatType::GamesBeatenHardcorePrototypes;
         }
         if ($gameKindFilterOptions['demos']) {
-            $includedTypes[] = RankingType::GamesBeatenHardcoreDemos;
+            $includedTypes[] = PlayerStatType::GamesBeatenHardcoreDemos;
         }
 
         return $includedTypes;

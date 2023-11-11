@@ -8,9 +8,9 @@ use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Ranking extends BaseModel
+class PlayerStat extends BaseModel
 {
-    protected $table = 'rankings';
+    protected $table = 'player_stats';
 
     protected $fillable = [
         'user_id',
@@ -35,7 +35,7 @@ class Ranking extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<System, Ranking>
+     * @return BelongsTo<System, PlayerStat>
      */
     public function system(): BelongsTo
     {
@@ -43,7 +43,7 @@ class Ranking extends BaseModel
     }
 
     /**
-     * @return BelongsTo<User, Ranking>
+     * @return BelongsTo<User, PlayerStat>
      */
     public function user(): BelongsTo
     {

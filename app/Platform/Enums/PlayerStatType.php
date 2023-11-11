@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
-abstract class RankingType
+abstract class PlayerStatType
 {
     public const GamesBeatenHardcoreDemos = 'games_beaten_hardcore_demos';
 

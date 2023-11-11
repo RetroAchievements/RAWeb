@@ -10,13 +10,13 @@ return new class() extends Migration {
     public function up(): void
     {
         /**
-         * A flexible structure to store different types of ranking data within the same table.
-         * The 'type' column is a string that specifies the category of the ranking, such as
+         * A flexible structure to store different types of player stats data within the same table.
+         * The 'type' column is a string that specifies the category of the statistic, such as
          * 'games_beaten_retail', and the 'value' column stores the numerical value associated
-         * with that ranking. This allows for a wide range of aggregate ranking types to be managed
-         * dynamically without requiring schema changes for each new ranking category.
+         * with that statistic. This allows for a wide range of aggregate stat types to be managed
+         * dynamically without requiring schema changes for each new stat category.
          */
-        Schema::create('rankings', function (Blueprint $table) {
+        Schema::create('player_stats', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedInteger('system_id')->nullable(); // useful for system-specific leaderboards

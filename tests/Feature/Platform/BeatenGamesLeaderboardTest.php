@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform;
 
-use App\Platform\Actions\UpdatePlayerRanks;
+use App\Platform\Actions\UpdatePlayerStats;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use App\Site\Models\User;
@@ -44,9 +44,9 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $games->get(1));
         $this->addGameBeatenAward($users->get(2), $games->get(2));
 
-        (new UpdatePlayerRanks())->execute($users->get(0));
-        (new UpdatePlayerRanks())->execute($users->get(1));
-        (new UpdatePlayerRanks())->execute($users->get(2));
+        (new UpdatePlayerStats())->execute($users->get(0));
+        (new UpdatePlayerStats())->execute($users->get(1));
+        (new UpdatePlayerStats())->execute($users->get(2));
 
         // Act
         $view = $this->get('/ranking/beaten-games');
@@ -74,9 +74,9 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $games->get(0));
         $this->addGameBeatenAward($users->get(2), $games->get(1));
 
-        (new UpdatePlayerRanks())->execute($users->get(0));
-        (new UpdatePlayerRanks())->execute($users->get(1));
-        (new UpdatePlayerRanks())->execute($users->get(2));
+        (new UpdatePlayerStats())->execute($users->get(0));
+        (new UpdatePlayerStats())->execute($users->get(1));
+        (new UpdatePlayerStats())->execute($users->get(2));
 
         // Act
         $view = $this->get('/ranking/beaten-games');
@@ -111,9 +111,9 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $gameTwo);
         $this->addGameBeatenAward($users->get(2), $gameThree);
 
-        (new UpdatePlayerRanks())->execute($users->get(0));
-        (new UpdatePlayerRanks())->execute($users->get(1));
-        (new UpdatePlayerRanks())->execute($users->get(2));
+        (new UpdatePlayerStats())->execute($users->get(0));
+        (new UpdatePlayerStats())->execute($users->get(1));
+        (new UpdatePlayerStats())->execute($users->get(2));
 
         // Act
         $view = $this->get('/ranking/beaten-games?filter[system]=' . $systems->get(1)->ID);
@@ -137,7 +137,7 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($user, $hack);
         $this->addGameBeatenAward($user, $retail);
 
-        (new UpdatePlayerRanks())->execute($user);
+        (new UpdatePlayerStats())->execute($user);
 
         // Act
         $view = $this->get('/ranking/beaten-games?filter[kind]=retail');

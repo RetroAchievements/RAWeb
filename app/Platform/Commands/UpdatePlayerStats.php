@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Actions\UpdatePlayerRanks as UpdatePlayerRanksAction;
-use App\Platform\Jobs\UpdatePlayerRanksJob;
+use App\Platform\Actions\UpdatePlayerStats as UpdatePlayerStatsAction;
+use App\Platform\Jobs\UpdatePlayerStatsJob;
 use App\Site\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
-class UpdatePlayerRanks extends Command
+class UpdatePlayerStats extends Command
 {
-    protected $signature = 'ra:platform:player:update-ranks
+    protected $signature = 'ra:platform:player:update-stats
                             {userId? : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}';
-    protected $description = 'Update player global leaderboard ranks';
+    protected $description = 'Update player stats';
 
     public function __construct(
-        private readonly UpdatePlayerRanksAction $updatePlayerRanks
+        private readonly UpdatePlayerStatsAction $updatePlayerStats
     ) {
         parent::__construct();
     }
@@ -32,9 +32,9 @@ class UpdatePlayerRanks extends Command
                 ? User::findOrFail($userId)
                 : User::where('User', $userId)->firstOrFail();
 
-            $this->info('Updating rankings for player [' . $user->id . ':' . $user->username . ']');
+            $this->info('Updating stats for player [' . $user->id . ':' . $user->username . ']');
 
-            $this->updatePlayerRanks->execute($user);
+            $this->updatePlayerStats->execute($user);
         } else {
             // We want to dispatch unique jobs for all user IDs that are
             // present on the player_games table.
@@ -45,7 +45,7 @@ class UpdatePlayerRanks extends Command
             });
 
             $distinctUserCount = $baseUserQuery->count();
-            $this->info('Preparing batch jobs to update player ranks for ' . $distinctUserCount . ' users.');
+            $this->info('Preparing batch jobs to update player stats for ' . $distinctUserCount . ' users.');
 
             $progressBar = $this->output->createProgressBar($distinctUserCount);
             $progressBar->start();
@@ -53,11 +53,11 @@ class UpdatePlayerRanks extends Command
             // Retrieve user IDs in chunks and create jobs.
             $baseUserQuery->chunkById(100, function ($users) use ($progressBar) {
                 $jobs = $users->map(function ($user) {
-                    return (new UpdatePlayerRanksJob($user->id))->onQueue('player-ranks');
+                    return (new UpdatePlayerStatsJob($user->id))->onQueue('player-stats');
                 })->all();
 
                 // Dispatch jobs for the current chunk.
-                Bus::batch($jobs)->onQueue('player-ranks')->dispatch();
+                Bus::batch($jobs)->onQueue('player-stats')->dispatch();
 
                 $progressBar->advance(count($users));
             });
