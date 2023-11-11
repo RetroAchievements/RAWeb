@@ -293,6 +293,8 @@ class DeveloperRecentActivityController extends Controller
 
     private function getCanViewTargetUser(?User $user): bool
     {
-        return (bool) $user && $user->Permissions >= Permissions::Registered;
+        $targetUserPermissions = (int) $user->getAttribute('Permissions');
+
+        return (bool) $user && $targetUserPermissions >= Permissions::Registered;
     }
 }
