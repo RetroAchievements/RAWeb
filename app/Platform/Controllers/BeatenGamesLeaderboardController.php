@@ -269,9 +269,14 @@ class BeatenGamesLeaderboardController extends Controller
         $userRowWithMetadata = $this->attachRankingRowsMetadata($userRowCollection)->first();
 
         // Calculate the user's page number on the leaderboard.
-        $userPageNumber = isset($userRowWithMetadata)
-            ? ceil($userRowWithMetadata->leaderboard_row_number / $this->pageSize)
-            : null;
+        // We're using the user's index in the $rankedRows collection to determine their
+        // page number instead of directly dividing their leaderboard_row_number by pageSize.
+        // This avoids an issue related to floating-point division which can result in the
+        // calculated userPageNumber being incorrect.
+        $userIndex = $rankedRows->search(function ($item) use ($userId) {
+            return $item->user_id === $userId;
+        });
+        $userPageNumber = ceil(($userIndex + 1) / $this->pageSize);
 
         // Return the formatted data.
         return [
