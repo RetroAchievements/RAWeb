@@ -35,11 +35,23 @@ class ActivePlayersService
         $trendingGames = isset($targetGameIds) ? [] : $this->computeTrendingGames($filteredActivePlayers);
 
         if ($searchValue) {
-            $filteredActivePlayers = $filteredActivePlayers->filter(function ($player) use ($searchValue) {
-                return stripos($player['User'], $searchValue) !== false
-                    || stripos($player['GameTitle'], $searchValue) !== false
-                    || stripos($player['ConsoleName'], $searchValue) !== false
-                    || stripos($player['RichPresenceMsg'], $searchValue) !== false;
+            // Split the search string by the '|' operator to support "OR" searches.
+            $searchTerms = array_filter(explode('|', $searchValue), function ($term) {
+                return trim($term) !== '';
+            });
+
+            $filteredActivePlayers = $filteredActivePlayers->filter(function ($player) use ($searchTerms) {
+                // Check if any of the search terms are present in any of the player's attributes.
+                foreach ($searchTerms as $term) {
+                    if (stripos($player['User'], $term) !== false
+                        || stripos($player['GameTitle'], $term) !== false
+                        || stripos($player['ConsoleName'], $term) !== false
+                        || stripos($player['RichPresenceMsg'], $term) !== false) {
+                        return true;
+                    }
+                }
+
+                return false;
             });
         }
 
