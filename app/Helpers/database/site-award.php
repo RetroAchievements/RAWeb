@@ -219,8 +219,14 @@ function SetCertifiedLegend(string $usernameIn, bool $enable): void
  * Results are configurable based on input parameters allowing returning data for a specific users friends
  * and selecting a specific date
  */
-function getRecentMasteryData(string $date, ?string $friendsOf = null, int $offset = 0, int $count = 50): array
-{
+function getRecentProgressionAwardData(
+    string $date,
+    ?string $friendsOf = null,
+    int $offset = 0,
+    int $count = 50,
+    ?int $onlyAwardType = null,
+    ?int $onlyUnlockMode = null,
+): array {
     // Determine the friends condition
     $friendCondAward = "";
     if ($friendsOf !== null) {
@@ -228,15 +234,35 @@ function getRecentMasteryData(string $date, ?string $friendsOf = null, int $offs
         $friendCondAward = "AND saw.User IN ($friendSubquery)";
     }
 
+    $onlyAwardTypeClause = "
+        WHERE saw.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
+    ";
+    if ($onlyAwardType) {
+        $onlyAwardTypeClause = "WHERE saw.AwardType = $onlyAwardType";
+    }
+
+    $onlyUnlockModeClause = "saw.AwardDataExtra IS NOT NULL";
+    if (isset($onlyUnlockMode)) {
+        $onlyUnlockModeClause = "saw.AwardDataExtra = $onlyUnlockMode";
+    }
+
     $retVal = [];
-    $query = "SELECT saw.User, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP( saw.AwardDate ) as AwardedAtUnix, saw.AwardType, saw.AwardData, saw.AwardDataExtra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon
-                FROM SiteAwards AS saw
-                LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                WHERE saw.AwardType = " . AwardType::Mastery . " AND AwardData > 0 AND AwardDataExtra IS NOT NULL $friendCondAward
-                AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
-                ORDER BY AwardedAt DESC
-                LIMIT $offset, $count";
+    $query = "SELECT s.User, s.AwardedAt, s.AwardedAtUnix, s.AwardType, s.AwardData, s.AwardDataExtra, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
+        FROM (
+            SELECT 
+                saw.User, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType, 
+                saw.AwardData, saw.AwardDataExtra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
+                ROW_NUMBER() OVER (PARTITION BY saw.User, saw.AwardData, TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) ORDER BY saw.AwardType ASC) AS rn
+            FROM SiteAwards AS saw
+            LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
+            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN SiteAwards AS saw2 ON saw2.User = saw.User AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
+            $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
+            AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
+        ) s
+        WHERE s.rn = 1
+        ORDER BY AwardedAt DESC
+        LIMIT $offset, $count";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {

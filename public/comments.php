@@ -8,6 +8,7 @@ use App\Platform\Models\Leaderboard;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -24,14 +25,16 @@ $count = 25;
 $commentData = [];
 $numArticleComments = getArticleComments($articleTypeID, $articleID, $offset, $count, $commentData);
 
+/** @var ?Game $game */
+$game = null;
+
 $commentsLabel = "Comments";
 switch ($articleTypeID) {
     case ArticleType::Game:
-        /** @var Game $game */
         $game = Game::findOrFail($articleID);
         /** @var System $console */
         $console = $game->console;
-        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
+        $pageTitle = $game->Title . ' (' . $console->Name . ')';
         $navPath = [
             '_GamePrefix' => renderGameBreadcrumb($game->ID),
         ];
@@ -41,11 +44,10 @@ switch ($articleTypeID) {
         if ($permissions < Permissions::Developer) {
             abort(403);
         }
-        /** @var Game $game */
         $game = Game::findOrFail($articleID);
         /** @var System $console */
         $console = $game->console;
-        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
+        $pageTitle = $game->Title . ' (' . $console->Name . ')';
         $commentsLabel = "Hash Comments";
         $navPath = [
             '_GamePrefix' => renderGameBreadcrumb($game->ID),
@@ -57,11 +59,10 @@ switch ($articleTypeID) {
         if ($permissions < Permissions::JuniorDeveloper) {
             abort(403);
         }
-        /** @var Game $game */
         $game = Game::findOrFail($articleID);
         /** @var System $console */
         $console = $game->console;
-        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
+        $pageTitle = $game->Title . ' (' . $console->Name . ')';
         $commentsLabel = "Modifications";
         $navPath =
         [
@@ -73,11 +74,10 @@ switch ($articleTypeID) {
         if ($permissions < Permissions::Moderator) {
             abort(403);
         }
-        /** @var Game $game */
         $game = Game::findOrFail($articleID);
         /** @var System $console */
         $console = $game->console;
-        $pageTitle = renderGameTitle($game->Title . ' (' . $console->Name . ')');
+        $pageTitle = $game->Title . ' (' . $console->Name . ')';
         $commentsLabel = "Claim Comments";
         $navPath = [
             '_GamePrefix' => renderGameBreadcrumb($game->ID),
@@ -88,7 +88,6 @@ switch ($articleTypeID) {
     case ArticleType::Achievement:
         /** @var Achievement $achievement */
         $achievement = Achievement::findOrFail($articleID);
-        /** @var Game $game */
         $game = Game::findOrFail($achievement->GameID);
         $pageTitle = $achievement->Title;
         $navPath = [
@@ -167,7 +166,31 @@ RenderContentStart("$commentsLabel: $pageTitle");
         }
         echo "<b>$commentsLabel</b></div>";
 
-        echo "<h3>$pageTitle</h3>";
+        if (
+            $game
+            && (
+                $articleTypeID == ArticleType::Game
+                || $articleTypeID == ArticleType::GameHash
+                || $articleTypeID == ArticleType::GameModification
+                || $articleTypeID == ArticleType::SetClaim
+            )
+        ) {
+            echo Blade::render('
+                <x-game.heading
+                    :gameId="$gameId"
+                    :gameTitle="$gameTitle"
+                    :consoleId="$consoleId"
+                    :consoleName="$consoleName"
+                />
+            ', [
+                'gameId' => $game->ID,
+                'gameTitle' => $game->Title,
+                'consoleId' => $game->Console->ID,
+                'consoleName' => $game->Console->Name,
+            ]);
+        } else {
+            echo "<h3>$pageTitle</h3>";
+        }
 
         RenderCommentsComponent($user, $numArticleComments, $commentData, $articleID, $articleTypeID, $permissions, $count, $offset, embedded: false);
     ?>

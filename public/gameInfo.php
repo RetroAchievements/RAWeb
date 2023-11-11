@@ -830,7 +830,6 @@ sanitize_outputs(
         }
 
         $escapedGameTitle = attributeEscape($gameTitle);
-        $renderedTitle = renderGameTitle($gameTitle);
         $consoleName = $gameData['ConsoleName'] ?? null;
         $developer = $gameData['Developer'] ?? null;
         $publisher = $gameData['Publisher'] ?? null;

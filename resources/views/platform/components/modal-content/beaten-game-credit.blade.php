@@ -12,8 +12,6 @@ $hardcoreIds = explode(",", substr($hardcoreUnlocks, 2)); // skip "h:"
 
 $numProgressionAchievements = count($progressionAchievements);
 $numWinConditionAchievements = count($winConditionAchievements);
-
-$renderedGameTitle = renderGameTitle($gameTitle);
 ?>
 
 <div>
@@ -24,7 +22,7 @@ $renderedGameTitle = renderGameTitle($gameTitle);
         </p>
 
         <p>
-            {!! $renderedGameTitle !!} has {{ $numProgressionAchievements }} progression
+            <x-game-title :rawTitle="$gameTitle" /> has {{ $numProgressionAchievements }} progression
             {{ trans_choice(__('resource.achievement.title'), $numProgressionAchievements) }} and
             {{ $numWinConditionAchievements }} win condition
             {{ trans_choice(__('resource.achievement.title'), $numWinConditionAchievements) }}.
