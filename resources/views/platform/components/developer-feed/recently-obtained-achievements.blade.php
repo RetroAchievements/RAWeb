@@ -53,7 +53,7 @@
                                 {!! userAvatar($recentUnlock->User) !!}
                             </td>
 
-                            <td>{{ $recentUnlock->TimestampLabel }}</td>
+                            <td class="smalldate">{{ $recentUnlock->TimestampLabel }}</td>
                         </tr>
                     @endforeach
                 </tbody>

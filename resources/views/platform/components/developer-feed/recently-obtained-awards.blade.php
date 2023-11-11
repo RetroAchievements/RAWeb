@@ -39,7 +39,7 @@
                                 {!! userAvatar($recentAward->User) !!}
                             </td>
 
-                            <td>{{ $recentAward->TimestampLabel }}</td>
+                            <td class="smalldate">{{ $recentAward->TimestampLabel }}</td>
                         </tr>
                     @endforeach
                 </tbody>

@@ -46,7 +46,7 @@
                                 {!! userAvatar($recentLeaderboardEntry->User) !!}
                             </td>
 
-                            <td>{{ $recentLeaderboardEntry->TimestampLabel }}</td>
+                            <td class="smalldate">{{ $recentLeaderboardEntry->TimestampLabel }}</td>
                         </tr>
                     @endforeach
                 </tbody>
