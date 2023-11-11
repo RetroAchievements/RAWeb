@@ -20,8 +20,8 @@ return new class() extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedInteger('system_id')->nullable(); // useful for system-specific leaderboards
-            $table->unsignedBigInteger('last_game_id')->nullable(); // useful for showing most recent game which affected the value
             $table->string('type');
+            $table->unsignedBigInteger('last_game_id')->nullable(); // useful for showing most recent game which affected the value
             $table->integer('value')->default(0);
             $table->timestampsTz();
 
