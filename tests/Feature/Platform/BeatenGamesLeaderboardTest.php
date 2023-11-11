@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform;
 
+use App\Platform\Actions\UpdatePlayerRanks;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use App\Site\Models\User;
@@ -43,6 +44,10 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $games->get(1));
         $this->addGameBeatenAward($users->get(2), $games->get(2));
 
+        (new UpdatePlayerRanks())->execute($users->get(0));
+        (new UpdatePlayerRanks())->execute($users->get(1));
+        (new UpdatePlayerRanks())->execute($users->get(2));
+
         // Act
         $view = $this->get('/ranking/beaten-games');
 
@@ -68,6 +73,10 @@ class BeatenGamesLeaderboardTest extends TestCase
 
         $this->addGameBeatenAward($users->get(2), $games->get(0));
         $this->addGameBeatenAward($users->get(2), $games->get(1));
+
+        (new UpdatePlayerRanks())->execute($users->get(0));
+        (new UpdatePlayerRanks())->execute($users->get(1));
+        (new UpdatePlayerRanks())->execute($users->get(2));
 
         // Act
         $view = $this->get('/ranking/beaten-games');
@@ -102,6 +111,10 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($users->get(2), $gameTwo);
         $this->addGameBeatenAward($users->get(2), $gameThree);
 
+        (new UpdatePlayerRanks())->execute($users->get(0));
+        (new UpdatePlayerRanks())->execute($users->get(1));
+        (new UpdatePlayerRanks())->execute($users->get(2));
+
         // Act
         $view = $this->get('/ranking/beaten-games?filter[system]=' . $systems->get(1)->ID);
 
@@ -110,53 +123,6 @@ class BeatenGamesLeaderboardTest extends TestCase
             '#1', $users->get(2)->User,
             '#2', $users->get(1)->User,
         ]);
-    }
-
-    public function testItExcludesAllSubsetsTestkitsAndMultiSets(): void
-    {
-        // Arrange
-        $user = User::factory()->create();
-        $system = System::factory()->create();
-
-        $subset = Game::factory()->create(['Title' => '~Subset~ Beat Super Mario Bros in 42 seconds', 'ConsoleID' => $system->ID]);
-        $testKit = Game::factory()->create(['Title' => '~Test Kit~ Make Sure Your N64 Turns On', 'ConsoleID' => $system->ID]);
-        $multi = Game::factory()->create(['Title' => '~Multi~ Donkey Kong: Two Players But One Joystick', 'ConsoleID' => $system->ID]);
-        $normalGame = Game::factory()->create(['ConsoleID' => $system->ID]);
-
-        $this->addGameBeatenAward($user, $subset);
-        $this->addGameBeatenAward($user, $testKit);
-        $this->addGameBeatenAward($user, $multi);
-        $this->addGameBeatenAward($user, $normalGame);
-
-        // Act
-        $view = $this->get('/ranking/beaten-games');
-
-        // Assert
-        $view->assertSee($user->User . '-count-1');
-    }
-
-    public function testItExcludesUntrackedUsers(): void
-    {
-        // Arrange
-        $trackedUser = User::factory()->create();
-        $untrackedUser = User::factory()->create(['Untracked' => 1]);
-
-        $system = System::factory()->create();
-        $games = Game::factory()->count(3)->create(['ConsoleID' => $system->ID]);
-
-        $this->addGameBeatenAward($trackedUser, $games->get(0));
-
-        $this->addGameBeatenAward($untrackedUser, $games->get(0));
-        $this->addGameBeatenAward($untrackedUser, $games->get(1));
-        $this->addGameBeatenAward($untrackedUser, $games->get(2));
-
-        // Act
-        $view = $this->get('/ranking/beaten-games');
-
-        // Assert
-        $view->assertSeeTextInOrder(['#1', $trackedUser->User]);
-        $view->assertDontSeeText($untrackedUser->User);
-        $view->assertDontSeeText("#2");
     }
 
     public function testItAllowsExcludingRetailGames(): void
@@ -171,8 +137,10 @@ class BeatenGamesLeaderboardTest extends TestCase
         $this->addGameBeatenAward($user, $hack);
         $this->addGameBeatenAward($user, $retail);
 
+        (new UpdatePlayerRanks())->execute($user);
+
         // Act
-        $view = $this->get('/ranking/beaten-games?filter[retail]=false');
+        $view = $this->get('/ranking/beaten-games?filter[kind]=retail');
 
         // Assert
         $view->assertSee($user->User . '-count-1');

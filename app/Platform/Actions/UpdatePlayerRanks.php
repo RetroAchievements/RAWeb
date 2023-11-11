@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\AwardType;
 use App\Platform\Enums\RankingType;
+use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerRanksUpdated;
 use App\Platform\Models\Ranking;
 use App\Site\Models\User;
@@ -13,8 +15,6 @@ class UpdatePlayerRanks
 {
     public function execute(User $user): void
     {
-        $user->loadMissing('playerGames.game');
-
         // If the user is untracked, wipe any rankings they
         // already have and then immediately bail. If/when they're
         // retracked, we can regenerate their rankings.
@@ -24,20 +24,38 @@ class UpdatePlayerRanks
             return;
         }
 
-        $playerGames = $user
-            ->playerGames()
-            ->select('id', 'user_id', 'game_id', 'beaten_hardcore_at')
-            ->with(['game' => function ($query) {
-                $query->select('ID', 'ConsoleID', 'Title');
-            }])
+        $playerBeatenHardcoreGames = $user
+            ->playerBadges()
+            ->where('AwardType', AwardType::GameBeaten)
+            ->where('AwardDataExtra', UnlockMode::Hardcore)
+            ->join('GameData', 'GameData.ID', '=', 'AwardData')
+            ->select(
+                'GameData.ID as game_id',
+                'GameData.ConsoleID',
+                'GameData.Title',
+                'SiteAwards.AwardDate as beaten_hardcore_at'
+            )
             ->orderBy('beaten_hardcore_at')
             ->get();
 
-        $aggregatedRankingValues = $this->calculateAggregatedGameBeatenHardcoreRankingValues($playerGames);
+        $playerBeatenHardcoreGames->transform(function ($item) use ($user) {
+            return [
+                'user_id' => $user->id,
+                'game_id' => $item->game_id,
+                'beaten_hardcore_at' => $item->beaten_hardcore_at,
+                'game' => [
+                    'ID' => $item->game_id,
+                    'ConsoleID' => $item->ConsoleID,
+                    'Title' => $item->Title,
+                ],
+            ];
+        });
+
+        $aggregatedRankingValues = $this->calculateAggregatedGameBeatenHardcoreRankingValues($playerBeatenHardcoreGames);
         $this->upsertAllPlayerRanks($user, $aggregatedRankingValues);
     }
 
-    private function calculateAggregatedGameBeatenHardcoreRankingValues(mixed $playerGames): array
+    private function calculateAggregatedGameBeatenHardcoreRankingValues(mixed $playerBeatenHardcoreGames): array
     {
         // We'll hold overall and per-console ranking values.
         // type => [value, most recent hardcore beaten game id, beaten at timestamp]
@@ -60,10 +78,6 @@ class UpdatePlayerRanks
             'retail' => RankingType::GamesBeatenHardcoreRetail,
             'unlicensed' => RankingType::GamesBeatenHardcoreUnlicensed,
         ];
-
-        $playerBeatenHardcoreGames = $playerGames
-            ->filter(fn ($item) => (bool) $item->beaten_hardcore_at)
-            ->toArray();
 
         foreach ($playerBeatenHardcoreGames as $playerGame) {
             $gameConsoleId = $playerGame['game']['ConsoleID'];
