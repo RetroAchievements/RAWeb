@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class BeatenGamesLeaderboardController extends Controller
 {
@@ -126,52 +125,38 @@ class BeatenGamesLeaderboardController extends Controller
     private function buildAggregatedLeaderboardQuery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
     {
         $includedTypes = $this->getIncludedTypes($gameKindFilterOptions);
-        $typeBindings = $this->getSubQueryTypeBindings($includedTypes);
 
-        $systemIdCondition = $targetSystemId ? "AND r1.system_id = {$targetSystemId}" : "AND r1.system_id IS NULL";
-        $mostRecentGameIdSubquery = DB::raw("(
-            SELECT r1.game_id
-            FROM rankings AS r1
-            WHERE r1.user_id = rankings.user_id
-                {$systemIdCondition}
-                AND r1.type IN ({$typeBindings})
-            ORDER BY r1.updated_at DESC
-            LIMIT 1
-        ) AS most_recent_game_id");
+        $aggregateSubquery = Ranking::selectRaw(
+            'user_id, SUM(value) AS total_awards, MAX(updated_at) AS last_beaten_date'
+        )
+            ->when($targetSystemId, function ($query) use ($targetSystemId) {
+                return $query->where('system_id', $targetSystemId);
+            }, function ($query) {
+                return $query->whereNull('system_id');
+            })
+            ->whereIn('type', $includedTypes)
+            ->groupBy('user_id');
 
-        $systemIdCondition = $targetSystemId ? "AND r2.system_id = {$targetSystemId}" : "AND r2.system_id IS NULL";
-        $lastBeatenDateSubquery = DB::raw("(
-            SELECT r2.updated_at
-            FROM rankings AS r2
-            WHERE r2.user_id = rankings.user_id
-                {$systemIdCondition}
-                AND r2.type IN ({$typeBindings})
-            ORDER BY r2.updated_at DESC
-            LIMIT 1
-        ) AS last_beaten_date");
+        $query = Ranking::selectRaw(
+            'sub.user_id, 
+            rankings.game_id as most_recent_game_id, 
+            rankings.updated_at as last_beaten_date, 
+            sub.total_awards, 
+            RANK() OVER (ORDER BY sub.total_awards DESC) as rank_number,
+            ROW_NUMBER() OVER (ORDER BY sub.total_awards DESC, sub.last_beaten_date ASC) as leaderboard_row_number'
+        )
+            ->joinSub($aggregateSubquery, 'sub', function ($join) use ($targetSystemId) {
+                $join->on('sub.user_id', '=', 'rankings.user_id')
+                    ->on('sub.last_beaten_date', '=', 'rankings.updated_at');
 
-        $query = Ranking::select(
-            'user_id',
-            $mostRecentGameIdSubquery,
-            $lastBeatenDateSubquery,
-            DB::raw('RANK() OVER (ORDER BY SUM(value) DESC) as rank_number'),
-            DB::raw('ROW_NUMBER() OVER (ORDER BY SUM(value) DESC) as leaderboard_row_number'),
-            DB::raw('SUM(value) as total_awards'),
-        );
-
-        if ($targetSystemId) {
-            $query->where('system_id', $targetSystemId);
-        } else {
-            $query->whereNull('system_id');
-        }
-
-        if (!empty($includedTypes)) {
-            $query->whereIn('type', $includedTypes);
-        }
-
-        $query->groupBy('user_id')
-            ->orderBy('total_awards', 'desc')
-            ->orderBy('last_beaten_date', 'asc');
+                if (isset($targetSystemId) && $targetSystemId > 0) {
+                    $join->where('rankings.system_id', '=', $targetSystemId);
+                } else {
+                    $join->whereNull('rankings.system_id');
+                }
+            })
+            ->orderBy('sub.total_awards', 'desc')
+            ->orderBy('sub.last_beaten_date', 'asc');
 
         return $query;
     }
