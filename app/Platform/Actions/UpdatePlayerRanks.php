@@ -38,7 +38,7 @@ class UpdatePlayerRanks
             ->orderBy('beaten_hardcore_at')
             ->get();
 
-        $playerBeatenHardcoreGames->transform(function ($item) use ($user) {
+        $playerBeatenHardcoreGames = $playerBeatenHardcoreGames->map(function ($item) use ($user) {
             return [
                 'user_id' => $user->id,
                 'game_id' => $item->game_id,

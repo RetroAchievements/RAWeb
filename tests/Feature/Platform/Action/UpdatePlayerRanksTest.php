@@ -171,8 +171,13 @@ class UpdatePlayerRanksTest extends TestCase
         $this->assertCount(0, $userRankings, 'Rankings should be removed for an untracked user');
     }
 
-    protected function assertRankingDetails(mixed $rankings, int $gameId, ?int $systemId, Carbon $expectedDate, $isOverall = false): void
-    {
+    protected function assertRankingDetails(
+        mixed $rankings,
+        int $gameId,
+        ?int $systemId,
+        Carbon $expectedDate,
+        bool $isOverall = false
+    ): void {
         $query = $rankings->where('game_id', $gameId);
         $query = $isOverall ? $query->whereNull('system_id') : $query->where('system_id', $systemId);
 
