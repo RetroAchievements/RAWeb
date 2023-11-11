@@ -9,7 +9,7 @@ It is a Laravel application ([TALL stack](https://tallstack.dev/)) including ind
 - [PHP 8.2](http://php.net/manual/en/)
 - [Composer v2](https://getcomposer.org/) PHP dependency manager
 - [MySQL 8](https://dev.mysql.com/doc/refman/8.0/en/)
-- [Node.js 18](https://nodejs.org/)
+- [Node.js 20](https://nodejs.org/)
  
 Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
 

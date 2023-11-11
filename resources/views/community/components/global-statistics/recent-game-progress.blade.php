@@ -15,8 +15,6 @@ if (!$user) {
 }
 
 $system = $game->console->Name;
-
-$renderedGameTitle = renderGameTitle($game->Title);
 $gameUrl = route('game.show', $game->ID);
 ?>
 
@@ -28,7 +26,7 @@ $gameUrl = route('game.show', $game->ID);
 
     <div class="text-xs bg-embed p-4 rounded border border-embed-highlight">
         <div class="flex gap-x-2.5 leading-4 relative">
-            <!-- Keep the image and game title in a single tooltipped container. -->
+            {{-- Keep the image and game title in a single tooltipped container. --}}
             <a
                 href="{{ $gameUrl }}"
                 x-data="tooltipComponent($el, {dynamicType: 'game', dynamicId: '{{ $game->ID }}'})"
@@ -45,14 +43,14 @@ $gameUrl = route('game.show', $game->ID);
                 >
 
                 <p class="absolute pl-4 top-[-2px] left-[58px] max-w-fit line-clamp-2 mb-px">
-                    {!! $renderedGameTitle !!}
+                    <x-game-title :rawTitle="$game->Title" />
                 </p>
             </a>
 
             <div class="-mt-1 w-full">
-                <!-- Provide invisible space to slide the console underneath -->
+                {{-- Provide invisible space to slide the console underneath --}}
                 <p class="invisible max-w-fit line-clamp-2 mb-px">
-                    {!! $renderedGameTitle !!}
+                    <x-game-title :rawTitle="$game->Title" />
                 </p>
 
                 <p>
