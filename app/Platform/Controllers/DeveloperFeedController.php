@@ -35,7 +35,7 @@ class DeveloperFeedController extends Controller
 
         $recentUnlocks = $this->fetchRecentUnlocksForDev(
             $allUserAchievementIds,
-            shouldUseDateRange: $foundTargetUser->ContribCount > 20000
+            shouldUseDateRange: $foundTargetUser->ContribCount <= 20000
         );
         $recentAwards = $this->fetchRecentAwardsForDev($allUserGameIds);
         $awardsContributed = $this->fetchAwardsContributedForDev($allUserGameIds);
@@ -293,8 +293,16 @@ class DeveloperFeedController extends Controller
 
     private function getCanViewTargetUser(?User $user): bool
     {
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->ContribCount > 0) {
+            return true;
+        }
+
         $targetUserPermissions = (int) $user->getAttribute('Permissions');
 
-        return (bool) $user && $targetUserPermissions >= Permissions::Registered;
+        return $targetUserPermissions >= Permissions::JuniorDeveloper;
     }
 }
