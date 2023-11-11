@@ -10,7 +10,6 @@
 ])
 
 <?php
-$renderedGameTitle = renderGameTitle($gameTitle);
 $gameHref = route('game.show', $gameId);
 
 $gameSystemIconSrc = $consoleId ? getSystemIconUrl($consoleId) : null;
@@ -40,14 +39,16 @@ $showConsoleLine = $consoleId || $consoleName;
         >
 
         <p class="{{ $showConsoleLine ? "absolute pl-4 top-0 left-7" : "" }} {{ $labelClassName ?? "" }} max-w-fit font-medium mb-0.5 text-xs">
-            {!! $renderedGameTitle !!}
+            <x-game-title :rawTitle="$gameTitle" />
         </p>
     </a>
 
     @if ($showConsoleLine)
         <div>
-            {{-- Provide invisible space to slide the console underneath. --}}
-            <p class="invisible max-w-fit font-medium mb-0.5 text-xs {{ $labelClassName ?? "" }}">{!! $renderedGameTitle !!}</p>
+            {{-- Provide invisible space to slide the console underneath --}}
+            <p class="invisible max-w-fit font-medium mb-0.5 text-xs {{ $labelClassName ?? "" }}">
+                <x-game-title :rawTitle="$gameTitle" />
+            </p>
 
             <div class="flex items-center gap-x-1">
                 @if ($consoleId && $consoleName)

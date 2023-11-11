@@ -155,7 +155,6 @@ class GameCard extends Component
     private function buildAllCardViewValues(array $rawGameData, array $userGameProgressionAwards): array
     {
         $rawTitle = $rawGameData['Title'];
-        $renderedTitle = renderGameTitle($rawTitle);
         $badgeUrl = media_asset($rawGameData['ImageIcon']);
         $gameSystemIconSrc = getSystemIconUrl($rawGameData['ConsoleID']);
         $consoleName = $rawGameData['ConsoleName'];
@@ -193,7 +192,6 @@ class GameCard extends Component
             'lastUpdated',
             'pointsSum',
             'rawTitle',
-            'renderedTitle',
             'retroPointsSum',
             'retroRatio',
         );
