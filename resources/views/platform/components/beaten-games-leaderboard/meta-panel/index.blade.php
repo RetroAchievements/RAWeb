@@ -1,8 +1,8 @@
 @props([
     'allSystems' => null,
     'gameKindFilterOptions' => [],
+    'leaderboardKind' => 'retail',
     'selectedConsoleId' => null,
-    'selectedAllowHacks' => true,
 ])
 
 <script>
@@ -36,6 +36,7 @@ function handleConsoleChanged(event) {
             <div class="grid gap-y-1 sm:px-8">
                 <x-beaten-games-leaderboard.meta-panel.game-kind-filters
                     :gameKindFilterOptions="$gameKindFilterOptions"
+                    :leaderboardKind="$leaderboardKind"
                 />
             </div>
         </div>

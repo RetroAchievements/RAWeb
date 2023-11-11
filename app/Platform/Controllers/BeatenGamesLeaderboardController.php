@@ -21,16 +21,6 @@ class BeatenGamesLeaderboardController extends Controller
 {
     private int $pageSize = 25;
 
-    /**
-     * If a system_id is in this array, the leaderboard results for that system
-     * will be cached with a 15-minute TTL. A "last updated..." indicator will
-     * be displayed in the UI for the system, and filtering will be trimmed down
-     * to "Retail games" and "All games".
-     */
-    private array $cacheableSystemIds = [
-        0, // "All systems"
-    ];
-
     public function __invoke(Request $request): View
     {
         if (!config('feature.beat')) {
@@ -44,15 +34,17 @@ class BeatenGamesLeaderboardController extends Controller
         ]);
 
         $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
-        $isCurrentSystemCacheable = in_array($targetSystemId, $this->cacheableSystemIds);
-
-        $gameKindFilterOptions = $this->determineGameKindFilterOptions($validatedData);
+        [$gameKindFilterOptions, $leaderboardKind] = $this->determineGameKindFilterOptions($validatedData);
 
         // Now get the current page's rows.
         $currentPage = $validatedData['page']['number'] ?? 1;
         $offset = (int) ($currentPage - 1) * $this->pageSize;
 
-        $allBeatenGameAwardsRankedRows = $this->getAggregatedLeaderboardData($offset, $gameKindFilterOptions, $targetSystemId);
+        $allBeatenGameAwardsRankedRows = $this->getAggregatedLeaderboardData(
+            $offset,
+            $gameKindFilterOptions,
+            $targetSystemId,
+        );
 
         // We need to know how many rows there are, otherwise the
         // paginator can't determine what the max page number should be.
@@ -83,8 +75,8 @@ class BeatenGamesLeaderboardController extends Controller
         return view('platform.beaten-games-leaderboard-page', [
             'allSystems' => $allSystems,
             'gameKindFilterOptions' => $gameKindFilterOptions,
-            'isCurrentSystemCacheable' => $isCurrentSystemCacheable,
             'isUserOnCurrentPage' => $isUserOnCurrentPage,
+            'leaderboardKind' => $leaderboardKind,
             'myRankingData' => $myRankingData,
             'myUsername' => $myUsername,
             'paginator' => $paginator,
@@ -131,7 +123,7 @@ class BeatenGamesLeaderboardController extends Controller
         return $rankingRows;
     }
 
-    private function buildAggregatedLeaderboardBaseQuery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
+    private function buildAggregatedLeaderboardQuery(array $gameKindFilterOptions = [], ?int $targetSystemId = null): mixed
     {
         $includedTypes = $this->getIncludedTypes($gameKindFilterOptions);
         $typeBindings = $this->getSubQueryTypeBindings($includedTypes);
@@ -177,7 +169,9 @@ class BeatenGamesLeaderboardController extends Controller
             $query->whereIn('type', $includedTypes);
         }
 
-        $query->groupBy('user_id');
+        $query->groupBy('user_id')
+            ->orderBy('total_awards', 'desc')
+            ->orderBy('last_beaten_date', 'asc');
 
         return $query;
     }
@@ -187,27 +181,27 @@ class BeatenGamesLeaderboardController extends Controller
         $allFilterKeys = ['retail', 'hacks', 'homebrew', 'unlicensed', 'prototypes', 'demos'];
 
         // As a safeguard, set everything to false by default.
-        $filterValues = array_fill_keys($allFilterKeys, false);
+        $gameKindFilterOptions = array_fill_keys($allFilterKeys, false);
 
         // Show retail games only by default. It will be the default filter choice.
         $selectedKind = $validatedData['filter']['kind'] ?? 'retail';
 
         switch ($selectedKind) {
             case 'retail':
-                $filterValues['retail'] = true;
+                $gameKindFilterOptions['retail'] = true;
                 break;
             case 'homebrew':
-                $filterValues['homebrew'] = true;
+                $gameKindFilterOptions['homebrew'] = true;
                 break;
             case 'hacks':
-                $filterValues['hacks'] = true;
+                $gameKindFilterOptions['hacks'] = true;
                 break;
             case 'all':
-                $filterValues = array_fill_keys($allFilterKeys, true);
+                $gameKindFilterOptions = array_fill_keys($allFilterKeys, true);
                 break;
         }
 
-        return $filterValues;
+        return [$gameKindFilterOptions, $selectedKind];
     }
 
     /**
@@ -216,23 +210,10 @@ class BeatenGamesLeaderboardController extends Controller
     private function getAggregatedLeaderboardData(
         int $currentOffset,
         array $gameKindFilterOptions,
-        ?int $targetSystemId = null
+        ?int $targetSystemId = null,
     ): Collection {
-        // TODO: If no system filter, replace checkboxes with radio buttons "Retail only" and "All".
-        // TODO: If reading from cache, show in the UI when the last updated date was in timeago style.
-        // TODO: Might be best to set some systems to be "cacheable" via an array of cacheables?
-        // FIXME: If necessary, read from cache here.
-
         // Fetch the aggregated leaderboard.
-        $rankings = $this->buildAggregatedLeaderboardBaseQuery(
-            $gameKindFilterOptions,
-            $targetSystemId
-        )
-            ->orderBy('total_awards', 'desc')
-            ->orderBy('last_beaten_date', 'asc')
-            ->get();
-
-        // FIXME: If necessary, write to cache here.
+        $rankings = $this->buildAggregatedLeaderboardQuery($gameKindFilterOptions, $targetSystemId)->get();
 
         // Fetch extraneous metadata without doing joins.
         // Joins are expensive - doing this as separate queries
