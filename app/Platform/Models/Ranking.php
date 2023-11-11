@@ -15,7 +15,7 @@ class Ranking extends BaseModel
     protected $fillable = [
         'user_id',
         'system_id',
-        'game_id',
+        'last_game_id',
         'type',
         'value',
         'updated_at',
@@ -24,7 +24,7 @@ class Ranking extends BaseModel
     protected $casts = [
         'user_id' => 'integer',
         'system_id' => 'integer',
-        'game_id' => 'integer',
+        'last_game_id' => 'integer',
         'value' => 'integer',
     ];
 

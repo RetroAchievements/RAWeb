@@ -20,7 +20,7 @@ return new class() extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedInteger('system_id')->nullable(); // useful for system-specific leaderboards
-            $table->unsignedBigInteger('game_id')->nullable(); // useful for showing most recent game which affected the value
+            $table->unsignedBigInteger('last_game_id')->nullable(); // useful for showing most recent game which affected the value
             $table->string('type');
             $table->integer('value')->default(0);
             $table->timestampsTz();
@@ -32,7 +32,7 @@ return new class() extends Migration {
 
             $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
             $table->foreign('system_id')->references('ID')->on('Console')->onDelete('cascade');
-            $table->foreign('game_id')->references('ID')->on('GameData')->onDelete('set null');
+            $table->foreign('last_game_id')->references('ID')->on('GameData')->onDelete('set null');
         });
     }
 

@@ -95,7 +95,7 @@ class BeatenGamesLeaderboardController extends Controller
         $usernames = User::whereIn('ID', $userIds)->get(['ID', 'User'])->keyBy('ID');
 
         // Fetch all the game metadata for the current page.
-        $gameIds = $currentPageRows->pluck('most_recent_game_id')->unique();
+        $gameIds = $currentPageRows->pluck('last_game_id')->unique();
         $gameData = Game::whereIn('ID', $gameIds)->get(['ID', 'Title', 'ImageIcon', 'ConsoleID'])->keyBy('ID');
 
         // Fetch all the console metadata for the current page.
@@ -105,10 +105,10 @@ class BeatenGamesLeaderboardController extends Controller
         // Stitch all the fetched metadata back onto the aggregate rankings.
         $currentPageRows->transform(function ($ranking) use ($usernames, $gameData, $consoleData) {
             $ranking->User = $usernames[$ranking->user_id]->User ?? null;
-            $ranking->GameTitle = $gameData[$ranking->most_recent_game_id]->Title ?? null;
-            $ranking->GameIcon = $gameData[$ranking->most_recent_game_id]->ImageIcon ?? null;
+            $ranking->GameTitle = $gameData[$ranking->last_game_id]->Title ?? null;
+            $ranking->GameIcon = $gameData[$ranking->last_game_id]->ImageIcon ?? null;
 
-            $consoleId = $gameData[$ranking->most_recent_game_id]->ConsoleID ?? null;
+            $consoleId = $gameData[$ranking->last_game_id]->ConsoleID ?? null;
             $ranking->ConsoleName = $consoleId ? $consoleData[$consoleId]->Name ?? null : null;
 
             return $ranking;
@@ -139,7 +139,7 @@ class BeatenGamesLeaderboardController extends Controller
 
         $query = Ranking::selectRaw(
             'sub.user_id, 
-            rankings.game_id as most_recent_game_id, 
+            rankings.last_game_id, 
             rankings.updated_at as last_beaten_date, 
             sub.total_awards, 
             RANK() OVER (ORDER BY sub.total_awards DESC) as rank_number,

@@ -147,10 +147,10 @@ class UpdatePlayerRanks
             // Now, loop through each ranking type for this system.
             foreach ($systemRankings as $rankingType => $values) {
                 // Extract the value and most recent game ID.
-                [$value, $gameId, $updatedAt] = $values;
+                [$value, $lastGameId, $updatedAt] = $values;
 
                 if ($value > 0) {
-                    $this->upsertPlayerRank($user, $rankingType, $value, $systemId, $gameId, $updatedAt);
+                    $this->upsertPlayerRank($user, $rankingType, $value, $systemId, $lastGameId, $updatedAt);
                     $updatedCount++;
                 }
             }
@@ -159,8 +159,14 @@ class UpdatePlayerRanks
         return $updatedCount;
     }
 
-    private function upsertPlayerRank(User $user, string $rankingType, int $value, ?int $systemId, ?int $gameId, ?string $updatedAt): void
-    {
+    private function upsertPlayerRank(
+        User $user,
+        string $rankingType,
+        int $value,
+        ?int $systemId,
+        ?int $lastGameId,
+        ?string $updatedAt
+    ): void {
         Ranking::updateOrCreate(
             [
                 'user_id' => $user->ID,
@@ -168,7 +174,7 @@ class UpdatePlayerRanks
                 'type' => $rankingType,
             ],
             [
-                'game_id' => $gameId,
+                'last_game_id' => $lastGameId,
                 'value' => $value,
                 'updated_at' => $updatedAt,
             ]

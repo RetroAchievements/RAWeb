@@ -70,7 +70,7 @@ class UpdatePlayerRanksTest extends TestCase
 
         $overallRankings = $userRankings->whereNull('system_id')->first();
         $this->assertEquals($user->id, $overallRankings->user_id);
-        $this->assertEquals($game->id, $overallRankings->game_id);
+        $this->assertEquals($game->id, $overallRankings->last_game_id);
         $this->assertEquals(RankingType::GamesBeatenHardcoreRetail, $overallRankings->type);
         $this->assertEquals(1, $overallRankings->value);
         $this->assertEquals(Carbon::create(2023, 1, 1), $overallRankings->updated_at);
@@ -78,7 +78,7 @@ class UpdatePlayerRanksTest extends TestCase
         $systemRankings = $userRankings->whereNotNull('system_id')->first();
         $this->assertEquals($system->ID, $systemRankings->system_id);
         $this->assertEquals($user->id, $systemRankings->user_id);
-        $this->assertEquals($game->id, $systemRankings->game_id);
+        $this->assertEquals($game->id, $systemRankings->last_game_id);
         $this->assertEquals(RankingType::GamesBeatenHardcoreRetail, $systemRankings->type);
         $this->assertEquals(1, $systemRankings->value);
         $this->assertEquals(Carbon::create(2023, 1, 1), $systemRankings->updated_at);
@@ -178,7 +178,7 @@ class UpdatePlayerRanksTest extends TestCase
         Carbon $expectedDate,
         bool $isOverall = false
     ): void {
-        $query = $rankings->where('game_id', $gameId);
+        $query = $rankings->where('last_game_id', $gameId);
         $query = $isOverall ? $query->whereNull('system_id') : $query->where('system_id', $systemId);
 
         $ranking = $query->first();
