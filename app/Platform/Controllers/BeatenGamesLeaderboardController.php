@@ -232,13 +232,6 @@ class BeatenGamesLeaderboardController extends Controller
         return $includedTypes;
     }
 
-    private function getSubqueryTypeBindings(array $includedTypes = []): string
-    {
-        return implode(',', array_map(function ($type) {
-            return "'" . $type . "'";
-        }, $includedTypes));
-    }
-
     /**
      * @param Collection<int, array|object> $rankedRows
      */
