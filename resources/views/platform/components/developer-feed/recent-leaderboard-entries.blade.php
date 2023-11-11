@@ -7,9 +7,9 @@
 
     <div class="h-[500px] max-h-[500px] overflow-y-auto border border-embed-highlight bg-embed rounded">
         @if ($recentLeaderboardEntries->isEmpty())
-            <x-developer-recent-activity.table-empty-state>
+            <x-developer-feed.table-empty-state>
                 Couldn't find any recent leaderboard entries.
-            </x-developer-recent-activity.table-empty-state>
+            </x-developer-feed.table-empty-state>
         @else
             <table class="table-highlight w-full">
                 <thead class="sticky top-0 z-10 w-full bg-embed">

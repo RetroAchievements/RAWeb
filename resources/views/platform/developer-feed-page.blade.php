@@ -22,22 +22,22 @@
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 mb-6 gap-4">
-        <x-developer-recent-activity.stat-box
+        <x-developer-feed.stat-box
             headingLabel="Unlocks contributed"
             :value="$targetUserUnlocksContributed"
         />
 
-        <x-developer-recent-activity.stat-box
+        <x-developer-feed.stat-box
             headingLabel="Points contributed"
             :value="$targetUserPointsContributed"
         />
 
-        <x-developer-recent-activity.stat-box
+        <x-developer-feed.stat-box
             headingLabel="Awards contributed"
             :value="$awardsContributed"
         />
 
-        <x-developer-recent-activity.stat-box
+        <x-developer-feed.stat-box
             headingLabel="Leaderboard entries contributed"
             :value="$leaderboardEntriesContributed"
         />
@@ -49,15 +49,15 @@
             <x-active-players :targetGameIds="$targetGameIds" variant="focused" />
         </div>
 
-        <x-developer-recent-activity.recently-obtained-achievements
+        <x-developer-feed.recently-obtained-achievements
             :recentUnlocks="$recentUnlocks"
         />
 
-        <x-developer-recent-activity.recently-obtained-awards
+        <x-developer-feed.recently-obtained-awards
             :recentAwards="$recentAwards"
         />
 
-        <x-developer-recent-activity.recent-leaderboard-entries
+        <x-developer-feed.recent-leaderboard-entries
             :recentLeaderboardEntries="$recentLeaderboardEntries"
         />
     </div>

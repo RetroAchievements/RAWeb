@@ -19,7 +19,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class DeveloperRecentActivityController extends Controller
+class DeveloperFeedController extends Controller
 {
     public function __invoke(Request $request): View
     {
@@ -42,7 +42,7 @@ class DeveloperRecentActivityController extends Controller
         $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($foundTargetUser);
         $recentLeaderboardEntries = $this->fetchRecentLeaderboardEntriesForDev($foundTargetUser);
 
-        return view('platform.developer-recent-activity-page', [
+        return view('platform.developer-feed-page', [
             'awardsContributed' => $awardsContributed,
             'foundTargetUser' => $foundTargetUser,
             'leaderboardEntriesContributed' => $leaderboardEntriesContributed,
