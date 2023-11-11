@@ -121,11 +121,11 @@ if ($action === 'copy-unlocks') {
     foreach ($existing as $playerAchievement) {
         $hardcore = ($playerAchievement->hardcore_count == $fromAchievementCount);
         $timestamp = Carbon::parse($hardcore ? $playerAchievement->unlocked_hardcore_at : $playerAchievement->unlocked_softcore_at);
-        foreach ($toAchievementIds as $nextID) {
+        foreach ($toAchievementIds as $toAchievementId) {
             dispatch(
                 new UnlockPlayerAchievementJob(
                     $playerAchievement->user_id,
-                    (int) $nextID,
+                    (int) $toAchievementId,
                     hardcore: $hardcore,
                     timestamp: $timestamp,
                     unlockedByUserId: $unlockerId
