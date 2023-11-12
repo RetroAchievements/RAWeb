@@ -7,6 +7,7 @@ namespace App\Platform;
 use App\Platform\Controllers\ApiDocsController;
 use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\DeveloperFeedController;
+use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -74,6 +75,7 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
             Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
+            Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
 
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
