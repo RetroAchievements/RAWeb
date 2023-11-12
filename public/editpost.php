@@ -29,7 +29,7 @@ if (empty($topicData)) {
     abort(404);
 }
 
-$thisForumID = $topicData['ID'];
+$thisForumID = $topicData['ForumID'];
 $thisForumTitle = htmlentities($topicData['Forum']);
 $thisCategoryID = $topicData['CategoryID'];
 $thisCategoryName = htmlentities($topicData['Category']);
