@@ -69,7 +69,7 @@ $user = request()->user();
             @endif
             @if($user->ContribCount > 0)
                 <x-dropdown-item :link="url('ticketmanager.php?u=' . $user->username)">Tickets</x-dropdown-item>
-                <x-dropdown-item :link="url('gameList.php?d=' . $user->username)">Sets</x-dropdown-item>
+                <x-dropdown-item :link="route('developer.sets', $user)">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)
                 <x-dropdown-item :link="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>
