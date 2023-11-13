@@ -36,6 +36,7 @@ class UpdatePlayerStats
                 'SiteAwards.AwardDate as beaten_hardcore_at'
             )
             ->where('GameData.Title', 'not like', '~Subset~%')
+            ->where('GameData.Title', 'not like', '%[Subset%')
             ->where('GameData.Title', 'not like', '~Test Kit~%')
             ->where('GameData.Title', 'not like', '~Multi~%')
             ->orderBy('beaten_hardcore_at')
