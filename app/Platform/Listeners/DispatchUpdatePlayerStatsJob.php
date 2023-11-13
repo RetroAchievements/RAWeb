@@ -17,12 +17,11 @@ class DispatchUpdatePlayerStatsJob implements ShouldQueue
 
         switch ($event::class) {
             case PlayerBadgeAwarded::class:
-                $user = $event->playerBadge->user;
-                break;
-            case PlayerBadgeLost::class:
-                $user = $event->playerBadge->user;
-                break;
             case PlayerRankedStatusChanged::class:
+                $user = $event->playerBadge->user;
+                break;
+
+            case PlayerBadgeLost::class:
                 $user = $event->user;
                 break;
         }
