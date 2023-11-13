@@ -2,7 +2,8 @@
 
 namespace App\Platform\Listeners;
 
-use App\Platform\Events\PlayerGameMetricsUpdated;
+use App\Platform\Events\PlayerBadgeAwarded;
+use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Jobs\UpdatePlayerStatsJob;
 use App\Site\Models\User;
@@ -15,7 +16,10 @@ class DispatchUpdatePlayerStatsJob implements ShouldQueue
         $user = null;
 
         switch ($event::class) {
-            case PlayerGameMetricsUpdated::class:
+            case PlayerBadgeAwarded::class:
+                $user = $event->user;
+                break;
+            case PlayerBadgeLost::class:
                 $user = $event->user;
                 break;
             case PlayerRankedStatusChanged::class:
