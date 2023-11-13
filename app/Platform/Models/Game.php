@@ -88,6 +88,9 @@ class Game extends BaseModel implements HasComments, HasMedia
         'GuideURL',
         'Updated',
         'achievement_set_version_hash',
+        'achievements_published',
+        'points_total',
+        'players_total',
     ];
 
     protected static function newFactory(): GameFactory
@@ -227,7 +230,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function leaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class);
+        return $this->hasMany(Leaderboard::class, 'GameID');
     }
 
     /**
