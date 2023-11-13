@@ -230,7 +230,8 @@ switch ($requestType) {
      */
 
     case "ping":
-        if ($user === null || !$gameID) {
+        $game = Game::find($gameID);
+        if ($user === null || $game === null) {
             $response['Success'] = false;
         } else {
             $activityMessage = request()->post('m');
@@ -238,7 +239,7 @@ switch ($requestType) {
                 $activityMessage = utf8_sanitize($activityMessage);
             }
 
-            PlayerSessionHeartbeat::dispatch($user, Game::find($gameID), $activityMessage);
+            PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage);
 
             $response['Success'] = true;
         }
