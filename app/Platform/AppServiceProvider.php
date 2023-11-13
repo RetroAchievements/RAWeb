@@ -6,6 +6,7 @@ namespace App\Platform;
 
 use App\Platform\Commands\DeleteOrphanedLeaderboardEntries;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncGameHashes;
 use App\Platform\Commands\SyncGames;
@@ -72,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
                 DeleteOrphanedLeaderboardEntries::class,
 
                 // Players
+                ResetPlayerAchievement::class,
                 UnlockPlayerAchievement::class,
                 UpdatePlayerGameMetrics::class,
                 UpdatePlayerMetrics::class,

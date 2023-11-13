@@ -84,9 +84,12 @@ class ResetPlayerProgress
         $isFullReset = $achievementID === null && $gameID === null;
         $affectedGames = $affectedGames->unique();
         foreach ($affectedGames as $affectedGameID) {
-            // no use updating deleted player games if it's a full reset
             if (!$isFullReset) {
+                // update the player game metrics, which will cascade into the game metrics
                 dispatch(new UpdatePlayerGameMetricsJob($user->id, $affectedGameID));
+            } else {
+                // update the game metrics directly
+                dispatch(new UpdateGameMetricsJob($affectedGameID));
             }
 
             // force the top achievers for the game to be recalculated
