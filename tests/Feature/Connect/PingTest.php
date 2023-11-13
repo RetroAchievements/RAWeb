@@ -95,6 +95,21 @@ class PingTest extends TestCase
         $this->assertEquals('Tést t?st', $user1->RichPresenceMsg);
     }
 
+    public function testPingInvalidGame(): void
+    {
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => 123456789]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
+            ]);
+
+        $this->post('dorequest.php', $this->apiParams('ping', ['g' => 'abcdef']))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => false,
+            ]);
+    }
+
     public function testPingInvalidUser(): void
     {
         /** @var System $system */
