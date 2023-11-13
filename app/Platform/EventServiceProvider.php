@@ -73,9 +73,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
+            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
         ],
         PlayerBadgeLost::class => [
             // TODO Notify player
+            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
         ],
         PlayerGameAttached::class => [
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
@@ -93,7 +95,6 @@ class EventServiceProvider extends ServiceProvider
         PlayerGameMetricsUpdated::class => [
             DispatchUpdatePlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
-            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
         ],
         PlayerMetricsUpdated::class => [
         ],
