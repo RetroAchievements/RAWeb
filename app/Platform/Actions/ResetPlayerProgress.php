@@ -5,7 +5,9 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
+use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Achievement;
 use App\Site\Models\User;
@@ -47,13 +49,20 @@ class ResetPlayerProgress
         if ($achievementID !== null) {
             $playerAchievement = $user->playerAchievements()->where('achievement_id', $achievementID)->first();
             $achievement = $playerAchievement->achievement;
-            if ($playerAchievement->unlocked_hardcore_at && $achievement->isPublished) {
-                // resetting a hardcore unlock removes hardcore mastery badges
-                $user->playerBadges()
+            if ($achievement->isPublished) {
+                // resetting a published achievement removes the completion/mastery badge.
+                // RevalidateAchievementSetBadgeEligibility will be called indirectly from
+                // the UpdatePlayerGameMetricsJob, but it does not revoke badges unless all
+                // achievements for a game are reset.
+                $playerBadge = $user->playerBadges()
                     ->where('AwardType', AwardType::Mastery)
                     ->where('AwardData', $achievement->game_id)
-                    ->where('AwardDataExtra', UnlockMode::Hardcore)
-                    ->delete();
+                    ->where('AwardDataExtra', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
+                    ->first();
+                if ($playerBadge) {
+                    PlayerBadgeLost::dispatch($playerBadge);
+                    $playerBadge->delete();
+                }
             }
             $playerAchievement->delete();
         } elseif ($gameID !== null) {
@@ -91,9 +100,6 @@ class ResetPlayerProgress
                 // update the game metrics directly
                 dispatch(new UpdateGameMetricsJob($affectedGameID));
             }
-
-            // force the top achievers for the game to be recalculated
-            expireGameTopAchievers($affectedGameID);
         }
 
         $user->save();

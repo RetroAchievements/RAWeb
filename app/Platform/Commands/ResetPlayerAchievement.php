@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Platform\Actions\ResetPlayerProgress as ResetPlayerProgressAction;
-use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerAchievement;
 use App\Site\Models\User;
 use Exception;
@@ -31,6 +30,7 @@ class ResetPlayerAchievement extends Command
     {
         if (!app()->environment('local')) {
             $this->error('This command is only allowed in the local environment');
+
             return;
         }
 

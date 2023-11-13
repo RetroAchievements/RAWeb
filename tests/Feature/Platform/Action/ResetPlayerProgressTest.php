@@ -176,8 +176,14 @@ class ResetPlayerProgressTest extends TestCase
         $this->assertHasMasteryBadge($user, $game);
 
         (new ResetPlayerProgress())->execute($user, $achievements->get(1)->ID);
-
         $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        // repeat for softcore unlock/reset
+        $this->addSoftcoreUnlock($user, $achievements->get(1));
+        $this->assertHasCompletionBadge($user, $game);
+
+        (new ResetPlayerProgress())->execute($user, $achievements->get(1)->ID);
+        $this->assertDoesNotHaveCompletionBadge($user, $game);
     }
 
     public function testResetUnofficialDoesNotRemoveMasteryBadge(): void
