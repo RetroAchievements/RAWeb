@@ -1,5 +1,6 @@
 <?php
 
+use App\Platform\Models\Game;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
@@ -24,6 +25,15 @@ $achievement = Achievement::find($input['achievement']);
 // Only allow jr. devs to update base data if they are the author
 if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Author']) {
     abort(403);
+}
+
+// Don't allow adding types to subsets or test kits.
+$game = Game::find((int) $achievement['GameID']);
+if ($game) {
+    $canHaveTypes = mb_strpos($game->Title, "[Subset") === false && mb_strpos($game->Title, "~Test Kit~") === false;
+    if (!$canHaveTypes && $input['type']) {
+        abort(400);
+    }
 }
 
 $achievementId = $achievement['ID'];
