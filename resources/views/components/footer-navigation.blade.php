@@ -14,7 +14,13 @@
             <div>&copy; 2012-{{ date('Y') }} {{ config('app.name') }}</div>
             <div class="ml-1">
                 &middot;
-                v{{ config('app.version') }}
+                <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href="https://github.com/RetroAchievements/RAWeb/releases/latest"
+                >
+                    v{{ config('app.version') }}
+                </a>
             </div>
         </div>
     </div>
