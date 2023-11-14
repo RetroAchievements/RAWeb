@@ -3,6 +3,7 @@
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     abort(401);
@@ -65,86 +66,6 @@ function updateDisplayOrder(objID) {
         game: <?= $gameID ?>,
         number: inputNum,
     });
-}
-
-/**
- * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
- * @param {number} selectedCount
- */
-function getConfirmMessage(property, newValue, selectedCount) {
-    let message = 'Are you sure you want to make this change?';
-
-    if (property === 'flag') {
-        if (newValue === <?= AchievementFlag::OfficialCore ?>) {
-            message = `Are you sure you want to promote ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
-        } else {
-            message = `Are you sure you want to demote ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
-        }
-    }
-
-    if (property === 'type') {
-        if (newValue === '<?= AchievementType::Progression ?>') {
-            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to <?= $progressionLabel ?>?`;
-        } else if (newValue === '<?= AchievementType::WinCondition ?>') {
-            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to <?= $winConditionLabel ?>?`;
-        } else {
-            message = `Are you sure you want to remove the type from ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
-        }
-    }
-
-    return message;
-}
-
-/**
- * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
- */
-function updateAchievementsProperty(property, newValue) {
-    // Creates an array of checked achievement IDs and sends it to the updateAchievements function
-    const checkboxes = document.querySelectorAll('[name^=\'achievement\']');
-    const achievements = [];
-    for (let i = 0, n = checkboxes.length; i < n; i += 1) {
-        if (checkboxes[i].checked) {
-            achievements.push(checkboxes[i].getAttribute('value'));
-        }
-    }
-
-    if (achievements.length === 0) {
-        return;
-    }
-
-    if (!confirm(getConfirmMessage(property, newValue, achievements.length))) {
-        return;
-    }
-
-    showStatusMessage('Updating...');
-
-    const requestUrl = property === 'flag'
-        ? '/request/achievement/update-flag.php'
-        : '/request/achievement/update-type.php';
-    $.post(requestUrl, {
-        achievements,
-        [property]: newValue
-    })
-        .done(function () {
-            location.reload();
-        });
-}
-
-let areCodeRowsHidden = true;
-function toggleAllCodeRows() {
-    const codeRowEls = document.querySelectorAll('.code-row');
-
-    codeRowEls.forEach((codeRowEl) => {
-        if (areCodeRowsHidden) {
-            codeRowEl.classList.remove('hidden');
-        } else {
-            codeRowEl.classList.add('hidden');
-        }
-    });
-
-    areCodeRowsHidden = !areCodeRowsHidden;
 }
 </script>
 <article>
@@ -306,43 +227,41 @@ if ($gameIDSpecified) {
 <?php
 if ($gameIDSpecified) {
     view()->share('sidebar', true);
-    echo "<aside>";
-    echo "<div class='mb-2'>";
-    echo "<h3>Toolbox</h3>";
-    echo "<div class='flex flex-col gap-y-1'>";
+    echo "<aside class='flex flex-col gap-y-8'>";
 
-    if ($fullModifyOK || $partialModifyOK) {
-        echo "<a class='btn flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a>";
-
-        if ($flag === AchievementFlag::Unofficial) {
-            if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::OfficialCore . ")'>Promote Selected</a>";
-            }
-            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a>";
-        }
-        if ($flag === AchievementFlag::OfficialCore) {
-            if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::Unofficial . ")'>Demote Selected</a>";
-            }
-            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
-        }
-
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to $progressionLabel</a>";
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to $winConditionLabel</a>";
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
+    $modificationLevel = 'none';
+    if ($partialModifyOK) {
+        $modificationLevel = 'partial';
+    } elseif ($fullModifyOK) {
+        $modificationLevel = 'full';
     }
 
-    if ($fullModifyOK) {
-        echo "<button class='btn w-full flex justify-center py-2' onclick='toggleAllCodeRows()'>Toggle Code Rows</button>";
-    }
+    $canHaveTypes = (
+        mb_strpos($gameTitle, "[Subset") === false
+        && mb_strpos($gameTitle, "~Test Kit~") === false
+    );
 
-    echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php'>Back to List</a></p></div><br>";
-
+    echo "<div>";
+    echo Blade::render('
+        <x-developer.inspector-toolbox
+            :canHaveTypes="$canHaveTypes"
+            :gameId="$gameId"
+            :isManagingCoreAchievements="$isManagingCoreAchievements"
+            :modificationLevel="$modificationLevel"
+        />
+    ', [
+        'canHaveTypes' => $canHaveTypes,
+        'gameId' => $gameID,
+        'isManagingCoreAchievements' => $flag === AchievementFlag::OfficialCore,
+        'modificationLevel' => $modificationLevel,
+    ]);
     echo "</div>";
 
     if (!empty($codeNotes)) {
+        echo "<div>";
         echo "<h3>Code Notes</h3>";
         RenderCodeNotes($codeNotes);
+        echo "</div>";
     }
     echo "</aside>";
 }
