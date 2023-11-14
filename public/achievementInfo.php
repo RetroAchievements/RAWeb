@@ -121,8 +121,21 @@ RenderOpenGraphMetadata(
 RenderContentStart($pageTitle);
 ?>
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isAuthor)): ?>
+    <?php
+        $canHaveTypes = mb_strpos($gameTitle, "[Subset") === false && mb_strpos($gameTitle, "~Test Kit~") === false;
+    ?>
+
     <script>
     function updateAchievementDetails() {
+        const canHaveTypes = <?= $canHaveTypes ? 'true' : 'false' ?>;
+
+        const typeInputValue = $('#typeinput').val();
+
+        if (!canHaveTypes && typeInputValue) {
+            showStatusFailure('Error: Types are not supported on subsets or test kits.');
+            return;
+        }
+
         showStatusMessage('Updating...');
 
         var $title = $('#titleinput');
