@@ -25,11 +25,8 @@ $foundAchievements = Achievement::find($achievementIds);
 
 // Don't allow adding types to subsets or test kits.
 $game = Game::find($foundAchievements->get(0)->GameID);
-if ($game) {
-    $canHaveTypes = mb_strpos($game->Title, "[Subset") === false && mb_strpos($game->Title, "~Test Kit~") === false;
-    if (!$canHaveTypes && $value) {
-        abort(400);
-    }
+if ($game && !$game->getCanHaveTypes()) {
+    abort(400);
 }
 
 // Check for authorship on achievements if a Jr. is editing the type

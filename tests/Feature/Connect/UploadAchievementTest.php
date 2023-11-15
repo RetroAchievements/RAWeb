@@ -731,6 +731,127 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement1->BadgeName, '003456');
     }
 
+    public function testSubset(): void
+    {
+        /** @var User $author */
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+        $game->Title .= " [Subset - Testing]";
+        $game->save();
+
+        AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User]);
+
+        $params = [
+            'u' => $author->User,
+            't' => $author->appToken,
+            'g' => $game->ID,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '001234',
+        ];
+
+        // ====================================================
+        // create an achievement
+        $this->get($this->apiUrl('uploadachievement', $params))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement1->ID + 1,
+                'Error' => '',
+            ]);
+
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::findOrFail($achievement1->ID + 1);
+        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->Title, 'Title1');
+        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
+        $this->assertEquals($achievement2->Points, 5);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
+        $this->assertNull($achievement2->type);
+        $this->assertEquals($achievement2->Author, $author->User);
+        $this->assertNull($achievement2->user_id);
+        $this->assertEquals($achievement2->BadgeName, '001234');
+
+        $game->refresh();
+        $this->assertEquals($game->achievements_published, 0);
+        $this->assertEquals($game->achievements_unpublished, 1);
+        $this->assertEquals($game->points_total, 0);
+
+        // ====================================================
+        // publish achievement
+        $params['a'] = $achievement2->ID;
+        $params['f'] = 3; // Official - hardcode for test to prevent false success if enum changes
+        $this->get($this->apiUrl('uploadachievement', $params))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'Error' => '',
+            ]);
+
+        $achievement2->refresh();
+        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->Title, 'Title1');
+        $this->assertEquals($achievement2->MemAddr, '0xH0000=1');
+        $this->assertEquals($achievement2->Points, 5);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertNull($achievement2->type);
+        $this->assertEquals($achievement2->Author, $author->User);
+        $this->assertEquals($achievement2->BadgeName, '001234');
+
+        $game->refresh();
+        $this->assertEquals($game->achievements_published, 1);
+        $this->assertEquals($game->achievements_unpublished, 0);
+        $this->assertEquals($game->points_total, 5);
+
+        // ====================================================
+        // cannot set type on achievement in subset
+        $params['n'] = 'Title2';
+        $params['d'] = 'Description2';
+        $params['z'] = 10;
+        $params['m'] = '0xH0001=1';
+        $params['b'] = '002345';
+        $params['x'] = 'progression';
+        $this->get($this->apiUrl('uploadachievement', $params))
+            ->assertExactJson([
+                'Success' => false,
+                'AchievementID' => $achievement2->ID,
+                'Error' => 'Cannot set type on achievement in subset, test kit, or event.',
+            ]);
+
+        // ====================================================
+        // can otherwise modify achievement
+        $params['x'] = 'not-given';
+        $this->get($this->apiUrl('uploadachievement', $params))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement2->ID,
+                'Error' => '',
+            ]);
+
+        $achievement2->refresh();
+        $this->assertEquals($achievement2->GameID, $game->ID);
+        $this->assertEquals($achievement2->Title, 'Title2');
+        $this->assertEquals($achievement2->MemAddr, '0xH0001=1');
+        $this->assertEquals($achievement2->Points, 10);
+        $this->assertEquals($achievement2->Flags, AchievementFlag::OfficialCore);
+        $this->assertEquals($achievement2->type, null);
+        $this->assertEquals($achievement2->Author, $author->User);
+        $this->assertEquals($achievement2->BadgeName, '002345');
+
+        $game->refresh();
+        $this->assertEquals($game->achievements_published, 1);
+        $this->assertEquals($game->achievements_unpublished, 0);
+        $this->assertEquals($game->points_total, 10);
+    }
+
     public function testRolloutConsole(): void
     {
         /** @var User $author */
