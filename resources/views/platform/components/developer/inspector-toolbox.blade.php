@@ -82,7 +82,7 @@ $unofficialFlag = AchievementFlag::Unofficial;
                     }
                 }
 
-                if (!achievements.length || !confirm(getConfirmMessage(property, newValue, achievements.length))) {
+                if (!achievements.length || !confirm(this.getConfirmMessage(property, newValue, achievements.length))) {
                     return;
                 }
 
@@ -149,14 +149,14 @@ $unofficialFlag = AchievementFlag::Unofficial;
             >
                 Set Selected to Win Condition
             </button>
-        @endif
 
-        <button
-            class="btn"
-            @click="updateAchievementsProperty('type', null)"
-        >
-            Set Selected to No Type
-        </button>
+            <button
+                class="btn"
+                @click="updateAchievementsProperty('type', null)"
+            >
+                Set Selected to No Type
+            </button>
+        @endif
 
         @if ($modificationLevel === 'full')
             <button class="btn" @click="toggleAllCodeRows">Toggle Code Rows</button>

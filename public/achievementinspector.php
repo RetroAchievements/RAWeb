@@ -46,6 +46,12 @@ if ($gameIDSpecified) {
 $progressionLabel = __('achievement-type.' . AchievementType::Progression);
 $winConditionLabel = __('achievement-type.' . AchievementType::WinCondition);
 
+$canHaveTypes = (
+    mb_strpos($gameTitle, "[Subset") === false
+    && mb_strpos($gameTitle, "~Test Kit~") === false
+    && $gameData['ConsoleID'] !== 101
+);
+
 RenderContentStart("Manage Achievements");
 ?>
 <script>
@@ -93,16 +99,26 @@ if ($gameIDSpecified) {
                 changes you make on this page will instantly take effect on the website, but you will need to press 'Refresh List'
                 to see the new order on this page.
             </p>
-
-            <p align="justify">
-                You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
-                checkboxes in the far-left column and click either the 'Set Selected to $progressionLabel' or 'Set Selected to $winConditionLabel'
-                button, depending on your needs. A game is considered 'beaten' when all $progressionLabel achievements and at least
-                one $winConditionLabel achievement are unlocked. If there are no $winConditionLabel achievements, the game is beaten
-                if all $progressionLabel achievements are unlocked. If there are no $progressionLabel achievements, the game is beaten
-                if any $winConditionLabel achievements are unlocked.
-            </p>
         HTML;
+
+        if ($canHaveTypes) {
+            echo <<<HTML
+                <p align="justify">
+                    You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
+                    checkboxes in the far-left column and click either the 'Set Selected to $progressionLabel' or 'Set Selected to $winConditionLabel'
+                    button, depending on your needs. A game is considered 'beaten' when all $progressionLabel achievements and at least
+                    one $winConditionLabel achievement are unlocked. If there are no $winConditionLabel achievements, the game is beaten
+                    if all $progressionLabel achievements are unlocked. If there are no $progressionLabel achievements, the game is beaten
+                    if any $winConditionLabel achievements are unlocked.
+                </p>
+            HTML;
+        } else {
+            echo <<<HTML
+                <p align="justify">
+                    This achievement set is either a subset, test kit, or an event. For this reason, it does not support types.
+                </p>
+            HTML;
+        }
 
         if ($fullModifyOK) {
             echo "<p>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
@@ -175,12 +191,14 @@ if ($gameIDSpecified) {
 
         $typeLabelClassNames = !$achType ? "text-muted" : "";
 
-        echo <<<HTML
-            <tr class="$bgColorClassNames[$currentBgColorIndex]">
-                <td><span class="font-bold">Type:</span></td>
-                <td colspan="7" class="p-2.5 $typeLabelClassNames">$achTypeLabel</td>
-            </tr>
-        HTML;
+        if ($canHaveTypes) {
+            echo <<<HTML
+                <tr class="$bgColorClassNames[$currentBgColorIndex]">
+                    <td><span class="font-bold">Type:</span></td>
+                    <td colspan="7" class="p-2.5 $typeLabelClassNames">$achTypeLabel</td>
+                </tr>
+            HTML;
+        }
 
         echo "<tr class='code-row hidden $bgColorClassNames[$currentBgColorIndex]'>";
         echo "<td><b>Code:</b></td>";
@@ -235,11 +253,6 @@ if ($gameIDSpecified) {
     } elseif ($fullModifyOK) {
         $modificationLevel = 'full';
     }
-
-    $canHaveTypes = (
-        mb_strpos($gameTitle, "[Subset") === false
-        && mb_strpos($gameTitle, "~Test Kit~") === false
-    );
 
     echo "<div>";
     echo Blade::render('
