@@ -58,6 +58,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
+                56, // Neo Geo CD
                 57, // Fairchild Channel-F
                 63, // Watara Supervision
                 69, // Mega Duck
@@ -115,6 +116,7 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 49, // PC-FX
                 51, // Atari 7800
                 53, // WonderSwan
+                56, // Neo Geo CD
                 57, // Fairchild Channel-F
                 63, // Watara Supervision
                 69, // Mega Duck
