@@ -28,12 +28,6 @@ class ResetPlayerAchievement extends Command
      */
     public function handle(): void
     {
-        if (!app()->environment('local')) {
-            $this->error('This command is only allowed in the local environment');
-
-            return;
-        }
-
         $userId = $this->argument('userId');
         $achievementIds = collect(explode(',', $this->argument('achievementIds')))
             ->map(fn ($id) => (int) $id);
