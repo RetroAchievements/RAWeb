@@ -31,6 +31,7 @@ $consoleName = null;
 $gameIcon = null;
 $gameTitle = null;
 $gameIDSpecified = isset($gameID) && $gameID != 0;
+$canHaveTypes = false;
 if ($gameIDSpecified) {
     getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
@@ -39,18 +40,18 @@ if ($gameIDSpecified) {
     sanitize_outputs($gameTitle, $consoleName);
 
     getCodeNotes($gameID, $codeNotes);
+
+    $canHaveTypes = (
+        mb_strpos($gameTitle, "[Subset") === false
+        && mb_strpos($gameTitle, "~Test Kit~") === false
+        && $gameData['ConsoleID'] !== 101
+    );
 } else {
     getGamesList(null, $gamesList);
 }
 
 $progressionLabel = __('achievement-type.' . AchievementType::Progression);
 $winConditionLabel = __('achievement-type.' . AchievementType::WinCondition);
-
-$canHaveTypes = (
-    mb_strpos($gameTitle, "[Subset") === false
-    && mb_strpos($gameTitle, "~Test Kit~") === false
-    && $gameData['ConsoleID'] !== 101
-);
 
 RenderContentStart("Manage Achievements");
 ?>
