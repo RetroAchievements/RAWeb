@@ -60,7 +60,11 @@ trait TestsPlayerBadges
 
     protected function masteryBadgeExists(User $user, Game $game): bool
     {
-        return $user->playerBadges()->where('AwardType', AwardType::Mastery)->where('AwardData', $game->ID)->exists();
+        return $user->playerBadges()
+            ->where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $game->ID)
+            ->where('AwardDataExtra', UnlockMode::Hardcore)
+            ->exists();
     }
 
     protected function assertHasMasteryBadge(User $user, Game $game): void
@@ -76,6 +80,31 @@ trait TestsPlayerBadges
         $this->assertFalse(
             $this->masteryBadgeExists($user, $game),
             "Found mastery badge for game " . $game->ID . "/user " . $user->ID,
+        );
+    }
+
+    protected function completionBadgeExists(User $user, Game $game): bool
+    {
+        return $user->playerBadges()
+            ->where('AwardType', AwardType::Mastery)
+            ->where('AwardData', $game->ID)
+            ->where('AwardDataExtra', UnlockMode::Softcore)
+            ->exists();
+    }
+
+    protected function assertHasCompletionBadge(User $user, Game $game): void
+    {
+        $this->assertTrue(
+            $this->completionBadgeExists($user, $game),
+            "No completion badge for game " . $game->ID . "/user " . $user->ID,
+        );
+    }
+
+    protected function assertDoesNotHaveCompletionBadge(User $user, Game $game): void
+    {
+        $this->assertFalse(
+            $this->completionBadgeExists($user, $game),
+            "Found completion badge for game " . $game->ID . "/user " . $user->ID,
         );
     }
 }
