@@ -212,11 +212,6 @@ foreach ($obtainers as $obtainer) {
     $uniqueObtainers++;
 }
 
-// Get last 200 achievements obtained by others
-// Only 100 will be displayed but 200 are needed to remove potential SC HC duplicates
-$maxRecentAchievements = 200;
-$recentlyObtainedAchievements = getRecentUnlocksForDev($devUser, 0, $maxRecentAchievements);
-
 // Initialize code note variables
 $mostNotedGame = [];
 $userCodeNoteCount = 0;
@@ -693,48 +688,13 @@ RenderContentStart("$dev's Developer Stats");
         echo "</tbody></table>";
 
         // Recently Obtained achievements
-        echo "<table><tbody>";
-        echo "</tr><tr><td colspan='4' align='center' style=\"font-size:24px; padding-top:10px; padding-bottom:10px\">Recently Obtained Achievements</td></tr>";
-        echo "<tr><td width='34%'>Achievement</td><td width='33%'>Game</td><td width='19%'>User</td><td width='11%'>Date Obtained</td></tr>";
-        echo "</tbody></table>";
-        echo "<div id='devstatsscrollpane'>";
-        echo "<table class='table-highlight'><tbody>";
-        $rowCount = 0;
-        $recentlyObtainedAchievementsCount = count($recentlyObtainedAchievements);
-        for ($i = 0; $i < $recentlyObtainedAchievementsCount && $rowCount < ($maxRecentAchievements / 2); $i++) {
-            $skipNextEntry = false;
-            echo "<tr><td width='35%'>";
-            echo achievementAvatar($recentlyObtainedAchievements[$i]);
-
-            // Check the next entry for the same achievement ID and time to see if SC and HC were earned at the same time
-            // Only display row for Hardcore if so.
-            if ($i + 1 < count($recentlyObtainedAchievements)
-                && $recentlyObtainedAchievements[$i]['User'] == $recentlyObtainedAchievements[$i + 1]['User']
-                && $recentlyObtainedAchievements[$i]['Date'] == $recentlyObtainedAchievements[$i + 1]['Date']
-                && $recentlyObtainedAchievements[$i]['AchievementID'] == $recentlyObtainedAchievements[$i + 1]['AchievementID']) {
-                echo " (Hardcore!)";
-                $skipNextEntry = true;
-            } elseif ($recentlyObtainedAchievements[$i]['HardcoreMode'] == 1) {
-                echo " (Hardcore!)";
-            }
-
-            echo "</td><td width='35%'>";
-            echo gameAvatar($recentlyObtainedAchievements[$i]);
-            echo "</td><td width='20%'>";
-            echo userAvatar($recentlyObtainedAchievements[$i]['User']);
-            echo "</td><td width='10%'>";
-            echo $recentlyObtainedAchievements[$i]['Date'];
-            echo "</td></tr>";
-
-            if ($skipNextEntry) {
-                $i++;
-            }
-            $rowCount++;
-        }
-        echo "</tbody></table>";
-        echo "</div>";
-        echo "</table></tbody>";
-        echo "</br></br>";
+        $feedRoute = route('developer.feed', $devUser->User);
+        echo <<<HTML
+            <p class="text-center text-lg font-semibold my-8">
+                View Recently Obtained Achievements in the
+                <a href="$feedRoute">Developer Feed</a>
+            </p>
+        HTML;
 
         /*
          * Code Notes

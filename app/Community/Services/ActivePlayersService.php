@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Cache;
 
 class ActivePlayersService
 {
-    public function loadActivePlayers(?string $searchValue = null, bool $fetchAll = false): array
-    {
+    public function loadActivePlayers(
+        ?string $searchValue = null,
+        bool $fetchAll = false,
+        ?array $targetGameIds = [],
+    ): array {
         $allActivePlayers = Cache::remember(
-            'currently-active:20230921',
+            'currently-active:202309215543',
             Carbon::now()->addMinutes(2),
             function () {
                 return collect(getLatestRichPresenceUpdates())
@@ -27,8 +30,9 @@ class ActivePlayersService
 
         $filteredActivePlayers = $allActivePlayers;
         $filteredActivePlayers = $this->useDevelopmentGameTitle($filteredActivePlayers);
+        $filteredActivePlayers = $this->useTargetGameIds($filteredActivePlayers, $targetGameIds);
 
-        $trendingGames = $this->computeTrendingGames($filteredActivePlayers);
+        $trendingGames = isset($targetGameIds) ? [] : $this->computeTrendingGames($filteredActivePlayers);
 
         if ($searchValue) {
             // Split the search string by the '|' operator to support "OR" searches.
@@ -54,14 +58,14 @@ class ActivePlayersService
         $records = $filteredActivePlayers->values();
 
         // If we have no search or filter, take the top 20 players on the list.
-        if (!$searchValue && !$fetchAll) {
+        if (!$searchValue && !$fetchAll && !$targetGameIds) {
             $records = $records->take(20);
         }
 
         $records = $records->toArray();
 
         return [
-            'total' => $allActivePlayers->count(),
+            'total' => isset($targetGameIds) ? $filteredActivePlayers->count() : $allActivePlayers->count(),
             'count' => count($records),
             'records' => $records,
             'trendingGames' => $trendingGames,
@@ -125,6 +129,17 @@ class ActivePlayersService
             }
 
             return $activePlayer;
+        });
+    }
+
+    private function useTargetGameIds(mixed $activePlayers, ?array $targetGameIds): mixed
+    {
+        if (!isset($targetGameIds)) {
+            return $activePlayers;
+        }
+
+        return $activePlayers->filter(function ($activePlayer) use ($targetGameIds) {
+            return in_array($activePlayer['GameID'], $targetGameIds);
         });
     }
 }
