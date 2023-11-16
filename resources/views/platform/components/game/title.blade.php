@@ -18,7 +18,7 @@
         <span class="tag">
             <span class="tag-label">Subset</span>
             <span class="tag-arrow"></span>
-            <span>{{ $subsetKind }}</span>
+            <span>{!! $subsetKind !!}</span>
         </span>
     @endif
 @endif
