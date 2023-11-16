@@ -66,7 +66,6 @@ if ($action === 'manual-unlock') {
 
     if (isset($awardAchievementID) && isset($awardAchievementUser)) {
         $usersToAward = preg_split('/\W+/', $awardAchievementUser);
-        $errors = [];
         foreach ($usersToAward as $nextUser) {
             $player = User::firstWhere('User', $nextUser);
             if (!$player) {
@@ -74,10 +73,6 @@ if ($action === 'manual-unlock') {
             }
             $ids = separateList($awardAchievementID);
             foreach ($ids as $nextID) {
-                $awardResponse = unlockAchievement($player, $nextID, $awardAchHardcore);
-                if (array_key_exists('Error', $awardResponse)) {
-                    $errors[] = $awardResponse['Error'];
-                }
                 dispatch(
                     new UnlockPlayerAchievementJob(
                         $player->id,
@@ -87,10 +82,6 @@ if ($action === 'manual-unlock') {
                     )
                 );
             }
-        }
-
-        if (!empty($errors)) {
-            return back()->withErrors(join('. ', $errors));
         }
 
         return back()->with('success', __('legacy.success.ok'));
