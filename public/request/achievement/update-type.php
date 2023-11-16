@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -20,8 +21,16 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $achievementIds = $input['achievements'];
 $value = $input['type'];
 
+$foundAchievements = Achievement::find($achievementIds);
+
+// Don't allow adding types to subsets or test kits.
+$game = Game::find($foundAchievements->get(0)->GameID);
+if ($game && !$game->getCanHaveTypes()) {
+    abort(400);
+}
+
 // Check for authorship on achievements if a Jr. is editing the type
-$isSoleDeveloper = Achievement::find($achievementIds)->pluck('Author')->unique()->toArray() === [$user];
+$isSoleDeveloper = $foundAchievements->pluck('Author')->unique()->toArray() === [$user];
 if ($permissions === Permissions::JuniorDeveloper && !$isSoleDeveloper) {
     abort(403);
 }

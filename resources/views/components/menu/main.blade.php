@@ -65,6 +65,7 @@ $menuSystemsList = [
             ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
             ["systemName" => "Mega Duck", "listID" => 69],
             ["systemName" => "MSX", "listID" => 29],
+            ["systemName" => "Neo Geo CD", "listID" => 56],
             ["systemName" => "Neo Geo Pocket", "listID" => 14],
             ["systemName" => "Uzebox", "listID" => 80],
             ["systemName" => "Vectrex", "listID" => 46],
