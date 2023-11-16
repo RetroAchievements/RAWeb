@@ -258,61 +258,6 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
     }
 }
 
-function RenderGameProgress(int $numAchievements, int $numEarnedCasual, int $numEarnedHardcore, ?string $fullWidthUntil = null): void
-{
-    $pctComplete = 0;
-    $pctHardcore = 0;
-    $pctHardcoreProportion = 0;
-    $title = '';
-
-    if ($numEarnedCasual < 0) {
-        $numEarnedCasual = 0;
-    }
-
-    if ($numAchievements) {
-        $pctAwardedCasual = ($numEarnedCasual + $numEarnedHardcore) / $numAchievements;
-        $pctAwardedHardcore = $numEarnedHardcore / $numAchievements;
-        $pctAwardedHardcoreProportion = 0;
-        if ($numEarnedHardcore > 0) {
-            $pctAwardedHardcoreProportion = $numEarnedHardcore / ($numEarnedHardcore + $numEarnedCasual);
-        }
-
-        $pctComplete = sprintf("%01.0f", floor($pctAwardedCasual * 100.0));
-        $pctHardcore = sprintf("%01.0f", floor($pctAwardedHardcore * 100.0));
-        $pctHardcoreProportion = sprintf("%01.0f", $pctAwardedHardcoreProportion * 100.0);
-
-        if ($numEarnedCasual && $numEarnedHardcore) {
-            $title = "$pctHardcore% hardcore";
-        }
-    }
-    $numEarnedTotal = $numEarnedCasual + $numEarnedHardcore;
-
-    $fullWidthClassName = "";
-    if (isset($fullWidthUntil) && $fullWidthUntil === "md") {
-        $fullWidthClassName = "md:w-40";
-    }
-
-    if ($numAchievements) {
-        echo "<div class='w-full my-2 $fullWidthClassName'>";
-        echo "<div class='flex w-full items-center'>";
-        echo "<div class='progressbar grow'>";
-        echo "<div class='completion' style='width:$pctComplete%' title='$title'>";
-        echo "<div class='completion-hardcore' style='width:$pctHardcoreProportion%'></div>";
-        echo "</div>";
-        echo "</div>";
-        echo renderCompletionIcon($numEarnedTotal, $numAchievements, $pctHardcore);
-        echo "</div>";
-        echo "<div class='progressbar-label -mt-1'>";
-        if ($pctHardcore >= 100.0) {
-            echo "Mastered";
-        } else {
-            echo "$pctComplete% complete";
-        }
-        echo "</div>";
-        echo "</div>";
-    }
-}
-
 /**
  * Render completion icon, given that player achieved 100% set progress
  */

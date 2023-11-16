@@ -21,6 +21,7 @@ use App\Community\Components\GlobalStatistics;
 use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
 use App\Community\Components\UserProgressionStatus;
+use App\Community\Components\UserRecentlyPlayed;
 use App\Community\Models\AchievementComment;
 use App\Community\Models\AchievementSetClaim;
 use App\Community\Models\Comment;
@@ -112,6 +113,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('forum-recent-posts', ForumRecentPosts::class);
         Blade::component('user-card', UserCard::class);
         Blade::component('user-progression-status', UserProgressionStatus::class);
+        Blade::component('user-recently-played', UserRecentlyPlayed::class);
 
         // Livewire::component('forum-topics', ForumTopics::class);
         //

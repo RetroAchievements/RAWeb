@@ -183,7 +183,7 @@ RenderContentStart($userPage);
   }
 </script>
 
-<article>
+<article class="overflow-y-hidden">
     <?php
     echo "<div class='navpath'>";
     echo "<a href='/userList.php'>All Users</a>";
@@ -380,7 +380,7 @@ RenderContentStart($userPage);
     echo "</div>"; // usersummary
 
     if (isset($user) && $permissions >= Permissions::Moderator) {
-        echo "<div class='devbox mb-3'>";
+        echo "<div class='devbox'>";
         echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
         echo "<div id='devboxcontent' style='display: none'>";
 
@@ -484,7 +484,7 @@ RenderContentStart($userPage);
         && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
 
     if ($canShowProgressionStatusComponent) {
-        echo "<div class='mt-2 mb-8'>";
+        echo "<div class='my-8'>";
         echo Blade::render('
             <x-user-progression-status
                 :userCompletionProgress="$userCompletionProgress"
@@ -503,113 +503,34 @@ RenderContentStart($userPage);
         echo "</div>";
     }
 
-    echo "<div class='userpage recentlyplayed' >";
+    if ($user) {
+        echo "<div class='my-8'>";
+        echo Blade::render('
+            <x-user-recently-played
+                :recentlyPlayedCount="$recentlyPlayedCount"
+                :recentlyPlayedEntities="$recentlyPlayedEntities"
+                :recentAchievementEntities="$recentAchievementEntities"
+                :recentAwardedEntities="$recentAwardedEntities"
+                :targetUsername="$targetUsername"
+                :userAwards="$userAwards"
+            />
+        ', [
+            'recentlyPlayedCount' => $userMassData['RecentlyPlayedCount'] ?? 0,
+            'recentlyPlayedEntities' => $userMassData['RecentlyPlayed'] ?? [],
+            'recentAchievementEntities' => $userMassData['RecentAchievements'] ?? [],
+            'recentAwardedEntities' => $userMassData['Awarded'] ?? [],
+            'targetUsername' => $user,
+            'userAwards' => $userAwards,
+        ]);
 
-    $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
-
-    if ($recentlyPlayedCount == 1) {
-        echo "<h4>Last game played:</h4>";
-    } elseif ($recentlyPlayedCount > 1) {
-        echo "<h4>Last $recentlyPlayedCount games played:</h4>";
-    }
-    for ($i = 0; $i < $recentlyPlayedCount; $i++) {
-        $gameID = $userMassData['RecentlyPlayed'][$i]['GameID'];
-        $consoleID = $userMassData['RecentlyPlayed'][$i]['ConsoleID'];
-        $consoleName = $userMassData['RecentlyPlayed'][$i]['ConsoleName'];
-        $gameTitle = $userMassData['RecentlyPlayed'][$i]['Title'];
-        $gameIcon = $userMassData['RecentlyPlayed'][$i]['ImageIcon'];
-        $gameLastPlayed = $userMassData['RecentlyPlayed'][$i]['LastPlayed'];
-
-        sanitize_outputs($consoleName, $gameTitle);
-
-        $pctAwarded = 100.0;
-
-        if (isset($userMassData['Awarded'][$gameID])) {
-            $numPossibleAchievements = $userMassData['Awarded'][$gameID]['NumPossibleAchievements'];
-            $maxPossibleScore = $userMassData['Awarded'][$gameID]['PossibleScore'];
-            $numAchieved = $userMassData['Awarded'][$gameID]['NumAchieved'];
-            $scoreEarned = $userMassData['Awarded'][$gameID]['ScoreAchieved'];
-            $numAchievedHardcore = $userMassData['Awarded'][$gameID]['NumAchievedHardcore'];
-            $scoreEarnedHardcore = $userMassData['Awarded'][$gameID]['ScoreAchievedHardcore'];
-
-            $numPossibleAchievements = (int) $numPossibleAchievements;
-            $maxPossibleScore = (int) $maxPossibleScore;
-            $numAchieved = (int) $numAchieved;
-            $scoreEarned = (int) $scoreEarned;
-            $numAchievedHardcore = (int) $numAchievedHardcore;
-            $scoreEarnedHardcore = (int) $scoreEarnedHardcore;
-
-            echo "<div class='md:flex justify-between mb-3'>";
-
-            echo "<div>";
-            echo gameAvatar($userMassData['RecentlyPlayed'][$i], iconSize: 24);
-            echo "<br>";
-            echo "Last played $gameLastPlayed<br>";
-            if ($numPossibleAchievements) {
-                echo "$numAchieved of $numPossibleAchievements achievements, ";
-                if ($scoreEarnedHardcore) {
-                    echo "$scoreEarnedHardcore/$maxPossibleScore points";
-                    if ($scoreEarned > $scoreEarnedHardcore) {
-                        $scoreEarnedSoftcore = $scoreEarned - $scoreEarnedHardcore;
-                        echo ", $scoreEarnedSoftcore softcore points";
-                    }
-                } elseif ($scoreEarned) {
-                    echo "$scoreEarned/$maxPossibleScore softcore points";
-                } else {
-                    echo "0/$maxPossibleScore points";
-                }
-            }
-            echo "</div>";
-
-            RenderGameProgress($numPossibleAchievements, $numAchieved - $numAchievedHardcore, $numAchievedHardcore, fullWidthUntil: 'md');
-            echo "</div>";
-
-            echo "<div class='mb-5'>";
-            if (isset($userMassData['RecentAchievements'][$gameID])) {
-                foreach ($userMassData['RecentAchievements'][$gameID] as $achID => $achData) {
-                    $badgeName = $achData['BadgeName'];
-                    $achID = $achData['ID'];
-                    $achPoints = $achData['Points'];
-                    $achTitle = $achData['Title'];
-                    $achDesc = $achData['Description'];
-                    $achHardcore = $achData['HardcoreAchieved'];
-
-                    $unlockedStr = "";
-                    $class = 'badgeimglarge';
-
-                    if (!$achData['IsAwarded']) {
-                        $badgeName .= "_lock";
-                    } else {
-                        $achUnlockDate = getNiceDate(strtotime($achData['DateAwarded']));
-                        $unlockedStr = "<br clear=all>Unlocked: $achUnlockDate";
-                        if ($achHardcore == 1) {
-                            $unlockedStr .= "<br>HARDCORE";
-                            $class = 'goldimage';
-                        }
-                        $achData['Unlock'] = $unlockedStr;
-                    }
-
-                    echo achievementAvatar(
-                        $achData,
-                        label: false,
-                        icon: $badgeName,
-                        iconSize: 48,
-                        iconClass: $class,
-                    );
-                }
-            }
-
-            echo "</div>";
+        $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
+        if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
+            echo "<div class='text-right'><a class='btn btn-link' href='/user/$userPage?g=15'>more...</a></div>";
         }
+        echo "</div>";
     }
 
-    if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-        echo "<div class='text-right mt-5'><a class='btn btn-link' href='/user/$userPage?g=15'>more...</a></div>";
-    }
-
-    echo "</div>"; // recentlyplayed
-
-    echo "<div class='commentscomponent left'>";
+    echo "<div class='commentscomponent left mt-8'>";
 
     echo "<h4>User Wall</h4>";
 
