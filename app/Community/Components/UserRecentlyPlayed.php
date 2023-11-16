@@ -203,12 +203,12 @@ class UserRecentlyPlayed extends Component
         foreach ($userAwards as $userAward) {
             // Process only the awards related to the target game ID.
             if ($userAward['AwardData'] == $targetGameId) {
-                $highestAwardDate = $userAward['AwardedAt'];
                 $candidateAwardKind = $this->determineAwardKind($userAward);
 
                 // Update the highest award kind if the current award has higher priority.
                 if ($this->isCandidateAwardHigherPriority($highestAwardKind, $candidateAwardKind)) {
                     $highestAwardKind = $candidateAwardKind;
+                    $highestAwardDate = $userAward['AwardedAt'];
                 }
             }
         }
