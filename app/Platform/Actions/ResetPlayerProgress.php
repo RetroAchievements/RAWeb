@@ -60,7 +60,7 @@ class ResetPlayerProgress
                     ->where('AwardDataExtra', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Softcore)
                     ->first();
                 if ($playerBadge) {
-                    PlayerBadgeLost::dispatch($playerBadge);
+                    PlayerBadgeLost::dispatch($user, $playerBadge->AwardType, $playerBadge->AwardData, $playerBadge->AwardDataExtra);
                     $playerBadge->delete();
                 }
             }
