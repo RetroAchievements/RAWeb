@@ -110,6 +110,10 @@ function activePlayersComponent() {
                 params.set('all', true);
             }
 
+            if (this.targetGameIds) {
+                params.set('targetGameIds', Object.values(this.targetGameIds));
+            }
+
             if (params.size > 0) {
                 requestUrl = `${requestUrl}?${params}`;
             }
