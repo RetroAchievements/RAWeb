@@ -1,54 +1,35 @@
 @props([
     'gameKindFilterOptions' => [],
+    'leaderboardKind' => 'retail',
 ])
 
-<label class="text-xs font-bold">Game kinds</label>
+<label class="text-xs font-bold sm:-mb-6">Game kinds</label>
 <div class="flex gap-x-4 text-2xs gap-y-0.5">
-    <div class="flex flex-col">
-        <x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox
-            kind="retail"
-            :isPreChecked="$gameKindFilterOptions['retail']"
-        >
-            Retail
-        </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
+    <x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio
+        value="retail"
+        :selectedValue="$leaderboardKind"
+    >
+        Retail
+    </x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio>
 
-        <x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox
-            kind="hacks"
-            :isPreChecked="$gameKindFilterOptions['hacks']"
-        >
-            Hacks
-        </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
-    </div>
+    <x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio
+        value="homebrew"
+        :selectedValue="$leaderboardKind"
+    >
+        Homebrew
+    </x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio>
 
-    <div class="flex flex-col">
-        <x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox
-            kind="homebrew"
-            :isPreChecked="$gameKindFilterOptions['homebrew']"
-        >
-            Homebrew
-        </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
+    <x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio
+        value="hacks"
+        :selectedValue="$leaderboardKind"
+    >
+        Hack
+    </x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio>
 
-        <x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox
-            kind="unlicensed"
-            :isPreChecked="$gameKindFilterOptions['unlicensed']"
-        >
-            Unlicensed
-        </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
-    </div>
-
-    <div class="flex flex-col">
-        <x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox
-            kind="prototypes"
-            :isPreChecked="$gameKindFilterOptions['prototypes']"
-        >
-            Prototypes
-        </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
-
-        <x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox
-            kind="demos"
-            :isPreChecked="$gameKindFilterOptions['demos']"
-        >
-            Demos
-        </x-beaten-games-leaderboard.meta-panel.game-kind-filter-checkbox>
-    </div>
+    <x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio
+        value="all"
+        :selectedValue="$leaderboardKind"
+    >
+        All
+    </x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio>
 </div>

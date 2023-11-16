@@ -197,10 +197,24 @@ function UploadNewAchievement(
         return false;
     }
 
-    if ($type !== null && (!AchievementType::isValid($type) && $type !== 'not-given')) {
-        $errorOut = "Invalid achievement type";
+    if ($type !== null && $type !== 'not-given') {
+        if (!AchievementType::isValid($type)) {
+            $errorOut = "Invalid achievement type";
 
-        return false;
+            return false;
+        }
+
+        $isForSubsetOrTestKit = (
+            mb_strpos($gameData['Title'], '[Subset') !== false
+            || mb_strpos($gameData['Title'], '~Test Kit~') !== false
+        );
+        $isEventGame = $gameData['ConsoleID'] == 101;
+
+        if ($isForSubsetOrTestKit || $isEventGame) {
+            $errorOut = "Cannot set type on achievement in subset, test kit, or event.";
+
+            return false;
+        }
     }
 
     $typeValue = "";

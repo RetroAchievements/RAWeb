@@ -3,6 +3,7 @@
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     abort(401);
@@ -30,6 +31,7 @@ $consoleName = null;
 $gameIcon = null;
 $gameTitle = null;
 $gameIDSpecified = isset($gameID) && $gameID != 0;
+$canHaveTypes = false;
 if ($gameIDSpecified) {
     getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
@@ -38,6 +40,12 @@ if ($gameIDSpecified) {
     sanitize_outputs($gameTitle, $consoleName);
 
     getCodeNotes($gameID, $codeNotes);
+
+    $canHaveTypes = (
+        mb_strpos($gameTitle, "[Subset") === false
+        && mb_strpos($gameTitle, "~Test Kit~") === false
+        && $gameData['ConsoleID'] !== 101
+    );
 } else {
     getGamesList(null, $gamesList);
 }
@@ -66,86 +74,6 @@ function updateDisplayOrder(objID) {
         number: inputNum,
     });
 }
-
-/**
- * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
- * @param {number} selectedCount
- */
-function getConfirmMessage(property, newValue, selectedCount) {
-    let message = 'Are you sure you want to make this change?';
-
-    if (property === 'flag') {
-        if (newValue === <?= AchievementFlag::OfficialCore ?>) {
-            message = `Are you sure you want to promote ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
-        } else {
-            message = `Are you sure you want to demote ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
-        }
-    }
-
-    if (property === 'type') {
-        if (newValue === '<?= AchievementType::Progression ?>') {
-            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to <?= $progressionLabel ?>?`;
-        } else if (newValue === '<?= AchievementType::WinCondition ?>') {
-            message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to <?= $winConditionLabel ?>?`;
-        } else {
-            message = `Are you sure you want to remove the type from ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
-        }
-    }
-
-    return message;
-}
-
-/**
- * @param {'flag' | 'type'} property
- * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
- */
-function updateAchievementsProperty(property, newValue) {
-    // Creates an array of checked achievement IDs and sends it to the updateAchievements function
-    const checkboxes = document.querySelectorAll('[name^=\'achievement\']');
-    const achievements = [];
-    for (let i = 0, n = checkboxes.length; i < n; i += 1) {
-        if (checkboxes[i].checked) {
-            achievements.push(checkboxes[i].getAttribute('value'));
-        }
-    }
-
-    if (achievements.length === 0) {
-        return;
-    }
-
-    if (!confirm(getConfirmMessage(property, newValue, achievements.length))) {
-        return;
-    }
-
-    showStatusMessage('Updating...');
-
-    const requestUrl = property === 'flag'
-        ? '/request/achievement/update-flag.php'
-        : '/request/achievement/update-type.php';
-    $.post(requestUrl, {
-        achievements,
-        [property]: newValue
-    })
-        .done(function () {
-            location.reload();
-        });
-}
-
-let areCodeRowsHidden = true;
-function toggleAllCodeRows() {
-    const codeRowEls = document.querySelectorAll('.code-row');
-
-    codeRowEls.forEach((codeRowEl) => {
-        if (areCodeRowsHidden) {
-            codeRowEl.classList.remove('hidden');
-        } else {
-            codeRowEl.classList.add('hidden');
-        }
-    });
-
-    areCodeRowsHidden = !areCodeRowsHidden;
-}
 </script>
 <article>
 <?php
@@ -172,16 +100,26 @@ if ($gameIDSpecified) {
                 changes you make on this page will instantly take effect on the website, but you will need to press 'Refresh List'
                 to see the new order on this page.
             </p>
-
-            <p align="justify">
-                You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
-                checkboxes in the far-left column and click either the 'Set Selected to $progressionLabel' or 'Set Selected to $winConditionLabel'
-                button, depending on your needs. A game is considered 'beaten' when all $progressionLabel achievements and at least
-                one $winConditionLabel achievement are unlocked. If there are no $winConditionLabel achievements, the game is beaten
-                if all $progressionLabel achievements are unlocked. If there are no $progressionLabel achievements, the game is beaten
-                if any $winConditionLabel achievements are unlocked.
-            </p>
         HTML;
+
+        if ($canHaveTypes) {
+            echo <<<HTML
+                <p align="justify">
+                    You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
+                    checkboxes in the far-left column and click either the 'Set Selected to $progressionLabel' or 'Set Selected to $winConditionLabel'
+                    button, depending on your needs. A game is considered 'beaten' when all $progressionLabel achievements and at least
+                    one $winConditionLabel achievement are unlocked. If there are no $winConditionLabel achievements, the game is beaten
+                    if all $progressionLabel achievements are unlocked. If there are no $progressionLabel achievements, the game is beaten
+                    if any $winConditionLabel achievements are unlocked.
+                </p>
+            HTML;
+        } else {
+            echo <<<HTML
+                <p align="justify">
+                    This achievement set is either a subset, test kit, or an event. For this reason, it does not support types.
+                </p>
+            HTML;
+        }
 
         if ($fullModifyOK) {
             echo "<p>You can " . ($flag === AchievementFlag::Unofficial ? "promote" : "demote") . " multiple achievements at the same time from this page by checking " .
@@ -254,12 +192,14 @@ if ($gameIDSpecified) {
 
         $typeLabelClassNames = !$achType ? "text-muted" : "";
 
-        echo <<<HTML
-            <tr class="$bgColorClassNames[$currentBgColorIndex]">
-                <td><span class="font-bold">Type:</span></td>
-                <td colspan="7" class="p-2.5 $typeLabelClassNames">$achTypeLabel</td>
-            </tr>
-        HTML;
+        if ($canHaveTypes) {
+            echo <<<HTML
+                <tr class="$bgColorClassNames[$currentBgColorIndex]">
+                    <td><span class="font-bold">Type:</span></td>
+                    <td colspan="7" class="p-2.5 $typeLabelClassNames">$achTypeLabel</td>
+                </tr>
+            HTML;
+        }
 
         echo "<tr class='code-row hidden $bgColorClassNames[$currentBgColorIndex]'>";
         echo "<td><b>Code:</b></td>";
@@ -306,43 +246,36 @@ if ($gameIDSpecified) {
 <?php
 if ($gameIDSpecified) {
     view()->share('sidebar', true);
-    echo "<aside>";
-    echo "<div class='mb-2'>";
-    echo "<h3>Toolbox</h3>";
-    echo "<div class='flex flex-col gap-y-1'>";
+    echo "<aside class='flex flex-col gap-y-8'>";
 
-    if ($fullModifyOK || $partialModifyOK) {
-        echo "<a class='btn flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=$flag'>Refresh Page</a>";
-
-        if ($flag === AchievementFlag::Unofficial) {
-            if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::OfficialCore . ")'>Promote Selected</a>";
-            }
-            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID'>Core Achievement Inspector</a>";
-        }
-        if ($flag === AchievementFlag::OfficialCore) {
-            if ($fullModifyOK) {
-                echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"flag\", " . AchievementFlag::Unofficial . ")'>Demote Selected</a>";
-            }
-            echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php?g=$gameID&f=5'>Unofficial Achievement Inspector</a>";
-        }
-
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::Progression . "\")'>Set Selected to $progressionLabel</a>";
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", \"" . AchievementType::WinCondition . "\")'>Set Selected to $winConditionLabel</a>";
-        echo "<a class='btn w-full flex justify-center py-2' onclick='updateAchievementsProperty(\"type\", null)'>Set Selected to No Type</a>";
+    $modificationLevel = 'none';
+    if ($partialModifyOK) {
+        $modificationLevel = 'partial';
+    } elseif ($fullModifyOK) {
+        $modificationLevel = 'full';
     }
 
-    if ($fullModifyOK) {
-        echo "<button class='btn w-full flex justify-center py-2' onclick='toggleAllCodeRows()'>Toggle Code Rows</button>";
-    }
-
-    echo "<a class='btn w-full flex justify-center py-2' href='/achievementinspector.php'>Back to List</a></p></div><br>";
-
+    echo "<div>";
+    echo Blade::render('
+        <x-developer.inspector-toolbox
+            :canHaveTypes="$canHaveTypes"
+            :gameId="$gameId"
+            :isManagingCoreAchievements="$isManagingCoreAchievements"
+            :modificationLevel="$modificationLevel"
+        />
+    ', [
+        'canHaveTypes' => $canHaveTypes,
+        'gameId' => $gameID,
+        'isManagingCoreAchievements' => $flag === AchievementFlag::OfficialCore,
+        'modificationLevel' => $modificationLevel,
+    ]);
     echo "</div>";
 
     if (!empty($codeNotes)) {
+        echo "<div>";
         echo "<h3>Code Notes</h3>";
         RenderCodeNotes($codeNotes);
+        echo "</div>";
     }
     echo "</aside>";
 }

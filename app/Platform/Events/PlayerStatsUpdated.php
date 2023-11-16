@@ -10,7 +10,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PlayerBadgeLost
+class PlayerStatsUpdated
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -18,9 +18,6 @@ class PlayerBadgeLost
 
     public function __construct(
         public User $user,
-        public int $awardType,
-        public int $awardData,
-        public int $awardDataExtra,
     ) {
     }
 

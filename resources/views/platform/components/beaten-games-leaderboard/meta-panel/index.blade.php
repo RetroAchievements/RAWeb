@@ -1,22 +1,22 @@
 @props([
     'allSystems' => null,
     'gameKindFilterOptions' => [],
+    'leaderboardKind' => 'retail',
     'selectedConsoleId' => null,
-    'selectedAllowHacks' => true,
 ])
 
 <script>
-function handleConsoleChanged(event) {
+function handleGameKindsChanged(event) {
     window.updateUrlParameter(
-        ['page[number]', 'filter[system]'],
+        ['page[number]', 'filter[kind]'],
         [1, event.target.value],
     );
 }
 
-function handleGameKindsChanged(event, kind) {
+function handleConsoleChanged(event) {
     window.updateUrlParameter(
-        ['page[number]', `filter[${kind}]`],
-        [1, event.target.checked],
+        ['page[number]', 'filter[system]'],
+        [1, event.target.value],
     );
 }
 </script>
@@ -36,6 +36,7 @@ function handleGameKindsChanged(event, kind) {
             <div class="grid gap-y-1 sm:px-8">
                 <x-beaten-games-leaderboard.meta-panel.game-kind-filters
                     :gameKindFilterOptions="$gameKindFilterOptions"
+                    :leaderboardKind="$leaderboardKind"
                 />
             </div>
         </div>

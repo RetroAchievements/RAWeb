@@ -165,6 +165,18 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     // == accessors
 
+    public function getCanHaveTypes(): bool
+    {
+        $isSubsetOrTestKit = (
+            mb_strpos($this->Title, "[Subset") !== false
+            || mb_strpos($this->Title, "~Test Kit~") !== false
+        );
+
+        $isEventGame = $this->ConsoleID === 101;
+
+        return !$isSubsetOrTestKit && !$isEventGame;
+    }
+
     public function getCanonicalUrlAttribute(): string
     {
         return route('game.show', [$this, $this->getSlugAttribute()]);
