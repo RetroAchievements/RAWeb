@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Platform\Actions\ResetPlayerProgress;
+use App\Platform\Enums\AchievementType;
+use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerBadge;
 use App\Site\Models\User;
@@ -211,6 +213,52 @@ class ResetPlayerProgressTest extends TestCase
 
         $this->assertHasMasteryBadge($user, $game);
         $this->assertDoesNotHaveAnyUnlock($user, $unofficialAchievement);
+    }
+
+    public function testResetProgressionRemovesBeatenBadge(): void
+    {
+        /** @var User $user */
+        $user = User::factory()->create();
+        $game = $this->seedGame(withHash: false);
+        $achievements = Achievement::factory()->published()
+            ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
+            ->create(['GameID' => $game->ID]);
+
+        for ($i = 0; $i < 3; $i++) {
+            $achievements->get($i)->type = AchievementType::Progression;
+            $achievements->get($i)->save();
+        }
+        $achievements->get(3)->type = AchievementType::WinCondition;
+        $achievements->get(3)->save();
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->addHardcoreUnlock($user, $achievements->get($i));
+        }
+        $this->assertHasBeatenBadge($user, $game, UnlockMode::Hardcore);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        // test reset progression achievement
+        (new ResetPlayerProgress())->execute($user, $achievements->get(1)->ID);
+        $this->assertDoesNotHaveBeatenBadge($user, $game);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        // restore beaten badge and test reset of win condition
+        $this->addHardcoreUnlock($user, $achievements->get(1));
+        $this->assertHasBeatenBadge($user, $game, UnlockMode::Hardcore);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        (new ResetPlayerProgress())->execute($user, $achievements->get(3)->ID);
+        $this->assertDoesNotHaveBeatenBadge($user, $game);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        // restore beaten badge and test full game reset
+        $this->addHardcoreUnlock($user, $achievements->get(3));
+        $this->assertHasBeatenBadge($user, $game, UnlockMode::Hardcore);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
+
+        (new ResetPlayerProgress())->execute($user, gameID: $game->ID);
+        $this->assertDoesNotHaveBeatenBadge($user, $game);
+        $this->assertDoesNotHaveMasteryBadge($user, $game);
     }
 
     public function testResetGame(): void
