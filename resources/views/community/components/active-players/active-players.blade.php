@@ -106,7 +106,7 @@ function activePlayersComponent() {
                 params.set('search', this.searchInput);
             }
 
-            if (getFullList || this.hasFetchedFullList) {
+            if (this.variant !== 'focused' && (getFullList || this.hasFetchedFullList)) {
                 params.set('all', true);
             }
 
