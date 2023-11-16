@@ -2,6 +2,7 @@
     'allSystems' => [],
     'gameKindFilterOptions' => [],
     'isUserOnCurrentPage' => false,
+    'leaderboardKind' => 'retail',
     'myRankingData' => null,
     'myUsername' => null,
     'paginator' => null,
@@ -18,6 +19,7 @@
     <x-beaten-games-leaderboard.meta-panel
         :allSystems="$allSystems"
         :gameKindFilterOptions="$gameKindFilterOptions"
+        :leaderboardKind="$leaderboardKind"
         :selectedConsoleId="$selectedConsoleId"
     />
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Feature\Platform\Action;
+namespace Tests\Feature\Platform\Action;
 
 use App\Community\Enums\AwardType;
 use App\Platform\Actions\UpdateDeveloperContributionYield;
