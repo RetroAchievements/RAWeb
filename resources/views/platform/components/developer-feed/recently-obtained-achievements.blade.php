@@ -29,6 +29,7 @@
                                     achievementAvatar([
                                         'ID' => $recentUnlock->achievement_id,
                                         'Title' => $recentUnlock->Title,
+                                        'Description' => $recentUnlock->Description,
                                         'Points' => $recentUnlock->Points,
                                         'BadgeName' => $recentUnlock->BadgeName,
                                         'HardcoreMode' => !!$recentUnlock->unlocked_hardcore_at,
