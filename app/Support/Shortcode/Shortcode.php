@@ -238,7 +238,7 @@ final class Shortcode
             return '';
         }
 
-        return gameAvatar($data, iconSize: 24);
+        return str_replace("\n", '', gameAvatar($data, iconSize: 24));
     }
 
     private function embedTicket(int $id): string
