@@ -174,9 +174,12 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
         foreach ($recentlyPlayedGames as $recentlyPlayedGame) {
             $gameID = $recentlyPlayedGame['GameID'];
             if (array_key_exists($gameID, $gameData)) {
-                $gameData[$gameID]['LastPlayed'] = $recentlyPlayedGame['LastPlayed'];
-                $dataOut[] = $gameData[$gameID];
-                $numFound++;
+                // Exclude games belonging to the "Events" console.
+                if ($gameData[$gameID]['ConsoleID'] !== 101) {
+                    $gameData[$gameID]['LastPlayed'] = $recentlyPlayedGame['LastPlayed'];
+                    $dataOut[] = $gameData[$gameID];
+                    $numFound++;
+                }
             }
         }
     }

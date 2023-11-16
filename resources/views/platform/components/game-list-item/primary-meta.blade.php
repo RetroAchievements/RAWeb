@@ -1,5 +1,4 @@
 @props([
-    'consoleId' => 0,
     'firstWonDate' => '',
     'gameId' => 0,
     'gameTitle' => '',
@@ -102,26 +101,24 @@ if ($highestAwardKind && $highestAwardDate) {
     @endif
 
     {{-- c.progress-pmeta__root > div --}}
-    @if ($consoleId != 101)
-        <div @if ($variant === 'user-recently-played') class="flex !flex-col-reverse" @endif>
-            <p>
-                @if ($variant === 'user-recently-played')
-                    <span>Last played</span>
-                @endif
-                {{ $mostRecentUnlockDateLabel }}
-            </p>
-
-            @if ($timeToSiteAwardLabelPartOne && $timeToSiteAwardLabelPartTwo)
-                <p>
-                    <span class="hidden md:inline lg:hidden">•</span>
-                    {{ $timeToSiteAwardLabelPartOne }}
-                    
-                    @if ($numPossibleAchievements > 0)
-                        in
-                        <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
-                    @endif
-                </p>
+    <div @if ($variant === 'user-recently-played') class="flex !flex-col-reverse" @endif>
+        <p>
+            @if ($variant === 'user-recently-played')
+                <span>Last played</span>
             @endif
-        </div>
-    @endif
+            {{ $mostRecentUnlockDateLabel }}
+        </p>
+
+        @if ($timeToSiteAwardLabelPartOne && $timeToSiteAwardLabelPartTwo)
+            <p>
+                <span class="hidden md:inline lg:hidden">•</span>
+                {{ $timeToSiteAwardLabelPartOne }}
+                
+                @if ($numPossibleAchievements > 0)
+                    in
+                    <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
+                @endif
+            </p>
+        @endif
+    </div>
 </div>
