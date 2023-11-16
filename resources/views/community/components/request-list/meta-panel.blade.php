@@ -1,21 +1,5 @@
 <script>
 /**
- * Updates a query parameter in the current URL and navigates to the new URL.
- *
- * @param {string} paramName - The name of the query parameter to update.
- * @param {string} newQueryParamValue - The new value for the query parameter.
- */
- function updateUrlParameter(paramName, newQueryParamValue) {
-    const url = new URL(window.location.href);
-    const params = new URLSearchParams(url.search);
-
-    params.set(paramName, newQueryParamValue);
-    url.search = params.toString();
-
-    window.location.href = url.toString();
-}
-
-/**
  * Event handler for 'Filter by console' selection change event.
  * Updates 's' query parameter in the URL based on selected option.
  *
@@ -23,7 +7,7 @@
  */
  function handleConsoleChanged(event) {
     const newQueryParamValue = event.target.value;
-    updateUrlParameter('s', newQueryParamValue);
+    window.updateUrlParameter('s', newQueryParamValue);
 }
 
 /**
@@ -34,7 +18,7 @@
  */
  function handleRequestStatusChanged(event) {
     const newQueryParamValue = event.target.value;
-    updateUrlParameter('x', newQueryParamValue);
+    window.updateUrlParameter('x', newQueryParamValue);
 }
 </script>
 

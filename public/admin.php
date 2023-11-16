@@ -1,10 +1,17 @@
 <?php
 
+use App\Community\Enums\ArticleType;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
+use App\Platform\Jobs\UpdateGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievement;
+use App\Platform\Models\PlayerGame;
 use App\Site\Enums\Permissions;
 use App\Site\Models\StaticData;
 use App\Site\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
@@ -90,6 +97,81 @@ if ($action === 'manual-unlock') {
     }
 
     return back()->withErrors(__('legacy.error.error'));
+}
+
+if ($action === 'copy-unlocks') {
+    $fromAchievementIds = explode(',', requestInputSanitized('s'));
+    $fromAchievementCount = count($fromAchievementIds);
+    $toAchievementIds = explode(',', requestInputSanitized('a'));
+
+    // determine which players have earned all of the required achievements
+    $existing = PlayerAchievement::whereIn('achievement_id', $fromAchievementIds)
+        ->select(['user_id',
+            DB::raw('count(unlocked_at) AS softcore_count'),
+            DB::raw('count(unlocked_hardcore_at) AS hardcore_count'),
+            DB::raw('max(unlocked_at) AS unlocked_softcore_at'),
+            DB::raw('max(unlocked_hardcore_at) AS unlocked_hardcore_at'),
+        ])
+        ->groupBy('user_id')
+        ->having('softcore_count', '=', $fromAchievementCount)
+        ->get();
+
+    // award the target achievements, copying the unlock times and hardcore state
+    $unlockerId = request()->user()->id;
+    foreach ($existing as $playerAchievement) {
+        $hardcore = ($playerAchievement->hardcore_count == $fromAchievementCount);
+        $timestamp = Carbon::parse($hardcore ? $playerAchievement->unlocked_hardcore_at : $playerAchievement->unlocked_softcore_at);
+        foreach ($toAchievementIds as $toAchievementId) {
+            dispatch(
+                new UnlockPlayerAchievementJob(
+                    $playerAchievement->user_id,
+                    (int) $toAchievementId,
+                    hardcore: $hardcore,
+                    timestamp: $timestamp,
+                    unlockedByUserId: $unlockerId
+                )
+            );
+        }
+    }
+
+    return back()->with('success', __('legacy.success.ok'));
+}
+
+if ($action === 'migrate-achievement') {
+    $achievementIds = explode(',', requestInputSanitized('a'));
+    $gameId = requestInputSanitized('g');
+    if (!Game::where('ID', $gameId)->exists()) {
+        return back()->withErrors('Unknown game');
+    }
+
+    // determine which game(s) the achievements are coming from
+    $oldGames = Achievement::whereIn('ID', $achievementIds)->select(['GameID'])->distinct()->pluck('GameID');
+
+    // associate the achievements to the new game
+    Achievement::whereIn('ID', $achievementIds)->update(['GameID' => $gameId]);
+
+    // add an audit comment to the new game
+    addArticleComment('Server', ArticleType::GameModification, $gameId,
+        "$user migrated " . Str::plural('achievement', count($achievementIds)) . ' ' .
+        implode(',', $achievementIds) . ' from ' .
+        Str::plural('game', count($oldGames)) . ' ' . $oldGames->implode(',') . '.');
+
+    // ensure player_game entries exist for the new game for all affected users
+    foreach (PlayerAchievement::whereIn('achievement_id', $achievementIds)->select(['user_id'])->distinct()->pluck('user_id') as $userId) {
+        if (!PlayerGame::where('game_id', $gameId)->where('user_id', $userId)->exists()) {
+            $playerGame = new PlayerGame(['user_id' => $userId, 'game_id' => $gameId]);
+            $playerGame->save();
+            dispatch(new UpdatePlayerGameMetricsJob($userId, $gameId));
+        }
+    }
+
+    // update the metrics on the new game and the old game(s)
+    dispatch(new UpdateGameMetricsJob($gameId))->onQueue('game-metrics');
+    foreach ($oldGames as $oldGameId) {
+        dispatch(new UpdateGameMetricsJob($oldGameId))->onQueue('game-metrics');
+    }
+
+    return back()->with('success', __('legacy.success.ok'));
 }
 
 if ($action === 'aotw') {
@@ -302,6 +384,74 @@ RenderContentStart('Admin Tools');
                     </td>
                     <td>
                         <input id="award_achievement_hardcore" type="checkbox" name="h" value="1">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn">Submit</button>
+        </form>
+    </article>
+
+    <article>
+        <h4>Copy Unlocks</h4>
+        <form method="post" action="admin.php">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="copy-unlocks">
+            <table class="mb-1">
+                <colgroup>
+                    <col>
+                    <col class="w-full">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="required_achievement_id" style="cursor:help"
+                               title="CSV of achievements the player must have previously unlocked">Required achievement IDs</label>
+                    </td>
+                    <td>
+                        <input id="required_achievement_id" name="s">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="award_achievement_id" style="cursor:help"
+                               title="CSV of achievements that should be unlocked if the user has all of the required achievements unlocked">Unlock achievement IDs</label>
+                    </td>
+                    <td>
+                        <input id="award_achievement_id" name="a">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn">Submit</button>
+        </form>
+    </article>
+
+    <article>
+        <h4>Migrate Achievements</h4>
+        <form method="post" action="admin.php">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="migrate-achievement">
+            <table class="mb-1">
+                <colgroup>
+                    <col>
+                    <col class="w-full">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="achievement_id">Achievement IDs</label>
+                    </td>
+                    <td>
+                        <input id="achievement_id" name="a">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <label for="game_id">New game to transfer achievements to</label>
+                    </td>
+                    <td>
+                        <input id="game_id" name="g">
                     </td>
                 </tr>
                 </tbody>

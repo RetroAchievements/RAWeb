@@ -121,6 +121,14 @@ RenderOpenGraphMetadata(
 RenderContentStart($pageTitle);
 ?>
 <?php if ($permissions >= Permissions::Developer || ($permissions >= Permissions::JuniorDeveloper && $isAuthor)): ?>
+    <?php
+        $canHaveTypes = (
+            mb_strpos($gameTitle, "[Subset") === false
+            && mb_strpos($gameTitle, "~Test Kit~") === false
+            && $consoleID != 101
+        );
+    ?>
+
     <script>
     function updateAchievementDetails() {
         showStatusMessage('Updating...');
@@ -334,24 +342,26 @@ RenderContentStart($pageTitle);
             echo "</select>";
             echo "</td></tr>";
 
-            $typeHelperContent = "A game is considered beaten if ALL " . __('achievement-type.' . AchievementType::Progression) . " achievements are unlocked and ANY " . __('achievement-type.' . AchievementType::WinCondition) . " achievements are unlocked.";
-            echo "<tr><td>";
-            echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
-            echo "Type";
-            echo "<span>";
-            echo Blade::render("<x-fas-info-circle class='w-5 h-5' aria-hidden='true' />");
-            echo ":";
-            echo "</span>";
-            echo "</label>";
-            echo "</td><td>";
-            echo "<select id='typeinput' name='k'>";
-            echo "<option value=''>None</option>";
-            foreach (AchievementType::cases() as $typeOption) {
-                echo "<option value='$typeOption' " . ($achType === $typeOption ? 'selected' : '') . ">";
-                echo __('achievement-type.' . $typeOption);
-                echo "</option>";
+            if ($canHaveTypes) {
+                $typeHelperContent = "A game is considered beaten if ALL " . __('achievement-type.' . AchievementType::Progression) . " achievements are unlocked and ANY " . __('achievement-type.' . AchievementType::WinCondition) . " achievements are unlocked.";
+                echo "<tr><td>";
+                echo "<label class='cursor-help flex items-center gap-x-1' for='typeinput' title='$typeHelperContent' aria-label='Type, $typeHelperContent'>";
+                echo "Type";
+                echo "<span>";
+                echo Blade::render("<x-fas-info-circle class='w-5 h-5' aria-hidden='true' />");
+                echo ":";
+                echo "</span>";
+                echo "</label>";
+                echo "</td><td>";
+                echo "<select id='typeinput' name='k'>";
+                echo "<option value=''>None</option>";
+                foreach (AchievementType::cases() as $typeOption) {
+                    echo "<option value='$typeOption' " . ($achType === $typeOption ? 'selected' : '') . ">";
+                    echo __('achievement-type.' . $typeOption);
+                    echo "</option>";
+                }
+                echo "</select></td></tr>";
             }
-            echo "</select></td></tr>";
 
             echo "</tbody></table>";
             echo "&nbsp;<button type='button' class='btn' style='float: right;' onclick=\"updateAchievementDetails()\">Update</button><br><br>";

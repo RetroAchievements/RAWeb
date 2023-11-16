@@ -3,7 +3,9 @@
     'initialActivePlayers' => [],
     'initialSearch' => null,
     'totalActivePlayers' => 0,
+    'targetGameIds' => null,
     'trendingGames' => [],
+    'variant' => 'home', // 'home' | 'focused'
 ])
 
 <script>
@@ -12,12 +14,14 @@ function activePlayersComponent() {
 
     return {
         canShowEmptyState: {{ $totalActivePlayers === 0 ? 'true' : 'false' }},
-        hasFetchedFullList: false,
+        hasFetchedFullList: {{ $variant === 'focused' ? 'true' : 'false' }},
         hasSavedSearchInput: {{ $initialSearch ? 'true' : 'false' }},
         isMenuOpen: {{ $initialSearch ? 'true' : 'false' }},
         isRememberingSearch: {{ $initialSearch ? 'true' : 'false' }},
         lastUpdatedAtLabel: 'Last updated now',
         searchInput: "{{ $initialSearch ?? '' }}",
+        targetGameIds: {!! $targetGameIds ? json_encode($targetGameIds) : 'null' !!},
+        variant: "{{ $variant ?? 'home' }}",
 
         init() {
             const FIVE_MINUTES = 300000; // milliseconds
@@ -30,7 +34,11 @@ function activePlayersComponent() {
 
             // Migrate saved searches from the old Knockout.js Active Players widget
             // to this new Alpine.js component.
-            if (localStorage.getItem('rememberFilters') === 'true' && localStorage.getItem('filterString')) {
+            if (
+                this.variant !== 'focused'
+                && localStorage.getItem('rememberFilters') === 'true'
+                && localStorage.getItem('filterString')
+            ) {
                 const legacyFilterString = localStorage.getItem('filterString');
                 
                 window.setCookie(cookieName, legacyFilterString);
@@ -46,14 +54,16 @@ function activePlayersComponent() {
             }
 
             this.$watch('searchInput', (newValue) => {
-                if (this.searchInput.length > 0 && this.isRememberingSearch) {
-                    window.setCookie(cookieName, this.searchInput);
-                } else if (this.searchInput.length === 0 && this.isRememberingSearch) {
-                    window.deleteCookie(cookieName);
-                }
+                if (this.variant !== 'focused') {
+                    if (this.searchInput.length > 0 && this.isRememberingSearch) {
+                        window.setCookie(cookieName, this.searchInput);
+                    } else if (this.searchInput.length === 0 && this.isRememberingSearch) {
+                        window.deleteCookie(cookieName);
+                    }
 
-                this.hasFetchedFullList = true;
-                this.refreshActivePlayers();
+                    this.hasFetchedFullList = true;
+                    this.refreshActivePlayers();
+                }
             });
         },
 
@@ -200,7 +210,9 @@ function activePlayersComponent() {
 </script>
 
 <section class="component" x-data="activePlayersComponent()">
-    <h3>Active Players</h3>
+    @if ($variant !== 'focused')
+        <h3>Active Players</h3>
+    @endif
 
     <div class="mb-2">
         <div class="flex w-full justify-between items-center">
@@ -209,21 +221,25 @@ function activePlayersComponent() {
                 :totalActivePlayers="$totalActivePlayers"
             />
 
-            <button
-                class="btn transition-all duration-200 lg:active:scale-95 -mb-px"
-                :class="{
-                    '!border-b-transparent !rounded-b-none': isMenuOpen
-                }"
-                aria-label="Open search and filter menu"
-                @click="isMenuOpen = !isMenuOpen"
-            >
-                <x-fas-bars />
-            </button>
+            @if ($variant !== 'focused')
+                <button
+                    class="btn transition-all duration-200 lg:active:scale-95 -mb-px"
+                    :class="{
+                        '!border-b-transparent !rounded-b-none': isMenuOpen
+                    }"
+                    aria-label="Open search and filter menu"
+                    @click="isMenuOpen = !isMenuOpen"
+                >
+                    <x-fas-bars />
+                </button>
+            @endif
         </div>
 
-        <x-active-players.active-players-search-filter-panel
-            :initialSearch="$initialSearch"
-        />
+        @if ($variant !== 'focused')
+            <x-active-players.active-players-search-filter-panel
+                :initialSearch="$initialSearch"
+            />
+        @endif
     </div>
 
     <div
@@ -238,7 +254,7 @@ function activePlayersComponent() {
     <div
         id="active-players-scroll-area"
         class="h-[325px] max-h-[325px] overflow-y-auto border border-embed-highlight rounded {{ $activePlayersCount === 0 ? 'hidden' : '' }}"
-        @scroll="handleScroll()"
+        @if ($variant !== 'focused') @scroll="handleScroll()" @endif
         x-show="!canShowEmptyState"
     >
         <x-active-players.active-players-table
@@ -253,7 +269,7 @@ function activePlayersComponent() {
         </p>
     </div>
 
-    @if (!empty($trendingGames) && count($trendingGames) === 4)
+    @if ($variant !== 'focused' && !empty($trendingGames) && count($trendingGames) === 4)
         <x-active-players.active-players-trending-games
             :trendingGames="$trendingGames"
         />

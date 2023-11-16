@@ -45,7 +45,7 @@ class PlayerCompletionProgressController extends Controller
             abort(401);
         }
 
-        $foundTargetUser = User::where('User', 'like', $targetUsername)->first();
+        $foundTargetUser = User::firstWhere('User', $targetUsername);
         if (!$this->getCanViewTargetUser($foundTargetUser, $me)) {
             abort(404);
         }

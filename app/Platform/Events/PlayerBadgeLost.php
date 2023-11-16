@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Events;
 
-use App\Platform\Models\PlayerBadge;
+use App\Site\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -17,7 +17,10 @@ class PlayerBadgeLost
     use SerializesModels;
 
     public function __construct(
-        public PlayerBadge $playerBadge,
+        public User $user,
+        public int $awardType,
+        public int $awardData,
+        public int $awardDataExtra,
     ) {
     }
 

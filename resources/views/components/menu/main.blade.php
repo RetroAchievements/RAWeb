@@ -65,6 +65,7 @@ $menuSystemsList = [
             ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
             ["systemName" => "Mega Duck", "listID" => 69],
             ["systemName" => "MSX", "listID" => 29],
+            ["systemName" => "Neo Geo CD", "listID" => 56],
             ["systemName" => "Neo Geo Pocket", "listID" => 14],
             ["systemName" => "Uzebox", "listID" => 80],
             ["systemName" => "Vectrex", "listID" => 46],
@@ -154,7 +155,7 @@ $menuSystemsList = [
     @hasfeature("beat")
         <x-dropdown-item :link="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>
     @endhasfeature
-    <x-dropdown-item :link="url('recentMastery.php')">Recent Masteries</x-dropdown-item>
+    <x-dropdown-item :link="url('recentMastery.php')">Recent Game Awards</x-dropdown-item>
     <x-dropdown-item :link="url('developerstats.php')">Developer Stats</x-dropdown-item>
     <div class="dropdown-divider"></div>
     <x-dropdown-item link="https://news.retroachievements.org">RANews</x-dropdown-item>

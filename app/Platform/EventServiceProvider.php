@@ -23,10 +23,12 @@ use App\Platform\Events\PlayerGameRemoved;
 use App\Platform\Events\PlayerMetricsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
+use App\Platform\Events\PlayerStatsUpdated;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerGameMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
+use App\Platform\Listeners\DispatchUpdatePlayerStatsJob;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
 use App\Site\Events\UserDeleted;
@@ -71,9 +73,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         PlayerBadgeAwarded::class => [
             // TODO Notify player
+            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
         ],
         PlayerBadgeLost::class => [
             // TODO Notify player
+            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
         ],
         PlayerGameAttached::class => [
             DispatchUpdatePlayerGameMetricsJob::class, // dispatches PlayerGameMetricsUpdated
@@ -100,6 +104,9 @@ class EventServiceProvider extends ServiceProvider
         PlayerRankedStatusChanged::class => [
             // TODO Update all affected games
             // TODO Notify player
+            DispatchUpdatePlayerStatsJob::class, // dispatches PlayerStatsUpdated
+        ],
+        PlayerStatsUpdated::class => [
         ],
         UserDeleted::class => [
             ResetPlayerProgress::class, // dispatches PlayerGameMetricsUpdated

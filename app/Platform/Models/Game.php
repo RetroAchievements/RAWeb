@@ -72,6 +72,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     protected $visible = [
         'ID',
         'Title',
+        'ConsoleID',
         'ForumTopicID',
         'Flags',
         'ImageIcon',
@@ -87,6 +88,9 @@ class Game extends BaseModel implements HasComments, HasMedia
         'GuideURL',
         'Updated',
         'achievement_set_version_hash',
+        'achievements_published',
+        'points_total',
+        'players_total',
     ];
 
     protected static function newFactory(): GameFactory
@@ -161,6 +165,18 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     // == accessors
 
+    public function getCanHaveTypes(): bool
+    {
+        $isSubsetOrTestKit = (
+            mb_strpos($this->Title, "[Subset") !== false
+            || mb_strpos($this->Title, "~Test Kit~") !== false
+        );
+
+        $isEventGame = $this->ConsoleID === 101;
+
+        return !$isSubsetOrTestKit && !$isEventGame;
+    }
+
     public function getCanonicalUrlAttribute(): string
     {
         return route('game.show', [$this, $this->getSlugAttribute()]);
@@ -226,7 +242,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function leaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class);
+        return $this->hasMany(Leaderboard::class, 'GameID');
     }
 
     /**

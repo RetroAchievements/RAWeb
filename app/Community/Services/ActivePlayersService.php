@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Cache;
 
 class ActivePlayersService
 {
-    public function loadActivePlayers(?string $searchValue = null, bool $fetchAll = false): array
-    {
+    public function loadActivePlayers(
+        ?string $searchValue = null,
+        bool $fetchAll = false,
+        ?array $targetGameIds = [],
+    ): array {
         $allActivePlayers = Cache::remember(
-            'currently-active:20230921',
+            'currently-active:202309215543',
             Carbon::now()->addMinutes(2),
             function () {
                 return collect(getLatestRichPresenceUpdates())
@@ -27,29 +30,42 @@ class ActivePlayersService
 
         $filteredActivePlayers = $allActivePlayers;
         $filteredActivePlayers = $this->useDevelopmentGameTitle($filteredActivePlayers);
+        $filteredActivePlayers = $this->useTargetGameIds($filteredActivePlayers, $targetGameIds);
 
-        $trendingGames = $this->computeTrendingGames($filteredActivePlayers);
+        $trendingGames = isset($targetGameIds) ? [] : $this->computeTrendingGames($filteredActivePlayers);
 
         if ($searchValue) {
-            $filteredActivePlayers = $filteredActivePlayers->filter(function ($player) use ($searchValue) {
-                return stripos($player['User'], $searchValue) !== false
-                    || stripos($player['GameTitle'], $searchValue) !== false
-                    || stripos($player['ConsoleName'], $searchValue) !== false
-                    || stripos($player['RichPresenceMsg'], $searchValue) !== false;
+            // Split the search string by the '|' operator to support "OR" searches.
+            $searchTerms = array_filter(explode('|', $searchValue), function ($term) {
+                return trim($term) !== '';
+            });
+
+            $filteredActivePlayers = $filteredActivePlayers->filter(function ($player) use ($searchTerms) {
+                // Check if any of the search terms are present in any of the player's attributes.
+                foreach ($searchTerms as $term) {
+                    if (stripos($player['User'], $term) !== false
+                        || stripos($player['GameTitle'], $term) !== false
+                        || stripos($player['ConsoleName'], $term) !== false
+                        || stripos($player['RichPresenceMsg'], $term) !== false) {
+                        return true;
+                    }
+                }
+
+                return false;
             });
         }
 
         $records = $filteredActivePlayers->values();
 
         // If we have no search or filter, take the top 20 players on the list.
-        if (!$searchValue && !$fetchAll) {
+        if (!$searchValue && !$fetchAll && !$targetGameIds) {
             $records = $records->take(20);
         }
 
         $records = $records->toArray();
 
         return [
-            'total' => $allActivePlayers->count(),
+            'total' => isset($targetGameIds) ? $filteredActivePlayers->count() : $allActivePlayers->count(),
             'count' => count($records),
             'records' => $records,
             'trendingGames' => $trendingGames,
@@ -113,6 +129,17 @@ class ActivePlayersService
             }
 
             return $activePlayer;
+        });
+    }
+
+    private function useTargetGameIds(mixed $activePlayers, ?array $targetGameIds): mixed
+    {
+        if (!isset($targetGameIds)) {
+            return $activePlayers;
+        }
+
+        return $activePlayers->filter(function ($activePlayer) use ($targetGameIds) {
+            return in_array($activePlayer['GameID'], $targetGameIds);
         });
     }
 }

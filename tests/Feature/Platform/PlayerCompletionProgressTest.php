@@ -27,7 +27,7 @@ class PlayerCompletionProgressTest extends TestCase
     public function testItRendersWithoutCrashing(): void
     {
         /** @var User $user */
-        $user = User::factory()->create(['User' => 'mockUser']);
+        $user = User::factory()->create(['User' => 'MockUser']);
 
         $this->actingAs($user)->get('/user/MockUser/progress')->assertStatus(200);
     }

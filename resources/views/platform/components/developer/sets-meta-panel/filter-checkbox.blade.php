@@ -8,7 +8,7 @@
         class="cursor-pointer"
         type="checkbox"
         autocomplete="off"
-        @change="handleGameKindsChanged($event, '{{ $kind }}')"
+        onchange="handleFilterChanged(event, '{{ $kind }}')"
         @if ($isPreChecked) checked @endif
     >
         {{ $slot }}
