@@ -49,6 +49,35 @@ trait TestsPlayerBadges
         $this->addPlayerBadge($user, AwardType::GameBeaten, $game->ID, $mode, $awardTime);
     }
 
+    protected function beatenBadgeExists(User $user, Game $game, ?int $mode): bool
+    {
+        $badge = $user->playerBadges()
+            ->where('AwardType', AwardType::GameBeaten)
+            ->where('AwardData', $game->ID);
+
+            if ($mode !== null) {
+            $badge = $badge->where('AwardDataExtra', UnlockMode::Hardcore);
+        }
+
+        return $badge->exists();
+    }
+
+    protected function assertHasBeatenBadge(User $user, Game $game, ?int $mode = null): void
+    {
+        $this->assertTrue(
+            $this->beatenBadgeExists($user, $game, $mode),
+            "No beaten badge for game " . $game->ID . "/user " . $user->ID,
+        );
+    }
+
+    protected function assertDoesNotHaveBeatenBadge(User $user, Game $game, ?int $mode = null): void
+    {
+        $this->assertFalse(
+            $this->beatenBadgeExists($user, $game, $mode),
+            "Found beaten badge for game " . $game->ID . "/user " . $user->ID,
+        );
+    }
+
     protected function addMasteryBadge(
         User $user,
         Game $game,
