@@ -37,12 +37,12 @@ class RevalidateAchievementSetBadgeEligibility
         $hardcoreBadge = (clone $badge)->where('AwardDataExtra', UnlockMode::Hardcore);
 
         if ($playerGame->beaten_at === null && $softcoreBadge->exists()) {
-            PlayerBadgeLost::dispatch($softcoreBadge->first());
+            $this->dispatchBadgeLostEvent($softcoreBadge->first());
             $softcoreBadge->delete();
         }
 
         if ($playerGame->beaten_hardcore_at === null && $hardcoreBadge->exists()) {
-            PlayerBadgeLost::dispatch($hardcoreBadge->first());
+            $this->dispatchBadgeLostEvent($hardcoreBadge->first());
             $hardcoreBadge->delete();
         }
 
@@ -90,7 +90,7 @@ class RevalidateAchievementSetBadgeEligibility
             // a revision and do nothing. if they want to get rid of the badge,
             // they can reset one or more of the achievements they have.
             if (!$playerGame->achievements_unlocked && $playerGame->achievements_total) {
-                PlayerBadgeLost::dispatch($softcoreBadge->first());
+                $this->dispatchBadgeLostEvent($softcoreBadge->first());
                 $softcoreBadge->delete();
             }
         }
@@ -100,7 +100,7 @@ class RevalidateAchievementSetBadgeEligibility
             // was demoted and keep the badge, otherwise assume they did a full reset
             // and destroy the badge.
             if (!$playerGame->achievements_unlocked && !$playerGame->achievements_unlocked_hardcore && $playerGame->achievements_total) {
-                PlayerBadgeLost::dispatch($hardcoreBadge->first());
+                $this->dispatchBadgeLostEvent($hardcoreBadge->first());
                 $hardcoreBadge->delete();
             }
         }
@@ -140,5 +140,15 @@ class RevalidateAchievementSetBadgeEligibility
 
             expireGameTopAchievers($playerGame->game->id);
         }
+    }
+
+    private function dispatchBadgeLostEvent(PlayerBadge $badge): void
+    {
+        PlayerBadgeLost::dispatch(
+            $badge->user,
+            $badge->AwardType,
+            $badge->AwardData,
+            $badge->AwardDataExtra,
+        );
     }
 }

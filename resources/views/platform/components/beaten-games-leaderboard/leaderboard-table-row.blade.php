@@ -25,7 +25,7 @@ $lastBeatenDate = Carbon::parse($paginatedRow->last_beaten_date)->format('F j Y'
 
     <td class='py-2.5'>
         <x-game.multiline-avatar
-            :gameId="$paginatedRow->most_recent_game_id"
+            :gameId="$paginatedRow->last_game_id"
             :gameTitle="$paginatedRow->GameTitle"
             :gameImageIcon="$paginatedRow->GameIcon"
             :consoleName="$paginatedRow->ConsoleName"
