@@ -1,4 +1,5 @@
 @props([
+    'consoleId' => 0,
     'firstWonDate' => '',
     'gameId' => 0,
     'gameTitle' => '',
@@ -101,7 +102,7 @@ if ($highestAwardKind && $highestAwardDate) {
     @endif
 
     {{-- c.progress-pmeta__root > div --}}
-    <div @if ($variant === 'user-recently-played') class="flex !flex-col-reverse" @endif>
+    <div @if ($variant === 'user-recently-played' && $consoleId != 101) class="flex !flex-col-reverse" @endif>
         <p>
             @if ($variant === 'user-recently-played')
                 <span>Last played</span>
