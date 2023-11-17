@@ -40,10 +40,6 @@ class PlayerCompletionProgressController extends Controller
         $sortOrder = $validatedData['sort'] ?? 'unlock_date';
 
         $me = Auth::user() ?? null;
-        // TODO: Remove when denormalized data is ready.
-        if (!$me) {
-            abort(401);
-        }
 
         $foundTargetUser = User::firstWhere('User', $targetUsername);
         if (!$this->getCanViewTargetUser($foundTargetUser, $me)) {
@@ -253,7 +249,7 @@ class PlayerCompletionProgressController extends Controller
         }
 
         if ($user->toArray()['Permissions'] < Permissions::Unregistered) {
-            if ($me && $me->toArray()['Permissions'] >= Permissions::Moderator) {
+            if (isset($me) && $me->toArray()['Permissions'] >= Permissions::Moderator) {
                 return true;
             }
 
