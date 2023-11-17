@@ -125,7 +125,8 @@ class DeveloperSetsController extends Controller
             $game['NumAuthoredTickets'] = $gameTickets['NumAuthoredTickets'] ?? 0;
 
             $gameProgress = $userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
-            $game['CompletionPercentage'] = $gameProgress * 100 / $gameModel->achievements_published;
+            $game['CompletionPercentage'] = $gameModel->achievements_published ?
+                ($gameProgress * 100 / $gameModel->achievements_published) : 0;
 
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 

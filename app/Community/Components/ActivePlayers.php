@@ -21,7 +21,7 @@ class ActivePlayers extends Component
         ?array $targetGameIds = null,
         ?string $variant = 'home',
     ) {
-        $this->initialSearch = $request->cookie('active_players_search');
+        $this->initialSearch = $variant !== 'focused' ? $request->cookie('active_players_search') : null;
 
         $this->targetGameIds = $targetGameIds;
         $this->variant = $variant;
