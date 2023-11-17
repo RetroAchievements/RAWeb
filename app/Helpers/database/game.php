@@ -342,6 +342,7 @@ function getGamesListByDev(
         $orderBy = '';
         $foundRows = '';
         $listJoin = '';
+        $bindings = [];
     }
 
     $commonFields = 'gd.ID, gd.Title, gd.ImageIcon, gd.TotalTruePoints,
