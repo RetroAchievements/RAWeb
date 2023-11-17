@@ -23,7 +23,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
-if (!is_numeric($maxNumGamesToFetch) || $maxNumGamesToFetch > 100) {
+if ($maxNumGamesToFetch < 1 || $maxNumGamesToFetch > 100) {
     abort(400);
 }
 
