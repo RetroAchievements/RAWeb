@@ -106,8 +106,12 @@ function activePlayersComponent() {
                 params.set('search', this.searchInput);
             }
 
-            if (getFullList || this.hasFetchedFullList) {
+            if (this.variant !== 'focused' && (getFullList || this.hasFetchedFullList)) {
                 params.set('all', true);
+            }
+
+            if (this.targetGameIds) {
+                params.set('targetGameIds', Object.values(this.targetGameIds));
             }
 
             if (params.size > 0) {

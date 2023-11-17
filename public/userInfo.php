@@ -507,32 +507,30 @@ RenderContentStart($userPage);
         echo "</div>";
     }
 
-    if ($user) {
-        echo "<div class='my-8'>";
-        echo Blade::render('
-            <x-user-recently-played
-                :recentlyPlayedCount="$recentlyPlayedCount"
-                :recentlyPlayedEntities="$recentlyPlayedEntities"
-                :recentAchievementEntities="$recentAchievementEntities"
-                :recentAwardedEntities="$recentAwardedEntities"
-                :targetUsername="$targetUsername"
-                :userAwards="$userAwards"
-            />
-        ', [
-            'recentlyPlayedCount' => $userMassData['RecentlyPlayedCount'] ?? 0,
-            'recentlyPlayedEntities' => $userMassData['RecentlyPlayed'] ?? [],
-            'recentAchievementEntities' => $userMassData['RecentAchievements'] ?? [],
-            'recentAwardedEntities' => $userMassData['Awarded'] ?? [],
-            'targetUsername' => $user,
-            'userAwards' => $userAwards,
-        ]);
+    echo "<div class='my-8'>";
+    echo Blade::render('
+        <x-user-recently-played
+            :recentlyPlayedCount="$recentlyPlayedCount"
+            :recentlyPlayedEntities="$recentlyPlayedEntities"
+            :recentAchievementEntities="$recentAchievementEntities"
+            :recentAwardedEntities="$recentAwardedEntities"
+            :targetUsername="$targetUsername"
+            :userAwards="$userAwards"
+        />
+    ', [
+        'recentlyPlayedCount' => $userMassData['RecentlyPlayedCount'] ?? 0,
+        'recentlyPlayedEntities' => $userMassData['RecentlyPlayed'] ?? [],
+        'recentAchievementEntities' => $userMassData['RecentAchievements'] ?? [],
+        'recentAwardedEntities' => $userMassData['Awarded'] ?? [],
+        'targetUsername' => $user ?? '',
+        'userAwards' => $userAwards,
+    ]);
 
-        $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
-        if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
-            echo "<div class='text-right'><a class='btn btn-link' href='/user/$userPage?g=15'>more...</a></div>";
-        }
-        echo "</div>";
+    $recentlyPlayedCount = $userMassData['RecentlyPlayedCount'];
+    if ($maxNumGamesToFetch == 5 && $recentlyPlayedCount == 5) {
+        echo "<div class='text-right'><a class='btn btn-link' href='/user/$userPage?g=15'>more...</a></div>";
     }
+    echo "</div>";
 
     echo "<div class='commentscomponent left mt-8'>";
 
