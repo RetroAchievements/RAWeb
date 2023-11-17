@@ -127,7 +127,10 @@ class BeatenGamesLeaderboardController extends Controller
         $includedTypes = $this->getIncludedTypes($gameKindFilterOptions);
 
         $aggregateSubquery = PlayerStat::selectRaw(
-            'user_id, SUM(value) AS total_awards, MAX(updated_at) AS last_beaten_date'
+            'user_id, 
+            SUM(value) AS total_awards, 
+            MAX(updated_at) AS last_beaten_date, 
+            MAX(id) AS last_activity_id',
         )
             ->when($targetSystemId, function ($query) use ($targetSystemId) {
                 return $query->where('system_id', $targetSystemId);
@@ -147,7 +150,7 @@ class BeatenGamesLeaderboardController extends Controller
         )
             ->joinSub($aggregateSubquery, 'sub', function ($join) use ($targetSystemId) {
                 $join->on('sub.user_id', '=', 'player_stats.user_id')
-                    ->on('sub.last_beaten_date', '=', 'player_stats.updated_at');
+                    ->on('sub.last_activity_id', '=', 'player_stats.id');
 
                 if (isset($targetSystemId) && $targetSystemId > 0) {
                     $join->where('player_stats.system_id', '=', $targetSystemId);

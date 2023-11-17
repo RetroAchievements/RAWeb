@@ -154,6 +154,10 @@ class UserRecentlyPlayed extends Component
             if ($numPossibleAchievements > 0) {
                 $processed['PctWonHC'] = $numAchievedHardcore / $numPossibleAchievements;
                 $processed['PctWon'] = $numAchieved / $numPossibleAchievements;
+
+                $processed['MaxPossibleScore'] = isset($awardedEntity['PossibleScore']) ? (int) $awardedEntity['PossibleScore'] : 0;
+                $processed['ScoreEarnedHardcore'] = (int) $awardedEntity['ScoreAchievedHardcore'];
+                $processed['ScoreEarnedSoftcore'] = (int) $awardedEntity['ScoreAchieved'];
             }
         }
 
