@@ -73,14 +73,13 @@ function normalize_user_shortcodes(string $value): string
 {
     /**
      * find any url variants of user links and transform them into tags
-     * excludes URLs with path or query parameters
      */
     $find = [
-        "~\<a [^/>]*retroachievements\.org/user/([\w]{1,20})(?![\w/?])[^/>]*\][^</a>]*</a>~si",
-        "~\[url[^\]]*retroachievements\.org/user/([\w]{1,20})(?![\w/?])[^\]]*\][^\[]*\[/url\]~si",
-        "~\[url[^\]]*?user/([\w]{1,20})(?![\w/?]).*?\[/url\]~si",
-        "~https?://(?:[\w\-]+\.)?retroachievements\.org/user/([\w]{1,20})(?![\w/?])~si",
-        "~https?://localhost(?::\d{1,5})?/user/([\w]{1,20})(?![\w/?])~si",
+        "~\<a [^/>]*retroachievements\.org/user/([\w]{1,20})[^/>]*\][^</a>]*</a>~si",
+        "~\[url[^\]]*retroachievements\.org/user/([\w]{1,20})[^\]]*\][^\[]*\[/url\]~si",
+        "~\[url[^\]]*?user/([\w]*).*?\[/url\]~si",
+        "~https?://(?:[\w\-]+\.)?retroachievements\.org/user/([\w]{1,20})~si",
+        "~https?://localhost(?::\d{1,5})?/user/([\w]{1,20})~si",
     ];
     $replace = '[user=$1]';
     $value = preg_replace($find, $replace, $value);
