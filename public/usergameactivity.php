@@ -20,6 +20,10 @@ $consoleID = $gameData['ConsoleID'];
 $consoleName = $gameData['ConsoleName'];
 
 $activity = getUserGameActivity($user2, $gameID);
+if (empty($activity)) {
+    abort(404);
+}
+
 $estimated = ($activity['PerSessionAdjustment'] !== 0) ? " (estimated)" : "";
 
 $unlockSessionCount = $activity['UnlockSessionCount'];
