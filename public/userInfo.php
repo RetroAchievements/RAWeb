@@ -518,7 +518,7 @@ RenderContentStart($userPage);
         'recentlyPlayedEntities' => $userMassData['RecentlyPlayed'] ?? [],
         'recentAchievementEntities' => $userMassData['RecentAchievements'] ?? [],
         'recentAwardedEntities' => $userMassData['Awarded'] ?? [],
-        'targetUsername' => $userPage,
+        'targetUsername' => $userPage ?? '',
         'userAwards' => $userAwards,
     ]);
 
