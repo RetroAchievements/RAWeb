@@ -32,13 +32,6 @@ class PlayerCompletionProgressTest extends TestCase
         $this->actingAs($user)->get('/user/MockUser/progress')->assertStatus(200);
     }
 
-    public function testItReturns401IfUnauthenticated(): void
-    {
-        User::factory()->create(['User' => 'mockUser']);
-
-        $this->get('/user/MockUser/progress')->assertStatus(401);
-    }
-
     public function testItReturns404IfTargetUserIsBanned(): void
     {
         /** @var User $me */

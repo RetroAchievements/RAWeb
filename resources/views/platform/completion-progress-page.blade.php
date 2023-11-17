@@ -2,7 +2,7 @@
 use App\Site\Models\User;
 
 $targetUsername = $user->User;
-$isMe = $me->User === $targetUsername;
+$isMe = $me?->User === $targetUsername;
 
 $headingLabel = '';
 if ($isMe) {
@@ -13,12 +13,10 @@ if ($isMe) {
     $headingLabel = $targetUsername . "'s Completion Progress";
 }
 
-// TODO: Once using denormalized data, come up with a good page description.
-// Doesn't matter right now because these pages don't generate any SEO juice.
-// $pageDescription = "";
+$pageDescription = "View {$targetUsername}'s game completion stats and milestones on RetroAchievements. Track their played, unfinished, and mastered games from various systems.";
 ?>
 
-<x-app-layout :pageTitle="$headingLabel">
+<x-app-layout :pageTitle="$headingLabel" :pageDescription="$pageDescription">
     <div>
         <x-user.breadcrumbs :targetUsername="$targetUsername" currentPage="Completion Progress" />
 

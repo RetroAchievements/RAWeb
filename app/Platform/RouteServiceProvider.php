@@ -74,6 +74,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
+            Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');
             Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
             Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
 
@@ -144,7 +145,6 @@ class RouteServiceProvider extends ServiceProvider
             //     Route::resource('system', SystemController::class)->only('edit', 'update', 'destroy');
             //     Route::resource('game', GameController::class)->only('edit', 'update', 'destroy');
             //
-                Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');
 
             //     Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])
             //         ->name('user.game.compare');
