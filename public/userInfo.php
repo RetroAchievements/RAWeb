@@ -23,6 +23,10 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
+if (!is_numeric($maxNumGamesToFetch) || $maxNumGamesToFetch > 300) {
+    abort(400);
+}
+
 $userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
 if (empty($userMassData)) {
     abort(404);
