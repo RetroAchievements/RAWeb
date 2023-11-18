@@ -100,6 +100,16 @@ class UserRecentlyPlayed extends Component
         }
     }
 
+    private function deriveAchievementBadgeUrl(array $achievementData): string
+    {
+        $isAwarded = $achievementData['IsAwarded'];
+        $rawBadgeName = $achievementData['BadgeName'];
+
+        $processedBadgeName = $isAwarded ? "{$rawBadgeName}.png" : "{$rawBadgeName}_lock.png";
+
+        return media_asset("Badge/{$processedBadgeName}");
+    }
+
     private function extractGameInformation(array $entity): array
     {
         return [
@@ -163,6 +173,10 @@ class UserRecentlyPlayed extends Component
 
         $processed['AchievementAvatars'] = collect($achievementEntities)
             ->map(fn ($achievement) => $this->buildAchievementAvatar($achievement))
+            ->all();
+
+        $processed['AchievementBadgeURLs'] = collect($achievementEntities)
+            ->map(fn ($achievement) => $this->deriveAchievementBadgeUrl($achievement))
             ->all();
 
         $processed['FirstWonDate'] = collect($achievementEntities)
