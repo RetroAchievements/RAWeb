@@ -35,7 +35,7 @@ function handlePageChanged(event) {
 function goToPage(pageNumber) {
     const page = parseInt(pageNumber, 10);
     if (page !== NaN && page > 0 && page <= {{ $paginator->lastPage() }}) {
-        window.location.href = `{{ $baseUrl }}?page[number]=${page}`;
+        window.updateUrlParameter('page[number]', page);
     } else {
         alert('Please enter a valid page number.');
     }
