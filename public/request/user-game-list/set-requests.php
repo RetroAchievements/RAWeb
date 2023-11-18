@@ -1,5 +1,6 @@
 <?php
 
+use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -11,8 +12,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $gameID = (int) $input['game'];
 $user = $input['user'];
 
-$setRequestList = getUserRequestList($user);
-$totalRequests = getUserRequestsInformation($user, $setRequestList, $gameID);
+$userModel = User::firstWhere('User', $user);
+
+$totalRequests = getUserRequestsInformation($userModel, $gameID);
 $totalRequests['gameRequests'] = getSetRequestCount($gameID);
 
 return response()->json($totalRequests);

@@ -4,99 +4,32 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\RequestStatus;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
-use App\Platform\Enums\AchievementFlag;
 use App\Site\Models\User;
-
-/**
- * Gets a list of set requests made by a given user.
- */
-function getUserRequestList(?string $user = null): array
-{
-    sanitize_sql_inputs($user);
-
-    $retVal = [];
-
-    $query = "
-        SELECT
-            sr.GameID as GameID,
-            gd.Title as GameTitle,
-            gd.ImageIcon as GameIcon,
-            c.name as ConsoleName,
-            GROUP_CONCAT(DISTINCT(IF(sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "), sc.User, NULL))) AS Claims
-        FROM
-            SetRequest sr
-        LEFT JOIN
-            SetClaim sc ON (sr.GameID = sc.GameID)
-        LEFT JOIN
-            GameData gd ON (sr.GameID = gd.ID)
-        LEFT JOIN
-            Console c ON (gd.ConsoleID = c.ID)
-        WHERE
-            sr.user = '$user' AND sr.type='" . UserGameListType::AchievementSetRequest . "'
-        GROUP BY
-            sr.GameID
-        ORDER BY " . ifStatement("gd.Title LIKE '~%'", 1, 0) . ", gd.Title";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $gameIDs = [];
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $gameIDs[] = $nextData['GameID'];
-            $nextData['AchievementCount'] = 0;
-            $retVal[] = $nextData;
-        }
-
-        if (!empty($gameIDs)) {
-            $query = "SELECT GameID, COUNT(ID) AS AchievementCount FROM Achievements"
-                   . " WHERE GameID IN (" . implode(',', $gameIDs) . ")"
-                   . " AND Flags = " . AchievementFlag::OfficialCore
-                   . " GROUP BY GameID";
-
-            $dbResult = s_mysql_query($query);
-
-            if ($dbResult !== false) {
-                while ($nextData = mysqli_fetch_assoc($dbResult)) {
-                    foreach ($retVal as &$game) {
-                        if ($game['GameID'] == $nextData['GameID']) {
-                            $game['AchievementCount'] = $nextData['AchievementCount'];
-                            break;
-                        }
-                    }
-                }
-            } else {
-                log_sql_fail();
-            }
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $retVal;
-}
 
 /**
  * Gets the total and remaining set requests left for the given user.
  */
-function getUserRequestsInformation(string $user, array $list, int $gameID = -1): array
+function getUserRequestsInformation(User $user, int $gameID = -1): array
 {
-    /** @var User $userModel */
-    $userModel = User::firstWhere('User', $user);
-    $requests = UserGameListEntry::getUserSetRequestsInformation($userModel);
+    $requests = UserGameListEntry::getUserSetRequestsInformation($user);
 
     $requests['used'] = 0;
     $requests['requestedThisGame'] = 0;
 
     // Determine how many of the users current requests are still valid.
     // Requests made for games that since received achievements do not count towards a used request
-    foreach ($list as $request) {
+    $setRequests = UserGameListEntry::where('user_id', $user->ID)
+        ->where('type', UserGameListType::AchievementSetRequest)
+        ->join('GameData', 'GameData.ID', '=', 'GameId')
+        ->select(['GameData.ID', 'GameData.achievements_published']);
+    foreach ($setRequests->get() as $request) {
         // If the game does not have achievements then it counts as a legit request
-        if ($request['AchievementCount'] == 0) {
+        if ($request['achievements_published'] == 0) {
             $requests['used']++;
         }
 
         // Determine if we have made a request for the input game
-        if ($request['GameID'] == $gameID) {
+        if ($request['ID'] == $gameID) {
             $requests['requestedThisGame'] = 1;
         }
     }
