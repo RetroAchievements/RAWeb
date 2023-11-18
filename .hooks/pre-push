@@ -14,7 +14,7 @@ npx eslint --quiet
 printf "\n⏳ npm run test\n"
 npm run test
 
-printf "\n⏳ composer test\n"
-vendor/bin/phpunit
+printf "\n⏳ composer paratest\n"
+vendor/bin/paratest
 
 printf "\n✅ pre-push OK\n\n"
