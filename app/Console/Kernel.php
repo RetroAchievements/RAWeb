@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('websockets:clean')->daily();
 
+        $schedule->command('cache:prune-stale-tags')->hourly();
+
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
         $schedule->command('queue:prune-batches --hours=48 --unfinished=72 --cancelled=72')->daily();
 

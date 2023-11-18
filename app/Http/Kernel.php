@@ -61,7 +61,7 @@ class Kernel extends HttpKernel
      * The application's route middleware.
      * These middlewares may be assigned to groups or used individually.
      */
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
         'auth' => \App\Site\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,

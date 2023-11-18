@@ -27,8 +27,6 @@ class AuthServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->registerPolicies();
-
         /*
          * passport api
          * http://esbenp.github.io/2017/03/19/modern-rest-api-laravel-part-4/
