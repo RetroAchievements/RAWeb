@@ -31,7 +31,7 @@ class PlayerCompletionProgressController extends Controller
             'page.number' => 'sometimes|integer|min:1',
             'filter.system' => 'sometimes|integer|between:0,99|not_in:101',
             'filter.status' => 'sometimes|string|min:2|max:30',
-            'sort' => 'sometimes|string|in:unlock_date,pct_won,-unlock_date,-pct_won',
+            'sort' => 'sometimes|string|in:unlock_date,pct_won,-unlock_date,-pct_won,game_title,-game_title',
         ]);
 
         $currentPage = (int) ($validatedData['page']['number'] ?? 1);
@@ -128,6 +128,18 @@ class PlayerCompletionProgressController extends Controller
         if ($sortOrder === '-unlock_date') {
             usort($filteredAndJoinedGamesList, function ($a, $b) {
                 return strtotime($a['MostRecentWonDate'] ?? '') - strtotime($b['MostRecentWonDate'] ?? '');
+            });
+        }
+
+        if ($sortOrder === 'game_title') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                return strcmp($a['Title'], $b['Title']);
+            });
+        }
+
+        if ($sortOrder === '-game_title') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                return strcmp($b['Title'], $a['Title']);
             });
         }
 
