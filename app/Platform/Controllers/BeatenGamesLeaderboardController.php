@@ -127,10 +127,9 @@ class BeatenGamesLeaderboardController extends Controller
         $includedTypes = $this->getIncludedTypes($gameKindFilterOptions);
 
         $aggregateSubquery = PlayerStat::selectRaw(
-            'user_id, 
-            SUM(value) AS total_awards, 
-            MAX(updated_at) AS last_beaten_date, 
-            MAX(id) AS last_activity_id',
+            'user_id,
+            SUM(value) AS total_awards,
+            MAX(updated_at) AS last_beaten_date'
         )
             ->when($targetSystemId, function ($query) use ($targetSystemId) {
                 return $query->where('system_id', $targetSystemId);
@@ -142,15 +141,15 @@ class BeatenGamesLeaderboardController extends Controller
 
         $query = PlayerStat::selectRaw(
             'sub.user_id, 
-            player_stats.last_game_id, 
-            player_stats.updated_at as last_beaten_date, 
+            MAX(player_stats.last_game_id) AS last_game_id, 
+            MAX(player_stats.updated_at) as last_beaten_date, 
             sub.total_awards, 
             RANK() OVER (ORDER BY sub.total_awards DESC) as rank_number,
             ROW_NUMBER() OVER (ORDER BY sub.total_awards DESC, sub.last_beaten_date ASC) as leaderboard_row_number'
         )
             ->joinSub($aggregateSubquery, 'sub', function ($join) use ($targetSystemId) {
                 $join->on('sub.user_id', '=', 'player_stats.user_id')
-                    ->on('sub.last_activity_id', '=', 'player_stats.id');
+                    ->on('sub.last_beaten_date', '=', 'player_stats.updated_at');
 
                 if (isset($targetSystemId) && $targetSystemId > 0) {
                     $join->where('player_stats.system_id', '=', $targetSystemId);
@@ -158,6 +157,7 @@ class BeatenGamesLeaderboardController extends Controller
                     $join->whereNull('player_stats.system_id');
                 }
             })
+            ->groupBy('sub.user_id')
             ->orderBy('sub.total_awards', 'desc')
             ->orderBy('sub.last_beaten_date', 'asc');
 
