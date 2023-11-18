@@ -9,20 +9,21 @@
 window.preloadedGameIds = {};
 
 /**
- * @param {Record<number, string>} badgeUrls
+ * @param {HTMLDivElement} element
  * @param {number} gameId
  */
-function preloadAchievementBadges(badgeUrls, gameId) {
+function preloadAchievementBadges(element, gameId) {
     // Only try to preload badges a single time per game.
     if (window.preloadedGameIds[gameId]) {
         return;
     }
 
-    for (const badgeUrl of Object.values(badgeUrls)) {
-        const img = new Image();
-        img.src = badgeUrl;
-
-        window.preloadedGameIds[gameId] = true;
+    const allChildImgEls = element.querySelectorAll('img');
+    for (const imgEl of allChildImgEls) {
+        if (imgEl.src) {
+            const preload = new Image();
+            preload.src = imgEl.src;
+        }
     }
 }
 </script>
@@ -38,7 +39,11 @@ function preloadAchievementBadges(badgeUrls, gameId) {
 
     <div class="flex flex-col gap-y-1">
         @foreach ($processedRecentlyPlayedEntities as $processedRecentlyPlayedEntity)
-            <div onmouseenter="preloadAchievementBadges({{ json_encode($processedRecentlyPlayedEntity['AchievementBadgeURLs']) }}, {{ $processedRecentlyPlayedEntity['GameID'] }})">
+            <div
+                @if ($loop->index !== 0 && !empty($processedRecentlyPlayedEntity['AchievementAvatars']))
+                    onmouseenter="preloadAchievementBadges(this, {{ $processedRecentlyPlayedEntity['GameID'] }})"
+                @endif
+            >
                 <x-game-list-item
                     :game="$processedRecentlyPlayedEntity"
                     :targetUserName="$targetUsername"
