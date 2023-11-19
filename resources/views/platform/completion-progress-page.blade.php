@@ -58,7 +58,7 @@ $pageDescription = "View {$targetUsername}'s game completion stats and milestone
             @endif
 
             @if ($isFiltering || $selectedSortOrder !== 'unlock_date')
-                <a href="{{ route('user.completion-progress', $targetUsername) }}" class="btn flex items-center gap-x-0.5">
+                <a href="{{ route('user.completion-progress', $targetUsername) }}" class="btn flex items-center gap-x-0.5 transition lg:active:scale-95">
                     <x-fas-undo />
                     <span>Reset filters/sort</span>
                 </a>

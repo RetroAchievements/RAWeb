@@ -119,7 +119,7 @@
                             $hardcoreProgressBarWidth = $softcoreProgressBarWidth = 0;
                             $gameProgress = $userProgress[$game['ID']] ?? null;
                             $achievementsUnlocked = 0;
-                            if ($gameProgress != null) {
+                            if ($gameProgress != null && $game['achievements_published']) {
                                 $achievementsUnlocked = $gameProgress['achievements_unlocked'];
                                 $hardcoreProgressBarWidth = sprintf("%01.2f", $gameProgress['achievements_unlocked_hardcore'] * 100 / $game['achievements_published']);
                                 $softcoreProgressBarWidth = sprintf("%01.2f", ($achievementsUnlocked - $gameProgress['achievements_unlocked_hardcore']) * 100 / $game['achievements_published']);

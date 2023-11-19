@@ -1,7 +1,12 @@
 <?php
 
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\UserGameListType;
+use App\Community\Models\UserGameListEntry;
 use App\Platform\Models\System;
+use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -45,8 +50,31 @@ if (empty($username)) {
         $totalRequestedGames = getGamesWithRequests($selectedConsoleId, $selectedRequestStatus);
     }
 } else {
-    $setRequestList = getUserRequestList($username);
-    $userSetRequestInformation = getUserRequestsInformation($username, $setRequestList);
+    $userModel = User::firstWhere('User', $username);
+    if (!$userModel) {
+        abort(404);
+    }
+    $userSetRequestInformation = getUserRequestsInformation($userModel);
+
+    $setRequestList = UserGameListEntry::where('user_id', $userModel->ID)
+        ->where('type', UserGameListType::AchievementSetRequest)
+        ->join('GameData', 'GameData.ID', '=', 'GameId')
+        ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
+        ->leftJoin('SetClaim', function ($join) {
+            $join->on('SetClaim.GameID', '=', 'GameData.ID')
+                ->whereIn('SetClaim.Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+        })
+        ->select([
+            'GameData.ID AS GameID',
+            'GameData.Title AS GameTitle',
+            'GameData.ImageIcon AS GameIcon',
+            'Console.Name AS ConsoleName',
+            'GameData.achievements_published AS AchievementCount',
+            DB::raw('GROUP_CONCAT(DISTINCT(SetClaim.User)) AS Claims'),
+        ])
+        ->groupBy('GameData.ID')
+        ->orderBy(DB::raw(ifStatement("GameData.Title LIKE '~%'", 1, 0) . ", GameData.Title"))
+        ->get();
 }
 
 RenderContentStart("Set Requests");
