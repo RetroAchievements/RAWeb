@@ -31,7 +31,7 @@ class PlayerCompletionProgressController extends Controller
             'page.number' => 'sometimes|integer|min:1',
             'filter.system' => 'sometimes|integer|between:0,99|not_in:101',
             'filter.status' => 'sometimes|string|min:2|max:30',
-            'sort' => 'sometimes|string|in:unlock_date,pct_won,-unlock_date,-pct_won',
+            'sort' => 'sometimes|string|in:unlock_date,pct_won,-unlock_date,-pct_won,game_title,-game_title',
         ]);
 
         $currentPage = (int) ($validatedData['page']['number'] ?? 1);
@@ -128,6 +128,24 @@ class PlayerCompletionProgressController extends Controller
         if ($sortOrder === '-unlock_date') {
             usort($filteredAndJoinedGamesList, function ($a, $b) {
                 return strtotime($a['MostRecentWonDate'] ?? '') - strtotime($b['MostRecentWonDate'] ?? '');
+            });
+        }
+
+        if ($sortOrder === 'game_title') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                $titleA = $this->removeGameTitlePrefix($a['Title']);
+                $titleB = $this->removeGameTitlePrefix($b['Title']);
+
+                return strcmp($titleA, $titleB);
+            });
+        }
+
+        if ($sortOrder === '-game_title') {
+            usort($filteredAndJoinedGamesList, function ($a, $b) {
+                $titleA = $this->removeGameTitlePrefix($a['Title']);
+                $titleB = $this->removeGameTitlePrefix($b['Title']);
+
+                return strcmp($titleB, $titleA);
             });
         }
 
@@ -309,5 +327,17 @@ class PlayerCompletionProgressController extends Controller
         $allAvailableConsoleIds = array_filter($allAvailableConsoleIds, fn ($value) => !is_null($value));
 
         return $allAvailableConsoleIds;
+    }
+
+    private function removeGameTitlePrefix(string $gameTitle): string
+    {
+        if (substr($gameTitle, 0, 1) === '~') {
+            $endOfPrefixPos = strpos($gameTitle, '~', 1);
+            if ($endOfPrefixPos !== false) {
+                $gameTitle = substr($gameTitle, $endOfPrefixPos + 1);
+            }
+        }
+
+        return trim($gameTitle);
     }
 }

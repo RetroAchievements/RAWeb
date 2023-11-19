@@ -10,18 +10,26 @@
     autocomplete="off"
 >
     <option value="unlock_date" @if ($selectedSortOrder === 'unlock_date') selected @endif>
-        Newest unlock
+        Unlock Date: Newest
     </option>
 
     <option value="-unlock_date" @if ($selectedSortOrder === '-unlock_date') selected @endif>
-        Oldest unlock 
+        Unlock Date: Oldest
     </option>
 
     <option value="pct_won" @if ($selectedSortOrder === 'pct_won') selected @endif>
-        Most achievements won
+        Achievements Won: Most
     </option>
 
     <option value="-pct_won" @if ($selectedSortOrder === '-pct_won') selected @endif>
-        Fewest achievements won
+        Achievements Won: Least
+    </option>
+
+    <option value="game_title" @if ($selectedSortOrder === 'game_title') selected @endif>
+        Game Title: A - Z
+    </option>
+
+    <option value="-game_title" @if ($selectedSortOrder === '-game_title') selected @endif>
+        Game Title: Z - A
     </option>
 </select>
