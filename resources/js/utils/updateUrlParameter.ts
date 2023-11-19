@@ -27,6 +27,6 @@ export function updateUrlParameter(
     params.set(currentParamName, currentNewQueryParamValue);
   }
 
-  url.search = params.toString();
+  url.search = params.toString().replace(/%5B/g, '[').replace(/%5D/g, ']');
   window.location.href = url.toString();
 }

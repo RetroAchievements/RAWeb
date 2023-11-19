@@ -4,24 +4,26 @@
 ])
 
 <?php
+use App\Support\Url\UrlBuilder;
+
 $baseUrl = request()->url();
 $queryParams = request()->query();
 
 $previousPageNumber = $paginator->currentPage() - 1;
 $queryParams['page'] = ['number' => $previousPageNumber];
-$previousPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+$previousPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 
 $nextPageNumber = $paginator->currentPage() + 1;
 $queryParams['page'] = ['number' => $nextPageNumber];
-$nextPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+$nextPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 
 $queryParams['page'] = ['number' => 1];
-$firstPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+$firstPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 
 $userPageUrl = null;
 if ($userPageNumber) {
     $queryParams['page'] = ['number' => $userPageNumber];
-    $userPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+    $userPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 }
 
 $isHighlightedRankOnCurrentPage = $paginator->currentPage() === $userPageNumber;

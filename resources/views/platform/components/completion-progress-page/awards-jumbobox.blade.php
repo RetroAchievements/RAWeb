@@ -8,6 +8,8 @@
 ])
 
 <?php
+use App\Support\Url\UrlBuilder;
+
 $currentQueryParams = request()->query();
 
 if (isset($currentQueryParams['filter']['status'])) {
@@ -19,12 +21,12 @@ $canShowBeatenHardcore = $beatenHardcoreCount > 0 || ($beatenHardcoreCount === 0
 $canShowCompleted = $completedCount > 0;
 $canShowMastered = $masteredCount > 0 || ($masteredCount === 0 && $completedCount === 0);
 
-$playedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'null']));
-$unfinishedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'unawarded']));
-$beatenSoftcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-softcore']));
-$beatenHardcoreUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-hardcore']));
-$completedUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-completed']));
-$masteredUrl = url()->current() . '?' . http_build_query(array_merge($currentQueryParams, ['filter[status]' => 'eq-mastered']));
+$playedUrl = url()->current() . '?' . UrlBuilder::prettyHttpBuildQuery(array_merge($currentQueryParams, ['filter[status]' => 'null']));
+$unfinishedUrl = url()->current() . '?' . UrlBuilder::prettyHttpBuildQuery(array_merge($currentQueryParams, ['filter[status]' => 'unawarded']));
+$beatenSoftcoreUrl = url()->current() . '?' . UrlBuilder::prettyHttpBuildQuery(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-softcore']));
+$beatenHardcoreUrl = url()->current() . '?' . UrlBuilder::prettyHttpBuildQuery(array_merge($currentQueryParams, ['filter[status]' => 'eq-beaten-hardcore']));
+$completedUrl = url()->current() . '?' . UrlBuilder::prettyHttpBuildQuery(array_merge($currentQueryParams, ['filter[status]' => 'eq-completed']));
+$masteredUrl = url()->current() . '?' . UrlBuilder::prettyHttpBuildQuery(array_merge($currentQueryParams, ['filter[status]' => 'eq-mastered']));
 ?>
 
 <div class="bg-embed rounded px-4 py-2">

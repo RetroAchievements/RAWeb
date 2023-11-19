@@ -4,24 +4,26 @@
 ])
 
 <?php
+use App\Support\Url\UrlBuilder;
+
 $baseUrl = request()->url();
 $queryParams = request()->query();
 
 $previousPageNumber = $currentPage - 1;
 $queryParams['page'] = ['number' => $previousPageNumber];
-$previousPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+$previousPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 
 $nextPageNumber = $currentPage + 1;
 $queryParams['page'] = ['number' => $nextPageNumber];
-$nextPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+$nextPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 
 $firstPageNumber = 1;
 $queryParams['page'] = ['number' => $firstPageNumber];
-$firstPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+$firstPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 
 $lastPageNumber = $totalPages;
 $queryParams['page'] = ['number' => $lastPageNumber];
-$lastPageUrl = $baseUrl . '?' . http_build_query($queryParams);
+$lastPageUrl = $baseUrl . '?' . UrlBuilder::prettyHttpBuildQuery($queryParams);
 ?>
 
 <script>
