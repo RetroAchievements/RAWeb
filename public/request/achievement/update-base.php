@@ -34,7 +34,7 @@ if (UploadNewAchievement(
     title: $input['title'],
     desc: $input['description'],
     points: $input['points'],
-    type: isset($input['type']) ? $input['type'] : null,
+    type: $input['type'] ?? null,
     mem: $achievement['MemAddr'],
     flag: $achievement['Flags'],
     idInOut: $achievementId,
