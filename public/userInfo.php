@@ -27,6 +27,11 @@ if ($maxNumGamesToFetch < 1 || $maxNumGamesToFetch > 100) {
     abort(400);
 }
 
+$userPageModel = User::firstWhere('User', $userPage);
+if (!$userPageModel) {
+    abort(404);
+}
+
 $userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
 if (empty($userMassData)) {
     abort(404);
@@ -39,8 +44,7 @@ if ((int) $userMassData['Permissions'] < Permissions::Unregistered && $permissio
 $userPage = $userMassData['User'];
 $userMotto = $userMassData['Motto'];
 $userPageID = $userMassData['ID'];
-$setRequestList = getUserRequestList($userPage);
-$userSetRequestInformation = getUserRequestsInformation($userPage, $setRequestList);
+$userSetRequestInformation = getUserRequestsInformation($userPageModel);
 $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
@@ -91,7 +95,6 @@ $daysRecentProgressToShow = 14; // fortnight
 
 $userAwards = getUsersSiteAwards($userPage);
 
-$userPageModel = User::firstWhere('User', $userPage);
 $userScoreData = getAwardedList(
     $userPageModel,
     0,
