@@ -1050,7 +1050,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
             'LowerIsBetter' => $leaderboard->LowerIsBetter,
             'Title' => $leaderboard->Title,
             'Description' => $leaderboard->Description,
-            'Hidden' => ($leaderboard->DisplayOrder == -1),
+            'Hidden' => ($leaderboard->DisplayOrder < 0),
         ];
     }
 
