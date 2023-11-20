@@ -290,11 +290,7 @@ switch ($requestType) {
 
     case "patch":
         $flag = (int) request()->input('f', 0);
-        $response['PatchData'] = GetPatchData($gameID, $flag);
-        if (array_key_exists('Success', $response['PatchData'])) {
-            $response['Success'] = $response['PatchData']['Success']; // Passthru
-            unset($response['PatchData']['Success']);
-        }
+        $response = GetPatchData($gameID, $flag);
         break;
 
     case "postactivity":

@@ -961,3 +961,77 @@ function getRandomGameWithAchievements(): int
 
     return $gameID;
 }
+
+function GetPatchData(int $gameID, int $flag): array
+{
+    $game = Game::find($gameID);
+    if (!$game) {
+        return [
+            'Success' => false,
+            'Error' => 'Unknown game',
+            'Status' => 404,
+            'Code' => 'not_found',
+        ];
+    }
+
+    $gameData = [
+        'ID' => $game->ID,
+        'Title' => $game->Title,
+        'ImageIcon' => $game->ImageIcon,
+        'RichPresencePatch' => $game->RichPresencePatch,
+        'ConsoleID' => $game->ConsoleID,
+        'ImageIconURL' => media_asset($game->ImageIcon),
+        'Achievements' => [],
+        'Leaderboards' => [],
+    ];
+
+    $achievements = $game->achievements()
+        ->orderBy('DisplayOrder') // explicit display order
+        ->orderBy('ID');          // tiebreaker on creation sequence
+
+    if ($flag != 0) {
+        $achievements = $achievements->where('Flags', '=', $flag);
+    }
+
+    foreach ($achievements->get() as $achievement) {
+        if (!AchievementFlag::isValid($achievement->Flags)) {
+            continue;
+        }
+
+        $gameData['Achievements'][] = [
+            'ID' => $achievement->ID,
+            'MemAddr' => $achievement->MemAddr,
+            'Title' => $achievement->Title,
+            'Description' => $achievement->Description,
+            'Points' => $achievement->Points,
+            'Author' => $achievement->Author,
+            'Modified' => $achievement->DateModified->unix(),
+            'Created' => $achievement->DateCreated->unix(),
+            'BadgeName' => $achievement->BadgeName,
+            'Flags' => $achievement->Flags,
+            'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
+            'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
+        ];
+    }
+
+    $leaderboards = $game->leaderboards()
+        ->orderBy('DisplayOrder') // explicit display order
+        ->orderBy('ID');          // tiebreaker on creation sequence
+
+    foreach ($leaderboards->get() as $leaderboard) {
+        $gameData['Leaderboards'][] = [
+            'ID' => $leaderboard->ID,
+            'Mem' => $leaderboard->Mem,
+            'Format' => $leaderboard->Format,
+            'LowerIsBetter' => $leaderboard->LowerIsBetter,
+            'Title' => $leaderboard->Title,
+            'Description' => $leaderboard->Description,
+            'Hidden' => ($leaderboard->DisplayOrder == -1),
+        ];
+    }
+
+    return [
+        'Success' => true,
+        'PatchData' => $gameData,
+    ];
+}

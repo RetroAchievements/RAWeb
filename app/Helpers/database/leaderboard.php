@@ -822,27 +822,3 @@ function requestDeleteLB(int $lbID): bool
 
     return $dbResult !== false;
 }
-
-function GetLBPatch(int $gameID): array
-{
-    $lbData = [];
-
-    // Always append LBs?
-    $query = "SELECT ld.ID, ld.Mem, ld.Format, ld.LowerIsBetter, ld.Title, ld.Description,
-                  CASE WHEN ld.DisplayOrder < 0 THEN 1 ELSE 0 END AS Hidden
-              FROM LeaderboardDef AS ld
-              WHERE ld.GameID = $gameID
-              ORDER BY ld.DisplayOrder, ld.ID ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $db_entry['ID'] = (int) $db_entry['ID'];
-            $db_entry['LowerIsBetter'] = (bool) $db_entry['LowerIsBetter'];
-            $db_entry['Hidden'] = (bool) $db_entry['Hidden'];
-            $lbData[] = $db_entry;
-        }
-    }
-
-    return $lbData;
-}
