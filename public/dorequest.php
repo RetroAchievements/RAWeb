@@ -290,7 +290,7 @@ switch ($requestType) {
 
     case "patch":
         $flag = (int) request()->input('f', 0);
-        $response = GetPatchData($gameID, $flag);
+        $response = GetPatchData($gameID, $user, $flag);
         break;
 
     case "postactivity":

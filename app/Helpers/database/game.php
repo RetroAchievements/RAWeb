@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Support\Str;
@@ -962,7 +963,7 @@ function getRandomGameWithAchievements(): int
     return $gameID;
 }
 
-function GetPatchData(int $gameID, int $flag): array
+function GetPatchData(int $gameID, ?User $user, int $flag): array
 {
     $game = Game::find($gameID);
     if (!$game) {
@@ -993,10 +994,30 @@ function GetPatchData(int $gameID, int $flag): array
         $achievements = $achievements->where('Flags', '=', $flag);
     }
 
+    $gamePlayers = $game->players_total;
+    if ($user) {
+        // if the user isn't already tallied in the players for the game,
+        // adjust the count now for the rarity calculations.
+        $hasPlayerGame = PlayerGame::where('user_id', $user->id)
+            ->where('game_id', $game->id)
+            ->exists();
+        if (!$hasPlayerGame) {
+            $gamePlayers++;
+        }
+    }
+
+    // prevent divide by zero error if the game has never been played before
+    $gamePlayers = max(1, $gamePlayers);
+
     foreach ($achievements->get() as $achievement) {
         if (!AchievementFlag::isValid($achievement->Flags)) {
             continue;
         }
+
+        // calculate rarity assuming it will be used when the player unlocks the achievement,
+        // which implies they haven't already unlocked it.
+        $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayers, 2));
+        $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore_total + 1) * 100 / $gamePlayers, 2));
 
         $gameData['Achievements'][] = [
             'ID' => $achievement->ID,
@@ -1010,6 +1031,8 @@ function GetPatchData(int $gameID, int $flag): array
             'BadgeName' => $achievement->BadgeName,
             'Flags' => $achievement->Flags,
             'Type' => $achievement->type,
+            'Rarity' => $rarity,
+            'RarityHardcore' => $rarityHardcore,
             'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
             'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
         ];

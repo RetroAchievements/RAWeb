@@ -7,7 +7,6 @@ namespace Database\Factories;
 use App\Platform\Models\Leaderboard;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
 /**
  * @extends Factory<Leaderboard>
