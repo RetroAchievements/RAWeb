@@ -38,6 +38,7 @@ class PatchDataTest extends TestCase
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,
             'Flags' => $achievement->Flags,
+            'Type' => $achievement->type,
             'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
             'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
         ];
