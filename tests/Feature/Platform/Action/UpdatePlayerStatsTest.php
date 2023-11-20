@@ -73,7 +73,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->assertEquals($game->id, $overallStats->last_game_id);
         $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $overallStats->type);
         $this->assertEquals(1, $overallStats->value);
-        $this->assertEquals(Carbon::create(2023, 1, 1), $overallStats->updated_at);
+        $this->assertEquals(Carbon::create(2023, 1, 1), $overallStats->last_affected_at);
 
         $systemStats = $userStats->whereNotNull('system_id')->first();
         $this->assertEquals($system->ID, $systemStats->system_id);
@@ -81,7 +81,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->assertEquals($game->id, $systemStats->last_game_id);
         $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $systemStats->type);
         $this->assertEquals(1, $systemStats->value);
-        $this->assertEquals(Carbon::create(2023, 1, 1), $systemStats->updated_at);
+        $this->assertEquals(Carbon::create(2023, 1, 1), $systemStats->last_affected_at);
     }
 
     public function testItUpsertsDifferentTypesOfStats(): void
@@ -183,6 +183,6 @@ class UpdatePlayerStatsTest extends TestCase
 
         $stat = $query->first();
         $this->assertNotNull($stat);
-        $this->assertEquals($expectedDate->toDateTimeString(), $stat->updated_at->toDateTimeString());
+        $this->assertEquals($expectedDate->toDateTimeString(), $stat->last_affected_at->toDateTimeString());
     }
 }
