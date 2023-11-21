@@ -19,7 +19,7 @@
 
     <div class="grid gap-4 lg:grid-cols-2">
         <a
-            href="https://retroachievements-api-js.vercel.app/"
+            href="https://api-docs.retroachievements.org"
             target="_blank"
             rel="noreferrer"
             class="group transition p-4 w-full cursor-pointer text-link bg-embed border border-embed-highlight hover:text-white hover:border-menu-link hover:bg-embed-highlight select-none rounded"
