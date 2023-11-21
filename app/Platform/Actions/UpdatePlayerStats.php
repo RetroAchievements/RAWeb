@@ -83,7 +83,7 @@ class UpdatePlayerStats
 
         foreach ($playerBeatenHardcoreGames as $playerGame) {
             $gameConsoleId = $playerGame['game']['ConsoleID'];
-            $gameKind = $this->deriveGameKindFromTitle($playerGame['game']['Title']);
+            $gameKind = $this->determineGameKind($playerGame['game']['Title'], $gameConsoleId);
             $statTypeKey = $gameKindToStatType[$gameKind] ?? PlayerStatType::GamesBeatenHardcoreRetail;
 
             // Update the overall aggregates.
@@ -117,7 +117,7 @@ class UpdatePlayerStats
         PlayerStat::where('user_id', $user->ID)->delete();
     }
 
-    private function deriveGameKindFromTitle(string $gameTitle): string
+    private function determineGameKind(string $gameTitle, int $gameConsoleId): string
     {
         $sanitizedTitle = mb_strtolower($gameTitle);
         $gameKinds = [
@@ -131,6 +131,12 @@ class UpdatePlayerStats
         foreach ($gameKinds as $keyword => $kind) {
             if (str_contains($sanitizedTitle, $keyword)) {
                 return $kind;
+            }
+
+            // Arduboy, WASM-4, and Uzebox are homebrew consoles.
+            // Their games fall back to "homebrew" rather than "retail".
+            if ($gameConsoleId === 71 || $gameConsoleId === 72 || $gameConsoleId === 80) {
+                return 'homebrew';
             }
         }
 
