@@ -4,6 +4,7 @@
     'totalPages' => 1,
     'unreadCount' => 0,
     'totalMessages' => 0,
+    'mode' => 'inbox',
 ])
 
 <?php
@@ -12,6 +13,9 @@ use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
+
+$pageTitle = ($mode == 'outbox') ? 'Outbox' : 'Inbox';
+$toFromLabel = ($mode == 'outbox') ? 'To' : 'From';
 
 $user = request()->user();
 $isShowAbsoluteDatesPreferenceSet = BitSet($user->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
@@ -31,16 +35,26 @@ function deleteMessage(id) {
 </script>
 
 <x-app-layout
-    pageTitle="Inbox"
+    pageTitle="{{ $pageTitle }}"
     pageDescription="Messages involving {{ $user->User }}"
 >
-    <x-message.breadcrumbs currentPage="Inbox" />
+    <x-message.breadcrumbs currentPage="{{ $pageTitle }}" />
 
-    <div class='ml-2'>You have {{ $unreadCount }} unread of {{ $totalMessages }} total messages.</div>
+    <div class='ml-2'>
+        @if ($mode == 'outbox')
+            You have {{ $totalMessages }} sent messages.
+        @else
+            You have {{ $unreadCount }} unread of {{ $totalMessages }} total messages.
+        @endif
+    </div>
 
     <div class="w-full flex mt-2">
         <div class="mr-6">
-            <button class='btn'>Outbox</button>
+            @if ($mode == 'outbox')
+                <a href='{{ route('message.inbox') }}'><button class='btn'>Inbox</button></a>
+            @else
+                <a href='{{ route('message.outbox') }}'><button class='btn'>Outbox</button></a>
+            @endif
         </div>
         <div class="mr-6">
             <button class='btn'>New Message</button>
@@ -53,7 +67,7 @@ function deleteMessage(id) {
     <div><table class='table-highlight mb-4'><tbody>
 
     <tr>
-        <th style='width:20%'>From</th>
+        <th style='width:20%'>{{ $toFromLabel }}</th>
         <th style='width:55%'>Title</th>
         <th style='width:10%' class='text-right'>Messages</th>
         <th style='width:15%' class='text-right'>Last Message</th>

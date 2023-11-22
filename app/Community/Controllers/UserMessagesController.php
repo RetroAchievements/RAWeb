@@ -14,6 +14,7 @@ use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -31,6 +32,11 @@ class UserMessagesController extends Controller
             ->whereNull('recipient_deleted_at');
 
         $messages = $respondedMessages->union($receivedMessages);
+        return $this->buildList($messages, $request, 'inbox');
+    }
+
+    private function buildList(Builder $messages, Request $request, string $mode): View
+    {
         $totalMessages = $messages->count();
 
         $pageSize = 20;
@@ -50,8 +56,28 @@ class UserMessagesController extends Controller
             'messages' => $messages,
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
-            'unreadCount' => $user->UnreadMessageCount,
+            'unreadCount' => $request->user()->UnreadMessageCount,
             'totalMessages' => $totalMessages,
+            'mode' => $mode,
         ]);
+    }
+
+    public function outbox(Request $request): View
+    {
+        $user = $request->user();
+
+        $respondedMessages = UserMessageChain::where('recipient_id', $user->id)
+            ->whereNull('recipient_deleted_at')
+            ->whereRaw('recipient_last_post_at > sender_last_post_at');
+
+        $sentMessages = UserMessageChain::where('sender_id', $user->id)
+            ->whereNull('sender_deleted_at')
+            ->where(function ($query){
+                $query->whereNull('recipient_last_post_at')
+                ->orWhereRaw('sender_last_post_at > recipient_last_post_at');
+            });
+
+        $messages = $respondedMessages->union($sentMessages);
+        return $this->buildList($messages, $request, 'outbox');
     }
 }

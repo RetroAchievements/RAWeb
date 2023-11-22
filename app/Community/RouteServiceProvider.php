@@ -235,6 +235,7 @@ class RouteServiceProvider extends ServiceProvider
                  */
                 Route::get('message/{chain}', UserMessageChainController::class)->name('message.view-chain');
                 Route::get('messages', UserMessagesController::class)->name('message.inbox');
+                Route::get('messages/outbox', [UserMessagesController::class, 'outbox'])->name('message.outbox');
 
                 //     /*
                 //      * tickets
