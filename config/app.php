@@ -102,7 +102,7 @@ return [
     |
     */
 
-    'locale' => 'en_US',
+    'locale' => 'en',
 
     'locales' => [
         // 'cn_' => '简体中文 (Simplified Chinese)',
@@ -113,8 +113,8 @@ return [
         // '' => 'Български (Bulgarian)',
         // '' => 'Čeština (Czech)',
         // '' => 'Dansk (Danish)',
-        'de_DE' => 'Deutsch (German)',
-        'en_US' => 'English (US)',
+        'de' => 'Deutsch (German)',
+        'en' => 'English (US)',
         'en_GB' => 'English (GB)',
         // 'es_ES' => 'Español - España (Spanish - Spain)',
         // 'es_' => 'Español - Latinoamérica (Spanish - Latin America)',
@@ -147,7 +147,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en_US',
+    'fallback_locale' => 'en',
 
     /*
     |--------------------------------------------------------------------------
