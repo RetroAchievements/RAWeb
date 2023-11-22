@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
  */
 function userAvatar(
-    ?string $username,
+    string|User|null $user,
     ?bool $label = null,
     ?bool $icon = null,
     int $iconSize = 32,
@@ -18,19 +18,26 @@ function userAvatar(
     ?string $link = null,
     bool|string|array $tooltip = true,
 ): string {
-    if (empty($username)) {
+    if (!$user) {
         return '';
     }
 
-    $user = Cache::store('array')->remember(
-        CacheKey::buildUserCardDataCacheKey($username),
-        Carbon::now()->addMonths(3),
-        function () use ($username): ?array {
-            $foundUser = User::firstWhere('User', $username);
-
-            return $foundUser ? $foundUser->toArray() : null;
+    if (is_string($user)) {
+        $username = $user;
+        if (empty($username)) {
+            return '';
         }
-    );
+
+        $user = Cache::store('array')->remember(
+            CacheKey::buildUserCardDataCacheKey($username),
+            Carbon::now()->addMonths(3),
+            function () use ($username): ?array {
+                $foundUser = User::firstWhere('User', $username);
+
+                return $foundUser ? $foundUser->toArray() : null;
+            }
+        );
+    }
 
     if (!$user) {
         $userSanitized = $username;

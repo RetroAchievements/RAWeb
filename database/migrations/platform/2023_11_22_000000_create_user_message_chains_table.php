@@ -17,6 +17,8 @@ return new class() extends Migration {
             $table->integer('num_messages')->default(0);
             $table->integer('sender_num_unread')->default(0);
             $table->integer('recipient_num_unread')->default(0);
+            $table->timestampTz('sender_last_post_at')->nullable();
+            $table->timestampTz('recipient_last_post_at')->nullable();
             $table->timestampTz('sender_deleted_at')->nullable();
             $table->timestampTz('recipient_deleted_at')->nullable();
 

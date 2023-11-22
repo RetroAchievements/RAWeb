@@ -8,11 +8,9 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'message' => 'required|integer|exists:Messages,ID',
+    'message' => 'required|integer|exists:user_message_chains,ID',
 ]);
 
-if (DeleteMessage($user, (int) $input['message'])) {
-    return back()->with('success', __('legacy.success.delete'));
-}
+return redirect(route('message.inbox'));
 
-return back()->withErrors(__('legacy.error.error'));
+//return back()->withErrors(__('legacy.error.error'));

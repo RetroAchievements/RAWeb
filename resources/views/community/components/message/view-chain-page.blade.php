@@ -20,13 +20,27 @@ $monthAgo = Carbon::now()->subMonth(1);
 
 ?>
 
+<script>
+function deleteMessage() {
+    if (confirm('Are you sure you want to delete this message?')) {
+        $.post('/request/message/delete.php', {
+            chain: {{ $messageChain->id }},
+            user: "{{ request()->user()->User }}"
+        })
+    }
+}
+</script>
+
 <x-app-layout
     pageTitle="{{ $messageChain->title }}"
     pageDescription="Conversation between {{ $userFrom->User }} and {{ $userTo->User }}"
 >
-    <x-message.breadcrumbs currentPage="{{ $messageChain->title }}" />
+    <x-message.breadcrumbs currentPage="{!! $messageChain->title !!}" />
 
     <div class="w-full flex mt-2">
+        <div class="mr-6">
+            <button class='btn btn-danger' onclick='deleteMessage()'>Delete</button>
+        </div>
         <div class="w-full flex justify-end">
             <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
         </div>
@@ -37,7 +51,7 @@ $monthAgo = Carbon::now()->subMonth(1);
             <div class="embedded">
                 <div class="flex justify-between items-center">
                     <div>
-                    {!! userAvatar($message->author_id == $userTo->ID ? $userTo->User : $userFrom->User, iconSize: 16) !!}
+                    {!! userAvatar($message->author_id == $userTo->ID ? $userTo : $userFrom, iconSize: 16) !!}
                     <?php $humanDate = $message->created_at->format('F j Y, g:ia'); ?>
                     @if ($isShowAbsoluteDatesPreferenceSet)
                         <span class='smalldate'>{{ $humanDate }}</span>

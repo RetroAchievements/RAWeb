@@ -6,6 +6,7 @@ namespace App\Community;
 
 use App\Community\Controllers\ContactController;
 use App\Community\Controllers\UserMessageChainController;
+use App\Community\Controllers\UserMessagesController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -233,7 +234,7 @@ class RouteServiceProvider extends ServiceProvider
                  * inbox
                  */
                 Route::get('message/{chain}', UserMessageChainController::class)->name('message.view-chain');
-                //Route::resource('messages', MessageController::class)->only('index')->names(['index' => 'message.index']);
+                Route::get('messages', UserMessagesController::class)->name('message.inbox');
 
                 //     /*
                 //      * tickets

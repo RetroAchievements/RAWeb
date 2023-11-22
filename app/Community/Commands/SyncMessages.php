@@ -75,10 +75,14 @@ class SyncMessages extends Command
         }
 
         $userMessageChain->num_messages++;
-        if ($message->Unread) {
-            if ($userMessageChain->recipient_id == $userTo->ID) {
+        if ($userMessageChain->recipient_id == $userTo->ID) {
+            $userMessageChain->sender_last_post_at = $message->TimeSent;
+            if ($message->Unread) {
                 $userMessageChain->recipient_num_unread++;
-            } else {
+            }
+        } else {
+            $userMessageChain->recipient_last_post_at = $message->TimeSent;
+            if ($message->Unread) {
                 $userMessageChain->sender_num_unread++;
             }
         }
