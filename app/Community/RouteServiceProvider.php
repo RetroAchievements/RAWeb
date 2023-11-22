@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\ContactController;
+use App\Community\Controllers\UserMessageChainController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -228,11 +229,11 @@ class RouteServiceProvider extends ServiceProvider
 
                 //     // Route::get('history', [PlayerHistoryController::class, 'index'])->name('history.index');
 
-                //     /*
-                //      * inbox
-                //      */
-                //     Route::resource('message', MessageController::class)->except('index', 'edit', 'update');
-                //     Route::resource('messages', MessageController::class)->only('index')->names(['index' => 'message.index']);
+                /*
+                 * inbox
+                 */
+                Route::get('message/{chain}', UserMessageChainController::class)->name('message.view-chain');
+                //Route::resource('messages', MessageController::class)->only('index')->names(['index' => 'message.index']);
 
                 //     /*
                 //      * tickets
