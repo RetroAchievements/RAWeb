@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Community\Controllers;
 
 use App\Community\Enums\TicketState;
+use App\Community\Enums\UserRelationship;
 use App\Community\Models\Ticket;
 use App\Community\Models\UserMessage;
 use App\Community\Models\UserMessageChain;
+use App\Community\Models\UserRelation;
 use App\Http\Controller;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
@@ -93,12 +95,26 @@ class UserMessageChainController extends Controller
         $userMessageChain->num_messages++;
         if ($userMessageChain->recipient_id == $userFrom->ID) {
             $userMessageChain->recipient_last_post_at = $now;
-            $userMessageChain->sender_num_unread++;
-            $userMessageChain->sender_deleted_at = null;
+
+            $relationship = UserRelation::getRelationship($userMessageChain->sender->User, $userFrom->User);
+            if ($relationship == UserRelationship::Blocked) {
+                $userMessageChain->sender_num_unread = 0;
+                $userMessageChain->sender_deleted_at = $now;
+            } else {
+                $userMessageChain->sender_num_unread++;
+                $userMessageChain->sender_deleted_at = null;
+            }
         } else {
             $userMessageChain->sender_last_post_at = $now;
-            $userMessageChain->recipient_num_unread++;
-            $userMessageChain->recipient_deleted_at = null;
+
+            $relationship = UserRelation::getRelationship($userMessageChain->recipient->User, $userFrom->User);
+            if ($relationship == UserRelationship::Blocked) {
+                $userMessageChain->recipient_num_unread = 0;
+                $userMessageChain->recipient_deleted_at = $now;
+            } else {
+                $userMessageChain->recipient_num_unread++;
+                $userMessageChain->recipient_deleted_at = null;
+            }
         }
         $userMessageChain->save();
         
