@@ -42,12 +42,14 @@ class UserMessageChainController extends Controller
         $totalPages = (int) (($messageChain->num_messages + 19) / 20);
 
         if ($currentPage == $totalPages) {
-            if ($userMessageChain->recipient_id == $user->ID) {
-                $userMessageChain->recipient_num_unread = 0;
+            if ($messageChain->recipient_id == $user->ID) {
+                $messageChain->recipient_num_unread = 0;
             } else {
-                $userMessageChain->sender_num_unread = 0;
+                $messageChain->sender_num_unread = 0;
             }
-            $userMessageChain->save();
+            $messageChain->save();
+
+            // TODO: dispatch event to update num unread messages
         }
 
         $messages = UserMessage::where('chain_id', $chainId)
@@ -63,7 +65,16 @@ class UserMessageChainController extends Controller
         ]);
     }
 
-    public static function newChain(User $userFrom, User $userTo, string $title, string $body): void
+    public function pageCreate(Request $request): View
+    {
+        $toUser = $request->input('to') ?? '';
+
+        return view('community.components.message.new-chain-page', [
+            'toUser' => $toUser
+        ]);
+    }
+
+    public static function newChain(User $userFrom, User $userTo, string $title, string $body): UserMessageChain
     {
         $userMessageChain = new UserMessageChain([
             'title' => $title,
@@ -72,6 +83,7 @@ class UserMessageChainController extends Controller
         ]);
 
         UserMessageChainController::addToChain($userMessageChain, $userFrom, $body);
+        return $userMessageChain;
     }
 
     public static function addToChain(UserMessageChain $userMessageChain, User $userFrom, string $body): void

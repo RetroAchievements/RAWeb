@@ -18,10 +18,6 @@ $userFrom = User::firstWhere('ID', $messageChain->sender_id);
 $isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
 $monthAgo = Carbon::now()->subMonth(1);
 
-$shortcodePostData = [
-    'chain' => $messageChain->id,
-];
-
 ?>
 
 <script>
@@ -41,6 +37,10 @@ function deleteMessage() {
 >
     <x-message.breadcrumbs currentPage="{!! $messageChain->title !!}" />
 
+    <div class="mt-3 w-full flex gap-x-3">
+        <h1 class="mt-[10px] w-full">{!! $messageChain->title !!}</h1>
+    </div>
+    
     <div class="w-full flex my-2">
         <div class="mr-6">
             <button class='btn btn-danger' onclick='deleteMessage()'>Delete</button>
@@ -72,11 +72,15 @@ function deleteMessage() {
         @endforeach
     </div>
 
-    <x-input.shortcode-textarea
-        submitTarget='/request/message/create.php'
-        :postData="$shortcodePostData"
-        watermark='Enter your message here...'
-    />
+    <form action='/request/message/create.php' method='post' x-data='{ isValid: true }'>
+        {{ csrf_field() }}
+        <input type='hidden' name='chain' value='{{ $messageChain->id }}' />
+
+        <x-input.shortcode-textarea
+            name='body'
+            watermark='Enter your message here...'
+        />
+    </form>
 
     <div class="w-full flex justify-end mt-2">
         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />

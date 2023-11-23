@@ -62,7 +62,7 @@ class UserMessagesController extends Controller
         ]);
     }
 
-    public function outbox(Request $request): View
+    public function pageOutbox(Request $request): View
     {
         $user = $request->user();
 

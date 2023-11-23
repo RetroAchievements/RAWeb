@@ -32,9 +32,9 @@ if (array_key_exists('chain', $input) && $input['chain'] != null) {
         return back()->withErrors(__('legacy.error.error'));
     }
     UserMessageChainController::addToChain($userMessageChain, $user, $input['body']);
-} else {
-    $recipient = User::firstWhere('User', $input['recipient']);
-    UserMessageChainController::newChain($user, $recipient, $input['title'], $input['body']);
+    return redirect(route("message.view-chain", $userMessageChain->id));
 }
 
-return redirect(route("message.view-chain", $userMessageChain->id));
+$recipient = User::firstWhere('User', $input['recipient']);
+$userMessageChain = UserMessageChainController::newChain($user, $recipient, $input['title'], $input['body']);
+return redirect(route("message.outbox"));

@@ -11,7 +11,6 @@
 
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
-use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 
 $pageTitle = ($mode == 'outbox') ? 'Outbox' : 'Inbox';
@@ -40,6 +39,11 @@ function deleteMessage(id) {
 >
     <x-message.breadcrumbs currentPage="{{ $pageTitle }}" />
 
+    <div class="mt-3 w-full flex gap-x-3">
+        {!! userAvatar($user->User, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">{{ $user->User }}'s {{ $pageTitle }}</h1>
+    </div>
+
     <div class='ml-2'>
         @if ($mode == 'outbox')
             You have {{ $totalMessages }} sent messages.
@@ -57,7 +61,7 @@ function deleteMessage(id) {
             @endif
         </div>
         <div class="mr-6">
-            <button class='btn'>New Message</button>
+            <a href='{{ route('message.new') }}'><button class='btn'>New Message</button></a>
         </div>
         <div class="w-full flex justify-end">
             <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
@@ -111,8 +115,14 @@ function deleteMessage(id) {
                     @if ($num_unread > 0)
                         <b>
                     @endif
-                    @if ($message->sender_id == $user->id)
-                        RE:
+                    @if ($mode == 'outbox')
+                        @if ($message->recipient_id == $user->id)
+                            RE:
+                        @endif
+                    @else
+                        @if ($message->sender_id == $user->id)
+                            RE:
+                        @endif
                     @endif
                     {{ $message->title }}
                     @if ($num_unread > 0)
