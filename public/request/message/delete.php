@@ -1,5 +1,7 @@
 <?php
 
+use App\Community\Controllers\UserMessageChainController;
+use App\Community\Models\UserMessageChain;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -8,9 +10,20 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'message' => 'required|integer|exists:user_message_chains,ID',
+    'chain' => 'required|integer|exists:user_message_chains,id',
 ]);
 
-return redirect(route('message.inbox'));
+/** @var User $user */
+$user = request()->user();
 
-//return back()->withErrors(__('legacy.error.error'));
+$userMessageChain = UserMessageChain::firstWhere('id', $input['chain']);
+if (!$userMessageChain) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+if ($userMessageChain->recipient_id != $user->ID && $userMessageChain->sender_id != $user->ID) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+
+UserMessageChainController::deleteChain($userMessageChain, $user);
+
+response()->json(['message' => __('legacy.success.ok')]);

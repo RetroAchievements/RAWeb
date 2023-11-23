@@ -27,6 +27,9 @@ function deleteMessage() {
             chain: {{ $messageChain->id }},
             user: "{{ request()->user()->User }}"
         })
+            .done(function () {
+                window.location.href = "{{ route('message.inbox') }}";
+            })
     }
 }
 </script>
