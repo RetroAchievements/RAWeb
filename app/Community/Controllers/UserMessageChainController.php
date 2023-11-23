@@ -15,6 +15,7 @@ use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class UserMessageChainController extends Controller
@@ -30,7 +31,7 @@ class UserMessageChainController extends Controller
 
         $user = $request->user();
         if ($messageChain->sender_id != $user->id && $messageChain->recipient_id != $user->id) {
-            // TODO: abort(404);
+            abort(404);
         }
 
         $pageSize = 20;
@@ -39,6 +40,15 @@ class UserMessageChainController extends Controller
             $currentPage = 1;
         }
         $totalPages = (int) (($messageChain->num_messages + 19) / 20);
+
+        if ($currentPage == $totalPages) {
+            if ($userMessageChain->recipient_id == $user->ID) {
+                $userMessageChain->recipient_num_unread = 0;
+            } else {
+                $userMessageChain->sender_num_unread = 0;
+            }
+            $userMessageChain->save();
+        }
 
         $messages = UserMessage::where('chain_id', $chainId)
             ->offset(($currentPage - 1) * $pageSize)
@@ -51,5 +61,61 @@ class UserMessageChainController extends Controller
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
         ]);
+    }
+
+    public static function newChain(User $userFrom, User $userTo, string $title, string $body): void
+    {
+        $userMessageChain = new UserMessageChain([
+            'title' => $title,
+            'sender_id' => $userFrom->ID,
+            'recipient_id' => $userTo->ID,
+        ]);
+
+        UserMessageChainController::addToChain($userMessageChain, $userFrom, $body);
+    }
+
+    public static function addToChain(UserMessageChain $userMessageChain, User $userFrom, string $body): void
+    {
+        $now = Carbon::now();
+
+        $userMessageChain->num_messages++;
+        if ($userMessageChain->recipient_id == $userFrom->ID) {
+            $userMessageChain->recipient_last_post_at = $now;
+            $userMessageChain->sender_num_unread++;
+            $userMessageChain->sender_deleted_at = null;
+        } else {
+            $userMessageChain->sender_last_post_at = $now;
+            $userMessageChain->recipient_num_unread++;
+            $userMessageChain->recipient_deleted_at = null;
+        }
+        $userMessageChain->save();
+        
+        $userMessage = new UserMessage([
+            'chain_id' => $userMessageChain->id,
+            'author_id' => $userFrom->ID,
+            'body' => $body,
+        ]);
+        $userMessage->save();
+        
+        // TODO: dispatch message sent event
+        //       - update UnreadMessageCount
+        //       - send email
+    }
+
+    public static function deleteChain(UserMessageChain $userMessageChain, User $user): void
+    {
+        $now = Carbon::now();
+
+        if ($userMessageChain->recipient_id == $user->ID) {
+            $userMessageChain->recipient_num_unread = 0;
+            $userMessageChain->recipient_deleted_at = $now;
+        } else {
+            $userMessageChain->sender_num_unread = 0;
+            $userMessageChain->sender_deleted_at = $now;
+        }
+
+        $userMessageChain->save();
+        
+        // TODO: hard delete if both deleted_at fields are not null?
     }
 }

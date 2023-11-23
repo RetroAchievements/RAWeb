@@ -18,6 +18,10 @@ $userFrom = User::firstWhere('ID', $messageChain->sender_id);
 $isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
 $monthAgo = Carbon::now()->subMonth(1);
 
+$shortcodePostData = [
+    'chain' => $messageChain->id,
+];
+
 ?>
 
 <script>
@@ -37,7 +41,7 @@ function deleteMessage() {
 >
     <x-message.breadcrumbs currentPage="{!! $messageChain->title !!}" />
 
-    <div class="w-full flex mt-2">
+    <div class="w-full flex my-2">
         <div class="mr-6">
             <button class='btn btn-danger' onclick='deleteMessage()'>Delete</button>
         </div>
@@ -67,6 +71,12 @@ function deleteMessage() {
             </div>
         @endforeach
     </div>
+
+    <x-input.shortcode-textarea
+        submitTarget='/request/message/create.php'
+        :postData="$shortcodePostData"
+        watermark='Enter your message here...'
+    />
 
     <div class="w-full flex justify-end mt-2">
         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />

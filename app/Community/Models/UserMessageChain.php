@@ -27,6 +27,8 @@ class UserMessageChain extends BaseModel
     protected $casts = [
         'sender_deleted_at' => 'datetime',
         'recipient_deleted_at' => 'datetime',
+        'sender_last_post_at' => 'datetime',
+        'recipient_last_post_at' => 'datetime',
     ];
 
     // == accessors
