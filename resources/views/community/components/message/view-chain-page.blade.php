@@ -12,8 +12,8 @@ use App\Site\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 
-$userTo = User::firstWhere('ID', $messageChain->recipient_id);
-$userFrom = User::firstWhere('ID', $messageChain->sender_id);
+$userTo = User::withTrashed()->firstWhere('ID', $messageChain->recipient_id);
+$userFrom = User::withTrashed()->firstWhere('ID', $messageChain->sender_id);
 
 $isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
 $monthAgo = Carbon::now()->subMonth(1);
@@ -75,15 +75,19 @@ function deleteMessage() {
         @endforeach
     </div>
 
-    <form action='/request/message/create.php' method='post' x-data='{ isValid: true }'>
-        {{ csrf_field() }}
-        <input type='hidden' name='chain' value='{{ $messageChain->id }}' />
+    @if ($userFrom->trashed() || $userTo->trashed())
+        <div class="mt-4"><i>Cannot reply to deleted user.</i></div>
+    @else
+        <form action='/request/message/create.php' method='post' x-data='{ isValid: true }'>
+            {{ csrf_field() }}
+            <input type='hidden' name='chain' value='{{ $messageChain->id }}' />
 
-        <x-input.shortcode-textarea
-            name='body'
-            watermark='Enter your message here...'
-        />
-    </form>
+            <x-input.shortcode-textarea
+                name='body'
+                watermark='Enter your message here...'
+            />
+        </form>
+    @endif
 
     <div class="w-full flex justify-end mt-2">
         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />

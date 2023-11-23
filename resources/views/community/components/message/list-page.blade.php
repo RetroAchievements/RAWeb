@@ -88,9 +88,8 @@ function deleteMessage(id) {
             $humanDate = $mostRecentUpdate->format('F j Y, g:ia');
 
             $otherUser = ($user->id == $message->recipient_id) ?
-                User::firstWhere('ID', $message->sender_id) :
-                User::firstWhere('ID', $message->recipient_id);
-
+                User::withTrashed()->firstWhere('ID', $message->sender_id) :
+                User::withTrashed()->firstWhere('ID', $message->recipient_id);
 
             $num_unread = 0;
             if ($message->recipient_id == $user->id && $message->recipient_num_unread > 0) {

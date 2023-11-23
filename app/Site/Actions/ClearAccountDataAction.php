@@ -39,6 +39,9 @@ class ClearAccountDataAction
         // TODO $user->subscriptions()->delete();
         DB::statement('DELETE FROM Subscription WHERE UserID = :userId', ['userId' => $user->ID]);
 
+        DB::statement('UPDATE user_message_chains SET sender_deleted_at=NOW() WHERE sender_id = :userId', ['userId' => $user->ID]);
+        DB::statement('UPDATE user_message_chains SET recipient_deleted_at=NOW() WHERE recipient_id = :userId', ['userId' => $user->ID]);
+
         DB::statement("UPDATE UserAccounts u SET
             u.Password = null,
             u.SaltedPass = '',
