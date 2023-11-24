@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\LeaderboardFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -12,6 +14,11 @@ use Laravel\Scout\Searchable;
 
 class Leaderboard extends BaseModel
 {
+    /*
+     * Shared Traits
+     */
+    use HasFactory;
+
     use Searchable;
     use SoftDeletes;
 
@@ -31,6 +38,11 @@ class Leaderboard extends BaseModel
 
     public const CREATED_AT = 'Created';
     public const UPDATED_AT = 'Updated';
+
+    protected static function newFactory(): LeaderboardFactory
+    {
+        return LeaderboardFactory::new();
+    }
 
     // == search
 
