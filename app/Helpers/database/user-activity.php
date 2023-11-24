@@ -128,7 +128,7 @@ function expireRecentlyPlayedGames(string $user): void
 
 function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$dataOut): int
 {
-    $query = "SELECT pg.last_played_at AS LastPlayed, pg.game_id AS GameID
+    $query = "SELECT pg.last_played_at AS LastPlayed, pg.game_id AS GameID, pg.achievements_total
               FROM player_games pg
               INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
               WHERE ua.User = :username
@@ -177,6 +177,7 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
                 // Exclude games belonging to the "Events" console.
                 if ($gameData[$gameID]['ConsoleID'] !== 101) {
                     $gameData[$gameID]['LastPlayed'] = $recentlyPlayedGame['LastPlayed'];
+                    $gameData[$gameID]['AchievementsTotal'] = $recentlyPlayedGame['achievements_total'];
                     $dataOut[] = $gameData[$gameID];
                     $numFound++;
                 }

@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerGame;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Support\Str;
@@ -960,4 +961,101 @@ function getRandomGameWithAchievements(): int
     } while ($dbResult === null); // game has no achievements or is associated to hub/event console
 
     return $gameID;
+}
+
+function GetPatchData(int $gameID, ?User $user, int $flag): array
+{
+    $game = Game::find($gameID);
+    if (!$game) {
+        return [
+            'Success' => false,
+            'Error' => 'Unknown game',
+            'Status' => 404,
+            'Code' => 'not_found',
+        ];
+    }
+
+    $gameData = [
+        'ID' => $game->ID,
+        'Title' => $game->Title,
+        'ImageIcon' => $game->ImageIcon,
+        'RichPresencePatch' => $game->RichPresencePatch,
+        'ConsoleID' => $game->ConsoleID,
+        'ImageIconURL' => media_asset($game->ImageIcon),
+        'Achievements' => [],
+        'Leaderboards' => [],
+    ];
+
+    $achievements = $game->achievements()
+        ->orderBy('DisplayOrder') // explicit display order
+        ->orderBy('ID');          // tiebreaker on creation sequence
+
+    if ($flag != 0) {
+        $achievements = $achievements->where('Flags', '=', $flag);
+    }
+
+    $gamePlayers = $game->players_total;
+    if ($user) {
+        // if the user isn't already tallied in the players for the game,
+        // adjust the count now for the rarity calculations.
+        $hasPlayerGame = PlayerGame::where('user_id', $user->id)
+            ->where('game_id', $game->id)
+            ->exists();
+        if (!$hasPlayerGame) {
+            $gamePlayers++;
+        }
+    }
+
+    // prevent divide by zero error if the game has never been played before
+    $gamePlayers = max(1, $gamePlayers);
+
+    foreach ($achievements->get() as $achievement) {
+        if (!AchievementFlag::isValid($achievement->Flags)) {
+            continue;
+        }
+
+        // calculate rarity assuming it will be used when the player unlocks the achievement,
+        // which implies they haven't already unlocked it.
+        $rarity = min(100.0, round((float) ($achievement->unlocks_total + 1) * 100 / $gamePlayers, 2));
+        $rarityHardcore = min(100.0, round((float) ($achievement->unlocks_hardcore_total + 1) * 100 / $gamePlayers, 2));
+
+        $gameData['Achievements'][] = [
+            'ID' => $achievement->ID,
+            'MemAddr' => $achievement->MemAddr,
+            'Title' => $achievement->Title,
+            'Description' => $achievement->Description,
+            'Points' => $achievement->Points,
+            'Author' => $achievement->Author,
+            'Modified' => $achievement->DateModified->unix(),
+            'Created' => $achievement->DateCreated->unix(),
+            'BadgeName' => $achievement->BadgeName,
+            'Flags' => $achievement->Flags,
+            'Type' => $achievement->type,
+            'Rarity' => $rarity,
+            'RarityHardcore' => $rarityHardcore,
+            'BadgeURL' => media_asset("Badge/{$achievement->BadgeName}.png"),
+            'BadgeLockedURL' => media_asset("Badge/{$achievement->BadgeName}_lock.png"),
+        ];
+    }
+
+    $leaderboards = $game->leaderboards()
+        ->orderBy('DisplayOrder') // explicit display order
+        ->orderBy('ID');          // tiebreaker on creation sequence
+
+    foreach ($leaderboards->get() as $leaderboard) {
+        $gameData['Leaderboards'][] = [
+            'ID' => $leaderboard->ID,
+            'Mem' => $leaderboard->Mem,
+            'Format' => $leaderboard->Format,
+            'LowerIsBetter' => $leaderboard->LowerIsBetter,
+            'Title' => $leaderboard->Title,
+            'Description' => $leaderboard->Description,
+            'Hidden' => ($leaderboard->DisplayOrder < 0),
+        ];
+    }
+
+    return [
+        'Success' => true,
+        'PatchData' => $gameData,
+    ];
 }
