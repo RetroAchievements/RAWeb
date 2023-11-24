@@ -44,14 +44,8 @@ class UserMessageChainController extends Controller
         $totalPages = (int) (($messageChain->num_messages + 19) / 20);
 
         if ($currentPage == $totalPages) {
-            if ($messageChain->recipient_id == $user->ID) {
-                $messageChain->recipient_num_unread = 0;
-            } else {
-                $messageChain->sender_num_unread = 0;
-            }
-            $messageChain->save();
-
-            // TODO: dispatch event to update num unread messages
+            // if viewing last page, mark all messages in the chain as read
+            UserMessageChainController::markRead($messageChain, $user);
         }
 
         $messages = UserMessage::where('chain_id', $chainId)
@@ -104,6 +98,8 @@ class UserMessageChainController extends Controller
                 $userMessageChain->sender_num_unread++;
                 $userMessageChain->sender_deleted_at = null;
             }
+
+            $userTo = User::firstWhere('id', $userMessageChain->sender_id);
         } else {
             $userMessageChain->sender_last_post_at = $now;
 
@@ -115,6 +111,8 @@ class UserMessageChainController extends Controller
                 $userMessageChain->recipient_num_unread++;
                 $userMessageChain->recipient_deleted_at = null;
             }
+
+            $userTo = User::firstWhere('id', $userMessageChain->recipient_id);
         }
         $userMessageChain->save();
         
@@ -125,9 +123,42 @@ class UserMessageChainController extends Controller
         ]);
         $userMessage->save();
         
-        // TODO: dispatch message sent event
-        //       - update UnreadMessageCount
-        //       - send email
+        UserMessageChainController::updateUnreadMessageCount($userTo);
+
+        // TODO: send email
+    }
+
+    private static function updateUnreadMessageCount(User $user): void
+    {
+        $unreadReplies = UserMessageChain::where('sender_id', $user->id)
+            ->whereNull('sender_deleted_at')
+            ->sum('sender_num_unread');
+
+        $unreadMessages = UserMessageChain::where('recipient_id', $user->id)
+            ->whereNull('recipient_deleted_at')
+            ->sum('recipient_num_unread');
+
+        $user->UnreadMessageCount = $unreadMessages + $unreadReplies;
+        $user->save();
+    }
+
+    public static function markRead(UserMessageChain $userMessageChain, User $user): void
+    {
+        if ($userMessageChain->recipient_id == $user->ID) {
+            if ($userMessageChain->recipient_num_unread) {
+                $userMessageChain->recipient_num_unread = 0;
+                $userMessageChain->save();
+
+                UserMessageChainController::updateUnreadMessageCount($user);
+            }
+        } else {
+            if ($userMessageChain->sender_num_unread) {
+                $userMessageChain->sender_num_unread = 0;
+                $userMessageChain->save();
+
+                UserMessageChainController::updateUnreadMessageCount($user);
+            }
+        }
     }
 
     public static function deleteChain(UserMessageChain $userMessageChain, User $user): void
@@ -145,5 +176,7 @@ class UserMessageChainController extends Controller
         $userMessageChain->save();
         
         // TODO: hard delete if both deleted_at fields are not null?
+
+        UserMessageChainController::updateUnreadMessageCount($user);
     }
 }

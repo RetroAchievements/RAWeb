@@ -60,9 +60,14 @@ class MessagesTest extends TestCase
             'created_at' => $now->toDateTimeString(),
         ]);
 
+        $user2->refresh();
+        $this->assertEquals(1, $user2->UnreadMessageCount);
+
         // user2 responds
-        $chain->recipient_num_unread = 0;
-        $chain->save();
+        UserMessageChainController::markRead($chain, $user2);
+        $user2->refresh();
+        $this->assertEquals(0, $user2->UnreadMessageCount);
+
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
@@ -88,6 +93,9 @@ class MessagesTest extends TestCase
             'body' => 'This is a response.',
             'created_at' => $now2->toDateTimeString(),
         ]);
+
+        $user1->refresh();
+        $this->assertEquals(1, $user1->UnreadMessageCount);
 
         // user2 responds again
         $now3 = $now2->clone()->addMinutes(5);
@@ -116,9 +124,14 @@ class MessagesTest extends TestCase
             'created_at' => $now3,
         ]);
 
+        $user1->refresh();
+        $this->assertEquals(2, $user1->UnreadMessageCount);
+
         // user1 responds
-        $chain->sender_num_unread = 0;
-        $chain->save();
+        UserMessageChainController::markRead($chain, $user1);
+        $user1->refresh();
+        $this->assertEquals(0, $user1->UnreadMessageCount);
+
         $now4 = $now3->clone()->addMinutes(5);
         Carbon::setTestNow($now4);
 
@@ -146,6 +159,9 @@ class MessagesTest extends TestCase
             'created_at' => $now4->toDateTimeString(),
         ]);
 
+        $user2->refresh();
+        $this->assertEquals(1, $user2->UnreadMessageCount);
+
         // user1 deletes
         $now5 = $now4->clone()->addMinutes(5);
         Carbon::setTestNow($now5);
@@ -165,6 +181,9 @@ class MessagesTest extends TestCase
             'sender_deleted_at' => $now5->toDateTimeString(),
             'recipient_deleted_at' => null,
         ]);
+
+        $user2->refresh();
+        $this->assertEquals(1, $user2->UnreadMessageCount);
 
         // user2 deletes
         $now6 = $now5->clone()->addMinutes(5);
@@ -186,6 +205,9 @@ class MessagesTest extends TestCase
             'sender_deleted_at' => $now5->toDateTimeString(),
             'recipient_deleted_at' => $now6->toDateTimeString(),
         ]);
+
+        $user2->refresh();
+        $this->assertEquals(0, $user2->UnreadMessageCount);
     }
 
     public function testBlockedUser(): void
@@ -229,6 +251,9 @@ class MessagesTest extends TestCase
             'created_at' => $now->toDateTimeString(),
         ]);
 
+        $user1->refresh();
+        $this->assertEquals(0, $user1->UnreadMessageCount);
+
         // additional message from user2 is also marked as deleted by user1
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
@@ -256,6 +281,9 @@ class MessagesTest extends TestCase
             'created_at' => $now2->toDateTimeString(),
         ]);
 
+        $user1->refresh();
+        $this->assertEquals(0, $user1->UnreadMessageCount);
+
         // message from user1 is delivered to user2
         Carbon::setTestNow($now);
 
@@ -281,6 +309,9 @@ class MessagesTest extends TestCase
             'body' => 'This is the message body.',
             'created_at' => $now->toDateTimeString(),
         ]);
+
+        $user2->refresh();
+        $this->assertEquals(1, $user2->UnreadMessageCount);
 
         // additional message from user1 is also delivered
         Carbon::setTestNow($now2);
@@ -308,6 +339,9 @@ class MessagesTest extends TestCase
             'created_at' => $now2->toDateTimeString(),
         ]);
 
+        $user2->refresh();
+        $this->assertEquals(2, $user2->UnreadMessageCount);
+
         // response from user2 is automatically deleted
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
@@ -334,5 +368,8 @@ class MessagesTest extends TestCase
             'body' => 'This is another response.',
             'created_at' => $now3->toDateTimeString(),
         ]);
+
+        $user1->refresh();
+        $this->assertEquals(0, $user1->UnreadMessageCount);
     }
 }
