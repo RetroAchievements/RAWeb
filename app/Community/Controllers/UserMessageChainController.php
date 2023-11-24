@@ -65,9 +65,13 @@ class UserMessageChainController extends Controller
     public function pageCreate(Request $request): View
     {
         $toUser = $request->input('to') ?? '';
+        $subject = $request->input('subject') ?? '';
+        $message = $request->input('message') ?? '';
 
         return view('community.components.message.new-chain-page', [
-            'toUser' => $toUser
+            'toUser' => $toUser,
+            'subject' => $subject,
+            'message' => $message,
         ]);
     }
 

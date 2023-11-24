@@ -1,5 +1,7 @@
 @props([
     'toUser' => '',
+    'subject' => '',
+    'message' => '',
 ])
 
 <x-app-layout
@@ -32,7 +34,7 @@
 
             <tr>
                 <td><label for='title'>Subject:</label></td>
-                <td><input class='w-full' type='text' value='' id='title' name='title' required /></td>
+                <td><input class='w-full' type='text' value='{{ $subject }}' id='title' name='title' required /></td>
             </tr>
 
             <tr>
@@ -41,6 +43,7 @@
                     <x-input.shortcode-textarea
                         name='body'
                         watermark='Enter your message here...'
+                        initialValue="{{ $message }}"
                     />
                 </td>
             </tr>
