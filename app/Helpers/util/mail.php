@@ -6,6 +6,7 @@ use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
 use Illuminate\Mail\Transport\SesTransport;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Mime\Email;
 
@@ -33,7 +34,16 @@ function mail_utf8(string $to, string $subject = '(No subject)', string $message
 
 function mail_log(string $to, string $subject = '(No subject)', string $message = ''): bool
 {
-    Log::debug('Mail', ['to' => $to, 'subject' => $subject, 'message' => $message]);
+    $mailParams = ['to' => $to, 'subject' => $subject, 'message' => $message];
+    Log::debug('Mail', $mailParams);
+
+    if (app()->environment('testing')) {
+        $arr = Cache::store('array')->get('test:emails');
+        if ($arr !== null) {
+            $arr[] = $mailParams;
+            Cache::store('array')->put('test:emails', $arr);
+        }
+    }
 
     return true;
 }
@@ -353,7 +363,7 @@ function SendPrivateMessageEmail(
 
     // Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";
-    $link = "<a href='" . config('app.url') . "/inbox.php'>here</a>";
+    $link = "<a href='" . route('message.inbox') . "'>here</a>";
 
     $msg = "Hello $user!<br>" .
         "You have received a new private message from $fromUser.<br><br>" .

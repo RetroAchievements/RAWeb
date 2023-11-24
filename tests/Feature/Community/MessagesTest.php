@@ -16,16 +16,18 @@ use App\Platform\Models\Game;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
+use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
-use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
+use Illuminate\Support\Facades\Log;
+use Tests\Feature\Site\Concerns\TestsMail;
 use Tests\TestCase;
 
 class MessagesTest extends TestCase
 {
     use RefreshDatabase;
+    use TestsMail;
 
     public function testCreateMessageChain(): void
     {
@@ -35,9 +37,10 @@ class MessagesTest extends TestCase
         /** @var User $user1 */
         $user1 = User::factory()->create();
         /** @var User $user2 */
-        $user2 = User::factory()->create();
+        $user2 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user2
+        $this->captureEmails();
         $chain = UserMessageChainController::newChain($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('user_message_chains', [
             'id' => 1,
@@ -63,6 +66,8 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->UnreadMessageCount);
 
+        $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
+
         // user2 responds
         UserMessageChainController::markRead($chain, $user2);
         $user2->refresh();
@@ -71,8 +76,8 @@ class MessagesTest extends TestCase
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
+        $this->captureEmails();
         UserMessageChainController::addToChain($chain, $user2, 'This is a response.');
-
         $this->assertDatabaseHas('user_message_chains', [
             'id' => 1,
             'title' => 'This is a message',
@@ -97,12 +102,14 @@ class MessagesTest extends TestCase
         $user1->refresh();
         $this->assertEquals(1, $user1->UnreadMessageCount);
 
+        $this->assertEmailNotSent($user1);
+
         // user2 responds again
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
 
+        $this->captureEmails();
         UserMessageChainController::addToChain($chain, $user2, 'This is another response.');
-
         $this->assertDatabaseHas('user_message_chains', [
             'id' => 1,
             'title' => 'This is a message',
@@ -127,6 +134,8 @@ class MessagesTest extends TestCase
         $user1->refresh();
         $this->assertEquals(2, $user1->UnreadMessageCount);
 
+        $this->assertEmailNotSent($user1);
+
         // user1 responds
         UserMessageChainController::markRead($chain, $user1);
         $user1->refresh();
@@ -135,9 +144,8 @@ class MessagesTest extends TestCase
         $now4 = $now3->clone()->addMinutes(5);
         Carbon::setTestNow($now4);
 
+        $this->captureEmails();
         UserMessageChainController::addToChain($chain, $user1, 'This is a third response.');
-
-        $chain->refresh();
         $this->assertDatabaseHas('user_message_chains', [
             'id' => 1,
             'title' => 'This is a message',
@@ -162,12 +170,14 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->UnreadMessageCount);
 
+        $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
+
         // user1 deletes
         $now5 = $now4->clone()->addMinutes(5);
         Carbon::setTestNow($now5);
 
+        $this->captureEmails();
         UserMessageChainController::deleteChain($chain, $user1);
-
         $this->assertDatabaseHas('user_message_chains', [
             'id' => 1,
             'title' => 'This is a message',
@@ -185,12 +195,15 @@ class MessagesTest extends TestCase
         $user2->refresh();
         $this->assertEquals(1, $user2->UnreadMessageCount);
 
+        $this->assertEmailNotSent($user1);
+        $this->assertEmailNotSent($user2);
+
         // user2 deletes
         $now6 = $now5->clone()->addMinutes(5);
         Carbon::setTestNow($now6);
 
+        $this->captureEmails();
         UserMessageChainController::deleteChain($chain, $user2);
-
         $chain->refresh();
         $this->assertDatabaseHas('user_message_chains', [
             'id' => 1,
@@ -208,6 +221,9 @@ class MessagesTest extends TestCase
 
         $user2->refresh();
         $this->assertEquals(0, $user2->UnreadMessageCount);
+
+        $this->assertEmailNotSent($user1);
+        $this->assertEmailNotSent($user2);
     }
 
     public function testBlockedUser(): void

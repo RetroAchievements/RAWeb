@@ -14,6 +14,7 @@ use App\Http\Controller;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
+use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -125,7 +126,11 @@ class UserMessageChainController extends Controller
         
         UserMessageChainController::updateUnreadMessageCount($userTo);
 
-        // TODO: send email
+        // send email?
+        if (BitSet($userTo->websitePrefs, UserPreference::EmailOn_PrivateMessage) &&
+                $relationship != UserRelationship::Blocked) {
+            sendPrivateMessageEmail($userTo->User, $userTo->EmailAddress, $userMessageChain->title, $body, $userFrom->User);
+        }
     }
 
     private static function updateUnreadMessageCount(User $user): void
