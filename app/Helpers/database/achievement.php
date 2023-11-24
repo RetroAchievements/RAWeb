@@ -381,73 +381,6 @@ function UploadNewAchievement(
     return false;
 }
 
-function GetAchievementsPatch(int $gameID, int $flag): array
-{
-    $bindings = [
-        'gameId' => $gameID,
-    ];
-
-    $flagCond = '';
-    if ($flag != 0) {
-        $bindings['achievementFlag'] = $flag;
-        $flagCond = 'AND Flags=:achievementFlag';
-    }
-
-    $query = "SELECT ID, MemAddr, Title, Description, Points, Author, UNIX_TIMESTAMP(DateModified) AS Modified, UNIX_TIMESTAMP(DateCreated) AS Created, BadgeName, Flags
-              FROM Achievements
-              WHERE GameID=:gameId $flagCond
-              ORDER BY DisplayOrder";
-
-    return legacyDbFetchAll($query, $bindings)
-        ->map(function ($achievement) {
-            $badgeName = $achievement['BadgeName'];
-            if ($badgeName) {
-                $achievement['BadgeURL'] = media_asset("Badge/$badgeName.png");
-                $achievement['BadgeLockedURL'] = media_asset("Badge/{$badgeName}_lock.png");
-            }
-
-            return $achievement;
-        })
-        ->toArray();
-}
-
-function GetPatchData(int $gameID, int $flag): array
-{
-    if (empty($gameID)) {
-        return ['Success' => false];
-    }
-
-    $gameData = getGameData($gameID);
-    if ($gameData === null) {
-        return ['Success' => false];
-    }
-
-    if ($gameData['ImageIcon']) {
-        $gameData['ImageIconURL'] = media_asset($gameData['ImageIcon']);
-    }
-    if ($gameData['ImageTitle']) {
-        $gameData['ImageTitleURL'] = media_asset($gameData['ImageTitle']);
-    }
-    if ($gameData['ImageIngame']) {
-        $gameData['ImageIngameURL'] = media_asset($gameData['ImageIngame']);
-    }
-    if ($gameData['ImageBoxArt']) {
-        $gameData['ImageBoxArtURL'] = media_asset($gameData['ImageBoxArt']);
-    }
-
-    // Any IDs sent to the client that aren't under "Achievements" or "Leaderboards"
-    // are interpreted as the game ID and mess with Rich Presence pings.
-    // See https://discord.com/channels/310192285306454017/310195377993416714/1101532094842273872
-    // and https://discord.com/channels/476211979464343552/1002689485005406249/1101552737516257400
-    // The system ID and name should have already been copied into "ConsoleID" and "ConsoleName"
-    unset($gameData['system']);
-
-    return array_merge($gameData, [
-        'Achievements' => GetAchievementsPatch($gameID, $flag),
-        'Leaderboards' => GetLBPatch($gameID),
-    ]);
-}
-
 function updateAchievementDisplayID(int $achID, int $newID): bool
 {
     $query = "UPDATE Achievements SET DisplayOrder = $newID, Updated=NOW() WHERE ID = $achID";
@@ -482,7 +415,7 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): void
 
     $achievements->update(['Flags' => $newFlag]);
 
-    $updatedAchievements = $achievements->get();
+    $updatedAchievements = Achievement::whereIn('ID', $achievementIDs)->get();
 
     foreach ($updatedAchievements as $achievement) {
         if ($newFlag === AchievementFlag::OfficialCore) {

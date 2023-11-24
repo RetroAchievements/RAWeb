@@ -761,59 +761,6 @@ sanitize_outputs(
 
     });
 
-    function getSetRequestInformation(user, gameID) {
-        $.post('/request/user-game-list/set-requests.php', {
-            game: gameID,
-            user: user,
-        })
-            .done(function (results) {
-                var remaining = parseInt(results.remaining);
-                var gameTotal = parseInt(results.gameRequests);
-                var thisGame = results.requestedThisGame;
-
-                var $requestButton = $('.setRequestLabel');
-                $requestButton.show();
-                $('.gameRequestsLabel').html('Set Requests: <a href=\'/setRequestors.php?g=' + gameID + '\'>' + gameTotal + '</a>');
-                $('.userRequestsLabel').html('User Requests Remaining: <a href=\'/setRequestList.php?u=' + user + '\'>' + remaining + '</a>');
-
-                // If the user has not requested a set for this game
-                if (thisGame == 0) {
-                    if (remaining <= 0) {
-                        $requestButton.text('No Requests Remaining');
-
-                        //Remove clickable text
-                        $requestButton.each(function () {
-                            $($(this).text()).replaceAll(this);
-                        });
-                    } else {
-                        $requestButton.text('Request Set');
-                    }
-                } else {
-                    $requestButton.text('Withdraw Request');
-                }
-            });
-    }
-
-    function submitSetRequest(user, gameID) {
-        $.post('/request/user-game-list/toggle.php', {
-            game: gameID,
-            type: '<?= UserGameListType::AchievementSetRequest ?>'
-        })
-            .done(function () {
-                getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
-            });
-    }
-
-    $(function () {
-        // When the set request text is clicked
-        $('.setRequestLabel').click(function () {
-            submitSetRequest('<?= $user ?>', <?= $gameID ?>);
-        });
-
-        if ($('.setRequestLabel').length) {
-            getSetRequestInformation('<?= $user ?>', <?= $gameID ?>);
-        }
-    });
     </script>
 <?php endif ?>
 <article>
@@ -862,6 +809,7 @@ sanitize_outputs(
             'publisher' => $publisher,
             'released' => $released,
             'user' => $user,
+            'userModel' => $userModel,
         ];
 
         $initializedProgressComponent = Blade::render('
@@ -1298,12 +1246,12 @@ sanitize_outputs(
 
             // Only show set request option for logged in users, games without achievements, and core achievement page
             if ($user !== null && $numAchievements == 0 && $flagParam == $officialFlag) {
-                echo "<div>";
-                echo "<h2 class='text-h4'>Set Requests</h2>";
-                echo "<div class='gameRequestsLabel'></div>";
-                echo "<div><button type='button' class='btn setRequestLabel hidden'>Request Set</button></div>";
-                echo "<div class='userRequestsLabel'></div>";
-                echo "</div>";
+                echo Blade::render('
+                    <x-game.set-requests
+                        :gameId="$gameID"
+                        :user="$userModel"
+                    />
+                ', $gameMetaBindings);
             }
 
             if ($user !== null && $numAchievements > 0) {
