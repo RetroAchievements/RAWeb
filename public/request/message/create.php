@@ -18,8 +18,8 @@ $user = request()->user();
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'chain' => 'nullable|integer',
-    'body' => 'required|string',
-    'title' => 'required_without:chain',
+    'body' => 'required|string|max:60000',
+    'title' => 'required_without:chain|string|max:255',
     'recipient' => 'required_without:chain|exists:UserAccounts,User',
 ]);
 
@@ -37,4 +37,4 @@ if (array_key_exists('chain', $input) && $input['chain'] != null) {
 
 $recipient = User::firstWhere('User', $input['recipient']);
 $userMessageChain = UserMessageChainController::newChain($user, $recipient, $input['title'], $input['body']);
-return redirect(route("message.outbox"));
+return redirect(route("message.outbox"))->with('success', __('legacy.success.message_send'));
