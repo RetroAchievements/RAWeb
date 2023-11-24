@@ -181,10 +181,13 @@ class UserMessageChainController extends Controller
             $userMessageChain->sender_num_unread = 0;
             $userMessageChain->sender_deleted_at = $now;
         }
-
-        $userMessageChain->save();
-        
-        // TODO: hard delete if both deleted_at fields are not null?
+      
+        if ($userMessageChain->recipient_deleted_at != null && $userMessageChain->sender_deleted_at != null) {
+            // this will also cascade delete the user_messages
+            $userMessageChain->delete();
+        } else {
+            $userMessageChain->save();
+        }
 
         UserMessageChainController::updateUnreadMessageCount($user);
     }

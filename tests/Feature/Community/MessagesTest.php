@@ -198,26 +198,17 @@ class MessagesTest extends TestCase
         $this->assertEmailNotSent($user1);
         $this->assertEmailNotSent($user2);
 
-        // user2 deletes
+        // user2 deletes - when both users delete the message, it's removed from the DB
         $now6 = $now5->clone()->addMinutes(5);
         Carbon::setTestNow($now6);
 
         $this->captureEmails();
         UserMessageChainController::deleteChain($chain, $user2);
-        $chain->refresh();
-        $this->assertDatabaseHas('user_message_chains', [
-            'id' => 1,
-            'title' => 'This is a message',
-            'sender_id' => $user1->ID,
-            'recipient_id' => $user2->ID,
-            'num_messages' => 4,
-            'sender_num_unread' => 0,
-            'recipient_num_unread' => 0,
-            'sender_last_post_at' => $now4->toDateTimeString(),
-            'recipient_last_post_at' => $now3->toDateTimeString(),
-            'sender_deleted_at' => $now5->toDateTimeString(),
-            'recipient_deleted_at' => $now6->toDateTimeString(),
-        ]);
+        $this->assertDatabaseMissing('user_message_chains', ['id' => 1]);
+        $this->assertDatabaseMissing('user_messages', ['id' => 1]);
+        $this->assertDatabaseMissing('user_messages', ['id' => 2]);
+        $this->assertDatabaseMissing('user_messages', ['id' => 3]);
+        $this->assertDatabaseMissing('user_messages', ['id' => 4]);
 
         $user2->refresh();
         $this->assertEquals(0, $user2->UnreadMessageCount);
