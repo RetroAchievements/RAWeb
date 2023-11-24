@@ -10,14 +10,14 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('player_stats', function (Blueprint $table) {
-            $table->timestampTz('last_affected_at')->nullable()->after('last_game_id');
+            $table->timestampTz('stat_updated_at')->nullable()->after('last_game_id');
         });
     }
 
     public function down(): void
     {
         Schema::table('player_stats', function (Blueprint $table) {
-            $table->dropColumn('last_affected_at');
+            $table->dropColumn('stat_updated_at');
         });
     }
 };

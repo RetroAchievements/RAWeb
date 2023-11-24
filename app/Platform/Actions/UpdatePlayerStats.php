@@ -149,10 +149,10 @@ class UpdatePlayerStats
             // Now, loop through each stat type for this system.
             foreach ($systemStats as $statType => $values) {
                 // Extract the value and most recent game ID.
-                [$value, $lastGameId, $affectedAt] = $values;
+                [$value, $lastGameId, $statUpdatedAt] = $values;
 
                 if ($value > 0) {
-                    $this->upsertPlayerStat($user, $statType, $value, $systemId, $lastGameId, $affectedAt);
+                    $this->upsertPlayerStat($user, $statType, $value, $systemId, $lastGameId, $statUpdatedAt);
                     $updatedCount++;
                 }
             }
@@ -167,7 +167,7 @@ class UpdatePlayerStats
         int $value,
         ?int $systemId,
         ?int $lastGameId,
-        ?string $affectedAt
+        ?string $statUpdatedAt
     ): void {
         PlayerStat::updateOrCreate(
             [
@@ -178,7 +178,7 @@ class UpdatePlayerStats
             [
                 'last_game_id' => $lastGameId,
                 'value' => $value,
-                'last_affected_at' => $affectedAt,
+                'stat_updated_at' => $statUpdatedAt,
             ]
         );
 
