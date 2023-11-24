@@ -141,8 +141,8 @@ class BeatenGamesLeaderboardController extends Controller
 
         $query = PlayerStat::selectRaw(
             'sub.user_id, 
-            MAX(player_stats.last_game_id) AS last_game_id, 
-            MAX(player_stats.last_affected_at) as last_beaten_date, 
+            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.last_game_id ELSE NULL END) AS last_game_id, 
+            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.last_affected_at ELSE NULL END) as last_beaten_date, 
             sub.total_awards, 
             RANK() OVER (ORDER BY sub.total_awards DESC) as rank_number,
             ROW_NUMBER() OVER (ORDER BY sub.total_awards DESC, sub.last_beaten_date ASC) as leaderboard_row_number'
