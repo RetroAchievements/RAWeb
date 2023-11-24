@@ -85,7 +85,7 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
         'Token' => $user->appToken,
         'Score' => $user->RAPoints,
         'SoftcoreScore' => $user->RASoftcorePoints,
-        'Messages' => GetMessageCount($user, $totalMessageCount),
+        'Messages' => $user->UnreadMessageCount,
         'Permissions' => $permissions,
         'AccountType' => Permissions::toString($permissions),
     ];
