@@ -16,11 +16,11 @@ if ($totalAchievementsCount > 0) {
     $hardcoreProgressWidth = ($numEarnedHardcoreAchievements / $totalAchievementsCount) * 100;
     $softcoreProgressWidth = ($numEarnedSoftcoreAchievements / $totalAchievementsCount) * 100;
 
-    $hardcoreCompletionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth));
-    $softcoreCompletionPercentage = sprintf("%01.0f", floor($softcoreProgressWidth + $hardcoreCompletionPercentage));
+    $hardcoreCompletionPercentage = sprintf("%01.0f", $hardcoreProgressWidth);
+    $softcoreCompletionPercentage = sprintf("%01.0f", $softcoreProgressWidth + $hardcoreCompletionPercentage);
 }
 
-$completionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth + $softcoreProgressWidth));
+$completionPercentage = sprintf("%01.0f", round($hardcoreProgressWidth + $softcoreProgressWidth));
 ?>
 
 <div
