@@ -6,13 +6,11 @@
 ])
 
 <?php
-// Arduboy, WASM-4, and Uzebox are homebrew consoles.
+use App\Platform\Models\System;
+
+// Some consoles were never sold in stores and are considered "homebrew".
 // They do not have games that would conventionally be considered "retail".
-$allowsRetail = (
-    $selectedConsoleId !== 71
-    && $selectedConsoleId !== 72
-    && $selectedConsoleId !== 80
-);
+$allowsRetail = !System::isHomebrewSystem($selectedConsoleId);
 ?>
 
 <script>
@@ -26,7 +24,7 @@ function handleGameKindsChanged(event) {
 function handleConsoleChanged(event) {
     // The "Retail" filter is automatically disabled on homebrew systems.
     // Default to the "All" option.
-    const homebrewSystemIds = [71, 72, 80];
+    const homebrewSystemIds = {!! json_encode(System::getHomebrewSystems()) !!};
     if (homebrewSystemIds.includes(Number(event.target.value))) {
         window.updateUrlParameter(
             ['page[number]', 'filter[system]', 'filter[kind]'],

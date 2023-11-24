@@ -9,6 +9,7 @@ use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerStatsUpdated;
 use App\Platform\Models\PlayerStat;
+use App\Platform\Models\System;
 use App\Site\Models\User;
 
 class UpdatePlayerStats
@@ -133,9 +134,9 @@ class UpdatePlayerStats
                 return $kind;
             }
 
-            // Arduboy, WASM-4, and Uzebox are homebrew consoles.
+            // Some consoles were never sold in stores and are considered "homebrew".
             // Their games fall back to "homebrew" rather than "retail".
-            if ($gameConsoleId === 71 || $gameConsoleId === 72 || $gameConsoleId === 80) {
+            if (System::isHomebrewSystem($gameConsoleId)) {
                 return 'homebrew';
             }
         }
