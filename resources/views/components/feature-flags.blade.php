@@ -19,15 +19,6 @@ function handleToggleCookie(cookieName) {
 }
 </script>
 
-<div class="flex justify-between">
-    <p>Beaten Games Player-facing UX</p>
-    @hasfeature("beat")
-        Enabled
-    @else
-        Disabled
-    @endhasfeature
-</div>
-
 {{-- EXAMPLE
 <div class="flex justify-between">
     <p>Aggregate Queries</p>

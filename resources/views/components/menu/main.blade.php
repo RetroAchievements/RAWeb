@@ -152,9 +152,7 @@ $menuSystemsList = [
     <div class="dropdown-divider"></div>
     <x-dropdown-item :link="url('userList.php')">{{ __res('user') }}</x-dropdown-item>
     <x-dropdown-item :link="url('globalRanking.php')">Global Points Ranking</x-dropdown-item>
-    @hasfeature("beat")
-        <x-dropdown-item :link="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>
-    @endhasfeature
+    <x-dropdown-item :link="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>
     <x-dropdown-item :link="url('recentMastery.php')">Recent Game Awards</x-dropdown-item>
     <x-dropdown-item :link="url('developerstats.php')">Developer Stats</x-dropdown-item>
     <div class="dropdown-divider"></div>

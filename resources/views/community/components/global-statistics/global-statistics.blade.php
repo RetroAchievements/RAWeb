@@ -6,10 +6,8 @@
             <div class="grid grid-cols-2 gap-px mb-2">
                 <x-global-statistics.stat-embed label="Games" :count="$numGames" href="{{ route('game.index', ['s' => 1]) }}" />
                 <x-global-statistics.stat-embed label="Achievements" :count="$numAchievements" href="/achievementList.php" />
-                @hasfeature("beat")
-                    <x-global-statistics.stat-embed label="Games Mastered" :count="$numHardcoreMasteryAwards" href="/recentMastery.php?t=1&m=1" />
-                    <x-global-statistics.stat-embed label="Games Beaten" :count="$numHardcoreGameBeatenAwards" href="/recentMastery.php?t=8&m=1" />
-                @endhasfeature
+                <x-global-statistics.stat-embed label="Games Mastered" :count="$numHardcoreMasteryAwards" href="/recentMastery.php?t=1&m=1" />
+                <x-global-statistics.stat-embed label="Games Beaten" :count="$numHardcoreGameBeatenAwards" href="/recentMastery.php?t=8&m=1" />
                 <x-global-statistics.stat-embed label="Registered Players" :count="$numRegisteredPlayers" href="/userList.php" />
                 <x-global-statistics.stat-embed label="Achievement Unlocks" :count="$numAwarded" href="/recentMastery.php" />
             </div>
@@ -31,14 +29,12 @@
             :timestamp="$lastMasteredTimeAgo"
         />
 
-        @hasfeature("beat")
-            <x-global-statistics.recent-game-progress
-                headingLabel="Most recent game beaten"
-                :game="$lastBeatenGame"
-                :userId="$lastBeatenUserId"
-                :timestamp="$lastBeatenTimeAgo"
-            />
-        @endhasfeature
+        <x-global-statistics.recent-game-progress
+            headingLabel="Most recent game beaten"
+            :game="$lastBeatenGame"
+            :userId="$lastBeatenUserId"
+            :timestamp="$lastBeatenTimeAgo"
+        />
     </div>
 
     @if ($lastRegisteredUser)

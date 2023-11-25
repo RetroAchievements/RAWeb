@@ -51,21 +51,19 @@ if (($isCompleted || $isMastered) && !$isBeaten && $isBeatable) {
 <div class="text-lg {{ $colorClassName }} mb-1.5 mt-0.5 flex items-center gap-x-1">
     <p>{{ $statusLabel }}</p>
 
-    @hasfeature('beat')
-        @if (!$isBeaten && $isBeatable)
-            <x-modal-trigger
-                modalTitleLabel="Beaten Game Credit"
-                resourceApiRoute="/request/game/beaten-credit.php"
-                :resourceId="$gameId"
-                :resourceContext="$beatenGameCreditDialogContext"
-            >
-                <x-slot name="trigger">
-                    <x-fas-info-circle
-                        aria-label="Learn about beaten game credit"
-                        class="{{ $colorClassName }} w-5 h-5 -mt-1"
-                    />
-                </x-slot>
-            </x-modal-trigger>
-        @endif
-    @endhasfeature
+    @if (!$isBeaten && $isBeatable)
+        <x-modal-trigger
+            modalTitleLabel="Beaten Game Credit"
+            resourceApiRoute="/request/game/beaten-credit.php"
+            :resourceId="$gameId"
+            :resourceContext="$beatenGameCreditDialogContext"
+        >
+            <x-slot name="trigger">
+                <x-fas-info-circle
+                    aria-label="Learn about beaten game credit"
+                    class="{{ $colorClassName }} w-5 h-5 -mt-1"
+                />
+            </x-slot>
+        </x-modal-trigger>
+    @endif
 </div>

@@ -22,10 +22,6 @@ class BeatenGamesLeaderboardController extends Controller
 
     public function __invoke(Request $request): View
     {
-        if (!config('feature.beat')) {
-            abort(404);
-        }
-
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
             'filter.system' => 'sometimes|integer',
