@@ -6,10 +6,10 @@
 // Livewire.start();
 
 import {
-    hideEarnedCheckboxComponent,
-    modalComponent,
-    newsCarouselComponent,
-    tooltipComponent,
+  hideEarnedCheckboxComponent,
+  modalComponent,
+  newsCarouselComponent,
+  tooltipComponent,
 } from './alpine';
 import {
   autoExpandTextInput,
