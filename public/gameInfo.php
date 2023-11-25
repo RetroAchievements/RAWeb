@@ -567,7 +567,7 @@ sanitize_outputs(
                     'height': '78%'
                 },
                 height: 260,
-                colors: ['#cc9900', '#186DEE'],
+                colors: ['#cc9900', '#737373'],
                 pointSize: 4,
             };
 
