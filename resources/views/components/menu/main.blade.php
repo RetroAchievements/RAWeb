@@ -48,6 +48,10 @@ $menuSystemsList = [
             ["systemName" => "PC-8000/8800", "listID" => 47],
             ["systemName" => "PC-FX", "listID" => 49],
         ],
+        "SNK" => [
+            ["systemName" => "Neo Geo CD", "listID" => 56],
+            ["systemName" => "Neo Geo Pocket", "listID" => 14],
+        ],
     ],
     [
         "Other" => [
@@ -65,8 +69,6 @@ $menuSystemsList = [
             ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
             ["systemName" => "Mega Duck", "listID" => 69],
             ["systemName" => "MSX", "listID" => 29],
-            ["systemName" => "Neo Geo CD", "listID" => 56],
-            ["systemName" => "Neo Geo Pocket", "listID" => 14],
             ["systemName" => "Uzebox", "listID" => 80],
             ["systemName" => "Vectrex", "listID" => 46],
             ["systemName" => "WASM-4", "listID" => 72],

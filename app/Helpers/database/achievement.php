@@ -415,7 +415,7 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): void
 
     $achievements->update(['Flags' => $newFlag]);
 
-    $updatedAchievements = $achievements->get();
+    $updatedAchievements = Achievement::whereIn('ID', $achievementIDs)->get();
 
     foreach ($updatedAchievements as $achievement) {
         if ($newFlag === AchievementFlag::OfficialCore) {
