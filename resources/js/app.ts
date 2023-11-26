@@ -1,10 +1,7 @@
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-// import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
-// Alpine.plugin(yourCustomPlugin);
-// Livewire.start();
-
+import { Livewire, Alpine } from 'livewire/livewire.esm';
 import {
   hideEarnedCheckboxComponent,
   modalComponent,
@@ -57,5 +54,16 @@ window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
 window.tooltipComponent = tooltipComponent;
+
+// https://livewire.laravel.com/docs/alpine#manually-bundling-alpine-in-your-javascript-build
+// Alpine.directive('clipboard', (el) => {
+//   const text = el.textContent;
+//
+//   el.addEventListener('click', () => {
+//     navigator.clipboard.writeText(text);
+//   });
+// });
+
+Livewire.start();
 
 themeChange();

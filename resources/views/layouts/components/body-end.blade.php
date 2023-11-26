@@ -1,4 +1,4 @@
-<livewire:scripts />
+@livewireScriptConfig
 @if(!app()->environment('production'))
     <script>
         function handleClick(el) {
