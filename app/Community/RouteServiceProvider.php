@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\ContactController;
-use App\Community\Controllers\UserMessageChainController;
-use App\Community\Controllers\UserMessagesController;
+use App\Community\Controllers\MessageThreadsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -231,12 +230,11 @@ class RouteServiceProvider extends ServiceProvider
                 //     // Route::get('history', [PlayerHistoryController::class, 'index'])->name('history.index');
 
                 /*
-                 * inbox
+                 * messages
                  */
-                Route::get('message/new', [UserMessageChainController::class, 'pageCreate'])->name('message.new');
-                Route::get('message/{chain}', UserMessageChainController::class)->name('message.view-chain');
-                Route::get('messages', UserMessagesController::class)->name('message.inbox');
-                Route::get('messages/outbox', [UserMessagesController::class, 'pageOutbox'])->name('message.outbox');
+                Route::get('message/new', [MessageThreadsController::class, 'pageCreate'])->name('message.new');
+                Route::get('message/{thread_id}', [MessageThreadsController::class, 'pageView'])->name('message.view');
+                Route::get('messages', [MessageThreadsController::class, 'pageList'])->name('message.list');
 
                 //     /*
                 //      * tickets

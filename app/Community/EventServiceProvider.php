@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community;
 
+use App\Community\Events\MessageCreated;
+use App\Community\Listeners\NotifyMessageParticipants;
 use App\Community\Listeners\WriteUserActivity;
 use App\Platform\Events\AchievementSetBeaten;
 use App\Platform\Events\AchievementSetCompleted;
@@ -24,6 +26,14 @@ class EventServiceProvider extends ServiceProvider
          */
         Login::class => [
             WriteUserActivity::class,
+        ],
+
+        /*
+         * Community Events
+         */
+
+        MessageCreated::class => [
+            NotifyMessageParticipants::class,
         ],
 
         /*

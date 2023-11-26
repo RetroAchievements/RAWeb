@@ -1,8 +1,10 @@
 @props([
-    'messageChain' => null,
+    'thread' => null,
     'messages' => [],
+    'participants' => [],
     'currentPage' => 1,
     'totalPages' => 1,
+    'canReply' => true,
 ])
 
 <?php
@@ -12,41 +14,53 @@ use App\Site\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 
-$userTo = User::withTrashed()->firstWhere('ID', $messageChain->recipient_id);
-$userFrom = User::withTrashed()->firstWhere('ID', $messageChain->sender_id);
-
+$user = request()->user();
 $isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
 $monthAgo = Carbon::now()->subMonth(1);
 
-?>
-
-<script>
-function deleteMessage() {
-    if (confirm('Are you sure you want to delete this message?')) {
-        $.post('/request/message/delete.php', {
-            chain: {{ $messageChain->id }},
-            user: "{{ request()->user()->User }}"
-        })
-            .done(function () {
-                window.location.href = "{{ route('message.inbox') }}";
-            })
+$participantModels = [];
+if (empty($participants)) {
+    foreach ($messages as $message) {
+        if (!array_key_exists($message->author_id, $participants)) {
+            $participantModel = User::withTrashed()->firstWhere('id', $message->author_id);
+            if ($participantModel) {
+                $participantModels[$message->author_id] = $participantModel;
+                $participants[$participantModel->ID] = $participantModel->User;
+            }
+        }
+    }
+} else {
+    foreach ($participants as $id => $participant) {
+        $participantModel = User::withTrashed()->firstWhere('id', $id);
+        if ($participantModel) {
+            $participantModels[$id] = $participantModel;
+        }
     }
 }
-</script>
+$pageDescription = "Conversation between " . implode(' and ', $participants);
+
+?>
 
 <x-app-layout
-    pageTitle="{{ $messageChain->title }}"
-    pageDescription="Conversation between {{ $userFrom->User }} and {{ $userTo->User }}"
+    pageTitle="{{ $thread->title }}"
+    pageDescription="{{ $pageDescription }}"
 >
-    <x-message.breadcrumbs currentPage="{!! $messageChain->title !!}" />
+    <x-user.breadcrumbs targetUsername="{{ $user->User }}"
+        parentPage="Messages"
+        parentPageUrl="{{ route('message.list') }}"
+        currentPage="{!! $thread->title !!}" />
 
     <div class="mt-3 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">{!! $messageChain->title !!}</h1>
+        <h1 class="mt-[10px] w-full">{!! $thread->title !!}</h1>
     </div>
-    
+
     <div class="w-full flex my-2">
         <div class="mr-6">
-            <button class='btn btn-danger' onclick='deleteMessage()'>Delete</button>
+            <form action='/request/message/delete.php' method='post'>
+            {{ csrf_field() }}
+            <input type="hidden" name="thread_id" value="{{ $thread->id }}" />
+            <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message?')">Delete</button>
+            </form>
         </div>
         <div class="w-full flex justify-end">
             <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
@@ -55,10 +69,10 @@ function deleteMessage() {
 
     <div class="flex flex-col gap-y-1">
         @foreach ($messages as $message)
-            <div class="embedded">
+            <div class="embedded mb-2">
                 <div class="flex justify-between items-center">
                     <div>
-                    {!! userAvatar($message->author_id == $userTo->ID ? $userTo : $userFrom, iconSize: 16) !!}
+                    {!! userAvatar($participants[$message->author_id], iconSize: 24) !!}
                     <?php $humanDate = $message->created_at->format('F j Y, g:ia'); ?>
                     @if ($isShowAbsoluteDatesPreferenceSet)
                         <span class='smalldate'>{{ $humanDate }}</span>
@@ -69,18 +83,19 @@ function deleteMessage() {
                     @endif
                     </div>
                 </div>
+                <hr class="w-full border-embed-highlight my-2" />
 
                 <p class="comment text-overflow-wrap">{!! Shortcode::render($message->body) !!}</p>
             </div>
         @endforeach
     </div>
 
-    @if ($userFrom->trashed() || $userTo->trashed())
-        <div class="mt-4"><i>Cannot reply to deleted user.</i></div>
+    @if (!$canReply)
+        <div class="mt-2"><i>Cannot reply to deleted user.</i></div>
     @else
         <form action='/request/message/create.php' method='post' x-data='{ isValid: true }'>
             {{ csrf_field() }}
-            <input type='hidden' name='chain' value='{{ $messageChain->id }}' />
+            <input type='hidden' name='thread_id' value='{{ $thread->id }}' />
 
             <x-input.shortcode-textarea
                 name='body'

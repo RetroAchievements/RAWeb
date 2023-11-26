@@ -1,7 +1,8 @@
 <?php
 
-use App\Community\Controllers\UserMessageChainController;
-use App\Community\Models\UserMessageChain;
+use App\Community\Controllers\MessageThreadsController;
+use App\Community\Models\MessageThread;
+use App\Community\Models\MessageThreadParticipant;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -10,20 +11,25 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'chain' => 'required|integer|exists:user_message_chains,id',
+    'thread_id' => 'required|integer|exists:message_threads,id',
 ]);
+
+$thread = MessageThread::firstWhere('id', $input['thread_id']);
+if (!$thread) {
+    return back()->withErrors(__('legacy.error.error'));
+}
 
 /** @var User $user */
 $user = request()->user();
 
-$userMessageChain = UserMessageChain::firstWhere('id', $input['chain']);
-if (!$userMessageChain) {
-    return back()->withErrors(__('legacy.error.error'));
-}
-if ($userMessageChain->recipient_id != $user->ID && $userMessageChain->sender_id != $user->ID) {
+$participating = MessageThreadParticipant::where('thread_id', $input['thread_id'])
+    ->where('user_id', $user->ID)
+    ->exists();
+
+if (!$participating) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-UserMessageChainController::deleteChain($userMessageChain, $user);
+MessageThreadsController::deleteThread($thread, $user);
 
-response()->json(['message' => __('legacy.success.ok')]);
+return redirect(route("message.list"))->with('success', __('legacy.success.message_delete'));

@@ -33,6 +33,7 @@ class UserRelation extends BaseModel
         $relation = UserRelation::where('User', $user)
             ->where('Friend', $relatedUser)
             ->first();
+
         return $relation ? $relation->Friendship : UserRelationship::NotFollowing;
     }
 

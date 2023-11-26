@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Community\Commands;
 
 use App\Community\Models\Message;
-use App\Community\Models\UserMessage;
-use App\Community\Models\UserMessageChain;
+use App\Community\Models\MessageThread;
+use App\Community\Models\MessageThreadParticipant;
 use App\Site\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SyncMessages extends Command
 {
@@ -22,7 +25,7 @@ class SyncMessages extends Command
 
     public function handle(): void
     {
-        $count = Message::whereNull('migrated_id')->count();
+        $count = Message::where('thread_id', 0)->count();
 
         $progressBar = $this->output->createProgressBar($count);
         $progressBar->start();
@@ -30,7 +33,7 @@ class SyncMessages extends Command
         // have to do this in batches to prevent exhausting memory
         // due to requesting payloads (message content)
         for ($i = 0; $i < $count; $i += 100) {
-            $messages = Message::whereNull('migrated_id')->orderBy('ID')->limit(100)->get();
+            $messages = Message::where('thread_id', 0)->orderBy('ID')->limit(100)->get();
             /** @var Message $message */
             foreach ($messages as $message) {
                 $this->migrateMessage($message);
@@ -40,63 +43,94 @@ class SyncMessages extends Command
 
         $progressBar->finish();
         $this->line(PHP_EOL);
+
+        $count = Message::where('thread_id', 0)->count();
+        if ($count == 0) {
+            // all messages sync'd. add the foreign key so deletes will cascade
+            $sm = Schema::getConnection()->getDoctrineSchemaManager();
+            $foreignKeysFound = $sm->listTableForeignKeys('messages');
+
+            $found = false;
+            foreach ($foreignKeysFound as $foreignKey) {
+                if ($foreignKey->getName() == 'messages_thread_id_foreign') {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                Schema::table('messages', function (Blueprint $table) {
+                    $table->foreign('thread_id')->references('ID')->on('message_threads')->onDelete('cascade');
+                });
+            }
+        }
+
+        // automatically mark bug report notifications as deleted by the sender if
+        // the recipient hasn't replied to them.
+        DB::statement("UPDATE message_thread_participants mtp
+                       INNER JOIN message_threads mt ON mt.id=mtp.thread_id
+                       INNER JOIN messages m ON m.thread_id=mtp.thread_id AND m.author_id=mtp.user_id
+                       SET mtp.deleted_at=NOW()
+                       WHERE mt.num_messages=1 AND mt.title LIKE 'Bug Report (%'");
     }
 
     private function migrateMessage(Message $message)
     {
-        $userFrom = User::where('User', $message->UserFrom)->first();
-        $userTo = User::where('User', $message->UserTo)->first();
-        if (!$userFrom || !$userTo) {
-            // sender or recipient was deleted. ignore message
-            $message->migrated_id = 0;
-            $message->save();
+        // recipient can be entered by user. trim whitespace before trying to match
+        $message->UserTo = trim($message->UserTo);
+        $userTo = User::withTrashed()->where('User', $message->UserTo)->first();
+        if (!$userTo) {
+            $message->delete();
+
             return;
         }
 
+        $thread = null;
         if (strtolower(substr($message->Title, 0, 4)) == 're: ') {
-            $parent = Message::where('Title', '=', substr($message->Title, 4))
+            $threadId = Message::where('title', '=', substr($message->Title, 4))
                 ->where('UserFrom', '=', $message->UserTo)
                 ->where('UserTo', '=', $message->UserFrom)
-                ->where('ID', '<', $message->ID)
-                ->first();
-        } else {
-            $parent = null;
+                ->where('id', '<', $message->id)
+                ->value('thread_id');
+            if ($threadId > 0) {
+                $thread = MessageThread::firstWhere('id', $threadId);
+            }
         }
 
-        if ($parent === null) {
-            $userMessageChain = new UserMessageChain([
+        if ($thread === null) {
+            $thread = new MessageThread([
                 'title' => $message->Title,
-                'sender_id' => $userFrom->ID,
-                'recipient_id' => $userTo->ID,
             ]);
-        } else {
-            $migratedParent = UserMessage::where('id', $parent->migrated_id)->firstOrFail();
-            $userMessageChain = UserMessageChain::where('id', $migratedParent->chain_id)->firstOrFail();
-        }
+            $thread->save();
 
-        $userMessageChain->num_messages++;
-        if ($userMessageChain->recipient_id == $userTo->ID) {
-            $userMessageChain->sender_last_post_at = $message->TimeSent;
-            if ($message->Unread) {
-                $userMessageChain->recipient_num_unread++;
+            $participantTo = new MessageThreadParticipant([
+                'user_id' => $userTo->ID,
+                'thread_id' => $thread->id,
+            ]);
+            $participantTo->save();
+
+            if ($message->author_id != $userTo->ID) {
+                $participantFrom = new MessageThreadParticipant([
+                    'user_id' => $message->author_id,
+                    'thread_id' => $thread->id,
+                ]);
+                $participantFrom->save();
             }
         } else {
-            $userMessageChain->recipient_last_post_at = $message->TimeSent;
-            if ($message->Unread) {
-                $userMessageChain->sender_num_unread++;
-            }
+            $threadParticipants = MessageThreadParticipant::where('thread_id', $thread->id);
+            $participantTo = $threadParticipants->where('user_id', $userTo->ID)->first();
         }
-        $userMessageChain->save();
 
-        $userMessage = new UserMessage([
-            'chain_id' => $userMessageChain->id,
-            'author_id' => $userFrom->ID,
-            'body' => $message->Payload,
-            'created_at' => $message->TimeSent,
-        ]);
-        $userMessage->save();
+        if ($message->Unread) {
+            $participantTo->num_unread++;
+            $participantTo->save();
+        }
 
-        $message->migrated_id = $userMessage->id;
+        $thread->num_messages++;
+        $thread->last_message_id = $message->id;
+        $thread->save();
+
+        $message->thread_id = $thread->id;
         $message->save();
     }
 }

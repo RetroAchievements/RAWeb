@@ -24,7 +24,7 @@ class NotificationIcon extends Component
 
         if ($user->unread_messages_count) {
             $notifications->push([
-                'link' => route('message.inbox'),
+                'link' => route('message.list'),
                 'title' => $user->unread_messages_count . ' ' . __res('message', (int) $user->unread_messages_count),
             ]);
         }

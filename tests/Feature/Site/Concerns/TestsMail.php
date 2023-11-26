@@ -16,7 +16,7 @@ trait TestsMail
         $emails = Cache::store('array')->put('test:emails', []);
     }
 
-    protected function assertEmailSent(User $user, string $subject, string $body = null)
+    protected function assertEmailSent(User $user, string $subject, ?string $body = null)
     {
         $emails = Cache::store('array')->get('test:emails') ?? [];
         $matchUser = null;
@@ -53,7 +53,7 @@ trait TestsMail
         }
     }
 
-    protected function assertEmailNotSent(User $user, string $subject = null, string $body = null)
+    protected function assertEmailNotSent(User $user, ?string $subject = null, ?string $body = null)
     {
         $emails = Cache::store('array')->get('test:emails') ?? [];
         $matchUser = null;

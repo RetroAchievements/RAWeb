@@ -1,12 +1,11 @@
 <?php
 
-use App\Community\Controllers\UserMessageChainController;
-use App\Community\Models\UserMessage;
-use App\Community\Models\UserMessageChain;
+use App\Community\Controllers\MessageThreadsController;
+use App\Community\Models\MessageThread;
+use App\Community\Models\MessageThreadParticipant;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 if (!authenticateFromCookie($user, $permissions, $userDetail) || $permissions < Permissions::Registered) {
@@ -17,24 +16,26 @@ if (!authenticateFromCookie($user, $permissions, $userDetail) || $permissions < 
 $user = request()->user();
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
-    'chain' => 'nullable|integer',
+    'thread_id' => 'nullable|integer',
     'body' => 'required|string|max:60000',
-    'title' => 'required_without:chain|string|max:255',
-    'recipient' => 'required_without:chain|exists:UserAccounts,User',
+    'title' => 'required_without:thread_id|string|max:255',
+    'recipient' => 'required_without:thread_id|exists:UserAccounts,User',
 ]);
 
-if (array_key_exists('chain', $input) && $input['chain'] != null) {
-    $userMessageChain = UserMessageChain::firstWhere('id', $input['chain']);
-    if (!$userMessageChain) {
+if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
+    $thread = MessageThread::firstWhere('id', $input['thread_id']);
+    if (!$thread) {
         return back()->withErrors(__('legacy.error.error'));
     }
-    if ($userMessageChain->recipient_id != $user->ID && $userMessageChain->sender_id != $user->ID) {
+    $participant = MessageThreadParticipant::where('thread_id', $input['thread_id'])
+        ->where('user_id', $user->ID);
+    if (!$participant->exists()) {
         return back()->withErrors(__('legacy.error.error'));
     }
-    UserMessageChainController::addToChain($userMessageChain, $user, $input['body']);
-    return redirect(route("message.view-chain", $userMessageChain->id));
+    MessageThreadsController::addToThread($thread, $user, $input['body']);
+} else {
+    $recipient = User::firstWhere('User', $input['recipient']);
+    $thread = MessageThreadsController::newThread($user, $recipient, $input['title'], $input['body']);
 }
 
-$recipient = User::firstWhere('User', $input['recipient']);
-$userMessageChain = UserMessageChainController::newChain($user, $recipient, $input['title'], $input['body']);
-return redirect(route("message.outbox"))->with('success', __('legacy.success.message_send'));
+return redirect(route("message.view", $thread->id))->with('success', __('legacy.success.message_send'));
