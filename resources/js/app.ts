@@ -1,7 +1,8 @@
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-import { Livewire, Alpine } from 'livewire/livewire.esm';
+// eslint-disable-next-line import/no-unresolved
+import { Livewire } from 'livewire/livewire.esm';
 import {
   hideEarnedCheckboxComponent,
   modalComponent,
