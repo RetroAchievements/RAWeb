@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
+import Alpine from 'alpinejs';
 import {
   // @prettier-ignore
   afterEach,
@@ -9,9 +10,8 @@ import {
   it,
   vi,
 } from 'vitest';
-import Alpine from '../../../../vendor/livewire/livewire/dist/livewire';
 
-import { newsCarouselComponent } from './newsCarouselComponent';
+import { newsCarouselComponent } from '@/alpine';
 
 function render() {
   (Element as any).prototype.scrollTo = vi.fn();
