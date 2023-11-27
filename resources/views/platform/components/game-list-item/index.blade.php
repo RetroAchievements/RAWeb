@@ -14,8 +14,8 @@ $consoleName = config('systems')[$consoleId]['name'];
 $consoleShortName = config('systems')[$consoleId]['name_short'];
 $hasAward = isset($game['HighestAwardKind']);
 
-$hardcoreCompletionPercentage = round($game['PctWonHC'] * 100);
-$totalCompletionPercentage = round($game['PctWon'] * 100);
+$hardcoreCompletionPercentage = floor($game['PctWonHC'] * 100);
+$totalCompletionPercentage = floor($game['PctWon'] * 100);
 
 $gameSystemIconSrc = getSystemIconUrl($consoleId);
 
