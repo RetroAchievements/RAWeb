@@ -99,9 +99,8 @@ return new class() extends Migration {
             $table->unsignedBigInteger('recipient_id')->nullable()->after('ID');
             $table->unsignedBigInteger('sender_id')->nullable()->after('recipient_id');
 
-            $table->timestampTz('read_at')->nullable()->before('Unread');
-
             $table->unsignedInteger('Type')->nullable()->after('Unread');
+            $table->timestampTz('read_at')->nullable()->after('Type');
 
             $table->timestamp('recipient_deleted_at')->nullable();
             $table->timestamp('sender_deleted_at')->nullable();

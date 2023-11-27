@@ -74,7 +74,7 @@ class SyncMessages extends Command
                        WHERE mt.num_messages=1 AND mt.title LIKE 'Bug Report (%'");
     }
 
-    private function migrateMessage(Message $message)
+    private function migrateMessage(Message $message): void
     {
         // recipient can be entered by user. trim whitespace before trying to match
         $message->UserTo = trim($message->UserTo);

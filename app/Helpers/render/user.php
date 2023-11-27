@@ -24,10 +24,6 @@ function userAvatar(
 
     if (is_string($user)) {
         $username = $user;
-        if (empty($username)) {
-            return '';
-        }
-
         $user = Cache::store('array')->remember(
             CacheKey::buildUserCardDataCacheKey($username),
             Carbon::now()->addMonths(3),
@@ -37,23 +33,23 @@ function userAvatar(
                 return $foundUser ? $foundUser->toArray() : null;
             }
         );
-    }
 
-    if (!$user) {
-        $userSanitized = $username;
-        sanitize_outputs($userSanitized);
+        if (!$user) {
+            $userSanitized = $username;
+            sanitize_outputs($userSanitized);
 
-        $iconLabel = '';
-        if ($icon !== false && ($icon || !$label)) {
-            $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
+            $iconLabel = '';
+            if ($icon !== false && ($icon || !$label)) {
+                $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
+            }
+
+            $usernameLabel = '';
+            if ($label !== false && ($label || !$icon)) {
+                $usernameLabel = "<del>$userSanitized</del>";
+            }
+
+            return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
         }
-
-        $usernameLabel = '';
-        if ($label !== false && ($label || !$icon)) {
-            $usernameLabel = "<del>$userSanitized</del>";
-        }
-
-        return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
     }
 
     $username = $user['User'] ?? null;

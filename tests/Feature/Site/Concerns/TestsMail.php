@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Cache;
 
 trait TestsMail
 {
-    protected function captureEmails()
+    protected function captureEmails(): void
     {
         // store an empty array in the immediate cache to be populated by mail_utf8().
         // also, clears out the array between tests.
         $emails = Cache::store('array')->put('test:emails', []);
     }
 
-    protected function assertEmailSent(User $user, string $subject, ?string $body = null)
+    protected function assertEmailSent(User $user, string $subject, ?string $body = null): void
     {
         $emails = Cache::store('array')->get('test:emails') ?? [];
         $matchUser = null;
@@ -53,7 +53,7 @@ trait TestsMail
         }
     }
 
-    protected function assertEmailNotSent(User $user, ?string $subject = null, ?string $body = null)
+    protected function assertEmailNotSent(User $user, ?string $subject = null, ?string $body = null): void
     {
         $emails = Cache::store('array')->get('test:emails') ?? [];
         $matchUser = null;

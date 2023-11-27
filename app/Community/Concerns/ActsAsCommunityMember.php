@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community\Concerns;
 
-use App\Community\Models\Message;
 use App\Community\Models\UserActivity;
 use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;
@@ -71,22 +70,6 @@ trait ActsAsCommunityMember
     public function comments(): MorphMany
     {
         return $this->morphMany(UserComment::class, 'commentable')->with('user');
-    }
-
-    /**
-     * @return HasMany<Message>
-     */
-    public function messages(): HasMany
-    {
-        return $this->hasMany(Message::class, 'recipient_id');
-    }
-
-    /**
-     * @return HasMany<Message>
-     */
-    public function unreadMessages(): HasMany
-    {
-        return $this->messages()->unread();
     }
 
     public function getUnreadMessagesCountAttribute(): int

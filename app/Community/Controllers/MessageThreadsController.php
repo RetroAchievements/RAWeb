@@ -29,7 +29,7 @@ class MessageThreadsController extends Controller
         $totalMessages = $messageThreads->count();
 
         $pageSize = 20;
-        $currentPage = (int) $request->input('page.number') ?? 1;
+        $currentPage = (int) ($request->input('page.number') ?? 1);
         if ($currentPage < 1) {
             $currentPage = 1;
         }
@@ -85,7 +85,7 @@ class MessageThreadsController extends Controller
         }
 
         $pageSize = 20;
-        $currentPage = (int) $request->input('page.number') ?? 1;
+        $currentPage = (int) ($request->input('page.number') ?? 1);
         if ($currentPage < 1) {
             $currentPage = 1;
         }
@@ -106,7 +106,7 @@ class MessageThreadsController extends Controller
             ->where('thread_id', $thread->id)
             ->join('UserAccounts', 'UserAccounts.ID', '=', 'message_thread_participants.user_id');
 
-        $canReply = with(clone $participants)
+        $canReply = (clone $participants)
             ->where('user_id', '!=', $user->ID)
             ->whereNull('UserAccounts.Deleted')
             ->exists();

@@ -53,7 +53,7 @@ class Message extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<User, UserMessage>
+     * @return BelongsTo<User, Message>
      */
     public function author(): BelongsTo
     {
