@@ -14,8 +14,8 @@ $consoleName = config('systems')[$consoleId]['name'];
 $consoleShortName = config('systems')[$consoleId]['name_short'];
 $hasAward = isset($game['HighestAwardKind']);
 
-$hardcoreCompletionPercentage = round($game['PctWonHC'] * 100);
-$totalCompletionPercentage = round($game['PctWon'] * 100);
+$hardcoreCompletionPercentage = floor($game['PctWonHC'] * 100);
+$totalCompletionPercentage = floor($game['PctWon'] * 100);
 
 $gameSystemIconSrc = getSystemIconUrl($consoleId);
 
@@ -117,7 +117,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
         >
             <hr class="mt-2 border-embed-highlight">
 
-            <div class="py-4 @if ($variant === 'user-recently-played') flex flex-wrap -mx-1 sm:mx-0 sm:px-4 @endif">
+            <div class="py-4 @if ($variant === 'user-recently-played') flex flex-wrap px-0.5 sm:px-4 @endif">
                 {{ $slot }}
             </div>
         </div>
