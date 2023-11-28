@@ -13,7 +13,7 @@ use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class NotifyMessageParticipants
+class NotifyMessageThreadParticipants
 {
     public function handle(object $event): void
     {
