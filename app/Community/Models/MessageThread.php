@@ -8,11 +8,10 @@ use App\Support\Database\Eloquent\BaseModel;
 
 class MessageThread extends BaseModel
 {
-    public const CREATED_AT = null;
-    public const UPDATED_AT = null;
-
     protected $fillable = [
         'title',
+        'created_at',
+        'updated_at',
     ];
 
     // == accessors

@@ -19,7 +19,7 @@ return new class() extends Migration {
                 $table->unsignedBigInteger('thread_id');
                 $table->unsignedBigInteger('author_id');
                 $table->text('body')->nullable();
-                $table->timestampTz('created_at')->nullable();
+                $table->timestampsTz('created_at');
 
                 $table->foreign('author_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
                 $table->foreign('thread_id')->references('ID')->on('message_threads')->onDelete('cascade');

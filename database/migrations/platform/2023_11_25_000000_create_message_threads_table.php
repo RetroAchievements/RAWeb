@@ -14,6 +14,7 @@ return new class() extends Migration {
             $table->string('title');
             $table->integer('num_messages')->default(0);
             $table->unsignedBigInteger('last_message_id')->nullable();
+            $table->timestampsTz();
         });
     }
 

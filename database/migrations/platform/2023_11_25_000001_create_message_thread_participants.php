@@ -14,7 +14,8 @@ return new class() extends Migration {
             $table->unsignedBigInteger('thread_id');
             $table->unsignedBigInteger('user_id');
             $table->integer('num_unread')->default(0);
-            $table->timestampTz('deleted_at')->nullable();
+            $table->timestampsTz();
+            $table->softDeletesTz();
 
             $table->foreign('user_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
             $table->foreign('thread_id')->references('ID')->on('message_threads')->onDelete('cascade');

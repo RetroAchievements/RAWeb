@@ -11,12 +11,11 @@ class MessageThreadParticipant extends BaseModel
 {
     use SoftDeletes;
 
-    public const CREATED_AT = null;
-    public const UPDATED_AT = null;
-
     protected $fillable = [
         'user_id',
         'thread_id',
+        'created_at',
+        'updated_at',
     ];
 
     // == accessors

@@ -82,7 +82,7 @@ class SyncMessages extends Command
         DB::statement("UPDATE message_thread_participants mtp
                        INNER JOIN message_threads mt ON mt.id=mtp.thread_id
                        INNER JOIN messages m ON m.thread_id=mtp.thread_id AND m.author_id=mtp.user_id
-                       SET mtp.deleted_at=NOW()
+                       SET mtp.deleted_at=mtp.updated_at
                        WHERE mt.num_messages=1 AND mt.title LIKE 'Bug Report (%'");
 
         $progressBar->finish();
@@ -115,12 +115,16 @@ class SyncMessages extends Command
         if ($thread === null) {
             $thread = new MessageThread([
                 'title' => $message->Title,
+                'created_at' => $message->created_at,
+                'updated_at' => $message->created_at,
             ]);
             $thread->save();
 
             $participantTo = new MessageThreadParticipant([
                 'user_id' => $userTo->ID,
                 'thread_id' => $thread->id,
+                'created_at' => $message->created_at,
+                'updated_at' => $message->created_at,
             ]);
             $participantTo->save();
 
@@ -128,6 +132,8 @@ class SyncMessages extends Command
                 $participantFrom = new MessageThreadParticipant([
                     'user_id' => $message->author_id,
                     'thread_id' => $thread->id,
+                    'created_at' => $message->created_at,
+                    'updated_at' => $message->created_at,
                 ]);
                 $participantFrom->save();
             }
@@ -143,6 +149,8 @@ class SyncMessages extends Command
 
         $thread->num_messages++;
         $thread->last_message_id = $message->id;
+        $thread->updated_at = $message->created_at;
+        $thread->timestamps = false;
         $thread->save();
 
         $message->thread_id = $thread->id;
