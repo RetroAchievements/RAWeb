@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Community;
 
 use App\Community\Actions\AddToMessageThreadAction;
+use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Controllers\MessageThreadsController;
@@ -35,7 +36,7 @@ class MessagesTest extends TestCase
 
         // user1 sends message to user2
         $this->captureEmails();
-        $thread = MessageThreadsController::newThread($user1, $user2, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction)->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -266,7 +267,7 @@ class MessagesTest extends TestCase
 
         // message from user2 is automatically marked as deleted by user1
         $this->captureEmails();
-        $thread = MessageThreadsController::newThread($user2, $user1, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction)->execute($user2, $user1, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -338,7 +339,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now);
 
         $this->captureEmails();
-        $thread = MessageThreadsController::newThread($user1, $user2, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction)->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
             'title' => 'This is a message',

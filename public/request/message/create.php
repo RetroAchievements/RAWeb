@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Actions\AddToMessageThreadAction;
+use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Controllers\MessageThreadsController;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
@@ -36,7 +37,7 @@ if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
     (new AddToMessageThreadAction)->execute($thread, $user, $input['body']);
 } else {
     $recipient = User::firstWhere('User', $input['recipient']);
-    $thread = MessageThreadsController::newThread($user, $recipient, $input['title'], $input['body']);
+    $thread = (new CreateMessageThreadAction)->execute($user, $recipient, $input['title'], $input['body']);
 }
 
 return redirect(route("message.view", $thread->id))->with('success', __('legacy.success.message_send'));
