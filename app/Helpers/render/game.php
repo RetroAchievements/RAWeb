@@ -30,6 +30,7 @@ function gameAvatar(
 
             sanitize_outputs($title);   // sanitize before rendering HTML
             $label = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $title]);
+            $label = preg_replace('/\s+/', ' ', $label);
         }
 
         if ($icon === null) {
