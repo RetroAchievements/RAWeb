@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Controllers\MessageThreadsController;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
@@ -32,7 +33,7 @@ if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
     if (!$participant->exists()) {
         return back()->withErrors(__('legacy.error.error'));
     }
-    MessageThreadsController::addToThread($thread, $user, $input['body']);
+    (new AddToMessageThreadAction)->execute($thread, $user, $input['body']);
 } else {
     $recipient = User::firstWhere('User', $input['recipient']);
     $thread = MessageThreadsController::newThread($user, $recipient, $input['title'], $input['body']);

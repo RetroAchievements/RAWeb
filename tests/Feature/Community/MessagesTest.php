@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community;
 
+use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Controllers\MessageThreadsController;
@@ -83,7 +84,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now2);
 
         $this->captureEmails();
-        MessageThreadsController::addToThread($thread, $user2, 'This is a response.');
+        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is a response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -120,7 +121,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now3);
 
         $this->captureEmails();
-        MessageThreadsController::addToThread($thread, $user2, 'This is another response.');
+        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is another response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -161,7 +162,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now4);
 
         $this->captureEmails();
-        MessageThreadsController::addToThread($thread, $user1, 'This is a third response.');
+        (new AddToMessageThreadAction)->execute($thread, $user1, 'This is a third response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -301,7 +302,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now2);
 
         $this->captureEmails();
-        MessageThreadsController::addToThread($thread, $user2, 'This is a response.');
+        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -373,7 +374,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now2);
 
         $this->captureEmails();
-        MessageThreadsController::addToThread($thread, $user1, 'This is a response.');
+        (new AddToMessageThreadAction)->execute($thread, $user1, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
@@ -410,7 +411,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now3);
 
         $this->captureEmails();
-        MessageThreadsController::addToThread($thread, $user2, 'This is another response.');
+        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is another response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,

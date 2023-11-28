@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Events\MessageCreated;
 use App\Community\Models\Message;
@@ -171,25 +172,8 @@ class MessageThreadsController extends Controller
             $participantTo->save();
         }
 
-        MessageThreadsController::addToThread($thread, $userFrom, $body);
+        (new AddToMessageThreadAction)->execute($thread, $userFrom, $body);
 
         return $thread;
-    }
-
-    public static function addToThread(MessageThread $thread, User $userFrom, string $body): void
-    {
-        $message = new Message([
-            'thread_id' => $thread->id,
-            'author_id' => $userFrom->ID,
-            'body' => $body,
-            'created_at' => Carbon::now(),
-        ]);
-        $message->save();
-
-        $thread->num_messages++;
-        $thread->last_message_id = $message->id;
-        $thread->save();
-
-        MessageCreated::dispatch($message);
     }
 }
