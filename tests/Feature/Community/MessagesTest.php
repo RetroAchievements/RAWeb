@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community;
 
+use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Controllers\MessageThreadsController;
 use App\Community\Enums\UserRelationship;
 use App\Community\Models\Message;
@@ -196,7 +197,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now5);
 
         $this->captureEmails();
-        MessageThreadsController::deleteThread($thread, $user1);
+        (new DeleteMessageThreadAction)->execute($thread, $user1);
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -227,7 +228,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now6);
 
         $this->captureEmails();
-        MessageThreadsController::deleteThread($thread, $user2);
+        (new DeleteMessageThreadAction)->execute($thread, $user2);
         $this->assertDatabaseMissing('message_threads', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 2]);

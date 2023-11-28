@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Controllers\MessageThreadsController;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
@@ -31,6 +32,6 @@ if (!$participating) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-MessageThreadsController::deleteThread($thread, $user);
+(new DeleteMessageThreadAction)->execute($thread, $user);
 
 return redirect(route("message.list"))->with('success', __('legacy.success.message_delete'));
