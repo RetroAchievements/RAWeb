@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Enums\UserRelationship;
 use App\Community\Events\MessageCreated;
 use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
-use App\Community\Models\UserRelation;
 use App\Http\Controller;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
@@ -165,8 +163,7 @@ class MessageThreadsController extends Controller
             ]);
 
             // if the recipient has blocked the sender, immediately mark the thread as deleted for the recipient
-            $relationship = UserRelation::getRelationship($userTo->User, $userFrom->User);
-            if ($relationship == UserRelationship::Blocked) {
+            if ($userTo->isBlocking($userFrom->User)) {
                 $participantTo->deleted_at = Carbon::now();
             }
 

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Community\Concerns;
 
+use App\Community\Enums\UserRelationship;
 use App\Community\Models\UserActivity;
 use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;
+use App\Community\Models\UserRelation;
 use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,6 +64,16 @@ trait ActsAsCommunityMember
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'Friends', 'related_user_id', 'user_id');
+    }
+
+    public function isFollowing(string $username): bool
+    {
+        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Following;
+    }
+
+    public function isBlocking(string $username): bool
+    {
+        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Blocked;
     }
 
     /**

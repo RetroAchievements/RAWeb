@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Listeners;
 
 use App\Community\Controllers\MessageThreadsController;
-use App\Community\Enums\UserRelationship;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
-use App\Community\Models\UserRelation;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -42,8 +40,7 @@ class NotifyMessageThreadParticipants
                 continue;
             }
 
-            $relationship = UserRelation::getRelationship($userTo->User, $userFrom->User);
-            if ($relationship == UserRelationship::Blocked) {
+            if ($userTo->isBlocking($userFrom->User)) {
                 // ignore users who have blocked the sender
                 continue;
             }
