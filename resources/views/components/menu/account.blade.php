@@ -51,10 +51,7 @@ $user = request()->user();
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
         <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
-
-        @hasfeature("beat")
-            <x-dropdown-item :link="route('user.completion-progress', $user)">Completion Progress</x-dropdown-item>
-        @endhasfeature
+        <x-dropdown-item :link="route('user.completion-progress', $user)">Completion Progress</x-dropdown-item>
         
         @if($user->Permissions >= Permissions::Registered)
             <x-dropdown-item :link="url('gameList.php?t=play')">Want to Play Games</x-dropdown-item>
