@@ -19,9 +19,13 @@ class DeleteMessageThreadAction
             ->first();
 
         if ($participant) {
-            $participant->num_unread = 0;
-            $participant->deleted_at = Carbon::now();
-            $participant->save();
+            // make sure num_unread is 0 before we soft-delete the record.
+            if ($participant->num_unread) {
+                $participant->num_unread = 0;
+                $participant->save();
+            }
+
+            $participant->delete();
 
             (new UpdateUnreadMessageCountAction)->execute($user);
 
