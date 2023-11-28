@@ -48,17 +48,6 @@ return new class() extends Migration {
             $table->renameColumn('ID', 'id');
         });
 
-        // populate author_id so we can add a foreign key
-        DB::statement("UPDATE Messages m SET m.author_id = (SELECT u.ID FROM UserAccounts u WHERE u.User = m.UserFrom)");
-
-        // delete records associated to non-existant users
-        DB::statement("DELETE FROM Messages WHERE author_id=0");
-
-        // add the foreign key
-        Schema::table('Messages', function (Blueprint $table) {
-            $table->foreign('author_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
-        });
-
         Schema::rename('Messages', 'messages_');
         Schema::rename('messages_', 'messages');
 
@@ -68,6 +57,7 @@ return new class() extends Migration {
         if ($unsyncedCount == 0) {
             Schema::table('messages', function (Blueprint $table) {
                 $table->foreign('thread_id')->references('ID')->on('message_threads')->onDelete('cascade');
+                $table->foreign('author_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
             });
         }
     }

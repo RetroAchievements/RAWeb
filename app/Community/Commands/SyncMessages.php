@@ -30,37 +30,49 @@ class SyncMessages extends Command
         $progressBar = $this->output->createProgressBar($count);
         $progressBar->start();
 
+        // populate author_id for all records
+        DB::statement("UPDATE messages m SET m.author_id = (SELECT u.ID FROM UserAccounts u WHERE u.User = m.UserFrom)");
+
+        // delete records associated to non-existant users
+        DB::statement("DELETE FROM messages WHERE author_id=0");
+
+        // process remaining unprocessed records (thread_id=0)
         // have to do this in batches to prevent exhausting memory
         // due to requesting payloads (message content)
-        for ($i = 0; $i < $count; $i += 100) {
-            $messages = Message::where('thread_id', 0)->orderBy('ID')->limit(100)->get();
+        Message::where('thread_id', 0)->orderBy('ID')->chunk(100, function($messages) use($progressBar) {
             /** @var Message $message */
             foreach ($messages as $message) {
                 $this->migrateMessage($message);
                 $progressBar->advance();
             }
-        }
-
-        $progressBar->finish();
-        $this->line(PHP_EOL);
+        });
 
         $count = Message::where('thread_id', 0)->count();
         if ($count == 0) {
-            // all messages sync'd. add the foreign key so deletes will cascade
+            // all messages sync'd. add the foreign keys so deletes will cascade
             $sm = Schema::getConnection()->getDoctrineSchemaManager();
             $foreignKeysFound = $sm->listTableForeignKeys('messages');
 
-            $found = false;
+            $foundThreadForeignKey = false;
+            $foundAuthorForeignKey = false;
             foreach ($foreignKeysFound as $foreignKey) {
                 if ($foreignKey->getName() == 'messages_thread_id_foreign') {
-                    $found = true;
-                    break;
+                    $foundThreadForeignKey = true;
+                }
+                elseif ($foreignKey->getName() == 'messages_author_id_foreign') {
+                    $foundAuthorForeignKey = true;
                 }
             }
 
-            if (!$found) {
+            if (!$foundThreadForeignKey) {
                 Schema::table('messages', function (Blueprint $table) {
                     $table->foreign('thread_id')->references('ID')->on('message_threads')->onDelete('cascade');
+                });
+            }
+
+            if (!$foundAuthorForeignKey) {
+                Schema::table('messages', function (Blueprint $table) {
+                    $table->foreign('author_id')->references('ID')->on('UserAccounts')->onDelete('cascade');
                 });
             }
         }
@@ -72,6 +84,9 @@ class SyncMessages extends Command
                        INNER JOIN messages m ON m.thread_id=mtp.thread_id AND m.author_id=mtp.user_id
                        SET mtp.deleted_at=NOW()
                        WHERE mt.num_messages=1 AND mt.title LIKE 'Bug Report (%'");
+
+        $progressBar->finish();
+        $this->line(PHP_EOL);
     }
 
     private function migrateMessage(Message $message): void
