@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Community;
 
 use App\Community\Actions\DeleteMessageThreadAction;
+use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Controllers\MessageThreadsController;
 use App\Community\Enums\UserRelationship;
 use App\Community\Models\Message;
@@ -68,7 +69,7 @@ class MessagesTest extends TestCase
         $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
 
         // user2 responds
-        MessageThreadsController::markRead($thread, $user2);
+        (new ReadMessageThreadAction)->execute($thread, $user2);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
             'user_id' => $user2->ID,
@@ -152,7 +153,7 @@ class MessagesTest extends TestCase
         $this->assertEmailNotSent($user1);
 
         // user1 responds
-        MessageThreadsController::markRead($thread, $user1);
+        (new ReadMessageThreadAction)->execute($thread, $user1);
         $user1->refresh();
         $this->assertEquals(0, $user1->UnreadMessageCount);
 

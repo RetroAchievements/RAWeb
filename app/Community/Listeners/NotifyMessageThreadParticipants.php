@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Listeners;
 
+use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Controllers\MessageThreadsController;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
@@ -26,6 +27,9 @@ class NotifyMessageThreadParticipants
         if (!$thread) {
             return;
         }
+
+        $updateUnreadMessageCountAction = new UpdateUnreadMessageCountAction();
+
         $validParticipants = 0;
         $participants = MessageThreadParticipant::withTrashed()->where('thread_id', $message->thread_id)->get();
         foreach ($participants as $participant) {
@@ -52,7 +56,7 @@ class NotifyMessageThreadParticipants
                            SET num_unread = num_unread + 1, deleted_at = NULL
                            WHERE id = {$participant->id}");
 
-            MessageThreadsController::updateUnreadMessageCount($userTo);
+            $updateUnreadMessageCountAction->execute($userTo);
 
             // send email?
             if (BitSet($userTo->websitePrefs, UserPreference::EmailOn_PrivateMessage)) {

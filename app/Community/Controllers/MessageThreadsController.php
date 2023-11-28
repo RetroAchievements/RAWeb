@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Events\MessageCreated;
 use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
@@ -91,7 +92,7 @@ class MessageThreadsController extends Controller
 
         if ($currentPage == $totalPages) {
             // if viewing last page, mark all messages in the chain as read
-            MessageThreadsController::markParticipantRead($participant, $user);
+            ReadMessageThreadAction::markParticipantRead($participant, $user);
         }
 
         $messages = Message::where('thread_id', $threadId)
@@ -190,37 +191,5 @@ class MessageThreadsController extends Controller
         $thread->save();
 
         MessageCreated::dispatch($message);
-    }
-
-    public static function updateUnreadMessageCount(User $user): void
-    {
-        $totalUnread = MessageThreadParticipant::where('user_id', $user->id)
-            ->whereNull('deleted_at')
-            ->sum('num_unread');
-
-        $user->UnreadMessageCount = $totalUnread;
-        $user->save();
-    }
-
-    public static function markRead(MessageThread $thread, User $user): void
-    {
-        $participant = MessageThreadParticipant::where('user_id', $user->id)
-            ->where('thread_id', $thread->id)
-            ->whereNull('deleted_at')
-            ->first();
-
-        if ($participant) {
-            MessageThreadsController::markParticipantRead($participant, $user);
-        }
-    }
-
-    private static function markParticipantRead(MessageThreadParticipant $participant, User $user): void
-    {
-        if ($participant->num_unread) {
-            $participant->num_unread = 0;
-            $participant->save();
-
-            MessageThreadsController::updateUnreadMessageCount($user);
-        }
     }
 }
