@@ -1,9 +1,8 @@
 @props([
     'name' => 'body',
     'enabled' => true,
-    'watermark' => '',
+    'placeholder' => '',
     'maxLength' => 60000,
-    'initialValue' => '',
 ])
 
 <?php
@@ -15,7 +14,7 @@ $loadingIconSrc = asset('assets/images/icon/loading.gif');
 
 ?>
 
-<div class='mt-4'>
+<div>
     <div>
         {!! RenderShortcodeButtons(); !!}
     </div>
@@ -35,9 +34,9 @@ $loadingIconSrc = asset('assets/images/icon/loading.gif');
         {!! $inputEnabled !!}
         maxlength="{{ $maxLength }}"
         name="{{ $name }}"
-        placeholder="{{ $watermark }}"
+        placeholder="{{ $placeholder }}"
         x-on:input="autoExpandTextInput($el); isValid = window.getStringByteCount($event.target.value) <= {{ $maxLength }};"
-    >{{ $initialValue }}</textarea>
+    >{{ $slot }}</textarea>
 
     <div class="flex justify-between mb-2">
         <span class="textarea-counter" data-textarea-id="commentTextarea">0 / 60000</span>

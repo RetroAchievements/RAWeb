@@ -41,7 +41,8 @@ function deleteMessage(id) {
     </div>
 
     <div class='ml-2'>
-        You have {{ $unreadCount }} unread messages in {{ $totalMessages }} message threads.
+        You have {{ $unreadCount }} unread @choice('message|messages', $unreadCount)
+        in {{ $totalMessages }} @choice('message thread|message threads', $totalMessages).
     </div>
 
     <div class="w-full flex mt-2">
@@ -69,27 +70,15 @@ function deleteMessage(id) {
             $num_unread = $message->num_unread;
         ?>
         <tr>
-            <td>
-                @if ($num_unread > 0)
-                    <b>
-                @endif
+            <td @if ($num_unread > 0) class="font-bold" @endif>
                 @foreach ($message->other_participants as $participant)
                     {!! userAvatar($participant, iconSize: 24) !!}
                 @endforeach
-                @if ($num_unread > 0)
-                    </b>
-                @endif
             </td>
 
-            <td>
+            <td @if ($num_unread > 0) class="font-bold" @endif>
                 <a href="{{ route('message.view', $message->id) }}">
-                    @if ($num_unread > 0)
-                        <b>
-                    @endif
                     {{ $message->title }}
-                    @if ($num_unread > 0)
-                        </b>
-                    @endif
                 </a>
             </td>
 
@@ -104,9 +93,7 @@ function deleteMessage(id) {
             </td>
 
             <td class='text-right'>
-                @if ($isShowAbsoluteDatesPreferenceSet)
-                    <span class='smalldate'>{{ $humanDate }}</span>
-                @elseif ($mostRecentUpdate < $monthAgo)
+                @if ($isShowAbsoluteDatesPreferenceSet || $mostRecentUpdate < $monthAgo)
                     <span class='smalldate'>{{ $humanDate }}</span>
                 @else
                     <span class='smalldate cursor-help' title='{{ $humanDate }}'>{{ $mostRecentUpdate->diffForHumans() }}</span>

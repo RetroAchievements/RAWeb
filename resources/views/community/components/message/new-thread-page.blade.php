@@ -23,14 +23,9 @@
             <tr>
                 <td><label for='recipient'>User:</label></td>
                 <td>
-                    <div class="w-full">
-                        <div style="float:right">
-                            <x-input.user-select-image for="recipient" :user="$toUser" size="48" />
-                        </div>
-                        <!-- TODO: why won't this field align properly? -->
-                        <div style='vertical-align:middle'>
-                            <x-input.user-select name="recipient" :user="$toUser" />
-                        </div>
+                    <div class="w-full flex justify-between items-center">
+                        <div><x-input.user-select name="recipient" :user="$toUser" /></div>
+                        <div><x-input.user-select-image for="recipient" :user="$toUser" size="48" /></div>
                     </div>
                 </td>
             </tr>
@@ -45,9 +40,8 @@
                 <td>
                     <x-input.shortcode-textarea
                         name='body'
-                        watermark='Enter your message here...'
-                        initialValue="{{ $message }}"
-                    />
+                        placeholder='Enter your message here...'
+                    >{{ $message }}</x-input.shortcode-textarea>
                 </td>
             </tr>
         </tbody></table></div>

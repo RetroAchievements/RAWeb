@@ -59,7 +59,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
             <form action='/request/message/delete.php' method='post'>
             {{ csrf_field() }}
             <input type="hidden" name="thread_id" value="{{ $thread->id }}" />
-            <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message?')">Delete</button>
+            <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message thread?')">Delete</button>
             </form>
         </div>
         <div class="w-full flex justify-end">
@@ -74,9 +74,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
                     <div>
                     {!! userAvatar($participants[$message->author_id], iconSize: 24) !!}
                     <?php $humanDate = $message->created_at->format('F j Y, g:ia'); ?>
-                    @if ($isShowAbsoluteDatesPreferenceSet)
-                        <span class='smalldate'>{{ $humanDate }}</span>
-                    @elseif ($message->created_at < $monthAgo)
+                    @if ($isShowAbsoluteDatesPreferenceSet || $message->created_at < $monthAgo)
                         <span class='smalldate'>{{ $humanDate }}</span>
                     @else
                         <span class='smalldate cursor-help' title='{{ $humanDate }}'>{{ $message->created_at->diffForHumans() }}</span>
@@ -90,8 +88,9 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
         @endforeach
     </div>
 
+    <div class="mt-2">
     @if (!$canReply)
-        <div class="mt-2"><i>Cannot reply to deleted user.</i></div>
+        <i>Cannot reply to deleted user.</i>
     @else
         <form action='/request/message/create.php' method='post' x-data='{ isValid: true }'>
             {{ csrf_field() }}
@@ -99,10 +98,11 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
 
             <x-input.shortcode-textarea
                 name='body'
-                watermark='Enter your message here...'
+                placholder='Enter your message here...'
             />
         </form>
     @endif
+    </div>
 
     <div class="w-full flex justify-end mt-2">
         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
