@@ -13,9 +13,6 @@ class Message extends BaseModel
 {
     use Searchable;
 
-    protected $table = 'messages';
-
-    public const CREATED_AT = 'created_at';
     public const UPDATED_AT = null;
 
     protected $fillable = [
@@ -25,18 +22,14 @@ class Message extends BaseModel
         'created_at',
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-    ];
-
     // == search
 
     public function toSearchableArray(): array
     {
         return $this->only([
-            'ID',
-            'Title',
-            'Payload',
+            'id',
+            'title',
+            'body',
         ]);
     }
 

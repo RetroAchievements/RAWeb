@@ -11,8 +11,6 @@ class MessageThreadParticipant extends BaseModel
 {
     use SoftDeletes;
 
-    protected $table = 'message_thread_participants';
-
     public const CREATED_AT = null;
     public const UPDATED_AT = null;
 

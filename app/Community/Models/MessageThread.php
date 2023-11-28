@@ -8,8 +8,6 @@ use App\Support\Database\Eloquent\BaseModel;
 
 class MessageThread extends BaseModel
 {
-    protected $table = 'message_threads';
-
     public const CREATED_AT = null;
     public const UPDATED_AT = null;
 
