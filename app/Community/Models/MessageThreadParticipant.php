@@ -6,6 +6,7 @@ namespace App\Community\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MessageThreadParticipant extends BaseModel
 {
@@ -23,6 +24,14 @@ class MessageThreadParticipant extends BaseModel
     // == mutators
 
     // == relations
+
+    /**
+     * @return BelongsTo<MessageThread, MessageThreadParticipant>
+     */
+    public function thread(): BelongsTo
+    {
+        return $this->belongsTo(MessageThread::class, 'thread_id');
+    }
 
     // == scopes
 }

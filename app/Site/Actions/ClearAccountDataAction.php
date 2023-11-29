@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Site\Actions;
 
+use App\Community\Actions\DeleteMessageThreadAction;
 use App\Site\Enums\Permissions;
 use App\Site\Events\UserDeleted;
 use App\Site\Models\User;
 use DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class ClearAccountDataAction
@@ -15,13 +17,13 @@ class ClearAccountDataAction
     public function execute(User $user): void
     {
         // disable account access while we destroy it (prevents creating new records during delete)
-        DB::statement("UPDATE UserAccounts u SET
-            u.Password = null,
-            u.SaltedPass = '',
-            u.cookie = null,
-            u.appToken = null,
-            u.APIKey = null
-            WHERE u.ID = :userId", ['userId' => $user->ID]
+        DB::statement("UPDATE UserAccounts SET
+            Password = null,
+            SaltedPass = '',
+            cookie = null,
+            appToken = null,
+            APIKey = null
+            WHERE ID = :userId", ['userId' => $user->ID]
         );
 
         // TODO $user->activities()->delete();
@@ -39,35 +41,40 @@ class ClearAccountDataAction
         // TODO $user->subscriptions()->delete();
         DB::statement('DELETE FROM Subscription WHERE UserID = :userId', ['userId' => $user->ID]);
 
-        DB::statement('UPDATE message_thread_participants SET deleted_at=NOW() WHERE user_id = :userId', ['userId' => $user->ID]);
+        // use action to delete each participation so threads with no remaing active participants get cleaned up
+        $deleteMessageThreadAction = new DeleteMessageThreadAction();
+        foreach ($user->messageThreadParticipations()->get() as $participation) {
+            $deleteMessageThreadAction->execute($participation->thread, $user);
+        }
 
-        DB::statement("UPDATE UserAccounts u SET
-            u.Password = null,
-            u.SaltedPass = '',
-            u.EmailAddress = '',
-            u.Permissions = :permissions,
-            u.fbUser = 0,
-            u.fbPrefs = null,
-            u.cookie = null,
-            u.appToken = null,
-            u.appTokenExpiry = null,
-            u.websitePrefs = 0,
-            u.LastLogin = null,
-            u.LastActivityID = 0,
-            u.Motto = '',
-            u.Untracked = 1,
-            u.APIKey = null,
-            u.UserWallActive = 0,
-            u.LastGameID = 0,
-            u.RichPresenceMsg = null,
-            u.RichPresenceMsgDate = null,
-            u.PasswordResetToken = null,
-            u.Deleted = NOW()
+        DB::statement("UPDATE UserAccounts SET
+            Password = null,
+            SaltedPass = '',
+            EmailAddress = '',
+            Permissions = :permissions,
+            fbUser = 0,
+            fbPrefs = null,
+            cookie = null,
+            appToken = null,
+            appTokenExpiry = null,
+            websitePrefs = 0,
+            LastLogin = null,
+            LastActivityID = 0,
+            Motto = '',
+            Untracked = 1,
+            APIKey = null,
+            UserWallActive = 0,
+            LastGameID = 0,
+            RichPresenceMsg = null,
+            RichPresenceMsgDate = null,
+            PasswordResetToken = null,
+            Deleted = :now
             WHERE ID = :userId",
             [
                 // Cap permissions to 0 - negative values may stay
                 'permissions' => min($user->Permissions, Permissions::Unregistered),
                 'userId' => $user->ID,
+                'now' => Carbon::now(),
             ]
         );
 
