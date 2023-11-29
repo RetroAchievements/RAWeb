@@ -47,7 +47,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
 >
     <x-user.breadcrumbs targetUsername="{{ $user->User }}"
         parentPage="Messages"
-        parentPageUrl="{{ route('message.list') }}"
+        parentPageUrl="{{ route('messages.index') }}"
         currentPage="{!! $thread->title !!}" />
 
     <div class="mt-3 w-full flex gap-x-3">

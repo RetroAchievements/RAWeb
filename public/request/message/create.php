@@ -40,4 +40,4 @@ if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
     $thread = (new CreateMessageThreadAction)->execute($user, $recipient, $input['title'], $input['body']);
 }
 
-return redirect(route("message.view", $thread->id))->with('success', __('legacy.success.message_send'));
+return redirect(route("messages.show", $thread->id))->with('success', __('legacy.success.message_send'));

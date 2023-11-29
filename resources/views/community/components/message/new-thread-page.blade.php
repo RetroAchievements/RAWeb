@@ -10,7 +10,7 @@
 >
     <x-user.breadcrumbs targetUsername="{{ request()->user()->User }}"
             parentPage="Messages"
-            parentPageUrl="{{ route('message.list') }}"
+            parentPageUrl="{{ route('messages.index') }}"
             currentPage="New Message" />
 
     <div class="w-full flex gap-x-3">

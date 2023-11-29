@@ -124,7 +124,7 @@ RenderContentStart("Following");
             echo "<td style='vertical-align:middle;'>";
             echo "<div class='flex justify-end gap-2'>";
 
-            echo "<a class='btn btn-link' href='" . route('message.new') . "?to=$followingUser'>Message</a>";
+            echo "<a class='btn btn-link' href='" . route('messages.create') . "?to=$followingUser'>Message</a>";
 
             echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
             echo csrf_field();

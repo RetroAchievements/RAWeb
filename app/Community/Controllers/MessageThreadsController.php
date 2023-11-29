@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class MessageThreadsController extends Controller
 {
-    public function pageList(Request $request): View
+    public function index(Request $request): View
     {
         $user = $request->user();
 
@@ -67,17 +67,15 @@ class MessageThreadsController extends Controller
         ]);
     }
 
-    public function pageView(Request $request): View
+    public function show(Request $request, int $threadId): View
     {
-        $threadId = $request->route('thread_id');
-
         $thread = MessageThread::firstWhere('id', $threadId);
         if (!$thread) {
             abort(404);
         }
-
+        
         $user = $request->user();
-        $participant = MessageThreadParticipant::where('thread_id', $threadId)
+        $participant = MessageThreadParticipant::where('thread_id', $thread->id)
             ->where('user_id', $user->ID)
             ->first();
         if (!$participant) {
@@ -96,7 +94,7 @@ class MessageThreadsController extends Controller
             ReadMessageThreadAction::markParticipantRead($participant, $user);
         }
 
-        $messages = Message::where('thread_id', $threadId)
+        $messages = Message::where('thread_id', $thread->id)
             ->orderBy('created_at')
             ->offset(($currentPage - 1) * $pageSize)
             ->limit($pageSize)
@@ -127,7 +125,7 @@ class MessageThreadsController extends Controller
         ]);
     }
 
-    public function pageCreate(Request $request): View
+    public function create(Request $request): View
     {
         $toUser = $request->input('to') ?? '';
         $subject = $request->input('subject') ?? '';

@@ -729,7 +729,7 @@ RenderContentStart($pageTitle);
                 $msgPayload = "Hi [user=$reportedBy], I'm contacting you about [ticket=$ticketID]";
                 $msgPayload = rawurlencode($msgPayload);
                 $msgTitle = rawurlencode("Bug Report ($gameTitle)");
-                echo "<a href='" . route('message.new') . "?to=$reportedBy&subject=$msgTitle&message=$msgPayload'>Contact the reporter - $reportedBy</a>";
+                echo "<a href='" . route('messages.create') . "?to=$reportedBy&subject=$msgTitle&message=$msgPayload'>Contact the reporter - $reportedBy</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";

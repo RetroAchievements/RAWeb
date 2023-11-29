@@ -39,13 +39,14 @@ class SyncMessages extends Command
         // process remaining unprocessed records (thread_id=0)
         // have to do this in batches to prevent exhausting memory
         // due to requesting payloads (message content)
-        Message::where('thread_id', 0)->orderBy('ID')->chunk(100, function($messages) use($progressBar) {
+        for ($i = 0; $i < $count; $i += 100) {
+            $messages = Message::where('thread_id', 0)->orderBy('ID')->limit(100)->get();
             /** @var Message $message */
             foreach ($messages as $message) {
                 $this->migrateMessage($message);
                 $progressBar->advance();
             }
-        });
+        }
 
         $count = Message::where('thread_id', 0)->count();
         if ($count == 0) {
@@ -138,7 +139,7 @@ class SyncMessages extends Command
                 $participantFrom->save();
             }
         } else {
-            $threadParticipants = MessageThreadParticipant::where('thread_id', $thread->id);
+            $threadParticipants = MessageThreadParticipant::withTrashed()->where('thread_id', $thread->id);
             $participantTo = $threadParticipants->where('user_id', $userTo->ID)->first();
         }
 

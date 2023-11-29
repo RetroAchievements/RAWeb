@@ -232,9 +232,9 @@ class RouteServiceProvider extends ServiceProvider
                 /*
                  * messages
                  */
-                Route::get('message/new', [MessageThreadsController::class, 'pageCreate'])->name('message.new');
-                Route::get('message/{thread_id}', [MessageThreadsController::class, 'pageView'])->name('message.view');
-                Route::get('messages', [MessageThreadsController::class, 'pageList'])->name('message.list');
+                Route::resource('messages', MessageThreadsController::class, [
+                    'only' => ['index', 'show', 'create'],
+                ]);
 
                 //     /*
                 //      * tickets

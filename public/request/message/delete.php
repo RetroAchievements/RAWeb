@@ -34,4 +34,4 @@ if (!$participating) {
 
 (new DeleteMessageThreadAction)->execute($thread, $user);
 
-return redirect(route("message.list"))->with('success', __('legacy.success.message_delete'));
+return redirect(route("messages.index"))->with('success', __('legacy.success.message_delete'));
