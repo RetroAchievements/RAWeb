@@ -232,9 +232,7 @@ class RouteServiceProvider extends ServiceProvider
                 /*
                  * messages
                  */
-                Route::resource('messages', MessageThreadsController::class, [
-                    'only' => ['index', 'show', 'create', 'store'],
-                ]);
+                Route::resource('messages', MessageThreadsController::class)->except(['edit', 'update']);
 
                 //     /*
                 //      * tickets

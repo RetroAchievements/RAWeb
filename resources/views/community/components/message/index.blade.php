@@ -21,7 +21,7 @@ $monthAgo = Carbon::now()->subMonth(1);
 <script>
 function deleteMessage(id) {
     if (confirm('Are you sure you want to delete this message?')) {
-        $.post('/request/message/delete.php', {
+        $.post("{{ route('messages.store') }}", {
             thread_id: id,
             user: "{{ $user->User }}"
         })

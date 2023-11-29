@@ -6,6 +6,7 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
+use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Events\MessageCreated;
 use App\Community\Models\Message;
@@ -175,5 +176,28 @@ class MessageThreadsController extends Controller
         }
 
         return redirect(route("messages.show", $thread->id))->with('success', __('legacy.success.message_send'));
+    }
+
+    public function destroy(Request $request, int $threadId): RedirectResponse
+    {
+        $thread = MessageThread::firstWhere('id', $threadId);
+        if (!$thread) {
+            return back()->withErrors(__('legacy.error.error'));
+        }
+        
+        /** @var User $user */
+        $user = request()->user();
+        
+        $participating = MessageThreadParticipant::where('thread_id', $threadId)
+            ->where('user_id', $user->ID)
+            ->exists();
+        
+        if (!$participating) {
+            return back()->withErrors(__('legacy.error.error'));
+        }
+        
+        (new DeleteMessageThreadAction)->execute($thread, $user);
+        
+        return redirect(route("messages.index"))->with('success', __('legacy.success.message_delete'));
     }
 }

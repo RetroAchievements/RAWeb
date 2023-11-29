@@ -56,9 +56,9 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
 
     <div class="w-full flex my-2">
         <div class="mr-6">
-            <form action='/request/message/delete.php' method='post'>
+            <form action="{{ route('messages.destroy', $thread->id) }}" method='post'>
+            {{ method_field('DELETE') }}
             {{ csrf_field() }}
-            <input type="hidden" name="thread_id" value="{{ $thread->id }}" />
             <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message thread?')">Delete</button>
             </form>
         </div>
