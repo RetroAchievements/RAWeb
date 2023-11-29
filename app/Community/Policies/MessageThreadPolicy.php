@@ -12,11 +12,6 @@ class MessageThreadPolicy
 {
     use HandlesAuthorization;
 
-    public function manage(User $user): bool
-    {
-        return true;
-    }
-
     public function view(User $user, MessageThread $message): bool
     {
         return true;

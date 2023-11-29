@@ -5,17 +5,22 @@ declare(strict_types=1);
 namespace App\Community\Controllers;
 
 use App\Community\Actions\AddToMessageThreadAction;
+use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Events\MessageCreated;
 use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
+use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class MessageThreadsController extends Controller
 {
@@ -58,7 +63,7 @@ class MessageThreadsController extends Controller
                 ->value('num_unread');
         }
 
-        return view('community.components.message.list-page', [
+        return view('community.components.message.index', [
             'messages' => $messageThreads,
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
@@ -115,7 +120,7 @@ class MessageThreadsController extends Controller
             })
             ->toArray();
 
-        return view('community.components.message.view-thread-page', [
+        return view('community.components.message.show', [
             'thread' => $thread,
             'messages' => $messages,
             'participants' => $participants,
@@ -131,10 +136,44 @@ class MessageThreadsController extends Controller
         $subject = $request->input('subject') ?? '';
         $message = $request->input('message') ?? '';
 
-        return view('community.components.message.new-thread-page', [
+        return view('community.components.message.create', [
             'toUser' => $toUser,
             'subject' => $subject,
             'message' => $message,
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = request()->user();
+
+        $input = Validator::validate(Arr::wrap(request()->post()), [
+            'thread_id' => 'nullable|integer',
+            'body' => 'required|string|max:60000',
+            'title' => 'required_without:thread_id|string|max:255',
+            'recipient' => 'required_without:thread_id|exists:UserAccounts,User',
+        ]);
+
+        if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
+            $thread = MessageThread::firstWhere('id', $input['thread_id']);
+            if (!$thread) {
+                return back()->withErrors(__('legacy.error.error'));
+            }
+
+            $participant = MessageThreadParticipant::withTrashed()
+                ->where('thread_id', $input['thread_id'])
+                ->where('user_id', $user->ID);
+            if (!$participant->exists()) {
+                return back()->withErrors(__('legacy.error.error'));
+            }
+
+            (new AddToMessageThreadAction)->execute($thread, $user, $input['body']);
+        } else {
+            $recipient = User::firstWhere('User', $input['recipient']);
+            $thread = (new CreateMessageThreadAction)->execute($user, $recipient, $input['title'], $input['body']);
+        }
+
+        return redirect(route("messages.show", $thread->id))->with('success', __('legacy.success.message_send'));
     }
 }

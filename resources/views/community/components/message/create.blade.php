@@ -17,7 +17,7 @@
         <h1 class="mt-[10px] w-full">New Message</h1>
     </div>
 
-    <form action='/request/message/create.php' method='post' x-data='{ isValid: true }'>
+    <form action="{{ route('messages.store') }}" method='post' x-data='{ isValid: true }'>
         {{ csrf_field() }}
         <div><table class='mb-4'><tbody>
             <tr>

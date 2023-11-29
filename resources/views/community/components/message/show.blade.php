@@ -92,7 +92,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
     @if (!$canReply)
         <i>Cannot reply to deleted user.</i>
     @else
-        <form action='/request/message/create.php' method='post' x-data='{ isValid: true }'>
+        <form action="{{ route('messages.store') }}" method='post' x-data='{ isValid: true }'>
             {{ csrf_field() }}
             <input type='hidden' name='thread_id' value='{{ $thread->id }}' />
 
