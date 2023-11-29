@@ -8,18 +8,15 @@ use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
-use App\Community\Events\MessageCreated;
 use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
-use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -79,7 +76,7 @@ class MessageThreadsController extends Controller
         if (!$thread) {
             abort(404);
         }
-        
+
         $user = $request->user();
         $participant = MessageThreadParticipant::where('thread_id', $thread->id)
             ->where('user_id', $user->ID)
@@ -169,10 +166,10 @@ class MessageThreadsController extends Controller
                 return back()->withErrors(__('legacy.error.error'));
             }
 
-            (new AddToMessageThreadAction)->execute($thread, $user, $input['body']);
+            (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
         } else {
             $recipient = User::firstWhere('User', $input['recipient']);
-            $thread = (new CreateMessageThreadAction)->execute($user, $recipient, $input['title'], $input['body']);
+            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
         }
 
         return redirect(route("messages.show", $thread->id))->with('success', __('legacy.success.message_send'));
@@ -184,20 +181,20 @@ class MessageThreadsController extends Controller
         if (!$thread) {
             return back()->withErrors(__('legacy.error.error'));
         }
-        
+
         /** @var User $user */
         $user = request()->user();
-        
+
         $participating = MessageThreadParticipant::where('thread_id', $threadId)
             ->where('user_id', $user->ID)
             ->exists();
-        
+
         if (!$participating) {
             return back()->withErrors(__('legacy.error.error'));
         }
-        
-        (new DeleteMessageThreadAction)->execute($thread, $user);
-        
+
+        (new DeleteMessageThreadAction())->execute($thread, $user);
+
         return redirect(route("messages.index"))->with('success', __('legacy.success.message_delete'));
     }
 }

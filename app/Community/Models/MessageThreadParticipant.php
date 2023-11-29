@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MessageThreadParticipant extends BaseModel
 {

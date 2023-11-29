@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
 
 class DeleteMessageThreadAction
 {
@@ -27,7 +25,7 @@ class DeleteMessageThreadAction
 
             $participant->delete();
 
-            (new UpdateUnreadMessageCountAction)->execute($user);
+            (new UpdateUnreadMessageCountAction())->execute($user);
 
             $hasOtherActiveParticipants = MessageThreadParticipant::where('thread_id', $thread->id)
                 ->where('user_id', '!=', $user->id)

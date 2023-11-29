@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Events\MessageCreated;
-use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Site\Models\User;
@@ -45,7 +43,7 @@ class CreateMessageThreadAction
             $participantTo->save();
         }
 
-        (new AddToMessageThreadAction)->execute($thread, $userFrom, $body);
+        (new AddToMessageThreadAction())->execute($thread, $userFrom, $body);
 
         return $thread;
     }

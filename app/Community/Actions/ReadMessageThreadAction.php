@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Site\Models\User;
-use Illuminate\Support\Carbon;
 
 class ReadMessageThreadAction
 {
@@ -30,7 +28,7 @@ class ReadMessageThreadAction
             $participant->num_unread = 0;
             $participant->save();
 
-            (new UpdateUnreadMessageCountAction)->execute($user);
+            (new UpdateUnreadMessageCountAction())->execute($user);
         }
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 use App\Community\Actions\CreateMessageThreadAction;
-use App\Community\Controllers\MessageThreadsController;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
@@ -151,7 +150,7 @@ This ticket will be raised and will be available for all developers to inspect a
     $author = User::firstWhere('User', $achAuthor);
     if ($author) {
         $bugReportMessage = "Hi, $achAuthor!\r\n[user=$username] would like to report a bug with an achievement you've created:\r\n$bugReportDetails";
-        (new CreateMessageThreadAction)->execute($user, $author, "Bug Report ($gameTitle)",
+        (new CreateMessageThreadAction())->execute($user, $author, "Bug Report ($gameTitle)",
             $bugReportMessage, isProxied: true); // don't put the message in the user's message list unless the recipient replies
     }
 

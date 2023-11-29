@@ -8,7 +8,6 @@ use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
-use App\Community\Controllers\MessageThreadsController;
 use App\Community\Enums\UserRelationship;
 use App\Community\Models\Message;
 use App\Community\Models\UserRelation;
@@ -37,7 +36,7 @@ class MessagesTest extends TestCase
 
         // user1 sends message to user2
         $this->captureEmails();
-        $thread = (new CreateMessageThreadAction)->execute($user1, $user2, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -72,7 +71,7 @@ class MessagesTest extends TestCase
         $this->assertEmailSent($user2, "New Private Message from {$user1->User}");
 
         // user2 responds
-        (new ReadMessageThreadAction)->execute($thread, $user2);
+        (new ReadMessageThreadAction())->execute($thread, $user2);
         $this->assertDatabaseHas('message_thread_participants', [
             'thread_id' => 1,
             'user_id' => $user2->ID,
@@ -86,7 +85,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now2);
 
         $this->captureEmails();
-        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -123,7 +122,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now3);
 
         $this->captureEmails();
-        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is another response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is another response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -156,7 +155,7 @@ class MessagesTest extends TestCase
         $this->assertEmailNotSent($user1);
 
         // user1 responds
-        (new ReadMessageThreadAction)->execute($thread, $user1);
+        (new ReadMessageThreadAction())->execute($thread, $user1);
         $user1->refresh();
         $this->assertEquals(0, $user1->UnreadMessageCount);
 
@@ -164,7 +163,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now4);
 
         $this->captureEmails();
-        (new AddToMessageThreadAction)->execute($thread, $user1, 'This is a third response.');
+        (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a third response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -201,7 +200,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now5);
 
         $this->captureEmails();
-        (new DeleteMessageThreadAction)->execute($thread, $user1);
+        (new DeleteMessageThreadAction())->execute($thread, $user1);
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -232,7 +231,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now6);
 
         $this->captureEmails();
-        (new DeleteMessageThreadAction)->execute($thread, $user2);
+        (new DeleteMessageThreadAction())->execute($thread, $user2);
         $this->assertDatabaseMissing('message_threads', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 2]);
@@ -268,7 +267,7 @@ class MessagesTest extends TestCase
 
         // message from user2 is automatically marked as deleted by user1
         $this->captureEmails();
-        $thread = (new CreateMessageThreadAction)->execute($user2, $user1, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user2, $user1, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -304,7 +303,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now2);
 
         $this->captureEmails();
-        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
@@ -340,7 +339,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now);
 
         $this->captureEmails();
-        $thread = (new CreateMessageThreadAction)->execute($user1, $user2, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
             'title' => 'This is a message',
@@ -376,7 +375,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now2);
 
         $this->captureEmails();
-        (new AddToMessageThreadAction)->execute($thread, $user1, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
@@ -413,7 +412,7 @@ class MessagesTest extends TestCase
         Carbon::setTestNow($now3);
 
         $this->captureEmails();
-        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is another response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is another response.');
 
         $this->assertDatabaseHas('message_threads', [
             'id' => 2,
@@ -457,7 +456,7 @@ class MessagesTest extends TestCase
         $user2 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
 
         // user1 sends message to user2
-        $thread = (new CreateMessageThreadAction)->execute($user1, $user2, 'This is a message', 'This is the message body.');
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user2, 'This is a message', 'This is the message body.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -485,11 +484,11 @@ class MessagesTest extends TestCase
         ]);
 
         // user2 responds
-        (new ReadMessageThreadAction)->execute($thread, $user2);
+        (new ReadMessageThreadAction())->execute($thread, $user2);
         $now2 = $now->clone()->addMinutes(5);
         Carbon::setTestNow($now2);
 
-        (new AddToMessageThreadAction)->execute($thread, $user2, 'This is a response.');
+        (new AddToMessageThreadAction())->execute($thread, $user2, 'This is a response.');
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -519,7 +518,7 @@ class MessagesTest extends TestCase
         // user2 is deleted
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
-        (new ClearAccountDataAction)->execute($user2);
+        (new ClearAccountDataAction())->execute($user2);
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -547,10 +546,11 @@ class MessagesTest extends TestCase
         ]);
 
         // user1 is deleted
-        (new ClearAccountDataAction)->execute($user1);
+        (new ClearAccountDataAction())->execute($user1);
         $this->assertDatabaseMissing('message_threads', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 2]);
         $this->assertDatabaseMissing('message_thread_participants', ['id' => 1]);
-        $this->assertDatabaseMissing('message_thread_participants', ['id' => 2]);    }
+        $this->assertDatabaseMissing('message_thread_participants', ['id' => 2]);
+    }
 }

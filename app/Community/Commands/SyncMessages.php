@@ -59,8 +59,7 @@ class SyncMessages extends Command
             foreach ($foreignKeysFound as $foreignKey) {
                 if ($foreignKey->getName() == 'messages_thread_id_foreign') {
                     $foundThreadForeignKey = true;
-                }
-                elseif ($foreignKey->getName() == 'messages_author_id_foreign') {
+                } elseif ($foreignKey->getName() == 'messages_author_id_foreign') {
                     $foundAuthorForeignKey = true;
                 }
             }

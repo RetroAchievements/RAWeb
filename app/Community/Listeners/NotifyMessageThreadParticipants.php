@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Community\Listeners;
 
 use App\Community\Actions\UpdateUnreadMessageCountAction;
-use App\Community\Controllers\MessageThreadsController;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Site\Enums\UserPreference;
