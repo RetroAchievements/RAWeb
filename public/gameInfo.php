@@ -833,7 +833,7 @@ sanitize_outputs(
         ', [
             'beatenGameCreditDialogContext' => $beatenGameCreditDialogContext,
             'gameId' => $gameID,
-            'isBeatable' => $isGameBeatable && config('feature.beat') === true,
+            'isBeatable' => $isGameBeatable,
             'isBeatenHardcore' => $isBeatenHardcore,
             'isBeatenSoftcore' => $isBeatenSoftcore,
             'isCompleted' => !is_null($userGameProgressionAwards['completed']),
