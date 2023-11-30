@@ -2,8 +2,6 @@
     'achievement' => [],
     'beatenGameCreditDialogContext' => 's:|h:',
     'totalPlayerCount' => 0,
-    'progressionTypeValue' => 'progression', // `AchievementType`
-    'winConditionTypeValue' => 'win_condition', // `AchievementType`
     'useMinimalLayout' => false,
     'isUnlocked' => false,
     'isUnlockedHardcore' => false,
@@ -73,8 +71,6 @@ if (isset($achievement['DateEarnedHardcore'])) {
                             <div class="-mt-1.5">
                                 <x-game.achievements-list.type-indicator
                                     :achievementType="$achievement['type']"
-                                    :progressionTypeValue="$progressionTypeValue"
-                                    :winConditionTypeValue="$winConditionTypeValue"
                                     :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                                     :isCreditDialogEnabled="$isCreditDialogEnabled"
                                 />
@@ -111,8 +107,6 @@ if (isset($achievement['DateEarnedHardcore'])) {
                     <div class="hidden md:flex items-center justify-end gap-x-1">
                         <x-game.achievements-list.type-indicator
                             :achievementType="$achievement['type']"
-                            :progressionTypeValue="$progressionTypeValue"
-                            :winConditionTypeValue="$winConditionTypeValue"
                             :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                             :isCreditDialogEnabled="$isCreditDialogEnabled"    
                         />
