@@ -80,10 +80,8 @@ function reportIssueComponent() {
             Blade::render('
                 <x-achievement.title
                     :rawTitle="$rawTitle"
-                    :isDisplayingTags="$isDisplayingTags"
                 />', [
                 'rawTitle' => $achievementTitle,
-                'isDisplayingTags' => false,
             ]);
         ?></a>
         &raquo; <b>Issue Report</b>

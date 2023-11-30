@@ -215,10 +215,8 @@ RenderContentStart($pageTitle);
     $breadcrumbAchievementTitle = Blade::render('
         <x-achievement.title
             :rawTitle="$rawTitle"
-            :isDisplayingTags="$isDisplayingTags"
         />', [
         'rawTitle' => $achievementTitle,
-        'isDisplayingTags' => false,
     ]);
 
     echo "<div class='navpath'>";
