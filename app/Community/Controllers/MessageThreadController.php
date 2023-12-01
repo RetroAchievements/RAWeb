@@ -20,7 +20,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class MessageThreadsController extends Controller
+class MessageThreadController extends Controller
 {
     public function index(Request $request): View
     {

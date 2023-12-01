@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\ContactController;
-use App\Community\Controllers\MessageThreadsController;
+use App\Community\Controllers\MessageThreadController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -232,7 +232,7 @@ class RouteServiceProvider extends ServiceProvider
                 /*
                  * messages
                  */
-                Route::resource('messages', MessageThreadsController::class)->except(['edit', 'update']);
+                Route::resource('messages', MessageThreadController::class)->except(['edit', 'update']);
 
                 //     /*
                 //      * tickets
