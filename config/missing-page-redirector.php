@@ -90,6 +90,7 @@ return [
          */
         '/controlpanel.php' => '/settings',
         '/friends.php' => '/friends',
+        '/createmessage.php' => '/messages/create?to={t}&subject={s}&message={p}',
         '/inbox.php' => '/messages',
         '/gamecompare.php' => '/user/{f}/game/{ID}/compare',
         '/manageuserpic.php' => '/settings',
