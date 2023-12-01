@@ -12,7 +12,7 @@ class MessageThreadPolicy
 {
     use HandlesAuthorization;
 
-    public function view(User $user, MessageThread $message): bool
+    public function view(User $user, MessageThread $messageThread): bool
     {
         return true;
     }
@@ -22,22 +22,22 @@ class MessageThreadPolicy
         return true;
     }
 
-    public function update(User $user, MessageThread $message): bool
+    public function update(User $user, MessageThread $messageThread): bool
     {
         return false;
     }
 
-    public function delete(User $user, MessageThread $message): bool
+    public function delete(User $user, MessageThread $messageThread): bool
     {
         return true;
     }
 
-    public function restore(User $user, MessageThread $message): bool
+    public function restore(User $user, MessageThread $messageThread): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, MessageThread $message): bool
+    public function forceDelete(User $user, MessageThread $messageThread): bool
     {
         return false;
     }
