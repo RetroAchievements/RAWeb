@@ -7,9 +7,6 @@
 ])
 
 <?php
-use App\Platform\Enums\AchievementType;
-
-
 $unlockedAchievements = array_filter($achievements, function ($achievement) {
     return !empty($achievement['DateEarned']) || !empty($achievement['DateEarnedHardcore']);
 });

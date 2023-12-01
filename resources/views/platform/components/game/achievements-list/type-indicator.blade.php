@@ -15,9 +15,9 @@ $progressionTypeValue = AchievementType::Progression;
 $winConditionTypeValue = AchievementType::WinCondition;
 $missableTypeValue = AchievementType::Missable;
 
-$backgroundColorClassName = "bg-embed light:bg-neutral-50";
+$containerClassNames = "";
 if ($achievementType === $missableTypeValue) {
-    $backgroundColorClassName = "bg-amber-950 light:bg-amber-100";
+    $containerClassNames .= ' border-dashed border-stone-500';
 }
 ?>
 
@@ -29,7 +29,7 @@ if ($achievementType === $missableTypeValue) {
     :disabled="!$isCreditDialogEnabled || $achievementType === $missableTypeValue"
 >
     <x-slot name="trigger">
-        <div class="flex items-center {{ $backgroundColorClassName }} group light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500 overflow-hidden">
+        <div class="flex items-center bg-embed light:bg-neutral-50 border border-transparent {{ $containerClassNames }} border group light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500 overflow-hidden">
             @if ($achievementType === $progressionTypeValue)
                 <span class="
                     text-[0.6rem] transition translate-x-4 duration-300 ease-out w-0 opacity-0 invisible 
@@ -67,12 +67,12 @@ if ($achievementType === $missableTypeValue) {
                 ">
                     Missable
                 </span>
-                <div class="w-[18px] h-[18px] z-10" aria-label="Progression">
+                <div class="w-[18px] h-[18px] z-10" aria-label="Missable">
                     <x-icon.missable />
                 </div>
 
                 {{-- Backwards compatibility for users who search the page by "[m]" --}}
-                <span class="absolute text-amber-950 light:text-amber-100 text-2xs">[m]</span>
+                <span class="absolute text-embed light:text-amber-100 text-2xs">[m]</span>
             @endif
         </div>
     </x-slot>
