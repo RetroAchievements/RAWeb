@@ -18,6 +18,8 @@ $missableTypeValue = AchievementType::Missable;
 $containerClassNames = "";
 if ($achievementType === $missableTypeValue) {
     $containerClassNames .= ' border-dashed border-stone-500';
+} else {
+    $containerClassNames .= ' border-transparent';
 }
 ?>
 
@@ -29,7 +31,7 @@ if ($achievementType === $missableTypeValue) {
     :disabled="!$isCreditDialogEnabled || $achievementType === $missableTypeValue"
 >
     <x-slot name="trigger">
-        <div class="flex items-center bg-embed light:bg-neutral-50 border border-transparent {{ $containerClassNames }} border group light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500 overflow-hidden">
+        <div class="flex items-center bg-embed light:bg-neutral-50 border {{ $containerClassNames }} border group light:border light:border-neutral-300 p-1 rounded-full text-neutral-200 light:text-neutral-500 overflow-hidden">
             @if ($achievementType === $progressionTypeValue)
                 <span class="
                     text-[0.6rem] transition translate-x-4 duration-300 ease-out w-0 opacity-0 invisible 
