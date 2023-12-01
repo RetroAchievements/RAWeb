@@ -13,9 +13,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class SyncMessages extends Command
+class MigrateMessages extends Command
 {
-    protected $signature = 'ra:sync:messages';
+    protected $signature = 'ra:platform:messages:migrate-to-threads';
     protected $description = 'Sync messages';
 
     public function __construct()
@@ -39,14 +39,12 @@ class SyncMessages extends Command
         // process remaining unprocessed records (thread_id=0)
         // have to do this in batches to prevent exhausting memory
         // due to requesting payloads (message content)
-        for ($i = 0; $i < $count; $i += 100) {
-            $messages = Message::where('thread_id', 0)->orderBy('ID')->limit(100)->get();
-            /** @var Message $message */
+        Message::where('thread_id', 0)->chunkById(100, function($messages) use ($progressBar) {
             foreach ($messages as $message) {
                 $this->migrateMessage($message);
                 $progressBar->advance();
             }
-        }
+        });
 
         $count = Message::where('thread_id', 0)->count();
         if ($count == 0) {
