@@ -141,7 +141,44 @@ class UserSummaryTest extends TestCase
         $this->user->RAPoints = 1_234_567;
         $this->user->save();
 
+        // default parameters returns no games
         $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User]))
+            ->assertSuccessful()
+            ->assertJson([
+                'ID' => $user->ID,
+                'TotalPoints' => $user->RAPoints,
+                'TotalSoftcorePoints' => $user->RASoftcorePoints,
+                'TotalTruePoints' => $user->TrueRAPoints,
+                'Permissions' => $user->Permissions,
+                'MemberSince' => $user->Created->__toString(),
+                'Untracked' => $user->Untracked,
+                'UserPic' => '/UserPic/' . $user->User . '.png',
+                'Motto' => $user->Motto,
+                'UserWallActive' => $user->UserWallActive,
+                'ContribCount' => $user->ContribCount,
+                'ContribYield' => $user->ContribYield,
+                'Rank' => 2,
+                'TotalRanked' => 2, // $this->user and $user
+                'LastGameID' => $game->id,
+                'RichPresenceMsg' => 'Playing ' . $game->title,
+                'RecentlyPlayedCount' => 0,
+                'RecentlyPlayed' => [],
+                'LastActivity' => [
+                    'ID' => 0,
+                    'timestamp' => null,
+                    'lastupdate' => null,
+                    'activitytype' => null,
+                    'User' => $user->User,
+                    'data' => null,
+                    'data2' => null,
+                ],
+                'Status' => 'Offline',
+                'Awarded' => [],
+                'RecentAchievements' => [],
+            ]);
+
+        // request more games than are available
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User, 'g' => 5]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $user->ID,
@@ -355,7 +392,7 @@ class UserSummaryTest extends TestCase
 
         $this->addHardcoreUnlock($this->user, $publishedAchievements2->get(2), $now->clone()->subMinutes(90));
 
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'a' => 2]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'g' => 5, 'a' => 2]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $this->user->ID,
@@ -388,7 +425,7 @@ class UserSummaryTest extends TestCase
             ->assertJsonCount(2, "RecentAchievements.{$game->ID}");
 
         // user only has 6 unlocks, so return all of them, and nothing more
-        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'a' => 7]))
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $this->user->User, 'g' => 5, 'a' => 7]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $this->user->ID,
