@@ -7,12 +7,10 @@
         <span class="text-yellow-400"><x-fas-trophy/></span>
         Global Points Ranking
     </a>
-    @hasfeature("beat")
-        <a class="btn text-center py-2" href="{{ route('ranking.beaten-games') }}">
-            <span class="text-yellow-400"><x-fas-medal/></span>
-            Global Beaten Games Ranking
-        </a>
-    @endhasfeature
+    <a class="btn text-center py-2" href="{{ route('ranking.beaten-games') }}">
+        <span class="text-yellow-400"><x-fas-medal/></span>
+        Global Beaten Games Ranking
+    </a>
     @if(config('services.discord.invite_id'))
         <a class="btn text-center py-2" href="https://discord.gg/{{ config('services.discord.invite_id') }}">
             <span class="text-discord"><x-fab-discord/></span>
