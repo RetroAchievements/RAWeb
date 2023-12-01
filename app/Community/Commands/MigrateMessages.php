@@ -39,7 +39,7 @@ class MigrateMessages extends Command
         // process remaining unprocessed records (thread_id=0)
         // have to do this in batches to prevent exhausting memory
         // due to requesting payloads (message content)
-        Message::where('thread_id', 0)->chunkById(100, function($messages) use ($progressBar) {
+        Message::where('thread_id', 0)->chunkById(100, function ($messages) use ($progressBar) {
             foreach ($messages as $message) {
                 $this->migrateMessage($message);
                 $progressBar->advance();
