@@ -553,4 +553,67 @@ class MessagesTest extends TestCase
         $this->assertDatabaseMissing('message_thread_participants', ['id' => 1]);
         $this->assertDatabaseMissing('message_thread_participants', ['id' => 2]);
     }
+
+    public function testMessageToSelf(): void
+    {
+        $now = Carbon::now()->floorSecond();
+        Carbon::setTestNow($now);
+
+        /** @var User $user1 */
+        $user1 = User::factory()->create(['websitePrefs' => (1 << UserPreference::EmailOn_PrivateMessage)]);
+
+        // user1 sends message to user1
+        $thread = (new CreateMessageThreadAction())->execute($user1, $user1, 'This is a message', 'This is the message body.');
+        $this->assertDatabaseHas('message_threads', [
+            'id' => 1,
+            'title' => 'This is a message',
+            'num_messages' => 1,
+            'last_message_id' => 1,
+        ]);
+        $this->assertDatabaseHas('messages', [
+            'id' => 1,
+            'thread_id' => 1,
+            'author_id' => $user1->ID,
+            'body' => 'This is the message body.',
+            'created_at' => $now->toDateTimeString(),
+        ]);
+        $this->assertDatabaseHas('message_thread_participants', [
+            'thread_id' => 1,
+            'user_id' => $user1->ID,
+            'num_unread' => 0,
+            'deleted_at' => null,
+        ]);
+
+        // user1 responds
+        $now2 = $now->clone()->addMinutes(5);
+        Carbon::setTestNow($now2);
+
+        (new AddToMessageThreadAction())->execute($thread, $user1, 'This is a response.');
+        $this->assertDatabaseHas('message_threads', [
+            'id' => 1,
+            'title' => 'This is a message',
+            'num_messages' => 2,
+            'last_message_id' => 2,
+        ]);
+        $this->assertDatabaseHas('messages', [
+            'id' => 2,
+            'thread_id' => 1,
+            'author_id' => $user1->ID,
+            'body' => 'This is a response.',
+            'created_at' => $now2->toDateTimeString(),
+        ]);
+        $this->assertDatabaseHas('message_thread_participants', [
+            'thread_id' => 1,
+            'user_id' => $user1->ID,
+            'num_unread' => 0,
+            'deleted_at' => null,
+        ]);
+
+        // user1 deletes message
+        (new DeleteMessageThreadAction())->execute($thread, $user1);
+        $this->assertDatabaseMissing('message_threads', ['id' => 1]);
+        $this->assertDatabaseMissing('messages', ['id' => 1]);
+        $this->assertDatabaseMissing('messages', ['id' => 2]);
+        $this->assertDatabaseMissing('message_thread_participants', ['id' => 1]);
+    }
 }

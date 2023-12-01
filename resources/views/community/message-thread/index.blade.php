@@ -71,9 +71,13 @@ function deleteMessage(id) {
         ?>
         <tr>
             <td @if ($num_unread > 0) class="font-bold" @endif>
-                @foreach ($message->other_participants as $participant)
-                    {!! userAvatar($participant, iconSize: 24) !!}
-                @endforeach
+                @if (empty($message->other_participants))
+                    {!! userAvatar($user, iconSize: 24) !!}
+                @else
+                    @foreach ($message->other_participants as $participant)
+                        {!! userAvatar($participant, iconSize: 24) !!}
+                    @endforeach
+                @endif
             </td>
 
             <td @if ($num_unread > 0) class="font-bold" @endif>

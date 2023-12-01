@@ -107,7 +107,7 @@ class MessageThreadController extends Controller
             ->where('thread_id', $thread->id)
             ->join('UserAccounts', 'UserAccounts.ID', '=', 'message_thread_participants.user_id');
 
-        $canReply = (clone $participants)
+        $canReply = ($participants->count() === 1) || (clone $participants)
             ->where('user_id', '!=', $user->ID)
             ->whereNull('UserAccounts.Deleted')
             ->exists();
