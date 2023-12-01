@@ -61,7 +61,7 @@ class MessageThreadController extends Controller
                 ->value('num_unread');
         }
 
-        return view('community.components.message.index', [
+        return view('community.message-thread.index', [
             'messages' => $messageThreads,
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
@@ -118,7 +118,7 @@ class MessageThreadController extends Controller
             })
             ->toArray();
 
-        return view('community.components.message.show', [
+        return view('community.message-thread.show', [
             'thread' => $thread,
             'messages' => $messages,
             'participants' => $participants,
@@ -126,53 +126,6 @@ class MessageThreadController extends Controller
             'currentPage' => $currentPage,
             'canReply' => $canReply,
         ]);
-    }
-
-    public function create(Request $request): View
-    {
-        $toUser = $request->input('to') ?? '';
-        $subject = $request->input('subject') ?? '';
-        $message = $request->input('message') ?? '';
-
-        return view('community.components.message.create', [
-            'toUser' => $toUser,
-            'subject' => $subject,
-            'message' => $message,
-        ]);
-    }
-
-    public function store(Request $request): RedirectResponse
-    {
-        /** @var User $user */
-        $user = request()->user();
-
-        $input = Validator::validate(Arr::wrap(request()->post()), [
-            'thread_id' => 'nullable|integer',
-            'body' => 'required|string|max:60000',
-            'title' => 'required_without:thread_id|string|max:255',
-            'recipient' => 'required_without:thread_id|exists:UserAccounts,User',
-        ]);
-
-        if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
-            $thread = MessageThread::firstWhere('id', $input['thread_id']);
-            if (!$thread) {
-                return back()->withErrors(__('legacy.error.error'));
-            }
-
-            $participant = MessageThreadParticipant::withTrashed()
-                ->where('thread_id', $input['thread_id'])
-                ->where('user_id', $user->ID);
-            if (!$participant->exists()) {
-                return back()->withErrors(__('legacy.error.error'));
-            }
-
-            (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
-        } else {
-            $recipient = User::firstWhere('User', $input['recipient']);
-            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
-        }
-
-        return redirect(route("messages.show", $thread->id))->with('success', __('legacy.success.message_send'));
     }
 
     public function destroy(Request $request, int $threadId): RedirectResponse
@@ -195,6 +148,6 @@ class MessageThreadController extends Controller
 
         (new DeleteMessageThreadAction())->execute($thread, $user);
 
-        return redirect(route("messages.index"))->with('success', __('legacy.success.message_delete'));
+        return redirect(route('message-thread.index'))->with('success', __('legacy.success.message_delete'));
     }
 }

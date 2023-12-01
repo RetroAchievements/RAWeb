@@ -363,7 +363,7 @@ function SendPrivateMessageEmail(
 
     // Also used for Generic text:
     $emailTitle = "New Private Message from $fromUser";
-    $link = "<a href='" . route('messages.index') . "'>here</a>";
+    $link = "<a href='" . route('message-thread.index') . "'>here</a>";
 
     $msg = "Hello $user!<br>" .
         "You have received a new private message from $fromUser.<br><br>" .

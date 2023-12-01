@@ -5,7 +5,7 @@
                 <h2>Admins and Moderators</h2>
 
                 <p class="mb-0">
-                    <a href='{{ route("messages.create") }}?to=RAdmin'>Send a message to RAdmin</a> for:
+                    <a href='{{ route("message.create") }}?to=RAdmin'>Send a message to RAdmin</a> for:
                 </p>
 
                 <ul class="mb-3 list-disc list-inside">
@@ -20,7 +20,7 @@
                 <h2>Developer Compliance</h2>
 
                 <p class="mb-0">
-                    <a href='{{ route("messages.create") }}?to=DevCompliance'>Send a message to DevCompliance</a> for:
+                    <a href='{{ route("message.create") }}?to=DevCompliance'>Send a message to DevCompliance</a> for:
                 </p>
 
                 <ul class="mb-3 list-disc list-inside">
@@ -34,7 +34,7 @@
                 <h2>Quality Assurance</h2>
 
                 <p class="mb-0">
-                    <a href='{{ route("messages.create") }}?to=QATeam'>Send a message to QATeam</a> for:
+                    <a href='{{ route("message.create") }}?to=QATeam'>Send a message to QATeam</a> for:
                 </p>
 
                 <ul class="mb-3 list-disc list-inside">
@@ -51,7 +51,7 @@
                 <h2>DevQuest</h2>
 
                 <p class="mb-3">
-                    <a href='{{ route("messages.create") }}?to=DevQuest'>Send a message to DevQuest</a> for
+                    <a href='{{ route("message.create") }}?to=DevQuest'>Send a message to DevQuest</a> for
                     submissions, questions, ideas, or reporting issues related to
                     <a href='/game/5686'>DevQuest</a>.
                 </p>
@@ -63,7 +63,7 @@
                 <h2>Cheating Reports</h2>
 
                 <p class="mb-3">
-                    <a href="{{ route("messages.create") }}?to=RACheats">Send a message to RACheats</a>
+                    <a href='{{ route("message.create") }}?to=RACheats'>Send a message to RACheats</a>
                     if you believe someone is in violation of our
                     <a href="https://docs.retroachievements.org/Global-Leaderboard-and-Achievement-Hunting-Rules/#not-allowed">Global Leaderboard and Achievement Hunting Rules</a>.
                 </p>
@@ -81,7 +81,7 @@
                 <h2>RANews</h2>
 
                 <p class="mb-0">
-                    <a href='{{ route("messages.create") }}?to=RANews'>Send a message to RANews</a> for:
+                    <a href='{{ route("message.create") }}?to=RANews'>Send a message to RANews</a> for:
                 </p>
 
                 <ul class="mb-3 list-disc list-inside">
@@ -96,13 +96,13 @@
                 <h2>RAEvents</h2>
 
                 <p class="mb-3">
-                    <a href='{{ route("messages.create") }}?to=RAEvents'>Send a message to RAEvents</a> for
+                    <a href='{{ route("message.create") }}?to=RAEvents'>Send a message to RAEvents</a> for
                     submissions, questions, ideas, or reporting issues related to
                     <a href='/game/3105'>community events</a>.
                 </p>
 
                 <p class="mb-3">
-                    <a href='{{ route("messages.create") }}?to=TheUnwanted'>Send a message to TheUnwanted</a> for
+                    <a href='{{ route("message.create") }}?to=TheUnwanted'>Send a message to TheUnwanted</a> for
                     submissions, questions, ideas, or reporting issues specifically related to
                     <a href='/game/4271'>The Unwanted</a>.
                 </p>

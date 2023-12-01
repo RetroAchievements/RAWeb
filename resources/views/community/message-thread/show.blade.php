@@ -47,7 +47,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
 >
     <x-user.breadcrumbs targetUsername="{{ $user->User }}"
         parentPage="Messages"
-        parentPageUrl="{{ route('messages.index') }}"
+        parentPageUrl="{{ route('message-thread.index') }}"
         currentPage="{!! $thread->title !!}" />
 
     <div class="mt-3 w-full flex gap-x-3">
@@ -56,7 +56,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
 
     <div class="w-full flex my-2">
         <div class="mr-6">
-            <form action="{{ route('messages.destroy', $thread->id) }}" method='post'>
+            <form action="{{ route('message-thread.destroy', $thread->id) }}" method='post'>
             {{ method_field('DELETE') }}
             {{ csrf_field() }}
             <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message thread?')">Delete</button>
@@ -92,7 +92,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
     @if (!$canReply)
         <i>Cannot reply to deleted user.</i>
     @else
-        <form action="{{ route('messages.store') }}" method='post' x-data='{ isValid: true }'>
+        <form action="{{ route('message.store') }}" method='post' x-data='{ isValid: true }'>
             {{ csrf_field() }}
             <input type='hidden' name='thread_id' value='{{ $thread->id }}' />
 

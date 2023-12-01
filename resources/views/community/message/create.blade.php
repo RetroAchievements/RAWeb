@@ -10,14 +10,14 @@
 >
     <x-user.breadcrumbs targetUsername="{{ request()->user()->User }}"
             parentPage="Messages"
-            parentPageUrl="{{ route('messages.index') }}"
+            parentPageUrl="{{ route('message-thread.index') }}"
             currentPage="New Message" />
 
     <div class="w-full flex gap-x-3">
         <h1 class="mt-[10px] w-full">New Message</h1>
     </div>
 
-    <form action="{{ route('messages.store') }}" method='post' x-data='{ isValid: true }'>
+    <form action="{{ route('message.store') }}" method='post' x-data='{ isValid: true }'>
         {{ csrf_field() }}
         <div><table class='mb-4'><tbody>
             <tr>

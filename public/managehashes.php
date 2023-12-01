@@ -113,7 +113,7 @@ function UnlinkHash(user, gameID, hash, elem) {
     }
     echo "</div>";
 
-    echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='" . route('messages.create') . "?to=RAdmin&subject=Attempt+to+Unlink+" . urlencode($gameTitle) . "&message=%5Bgame=$gameID%5D'>leave a message for admins</a> and they'll help sort it.</div>";
+    echo "<br><div class='text-danger'><b>Warning:</b> PLEASE be careful with this tool. If in doubt, <a href='" . route('message.create') . "?to=RAdmin&subject=Attempt+to+Unlink+" . urlencode($gameTitle) . "&message=%5Bgame=$gameID%5D'>leave a message for admins</a> and they'll help sort it.</div>";
 
     echo "<br/><div id='hashCount'>Currently this game has <b>$numLinks</b> unique hashes registered for it:</div>";
 

@@ -21,7 +21,7 @@ $monthAgo = Carbon::now()->subMonth(1);
 <script>
 function deleteMessage(id) {
     if (confirm('Are you sure you want to delete this message?')) {
-        $.post("{{ route('messages.store') }}", {
+        $.post("{{ route('message.store') }}", {
             thread_id: id,
             user: "{{ $user->User }}"
         })
@@ -47,7 +47,7 @@ function deleteMessage(id) {
 
     <div class="w-full flex mt-2">
         <div class="mr-6">
-            <a href="{{ route('messages.create') }}"><button class='btn'>New Message</button></a>
+            <a href="{{ route('message.create') }}"><button class='btn'>New Message</button></a>
         </div>
         <div class="w-full flex justify-end">
             <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
@@ -77,7 +77,7 @@ function deleteMessage(id) {
             </td>
 
             <td @if ($num_unread > 0) class="font-bold" @endif>
-                <a href="{{ route('messages.show', $message->id) }}">
+                <a href="{{ route('message-thread.show', $message->id) }}">
                     {{ $message->title }}
                 </a>
             </td>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\ContactController;
+use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -232,7 +233,14 @@ class RouteServiceProvider extends ServiceProvider
                 /*
                  * messages
                  */
-                Route::resource('messages', MessageThreadController::class)->except(['edit', 'update']);
+                Route::group([
+                    'middleware' => ['auth'], // TODO add 'verified' middleware
+                ], function () {
+                    Route::resource('message', MessageController::class)->only(['create', 'store']);
+
+                    Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
+                    Route::resource('message-thread', MessageThreadController::class)->only(['show', 'destroy']);
+                });
 
                 //     /*
                 //      * tickets
