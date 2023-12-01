@@ -6,9 +6,6 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
-use App\Community\Actions\DeleteMessageThreadAction;
-use App\Community\Actions\ReadMessageThreadAction;
-use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
@@ -17,7 +14,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
