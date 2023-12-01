@@ -12,6 +12,7 @@ use App\Community\Models\ForumCategory;
 use App\Community\Models\ForumTopic;
 use App\Community\Models\ForumTopicComment;
 use App\Community\Models\GameComment;
+use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
 use App\Community\Models\News;
 use App\Community\Models\NewsComment;
@@ -26,6 +27,7 @@ use App\Community\Policies\ForumPolicy;
 use App\Community\Policies\ForumTopicCommentPolicy;
 use App\Community\Policies\ForumTopicPolicy;
 use App\Community\Policies\GameCommentPolicy;
+use App\Community\Policies\MessagePolicy;
 use App\Community\Policies\MessageThreadPolicy;
 use App\Community\Policies\NewsCommentPolicy;
 use App\Community\Policies\NewsPolicy;
@@ -45,6 +47,7 @@ class AuthServiceProvider extends ServiceProvider
         ForumTopicComment::class => ForumTopicCommentPolicy::class,
         ForumTopic::class => ForumTopicPolicy::class,
         GameComment::class => GameCommentPolicy::class,
+        Message::class => MessagePolicy::class,
         MessageThread::class => MessageThreadPolicy::class,
         News::class => NewsPolicy::class,
         NewsComment::class => NewsCommentPolicy::class,
