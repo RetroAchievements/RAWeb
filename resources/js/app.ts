@@ -2,7 +2,7 @@
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
 // eslint-disable-next-line import/no-unresolved
-import { Livewire } from 'livewire/livewire.esm';
+import { Livewire } from 'livewire';
 import {
   hideEarnedCheckboxComponent,
   modalComponent,

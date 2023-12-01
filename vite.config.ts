@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': resolve(__dirname, './resources/js'),
-        livewire: resolve(__dirname, './vendor/livewire/livewire/dist'),
+        livewire: resolve(__dirname, './vendor/livewire/livewire/dist/livewire.esm'),
       },
     },
     test: {
