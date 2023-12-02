@@ -66,15 +66,10 @@ class MessageThreadController extends Controller
         ]);
     }
 
-    public function show(Request $request, int $threadId): View
+    public function show(Request $request, MessageThread $messageThread): View
     {
-        $thread = MessageThread::firstWhere('id', $threadId);
-        if (!$thread) {
-            abort(404);
-        }
-
         $user = $request->user();
-        $participant = MessageThreadParticipant::where('thread_id', $thread->id)
+        $participant = MessageThreadParticipant::where('thread_id', $messageThread->id)
             ->where('user_id', $user->ID)
             ->first();
         if (!$participant) {
@@ -86,21 +81,21 @@ class MessageThreadController extends Controller
         if ($currentPage < 1) {
             $currentPage = 1;
         }
-        $totalPages = (int) (($thread->num_messages + 19) / 20);
+        $totalPages = (int) (($messageThread->num_messages + 19) / 20);
 
         if ($currentPage == $totalPages) {
             // if viewing last page, mark all messages in the chain as read
             ReadMessageThreadAction::markParticipantRead($participant, $user);
         }
 
-        $messages = Message::where('thread_id', $thread->id)
+        $messages = Message::where('thread_id', $messageThread->id)
             ->orderBy('created_at')
             ->offset(($currentPage - 1) * $pageSize)
             ->limit($pageSize)
             ->get();
 
         $participants = MessageThreadParticipant::withTrashed()
-            ->where('thread_id', $thread->id)
+            ->where('thread_id', $messageThread->id)
             ->join('UserAccounts', 'UserAccounts.ID', '=', 'message_thread_participants.user_id');
 
         $canReply = ($participants->count() === 1) || (clone $participants)
@@ -115,7 +110,7 @@ class MessageThreadController extends Controller
             ->toArray();
 
         return view('community.message-thread.show', [
-            'thread' => $thread,
+            'thread' => $messageThread,
             'messages' => $messages,
             'participants' => $participants,
             'totalPages' => $totalPages,
@@ -124,17 +119,12 @@ class MessageThreadController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, int $threadId): RedirectResponse
+    public function destroy(Request $request, MessageThread $messageThread): RedirectResponse
     {
-        $thread = MessageThread::firstWhere('id', $threadId);
-        if (!$thread) {
-            return back()->withErrors(__('legacy.error.error'));
-        }
-
         /** @var User $user */
         $user = request()->user();
 
-        $participating = MessageThreadParticipant::where('thread_id', $threadId)
+        $participating = MessageThreadParticipant::where('thread_id', $messageThread->id)
             ->where('user_id', $user->ID)
             ->exists();
 
@@ -142,7 +132,7 @@ class MessageThreadController extends Controller
             return back()->withErrors(__('legacy.error.error'));
         }
 
-        (new DeleteMessageThreadAction())->execute($thread, $user);
+        (new DeleteMessageThreadAction())->execute($messageThread, $user);
 
         return redirect(route('message-thread.index'))->with('success', __('legacy.success.message_delete'));
     }
