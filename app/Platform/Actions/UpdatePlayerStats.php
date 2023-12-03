@@ -9,6 +9,7 @@ use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerStatsUpdated;
 use App\Platform\Models\PlayerStat;
+use App\Platform\Models\System;
 use App\Site\Models\User;
 
 class UpdatePlayerStats
@@ -83,7 +84,7 @@ class UpdatePlayerStats
 
         foreach ($playerBeatenHardcoreGames as $playerGame) {
             $gameConsoleId = $playerGame['game']['ConsoleID'];
-            $gameKind = $this->deriveGameKindFromTitle($playerGame['game']['Title']);
+            $gameKind = $this->determineGameKind($playerGame['game']['Title'], $gameConsoleId);
             $statTypeKey = $gameKindToStatType[$gameKind] ?? PlayerStatType::GamesBeatenHardcoreRetail;
 
             // Update the overall aggregates.
@@ -117,7 +118,7 @@ class UpdatePlayerStats
         PlayerStat::where('user_id', $user->ID)->delete();
     }
 
-    private function deriveGameKindFromTitle(string $gameTitle): string
+    private function determineGameKind(string $gameTitle, int $gameConsoleId): string
     {
         $sanitizedTitle = mb_strtolower($gameTitle);
         $gameKinds = [
@@ -131,6 +132,12 @@ class UpdatePlayerStats
         foreach ($gameKinds as $keyword => $kind) {
             if (str_contains($sanitizedTitle, $keyword)) {
                 return $kind;
+            }
+
+            // Some consoles were never sold in stores and are considered "homebrew".
+            // Their games fall back to "homebrew" rather than "retail".
+            if (System::isHomebrewSystem($gameConsoleId)) {
+                return 'homebrew';
             }
         }
 
