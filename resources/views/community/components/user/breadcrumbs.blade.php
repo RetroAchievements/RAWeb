@@ -1,5 +1,7 @@
 @props([
     'targetUsername' => '',
+    'parentPage' => '',
+    'parentPageUrl' => '',
     'currentPage' => '',
 ])
 
@@ -11,6 +13,10 @@
     @else
         <a href="{{ route('user.show', $targetUsername) }}">{{ $targetUsername }}</a>
         &raquo;
+        @if (!empty($parentPage))
+            <a href="{!! $parentPageUrl !!}">{{ $parentPage }}</a>
+            &raquo;
+        @endif
         <span class="font-bold">{{ $currentPage }}</span>
     @endif
 </div>

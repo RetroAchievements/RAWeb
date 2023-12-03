@@ -158,6 +158,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         "LastLogin",
         "avatarUrl",
         'Created',
+        'UnreadMessageCount',
     ];
 
     protected $appends = [

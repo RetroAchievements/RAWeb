@@ -11,7 +11,6 @@ require_once __DIR__ . '/database/forum.php';
 require_once __DIR__ . '/database/game.php';
 require_once __DIR__ . '/database/hash.php';
 require_once __DIR__ . '/database/leaderboard.php';
-require_once __DIR__ . '/database/message.php';
 require_once __DIR__ . '/database/player-achievement.php';
 require_once __DIR__ . '/database/player-game.php';
 require_once __DIR__ . '/database/player-history.php';

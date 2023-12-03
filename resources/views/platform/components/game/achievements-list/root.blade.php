@@ -2,8 +2,6 @@
     'achievements' => [],
     'beatenGameCreditDialogContext' => 's:|h:',
     'totalPlayerCount' => 0,
-    'progressionTypeValue' => 'progression', // `AchievementType`
-    'winConditionTypeValue' => 'win_condition', // `AchievementType`
     'isCreditDialogEnabled' => true,
     'showAuthorNames' => false,
 ])
@@ -16,10 +14,6 @@ $unlockedAchievements = array_filter($achievements, function ($achievement) {
 $lockedAchievements = array_filter($achievements, function ($achievement) {
     return empty($achievement['DateEarned']) && empty($achievement['DateEarnedHardcore']);
 });
-
-$winConditionAchievements = array_filter($achievements, function ($achievement) use ($winConditionTypeValue) {
-    return isset($achievement['type']) && $achievement['type'] === $winConditionTypeValue;
-});
 ?>
 
 @if (count($achievements) > 0)
@@ -29,10 +23,8 @@ $winConditionAchievements = array_filter($achievements, function ($achievement) 
                 :achievement="$achievement"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                 :isCreditDialogEnabled="$isCreditDialogEnabled"
-                :progressionTypeValue="$progressionTypeValue"
                 :showAuthorName="$showAuthorNames"
                 :totalPlayerCount="$totalPlayerCount"
-                :winConditionTypeValue="$winConditionTypeValue"
             />
         @endforeach
 
@@ -41,10 +33,8 @@ $winConditionAchievements = array_filter($achievements, function ($achievement) 
                 :achievement="$achievement"
                 :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                 :isCreditDialogEnabled="$isCreditDialogEnabled"
-                :progressionTypeValue="$progressionTypeValue"
                 :showAuthorName="$showAuthorNames"
                 :totalPlayerCount="$totalPlayerCount"
-                :winConditionTypeValue="$winConditionTypeValue"
             />
         @endforeach
     </ul>
