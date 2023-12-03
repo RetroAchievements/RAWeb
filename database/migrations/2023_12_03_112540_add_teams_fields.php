@@ -32,7 +32,8 @@ return new class() extends Migration {
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable()->after('id');
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
 
-                $table->dropUnique('roles_name_guard_name_unique');
+                // NOTE: unique index was not included previously
+                // $table->dropUnique('roles_name_guard_name_unique');
                 $table->unique([$columnNames['team_foreign_key'], 'name', 'guard_name']);
             });
         }
