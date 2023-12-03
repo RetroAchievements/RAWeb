@@ -91,9 +91,9 @@ if ($action === 'manual-unlock') {
 }
 
 if ($action === 'copy-unlocks') {
-    $fromAchievementIds = explode(',', requestInputSanitized('s'));
+    $fromAchievementIds = separateList(requestInputSanitized('s'));
     $fromAchievementCount = count($fromAchievementIds);
-    $toAchievementIds = explode(',', requestInputSanitized('a'));
+    $toAchievementIds = separateList(requestInputSanitized('a'));
 
     // determine which players have earned all of the required achievements
     $existing = PlayerAchievement::whereIn('achievement_id', $fromAchievementIds)

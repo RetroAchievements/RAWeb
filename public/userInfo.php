@@ -485,8 +485,7 @@ RenderContentStart($userPage);
     }
 
     $canShowProgressionStatusComponent =
-        config('feature.beat')
-        && !empty($userCompletedGamesList)
+        !empty($userCompletedGamesList)
         // Needs at least one non-event game.
         && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
 
