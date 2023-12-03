@@ -1,8 +1,8 @@
-import Alpine from 'alpinejs';
-import focus from '@alpinejs/focus';
 // eslint-disable-next-line camelcase,import/no-unresolved
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
+// eslint-disable-next-line import/no-unresolved
+import { Livewire } from 'livewire';
 import {
   hideEarnedCheckboxComponent,
   modalComponent,
@@ -56,12 +56,15 @@ window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
 window.tooltipComponent = tooltipComponent;
 
-// Alpine needs to be placed after all `window` injection
-// or race conditions could occur.
-document.addEventListener('DOMContentLoaded', () => {
-  window.Alpine = Alpine;
-  Alpine.plugin(focus);
-  Alpine.start();
-});
+// https://livewire.laravel.com/docs/alpine#manually-bundling-alpine-in-your-javascript-build
+// Alpine.directive('clipboard', (el) => {
+//   const text = el.textContent;
+//
+//   el.addEventListener('click', () => {
+//     navigator.clipboard.writeText(text);
+//   });
+// });
+
+Livewire.start();
 
 themeChange();

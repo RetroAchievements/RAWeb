@@ -177,7 +177,7 @@ final class ShortcodeTest extends TestCase
         );
     }
 
-    public function youtubeUrlProvider(): array
+    public static function youtubeUrlProvider(): array
     {
         // ["given", "expected"]
         return [

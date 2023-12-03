@@ -17,19 +17,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Cloud Filesystem Disk
-    |--------------------------------------------------------------------------
-    |
-    | Many applications store files both locally and in the cloud. For this
-    | reason, you may specify a default "cloud" driver here. This driver
-    | will be bound as the Cloud disk implementation in the container.
-    |
-    */
-
-    'cloud' => env('FILESYSTEM_CLOUD', 's3'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -81,14 +68,15 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? 'http://minio:9000' : env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
             'throw' => false,
             'options' => [
                 'CacheControl' => 'max-age=2628000, no-transform, public',
             ],
             // enable minio as aws s3 drop-in replacement
-            'use_path_style_endpoint' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
             'minio' => env('APP_ENV') === 'local' && env('LARAVEL_SAIL') ? true : env('AWS_MINIO', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
         ],
+
     ],
 
     /*

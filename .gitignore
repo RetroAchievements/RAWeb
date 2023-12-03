@@ -2,7 +2,7 @@
 /docker/nginx/logs
 /docs/dist
 /node_modules
-/public/db
+/public/build
 /public/hot
 /public/Badge
 /public/Images
@@ -21,8 +21,8 @@
 /storage/backup
 /storage/media-library
 /vendor
-/tests/http/http-client.private.env.json
 /tmp
+/.fleet
 /.idea
 /.project
 /.settings
@@ -42,6 +42,7 @@ yarn-error.log
 .deptrac.cache
 .eslintcache
 .phpstorm.meta.php
+.phpunit.cache
 .phpunit.result.cache
 _ide_helper.php
 _ide_helper_models.php

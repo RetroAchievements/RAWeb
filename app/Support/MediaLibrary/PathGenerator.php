@@ -49,7 +49,7 @@ class PathGenerator implements \Spatie\MediaLibrary\Support\PathGenerator\PathGe
          * replace dots that may indicate a sub-resource with a slash to make sub-directories
          */
         $type = str_replace('.', '/', $media->model_type);
-        $hashId = $this->optimus->encode($media->model_id);
+        $hashId = $this->optimus->encode((int) $media->model_id);
         $prefixFolder = mb_substr((string) $hashId, 0, 3);
         $sha1 = $media->getCustomProperty('sha1');
 

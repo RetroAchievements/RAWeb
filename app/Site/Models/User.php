@@ -174,6 +174,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'email_verified_at' => 'datetime',
         'muted_until' => 'datetime',
         'unranked_at' => 'datetime',
+        'password' => 'hashed',
         'RAPoints' => 'integer',
         'RASoftcorePoints' => 'integer',
         'TrueRAPoints' => 'integer',

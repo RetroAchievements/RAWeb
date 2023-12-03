@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
+    /**
+     * The model to policy mappings for the application.
+     *
+     * @var array<class-string, class-string>
+     */
     protected $policies = [
         /*
          * Account Policies
@@ -21,14 +26,8 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
     ];
 
-    public function register()
-    {
-    }
-
     public function boot(): void
     {
-        $this->registerPolicies();
-
         /*
          * passport api
          * http://esbenp.github.io/2017/03/19/modern-rest-api-laravel-part-4/

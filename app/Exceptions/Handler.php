@@ -18,16 +18,12 @@ use Throwable;
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of the exception types that are not reported.
-     */
-    protected $dontReport = [
-
-    ];
-
-    /**
-     * A list of the inputs that are never flashed for validation exceptions.
+     * The list of the inputs that are never flashed to the session on validation exceptions.
+     *
+     * @var array<int, string>
      */
     protected $dontFlash = [
+        'current_password',
         'password',
         'password_confirmation',
     ];
@@ -35,8 +31,11 @@ class Handler extends ExceptionHandler
     /**
      * Register the exception handling callbacks for the application.
      */
-    public function register()
+    public function register(): void
     {
+        $this->reportable(function (Throwable $e) {
+
+        });
     }
 
     /**
@@ -44,12 +43,12 @@ class Handler extends ExceptionHandler
      *
      * @throws Throwable
      */
-    public function report(Throwable $e)
+    public function report(Throwable $e): void
     {
         parent::report($e);
     }
 
-    protected function buildExceptionContext(Throwable $e)
+    protected function buildExceptionContext(Throwable $e): array
     {
         $context = parent::buildExceptionContext($e);
 

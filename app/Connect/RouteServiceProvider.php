@@ -15,13 +15,10 @@ class RouteServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->configureRateLimiting();
-    }
-
-    protected function configureRateLimiting(): void
-    {
         // TODO setup rate limiting
-        // RateLimiter::for('connect', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
+        // RateLimiter::for('connect', function (Request $request) {
+        //     return Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip());
+        // });
     }
 
     public function map(): void
