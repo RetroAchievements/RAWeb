@@ -59,6 +59,7 @@ $achievement = [
     'Author' => $achievementData['Author'] ?? null,
     'DateCreated' => $achievementData['DateCreated'] ?? null,
     'DateModified' => $achievementData['DateModified'] ?? null,
+    'Type' => $achievementData['type'] ?? null,
 ];
 
 $game = [
