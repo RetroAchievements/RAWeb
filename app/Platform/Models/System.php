@@ -69,12 +69,25 @@ class System extends BaseModel implements HasMedia
 
     // == constants
 
+    public const Arduboy = 71;
+    public const WASM4 = 72;
+    public const Uzebox = 80;
     public const Hubs = 100;
     public const Events = 101;
+
+    public static function getHomebrewSystems(): array
+    {
+        return [System::Arduboy, System::WASM4, System::Uzebox];
+    }
 
     public static function isGameSystem(int $type): bool
     {
         return $type != System::Hubs && $type != System::Events;
+    }
+
+    public static function isHomebrewSystem(int $type): bool
+    {
+        return in_array($type, self::getHomebrewSystems());
     }
 
     // == media
