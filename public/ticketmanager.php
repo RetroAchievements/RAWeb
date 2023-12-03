@@ -140,10 +140,9 @@ RenderContentStart($pageTitle);
                 echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
                 if (!empty($achievementIDGiven)) {
                     echo " &raquo; " . Blade::render('
-                        <x-achievement.title :rawTitle="$rawTitle" :isDisplayingTags="$isDisplayingTags" />
+                        <x-achievement.title :rawTitle="$rawTitle" />
                     ', [
                         'rawTitle' => $achievementTitle,
-                        'isDisplayingTags' => false,
                     ]);
                 }
             }
@@ -726,10 +725,10 @@ RenderContentStart($pageTitle);
                 echo "<td>Reporter:</td>";
                 echo "<td colspan='7'>";
                 echo "<div>";
-                $msgPayload = "Hi [user=$reportedBy], I'm contacting you about ticket retroachievements.org/ticketmanager.php?i=$ticketID ";
+                $msgPayload = "Hi [user=$reportedBy], I'm contacting you about [ticket=$ticketID]";
                 $msgPayload = rawurlencode($msgPayload);
                 $msgTitle = rawurlencode("Bug Report ($gameTitle)");
-                echo "<a href='createmessage.php?t=$reportedBy&amp;s=$msgTitle&p=$msgPayload'>Contact the reporter - $reportedBy</a>";
+                echo "<a href='" . route('message.create') . "?to=$reportedBy&subject=$msgTitle&message=$msgPayload'>Contact the reporter - $reportedBy</a>";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";

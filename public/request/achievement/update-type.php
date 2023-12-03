@@ -23,9 +23,13 @@ $value = $input['type'];
 
 $foundAchievements = Achievement::find($achievementIds);
 
-// Don't allow adding types to subsets or test kits.
+// Don't allow adding beaten types to subsets or test kits.
 $game = Game::find($foundAchievements->get(0)->GameID);
-if ($game && !$game->getCanHaveTypes()) {
+if (
+    $game
+    && !$game->getCanHaveBeatenTypes()
+    && ($value === AchievementType::Progression || $value === AchievementType::WinCondition)
+) {
     abort(400);
 }
 
@@ -42,6 +46,9 @@ if (updateAchievementType($achievementIds, $value)) {
     }
     if ($value === AchievementType::WinCondition) {
         $commentText = "set this achievement's type to Win Condition";
+    }
+    if ($value === AchievementType::Missable) {
+        $commentText = "set this achievement's type to Missable";
     }
     if (!$value) {
         $commentText = "removed this achievement's type";

@@ -308,6 +308,15 @@ class Achievement extends BaseModel implements HasComments
      * @param Builder<Achievement> $query
      * @return Builder<Achievement>
      */
+    public function scopeMissable(Builder $query): Builder
+    {
+        return $this->scopeType($query, AchievementType::Missable);
+    }
+
+    /**
+     * @param Builder<Achievement> $query
+     * @return Builder<Achievement>
+     */
     public function scopeWithUnlocksByUser(Builder $query, User $user): Builder
     {
         $query->leftJoin('player_achievements', function ($join) use ($user) {

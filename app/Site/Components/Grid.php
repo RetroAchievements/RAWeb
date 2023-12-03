@@ -63,10 +63,8 @@ abstract class Grid extends Component
 
     public ?int $take = null;
 
-    public function __construct(string $id)
+    public function __construct()
     {
-        parent::__construct($id);
-
         /*
          * manually initialize trait-likes that are not in traits anymore
          */

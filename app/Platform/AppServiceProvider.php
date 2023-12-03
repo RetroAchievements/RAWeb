@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Platform\Commands\DeleteOrphanedLeaderboardEntries;
+use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SyncAchievements;
@@ -67,6 +68,9 @@ class AppServiceProvider extends ServiceProvider
 
                 // Game Hashes
                 NoIntroImport::class,
+
+                // Achievements
+                MigrateMissableAchievementsToType::class,
 
                 // Leaderboards
                 UpdateLeaderboardMetrics::class,

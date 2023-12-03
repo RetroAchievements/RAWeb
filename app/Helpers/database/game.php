@@ -65,8 +65,9 @@ function getGameMetadata(
             CASE
                 WHEN ach.type = 'progression' THEN 0
                 WHEN ach.type = 'win_condition' THEN 1
-                WHEN ach.type IS NULL THEN 2
-                ELSE 3
+                WHEN ach.type = 'missable' THEN 2
+                WHEN ach.type IS NULL THEN 3
+                ELSE 4
             END,
             ach.DisplayOrder,
             ach.ID ASC ",
@@ -75,8 +76,9 @@ function getGameMetadata(
             CASE
                 WHEN ach.type = 'progression' THEN 0
                 WHEN ach.type = 'win_condition' THEN 1
-                WHEN ach.type IS NULL THEN 2
-                ELSE 3
+                WHEN ach.type = 'missable' THEN 2
+                WHEN ach.type IS NULL THEN 3
+                ELSE 4
             END DESC,
             ach.DisplayOrder DESC,
             ach.ID DESC ",

@@ -62,4 +62,11 @@ class AchievementFactory extends Factory
             'type' => AchievementType::WinCondition,
         ]);
     }
+
+    public function missable(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => AchievementType::Missable,
+        ]);
+    }
 }

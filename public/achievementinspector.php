@@ -31,7 +31,7 @@ $consoleName = null;
 $gameIcon = null;
 $gameTitle = null;
 $gameIDSpecified = isset($gameID) && $gameID != 0;
-$canHaveTypes = false;
+$canHaveBeatenTypes = false;
 if ($gameIDSpecified) {
     getGameMetadata($gameID, null, $achievementData, $gameData, 0, null, $flag);
     $gameTitle = $gameData['Title'];
@@ -41,7 +41,7 @@ if ($gameIDSpecified) {
 
     getCodeNotes($gameID, $codeNotes);
 
-    $canHaveTypes = (
+    $canHaveBeatenTypes = (
         mb_strpos($gameTitle, "[Subset") === false
         && mb_strpos($gameTitle, "~Test Kit~") === false
         && $gameData['ConsoleID'] !== 101
@@ -102,7 +102,7 @@ if ($gameIDSpecified) {
             </p>
         HTML;
 
-        if ($canHaveTypes) {
+        if ($canHaveBeatenTypes) {
             echo <<<HTML
                 <p align="justify">
                     You can mark multiple achievements as '$progressionLabel' or '$winConditionLabel'. To do this, check the desired
@@ -192,7 +192,7 @@ if ($gameIDSpecified) {
 
         $typeLabelClassNames = !$achType ? "text-muted" : "";
 
-        if ($canHaveTypes) {
+        if ($canHaveBeatenTypes) {
             echo <<<HTML
                 <tr class="$bgColorClassNames[$currentBgColorIndex]">
                     <td><span class="font-bold">Type:</span></td>
@@ -258,13 +258,13 @@ if ($gameIDSpecified) {
     echo "<div>";
     echo Blade::render('
         <x-developer.inspector-toolbox
-            :canHaveTypes="$canHaveTypes"
+            :canHaveBeatenTypes="$canHaveBeatenTypes"
             :gameId="$gameId"
             :isManagingCoreAchievements="$isManagingCoreAchievements"
             :modificationLevel="$modificationLevel"
         />
     ', [
-        'canHaveTypes' => $canHaveTypes,
+        'canHaveBeatenTypes' => $canHaveBeatenTypes,
         'gameId' => $gameID,
         'isManagingCoreAchievements' => $flag === AchievementFlag::OfficialCore,
         'modificationLevel' => $modificationLevel,

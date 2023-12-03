@@ -18,14 +18,18 @@ class RouteServiceProvider extends ServiceProvider
     use HandlesPublicFileRequests;
 
     /**
-     * The path to the "home" route for your application.
+     * The path to your application's "home" route.
+     *
      * Typically, users are redirected here after authentication.
      */
     public const HOME = '/';
 
     public function boot(): void
     {
-        $this->configureRateLimiting();
+        // TODO setup rate limiting
+        // RateLimiter::for('web', function (Request $request) {
+        //     return Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip());
+        // });
 
         /*
          * sanitize route model binding patterns
@@ -47,12 +51,6 @@ class RouteServiceProvider extends ServiceProvider
         //
         //     return $query->firstOrFail();
         // });
-    }
-
-    protected function configureRateLimiting(): void
-    {
-        // TODO setup rate limiting
-        // RateLimiter::for('web', fn (Request $request) => Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip()));
     }
 
     public function map(): void

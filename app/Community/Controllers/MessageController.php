@@ -4,47 +4,64 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Models\Message;
+use App\Community\Actions\AddToMessageThreadAction;
+use App\Community\Actions\CreateMessageThreadAction;
+use App\Community\Models\MessageThread;
+use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
+use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
 {
-    public function index(Request $request): View
+    public function create(Request $request): View
     {
-        $messages = Message::where('recipient_id', $request->user()->id)
-            ->orWhere('sender_id', $request->user()->id)
-            ->with(['sender', 'recipient'])
-            ->orderByDesc('sent_at')
-            ->paginate();
+        $toUser = $request->input('to') ?? '';
+        $subject = $request->input('subject') ?? '';
+        $message = $request->input('message') ?? '';
 
-        return view('message.index')
-            ->with('messages', $messages);
+        return view('community.message.create', [
+            'toUser' => $toUser,
+            'subject' => $subject,
+            'message' => $message,
+        ]);
     }
 
-    public function create(): View
+    public function store(Request $request): RedirectResponse
     {
-        return view('message.create');
-    }
+        /** @var User $user */
+        $user = request()->user();
 
-    public function store(Request $request): void
-    {
-    }
+        $input = Validator::validate(Arr::wrap(request()->post()), [
+            'thread_id' => 'nullable|integer',
+            'body' => 'required|string|max:60000',
+            'title' => 'required_without:thread_id|string|max:255',
+            'recipient' => 'required_without:thread_id|exists:UserAccounts,User',
+        ]);
 
-    public function show(Message $message): void
-    {
-    }
+        if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
+            $thread = MessageThread::firstWhere('id', $input['thread_id']);
+            if (!$thread) {
+                return back()->withErrors(__('legacy.error.error'));
+            }
 
-    public function edit(Message $message): void
-    {
-    }
+            $participant = MessageThreadParticipant::withTrashed()
+                ->where('thread_id', $input['thread_id'])
+                ->where('user_id', $user->ID);
+            if (!$participant->exists()) {
+                return back()->withErrors(__('legacy.error.error'));
+            }
 
-    public function update(Request $request, Message $message): void
-    {
-    }
+            (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
+        } else {
+            $recipient = User::firstWhere('User', $input['recipient']);
+            $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
+        }
 
-    public function destroy(Message $message): void
-    {
+        return redirect(route("message-thread.show", $thread->id))->with('success', __('legacy.success.message_send'));
     }
 }
