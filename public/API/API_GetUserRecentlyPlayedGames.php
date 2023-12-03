@@ -20,6 +20,9 @@
  *    string     ScoreAchieved            number of points earned by the user in softcore
  *    int        NumAchievedHardcore      number of achievements earned by the user in hardcore
  *    string     ScoreAchievedHardcore    number of points earned by the user in hardcore
+ *    string     ImageTitle               title image for the game
+ *    string     ImageIngame              gameplay image for the game
+ *    string     ImageBoxArt              box art image for the game
  */
 
 use App\Site\Models\User;
