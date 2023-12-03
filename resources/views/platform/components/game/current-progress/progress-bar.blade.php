@@ -40,7 +40,7 @@ $completionPercentage = sprintf("%01.0f", floor($hardcoreProgressWidth + $softco
 
     <!-- Hardcore progress bar -->
     <div 
-        class="bg-yellow-600 h-full lg:rounded-bl {{ $hardcoreProgressWidth === 100 ? 'lg:rounded-br' : '' }}" 
+        class="bg-yellow-500 h-full lg:rounded-bl {{ $hardcoreProgressWidth === 100 ? 'lg:rounded-br' : '' }}" 
         style="width: {{ $hardcoreProgressWidth }}%"
     >
         <span class="sr-only">{{ $numEarnedHardcoreAchievements }} hardcore achievements</span>
