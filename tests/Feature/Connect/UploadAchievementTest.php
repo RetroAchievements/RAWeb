@@ -812,7 +812,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($game->points_total, 5);
 
         // ====================================================
-        // cannot set type on achievement in subset
+        // cannot set progression or win condition type on achievement in subset
         $params['n'] = 'Title2';
         $params['d'] = 'Description2';
         $params['z'] = 10;
@@ -823,7 +823,7 @@ class UploadAchievementTest extends TestCase
             ->assertExactJson([
                 'Success' => false,
                 'AchievementID' => $achievement2->ID,
-                'Error' => 'Cannot set type on achievement in subset, test kit, or event.',
+                'Error' => 'Cannot set progression or win condition type on achievement in subset, test kit, or event.',
             ]);
 
         // ====================================================

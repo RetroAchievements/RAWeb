@@ -210,8 +210,11 @@ function UploadNewAchievement(
         );
         $isEventGame = $gameData['ConsoleID'] == 101;
 
-        if ($isForSubsetOrTestKit || $isEventGame) {
-            $errorOut = "Cannot set type on achievement in subset, test kit, or event.";
+        if (
+            ($isForSubsetOrTestKit || $isEventGame)
+            && ($type === AchievementType::Progression || $type === AchievementType::WinCondition)
+        ) {
+            $errorOut = "Cannot set progression or win condition type on achievement in subset, test kit, or event.";
 
             return false;
         }
@@ -415,7 +418,7 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): void
 
     $achievements->update(['Flags' => $newFlag]);
 
-    $updatedAchievements = $achievements->get();
+    $updatedAchievements = Achievement::whereIn('ID', $achievementIDs)->get();
 
     foreach ($updatedAchievements as $achievement) {
         if ($newFlag === AchievementFlag::OfficialCore) {

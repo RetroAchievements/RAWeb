@@ -73,7 +73,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->assertEquals($game->id, $overallStats->last_game_id);
         $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $overallStats->type);
         $this->assertEquals(1, $overallStats->value);
-        $this->assertEquals(Carbon::create(2023, 1, 1), $overallStats->updated_at);
+        $this->assertEquals(Carbon::create(2023, 1, 1), $overallStats->stat_updated_at);
 
         $systemStats = $userStats->whereNotNull('system_id')->first();
         $this->assertEquals($system->ID, $systemStats->system_id);
@@ -81,7 +81,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->assertEquals($game->id, $systemStats->last_game_id);
         $this->assertEquals(PlayerStatType::GamesBeatenHardcoreRetail, $systemStats->type);
         $this->assertEquals(1, $systemStats->value);
-        $this->assertEquals(Carbon::create(2023, 1, 1), $systemStats->updated_at);
+        $this->assertEquals(Carbon::create(2023, 1, 1), $systemStats->stat_updated_at);
     }
 
     public function testItUpsertsDifferentTypesOfStats(): void
@@ -171,6 +171,34 @@ class UpdatePlayerStatsTest extends TestCase
         $this->assertCount(0, $userStats);
     }
 
+    public function testItHandlesHomebrewSystems(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        $homebrewSystemOne = System::factory()->create(['ID' => 71]);
+        $homebrewSystemTwo = System::factory()->create(['ID' => 72]);
+        $homebrewSystemThree = System::factory()->create(['ID' => 80]);
+
+        $gameOne = Game::factory()->create(['ConsoleID' => $homebrewSystemOne->ID]);
+        $gameTwo = Game::factory()->create(['ConsoleID' => $homebrewSystemTwo->ID]);
+        $gameThree = Game::factory()->create(['ConsoleID' => $homebrewSystemThree->ID]);
+
+        $this->addGameBeatenAward($user, $gameOne, UnlockMode::Hardcore);
+        $this->addGameBeatenAward($user, $gameTwo, UnlockMode::Hardcore);
+        $this->addGameBeatenAward($user, $gameThree, UnlockMode::Hardcore);
+
+        // Act
+        (new UpdatePlayerStats())->execute($user);
+
+        // Assert
+        $userRetailStats = PlayerStat::where('user_id', $user->id)->where('type', 'games_beaten_hardcore_retail')->get();
+        $userHomebrewStats = PlayerStat::where('user_id', $user->id)->where('type', 'games_beaten_hardcore_homebrew')->get();
+
+        $this->assertCount(0, $userRetailStats);
+        $this->assertCount(4, $userHomebrewStats);
+    }
+
     protected function assertPlayerStatDetails(
         mixed $playerStats,
         int $gameId,
@@ -183,6 +211,6 @@ class UpdatePlayerStatsTest extends TestCase
 
         $stat = $query->first();
         $this->assertNotNull($stat);
-        $this->assertEquals($expectedDate->toDateTimeString(), $stat->updated_at->toDateTimeString());
+        $this->assertEquals($expectedDate->toDateTimeString(), $stat->stat_updated_at->toDateTimeString());
     }
 }

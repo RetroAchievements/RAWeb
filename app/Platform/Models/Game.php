@@ -165,7 +165,7 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     // == accessors
 
-    public function getCanHaveTypes(): bool
+    public function getCanHaveBeatenTypes(): bool
     {
         $isSubsetOrTestKit = (
             mb_strpos($this->Title, "[Subset") !== false

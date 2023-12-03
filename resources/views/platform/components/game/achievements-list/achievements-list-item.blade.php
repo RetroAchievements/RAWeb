@@ -2,8 +2,6 @@
     'achievement' => [],
     'beatenGameCreditDialogContext' => 's:|h:',
     'totalPlayerCount' => 0,
-    'progressionTypeValue' => 'progression', // `AchievementType`
-    'winConditionTypeValue' => 'win_condition', // `AchievementType`
     'useMinimalLayout' => false,
     'isUnlocked' => false,
     'isUnlockedHardcore' => false,
@@ -67,21 +65,17 @@ if (isset($achievement['DateEarnedHardcore'])) {
                     @endif
                 </div>
 
-                @hasfeature("beat")
-                    @if ($achievement['type'] && !$useMinimalLayout)
-                        <div class="flex items-center gap-x-1 md:hidden -mt-1.5">
-                            <div class="-mt-1.5">
-                                <x-game.achievements-list.type-indicator
-                                    :achievementType="$achievement['type']"
-                                    :progressionTypeValue="$progressionTypeValue"
-                                    :winConditionTypeValue="$winConditionTypeValue"
-                                    :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                                    :isCreditDialogEnabled="$isCreditDialogEnabled"
-                                />
-                            </div>
+                @if ($achievement['type'] && !$useMinimalLayout)
+                    <div class="flex items-center gap-x-1 md:hidden -mt-1.5">
+                        <div class="-mt-1.5">
+                            <x-game.achievements-list.type-indicator
+                                :achievementType="$achievement['type']"
+                                :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                                :isCreditDialogEnabled="$isCreditDialogEnabled"
+                            />
                         </div>
-                    @endif
-                @endhasfeature
+                    </div>
+                @endif
             </div>
 
             <p class="leading-4">
@@ -106,19 +100,15 @@ if (isset($achievement['DateEarnedHardcore'])) {
         </div>
 
         <div class="md:col-span-2 md:flex md:flex-col-reverse md:justify-end md:pt-1 md:gap-y-1">
-            @hasfeature("beat")
-                @if ($achievement['type'] && !$useMinimalLayout)
-                    <div class="hidden md:flex items-center justify-end gap-x-1">
-                        <x-game.achievements-list.type-indicator
-                            :achievementType="$achievement['type']"
-                            :progressionTypeValue="$progressionTypeValue"
-                            :winConditionTypeValue="$winConditionTypeValue"
-                            :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                            :isCreditDialogEnabled="$isCreditDialogEnabled"    
-                        />
-                    </div>
-                @endif
-            @endhasfeature
+            @if ($achievement['type'] && !$useMinimalLayout)
+                <div class="hidden md:flex items-center justify-end gap-x-1">
+                    <x-game.achievements-list.type-indicator
+                        :achievementType="$achievement['type']"
+                        :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
+                        :isCreditDialogEnabled="$isCreditDialogEnabled"    
+                    />
+                </div>
+            @endif
 
             @if (!$useMinimalLayout)
                 <x-game.achievements-list.list-item-global-progress

@@ -48,6 +48,10 @@ $menuSystemsList = [
             ["systemName" => "PC-8000/8800", "listID" => 47],
             ["systemName" => "PC-FX", "listID" => 49],
         ],
+        "SNK" => [
+            ["systemName" => "Neo Geo CD", "listID" => 56],
+            ["systemName" => "Neo Geo Pocket", "listID" => 14],
+        ],
     ],
     [
         "Other" => [
@@ -65,8 +69,6 @@ $menuSystemsList = [
             ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
             ["systemName" => "Mega Duck", "listID" => 69],
             ["systemName" => "MSX", "listID" => 29],
-            ["systemName" => "Neo Geo CD", "listID" => 56],
-            ["systemName" => "Neo Geo Pocket", "listID" => 14],
             ["systemName" => "Uzebox", "listID" => 80],
             ["systemName" => "Vectrex", "listID" => 46],
             ["systemName" => "WASM-4", "listID" => 72],
@@ -152,9 +154,7 @@ $menuSystemsList = [
     <div class="dropdown-divider"></div>
     <x-dropdown-item :link="url('userList.php')">{{ __res('user') }}</x-dropdown-item>
     <x-dropdown-item :link="url('globalRanking.php')">Global Points Ranking</x-dropdown-item>
-    @hasfeature("beat")
-        <x-dropdown-item :link="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>
-    @endhasfeature
+    <x-dropdown-item :link="route('ranking.beaten-games')">Global Beaten Games Ranking</x-dropdown-item>
     <x-dropdown-item :link="url('recentMastery.php')">Recent Game Awards</x-dropdown-item>
     <x-dropdown-item :link="url('developerstats.php')">Developer Stats</x-dropdown-item>
     <div class="dropdown-divider"></div>

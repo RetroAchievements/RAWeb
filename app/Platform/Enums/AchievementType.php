@@ -10,11 +10,14 @@ abstract class AchievementType
 
     public const WinCondition = 'win_condition';
 
+    public const Missable = 'missable';
+
     public static function cases(): array
     {
         return [
             self::Progression,
             self::WinCondition,
+            self::Missable,
         ];
     }
 

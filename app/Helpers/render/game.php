@@ -30,6 +30,7 @@ function gameAvatar(
 
             sanitize_outputs($title);   // sanitize before rendering HTML
             $label = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $title]);
+            $label = preg_replace('/\s+/', ' ', $label);
         }
 
         if ($icon === null) {
@@ -183,7 +184,7 @@ function RenderGameSort(
         // }
         echo "<a href='/game/$gameID?$flagParam&s=$sort4'>Points$mark4</a> - ";
         echo "<a href='/game/$gameID?$flagParam&s=$sort5'>Title$mark5</a>";
-        if (config('feature.beat') && $canSortByType) {
+        if ($canSortByType) {
             echo " - ";
             echo "<a href='/game/$gameID?$flagParam&s=$sort6'>Type$mark6</a>";
         }

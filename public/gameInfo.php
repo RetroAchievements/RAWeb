@@ -567,7 +567,7 @@ sanitize_outputs(
                     'height': '78%'
                 },
                 height: 260,
-                colors: ['#cc9900', '#186DEE'],
+                colors: ['#cc9900', '#737373'],
                 pointSize: 4,
             };
 
@@ -833,7 +833,7 @@ sanitize_outputs(
         ', [
             'beatenGameCreditDialogContext' => $beatenGameCreditDialogContext,
             'gameId' => $gameID,
-            'isBeatable' => $isGameBeatable && config('feature.beat') === true,
+            'isBeatable' => $isGameBeatable,
             'isBeatenHardcore' => $isBeatenHardcore,
             'isBeatenSoftcore' => $isBeatenSoftcore,
             'isCompleted' => !is_null($userGameProgressionAwards['completed']),
@@ -1343,19 +1343,15 @@ sanitize_outputs(
                         :achievements="$achievements"
                         :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
                         :isCreditDialogEnabled="$isCreditDialogEnabled"
-                        :progressionTypeValue="$progressionTypeValue"
                         :showAuthorNames="$showAuthorNames"
                         :totalPlayerCount="$totalPlayerCount"
-                        :winConditionTypeValue="$winConditionTypeValue"
                     />
                 ', [
                     'achievements' => $achievementData,
                     'beatenGameCreditDialogContext' => $beatenGameCreditDialogContext,
                     'isCreditDialogEnabled' => $user && $flagParam != $unofficialFlag,
-                    'progressionTypeValue' => AchievementType::Progression,
                     'showAuthorNames' => !$isOfficial && isset($user) && $permissions >= Permissions::JuniorDeveloper,
                     'totalPlayerCount' => $numDistinctPlayers,
-                    'winConditionTypeValue' => AchievementType::WinCondition,
                 ]);
             }
         }

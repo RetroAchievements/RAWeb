@@ -10,8 +10,10 @@
 ])
 
 <div
-    x-data="window.modalComponent('{{ $resourceApiRoute }}', '{{ $resourceId }}', '{{ $resourceContext }}')"
-    @keydown.escape.window="closeModal"
+    @if (!$disabled)
+        x-data="window.modalComponent('{{ $resourceApiRoute }}', '{{ $resourceId }}', '{{ $resourceContext }}')"
+        @keydown.escape.window="closeModal"
+    @endif
     class="relative w-auto h-auto inline"
 >
     @isset ($trigger)
