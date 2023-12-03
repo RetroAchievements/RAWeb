@@ -165,7 +165,7 @@ function getRecentlyPlayedGames(string $user, int $offset, int $count, ?array &$
             return 0;
         }
 
-        $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon
+        $query = "SELECT gd.ID AS GameID, gd.ConsoleID, c.Name AS ConsoleName, gd.Title, gd.ImageIcon, gd.ImageTitle, gd.ImageIngame, gd.ImageBoxArt
                   FROM GameData AS gd LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
                   WHERE gd.ID IN ($recentlyPlayedGameIDs)";
 
