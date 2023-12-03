@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Site;
 
 use App\Site\Controllers\ContentController;
+use App\Site\Controllers\DownloadController;
 use App\Site\Controllers\HomeController;
 use App\Site\Controllers\RedirectController;
 use App\Site\Controllers\UserController;
@@ -71,7 +72,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::get('rss-{feed}', fn ($feed) => $this->handleRequest('rss-' . $feed . '.xml'));
 
         Route::middleware(['web', 'csp'])->group(function () {
-            Route::get('download.php', fn () => $this->handlePageRequest('download'))->name('download.index');
+//            Route::get('download.php', fn () => $this->handlePageRequest('download'))->name('download.index');
             Route::get('gameList.php', fn () => $this->handlePageRequest('gameList'))->name('game.index');
             Route::post('{path}.php', fn (string $path) => $this->handleRequest($path))->where('path', '(.*)');
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
@@ -91,7 +92,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('demo', [ContentController::class, 'demo'])->name('demo');
             Route::get('demo/error/{code}', [ContentController::class, 'errorDemo'])->name('demo.error');
             Route::get('terms', [ContentController::class, 'terms'])->name('terms');
-            // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
+             Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
             // Route::get('feed', [FeedController::class, 'index'])->name('feed.index');
             // Route::get('rss', [RssController::class, 'index'])->name('rss.index');
             // Route::get('rss/{resource}', [RssController::class, 'show'])->name('rss.show');

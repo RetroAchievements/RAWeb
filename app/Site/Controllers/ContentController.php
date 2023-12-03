@@ -40,4 +40,18 @@ class ContentController extends Controller
         return view('errors.' . $code)
             ->with('exception', new Exception('', $code));
     }
+
+    public function download(): View
+    {
+        $emulators = getActiveEmulatorReleases();
+        usort($emulators, function ($a, $b) {
+            return strcasecmp($a['handle'], $b['handle']);
+        });
+
+        foreach ($emulators as &$emulator) {
+            sort($emulator['systems']);
+        }
+
+        return view('download', ['emulators' => $emulators]);
+    }
 }
