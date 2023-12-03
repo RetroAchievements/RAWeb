@@ -17,7 +17,7 @@ $loading ??= false;
             </label>
         </span>
     @endif
-    <input wire:model.debounce.500ms="search"
+    <input wire:model.live.debounce.500ms="search"
            name="search"
            {{ $autoFocus ? 'autofocus' : '' }}
            type="search"

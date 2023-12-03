@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Community\Concerns;
 
-use App\Community\Models\Message;
+use App\Community\Enums\UserRelationship;
+use App\Community\Models\MessageThreadParticipant;
 use App\Community\Models\UserActivity;
 use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;
+use App\Community\Models\UserRelation;
 use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -65,6 +67,16 @@ trait ActsAsCommunityMember
         return $this->belongsToMany(User::class, 'Friends', 'related_user_id', 'user_id');
     }
 
+    public function isFollowing(string $username): bool
+    {
+        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Following;
+    }
+
+    public function isBlocking(string $username): bool
+    {
+        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Blocked;
+    }
+
     /**
      * @return MorphMany<UserComment>
      */
@@ -74,19 +86,11 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return HasMany<Message>
+     * @return HasMany<MessageThreadParticipant>
      */
-    public function messages(): HasMany
+    public function messageThreadParticipations(): HasMany
     {
-        return $this->hasMany(Message::class, 'recipient_id');
-    }
-
-    /**
-     * @return HasMany<Message>
-     */
-    public function unreadMessages(): HasMany
-    {
-        return $this->messages()->unread();
+        return $this->hasMany(MessageThreadParticipant::class);
     }
 
     public function getUnreadMessagesCountAttribute(): int

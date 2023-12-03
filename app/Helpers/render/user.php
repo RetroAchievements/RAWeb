@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
  */
 function userAvatar(
-    ?string $username,
+    string|User|null $user,
     ?bool $label = null,
     ?bool $icon = null,
     int $iconSize = 32,
@@ -18,35 +18,38 @@ function userAvatar(
     ?string $link = null,
     bool|string|array $tooltip = true,
 ): string {
-    if (empty($username)) {
+    if (!$user) {
         return '';
     }
 
-    $user = Cache::store('array')->remember(
-        CacheKey::buildUserCardDataCacheKey($username),
-        Carbon::now()->addMonths(3),
-        function () use ($username): ?array {
-            $foundUser = User::firstWhere('User', $username);
+    if (is_string($user)) {
+        $username = $user;
+        $user = Cache::store('array')->remember(
+            CacheKey::buildUserCardDataCacheKey($username),
+            Carbon::now()->addMonths(3),
+            function () use ($username): ?array {
+                $foundUser = User::firstWhere('User', $username);
 
-            return $foundUser ? $foundUser->toArray() : null;
+                return $foundUser ? $foundUser->toArray() : null;
+            }
+        );
+
+        if (!$user) {
+            $userSanitized = $username;
+            sanitize_outputs($userSanitized);
+
+            $iconLabel = '';
+            if ($icon !== false && ($icon || !$label)) {
+                $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
+            }
+
+            $usernameLabel = '';
+            if ($label !== false && ($label || !$icon)) {
+                $usernameLabel = "<del>$userSanitized</del>";
+            }
+
+            return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
         }
-    );
-
-    if (!$user) {
-        $userSanitized = $username;
-        sanitize_outputs($userSanitized);
-
-        $iconLabel = '';
-        if ($icon !== false && ($icon || !$label)) {
-            $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
-        }
-
-        $usernameLabel = '';
-        if ($label !== false && ($label || !$icon)) {
-            $usernameLabel = "<del>$userSanitized</del>";
-        }
-
-        return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
     }
 
     $username = $user['User'] ?? null;

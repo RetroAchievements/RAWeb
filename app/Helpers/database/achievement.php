@@ -210,8 +210,11 @@ function UploadNewAchievement(
         );
         $isEventGame = $gameData['ConsoleID'] == 101;
 
-        if ($isForSubsetOrTestKit || $isEventGame) {
-            $errorOut = "Cannot set type on achievement in subset, test kit, or event.";
+        if (
+            ($isForSubsetOrTestKit || $isEventGame)
+            && ($type === AchievementType::Progression || $type === AchievementType::WinCondition)
+        ) {
+            $errorOut = "Cannot set progression or win condition type on achievement in subset, test kit, or event.";
 
             return false;
         }

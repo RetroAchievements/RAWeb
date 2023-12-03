@@ -14,12 +14,12 @@ class MessagePolicy
 
     public function view(User $user, Message $message): bool
     {
-        return false;
+        return true;
     }
 
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     public function update(User $user, Message $message): bool

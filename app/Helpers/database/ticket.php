@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
@@ -146,10 +147,12 @@ This ticket will be raised and will be available for all developers to inspect a
 " . config('app.url') . "/ticketmanager.php?i=$ticketID"
         . " Thanks!";
 
-    $bugReportMessage = "Hi, $achAuthor!\r\n
-[user=$username] would like to report a bug with an achievement you've created:
-$bugReportDetails";
-    CreateNewMessage($username, $achAuthor, "Bug Report ($gameTitle)", $bugReportMessage);
+    $author = User::firstWhere('User', $achAuthor);
+    if ($author) {
+        $bugReportMessage = "Hi, $achAuthor!\r\n[user=$username] would like to report a bug with an achievement you've created:\r\n$bugReportDetails";
+        (new CreateMessageThreadAction())->execute($user, $author, "Bug Report ($gameTitle)",
+            $bugReportMessage, isProxied: true); // don't put the message in the user's message list unless the recipient replies
+    }
 
     // notify subscribers other than the achievement's author
     // TODO dry it. why is this not (1 << 1) like in submitNewTicketsJSON?

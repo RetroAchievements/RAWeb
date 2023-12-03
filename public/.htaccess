@@ -5,13 +5,7 @@ Options +FollowSymLinks
         Options -MultiViews -Indexes
     </IfModule>
 
-    RewriteEngine on
-    RewriteBase /
-
-    RewriteRule ^rss-news$ rss-news.xml.php [NC,L]
-    RewriteRule ^rss-newachievements$ rss-newachievements.xml.php [NC,L]
-    RewriteRule ^rss-activity$ rss-activity.xml.php [NC,L]
-    RewriteRule ^rss-forum$ rss-forum.xml.php [NC,L]
+    RewriteEngine On
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

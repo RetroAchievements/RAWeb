@@ -4,6 +4,10 @@
 ])
 
 <?php
+if ($totalPages < 2) {
+    return;
+}
+
 $baseUrl = request()->url();
 $queryParams = request()->query();
 
