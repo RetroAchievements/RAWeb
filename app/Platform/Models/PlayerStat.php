@@ -18,13 +18,14 @@ class PlayerStat extends BaseModel
         'last_game_id',
         'type',
         'value',
-        'updated_at',
+        'stat_updated_at',
     ];
 
     protected $casts = [
         'user_id' => 'integer',
         'system_id' => 'integer',
         'last_game_id' => 'integer',
+        'stat_updated_at' => 'datetime',
         'value' => 'integer',
     ];
 
