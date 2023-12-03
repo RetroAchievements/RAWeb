@@ -80,7 +80,7 @@ return [
         'REDIS_CACHE_DB',
         'MYSQL_ATTR_SSL_CA',
         // config/feature.php
-        'FEATURE_BEAT',
+        //
         // config/filesystem.php
         'AWS_ENDPOINT',
         'AWS_URL',

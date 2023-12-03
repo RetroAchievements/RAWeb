@@ -3,8 +3,12 @@
 /*
  *  API_GetUserSummary
  *    u : username
- *    g : number of recent games to return (default: 5)
+ *    g : number of recent games to return (default: 0)
  *    a : number of recent achievements to return (default: 10)
+ *        NOTE: Recent achievements are pulled from recent games, so if you ask for
+ *              1 game and 10 achievements, and the user has only earned 8 achievements in
+ *              the most recent game, you'll only get 8 recent achievements back. Similarly,
+ *              with the default of 0 recent games, no recent achievements will be returned.
  *
  *  int        ID                      unique identifier of the user
  *  int        TotalPoints             number of hardcore points the user has
@@ -84,12 +88,12 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
-    'g' => 'nullable|integer|min:0',
+    'g' => 'nullable|integer|min:0|max:100',
     'a' => 'nullable|integer|min:0',
 ]);
 
 $user = request()->query('u');
-$recentGamesPlayed = (int) request()->query('g', '5');
+$recentGamesPlayed = (int) request()->query('g', '0');
 $recentAchievementsEarned = (int) request()->query('a', '10');
 
 $retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
@@ -108,6 +112,10 @@ $retVal['TotalRanked'] = countRankedUsers();
 if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
     unset($retVal['LastGame']['system']);
+} elseif ($recentGamesPlayed === 0) {
+    // if no games were requested, initialize empty arrays for Awarded and RecentAchievements
+    $retVal['Awarded'] = [];
+    $retVal['RecentAchievements'] = [];
 }
 
 $retVal['LastActivity'] = [

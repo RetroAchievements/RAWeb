@@ -22,10 +22,6 @@ class PlayerCompletionProgressController extends Controller
 
     public function __invoke(Request $request): View
     {
-        if (!config('feature.beat')) {
-            abort(404);
-        }
-
         $targetUsername = $request->route()->parameters['user'];
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
