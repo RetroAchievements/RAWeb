@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Community;
 
 use App\Community\Controllers\ContactController;
+use App\Community\Controllers\MessageController;
+use App\Community\Controllers\MessageThreadController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -228,11 +230,17 @@ class RouteServiceProvider extends ServiceProvider
 
                 //     // Route::get('history', [PlayerHistoryController::class, 'index'])->name('history.index');
 
-                //     /*
-                //      * inbox
-                //      */
-                //     Route::resource('message', MessageController::class)->except('index', 'edit', 'update');
-                //     Route::resource('messages', MessageController::class)->only('index')->names(['index' => 'message.index']);
+                /*
+                 * messages
+                 */
+                Route::group([
+                    'middleware' => ['auth'], // TODO add 'verified' middleware
+                ], function () {
+                    Route::resource('message', MessageController::class)->only(['create', 'store']);
+
+                    Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
+                    Route::resource('message-thread', MessageThreadController::class)->only(['show', 'destroy']);
+                });
 
                 //     /*
                 //      * tickets

@@ -82,7 +82,7 @@ $pageDescription = "View {$targetUsername}'s game completion stats and milestone
 
         @if ($totalPages > 0)
             <div class="w-full flex justify-end mt-2">
-                <x-completion-progress-page.paginator :totalPages="$totalPages" :currentPage="$currentPage" />
+                <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
             </div>
         @endif
     </div>

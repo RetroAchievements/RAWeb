@@ -248,7 +248,7 @@ RenderContentStart($userPage);
             echo "<button class='btn btn-link'>Unblock</button>";
             echo "</form>";
         }
-        echo "<a class='btn btn-link' href='/createmessage.php?t=$userPage'>Message</a>";
+        echo "<a class='btn btn-link' href='" . route('message.create') . "?to=$userPage'>Message</a>";
         echo "</div>";
 
         if ($areTheyFollowingMe) {
