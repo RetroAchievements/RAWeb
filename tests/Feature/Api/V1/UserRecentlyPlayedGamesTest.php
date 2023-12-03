@@ -48,10 +48,18 @@ class UserRecentlyPlayedGamesTest extends TestCase
         $game = Game::factory()->create([
             'ConsoleID' => $system->ID,
             'ImageIcon' => '/Images/001234.png',
+            'ImageTitle' => '/Images/000002.png',
+            'ImageIngame' => '/Images/000003.png',
+            'ImageBoxArt' => '/Images/000004.png',
         ]);
         $publishedAchievements = Achievement::factory()->published()->count(3)->create(['GameID' => $game->ID]);
         /** @var Game $game2 */
-        $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game2 = Game::factory()->create([
+            'ConsoleID' => $system->ID,
+            'ImageTitle' => '/Images/000005.png',
+            'ImageIngame' => '/Images/000006.png',
+            'ImageBoxArt' => '/Images/000007.png',
+        ]);
         /** @var User $user */
         $user = User::factory()->create();
 
@@ -80,6 +88,9 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
                     'ImageIcon' => $game2->ImageIcon,
+                    'ImageTitle' => $game2->ImageTitle,
+                    'ImageIngame' => $game2->ImageIngame,
+                    'ImageBoxArt' => $game2->ImageBoxArt,
                     'LastPlayed' => $playerGame2->last_played_at->__toString(),
                     'NumPossibleAchievements' => 0,
                     'PossibleScore' => 0,
@@ -94,6 +105,9 @@ class UserRecentlyPlayedGamesTest extends TestCase
                     'ConsoleID' => $system->ID,
                     'ConsoleName' => $system->Name,
                     'ImageIcon' => $game->ImageIcon,
+                    'ImageTitle' => $game->ImageTitle,
+                    'ImageIngame' => $game->ImageIngame,
+                    'ImageBoxArt' => $game->ImageBoxArt,
                     'LastPlayed' => $playerGame->last_played_at->__toString(),
                     'NumPossibleAchievements' => 3,
                     'PossibleScore' => $publishedAchievements->get(0)->Points +
