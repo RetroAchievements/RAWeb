@@ -140,10 +140,9 @@ RenderContentStart($pageTitle);
                 echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
                 if (!empty($achievementIDGiven)) {
                     echo " &raquo; " . Blade::render('
-                        <x-achievement.title :rawTitle="$rawTitle" :isDisplayingTags="$isDisplayingTags" />
+                        <x-achievement.title :rawTitle="$rawTitle" />
                     ', [
                         'rawTitle' => $achievementTitle,
-                        'isDisplayingTags' => false,
                     ]);
                 }
             }

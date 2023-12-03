@@ -1,5 +1,5 @@
 @props([
-    'canHaveTypes' => true,
+    'canHaveBeatenTypes' => true,
     'gameId' => 0,
     'modificationLevel' => 'none', // 'none' | 'partial' | 'full'
     'isManagingCoreAchievements' => true,
@@ -11,6 +11,7 @@ use App\Platform\Enums\AchievementType;
 
 $progressionType = AchievementType::Progression;
 $winConditionType = AchievementType::WinCondition;
+$missableType = AchievementType::Missable;
 $officialFlag = AchievementFlag::OfficialCore;
 $unofficialFlag = AchievementFlag::Unofficial;
 ?>
@@ -23,7 +24,7 @@ $unofficialFlag = AchievementFlag::Unofficial;
 
             /**
              * @param {'flag' | 'type'} property
-             * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
+             * @param {3 | 5 | 'progression' | 'win_condition' | 'missable' | null} newValue
              * @param {number} selectedCount
              */
             getConfirmMessage(property, newValue, selectedCount) {
@@ -42,6 +43,8 @@ $unofficialFlag = AchievementFlag::Unofficial;
                         message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to Progression?`;
                     } else if (newValue === '{{ $winConditionType }}') {
                         message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to Win Condition?`;
+                    } else if (newValue === '{{ $missableType }}') {
+                        message = `Are you sure you want to set ${selectedCount === 1 ? 'this achievement' : 'these achievements'} to Missable?`;
                     } else {
                         message = `Are you sure you want to remove the type from ${selectedCount === 1 ? 'this achievement' : 'these achievements'}?`;
                     }
@@ -70,7 +73,7 @@ $unofficialFlag = AchievementFlag::Unofficial;
 
             /**
              * @param {'flag' | 'type'} property
-             * @param {3 | 5 | 'progression' | 'win_condition' | null} newValue
+             * @param {3 | 5 | 'progression' | 'win_condition' | 'missable' | null} newValue
              */
             updateAchievementsProperty(property, newValue) {
                 // Creates an array of checked achievement IDs and sends it to the updateAchievements function
@@ -135,7 +138,7 @@ $unofficialFlag = AchievementFlag::Unofficial;
             @endif
         </a>
 
-        @if ($canHaveTypes)
+        @if ($canHaveBeatenTypes)
             <button
                 class="btn"
                 @click="updateAchievementsProperty('type', '{{ $progressionType }}')"
@@ -149,14 +152,21 @@ $unofficialFlag = AchievementFlag::Unofficial;
             >
                 Set Selected to Win Condition
             </button>
-
-            <button
-                class="btn"
-                @click="updateAchievementsProperty('type', null)"
-            >
-                Set Selected to No Type
-            </button>
         @endif
+
+        <button
+            class="btn"
+            @click="updateAchievementsProperty('type', '{{ $missableType }}')"
+        >
+            Set Selected to Missable
+        </button>
+
+        <button
+            class="btn"
+            @click="updateAchievementsProperty('type', null)"
+        >
+            Set Selected to No Type
+        </button>
 
         @if ($modificationLevel === 'full')
             <button class="btn" @click="toggleAllCodeRows">Toggle Code Rows</button>
