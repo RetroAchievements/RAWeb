@@ -149,6 +149,21 @@ return [
 
     ],
 
+    'sharp-thin' => [
+
+        'prefix' => 'fat-sharp',
+
+        'fallback' => '',
+
+        'class' => '',
+
+        'attributes' => [
+            // 'width' => 50,
+            // 'height' => 50,
+        ],
+
+    ],
+
     /*
     |-----------------------------------------------------------------
     | Pro Icon Kits
