@@ -33,12 +33,7 @@ function deleteMessage(id) {
     pageTitle="Messages"
     pageDescription="Messages involving {{ $user->User }}"
 >
-    <x-user.breadcrumbs targetUsername="{{ $user->User }}" currentPage="Messages" />
-
-    <div class="mt-3 w-full flex gap-x-3">
-        {!! userAvatar($user->User, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">{{ $user->User }}'s Messages</h1>
-    </div>
+    <h1 class="w-full">Messages</h1>
 
     <div class='ml-2'>
         You have {{ $unreadCount }} unread @choice('message|messages', $unreadCount)
