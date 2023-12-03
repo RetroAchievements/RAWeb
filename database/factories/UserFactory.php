@@ -10,6 +10,7 @@ use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<User>
@@ -30,9 +31,10 @@ class UserFactory extends Factory
             // required
             'User' => $this->fakeUsername(),
             'EmailAddress' => fake()->unique()->safeEmail,
+            'email_verified_at' => now(),
+            'Permissions' => Permissions::Registered,
             'Password' => Hash::make('password'),
             'SaltedPass' => '',
-            'Permissions' => Permissions::Registered,
             'RAPoints' => fake()->numberBetween(0, 9999) * 10,
             'RASoftcorePoints' => 0,
             'fbUser' => 0,
@@ -41,6 +43,7 @@ class UserFactory extends Factory
 
             // nullable
             'APIKey' => 'apiKey',
+            'remember_token' => Str::random(10),
         ];
     }
 

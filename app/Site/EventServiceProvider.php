@@ -10,10 +10,16 @@ use App\Site\Listeners\SendUserRegistrationNotification;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
 {
+    /**
+     * The event to listener mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
     protected $listen = [
         /*
          * framework
@@ -43,7 +49,7 @@ class EventServiceProvider extends ServiceProvider
         //     'App\Listeners\LogPasswordReset',
         // ],
         Registered::class => [
-            // SendEmailVerificationNotification::class,
+            // TODO SendEmailVerificationNotification::class,
             SendUserRegistrationNotification::class,
         ],
         SiteBadgeAwarded::class => [

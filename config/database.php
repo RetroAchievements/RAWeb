@@ -17,8 +17,6 @@ return [
 
     'default' => env('DB_CONNECTION', 'mysql'),
 
-    'prevent_lazy_loading' => true,
-
     /*
     |--------------------------------------------------------------------------
     | Database Connections

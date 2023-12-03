@@ -77,7 +77,6 @@
         "spatie/laravel-ignition": "^2.0",
         "worksome/envy": "^1.1"
     },
-    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "App\\": "app/",
@@ -93,37 +92,18 @@
             "Tests\\": "tests/"
         }
     },
-    "config": {
-        "optimize-autoloader": true,
-        "platform": {
-            "ext-pcntl": "8.2",
-            "ext-posix": "8.2",
-            "php": "8.2.8"
-        },
-        "process-timeout": 0,
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true,
-            "php-http/discovery": true
-        }
-    },
-    "extra": {
-        "laravel": {
-            "dont-discover": [
-                "beyondcode/laravel-websockets",
-                "laravel/passport"
-            ]
-        }
-    },
     "scripts": {
         "post-install-cmd": [
             "[ $COMPOSER_DEV_MODE -eq 0 ] || git config core.hooksPath ./.hooks"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi",
-            "@php artisan vendor:publish --force --tag=livewire:assets --ansi",
-            "@php artisan vendor:publish --force --tag=horizon-assets --ansi"
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@php artisan vendor:publish --tag=livewire:assets --ansi --force",
+            "@php artisan vendor:publish --tag=horizon-assets --ansi --force"
         ],
         "post-root-package-install": [
             "@setup"
@@ -169,5 +149,30 @@
         "paratest": "Run tests in parallel",
         "setup": "First time setup",
         "stan": "Run PHPStan static analysis"
-    }
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+                "beyondcode/laravel-websockets",
+                "laravel/passport"
+            ]
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "platform": {
+            "ext-pcntl": "8.2",
+            "ext-posix": "8.2",
+            "php": "8.2.8"
+        },
+        "process-timeout": 0,
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

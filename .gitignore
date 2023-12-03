@@ -2,7 +2,7 @@
 /docker/nginx/logs
 /docs/dist
 /node_modules
-/public/db
+/public/build
 /public/hot
 /public/Badge
 /public/Images
@@ -22,6 +22,7 @@
 /storage/media-library
 /vendor
 /tmp
+/.fleet
 /.idea
 /.project
 /.settings
