@@ -1,4 +1,5 @@
 @props([
+    'allowsRetail' => true,
     'gameKindFilterOptions' => [],
     'leaderboardKind' => 'retail',
 ])
@@ -7,6 +8,7 @@
 <div class="flex gap-x-4 text-2xs gap-y-0.5">
     <x-beaten-games-leaderboard.meta-panel.game-kind-filter-radio
         value="retail"
+        :disabled="!$allowsRetail"
         :selectedValue="$leaderboardKind"
     >
         Retail

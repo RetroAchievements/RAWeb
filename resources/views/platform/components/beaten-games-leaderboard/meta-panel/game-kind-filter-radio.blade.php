@@ -1,12 +1,14 @@
 @props([
+    'disabled' => false,
     'selectedValue' => '',
     'value' => '',
 ])
 
-<label class="transition lg:active:scale-95 cursor-pointer flex items-center gap-x-1 text-xs">
+<label class="@if (!$disabled) transition lg:active:scale-95 cursor-pointer @endif flex items-center gap-x-1 text-xs">
     <input
         type="radio"
-        class="cursor-pointer"
+        @if ($disabled) disabled @endif
+        @if (!$disabled) class="cursor-pointer" @endif
         name="game-kind"
         value="{{ $value }}"
         {{ $selectedValue == $value ? 'checked' : '' }}
