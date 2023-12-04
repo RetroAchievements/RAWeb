@@ -808,6 +808,8 @@ sanitize_outputs(
             'permissions' => $permissions,
             'publisher' => $publisher,
             'released' => $released,
+            'totalPossible' => $totalPossible,
+            'totalPossibleTrueRatio' => $totalPossibleTrueRatio,
             'user' => $user,
             'userModel' => $userModel,
         ];
@@ -1296,18 +1298,14 @@ sanitize_outputs(
             echo "</div>";
 
             echo "<div class='my-8 lg:my-4 lg:flex justify-between w-full gap-x-4'>";
-
-            echo "<div>";
-            if ($flagParam == $unofficialFlag) {
-                echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
-            } else {
-                echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b>";
-                $localizedTotalPossibleWeightedPoints = localized_number($totalPossibleTrueRatio);
-                echo Blade::render("<x-points-weighted-container>($localizedTotalPossibleWeightedPoints)</x-points-weighted-container>");
-                echo "points.<br>";
-            }
-            echo "</div>";
-
+            echo Blade::render('
+                <x-game.achievements-list-meta
+                    :isOfficial="$isOfficial"
+                    :numAchievements="$numAchievements"
+                    :totalPossible="$totalPossible"
+                    :totalPossibleTrueRatio="$totalPossibleTrueRatio"
+                />
+            ', $gameMetaBindings);
             echo "</div>";
 
             // Progression component (desktop only)

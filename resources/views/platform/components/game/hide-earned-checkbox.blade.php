@@ -1,4 +1,4 @@
-<div x-data="hideEarnedCheckboxComponent()">
+<div x-data="toggleAchievementRowsComponent()">
     <label class="flex items-center gap-x-1">
         <input 
             type="checkbox"

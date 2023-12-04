@@ -4,9 +4,9 @@
 // eslint-disable-next-line import/no-unresolved
 import { Livewire } from 'livewire';
 import {
-  hideEarnedCheckboxComponent,
   modalComponent,
   newsCarouselComponent,
+  toggleAchievementRowsComponent,
   tooltipComponent,
 } from './alpine';
 import {
@@ -51,9 +51,9 @@ window.toggleUserCompletedSetsVisibility = toggleUserCompletedSetsVisibility;
 window.updateUrlParameter = updateUrlParameter;
 
 // Alpine.js Components
-window.hideEarnedCheckboxComponent = hideEarnedCheckboxComponent;
 window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
+window.toggleAchievementRowsComponent = toggleAchievementRowsComponent;
 window.tooltipComponent = tooltipComponent;
 
 // https://livewire.laravel.com/docs/alpine#manually-bundling-alpine-in-your-javascript-build

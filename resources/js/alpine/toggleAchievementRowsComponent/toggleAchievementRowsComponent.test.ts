@@ -2,10 +2,10 @@ import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 
-import { hideEarnedCheckboxComponent } from './hideEarnedCheckboxComponent';
+import { toggleAchievementRowsComponent } from './toggleAchievementRowsComponent';
 
 function render() {
-  (document as any).toggleUnlockedRows = hideEarnedCheckboxComponent().toggleUnlockedRows;
+  (document as any).toggleUnlockedRows = toggleAchievementRowsComponent().toggleUnlockedRows;
 
   document.body.innerHTML = /** @html */ `
     <div>
@@ -27,16 +27,18 @@ function render() {
   `;
 }
 
-describe('Component: hideEarnedCheckbox', () => {
+describe('Component: toggleAchievementRowsComponent', () => {
   it('is defined #sanity', () => {
-    expect(hideEarnedCheckboxComponent).toBeDefined();
+    expect(toggleAchievementRowsComponent).toBeDefined();
   });
 
   describe('Util: toggleUnlockedRows', () => {
     it('renders without crashing #sanity', () => {
       render();
 
-      expect(screen.getByRole('checkbox', { name: /hide unlocked achievements/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('checkbox', { name: /hide unlocked achievements/i }),
+      ).toBeInTheDocument();
     });
 
     it('given the checkbox is checked, hides unlocked achievements', async () => {
