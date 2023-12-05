@@ -1302,10 +1302,20 @@ sanitize_outputs(
                 <x-game.achievements-list-meta
                     :isOfficial="$isOfficial"
                     :numAchievements="$numAchievements"
+                    :numMissableAchievements="$numMissableAchievements"
                     :totalPossible="$totalPossible"
                     :totalPossibleTrueRatio="$totalPossibleTrueRatio"
                 />
-            ', $gameMetaBindings);
+            ', array_merge(
+                $gameMetaBindings,
+                [
+                    'numMissableAchievements' => count(
+                        array_filter(
+                            $achievementData,
+                            fn ($achievement) => $achievement['type'] === AchievementType::Missable
+                        )),
+                ],
+            ));
             echo "</div>";
 
             // Progression component (desktop only)

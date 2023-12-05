@@ -1,7 +1,7 @@
 @props([
     'isOfficial' => true,
     'numAchievements' => 0,
-    'numMissableAchievements' => 2,
+    'numMissableAchievements' => 0,
     'totalPossible' => 0, // total possible points
     'totalPossibleTrueRatio' => 0, // total possible RetroPoints
 ])
