@@ -24,10 +24,12 @@
         {{ mb_strtolower(__res('point', $totalPossible)) }}.
     </p>
 
-    <button class="flex items-center gap-x-1 hover:underline hover:text-link-hover text-link" @click="toggleNonMissableRows">
-        <div class="w-5 h-5 p-0.5 rounded-full bg-embed border border-dashed border-stone-500 text-white">
-            <x-icon.missable />
-        </div>
-        This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}.
-    </button>
+    @if ($numMissableAchievements > 0)
+        <button class="flex items-center gap-x-1 hover:underline hover:text-link-hover text-link" @click="toggleNonMissableRows">
+            <div class="w-5 h-5 p-0.5 rounded-full bg-embed border border-dashed border-stone-500 text-white">
+                <x-icon.missable />
+            </div>
+            This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}.
+        </button>
+    @endif
 </div>
