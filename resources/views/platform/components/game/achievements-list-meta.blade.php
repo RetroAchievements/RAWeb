@@ -6,8 +6,8 @@
     'totalPossibleTrueRatio' => 0, // total possible RetroPoints
 ])
 
-<div x-data="toggleAchievementRowsComponent()" class="flex flex-col gap-y-1">
-    <p>
+<div x-data="toggleAchievementRowsComponent()">
+    <p @if ($numMissableAchievements > 0) class="mb-1" @endif>
         There {{ $numAchievements === 1 ? 'is' : 'are'}}
         <span class="font-bold">
             {{ localized_number($numAchievements) }}
@@ -25,11 +25,15 @@
     </p>
 
     @if ($numMissableAchievements > 0)
-        <button class="flex items-center gap-x-1 hover:underline hover:text-link-hover text-link" @click="toggleNonMissableRows">
-            <div class="w-5 h-5 p-0.5 rounded-full bg-embed border border-dashed border-stone-500 text-white">
-                <x-icon.missable />
+        <button class="btn" @click="toggleMissablesFilter">
+            <div class="flex items-center gap-x-1">
+                <div class="w-5 h-5 p-0.5 rounded-full bg-embed border border-dashed border-stone-500 text-white">
+                    <x-icon.missable />
+                </div>
+                <span id="missable-toggle-button-content">
+                    This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}
+                </span>
             </div>
-            This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}.
         </button>
     @endif
 </div>

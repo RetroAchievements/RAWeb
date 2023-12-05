@@ -33,15 +33,17 @@ declare global {
   var getCookie: typeof GetCookie;
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
-  var toggleAchievementRowsComponent: typeof ToggleAchievementRowsComponent;
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
   var injectShortcode: typeof InjectShortcode;
+  var isHideUnlockedAchievementsActive: boolean;
+  var isShowOnlyMissablesActive: boolean;
   var loadPostPreview: typeof LoadPostPreview;
   var modalComponent: typeof ModalComponent;
   var newsCarouselComponent: typeof NewsCarouselComponent;
   var setCookie: typeof SetCookie;
   var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;
+  var toggleAchievementRowsComponent: typeof ToggleAchievementRowsComponent;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;
   var updateUrlParameter: typeof UpdateUrlParameter;
