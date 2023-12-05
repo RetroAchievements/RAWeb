@@ -160,6 +160,9 @@ function extendClaim(string $user, int $gameID): bool
                 AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
         if (s_mysql_query($query)) {
+            $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($user);
+            Cache::forget($cacheKey);
+
             return true;
         }
     }
@@ -441,23 +444,27 @@ function getActiveClaimCount(?string $user = null, bool $countCollaboration = tr
  */
 function updateClaim(int $claimID, int $claimType, int $setType, int $status, int $special, string $claimDate, string $finishedDate): bool
 {
-    sanitize_sql_inputs($claimDate, $finishedDate);
+    $claim = AchievementSetClaim::firstWhere('ID', $claimID);
+    if (!$claim) {
+        return false;
+    }
 
-    $query = "
-        UPDATE
-            SetClaim
-        SET
-            ClaimType = '$claimType',
-            SetType = '$setType',
-            Status = '$status',
-            Special = '$special',
-            Created = '$claimDate',
-            Finished = '$finishedDate',
-            Updated = NOW()
-        WHERE
-            ID = '$claimID'";
+    $oldFinishedDate = $claim->Finished;
 
-    return (bool) s_mysql_query($query);
+    $claim->ClaimType = $claimType;
+    $claim->SetType = $setType;
+    $claim->Status = $status;
+    $claim->Special = $special;
+    $claim->Created = Carbon::parse($claimDate);
+    $claim->Finished = Carbon::parse($finishedDate);
+    $claim->save();
+
+    if ($claim->Finished != $oldFinishedDate) {
+        $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($claim->User);
+        Cache::forget($cacheKey);
+    }
+
+    return true;
 }
 
 /**
