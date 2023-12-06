@@ -25,15 +25,15 @@
     </p>
 
     @if ($numMissableAchievements > 0)
-        <button class="btn" @click="toggleMissablesFilter">
+        <p>
             <div class="flex items-center gap-x-1">
                 <div class="w-5 h-5 p-0.5 rounded-full bg-embed border border-dashed border-stone-500 text-white">
                     <x-icon.missable />
                 </div>
                 <span id="missable-toggle-button-content">
-                    This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}
+                    This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}.
                 </span>
             </div>
-        </button>
+        </p>
     @endif
 </div>

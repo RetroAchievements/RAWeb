@@ -35,8 +35,6 @@ declare global {
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
   var injectShortcode: typeof InjectShortcode;
-  var isHideUnlockedAchievementsActive: boolean;
-  var isShowOnlyMissablesActive: boolean;
   var loadPostPreview: typeof LoadPostPreview;
   var modalComponent: typeof ModalComponent;
   var newsCarouselComponent: typeof NewsCarouselComponent;
