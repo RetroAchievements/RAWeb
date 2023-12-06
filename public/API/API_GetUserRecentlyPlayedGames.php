@@ -15,6 +15,9 @@
  *    int        ConsoleID                unique identifier of the console associated to the game
  *    string     ConsoleName              name of the console associated to the game
  *    string     ImageIcon                site-relative path to the game's icon image
+ *    string     ImageTitle               title image for the game
+ *    string     ImageIngame              gameplay image for the game
+ *    string     ImageBoxArt              box art image for the game
  *    datetime   LastPlayed               when the user last played the game
  *    int        NumAchieved              number of achievements earned by the user in softcore
  *    string     ScoreAchieved            number of points earned by the user in softcore

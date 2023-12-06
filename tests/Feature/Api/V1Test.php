@@ -259,7 +259,7 @@ class V1Test extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID]);
         $this->addSoftcoreUnlock($this->user, $achievement);
 
         $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => $achievement->ID]))
@@ -267,6 +267,11 @@ class V1Test extends TestCase
             ->assertJson([
                 'Achievement' => [
                     'ID' => $achievement->ID,
+                    'Title' => $achievement->Title,
+                    'Description' => $achievement->Description,
+                    'Points' => $achievement->Points,
+                    'Author' => $achievement->Author,
+                    'Type' => $achievement->type,
                 ],
                 'Console' => [
                     'ID' => $system->ID,
