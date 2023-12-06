@@ -47,6 +47,9 @@
  *   int        ConsoleID              unique identifier of the console associated to the game
  *   string     ConsoleName            name of the console associated to the game
  *   string     ImageIcon              site-relative path to te game's icon
+ *   string     ImageTitle             title image for the game
+ *   string     ImageIngame            gameplay image for the game
+ *   string     ImageBoxArt            box art image for the game
  *   datetime   LastPlayed             when the user last played the game
  *  object     LastActivity
  *   int        ID                     unique identifier of the activity
