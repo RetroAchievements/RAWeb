@@ -17,7 +17,7 @@ $lockedAchievements = array_filter($achievements, function ($achievement) {
 ?>
 
 @if (count($achievements) > 0)
-    <ul class="flex flex-col">
+    <ul id="set-achievements-list" class="flex flex-col">
         @foreach ($unlockedAchievements as $achievement)
             <x-game.achievements-list.achievements-list-item
                 :achievement="$achievement"
