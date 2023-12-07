@@ -4,7 +4,7 @@ import { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTe
 import type {
   modalComponent as ModalComponent,
   newsCarouselComponent as NewsCarouselComponent,
-  hideEarnedCheckboxComponent as HideEarnedCheckboxComponent,
+  toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
 } from '@/alpine';
 import type { fetcher as Fetcher } from '@/utils/fetcher';
@@ -33,7 +33,6 @@ declare global {
   var getCookie: typeof GetCookie;
   var getStringByteCount: typeof GetStringByteCount;
   var handleLeaderboardTabClick: typeof HandleLeaderboardTabClick;
-  var hideEarnedCheckboxComponent: typeof HideEarnedCheckboxComponent;
   var initializeTextareaCounter: typeof InitializeTextareaCounter;
   var injectShortcode: typeof InjectShortcode;
   var loadPostPreview: typeof LoadPostPreview;
@@ -42,6 +41,7 @@ declare global {
   var setCookie: typeof SetCookie;
   var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;
+  var toggleAchievementRowsComponent: typeof ToggleAchievementRowsComponent;
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;
   var updateUrlParameter: typeof UpdateUrlParameter;
