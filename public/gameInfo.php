@@ -789,6 +789,12 @@ sanitize_outputs(
 
         $systemIconUrl = getSystemIconUrl($consoleID);
 
+        $numMissableAchievements = count(
+            array_filter(
+                $achievementData,
+                fn ($achievement) => $achievement['type'] === AchievementType::Missable
+            ));
+
         $gameMetaBindings = [
             'claimData' => $claimData,
             'consoleID' => $consoleID,
@@ -805,9 +811,12 @@ sanitize_outputs(
             'isOfficial' => $isOfficial,
             'isSoleAuthor' => $isSoleAuthor,
             'numAchievements' => $numAchievements,
+            'numMissableAchievements' => $numMissableAchievements,
             'permissions' => $permissions,
             'publisher' => $publisher,
             'released' => $released,
+            'totalPossible' => $totalPossible,
+            'totalPossibleTrueRatio' => $totalPossibleTrueRatio,
             'user' => $user,
             'userModel' => $userModel,
         ];
@@ -1296,18 +1305,15 @@ sanitize_outputs(
             echo "</div>";
 
             echo "<div class='my-8 lg:my-4 lg:flex justify-between w-full gap-x-4'>";
-
-            echo "<div>";
-            if ($flagParam == $unofficialFlag) {
-                echo "There are <b>$numAchievements Unofficial</b> achievements worth <b>" . number_format($totalPossible) . "</b> <span class='TrueRatio'>(" . number_format($totalPossibleTrueRatio) . ")</span> points.<br>";
-            } else {
-                echo "There are <b>$numAchievements</b> achievements worth <b>" . number_format($totalPossible) . "</b>";
-                $localizedTotalPossibleWeightedPoints = localized_number($totalPossibleTrueRatio);
-                echo Blade::render("<x-points-weighted-container>($localizedTotalPossibleWeightedPoints)</x-points-weighted-container>");
-                echo "points.<br>";
-            }
-            echo "</div>";
-
+            echo Blade::render('
+                <x-game.achievements-list-meta
+                    :isOfficial="$isOfficial"
+                    :numAchievements="$numAchievements"
+                    :numMissableAchievements="$numMissableAchievements"
+                    :totalPossible="$totalPossible"
+                    :totalPossibleTrueRatio="$totalPossibleTrueRatio"
+                />
+            ', $gameMetaBindings);
             echo "</div>";
 
             // Progression component (desktop only)
@@ -1317,21 +1323,21 @@ sanitize_outputs(
                 echo "</div>";
             }
 
-            /*
-            if( $user !== NULL && $numAchievements > 0 ) {
-                $renderRatingControl('Achievements Rating', 'ratingach', 'ratingachlabel', $gameRating[RatingType::Achievement]);
-            }
-            */
-
             if ($numAchievements > 1) {
-                echo "<div class='flex flex-col sm:flex-row-reverse justify-between w-full py-3'>";
+                echo "<div class='flex flex-col sm:flex-row-reverse sm:items-end justify-between w-full py-3'>";
 
                 $hasCompletionOrMastery = ($numEarnedCasual === $numAchievements) || ($numEarnedHardcore === $numAchievements);
-                echo "<div>";
-                if ($user && ($numEarnedCasual > 0 || $numEarnedHardcore > 0) && !$hasCompletionOrMastery) {
-                    echo Blade::render("<x-game.hide-earned-checkbox />");
-                }
-                echo "</div>";
+                $canShowHideUnlockedAchievements = $user && ($numEarnedCasual > 0 || $numEarnedHardcore > 0) && !$hasCompletionOrMastery;
+
+                echo Blade::render('
+                    <x-game.achievements-list-filters
+                        :canShowHideUnlockedAchievements="$canShowHideUnlockedAchievements"
+                        :numMissableAchievements="$numMissableAchievements"
+                    />
+                ', [
+                    'canShowHideUnlockedAchievements' => $canShowHideUnlockedAchievements,
+                    'numMissableAchievements' => $gameMetaBindings['numMissableAchievements'],
+                ]);
 
                 RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy, canSortByType: $isGameBeatable);
                 echo "</div>";
