@@ -160,8 +160,7 @@ function extendClaim(string $user, int $gameID): bool
                 AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
         if (s_mysql_query($query)) {
-            $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($user);
-            Cache::forget($cacheKey);
+            Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user));
 
             return true;
         }
@@ -459,7 +458,7 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
     $claim->Finished = Carbon::parse($finishedDate);
     $claim->save();
 
-    if ($claim->Finished != $oldFinishedDate) {
+    if ($claim->Finished !== $oldFinishedDate) {
         $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($claim->User);
         Cache::forget($cacheKey);
     }
