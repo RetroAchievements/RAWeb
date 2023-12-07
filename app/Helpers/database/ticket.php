@@ -153,7 +153,8 @@ Thanks!";
 
     $author = User::firstWhere('User', $achAuthor);
     if ($author && BitSet($author->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
-        $emailBody = "Hi, {$author->User}!\r\n
+        $emailBody = "Hi, {$author->User}!
+
 $username would like to report a bug with an achievement you've created:
 $bugReportDetails";
         sendRAEmail($author->EmailAddress, $emailHeader, $emailBody);
@@ -163,8 +164,9 @@ $bugReportDetails";
     $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << NotificationPreferences::EmailOn_PrivateMessage);
     foreach ($subscribers as $sub) {
         if ($sub['User'] != $achAuthor && $sub['User'] != $username) {
-            $emailBody = "Hi, " . $sub['User'] . "!\r\n
-[user=$username] would like to report a bug with an achievement you're subscribed to:
+            $emailBody = "Hi, " . $sub['User'] . "!
+
+$username would like to report a bug with an achievement you're subscribed to:
 $bugReportDetails";
             sendRAEmail($sub['EmailAddress'], $emailHeader, $emailBody);
         }
