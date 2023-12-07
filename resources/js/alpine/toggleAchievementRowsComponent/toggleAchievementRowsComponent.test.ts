@@ -1,11 +1,18 @@
 import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import {
+  // @prettier-ignore
+  beforeEach,
+  describe,
+  it,
+  expect,
+} from 'vitest';
 
-import { hideEarnedCheckboxComponent } from './hideEarnedCheckboxComponent';
+import { toggleAchievementRowsComponent } from './toggleAchievementRowsComponent';
 
 function render() {
-  (document as any).toggleUnlockedRows = hideEarnedCheckboxComponent().toggleUnlockedRows;
+  (document as any).updateRowsVisibility = toggleAchievementRowsComponent().updateRowsVisibility;
+  (document as any).toggleUnlockedRows = toggleAchievementRowsComponent().toggleUnlockedRows;
 
   document.body.innerHTML = /** @html */ `
     <div>
@@ -18,7 +25,7 @@ function render() {
         </input>
       </label>
 
-      <ul>
+      <ul id="set-achievements-list">
         <li class="unlocked-row"></li>
         <li class="unlocked-row"></li>
         <li class=""></li>
@@ -27,22 +34,24 @@ function render() {
   `;
 }
 
-describe('Component: hideEarnedCheckbox', () => {
+// NOTE: Vitest is persisting JSDOM between each test case.
+describe('Component: toggleAchievementRowsComponent', () => {
+  beforeEach(() => {
+    render();
+  });
+
   it('is defined #sanity', () => {
-    expect(hideEarnedCheckboxComponent).toBeDefined();
+    expect(toggleAchievementRowsComponent).toBeDefined();
   });
 
   describe('Util: toggleUnlockedRows', () => {
     it('renders without crashing #sanity', () => {
-      render();
-
-      expect(screen.getByRole('checkbox', { name: /hide unlocked achievements/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('checkbox', { name: /hide unlocked achievements/i }),
+      ).toBeInTheDocument();
     });
 
     it('given the checkbox is checked, hides unlocked achievements', async () => {
-      // ARRANGE
-      render();
-
       // ACT
       await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
 
@@ -54,11 +63,7 @@ describe('Component: hideEarnedCheckbox', () => {
     });
 
     it('given the checkbox is unchecked, makes unlocked achievements visible again', async () => {
-      // ARRANGE
-      render();
-
       // ACT
-      await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
       await userEvent.click(screen.getByRole('checkbox', { name: /hide/i }));
 
       // ASSERT
