@@ -45,10 +45,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
     pageTitle="{{ $thread->title }}"
     pageDescription="{{ $pageDescription }}"
 >
-    <x-user.breadcrumbs targetUsername="{{ $user->User }}"
-        parentPage="Messages"
-        parentPageUrl="{{ route('message-thread.index') }}"
-        currentPage="{!! $thread->title !!}" />
+    <x-message.breadcrumbs currentPage="{!! $thread->title !!}" />
 
     <div class="mt-3 w-full flex gap-x-3">
         <h1 class="mt-[10px] w-full">{!! $thread->title !!}</h1>

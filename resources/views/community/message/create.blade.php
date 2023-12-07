@@ -8,10 +8,7 @@
     pageTitle="New Message"
     pageDescription="Create a new message"
 >
-    <x-user.breadcrumbs targetUsername="{{ request()->user()->User }}"
-            parentPage="Messages"
-            parentPageUrl="{{ route('message-thread.index') }}"
-            currentPage="New Message" />
+    <x-message.breadcrumbs currentPage="New Message" />
 
     <div class="w-full flex gap-x-3">
         <h1 class="mt-[10px] w-full">New Message</h1>
