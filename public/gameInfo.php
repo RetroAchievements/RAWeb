@@ -12,7 +12,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
@@ -788,6 +787,20 @@ sanitize_outputs(
         $pageTitleAttr = attributeEscape($pageTitle);
 
         $systemIconUrl = getSystemIconUrl($consoleID);
+
+        // If we can't show the missable achievements indicator due to a user preference,
+        // remove the type from all missable achievements.
+        $canShowMissableAchievementsIndicator = (
+            ($userDetails && !BitSet($userDetails['websitePrefs'], UserPreference::Game_HideMissableIndicators))
+            || !$userDetails
+        );
+        if (!$canShowMissableAchievementsIndicator) {
+            array_walk($achievementData, function (&$achievement) {
+                if ($achievement['type'] === AchievementType::Missable) {
+                    $achievement['type'] = null;
+                }
+            });
+        }
 
         $numMissableAchievements = count(
             array_filter(
