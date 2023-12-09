@@ -69,6 +69,33 @@ function validateUsername(string $userIn): ?string
     return ($user !== null) ? $user->User : null;
 }
 
+function getUserProfile(string $username): array
+{
+    $user = User::firstWhere('User', $username);
+    if (!$user) {
+        return [];
+    }
+
+    $ret = [];
+
+    $ret['User'] = $user->User;
+    $ret['MemberSince'] = $user->Created?->__toString();
+    $ret['RichPresenceMsg'] = empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg;
+    $ret['LastGameID'] = (int) $user->LastGameID;
+    $ret['ContribCount'] = (int) $user->ContribCount;
+    $ret['ContribYield'] = (int) $user->ContribYield;
+    $ret['TotalPoints'] = (int) $user->RAPoints;
+    $ret['TotalSoftcorePoints'] = (int) $user->RASoftcorePoints;
+    $ret['TotalTruePoints'] = (int) $user->TrueRAPoints;
+    $ret['Permissions'] = (int) $user->getAttribute('Permissions');
+    $ret['Untracked'] = (int) $user->Untracked;
+    $ret['ID'] = (int) $user->ID;
+    $ret['UserWallActive'] = (int) $user->UserWallActive;
+    $ret['Motto'] = $user->Motto;
+
+    return $ret;
+}
+
 function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchievements = 0): array
 {
     $user = User::firstWhere('User', $username);
