@@ -133,6 +133,15 @@ class GameHash extends BaseModel
         return $this->belongsTo(System::class);
     }
 
+    // TODO update after dropping GameID and migrating to game_hash_sets relation
+    /**
+     * @return BelongsTo<Game, GameHash>
+     */
+    public function game(): BelongsTo
+    {
+        return $this->belongsTo(Game::class, 'GameID', 'ID');
+    }
+
     /**
      * @return BelongsToMany<GameHashSet>
      */
