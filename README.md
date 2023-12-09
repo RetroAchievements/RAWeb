@@ -75,8 +75,8 @@ sail up -d
 ```
 
 > **Note**
-> Mentions of `sail` commands assume that it has been aliased to the `./vendor/bin/sail` executable according to Sail's docs.
-> I.e. run `./vendor/bin/sail up` if you haven't aliased it.
+> Mentions of `sail` commands assume that it has been aliased to the `./sail` executable according to Sail's docs.
+> I.e. run `./sail up` if you haven't aliased it.
 
 **XAMPP/Valet** 
 
