@@ -40,17 +40,17 @@ class UserProfileTest extends TestCase
                 'UserPic' => sprintf("/UserPic/%s.png", $user->User),
                 'MemberSince' => $user->Created?->__toString(),
                 'RichPresenceMsg' => empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg,
-                'LastGameID' => (int)$user->LastGameID,
-                'ContribCount' => (int)$user->ContribCount,
-                'ContribYield' => (int)$user->ContribYield,
-                'TotalPoints' => (int)$user->RAPoints,
-                'TotalSoftcorePoints' => (int)$user->RASoftcorePoints,
-                'TotalTruePoints' => (int)$user->TrueRAPoints,
-                'Permissions' => (int)$user->getAttribute('Permissions'),
-                'Untracked' => (int)$user->Untracked,
-                'ID' => (int)$user->ID,
-                'UserWallActive' => (int)$user->UserWallActive,
-                'Motto' => $user->Motto
+                'LastGameID' => (int) $user->LastGameID,
+                'ContribCount' => (int) $user->ContribCount,
+                'ContribYield' => (int) $user->ContribYield,
+                'TotalPoints' => (int) $user->RAPoints,
+                'TotalSoftcorePoints' => (int) $user->RASoftcorePoints,
+                'TotalTruePoints' => (int) $user->TrueRAPoints,
+                'Permissions' => (int) $user->getAttribute('Permissions'),
+                'Untracked' => (int) $user->Untracked,
+                'ID' => (int) $user->ID,
+                'UserWallActive' => (int) $user->UserWallActive,
+                'Motto' => $user->Motto,
             ]);
     }
 }
