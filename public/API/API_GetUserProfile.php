@@ -1,5 +1,7 @@
 <?php
 
+use App\Site\Models\User;
+
 /*
  *  API_GetUserProfile
  *    u : username
@@ -28,17 +30,26 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
 ]);
 
-$user = request()->query('u');
+$user = User::firstWhere('User', request()->query('u'));
 
-$retVal = getUserProfile($user);
-
-if (empty($retVal)) {
-    return response()->json([
-        'ID' => null,
-        'User' => $user,
-    ], 404);
+if (!$user) {
+    return response()->json([], 404);
 }
 
-$retVal['UserPic'] = "/UserPic/" . $user . ".png";
-
-return response()->json($retVal);
+return response()->json([
+    'User' => $user->User,
+    'UserPic' => sprintf("/UserPic/%s.png", $user->User),
+    'MemberSince' => $user->Created?->__toString(),
+    'RichPresenceMsg' => empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg,
+    'LastGameID' => (int)$user->LastGameID,
+    'ContribCount' => (int)$user->ContribCount,
+    'ContribYield' => (int)$user->ContribYield,
+    'TotalPoints' => (int)$user->RAPoints,
+    'TotalSoftcorePoints' => (int)$user->RASoftcorePoints,
+    'TotalTruePoints' => (int)$user->TrueRAPoints,
+    'Permissions' => (int)$user->getAttribute('Permissions'),
+    'Untracked' => (int)$user->Untracked,
+    'ID' => (int)$user->ID,
+    'UserWallActive' => (int)$user->UserWallActive,
+    'Motto' => $user->Motto
+]);
