@@ -43,7 +43,7 @@ class MigrateMissableAchievementsToType extends Command
 
         // Is this achievement eligible for syncing? It must contain the legacy
         // missable tag and must not already have a type.
-        if ($usesLegacyMissableTag && !$achievement->type) {
+        if ($usesLegacyMissableTag !== false && !$achievement->type) {
             $achievement->type = AchievementType::Missable;
 
             // Remove the [m] tag and trim whitespace
