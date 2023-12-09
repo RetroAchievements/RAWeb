@@ -95,6 +95,7 @@ class NotifyMessageThreadParticipants
             || mb_strpos(mb_strtolower($messageThread->title), 'verification') !== false
             || mb_strpos(mb_strtolower($messageThread->title), 'discord') !== false
         ) {
+            $webhookUrl = $inboxConfig['verify_url'];
             $color = hexdec('0x00CC66');
             $mentionRoles = collect();
             $isForum = false;
@@ -107,6 +108,7 @@ class NotifyMessageThreadParticipants
         }
 
         if (mb_strpos(mb_strtolower($messageThread->title), 'manual') !== false) {
+            $webhookUrl = $inboxConfig['manual_unlock_url'];
             $color = hexdec('0xCC0066');
             $mentionRoles = collect();
             $isForum = false;
