@@ -1,14 +1,14 @@
 <p align="center" dir="auto"><a href="https://retroachievements.org" rel="nofollow"><img src="https://raw.githubusercontent.com/RetroAchievements/RAWeb/master/public/assets/images/ra-icon.webp" width="200" alt="RetroAchievements Logo" style="max-width: 100%;"></a></p>
 
 **RAWeb** is [RetroAchievements.org](https://retroachievements.org)'s platform application.
-It is a Laravel application ([TALL stack](https://tallstack.dev/)) including individual php files within the `public` folder to handle requests.
+It is a Laravel application ([TALL stack](https://tallstack.dev/)).
 
 ## Requirements
 
 - Local web server
 - [PHP 8.2](http://php.net/manual/en/)
-- [Composer v2](https://getcomposer.org/) PHP dependency manager
-- [MySQL 8](https://dev.mysql.com/doc/refman/8.0/en/)
+- [Composer](https://getcomposer.org/) PHP dependency manager
+- [MariaDB 10](https://mariadb.com/docs/server/)
 - [Node.js 20](https://nodejs.org/)
  
 Validated to run on Windows, macOS, and Linux with any of the setup options below (Docker via Laravel Sail, VM with either nginx or Apache, Laravel Valet on macOS).
