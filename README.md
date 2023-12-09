@@ -183,11 +183,11 @@ The file should contain the URL to your local RAServer instance. Any of the foll
 
 ## Security Vulnerabilities
 
-If you discover a security vulnerability, please send an on-site message to [RAdmin](https://retroachievements.org/user/RAdmin).
+Please see our [Security Policy](docs/SECURITY.md).
 
 ## Contributing
 
-See [Contribution Guidelines](docs/CONTRIBUTING.md) and [Code of Conduct](docs/CODE_OF_CONDUCT.md).
+Please see our [Contribution Guidelines](docs/CONTRIBUTING.md) and [Code of Conduct](docs/CODE_OF_CONDUCT.md).
 
 ## License
 
