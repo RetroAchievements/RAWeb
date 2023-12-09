@@ -86,7 +86,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $badgeName = $data['BadgeName'] ?? null;
     $unlock = $data['Unlock'] ?? null;
     $badgeImgSrc = $iconUrl ?? media_asset("Badge/{$badgeName}.png");
-    $gameTitle = str_replace("\n", '', Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $data['GameTitle'] ?? '']));
+    $gameTitle = str_replace("\n", '', htmlspecialchars(Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $data['GameTitle'] ?? ''])));
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
     $tooltip .= "<img src='$badgeImgSrc' width='64' height='64' />";
