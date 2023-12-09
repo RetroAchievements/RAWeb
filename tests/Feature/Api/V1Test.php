@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api;
 
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
@@ -175,7 +176,7 @@ class V1Test extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -202,6 +203,7 @@ class V1Test extends TestCase
                     'GameURL' => '/game/' . $game->ID,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement->Points,
+                    'Type' => AchievementType::Progression,
                     'Title' => $achievement->Title,
                 ],
             ]);
@@ -214,7 +216,7 @@ class V1Test extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -243,6 +245,7 @@ class V1Test extends TestCase
                     'GameURL' => '/game/' . $game->ID,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement->Points,
+                    'Type' => AchievementType::Progression,
                     'Title' => $achievement->Title,
                 ],
             ]);
@@ -270,8 +273,8 @@ class V1Test extends TestCase
                     'Title' => $achievement->Title,
                     'Description' => $achievement->Description,
                     'Points' => $achievement->Points,
-                    'Author' => $achievement->Author,
                     'Type' => $achievement->type,
+                    'Author' => $achievement->Author,
                 ],
                 'Console' => [
                     'ID' => $system->ID,
