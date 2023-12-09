@@ -100,23 +100,27 @@ $pageTitle = "$achievementTitleRaw in $gameTitleRaw ($consoleName)";
 
 function generateAchievementMetaDescription(
     string $achievementDescription,
+    ?string $achievementType,
     string $gameTitle,
     string $consoleName,
     int $points = 0,
     int $winnerCount = 0,
 ): string {
+    $typeLabel = $achievementType ? __("achievement-type.{$achievementType}") : null;
     $pointsLabel = $points === 1 ? "point" : "points";
     $localizedWinnerCount = localized_number($winnerCount);
     $winnerCountLabel = $winnerCount === 1 ? "player" : "players";
 
-    return "$achievementDescription ($points $pointsLabel), won by $localizedWinnerCount $winnerCountLabel - $gameTitle for $consoleName";
+    $typeDisplay = $typeLabel ? " [$typeLabel]" : "";
+
+    return "$achievementDescription ($points $pointsLabel)$typeDisplay, won by $localizedWinnerCount $winnerCountLabel - $gameTitle for $consoleName";
 }
 
 RenderOpenGraphMetadata(
     $pageTitle,
     "achievement",
     media_asset("/Badge/$badgeName.png"),
-    generateAchievementMetaDescription($achievementDescriptionRaw, $gameTitleRaw, $consoleName, $achPoints, $numWinners)
+    generateAchievementMetaDescription($achievementDescriptionRaw, $achType, $gameTitleRaw, $consoleName, $achPoints, $numWinners)
 );
 RenderContentStart($pageTitle);
 ?>
