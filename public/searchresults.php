@@ -24,6 +24,8 @@ if (strlen($searchQuery) >= 2) {
     $resultsCount = performSearch($searchType, $searchQuery, $offset, $maxCount, $permissions, $searchResults);
 }
 
+sleep(3);
+
 RenderContentStart("Search");
 ?>
 <article>
