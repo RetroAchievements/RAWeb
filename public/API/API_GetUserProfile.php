@@ -1,10 +1,10 @@
 <?php
 
-use App\Site\Models\User;
 /*
  *  API_GetUserProfile
  *    u : username
  *
+ *  string     User                    name of user
  *  int        ID                      unique identifier of the user
  *  int        TotalPoints             number of hardcore points the user has
  *  int        TotalSoftcorePoints     number of softcore points the user has
@@ -21,6 +21,7 @@ use App\Site\Models\User;
  *  int        ContribYield            points awarded to others
  */
 
+use App\Site\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -40,15 +41,15 @@ return response()->json([
     'UserPic' => sprintf("/UserPic/%s.png", $user->User),
     'MemberSince' => $user->Created?->__toString(),
     'RichPresenceMsg' => empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg,
-    'LastGameID' => (int) $user->LastGameID,
-    'ContribCount' => (int) $user->ContribCount,
-    'ContribYield' => (int) $user->ContribYield,
-    'TotalPoints' => (int) $user->RAPoints,
-    'TotalSoftcorePoints' => (int) $user->RASoftcorePoints,
-    'TotalTruePoints' => (int) $user->TrueRAPoints,
-    'Permissions' => (int) $user->getAttribute('Permissions'),
-    'Untracked' => (int) $user->Untracked,
-    'ID' => (int) $user->ID,
-    'UserWallActive' => (int) $user->UserWallActive,
+    'LastGameID' => $user->LastGameID,
+    'ContribCount' => $user->ContribCount,
+    'ContribYield' => $user->ContribYield,
+    'TotalPoints' => $user->RAPoints,
+    'TotalSoftcorePoints' => $user->RASoftcorePoints,
+    'TotalTruePoints' => $user->TrueRAPoints,
+    'Permissions' => $user->getAttribute('Permissions'),
+    'Untracked' => $user->Untracked,
+    'ID' => $user->ID,
+    'UserWallActive' => $user->UserWallActive,
     'Motto' => $user->Motto,
 ]);
