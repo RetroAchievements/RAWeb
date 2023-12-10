@@ -111,9 +111,12 @@ function generateAchievementMetaDescription(
     $localizedWinnerCount = localized_number($winnerCount);
     $winnerCountLabel = $winnerCount === 1 ? "player" : "players";
 
-    $typeDisplay = $typeLabel ? " [$typeLabel]" : "";
+    $bracketText = "$points $pointsLabel";
+    if ($typeLabel) {
+        $bracketText .= ", $typeLabel";
+    }
 
-    return "$achievementDescription ($points $pointsLabel)$typeDisplay, won by $localizedWinnerCount $winnerCountLabel - $gameTitle for $consoleName";
+    return "$achievementDescription [$bracketText], won by $localizedWinnerCount $winnerCountLabel - $gameTitle for $consoleName";
 }
 
 RenderOpenGraphMetadata(
