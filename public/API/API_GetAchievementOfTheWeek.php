@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
  *   string     Description    description of the achievement
  *   int        Points         number of points the achievement is worth
  *   int        TrueRatio      number of "white" points the achievement is worth
+ *   string     Type           null, "progression", "win_condition", or "missable"
  *   string     Author         user who first created the achievement
  *   datetime   DateCreated    when the achievement was created
  *   datetime   DateModified   when the achievement was last modified
@@ -59,6 +60,7 @@ $achievement = [
     'Description' => $achievementData['Description'] ?? null,
     'Points' => $achievementData['Points'] ?? null,
     'TrueRatio' => $achievementData['TrueRatio'] ?? null,
+    'Type' => $achievementData['Type'] ?? null,
     'Author' => $achievementData['Author'] ?? null,
     'DateCreated' => $achievementData['DateCreated'] ?? null,
     'DateModified' => $achievementData['DateModified'] ?? null,
