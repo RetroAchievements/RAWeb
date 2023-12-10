@@ -24,7 +24,11 @@ $givenHash = request()->query('h');
 $foundHash = GameHash::with('game')->where('MD5', $givenHash)->first();
 
 if (!$foundHash) {
-    return response()->json(['message' => 'Could not find a game matching the given hash.'], 400);
+    return response()->json([
+        'status' => 404,
+        'code' => 'not_found',
+        'error' => "Unknown hash: $givenHash",
+    ], 404);
 }
 
 $foundSystem = System::find($foundHash->game->ConsoleID);
@@ -32,6 +36,7 @@ $foundSystem = System::find($foundHash->game->ConsoleID);
 return response()->json([
     'ID' => $foundHash->game->ID,
     'Title' => $foundHash->game->Title,
+    'Description' => $foundHash->Name,
     'ConsoleID' => $foundHash->game->ConsoleID,
     'ConsoleName' => $foundSystem?->Name ?? null,
 ]);

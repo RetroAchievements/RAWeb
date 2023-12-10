@@ -35,10 +35,14 @@ class GameFromHashTest extends TestCase
 
     public function testGetGameFromHashIfGameNotFound(): void
     {
-        $this->get($this->apiUrl('GetGameFromHash', ['h' => '1bc674be034e43c96b86487ac69d9293']))
-            ->assertStatus(400)
+        $targetHash = '1bc674be034e43c96b86487ac69d9293';
+
+        $this->get($this->apiUrl('GetGameFromHash', ['h' => $targetHash]))
+            ->assertStatus(404)
             ->assertJson([
-                'message' => 'Could not find a game matching the given hash.',
+                'status' => 404,
+                'code' => 'not_found',
+                'error' => "Unknown hash: $targetHash",
             ]);
     }
 
@@ -49,13 +53,14 @@ class GameFromHashTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var GameHash $gameHash */
-        $gameHash = GameHash::factory()->create(['GameID' => $game->ID]);
+        $gameHash = GameHash::factory()->create(['GameID' => $game->ID, 'Name' => 'foo']);
 
         $this->get($this->apiUrl('GetGameFromHash', ['h' => $gameHash->MD5]))
             ->assertSuccessful()
             ->assertJson([
                 'ID' => $game->ID,
                 'Title' => $game->Title,
+                'Description' => $gameHash->Name,
                 'ConsoleID' => $system->ID,
                 'ConsoleName' => $system->Name,
             ]);
