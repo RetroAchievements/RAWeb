@@ -2,18 +2,9 @@
 
 use Illuminate\Support\Str;
 
-function RemovePasswordResetToken(string $username): bool
-{
-    $db = getMysqliConnection();
-
-    sanitize_sql_inputs($username);
-
-    $query = "UPDATE UserAccounts AS ua SET ua.PasswordResetToken = '' WHERE ua.User='$username'";
-    s_mysql_query($query);
-
-    return mysqli_affected_rows($db) >= 1;
-}
-
+/**
+ * @deprecated replace with Laravel standard features and/or Fortify
+ */
 function isValidPasswordResetToken(string $usernameIn, string $passwordResetToken): bool
 {
     sanitize_sql_inputs($usernameIn, $passwordResetToken);
@@ -32,6 +23,9 @@ function isValidPasswordResetToken(string $usernameIn, string $passwordResetToke
     return false;
 }
 
+/**
+ * @deprecated replace with Laravel standard features and/or Fortify
+ */
 function RequestPasswordReset(string $usernameIn): bool
 {
     sanitize_sql_inputs($usernameIn);

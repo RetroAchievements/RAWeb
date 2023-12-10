@@ -17,15 +17,11 @@ if (!isValidPasswordResetToken($user, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));
 }
 
-RemovePasswordResetToken($user);
+changePassword($user, $newPass);
 
-if (changePassword($user, $newPass)) {
-    // Perform auto-login:
-    if (authenticateFromCookie($user, $permissions, $userDetails)) {
-        generateAppToken($user, $tokenInOut);
-    }
-
-    return back()->with('success', __('legacy.success.password_change'));
+// Perform auto-login:
+if (authenticateFromCookie($user, $permissions, $userDetails)) {
+    generateAppToken($user, $tokenInOut);
 }
 
-return back()->withErrors(__('legacy.error.error'));
+return back()->with('success', __('legacy.success.password_change'));

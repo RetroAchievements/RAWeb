@@ -4,6 +4,7 @@ use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 function authenticateForConnect(?string $username, ?string $pass = null, ?string $token = null): array
@@ -91,7 +92,7 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
     ];
 }
 
-function authenticateFromPassword(string &$username, string $pass): bool
+function authenticateFromPassword(string &$username, string $password): bool
 {
     if (!isValidUsername($username)) {
         return false;
@@ -113,15 +114,15 @@ function authenticateFromPassword(string &$username, string $pass): bool
 
     // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
     if (mb_strlen($row['SaltedPass']) === 32) {
-        $pepperedPassword = md5($pass . config('app.legacy_password_salt'));
+        $pepperedPassword = md5($password . config('app.legacy_password_salt'));
         if ($row['SaltedPass'] !== $pepperedPassword) {
             return false;
         }
-        $hashedPassword = migratePassword($username, $pass);
+        $hashedPassword = changePassword($username, $password);
     }
 
     // validate the password
-    if (!password_verify($pass, $hashedPassword)) {
+    if (!Hash::check($password, $hashedPassword)) {
         return false;
     }
 
@@ -134,37 +135,16 @@ function authenticateFromPassword(string &$username, string $pass): bool
     return true;
 }
 
-function changePassword(string $user, string $pass): bool
+function changePassword(string $username, string $password): string
 {
-    sanitize_sql_inputs($user);
+    $hashedPassword = Hash::make($password);
 
-    $hashedPassword = hashPassword($pass);
-    $query = "UPDATE UserAccounts SET Password='$hashedPassword', SaltedPass='', Updated=NOW() WHERE user='$user'";
-    if (s_mysql_query($query) === false) {
-        log_sql_fail();
+    $user = User::firstWhere('User', $username);
 
-        return false;
-    }
-
-    return true;
-}
-
-function hashPassword(string $pass): string
-{
-    $algorithm = defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT;
-
-    return password_hash($pass, $algorithm, [
-        'memory_cost' => 1024,
-        'threads' => 2,
-        'time' => 1,
-    ]);
-}
-
-function migratePassword(string $username, string $pass): string
-{
-    $hashedPassword = hashPassword($pass);
-    legacyDbStatement("UPDATE UserAccounts SET Password=:hashedPassword, SaltedPass='' WHERE User=:user",
-        ['hashedPassword' => $hashedPassword, 'user' => $username]);
+    $user->Password = $hashedPassword;
+    $user->SaltedPass = '';
+    $user->PasswordResetToken = '';
+    $user->save();
 
     return $hashedPassword;
 }
