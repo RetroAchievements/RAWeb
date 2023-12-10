@@ -66,5 +66,5 @@ function submitSetRequest(user, gameID) {
     <h2 class='text-h4'>Set Requests</h2>
     <div class='gameRequestsLabel'>Set Requests: <a href='/setRequestors.php?g={{ $gameId }}'>{{ $gameRequests }}</a></div>
     <div><button type='button' class='btn setRequestLabel'{!! $onClick !!}>{{ $buttonText }}</button></div>
-    <div class='userRequestsLabel'>User Requests Remaining: <a href='/setRequestList.php?u={{ $user->User }}'>{{ $userRequestsRemaining }}</div>
+    <div class='userRequestsLabel'>User Requests Remaining: <a href='/setRequestList.php?u={{ $user->User }}'>{{ $userRequestsRemaining }}</a></div>
 </div>

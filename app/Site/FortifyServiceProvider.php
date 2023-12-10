@@ -76,7 +76,7 @@ class FortifyServiceProvider extends ServiceProvider
                                 Fortify::username() => [trans('auth.failed')],
                             ]);
                         }
-                        migratePassword($user->User, $request->input('password'));
+                        changePassword($user->User, $request->input('password'));
                     }
 
                     return $next($request);

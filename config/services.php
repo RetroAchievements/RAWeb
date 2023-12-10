@@ -18,21 +18,55 @@ return [
         'client_id' => env('DISCORD_KEY'),
         'client_secret' => env('DISCORD_SECRET'),
         'invite_id' => env('DISCORD_INVITE_ID'),
-
         'webhook' => [
             // public
             'achievements' => env('DISCORD_WEBHOOK_ACHIEVEMENTS'),
             'news' => env('DISCORD_WEBHOOK_NEWS'),
             'users' => env('DISCORD_WEBHOOK_USERS'),
-
-            // qa
-
-            'qateam_inbox' => env('DISCORD_WEBHOOK_QA_QATEAM_MESSAGES'),
-
             // moderation
             'forums' => env('DISCORD_WEBHOOK_MOD_FORUMS'),
             'sentry' => env('DISCORD_WEBHOOK_MOD_SENTRY'),
-            'radmin_inbox' => env('DISCORD_WEBHOOK_MOD_RADMIN_MESSAGES'),
+        ],
+        'inbox_webhook' => [
+            'DevCompliance' => [
+                'url' => env('DISCORD_WEBHOOK_DEVCOMPLIANCE'),
+                'is_forum' => true,
+                'mention_role' => env('DISCORD_ROLE_DEVCOMPLIANCE'),
+            ],
+            'DevQuest' => [
+                'url' => env('DISCORD_WEBHOOK_DEVQUEST'),
+            ],
+            'QATeam' => [
+                'url' => env('DISCORD_WEBHOOK_QATEAM'),
+                'is_forum' => true,
+                'mention_role' => env('DISCORD_ROLE_QATEAM'),
+            ],
+            'QualityQuest' => [
+                'url' => env('DISCORD_WEBHOOK_QUALITYQUEST'),
+            ],
+            'RACheats' => [
+                'url' => env('DISCORD_WEBHOOK_RACHEATS'),
+                'is_forum' => true,
+                'mention_role' => env('DISCORD_ROLE_INVESTIGATOR'),
+            ],
+            'RAdmin' => [
+                'url' => env('DISCORD_WEBHOOK_MOD'),
+                'is_forum' => true,
+                'mention_role' => [
+                    env('DISCORD_ROLE_ADMIN'),
+                    env('DISCORD_ROLE_MODERATOR'),
+                ],
+                'manual_unlock_url' => env('DISCORD_WEBHOOK_MOD_MANUAL_UNLOCK'),
+                'verify_url' => env('DISCORD_WEBHOOK_MOD_VERIFY'),
+            ],
+            'RAEvents' => [
+                'url' => env('DISCORD_WEBHOOK_RAEVENTS'),
+                'is_forum' => true,
+                'mention_role' => env('DISCORD_ROLE_EVENTS'),
+            ],
+            'RANews' => [
+                'url' => env('DISCORD_WEBHOOK_RANEWS'),
+            ],
         ],
     ],
 
