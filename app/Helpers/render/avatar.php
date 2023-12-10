@@ -45,7 +45,7 @@ function avatar(
         }
     }
 
-    return "<span class='$class' $tooltipTrigger><a class='inline-block' href='$link'>$label</a></span>";
+    return "<span class='$class' $tooltipTrigger><a href='$link'>$label</a></span>";
 }
 
 function tooltipEscape(string $input): string
