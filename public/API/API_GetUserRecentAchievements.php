@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  *    int        Points                   number of points the achievement is worth
  *    string     BadgeName                unique identifier of the badge image for the achievement
  *    string     BadgeURL                 site-relative path to the badge image for the achievement
+ *    string     Type                     null, "progression", "win_condition", or "missable"
  *    string     Author                   user who originally created the achievement
  *    int        GameID                   unique identifier of the game associated to the achievement
  *    string     GameTitle                title of the game associated to the achievement
