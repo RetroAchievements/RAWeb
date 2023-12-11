@@ -6,6 +6,7 @@
  *
  *  int        ID                         id of the game
  *  string     Title                      name of the game
+ *  string     Description                description of the associated hash
  *  int        ConsoleID                  unique identifier of the console associated to the game
  *  string     ConsoleName                name of the console associated to the game
  */
@@ -25,9 +26,14 @@ $foundHash = GameHash::with('game')->where('MD5', $givenHash)->first();
 
 if (!$foundHash) {
     return response()->json([
-        'status' => 404,
-        'code' => 'not_found',
-        'error' => "Unknown hash: $givenHash",
+        'message' => "Unknown hash: $givenHash",
+        'errors' => [
+            [
+                'status' => 404,
+                'code' => 'not_found',
+                'title' => "Unknown hash: $givenHash",
+            ],
+        ],
     ], 404);
 }
 
