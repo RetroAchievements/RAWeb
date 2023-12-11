@@ -27,22 +27,23 @@ class LegacyRedirector implements Redirector
         if ($request->getQueryString()) {
             if (isset($redirects[$request->getPathInfo()])) {
                 $queryParams = Query::parse($request->getQueryString());
-                $redirectUrl = $redirects[$request->getPathInfo()];
 
-                // forward query string values
-                foreach ($queryParams as $key => $value) {
-                    $redirectUrl = str_replace("{{$key}}", $value, $redirectUrl);
-                }
-
-                // remove remaining, unused query string markers
-                $parsedRedirectUrl = URL::fromString($redirectUrl);
-                foreach ($parsedRedirectUrl->getAllQueryParameters() as $queryParameter => $queryParameterValue) {
-                    if (str_starts_with($queryParameterValue, '{')) {
-                        $parsedRedirectUrl = $parsedRedirectUrl->withoutQueryParameter($queryParameter);
+                // replace query string markers
+                $redirectUrl = URL::fromString($redirects[$request->getPathInfo()]);
+                foreach ($redirectUrl->getAllQueryParameters() as $queryParameter => $queryParameterValue) {
+                    if (str_starts_with($queryParameterValue, '{') && str_ends_with($queryParameterValue, '}')) {
+                        $key = substr($queryParameterValue, 1, -1);
+                        if (array_key_exists($key, $queryParams)) {
+                            // found a replacement, substitute it
+                            $redirectUrl = $redirectUrl->withQueryParameter($queryParameter, $queryParams[$key]);
+                        } else {
+                            // did not find a replacement, discard it
+                            $redirectUrl = $redirectUrl->withoutQueryParameter($queryParameter);
+                        }
                     }
                 }
 
-                return [$request->getPathInfo() => (string) $parsedRedirectUrl];
+                return [$request->getPathInfo() => (string) $redirectUrl];
             }
         }
 
