@@ -24,6 +24,23 @@ class MessageController extends Controller
         $subject = $request->input('subject') ?? '';
         $message = $request->input('message') ?? '';
 
+        /* missing-page-redirector sets these to the placeholder if a value is not provided
+         *
+         *        '/createmessage.php' => '/message/create?to={t}&subject={s}&message={p}',
+         *
+         * when called with '/createmessage.php?t=RAdmin'
+         * redirects to '/message/create?to=RAdmin&subject={s}&message={p}'
+         */
+        if ($toUser === '{t}') {
+            $toUser = '';
+        }
+        if ($subject === '{s}') {
+            $subject = '';
+        }
+        if ($message === '{p}') {
+            $message = '';
+        }
+
         return view('community.message.create', [
             'toUser' => $toUser,
             'subject' => $subject,
