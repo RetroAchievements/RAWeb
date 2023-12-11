@@ -39,7 +39,7 @@ if (!$user) {
 return response()->json([
     'User' => $user->User,
     'UserPic' => sprintf("/UserPic/%s.png", $user->User),
-    'MemberSince' => $user->Created?->__toString(),
+    'MemberSince' => $user->Created?->toDateTimeString(),
     'RichPresenceMsg' => empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg,
     'LastGameID' => $user->LastGameID,
     'ContribCount' => $user->ContribCount,

@@ -38,8 +38,8 @@ class UserProfileTest extends TestCase
             ->assertJson([
                 'User' => $user->User,
                 'UserPic' => sprintf("/UserPic/%s.png", $user->User),
-                'MemberSince' => $user->Created?->__toString(),
-                'RichPresenceMsg' => empty($user->RichPresenceMsg) || $user->RichPresenceMsg === 'Unknown' ? null : $user->RichPresenceMsg,
+                'MemberSince' => $user->Created?->toDateTimeString(),
+                'RichPresenceMsg' => ($user->RichPresenceMsg) ? $user->RichPresenceMsg : null,
                 'LastGameID' => $user->LastGameID,
                 'ContribCount' => $user->ContribCount,
                 'ContribYield' => $user->ContribYield,
