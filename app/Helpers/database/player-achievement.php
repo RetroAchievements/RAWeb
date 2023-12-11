@@ -118,6 +118,7 @@ function getAchievementUnlocksData(
     int $achievementId,
     ?string $username,
     ?int &$numWinners,
+    ?int &$numWinnersHardcore,
     ?int &$numPossibleWinners,
     ?int $parentGameId = null,
     int $offset = 0,
@@ -130,6 +131,7 @@ function getAchievementUnlocksData(
     }
 
     $numWinners = $achievement->unlocks_total ?? 0;
+    $numWinnersHardcore = $achievement->unlocks_hardcore_total ?? 0;
     $numPossibleWinners = $achievement->game->players_total ?? 0;
 
     // Get recent winners, and their most recent activity
