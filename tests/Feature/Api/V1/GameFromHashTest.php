@@ -40,9 +40,14 @@ class GameFromHashTest extends TestCase
         $this->get($this->apiUrl('GetGameFromHash', ['h' => $targetHash]))
             ->assertStatus(404)
             ->assertJson([
-                'status' => 404,
-                'code' => 'not_found',
-                'error' => "Unknown hash: $targetHash",
+                'message' => "Unknown hash: $targetHash",
+                'errors' => [
+                    [
+                        'status' => 404,
+                        'code' => 'not_found',
+                        'title' => "Unknown hash: $targetHash",
+                    ],
+                ],
             ]);
     }
 
