@@ -63,6 +63,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
+            'replace_placeholders' => true,
         ],
 
         'daily' => [
@@ -79,6 +80,7 @@ return [
             'username' => 'Laravel Log',
             'emoji' => ':boom:',
             'level' => env('LOG_LEVEL', 'critical'),
+            'replace_placeholders' => true,
             'replace_placeholders' => true,
         ],
 
@@ -110,11 +112,14 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'facility' => LOG_USER,
             'replace_placeholders' => true,
+            'facility' => LOG_USER,
+            'replace_placeholders' => true,
         ],
 
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
             'replace_placeholders' => true,
         ],
 
