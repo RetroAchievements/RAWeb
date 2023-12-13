@@ -332,6 +332,7 @@ function getUserGameActivity(string $username, int $gameID): array
                 'Title' => $playerAchievement->Title,
                 'Description' => $playerAchievement->Description,
                 'Points' => $playerAchievement->Points,
+                'Type' => $playerAchievement->type,
                 'BadgeName' => $playerAchievement->BadgeName,
             ];
         };
@@ -389,7 +390,7 @@ function getUserGameActivity(string $username, int $gameID): array
         ->where('Achievements.GameID', '=', $gameID)
         ->orderBy('player_achievements.unlocked_at')
         ->select(['player_achievements.*', 'Achievements.Flags', 'Achievements.Title',
-                  'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName'])
+                  'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName', 'Achievements.type'])
         ->get();
     foreach ($playerAchievements as $playerAchievement) {
         if ($playerAchievement->Flags != AchievementFlag::OfficialCore) {
