@@ -17,16 +17,11 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $username = $user->User;
 
-if (!authenticateFromPassword($username, $input['password_current'])) {
+if (!Hash::check($input['password_current'], $user->Password)) {
     return back()->withErrors(__('legacy.error.credentials'));
 }
 
-RemovePasswordResetToken($username);
+changePassword($username, $input['password']);
+generateAppToken($username, $tokenInOut);
 
-if (changePassword($username, $input['password'])) {
-    generateAppToken($username, $tokenInOut);
-
-    return back()->with('success', __('legacy.success.password_change'));
-}
-
-return back()->withErrors(__('legacy.error.error'));
+return back()->with('success', __('legacy.success.password_change'));

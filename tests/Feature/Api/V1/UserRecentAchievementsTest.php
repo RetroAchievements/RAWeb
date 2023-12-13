@@ -34,7 +34,7 @@ class UserRecentAchievementsTest extends TestCase
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'BadgeName' => '23456']);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'BadgeName' => '34567']);
+        $achievement3 = Achievement::factory()->published()->progression()->create(['GameID' => $game2->ID, 'BadgeName' => '34567']);
 
         $now = Carbon::now()->subSeconds(15); // 15-second offset so times aren't on the boundaries being queried
         $unlock1Date = $now->clone()->subMinutes(65);
@@ -93,6 +93,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
+                    'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
                     'GameID' => $game2->ID,
                     'GameTitle' => $game2->Title,
@@ -108,6 +109,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement2->Points,
+                    'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
                     'GameID' => $game2->ID,
                     'GameTitle' => $game2->Title,
@@ -130,6 +132,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
+                    'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
                     'GameID' => $game2->ID,
                     'GameTitle' => $game2->Title,
@@ -145,6 +148,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement2->Points,
+                    'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
                     'GameID' => $game2->ID,
                     'GameTitle' => $game2->Title,
@@ -167,6 +171,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
+                    'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
                     'GameID' => $game2->ID,
                     'GameTitle' => $game2->Title,
@@ -182,6 +187,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement2->Points,
+                    'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
                     'GameID' => $game2->ID,
                     'GameTitle' => $game2->Title,
@@ -197,6 +203,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement1->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement1->Points,
+                    'Type' => $achievement1->type,
                     'Title' => $achievement1->Title,
                     'GameID' => $game1->ID,
                     'GameTitle' => $game1->Title,

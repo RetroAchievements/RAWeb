@@ -8,6 +8,7 @@ use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -26,7 +27,7 @@ class LoginTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'appToken' => Str::random(16),
-            'Password' => hashPassword($password),
+            'Password' => Hash::make($password),
             'Permissions' => Permissions::JuniorDeveloper,
             'RAPoints' => 12345,
             'RASoftcorePoints' => 4321,
@@ -81,7 +82,7 @@ class LoginTest extends TestCase
         $data = legacyDbFetch('SELECT appToken, SaltedPass, Password FROM UserAccounts WHERE User=:user', ['user' => $user2->User]);
         $this->assertNotEquals('', $data['appToken']);
         $this->assertEquals('', $data['SaltedPass']);
-        $this->assertTrue(password_verify($password, $data['Password']));
+        $this->assertTrue(Hash::check($password, $data['Password']));
 
         $response->assertStatus(200)->assertExactJson([
             'Success' => true,
@@ -104,7 +105,7 @@ class LoginTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'appToken' => Str::random(16),
-            'Password' => hashPassword($password),
+            'Password' => Hash::make($password),
         ]);
 
         // invalid password
@@ -178,7 +179,7 @@ class LoginTest extends TestCase
 
         // try with banned user - response should be the same as a non-existant user
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'Password' => hashPassword($password)]);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'Password' => Hash::make($password)]);
         $this->post('dorequest.php', ['r' => 'login2', 'u' => $user2->User, 'p' => $password])
             ->assertStatus(401)
             ->assertHeader('WWW-Authenticate', 'Bearer')
@@ -191,7 +192,7 @@ class LoginTest extends TestCase
 
         // try with unregistered user - expect permissions error
         /** @var User $user3 */
-        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'Password' => hashPassword($password)]);
+        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'Password' => Hash::make($password)]);
         $this->post('dorequest.php', ['r' => 'login2', 'u' => $user3->User, 'p' => $password])
             ->assertStatus(403)
             ->assertExactJson([
@@ -215,7 +216,7 @@ class LoginTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create([
             'appToken' => Str::random(16),
-            'Password' => hashPassword($password),
+            'Password' => Hash::make($password),
         ]);
 
         // invalid password
@@ -283,7 +284,7 @@ class LoginTest extends TestCase
 
         // try with banned user - response should be the same as a non-existant user
         /** @var User $user2 */
-        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'Password' => hashPassword($password)]);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Banned, 'Password' => Hash::make($password)]);
         $this->get($this->apiUrl('login', ['u' => $user2->User, 'p' => $password], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([
@@ -295,7 +296,7 @@ class LoginTest extends TestCase
 
         // try with unregistered user - expect permissions error
         /** @var User $user3 */
-        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'Password' => hashPassword($password)]);
+        $user3 = User::factory()->create(['Permissions' => Permissions::Unregistered, 'Password' => Hash::make($password)]);
         $this->get($this->apiUrl('login', ['u' => $user3->User, 'p' => $password], credentials: false))
             ->assertStatus(200)
             ->assertExactJson([

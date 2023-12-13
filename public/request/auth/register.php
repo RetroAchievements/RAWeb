@@ -2,6 +2,7 @@
 
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
@@ -45,7 +46,7 @@ if (config('services.google.recaptcha_secret')) {
     }
 }
 
-$hashedPassword = hashPassword($pass);
+$hashedPassword = Hash::make($pass);
 
 $query = "INSERT INTO UserAccounts (User, Password, SaltedPass, EmailAddress, Permissions, RAPoints, fbUser, fbPrefs, cookie, appToken, appTokenExpiry, websitePrefs, LastLogin, LastActivityID, Motto, ContribCount, ContribYield, APIKey, APIUses, LastGameID, RichPresenceMsg, RichPresenceMsgDate, ManuallyVerified, UnreadMessageCount, TrueRAPoints, UserWallActive, PasswordResetToken, Untracked, email_backup)
 VALUES ( '$username', '$hashedPassword', '', '$email', 0, 0, 0, 0, '', '', NULL, 63, null, 0, '', 0, 0, '', 0, 0, '', NULL, 0, 0, 0, 1, NULL, false, '$email')";
