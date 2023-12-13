@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
@@ -10,6 +9,7 @@ use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\PlayerGame;
+use App\Site\Models\NotificationPreferences;
 use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
@@ -131,6 +131,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $ticketID = mysqli_insert_id($db);
 
     $achAuthor = $achData['Author'];
+    $achTitle = $achData['Title'];
     $gameID = $achData['GameID'];
     $gameTitle = $achData['GameTitle'];
 
@@ -138,30 +139,34 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
 
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
-    $bugReportDetails = "Achievement: [ach=$achID]
-Game: [game=$gameID]
+    $emailHeader = "Bug Report ($gameTitle)";
+    $bugReportDetails = "
+Achievement: $achTitle
+Game: $gameTitle
 Problem: $problemTypeStr
 Comment: $note
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . config('app.url') . "/ticketmanager.php?i=$ticketID"
-        . " Thanks!";
+" . config('app.url') . "/ticketmanager.php?i=$ticketID
+
+Thanks!";
 
     $author = User::firstWhere('User', $achAuthor);
-    if ($author) {
-        $bugReportMessage = "Hi, $achAuthor!\r\n[user=$username] would like to report a bug with an achievement you've created:\r\n$bugReportDetails";
-        (new CreateMessageThreadAction())->execute($user, $author, "Bug Report ($gameTitle)",
-            $bugReportMessage, isProxied: true); // don't put the message in the user's message list unless the recipient replies
+    if ($author && BitSet($author->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
+        $emailBody = "Hi, {$author->User}!
+
+$username would like to report a bug with an achievement you've created:
+$bugReportDetails";
+        sendRAEmail($author->EmailAddress, $emailHeader, $emailBody);
     }
 
     // notify subscribers other than the achievement's author
-    // TODO dry it. why is this not (1 << 1) like in submitNewTicketsJSON?
-    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << 0);
-    $emailHeader = "Bug Report ($gameTitle)";
+    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << NotificationPreferences::EmailOn_PrivateMessage);
     foreach ($subscribers as $sub) {
         if ($sub['User'] != $achAuthor && $sub['User'] != $username) {
-            $emailBody = "Hi, " . $sub['User'] . "!\r\n
-[user=$username] would like to report a bug with an achievement you're subscribed to':
+            $emailBody = "Hi, " . $sub['User'] . "!
+
+$username would like to report a bug with an achievement you're subscribed to:
 $bugReportDetails";
             sendRAEmail($sub['EmailAddress'], $emailHeader, $emailBody);
         }
