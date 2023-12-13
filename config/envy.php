@@ -142,6 +142,7 @@ return [
 
         // config/view.php
         'VIEW_COMPILED_PATH',
+
         // other
         'ACTIVITY_LOGGER_DB_CONNECTION',
         'FLARE_KEY',
