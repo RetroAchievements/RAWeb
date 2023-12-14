@@ -86,7 +86,9 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $badgeName = $data['BadgeName'] ?? null;
     $unlock = $data['Unlock'] ?? null;
     $badgeImgSrc = $iconUrl ?? media_asset("Badge/{$badgeName}.png");
-    $gameTitle = str_replace("\n", '', Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $data['GameTitle'] ?? '']));
+    $renderedGameTitle = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $data['GameTitle'] ?? '']);
+    $sanitizedGameTitle = str_replace("\n", '', $renderedGameTitle);
+    $sanitizedGameTitle = html_entity_decode($sanitizedGameTitle, ENT_QUOTES, 'UTF-8');
 
     $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
     $tooltip .= "<img src='$badgeImgSrc' width='64' height='64' />";
@@ -96,8 +98,8 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     if ($achPoints) {
         $tooltip .= "<div>$achPoints " . __res('point', (int) $achPoints) . "</div>";
     }
-    if ($gameTitle) {
-        $tooltip .= "<div><i>" . trim($gameTitle) . "</i></div>";
+    if ($sanitizedGameTitle) {
+        $tooltip .= "<div><i>" . trim($sanitizedGameTitle) . "</i></div>";
     }
 
     if ($unlock) {

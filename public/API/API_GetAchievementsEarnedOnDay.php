@@ -13,6 +13,7 @@
  *    string     Title                    title of the achievement
  *    string     Description              description of the achievement
  *    int        Points                   number of points the achievement is worth
+ *    string     Type                     null, "progression", "win_condition", or "missable"
  *    string     BadgeName                unique identifier of the badge image for the achievement
  *    string     BadgeURL                 site-relative path to the badge image for the achievement
  *    string     Author                   user who originally created the achievement
