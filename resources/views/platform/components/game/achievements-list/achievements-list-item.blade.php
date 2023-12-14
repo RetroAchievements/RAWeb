@@ -1,13 +1,12 @@
 @props([
     'achievement' => [],
     'beatenGameCreditDialogContext' => 's:|h:',
-    'totalPlayerCount' => 0,
-    'useMinimalLayout' => false,
+    'isCreditDialogEnabled' => true,
     'isUnlocked' => false,
     'isUnlockedHardcore' => false,
-    'isCreditDialogEnabled' => true,
     'showAuthorName' => false,
     'totalPlayerCount' => 0,
+    'useMinimalLayout' => false,
 ])
 
 <?php
