@@ -26,7 +26,6 @@ $achievementTitle = $dataOut['Title'];
 $desc = $dataOut['Description'];
 $achFlags = (int) $dataOut['Flags'];
 $achPoints = (int) $dataOut['Points'];
-$achTruePoints = (int) $dataOut['TrueRatio'];
 $achType = $dataOut['type'];
 $gameTitle = $dataOut['GameTitle'];
 $badgeName = $dataOut['BadgeName'];
@@ -62,14 +61,34 @@ sanitize_outputs(
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $numWinners = 0;
+$numWinnersHardcore = 0;
 $numPossibleWinners = 0;
 
-$unlocks = getAchievementUnlocksData($achievementID, $user, $numWinners, $numPossibleWinners, $parentGameID, 0, 50);
+$unlocks = getAchievementUnlocksData(
+    $achievementID,
+    $user,
+    $numWinners,
+    $numWinnersHardcore,
+    $numPossibleWinners,
+    $parentGameID,
+    0,
+    50
+);
+
+$dataOut['NumAwarded'] = $numWinners;
+$dataOut['NumAwardedHardcore'] = $numWinnersHardcore;
 
 $dateWonLocal = "";
 foreach ($unlocks as $userObject) {
     if ($userObject['User'] == $user) {
         $dateWonLocal = $userObject['DateAwarded'];
+
+        if ($userObject['HardcoreMode'] === 1) {
+            $dataOut['DateEarnedHardcore'] = $dateWonLocal;
+        } else {
+            $dataOut['DateEarned'] = $dateWonLocal;
+        }
+
         break;
     }
 }
@@ -83,8 +102,10 @@ if ($dateWonLocal === "" && isset($user)) {
         if ($playerAchievement) {
             if ($playerAchievement->unlocked_hardcore_at) {
                 $dateWonLocal = $playerAchievement->unlocked_hardcore_at->__toString();
+                $dataOut['DateEarnedHardcore'] = $dateWonLocal;
             } elseif ($playerAchievement->unlocked_at) {
                 $dateWonLocal = $playerAchievement->unlocked_at->__toString();
+                $dataOut['DateEarned'] = $dateWonLocal;
             }
         }
     }
@@ -243,52 +264,19 @@ RenderContentStart($pageTitle);
         'gameTitle' => $gameTitle,
     ]);
 
-    $fileSuffix = ($user == "" || !$achievedLocal) ? '_lock' : '';
-    $badgeFullPath = media_asset("Badge/$badgeName$fileSuffix.png");
-
-    echo "<table class='nicebox mb-1'><tbody>";
-
-    $descAttr = attributeEscape($desc);
-    echo "<tr>";
-    echo "<td style='width:70px'>";
-    echo "<div id='achievemententryicon'>";
-    echo "<a href=\"/achievement/$achievementID\"><img src=\"$badgeFullPath\" title=\"$gameTitle ($achPoints)\n$descAttr\" alt=\"$descAttr\" align=\"left\" width=\"64\" height=\"64\" /></a>";
-    echo "</div>"; // achievemententryicon
-    echo "</td>";
-
-    echo "<td>";
-    echo "<div id='achievemententry'>";
-
-    $renderedTitle = Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
-        'rawTitle' => $achievementTitle,
+    echo Blade::render('
+        <x-game.achievements-list.achievements-list-item
+            :achievement="$achievement"
+            :isCreditDialogEnabled="$isCreditDialogEnabled"
+            :totalPlayerCount="$totalPlayerCount"
+            :isUnlocked="$isUnlocked"
+        />
+    ', [
+        'achievement' => $dataOut,
+        'isCreditDialogEnabled' => false,
+        'totalPlayerCount' => $numPossibleWinners,
+        'isUnlocked' => $achievedLocal,
     ]);
-
-    echo "<div class='flex flex-col justify-between gap-y-2'>";
-    echo "<div>";
-    echo "<a href='/achievement/$achievementID'><strong>$renderedTitle</strong></a>";
-    if ($achPoints !== 0) {
-        echo " ($achPoints)<span class='TrueRatio'> ($achTruePoints)</span>";
-    }
-    echo "<br>";
-    echo "$desc";
-    echo "</div>";
-    if ($achievedLocal) {
-        $niceDateWon = date("d M, Y H:i", strtotime($dateWonLocal));
-        echo "<div class='date smalltext'>Unlocked $niceDateWon</div>";
-    }
-    echo "</div>";
-
-    echo "</div>";
-    echo "</td>";
-
-    echo "</tr>";
-    echo "</tbody></table>";
-
-    if ($numPossibleWinners > 0) {
-        $recentWinnersPct = sprintf("%01.2f", ($numWinners / $numPossibleWinners) * 100);
-    } else {
-        $recentWinnersPct = sprintf("%01.0f", 0);
-    }
 
     $niceDateCreated = date("d M, Y H:i", strtotime($dateCreated));
     $niceDateModified = date("d M, Y H:i", strtotime($dateModified));
@@ -301,8 +289,6 @@ RenderContentStart($pageTitle);
     echo "Created by " . userAvatar($author, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
     echo "</small>";
     echo "</p>";
-
-    echo "<p class='mb-2'>Unlocked by <span class='font-bold'>" . localized_number($numWinners) . "</span> of <span class='font-bold'>" . localized_number($numPossibleWinners) . "</span> possible players ($recentWinnersPct%)</p>";
 
     if (isset($user) && $permissions >= Permissions::Registered) {
         $countTickets = countOpenTicketsByAchievement($achievementID);

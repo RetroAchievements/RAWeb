@@ -37,7 +37,7 @@ class AchievementOfTheWeekTest extends TestCase
         $now = Carbon::now();
         $this->addSoftcoreUnlock($this->user, $achievement, $now);
         $this->addSoftcoreUnlock($user2, $achievement, $now->copy()->subMinutes(5));
-        $this->addSoftcoreUnlock($user3, $achievement, $now->copy()->addMinutes(5));
+        $this->addHardcoreUnlock($user3, $achievement, $now->copy()->addMinutes(5));
 
         $staticData = StaticData::factory()->create([
             'Event_AOTW_AchievementID' => $achievement->ID,
@@ -65,7 +65,7 @@ class AchievementOfTheWeekTest extends TestCase
                     [
                         'User' => $user3->User,
                         'RAPoints' => $user3->RAPoints,
-                        'HardcoreMode' => 0,
+                        'HardcoreMode' => 1,
                     ],
                     [
                         'User' => $this->user->User,
@@ -79,6 +79,7 @@ class AchievementOfTheWeekTest extends TestCase
                     ],
                 ],
                 'UnlocksCount' => 3,
+                'UnlocksHardcoreCount' => 1,
             ]);
     }
 }

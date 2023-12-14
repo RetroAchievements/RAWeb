@@ -159,6 +159,7 @@ class V1Test extends TestCase
                     ],
                 ],
                 'UnlocksCount' => 1,
+                'UnlocksHardcoreCount' => 0,
             ]);
     }
 
@@ -291,6 +292,7 @@ class V1Test extends TestCase
                     ],
                 ],
                 'UnlocksCount' => 1,
+                'UnlocksHardcoreCount' => 0,
             ]);
 
         $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => 999999999]))
@@ -300,6 +302,7 @@ class V1Test extends TestCase
                 'TotalPlayers' => 0,
                 'Unlocks' => [],
                 'UnlocksCount' => 0,
+                'UnlocksHardcoreCount' => 0,
             ]);
     }
 
