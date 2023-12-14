@@ -48,7 +48,7 @@ function RenderUserPref(
  */
 function DoChangeUserPrefs(targetLoadingIcon = 1) {
     var newUserPrefs = 0;
-    for (i = 0; i <= 15; ++i) {
+    for (i = 0; i <= 16; ++i) {
         var checkbox = document.getElementById('UserPreference' + i);
         if (checkbox != null && checkbox.checked) {
             newUserPrefs += (1 << i);
@@ -238,6 +238,12 @@ function confirmEmailChange(event) {
                     <td>
                         Show absolute dates on forum posts
                         <td><?php RenderUserPref($websitePrefs, UserPreference::Forum_ShowAbsoluteDates, true, $state = null, $targetLoadingIcon = 2) ?></td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Hide missable achievement indicators
+                        <td><?php RenderUserPref($websitePrefs, UserPreference::Game_HideMissableIndicators, true, $state = null, $targetLoadingIcon = 2) ?></td>
                     </td>
                 </tr>
             </table>

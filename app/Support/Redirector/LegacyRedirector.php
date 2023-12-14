@@ -6,6 +6,7 @@ namespace App\Support\Redirector;
 
 use GuzzleHttp\Psr7\Query;
 use Spatie\MissingPageRedirector\Redirector\Redirector;
+use Spatie\Url\Url;
 use Symfony\Component\HttpFoundation\Request;
 
 class LegacyRedirector implements Redirector
@@ -27,11 +28,21 @@ class LegacyRedirector implements Redirector
             if (isset($redirects[$request->getPathInfo()])) {
                 $queryParams = Query::parse($request->getQueryString());
                 $redirectUrl = $redirects[$request->getPathInfo()];
+
+                // forward route and query string values
                 foreach ($queryParams as $key => $value) {
                     $redirectUrl = str_replace("{{$key}}", $value, $redirectUrl);
                 }
 
-                return [$request->getPathInfo() => $redirectUrl];
+                // remove remaining, unused markers
+                $parsedRedirectUrl = URL::fromString($redirectUrl);
+                foreach ($parsedRedirectUrl->getAllQueryParameters() as $queryParameter => $queryParameterValue) {
+                    if (str_starts_with($queryParameterValue, '{')) {
+                        $parsedRedirectUrl = $parsedRedirectUrl->withoutQueryParameter($queryParameter);
+                    }
+                }
+
+                return [$request->getPathInfo() => (string) $parsedRedirectUrl];
             }
         }
 
