@@ -38,6 +38,6 @@ class ManageHashesController extends Controller
     // TODO: Refactor this to use middleware once the permissions matrix is in place.
     private function getCanViewPage(?User $me): bool
     {
-        return isset($me) && $me->Permissions >= Permissions::Developer;
+        return isset($me) && (int) $me->getAttribute('Permissions') >= Permissions::Developer;
     }
 }
