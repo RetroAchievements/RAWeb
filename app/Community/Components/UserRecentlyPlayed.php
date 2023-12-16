@@ -58,11 +58,14 @@ class UserRecentlyPlayed extends Component
     {
         $badgeName = $achievementData['BadgeName'];
         $isAwarded = $achievementData['IsAwarded'];
+        $isHardcoreUnlock = $achievementData['HardcoreAchieved'];
 
         $className = 'badgeimglarge';
 
         if (!$isAwarded) {
             $badgeName .= '_lock';
+        } elseif ($isHardcoreUnlock){
+            $className = 'goldimage';
         }
 
         return achievementAvatar(
