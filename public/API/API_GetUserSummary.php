@@ -91,13 +91,18 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
-    'g' => 'nullable|integer|min:0|max:100',
+    'g' => 'nullable|integer|min:0',
     'a' => 'nullable|integer|min:0',
 ]);
 
 $user = request()->query('u');
 $recentGamesPlayed = (int) request()->query('g', '0');
 $recentAchievementsEarned = (int) request()->query('a', '10');
+
+// Cap `$recentGamesPlayed` to a maximum of 100.
+if ($recentGamesPlayed > 100) {
+    $recentGamesPlayed = 100;
+}
 
 $retVal = getUserPageInfo($user, $recentGamesPlayed, $recentAchievementsEarned);
 
