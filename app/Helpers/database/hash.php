@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Platform\Models\GameHash;
 
 function getMD5List(int $consoleID): array
 {
@@ -142,40 +143,21 @@ function removeHash(string $user, int $gameID, string $hash): bool
 }
 
 function updateHashDetails(
-    string $user,
-    int $gameID,
+    int $gameId,
     string $hash,
     ?string $name,
-    ?string $labels
+    ?string $labels,
+    ?string $internalPatchUrl,
+    ?string $sourceUrl,
 ): bool {
-    sanitize_sql_inputs($hash, $name, $labels);
+    $updatedAttributes = [
+        'Name' => $name,
+        'Labels' => $labels,
+        'internal_patch_url' => $internalPatchUrl ?? null,
+        'source' => $sourceUrl ?? null,
+    ];
 
-    $query = "UPDATE GameHashLibrary SET Name=";
+    $affectedRows = GameHash::where('MD5', $hash)->where('GameID', $gameId)->update($updatedAttributes);
 
-    if (!empty($name)) {
-        $query .= "'$name'";
-    } else {
-        $query .= "NULL";
-    }
-
-    $query .= ", Labels = ";
-
-    if (!empty($labels)) {
-        $query .= "'$labels'";
-    } else {
-        $query .= "NULL";
-    }
-
-    $query .= " WHERE GameID = $gameID AND MD5 = '$hash'";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-    }
-
-    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " updated by " . $user . ". File Name: \"" . $name . "\". Label: \"" . $labels . "\"");
-
-    return $dbResult != null;
+    return $affectedRows > 0;
 }

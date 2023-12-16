@@ -51,7 +51,7 @@ switch ($articleTypeID) {
         $commentsLabel = "Hash Comments";
         $navPath = [
             '_GamePrefix' => renderGameBreadcrumb($game->ID),
-            'Manage Hashes' => '/managehashes.php?g=' . $game->ID,
+            'Manage Hashes' => '/game/' . $game->ID . '/hashes/manage',
         ];
         break;
 
