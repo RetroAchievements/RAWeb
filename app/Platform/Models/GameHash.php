@@ -37,14 +37,14 @@ class GameHash extends BaseModel
         'description',
         'GameID',
         'hash',
-        'Label',
+        'Labels',
         'MD5',
         'internal_status',
         'Name',
         'system_id',
         'User',
         'source',
-        'internal_patch_url',
+        'patch_url',
     ];
 
     protected $casts = [

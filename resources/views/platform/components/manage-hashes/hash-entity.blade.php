@@ -4,6 +4,10 @@
     'myUsername' => '',
 ])
 
+<?php
+use Illuminate\Support\Carbon;
+?>
+
 <script>
 /**
  * @param {Event} event
@@ -12,23 +16,27 @@
 function updateHashDetails(event, hash) {
     event.preventDefault();
 
+    const gameId = {{ $gameId }};
     const user = "{{ $myUsername }}";
     const name = document.querySelector(`#HASH_${hash}_Name`).value.trim();
     const labels = document.querySelector(`#HASH_${hash}_Labels`).value.trim();
-    const internalPatchUrl = document.querySelector(`#HASH_${hash}_InternalPatchURL`).value.trim();
+    const patchUrl = document.querySelector(`#HASH_${hash}_PatchURL`).value.trim();
     const source = document.querySelector(`#HASH_${hash}_SourceURL`).value.trim();
 
     showStatusMessage('Updating hash...');
-    $.post('/request/game-hash/update.php', {
-        hash,
-        name,
-        labels,
-        source,
-        internal_patch_url: internalPatchUrl,
-        game: {{ $gameId }},
-    }).done(() => {
-        // Hard refresh the page rather than doing an optimistic UI update.
-        window.location.reload();
+    $.ajax({
+        url: `/game-hash/${hash}`,
+        type: 'PUT',
+        data: {
+            name,
+            labels,
+            source,
+            patch_url: patchUrl
+        },
+        success: () => {
+            // Hard refresh the page rather than doing an optimistic UI update.
+            window.location.reload();
+        },
     });
 }
 
@@ -42,12 +50,13 @@ function unlinkHash(hash, hashName) {
     }
 
     showStatusMessage('Unlinking hash...');
-    $.post('/request/game-hash/delete.php', {
-        hash,
-        game: {{ $gameId }},
-    }).done(() => {
-        // Hard refresh the page rather than doing an optimistic UI update.
-        window.location.reload();
+    $.ajax({
+        url: `/game-hash/${hash}`,
+        type: 'DELETE',
+        success: () => {
+            // Hard refresh the page rather than doing an optimistic UI update.
+            window.location.reload();
+        }
     });
 }
 </script>
@@ -59,7 +68,9 @@ function unlinkHash(hash, hashName) {
         </p>
 
         <div class="flex gap-x-4 items-center">
-            <x-manage-hashes.pretty-hash :hash="$hashEntity->MD5" />
+            <p class="font-mono text-neutral-200 light:text-neutral-700">
+                {{ $hashEntity->MD5 }}
+            </p>
 
             <button
                 type="button"
@@ -75,6 +86,13 @@ function unlinkHash(hash, hashName) {
         @if ($hashEntity->User)
             <p class="mb-4">
                 Linked by {!! userAvatar($hashEntity->User, icon: false) !!}
+                @if ($hashEntity->Created)
+                    on {{ Carbon::parse($hashEntity->Created)->format('F j Y, g:ia') }}
+                @endif
+            </p>
+        @elseif ($hashEntity->Created)
+            <p class="mb-4">
+                Linked on {{ Carbon::parse($hashEntity->Created)->format('F j Y, g:ia') }}
             </p>
         @endif
 
@@ -112,7 +130,7 @@ function unlinkHash(hash, hashName) {
 
                 <div>
                     <label
-                        for="{{ 'HASH_' . $hashEntity->MD5 . '_InternalPatchURL' }}"
+                        for="{{ 'HASH_' . $hashEntity->MD5 . '_PatchURL' }}"
                         class="text-2xs font-semibold cursor-help flex items-center gap-x-0.5"
                         title="Optional. This MUST be a URL to a .zip file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/blob/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
                     >
@@ -121,9 +139,9 @@ function unlinkHash(hash, hashName) {
                     </label>
 
                     <input
-                        id="{{ 'HASH_' . $hashEntity->MD5 . '_InternalPatchURL' }}"
+                        id="{{ 'HASH_' . $hashEntity->MD5 . '_PatchURL' }}"
                         class="w-full"
-                        value="{{ $hashEntity->internal_patch_url }}"
+                        value="{{ $hashEntity->patch_url }}"
                         placeholder="https://github.com/RetroAchievements/RAPatches/blob/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
                     >
                 </div>

@@ -17,41 +17,46 @@ use Illuminate\Support\Facades\Auth;
 $me = Auth::user();
 
 $doesForumTopicExist = false;
-if ($gameForumTopicId && in_array('forum-topic', $allowedLinks)) {
+if ($gameForumTopicId) {
     $doesForumTopicExist = ForumTopic::where('ID', $gameForumTopicId)->exists();
 }
 
 $canCreateForumTopic = !$doesForumTopicExist && $me && $me->Permissions >= Permissions::Developer;
-$canSeeSupportedGameFiles = $me && $me->Permissions >= Permissions::Registered;
-$canSeeCodeNotes = $me && $me->Permissions >= Permissions::Registered;
-$canSeeOpenTickets = $me && $me->Permissions >= Permissions::Registered;
-$canSeeSetRequestors = $me && $me->Permissions >= Permissions::Registered && $gameAchievementsCount === 0;
 
-$numOpenTickets = countOpenTickets(
-    !$isViewingOfficial,
-    TicketFilters::Default,
-    null,
-    null,
-    null,
-    $gameId,
-)
+$canSeeForumLink = in_array('forum-topic', $allowedLinks);
+$canSeeSupportedGameFiles = in_array('game-files', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered;
+$canSeeCodeNotes = in_array('code-notes', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered;
+$canSeeGuide = in_array('guide', $allowedLinks) && $gameGuideUrl;
+$canSeeOpenTickets = in_array('tickets', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered;
+$canSeeSetRequestors = in_array('set-requestors', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered && $gameAchievementsCount === 0;
+
+if (in_array('tickets', $allowedLinks) && $canSeeOpenTickets) {
+    $numOpenTickets = countOpenTickets(
+        !$isViewingOfficial,
+        TicketFilters::Default,
+        null,
+        null,
+        null,
+        $gameId,
+    );
+}
 ?>
 
 <ul class="flex @if ($variant === 'stacked') flex-col @endif gap-2">
-    @if (in_array('forum-topic', $allowedLinks) && $doesForumTopicExist)
-        <x-game.link-buttons.game-link-button
-            icon="💬"
-            href="{{ '/viewtopic.php?t=' . $gameForumTopicId }}"
-        >
-            Official Forum Topic
-        </x-game.link-buttons.game-link-button>
+    @if ($canSeeForumLink)
+        @if ($doesForumTopicExist)
+            <x-game.link-buttons.game-link-button
+                icon="💬"
+                href="{{ '/viewtopic.php?t=' . $gameForumTopicId }}"
+            >
+                Official Forum Topic
+            </x-game.link-buttons.game-link-button>
+        @elseif ($canCreateForumTopic)
+            <x-game.link-buttons.create-forum-topic-button :gameId="$gameId" />
+        @endif
     @endif
 
-    @if (in_array('forum-topic', $allowedLinks) && $canCreateForumTopic)
-        <x-game.link-buttons.create-forum-topic-button :gameId="$gameId" />
-    @endif
-
-    @if (in_array('guide', $allowedLinks) && $gameGuideUrl)
+    @if ($canSeeGuide)
         <x-game.link-buttons.game-link-button
             icon="📖"
             href="{{ $gameGuideUrl }}"
@@ -60,7 +65,7 @@ $numOpenTickets = countOpenTickets(
         </x-game.link-buttons.game-link-button>
     @endif
 
-    @if (in_array('game-files', $allowedLinks) && $canSeeSupportedGameFiles)
+    @if ($canSeeSupportedGameFiles)
         <x-game.link-buttons.game-link-button
             icon="💾"
             href="{{ '/linkedhashes.php?g=' . $gameId }}"
@@ -69,7 +74,7 @@ $numOpenTickets = countOpenTickets(
         </x-game.link-buttons.game-link-button>
     @endif
 
-    @if (in_array('code-notes', $allowedLinks) && $canSeeCodeNotes)
+    @if ($canSeeCodeNotes)
         <x-game.link-buttons.game-link-button
             icon="📑"
             href="{{ '/codenotes.php?g=' . $gameId }}"
@@ -78,7 +83,7 @@ $numOpenTickets = countOpenTickets(
         </x-game.link-buttons.game-link-button>
     @endif
 
-    @if (in_array('tickets', $allowedLinks) && $canSeeOpenTickets)
+    @if ($canSeeOpenTickets)
         <x-game.link-buttons.game-link-button
             icon="🎫"
             href="{{ '/ticketmanager.php?g=' . $gameId }}"
@@ -87,7 +92,7 @@ $numOpenTickets = countOpenTickets(
         </x-game.link-buttons.game-link-button>
     @endif
 
-    @if (in_array('set-requestors', $allowedLinks) && $canSeeSetRequestors)
+    @if ($canSeeSetRequestors)
         <x-game.link-buttons.game-link-button
             icon="📜"
             href="{{ '/setRequestors.php?g=' . $gameId }}"

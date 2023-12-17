@@ -46,7 +46,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
 
                         <p>
                             If you're not <span class="underline font-semibold">100% sure</span> of what you're doing,
-                            <a href="{{ route('message.create') . '?to=RAdmin&subject=Attempt+to+Unlink+' . urlencode($game->Title) . '&message=%5Bgame=' . $game->ID . '%5D' }}">
+                            <a href="{{ route('message.create') . '?to=RAdmin&subject=Help+with+Hash+Management+for+' . urlencode($game->Title) . '&message=%5Bgame=' . $game->ID . '%5D' }}">
                                 contact RAdmin
                             </a>
                             and they'll help you out.

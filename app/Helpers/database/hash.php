@@ -142,22 +142,3 @@ function removeHash(string $user, int $gameID, string $hash): bool
     return $result;
 }
 
-function updateHashDetails(
-    int $gameId,
-    string $hash,
-    ?string $name,
-    ?string $labels,
-    ?string $internalPatchUrl,
-    ?string $sourceUrl,
-): bool {
-    $updatedAttributes = [
-        'Name' => $name,
-        'Labels' => $labels,
-        'internal_patch_url' => $internalPatchUrl ?? null,
-        'source' => $sourceUrl ?? null,
-    ];
-
-    $affectedRows = GameHash::where('MD5', $hash)->where('GameID', $gameId)->update($updatedAttributes);
-
-    return $affectedRows > 0;
-}

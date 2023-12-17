@@ -9,8 +9,9 @@ use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
-use App\Platform\Controllers\ManageHashesController;
+use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
+use App\Platform\Models\GameHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,13 @@ class RouteServiceProvider extends ServiceProvider
         Route::pattern('game', '[0-9]{1,17}');
         Route::pattern('game_hash', '[a-zA-Z0-9]{1,32}');
         Route::pattern('system', '[0-9]{1,17}');
+
+        /*
+         * Don't reference hash identifiers by their raw ID
+         */
+        Route::bind('gameMd5Hash', function ($value) {
+            return GameHash::where('MD5', $value)->firstOrFail();
+        });
     }
 
     public function map(): void
@@ -60,7 +68,9 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
-            Route::get('game/{game}/hashes/manage', ManageHashesController::class)->name('game.manage-hashes');
+
+            // Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes'); "Supported Game Files"
+            Route::get('game/{game}/hashes/manage', [GameHashController::class, 'manage'])->name('game.hashes.manage');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
@@ -68,7 +78,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('docs/api', [ApiDocsController::class, 'index'])->name('docs.api');
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
-            // Route::resource('game-hash', GameHashController::class)->only('show')->names(['show' => 'game-hash.show']);
+            Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameMd5Hash'])->only(['update', 'destroy']);
 
             Route::get('ranking/beaten-games', BeatenGamesLeaderboardController::class)->name('ranking.beaten-games');
 

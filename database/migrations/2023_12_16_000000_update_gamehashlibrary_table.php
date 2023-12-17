@@ -10,16 +10,16 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('GameHashLibrary', function (Blueprint $table) {
-            $table->string('internal_status')->nullable()->after('file_name_md5'); // Unverified, In Progress, Verified, Problematic
-            $table->string('internal_patch_url')->nullable()->after('source_version'); // RAPatches .zip File Link
+            $table->string('compatibility')->nullable()->after('file_name_md5'); // Unverified, In Progress, Verified, Problematic
+            $table->string('patch_url')->nullable()->after('source_version'); // RAPatches .zip File Link
         });
     }
 
     public function down(): void
     {
         Schema::table('GameHashLibrary', function (Blueprint $table) {
-            $table->dropColumn('internal_status');
-            $table->dropColumn('internal_patch_url');
+            $table->dropColumn('compatibility');
+            $table->dropColumn('patch_url');
         });
     }
 };
