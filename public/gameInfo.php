@@ -12,7 +12,6 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
@@ -290,7 +289,7 @@ sanitize_outputs(
         ): string {
             if ($isEventGame) {
                 return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
-            } elseif ($numAchievements === 0 || $gamePoints === 0) {
+            } elseif ($numAchievements === 0) {
                 return "No achievements have been created yet for $gameTitle. Join RetroAchievements to request achievements for $gameTitle and earn achievements on many other classic games.";
             }
 
@@ -788,6 +787,20 @@ sanitize_outputs(
         $pageTitleAttr = attributeEscape($pageTitle);
 
         $systemIconUrl = getSystemIconUrl($consoleID);
+
+        // If we can't show the missable achievements indicator due to a user preference,
+        // remove the type from all missable achievements.
+        $canShowMissableAchievementsIndicator = (
+            ($userDetails && !BitSet($userDetails['websitePrefs'], UserPreference::Game_HideMissableIndicators))
+            || !$userDetails
+        );
+        if (!$canShowMissableAchievementsIndicator) {
+            array_walk($achievementData, function (&$achievement) {
+                if ($achievement['type'] === AchievementType::Missable) {
+                    $achievement['type'] = null;
+                }
+            });
+        }
 
         $numMissableAchievements = count(
             array_filter(

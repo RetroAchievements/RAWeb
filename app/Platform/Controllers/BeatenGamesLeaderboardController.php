@@ -29,7 +29,10 @@ class BeatenGamesLeaderboardController extends Controller
         ]);
 
         $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
-        [$gameKindFilterOptions, $leaderboardKind] = $this->determineGameKindFilterOptions($validatedData);
+        [$gameKindFilterOptions, $leaderboardKind] = $this->determineGameKindFilterOptions(
+            $validatedData,
+            $targetSystemId,
+        );
 
         // Now get the current page's rows.
         $currentPage = $validatedData['page']['number'] ?? 1;
@@ -160,20 +163,27 @@ class BeatenGamesLeaderboardController extends Controller
         return $query;
     }
 
-    private function determineGameKindFilterOptions(array $validatedData): array
+    private function determineGameKindFilterOptions(array $validatedData, int $targetSystemId): array
     {
         $allFilterKeys = ['retail', 'hacks', 'homebrew', 'unlicensed', 'prototypes', 'demos'];
 
         // As a safeguard, set everything to false by default.
         $gameKindFilterOptions = array_fill_keys($allFilterKeys, false);
 
+        // Homebrew systems do not have 'retail' games.
+        $isHomebrewSystem = System::isHomebrewSystem($targetSystemId);
+        $fallbackKind = $isHomebrewSystem ? 'homebrew' : 'retail';
+
         // Show retail games only by default. It will be the default filter choice.
-        $selectedKind = $validatedData['filter']['kind'] ?? 'retail';
+        $selectedKind = $validatedData['filter']['kind'] ?? $fallbackKind;
 
         switch ($selectedKind) {
             case 'retail':
-                $gameKindFilterOptions['retail'] = true;
+                if (!$isHomebrewSystem) {
+                    $gameKindFilterOptions['retail'] = true;
+                }
                 $gameKindFilterOptions['unlicensed'] = true;
+
                 break;
             case 'homebrew':
                 $gameKindFilterOptions['homebrew'] = true;
@@ -183,6 +193,10 @@ class BeatenGamesLeaderboardController extends Controller
                 break;
             case 'all':
                 $gameKindFilterOptions = array_fill_keys($allFilterKeys, true);
+                if ($isHomebrewSystem) {
+                    $gameKindFilterOptions['retail'] = false;
+                }
+
                 break;
         }
 

@@ -37,4 +37,6 @@ abstract class UserPreference
     public const SiteMsgOn_Newsletter = 14;
 
     public const Forum_ShowAbsoluteDates = 15;
+
+    public const Game_HideMissableIndicators = 16;
 }
