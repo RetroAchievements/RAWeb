@@ -38,8 +38,12 @@ class GameHashController extends Controller
     {
         $this->authorize('manage', $this->resourceClass());
 
+        $gameWithSortedHashes = Game::with(['hashes' => function ($query) {
+            $query->orderBy('Name');
+        }])->findOrFail($game->id);
+
         return view('platform.manage-hashes-page', [
-            'game' => $game,
+            'game' => $gameWithSortedHashes,
             'me' => Auth::user(),
         ]);
     }
