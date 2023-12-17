@@ -64,7 +64,7 @@ class UserRecentlyPlayed extends Component
 
         if (!$isAwarded) {
             $badgeName .= '_lock';
-        } elseif ($isHardcoreUnlock){
+        } elseif ($isHardcoreUnlock) {
             $className = 'goldimage';
         }
 
