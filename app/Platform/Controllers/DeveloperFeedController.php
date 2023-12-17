@@ -131,7 +131,7 @@ class DeveloperFeedController extends Controller
 
         // Fetch all the achievement metadata.
         $achievementIds = $unlockRows->pluck('achievement_id')->unique();
-        $achievementData = Achievement::whereIn('ID', $achievementIds)->get(['ID', 'GameID', 'Title', 'Description', 'BadgeName', 'Points'])->keyBy('ID');
+        $achievementData = Achievement::whereIn('ID', $achievementIds)->get(['ID', 'GameID', 'Title', 'Description', 'BadgeName', 'Points', 'type'])->keyBy('ID');
 
         // Fetch all the game metadata.
         $gameIds = $achievementData->pluck('GameID')->unique();
@@ -153,6 +153,7 @@ class DeveloperFeedController extends Controller
             $row->Description = $achievement->Description ?? null;
             $row->BadgeName = $achievement->BadgeName ?? null;
             $row->Points = $achievement->Points ?? null;
+            $row->Type = $achievement->type ?? null;
 
             $row->GameID = $achievement->GameID;
             $row->GameTitle = $game->Title ?? null;

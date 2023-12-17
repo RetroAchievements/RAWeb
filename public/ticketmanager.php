@@ -476,7 +476,7 @@ RenderContentStart($pageTitle);
                 echo "</td>";
 
                 echo "<td style='min-width:25%'>";
-                echo achievementAvatar($nextTicket);
+                echo achievementAvatar(array_merge($nextTicket, ['type' => $achType]));
                 echo "</td>";
 
                 echo "<td>";
@@ -578,7 +578,7 @@ RenderContentStart($pageTitle);
             echo "</td>";
 
             echo "<td style='min-width:25%'>";
-            echo achievementAvatar($nextTicket);
+            echo achievementAvatar(array_merge($nextTicket, ['type' => $achType]));
             echo "</td>";
 
             echo "<td style='min-width:25%'>";
@@ -781,7 +781,7 @@ RenderContentStart($pageTitle);
                 ->where('UserAccounts.User', '=', $reportedBy)
                 ->orderByRaw('IFNULL(unlocked_hardcore_at, unlocked_at) DESC')
                 ->select(['player_achievements.*', 'Achievements.Title',
-                          'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName']);
+                          'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName', 'Achievements.type']);
             $numAchievements = $unlocks->count();
 
             $unlocks = $unlocks->get();
@@ -892,6 +892,7 @@ RenderContentStart($pageTitle);
                         'AchievementTitle' => $unlock->Title,
                         'AchievementDesc' => $unlock->Description,
                         'Points' => $unlock->Points,
+                        'Type' => $unlock->type,
                         'BadgeName' => $unlock->BadgeName,
                         'HardcoreMode' => ($unlock->unlocked_hardcore_at != null),
                     ]);
