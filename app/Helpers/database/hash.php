@@ -1,7 +1,6 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Platform\Models\GameHash;
 
 function getMD5List(int $consoleID): array
 {
@@ -141,4 +140,3 @@ function removeHash(string $user, int $gameID, string $hash): bool
 
     return $result;
 }
-
