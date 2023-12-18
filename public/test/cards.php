@@ -1,5 +1,6 @@
 <?php
 
+use App\Platform\Enums\AchievementType;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Blade;
 
@@ -91,7 +92,9 @@ RenderContentStart();
                         'Description' => 'Description Preloaded Data',
                         'Points' => 'Points Preloaded Data',
                         'BadgeName' => '000000',
-                        'Unlock' => 'Unlock Preloaded Data',
+                        'DateAwarded' => date("Y-m-d"),
+                        'HardcoreAchieved' => date("Y-m-d"),
+                        'Type' => AchievementType::Progression,
                     ]
                 )
                 ?>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Platform\Models\Achievement;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 
@@ -84,30 +85,55 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
-    $unlock = $data['Unlock'] ?? null;
+    $type = $data['Type'] ?? $data['type'] ?? null;
     $badgeImgSrc = $iconUrl ?? media_asset("Badge/{$badgeName}.png");
     $renderedGameTitle = Blade::render('<x-game-title :rawTitle="$rawTitle" />', ['rawTitle' => $data['GameTitle'] ?? '']);
     $sanitizedGameTitle = str_replace("\n", '', $renderedGameTitle);
-    $sanitizedGameTitle = html_entity_decode($sanitizedGameTitle, ENT_QUOTES, 'UTF-8');
+    $sanitizedGameTitle = trim(html_entity_decode($sanitizedGameTitle, ENT_QUOTES, 'UTF-8'));
 
-    $tooltip = "<div class='tooltip-body flex items-start gap-2 p-2' style='max-width: 400px'>";
-    $tooltip .= "<img src='$badgeImgSrc' width='64' height='64' />";
-    $tooltip .= "<div>";
-    $tooltip .= "<div><b>$title</b></div>";
-    $tooltip .= "<div class='mb-1'>$description</div>";
-    if ($achPoints) {
-        $tooltip .= "<div>$achPoints " . __res('point', (int) $achPoints) . "</div>";
-    }
-    if ($sanitizedGameTitle) {
-        $tooltip .= "<div><i>" . trim($sanitizedGameTitle) . "</i></div>";
+    $renderedType = null;
+    if ($type) {
+        $renderedType = str_replace("\n", '', Blade::render(
+            '<x-achievement.thin-type-indicator :type="$type" />',
+            ['type' => $type]
+        ));
     }
 
-    if ($unlock) {
-        $tooltip .= "<div>$unlock</div>";
+    $pointsLabel = $achPoints . " " . mb_strtolower(__res('point', (int) $achPoints));
+
+    $unlockedHtml = null;
+    if (isset($data['DateAwarded'])) {
+        $unlockDate = Carbon::parse($data['DateAwarded'])->format('M j Y, g:ia');
+        $unlockedHtml = "<div class='smalldate'>Unlocked " . $unlockDate;
+
+        if (!$data['HardcoreAchieved']) {
+            $unlockedHtml .= " (softcore)";
+        }
+
+        $unlockedHtml .= "</div>";
     }
 
-    $tooltip .= "</div>";
-    $tooltip .= "</div>";
+    $tooltip = <<<HTML
+        <div class="tooltip-body flex items-start gap-x-3 p-2 max-w-[400px] w-[400px]">
+            <img src="$badgeImgSrc" width="64" height="64" />
 
-    return $tooltip;
+            <div class="flex flex-col w-full gap-y-2">
+                <div class="flex justify-between gap-1 w-full -mb-1">
+                    <p class="font-bold mb-1 text-lg leading-5">$title</p>
+                    <div class="-mt-0.5">$renderedType</div>
+                </div>
+
+                <p class="mb-1">$description</p>
+
+                <div class="text-xs">
+                    <p class="text-xs">$pointsLabel</p>
+                    <p class="text-xs italic">$sanitizedGameTitle</p>
+                </div>
+
+                $unlockedHtml
+            </div>
+        </div>
+    HTML;
+
+    return trim(str_replace("\n", '', $tooltip));
 }

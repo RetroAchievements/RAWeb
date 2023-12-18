@@ -3,8 +3,20 @@
     'numMissableAchievements' => 0,
 ])
 
+<?php
+use App\Site\Enums\UserPreference;
+
+$isMissableFilterAllowed = $numMissableAchievements > 0;
+if ($isMissableFilterAllowed) {
+    $currentUser = Auth::user();
+    if (isset($currentUser) && BitSet($currentUser->websitePrefs, UserPreference::Game_HideMissableIndicators)) {
+        $isMissableFilterAllowed = false;
+    }
+}
+?>
+
 <div x-data="toggleAchievementRowsComponent()" class="flex gap-x-4 sm:flex-col md:flex-row lg:flex-col xl:flex-row">
-    @if ($numMissableAchievements > 0)
+    @if ($isMissableFilterAllowed)
         <label class="flex items-center gap-x-1 select-none transition lg:active:scale-95 cursor-pointer">
             <input
                 type="checkbox"
