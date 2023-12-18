@@ -1,9 +1,13 @@
 <?php
 
 use App\Platform\Enums\UnlockMode;
+use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    header("Location: /login");
+    exit;
+}
 
 $userPage = request()->query('u');
 if (empty($userPage)) {

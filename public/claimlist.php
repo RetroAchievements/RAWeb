@@ -10,7 +10,10 @@ use App\Site\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    header("Location: /login");
+    exit;
+}
 
 $defaultFilter = ClaimFilters::AllActiveClaims;
 $defaultSorting = ClaimSorting::ClaimDateDescending;
