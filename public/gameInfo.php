@@ -787,20 +787,6 @@ sanitize_outputs(
 
         $systemIconUrl = getSystemIconUrl($consoleID);
 
-        // If we can't show the missable achievements indicator due to a user preference,
-        // remove the type from all missable achievements.
-        $canShowMissableAchievementsIndicator = (
-            ($userDetails && !BitSet($userDetails['websitePrefs'], UserPreference::Game_HideMissableIndicators))
-            || !$userDetails
-        );
-        if (!$canShowMissableAchievementsIndicator) {
-            array_walk($achievementData, function (&$achievement) {
-                if ($achievement['type'] === AchievementType::Missable) {
-                    $achievement['type'] = null;
-                }
-            });
-        }
-
         $numMissableAchievements = count(
             array_filter(
                 $achievementData,
