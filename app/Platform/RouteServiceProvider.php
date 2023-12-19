@@ -30,7 +30,7 @@ class RouteServiceProvider extends ServiceProvider
         /*
          * Don't reference hash identifiers by their raw ID
          */
-        Route::bind('gameMd5Hash', function ($value) {
+        Route::bind('gameHash', function ($value) {
             return GameHash::where('MD5', $value)->firstOrFail();
         });
     }
@@ -69,16 +69,12 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
 
-            // Route::get('game/{game}/hashes', [GameHashController::class, 'index'])->name('game.hashes'); "Supported Game Files"
-            Route::get('game/{game}/hashes/manage', [GameHashController::class, 'manage'])->name('game.hashes.manage');
-
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
 
             Route::get('docs/api', [ApiDocsController::class, 'index'])->name('docs.api');
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
-            Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameMd5Hash'])->only(['update', 'destroy']);
 
             Route::get('ranking/beaten-games', BeatenGamesLeaderboardController::class)->name('ranking.beaten-games');
 
@@ -101,8 +97,10 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('tool/hash-check', [ToolController::class, 'hashCheck'])->name('tool.hash-check');
 
             Route::group([
-                'middleware' => ['auth', 'verified'],
+                'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
+                Route::get('game/{game}/hashes/manage', [GameHashController::class, 'manage'])->name('game.hash.manage');
+                Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
             //     /*
             //      * Release Management Routes
             //      */
