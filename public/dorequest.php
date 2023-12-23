@@ -137,18 +137,21 @@ switch ($requestType) {
     /*
      * Global, no permissions required
      */
+
+    // TODO deprecate?
     case "allprogress":
         $consoleID = (int) request()->input('c');
         $response['Response'] = GetAllUserProgress($username, $consoleID);
         break;
 
+    // TODO deprecate - next image ID should be provided by the server
     case "badgeiter":
         // Used by RALibretro achievement editor
         $response['FirstBadge'] = 80;
         $response['NextBadge'] = (int) FilenameIterator::getBadgeIterator();
         break;
 
-    // TODO: Deprecate - not used anymore
+    // TODO deprecate - not used anymore
     case "codenotes":
         if (!getCodeNotes($gameID, $codeNotesOut)) {
             return DoRequestError("FAILED!");
@@ -162,25 +165,30 @@ switch ($requestType) {
         }
         break;
 
+    // TODO require authentication?
     case "codenotes2":
         $response['CodeNotes'] = getCodeNotesData($gameID);
         $response['GameID'] = $gameID;
         break;
+
     case "gameid":
         $md5 = request()->input('m') ?? '';
         $response['GameID'] = getGameIDFromMD5($md5);
         break;
 
+    // TODO require authentication?
     case "gameslist":
         $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID);
         break;
 
+    // TODO require authentication?
     case "officialgameslist":
         $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
         break;
 
+    // TODO deprecate?
     case "hashlibrary":
         $consoleID = (int) request()->input('c', 0);
         $response['MD5List'] = getMD5List($consoleID);
@@ -277,6 +285,7 @@ switch ($requestType) {
         $response['AchievementID'] = $achIDToAward;
         break;
 
+    // TODO deprecate
     case "getfriendlist":
         $response['Friends'] = GetFriendList($username);
         break;
