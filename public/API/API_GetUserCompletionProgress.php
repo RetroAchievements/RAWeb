@@ -5,6 +5,8 @@
  *                                  similar to `GetUserCompletedGames`, but only includes a single record for each game
  *                                  and also includes the game's current award level as shown on the "Completion Progress" page.
  *    u : username
+ *    o : offset - number of entries to skip (default: 0)
+ *    c : count - number of entries to return (default: 100, max: 500)
  *
  *  int         Count                       number of game completion records returned in the response
  *  int         Total                       number of game completion records the user actually has overall
@@ -31,8 +33,12 @@ use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
+    'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
+    'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
 
+$offset = $input['o'] ?? 0;
+$count = $input['c'] ?? 100;
 $user = request()->query('u');
 
 $playerProgressionService = new PlayerProgressionService();
@@ -44,8 +50,27 @@ $filteredAndJoinedGamesList = $playerProgressionService->filterAndJoinGames(
     $userSiteAwards,
 );
 
+// Sort the results by MostRecentAwardedDate
+usort($filteredAndJoinedGamesList, function ($a, $b) {
+    $dateA = $a['MostRecentWonDate'] ? new Carbon($a['MostRecentWonDate']) : null;
+    $dateB = $b['MostRecentWonDate'] ? new Carbon($b['MostRecentWonDate']) : null;
+
+    if (!$dateA && !$dateB) {
+        return 0;
+    } elseif (!$dateA) {
+        return 1;
+    } elseif (!$dateB) {
+        return -1;
+    } else {
+        return $dateB <=> $dateA;
+    }
+});
+
+// Apply pagination.
+$pagedResults = array_slice($filteredAndJoinedGamesList, $offset, $count);
+
 $results = [];
-foreach ($filteredAndJoinedGamesList as $game) {
+foreach ($pagedResults as $game) {
     $results[] = [
         'GameID' => $game['GameID'],
         'Title' => $game['Title'],
@@ -61,29 +86,8 @@ foreach ($filteredAndJoinedGamesList as $game) {
     ];
 }
 
-// Sort the results by MostRecentAwardedDate
-usort($results, function ($a, $b) {
-    $dateA = $a['MostRecentAwardedDate'] ? new Carbon($a['MostRecentAwardedDate']) : null;
-    $dateB = $b['MostRecentAwardedDate'] ? new Carbon($b['MostRecentAwardedDate']) : null;
-
-    if (!$dateA && !$dateB) {
-        return 0;
-    } elseif (!$dateA) {
-        return 1;
-    } elseif (!$dateB) {
-        return -1;
-    } else {
-        // We'll put the entities in descending order.
-        return $dateB <=> $dateA;
-    }
-});
-
 return response()->json([
-    // `Count` and `Total` are the same right now, but for future-facing & backwards-compatibility
-    // purposes, we may want to add pagination to this endpoint at a later date without worrying
-    // about breaking current consumers.
     'Count' => count($results),
-    'Total' => count($results),
-
+    'Total' => count($filteredAndJoinedGamesList),
     'Results' => $results,
 ]);
