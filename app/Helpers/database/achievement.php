@@ -47,7 +47,7 @@ function getAchievementsList(
 
     // TODO slow query (18)
     $query = "SELECT
-                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID,
+                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.type, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID,
                     gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName
                     $withAwardedDate
                 FROM Achievements AS ach
