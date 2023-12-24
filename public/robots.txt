@@ -1,18 +1,2 @@
 User-agent: *
-Disallow: /createaccount.php
-Disallow: /gameList.php
-Disallow: /popularGames.php
-Disallow: /setRequestList.php
 Crawl-Delay: 15
-
-User-agent: MJ12bot
-Disallow: /
-
-User-agent: SemrushBot
-Disallow: /
-
-User-agent: SemrushBot-SA
-Disallow: /
-
-User-Agent: The Knowledge AI
-Disallow: /

@@ -31,6 +31,7 @@
                                         'Title' => $recentUnlock->Title,
                                         'Description' => $recentUnlock->Description,
                                         'Points' => $recentUnlock->Points,
+                                        'Type' => $recentUnlock->Type,
                                         'BadgeName' => $recentUnlock->BadgeName,
                                         'HardcoreMode' => !!$recentUnlock->unlocked_hardcore_at,
                                     ])
