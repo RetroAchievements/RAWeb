@@ -112,6 +112,11 @@ function authenticateFromPassword(string &$username, string $password): bool
 
     $hashedPassword = $row['Password'];
 
+    // some protected accounts do not have a password anymore
+    if (empty($hashedPassword)) {
+        return false;
+    }
+
     // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
     if (mb_strlen($row['SaltedPass']) === 32) {
         $pepperedPassword = md5($password . config('app.legacy_password_salt'));
