@@ -259,7 +259,18 @@ function confirmEmailChange(event) {
             echo "<td class='align-top'>Web API Key</td>";
             echo "<td>";
             echo "<input class='mb-1' size='60' readonly value='$apiKey'>";
-            echo "<div class='mb-2'>This is your <i>personal</i> Web API Key. Handle it with care.</div>";
+
+            echo <<<HTML
+                <div class="mb-2">
+                    <p>
+                        This is your <span class="italic">personal</span> Web API Key. Handle it with care.
+                    </p>
+                    <p>
+                        API documentation can be found <a href="https://api-docs.retroachievements.org" target="_blank" rel="noreferrer">here</a>.
+                    </p>
+                </div>
+            HTML;
+
             echo "<form method='post' action='/request/auth/reset-api-key.php' onsubmit='return confirm(\"Are you sure you want to reset your web api key?\");'>";
             echo csrf_field();
             $checkedStr = ($userWallActive == 1) ? "checked" : "";
