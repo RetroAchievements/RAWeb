@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
-use App\Platform\Controllers\ApiDocsController;
 use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
