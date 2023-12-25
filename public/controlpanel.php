@@ -274,7 +274,7 @@ function confirmEmailChange(event) {
             echo "<form method='post' action='/request/auth/reset-api-key.php' onsubmit='return confirm(\"Are you sure you want to reset your web api key?\");'>";
             echo csrf_field();
             $checkedStr = ($userWallActive == 1) ? "checked" : "";
-            echo "<button class='btn btn-danger'>Reset Web API key</button>";
+            echo "<button class='btn btn-danger'>Reset Web API Key</button>";
             echo "</form>";
             echo "</td>";
             echo "</tr>";
