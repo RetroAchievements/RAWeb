@@ -135,7 +135,10 @@ return [
 
         // You can include paths to other log types as well, such as apache, nginx, and more.
         '/var/log/httpd/*',
-        '/var/log/nginx/*',
+        // '/var/log/nginx/*',
+        '/var/log/nginx/retroachievements.org-access.log',
+        '/var/log/nginx/api.retroachievements.org-access.log',
+        '/var/log/nginx/connect.retroachievements.org-access.log',
 
         // MacOS Apple Silicon logs
         '/opt/homebrew/var/log/nginx/*',
