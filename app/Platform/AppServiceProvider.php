@@ -18,6 +18,7 @@ use App\Platform\Commands\SyncMemoryNotes;
 use App\Platform\Commands\SyncPlayerBadges;
 use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
+use App\Platform\Commands\TrimGameMetadata;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
@@ -65,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGamePlayerGames::class,
+                TrimGameMetadata::class,
 
                 // Game Hashes
                 NoIntroImport::class,
