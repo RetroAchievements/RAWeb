@@ -3,6 +3,7 @@
 /*
  *  API_GetGameExtended - returns information about a game
  *    i : game id
+ *    f : flag - 3 for core achievements, 5 for unofficial (default: 3)
  *
  *  int        ID                         unique identifier of the game
  *  string     Title                      name of the game
@@ -49,8 +50,11 @@
  *    string    Expiration                date the claim will expire
  */
 
+use App\Platform\Enums\AchievementFlag;
+
 $gameID = (int) request()->query('i');
-getGameMetadata($gameID, null, $achData, $gameData, metrics: true);
+$flag = (int) request()->query('f', AchievementFlag::OfficialCore);
+getGameMetadata($gameID, null, $achData, $gameData, flag: $flag, metrics: true);
 
 if ($gameData === null) {
     return response()->json();
