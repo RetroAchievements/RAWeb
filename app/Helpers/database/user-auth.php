@@ -99,7 +99,7 @@ function authenticateFromPassword(string &$username, string $password): bool
     }
 
     // use raw query to access non-visible fields
-    $query = "SELECT ID, User, Password, SaltedPass, Permissions FROM UserAccounts WHERE User=:user";
+    $query = "SELECT ID, User, Password, SaltedPass, Permissions FROM UserAccounts WHERE User=:user AND Deleted IS NULL";
     $row = legacyDbFetch($query, ['user' => $username]);
     if (!$row) {
         return false;
@@ -119,6 +119,11 @@ function authenticateFromPassword(string &$username, string $password): bool
             return false;
         }
         $hashedPassword = changePassword($username, $password);
+    }
+
+    // some protected accounts do not have a password anymore
+    if (empty($hashedPassword)) {
+        return false;
     }
 
     // validate the password

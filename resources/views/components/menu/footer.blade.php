@@ -22,9 +22,8 @@ $menu = collect([
                 'visible' => true,
             ],
             [
-                'active' => Route::is('docs.api'),
                 'label' => __('API'),
-                'url' => route('docs.api'),
+                'url' => 'https://api-docs.retroachievements.org',
                 'visible' => true,
             ],
         ],
