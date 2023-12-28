@@ -6,6 +6,18 @@
     'totalPossibleTrueRatio' => 0, // total possible RetroPoints
 ])
 
+<?php
+use App\Site\Enums\UserPreference;
+
+$canShowMissableCount = true;
+if ($numMissableAchievements > 0) {
+    $currentUser = Auth::user();
+    if (isset($currentUser) && BitSet($currentUser->websitePrefs, UserPreference::Game_HideMissableIndicators)) {
+        $canShowMissableCount = false;
+    }
+}
+?>
+
 <div x-data="toggleAchievementRowsComponent()">
     <p @if ($numMissableAchievements > 0) class="mb-1" @endif>
         There {{ $numAchievements === 1 ? 'is' : 'are'}}
@@ -24,7 +36,7 @@
         {{ mb_strtolower(__res('point', $totalPossible)) }}.
     </p>
 
-    @if ($numMissableAchievements > 0)
+    @if ($canShowMissableCount && $numMissableAchievements > 0)
         <p>
             <div class="flex items-center gap-x-1">
                 <div class="w-5 h-5 p-0.5 rounded-full bg-embed border border-dashed border-stone-500 text-white">

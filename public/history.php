@@ -68,7 +68,7 @@ RenderContentStart("$userPage's Legacy");
             $hardcoreValue = $dayInfo['CumulHardcoreScore'];
             $softcoreValue = $dayInfo['CumulSoftcoreScore'];
 
-            echo "[ {v:new Date($nextYear,$nextMonth,$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
+            echo "[ {v:new Date($nextYear," . ($nextMonth - 1) . ",$nextDay), f:'$dateStr'}, $hardcoreValue, $softcoreValue ]";
         }
         ?>
     ]);
