@@ -53,7 +53,7 @@
 use App\Platform\Enums\AchievementFlag;
 
 $gameID = (int) request()->query('i');
-$flag = (int) request()->query('f', AchievementFlag::OfficialCore);
+$flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 getGameMetadata($gameID, null, $achData, $gameData, flag: $flag, metrics: true);
 
 if ($gameData === null) {
