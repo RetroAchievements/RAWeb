@@ -78,7 +78,9 @@ class AddStandaloneSystem extends Command
             ]);
 
             $newGame = Game::where('ConsoleID', $standalonesConfig['id'])->get();
-            $this->info('Added game ' . $newGame->ID . ' to the database.');
+            if (isset($newGame) && isset($newGame->ID)) {
+                $this->info('Added game ' . $newGame->ID . ' to the database.');
+            }
         }
     }
 }
