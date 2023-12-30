@@ -578,4 +578,11 @@ return [
         'manufacturer' => null,
         'active' => true,
     ],
+    102 => [
+        'name' => 'Standalones',
+        'name_full' => 'Standalones',
+        'name_short' => 'Indie',
+        'manufacturer' => '',
+        'active' => false,
+    ],
 ];

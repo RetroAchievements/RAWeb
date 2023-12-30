@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
+use App\Platform\Commands\AddStandaloneSystem;
 use App\Platform\Commands\DeleteOrphanedLeaderboardEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
@@ -100,6 +101,9 @@ class AppServiceProvider extends ServiceProvider
                 SyncPlayerRichPresence::class,
                 SyncPlayerSession::class,
                 SyncGameHashes::class,
+
+                // Systems
+                AddStandaloneSystem::class,
             ]);
         }
 
