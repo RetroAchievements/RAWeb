@@ -13,9 +13,11 @@ use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -336,6 +338,148 @@ class AwardAchievementTest extends TestCase
             ->where('AwardDate', $newNow)
             ->first()
         );
+    }
+
+    public function testDelegatedUnlock(): void
+    {
+        $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now);
+
+        /** @var System $standalonesSystem */
+        $standalonesSystem = System::factory()->create(['ID' => 102]);
+        /** @var Game $gameOne */
+        $gameOne = $this->seedGame(system: $standalonesSystem, withHash: false);
+
+        /** @var User $integrationUser */
+        $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        /** @var User $delegatedUser */
+        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+
+        $delegatedUser->LastGameID = $gameOne->id;
+        $delegatedUser->save();
+
+        /** @var Achievement $achievement1 */
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        /** @var Achievement $achievement2 */
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        /** @var Achievement $achievement3 */
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID]);
+        /** @var Achievement $achievement5 */
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        /** @var Achievement $achievement6 */
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+
+        $unlock1Date = $now->clone()->subMinutes(65);
+        $this->addHardcoreUnlock($delegatedUser, $achievement1, $unlock1Date);
+        $this->addHardcoreUnlock($delegatedUser, $achievement5, $unlock1Date);
+        $this->addHardcoreUnlock($delegatedUser, $achievement6, $unlock1Date);
+
+        $playerSession1 = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement3->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession1);
+
+        // cache the unlocks for the game - verify singular unlock captured
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $this->assertEquals([$achievement1->ID, $achievement5->ID, $achievement6->ID], array_keys($unlocks));
+
+        // do the delegated hardcore unlock
+        $scoreBefore = $delegatedUser->RAPoints;
+        $softcoreScoreBefore = $delegatedUser->RASoftcorePoints;
+
+        $params = [
+            'u' => $integrationUser->User,
+            't' => $integrationUser->appToken,
+            'r' => 'awardachievement',
+            'k' => $delegatedUser->User,
+            'h' => 1,
+            'a' => $achievement3->ID,
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->get($requestUrl)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement3->ID,
+                'AchievementsRemaining' => 2,
+                'Score' => $scoreBefore + $achievement3->Points,
+                'SoftcoreScore' => $softcoreScoreBefore,
+            ]);
+        $delegatedUser->refresh();
+
+        // player session resumed
+        $playerSession2 = PlayerSession::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement3->game_id,
+        ])->orderByDesc('id')->first();
+        $this->assertModelExists($playerSession2);
+
+        // game attached
+        $playerGame = PlayerGame::where([
+            'user_id' => $delegatedUser->id,
+            'game_id' => $achievement3->game_id,
+        ])->first();
+        $this->assertModelExists($playerGame);
+        $this->assertNotNull($playerGame->last_played_at);
+
+        // achievement unlocked
+        $playerAchievement = PlayerAchievement::where([
+            'user_id' => $delegatedUser->id,
+            'achievement_id' => $achievement3->id,
+        ])->first();
+        $this->assertModelExists($playerAchievement);
+        $this->assertNotNull($playerAchievement->unlocked_at);
+        $this->assertNotNull($playerAchievement->unlocked_hardcore_at);
+        $this->assertEquals($playerAchievement->player_session_id, $playerSession2->id);
+
+        // player score should have increased
+        $user1 = User::firstWhere('User', $delegatedUser->User);
+        $this->assertEquals($scoreBefore + $achievement3->Points, $user1->RAPoints);
+        $this->assertEquals($softcoreScoreBefore, $user1->RASoftcorePoints);
+
+        // make sure the unlock cache was updated
+        $unlocks = getUserAchievementUnlocksForGame($delegatedUser->User, $gameOne->ID);
+        $this->assertEqualsCanonicalizing([$achievement1->ID, $achievement5->ID, $achievement6->ID, $achievement3->ID], array_keys($unlocks));
+        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarnedHardcore']);
+        $this->assertEquals($now, $unlocks[$achievement3->ID]['DateEarned']);
+
+        // Next, try to award an achievement on a non-standalone game.
+        // This is not allowed and should fail, even if the integration user is the achievement author.
+        /** @var System $normalSystem */
+        $normalSystem = System::factory()->create(['ID' => 1]);
+        /** @var Game $gameTwo */
+        $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
+
+        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id, 'Author' => $integrationUser->User]);
+
+        $params['a'] = $achievements->get(0)->id;
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->get($requestUrl)
+            ->assertStatus(403)
+            ->assertExactJson([
+                "Success" => false,
+                "Error" => "You do not have permission to do that.",
+                "Code" => "access_denied",
+                "Status" => 403,
+            ]);
+
+        // Next, try to award an achievement not authored by the integration user on a standalone game.
+        // This is not allowed and should fail.
+        $params['a'] = $achievement4->id;
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->get($requestUrl)
+            ->assertStatus(403)
+            ->assertExactJson([
+                "Success" => false,
+                "Error" => "You do not have permission to do that.",
+                "Code" => "access_denied",
+                "Status" => 403,
+            ]);
     }
 
     public function testErrors(): void

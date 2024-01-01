@@ -123,6 +123,13 @@ class Achievement extends BaseModel implements HasComments
         return route('achievement.show', [$this, $this->getSlugAttribute()]);
     }
 
+    public function getCanSendConnectUpdatesForUsers(User|string $user): bool
+    {
+        $username = $user instanceof User ? $user->User : $user;
+
+        return $this->game->getIsStandalone() && $this->getAuthorAttribute() === $username;
+    }
+
     public function getPermalinkAttribute(): string
     {
         return route('achievement.show', $this);
@@ -194,6 +201,11 @@ class Achievement extends BaseModel implements HasComments
     public function getPointsAttribute(): int
     {
         return (int) $this->attributes['Points'];
+    }
+
+    public function getAuthorAttribute(): string
+    {
+        return $this->attributes['Author'];
     }
 
     public function getPointsWeightedAttribute(): int

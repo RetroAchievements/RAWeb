@@ -177,6 +177,11 @@ class Game extends BaseModel implements HasComments, HasMedia
         return !$isSubsetOrTestKit && !$isEventGame;
     }
 
+    public function getCanSendConnectUpdatesForUsers(User|string $user): bool
+    {
+        return $this->getIsStandalone() && $this->getHasAuthoredSomeAchievements($user);
+    }
+
     public function getCanonicalUrlAttribute(): string
     {
         return route('game.show', [$this, $this->getSlugAttribute()]);
@@ -192,11 +197,29 @@ class Game extends BaseModel implements HasComments, HasMedia
         return $this->Title ? '-' . Str::slug($this->Title) : '';
     }
 
-    // TODO remove after rename
+    public function getHasAuthoredSomeAchievements(User|string $user): bool
+    {
+        if ($this->achievements->isEmpty()) {
+            return false;
+        }
 
+        $username = $user instanceof User ? $user->User : $user;
+
+        // Check if any achievement is authored by the given user.
+        return $this->achievements->some(function ($achievement) use ($username) {
+            return $achievement->Author === $username;
+        });
+    }
+
+    // TODO remove after rename
     public function getIdAttribute(): int
     {
         return $this->attributes['ID'];
+    }
+
+    public function getIsStandalone(): bool
+    {
+        return $this->ConsoleID === 102;
     }
 
     public function getSystemIdAttribute(): int

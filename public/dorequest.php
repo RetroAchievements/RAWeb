@@ -27,6 +27,7 @@ $response = ['Success' => true];
 $requestType = request()->input('r');
 $username = request()->input('u');
 $token = request()->input('t');
+$delegateTo = request()->input('k');
 $achievementID = (int) request()->input('a', 0);  // Keep in mind, this will overwrite anything given outside these params!!
 $gameID = (int) request()->input('g', 0);
 $offset = (int) request()->input('o', 0);
@@ -67,6 +68,45 @@ if (!function_exists('DoRequestError')) {
     }
 }
 
+if (!function_exists('delegateUserAction')) {
+    function delegateUserAction(
+        User $initiatingUser,
+        ?string $targetUsername = null,
+        int $gameId = 0,
+        int $achievementId = 0,
+    ): array {
+        if ($targetUsername === null || (!$gameId && !$achievementId)) {
+            // Don't delegate, just continue on acting as the initiating user.
+            return [$initiatingUser, $initiatingUser->User];
+        }
+
+        $foundTargetUser = User::firstWhere('User', $targetUsername);
+
+        if (!$foundTargetUser) {
+            throw new Exception("The target user couldn't be found.");
+        }
+
+        if ($gameId) {
+            $game = Game::find($gameId);
+
+            if (!$game || !$game->getCanSendConnectUpdatesForUsers($initiatingUser)) {
+                throw new Exception("You do not have permission to do that.");
+            }
+        }
+
+        if ($achievementId) {
+            $achievement = Achievement::find($achievementId);
+
+            if (!$achievement || !$achievement->getCanSendConnectUpdatesForUsers($initiatingUser)) {
+                throw new Exception("You do not have permission to do that.");
+            }
+        }
+
+        // Replace the initiating user's properties with those of the user being delegated.
+        return [$foundTargetUser, $targetUsername];
+    }
+}
+
 /**
  * RAIntegration implementation
  * https://github.com/RetroAchievements/RAIntegration/blob/master/src/api/impl/ConnectedServer.cpp
@@ -90,6 +130,7 @@ $credentialsOK = match ($requestType) {
     "submitcodenote",
     "submitgametitle",
     "submitlbentry",
+    "syncachievements",
     "unlocks",
     "uploadachievement",
     "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
@@ -112,6 +153,25 @@ if (!$credentialsOK) {
     }
 
     return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
+}
+
+/*
+ * It is possible for some calls to be made on behalf of another user.
+ * This generally happens with a "Standalone" integration.
+ * NOTE: "syncachievements" is not included here because it accepts an array of
+ * achievement ID values. It doesn't use the generic `delegateUserAction()` function.
+ */
+$allowsGenericDelegation = [
+    "awardachievement",
+    "ping",
+    "startsession",
+];
+if (in_array($requestType, $allowsGenericDelegation)) {
+    try {
+        [$user, $username] = delegateUserAction($user, $delegateTo, $gameID, $achievementID);
+    } catch (Exception $exception) {
+        return DoRequestError($exception->getMessage(), 403, 'access_denied');
+    }
 }
 
 switch ($requestType) {
@@ -386,6 +446,52 @@ switch ($requestType) {
         if (isset($response['Response']['Error'])) {
             $response['Error'] = $response['Response']['Error'];
         }
+        break;
+
+    case "syncachievements":
+        $achievementIdsInput = request()->input('a', '');
+        $hardcore = (bool) request()->input('h', 0);
+
+        $foundTargetUser = null;
+        if (!$delegateTo) {
+            return DoRequestError("You must specify a target user.", 400);
+        }
+
+        $foundTargetUser = User::firstWhere('User', $delegateTo);
+        if (!$foundTargetUser) {
+            return DoRequestError("The target user couldn't be found.", 400);
+        }
+
+        $achievementIdsArray = explode(',', $achievementIdsInput);
+        $idsToAttemptAward = array_filter($achievementIdsArray, function ($id) {
+            return filter_var($id, FILTER_VALIDATE_INT) !== false;
+        });
+
+        if (count($idsToAttemptAward) > 800) {
+            return DoRequestError("More than 800 achievements can't be synced at once.", 400);
+        }
+
+        $targetAchievements = Achievement::whereIn('ID', $idsToAttemptAward)->with('game')->get();
+        $awardableAchievements = $targetAchievements->filter(function ($achievement) use ($user) {
+            return $achievement->getCanSendConnectUpdatesForUsers($user);
+        });
+
+        $confirmedAwardedIds = [];
+        foreach ($awardableAchievements as $awardableAchievement) {
+            $unlockAchievementResult = unlockAchievement($foundTargetUser, $awardableAchievement->ID, $hardcore);
+
+            if (!isset($unlockAchievementResult['Error'])) {
+                dispatch(new UnlockPlayerAchievementJob($foundTargetUser->id, $awardableAchievement->ID, $hardcore))
+                    ->onQueue('player-achievements');
+
+                $confirmedAwardedIds[] = $awardableAchievement->ID;
+            }
+        }
+
+        $response['Score'] = $foundTargetUser->RAPoints;
+        $response['SoftcoreScore'] = $foundTargetUser->RASoftcorePoints;
+        $response['SyncedIDs'] = $confirmedAwardedIds;
+
         break;
 
     case "unlocks":
