@@ -66,7 +66,7 @@ class SyncAchievementsTest extends TestCase
             'r' => 'syncachievements',
             'k' => $delegatedUser->User,
             'h' => 1,
-            // Note that #0 is already unlocked, thus it will not be in the "SyncedIDs" list.
+            // Note that #0 is already unlocked, thus it will not be in the "SuccessfulIDs" list.
             'a' => "{$achievements->get(0)->ID},{$achievements->get(1)->ID},{$achievements->get(2)->ID},{$achievements->get(3)->ID}",
         ];
 
@@ -76,7 +76,10 @@ class SyncAchievementsTest extends TestCase
                 "Success" => true,
                 "Score" => $scoreBefore + $achievements->get(1)->Points + $achievements->get(2)->Points + $achievements->get(3)->Points,
                 "SoftcoreScore" => $softcoreScoreBefore,
-                "SyncedIDs" => [
+                "ExistingIDs" => [
+                    $achievements->get(0)->id,
+                ],
+                "SuccessfulIDs" => [
                     $achievements->get(1)->id,
                     $achievements->get(2)->id,
                     $achievements->get(3)->id,
@@ -182,7 +185,8 @@ class SyncAchievementsTest extends TestCase
                 "Success" => true,
                 "Score" => $scoreBefore,
                 "SoftcoreScore" => $softcoreScoreBefore,
-                "SyncedIDs" => [], // empty because the achievement isn't part of a standalone system's game
+                "ExistingIDs" => [],
+                "SuccessfulIDs" => [], // empty because the achievement isn't part of a standalone system's game
             ]);
         $delegatedUser->refresh();
 
@@ -229,7 +233,8 @@ class SyncAchievementsTest extends TestCase
                 "Success" => true,
                 "Score" => $scoreBefore,
                 "SoftcoreScore" => $softcoreScoreBefore,
-                "SyncedIDs" => [], // empty because the achievement was not authored by the integration user
+                "ExistingIDs" => [],
+                "SuccessfulIDs" => [], // empty because the achievement was not authored by the integration user
             ]);
         $delegatedUser->refresh();
 

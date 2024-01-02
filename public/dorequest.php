@@ -476,7 +476,8 @@ switch ($requestType) {
             return $achievement->getCanSendConnectUpdatesForUsers($user);
         });
 
-        $confirmedAwardedIds = [];
+        $newAwardedIds = [];
+        $existingIds = [];
         foreach ($awardableAchievements as $awardableAchievement) {
             $unlockAchievementResult = unlockAchievement($foundTargetUser, $awardableAchievement->ID, $hardcore);
 
@@ -484,13 +485,16 @@ switch ($requestType) {
                 dispatch(new UnlockPlayerAchievementJob($foundTargetUser->id, $awardableAchievement->ID, $hardcore))
                     ->onQueue('player-achievements');
 
-                $confirmedAwardedIds[] = $awardableAchievement->ID;
+                $newAwardedIds[] = $awardableAchievement->ID;
+            } elseif (mb_strpos($unlockAchievementResult['Error'], 'User already has') !== false) {
+                $existingIds[] = $awardableAchievement->ID;
             }
         }
 
         $response['Score'] = $foundTargetUser->RAPoints;
         $response['SoftcoreScore'] = $foundTargetUser->RASoftcorePoints;
-        $response['SyncedIDs'] = $confirmedAwardedIds;
+        $response['ExistingIDs'] = $existingIds;
+        $response['SuccessfulIDs'] = $newAwardedIds;
 
         break;
 

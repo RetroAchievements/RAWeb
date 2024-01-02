@@ -8,6 +8,7 @@ use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Community\Models\Rating;
+use App\Platform\Enums\AchievementFlag;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\GameFactory;
@@ -207,7 +208,7 @@ class Game extends BaseModel implements HasComments, HasMedia
 
         // Check if any achievement is authored by the given user.
         return $this->achievements->some(function ($achievement) use ($username) {
-            return $achievement->Author === $username;
+            return $achievement->Flags === AchievementFlag::OfficialCore && $achievement->Author === $username;
         });
     }
 
