@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Models\Game;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +22,7 @@ class AddStandaloneSystem extends Command
 
     public function handle(): void
     {
-        $this->info('Adding the Standalones system and a single game record to the DB.');
+        $this->info('Adding the Standalones system to the DB.');
 
         $standalonesConfig = $this->loadStandalonesConfig();
 
@@ -34,9 +33,8 @@ class AddStandaloneSystem extends Command
         }
 
         $this->insertStandalonesSystemToDb($standalonesConfig);
-        $this->insertStandaloneGameToDb($standalonesConfig);
 
-        $this->info('Added the Standalones system (' . $standalonesConfig['id'] . ') and a single game record to the DB.');
+        $this->info('Added the Standalones system (' . $standalonesConfig['id'] . ') to the DB.');
     }
 
     private function loadStandalonesConfig(): ?array
@@ -64,23 +62,6 @@ class AddStandaloneSystem extends Command
                 'ID' => $standalonesConfig['id'],
                 'Name' => $standalonesConfig['name'],
             ]);
-        }
-    }
-
-    private function insertStandaloneGameToDb(array $standalonesConfig): void
-    {
-        $numStandaloneGames = Game::where('ConsoleID', '=', $standalonesConfig['id'])->count();
-
-        if ($numStandaloneGames === 0) {
-            DB::table('GameData')->insert([
-                'Title' => 'Standalone Game',
-                'ConsoleID' => $standalonesConfig['id'],
-            ]);
-
-            $newGame = Game::where('ConsoleID', $standalonesConfig['id'])->get();
-            if (isset($newGame) && isset($newGame->ID)) {
-                $this->info('Added game ' . $newGame->ID . ' to the database.');
-            }
         }
     }
 }
