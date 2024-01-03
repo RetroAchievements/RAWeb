@@ -7,14 +7,14 @@
 ])
 
 <div>
-    <x-game.related-games-meta-panel
-        :selectedSortOrder="$sortOrder"
-        :filterOptions="$filterOptions"
-    />
-
     @if (count($consoles) < 1)
-        <p>No related games.</p>
+        <p>No related games.</p><br/>
     @else
+        <x-game.related-games-meta-panel
+            :selectedSortOrder="$sortOrder"
+            :filterOptions="$filterOptions"
+        />
+
         @foreach ($consoles as $console)
             @if ($filterOptions['console'])
                 <h2 class="flex gap-x-2 items-center text-h3">

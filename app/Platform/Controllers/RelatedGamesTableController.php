@@ -33,7 +33,7 @@ class RelatedGamesTableController extends GameListControllerBase
         ]);
         $sortOrder = $validatedData['sort'] ?? 'title';
         $filterOptions = [
-            'console' => ($validatedData['filter']['console'] ?? 'true') !== 'false',
+            'console' => ($validatedData['filter']['console'] ?? 'false') !== 'false',
             'populated' => ($validatedData['filter']['populated'] ?? 'false') !== 'false',
         ];
 
@@ -42,6 +42,14 @@ class RelatedGamesTableController extends GameListControllerBase
 
         $userProgress = $this->getUserProgress($gameIDs);
         [$games, $consoles] = $this->getGameList($gameIDs, $userProgress);
+
+        // ignore hubs
+        $games = array_filter($games, function ($game) {
+            return $game['ConsoleID'] != 100;
+        });
+        $consoles = $consoles->filter(function ($console) {
+            return $console['ID'] != 100;
+        });
 
         if ($filterOptions['populated']) {
             $games = array_filter($games, function ($game) {

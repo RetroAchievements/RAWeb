@@ -119,7 +119,18 @@ class GameListControllerBase extends Controller
             'tickets' => function ($a, $b) {
                 return $a['NumTickets'] <=> $b['NumTickets'];
             },
-            'progress' => function ($a, $b) {
+            'progress' => function ($a, $b) use ($reverse) {
+                if ($a['CompletionPercentage'] == $b['CompletionPercentage']) {
+                    // same completion progress; apply secondary sort on sort title, grouping sets with achievements first
+                    if ($a['achievements_published'] == 0) {
+                        if ($b['achievements_published'] != 0)
+                            return $reverse ? -1 : 1;
+                    } elseif ($b['achievements_published'] == 0) {
+                        return $reverse ? 1 : -1;
+                    }
+                    return $reverse ? $b['SortTitle'] <=> $a['SortTitle'] : $a['SortTitle'] <=> $b['SortTitle'];
+                }
+
                 return $a['CompletionPercentage'] <=> $b['CompletionPercentage'];
             },
         };

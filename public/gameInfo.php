@@ -1370,6 +1370,28 @@ sanitize_outputs(
 
                 // RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
                 // RenderGameAlts($relatedGames);
+
+                if (count($gameHubs) > 0) {
+                    $icon = getSystemIconUrl(100);
+                    echo '<h2 class="flex gap-x-2 items-center text-h3">';
+                    echo "<img src=\"$icon\" alt=\"Console icon\" width=\"24\" height=\"24\">";
+                    echo '<span>Related Hubs</span>';
+                    echo '</h2>';
+
+                    echo '<div><table class="table-highlight mb-4"><tbody>';
+                    foreach ($gameHubs as $game) {
+                        echo '<tr><td>';
+                        echo Blade::render('
+                            <x-game.multiline-avatar
+                                :gameId="$gameIDAlt"
+                                :gameTitle="$Title"
+                                :gameImageIcon="$ImageIcon"
+                            />
+                        ', $game);
+                        echo '</td></tr>';
+                    }
+                    echo '</tbody></table></div>';
+                }
             }
         }
 

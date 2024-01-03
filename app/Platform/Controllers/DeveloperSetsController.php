@@ -119,31 +119,27 @@ class DeveloperSetsController extends GameListControllerBase
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
         $sortFunction = match ($sortMatch) {
-            default => function ($a, $b) {
-                return $a['SortTitle'] <=> $b['SortTitle'];
-            },
+            default => null,
             'achievements' => function ($a, $b) {
                 return $a['NumAuthoredAchievements'] <=> $b['NumAuthoredAchievements'];
             },
             'points' => function ($a, $b) {
                 return $a['NumAuthoredPoints'] <=> $b['NumAuthoredPoints'];
             },
-            'retroratio' => function ($a, $b) {
-                return $a['RetroRatio'] <=> $b['RetroRatio'];
-            },
             'leaderboards' => function ($a, $b) {
                 return $a['NumAuthoredLeaderboards'] <=> $b['NumAuthoredLeaderboards'];
-            },
-            'players' => function ($a, $b) {
-                return $a['players_total'] <=> $b['players_total'];
             },
             'tickets' => function ($a, $b) {
                 return $a['NumAuthoredTickets'] <=> $b['NumAuthoredTickets'];
             },
-            'progress' => function ($a, $b) {
-                return $a['CompletionPercentage'] <=> $b['CompletionPercentage'];
-            },
         };
+
+        // if we're not changing the sort definition, just use the base
+        if ($sortFunction === null) {
+            GameListControllerBase::sortGameList($games, $sortOrder);
+            return;
+        }
+
         usort($games, $sortFunction);
         if ($reverse) {
             $games = array_reverse($games);
