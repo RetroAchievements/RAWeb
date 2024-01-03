@@ -200,7 +200,7 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // game with unlocks
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -250,7 +250,7 @@ class StartSessionTest extends TestCase
         $params['g'] = $gameTwo->id;
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
@@ -266,12 +266,30 @@ class StartSessionTest extends TestCase
         Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id]);
         $params['g'] = $gameThree->id;
 
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
                 "Error" => "You do not have permission to do that.",
                 "Code" => "access_denied",
+                "Status" => 403,
+            ]);
+
+        $params = [
+            'u' => $integrationUser->User,
+            't' => $integrationUser->appToken,
+            'r' => 'startsession',
+            'g' => $gameOne->id,
+            'k' => $delegatedUser->User,
+        ];
+
+        // Next, try a GET call, which should be blocked.
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->get($requestUrl)
+            ->assertStatus(403)
+            ->assertJson([
+                "Success" => false,
+                "Error" => "Access denied.",
                 "Status" => 403,
             ]);
     }

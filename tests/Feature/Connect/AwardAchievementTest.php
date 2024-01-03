@@ -400,7 +400,7 @@ class AwardAchievementTest extends TestCase
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertExactJson([
                 'Success' => true,
                 'AchievementID' => $achievement3->ID,
@@ -458,7 +458,7 @@ class AwardAchievementTest extends TestCase
         $params['a'] = $achievements->get(0)->id;
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
@@ -472,12 +472,31 @@ class AwardAchievementTest extends TestCase
         $params['a'] = $achievement4->id;
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertStatus(403)
             ->assertExactJson([
                 "Success" => false,
                 "Error" => "You do not have permission to do that.",
                 "Code" => "access_denied",
+                "Status" => 403,
+            ]);
+
+        // Next, try a GET call, which should be blocked.
+        $params = [
+            'u' => $integrationUser->User,
+            't' => $integrationUser->appToken,
+            'r' => 'awardachievement',
+            'k' => $delegatedUser->User,
+            'h' => 1,
+            'a' => $achievement3->ID,
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->get($requestUrl)
+            ->assertStatus(403)
+            ->assertJson([
+                "Success" => false,
+                "Error" => "Access denied.",
                 "Status" => 403,
             ]);
     }
