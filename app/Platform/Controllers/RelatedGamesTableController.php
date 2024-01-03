@@ -26,7 +26,7 @@ class RelatedGamesTableController extends GameListControllerBase
             abort(404);
         }
 
-        $validatedData = request()->validate([
+        $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
             'filter.console' => 'sometimes|in:true,false',
             'filter.populated' => 'sometimes|in:true,false',
@@ -55,6 +55,11 @@ class RelatedGamesTableController extends GameListControllerBase
             $games = array_filter($games, function ($game) {
                 return $game['achievements_published'] > 0;
             });
+        }
+
+        $user = $request->user();
+        if ($user !== null) {
+            $this->mergeWantToPlay($games, $user);
         }
 
         $this->sortGameList($games, $sortOrder);

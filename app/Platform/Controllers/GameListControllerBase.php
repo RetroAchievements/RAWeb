@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketState;
+use App\Community\Enums\UserGameListType;
 use App\Community\Models\Ticket;
+use App\Community\Models\UserGameListEntry;
 use App\Http\Controller;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
@@ -91,6 +93,18 @@ class GameListControllerBase extends Controller
         }
 
         return [$games, $consoles];
+    }
+
+    protected function mergeWantToPlay(array &$games, User $user): void
+    {
+        $wantToPlayGames = UserGameListEntry::where('user_id', $user->ID)
+            ->where('type', UserGameListType::Play)
+            ->pluck('GameID')
+            ->toArray();
+
+        foreach ($games as &$game) {
+            $game['WantToPlay'] = in_array($game['ID'], $wantToPlayGames);
+        }
     }
 
     protected function sortGameList(array &$games, string $sortOrder): void 

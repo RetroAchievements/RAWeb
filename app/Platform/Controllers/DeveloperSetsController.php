@@ -102,6 +102,8 @@ class DeveloperSetsController extends GameListControllerBase
             });
         }
 
+        $this->mergeWantToPlay($games, $user);
+
         $this->sortGameList($games, $sortOrder);
 
         return view('platform.components.developer.sets-page', [

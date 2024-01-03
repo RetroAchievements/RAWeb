@@ -15,6 +15,31 @@
             :filterOptions="$filterOptions"
         />
 
+        @if ($userProgress !== null)
+        <?php
+            $addButtonTooltip = __('user-game-list.play.add');
+            $removeButtonTooltip = __('user-game-list.play.remove');
+        ?>
+        <script>
+            function togglePlayListItem(id)
+            {
+                $.post('/request/user-game-list/toggle.php', {
+                    type: 'play',
+                    game: id
+                })
+                .done(function () {
+                    $("#add-to-list-" + id).toggle();
+                    $("#remove-from-list-" + id).toggle();
+                    if ($("#add-to-list-" + id).is(':visible')) {
+                        $("#play-list-button-" + id).prop('title', '{{ $addButtonTooltip }}');
+                    } else {
+                        $("#play-list-button-" + id).prop('title', '{{ $removeButtonTooltip }}');
+                    }
+                });
+            }
+        </script>
+        @endif
+
         @foreach ($consoles as $console)
             @if ($filterOptions['console'])
                 <h2 class="flex gap-x-2 items-center text-h3">
@@ -26,7 +51,7 @@
             <div><table class='table-highlight mb-4'><tbody>
 
             <tr>
-                <th style='width:34%'>Title</th>
+                <th style='width:28%'>Title</th>
                 <th style='width:12%; cursor: help' class='text-right'
                     title='The number of achievements in the set'>Achievements</th>
                 <th style='width:10%; cursor: help' class='text-right'
@@ -40,8 +65,10 @@
                 <th style='width:8%; cursor: help' class='text-right'
                     title='The number of open tickets for achievements in the set'>Tickets</th>
                 @if ($userProgress !== null)
-                    <th style='width:8%; cursor: help' class='text-right'
+                    <th style='width:8%; cursor: help' class='text-center'
                         title='Indicates how close you are to mastering a set'>Progress</th>
+                    <th style='width:6%; cursor: help' class='text-center'
+                        title='Whether or not the game is on your want to play list'>Backlog</th>
                 @endif
             </tr>
             <?php $count = $achievementCount = $pointCount = $leaderboardCount = $ticketCount = 0; ?>
@@ -120,6 +147,31 @@
                             </div>
                             </td>
                         @endif
+
+                        <td class='text-center'>
+                        <?php
+                            $addVisibility = '';
+                            $removeVisibility = '';
+                            if ($game['WantToPlay'] ?? false) {
+                                $addVisibility = 'hidden';
+                                $buttonTooltip = $removeButtonTooltip;
+                            } else {
+                                $removeVisibility = 'hidden';
+                                $buttonTooltip = $addButtonTooltip;
+                            }
+                        ?>
+                        <button id="play-list-button-{{ $game['ID'] }}" class="btn" type="button" title="{{ $buttonTooltip }}"
+                                onClick="togglePlayListItem({{ $game['ID'] }})">
+                            <div class="flex items-center gap-x-1">
+                                <div id="add-to-list-{{ $game['ID'] }}" class="{{ $addVisibility }}">
+                                    <x-fas-plus class="-mt-0.5 w-[12px] h-[12px]" />
+                                </div>
+                                <div id="remove-from-list-{{ $game['ID'] }}" class="{{ $removeVisibility }}">
+                                    <x-fas-check class="-mt-0.5 w-[12px] h-[12px]" />
+                                </div>
+                            </div>
+                        </button>
+                        </td>
                     @endif
                 </tr>
             @endforeach

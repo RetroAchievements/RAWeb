@@ -34,10 +34,35 @@
                 </h2>
             @endif
 
+            @if ($userProgress !== null)
+            <?php
+                $addButtonTooltip = __('user-game-list.play.add');
+                $removeButtonTooltip = __('user-game-list.play.remove');
+            ?>
+            <script>
+                function togglePlayListItem(id)
+                {
+                    $.post('/request/user-game-list/toggle.php', {
+                        type: 'play',
+                        game: id
+                    })
+                    .done(function () {
+                        $("#add-to-list-" + id).toggle();
+                        $("#remove-from-list-" + id).toggle();
+                        if ($("#add-to-list-" + id).is(':visible')) {
+                            $("#play-list-button-" + id).prop('title', '{{ $addButtonTooltip }}');
+                        } else {
+                            $("#play-list-button-" + id).prop('title', '{{ $removeButtonTooltip }}');
+                        }
+                    });
+                }
+            </script>
+            @endif
+
             <div><table class='table-highlight mb-4'><tbody>
 
             <tr>
-                <th style='width:34%'>Title</th>
+                <th style='width:28%'>Title</th>
                 <th style='width:12%; cursor: help' class='text-right'
                     title='The number of achievements created by {{ $user->User }} in the set'>Achievements</th>
                 <th style='width:10%; cursor: help' class='text-right'
@@ -51,8 +76,10 @@
                 <th style='width:8%; cursor: help' class='text-right'
                     title='The number of open tickets for achievements created by {{ $user->User }} in the set'>Tickets</th>
                 @if ($userProgress !== null)
-                    <th style='width:8%; cursor: help' class='text-right'
+                    <th style='width:8%; cursor: help' class='text-center'
                         title='Indicates how close you are to mastering a set'>Progress</th>
+                    <th style='width:6%; cursor: help' class='text-center'
+                        title='Whether or not the game is on your want to play list'>Backlog</th>
                 @endif
             </tr>
             <?php $count = $achievementCount = $pointCount = $leaderboardCount = $ticketCount = 0; ?>
@@ -114,25 +141,54 @@
                     @endif
 
                     @if ($userProgress !== null)
-                        <td>
+                        @if ($game['achievements_published'] == 0)
+                            <td></td>
+                        @else
+                            <td>
+                            <?php
+                                $hardcoreProgressBarWidth = $softcoreProgressBarWidth = 0;
+                                $gameProgress = $userProgress[$game['ID']] ?? null;
+                                $achievementsUnlocked = 0;
+                                if ($gameProgress != null && $game['achievements_published']) {
+                                    $achievementsUnlocked = $gameProgress['achievements_unlocked'];
+                                    $hardcoreProgressBarWidth = sprintf("%01.2f", $gameProgress['achievements_unlocked_hardcore'] * 100 / $game['achievements_published']);
+                                    $softcoreProgressBarWidth = sprintf("%01.2f", ($achievementsUnlocked - $gameProgress['achievements_unlocked_hardcore']) * 100 / $game['achievements_published']);
+                                }
+                            ?>
+                            <div role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                                title="{{ $achievementsUnlocked }} of {{ $game['achievements_published'] }} unlocked"
+                                class="w-full h-1 bg-embed rounded flex">
+                                <div style="width: {{ $hardcoreProgressBarWidth }}%"
+                                        class="bg-[#cc9900] h-full {{ $hardcoreProgressBarWidth > 0 ? 'rounded-l' : '' }}"></div>
+                                <div style="width: {{ $softcoreProgressBarWidth }}%"
+                                        class="bg-[rgb(11,113,193)] h-full {{ $hardcoreProgressBarWidth === 0 ? 'rounded-l' : '' }}"></div>
+                            </div>
+                            </td>
+                        @endif
+                        
+                        <td class='text-center'>
                         <?php
-                            $hardcoreProgressBarWidth = $softcoreProgressBarWidth = 0;
-                            $gameProgress = $userProgress[$game['ID']] ?? null;
-                            $achievementsUnlocked = 0;
-                            if ($gameProgress != null && $game['achievements_published']) {
-                                $achievementsUnlocked = $gameProgress['achievements_unlocked'];
-                                $hardcoreProgressBarWidth = sprintf("%01.2f", $gameProgress['achievements_unlocked_hardcore'] * 100 / $game['achievements_published']);
-                                $softcoreProgressBarWidth = sprintf("%01.2f", ($achievementsUnlocked - $gameProgress['achievements_unlocked_hardcore']) * 100 / $game['achievements_published']);
+                            $addVisibility = '';
+                            $removeVisibility = '';
+                            if ($game['WantToPlay'] ?? false) {
+                                $addVisibility = 'hidden';
+                                $buttonTooltip = $removeButtonTooltip;
+                            } else {
+                                $removeVisibility = 'hidden';
+                                $buttonTooltip = $addButtonTooltip;
                             }
                         ?>
-                        <div role="progressbar" aria-valuemin="0" aria-valuemax="100"
-                             title="{{ $achievementsUnlocked }} of {{ $game['achievements_published'] }} unlocked"
-                             class="w-full h-1 bg-embed rounded flex">
-                            <div style="width: {{ $hardcoreProgressBarWidth }}%"
-                                    class="bg-[#cc9900] h-full {{ $hardcoreProgressBarWidth > 0 ? 'rounded-l' : '' }}"></div>
-                            <div style="width: {{ $softcoreProgressBarWidth }}%"
-                                    class="bg-[rgb(11,113,193)] h-full {{ $hardcoreProgressBarWidth === 0 ? 'rounded-l' : '' }}"></div>
-                        </div>
+                        <button id="play-list-button-{{ $game['ID'] }}" class="btn" type="button" title="{{ $buttonTooltip }}"
+                                onClick="togglePlayListItem({{ $game['ID'] }})">
+                            <div class="flex items-center gap-x-1">
+                                <div id="add-to-list-{{ $game['ID'] }}" class="{{ $addVisibility }}">
+                                    <x-fas-plus class="-mt-0.5 w-[12px] h-[12px]" />
+                                </div>
+                                <div id="remove-from-list-{{ $game['ID'] }}" class="{{ $removeVisibility }}">
+                                    <x-fas-check class="-mt-0.5 w-[12px] h-[12px]" />
+                                </div>
+                            </div>
+                        </button>
                         </td>
                     @endif
                 </tr>
