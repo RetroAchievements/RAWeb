@@ -37,7 +37,7 @@ class GameHash extends BaseModel
         'hash',
         'Labels',
         'MD5',
-        'internal_status',
+        'compatibility',
         'Name',
         'system_id',
         'User',

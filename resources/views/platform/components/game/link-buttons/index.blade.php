@@ -30,7 +30,7 @@ $canSeeGuide = in_array('guide', $allowedLinks) && $gameGuideUrl;
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered;
 $canSeeSetRequestors = in_array('set-requestors', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered && $gameAchievementsCount === 0;
 
-if (in_array('tickets', $allowedLinks) && $canSeeOpenTickets) {
+if ($canSeeOpenTickets) {
     $numOpenTickets = countOpenTickets(
         !$isViewingOfficial,
         TicketFilters::Default,
