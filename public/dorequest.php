@@ -326,6 +326,64 @@ switch ($requestType) {
         $response['AchievementID'] = $achIDToAward;
         break;
 
+    // This is only currently supported for "Standalone" integrations.
+    case "awardachievements":
+        if (request()->method() !== 'POST') {
+            return DoRequestError('Access denied.', 403, 'access_denied');
+        }
+
+        $achievementIdsInput = request()->input('a', '');
+        $hardcore = (bool) request()->input('h', 0);
+
+        $foundTargetUser = null;
+        if (!$delegateTo) {
+            return DoRequestError("You must specify a target user.", 400);
+        }
+
+        $foundTargetUser = User::firstWhere('User', $delegateTo);
+        if (!$foundTargetUser) {
+            return DoRequestError("The target user couldn't be found.", 400);
+        }
+
+        $achievementIdsArray = explode(',', $achievementIdsInput);
+        $idsToAttemptAward = array_filter($achievementIdsArray, function ($id) {
+            return filter_var($id, FILTER_VALIDATE_INT) !== false;
+        });
+
+        // Fetch the IDs of achievements already awarded to the user.
+        $alreadyAwardedIds = PlayerAchievement::where('user_id', $foundTargetUser->id)
+            ->whereIn('achievement_id', $idsToAttemptAward)
+            ->pluck('achievement_id')
+            ->all();
+
+        // Fetch only the achievements that have not been awarded and can be delegated.
+        $awardableAchievements = Achievement::whereIn('ID', $idsToAttemptAward)
+            ->whereNotIn('ID', $alreadyAwardedIds)
+            ->with('game')
+            ->get()
+            ->filter(function ($achievement) use ($user) {
+                return $achievement->getCanDelegateUnlocks($user);
+            });
+
+        $newAwardedIds = [];
+        foreach ($awardableAchievements as $awardableAchievement) {
+            $unlockAchievementResult = unlockAchievement($foundTargetUser, $awardableAchievement->ID, $hardcore);
+
+            if (!isset($unlockAchievementResult['Error'])) {
+                dispatch(new UnlockPlayerAchievementJob($foundTargetUser->id, $awardableAchievement->ID, $hardcore))
+                    ->onQueue('player-achievements');
+
+                $newAwardedIds[] = $awardableAchievement->ID;
+            }
+        }
+
+        $response['Score'] = $foundTargetUser->RAPoints;
+        $response['SoftcoreScore'] = $foundTargetUser->RASoftcorePoints;
+        $response['ExistingIDs'] = $alreadyAwardedIds;
+        $response['SuccessfulIDs'] = $newAwardedIds;
+
+        break;
+
     case "getfriendlist":
         $response['Friends'] = GetFriendList($username);
         break;
@@ -435,64 +493,6 @@ switch ($requestType) {
         if (isset($response['Response']['Error'])) {
             $response['Error'] = $response['Response']['Error'];
         }
-        break;
-
-    // This is only currently supported for "Standalone" integrations.
-    case "awardachievements":
-        if (request()->method() !== 'POST') {
-            return DoRequestError('Access denied.', 403, 'access_denied');
-        }
-
-        $achievementIdsInput = request()->input('a', '');
-        $hardcore = (bool) request()->input('h', 0);
-
-        $foundTargetUser = null;
-        if (!$delegateTo) {
-            return DoRequestError("You must specify a target user.", 400);
-        }
-
-        $foundTargetUser = User::firstWhere('User', $delegateTo);
-        if (!$foundTargetUser) {
-            return DoRequestError("The target user couldn't be found.", 400);
-        }
-
-        $achievementIdsArray = explode(',', $achievementIdsInput);
-        $idsToAttemptAward = array_filter($achievementIdsArray, function ($id) {
-            return filter_var($id, FILTER_VALIDATE_INT) !== false;
-        });
-
-        // Fetch the IDs of achievements already awarded to the user.
-        $alreadyAwardedIds = PlayerAchievement::where('user_id', $foundTargetUser->id)
-            ->whereIn('achievement_id', $idsToAttemptAward)
-            ->pluck('achievement_id')
-            ->all();
-
-        // Fetch only the achievements that have not been awarded and can be delegated.
-        $awardableAchievements = Achievement::whereIn('ID', $idsToAttemptAward)
-            ->whereNotIn('ID', $alreadyAwardedIds)
-            ->with('game')
-            ->get()
-            ->filter(function ($achievement) use ($user) {
-                return $achievement->getCanDelegateUnlocks($user);
-            });
-
-        $newAwardedIds = [];
-        foreach ($awardableAchievements as $awardableAchievement) {
-            $unlockAchievementResult = unlockAchievement($foundTargetUser, $awardableAchievement->ID, $hardcore);
-
-            if (!isset($unlockAchievementResult['Error'])) {
-                dispatch(new UnlockPlayerAchievementJob($foundTargetUser->id, $awardableAchievement->ID, $hardcore))
-                    ->onQueue('player-achievements');
-
-                $newAwardedIds[] = $awardableAchievement->ID;
-            }
-        }
-
-        $response['Score'] = $foundTargetUser->RAPoints;
-        $response['SoftcoreScore'] = $foundTargetUser->RASoftcorePoints;
-        $response['ExistingIDs'] = $alreadyAwardedIds;
-        $response['SuccessfulIDs'] = $newAwardedIds;
-
         break;
 
     case "unlocks":
