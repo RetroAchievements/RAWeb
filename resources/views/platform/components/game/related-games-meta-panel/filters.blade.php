@@ -13,7 +13,7 @@
         </x-game.related-games-meta-panel.filter-checkbox>
 
         <x-game.related-games-meta-panel.filter-checkbox
-            kind="sole"
+            kind="populated"
             :isPreChecked="$filterOptions['populated']"
         >
             Only with Achievements

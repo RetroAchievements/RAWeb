@@ -48,6 +48,15 @@ class RelatedGamesTableController extends GameListControllerBase
             $games = array_filter($games, function ($game) {
                 return $game['achievements_published'] > 0;
             });
+            $consoles = $consoles->filter(function ($console) use ($games) {
+                foreach ($games as $game) {
+                    if ($game['ConsoleID'] == $console['ID']) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
         }
 
         $user = $request->user();
