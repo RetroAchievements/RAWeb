@@ -98,9 +98,9 @@ class DeveloperSetsController extends GameListControllerBase
             });
         }
 
-        $user = $request->user();
-        if ($user !== null) {
-            $this->mergeWantToPlay($games, $user);
+        $player = $request->user();
+        if ($player !== null) {
+            $this->mergeWantToPlay($games, $player);
         }
 
         $this->sortGameList($games, $sortOrder);
