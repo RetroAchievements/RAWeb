@@ -1364,7 +1364,7 @@ sanitize_outputs(
 
         if (!$isFullyFeaturedGame) {
             if (!empty($relatedGames)) {
-                $controller = new RelatedGamesTableController;
+                $controller = new RelatedGamesTableController();
                 $view = $controller(request());
                 echo $view->render();
 

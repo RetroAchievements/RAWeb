@@ -13,8 +13,6 @@ use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GameListControllerBase extends Controller
@@ -107,7 +105,7 @@ class GameListControllerBase extends Controller
         }
     }
 
-    protected function sortGameList(array &$games, string $sortOrder): void 
+    protected function sortGameList(array &$games, string $sortOrder): void
     {
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
@@ -137,11 +135,13 @@ class GameListControllerBase extends Controller
                 if ($a['CompletionPercentage'] == $b['CompletionPercentage']) {
                     // same completion progress; apply secondary sort on sort title, grouping sets with achievements first
                     if ($a['achievements_published'] == 0) {
-                        if ($b['achievements_published'] != 0)
+                        if ($b['achievements_published'] != 0) {
                             return $reverse ? -1 : 1;
+                        }
                     } elseif ($b['achievements_published'] == 0) {
                         return $reverse ? 1 : -1;
                     }
+
                     return $reverse ? $b['SortTitle'] <=> $a['SortTitle'] : $a['SortTitle'] <=> $b['SortTitle'];
                 }
 

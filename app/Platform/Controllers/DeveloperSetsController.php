@@ -6,10 +6,6 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketState;
 use App\Community\Models\Ticket;
-use App\Http\Controller;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
-use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -116,7 +112,7 @@ class DeveloperSetsController extends GameListControllerBase
         ]);
     }
 
-    protected function sortGameList(array &$games, string $sortOrder): void 
+    protected function sortGameList(array &$games, string $sortOrder): void
     {
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
@@ -139,6 +135,7 @@ class DeveloperSetsController extends GameListControllerBase
         // if we're not changing the sort definition, just use the base
         if ($sortFunction === null) {
             GameListControllerBase::sortGameList($games, $sortOrder);
+
             return;
         }
 
