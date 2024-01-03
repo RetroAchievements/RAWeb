@@ -8,6 +8,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
+use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
@@ -1363,8 +1364,12 @@ sanitize_outputs(
 
         if (!$isFullyFeaturedGame) {
             if (!empty($relatedGames)) {
-                RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
-                RenderGameAlts($relatedGames);
+                $controller = new RelatedGamesTableController;
+                $view = $controller(request());
+                echo $view->render();
+
+                // RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
+                // RenderGameAlts($relatedGames);
             }
         }
 

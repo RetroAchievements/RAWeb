@@ -15,7 +15,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DeveloperSetsController extends Controller
+class DeveloperSetsController extends GameListControllerBase
 {
     public function __invoke(Request $request): View
     {
@@ -63,80 +63,36 @@ class DeveloperSetsController extends Controller
             ->toArray();
 
         $gameIDs = array_keys($gameAuthoredAchievementsList) +
-                   array_keys($gameAuthoredLeaderboardsList);
+            array_keys($gameAuthoredLeaderboardsList);
 
-        $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
+        $gameAuthoredTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
             ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
             ->whereIn('Achievements.GameID', $gameIDs)
+            ->where('Achievements.Author', $user->User)
             ->select(['GameID',
-                DB::raw('COUNT(Ticket.ID) AS NumTickets'),
-                DB::raw("SUM(CASE WHEN Achievements.Author='$user->User' THEN 1 ELSE 0 END) AS NumAuthoredTickets"),
+                DB::raw('COUNT(Ticket.ID) AS NumAuthoredTickets'),
             ])
             ->groupBy('GameID')
             ->get()
             ->mapWithKeys(function ($row, $key) {
                 return [$row['GameID'] => [
-                    'NumTickets' => $row['NumTickets'],
                     'NumAuthoredTickets' => $row['NumAuthoredTickets'],
                 ]];
             })
             ->toArray();
 
-        $gameModels = Game::whereIn('ID', $gameIDs)
-            ->orderBy('Title')
-            ->select([
-                'ID', 'Title', 'ImageIcon', 'ConsoleID', 'players_total',
-                'achievements_published', 'points_total', 'TotalTruePoints',
-            ])
-            ->withCount('leaderboards')
-            ->get();
+        $userProgress = $this->getUserProgress($gameIDs);
+        [$games, $consoles] = $this->getGameList($gameIDs, $userProgress);
 
-        $consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
-            ->orderBy('Name')
-            ->get();
-
-        $userProgress = null;
-        if (request()->user()) {
-            $userProgress = PlayerGame::where('user_id', request()->user()->id)
-                ->whereIn('game_id', $gameIDs)
-                ->get(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
-                ->mapWithKeys(function ($row, $key) {
-                    return [$row['game_id'] => [
-                        'achievements_unlocked' => $row['achievements_unlocked'],
-                        'achievements_unlocked_hardcore' => $row['achievements_unlocked_hardcore'],
-                    ]];
-                })
-                ->toArray();
-        }
-
-        $games = [];
-        foreach ($gameModels as &$gameModel) {
-            $game = $gameModel->toArray();
-
-            $gameAuthoredAchievements = $gameAuthoredAchievementsList[$gameModel->ID] ?? null;
+        foreach ($games as &$game) {
+            $gameAuthoredAchievements = $gameAuthoredAchievementsList[$game['ID']] ?? null;
             $game['NumAuthoredAchievements'] = $gameAuthoredAchievements['NumAuthoredAchievements'] ?? 0;
             $game['NumAuthoredPoints'] = $gameAuthoredAchievements['NumAuthoredPoints'] ?? 0;
 
-            $game['NumAuthoredLeaderboards'] = $gameAuthoredLeaderboardsList[$gameModel->ID] ?? 0;
-            $game['leaderboards_count'] = $gameModel->leaderboards_count;
+            $game['NumAuthoredLeaderboards'] = $gameAuthoredLeaderboardsList[$game['ID']] ?? 0;
 
-            $gameTickets = $gameTicketsList[$gameModel->ID] ?? null;
-            $game['NumTickets'] = $gameTickets['NumTickets'] ?? 0;
-            $game['NumAuthoredTickets'] = $gameTickets['NumAuthoredTickets'] ?? 0;
-
-            $gameProgress = $userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
-            $game['CompletionPercentage'] = $gameModel->achievements_published ?
-                ($gameProgress * 100 / $gameModel->achievements_published) : 0;
-
-            $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
-
-            $game['ConsoleName'] = $consoles->firstWhere('ID', $game['ConsoleID'])->Name;
-            $game['SortTitle'] = $game['Title'];
-            if (substr($game['Title'], 0, 1) == '~') {
-                $tilde = strrpos($game['Title'], '~');
-                $game['SortTitle'] = trim(substr($game['Title'], $tilde + 1) . ' ' . substr($game['Title'], 0, $tilde + 1));
-            }
-            $games[] = $game;
+            $gameAuthoredTickets = $gameAuthoredTicketsList[$game['ID']] ?? null;
+            $game['NumAuthoredTickets'] = $gameAuthoredTickets['NumAuthoredTickets'] ?? 0;
         }
 
         if ($filterOptions['sole']) {
@@ -146,6 +102,20 @@ class DeveloperSetsController extends Controller
             });
         }
 
+        $this->sortGameList($games, $sortOrder);
+
+        return view('platform.components.developer.sets-page', [
+            'user' => $user,
+            'consoles' => $consoles,
+            'games' => $games,
+            'sortOrder' => $sortOrder,
+            'filterOptions' => $filterOptions,
+            'userProgress' => $userProgress,
+        ]);
+    }
+
+    protected function sortGameList(array &$games, string $sortOrder): void 
+    {
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
         $sortFunction = match ($sortMatch) {
@@ -168,7 +138,7 @@ class DeveloperSetsController extends Controller
                 return $a['players_total'] <=> $b['players_total'];
             },
             'tickets' => function ($a, $b) {
-                return $a['NumAuthoredTickets'] <=> $b['NumTickets'];
+                return $a['NumAuthoredTickets'] <=> $b['NumAuthoredTickets'];
             },
             'progress' => function ($a, $b) {
                 return $a['CompletionPercentage'] <=> $b['CompletionPercentage'];
@@ -178,14 +148,5 @@ class DeveloperSetsController extends Controller
         if ($reverse) {
             $games = array_reverse($games);
         }
-
-        return view('platform.components.developer.sets-page', [
-            'user' => $user,
-            'consoles' => $consoles,
-            'games' => $games,
-            'sortOrder' => $sortOrder,
-            'filterOptions' => $filterOptions,
-            'userProgress' => $userProgress,
-        ]);
     }
 }
