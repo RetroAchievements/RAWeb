@@ -18,12 +18,12 @@ use Illuminate\Support\Str;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
-class SyncAchievementsTest extends TestCase
+class AwardAchievementsTest extends TestCase
 {
     use RefreshDatabase;
     use TestsPlayerAchievements;
 
-    public function testSyncAchievements(): void
+    public function testAwardMultipleAchievements(): void
     {
         $now = Carbon::now()->clone()->subMinutes(5)->startOfSecond();
         Carbon::setTestNow($now);
@@ -63,7 +63,7 @@ class SyncAchievementsTest extends TestCase
         $params = [
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
-            'r' => 'syncachievements',
+            'r' => 'awardachievements',
             'k' => $delegatedUser->User,
             'h' => 1,
             // Note that #0 is already unlocked, thus it will not be in the "SuccessfulIDs" list.
@@ -71,7 +71,7 @@ class SyncAchievementsTest extends TestCase
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievements->get(1)->Points + $achievements->get(2)->Points + $achievements->get(3)->Points,
@@ -173,14 +173,14 @@ class SyncAchievementsTest extends TestCase
         $params = [
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
-            'r' => 'syncachievements',
+            'r' => 'awardachievements',
             'k' => $delegatedUser->User,
             'h' => 1,
             'a' => $achievements->get(0)->ID,
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore,
@@ -221,14 +221,14 @@ class SyncAchievementsTest extends TestCase
         $params = [
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
-            'r' => 'syncachievements',
+            'r' => 'awardachievements',
             'k' => $delegatedUser->User,
             'h' => 1,
             'a' => $achievements->get(0)->ID,
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore,
@@ -264,13 +264,13 @@ class SyncAchievementsTest extends TestCase
         $params = [
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
-            'r' => 'syncachievements',
+            'r' => 'awardachievements',
             'h' => 1,
             'a' => $achievements->get(0)->ID,
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertStatus(400)
             ->assertExactJson([
                 "Success" => false,
@@ -294,14 +294,14 @@ class SyncAchievementsTest extends TestCase
         $params = [
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
-            'r' => 'syncachievements',
+            'r' => 'awardachievements',
             'h' => 1,
             'a' => $achievements->get(0)->ID,
             'k' => 'Some Guy',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->get($requestUrl)
+        $this->post($requestUrl)
             ->assertStatus(400)
             ->assertExactJson([
                 "Success" => false,
@@ -310,7 +310,7 @@ class SyncAchievementsTest extends TestCase
             ]);
     }
 
-    public function testTooMuchData(): void
+    public function testGetCall(): void
     {
         /** @var System $standalonesSystem */
         $standalonesSystem = System::factory()->create(['ID' => 102]);
@@ -328,7 +328,7 @@ class SyncAchievementsTest extends TestCase
         $params = [
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
-            'r' => 'syncachievements',
+            'r' => 'awardachievements',
             'h' => 1,
             'a' => $achievementIds,
             'k' => $delegatedUser->User,
@@ -336,11 +336,11 @@ class SyncAchievementsTest extends TestCase
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->get($requestUrl)
-            ->assertStatus(400)
-            ->assertExactJson([
+            ->assertStatus(403)
+            ->assertJson([
                 "Success" => false,
-                "Error" => "More than 800 achievements can't be synced at once.",
-                "Status" => 400,
+                "Error" => "Access denied.",
+                "Status" => 403,
             ]);
     }
 }

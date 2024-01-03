@@ -133,6 +133,10 @@ if (
     && $delegateTo !== null
     && ($gameID || $achievementID)
 ) {
+    if (request()->method() !== 'POST') {
+        return DoRequestError('Access denied.', 403, 'access_denied');
+    }
+
     $foundTargetUser = User::firstWhere('User', $delegateTo);
     if (!$foundTargetUser) {
         return DoRequestError("The target user couldn't be found.", 403, 'access_denied');
@@ -435,6 +439,10 @@ switch ($requestType) {
 
     // This is only currently supported for "Standalone" integrations.
     case "awardachievements":
+        if (request()->method() !== 'POST') {
+            return DoRequestError('Access denied.', 403, 'access_denied');
+        }
+
         $achievementIdsInput = request()->input('a', '');
         $hardcore = (bool) request()->input('h', 0);
 
