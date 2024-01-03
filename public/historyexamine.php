@@ -5,8 +5,7 @@ use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    header("Location: /login");
-    exit;
+    return redirect(route('login'));
 }
 
 $userPage = request()->query('u');

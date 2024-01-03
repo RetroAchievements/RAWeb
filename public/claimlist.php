@@ -11,8 +11,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    header("Location: /login");
-    exit;
+    return redirect(route('login'));
 }
 
 $defaultFilter = ClaimFilters::AllActiveClaims;
