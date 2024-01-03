@@ -178,7 +178,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         return !$isSubsetOrTestKit && !$isEventGame;
     }
 
-    public function getCanSendConnectUpdatesForUsers(User|string $user): bool
+    public function getCanDelegateActivity(User|string $user): bool
     {
         return $this->getIsStandalone() && $this->getHasAuthoredSomeAchievements($user);
     }
