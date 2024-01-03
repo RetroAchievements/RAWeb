@@ -7,6 +7,7 @@ use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Media\FilenameIterator;
@@ -68,45 +69,6 @@ if (!function_exists('DoRequestError')) {
     }
 }
 
-if (!function_exists('delegateUserAction')) {
-    function delegateUserAction(
-        User $initiatingUser,
-        ?string $targetUsername = null,
-        int $gameId = 0,
-        int $achievementId = 0,
-    ): array {
-        if ($targetUsername === null || (!$gameId && !$achievementId)) {
-            // Don't delegate, just continue on acting as the initiating user.
-            return [$initiatingUser, $initiatingUser->User];
-        }
-
-        $foundTargetUser = User::firstWhere('User', $targetUsername);
-
-        if (!$foundTargetUser) {
-            throw new Exception("The target user couldn't be found.");
-        }
-
-        if ($gameId) {
-            $game = Game::find($gameId);
-
-            if (!$game || !$game->getCanSendConnectUpdatesForUsers($initiatingUser)) {
-                throw new Exception("You do not have permission to do that.");
-            }
-        }
-
-        if ($achievementId) {
-            $achievement = Achievement::find($achievementId);
-
-            if (!$achievement || !$achievement->getCanSendConnectUpdatesForUsers($initiatingUser)) {
-                throw new Exception("You do not have permission to do that.");
-            }
-        }
-
-        // Replace the initiating user's properties with those of the user being delegated.
-        return [$foundTargetUser, $targetUsername];
-    }
-}
-
 /**
  * RAIntegration implementation
  * https://github.com/RetroAchievements/RAIntegration/blob/master/src/api/impl/ConnectedServer.cpp
@@ -121,6 +83,7 @@ $credentialsOK = match ($requestType) {
      */
     "achievementwondata",
     "awardachievement",
+    "awardachievements",
     "getfriendlist",
     "patch",
     "ping",
@@ -130,7 +93,6 @@ $credentialsOK = match ($requestType) {
     "submitcodenote",
     "submitgametitle",
     "submitlbentry",
-    "syncachievements",
     "unlocks",
     "uploadachievement",
     "uploadleaderboard" => $validLogin && ($permissions >= Permissions::Registered),
@@ -157,8 +119,8 @@ if (!$credentialsOK) {
 
 /*
  * It is possible for some calls to be made on behalf of another user.
- * This generally happens with a "Standalone" integration.
- * NOTE: "syncachievements" is not included here because it accepts an array of
+ * This is only currently supported for "Standalone" integrations.
+ * NOTE: "awardachievements" is not included here because it accepts an array of
  * achievement ID values. It doesn't use the generic `delegateUserAction()` function.
  */
 $allowsGenericDelegation = [
@@ -166,12 +128,35 @@ $allowsGenericDelegation = [
     "ping",
     "startsession",
 ];
-if (in_array($requestType, $allowsGenericDelegation)) {
-    try {
-        [$user, $username] = delegateUserAction($user, $delegateTo, $gameID, $achievementID);
-    } catch (Exception $exception) {
-        return DoRequestError($exception->getMessage(), 403, 'access_denied');
+if (
+    in_array($requestType, $allowsGenericDelegation)
+    && $delegateTo !== null
+    && ($gameID || $achievementID)
+) {
+    $foundTargetUser = User::firstWhere('User', $delegateTo);
+    if (!$foundTargetUser) {
+        return DoRequestError("The target user couldn't be found.", 403, 'access_denied');
     }
+
+    if ($gameID) {
+        $game = Game::find($gameID);
+
+        if (!$game || !$game->getCanDelegateActivity($user)) {
+            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
+        }
+    }
+
+    if ($achievementID) {
+        $achievement = Achievement::find($achievementID);
+
+        if (!$achievement || !$achievement->getCanDelegateUnlocks($user)) {
+            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
+        }
+    }
+
+    // Replace the initiating user's properties with those of the user being delegated.
+    $user = $foundTargetUser;
+    $username = $delegateTo;
 }
 
 switch ($requestType) {
@@ -448,7 +433,8 @@ switch ($requestType) {
         }
         break;
 
-    case "syncachievements":
+    // This is only currently supported for "Standalone" integrations.
+    case "awardachievements":
         $achievementIdsInput = request()->input('a', '');
         $hardcore = (bool) request()->input('h', 0);
 
@@ -467,17 +453,22 @@ switch ($requestType) {
             return filter_var($id, FILTER_VALIDATE_INT) !== false;
         });
 
-        if (count($idsToAttemptAward) > 800) {
-            return DoRequestError("More than 800 achievements can't be synced at once.", 400);
-        }
+        // Fetch the IDs of achievements already awarded to the user.
+        $alreadyAwardedIds = PlayerAchievement::where('user_id', $foundTargetUser->id)
+            ->whereIn('achievement_id', $idsToAttemptAward)
+            ->pluck('achievement_id')
+            ->all();
 
-        $targetAchievements = Achievement::whereIn('ID', $idsToAttemptAward)->with('game')->get();
-        $awardableAchievements = $targetAchievements->filter(function ($achievement) use ($user) {
-            return $achievement->getCanSendConnectUpdatesForUsers($user);
-        });
+        // Fetch only the achievements that have not been awarded and can be delegated.
+        $awardableAchievements = Achievement::whereIn('ID', $idsToAttemptAward)
+            ->whereNotIn('ID', $alreadyAwardedIds)
+            ->with('game')
+            ->get()
+            ->filter(function ($achievement) use ($user) {
+                return $achievement->getCanDelegateUnlocks($user);
+            });
 
         $newAwardedIds = [];
-        $existingIds = [];
         foreach ($awardableAchievements as $awardableAchievement) {
             $unlockAchievementResult = unlockAchievement($foundTargetUser, $awardableAchievement->ID, $hardcore);
 
@@ -486,14 +477,12 @@ switch ($requestType) {
                     ->onQueue('player-achievements');
 
                 $newAwardedIds[] = $awardableAchievement->ID;
-            } elseif (mb_strpos($unlockAchievementResult['Error'], 'User already has') !== false) {
-                $existingIds[] = $awardableAchievement->ID;
             }
         }
 
         $response['Score'] = $foundTargetUser->RAPoints;
         $response['SoftcoreScore'] = $foundTargetUser->RASoftcorePoints;
-        $response['ExistingIDs'] = $existingIds;
+        $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
         break;
