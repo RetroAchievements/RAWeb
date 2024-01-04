@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 
 return new class() extends Migration {
     public function up(): void
     {
+        if (App::environment('testing')) {
+            return;
+        }
+
         $standaloneConfig = $this->loadStandaloneConfig();
 
         $doesStandaloneSystemExist = DB::table('Console')->where('ID', $standaloneConfig['id'])->exists();
@@ -21,6 +26,10 @@ return new class() extends Migration {
 
     public function down(): void
     {
+        if (App::environment('testing')) {
+            return;
+        }
+
         $standaloneConfig = $this->loadStandaloneConfig();
 
         $doesStandaloneSystemExist = DB::table('Console')->where('ID', $standaloneConfig['id'])->exists();
