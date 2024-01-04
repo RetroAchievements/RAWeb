@@ -69,7 +69,7 @@ $menuSystemsList = [
             ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
             ["systemName" => "Mega Duck", "listID" => 69],
             ["systemName" => "MSX", "listID" => 29],
-            // ["systemName" => "Standalones", "listID" => 102],
+            // ["systemName" => "Standalone", "listID" => 102],
             ["systemName" => "Uzebox", "listID" => 80],
             ["systemName" => "Vectrex", "listID" => 46],
             ["systemName" => "WASM-4", "listID" => 72],

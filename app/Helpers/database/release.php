@@ -95,7 +95,7 @@ function isValidConsoleId(int $consoleId): bool
         80, // Uzebox
         // 100, // Hubs (not an actual console)
         101 => true, // Events (not an actual console)
-        // 102, // Standalones (not an actual console)
+        // 102, // Standalone (not an actual console)
         default => false,
     };
 }

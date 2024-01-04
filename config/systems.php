@@ -579,9 +579,9 @@ return [
         'active' => true,
     ],
     102 => [
-        'name' => 'Standalones',
-        'name_full' => 'Standalones',
-        'name_short' => 'Indie',
+        'name' => 'Standalone',
+        'name_full' => 'Standalone',
+        'name_short' => 'N/A',
         'manufacturer' => '',
         'active' => false,
     ],
