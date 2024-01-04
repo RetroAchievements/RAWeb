@@ -353,23 +353,23 @@ class AwardAchievementTest extends TestCase
         /** @var User $integrationUser */
         $integrationUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
         /** @var User $delegatedUser */
-        $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        $delegatedUser = User::factory()->create(['User' => 'Username', 'Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
 
         $delegatedUser->LastGameID = $gameOne->id;
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID]);
+        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->ID]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($delegatedUser, $achievement1, $unlock1Date);
@@ -397,6 +397,7 @@ class AwardAchievementTest extends TestCase
             'k' => $delegatedUser->User,
             'h' => 1,
             'a' => $achievement3->ID,
+            'v' => '62c47b9fba313855ff8a09673780bb35',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
@@ -493,6 +494,25 @@ class AwardAchievementTest extends TestCase
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->get($requestUrl)
+            ->assertStatus(403)
+            ->assertJson([
+                "Success" => false,
+                "Error" => "Access denied.",
+                "Status" => 403,
+            ]);
+
+        // Next, try a call that doesn't include a validation hash. This should fail.
+        $params = [
+            'u' => $integrationUser->User,
+            't' => $integrationUser->appToken,
+            'r' => 'awardachievement',
+            'k' => $delegatedUser->User,
+            'h' => 1,
+            'a' => $achievement3->ID,
+        ];
+
+        $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
+        $this->post($requestUrl)
             ->assertStatus(403)
             ->assertJson([
                 "Success" => false,
