@@ -16,7 +16,7 @@
             kind="populated"
             :isPreChecked="$filterOptions['populated']"
         >
-            Only with Achievements
+            Only with achievements
         </x-game.related-games-meta-panel.filter-checkbox>
     </div>
 </div>

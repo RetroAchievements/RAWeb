@@ -6,6 +6,7 @@ namespace App\Platform\Controllers;
 
 use App\Platform\Models\Game;
 use App\Platform\Models\GameAlternative;
+use App\Platform\Models\System;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -36,12 +37,12 @@ class RelatedGamesTableController extends GameListControllerBase
         $userProgress = $this->getUserProgress($gameIDs);
         [$games, $consoles] = $this->getGameList($gameIDs, $userProgress);
 
-        // ignore hubs
+        // ignore hubs and events
         $games = array_filter($games, function ($game) {
-            return $game['ConsoleID'] != 100;
+            return System::isGameSystem($game['ConsoleID']);
         });
         $consoles = $consoles->filter(function ($console) {
-            return $console['ID'] != 100;
+            return System::isGameSystem($console['ID']);
         });
 
         if ($filterOptions['populated']) {
