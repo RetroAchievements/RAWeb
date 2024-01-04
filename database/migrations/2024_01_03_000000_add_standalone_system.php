@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 
 return new class() extends Migration {
     public function up(): void
