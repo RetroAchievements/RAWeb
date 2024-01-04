@@ -320,7 +320,7 @@ switch ($requestType) {
         if ($foundAchievement !== null) {
             if (
                 $delegateTo
-                && request()->input('v') !== $foundAchievement->unlockValidationHash($foundDelegateToUser, $hardcore)
+                && request()->input('v') !== $foundAchievement->unlockValidationHash($foundDelegateToUser, (int) $hardcore)
             ) {
                 return DoRequestError('Access denied.', 403, 'access_denied');
             }
@@ -382,7 +382,7 @@ switch ($requestType) {
             ->filter(function ($achievement) use ($user, $foundTargetUser, $validationHashesArray, $achievementIdsArray, $hardcore) {
                 $index = array_search($achievement->id, $achievementIdsArray);
                 if ($index !== false && isset($validationHashesArray[$index])) {
-                    $expectedHash = $achievement->unlockValidationHash($foundTargetUser, $hardcore);
+                    $expectedHash = $achievement->unlockValidationHash($foundTargetUser, (int) $hardcore);
 
                     return $expectedHash === $validationHashesArray[$index] && $achievement->getCanDelegateUnlocks($user);
                 }
