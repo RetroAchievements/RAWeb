@@ -8,19 +8,22 @@ abstract class HashCompatibility
 {
     public const Unverified = 'unverified';
 
-    public const InProgress = 'in_progress';
+    public const Unknown = 'unknown';
 
-    public const Verified = 'verified';
+    public const Untested = 'untested';
 
-    public const Problematic = 'problematic';
+    public const Compatible = 'compatible';
+
+    public const Incompatible = 'incompatible';
 
     public static function cases(): array
     {
         return [
             self::Unverified,
-            self::InProgress,
-            self::Verified,
-            self::Problematic,
+            self::Unknown,
+            self::Untested,
+            self::Compatible,
+            self::Incompatible,
         ];
     }
 
