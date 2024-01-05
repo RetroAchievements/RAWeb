@@ -137,18 +137,20 @@ if (
     && ($gameID || $achievementID)
 ) {
     if (request()->method() !== 'POST') {
-        return DoRequestError('Access denied.', 403, 'access_denied');
+        return DoRequestError('Access denied.', 405, 'access_denied');
     }
 
     $foundDelegateToUser = User::firstWhere('User', $delegateTo);
     if (!$foundDelegateToUser) {
-        return DoRequestError("The target user couldn't be found.", 403, 'access_denied');
+        return DoRequestError("The target user couldn't be found.", 404, 'not_found');
     }
 
     if ($gameID) {
         $game = Game::find($gameID);
 
-        if (!$game || !$game->getCanDelegateActivity($user)) {
+        if (!$game) {
+            return DoRequestError("The target game couldn't be found.", 404, 'not_found');
+        } elseif (!$game->getCanDelegateActivity($user)) {
             return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
         }
     }
@@ -156,7 +158,9 @@ if (
     if ($achievementID) {
         $achievement = Achievement::find($achievementID);
 
-        if (!$achievement || !$achievement->getCanDelegateUnlocks($user)) {
+        if (!$achievement) {
+            return DoRequestError("The target achievement couldn't be found.", 404, 'not_found');
+        } elseif (!$achievement->getCanDelegateUnlocks($user)) {
             return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
         }
     }
@@ -309,6 +313,7 @@ switch ($requestType) {
     case "awardachievement":
         $achIDToAward = (int) request()->input('a', 0);
         $hardcore = (bool) request()->input('h', 0);
+        $validationHash = request()->input('v');
 
         /**
          * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
@@ -320,7 +325,10 @@ switch ($requestType) {
         if ($foundAchievement !== null) {
             if (
                 $delegateTo
-                && request()->input('v') !== $foundAchievement->unlockValidationHash($foundDelegateToUser, (int) $hardcore)
+                && strcasecmp(
+                    $validationHash,
+                    $foundAchievement->unlockValidationHash($foundDelegateToUser, (int) $hardcore)
+                ) !== 0
             ) {
                 return DoRequestError('Access denied.', 403, 'access_denied');
             }
@@ -340,29 +348,28 @@ switch ($requestType) {
     // This is only currently supported for "Standalone" integrations.
     case "awardachievements":
         if (request()->method() !== 'POST') {
-            return DoRequestError('Access denied.', 403, 'access_denied');
+            return DoRequestError('Access denied.', 405, 'access_denied');
         }
 
         $achievementIdsInput = request()->input('a', '');
-        $validationHashesInput = request()->input('v', '');
         $hardcore = (bool) request()->input('h', 0);
+        $validationHash = request()->input('v');
 
         $foundTargetUser = null;
         if (!$delegateTo) {
             return DoRequestError("You must specify a target user.", 400);
         }
 
+        if (strcasecmp($validationHash, md5($achievementIdsInput . $delegateTo . $hardcore)) !== 0) {
+            return DoRequestError('Access denied.', 403, 'access_denied');
+        }
+
         $foundTargetUser = User::firstWhere('User', $delegateTo);
         if (!$foundTargetUser) {
-            return DoRequestError("The target user couldn't be found.", 400);
+            return DoRequestError("The target user couldn't be found.", 404, 'not_found');
         }
 
         $achievementIdsArray = explode(',', $achievementIdsInput);
-        $validationHashesArray = explode(',', $validationHashesInput);
-
-        if (count($achievementIdsArray) !== count($validationHashesArray)) {
-            return DoRequestError("The number of achievements and hashes must match.", 400);
-        }
 
         $idsToAttemptAward = array_filter($achievementIdsArray, function ($id) {
             return filter_var($id, FILTER_VALIDATE_INT) !== false;
@@ -379,15 +386,8 @@ switch ($requestType) {
             ->whereNotIn('ID', $alreadyAwardedIds)
             ->with('game')
             ->get()
-            ->filter(function ($achievement) use ($user, $foundTargetUser, $validationHashesArray, $achievementIdsArray, $hardcore) {
-                $index = array_search($achievement->id, $achievementIdsArray);
-                if ($index !== false && isset($validationHashesArray[$index])) {
-                    $expectedHash = $achievement->unlockValidationHash($foundTargetUser, (int) $hardcore);
-
-                    return $expectedHash === $validationHashesArray[$index] && $achievement->getCanDelegateUnlocks($user);
-                }
-
-                return false;
+            ->filter(function ($achievement) use ($user) {
+                return $achievement->getCanDelegateUnlocks($user);
             });
 
         $newAwardedIds = [];
