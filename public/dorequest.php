@@ -355,7 +355,6 @@ switch ($requestType) {
         $hardcore = (bool) request()->input('h', 0);
         $validationHash = request()->input('v');
 
-        $foundTargetUser = null;
         if (!$delegateTo) {
             return DoRequestError("You must specify a target user.", 400);
         }
@@ -364,19 +363,18 @@ switch ($requestType) {
             return DoRequestError('Access denied.', 403, 'access_denied');
         }
 
-        $foundTargetUser = User::firstWhere('User', $delegateTo);
-        if (!$foundTargetUser) {
+        $targetUser = User::firstWhere('User', $delegateTo);
+        if (!$targetUser) {
             return DoRequestError("The target user couldn't be found.", 404, 'not_found');
         }
 
         $achievementIdsArray = explode(',', $achievementIdsInput);
-
-        $idsToAttemptAward = array_filter($achievementIdsArray, function ($id) {
+        $filteredAchievementIds = array_filter($achievementIdsArray, function ($id) {
             return filter_var($id, FILTER_VALIDATE_INT) !== false;
         });
 
         // Fetch all achievements already awarded to the user.
-        $foundPlayerAchievements = PlayerAchievement::where('user_id', $foundTargetUser->id)
+        $foundPlayerAchievements = PlayerAchievement::where('user_id', $targetUser->id)
             ->with('achievement')
             ->whereIn('achievement_id', $achievementIdsArray)
             ->get();
@@ -384,7 +382,7 @@ switch ($requestType) {
         $alreadyAwardedIds = [];
 
         // Filter out achievements based on the hardcore flag and existing unlocks.
-        $idsToAttemptAward = array_filter($achievementIdsArray, function ($id) use (&$alreadyAwardedIds, $user, $foundPlayerAchievements, $hardcore) {
+        $filteredAchievementIds = array_filter($achievementIdsArray, function ($id) use (&$alreadyAwardedIds, $user, $foundPlayerAchievements, $hardcore) {
             foreach ($foundPlayerAchievements as $foundPlayerAchievement) {
                 if ($foundPlayerAchievement->achievement_id == $id) {
                     // If a record exists and it's already unlocked in hardcore mode, then
@@ -419,7 +417,7 @@ switch ($requestType) {
             return true;
         });
 
-        $awardableAchievements = Achievement::whereIn('ID', $idsToAttemptAward)
+        $awardableAchievements = Achievement::whereIn('ID', $filteredAchievementIds)
             ->with('game')
             ->get()
             ->filter(function ($achievement) use ($user) {
@@ -428,18 +426,18 @@ switch ($requestType) {
 
         $newAwardedIds = [];
         foreach ($awardableAchievements as $achievement) {
-            $unlockAchievementResult = unlockAchievement($foundTargetUser, $achievement->id, $hardcore);
+            $unlockAchievementResult = unlockAchievement($targetUser, $achievement->id, $hardcore);
 
             if (!isset($unlockAchievementResult['Error'])) {
-                dispatch(new UnlockPlayerAchievementJob($foundTargetUser->id, $achievement->id, $hardcore))
+                dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
                     ->onQueue('player-achievements');
 
                 $newAwardedIds[] = $achievement->id;
             }
         }
 
-        $response['Score'] = $foundTargetUser->RAPoints;
-        $response['SoftcoreScore'] = $foundTargetUser->RASoftcorePoints;
+        $response['Score'] = $targetUser->RAPoints;
+        $response['SoftcoreScore'] = $targetUser->RASoftcorePoints;
         $response['ExistingIDs'] = $alreadyAwardedIds;
         $response['SuccessfulIDs'] = $newAwardedIds;
 
