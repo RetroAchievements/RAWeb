@@ -4,6 +4,7 @@
     'sortOrder' => 'title',
     'filterOptions' => [],
     'userProgress' => null,
+    'showTickets' => false,
 ])
 
 <div>
@@ -13,6 +14,7 @@
         <x-game.related-games-meta-panel
             :selectedSortOrder="$sortOrder"
             :filterOptions="$filterOptions"
+            :showTickets="$showTickets"
         />
 
         @if ($userProgress !== null)
@@ -62,8 +64,10 @@
                     title='The number of leaderboards in the set'>Leaderboards</th>
                 <th style='width:8%; cursor: help' class='text-right'
                     title='The number of users who have played the set'>Players</th>
-                <th style='width:8%; cursor: help' class='text-right'
-                    title='The number of open tickets for achievements in the set'>Tickets</th>
+                @if ($showTickets)
+                    <th style='width:8%; cursor: help' class='text-right'
+                        title='The number of open tickets for achievements in the set'>Tickets</th>
+                @endif
                 @if ($userProgress !== null)
                     <th style='width:8%; cursor: help' class='text-center'
                         title='Indicates how close you are to mastering a set'>Progress</th>
@@ -117,10 +121,12 @@
                         <td class='text-right'>{!! localized_number($game['players_total']) !!}</td>
                     @endif
 
-                    @if ($game['NumTickets'] == 0)
-                        <td></td>
-                    @else
-                        <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{!! localized_number($game['NumTickets']) !!}</a></td>
+                    @if ($showTickets)
+                        @if ($game['NumTickets'] == 0)
+                            <td></td>
+                        @else
+                            <td class='text-right'><a href="/ticketmanager.php?g={{ $game['ID'] }}">{!! localized_number($game['NumTickets']) !!}</a></td>
+                        @endif
                     @endif
 
                     @if ($userProgress !== null)

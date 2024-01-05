@@ -78,7 +78,7 @@ class DeveloperSetsController extends GameListControllerBase
             ->toArray();
 
         $userProgress = $this->getUserProgress($gameIDs);
-        [$games, $consoles] = $this->getGameList($gameIDs, $userProgress);
+        [$games, $consoles] = $this->getGameList($gameIDs, $userProgress, true);
 
         foreach ($games as &$game) {
             $gameAuthoredAchievements = $gameAuthoredAchievementsList[$game['ID']] ?? null;

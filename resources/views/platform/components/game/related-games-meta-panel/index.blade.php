@@ -1,6 +1,7 @@
 @props([
     'selectedSortOrder' => 'console',
     'filterOptions' => [],
+    'showTickets' => false,
 ])
 
 <script>
@@ -27,6 +28,7 @@ function handleFilterChanged(event, kind) {
         <div class="grid gap-y-1 sm:pr-4 xl:pr-8">
             <x-game.related-games-meta-panel.sort-order
                 :selectedSortOrder="$selectedSortOrder"
+                :showTickets="$showTickets"
             />
         </div>
 

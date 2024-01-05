@@ -1,5 +1,6 @@
 @props([
     'selectedSortOrder' => 'console',
+    'showTickets' => false,
 ])
 
 <label class="text-xs font-bold" for="sort-order-field">Sort by</label>
@@ -33,9 +34,11 @@
         Most players
     </option>
 
+    @if ($showTickets)
     <option value="-tickets" @if ($selectedSortOrder === '-tickets') selected @endif>
         Most tickets
     </option>
+    @endif
 
     <option value="-progress" @if ($selectedSortOrder === '-progress') selected @endif>
         Most progress

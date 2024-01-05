@@ -7,6 +7,7 @@ namespace App\Platform\Controllers;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameAlternative;
 use App\Platform\Models\System;
+use App\Site\Enums\Permissions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,9 @@ class RelatedGamesTableController extends GameListControllerBase
         if ($game === null) {
             abort(404);
         }
+
+        $loggedInUser = request()->user();
+        $showTickets = ($loggedInUser !== null && $loggedInUser->getPermissionsAttribute() >= Permissions::Developer);
 
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
@@ -35,7 +39,7 @@ class RelatedGamesTableController extends GameListControllerBase
                  + GameAlternative::where('gameIDAlt', $gameId)->pluck('gameID')->toArray();
 
         $userProgress = $this->getUserProgress($gameIDs);
-        [$games, $consoles] = $this->getGameList($gameIDs, $userProgress);
+        [$games, $consoles] = $this->getGameList($gameIDs, $userProgress, $showTickets);
 
         // ignore hubs and events
         $games = array_filter($games, function ($game) {
@@ -73,6 +77,7 @@ class RelatedGamesTableController extends GameListControllerBase
             'sortOrder' => $sortOrder,
             'filterOptions' => $filterOptions,
             'userProgress' => $userProgress,
+            'showTickets' => $showTickets,
         ]);
     }
 }

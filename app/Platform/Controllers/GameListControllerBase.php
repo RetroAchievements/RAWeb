@@ -36,22 +36,26 @@ class GameListControllerBase extends Controller
             ->toArray();
     }
 
-    protected function getGameList(array $gameIDs, ?array $userProgress): array
+    protected function getGameList(array $gameIDs, ?array $userProgress, bool $showTickets): array
     {
-        $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
-            ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
-            ->whereIn('Achievements.GameID', $gameIDs)
-            ->select(['GameID',
-                DB::raw('COUNT(Ticket.ID) AS NumTickets'),
-            ])
-            ->groupBy('GameID')
-            ->get()
-            ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => [
-                    'NumTickets' => $row['NumTickets'],
-                ]];
-            })
-            ->toArray();
+        if ($showTickets) {
+            $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
+                ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
+                ->whereIn('Achievements.GameID', $gameIDs)
+                ->select(['GameID',
+                    DB::raw('COUNT(Ticket.ID) AS NumTickets'),
+                ])
+                ->groupBy('GameID')
+                ->get()
+                ->mapWithKeys(function ($row, $key) {
+                    return [$row['GameID'] => [
+                        'NumTickets' => $row['NumTickets'],
+                    ]];
+                })
+                ->toArray();
+        } else {
+            $gameTicketsList = [];
+        }
 
         $gameModels = Game::whereIn('ID', $gameIDs)
             ->orderBy('Title')
@@ -113,22 +117,51 @@ class GameListControllerBase extends Controller
             default => function ($a, $b) {
                 return $a['SortTitle'] <=> $b['SortTitle'];
             },
-            'achievements' => function ($a, $b) {
+            'achievements' => function ($a, $b) use ($reverse) {
+                if ($a['achievements_published'] == $b['achievements_published']) {
+                    // same number of achievements; apply secondary sort on sort title
+                    return $reverse ? $b['SortTitle'] <=> $a['SortTitle'] : $a['SortTitle'] <=> $b['SortTitle'];
+                }
+
                 return $a['achievements_published'] <=> $b['achievements_published'];
             },
-            'points' => function ($a, $b) {
+            'points' => function ($a, $b) use ($reverse) {
+                if ($a['points_total'] == $b['points_total']) {
+                    // same number of points; apply secondary sort on sort title
+                    return $reverse ? $b['SortTitle'] <=> $a['SortTitle'] : $a['SortTitle'] <=> $b['SortTitle'];
+                }
+
                 return $a['points_total'] <=> $b['points_total'];
             },
             'retroratio' => function ($a, $b) {
                 return $a['RetroRatio'] <=> $b['RetroRatio'];
             },
-            'leaderboards' => function ($a, $b) {
+            'leaderboards' => function ($a, $b) use ($reverse) {
+                if ($a['leaderboards_count'] == $b['leaderboards_count']) {
+                    // same number of leaderboards; apply secondary sort on sort title
+                    return $reverse ? $b['SortTitle'] <=> $a['SortTitle'] : $a['SortTitle'] <=> $b['SortTitle'];
+                }
+
                 return $a['leaderboards_count'] <=> $b['leaderboards_count'];
             },
             'players' => function ($a, $b) {
                 return $a['players_total'] <=> $b['players_total'];
             },
-            'tickets' => function ($a, $b) {
+            'tickets' => function ($a, $b) use ($reverse) {
+                // when sorting by tickets, always push games without achievements to the bottom
+                if ($a['achievements_published'] == 0) {
+                    if ($b['achievements_published'] != 0) {
+                        return $reverse ? -1 : 1;
+                    }
+                } elseif ($b['achievements_published'] == 0) {
+                    return $reverse ? 1 : -1;
+                }
+
+                if ($a['NumTickets'] == $b['NumTickets']) {
+                    // same number of tickets; apply secondary sort on sort title
+                    return $reverse ? $b['SortTitle'] <=> $a['SortTitle'] : $a['SortTitle'] <=> $b['SortTitle'];
+                }
+
                 return $a['NumTickets'] <=> $b['NumTickets'];
             },
             'progress' => function ($a, $b) use ($reverse) {
