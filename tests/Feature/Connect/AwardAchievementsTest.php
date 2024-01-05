@@ -75,7 +75,7 @@ class AwardAchievementsTest extends TestCase
             'h' => 1,
             // Note that #0 is already unlocked, thus it will not be in the "SuccessfulIDs" list.
             'a' => "1,2,3,4",
-            'v' => '438f2404e9faf839928b795b594e6323,4fd474798c57b17ae5b4105195f48945,62c47b9fba313855ff8a09673780bb35,e70264fb98b12e63c6ecdde00850c7bb',
+            'v' => 'ae91e6a962b6ae5ec511108dbaa7c406',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
@@ -186,7 +186,7 @@ class AwardAchievementsTest extends TestCase
             'k' => $delegatedUser->User,
             'h' => 1,
             'a' => $achievement1->ID,
-            'v' => '438f2404e9faf839928b795b594e6323',
+            'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
@@ -236,17 +236,17 @@ class AwardAchievementsTest extends TestCase
             'k' => $delegatedUser->User,
             'h' => 1,
             'a' => $achievement1->id,
-            'v' => '138f2404e9faf839928b795b594e6323',
+            'v' => 'f3a3ef72749787fee6ae6cb933b651b1',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl)
+            ->assertStatus(403)
             ->assertExactJson([
-                "Success" => true,
-                "Score" => $scoreBefore,
-                "SoftcoreScore" => $softcoreScoreBefore,
-                "ExistingIDs" => [],
-                "SuccessfulIDs" => [], // empty because the validation hashes doesn't match
+                "Code" => "access_denied",
+                "Success" => false,
+                "Error" => "Access denied.",
+                "Status" => 403,
             ]);
         $delegatedUser->refresh();
 
@@ -286,7 +286,7 @@ class AwardAchievementsTest extends TestCase
             'k' => $delegatedUser->User,
             'h' => 1,
             'a' => $achievement1->id,
-            'v' => '438f2404e9faf839928b795b594e6323',
+            'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
@@ -330,7 +330,7 @@ class AwardAchievementsTest extends TestCase
             'r' => 'awardachievements',
             'h' => 1,
             'a' => $achievement1->id,
-            'v' => '438f2404e9faf839928b795b594e6323',
+            'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
@@ -363,16 +363,17 @@ class AwardAchievementsTest extends TestCase
             'h' => 1,
             'a' => $achievement1->id,
             'k' => 'Some Guy',
-            'v' => '438f2404e9faf839928b795b594e6323',
+            'v' => 'ab14ef5e11ab53ee7e9013770490761e',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->post($requestUrl)
-            ->assertStatus(400)
+            ->assertStatus(404)
             ->assertExactJson([
                 "Success" => false,
                 "Error" => "The target user couldn't be found.",
-                "Status" => 400,
+                "Status" => 404,
+                "Code" => "not_found",
             ]);
     }
 
@@ -398,16 +399,16 @@ class AwardAchievementsTest extends TestCase
             'h' => 1,
             'a' => $achievement1->id,
             'k' => $delegatedUser->User,
-            'v' => '438f2404e9faf839928b795b594e6323',
+            'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->get($requestUrl)
-            ->assertStatus(403)
+            ->assertStatus(405)
             ->assertJson([
                 "Success" => false,
                 "Error" => "Access denied.",
-                "Status" => 403,
+                "Status" => 405,
             ]);
     }
 }

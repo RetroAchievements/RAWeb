@@ -286,11 +286,11 @@ class StartSessionTest extends TestCase
         // Next, try a GET call, which should be blocked.
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->get($requestUrl)
-            ->assertStatus(403)
+            ->assertStatus(405)
             ->assertJson([
                 "Success" => false,
                 "Error" => "Access denied.",
-                "Status" => 403,
+                "Status" => 405,
             ]);
     }
 }

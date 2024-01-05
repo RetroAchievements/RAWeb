@@ -375,15 +375,51 @@ switch ($requestType) {
             return filter_var($id, FILTER_VALIDATE_INT) !== false;
         });
 
-        // Fetch the IDs of achievements already awarded to the user.
-        $alreadyAwardedIds = PlayerAchievement::where('user_id', $foundTargetUser->id)
-            ->whereIn('achievement_id', $idsToAttemptAward)
-            ->pluck('achievement_id')
-            ->all();
+        // Fetch all achievements already awarded to the user.
+        $foundPlayerAchievements = PlayerAchievement::where('user_id', $foundTargetUser->id)
+            ->with('achievement')
+            ->whereIn('achievement_id', $achievementIdsArray)
+            ->get();
 
-        // Fetch only the achievements that have not been awarded and can be delegated.
+        $alreadyAwardedIds = [];
+
+        // Filter out achievements based on the hardcore flag and existing unlocks.
+        $idsToAttemptAward = array_filter($achievementIdsArray, function ($id) use (&$alreadyAwardedIds, $user, $foundPlayerAchievements, $hardcore) {
+            foreach ($foundPlayerAchievements as $foundPlayerAchievement) {
+                if ($foundPlayerAchievement->achievement_id == $id) {
+                    // If a record exists and it's already unlocked in hardcore mode, then
+                    // we won't attempt to re-award the achievement to the user.
+                    if ($hardcore && $foundPlayerAchievement->unlocked_hardcore_at !== null) {
+                        $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
+
+                        return false;
+                    }
+
+                    // If a record exists but it's a softcore unlock and hardcore mode is requested,
+                    // then we're going to add it to the list of attempted IDs to unlock.
+                    if ($hardcore && $foundPlayerAchievement->unlocked_hardcore_at === null) {
+                        return true;
+                    }
+
+                    // If a record exists (either hardcore or softcore) and softcore mode is requested,
+                    // then skip over this ID.
+                    if (!$hardcore) {
+                        $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
+
+                        return false;
+                    }
+
+                    if (!$foundPlayerAchievement->achievement->getCanDelegateUnlocks($user)) {
+                        return false;
+                    }
+                }
+            }
+
+            // If no PlayerAchievement record exists for this ID, it's always eligible for awarding.
+            return true;
+        });
+
         $awardableAchievements = Achievement::whereIn('ID', $idsToAttemptAward)
-            ->whereNotIn('ID', $alreadyAwardedIds)
             ->with('game')
             ->get()
             ->filter(function ($achievement) use ($user) {
@@ -391,14 +427,14 @@ switch ($requestType) {
             });
 
         $newAwardedIds = [];
-        foreach ($awardableAchievements as $awardableAchievement) {
-            $unlockAchievementResult = unlockAchievement($foundTargetUser, $awardableAchievement->ID, $hardcore);
+        foreach ($awardableAchievements as $achievement) {
+            $unlockAchievementResult = unlockAchievement($foundTargetUser, $achievement->id, $hardcore);
 
             if (!isset($unlockAchievementResult['Error'])) {
-                dispatch(new UnlockPlayerAchievementJob($foundTargetUser->id, $awardableAchievement->ID, $hardcore))
+                dispatch(new UnlockPlayerAchievementJob($foundTargetUser->id, $achievement->id, $hardcore))
                     ->onQueue('player-achievements');
 
-                $newAwardedIds[] = $awardableAchievement->ID;
+                $newAwardedIds[] = $achievement->id;
             }
         }
 

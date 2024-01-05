@@ -494,11 +494,11 @@ class AwardAchievementTest extends TestCase
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
         $this->get($requestUrl)
-            ->assertStatus(403)
+            ->assertStatus(405)
             ->assertJson([
                 "Success" => false,
                 "Error" => "Access denied.",
-                "Status" => 403,
+                "Status" => 405,
             ]);
 
         // Next, try a call that doesn't include a validation hash. This should fail.
