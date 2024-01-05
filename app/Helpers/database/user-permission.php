@@ -1,6 +1,9 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
+use App\Community\Models\AchievementSetClaim;
 use App\Site\Enums\Permissions;
 
 function getUserPermissions(?string $user): int
@@ -62,6 +65,12 @@ function SetAccountPermissionsJSON(
         return $retVal;
     }
 
+    if ($targetUserNewPermissions === $targetUserCurrentPermissions) {
+        $retVal['Success'] = true;
+
+        return $retVal;
+    }
+
     $query = "UPDATE UserAccounts SET Permissions = $targetUserNewPermissions, Updated=NOW() WHERE User='$targetUser'";
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
@@ -73,6 +82,37 @@ function SetAccountPermissionsJSON(
 
     if ($targetUserNewPermissions < Permissions::Unregistered) {
         banAccountByUsername($targetUser, $targetUserNewPermissions);
+    }
+
+    /* Junior developers can have claims in review. When being promoted from Junior Developer,
+     * change any In Review claims to Active. */
+    if ($targetUserCurrentPermissions === Permissions::JuniorDeveloper
+        && $targetUserNewPermissions > Permissions::JuniorDeveloper) {
+        $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
+        $comment = "$actingUser updated $targetUser's claim via promotion to $targetUserNewPermissionsString. Claim Status: " . ClaimStatus::toString(ClaimStatus::Active);
+
+        $inReviewClaims = AchievementSetClaim::where('User', $targetUser)
+            ->where('Status', ClaimStatus::InReview)->get();
+        foreach ($inReviewClaims as $claim) {
+            $claim->Status = ClaimStatus::Active;
+            $claim->save();
+
+            addArticleComment('Server', ArticleType::SetClaim, $claim->GameID, $comment);
+        }
+    }
+
+    /* If the user loses developer permissions, drop all claims held by the user */
+    if ($targetUserCurrentPermissions >= Permissions::JuniorDeveloper
+        && $targetUserNewPermissions < Permissions::JuniorDeveloper) {
+        $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
+
+        foreach (AchievementSetClaim::where('User', $targetUser)->get() as $claim) {
+            $claim->Status = ClaimStatus::Dropped;
+            $claim->save();
+
+            $comment = "$actingUser dropped $targetUser's " . ClaimType::toString($claim->ClaimType) . " claim via demotion to $targetUserNewPermissionsString.";
+            addArticleComment('Server', ArticleType::SetClaim, $claim->GameID, $comment);
+        }
     }
 
     $retVal['Success'] = true;
