@@ -18,7 +18,7 @@ class TrimGameMetadata
         $game->save();
     }
 
-    private function trimWhitespace(?string $toTrim): ?string
+    public static function trimWhitespace(?string $toTrim): ?string
     {
         return trim(preg_replace('/\s+/', ' ', $toTrim ?? ''));
     }
