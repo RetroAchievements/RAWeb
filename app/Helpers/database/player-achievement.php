@@ -137,6 +137,7 @@ function getAchievementUnlocksData(
     // Get recent winners, and their most recent activity
     return PlayerAchievement::where('achievement_id', $achievementId)
         ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
+        ->where('UserAccounts.Untracked', false)
         ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
         ->select(['UserAccounts.User', 'UserAccounts.RAPoints', 'unlocked_at', 'unlocked_hardcore_at'])
         ->offset($offset)
