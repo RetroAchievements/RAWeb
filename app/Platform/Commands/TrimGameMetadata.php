@@ -30,13 +30,16 @@ class TrimGameMetadata extends Command
 
         $progressBar = $this->output->createProgressBar($gamesToUpdate->count());
         $progressBar->start();
+        $updatedCount = 0;
 
         foreach ($gamesToUpdate as $game) {
             $this->trimGameMetadata->execute($game);
             $progressBar->advance();
+            $updatedCount++;
         }
 
         $progressBar->finish();
+        $this->info("Updated metadata for {$updatedCount} games.");
         $this->line(PHP_EOL);
     }
 }
