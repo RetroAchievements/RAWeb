@@ -63,10 +63,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
+                TrimGameMetadata::class,
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
                 UpdateGamePlayerGames::class,
-                TrimGameMetadata::class,
 
                 // Game Hashes
                 NoIntroImport::class,
