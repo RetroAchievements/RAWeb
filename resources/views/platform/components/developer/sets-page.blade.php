@@ -3,7 +3,9 @@
     'consoles' => [],
     'games' => [],
     'sortOrder' => 'title',
+    'availableSorts' => [],
     'filterOptions' => [],
+    'availableFilters' => [],
     'userProgress' => null,
 ])
 
@@ -18,8 +20,10 @@
         <h1 class="mt-[10px] w-full">{{ $user->User }}'s Developed Sets</h1>
     </div>
 
-    <x-developer.sets-meta-panel
+    <x-meta-panel
+        :availableSorts="$availableSorts"
         :selectedSortOrder="$sortOrder"
+        :availableFilters="$availableFilters"
         :filterOptions="$filterOptions"
     />
 

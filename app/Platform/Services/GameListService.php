@@ -12,18 +12,26 @@ use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class GameListService
 {
-    public function getUserProgress(User $user, array $gameIDs): ?array
+    public bool $withLeaderboardCounts = true;
+    public bool $withTicketCounts = false;
+
+    public ?array $userProgress = null;
+    public ?Collection $consoles = null;
+    public array $games = [];
+
+    public function initializeUserProgress(?User $user, array $gameIDs): void
     {
-        $userProgress = null;
+        $this->userProgress = null;
         if (!$user) {
-            return null;
+            return;
         }
 
-        return PlayerGame::where('user_id', $user->id)
+        $this->userProgress = PlayerGame::where('user_id', $user->id)
             ->whereIn('game_id', $gameIDs)
             ->get(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
             ->mapWithKeys(function ($row, $key) {
@@ -35,12 +43,9 @@ class GameListService
             ->toArray();
     }
 
-    public function getGameList(array $gameIDs,
-        ?array $userProgress = null,
-        bool $withLeaderboardCounts = false,
-        bool $withTicketCounts = false): array
+    public function initializeGameList(array $gameIDs): void
     {
-        if ($withTicketCounts) {
+        if ($this->withTicketCounts) {
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
                 ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
                 ->whereIn('Achievements.GameID', $gameIDs)
@@ -67,59 +72,57 @@ class GameListService
                 'achievements_published', 'points_total', 'TotalTruePoints',
             ]);
 
-        if ($withLeaderboardCounts) {
+        if ($this->withLeaderboardCounts) {
             $gameModels = $gameModels->withCount('leaderboards');
         }
 
         $gameModels = $gameModels->get();
 
-        $consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
+        $this->consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
             ->orderBy('Name')
             ->get();
 
-        $games = [];
+        $this->games = [];
         foreach ($gameModels as &$gameModel) {
             $game = $gameModel->toArray();
 
-            if ($withLeaderboardCounts) {
+            if ($this->withLeaderboardCounts) {
                 $game['leaderboards_count'] = $gameModel->leaderboards_count;
             }
 
-            if ($withTicketCounts) {
+            if ($this->withTicketCounts) {
                 $gameTickets = $gameTicketsList[$gameModel->ID] ?? null;
                 $game['NumTickets'] = $gameTickets['NumTickets'] ?? 0;
             }
 
-            if ($userProgress !== null) {
-                $gameProgress = $userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
+            if ($this->userProgress !== null) {
+                $gameProgress = $this->userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
                 $game['CompletionPercentage'] = $gameModel->achievements_published ?
                     ($gameProgress * 100 / $gameModel->achievements_published) : 0;
             }
 
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
-            $game['ConsoleName'] = $consoles->firstWhere('ID', $game['ConsoleID'])->Name;
+            $game['ConsoleName'] = $this->consoles->firstWhere('ID', $game['ConsoleID'])->Name;
             $game['SortTitle'] = $game['Title'];
             if (substr($game['Title'], 0, 1) == '~') {
                 $tilde = strrpos($game['Title'], '~');
                 $game['SortTitle'] = trim(substr($game['Title'], $tilde + 1) . ' ' . substr($game['Title'], 0, $tilde + 1));
             }
 
-            $games[] = $game;
+            $this->games[] = $game;
         }
-
-        return [$games, $consoles];
     }
 
-    public function filterGameList(array &$games, array &$consoles, callable $filterFunction): void
+    public function filterGameList(callable $filterFunction): void
     {
-        $countBefore = count($games);
-        $games = array_filter($games, $filterFunction);
-        $countAfter = count($games);
+        $countBefore = count($this->games);
+        $this->games = array_filter($this->games, $filterFunction);
+        $countAfter = count($this->games);
 
         if ($countAfter < $countBefore) {
-            $consoles = $consoles->filter(function ($console) use ($games) {
-                foreach ($games as $game) {
+            $this->consoles = $this->consoles->filter(function ($console) {
+                foreach ($this->games as $game) {
                     if ($game['ConsoleID'] == $console['ID']) {
                         return true;
                     }
@@ -130,7 +133,7 @@ class GameListService
         }
     }
 
-    public function mergeWantToPlay(array &$games, ?User $user): void
+    public function mergeWantToPlay(?User $user): void
     {
         if ($user === null) {
             return;
@@ -141,12 +144,40 @@ class GameListService
             ->pluck('GameID')
             ->toArray();
 
-        foreach ($games as &$game) {
+        foreach ($this->games as &$game) {
             $game['WantToPlay'] = in_array($game['ID'], $wantToPlayGames);
         }
     }
 
-    public function sortGameList(array &$games, string $sortOrder): void
+    public function getAvailableSorts(): array
+    {
+        $sorts = [
+            'title' => 'Title',
+            '-achievements' => 'Most achievements',
+            '-points' => 'Most points',
+            '-retroratio' => 'Highest RetroRatio',
+            '-leaderboards' => 'Most leaderboards',
+            '-players' => 'Most players',
+            '-tickets' => 'Most tickets',
+            '-progress' => 'Most progress',
+        ];
+
+        if (!$this->withLeaderboardCounts) {
+            unset($sorts['-leaderboards']);
+        }
+
+        if (!$this->withTicketCounts) {
+            unset($sorts['-tickets']);
+        }
+
+        if (!$this->userProgress) {
+            unset($sorts['-progress']);
+        }
+
+        return $sorts;
+    }
+
+    public function sortGameList(string $sortOrder): void
     {
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
@@ -220,10 +251,10 @@ class GameListService
             },
         };
 
-        usort($games, $sortFunction);
+        usort($this->games, $sortFunction);
 
         if ($reverse) {
-            $games = array_reverse($games);
+            $this->games = array_reverse($this->games);
         }
     }
 }

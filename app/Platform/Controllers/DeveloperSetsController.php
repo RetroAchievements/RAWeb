@@ -28,6 +28,9 @@ class DeveloperSetsController extends Controller
             abort(404);
         }
 
+        $loggedInUser = $request->user();
+        $this->gameListService->withTicketCounts = true;
+
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
             'filter.console' => 'sometimes|in:true,false',
@@ -84,14 +87,10 @@ class DeveloperSetsController extends Controller
             })
             ->toArray();
 
-        $loggedInUser = $request->user();
-        $userProgress = $this->gameListService->getUserProgress($loggedInUser, $gameIDs);
-        [$games, $consoles] = $this->gameListService
-            ->getGameList($gameIDs, $userProgress,
-                          withLeaderboardCounts: true,
-                          withTicketCounts: true);
+        $this->gameListService->initializeUserProgress($loggedInUser, $gameIDs);
+        $this->gameListService->initializeGameList($gameIDs);
 
-        foreach ($games as &$game) {
+        foreach ($this->gameListService->games as &$game) {
             $gameAuthoredAchievements = $gameAuthoredAchievementsList[$game['ID']] ?? null;
             $game['NumAuthoredAchievements'] = $gameAuthoredAchievements['NumAuthoredAchievements'] ?? 0;
             $game['NumAuthoredPoints'] = $gameAuthoredAchievements['NumAuthoredPoints'] ?? 0;
@@ -103,30 +102,39 @@ class DeveloperSetsController extends Controller
         }
 
         if ($filterOptions['sole']) {
-            $this->gameListService->filterGameList($games, $consoles, function ($game) {
+            $this->gameListService->filterGameList(function ($game) {
                 return $game['NumAuthoredAchievements'] == $game['achievements_published']
                         && $game['NumAuthoredLeaderboards'] == $game['leaderboards_count'];
             });
         }
 
-        $this->gameListService->mergeWantToPlay($games, $loggedInUser);
+        $this->gameListService->mergeWantToPlay($loggedInUser);
 
-        $this->gameListService->sortGameList($games, $sortOrder);
+        $this->sortGameList($sortOrder);
+
+        $availableSorts = $this->gameListService->getAvailableSorts();
+        $availableFilters = [
+            'console' => 'Group by console',
+            'sole' => 'Sole developer',
+        ];
 
         return view('platform.components.developer.sets-page', [
             'user' => $user,
-            'consoles' => $consoles,
-            'games' => $games,
+            'consoles' => $this->gameListService->consoles,
+            'games' => $this->gameListService->games,
             'sortOrder' => $sortOrder,
+            'availableSorts' => $availableSorts,
             'filterOptions' => $filterOptions,
-            'userProgress' => $userProgress,
+            'availableFilters' => $availableFilters,
+            'userProgress' => $this->gameListService->userProgress,
         ]);
     }
 
-    protected function sortGameList(array &$games, string $sortOrder): void
+    protected function sortGameList(string $sortOrder): void
     {
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
+
         $sortFunction = match ($sortMatch) {
             default => null,
             'achievements' => function ($a, $b) {
@@ -145,14 +153,14 @@ class DeveloperSetsController extends Controller
 
         // if we're not changing the sort definition, just use the base
         if ($sortFunction === null) {
-            $this->gameListService->sortGameList($games, $sortOrder);
+            $this->gameListService->sortGameList($sortOrder);
 
             return;
         }
 
-        usort($games, $sortFunction);
+        usort($this->gameListService->games, $sortFunction);
         if ($reverse) {
-            $games = array_reverse($games);
+            $this->gameListService->games = array_reverse($this->gameListService->games);
         }
     }
 }

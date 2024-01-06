@@ -2,7 +2,9 @@
     'consoles' => [],
     'games' => [],
     'sortOrder' => 'title',
+    'availableSorts' => [],
     'filterOptions' => [],
+    'availableFilters' => [],
     'userProgress' => null,
     'showTickets' => false,
 ])
@@ -11,10 +13,11 @@
     @if (count($consoles) < 1)
         <p>No related games.</p><br/>
     @else
-        <x-game.related-games-meta-panel
+        <x-meta-panel
+            :availableSorts="$availableSorts"
             :selectedSortOrder="$sortOrder"
+            :availableFilters="$availableFilters"
             :filterOptions="$filterOptions"
-            :showTickets="$showTickets"
         />
 
         @if ($userProgress !== null)

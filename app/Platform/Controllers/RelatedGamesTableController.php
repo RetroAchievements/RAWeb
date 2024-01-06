@@ -28,7 +28,8 @@ class RelatedGamesTableController extends Controller
         }
 
         $loggedInUser = request()->user();
-        $showTickets = ($loggedInUser !== null && $loggedInUser->getPermissionsAttribute() >= Permissions::Developer);
+        $this->gameListService->withTicketCounts =
+            ($loggedInUser !== null && $loggedInUser->getPermissionsAttribute() >= Permissions::Developer);
 
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
@@ -44,29 +45,34 @@ class RelatedGamesTableController extends Controller
         $gameIDs = GameAlternative::where('gameID', $gameId)->pluck('gameIDAlt')->toArray()
                  + GameAlternative::where('gameIDAlt', $gameId)->pluck('gameID')->toArray();
 
-        $userProgress = $this->gameListService->getUserProgress($loggedInUser, $gameIDs);
-        [$games, $consoles] = $this->gameListService
-            ->getGameList($gameIDs, $userProgress,
-                          withLeaderboardCounts: true,
-                          withTicketCounts: $showTickets);
+        $this->gameListService->initializeUserProgress($loggedInUser, $gameIDs);
+        $this->gameListService->initializeGameList($gameIDs);
 
         if ($filterOptions['populated']) {
-            $this->gameListService->filterGameList($games, $consoles, function ($game) {
+            $this->gameListService->filterGameList(function ($game) {
                 return $game['achievements_published'] > 0;
             });
         }
 
-        $this->gameListService->mergeWantToPlay($games, $loggedInUser);
+        $this->gameListService->mergeWantToPlay($loggedInUser);
 
-        $this->gameListService->sortGameList($games, $sortOrder);
+        $this->gameListService->sortGameList($sortOrder);
+
+        $availableSorts = $this->gameListService->getAvailableSorts();
+        $availableFilters = [
+            'console' => 'Group by console',
+            'populated' => 'Only with achievements',
+        ];
 
         return view('platform.components.game.related-games-table', [
-            'consoles' => $consoles,
-            'games' => $games,
+            'consoles' => $this->gameListService->consoles,
+            'games' => $this->gameListService->games,
             'sortOrder' => $sortOrder,
+            'availableSorts' => $availableSorts,
             'filterOptions' => $filterOptions,
-            'userProgress' => $userProgress,
-            'showTickets' => $showTickets,
+            'availableFilters' => $availableFilters,
+            'userProgress' => $this->gameListService->userProgress,
+            'showTickets' => $this->gameListService->withTicketCounts,
         ]);
     }
 }
