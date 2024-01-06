@@ -64,15 +64,15 @@ class RelatedGamesTableController extends Controller
             'populated' => 'Only with achievements',
         ];
 
-        return view('platform.components.game.related-games-table', [
+        return view('platform.components.game.game-list', [
             'consoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,
             'sortOrder' => $sortOrder,
             'availableSorts' => $availableSorts,
             'filterOptions' => $filterOptions,
             'availableFilters' => $availableFilters,
-            'userProgress' => $this->gameListService->userProgress,
-            'showTickets' => $this->gameListService->withTicketCounts,
+            'columns' => $this->gameListService->getColumns($filterOptions),
+            'noGamesMessage' => 'No related games.',
         ]);
     }
 }

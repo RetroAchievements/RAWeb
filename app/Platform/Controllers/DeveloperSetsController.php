@@ -51,8 +51,8 @@ class DeveloperSetsController extends Controller
             ->get()
             ->mapWithKeys(function ($row, $key) {
                 return [$row['GameID'] => [
-                    'NumAuthoredAchievements' => $row['NumAuthoredAchievements'],
-                    'NumAuthoredPoints' => $row['NumAuthoredPoints'],
+                    'NumAuthoredAchievements' => (int) $row['NumAuthoredAchievements'],
+                    'NumAuthoredPoints' => (int) $row['NumAuthoredPoints'],
                 ]];
             })
             ->toArray();
@@ -64,7 +64,7 @@ class DeveloperSetsController extends Controller
             ->groupBy('GameID')
             ->get()
             ->mapWithKeys(function ($row, $key) {
-                return [$row['GameID'] => $row['NumAuthoredLeaderboards']];
+                return [$row['GameID'] => (int) $row['NumAuthoredLeaderboards']];
             })
             ->toArray();
 
@@ -82,7 +82,7 @@ class DeveloperSetsController extends Controller
             ->get()
             ->mapWithKeys(function ($row, $key) {
                 return [$row['GameID'] => [
-                    'NumAuthoredTickets' => $row['NumAuthoredTickets'],
+                    'NumAuthoredTickets' => (int) $row['NumAuthoredTickets'],
                 ]];
             })
             ->toArray();
@@ -118,6 +118,35 @@ class DeveloperSetsController extends Controller
             'sole' => 'Sole developer',
         ];
 
+        $columns = $this->gameListService->getColumns($availableFilters);
+
+        $columns['title']['tally'] = function ($game) { return 1; };
+        $columns['title']['render_tally'] = function ($value) { echo "<td><b>Total:</b> $value games</td>"; };
+
+        $columns['achievements']['tooltip'] = "The number of achievements created by {$user->User} in the set";
+        $columns['achievements']['render'] = function ($game) {
+            $this->renderNumberOfNumber($game, 'NumAuthoredAchievements', 'achievements_published');
+        };
+        $columns['achievements']['tally'] = function ($game) { return $game['NumAuthoredAchievements']; };
+
+        $columns['points']['tooltip'] = "The number of points associated to achievements created by {$user->User} in the set";
+        $columns['points']['render'] = function ($game) {
+            $this->renderNumberOfNumber($game, 'NumAuthoredPoints', 'points_total');
+        };
+        $columns['points']['tally'] = function ($game) { return $game['NumAuthoredPoints']; };
+
+        $columns['leaderboards']['tooltip'] = "The number of leaderboards created by {$user->User} in the set";
+        $columns['leaderboards']['render'] = function ($game) {
+            $this->renderNumberOfNumber($game, 'NumAuthoredLeaderboards', 'leaderboards_count');
+        };
+        $columns['leaderboards']['tally'] = function ($game) { return $game['NumAuthoredLeaderboards']; };
+
+        $columns['tickets']['tooltip'] = "The number of open tickets for achievements created by {$user->User} in the set";
+        $columns['tickets']['render'] = function ($game) {
+            $this->renderNumberOfNumber($game, 'NumAuthoredTickets', 'NumTickets');
+        };
+        $columns['tickets']['tally'] = function ($game) { return $game['NumAuthoredTickets']; };
+
         return view('platform.components.developer.sets-page', [
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
@@ -126,8 +155,25 @@ class DeveloperSetsController extends Controller
             'availableSorts' => $availableSorts,
             'filterOptions' => $filterOptions,
             'availableFilters' => $availableFilters,
-            'userProgress' => $this->gameListService->userProgress,
+            'columns' => $columns,
         ]);
+    }
+
+    private function renderNumberOfNumber(array $game, string $field1, string $field2): void
+    {
+        if ($game[$field2] === 0) {
+            echo '<td></td>';
+
+            return;
+        }
+
+        echo '<td class="text-right">';
+        if ($game[$field1] !== $game[$field2]) {
+            echo localized_number($game[$field1]);
+            echo ' of ';
+        }
+        echo localized_number($game[$field2]);
+        echo '</td>';
     }
 
     protected function sortGameList(string $sortOrder): void

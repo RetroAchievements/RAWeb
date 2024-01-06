@@ -13,6 +13,7 @@ use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 
 class GameListService
@@ -20,9 +21,10 @@ class GameListService
     public bool $withLeaderboardCounts = true;
     public bool $withTicketCounts = false;
 
-    public ?array $userProgress = null;
+    /** @var ?Collection<int, System> */
     public ?Collection $consoles = null;
     public array $games = [];
+    public ?array $userProgress = null;
 
     public function initializeUserProgress(?User $user, array $gameIDs): void
     {
@@ -256,5 +258,262 @@ class GameListService
         if ($reverse) {
             $this->games = array_reverse($this->games);
         }
+    }
+
+    private function getTitleColumn(array $filterOptions): array
+    {
+        return [
+            'header' => 'Title',
+            'render' => function ($game) use ($filterOptions) {
+                if (!$filterOptions['console']) {
+                    echo '<td class="py-2">';
+                    echo Blade::render('
+                        <x-game.multiline-avatar
+                            :gameId="$ID"
+                            :gameTitle="$Title"
+                            :gameImageIcon="$ImageIcon"
+                            :consoleName="$ConsoleName"
+                        />', $game);
+                    echo '</td>';
+                } else {
+                    echo '<td>';
+                    echo Blade::render('
+                        <x-game.multiline-avatar
+                            :gameId="$ID"
+                            :gameTitle="$Title"
+                            :gameImageIcon="$ImageIcon"
+                        />', $game);
+                    echo '</td>';
+                }
+            },
+        ];
+    }
+
+    private function renderNumberOrBlank(array $game, string $field): void
+    {
+        if ($game[$field] == 0) {
+            echo '<td></td>';
+        } else {
+            echo '<td class="text-right">';
+            echo localized_number($game[$field]);
+            echo '</td>';
+        }
+    }
+
+    private function renderFloatOrBlank(array $game, string $field): void
+    {
+        if ($game[$field] == 0) {
+            echo '<td></td>';
+        } else {
+            echo '<td class="text-right">';
+            echo sprintf("%01.2f", $game[$field]);
+            echo '</td>';
+        }
+    }
+
+    private function getAchievementCountColumn(): array
+    {
+        return [
+            'header' => 'Achievements',
+            'width' => 12,
+            'tooltip' => 'The number of achievements in the set',
+            'align' => 'right',
+            'render' => function ($game) {
+                $this->renderNumberOrBlank($game, 'achievements_published');
+            },
+        ];
+    }
+
+    private function getAchievementPointsColumn(): array
+    {
+        return [
+            'header' => 'Points',
+            'width' => 10,
+            'tooltip' => 'The number of points associated to achievements in the set',
+            'align' => 'right',
+            'render' => function ($game) {
+                $this->renderNumberOrBlank($game, 'points_total');
+            },
+        ];
+    }
+
+    private function getRetroRatioColumn(): array
+    {
+        return [
+            'header' => 'RetroRatio',
+            'width' => 10,
+            'tooltip' => 'An estimate of rarity for achievements in the set',
+            'align' => 'right',
+            'render' => function ($game) {
+                $this->renderFloatOrBlank($game, 'RetroRatio');
+            },
+        ];
+    }
+
+    private function getLeaderboardCountColumn(): array
+    {
+        return [
+            'header' => 'Leaderboards',
+            'width' => 10,
+            'tooltip' => 'The number of leaderboards in the set',
+            'align' => 'right',
+            'render' => function ($game) {
+                $this->renderNumberOrBlank($game, 'leaderboards_count');
+            },
+        ];
+    }
+
+    private function getPlayerCountColumn(): array
+    {
+        return [
+            'header' => 'Players',
+            'width' => 8,
+            'tooltip' => 'The number of users who have played the set',
+            'align' => 'right',
+            'render' => function ($game) {
+                $this->renderNumberOrBlank($game, 'players_total');
+            },
+        ];
+    }
+
+    private function getTicketCountColumn(): array
+    {
+        return [
+            'header' => 'Tickets',
+            'width' => 8,
+            'tooltip' => 'The number of open tickets for achievements in the set',
+            'align' => 'right',
+            'render' => function ($game) {
+                if ($game['NumTickets'] == 0) {
+                    echo '<td></td>';
+                } else {
+                    echo '<td class="text-right">';
+                    echo '<a href="/ticketmanager.php?g=' . $game['ID'] . '">';
+                    echo localized_number($game['NumTickets']);
+                    echo '</a></td>';
+                }
+            },
+        ];
+    }
+
+    private function getUserProgressColumn(): array
+    {
+        return [
+            'header' => 'Progress',
+            'width' => 8,
+            'tooltip' => 'Indicates how close you are to completing or mastering a set',
+            'align' => 'center',
+            'render' => function ($game) {
+                if ($game['achievements_published'] == 0) {
+                    echo '<td></td>';
+                } else {
+                    $gameProgress = $this->userProgress[$game['ID']] ?? null;
+                    $softcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
+                    $hardcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
+                    $tooltip = "$softcoreProgress of {$game['achievements_published']} unlocked";
+
+                    echo '<td>';
+                    echo Blade::render('
+                        <x-hardcore-progress
+                            :softcoreProgress="$softcoreProgress"
+                            :hardcoreProgress="$hardcoreProgress"
+                            :maxProgress="$maxProgress"
+                            :tooltip="$tooltip"
+                        />', [
+                            'softcoreProgress' => $softcoreProgress,
+                            'hardcoreProgress' => $hardcoreProgress,
+                            'maxProgress' => $game['achievements_published'],
+                            'tooltip' => $tooltip,
+                        ]);
+                    echo '</td>';
+                }
+            },
+        ];
+    }
+
+    private function getBacklogColumn(): array
+    {
+        return [
+            'header' => 'Backlog',
+            'width' => 6,
+            'tooltip' => 'Whether or not the game is on your want to play list',
+            'align' => 'center',
+            'javascript' => function () {
+                $addButtonTooltip = __('user-game-list.play.add');
+                $removeButtonTooltip = __('user-game-list.play.remove');
+
+                echo <<<EOL
+                function togglePlayListItem(id)
+                {
+                    $.post('/request/user-game-list/toggle.php', {
+                        type: 'play',
+                        game: id
+                    })
+                    .done(function () {
+                        $("#add-to-list-" + id).toggle();
+                        $("#remove-from-list-" + id).toggle();
+                        if ($("#add-to-list-" + id).is(':visible')) {
+                            $("#play-list-button-" + id).prop('title', '$addButtonTooltip');
+                        } else {
+                            $("#play-list-button-" + id).prop('title', '$removeButtonTooltip');
+                        }
+                    });
+                }
+                EOL;
+            },
+            'render' => function ($game) {
+                $addVisibility = '';
+                $removeVisibility = '';
+                if ($game['WantToPlay'] ?? false) {
+                    $addVisibility = ' class="hidden"';
+                    $buttonTooltip = __('user-game-list.play.remove');
+                } else {
+                    $removeVisibility = ' class="hidden"';
+                    $buttonTooltip = __('user-game-list.play.add');
+                }
+
+                echo '<td class="text-center">';
+                echo '<button id="play-list-button-' . $game['ID'] . '" class="btn" type="button"';
+                echo ' title="' . $buttonTooltip . '"';
+                echo ' onClick="togglePlayListItem(' . $game['ID'] . ')">';
+                echo '<div class="flex items-center gap-x-1">';
+                echo '<div id="add-to-list-' . $game['ID'] . '"' . $addVisibility . '>';
+                echo Blade::render('<x-fas-plus class="-mt-0.5 w-[12px] h-[12px]" />');
+                echo '</div>';
+                echo '<div id="remove-from-list-' . $game['ID'] . '"' . $removeVisibility . '>';
+                echo Blade::render('<x-fas-check class="-mt-0.5 w-[12px] h-[12px]" />');
+                echo '</div>';
+                echo '</div>';
+                echo '</button';
+                echo '</td>';
+            },
+        ];
+    }
+
+    public function getColumns(array $filterOptions): array
+    {
+        $columns = [];
+
+        $columns['title'] = $this->getTitleColumn($filterOptions);
+        $columns['achievements'] = $this->getAchievementCountColumn();
+        $columns['points'] = $this->getAchievementPointsColumn();
+        $columns['retroratio'] = $this->getRetroRatioColumn();
+
+        if ($this->withLeaderboardCounts) {
+            $columns['leaderboards'] = $this->getLeaderboardCountColumn();
+        }
+
+        $columns['players'] = $this->getPlayerCountColumn();
+
+        if ($this->withTicketCounts) {
+            $columns['tickets'] = $this->getTicketCountColumn();
+        }
+
+        if ($this->userProgress != null) {
+            $columns['progress'] = $this->getUserProgressColumn();
+            $columns['backlog'] = $this->getBacklogColumn();
+        }
+
+        return $columns;
     }
 }
