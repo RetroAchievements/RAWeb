@@ -20,10 +20,6 @@ class TrimGameMetadata
 
     private function trimWhitespace(?string $toTrim): ?string
     {
-        if ($toTrim == null) {
-        return null;
-        }
-
-        return trim(preg_replace('/\s+/', ' ', $toTrim));
+        return trim(preg_replace('/\s+/', ' ', $toTrim ?? ''));
     }
 }
