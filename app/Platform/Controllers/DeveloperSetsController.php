@@ -6,13 +6,20 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketState;
 use App\Community\Models\Ticket;
+use App\Http\Controller;
+use App\Platform\Services\GameListService;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DeveloperSetsController extends GameListControllerBase
+class DeveloperSetsController extends Controller
 {
+    public function __construct(
+        protected GameListService $gameListService,
+    ) {
+    }
+
     public function __invoke(Request $request): View
     {
         $username = $request->route('user');
@@ -77,8 +84,12 @@ class DeveloperSetsController extends GameListControllerBase
             })
             ->toArray();
 
-        $userProgress = $this->getUserProgress($gameIDs);
-        [$games, $consoles] = $this->getGameList($gameIDs, $userProgress, true);
+        $loggedInUser = $request->user();
+        $userProgress = $this->gameListService->getUserProgress($loggedInUser, $gameIDs);
+        [$games, $consoles] = $this->gameListService
+            ->getGameList($gameIDs, $userProgress,
+                          withLeaderboardCounts: true,
+                          withTicketCounts: true);
 
         foreach ($games as &$game) {
             $gameAuthoredAchievements = $gameAuthoredAchievementsList[$game['ID']] ?? null;
@@ -92,18 +103,15 @@ class DeveloperSetsController extends GameListControllerBase
         }
 
         if ($filterOptions['sole']) {
-            $games = array_filter($games, function ($game) {
+            $this->gameListService->filterGameList($games, $consoles, function ($game) {
                 return $game['NumAuthoredAchievements'] == $game['achievements_published']
                         && $game['NumAuthoredLeaderboards'] == $game['leaderboards_count'];
             });
         }
 
-        $player = $request->user();
-        if ($player !== null) {
-            $this->mergeWantToPlay($games, $player);
-        }
+        $this->gameListService->mergeWantToPlay($games, $loggedInUser);
 
-        $this->sortGameList($games, $sortOrder);
+        $this->gameListService->sortGameList($games, $sortOrder);
 
         return view('platform.components.developer.sets-page', [
             'user' => $user,
@@ -137,7 +145,7 @@ class DeveloperSetsController extends GameListControllerBase
 
         // if we're not changing the sort definition, just use the base
         if ($sortFunction === null) {
-            GameListControllerBase::sortGameList($games, $sortOrder);
+            $this->gameListService->sortGameList($games, $sortOrder);
 
             return;
         }

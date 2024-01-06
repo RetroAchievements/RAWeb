@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Http\Controller;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameAlternative;
-use App\Platform\Models\System;
+use App\Platform\Services\GameListService;
 use App\Site\Enums\Permissions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
-class RelatedGamesTableController extends GameListControllerBase
+class RelatedGamesTableController extends Controller
 {
+    public function __construct(
+        protected GameListService $gameListService,
+    ) {
+    }
+
     public function __invoke(Request $request): View
     {
         $gameId = $request->route('game');
@@ -38,38 +44,21 @@ class RelatedGamesTableController extends GameListControllerBase
         $gameIDs = GameAlternative::where('gameID', $gameId)->pluck('gameIDAlt')->toArray()
                  + GameAlternative::where('gameIDAlt', $gameId)->pluck('gameID')->toArray();
 
-        $userProgress = $this->getUserProgress($gameIDs);
-        [$games, $consoles] = $this->getGameList($gameIDs, $userProgress, $showTickets);
-
-        // ignore hubs and events
-        $games = array_filter($games, function ($game) {
-            return System::isGameSystem($game['ConsoleID']);
-        });
-        $consoles = $consoles->filter(function ($console) {
-            return System::isGameSystem($console['ID']);
-        });
+        $userProgress = $this->gameListService->getUserProgress($loggedInUser, $gameIDs);
+        [$games, $consoles] = $this->gameListService
+            ->getGameList($gameIDs, $userProgress,
+                          withLeaderboardCounts: true,
+                          withTicketCounts: $showTickets);
 
         if ($filterOptions['populated']) {
-            $games = array_filter($games, function ($game) {
+            $this->gameListService->filterGameList($games, $consoles, function ($game) {
                 return $game['achievements_published'] > 0;
             });
-            $consoles = $consoles->filter(function ($console) use ($games) {
-                foreach ($games as $game) {
-                    if ($game['ConsoleID'] == $console['ID']) {
-                        return true;
-                    }
-                }
-
-                return false;
-            });
         }
 
-        $user = $request->user();
-        if ($user !== null) {
-            $this->mergeWantToPlay($games, $user);
-        }
+        $this->gameListService->mergeWantToPlay($games, $loggedInUser);
 
-        $this->sortGameList($games, $sortOrder);
+        $this->gameListService->sortGameList($games, $sortOrder);
 
         return view('platform.components.game.related-games-table', [
             'consoles' => $consoles,

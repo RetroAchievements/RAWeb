@@ -13,6 +13,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Services\GameListService;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
@@ -1369,7 +1370,7 @@ sanitize_outputs(
 
         if (!$isFullyFeaturedGame) {
             if (!empty($relatedGames)) {
-                $controller = new RelatedGamesTableController();
+                $controller = new RelatedGamesTableController(new GameListService());
                 $view = $controller(request());
                 echo $view->render();
 
