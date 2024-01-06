@@ -72,14 +72,16 @@ class AwardAchievementsTest extends TestCase
             't' => $integrationUser->appToken,
             'r' => 'awardachievements',
             'k' => $delegatedUser->User,
-            'h' => 1,
+        ];
+        $payload = [
             // Note that #0 is already unlocked, thus it will not be in the "SuccessfulIDs" list.
             'a' => "1,2,3,4",
+            'h' => 1,
             'v' => 'ae91e6a962b6ae5ec511108dbaa7c406',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->post($requestUrl)
+        $this->post($requestUrl, $payload)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore + $achievement2->Points + $achievement3->Points + $achievement4->Points,
@@ -184,13 +186,15 @@ class AwardAchievementsTest extends TestCase
             't' => $integrationUser->appToken,
             'r' => 'awardachievements',
             'k' => $delegatedUser->User,
-            'h' => 1,
+        ];
+        $payload = [
             'a' => $achievement1->ID,
+            'h' => 1,
             'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->post($requestUrl)
+        $this->post($requestUrl, $payload)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore,
@@ -234,13 +238,15 @@ class AwardAchievementsTest extends TestCase
             't' => $integrationUser->appToken,
             'r' => 'awardachievements',
             'k' => $delegatedUser->User,
-            'h' => 1,
+        ];
+        $payload = [
             'a' => $achievement1->id,
+            'h' => 1,
             'v' => 'f3a3ef72749787fee6ae6cb933b651b1',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->post($requestUrl)
+        $this->post($requestUrl, $payload)
             ->assertStatus(403)
             ->assertExactJson([
                 "Code" => "access_denied",
@@ -284,13 +290,15 @@ class AwardAchievementsTest extends TestCase
             't' => $integrationUser->appToken,
             'r' => 'awardachievements',
             'k' => $delegatedUser->User,
-            'h' => 1,
+        ];
+        $payload = [
             'a' => $achievement1->id,
+            'h' => 1,
             'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->post($requestUrl)
+        $this->post($requestUrl, $payload)
             ->assertExactJson([
                 "Success" => true,
                 "Score" => $scoreBefore,
@@ -328,13 +336,15 @@ class AwardAchievementsTest extends TestCase
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
             'r' => 'awardachievements',
-            'h' => 1,
+        ];
+        $payload = [
             'a' => $achievement1->id,
+            'h' => 1,
             'v' => 'f3a3ef72749787fee6ae6cb933b651b0',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->post($requestUrl)
+        $this->post($requestUrl, $payload)
             ->assertStatus(400)
             ->assertExactJson([
                 "Success" => false,
@@ -360,14 +370,16 @@ class AwardAchievementsTest extends TestCase
             'u' => $integrationUser->User,
             't' => $integrationUser->appToken,
             'r' => 'awardachievements',
-            'h' => 1,
-            'a' => $achievement1->id,
             'k' => 'Some Guy',
+        ];
+        $payload = [
+            'a' => $achievement1->id,
+            'h' => 1,
             'v' => 'ab14ef5e11ab53ee7e9013770490761e',
         ];
 
         $requestUrl = sprintf('dorequest.php?%s', http_build_query($params));
-        $this->post($requestUrl)
+        $this->post($requestUrl, $payload)
             ->assertStatus(404)
             ->assertExactJson([
                 "Success" => false,
