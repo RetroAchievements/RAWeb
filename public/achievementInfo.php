@@ -72,7 +72,8 @@ $unlocks = getAchievementUnlocksData(
     $numPossibleWinners,
     $parentGameID,
     0,
-    50
+    50,
+    false
 );
 
 $dataOut['NumAwarded'] = $numWinners;
