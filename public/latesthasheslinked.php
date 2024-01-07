@@ -62,7 +62,7 @@ RenderContentStart("Hash List");
 
             $gameID = $hash['GameID'];
 
-            echo "<td><a href='/managehashes.php?g=$gameID'>" . $hash['Hash'] . "</a></td>";
+            echo "<td><a href='/game/$gameID/hashes/manage'>" . $hash['Hash'] . "</a></td>";
             echo "<td>";
             echo gameAvatar($hash);
             echo "</td>";
