@@ -43,10 +43,15 @@ class GameHashPolicy
 
     public function update(User $user, GameHash $gameHash): bool
     {
-        return $user->hasAnyRole([
+        $hasCorrectRole = $user->hasAnyRole([
             Role::DEVELOPER_LEVEL_1,
             Role::DEVELOPER_LEVEL_2,
         ]);
+
+        // TODO: Remove when permissions matrix is in place.
+        $hasCorrectPermissions = $user->getAttribute('Permissions') >= Permissions::Developer;
+
+        return $hasCorrectRole || $hasCorrectPermissions;
     }
 
     public function delete(User $user, GameHash $gameHash): bool
