@@ -1,7 +1,14 @@
 @layer components {
+  input {
+    @apply placeholder:text-neutral-600 placeholder:light:text-neutral-400/50;
+  }
+
   .container {
     @apply sm:max-w-[theme('screens.lg')] xl:max-w-[theme('screens.xl')];
   }
+}
+
+@layer utilities {
 }
 
 .bg-body {
