@@ -82,8 +82,8 @@ RenderContentStart("Manage News");
                     <?= Blade::render('<x-fas-spinner class="icon-spin-fast" :id="$id" :alt="$alt" :style="$style" />', [
                         'id' => 'loadingicon',
                         'alt' => 'loading icon',
-                        'style' => 'opacity: 0'
-                    ]);
+                        'style' => 'opacity: 0',
+                    ]) ?>
                 </td>
             </tr>
             <tr>

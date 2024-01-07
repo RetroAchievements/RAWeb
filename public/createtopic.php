@@ -66,7 +66,7 @@ RenderContentStart("Create topic: $thisForumTitle");
     $loadingIcon = Blade::render('<x-fas-spinner class="icon-spin-fast" :id="$id" :alt="$alt" :style="$style" />', [
         'id' => 'preview-loading-icon',
         'alt' => 'Loading...',
-        'style' => 'opacity: 0'
+        'style' => 'opacity: 0',
     ]);
 
     echo <<<HTML
