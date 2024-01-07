@@ -63,7 +63,11 @@ RenderContentStart("Create topic: $thisForumTitle");
     <?php
     echo "</td></tr>";
 
-    $loadingIconSrc = asset('assets/images/icon/loading.gif');
+    $loadingIcon = Blade::render('<x-fas-spinner class="icon-spin-fast" :id="$id" :alt="$alt" :style="$style" />', [
+        'id' => 'preview-loading-icon',
+        'alt' => 'Loading...',
+        'style' => 'opacity: 0'
+    ]);
 
     echo <<<HTML
         <tr>
@@ -73,7 +77,7 @@ RenderContentStart("Create topic: $thisForumTitle");
                     <div class="textarea-counter text-right" data-textarea-id="commentTextarea"></div>
 
                     <div>
-                        <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
+                        $loadingIcon
                         <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" :disabled="!isValid">Preview</button>
                         <button class="btn" :disabled="!isValid">Submit new topic</button>
                     </div>

@@ -79,7 +79,11 @@ RenderContentStart("Manage News");
                         <img src="<?= $newsImage ?>" width="470" alt="News header image preview">
                     </div>
                     <input type="file" name="file" id="uploadimagefile" onchange="return UploadImage();">
-                    <img id="loadingicon" style="opacity: 0;" alt="loading icon" src="<?= asset('assets/images/icon/loading.gif') ?>">
+                    <?= Blade::render('<x-fas-spinner class="icon-spin-fast" :id="$id" :alt="$alt" :style="$style" />', [
+                        'id' => 'loadingicon',
+                        'alt' => 'loading icon',
+                        'style' => 'opacity: 0'
+                    ]);
                 </td>
             </tr>
             <tr>
