@@ -113,7 +113,7 @@ function RenderArticleComment(
     $deleteIcon = '';
 
     if ($user && $user === $localUser || $allowDelete) {
-        $img = "<img src='" . asset('assets/images/icon/cross.png') . "' width='16' height='16' alt='delete comment'/>";
+        $img = Blade::render('<x-fas-xmark class="h-5 w-5" style="color: red" />');
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
@@ -163,7 +163,7 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
-    $submitImageUrl = asset('assets/images/icon/submit.png');
+    $submitImage = Blade::render('<x-fas-square-plus class="w-5 h-5" />');
     $csrfField = csrf_field();
     $avatar = media_asset("/UserPic/$user.png");
 
@@ -187,7 +187,7 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                             x-on:input="autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 2000;"
                         ></textarea>
                         <button class="btn comment-submit-button" :disabled="!isValid">
-                            <img src="$submitImageUrl" alt="Submit">
+                            $submitImage
                         </button>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>

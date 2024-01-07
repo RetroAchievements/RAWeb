@@ -8,7 +8,7 @@ RenderContentStart("RSS Feeds");
     <div>
         <h2>RSS</h2>
         <a href="<?= url('rss-news')  ?>">
-            <img src="<?= asset('assets/images/icon/rss.gif') ?>" width='41' height='13' />
+            <?= Blade::render('<x-fas-rss-square />') ?>
             News
         </a>
     </div>

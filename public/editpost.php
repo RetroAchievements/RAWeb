@@ -80,7 +80,11 @@ RenderContentStart("Edit post");
     HTML;
     echo "</td></tr>";
 
-    $loadingIconSrc = asset('assets/images/icon/loading.gif');
+    $loadingIcon = Blade::render('<x-fas-spinner class="icon-spin-fast w-6 h-6" :id="$id" :alt="$alt" :style="$style" />', [
+        'id' => 'preview-loading-icon',
+        'alt' => 'Loading...',
+        'style' => 'opacity: 0',
+    ]);
 
     echo <<<HTML
         <tr>
@@ -90,7 +94,7 @@ RenderContentStart("Edit post");
                     <div class="textarea-counter text-right" data-textarea-id="commentTextarea"></div>
 
                     <div class="flex gap-2">
-                        <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading..." class="w-4 h-4">
+                        $loadingIcon
                         <a class="btn btn-link" href="/viewtopic.php?t=$thisTopicID&c=$requestedComment#$requestedComment">Back</a>
                         <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" :disabled="!isValid">Preview</button>
                         <button class="btn" :disabled="!isValid">Submit</button>

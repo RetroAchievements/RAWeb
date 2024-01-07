@@ -10,7 +10,11 @@
 $inputEnabled = $enabled ? '' : 'disabled';
 $buttonEnabled = $enabled ? ":disabled='!isValid'" : "disabled";
 
-$loadingIconSrc = asset('assets/images/icon/loading.gif');
+$loadingIcon = Blade::render('<x-fas-spinner class="icon-spin-fast w-6 h-6" :id="$id" :alt="$alt" :style="$style" />', [
+    'id' => 'preview-loading-icon',
+    'alt' => 'Loading...',
+    'style' => 'opacity: 0'
+]);
 
 ?>
 
@@ -42,7 +46,7 @@ $loadingIconSrc = asset('assets/images/icon/loading.gif');
         <span class="textarea-counter" data-textarea-id="commentTextarea">0 / 60000</span>
 
         <div>
-            <img id="preview-loading-icon" src="{!! $loadingIconSrc !!}" style="opacity: 0;" width="16" height="16" alt="Loading...">
+            <?= $loadingIcon ?>
             <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" {!! $buttonEnabled !!}>Preview</button>
             <button id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" {!! $buttonEnabled !!}>Submit</button>
         </div>

@@ -43,6 +43,18 @@ function RenderUserPref(
 }
 ?>
 <script>
+function ShowLoadingIcon(iconRoot) {
+    $(iconRoot).find('.loadingicon-spinner').show();
+    $(iconRoot).find('.loadingicon-done').hide();
+    $(iconRoot).fadeTo(100, 1.0);
+}
+
+function ShowDoneIcon(iconRoot) {
+    $(iconRoot).find('.loadingicon-spinner').hide();
+    $(iconRoot).find('.loadingicon-done').show();
+    $(iconRoot).delay(750).fadeTo('slow', 0.0);
+}
+
 /**
  * @param {number} targetLoadingIcon - There are multiple loading icons on the page, which one will update based on this prefs change?
  */
@@ -56,12 +68,12 @@ function DoChangeUserPrefs(targetLoadingIcon = 1) {
     }
 
     const loadingIconId = `#loadingicon-${targetLoadingIcon}`;
-    $(loadingIconId).attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
+    ShowLoadingIcon($(loadingIconId));
     $.post('/request/user/update-preferences.php', {
         preferences: newUserPrefs
     })
         .done(function () {
-            $(loadingIconId).attr('src', '<?= asset('assets/images/icon/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
+            ShowDoneIcon($(loadingIconId));
         });
 }
 
@@ -71,10 +83,10 @@ function UploadNewAvatar() {
     var file = photo.files[0];
     var reader = new FileReader();
     reader.onload = function () {
-        $('#loadingiconavatar').fadeTo(100, 1.0);
+        ShowLoadingIcon($('#loadingiconavatar'));
         $.post('/request/user/update-avatar.php', { imageData: reader.result },
             function (data) {
-                $('#loadingiconavatar').fadeTo(100, 0.0);
+                ShowDoneIcon($('#loadingiconavatar'));
 
                 var result = $.parseJSON(data);
                 var d = new Date();
@@ -218,7 +230,10 @@ function confirmEmailChange(event) {
                 </tr>
                 </tbody>
             </table>
-            <img id='loadingicon-1' style='opacity: 0; float: right;' src='<?= asset('assets/images/icon/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
+            <span id="loadingicon-1" style='opacity: 0; float: right;'>
+                <?= Blade::render('<x-fas-spinner class="icon-spin-fast loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
+                <?= Blade::render('<x-fas-check class="loadingicon-done" :alt="$alt" />', ['alt' => 'done']) ?>
+            </span>
         </div>
 
         <div class='component'>
@@ -247,7 +262,10 @@ function confirmEmailChange(event) {
                     </td>
                 </tr>
             </table>
-            <img id='loadingicon-2' style='opacity: 0; float: right;' src='<?= asset('assets/images/icon/loading.gif') ?>' width='16' height='16' alt='loading icon'/>
+            <span id="loadingicon-2" style='opacity: 0; float: right;'>
+                <?= Blade::render('<x-fas-spinner class="icon-spin-fast loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
+                <?= Blade::render('<x-fas-check class="loadingicon-done" :alt="$alt" />', ['alt' => 'done']) ?>
+            </span>
         </div>
         <?php
         if ($permissions >= Permissions::Registered) {
@@ -365,22 +383,39 @@ function confirmEmailChange(event) {
         </div>
         <div class='component'>
             <h3>Reset Game Progress</h3>
-            <?php
-            echo "<table class='table-highlight'><colgroup><col style='width: 200px'></colgroup><tbody>";
-            echo "<tr><td>Game</td>";
-            echo "<td><select style='width: 400px' id='resetgameselector' onchange=\"ResetFetchAwarded()\">";
-            echo "<option value=''>--</option>";
-            echo "</select></td></tr>";
-
-            echo "<tr><td>Achievement</td>";
-            echo "<td><select style='width: 400px' id='resetachievementscontainer'>";
-            // Filled by JS
-            echo "</select></td></tr>";
-
-            echo "<tr class='do-not-highlight'><td></td><td><button class='btn btn-danger' type='button' onclick=\"ResetProgressForSelection()\">Reset Progress for Selection</button>";
-            echo "<img id='loadingiconreset' style='opacity: 0; float: right;' src='" . asset('assets/images/icon/loading.gif') . "' width='16' height='16' alt='loading icon' />";
-            echo "</td></tr></tbody></table>";
-            ?>
+            <table class='table-highlight'>
+                <colgroup>
+                    <col style='width: 200px'>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td>Game</td>
+                        <td>
+                            <select style='width: 400px' id='resetgameselector' onchange="ResetFetchAwarded()">
+                                <option value=''>--</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Achievement</td>
+                        <td>
+                            <select style='width: 400px' id='resetachievementscontainer'>
+                            <!-- Filled by JS -->
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class='do-not-highlight'>
+                        <td></td>
+                        <td>
+                            <button class='btn btn-danger' type='button' onclick="ResetProgressForSelection()">Reset Progress for Selection</button>
+                            <span id="loadingiconreset" style='opacity: 0; float: right;'>
+                                <?= Blade::render('<x-fas-spinner class="icon-spin-fast loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
+                                <?= Blade::render('<x-fas-check class="loadingicon-done" :alt="$alt" />', ['alt' => 'done']) ?>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <script>
             var $loadingIcon = $('#loadingiconreset');
@@ -393,7 +428,7 @@ function confirmEmailChange(event) {
                 gameSelect.replaceChildren();
 
                 // Show loading icon
-                $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
+                ShowLoadingIcon($loadingIcon);
 
                 // Make API call to get game list
                 $.post('/request/user/list-games.php').done(data => {
@@ -419,7 +454,7 @@ function confirmEmailChange(event) {
                     gameSelect.disabled = false;
 
                     // Hide the loading icon after a delay
-                    $loadingIcon.delay(750).fadeTo('slow', 0.0);
+                    ShowDoneIcon($loadingIcon);
                 });
             }
 
@@ -432,7 +467,7 @@ function confirmEmailChange(event) {
                 }
                 gameSelect.setAttribute('disabled', 'disabled');
                 achievementSelect.innerHTML += '<option value=\'\'>--</option>';
-                $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
+                ShowLoadingIcon($loadingIcon);
                 $.post('/request/user/list-unlocks.php', { game: gameID })
                     .done(function (data) {
                         achievementSelect.replaceChildren();
@@ -444,7 +479,7 @@ function confirmEmailChange(event) {
                         });
                         gameSelect.removeAttribute('disabled');
                         achievementSelect.removeAttribute('disabled');
-                        $loadingIcon.delay(750).fadeTo('slow', 0.0);
+                        ShowDoneIcon($loadingIcon);
                     });
             }
 
@@ -464,21 +499,21 @@ function confirmEmailChange(event) {
                     gameName = gameName.substr(0, gameName.lastIndexOf('(') - 1);
 
                     if (gameId > 0 && confirm('Reset all achievements for "' + gameName + '"?')) {
-                        $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
+                        ShowLoadingIcon($loadingIcon);
                         $.post('/request/user/reset-achievements.php', { game: gameId })
                             .done(function () {
-                                $loadingIcon.attr('src', '<?= asset('assets/images/icon/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
+                                ShowDoneIcon($loadingIcon);
                                 achievementSelect.replaceChildren();
                                 GetAllResettableGamesList();
                             });
                     }
                 } else if (achID > 0 && confirm('Reset achievement "' + achName + '"?')) {
-                    $loadingIcon.attr('src', '<?= asset('assets/images/icon/loading.gif') ?>').fadeTo(100, 1.0);
+                    ShowLoadingIcon($loadingIcon);
                     $.post('/request/user/reset-achievements.php', {
                         achievement: achID,
                     })
                         .done(function () {
-                            $loadingIcon.attr('src', '<?= asset('assets/images/icon/tick.png') ?>').delay(750).fadeTo('slow', 0.0);
+                            ShowDoneIcon($loadingIcon);
                             if ($('#resetachievementscontainer').children('option').length > 2) {
                                 // Just reset ach. list
                                 ResetFetchAwarded();
@@ -536,9 +571,10 @@ function confirmEmailChange(event) {
             </div>
             <div style="margin-bottom: 10px">
                 <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
-                <img id="loadingiconavatar" style="opacity: 0; float: right;"
-                     src="<?= asset('assets/images/icon/loading.gif') ?>"
-                     width="16" height="16" alt="loading">
+                <span id="loadingiconavatar" style='opacity: 0; float: right;'>
+                    <?= Blade::render('<x-fas-spinner class="icon-spin-fast loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
+                    <?= Blade::render('<x-fas-check class="loadingicon-done" :alt="$alt" />', ['alt' => 'done']) ?>
+                </span>
             </div>
             <div style="margin-bottom: 10px">
                 After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.

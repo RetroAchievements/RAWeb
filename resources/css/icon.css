@@ -46,6 +46,11 @@
   animation: icon-spin 2s infinite linear
 }
 
+.icon-spin-fast {
+  -webkit-animation: icon-spin 1s infinite linear;
+  animation: icon-spin 1s infinite linear
+}
+
 .icon-pulse {
   -webkit-animation: icon-spin 1s infinite steps(8);
   animation: icon-spin 1s infinite steps(8)
@@ -110,4 +115,8 @@
 
 :root .icon-rotate-90, :root .icon-rotate-180, :root .icon-rotate-270, :root .icon-flip-horizontal, :root .icon-flip-vertical {
   filter: none
+}
+
+.loadingicon-done {
+  color: green;
 }
