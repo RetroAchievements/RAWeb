@@ -4,7 +4,6 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
@@ -737,7 +736,7 @@ sanitize_outputs(
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
+                    echo "<div><a class='btn btn-link' href='/game/$gameID/hashes/manage'>Manage Hashes</a></div>";
                 }
 
                 $primaryClaimUser = null;
@@ -1093,7 +1092,17 @@ sanitize_outputs(
         }
 
         echo "<div class='my-5'>";
-        RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+        echo Blade::render('
+            <x-game.link-buttons
+                :allowedLinks="$allowedLinks"
+                :gameForumTopicId="$gameForumTopicId"
+                :gameId="$gameId"
+            />
+        ', [
+            'allowedLinks' => ['forum-topic'],
+            'gameForumTopicId' => $forumTopicID,
+            'gameId' => $gameID,
+        ]);
         echo "</div>";
 
         if ($isFullyFeaturedGame) {
@@ -1123,37 +1132,21 @@ sanitize_outputs(
         echo "</div>";
 
         echo "<div class='component'>";
-        echo "<ul>";
-        echo "<li>";
-        RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-        if (!empty($guideURL)) {
-            echo "<a class='btn py-2 mb-2 block' href='" . attributeEscape($guideURL) . "'><span class='icon icon-md ml-1 mr-3'>📖</span>Guide</a>";
-        }
-        echo "</li>";
-        if (isset($user)) {
-            if ($permissions >= Permissions::Registered) {
-                echo "<li><a class='btn py-2 mb-2 block' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>💾</span>Supported Game Files</a></li>";
-                echo "<li><a class='btn py-2 mb-2 block' href='/codenotes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📑</span>Code Notes</a></li>";
-                $numOpenTickets = countOpenTickets(
-                    requestInputSanitized('f') == $unofficialFlag,
-                    requestInputSanitized('t', TicketFilters::Default),
-                    null,
-                    null,
-                    null,
-                    $gameID
-                );
-                if ($flagParam == $unofficialFlag) {
-                    echo "<li><a class='btn py-2 mb-2 block' href='/ticketmanager.php?g=$gameID&f=$flagParam'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
-                } else {
-                    echo "<li><a class='btn py-2 mb-2 block' href='/ticketmanager.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
-                }
-            }
-            if ($numAchievements == 0) {
-                echo "<li><a class='btn py-2 mb-2 block' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
-            }
-            echo "</ul>";
-        }
-
+        echo Blade::render('
+            <x-game.link-buttons
+                :gameAchievementsCount="$gameAchievementsCount"
+                :gameForumTopicId="$gameForumTopicId"
+                :gameGuideUrl="$gameGuideUrl"
+                :gameId="$gameId"
+                :isViewingOfficial="$isViewingOfficial"
+            />
+        ', [
+            'gameAchievementsCount' => $numAchievements,
+            'gameForumTopicId' => $forumTopicID,
+            'gameGuideUrl' => $guideURL,
+            'gameId' => $gameID,
+            'isViewingOfficial' => $flagParam !== $unofficialFlag,
+        ]);
         echo "</div>";
 
         // Progression component (mobile only)

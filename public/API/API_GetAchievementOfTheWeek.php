@@ -15,6 +15,8 @@ use Illuminate\Support\Carbon;
  *   int        TrueRatio               number of "white" points the achievement is worth
  *   string     Type                    null, "progression", "win_condition", or "missable"
  *   string     Author                  user who first created the achievement
+ *   string     BadgeName               unique identifier of the badge image for the achievement
+ *   string     BadgeURL                site-relative path to the badge image for the achievement
  *   datetime   DateCreated             when the achievement was created
  *   datetime   DateModified            when the achievement was last modified
  *  object     Console                  information about the console associated to the game associated to the achievemnt
@@ -63,6 +65,8 @@ $achievement = [
     'TrueRatio' => $achievementData['TrueRatio'] ?? null,
     'Type' => $achievementData['Type'] ?? null,
     'Author' => $achievementData['Author'] ?? null,
+    'BadgeName' => $achievementData['BadgeName'],
+    'BadgeURL' => "/Badge/" . $achievementData['BadgeName'] . ".png",
     'DateCreated' => $achievementData['DateCreated'] ?? null,
     'DateModified' => $achievementData['DateModified'] ?? null,
 ];

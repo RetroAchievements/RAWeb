@@ -139,6 +139,8 @@ class V1Test extends TestCase
             ->assertJson([
                 'Achievement' => [
                     'ID' => $achievement->ID,
+                    'BadgeName' => $achievement->BadgeName,
+                    'BadgeURL' => "/Badge/{$achievement->BadgeName}.png",
                 ],
                 'Console' => [
                     'ID' => $system->ID,

@@ -51,7 +51,7 @@ RenderContentStart("Supported Game Files - $gameTitle");
         echo "<div class='devbox mb-3'>";
         echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
         echo "<div id='devboxcontent' style='display: none'>";
-        echo "<a href='/managehashes.php?g=$gameID'>Manage Hashes</a>";
+        echo "<a href='/game/$gameID/hashes/manage'>Manage Hashes</a>";
         echo "</div>";
         echo "</div>";
     }
