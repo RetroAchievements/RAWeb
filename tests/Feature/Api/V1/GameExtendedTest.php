@@ -8,6 +8,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimType;
 use App\Community\Models\AchievementSetClaim;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
@@ -53,6 +54,8 @@ class GameExtendedTest extends TestCase
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '34567', 'DisplayOrder' => 2]);
+        /** @var Achievement $achievement4 */
+        $achievement4 = Achievement::factory()->create(['GameID' => $game->ID]); // unofficial
 
         /** @var User $user2 */
         $user2 = User::factory()->create();
@@ -141,6 +144,26 @@ class GameExtendedTest extends TestCase
                         'DateModified' => $achievement2->DateModified->__toString(),
                         'NumAwarded' => 4,
                         'NumAwardedHardcore' => 2,
+                    ],
+                ],
+            ]);
+
+        $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID, 'f' => AchievementFlag::Unofficial]))
+            ->assertSuccessful()
+            ->assertJson([
+                'Achievements' => [
+                    $achievement4->ID => [
+                        'ID' => $achievement4->ID,
+                        'Title' => $achievement4->Title,
+                        'Description' => $achievement4->Description,
+                        'Points' => $achievement4->Points,
+                        'BadgeName' => $achievement4->BadgeName,
+                        'DisplayOrder' => $achievement4->DisplayOrder,
+                        'Author' => $achievement4->Author,
+                        'DateCreated' => $achievement4->DateCreated->__toString(),
+                        'DateModified' => $achievement4->DateModified->__toString(),
+                        'NumAwarded' => 0,
+                        'NumAwardedHardcore' => 0,
                     ],
                 ],
             ]);
