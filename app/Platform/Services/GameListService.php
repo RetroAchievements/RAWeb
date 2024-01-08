@@ -409,7 +409,7 @@ class GameListService
                 } else {
                     $gameProgress = $this->userProgress[$game['ID']] ?? null;
                     $softcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
-                    $hardcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
+                    $hardcoreProgress = $gameProgress['achievements_unlocked_hardcore'] ?? 0;
                     $tooltip = "$softcoreProgress of {$game['achievements_published']} unlocked";
 
                     echo '<td>';
