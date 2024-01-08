@@ -138,16 +138,14 @@ function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsern
     }
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
-    echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div class='flex justify-center'>";
-    echo "<div class='component flex flex-wrap gap-2 justify-start bg-embed w-full xl:rounded xl:py-2 xl:px-5'>";
+    echo "<h3 class='flex justify-between gap-2 py-2'><span class='grow'>$title</span>$counters</h3>";
+    echo "<div class='component w-full bg-embed gap-2 py-2 grid grid-cols-8 md:grid-cols-12 lg:grid-cols-5 lg:gap-x-0 xl:p-4 justify-around'>";
     $imageSize = 48;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
             RenderAward($award, $imageSize, $awardsOwnerUsername);
         }
     }
-    echo "</div>";
     echo "</div>";
     echo "</div>";
 }
@@ -194,7 +192,7 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
 
         $dataAttrGameId = $award['GameID'];
         // NOTE: If these data-* attributes are removed, userscripts will begin breaking.
-        echo "<div data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
+        echo "<div class='flex justify-center' data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
 
         return;
     }
@@ -241,5 +239,5 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
         $displayable = "<a href=\"$linkdest\">$displayable</a>";
     }
 
-    echo "<div><div>$displayable</div>$newOverlayDiv</div>";
+    echo "<div class='flex justify-center'><div>$displayable</div>$newOverlayDiv</div>";
 }
