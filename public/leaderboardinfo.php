@@ -44,7 +44,7 @@ $consoleID = $lbData['ConsoleID'];
 $consoleName = $lbData['ConsoleName'];
 $forumTopicID = $lbData['ForumTopicID'];
 
-$pageTitle = "$lbTitle ($gameTitle, $consoleName)";
+$pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, $commentData);
@@ -72,10 +72,7 @@ function ExplainLeaderboardTrigger(string $name, string $triggerDef, array $code
     echo "</div>"; // devbox
 }
 
-$openGraphDescription = "Compete on the $lbTitle leaderboard. ";
-if ($lbDescription) {
-    $openGraphDescription .= "Rules: " . $lbDescription;
-}
+$openGraphDescription = ($lbDescription ?? $lbTitle) . ", $numEntries entries.";
 
 RenderOpenGraphMetadata(
     $pageTitle,
