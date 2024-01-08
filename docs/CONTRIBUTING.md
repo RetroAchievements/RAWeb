@@ -37,8 +37,6 @@ Before submitting a pull request:
 
 - **Send coherent history** - Make sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please [squash them](https://www.git-scm.com/book/en/v2/Git-Tools-Rewriting-History#Changing-Multiple-Commit-Messages) before submitting.
 
-- **Use [Tailwind CSS](https://tailwindcss.com/docs) for styling whenever possible** - We try to avoid inline CSS or custom styling wherever possible. The Tailwind CSS framework covers most cases.
-
 ## Testing, Code Style (CS) & Static Analysis
 
 **PHPUnit** is used for testing. Write feature and/or unit tests where applicable.  
@@ -75,6 +73,8 @@ Especially if it's something that can be reused.
 **Frontend assets**
 
 This is not a Single Page Application.
+
+Avoid inline styles and custom CSS unless there's a compelling reason. The project uses [TailwindCSS](https://tailwindcss.com/docs) and it should cover most styling needs.
 
 JavaScript kept vanilla and to a minimum - most dynamic features use Laravel LiveWire and/or Alpine.js.
 
