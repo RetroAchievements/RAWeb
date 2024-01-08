@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
@@ -63,11 +64,7 @@ RenderContentStart("Create topic: $thisForumTitle");
     <?php
     echo "</td></tr>";
 
-    $loadingIcon = Blade::render('<x-fas-spinner class="icon-spin-fast" :id="$id" :alt="$alt" :style="$style" />', [
-        'id' => 'preview-loading-icon',
-        'alt' => 'Loading...',
-        'style' => 'opacity: 0',
-    ]);
+    $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200" alt="Loading..." />');
 
     echo <<<HTML
         <tr>

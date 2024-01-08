@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Blade;
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 RenderContentStart("RSS Feeds");

@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 function RenderCommentsComponent(
     ?string $user,
@@ -113,7 +114,7 @@ function RenderArticleComment(
     $deleteIcon = '';
 
     if ($user && $user === $localUser || $allowDelete) {
-        $img = Blade::render('<x-fas-xmark class="h-5 w-5" style="color: red" />');
+        $img = Blade::render('<x-fas-xmark class="text-red-700 h-5 w-5" alt="delete comment"/>');
         $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
     }
 
@@ -163,7 +164,7 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
-    $submitImage = Blade::render('<x-fas-square-plus class="w-5 h-5" />');
+    $submitImage = Blade::render('<x-fas-square-plus class="w-5 h-5" alt="Submit"/>');
     $csrfField = csrf_field();
     $avatar = media_asset("/UserPic/$user.png");
 

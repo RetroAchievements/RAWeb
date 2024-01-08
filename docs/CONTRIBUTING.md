@@ -37,6 +37,8 @@ Before submitting a pull request:
 
 - **Send coherent history** - Make sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please [squash them](https://www.git-scm.com/book/en/v2/Git-Tools-Rewriting-History#Changing-Multiple-Commit-Messages) before submitting.
 
+- **Use [Tailwind CSS](https://tailwindcss.com/docs) for styling whenever possible** - We try to avoid inline CSS or custom styling wherever possible. The Tailwind CSS framework covers most cases.
+
 ## Testing, Code Style (CS) & Static Analysis
 
 **PHPUnit** is used for testing. Write feature and/or unit tests where applicable.  
