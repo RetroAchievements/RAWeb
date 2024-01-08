@@ -62,6 +62,9 @@ module.exports = {
           '75%': { transform: 'rotate(-1.5deg)' },
         },
       },
+      gridTemplateColumns: {
+        'auto-fill-award-grid': 'repeat(auto-fill, minmax(52px, 1fr))',
+      },
     },
 
     fontSize: {
