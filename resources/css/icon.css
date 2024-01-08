@@ -111,7 +111,3 @@
 :root .icon-rotate-90, :root .icon-rotate-180, :root .icon-rotate-270, :root .icon-flip-horizontal, :root .icon-flip-vertical {
   filter: none
 }
-
-.loadingicon-done {
-  color: green;
-}
