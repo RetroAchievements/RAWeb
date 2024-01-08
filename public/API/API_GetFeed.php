@@ -2,4 +2,4 @@
 
 // no more feeds in v1
 
-abort(501);
+abort(410);

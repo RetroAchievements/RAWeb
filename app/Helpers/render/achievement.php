@@ -124,7 +124,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
             <img src="$badgeImgSrc" width="64" height="64" />
 
             <div class="relative flex flex-col w-full gap-2">
-                <p class="font-bold mb-1 text-lg leading-5 $titleClassName">$sanitizedAchievementTitle</p>
+                <p class="font-bold mb-1 text-lg leading-5 [word-break:break-word] $titleClassName">$sanitizedAchievementTitle</p>
                 <div class="absolute -top-1 -right-1">$renderedType</div>
 
                 <p class="mb-1">$description</p>
