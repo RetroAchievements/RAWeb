@@ -79,9 +79,12 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         $data = Cache::store('array')->rememberForever('achievement:' . $id . ':card-data', fn () => GetAchievementData($id));
     }
 
-    $title = str_replace("\n", '', Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
+    $renderedAchievementTitle = Blade::render('<x-achievement.title :rawTitle="$rawTitle" />', [
         'rawTitle' => $data['AchievementTitle'] ?? $data['Title'] ?? '',
-    ]));
+    ]);
+    $sanitizedAchievementTitle = str_replace("\n", '', $renderedAchievementTitle);
+    $sanitizedAchievementTitle = trim(html_entity_decode($sanitizedAchievementTitle, ENT_QUOTES, 'UTF-8'));
+
     $description = $data['AchievementDesc'] ?? $data['Description'] ?? null;
     $achPoints = $data['Points'] ?? null;
     $badgeName = $data['BadgeName'] ?? null;
@@ -91,12 +94,15 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
     $sanitizedGameTitle = str_replace("\n", '', $renderedGameTitle);
     $sanitizedGameTitle = trim(html_entity_decode($sanitizedGameTitle, ENT_QUOTES, 'UTF-8'));
 
+    $titleClassName = '';
     $renderedType = null;
     if ($type) {
         $renderedType = str_replace("\n", '', Blade::render(
             '<x-achievement.thin-type-indicator :type="$type" />',
             ['type' => $type]
         ));
+
+        $titleClassName = 'max-w-[190px]';
     }
 
     $pointsLabel = $achPoints . " " . mb_strtolower(__res('point', (int) $achPoints));
@@ -117,11 +123,9 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
         <div class="tooltip-body flex items-start gap-x-3 p-2 max-w-[400px] w-[400px]">
             <img src="$badgeImgSrc" width="64" height="64" />
 
-            <div class="flex flex-col w-full gap-y-2">
-                <div class="flex justify-between gap-1 w-full -mb-1">
-                    <p class="font-bold mb-1 text-lg leading-5">$title</p>
-                    <div class="-mt-0.5">$renderedType</div>
-                </div>
+            <div class="relative flex flex-col w-full gap-2">
+                <p class="font-bold mb-1 text-lg leading-5 $titleClassName">$sanitizedAchievementTitle</p>
+                <div class="absolute -top-1 -right-1">$renderedType</div>
 
                 <p class="mb-1">$description</p>
 
