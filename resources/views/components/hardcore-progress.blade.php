@@ -11,10 +11,10 @@
     if ($maxProgress > 0) {
         if ($softcoreProgress >= $maxProgress) {
             $softcoreProgressBarWidth = sprintf("%01.2f", ($maxProgress - $hardcoreProgress) * 100 / $maxProgress);
-            $softcoreClass = 'rounded';
+            $softcoreClass = ($hardcoreProgress === 0) ? 'rounded' : 'rounded-r';
         } elseif ($softcoreProgress > 0) {
             $softcoreProgressBarWidth = sprintf("%01.2f", ($softcoreProgress - $hardcoreProgress) * 100 / $maxProgress);
-            $softcoreClass = 'rounded-l';
+            $softcoreClass = ($hardcoreProgress === 0) ? 'rounded-l' : '';
         }
 
         if ($hardcoreProgress >= $maxProgress) {
@@ -26,7 +26,7 @@
         }
     }
 ?>
-<div role="progressbar" aria-valuemin="0" aria-valuemax="100"
+<div role="progressbar" aria-valuemin="0" aria-valuemax="{{ $maxProgress }}"
     title="{{ $softcoreProgress }} of {{ $maxProgress }} unlocked"
     class="w-full h-1 bg-embed rounded flex">
     @if ($hardcoreProgress > 0)
