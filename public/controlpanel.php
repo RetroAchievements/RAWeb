@@ -233,9 +233,9 @@ function confirmEmailChange(event) {
                 </tr>
                 </tbody>
             </table>
-            <span id="loadingicon-1" class="transition-all duration-300 opacity-0 float-right">
-                <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
-                <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500" :alt="$alt" />', ['alt' => 'done']) ?>
+            <span id="loadingicon-1" class="transition-all duration-300 opacity-0 float-right pt-2" aria-hidden="true">
+                <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner h-5 w-5" />') ?>
+                <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />') ?>
             </span>
         </div>
 
@@ -265,9 +265,9 @@ function confirmEmailChange(event) {
                     </td>
                 </tr>
             </table>
-            <span id="loadingicon-2" class="transition-all duration-300 opacity-0 float-right">
-                <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
-                <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500" :alt="$alt" />', ['alt' => 'done']) ?>
+            <span id="loadingicon-2" class="transition-all duration-300 opacity-0 float-right pt-2" aria-hidden="true">
+                <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner h-5 w-5" />') ?>
+                <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />') ?>
             </span>
         </div>
         <?php
@@ -411,9 +411,9 @@ function confirmEmailChange(event) {
                         <td></td>
                         <td>
                             <button class='btn btn-danger' type='button' onclick="ResetProgressForSelection()">Reset Progress for Selection</button>
-                            <span id="loadingiconreset" class="transition-all duration-300 opacity-0 float-right">
-                                <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
-                                <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500" :alt="$alt" />', ['alt' => 'done']) ?>
+                            <span id="loadingiconreset" class="transition-all duration-300 opacity-0 float-right" aria-hidden="true">
+                                <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner h-5 w-5" />') ?>
+                                <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />') ?>
                             </span>
                         </td>
                     </tr>
@@ -574,9 +574,9 @@ function confirmEmailChange(event) {
             </div>
             <div style="margin-bottom: 10px">
                 <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
-                <span id="loadingiconavatar" class="transition-all duration-300 opacity-0 float-right">
-                    <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner" :alt="$alt" />', ['alt' => 'loading icon']) ?>
-                    <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500" :alt="$alt" />', ['alt' => 'done']) ?>
+                <span id="loadingiconavatar" class="transition-all duration-300 opacity-0 float-right pt-1" aria-hidden="true">
+                    <?= Blade::render('<x-fas-spinner class="animate-spin loadingicon-spinner h-5 w-5" />') ?>
+                    <?= Blade::render('<x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />') ?>
                 </span>
             </div>
             <div style="margin-bottom: 10px">

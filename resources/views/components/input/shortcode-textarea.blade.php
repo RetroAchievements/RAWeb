@@ -10,7 +10,7 @@
 $inputEnabled = $enabled ? '' : 'disabled';
 $buttonEnabled = $enabled ? ":disabled='!isValid'" : "disabled";
 
-$loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200" alt="Loading..." />');
+$loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200" aria-hidden="true" />');
 
 ?>
 

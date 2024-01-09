@@ -80,7 +80,7 @@ RenderContentStart("Manage News");
                         <img src="<?= $newsImage ?>" width="470" alt="News header image preview">
                     </div>
                     <input type="file" name="file" id="uploadimagefile" onchange="return UploadImage();">
-                    <?= Blade::render('<x-fas-spinner id="loadingicon" class="animate-spin opacity-0 transition-all duration-200" alt="loading icon" />') ?>
+                    <?= Blade::render('<x-fas-spinner id="loadingicon" class="animate-spin opacity-0 transition-all duration-200" aria-hidden="true" />') ?>
                 </td>
             </tr>
             <tr>

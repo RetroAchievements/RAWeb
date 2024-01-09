@@ -64,7 +64,7 @@ RenderContentStart("Create topic: $thisForumTitle");
     <?php
     echo "</td></tr>";
 
-    $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200" alt="Loading..." />');
+    $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200" aria-hidden="true" />');
 
     echo <<<HTML
         <tr>

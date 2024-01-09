@@ -110,7 +110,7 @@ RenderContentStart($pageTitle);
 
         echo "<tr>";
 
-        echo "<td class='p-1'>" . Blade::render('<x-fas-arrow-alt-circle-right class="h-6 w-6" />') . "</td>";
+        echo "<td class='p-1' aria-hidden='true'>" . Blade::render('<x-fas-arrow-alt-circle-right class="h-6 w-6" />') . "</td>";
         echo "<td><a href='/viewforum.php?f=$nextForumID'>$nextForumTitle</a><br>";
         echo "$nextForumDesc</td>";
         echo "<td>" . localized_number($nextForumNumTopics) . "</td>";
