@@ -13,6 +13,7 @@ use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use stdClass;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -173,8 +174,8 @@ class UserSummaryTest extends TestCase
                     'data2' => null,
                 ],
                 'Status' => 'Offline',
-                'Awarded' => [],
-                'RecentAchievements' => [],
+                'Awarded' => json_encode(new stdClass()),
+                'RecentAchievements' => json_encode(new stdClass()),
             ]);
 
         // request more games than are available
