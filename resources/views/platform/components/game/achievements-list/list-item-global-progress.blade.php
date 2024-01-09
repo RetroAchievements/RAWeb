@@ -52,12 +52,12 @@ if ($totalPlayerCount > 0) {
     aria-valuemax="100"
     aria-valuenow="{{ $unlockRate }}"
     aria-labelledby="progress-label-{{ $achievement['ID'] }}"
-    class="w-full h-1 bg-zinc-950 light:bg-zinc-300 rounded flex space-x-px"
+    class="w-full h-1 bg-zinc-950 light:bg-zinc-300 rounded flex space-x-px overflow-hidden"
 >
     {{-- Hardcore completion --}}
     <div
         style="width: {{ $hardcoreProgressBarWidth }}%"
-        class="bg-gradient-to-r from-amber-500 to-[gold] light:bg-yellow-500 h-full {{ $hardcoreProgressBarWidth > 0 ? "rounded-l" : "" }}"
+        class="bg-gradient-to-r from-amber-500 to-[gold] light:bg-yellow-500 h-full"
     >
         <span class="sr-only">
             {{ $hardcoreProgressBarWidth }}% of players have earned the achievement in hardcore mode
@@ -67,7 +67,7 @@ if ($totalPlayerCount > 0) {
     {{-- Softcore completion --}}
     <div
         style="width: {{ $softcoreProgressBarWidth }}%"
-        class="bg-neutral-500 h-full {{ $hardcoreProgressBarWidth === 0 ? "rounded-l" : "" }}"
+        class="bg-neutral-500 h-full"
     >
         <span class="sr-only">
             {{ $softcoreUnlockRate }}% of players have earned the achievement in softcore mode
