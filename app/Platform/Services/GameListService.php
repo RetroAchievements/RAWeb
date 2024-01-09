@@ -9,7 +9,6 @@ use App\Community\Enums\UserGameListType;
 use App\Community\Models\Ticket;
 use App\Community\Models\UserGameListEntry;
 use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,15 +25,15 @@ class GameListService
     public array $games = [];
     public ?array $userProgress = null;
 
-    public function initializeUserProgress(?User $user, array $gameIDs): void
+    public function initializeUserProgress(?User $user, array $gameIds): void
     {
         $this->userProgress = null;
         if (!$user) {
             return;
         }
 
-        $this->userProgress = PlayerGame::where('user_id', $user->id)
-            ->whereIn('game_id', $gameIDs)
+        $this->userProgress = $user->playerGames()
+            ->whereIn('game_id', $gameIds)
             ->get(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
             ->mapWithKeys(function ($row, $key) {
                 return [$row['game_id'] => [
@@ -45,12 +44,12 @@ class GameListService
             ->toArray();
     }
 
-    public function initializeGameList(array $gameIDs): void
+    public function initializeGameList(array $gameIds): void
     {
         if ($this->withTicketCounts) {
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
                 ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
-                ->whereIn('Achievements.GameID', $gameIDs)
+                ->whereIn('Achievements.GameID', $gameIds)
                 ->select(['GameID',
                     DB::raw('COUNT(Ticket.ID) AS NumTickets'),
                 ])
@@ -66,7 +65,7 @@ class GameListService
             $gameTicketsList = [];
         }
 
-        $gameModels = Game::whereIn('ID', $gameIDs)
+        $gameModels = Game::whereIn('ID', $gameIds)
             ->whereNotIn('ConsoleID', System::getNonGameSystems())
             ->orderBy('Title')
             ->select([
@@ -82,7 +81,8 @@ class GameListService
 
         $this->consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
             ->orderBy('Name')
-            ->get();
+            ->get()
+            ->keyBy('ID');
 
         $this->games = [];
         foreach ($gameModels as &$gameModel) {
@@ -105,7 +105,7 @@ class GameListService
 
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
-            $game['ConsoleName'] = $this->consoles->firstWhere('ID', $game['ConsoleID'])->Name;
+            $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->Name;
             $game['SortTitle'] = $game['Title'];
             if (substr($game['Title'], 0, 1) == '~') {
                 $tilde = strrpos($game['Title'], '~');
@@ -123,14 +123,10 @@ class GameListService
         $countAfter = count($this->games);
 
         if ($countAfter < $countBefore) {
-            $this->consoles = $this->consoles->filter(function ($console) {
-                foreach ($this->games as $game) {
-                    if ($game['ConsoleID'] == $console['ID']) {
-                        return true;
-                    }
-                }
+            $allConsoleIds = collect($this->games)->pluck('ConsoleID')->unique();
 
-                return false;
+            $this->consoles = $this->consoles->filter(function ($console) use ($allConsoleIds) {
+                return $allConsoleIds->contains($console->ID);
             });
         }
     }
