@@ -7,7 +7,6 @@ namespace App\Platform\Models;
 use App\Community\Concerns\DiscussedInForum;
 use App\Community\Concerns\HasGameCommunityFeatures;
 use App\Community\Contracts\HasComments;
-use App\Community\Models\Rating;
 use App\Platform\Enums\AchievementFlag;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
@@ -300,14 +299,6 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function hashes(): HasMany
     {
         return $this->hasMany(GameHash::class, 'GameID');
-    }
-
-    /**
-     * @return HasMany<Rating>
-     */
-    public function ratings(): HasMany
-    {
-        return $this->hasMany(Rating::class, 'RatingID');
     }
 
     // == scopes
