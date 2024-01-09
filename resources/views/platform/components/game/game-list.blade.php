@@ -23,9 +23,7 @@
         $totals = [];
         foreach ($columns as $column) {
             if (array_key_exists('javascript', $column)) {
-                echo "\n<script>\n";
                 $column['javascript']();
-                echo "\n</script>\n";
             }
             if (array_key_exists('tally', $column)) {
                 $totals[$column['header']] = 0;

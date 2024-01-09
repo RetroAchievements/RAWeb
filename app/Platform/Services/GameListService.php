@@ -408,7 +408,7 @@ class GameListService
                     $hardcoreProgress = $gameProgress['achievements_unlocked_hardcore'] ?? 0;
                     $tooltip = "$softcoreProgress of {$game['achievements_published']} unlocked";
 
-                    echo '<td>';
+                    echo '<td class="text-center">';
                     echo Blade::render('
                         <x-hardcore-progress
                             :softcoreProgress="$softcoreProgress"
@@ -435,52 +435,20 @@ class GameListService
             'tooltip' => 'Whether or not the game is on your want to play list',
             'align' => 'center',
             'javascript' => function () {
-                $addButtonTooltip = __('user-game-list.play.add');
-                $removeButtonTooltip = __('user-game-list.play.remove');
-
-                echo <<<EOL
-                function togglePlayListItem(id)
-                {
-                    $.post('/request/user-game-list/toggle.php', {
-                        type: 'play',
-                        game: id
-                    })
-                    .done(function () {
-                        $("#add-to-list-" + id).toggle();
-                        $("#remove-from-list-" + id).toggle();
-                        if ($("#add-to-list-" + id).is(':visible')) {
-                            $("#play-list-button-" + id).prop('title', '$addButtonTooltip');
-                        } else {
-                            $("#play-list-button-" + id).prop('title', '$removeButtonTooltip');
-                        }
-                    });
-                }
-                EOL;
+                echo Blade::render('
+                    <x-game-list-item.backlog-button-javascript />
+                ');
             },
             'render' => function ($game) {
-                $addVisibility = '';
-                $removeVisibility = '';
-                if ($game['WantToPlay'] ?? false) {
-                    $addVisibility = ' class="hidden"';
-                    $buttonTooltip = __('user-game-list.play.remove');
-                } else {
-                    $removeVisibility = ' class="hidden"';
-                    $buttonTooltip = __('user-game-list.play.add');
-                }
-
                 echo '<td class="text-center">';
-                echo '<button id="play-list-button-' . $game['ID'] . '" class="btn" type="button"';
-                echo ' title="' . $buttonTooltip . '"';
-                echo ' onClick="togglePlayListItem(' . $game['ID'] . ')">';
-                echo '<div class="flex items-center gap-x-1">';
-                echo '<div id="add-to-list-' . $game['ID'] . '"' . $addVisibility . '>';
-                echo Blade::render('<x-fas-plus class="-mt-0.5 w-[12px] h-[12px]" />');
-                echo '</div>';
-                echo '<div id="remove-from-list-' . $game['ID'] . '"' . $removeVisibility . '>';
-                echo Blade::render('<x-fas-check class="-mt-0.5 w-[12px] h-[12px]" />');
-                echo '</div>';
-                echo '</div>';
-                echo '</button';
+                echo Blade::render('
+                    <x-game-list-item.backlog-button
+                        :gameId="$gameId"
+                        :isOnBacklog="$isOnBacklog"
+                    />', [
+                        'gameId' => $game['ID'],
+                        'isOnBacklog' => $game['WantToPlay'] ?? false,
+                    ]);
                 echo '</td>';
             },
         ];
