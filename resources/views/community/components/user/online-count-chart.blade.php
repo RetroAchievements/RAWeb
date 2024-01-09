@@ -81,7 +81,7 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
             legend: { position: 'none' },
             chartArea: {
                 left: '6%',
-                right: '1%',
+                right: '2%',
                 'width': '100%',
                 'height': '78%'
             },
