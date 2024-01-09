@@ -122,8 +122,7 @@ function getAchievementUnlocksData(
     ?int &$numPossibleWinners,
     ?int $parentGameId = null,
     int $offset = 0,
-    int $limit = 50,
-    bool $includeUntrackedUsers = true
+    int $limit = 50
 ): Collection {
 
     $achievement = Achievement::firstWhere('ID', $achievementId);
@@ -138,9 +137,6 @@ function getAchievementUnlocksData(
     // Get recent winners, and their most recent activity
     return PlayerAchievement::where('achievement_id', $achievementId)
         ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
-        ->when(!$includeUntrackedUsers, function ($q) {
-            return $q->where('UserAccounts.Untracked', false);
-        })
         ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
         ->select(['UserAccounts.User', 'UserAccounts.RAPoints', 'unlocked_at', 'unlocked_hardcore_at'])
         ->offset($offset)

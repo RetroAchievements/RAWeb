@@ -72,9 +72,16 @@ $unlocks = getAchievementUnlocksData(
     $numPossibleWinners,
     $parentGameID,
     0,
-    50,
-    false
+    50
 );
+
+$trackedUnlocksUsers = User::whereIn('User', $unlocks->pluck('User')->unique())
+    ->where('Untracked', false)
+    ->pluck('User');
+
+$unlocks = $unlocks->filter(function ($unlock) use ($trackedUnlocksUsers) {
+    return $trackedUnlocksUsers->contains($unlock['User']);
+});
 
 $dataOut['NumAwarded'] = $numWinners;
 $dataOut['NumAwardedHardcore'] = $numWinnersHardcore;
