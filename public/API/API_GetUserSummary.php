@@ -122,8 +122,8 @@ if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['system']);
 } elseif ($recentGamesPlayed === 0) {
     // if no games were requested, initialize empty objects for Awarded and RecentAchievements
-    $retVal['Awarded'] = json_encode(new stdClass());
-    $retVal['RecentAchievements'] = json_encode(new stdClass());
+    $retVal['Awarded'] = new ArrayObject();
+    $retVal['RecentAchievements'] = new ArrayObject();
 }
 
 $retVal['LastActivity'] = [

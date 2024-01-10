@@ -13,7 +13,6 @@ use App\Platform\Models\System;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use stdClass;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
 
@@ -174,9 +173,9 @@ class UserSummaryTest extends TestCase
                     'data2' => null,
                 ],
                 'Status' => 'Offline',
-                'Awarded' => json_encode(new stdClass()),
-                'RecentAchievements' => json_encode(new stdClass()),
-            ]);
+            ])
+            ->assertSee('"Awarded":{},', false)
+            ->assertSee('"RecentAchievements":{},', false);
 
         // request more games than are available
         $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User, 'g' => 5]))
