@@ -1,5 +1,6 @@
 <?php
 
+use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
@@ -102,7 +103,13 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
             ['type' => $type]
         ));
 
-        $titleClassName = 'max-w-[190px]';
+        if ($type === AchievementType::WinCondition) {
+            $titleClassName = 'max-w-[190px]';
+        } elseif ($type === AchievementType::Missable) {
+            $titleClassName = 'max-w-[226px]';
+        } else {
+            $titleClassName = 'max-w-[210px]';
+        }
     }
 
     $pointsLabel = $achPoints . " " . mb_strtolower(__res('point', (int) $achPoints));
