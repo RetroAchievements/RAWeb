@@ -72,7 +72,10 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
         var optionsTotalScore = {
             backgroundColor: 'transparent',
             titleTextStyle: { color: '#186DEE' }, // cc9900
-            hAxis: { textStyle: { color: '#186DEE' } },
+            hAxis: { 
+                textStyle: { color: '#186DEE' },
+                showTextEvery: 2,
+            },
             vAxis: {
                 textStyle: { color: '#186DEE' },
                 viewWindow: { min: 0 },
