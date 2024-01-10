@@ -7,6 +7,7 @@ use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
+use App\Platform\Models\PlayerAchievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use App\Support\Media\FilenameIterator;
@@ -27,6 +28,7 @@ $response = ['Success' => true];
 $requestType = request()->input('r');
 $username = request()->input('u');
 $token = request()->input('t');
+$delegateTo = request()->input('k');
 $achievementID = (int) request()->input('a', 0);  // Keep in mind, this will overwrite anything given outside these params!!
 $gameID = (int) request()->input('g', 0);
 $offset = (int) request()->input('o', 0);
@@ -37,6 +39,9 @@ $permissions = null;
 if (!empty($token)) {
     $validLogin = authenticateFromAppToken($username, $token, $permissions);
 }
+
+/** @var ?User $foundDelegateToUser */
+$foundDelegateToUser = null;
 
 /** @var ?User $user */
 $user = request()->user('connect-token');
@@ -81,6 +86,7 @@ $credentialsOK = match ($requestType) {
      */
     "achievementwondata",
     "awardachievement",
+    "awardachievements",
     "getfriendlist",
     "patch",
     "ping",
@@ -112,6 +118,56 @@ if (!$credentialsOK) {
     }
 
     return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
+}
+
+/*
+ * It is possible for some calls to be made on behalf of another user.
+ * This is only currently supported for "Standalone" integrations.
+ * NOTE: "awardachievements" is not included here because it accepts an array of
+ * achievement ID values. It doesn't use the generic `delegateUserAction()` function.
+ */
+$allowsGenericDelegation = [
+    "awardachievement",
+    "ping",
+    "startsession",
+];
+if (
+    in_array($requestType, $allowsGenericDelegation)
+    && $delegateTo !== null
+    && ($gameID || $achievementID)
+) {
+    if (request()->method() !== 'POST') {
+        return DoRequestError('Access denied.', 405, 'access_denied');
+    }
+
+    $foundDelegateToUser = User::firstWhere('User', $delegateTo);
+    if (!$foundDelegateToUser) {
+        return DoRequestError("The target user couldn't be found.", 404, 'not_found');
+    }
+
+    if ($gameID) {
+        $game = Game::find($gameID);
+
+        if (!$game) {
+            return DoRequestError("The target game couldn't be found.", 404, 'not_found');
+        } elseif (!$game->getCanDelegateActivity($user)) {
+            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
+        }
+    }
+
+    if ($achievementID) {
+        $achievement = Achievement::find($achievementID);
+
+        if (!$achievement) {
+            return DoRequestError("The target achievement couldn't be found.", 404, 'not_found');
+        } elseif (!$achievement->getCanDelegateUnlocks($user)) {
+            return DoRequestError("You do not have permission to do that.", 403, 'access_denied');
+        }
+    }
+
+    // Replace the initiating user's properties with those of the user being delegated.
+    $user = $foundDelegateToUser;
+    $username = $delegateTo;
 }
 
 switch ($requestType) {
@@ -257,16 +313,31 @@ switch ($requestType) {
     case "awardachievement":
         $achIDToAward = (int) request()->input('a', 0);
         $hardcore = (bool) request()->input('h', 0);
+        $validationHash = request()->input('v');
 
-        /**
-         * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
-         * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
-         */
-        $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
+        $foundAchievement = Achievement::where('ID', $achIDToAward)->first();
+        if ($foundAchievement !== null) {
+            if (
+                $delegateTo
+                && strcasecmp(
+                    $validationHash,
+                    $foundAchievement->unlockValidationHash($foundDelegateToUser, (int) $hardcore)
+                ) !== 0
+            ) {
+                return DoRequestError('Access denied.', 403, 'access_denied');
+            }
 
-        if (Achievement::where('ID', $achIDToAward)->exists()) {
+            /**
+             * Prefer later values, i.e. allow AddEarnedAchievementJSON to overwrite the 'success' key
+             * TODO refactor to optimistic update without unlock in place. what are the returned values used for?
+             */
+            $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
+
             dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
                 ->onQueue('player-achievements');
+        } else {
+            $response['Error'] = "Data not found for achievement {$achIDToAward}";
+            $response['Success'] = false;
         }
 
         if (empty($response['Score'])) {
@@ -275,6 +346,103 @@ switch ($requestType) {
         }
 
         $response['AchievementID'] = $achIDToAward;
+        break;
+
+    // This is only currently supported for "Standalone" integrations.
+    case "awardachievements":
+        if (request()->method() !== 'POST') {
+            return DoRequestError('Access denied.', 405, 'access_denied');
+        }
+
+        $achievementIdsInput = request()->post('a', '');
+        $hardcore = (bool) request()->post('h', 'false');
+        $validationHash = request()->post('v');
+
+        if (!$delegateTo) {
+            return DoRequestError("You must specify a target user.", 400);
+        }
+
+        if (strcasecmp($validationHash, md5($achievementIdsInput . $delegateTo . $hardcore)) !== 0) {
+            return DoRequestError('Access denied.', 403, 'access_denied');
+        }
+
+        $targetUser = User::firstWhere('User', $delegateTo);
+        if (!$targetUser) {
+            return DoRequestError("The target user couldn't be found.", 404, 'not_found');
+        }
+
+        $achievementIdsArray = explode(',', $achievementIdsInput);
+        $filteredAchievementIds = array_filter($achievementIdsArray, function ($id) {
+            return filter_var($id, FILTER_VALIDATE_INT) !== false;
+        });
+
+        // Fetch all achievements already awarded to the user.
+        $foundPlayerAchievements = PlayerAchievement::whereIn('achievement_id', $achievementIdsArray)
+            ->where('user_id', $targetUser->id)
+            ->with('achievement')
+            ->get();
+
+        $alreadyAwardedIds = [];
+
+        // Filter out achievements based on the hardcore flag and existing unlocks.
+        $filteredAchievementIds = array_filter($achievementIdsArray, function ($id) use (&$alreadyAwardedIds, $user, $foundPlayerAchievements, $hardcore) {
+            $foundPlayerAchievement = $foundPlayerAchievements->firstWhere('achievement_id', $id);
+
+            if ($foundPlayerAchievement) {
+                // Case 1: The achievement was already unlocked in hardcore mode.
+                if ($hardcore && $foundPlayerAchievement->unlocked_hardcore_at !== null) {
+                    $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
+
+                    return false;
+                }
+
+                // Case 2: The achievement was already unlocked in softcore mode, and a hardcore unlock is being requested.
+                if (
+                    $hardcore
+                    && $foundPlayerAchievement->unlocked_hardcore_at === null
+                    && $foundPlayerAchievement->achievement->getCanDelegateUnlocks($user)
+                ) {
+                    return true;
+                }
+
+                // Case 3: The achievement was already unlocked in either mode, and a softcore unlock is being requested.
+                if (!$hardcore) {
+                    $alreadyAwardedIds[] = $foundPlayerAchievement->achievement_id;
+
+                    return false;
+                }
+
+                // Case 4: The caller can't delegate an unlock.
+                if (!$foundPlayerAchievement->achievement->getCanDelegateUnlocks($user)) {
+                    return false;
+                }
+            }
+
+            // If no PlayerAchievement record exists for this ID, it's eligible for awarding if the user can delegate it.
+            return Achievement::find($id)->getCanDelegateUnlocks($user);
+        });
+
+        $awardableAchievements = Achievement::whereIn('ID', $filteredAchievementIds)
+            ->with('game')
+            ->get();
+
+        $newAwardedIds = [];
+        foreach ($awardableAchievements as $achievement) {
+            $unlockAchievementResult = unlockAchievement($targetUser, $achievement->id, $hardcore);
+
+            if (!isset($unlockAchievementResult['Error'])) {
+                dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
+                    ->onQueue('player-achievements');
+
+                $newAwardedIds[] = $achievement->id;
+            }
+        }
+
+        $response['Score'] = $targetUser->RAPoints;
+        $response['SoftcoreScore'] = $targetUser->RASoftcorePoints;
+        $response['ExistingIDs'] = $alreadyAwardedIds;
+        $response['SuccessfulIDs'] = $newAwardedIds;
+
         break;
 
     case "getfriendlist":
