@@ -243,20 +243,26 @@ class UserGameListTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create();
         Achievement::factory()->published()->create(['GameID' => $game2->ID]);
+        /** @var Game $game3 */
+        $game3 = Game::factory()->create();
 
         $action = new AddGameToListAction();
         $userGameListEntry1 = $action->execute($user, $game1, UserGameListType::AchievementSetRequest);
         $userGameListEntry2 = $action->execute($user, $game2, UserGameListType::AchievementSetRequest);
+        $userGameListEntry3 = $action->execute($user, $game3, UserGameListType::AchievementSetRequest);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry1);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry2);
+        $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry3);
 
         $this->assertEquals($user->gameList(UserGameListType::AchievementSetRequest)->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry2->id, 'User' => $user->User, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
+            ['id' => $userGameListEntry3->id, 'User' => $user->User, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
         ]);
 
         $this->assertEquals($user->gameList(UserGameListType::AchievementSetRequest)->withoutAchievements()->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'User' => $user->User, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
+            ['id' => $userGameListEntry3->id, 'User' => $user->User, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
         ]);
     }
 }

@@ -80,6 +80,11 @@ class System extends BaseModel implements HasMedia
         return [System::Arduboy, System::WASM4, System::Uzebox];
     }
 
+    public static function getNonGameSystems(): array
+    {
+        return [System::Hubs, System::Events];
+    }
+
     public static function isGameSystem(int $type): bool
     {
         return $type != System::Hubs && $type != System::Events;
