@@ -44,7 +44,7 @@ $consoleID = $lbData['ConsoleID'];
 $consoleName = $lbData['ConsoleName'];
 $forumTopicID = $lbData['ForumTopicID'];
 
-$pageTitle = "Leaderboard: $lbTitle ($gameTitle)";
+$pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
 $numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, $commentData);
@@ -72,13 +72,14 @@ function ExplainLeaderboardTrigger(string $name, string $triggerDef, array $code
     echo "</div>"; // devbox
 }
 
+$openGraphDescription = ($lbDescription ?? $lbTitle) . ", $numEntries entries.";
+
 RenderOpenGraphMetadata(
     $pageTitle,
     "Leaderboard",
     media_asset($gameIcon),
-    "Leaderboard: $lbTitle ($gameTitle, $consoleName): "
+    $openGraphDescription
 );
-RenderContentStart('Leaderboard');
 ?>
 <article>
     <div id="lbinfo">
