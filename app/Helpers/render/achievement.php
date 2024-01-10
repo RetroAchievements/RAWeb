@@ -119,7 +119,7 @@ function renderAchievementCard(int|string|array $achievement, ?string $context =
 
             <div class="flex flex-col w-full gap-y-2">
                 <div class="flex justify-between gap-1 w-full -mb-1">
-                    <p class="font-bold mb-1 text-lg leading-5">$title</p>
+                    <p class="font-bold mb-1 text-lg leading-5 [word-break:break-word]">$title</p>
                     <div class="-mt-0.5">$renderedType</div>
                 </div>
 

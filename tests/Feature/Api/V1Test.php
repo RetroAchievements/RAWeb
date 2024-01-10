@@ -325,7 +325,13 @@ class V1Test extends TestCase
     public function testGetFeed(): void
     {
         $this->get($this->apiUrl('GetFeed'))
-            ->assertStatus(501);
+            ->assertStatus(410);
+    }
+
+    public function testGetGameRating(): void
+    {
+        $this->get($this->apiUrl('GetGameRating'))
+            ->assertStatus(410);
     }
 
     // public function testGetGame(): void
@@ -369,15 +375,6 @@ class V1Test extends TestCase
     //     // TODO
     //
     //     $this->get($this->apiUrl('GetGameRankAndScore'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetGameRating(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetGameRating'))
     //         ->assertSuccessful()
     //         ->assertExactJson([]);
     // }
