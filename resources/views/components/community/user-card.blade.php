@@ -15,7 +15,7 @@
         <p class="font-bold text-lg -mt-1 {{ $useExtraNamePadding ? "pt-3" : "" }}">{{ $username }}</p>
 
         <!-- Motto -->
-        @if($motto !== null && mb_strlen($motto) > 2)
+        @if($motto !== null)
             <div class="mb-1 rounded bg-bg text-text italic p-1 text-2xs hyphens-auto">
                 <p style="word-break: break-word;">{{ $motto }}</p>
             </div>
