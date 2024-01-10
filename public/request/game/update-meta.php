@@ -31,8 +31,7 @@ if ($permissions === Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($use
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (modifyGameData($user, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['release'], $input['guide_url'])
-) {
+if (modifyGameData($user, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['release'], $input['guide_url'])) {
     return back()->with('success', __('legacy.success.update'));
 }
 
