@@ -187,8 +187,8 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                             id="comment_textarea_$commentId"
                             x-on:input="autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 2000;"
                         ></textarea>
-                        <button class="btn comment-submit-button" :disabled="!isValid" aria-label="Post comment" title="Post comment">
-                            $submitImage
+                        <button class="btn h-9 ml-2" :disabled="!isValid" aria-label="Post comment" title="Post comment">
+                            Submit
                         </button>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>

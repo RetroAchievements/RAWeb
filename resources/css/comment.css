@@ -7,11 +7,6 @@
   font-size: 1.1em;
 }
 
-.comment-submit-button {
-  background: none;
-  border: 1px solid transparent;
-}
-
 .comment.system {
   color: var(--text-color-muted);
   font-size: smaller;
