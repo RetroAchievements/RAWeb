@@ -164,7 +164,6 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
-    $submitImage = Blade::render('<x-fas-square-plus class="w-5 h-5" />');
     $csrfField = csrf_field();
     $avatar = media_asset("/UserPic/$user.png");
 
