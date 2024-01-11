@@ -74,6 +74,8 @@ Especially if it's something that can be reused.
 
 This is not a Single Page Application.
 
+Avoid inline styles and custom CSS unless there's a compelling reason. The project uses [TailwindCSS](https://tailwindcss.com/docs) and it should cover most styling needs.
+
 JavaScript kept vanilla and to a minimum - most dynamic features use Laravel LiveWire and/or Alpine.js.
 
 **Routes**

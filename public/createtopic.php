@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
@@ -63,7 +64,7 @@ RenderContentStart("Create topic: $thisForumTitle");
     <?php
     echo "</td></tr>";
 
-    $loadingIconSrc = asset('assets/images/icon/loading.gif');
+    $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200" aria-hidden="true" />');
 
     echo <<<HTML
         <tr>
@@ -73,7 +74,7 @@ RenderContentStart("Create topic: $thisForumTitle");
                     <div class="textarea-counter text-right" data-textarea-id="commentTextarea"></div>
 
                     <div>
-                        <img id="preview-loading-icon" src="$loadingIconSrc" style="opacity: 0;" width="16" height="16" alt="Loading...">
+                        $loadingIcon
                         <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" :disabled="!isValid">Preview</button>
                         <button class="btn" :disabled="!isValid">Submit new topic</button>
                     </div>
