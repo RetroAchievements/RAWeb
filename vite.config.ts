@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin as VitePlugin } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { existsSync, readFileSync } from 'fs';
 import { homedir } from 'os';
@@ -22,19 +22,16 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
-      assetsInlineLimit: 4096
+      assetsInlineLimit: 4096,
     },
     // https://vitejs.dev/config/#plugins
     plugins: [
       laravel({
-        input: [
-          'resources/css/app.css',
-          'resources/js/app.ts',
-        ],
-        refresh: [
-          'resources/views/**'
-        ]
+        input: ['resources/css/app.css', 'resources/js/app.ts'],
+        refresh: ['resources/views/**'],
       }),
+
+      sourcemapExclude({ excludeNodeModules: true }),
     ],
     resolve: {
       alias: {
@@ -45,7 +42,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       setupFiles: 'resources/js/setupTests.ts',
-      include: ['resources/js/**/*.{test,spec}.ts']
+      include: ['resources/js/**/*.{test,spec}.ts'],
     },
     // @ see https://vitejs.dev/config/#server-options
     server: detectServerConfig(env),
@@ -56,11 +53,7 @@ function detectServerConfig(env) {
   const watch = {
     // Explicitly ignore large volume directories to prevent running into system-level limits
     // See https://vitejs.dev/config/server-options.html#server-watch
-    ignored: [
-      '**/public/**',
-      '**/storage/**',
-      '**/vendor/**',
-    ],
+    ignored: ['**/public/**', '**/storage/**', '**/vendor/**'],
   };
 
   const { host } = new URL(env.APP_URL);
@@ -83,6 +76,29 @@ function detectServerConfig(env) {
     https: {
       key: readFileSync(keyPath),
       cert: readFileSync(certificatePath),
+    },
+  };
+}
+
+interface SourcemapExcludeProps {
+  excludeNodeModules: boolean;
+}
+
+/**
+ * @see https://github.com/vitejs/vite/issues/2433
+ */
+function sourcemapExclude(props?: Partial<SourcemapExcludeProps>): VitePlugin {
+  return {
+    name: 'sourcemap-exclude',
+    transform(code: string, id: string) {
+      if (props?.excludeNodeModules && id.includes('node_modules')) {
+        return {
+          code,
+          map: { mappings: '' },
+        };
+      }
+
+      return null;
     },
   };
 }
