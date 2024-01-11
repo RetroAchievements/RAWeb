@@ -173,9 +173,9 @@ class UserSummaryTest extends TestCase
                     'data2' => null,
                 ],
                 'Status' => 'Offline',
-                'Awarded' => [],
-                'RecentAchievements' => [],
-            ]);
+            ])
+            ->assertSee('"Awarded":{},', false)
+            ->assertSee('"RecentAchievements":{},', false);
 
         // request more games than are available
         $this->get($this->apiUrl('GetUserSummary', ['u' => $user->User, 'g' => 5]))
