@@ -3,15 +3,15 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimType;
-use App\Community\Enums\RatingType;
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
+use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Services\GameListService;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
@@ -78,12 +78,17 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
 $relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
 $gameAlts = [];
 $gameHubs = [];
+$gameEvents = [];
 $gameSubsets = [];
 $subsetPrefix = $gameData['Title'] . " [Subset - ";
 foreach ($relatedGames as $gameAlt) {
     if ($gameAlt['ConsoleName'] == 'Hubs') {
         $gameHubs[] = $gameAlt;
     } else {
+        if ($gameAlt['ConsoleName'] == 'Events') {
+            $gameEvents[] = $gameAlt;
+        }
+
         if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
             $gameSubsets[] = $gameAlt;
         } else {
@@ -266,9 +271,6 @@ if ($isFullyFeaturedGame) {
 
     $claimData = getClaimData($gameID, true);
 }
-
-$gameRating = getGameRating($gameID, $user);
-$minimumNumberOfRatingsToDisplay = 5;
 
 sanitize_outputs(
     $gameTitle,
@@ -581,186 +583,6 @@ sanitize_outputs(
         }
         </script>
     <?php endif ?>
-
-    <script>
-    var lastKnownAchRating = <?= $gameRating[RatingType::Achievement]['AverageRating'] ?>;
-    var lastKnownGameRating = <?= $gameRating[RatingType::Game]['AverageRating'] ?>;
-    var lastKnownAchRatingCount = <?= $gameRating[RatingType::Achievement]['RatingCount'] ?>;
-    var lastKnownGameRatingCount = <?= $gameRating[RatingType::Game]['RatingCount'] ?>;
-
-    function SetLitStars(container, numStars) {
-        $(container + ' a').removeClass('starlit');
-        $(container + ' a').removeClass('starhalf');
-
-        if (numStars >= 0.5) {
-            $(container + ' a:first-child').addClass('starhalf');
-        }
-        if (numStars >= 1.5) {
-            $(container + ' a:first-child + a').addClass('starhalf');
-        }
-        if (numStars >= 2.5) {
-            $(container + ' a:first-child + a + a').addClass('starhalf');
-        }
-        if (numStars >= 3.5) {
-            $(container + ' a:first-child + a + a + a').addClass('starhalf');
-        }
-        if (numStars >= 4.5) {
-            $(container + ' a:first-child + a + a + a + a').addClass('starhalf');
-        }
-
-        if (numStars >= 1) {
-            $(container + ' a:first-child').removeClass('starhalf');
-            $(container + ' a:first-child').addClass('starlit');
-        }
-
-        if (numStars >= 2) {
-            $(container + ' a:first-child + a').removeClass('starhalf');
-            $(container + ' a:first-child + a').addClass('starlit');
-        }
-
-        if (numStars >= 3) {
-            $(container + ' a:first-child + a + a').removeClass('starhalf');
-            $(container + ' a:first-child + a + a').addClass('starlit');
-        }
-
-        if (numStars >= 4) {
-            $(container + ' a:first-child + a + a + a').removeClass('starhalf');
-            $(container + ' a:first-child + a + a + a').addClass('starlit');
-        }
-
-        if (numStars >= 5) {
-            $(container + ' a:first-child + a + a + a + a').removeClass('starhalf');
-            $(container + ' a:first-child + a + a + a + a').addClass('starlit');
-        }
-    }
-
-    function UpdateRating(container, label, rating, raters) {
-        const pluralizeVotes = (count) => count === 1 ? 'vote' : 'votes';
-        if (raters < <?= $minimumNumberOfRatingsToDisplay ?>) {
-            SetLitStars(container, 0);
-            label.html(`More ratings needed (${raters} ${pluralizeVotes(raters)})`);
-        } else {
-            SetLitStars(container, rating);
-            label.html(`Rating: ${rating.toFixed(2)} (${raters} ${pluralizeVotes(raters)})`);
-        }
-    }
-
-    function UpdateRatings() {
-        UpdateRating('#ratinggame', $('.ratinggamelabel'), lastKnownGameRating, lastKnownGameRatingCount);
-        UpdateRating('#ratingach', $('.ratingachlabel'), lastKnownAchRating, lastKnownAchRatingCount);
-    }
-
-    function SubmitRating(gameID, ratingObjectType, value) {
-        $.post('/request/game/update-rating.php', {
-            game: gameID,
-            type: ratingObjectType,
-            rating: value
-        })
-            .done(function () {
-                $.post('/request/game/rating.php', {
-                    game: gameID,
-                })
-                    .done(function (results) {
-                        lastKnownGameRating = parseFloat(results.Ratings['Game']);
-                        lastKnownAchRating = parseFloat(results.Ratings['Achievements']);
-                        lastKnownGameRatingCount = results.Ratings['GameNumVotes'];
-                        lastKnownAchRatingCount = results.Ratings['AchievementsNumVotes'];
-
-                        UpdateRatings();
-
-                        const pluralizeStarCount = (count) => count === 1 ? 'star' : 'stars';
-                        if (ratingObjectType == <?= RatingType::Game ?>) {
-                            index = ratinggametooltip.indexOf('Your rating: ') + 13;
-                            index2 = ratinggametooltip.indexOf('</td>', index);
-                            ratinggametooltip = ratinggametooltip.substring(0, index) + value + ` ${pluralizeStarCount(value)}` + '<br><i>Distribution may have changed</i>' + ratinggametooltip.substring(index2);
-                        } else {
-                            index = ratingachtooltip.indexOf('Your rating: ') + 13;
-                            index2 = ratingachtooltip.indexOf('</td>', index);
-                            ratingachtooltip = ratingachtooltip.substring(0, index) + value + ` ${pluralizeStarCount(value)}` + '<br><i>Distribution may have changed</i>' + ratingachtooltip.substring(index2);
-                        }
-                    });
-            });
-    }
-
-    $(function () {
-        $('.starimg').hover(
-            function () {
-                // On hover
-
-                if ($(this).parent().is($('#ratingach'))) {
-                    // Ach:
-                    var numStars = 0;
-                    if ($(this).hasClass('1star')) {
-                        numStars = 1;
-                    } else if ($(this).hasClass('2star')) {
-                        numStars = 2;
-                    } else if ($(this).hasClass('3star')) {
-                        numStars = 3;
-                    } else if ($(this).hasClass('4star')) {
-                        numStars = 4;
-                    } else if ($(this).hasClass('5star')) {
-                        numStars = 5;
-                    }
-
-                    SetLitStars('#ratingach', numStars);
-                } else {
-                    // Game:
-                    var numStars = 0;
-                    if ($(this).hasClass('1star')) {
-                        numStars = 1;
-                    } else if ($(this).hasClass('2star')) {
-                        numStars = 2;
-                    } else if ($(this).hasClass('3star')) {
-                        numStars = 3;
-                    } else if ($(this).hasClass('4star')) {
-                        numStars = 4;
-                    } else if ($(this).hasClass('5star')) {
-                        numStars = 5;
-                    }
-
-                    SetLitStars('#ratinggame', numStars);
-                }
-            });
-
-        $('.rating').hover(
-            function () {
-                // On hover
-            },
-            function () {
-                // On leave
-                UpdateRatings();
-            });
-
-        $('.starimg').click(function () {
-
-            var numStars = 0;
-            if ($(this).hasClass('1star')) {
-                numStars = 1;
-            } else if ($(this).hasClass('2star')) {
-                numStars = 2;
-            } else if ($(this).hasClass('3star')) {
-                numStars = 3;
-            } else if ($(this).hasClass('4star')) {
-                numStars = 4;
-            } else if ($(this).hasClass('5star')) {
-                numStars = 5;
-            }
-
-            var ratingType = 1;
-            if ($(this).parent().is($('#ratingach'))) {
-                ratingType = 3;
-            }
-
-            // Do an optimistic update to make performance seem better.
-            const yourRatingText = document.getElementById('your-game-rating');
-            yourRatingText.innerHTML = `Your rating: ${numStars} ${numStars === 1 ? 'star' : 'stars'}`;
-
-            SubmitRating(<?= $gameID ?>, ratingType, numStars);
-        });
-
-    });
-
-    </script>
 <?php endif ?>
 <article>
     <div id="achievement">
@@ -921,7 +743,7 @@ sanitize_outputs(
                 }
 
                 if ($permissions >= Permissions::Developer) {
-                    echo "<div><a class='btn btn-link' href='/managehashes.php?g=$gameID'>Manage Hashes</a></div>";
+                    echo "<div><a class='btn btn-link' href='/game/$gameID/hashes/manage'>Manage Hashes</a></div>";
                 }
 
                 $primaryClaimUser = null;
@@ -1163,93 +985,6 @@ sanitize_outputs(
         }
 
         if ($isFullyFeaturedGame) {
-            $renderRatingControl = function ($label, $containername, $labelname, $ratingData) use ($minimumNumberOfRatingsToDisplay) {
-                echo "<div>";
-
-                echo "<h2 class='text-h4 mb-0'>$label</h2>";
-
-                $yourRating = ($ratingData['UserRating'] > 0)
-                    ? $ratingData['UserRating'] . " " . strtolower(__res('vote.star', $ratingData['UserRating'])) // "2 stars"
-                    : 'not rated';
-
-                $voters = $ratingData['RatingCount'];
-                if ($voters < $minimumNumberOfRatingsToDisplay) {
-                    $labelcontent = "More ratings needed ($voters " . strtolower(__res('vote', $voters)) . ")";
-
-                    $star1 = $star2 = $star3 = $star4 = $star5 = "";
-                    $tooltip = "<div class='tooltip-body flex items-start' style='max-width: 400px'>";
-                    $tooltip .= "<table><tr><td class='whitespace-nowrap'>Your rating: $yourRating</td></tr></table>";
-                    $tooltip .= "</div>";
-                } else {
-                    $rating = $ratingData['AverageRating'];
-                    $labelcontent = "Rating: " . number_format($rating, 2) . " ($voters " . strtolower(__res('vote', $voters)) . ")"; // "Rating: 4.78 (20 votes)"
-
-                    $percent1 = round($ratingData['Rating1'] * 100 / $voters);
-                    $percent2 = round($ratingData['Rating2'] * 100 / $voters);
-                    $percent3 = round($ratingData['Rating3'] * 100 / $voters);
-                    $percent4 = round($ratingData['Rating4'] * 100 / $voters);
-                    $percent5 = round($ratingData['Rating5'] * 100 / $voters);
-
-                    $tooltip = "<div class='tooltip-body flex items-start' style='max-width: 400px'>";
-                    $tooltip .= "<table>";
-                    $tooltip .= "<tr><td colspan=3>Your rating: $yourRating</td></tr>";
-                    $tooltip .= "<tr><td class='whitespace-nowrap'>5 star</td><td>";
-                    $tooltip .= "<div class='progressbar w-24'><div class='completion' style='width:$percent5%' /></div>";
-                    $tooltip .= "</td><td>$percent5%</td/></tr>";
-                    $tooltip .= "<tr><td class='whitespace-nowrap'>4 star</td><td>";
-                    $tooltip .= "<div class='progressbar w-24'><div class='completion' style='width:$percent4%' /></div>";
-                    $tooltip .= "</td><td>$percent4%</td/></tr>";
-                    $tooltip .= "<tr><td class='whitespace-nowrap'>3 star</td><td>";
-                    $tooltip .= "<div class='progressbar w-24'><div class='completion' style='width:$percent3%' /></div>";
-                    $tooltip .= "</td><td>$percent3%</td/></tr>";
-                    $tooltip .= "<tr><td class='whitespace-nowrap'>2 star</td><td>";
-                    $tooltip .= "<div class='progressbar w-24'><div class='completion' style='width:$percent2%' /></div>";
-                    $tooltip .= "</td><td>$percent2%</td/></tr>";
-                    $tooltip .= "<tr><td class='whitespace-nowrap'>1 star</td><td>";
-                    $tooltip .= "<div class='progressbar w-24'><div class='completion' style='width:$percent1%' /></div>";
-                    $tooltip .= "</td><td>$percent1%</td/></tr>";
-                    $tooltip .= "</table>";
-                    $tooltip .= "</div>";
-
-                    $star1 = ($rating >= 1.0) ? "starlit" : (($rating >= 0.5) ? "starhalf" : "");
-                    $star2 = ($rating >= 2.0) ? "starlit" : (($rating >= 1.5) ? "starhalf" : "");
-                    $star3 = ($rating >= 3.0) ? "starlit" : (($rating >= 2.5) ? "starhalf" : "");
-                    $star4 = ($rating >= 4.0) ? "starlit" : (($rating >= 3.5) ? "starhalf" : "");
-                    $star5 = ($rating >= 5.0) ? "starlit" : (($rating >= 4.5) ? "starhalf" : "");
-                }
-
-                echo "<div class='rating' id='$containername'>";
-                echo "<a class='starimg $star1 1star'>1</a>";
-                echo "<a class='starimg $star2 2star'>2</a>";
-                echo "<a class='starimg $star3 3star'>3</a>";
-                echo "<a class='starimg $star4 4star'>4</a>";
-                echo "<a class='starimg $star5 5star'>5</a>";
-                echo "</div>";
-
-                echo "<script>var {$containername}tooltip = \"$tooltip\";</script>";
-
-                echo <<<HTML
-                    <div
-                        class="mt-1"
-                        style="float: left; clear: left;"
-                        x-data="tooltipComponent(\$el, { staticHtmlContent: {$containername}tooltip })"
-                        @mouseover="showTooltip(\$event)"
-                        @mouseleave="hideTooltip"
-                        @mousemove="trackMouseMovement(\$event)"
-                    >
-                HTML;
-
-                echo "<p class='$labelname text-2xs'>$labelcontent</p>";
-                echo "<p id='your-game-rating' class='text-2xs'>";
-                if ($ratingData['UserRating'] > 0) {
-                    echo "Your rating: $yourRating";
-                }
-                echo "</p>";
-                echo "</div>";
-
-                echo "</div>";
-            };
-
             echo "<div class='md:float-right mb-4 md:mb-0'>";
 
             // Only show set request option for logged in users, games without achievements, and core achievement page
@@ -1260,11 +995,6 @@ sanitize_outputs(
                         :user="$userModel"
                     />
                 ', $gameMetaBindings);
-            }
-
-            if ($user !== null && $numAchievements > 0) {
-                $renderRatingControl('Game Rating', 'ratinggame', 'ratinggamelabel', $gameRating[RatingType::Game]);
-                echo "<br class='clear-both'>";
             }
 
             echo "</div>";
@@ -1363,13 +1093,68 @@ sanitize_outputs(
 
         if (!$isFullyFeaturedGame) {
             if (!empty($relatedGames)) {
-                RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
-                RenderGameAlts($relatedGames);
+                $controller = new RelatedGamesTableController(new GameListService());
+                $view = $controller(request());
+                echo $view->render();
+
+                if (count($gameEvents) > 0) {
+                    $icon = getSystemIconUrl(101);
+                    echo '<h2 class="flex gap-x-2 items-center text-h3">';
+                    echo "<img src=\"$icon\" alt=\"Console icon\" width=\"24\" height=\"24\">";
+                    echo '<span>Related Events</span>';
+                    echo '</h2>';
+
+                    echo '<div><table class="table-highlight mb-4"><tbody>';
+                    foreach ($gameEvents as $game) {
+                        echo '<tr><td>';
+                        echo Blade::render('
+                            <x-game.multiline-avatar
+                                :gameId="$gameIDAlt"
+                                :gameTitle="$Title"
+                                :gameImageIcon="$ImageIcon"
+                            />
+                        ', $game);
+                        echo '</td></tr>';
+                    }
+                    echo '</tbody></table></div>';
+                }
+
+                if (count($gameHubs) > 0) {
+                    $icon = getSystemIconUrl(100);
+                    echo '<h2 class="flex gap-x-2 items-center text-h3">';
+                    echo "<img src=\"$icon\" alt=\"Console icon\" width=\"24\" height=\"24\">";
+                    echo '<span>Related Hubs</span>';
+                    echo '</h2>';
+
+                    echo '<div><table class="table-highlight mb-4"><tbody>';
+                    foreach ($gameHubs as $game) {
+                        echo '<tr><td>';
+                        echo Blade::render('
+                            <x-game.multiline-avatar
+                                :gameId="$gameIDAlt"
+                                :gameTitle="$Title"
+                                :gameImageIcon="$ImageIcon"
+                            />
+                        ', $game);
+                        echo '</td></tr>';
+                    }
+                    echo '</tbody></table></div>';
+                }
             }
         }
 
         echo "<div class='my-5'>";
-        RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
+        echo Blade::render('
+            <x-game.link-buttons
+                :allowedLinks="$allowedLinks"
+                :gameForumTopicId="$gameForumTopicId"
+                :gameId="$gameId"
+            />
+        ', [
+            'allowedLinks' => ['forum-topic'],
+            'gameForumTopicId' => $forumTopicID,
+            'gameId' => $gameID,
+        ]);
         echo "</div>";
 
         if ($isFullyFeaturedGame) {
@@ -1399,37 +1184,21 @@ sanitize_outputs(
         echo "</div>";
 
         echo "<div class='component'>";
-        echo "<ul>";
-        echo "<li>";
-        RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-        if (!empty($guideURL)) {
-            echo "<a class='btn py-2 mb-2 block' href='" . attributeEscape($guideURL) . "'><span class='icon icon-md ml-1 mr-3'>📖</span>Guide</a>";
-        }
-        echo "</li>";
-        if (isset($user)) {
-            if ($permissions >= Permissions::Registered) {
-                echo "<li><a class='btn py-2 mb-2 block' href='/linkedhashes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>💾</span>Supported Game Files</a></li>";
-                echo "<li><a class='btn py-2 mb-2 block' href='/codenotes.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📑</span>Code Notes</a></li>";
-                $numOpenTickets = countOpenTickets(
-                    requestInputSanitized('f') == $unofficialFlag,
-                    requestInputSanitized('t', TicketFilters::Default),
-                    null,
-                    null,
-                    null,
-                    $gameID
-                );
-                if ($flagParam == $unofficialFlag) {
-                    echo "<li><a class='btn py-2 mb-2 block' href='/ticketmanager.php?g=$gameID&f=$flagParam'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Unofficial Tickets ($numOpenTickets)</a></li>";
-                } else {
-                    echo "<li><a class='btn py-2 mb-2 block' href='/ticketmanager.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>🎫</span>Open Tickets ($numOpenTickets)</a></li>";
-                }
-            }
-            if ($numAchievements == 0) {
-                echo "<li><a class='btn py-2 mb-2 block' href='/setRequestors.php?g=$gameID'><span class='icon icon-md ml-1 mr-3'>📜</span>Set Requestors</a></li>";
-            }
-            echo "</ul>";
-        }
-
+        echo Blade::render('
+            <x-game.link-buttons
+                :gameAchievementsCount="$gameAchievementsCount"
+                :gameForumTopicId="$gameForumTopicId"
+                :gameGuideUrl="$gameGuideUrl"
+                :gameId="$gameId"
+                :isViewingOfficial="$isViewingOfficial"
+            />
+        ', [
+            'gameAchievementsCount' => $numAchievements,
+            'gameForumTopicId' => $forumTopicID,
+            'gameGuideUrl' => $guideURL,
+            'gameId' => $gameID,
+            'isViewingOfficial' => $flagParam !== $unofficialFlag,
+        ]);
         echo "</div>";
 
         // Progression component (mobile only)

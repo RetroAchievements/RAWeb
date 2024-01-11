@@ -15,7 +15,6 @@ require_once __DIR__ . '/database/player-achievement.php';
 require_once __DIR__ . '/database/player-game.php';
 require_once __DIR__ . '/database/player-history.php';
 require_once __DIR__ . '/database/player-rank.php';
-require_once __DIR__ . '/database/rating.php';
 require_once __DIR__ . '/database/release.php';
 require_once __DIR__ . '/database/search.php';
 require_once __DIR__ . '/database/set-claim.php';
