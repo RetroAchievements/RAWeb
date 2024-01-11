@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
@@ -592,6 +593,12 @@ function modifyGameData(
     if (empty($gameData)) {
         return false;
     }
+
+    $developer = TrimGameMetadata::trimWhitespace($developer);
+    $publisher = TrimGameMetadata::trimWhitespace($publisher);
+    $genre = TrimGameMetadata::trimWhitespace($genre);
+    $released = TrimGameMetadata::trimWhitespace($released);
+    $guideURL = TrimGameMetadata::trimWhitespace($guideURL);
 
     $modifications = [];
     if ($gameData['Developer'] != $developer) {
