@@ -121,9 +121,9 @@ if (array_key_exists('LastGame', $retVal)) {
     unset($retVal['LastGame']['RichPresencePatch']);
     unset($retVal['LastGame']['system']);
 } elseif ($recentGamesPlayed === 0) {
-    // if no games were requested, initialize empty arrays for Awarded and RecentAchievements
-    $retVal['Awarded'] = [];
-    $retVal['RecentAchievements'] = [];
+    // if no games were requested, initialize empty objects for Awarded and RecentAchievements
+    $retVal['Awarded'] = new ArrayObject();
+    $retVal['RecentAchievements'] = new ArrayObject();
 }
 
 $retVal['LastActivity'] = [

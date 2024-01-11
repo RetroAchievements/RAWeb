@@ -140,6 +140,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
     $emailHeader = "Bug Report ($gameTitle)";
+    $ticketUrl = config('app.url') . "/ticketmanager.php?i=$ticketID";
     $bugReportDetails = "
 Achievement: $achTitle
 Game: $gameTitle
@@ -147,7 +148,7 @@ Problem: $problemTypeStr
 Comment: $note
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-" . config('app.url') . "/ticketmanager.php?i=$ticketID
+<a href='$ticketUrl'>$ticketUrl</a>
 
 Thanks!";
 
