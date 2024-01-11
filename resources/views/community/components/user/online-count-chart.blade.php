@@ -19,6 +19,7 @@ if (file_exists("../storage/logs/playersonline.log")) {
 
 $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->count();
 ?>
+
 <script defer src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -44,6 +45,7 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
                 }
                 $players = empty($playersOnlineChartData[$i]) ? 0 : $playersOnlineChartData[$i];
                 $players = (int) $players;
+                $localizedPlayers = localized_number($players);
 
                 if ($i != 0) {
                     echo ", ";
@@ -58,7 +60,7 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
                 $hour = date("G", $timestamp);
                 $min = date("i", $timestamp);
 
-                echo "[ new Date($yr,$month,$day,$hour,$min), {v:$players, f:\"$players online\"} ] ";
+                echo "[ new Date($yr,$month,$day,$hour,$min), {v:$players, f:\"$localizedPlayers\"} ] ";
             }
             ?>
         ]);
@@ -70,7 +72,10 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
         var optionsTotalScore = {
             backgroundColor: 'transparent',
             titleTextStyle: { color: '#186DEE' }, // cc9900
-            hAxis: { textStyle: { color: '#186DEE' } },
+            hAxis: { 
+                textStyle: { color: '#186DEE' },
+                showTextEvery: 2,
+            },
             vAxis: {
                 textStyle: { color: '#186DEE' },
                 viewWindow: { min: 0 },
@@ -78,7 +83,9 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
             },
             legend: { position: 'none' },
             chartArea: {
-                'width': '85%',
+                left: '8%',
+                right: '2%',
+                'width': '100%',
                 'height': '78%'
             },
             height: 160,
@@ -96,10 +103,11 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
         window.onresize = resize;
     }
 </script>
+
 <div class="component">
     <h3>Currently Online</h3>
     <div id="playersonlinebox" class="infobox">
-        <div>There are currently <strong>{{ $numPlayers }}</strong> players online.</div>
+        <div>There are currently <strong>{{ localized_number($numPlayers) }}</strong> players online.</div>
     </div>
     <div style="min-height: 160px;" id="chart_usersonline"></div>
     <div class="text-right lastupdatedtext"><small><span id="playersonline-update"></span></small></div>
