@@ -6,10 +6,12 @@ use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
+use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
+use App\Platform\Services\GameListService;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
@@ -76,12 +78,17 @@ $beatenGameCreditDialogContext = buildBeatenGameCreditDialogContext($unlockedAch
 $relatedGames = $isFullyFeaturedGame ? getGameAlternatives($gameID) : getGameAlternatives($gameID, $sortBy);
 $gameAlts = [];
 $gameHubs = [];
+$gameEvents = [];
 $gameSubsets = [];
 $subsetPrefix = $gameData['Title'] . " [Subset - ";
 foreach ($relatedGames as $gameAlt) {
     if ($gameAlt['ConsoleName'] == 'Hubs') {
         $gameHubs[] = $gameAlt;
     } else {
+        if ($gameAlt['ConsoleName'] == 'Events') {
+            $gameEvents[] = $gameAlt;
+        }
+
         if (str_starts_with($gameAlt['Title'], $subsetPrefix)) {
             $gameSubsets[] = $gameAlt;
         } else {
@@ -1086,8 +1093,53 @@ sanitize_outputs(
 
         if (!$isFullyFeaturedGame) {
             if (!empty($relatedGames)) {
-                RenderGameSort($isFullyFeaturedGame, $flagParam, $officialFlag, $gameID, $sortBy);
-                RenderGameAlts($relatedGames);
+                $controller = new RelatedGamesTableController(new GameListService());
+                $view = $controller(request());
+                echo $view->render();
+
+                if (count($gameEvents) > 0) {
+                    $icon = getSystemIconUrl(101);
+                    echo '<h2 class="flex gap-x-2 items-center text-h3">';
+                    echo "<img src=\"$icon\" alt=\"Console icon\" width=\"24\" height=\"24\">";
+                    echo '<span>Related Events</span>';
+                    echo '</h2>';
+
+                    echo '<div><table class="table-highlight mb-4"><tbody>';
+                    foreach ($gameEvents as $game) {
+                        echo '<tr><td>';
+                        echo Blade::render('
+                            <x-game.multiline-avatar
+                                :gameId="$gameIDAlt"
+                                :gameTitle="$Title"
+                                :gameImageIcon="$ImageIcon"
+                            />
+                        ', $game);
+                        echo '</td></tr>';
+                    }
+                    echo '</tbody></table></div>';
+                }
+
+                if (count($gameHubs) > 0) {
+                    $icon = getSystemIconUrl(100);
+                    echo '<h2 class="flex gap-x-2 items-center text-h3">';
+                    echo "<img src=\"$icon\" alt=\"Console icon\" width=\"24\" height=\"24\">";
+                    echo '<span>Related Hubs</span>';
+                    echo '</h2>';
+
+                    echo '<div><table class="table-highlight mb-4"><tbody>';
+                    foreach ($gameHubs as $game) {
+                        echo '<tr><td>';
+                        echo Blade::render('
+                            <x-game.multiline-avatar
+                                :gameId="$gameIDAlt"
+                                :gameTitle="$Title"
+                                :gameImageIcon="$ImageIcon"
+                            />
+                        ', $game);
+                        echo '</td></tr>';
+                    }
+                    echo '</tbody></table></div>';
+                }
             }
         }
 
