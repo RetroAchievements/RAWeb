@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Site\Enums\Permissions;
+use Illuminate\Support\Facades\Blade;
 
 function RenderCommentsComponent(
     ?string $user,
@@ -113,8 +114,8 @@ function RenderArticleComment(
     $deleteIcon = '';
 
     if ($user && $user === $localUser || $allowDelete) {
-        $img = "<img src='" . asset('assets/images/icon/cross.png') . "' width='16' height='16' alt='delete comment'/>";
-        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#'>$img</a></div>";
+        $img = Blade::render('<x-fas-xmark class="text-red-600 h-5 w-5" />');
+        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#' aria-label='Delete comment' title='Delete comment'>$img</a></div>";
     }
 
     if ($user === 'Server') {
@@ -163,7 +164,6 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
 {
     sanitize_outputs($user, $formStr);
     $commentId = "art_{$articleTypeId}_{$articleId}";
-    $submitImageUrl = asset('assets/images/icon/submit.png');
     $csrfField = csrf_field();
     $avatar = media_asset("/UserPic/$user.png");
 
@@ -186,8 +186,8 @@ function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId)
                             id="comment_textarea_$commentId"
                             x-on:input="autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 2000;"
                         ></textarea>
-                        <button class="btn comment-submit-button" :disabled="!isValid">
-                            <img src="$submitImageUrl" alt="Submit">
+                        <button class="btn h-9 ml-2" :disabled="!isValid" aria-label="Post comment" title="Post comment">
+                            Submit
                         </button>
                     </div>
                     <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>

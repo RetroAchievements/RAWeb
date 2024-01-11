@@ -134,7 +134,7 @@ RenderContentStart("Forum: $thisForumTitle");
 
         echo "<tr>";
 
-        echo "<td class='p-1'><img src='" . asset('assets/images/icon/forum-topic-unread.gif') . "' width='20' height='20' title='No unread posts' alt='No unread posts'></td>";
+        echo "<td class='p-1' aria-hidden='true'>" . Blade::render('<x-fas-arrow-alt-circle-right class="h-4 w-4" />') . "</td>";
         echo "<td>";
         echo "<a href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a>";
         echo "<div class='mb-1' style='word-break:break-word'>";
