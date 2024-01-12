@@ -127,7 +127,7 @@ class GameListService
         }
     }
 
-    public function useGameStatusFilter(array $game, string $statusValue)
+    public function useGameStatusFilter(array $game, string $statusValue): bool
     {
         $foundProgress = $this->userProgress[$game['ID']] ?? null;
 
