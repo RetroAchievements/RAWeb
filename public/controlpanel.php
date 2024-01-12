@@ -279,9 +279,17 @@ function confirmEmailChange(event) {
             echo "<tr>";
             echo "<td class='align-top'>Web API Key</td>";
             echo "<td>";
-            echo "<input class='mb-1' size='60' readonly value='$apiKey'>";
+
+            $copyIcon = Blade::render('<x-fas-copy />');
 
             echo <<<HTML
+                <div role="button" x-init="{}" @click="copyToClipboard('$apiKey')" class="flex items-center gap-x-2 bg-embed max-w-fit rounded pl-2 mb-2">
+                    <p class="font-mono text-neutral-200 light:text-neutral-700">$apiKey</p>
+                    <button class="btn transition-transform lg:active:scale-95" @click="copyToClipboard('$apiKey')" title="Copy web API key to clipboard" aria-label="Copy web API key to clipboard">
+                        $copyIcon
+                    </button>
+                </div>
+
                 <div class="mb-2">
                     <p>
                         This is your <span class="italic">personal</span> Web API Key. Handle it with care.
