@@ -8,6 +8,7 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\Ticket;
 use App\Community\Models\UserGameListEntry;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use App\Site\Models\User;
@@ -50,6 +51,7 @@ class GameListService
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
                 ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
                 ->whereIn('Achievements.GameID', $gameIds)
+                ->where('Achievements.Flags', AchievementFlag::OfficialCore)
                 ->select(['GameID',
                     DB::raw('COUNT(Ticket.ID) AS NumTickets'),
                 ])
