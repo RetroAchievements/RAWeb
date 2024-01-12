@@ -473,7 +473,7 @@ class GameListService
             $columns['tickets'] = $this->getTicketCountColumn();
         }
 
-        if ($this->userProgress != null) {
+        if ($this->userProgress !== null) {
             $columns['progress'] = $this->getUserProgressColumn();
             $columns['backlog'] = $this->getBacklogColumn();
         }
