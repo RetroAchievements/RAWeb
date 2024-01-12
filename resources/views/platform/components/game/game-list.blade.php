@@ -1,22 +1,34 @@
 @props([
-    'consoles' => [],
-    'games' => [],
-    'sortOrder' => 'title',
+    'availableCheckboxFilters' => [],
+    'availableSelectFilters' => [],
     'availableSorts' => [],
-    'filterOptions' => [],
-    'availableFilters' => [],
     'columns' => [],
+    'consoles' => [],
+    'filterOptions' => [],
+    'games' => [],
     'noGamesMessage' => 'No games.',
+    'sortOrder' => 'title',
 ])
 
+<?php
+$areFiltersPristine = empty(
+    array_filter($filterOptions, function ($value) {
+        return $value !== false && $value !== 'all';
+    })
+);
+?>
+
 <div>
-    @if (count($consoles) < 1)
-        <p>{{ $noGamesMessage }}</p><br/>
+    @if (count($consoles) < 1 && $areFiltersPristine)
+        <div class="mb-12">
+            <x-empty-state>{{ $noGamesMessage }}</x-empty-state>
+        </div>
     @else
         <x-meta-panel
             :availableSorts="$availableSorts"
             :selectedSortOrder="$sortOrder"
-            :availableFilters="$availableFilters"
+            :availableCheckboxFilters="$availableCheckboxFilters"
+            :availableSelectFilters="$availableSelectFilters"
             :filterOptions="$filterOptions"
         />
         <?php
@@ -40,7 +52,7 @@
                 <?php foreach ($totals as $key => $value) { $totals[$key] = 0; } ?>
             @endif
 
-            <div><table class='table-highlight mb-4'><tbody>
+            <div><table class='table-highlight mb-4'><thead>
 
             <tr>
             <?php
@@ -72,6 +84,9 @@
             }
             ?>
             </tr>
+            </thead>
+
+            <tbody>
             @foreach ($games as $game)
                 @if ($filterOptions['console'] && $game['ConsoleID'] != $console['ID'])
                     @continue
@@ -115,6 +130,12 @@
                 @break
             @endif
         @endforeach
+
+        @if (empty($games))
+            <div class="mb-12">
+                <x-empty-state>{{ $noGamesMessage }}</x-empty-state>
+            </div>
+        @endif
     @endif
 
 </div>

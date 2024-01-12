@@ -35,12 +35,16 @@ class RelatedGamesTableController extends Controller
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
             'filter.console' => 'sometimes|in:true,false',
             'filter.populated' => 'sometimes|in:true,false',
+            'filter.status' => 'sometimes|string|in:all,unstarted,unawarded,eq-beaten-softcore,eq-beaten-hardcore,eq-completed,eq-mastered,any-beaten,gte-completed,awarded,eq-revised,gte-beaten-softcore,gte-beaten-hardcore,any-softcore,any-hardcore',
         ]);
         $sortOrder = $validatedData['sort'] ?? 'title';
         $filterOptions = [
             'console' => ($validatedData['filter']['console'] ?? 'false') !== 'false',
             'populated' => ($validatedData['filter']['populated'] ?? 'false') !== 'false',
         ];
+        if (isset($validatedData['filter']['status'])) {
+            $filterOptions['status'] = $validatedData['filter']['status'];
+        }
 
         $gameIDs = GameAlternative::where('gameID', $gameId)->pluck('gameIDAlt')->toArray()
                  + GameAlternative::where('gameIDAlt', $gameId)->pluck('gameID')->toArray();
@@ -54,14 +58,43 @@ class RelatedGamesTableController extends Controller
             });
         }
 
+        if (isset($filterOptions['status'])) {
+            $this->gameListService->filterGameList(function ($game) use ($filterOptions) {
+                return $this->gameListService->useGameStatusFilter($game, $filterOptions['status']);
+            });
+        }
+
         $this->gameListService->mergeWantToPlay($loggedInUser);
 
         $this->gameListService->sortGameList($sortOrder);
 
         $availableSorts = $this->gameListService->getAvailableSorts();
-        $availableFilters = [
+        $availableCheckboxFilters = [
             'console' => 'Group by console',
             'populated' => 'Only with achievements',
+        ];
+        $availableSelectFilters = [
+            [
+                'kind' => 'status',
+                'label' => 'Status',
+                'options' => [
+                    'all' => 'All games',
+                    'unstarted' => 'No progress',
+                    'unawarded' => 'Unfinished',
+                    'eq-beaten-softcore' => 'Beaten (softcore)',
+                    'eq-beaten-hardcore' => 'Beaten',
+                    'eq-completed' => 'Completed',
+                    'eq-mastered' => 'Mastered',
+                    'any-beaten' => 'Beaten, either hardcore or softcore',
+                    'gte-completed' => 'Completed or mastered',
+                    'awarded' => 'Games with any award',
+                    'eq-revised' => 'Games with awards for revised sets',
+                    'gte-beaten-softcore' => 'Games with softcore awards',
+                    'gte-beaten-hardcore' => 'Games with hardcore awards',
+                    'any-softcore' => 'Games with any softcore progress',
+                    'any-hardcore' => 'Games with any hardcore progress',
+                ],
+            ],
         ];
 
         return view('platform.components.game.game-list', [
@@ -70,7 +103,8 @@ class RelatedGamesTableController extends Controller
             'sortOrder' => $sortOrder,
             'availableSorts' => $availableSorts,
             'filterOptions' => $filterOptions,
-            'availableFilters' => $availableFilters,
+            'availableCheckboxFilters' => $availableCheckboxFilters,
+            'availableSelectFilters' => $availableSelectFilters,
             'columns' => $this->gameListService->getColumns($filterOptions),
             'noGamesMessage' => 'No related games.',
         ]);
