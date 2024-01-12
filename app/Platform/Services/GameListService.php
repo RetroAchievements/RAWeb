@@ -144,7 +144,11 @@ class GameListService
                 return !$foundProgress;
 
             case 'unawarded':
-                return !isset($foundProgress['HighestAwardKind']);
+                return (
+                    isset($foundProgress)
+                    && $foundProgress['completion_percentage'] > 0
+                    && !isset($foundProgress['HighestAwardKind'])
+                );
 
             case 'awarded':
                 return isset($foundProgress['HighestAwardKind']);
