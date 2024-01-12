@@ -92,7 +92,7 @@ class GameHashController extends Controller
         $hash = $gameHash->MD5;
         $user = Auth::user()->User;
 
-        $wasDeleted = $gameHash->delete();
+        $wasDeleted = $gameHash->forceDelete();
 
         if (!$wasDeleted) {
             return response()->json(['message' => 'Failed to delete the game hash.'], 500);
