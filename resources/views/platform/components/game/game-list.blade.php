@@ -40,7 +40,7 @@ $areFiltersPristine = empty(
         ?>
 
         @foreach ($consoles as $console)
-            @if ($filterOptions['console'])
+            @if ($filterOptions['console'] ?? false)
                 <h2 class="flex gap-x-2 items-center text-h3">
                     <img src="{{ getSystemIconUrl($console->ID) }}" alt="Console icon" width="24" height="24">
                     <span>{{ $console->Name }}</span>
@@ -77,7 +77,7 @@ $areFiltersPristine = empty(
 
                     <tbody>
                         @foreach ($games as $game)
-                            @if ($filterOptions['console'] && $game['ConsoleID'] != $console['ID'])
+                            @if (($filterOptions['console'] ?? false) && $game['ConsoleID'] != $console['ID'])
                                 @continue
                             @endif
                             <tr>
@@ -116,7 +116,7 @@ $areFiltersPristine = empty(
                 </table>
             </div>
 
-            @if (!$filterOptions['console'])
+            @if (!($filterOptions['console'] ?? false))
                 @break
             @endif
         @endforeach
