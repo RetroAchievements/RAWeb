@@ -139,15 +139,13 @@ function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsern
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div class='max-sm:flex max-sm:justify-center'>";
-    echo "<div class='component w-full bg-embed gap-2 grid grid-cols-[repeat(auto-fill,minmax(52px,1fr))] max-sm:grid-cols-5 max-sm:max-w-xs max-sm:px-4 lg:gap-x-0 xl:py-2 xl:px-4'>";
+    echo "<div class='component w-full place-content-center bg-embed gap-2 grid grid-cols-[repeat(auto-fill,minmax(52px,52px))]'>";
     $imageSize = 48;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
             RenderAward($award, $imageSize, $awardsOwnerUsername);
         }
     }
-    echo "</div>";
     echo "</div>";
     echo "</div>";
 }
