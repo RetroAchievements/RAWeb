@@ -3,6 +3,10 @@
     'totalActivePlayers' => 0,
 ])
 
+<?php
+$canShowSecondCount = $activePlayersCount !== $totalActivePlayers;
+?>
+
 <p>
     Viewing
 
@@ -24,5 +28,5 @@
         </span>
     @endif
 
-    {{ mb_strtolower(__res('player', $activePlayersCount)) }} in-game.
+    {{ mb_strtolower(__res('player', $canShowSecondCount ? $totalActivePlayers : $activePlayersCount)) }} in-game.
 </p>
