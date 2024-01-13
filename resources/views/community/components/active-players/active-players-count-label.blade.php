@@ -13,14 +13,16 @@
         {{ localized_number($activePlayersCount) }}
     </span>
 
-    of 
+    @if ($activePlayersCount !== $totalActivePlayers)
+        of 
 
-    <span
-        class="font-bold"
-        id="active-players-total"
-    >
-        {{ localized_number($totalActivePlayers) }}
-    </span>
+        <span
+            class="font-bold"
+            id="active-players-total"
+        >
+            {{ localized_number($totalActivePlayers) }}
+        </span>
+    @endif
 
-    players in-game.
+    {{ mb_strtolower(__res('player', $activePlayersCount)) }} in-game.
 </p>
