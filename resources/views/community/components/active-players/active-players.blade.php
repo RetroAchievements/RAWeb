@@ -145,7 +145,10 @@ function activePlayersComponent() {
             const totalCountEl = document.getElementById('active-players-total');
 
             viewingCountEl.innerHTML = viewing.toLocaleString();
-            totalCountEl.innerHTML = total.toLocaleString();
+
+            if (totalCountEl) {
+                totalCountEl.innerHTML = total.toLocaleString();
+            }
 
             this.canShowEmptyState = (viewing === 0 || total === 0);
         },
