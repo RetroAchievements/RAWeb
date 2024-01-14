@@ -283,12 +283,10 @@ function confirmEmailChange(event) {
             $copyIcon = Blade::render('<x-fas-copy />');
 
             echo <<<HTML
-                <div role="button" x-init="{}" @click="copyToClipboard('$apiKey')" class="flex items-center gap-x-2 bg-embed max-w-fit rounded pl-2 mb-2">
-                    <p class="font-mono text-neutral-200 light:text-neutral-700">$apiKey</p>
-                    <button class="btn transition-transform lg:active:scale-95" @click="copyToClipboard('$apiKey')" title="Copy web API key to clipboard" aria-label="Copy web API key to clipboard">
-                        $copyIcon
-                    </button>
-                </div>
+                <button x-init="{}" @click="copyToClipboard('$apiKey')" class="btn flex items-center gap-x-2 mb-2">
+                    <span class="font-mono">$apiKey</span>
+                    $copyIcon
+                </button>
 
                 <div class="mb-2">
                     <p>
