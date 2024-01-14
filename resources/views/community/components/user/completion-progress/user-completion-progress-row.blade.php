@@ -4,7 +4,11 @@
 
 <?php
 $numAwarded = $completionProgressEntity['NumAwarded'] ?? 0;
+$numAwardedHardcore = $completionProgressEntity['NumAwardedHC'] ?? 0;
 $maxPossible = $completionProgressEntity['MaxPossible'];
+
+$isBeatenHardcore = in_array('beaten-hardcore', $completionProgressEntity['AllAwardKinds'] ?? []);
+$isBeatenSoftcore = in_array('beaten-softcore', $completionProgressEntity['AllAwardKinds'] ?? []);
 
 $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_completed_sets') === 'true';
 
@@ -14,6 +18,24 @@ if ($numAwarded === $maxPossible) {
 
     if ($prefersHiddenUserCompletedSets) {
         $rowClassNames .= ' hidden';
+    }
+}
+
+$highestAwardKind = $completionProgressEntity['HighestAwardKind'] ?? 'unfinished';
+if ($highestAwardKind === 'mastered' && $numAwardedHardcore !== $maxPossible) {
+    if ($numAwarded === $maxPossible) {
+        $highestAwardKind = 'completed';
+    } else if ($isBeatenHardcore) {
+        $highestAwardKind = 'beaten-hardcore';
+    } else if ($isBeatenSoftcore) {
+        $highestAwardKind = 'beaten-softcore';
+    }
+}
+if ($highestAwardKind === 'completed' && $numAwarded !== $maxPossible) {
+    if ($isBeatenHardcore) {
+        $highestAwardKind = 'beaten-hardcore';
+    } else if ($isBeatenSoftcore) {
+        $highestAwardKind = 'beaten-softcore';
     }
 }
 ?>
@@ -32,13 +54,13 @@ if ($numAwarded === $maxPossible) {
         <div class="mt-2 mb-0.5">
             <x-game-progress-bar
                 :softcoreProgress="$numAwarded"
-                :hardcoreProgress="$completionProgressEntity['NumAwardedHC'] ?? 0"
+                :hardcoreProgress="$numAwardedHardcore"
                 :maxProgress="$maxPossible"
-                :awardIndicator="$completionProgressEntity['HighestAwardKind'] ?? 'unfinished'"
+                :awardIndicator="$highestAwardKind"
             />
         </div>
 
-        <p class="pr-5 text-center text-2xs">
+        <p class="pr-5 text-center text-2xs -mt-1.5">
             {{ $numAwarded }} of {{ $maxPossible }}
         </p>
     </td>

@@ -24,11 +24,15 @@
     }
 
     if (!$tooltip) {
-        $tooltip = "{$softcoreProgress} ({$hardcoreProgress}) of {$maxProgress}";
+        if ($hardcoreProgress === $softcoreProgress) {
+            $tooltip = "{$hardcoreProgress} of {$maxProgress}";
+        } else {
+            $tooltip = "{$softcoreProgress} ({$hardcoreProgress} hardcore) of {$maxProgress}";
+        }
     }
 ?>
 
-<div class="relative">
+<div class="flex items-center">
     <div
         role="progressbar"
         aria-valuemin="0"
@@ -36,7 +40,7 @@
         aria-valuenow="{{ $softcoreProgress }}"
         aria-label="{{ $tooltip }}"
         title="{{ $tooltip }}"
-        class="w-full h-1 bg-zinc-950 light:bg-zinc-300 rounded flex space-x-px overflow-hidden"
+        class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l' : 'rounded' }}"
     >
         @if ($hardcoreProgress > 0)
             <div

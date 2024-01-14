@@ -31,6 +31,10 @@ $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_complet
         <table class="table-highlight">
             <tbody>
                 @foreach ($userJoinedGamesAndAwards as $completionProgressEntity)
+                    @if (!$completionProgressEntity['NumAwarded'])
+                        @continue
+                    @endif
+
                     <x-user.completion-progress.user-completion-progress-row
                         :completionProgressEntity="$completionProgressEntity"
                     />

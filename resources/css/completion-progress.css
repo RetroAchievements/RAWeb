@@ -100,7 +100,7 @@
 
 /** game-progress-bar.blade.php **/
 .gprogress-ind__root {
-  @apply cursor-help absolute right-0 -top-2 rounded-full border-2 w-5 h-5 z-20;
+  @apply cursor-help rounded-full border-2 min-w-[20px] w-5 h-5 z-10;
 }
 
 .gprogress-ind__root[data-award='unfinished'] {
@@ -111,12 +111,12 @@
   @apply border-zinc-400 light:border-zinc-500 bg-embed;
 
   > div {
-    @apply bg-zinc-600/50 blur-[8px] light:bg-zinc-400/90 w-full h-full z-20;
+    @apply bg-zinc-600/50 blur-[8px] light:bg-zinc-400/90 w-full h-full z-10;
   }
 }
 
 .gprogress-ind__root[data-award='beaten-hardcore'] {
-  @apply border-zinc-600 bg-gradient-to-br from-zinc-300 to-zinc-500 light:to-zinc-100;
+  @apply border-zinc-600 bg-gradient-to-br from-zinc-300 to-zinc-400 light:to-zinc-100;
 
   > div {
     @apply bg-zinc-600/50 blur-[4px] h-full;
@@ -127,12 +127,12 @@
   @apply border-yellow-500 light:border-yellow-500 bg-embed;
 
   > div {
-    @apply bg-yellow-700/50 blur-[8px] light:bg-yellow-600/40 w-full h-full z-20;
+    @apply bg-yellow-700/50 blur-[8px] light:bg-yellow-600/40 w-full h-full z-10;
   }
 }
 
 .gprogress-ind__root[data-award='mastered'] {
-  @apply border-[rgb(204,153,0)] bg-[#606] light:to-yellow-500;
+  @apply border-[gold] bg-[#606] light:to-yellow-500;
 
   > div {
     @apply bg-[rgba(255,215,0,0.9)] blur-[4px] h-full;

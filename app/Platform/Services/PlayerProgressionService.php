@@ -56,6 +56,7 @@ class PlayerProgressionService
          * case can happen when sets are completely demoted).
          */
         $processedGameIds = [];
+        $allAwardsByGameId = [];
 
         // [A] Prepare the lookup tables.
         $awardsLookup = [];
@@ -68,21 +69,23 @@ class PlayerProgressionService
             if ($award['AwardType'] == AwardType::GameBeaten) {
                 // Check if a higher-ranked award ('completed' or 'mastered') is already present.
                 if (!isset($awardsLookup[$key]) || ($awardsLookup[$key] != 'completed' && $awardsLookup[$key] != 'mastered')) {
-                    $awardsLookup[$key] =
-                        $award['AwardDataExtra'] == UnlockMode::Softcore
-                            ? 'beaten-softcore'
-                            : 'beaten-hardcore';
+                    $awardKind = $award['AwardDataExtra'] == UnlockMode::Softcore
+                        ? 'beaten-softcore'
+                        : 'beaten-hardcore';
 
+                    $awardsLookup[$key] = $awardKind;
                     $awardsDateLookup[$key] = $award['AwardedAt'];
+                    $allAwardsByGameId[$key][] = $awardKind;
                 }
             } elseif ($award['AwardType'] == AwardType::Mastery) {
-                $awardsLookup[$key] =
-                    $award['AwardDataExtra'] == UnlockMode::Softcore
-                        ? 'completed'
-                        : 'mastered';
+                $awardKind = $award['AwardDataExtra'] == UnlockMode::Softcore
+                    ? 'completed'
+                    : 'mastered';
 
+                $awardsLookup[$key] = $awardKind;
                 $awardsDateLookup[$key] = $award['AwardedAt'];
                 $hasMasteryAwardLookup[$key] = true;
+                $allAwardsByGameId[$key][] = $awardKind;
             }
         }
 
@@ -99,6 +102,7 @@ class PlayerProgressionService
                 if (isset($awardsLookup[$game['GameID']])) {
                     $game['HighestAwardKind'] = $awardsLookup[$game['GameID']];
                     $game['HighestAwardDate'] = $awardsDateLookup[$game['GameID']];
+                    $game['AllAwardKinds'] = $allAwardsByGameId[$game['GameID']];
 
                     // Check if the game has been beaten but not mastered.
                     if (
@@ -141,6 +145,7 @@ class PlayerProgressionService
                         'Title' => $award['Title'],
                         'HighestAwardKind' => $awardKind,
                         'HighestAwardDate' => $awardsDateLookup[$gameId],
+                        'AllAwardKinds' => $allAwardsByGameId[$gameId],
                         'MostRecentWonDate' => date('Y-m-d H:i:s', $award['AwardedAt']),
                         'ImageIcon' => $award['ImageIcon'],
                         'NumAwarded' => 0,
