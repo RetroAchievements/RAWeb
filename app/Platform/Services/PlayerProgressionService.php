@@ -121,9 +121,6 @@ class PlayerProgressionService
                 }
 
                 $filteredAndJoined[] = $game;
-                // if ($game['GameID'] === 1636) {
-                //     dd($game);
-                // }
                 $processedGameIds[$game['GameID']] = true;
             }
         }
