@@ -29,6 +29,8 @@ if ($highestAwardKind === 'mastered' && $numAwardedHardcore !== $maxPossible) {
         $highestAwardKind = 'beaten-hardcore';
     } else if ($isBeatenSoftcore) {
         $highestAwardKind = 'beaten-softcore';
+    } else {
+        $highestAwardKind = 'unfinished';
     }
 }
 if ($highestAwardKind === 'completed' && $numAwarded !== $maxPossible) {
@@ -36,6 +38,8 @@ if ($highestAwardKind === 'completed' && $numAwarded !== $maxPossible) {
         $highestAwardKind = 'beaten-hardcore';
     } else if ($isBeatenSoftcore) {
         $highestAwardKind = 'beaten-softcore';
+    } else {
+        $highestAwardKind = 'unfinished';
     }
 }
 ?>

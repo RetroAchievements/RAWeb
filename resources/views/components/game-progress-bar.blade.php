@@ -1,9 +1,9 @@
 @props([
     'awardIndicator' => null, // 'unfinished' | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered' | null
-    'softcoreProgress' => 0,
     'hardcoreProgress' => 0,
     'maxProgress' => 100,
-    'tooltip' => null, // ?string
+    'softcoreProgress' => 0,
+    'tooltipLabel' => null, // ?string
 ])
 
 <?php
@@ -23,11 +23,16 @@
         }
     }
 
-    if (!$tooltip) {
+    if (!$tooltipLabel) {
         if ($hardcoreProgress === $softcoreProgress) {
-            $tooltip = "{$hardcoreProgress} of {$maxProgress}";
+            // Same progress for both modes.
+            $tooltipLabel = "Progress: {$hardcoreProgress}/{$maxProgress} (hardcore)";
+        } else if ($hardcoreProgress === 0 && $softcoreProgress > 0) {
+            // Only softcore progress.
+            $tooltipLabel = "Progress: {$softcoreProgress}/{$maxProgress} (softcore only)";
         } else {
-            $tooltip = "{$softcoreProgress} ({$hardcoreProgress} hardcore) of {$maxProgress}";
+            // Mixed progress.
+            $tooltipLabel = "Progress: {$softcoreProgress}/{$maxProgress} (softcore), {$hardcoreProgress}/{$maxProgress} (hardcore)";
         }
     }
 ?>
@@ -38,8 +43,8 @@
         aria-valuemin="0"
         aria-valuemax="{{ $maxProgress }}"
         aria-valuenow="{{ $softcoreProgress }}"
-        aria-label="{{ $tooltip }}"
-        title="{{ $tooltip }}"
+        aria-label="{{ $tooltipLabel }}"
+        title="{{ $tooltipLabel }}"
         class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l' : 'rounded' }}"
     >
         @if ($hardcoreProgress > 0)
