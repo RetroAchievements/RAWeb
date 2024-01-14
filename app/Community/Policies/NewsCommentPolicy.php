@@ -9,11 +9,15 @@ use App\Community\Models\NewsComment;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Carbon;
 
 class NewsCommentPolicy
 {
     use HandlesAuthorization;
+
+    public function manage(User $user): bool
+    {
+        return false;
+    }
 
     public function viewAny(?User $user, News $commentable): bool
     {
@@ -41,7 +45,7 @@ class NewsCommentPolicy
 
     public function create(User $user, ?News $commentable): bool
     {
-        if ($user->muted_until && $user->muted_until < Carbon::now()) {
+        if ($user->isMuted()) {
             return false;
         }
 

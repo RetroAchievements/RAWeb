@@ -19,6 +19,10 @@ use App\Site\Enums\Permissions;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
 use App\Support\HashId\HasHashId;
 use Database\Factories\UserFactory;
+use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,12 +31,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\CausesActivity;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
 // TODO MustVerifyEmail,
-class User extends Authenticatable implements CommunityMember, Developer, HasComments, HasLocalePreference, HasMedia, Player
+class User extends Authenticatable implements CommunityMember, Developer, HasComments, HasLocalePreference, HasMedia, Player, FilamentUser, HasName
 {
     /*
      * Framework Traits
@@ -46,10 +53,14 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     /*
      * Providers Traits
      */
-    use InteractsWithMedia;
+    use PivotEventTrait;
     use HasRoles;
+    use InteractsWithMedia;
 
-    // TODO use CausesActivity;
+    use CausesActivity;
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     /*
      * Shared Traits
@@ -63,7 +74,9 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     use HasAccount;
     use HasAvatar;
     use HasPreferences;
-    use ActsAsCommunityMember;
+    use ActsAsCommunityMember {
+        ActsAsCommunityMember::activities insteadof LogsActivity;
+    }
     use ActsAsDeveloper;
     use ActsAsPlayer;
 
@@ -126,8 +139,10 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'locale_date',
         'locale_time',
         'locale_number',
-        'motto',
+        'ManuallyVerified',
+        'Motto',
         'password', // fillable for registration
+        'Permissions',
         'preferences',
         'RAPoints',
         'RASoftcorePoints',
@@ -136,29 +151,33 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'TrueRAPoints',
         'timezone',
         'unranked_at',
+        'Untracked',
         'User', // fillable for registration
+        'UserWallActive',
     ];
 
     protected $visible = [
         "ID",
-        "User",
-        "Permissions",
+        "avatarUrl",
+        'Created',
         "achievements_unlocked",
         "achievements_unlocked_hardcore",
         "completion_percentage_average",
         "completion_percentage_average_hardcore",
-        "RAPoints",
-        "RASoftcorePoints",
         "ContribCount",
         "ContribYield",
+        "LastLogin",
+        "ManuallyVerified",
+        "Motto",
+        "Permissions",
+        "RAPoints",
+        "RASoftcorePoints",
         "TrueRAPoints",
         "websitePrefs",
-        "Motto",
-        "Untracked",
-        "LastLogin",
-        "avatarUrl",
-        'Created',
         'UnreadMessageCount',
+        "Untracked",
+        "User",
+        "UserWallActive",
     ];
 
     protected $appends = [
@@ -166,22 +185,48 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     ];
 
     protected $casts = [
-        'DeleteRequested' => 'datetime',
-        'LastLogin' => 'datetime',
-        'RichPresenceMsgDate' => 'datetime',
-        'banned_at' => 'datetime',
         'appTokenExpiry' => 'datetime',
-        'email_verified_at' => 'datetime',
-        'muted_until' => 'datetime',
-        'unranked_at' => 'datetime',
-        'password' => 'hashed',
-        'RAPoints' => 'integer',
-        'RASoftcorePoints' => 'integer',
-        'TrueRAPoints' => 'integer',
+        'banned_at' => 'datetime',
         'ContribCount' => 'integer',
         'ContribYield' => 'integer',
+        'DeleteRequested' => 'datetime',
+        'email_verified_at' => 'datetime',
+        'LastLogin' => 'datetime',
+        'muted_until' => 'datetime',
+        'password' => 'hashed',
         'Permissions' => 'integer',
+        'RAPoints' => 'integer',
+        'RASoftcorePoints' => 'integer',
+        'RichPresenceMsgDate' => 'datetime',
+        'TrueRAPoints' => 'integer',
+        'unranked_at' => 'datetime',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        // record users role attach/detach in audit log
+
+        static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
+            if ($relationName === 'roles') {
+                activity()->causedBy(auth()->user())->performedOn($model)
+                    ->withProperty('relationships', [$relationName => $pivotIds])
+                    ->withProperty('attributes', [$relationName => $pivotIdsAttributes])
+                    ->event('pivotAttached')
+                    ->log('pivotAttached');
+            }
+        });
+
+        static::pivotDetached(function ($model, $relationName, $pivotIds) {
+            if ($relationName === 'roles') {
+                activity()->causedBy(auth()->user())->performedOn($model)
+                    ->withProperty('relationships', [$relationName => $pivotIds])
+                    ->event('pivotDetached')
+                    ->log('pivotDetached');
+            }
+        });
+    }
 
     protected static function newFactory(): UserFactory
     {
@@ -196,6 +241,18 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     public function getAuthPassword()
     {
         return $this->Password;
+    }
+
+    // Filament
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->can('accessManagementTools');
+    }
+
+    public function getFilamentName(): string
+    {
+        return $this->username;
     }
 
     // search
@@ -227,6 +284,33 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
         // TODO return true;
         return false;
+    }
+
+    // audit activity log
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'banned_at',
+                'country',
+                'display_name',
+                'email_verified_at',
+                'locale',
+                'locale_date',
+                'locale_number',
+                // 'locale_time',
+                'ManuallyVerified',
+                'Motto',
+                // 'roles.name',
+                'timezone',
+                'unranked_at',
+                'Untracked',
+                'User',
+                'UserWallActive',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == media
@@ -273,9 +357,9 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
     // TODO remove after rename
 
-    public function getIdAttribute(): int
+    public function getIdAttribute(): ?int
     {
-        return $this->attributes['ID'];
+        return $this->attributes['ID'] ?? null;
     }
 
     public function getDisplayNameAttribute(): ?string

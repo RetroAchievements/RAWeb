@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * TODO: Implement V1 in [retroachievements/retroachievements-api-php](https://github.com/retroachievements/retroachievements-api-php)
+ * TODO: Implement V1 in [retroachievements/api-php](https://github.com/retroachievements/api-php)
  */
 class WebApiV1Controller extends Controller
 {

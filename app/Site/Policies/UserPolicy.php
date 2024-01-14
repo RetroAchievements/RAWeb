@@ -12,6 +12,11 @@ class UserPolicy
 {
     use HandlesAuthorization;
 
+    public function manage(User $user): bool
+    {
+        return $this->requireAdministrativePrivileges($user);
+    }
+
     public function viewAny(?User $user): bool
     {
         return true;
@@ -40,6 +45,10 @@ class UserPolicy
 
     public function update(User $user, User $model): bool
     {
+        if ($user->is($model)) {
+            return true;
+        }
+
         /*
          * Note: this is not related to implicit authorization for user settings but for moderation purposes
          */
@@ -142,8 +151,16 @@ class UserPolicy
         return $this->requireAdministrativePrivileges($user, $model);
     }
 
-    private function requireAdministrativePrivileges(User $user, User $model): bool
+    private function requireAdministrativePrivileges(User $user, ?User $model = null): bool
     {
+        if (!$model) {
+            return $user->hasAnyRole([
+                Role::ROOT,
+                Role::ADMINISTRATOR,
+                Role::MODERATOR,
+            ]);
+        }
+
         /*
          * users may not delete themselves
          */
@@ -154,26 +171,25 @@ class UserPolicy
         /*
          * admins may not delete other admins
          */
-        // if ($user->hasRole(Role::ADMINISTRATOR)) {
-        //     if ($model->hasRole(Role::ADMINISTRATOR)) {
-        //         return false;
-        //     }
-        // }
+        if ($user->hasRole(Role::ADMINISTRATOR)) {
+            if ($model->hasRole(Role::ADMINISTRATOR)) {
+                return false;
+            }
+        }
 
         /*
          * moderators may not delete admins or other moderators
          */
-        // if ($user->hasRole(Role::MODERATOR)) {
-        //     if ($model->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
-        //         return false;
-        //     }
-        // }
+        if ($user->hasRole(Role::MODERATOR)) {
+            if ($model->hasAnyRole([Role::ROOT, Role::ADMINISTRATOR, Role::MODERATOR])) {
+                return false;
+            }
+        }
 
-        // return $user->hasAnyRole([
-        //     Role::ADMINISTRATOR,
-        //     Role::MODERATOR,
-        // ]);
-
-        return false;
+        return $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+        ]);
     }
 }

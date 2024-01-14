@@ -62,6 +62,11 @@ class Achievement extends BaseModel implements HasComments
     protected $fillable = [
         'Title',
         'Description',
+        'GameID',
+        'Points',
+        'Flags',
+        'type',
+        'DisplayOrder',
     ];
 
     protected $casts = [
@@ -84,6 +89,7 @@ class Achievement extends BaseModel implements HasComments
         'DateModified',
         'type',
         'DisplayOrder',
+        'Flags',
     ];
 
     protected static function newFactory(): AchievementFactory

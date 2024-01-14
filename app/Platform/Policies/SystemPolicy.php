@@ -13,6 +13,13 @@ class SystemPolicy
 {
     use HandlesAuthorization;
 
+    public function manage(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
+    }
+
     public function viewAny(?User $user): bool
     {
         return true;

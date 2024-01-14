@@ -38,7 +38,9 @@ class GameHashSetPolicy
 
     public function update(User $user, Game $game): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 
     public function delete(User $user, Game $game): bool

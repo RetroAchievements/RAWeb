@@ -16,24 +16,26 @@ class AchievementPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            Role::DEVELOPER,
+            // Role::DEVELOPER,
 
             /*
              * moderators may remove unfit content from achievements
              */
-            Role::MODERATOR,
+            // Role::MODERATOR,
 
             /*
              * artists may update achievement badges if the respective achievements are open for editing
              */
-            Role::ARTIST,
+            // Role::ARTIST,
 
-        /*
-         * writers may update achievement title and description if the respective achievements are open for editing
-         */
+            /*
+             * writers may update achievement title and description if the respective achievements are open for editing
+             */
             // Role::WRITER,
         ]);
     }
@@ -56,25 +58,22 @@ class AchievementPolicy
     public function update(User $user, Achievement $achievement): bool
     {
         return $user->hasAnyRole([
-            /*
-             * moderators may remove unfit content from achievements
-             */
-            // Role::ADMINISTRATOR,
+            Role::HUB_MANAGER,
 
             /*
              * moderators may remove unfit content from achievements
              */
-            Role::MODERATOR,
+            // Role::MODERATOR,
 
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            Role::DEVELOPER,
+            // Role::DEVELOPER,
 
             /*
              * artists may update achievement badges if the respective achievements are open for editing
              */
-            Role::ARTIST,
+            // Role::ARTIST,
         ]);
     }
 

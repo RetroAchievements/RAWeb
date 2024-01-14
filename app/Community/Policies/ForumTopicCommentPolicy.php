@@ -9,7 +9,6 @@ use App\Community\Models\ForumTopicComment;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Carbon;
 
 class ForumTopicCommentPolicy
 {
@@ -39,7 +38,7 @@ class ForumTopicCommentPolicy
          * verified and unverified users may comment
          * muted, suspended, banned may not comment
          */
-        if ($user->muted_until && $user->muted_until < Carbon::now()) {
+        if ($user->isMuted()) {
             return false;
         }
 
@@ -65,7 +64,6 @@ class ForumTopicCommentPolicy
         }
 
         if ($user->hasAnyRole([
-            // Role::ADMINISTRATOR,
             Role::MODERATOR,
         ])) {
             return true;

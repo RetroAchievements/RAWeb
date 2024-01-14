@@ -54,7 +54,7 @@ class System extends BaseModel implements HasMedia
     }
 
     protected $fillable = [
-        'name',
+        'Name',
         'name_full',
         'name_short',
         'manufacturer',
@@ -65,6 +65,10 @@ class System extends BaseModel implements HasMedia
     protected $visible = [
         'ID',
         'Name',
+        'name_full',
+        'name_short',
+        'manufacturer',
+        'active',
     ];
 
     // == constants
