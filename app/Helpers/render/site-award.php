@@ -139,7 +139,7 @@ function RenderAwardGroup(array $awards, string $title, string $awardsOwnerUsern
 
     echo "<div id='" . strtolower(str_replace(' ', '', $title)) . "'>";
     echo "<h3 class='flex justify-between gap-2'><span class='grow'>$title</span>$counters</h3>";
-    echo "<div class='component w-full place-content-center bg-embed gap-2 grid grid-cols-[repeat(auto-fill,minmax(52px,52px))]'>";
+    echo "<div class='component w-full place-content-center bg-embed gap-2 grid grid-cols-[repeat(auto-fill,minmax(52px,52px))] xl:rounded xl:py-2'>";
     $imageSize = 48;
     foreach ($awards as $award) {
         if ($award['DisplayOrder'] >= 0) {
