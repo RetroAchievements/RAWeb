@@ -145,42 +145,35 @@ class GameListService
             case 'unstarted':
                 return !$foundProgress;
 
-            case 'unawarded':
+            case 'lt-beaten-softcore':
                 return
                     isset($foundProgress)
                     && $foundProgress['completion_percentage'] > 0
                     && !isset($foundProgress['HighestAwardKind'])
                 ;
 
-            case 'awarded':
+            case 'gte-beaten-softcore':
                 return isset($foundProgress['HighestAwardKind']);
 
-            case 'any-beaten':
-                return $hasAwardKind('beaten-softcore') || $hasAwardKind('beaten-hardcore');
-
-            case 'any-hardcore':
-                return $foundProgress['completion_percentage_hardcore'] > 0;
-
-            case 'any-softcore':
-                return $foundProgress['completion_percentage'] !== $foundProgress['completion_percentage_hardcore'];
-
-            case 'eq-beaten-softcore':
-            case 'eq-beaten-hardcore':
-            case 'eq-completed':
-            case 'eq-mastered':
-                return $isStatusEqual($foundProgress, mb_substr($statusValue, 3)); // remove "eq-"
-
-            case 'eq-revised':
-                return ($hasAwardKind('completed') || $hasAwardKind('mastered')) && $foundProgress['completion_percentage_hardcore'] < 1;
-
-            case 'gte-beaten-softcore':
-                return $hasAwardKind('beaten-softcore') || $hasAwardKind('completed');
-
             case 'gte-beaten-hardcore':
-                return $hasAwardKind('beaten-hardcore') || $hasAwardKind('mastered');
+                return $hasAwardKind('beaten-hardcore') || $hasAwardKind('completed') || $hasAwardKind('mastered');
 
             case 'gte-completed':
                 return $hasAwardKind('completed') || $hasAwardKind('mastered');
+
+            case 'eq-mastered':
+                return $isStatusEqual($foundProgress, 'mastered');
+
+            case 'eq-beaten-softcore-or-beaten-hardcore':
+                return $hasAwardKind('beaten-softcore') || $hasAwardKind('beaten-hardcore');
+
+            case 'any-softcore':
+                return
+                    isset($foundProgress)
+                    && $foundProgress['completion_percentage'] !== $foundProgress['completion_percentage_hardcore'];
+
+            case 'revised':
+                return ($hasAwardKind('completed') || $hasAwardKind('mastered')) && $foundProgress['completion_percentage_hardcore'] < 1;
 
             default:
                 return true;

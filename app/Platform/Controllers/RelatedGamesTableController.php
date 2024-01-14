@@ -35,7 +35,7 @@ class RelatedGamesTableController extends Controller
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
             'filter.console' => 'sometimes|in:true,false',
             'filter.populated' => 'sometimes|in:true,false',
-            'filter.status' => 'sometimes|string|in:all,unstarted,unawarded,eq-beaten-softcore,eq-beaten-hardcore,eq-completed,eq-mastered,any-beaten,gte-completed,awarded,eq-revised,gte-beaten-softcore,gte-beaten-hardcore,any-softcore,any-hardcore',
+            'filter.status' => 'sometimes|string|in:all,unstarted,lt-beaten-softcore,gte-beaten-softcore,gte-beaten-hardcore,gte-completed,eq-mastered,eq-beaten-softcore-or-beaten-hardcore,any-softcore,revised',
         ]);
         $sortOrder = $validatedData['sort'] ?? 'title';
         $filterOptions = [
@@ -79,20 +79,15 @@ class RelatedGamesTableController extends Controller
                 'label' => 'Status',
                 'options' => [
                     'all' => 'All games',
-                    'unstarted' => 'No progress',
-                    'unawarded' => 'Unfinished',
-                    'eq-beaten-softcore' => 'Beaten (softcore)',
-                    'eq-beaten-hardcore' => 'Beaten',
-                    'eq-completed' => 'Completed',
-                    'eq-mastered' => 'Mastered',
-                    'any-beaten' => 'Beaten, either hardcore or softcore',
+                    'unstarted' => 'No achievements earned',
+                    'lt-beaten-softcore' => 'Has progress, but no award',
+                    'gte-beaten-softcore' => 'Beaten (softcore) or greater',
+                    'gte-beaten-hardcore' => 'Beaten or greater',
                     'gte-completed' => 'Completed or mastered',
-                    'awarded' => 'Games with any award',
-                    'eq-revised' => 'Games with awards for revised sets',
-                    'gte-beaten-softcore' => 'Games with softcore awards',
-                    'gte-beaten-hardcore' => 'Games with hardcore awards',
-                    'any-softcore' => 'Games with any softcore progress',
-                    'any-hardcore' => 'Games with any hardcore progress',
+                    'eq-mastered' => 'Mastered',
+                    'eq-beaten-softcore-or-beaten-hardcore' => 'Beaten, but still missing achievements',
+                    'any-softcore' => 'Has any softcore progress',
+                    'revised' => 'Completed or mastered, but the set was revised',
                 ],
             ],
         ];

@@ -13,7 +13,7 @@
 
     if ($hasSorts) {
         $header = ($hasCheckboxFilters || $hasSelectFilters) ? "Sorts and filters" : "Sorts";
-    } else if ($hasCheckboxFilters) {
+    } else if ($hasCheckboxFilters || $hasSelectFilters) {
         $header = "Filters";
     } else {
         $header = null;
