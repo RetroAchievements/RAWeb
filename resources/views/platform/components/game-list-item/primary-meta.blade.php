@@ -96,7 +96,7 @@ if ($highestAwardKind && $highestAwardDate) {
 
                     @if ($exclusiveSoftcorePoints > 0 && $exclusiveSoftcorePoints < $numAwardedHardcorePoints)
                         (+<span class="font-bold">{{ localized_number($exclusiveSoftcorePoints) }}</span> softcore)
-                    @elseif ($exclusiveSoftcorePoints > $numAwardedHardcorePoints)
+                    @elseif ($numAwardedHardcorePoints > 0 && $exclusiveSoftcorePoints > $numAwardedHardcorePoints)
                         (+<span class="font-bold">{{ localized_number($numAwardedHardcorePoints) }}</span> hardcore)
                     @endif
                 </p>
