@@ -44,7 +44,7 @@
                 <table class='table-highlight mb-4'>
                     <thead>
                         <tr class="do-not-highlight sticky top-[42px] z-10 bg-box">
-                            @foreach ($columns as $index => $column)
+                            @foreach ($columns as $column)
                                 @php
                                     $styles = [];
                                     if (array_key_exists('width', $column)) {
@@ -55,8 +55,6 @@
                                     }
                                     $alignment = $column['align'] ?? 'left';
                                     $class = $alignment !== 'left' ? "text-$alignment" : '';
-                                    $class .= ($index === 0) ? ' rounded-tl' : '';
-                                    $class .= ($index === count($columns) - 1) ? ' rounded-tr' : '';
                                 @endphp
                     
                                 <th
