@@ -8,28 +8,15 @@
 
     <div class="flex flex-col gap-y-1">
         @foreach ($recentForumPosts as $recentForumPost)
-            <div class="embedded">
-                <div class="flex justify-between items-center">
-                    <div>
-                        {!! userAvatar($recentForumPost['Author'], iconSize: 16) !!}
-                        <span
-                            class="smalldate
-                            {{ $recentForumPost['HasDateTooltip'] ? 'cursor-help' : '' }}"
-                            @if ($recentForumPost['TitleAttribute']) title="{{ $recentForumPost['TitleAttribute'] }}" @endif
-                        >
-                            {{ $recentForumPost['PostedAt'] }}
-                        </span>
-                    </div>
-
-                    <a class="btn btn-link" href="{{ $recentForumPost['URL'] }}">View</a>
-                </div>
-
-                <p>in <a href="{{ $recentForumPost['URL'] }}">{{ $recentForumPost['ForumTopicTitle'] }}</a></p>
-
-                <p class="comment text-overflow-wrap">
-                    {{ $recentForumPost['ShortMsg'] }}
-                </p>
-            </div>
+            <x-forum.recent-post-item
+                :authorUsername="$recentForumPost['Author']"
+                :forumTopicTitle="$recentForumPost['ForumTopicTitle']"
+                :hasDateTooltip="$recentForumPost['HasDateTooltip']"
+                :href="$recentForumPost['URL']"
+                :postedAt="$recentForumPost['PostedAt']"
+                :summary="$recentForumPost['ShortMsg']"
+                :tooltipLabel="$recentForumPost['TitleAttribute'] ?? null"
+            />
         @endforeach
     </div>
 

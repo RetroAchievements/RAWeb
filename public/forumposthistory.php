@@ -3,6 +3,7 @@
 use App\Site\Enums\UserPreference;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount = 25;
@@ -21,7 +22,7 @@ if (empty($forUser)) {
     $recentPosts = getRecentForumPosts($offset, $count, $messageLength, $permissions, $forUser);
 }
 
-RenderContentStart("Forum Recent Posts");
+RenderContentStart("Forum Post History");
 ?>
 <article>
     <?php
@@ -37,99 +38,76 @@ RenderContentStart("Forum Recent Posts");
 
     echo "<h3>Forum Post History</h3>";
 
-    // Output all forums fetched, by category
-
-    $lastCategory = "_init";
-
-    $forumIter = 0;
-
-    echo "<div class='table-wrapper'>";
-    echo "<table class='table-highlight'>";
-    echo "<tbody>";
-
-    echo "<tr class='do-not-highlight'>";
-    if (empty($forUser)) {
-        echo "<th>Last Post By</th>";
-        echo "<th>Message</th>";
-        echo "<th>Additional Posts</th>";
-    } else {
-        echo "<th>Author</th>";
-        echo "<th>Message</th>";
-    }
-    echo "</tr>";
-
     $isShowAbsoluteDatesPreferenceSet = $websitePrefs && BitSet($websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
 
+    echo "<div class='flex flex-col gap-y-1 mb-4'>";
     foreach ($recentPosts as $topicPostData) {
+        $forumTopicId = $topicPostData['ForumTopicID'];
+        $commentId = $topicPostData['CommentID'];
+        $postHref = "/viewtopic.php?t=$forumTopicId&c=$commentId#$commentId";
+
         $postMessage = $topicPostData['ShortMsg'];
         if ($topicPostData['IsTruncated']) {
             $postMessage .= '...';
         }
-        $postAuthor = $topicPostData['Author'];
-        $forumID = $topicPostData['ForumID'] ?? 0;
-        $forumTitle = $topicPostData['ForumTitle'] ?? '';
-        $forumTopicID = $topicPostData['ForumTopicID'];
-        $forumTopicTitle = $topicPostData['ForumTopicTitle'];
-        $commentID = $topicPostData['CommentID'];
-        $commentID_1d = $topicPostData['CommentID_1d'] ?? 0;
-        $count_1d = $topicPostData['Count_1d'] ?? 0;
-        $commentID_7d = $topicPostData['CommentID_7d'] ?? 0;
-        $count_7d = $topicPostData['Count_7d'] ?? 0;
 
         $postedAt =
             $isShowAbsoluteDatesPreferenceSet
                 ? getNiceDate(strtotime($topicPostData['PostedAt']))
                 : Carbon::parse($topicPostData['PostedAt'])->diffForHumans();
 
-        sanitize_outputs($forumTopicTitle, $forumTitle, $postMessage);
+        $commentId_1d = $topicPostData['CommentID_1d'] ?? 0;
+        $count_1d = $topicPostData['Count_1d'] ?? 0;
+        $commentId_7d = $topicPostData['CommentID_7d'] ?? 0;
+        $count_7d = $topicPostData['Count_7d'] ?? 0;
 
-        echo "<tr>";
-
-        echo "<td class='py-2.5'>";
-        echo userAvatar($postAuthor, iconSize: 24);
-        echo "</td>";
-
-        $tooltipClassName = $isShowAbsoluteDatesPreferenceSet ? "" : "cursor-help";
-        $titleAttribute = $isShowAbsoluteDatesPreferenceSet
-            ? ""
-            : "title='" . Carbon::parse($topicPostData['PostedAt'])->format('F j Y, g:ia') . "'";
-
-        echo "<td>";
-        echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID#$commentID'>$forumTopicTitle</a>";
-        echo " <span class='smalldate $tooltipClassName' $titleAttribute>$postedAt</span>";
-        echo "<div class='comment text-overflow-wrap'>";
-        echo Shortcode::stripAndClamp($postMessage, $messageLength);
-        echo "</div>";
-        echo "</td>";
-
-        echo "<td>";
+        $viewLabel = '';
+        $view2Label = null;
+        $viewHref = null;
+        $view2Href = null;
         if (empty($forUser)) {
             if ($count_7d > 1) {
-                echo "<span class='smalltext whitespace-nowrap'>";
-
                 if ($count_1d > 1) {
-                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_1d#$commentID_1d'>$count_1d posts in the last 24 hours";
+                    $viewLabel = "{$count_1d} posts in the last 24 hours";
+                    $viewHref = "/viewtopic.php?t=$forumTopicId&c=$commentId_1d#$commentId_1d";
                 }
 
                 if ($count_7d > $count_1d) {
-                    if ($count_1d > 1) {
-                        echo "<div class='mt-1'/>";
-                    }
-                    echo "<a href='/viewtopic.php?t=$forumTopicID&c=$commentID_7d#$commentID_7d'>$count_7d posts in the last 7 days";
-                    if ($count_1d > 1) {
-                        echo "</div>";
-                    }
+                    $view2Label = "{$count_7d} posts in the last 7 days";
+                    $view2Href = "/viewtopic.php?t=$forumTopicId&c=$commentId_7d#$commentId_7d";
                 }
-
-                echo "</span>";
             }
         }
-        echo "</td>";
 
-        echo "</tr>";
+        echo Blade::render('
+            <x-forum.recent-post-item
+                :authorUsername="$authorUsername"
+                :forumTopicTitle="$forumTopicTitle"
+                :hasDateTooltip="$hasDateTooltip"
+                :href="$href"
+                :postedAt="$postedAt"
+                :summary="$summary"
+                :tooltipLabel="$tooltipLabel"
+                :viewLabel="$viewLabel"
+                :viewHref="$viewHref"
+                :view2Label="$view2Label"
+                :view2Href="$view2Href"
+            />
+        ', [
+            'authorUsername' => $topicPostData['Author'],
+            'forumTopicTitle' => $topicPostData['ForumTopicTitle'],
+            'hasDateTooltip' => $isShowAbsoluteDatesPreferenceSet,
+            'href' => $postHref,
+            'postedAt' => $postedAt,
+            'summary' => Shortcode::stripAndClamp($postMessage, $messageLength),
+            'tooltipLabel' => Carbon::parse($topicPostData['PostedAt'])->format('F j Y, g:ia'),
+            'viewLabel' => $viewLabel,
+            'viewHref' => $viewHref,
+            'view2Label' => $view2Label,
+            'view2Href' => $view2Href,
+        ]);
     }
-
-    echo "</tbody></table></div>";
+    echo "</div>";
 
     echo "<div class='text-right'>";
     $baseUrl = '/forumposthistory.php';
