@@ -25,7 +25,7 @@
         </div>
 
         @if ($viewLabel !== '')
-            <div class="flex flex-col">
+            <div class="flex flex-col whitespace-nowrap">
                 <a class="text-right text-2xs" href="{{ $viewHref ?? $href }}">
                     {{ $viewLabel }}
                 </a>
