@@ -66,25 +66,31 @@ class PlayerProgressionService
         foreach ($siteAwards as $award) {
             $key = $award['AwardData']; // Game ID
 
-            if ($award['AwardType'] == AwardType::GameBeaten) {
-                // Check if a higher-ranked award ('completed' or 'mastered') is already present.
-                if (!isset($awardsLookup[$key]) || ($awardsLookup[$key] != 'completed' && $awardsLookup[$key] != 'mastered')) {
-                    $awardKind = $award['AwardDataExtra'] == UnlockMode::Softcore
-                        ? 'beaten-softcore'
-                        : 'beaten-hardcore';
+            $awardKinds = [
+                AwardType::GameBeaten => [
+                    UnlockMode::Softcore => 'beaten-softcore',
+                    UnlockMode::Hardcore => 'beaten-hardcore',
+                ],
+                AwardType::Mastery => [
+                    UnlockMode::Softcore => 'completed',
+                    UnlockMode::Hardcore => 'mastered',
+                ],
+            ];
+            $awardKind = $awardKinds[$award['AwardType']][$award['AwardDataExtra']] ?? '';
 
+            if (in_array($awardKind, ['beaten-softcore', 'beaten-hardcore'])) {
+                // Check if a higher-ranked award ('completed' or 'mastered') is already present.
+                if (empty($awardsLookup[$key]) || !in_array($awardsLookup[$key], ['completed', 'mastered'])) {
                     $awardsLookup[$key] = $awardKind;
                     $awardsDateLookup[$key] = $award['AwardedAt'];
-                    $allAwardsByGameId[$key][] = $awardKind;
                 }
-            } elseif ($award['AwardType'] == AwardType::Mastery) {
-                $awardKind = $award['AwardDataExtra'] == UnlockMode::Softcore
-                    ? 'completed'
-                    : 'mastered';
-
+            } elseif (in_array($awardKind, ['completed', 'mastered'])) {
                 $awardsLookup[$key] = $awardKind;
                 $awardsDateLookup[$key] = $award['AwardedAt'];
                 $hasMasteryAwardLookup[$key] = true;
+            }
+
+            if ($awardKind !== '') {
                 $allAwardsByGameId[$key][] = $awardKind;
             }
         }
@@ -115,6 +121,9 @@ class PlayerProgressionService
                 }
 
                 $filteredAndJoined[] = $game;
+                // if ($game['GameID'] === 1636) {
+                //     dd($game);
+                // }
                 $processedGameIds[$game['GameID']] = true;
             }
         }
