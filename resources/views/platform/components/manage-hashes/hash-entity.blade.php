@@ -132,7 +132,7 @@ function unlinkHash(hash, hashName) {
                     <label
                         for="{{ 'HASH_' . $hashEntity->MD5 . '_PatchURL' }}"
                         class="text-2xs font-semibold cursor-help flex items-center gap-x-0.5"
-                        title="Optional. This MUST be a URL to a .zip file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/blob/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
+                        title="Optional. This MUST be a URL to a .zip or .7z file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
                     >
                         RAPatches URL
                         <x-fas-info-circle class="text-sm" />
@@ -142,7 +142,7 @@ function unlinkHash(hash, hashName) {
                         id="{{ 'HASH_' . $hashEntity->MD5 . '_PatchURL' }}"
                         class="w-full"
                         value="{{ $hashEntity->patch_url }}"
-                        placeholder="https://github.com/RetroAchievements/RAPatches/blob/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
+                        placeholder="https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
                     >
                 </div>
 

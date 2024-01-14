@@ -59,7 +59,11 @@ class GameHashController extends Controller
         $input = $request->validate([
             'name' => 'required|string',
             'labels' => 'required|string',
-            'patch_url' => 'nullable|url|regex:/github\.com\/RetroAchievements\/RAPatches\/raw\/main\/.*\.zip$/i',
+            'patch_url' => [
+                'nullable',
+                'url',
+                'regex:/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/main\/.*\.(zip|7z)$/i',
+            ],
             'source' => 'nullable|url',
         ]);
 
@@ -92,7 +96,7 @@ class GameHashController extends Controller
         $hash = $gameHash->MD5;
         $user = Auth::user()->User;
 
-        $wasDeleted = $gameHash->delete();
+        $wasDeleted = $gameHash->forceDelete();
 
         if (!$wasDeleted) {
             return response()->json(['message' => 'Failed to delete the game hash.'], 500);

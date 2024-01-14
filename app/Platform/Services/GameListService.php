@@ -9,6 +9,7 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\Ticket;
 use App\Community\Models\UserGameListEntry;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
@@ -44,6 +45,7 @@ class GameListService
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
                 ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
                 ->whereIn('Achievements.GameID', $gameIds)
+                ->where('Achievements.Flags', AchievementFlag::OfficialCore)
                 ->select(['GameID',
                     DB::raw('COUNT(Ticket.ID) AS NumTickets'),
                 ])
@@ -592,7 +594,7 @@ class GameListService
             $columns['tickets'] = $this->getTicketCountColumn();
         }
 
-        if ($this->userProgress != null) {
+        if ($this->userProgress !== null) {
             $columns['progress'] = $this->getUserProgressColumn();
             $columns['backlog'] = $this->getBacklogColumn();
         }

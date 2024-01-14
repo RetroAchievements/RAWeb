@@ -201,7 +201,7 @@ RenderContentStart($userPage);
     echo "<h3>$userPage</h3>";
     echo "<img src='" . media_asset("/UserPic/$userPage.png") . "' alt='$userPage' align='right' width='128' height='128' class='rounded-sm'>";
 
-    if (isset($userMotto)) {
+    if (!empty($userMotto)) {
         echo "<div class='mottocontainer'>";
         echo "<span class='usermotto'>$userMotto</span>";
         echo "</div>";
