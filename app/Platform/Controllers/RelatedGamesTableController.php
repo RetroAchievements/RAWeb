@@ -73,24 +73,28 @@ class RelatedGamesTableController extends Controller
             'console' => 'Group by console',
             'populated' => 'Only with achievements',
         ];
-        $availableSelectFilters = [
-            [
-                'kind' => 'status',
-                'label' => 'Status',
-                'options' => [
-                    'all' => 'All games',
-                    'unstarted' => 'No achievements earned',
-                    'lt-beaten-softcore' => 'Has progress, but no award',
-                    'gte-beaten-softcore' => 'Beaten (softcore) or greater',
-                    'gte-beaten-hardcore' => 'Beaten or greater',
-                    'gte-completed' => 'Completed or mastered',
-                    'eq-mastered' => 'Mastered',
-                    'eq-beaten-softcore-or-beaten-hardcore' => 'Beaten, but still missing achievements',
-                    'any-softcore' => 'Has any softcore progress',
-                    'revised' => 'Completed or mastered, but the set was revised',
+
+        $availableSelectFilters = [];
+        if ($loggedInUser) {
+            $availableSelectFilters = [
+                [
+                    'kind' => 'status',
+                    'label' => 'Status',
+                    'options' => [
+                        'all' => 'All games',
+                        'unstarted' => 'No achievements earned',
+                        'lt-beaten-softcore' => 'Has progress, but no award',
+                        'gte-beaten-softcore' => 'Beaten (softcore) or greater',
+                        'gte-beaten-hardcore' => 'Beaten or greater',
+                        'eq-beaten-softcore-or-beaten-hardcore' => 'Beaten, but still missing achievements',
+                        'gte-completed' => 'Completed or mastered',
+                        'eq-mastered' => 'Mastered',
+                        'revised' => 'Completed or mastered, but the set was revised',
+                        'any-softcore' => 'Has any softcore progress',
+                    ],
                 ],
-            ],
-        ];
+            ];
+        }
 
         return view('platform.components.game.game-list', [
             'consoles' => $this->gameListService->consoles,
