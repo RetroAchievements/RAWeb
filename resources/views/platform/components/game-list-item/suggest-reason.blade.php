@@ -52,7 +52,7 @@
             :iconSize="16"
         />
     @else
-        Also mastered by players of game
+        Mastered by players of game
     @endif
 @elseif ($selectionMethod == 'revised')
     Previously mastered game has been revised

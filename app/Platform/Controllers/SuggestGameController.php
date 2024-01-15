@@ -107,7 +107,7 @@ class SuggestGameController extends Controller
 
         $this->gameListService->mergeWantToPlay($user);
         $this->gameListService->sortGameList('title');
-        
+
         return view('platform.components.player.suggest-game-page', [
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
@@ -145,7 +145,7 @@ class SuggestGameController extends Controller
 
         $this->gameListService->mergeWantToPlay($user);
         $this->gameListService->sortGameList('title');
-       
+
         return view('platform.components.game.suggest-game-page', [
             'game' => $game,
             'user' => $user,
