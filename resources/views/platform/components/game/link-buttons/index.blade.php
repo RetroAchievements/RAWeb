@@ -1,5 +1,5 @@
 @props([
-    'allowedLinks' => ['forum-topic', 'game-files', 'guide', 'code-notes', 'tickets', 'set-requestors'],
+    'allowedLinks' => ['forum-topic', 'game-files', 'guide', 'code-notes', 'tickets', 'set-requestors', 'suggested-games'],
     'gameAchievementsCount' => 0,
     'gameForumTopicId' => null, // ?int
     'gameGuideUrl' => null, // ?string
@@ -29,6 +29,7 @@ $canSeeCodeNotes = in_array('code-notes', $allowedLinks) && $me && $me->Permissi
 $canSeeGuide = in_array('guide', $allowedLinks) && $gameGuideUrl;
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered;
 $canSeeSetRequestors = in_array('set-requestors', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered && $gameAchievementsCount === 0;
+$canSeeSuggestedGames = in_array('suggested-games', $allowedLinks) && $me && $me->Permissions >= Permissions::Registered;
 
 if ($canSeeOpenTickets) {
     $numOpenTickets = countOpenTickets(
@@ -98,6 +99,15 @@ if ($canSeeOpenTickets) {
             href="{{ '/setRequestors.php?g=' . $gameId }}"
         >
             Set Requestors
+        </x-game.link-buttons.game-link-button>
+    @endif
+
+    @if ($canSeeSuggestedGames)
+        <x-game.link-buttons.game-link-button
+            icon="🕹️"
+            href="{{ route('game.suggest-for-game', $gameId) }}"
+        >
+            Find something similar to play
         </x-game.link-buttons.game-link-button>
     @endif
 </ul>

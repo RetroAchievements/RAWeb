@@ -68,6 +68,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
+            Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest-for-game');
             Route::get('game/suggest', SuggestGameController::class)->name('game.suggest');
             
             // Route::get('create', CreateController::class)->name('create');

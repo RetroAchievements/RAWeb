@@ -1203,7 +1203,7 @@ sanitize_outputs(
 
         // Progression component (mobile only)
         if ($user !== null && $numAchievements > 0 && $isOfficial) {
-            echo "<div class='mb-5 hidden lg:block'>";
+            echo "<div class='mb-3 hidden lg:block'>";
             echo $initializedProgressComponent;
             echo "</div>";
         }

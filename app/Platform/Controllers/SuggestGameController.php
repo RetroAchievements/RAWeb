@@ -28,6 +28,9 @@ class SuggestGameController extends Controller
     ) {
     }
 
+    private array $gameProgress = [];
+    private array $masteredGames = [];
+
     public function __invoke(Request $request): View
     {
         $user = $request->user();
@@ -35,12 +38,8 @@ class SuggestGameController extends Controller
             abort(403);
         }
 
-        $masteredGames = [];
-        $userProgress = [];
-        $gameProgress = [];
-
         $selectedGames = [];
-        $gameIDs = [];
+        $gameIds = [];
 
         $wantToPlayList = UserGameListEntry::where('user_id', $user->id)
             ->where('type', UserGameListType::Play)
@@ -48,6 +47,120 @@ class SuggestGameController extends Controller
             ->where('GameData.achievements_published', '>', 0)
             ->pluck('GameID')
             ->toArray();
+
+        $this->initializeUserProgress($user);
+
+        $revisedGames = PlayerBadge::where('User', $user->User)
+            ->where('AwardType', AwardType::Mastery)
+            ->whereNotIn('AwardData', $this->masteredGames)
+            ->join('GameData', 'GameData.ID', '=', 'SiteAwards.AwardData')
+            ->where('GameData.achievements_published', '>', 0)
+            ->whereNotIn('GameData.ConsoleID', [100, 101])
+            ->pluck('AwardData')
+            ->toArray();
+
+        $randomChance = 40;
+        $wantToPlayChance = (int) (count($wantToPlayList) / 8);
+        $relatedToMasteryChance = (int) (count($this->masteredGames) / 2);
+        $revisedChance = (int) sqrt(count($revisedGames));
+        $totalChance = $wantToPlayChance + $relatedToMasteryChance + $revisedChance + $randomChance;
+
+        for ($i = 0; $i < 30; $i++) {
+            $randomValue = rand(0, $totalChance);
+            if ($randomValue < $wantToPlayChance) {
+                $gameId = $wantToPlayList[array_rand($wantToPlayList)];
+                $why = ['how' => 'want-to-play'];
+            } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance) {
+                $gameId = $this->masteredGames[array_rand($this->masteredGames)];
+                [$gameId, $why] = $this->selectRelatedGame($user, $gameId);
+            } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance + $revisedChance) {
+                $gameId = $revisedGames[array_rand($revisedGames)];
+                $why = ['how' => 'revised'];
+            } else {
+                $gameId = $this->selectRandomGameWithAchievements();
+                $why = ['how' => 'random'];
+            }
+
+            if ($this->isGameEligible($gameId, $gameIds)) {
+                $selectedGames[$gameId] = $why;
+
+                $gameIds[] = $gameId;
+                if (count($gameIds) == 10) {
+                    break;
+                }
+            }
+        }
+
+        while (count($gameIds) < 10) {
+            $gameId = $this->selectRandomGameWithAchievements();
+            if ($this->isGameEligible($gameId, $gameIds)) {
+                $gameIds[] = $gameId;
+                $selectedGames[$gameId] = [
+                    'how' => 'random',
+                ];
+            }
+        }
+
+        $this->gameListService->initializeGameList($gameIds);
+
+        $this->mergeRelatedGameInfo($selectedGames);
+
+        $this->gameListService->mergeWantToPlay($user);
+        $this->gameListService->sortGameList('title');
+        
+        return view('platform.components.player.suggest-game-page', [
+            'user' => $user,
+            'consoles' => $this->gameListService->consoles,
+            'games' => $this->gameListService->games,
+            'columns' => $this->getColumns(),
+            'noGamesMessage' => 'No suggestions available.',
+        ]);
+    }
+
+    public function forGame(Request $request, Game $game): View
+    {
+        $user = $request->user();
+
+        $selectedGames = [];
+        $gameIds = [];
+
+        $this->initializeUserProgress($user);
+
+        for ($i = 0; $i < 30; $i++) {
+            [$gameId, $why] = $this->selectRelatedGame($user, $game->id);
+
+            if ($this->isGameEligible($gameId, $gameIds)) {
+                $selectedGames[$gameId] = $why;
+
+                $gameIds[] = $gameId;
+                if (count($gameIds) == 10) {
+                    break;
+                }
+            }
+        }
+
+        $this->gameListService->initializeGameList($gameIds);
+
+        $this->mergeRelatedGameInfo($selectedGames, showRelatedGames: false);
+
+        $this->gameListService->mergeWantToPlay($user);
+        $this->gameListService->sortGameList('title');
+       
+        return view('platform.components.game.suggest-game-page', [
+            'game' => $game,
+            'user' => $user,
+            'consoles' => $this->gameListService->consoles,
+            'games' => $this->gameListService->games,
+            'columns' => $this->getColumns(),
+            'noGamesMessage' => 'No suggestions available.',
+        ]);
+    }
+
+    private function initializeUserProgress(?User $user): void
+    {
+        if (!$user) {
+            return;
+        }
 
         $history = PlayerGame::where('user_id', $user->id)
             ->where('achievements_unlocked', '>', 0)
@@ -59,120 +172,65 @@ class SuggestGameController extends Controller
                 'achievements_total',
                 'ConsoleID',
             ]);
+
         foreach ($history->get() as $playerGame) {
             if (!System::isGameSystem($playerGame->ConsoleID)) {
                 continue;
             }
 
-            $userProgress[$playerGame->game_id] = [
+            $this->gameListService->userProgress[$playerGame->game_id] = [
                 'achievements_unlocked' => $playerGame->achievements_unlocked,
                 'achievements_unlocked_hardcore' => $playerGame->achievements_unlocked_hardcore,
             ];
 
-            $gameProgress[$playerGame->game_id] =
+            $this->gameProgress[$playerGame->game_id] =
                 $playerGame->achievements_unlocked / $playerGame->achievements_total;
 
             if ($playerGame->achievements_unlocked == $playerGame->achievements_total) {
-                $masteredGames[] = $playerGame->game_id;
+                $this->masteredGames[] = $playerGame->game_id;
             }
         }
+    }
 
-        $revisedGames = PlayerBadge::where('User', $user->User)
-            ->where('AwardType', AwardType::Mastery)
-            ->whereNotIn('AwardData', $masteredGames)
-            ->join('GameData', 'GameData.ID', '=', 'SiteAwards.AwardData')
-            ->where('GameData.achievements_published', '>', 0)
-            ->whereNotIn('GameData.ConsoleID', [100, 101])
-            ->pluck('AwardData')
-            ->toArray();
-
-        $randomChance = 40;
-        $wantToPlayChance = (int) (count($wantToPlayList) / 8);
-        $relatedToMasteryChance = (int) (count($masteredGames) / 2);
-        $revisedChance = (int) sqrt(count($revisedGames));
-        $totalChance = $wantToPlayChance + $relatedToMasteryChance + $revisedChance + $randomChance;
-
-        for ($i = 0; $i < 30; $i++) {
-            $randomValue = rand(0, $totalChance);
-            if ($randomValue < $wantToPlayChance) {
-                $gameId = $wantToPlayList[array_rand($wantToPlayList)];
-                $why = ['how' => 'want-to-play'];
-            } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance) {
-                $gameId = $masteredGames[array_rand($masteredGames)];
-                [$gameId, $why] = $this->selectRelatedGame($user, $gameId);
-            } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance + $revisedChance) {
-                $gameId = $revisedGames[array_rand($revisedGames)];
-                $why = ['how' => 'revised'];
-            } else {
-                $gameId = $this->selectRandomGameWithAchievements();
-                $why = ['how' => 'random'];
-            }
-
-            if ($this->isGameEligible($gameId, $gameIDs, $gameProgress)) {
-                $selectedGames[$gameId] = $why;
-
-                $gameIDs[] = $gameId;
-                if (count($gameIDs) == 10) {
-                    break;
-                }
-            }
-        }
-
-        while (count($gameIDs) < 10) {
-            $gameId = $this->selectRandomGameWithAchievements();
-            if ($this->isGameEligible($gameId, $gameIDs, $gameProgress)) {
-                $gameIDs[] = $gameId;
-                $selectedGames[$gameId] = [
-                    'how' => 'random',
-                ];
-            }
-        }
-
-        $this->gameListService->userProgress = $userProgress;
-        $this->gameListService->initializeGameList($gameIDs);
-
+    private function mergeRelatedGameInfo(array $selectedGames, bool $showRelatedGames = true): void
+    {
         foreach ($this->gameListService->games as &$game) {
             $game['SelectionMethod'] = $selectedGames[$game['ID']]['how'];
 
-            $relatedGameId = $selectedGames[$game['ID']]['gameId'] ?? 0;
-            if ($relatedGameId > 0) {
-                $game['RelatedGame'] = Game::where('ID', $relatedGameId)
-                    ->select(['ID', 'Title', 'ImageIcon'])
-                    ->first()
-                    ->toArray();
+            if ($showRelatedGames) {
+                $relatedGameId = $selectedGames[$game['ID']]['gameId'] ?? 0;
+                if ($relatedGameId > 0) {
+                    $game['RelatedGame'] = Game::where('ID', $relatedGameId)
+                        ->select(['ID', 'Title', 'ImageIcon'])
+                        ->first()
+                        ->toArray();
+                }
             }
 
             if (array_key_exists('hub', $selectedGames[$game['ID']])) {
                 $game['RelatedHub'] = $selectedGames[$game['ID']]['hub'];
             }
-
-            if ($game['achievements_published'] == 0) {
-                print_r($game);
-                exit;
-            }
         }
+    }
 
-        $this->gameListService->mergeWantToPlay($user);
-        $this->gameListService->sortGameList('title');
-
+    private function getColumns(): array
+    {
         // take the default columns and insert the reason column before the progress/backlog columns
         $defaultColumns = $this->gameListService->getColumns();
+
         $columns = [];
         $columns['title'] = $defaultColumns['title'];
         $columns['achievements'] = $defaultColumns['achievements'];
         $columns['points'] = $defaultColumns['points'];
         $columns['players'] = $defaultColumns['players'];
         $columns['reasoning'] = $this->getReasonColumn();
-        $columns['progress'] = $defaultColumns['progress'];
-        $columns['backlog'] = $defaultColumns['backlog'];
-        
-        return view('platform.components.game.suggest-game-page', [
-            'user' => $user,
-            'consoles' => $this->gameListService->consoles,
-            'games' => $this->gameListService->games,
-            'columns' => $columns,
-            'noGamesMessage' => 'No suggestions available.',
-        ]);
+
+        if (array_key_exists('progress', $defaultColumns)) {
+            $columns['progress'] = $defaultColumns['progress'];
+            $columns['backlog'] = $defaultColumns['backlog'];
+        }
+
+        return $columns;
     }
 
     private function getReasonColumn(): array
@@ -202,19 +260,19 @@ class SuggestGameController extends Controller
         ];
     }
 
-    public function isGameEligible(int $gameId, array $gameIDs, array $gameProgress): bool
+    public function isGameEligible(int $gameId, array $gameIds): bool
     {
         if ($gameId === 0) {
             /* no game was selected */
             return false;
         }
 
-        if (in_array($gameId, $gameIDs)) {
+        if (in_array($gameId, $gameIds)) {
             /* already in list */
             return false;
         }
 
-        $progress = $gameProgress[$gameId] ?? 0.0;
+        $progress = $this->gameProgress[$gameId] ?? 0.0;
         if ($progress > 0.0) {
             /* player has played this before. lower chance to recommend based on how
                much the user has already completed */
@@ -235,7 +293,7 @@ class SuggestGameController extends Controller
         return $games->first()->id;
     }
 
-    public function selectRelatedGame(User $user, int $gameId): array
+    public function selectRelatedGame(?User $user, int $gameId): array
     {
         switch (rand(1, 10)) {
             case 1:
@@ -279,12 +337,11 @@ class SuggestGameController extends Controller
                     ->groupBy('Author')
                     ->selectRaw('count(*) as Count, Author')
                     ->orderBy('Count', 'DESC')
-                    ->first()
-                    ->Author;
+                    ->first();
 
                 if ($author) {
                     $otherAuthoredGame = Achievement::inRandomOrder()
-                        ->where('Author', $author)
+                        ->where('Author', $author->Author)
                         ->where('GameID', '!=', $gameId)
                         ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
                         ->where('GameData.achievements_published', '>', 0)
@@ -295,7 +352,7 @@ class SuggestGameController extends Controller
                     if ($otherAuthoredGame) {
                         return [$otherAuthoredGame->GameID, [
                             'how' => 'common-author',
-                            'hub' => $author,
+                            'hub' => $author->Author,
                             'gameId' => $gameId,
                         ]];
                     }
@@ -308,7 +365,7 @@ class SuggestGameController extends Controller
                 $alternateUsers = PlayerGame::inRandomOrder()
                     ->where('game_id', $gameId)
                     ->whereRaw('achievements_total = achievements_unlocked')
-                    ->where('user_id', '!=', $user->id)
+                    ->where('user_id', '!=', $user->id ?? 0)
                     ->limit(5)
                     ->pluck('user_id')
                     ->toArray();
@@ -323,7 +380,7 @@ class SuggestGameController extends Controller
                         ->orderBy('Count', 'DESC')
                         ->limit(10);
 
-                    $otherGameIDs = [];
+                    $othergameIds = [];
                     $maxCount = 0;
                     foreach ($otherMasteredGames->get() as $otherMasteredGame) {
                         if ($maxCount == 0) {
@@ -331,11 +388,11 @@ class SuggestGameController extends Controller
                         } elseif ($otherMasteredGame->Count < $maxCount) {
                             break;
                         }
-                        $otherGameIDs[] = $otherMasteredGame->game_id;
+                        $othergameIds[] = $otherMasteredGame->game_id;
                     }
 
-                    if (count($otherGameIDs) > 0) {
-                        return [$otherGameIDs[array_rand($otherGameIDs)], [
+                    if (count($othergameIds) > 0) {
+                        return [$othergameIds[array_rand($othergameIds)], [
                             'how' => 'common-player',
                             'gameId' => $gameId,
                         ]];
