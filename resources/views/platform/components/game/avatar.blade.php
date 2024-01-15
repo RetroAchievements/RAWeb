@@ -5,6 +5,7 @@
     'hasTooltip' => true,
     'href',
     'labelClassName' => '',
+    'iconSize' => 20,
 ])
 
 <?php
@@ -26,8 +27,8 @@ $gameHref = route('game.show', $gameId);
         <img 
             src="{{ media_asset($gameImageIcon) }}" 
             alt="{{ $gameTitle }} game badge"
-            width="20" 
-            height="20" 
+            width="{{ $iconSize }}" 
+            height="{{ $iconSize }}" 
             loading="lazy"
             decoding="async"
         >
