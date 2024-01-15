@@ -111,7 +111,7 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
     };
 
     $html = "<a href='/gameList.php'>All Games</a>"
-        . $nextCrumb($consoleName, "/gameList.php?c=$consoleID");
+        . $nextCrumb($consoleName, route('system.game.index', ['system' => $consoleID]));
 
     [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($data);
     $baseHref = (($addLinkToLastCrumb || $subsetID) && $mainID) ? "/game/$mainID" : '';

@@ -102,10 +102,12 @@ class GameListService
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
             $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->Name;
-            $game['SortTitle'] = $game['Title'];
-            if (substr($game['Title'], 0, 1) == '~') {
-                $tilde = strrpos($game['Title'], '~');
-                $game['SortTitle'] = trim(substr($game['Title'], $tilde + 1) . ' ' . substr($game['Title'], 0, $tilde + 1));
+            $game['SortTitle'] = mb_strtolower($game['Title']);
+            if (substr($game['SortTitle'], 0, 1) == '~') {
+                $tilde = strrpos($game['SortTitle'], '~');
+                $game['SortTitle'] = trim(substr($game['SortTitle'], $tilde + 1) . ' ' . substr($game['SortTitle'], 0, $tilde + 1));
+            } else {
+                $game['SortTitle'] = " " . $game['SortTitle'];
             }
 
             $this->games[] = $game;
@@ -375,7 +377,7 @@ class GameListService
         return [
             'header' => 'Title',
             'render' => function ($game) use ($filterOptions) {
-                if (!$filterOptions['console']) {
+                if (isset($filterOptions['console']) && !$filterOptions['console']) {
                     echo '<td class="py-2">';
                     echo Blade::render('
                         <x-game.multiline-avatar
@@ -568,7 +570,7 @@ class GameListService
         ];
     }
 
-    public function getColumns(array $filterOptions): array
+    public function getColumns(array $filterOptions = []): array
     {
         $columns = [];
 

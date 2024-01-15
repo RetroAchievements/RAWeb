@@ -106,7 +106,7 @@ $menuSystemsList = [
                         $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listId.name_short")));
                         $iconName = Str::kebab($cleanSystemShortName);
                         ?>
-                        <x-dropdown-item :link="url('gameList.php?c=' . $listId)">
+                        <x-dropdown-item :link="route('system.game.index', ['system' => $listId])">
                             <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" loading="lazy" width="16" height="16" alt='{{ $systemName }}'>
                             <span>{{ $systemName }}</span>
                         </x-dropdown-item>
