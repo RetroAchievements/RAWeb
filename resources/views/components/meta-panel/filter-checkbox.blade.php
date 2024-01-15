@@ -3,7 +3,7 @@
     'isPreChecked' => false,
 ])
 
-<label class="flex items-center gap-x-1 cursor-pointer lg:active:scale-95 lg:transition-transform">
+<label class="flex items-center gap-x-1 cursor-pointer lg:active:scale-95 lg:transition-transform whitespace-nowrap">
     <input
         class="cursor-pointer"
         type="checkbox"

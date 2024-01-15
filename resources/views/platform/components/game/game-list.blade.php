@@ -1,22 +1,30 @@
 @props([
-    'consoles' => [],
-    'games' => [],
-    'sortOrder' => 'title',
+    'availableCheckboxFilters' => [],
+    'availableSelectFilters' => [],
     'availableSorts' => [],
-    'filterOptions' => [],
-    'availableFilters' => [],
     'columns' => [],
+    'consoles' => [],
+    'filterOptions' => [],
+    'games' => [],
     'noGamesMessage' => 'No games.',
+    'sortOrder' => 'title',
 ])
 
+<?php
+$areFiltersPristine = empty(
+    array_filter($filterOptions, function ($value) {
+        return $value !== false && $value !== 'all';
+    })
+);
+?>
+
 <div>
-    @if (count($consoles) < 1)
-        <p>{{ $noGamesMessage }}</p><br/>
-    @else
+    @if (!$areFiltersPristine || count($consoles) > 0)
         <x-meta-panel
             :availableSorts="$availableSorts"
             :selectedSortOrder="$sortOrder"
-            :availableFilters="$availableFilters"
+            :availableCheckboxFilters="$availableCheckboxFilters"
+            :availableSelectFilters="$availableSelectFilters"
             :filterOptions="$filterOptions"
         />
         <?php
@@ -112,6 +120,11 @@
                 @break
             @endif
         @endforeach
-    @endif
 
+        @if (empty($games))
+            <div class="mb-12">
+                <x-empty-state>{{ $noGamesMessage }}</x-empty-state>
+            </div>
+        @endif
+    @endif
 </div>
