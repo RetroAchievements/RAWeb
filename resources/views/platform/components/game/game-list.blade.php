@@ -40,76 +40,73 @@
                 <?php foreach ($totals as $key => $value) { $totals[$key] = 0; } ?>
             @endif
 
-            <div><table class='table-highlight mb-4'><tbody>
+            <div>
+                <table class='table-highlight mb-4'>
+                    <thead>
+                        <tr class="do-not-highlight sticky top-[42px] z-10 bg-box">
+                            @foreach ($columns as $column)
+                                @php
+                                    $styles = [];
+                                    if (array_key_exists('width', $column)) {
+                                        $styles[] = 'width:' . $column['width'] . '%';
+                                    }
+                                    if (array_key_exists('tooltip', $column)) {
+                                        $styles[] = 'cursor:help';
+                                    }
+                                    $alignment = $column['align'] ?? 'left';
+                                    $class = $alignment !== 'left' ? "text-$alignment" : '';
+                                @endphp
+                    
+                                <th
+                                    class="{{ $class }}" style="{{ implode('; ', $styles) }}"
+                                    @isset($column['tooltip']) title="{{ $column['tooltip'] }}" @endisset
+                                >
+                                    {{ $column['header'] }}
+                                </th>
+                            @endforeach
+                        </tr>
+                    </thead>
 
-            <tr>
-            <?php
-            foreach ($columns as $column) {
-                $styles = [];
-                if (array_key_exists('width', $column)) {
-                    $styles[] = 'width:' . $column['width'] . '%';
-                }
-                if (array_key_exists('tooltip', $column)) {
-                    $styles[] = 'cursor:help';
-                }
+                    <tbody>
+                        @foreach ($games as $game)
+                            @if ($filterOptions['console'] && $game['ConsoleID'] != $console['ID'])
+                                @continue
+                            @endif
+                            <tr>
+                            <?php
+                                foreach ($columns as $column) {
+                                    $column['render']($game);
 
-                if (count($styles) > 0) {
-                    echo '<th style="' . implode('; ', $styles) . '"';
-                } else {
-                    echo '<th';
-                }
+                                    if (array_key_exists('tally', $column)) {
+                                        $totals[$column['header']] += $column['tally']($game);
+                                    }
+                                }
+                            ?>
+                            </tr>
+                        @endforeach
 
-                $alignment = $column['align'] ?? 'left';
-                if ($alignment !== 'left') {
-                    echo " class=\"text-$alignment\"";
-                }
+                        @if (count($totals) > 0)
+                            <tr>
+                            <?php
+                                foreach ($columns as $column) {
+                                    if (!array_key_exists($column['header'], $totals)) {
+                                        echo "<td></td>";
+                                        continue;
+                                    }
+                                    $total = $totals[$column['header']];
 
-                if (array_key_exists('tooltip', $column)) {
-                    echo " title=\"{$column['tooltip']}\"";
-                }
-
-                echo ">{$column['header']}</th>";
-            }
-            ?>
-            </tr>
-            @foreach ($games as $game)
-                @if ($filterOptions['console'] && $game['ConsoleID'] != $console['ID'])
-                    @continue
-                @endif
-                <tr>
-                <?php
-                    foreach ($columns as $column) {
-                        $column['render']($game);
-
-                        if (array_key_exists('tally', $column)) {
-                            $totals[$column['header']] += $column['tally']($game);
-                        }
-                    }
-                ?>
-                </tr>
-            @endforeach
-
-            @if (count($totals) > 0)
-                <tr>
-                <?php
-                    foreach ($columns as $column) {
-                        if (!array_key_exists($column['header'], $totals)) {
-                            echo "<td></td>";
-                            continue;
-                        }
-                        $total = $totals[$column['header']];
-
-                        if (array_key_exists('render_tally', $column)) {
-                            $column['render_tally']($total);
-                        } else {
-                            echo "<td class='text-right'><b>" . localized_number($total) . "</b></td>";
-                        }
-                    }
-                ?>
-                </tr>
-            @endif
-
-            </tbody></table></div>
+                                    if (array_key_exists('render_tally', $column)) {
+                                        $column['render_tally']($total);
+                                    } else {
+                                        echo "<td class='text-right'><b>" . localized_number($total) . "</b></td>";
+                                    }
+                                }
+                            ?>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
 
             @if (!$filterOptions['console'])
                 @break
