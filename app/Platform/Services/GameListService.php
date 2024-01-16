@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Community\Enums\AwardType;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\Ticket;
 use App\Community\Models\UserGameListEntry;
+use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
 use App\Site\Models\User;
@@ -32,16 +35,8 @@ class GameListService
             return;
         }
 
-        $this->userProgress = $user->playerGames()
-            ->whereIn('game_id', $gameIds)
-            ->get(['game_id', 'achievements_unlocked', 'achievements_unlocked_hardcore'])
-            ->mapWithKeys(function ($row, $key) {
-                return [$row['game_id'] => [
-                    'achievements_unlocked' => $row['achievements_unlocked'],
-                    'achievements_unlocked_hardcore' => $row['achievements_unlocked_hardcore'],
-                ]];
-            })
-            ->toArray();
+        $this->initializeUserGames($user, $gameIds);
+        $this->initializeUserAwards($user, $gameIds);
     }
 
     public function initializeGameList(array $gameIds): void
@@ -50,6 +45,7 @@ class GameListService
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
                 ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
                 ->whereIn('Achievements.GameID', $gameIds)
+                ->where('Achievements.Flags', AchievementFlag::OfficialCore)
                 ->select(['GameID',
                     DB::raw('COUNT(Ticket.ID) AS NumTickets'),
                 ])
@@ -116,10 +112,12 @@ class GameListService
         }
     }
 
-    public function filterGameList(callable $filterFunction): void
+    public function filterGameList(callable $filterFunction, array $options = []): void
     {
         $countBefore = count($this->games);
-        $this->games = array_filter($this->games, $filterFunction);
+        $this->games = array_filter($this->games, function ($game) use ($filterFunction, $options) {
+            return $filterFunction($game, $options);
+        });
         $countAfter = count($this->games);
 
         if ($countAfter < $countBefore) {
@@ -128,6 +126,57 @@ class GameListService
             $this->consoles = $this->consoles->filter(function ($console) use ($allConsoleIds) {
                 return $allConsoleIds->contains($console->ID);
             });
+        }
+    }
+
+    public function useGameStatusFilter(array $game, string $statusValue): bool
+    {
+        $foundProgress = $this->userProgress[$game['ID']] ?? null;
+
+        $hasAwardKind = function ($kind) use ($foundProgress) {
+            return isset($foundProgress['HighestAwardKind']) && $foundProgress['HighestAwardKind'] === $kind;
+        };
+
+        $isStatusEqual = function (?array $progress, string $status) {
+            return ($progress['HighestAwardKind'] ?? null) === $status;
+        };
+
+        switch ($statusValue) {
+            case 'unstarted':
+                return !$foundProgress;
+
+            case 'lt-beaten-softcore':
+                return
+                    isset($foundProgress)
+                    && $foundProgress['completion_percentage'] > 0
+                    && !isset($foundProgress['HighestAwardKind'])
+                ;
+
+            case 'gte-beaten-softcore':
+                return isset($foundProgress['HighestAwardKind']);
+
+            case 'gte-beaten-hardcore':
+                return $hasAwardKind('beaten-hardcore') || $hasAwardKind('completed') || $hasAwardKind('mastered');
+
+            case 'gte-completed':
+                return $hasAwardKind('completed') || $hasAwardKind('mastered');
+
+            case 'eq-mastered':
+                return $isStatusEqual($foundProgress, 'mastered');
+
+            case 'eq-beaten-softcore-or-beaten-hardcore':
+                return $hasAwardKind('beaten-softcore') || $hasAwardKind('beaten-hardcore');
+
+            case 'any-softcore':
+                return
+                    isset($foundProgress)
+                    && $foundProgress['completion_percentage'] !== $foundProgress['completion_percentage_hardcore'];
+
+            case 'revised':
+                return ($hasAwardKind('completed') || $hasAwardKind('mastered')) && $foundProgress['completion_percentage_hardcore'] < 1;
+
+            default:
+                return true;
         }
     }
 
@@ -254,6 +303,71 @@ class GameListService
         if ($reverse) {
             $this->games = array_reverse($this->games);
         }
+    }
+
+    private function initializeUserAwards(?User $user, array $gameIds): void
+    {
+        $userSiteAwards = getUsersSiteAwards($user->User);
+
+        $awardsLookup = [];
+        $awardsDateLookup = [];
+        $hasMasteryAwardLookup = [];
+
+        foreach ($userSiteAwards as $award) {
+            $gameId = $award['AwardData'];
+            if (!in_array($gameId, $gameIds)) {
+                continue;
+            }
+
+            if ($award['AwardType'] == AwardType::GameBeaten) {
+                // Check if a higher-ranked award ('completed' or 'mastered') is already present.
+                if (!isset($awardsLookup[$gameId]) || ($awardsLookup[$gameId] != 'completed' && $awardsLookup[$gameId] != 'mastered')) {
+                    $awardsLookup[$gameId] =
+                        $award['AwardDataExtra'] == UnlockMode::Softcore
+                            ? 'beaten-softcore'
+                            : 'beaten-hardcore';
+
+                    $awardsDateLookup[$gameId] = $award['AwardedAt'];
+                }
+            } elseif ($award['AwardType'] == AwardType::Mastery) {
+                $awardsLookup[$gameId] =
+                    $award['AwardDataExtra'] == UnlockMode::Softcore
+                        ? 'completed'
+                        : 'mastered';
+
+                $awardsDateLookup[$gameId] = $award['AwardedAt'];
+                $hasMasteryAwardLookup[$gameId] = true;
+            }
+        }
+
+        foreach ($this->userProgress as $userGameId => &$userGame) {
+            if (isset($awardsLookup[$userGameId])) {
+                $userGame['HighestAwardKind'] = $awardsLookup[$userGameId];
+                $userGame['HighestAwardDate'] = $awardsDateLookup[$userGameId];
+            }
+        }
+    }
+
+    private function initializeUserGames(User $user, array $gameIds): void
+    {
+        $this->userProgress = $user->playerGames()
+            ->whereIn('game_id', $gameIds)
+            ->get([
+                'game_id',
+                'achievements_unlocked',
+                'achievements_unlocked_hardcore',
+                'completion_percentage',
+                'completion_percentage_hardcore',
+            ])
+            ->mapWithKeys(function ($row, $key) {
+                return [$row['game_id'] => [
+                    'achievements_unlocked' => $row['achievements_unlocked'],
+                    'achievements_unlocked_hardcore' => $row['achievements_unlocked_hardcore'],
+                    'completion_percentage' => $row['completion_percentage'],
+                    'completion_percentage_hardcore' => $row['completion_percentage_hardcore'],
+                ]];
+            })
+            ->toArray();
     }
 
     private function getTitleColumn(array $filterOptions): array
@@ -473,7 +587,7 @@ class GameListService
             $columns['tickets'] = $this->getTicketCountColumn();
         }
 
-        if ($this->userProgress != null) {
+        if ($this->userProgress !== null) {
             $columns['progress'] = $this->getUserProgressColumn();
             $columns['backlog'] = $this->getBacklogColumn();
         }
