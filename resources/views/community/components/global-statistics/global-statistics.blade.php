@@ -15,8 +15,9 @@
 
         <div class="w-full h-16 flex flex-col justify-center items-center">
             <p>Points earned since March 2nd, 2013</p>
-            <span class="text-2xl">{{ number_format($totalPointsEarned) }}</span>
+            <livewire:total-points-earned />
         </div>
+        <x-global-statistics.total-points-earned-javascript :totalPointsEarned="$totalPointsEarned" />
     </div>
 
     <hr class="mt-4 mb-5 border-embed-highlight">

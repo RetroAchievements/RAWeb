@@ -19,6 +19,7 @@ use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentPosts;
 use App\Community\Components\GlobalStatistics;
 use App\Community\Components\MessageIcon;
+use App\Community\Components\TotalPointsEarned;
 use App\Community\Components\UserCard;
 use App\Community\Components\UserProgressionStatus;
 use App\Community\Components\UserRecentlyPlayed;
@@ -114,6 +115,8 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('user-card', UserCard::class);
         Blade::component('user-progression-status', UserProgressionStatus::class);
         Blade::component('user-recently-played', UserRecentlyPlayed::class);
+
+        Livewire::component('total-points-earned', TotalPointsEarned::class);
 
         // Livewire::component('forum-topics', ForumTopics::class);
         //
