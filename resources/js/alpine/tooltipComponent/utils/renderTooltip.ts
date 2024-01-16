@@ -52,7 +52,7 @@ export function renderTooltip(
   );
 
   if (!options?.isBorderless) {
-    store.tooltipEl.classList.add('border', 'border-embed-highlight', 'bg-embed-highlight');
+    store.tooltipEl.classList.add('bg-embed-highlight');
   }
 
   store.tooltipEl.style.setProperty('width', 'max-content');
