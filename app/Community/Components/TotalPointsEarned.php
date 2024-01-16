@@ -10,9 +10,9 @@ use Livewire\Component;
 
 class TotalPointsEarned extends Component
 {
-    public $totalPointsEarned = 0;
+    public int $totalPointsEarned = 0;
 
-    public function mount()
+    public function mount(): void
     {
         $this->totalPointsEarned = $this->getTotalPointsEarned();
     }
