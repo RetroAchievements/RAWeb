@@ -5,7 +5,7 @@
     'sortOrder' => 'title',
     'availableSorts' => [],
     'filterOptions' => [],
-    'availableFilters' => [],
+    'availableCheckboxFilters' => [],
     'columns' => [],
 ])
 
@@ -26,7 +26,7 @@
         :sortOrder="$sortOrder"
         :availableSorts="$availableSorts"
         :filterOptions="$filterOptions"
-        :availableFilters="$availableFilters"
+        :availableCheckboxFilters="$availableCheckboxFilters"
         :columns="$columns"
     />
 

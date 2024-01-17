@@ -279,9 +279,6 @@ class PlayerCompletionProgressController extends Controller
             'unawarded' => fn ($game) => !isset($game['HighestAwardKind']),
             'awarded' => fn ($game) => isset($game['HighestAwardKind']),
 
-            'pristine-mastered' => fn ($game) => isset($game['HighestAwardKind'])
-                && ($game['HighestAwardKind'] === 'mastered' && $game['PctWonHC'] == 1),
-
             'any-beaten' => fn ($game) => isset($game['HighestAwardKind'])
                 && ($game['HighestAwardKind'] === 'beaten-softcore' || $game['HighestAwardKind'] === 'beaten-hardcore'),
 
