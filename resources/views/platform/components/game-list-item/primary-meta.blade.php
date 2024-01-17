@@ -84,17 +84,21 @@ if ($highestAwardKind && $highestAwardDate) {
 
             @if ($numPossiblePoints)
                 <p>
-                    @if ($numAwardedSoftcorePoints === $numPossiblePoints || $numAwardedHardcorePoints === $numPossiblePoints)
-                        All <span class="font-bold">{{ localized_number($numPossiblePoints) }}</span>
-                    @else
-                        <span class="font-bold">{{ localized_number($numAwardedSoftcorePoints ?? $numAwardedHardcorePoints ?? 0) }}</span>
-                        of
-                        <span class="font-bold">{{ localized_number($numPossiblePoints) }}</span>
-                    @endif
+                    @php
+                        $exclusiveSoftcorePoints = max($numAwardedSoftcorePoints - $numAwardedHardcorePoints, 0);
+                        $leftPoints = $numAwardedHardcorePoints >= $exclusiveSoftcorePoints ? $numAwardedHardcorePoints : $exclusiveSoftcorePoints;
+                    @endphp
 
-                    @if ($numAwardedSoftcorePoints > $numAwardedHardcorePoints) softcore @endif
-
+                    <span class="font-bold">{{ localized_number($leftPoints) }}</span>
+                    of
+                    <span class="font-bold">{{ localized_number($numPossiblePoints) }}</span>
                     points
+
+                    @if ($exclusiveSoftcorePoints > 0 && $exclusiveSoftcorePoints < $numAwardedHardcorePoints)
+                        (+<span class="font-bold">{{ localized_number($exclusiveSoftcorePoints) }}</span> softcore)
+                    @elseif ($numAwardedHardcorePoints > 0 && $exclusiveSoftcorePoints > $numAwardedHardcorePoints)
+                        (+<span class="font-bold">{{ localized_number($numAwardedHardcorePoints) }}</span> hardcore)
+                    @endif
                 </p>
             @endif
         </div>
