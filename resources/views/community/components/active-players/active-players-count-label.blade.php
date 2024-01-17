@@ -3,6 +3,10 @@
     'totalActivePlayers' => 0,
 ])
 
+<?php
+$canShowSecondCount = $activePlayersCount !== $totalActivePlayers;
+?>
+
 <p>
     Viewing
 
@@ -13,14 +17,16 @@
         {{ localized_number($activePlayersCount) }}
     </span>
 
-    of 
+    @if ($activePlayersCount !== $totalActivePlayers)
+        of 
 
-    <span
-        class="font-bold"
-        id="active-players-total"
-    >
-        {{ localized_number($totalActivePlayers) }}
-    </span>
+        <span
+            class="font-bold"
+            id="active-players-total"
+        >
+            {{ localized_number($totalActivePlayers) }}
+        </span>
+    @endif
 
-    players in-game.
+    {{ mb_strtolower(__res('player', $canShowSecondCount ? $totalActivePlayers : $activePlayersCount)) }} in-game.
 </p>
