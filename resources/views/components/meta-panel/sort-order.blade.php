@@ -20,7 +20,7 @@ function handleSortOrderChanged(event) {
     onchange="handleSortOrderChanged(event)"
     autocomplete="off"
 >
-@foreach ($availableSorts as $key => $text)
-    <option value="{{ $key }}" @if ($selectedSortOrder === $key) selected @endif>{{ $text }}</option>
-@endforeach
+    @foreach ($availableSorts as $key => $text)
+        <option value="{{ $key }}" @if ($selectedSortOrder === $key) selected @endif>{{ $text }}</option>
+    @endforeach
 </select>

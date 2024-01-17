@@ -113,12 +113,12 @@ class DeveloperSetsController extends Controller
         $this->sortGameList($sortOrder);
 
         $availableSorts = $this->gameListService->getAvailableSorts();
-        $availableFilters = [
+        $availableCheckboxFilters = [
             'console' => 'Group by console',
             'sole' => 'Sole developer',
         ];
 
-        $columns = $this->gameListService->getColumns($availableFilters);
+        $columns = $this->gameListService->getColumns($availableCheckboxFilters);
 
         $columns['title']['tally'] = function ($game) { return 1; };
         $columns['title']['render_tally'] = function ($value) { echo "<td><b>Total:</b> $value games</td>"; };
@@ -154,7 +154,7 @@ class DeveloperSetsController extends Controller
             'sortOrder' => $sortOrder,
             'availableSorts' => $availableSorts,
             'filterOptions' => $filterOptions,
-            'availableFilters' => $availableFilters,
+            'availableCheckboxFilters' => $availableCheckboxFilters,
             'columns' => $columns,
         ]);
     }
