@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
-use App\Filament\Resources\RelationManagers\UserRelationManager;
 use App\Filament\Resources\RoleResource\Pages\EditRole;
 use App\Filament\Resources\RoleResource\Pages\ListRoles;
+use App\Filament\Resources\RoleResource\RelationManager\UserRelationManager;
 use App\Site\Models\Role;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;

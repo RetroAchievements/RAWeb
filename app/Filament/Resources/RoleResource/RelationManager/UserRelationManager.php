@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\RelationManagers;
+namespace App\Filament\Resources\RoleResource\RelationManager;
 
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
