@@ -17,9 +17,9 @@ foreach ($recentPlayerData as $recentPlayer) {
         'Date' => $date,
         'IsBroken' => $isBroken,
         'Activity' => $recentPlayer['Activity'],
-        'NumAwarded' => $recentPlayer['NumAwarded'],
-        'NumAwardedHardcore' => $recentPlayer['NumAwardedHardcore'],
-        'NumAchievements' => $recentPlayer['NumAchievements'],
+        'NumAwarded' => (int) $recentPlayer['NumAwarded'],
+        'NumAwardedHardcore' => (int) $recentPlayer['NumAwardedHardcore'],
+        'NumAchievements' => (int) $recentPlayer['NumAchievements'],
     ];
 }
 ?>
@@ -32,8 +32,7 @@ foreach ($recentPlayerData as $recentPlayer) {
             <div class="w-full flex items-center justify-between">
                 {!! userAvatar($recentPlayer['User'], iconClass: 'rounded-sm', iconSize: 20) !!}
                 <div class="flex gap-x-1 items-center">
-                    <!-- TODO: use game-progress-bar after 2153 is merged -->
-                    <x-hardcore-progress
+                    <x-game-progress-bar
                         softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
                         hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
                         maxProgress="{{ $recentPlayer['NumAchievements'] }}"
@@ -71,8 +70,7 @@ foreach ($recentPlayerData as $recentPlayer) {
                 <td class="whitespace-nowrap smalldate">{{ $recentPlayer['Date'] }}</td>
 
                 <td>
-                    <!-- TODO: use game-progress-bar after 2153 is merged -->
-                    <x-hardcore-progress
+                    <x-game-progress-bar
                         softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
                         hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
                         maxProgress="{{ $recentPlayer['NumAchievements'] }}"
