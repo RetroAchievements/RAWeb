@@ -38,6 +38,6 @@ return [
 
         // vanity roles assigned by admins
 
-        Role::DEVELOPER_VETERAN => __('Veteran'),
+        Role::DEVELOPER_VETERAN => __('Veteran Developer'),
     ],
 ];
