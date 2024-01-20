@@ -26,7 +26,7 @@ $tools = $settings['tools'] ?? null;
         @endif
         <div class="dropdown-column">
             @can('develop')
-                @can('manage', App\Community\Models\TriggerTicket::class)
+                @can('manage', App\Community\Models\Ticket::class)
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
                     {{--<x-dropdown-item :link="route('triggers.ticket.index')">{{ __res('ticket') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('ticketmanager.php')">{{ __res('ticket') }}</x-dropdown-item>
