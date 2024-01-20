@@ -61,22 +61,42 @@ class SuggestGameController extends Controller
 
         $wantToPlayChance = (int) ((count($wantToPlayList) + 7) / 8);
         $relatedToMasteryChance = (int) ((count($this->masteredGames) + 1) / 2);
+        $relatedToBeatenChance = (int) ((count($this->beatenGames) + 3) / 4);
         $revisedChance = (int) sqrt(count($revisedGames));
-        $relatedChance = $wantToPlayChance + $relatedToMasteryChance + $revisedChance;
-        $randomChance = (int)(($relatedChance + 3) / 8);
+        $relatedChance = $wantToPlayChance + $relatedToMasteryChance + $relatedToBeatenChance + $revisedChance;
+        $randomChance = (int) (($relatedChance + 3) / 8);
         $totalChance = $relatedChance + $randomChance;
-
-        print "$randomChance $wantToPlayChance $relatedToMasteryChance $revisedChance";
 
         for ($i = 0; $i < 30; $i++) {
             $randomValue = rand(0, $totalChance);
             if ($randomValue < $wantToPlayChance) {
                 $gameId = $wantToPlayList[array_rand($wantToPlayList)];
-                $why = ['how' => 'want-to-play'];
+                if (rand(0, 10) < 2) {
+                    // small chance to recommend something related to the Want-to-play
+                    // game instead of the Want-to-play game itself.
+                    [$gameId, $why] = $this->selectRelatedGame($user, $gameId);
+                    $why['game-type'] = 'Want to Play';
+                } else {
+                    $why = ['how' => 'want-to-play'];
+                }
             } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance) {
                 $gameId = $this->masteredGames[array_rand($this->masteredGames)];
+                $gameProgress = $this->gameListService->userProgress[$gameId] ?? [];
+
                 [$gameId, $why] = $this->selectRelatedGame($user, $gameId);
-            } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance + $revisedChance) {
+
+                $userHardcoreProgress = $gameProgress['achievements_unlocked_hardcore'] ?? 0;
+                $userSoftcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
+                if ($userHardcoreProgress === $userSoftcoreProgress) {
+                    $why['game-type'] = 'mastered';
+                } else {
+                    $why['game-type'] = 'completed';
+                }
+            } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance + $relatedToBeatenChance) {
+                $gameId = $this->beatenGames[array_rand($this->beatenGames)];
+                [$gameId, $why] = $this->selectRelatedGame($user, $gameId);
+                $why['game-type'] = 'beaten';
+            } elseif ($randomValue < $wantToPlayChance + $relatedToMasteryChance + $relatedToBeatenChance + $revisedChance) {
                 $gameId = $revisedGames[array_rand($revisedGames)];
                 $why = ['how' => 'revised'];
             } else {
@@ -173,6 +193,7 @@ class SuggestGameController extends Controller
                 'achievements_unlocked',
                 'achievements_unlocked_hardcore',
                 'achievements_total',
+                'beaten_at',
                 'ConsoleID',
             ]);
 
@@ -191,6 +212,8 @@ class SuggestGameController extends Controller
 
             if ($playerGame->achievements_unlocked == $playerGame->achievements_total) {
                 $this->masteredGames[] = $playerGame->game_id;
+            } elseif ($playerGame->beaten_at) {
+                $this->beatenGames[] = $playerGame->game_id;
             }
         }
     }
@@ -207,6 +230,10 @@ class SuggestGameController extends Controller
                         ->select(['ID', 'Title', 'ImageIcon'])
                         ->first()
                         ->toArray();
+
+                    if (array_key_exists('game-type', $selectedGames[$game['ID']])) {
+                        $game['RelatedGameType'] = $selectedGames[$game['ID']]['game-type'];
+                    }
                 }
             }
 
@@ -249,12 +276,14 @@ class SuggestGameController extends Controller
                         :selectionMethod="$selectionMethod"
                         :relatedSubject="$relatedSubject"
                         :relatedGameId="$relatedGameId"
+                        :relatedGameType="$relatedGameType"
                         :relatedGameTitle="$relatedGameTitle"
                         :relatedGameIcon="$relatedGameIcon"
                     />', [
                         'selectionMethod' => $game['SelectionMethod'],
                         'relatedSubject' => $game['RelatedHub'] ?? '',
                         'relatedGameId' => $game['RelatedGame']['ID'] ?? 0,
+                        'relatedGameType' => $game['RelatedGameType'] ?? '',
                         'relatedGameTitle' => $game['RelatedGame']['Title'] ?? '',
                         'relatedGameIcon' => $game['RelatedGame']['ImageIcon'] ?? '',
                     ]);
@@ -348,6 +377,7 @@ class SuggestGameController extends Controller
                         ->where('GameID', '!=', $gameId)
                         ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
                         ->where('GameData.achievements_published', '>', 0)
+                        ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
                         ->groupBy('GameID')
                         ->select('GameID')
                         ->first();

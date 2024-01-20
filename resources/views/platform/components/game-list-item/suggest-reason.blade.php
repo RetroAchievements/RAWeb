@@ -2,6 +2,7 @@
     'selectionMethod' => 'random',
     'relatedSubject' => '',
     'relatedGameId' => 0,
+    'relatedGameType' => '',
     'relatedGameTitle' => '',
     'relatedGameIcon' => '',
 ])
@@ -10,7 +11,7 @@
     From your Want to Play list
 @elseif ($selectionMethod == 'similar-to')
     @if ($relatedGameId > 0)
-        Similar to mastered game:
+        Similar to {{ $relatedGameType }} game:
         <x-game.avatar
             :gameId="$relatedGameId"
             :gameTitle="$relatedGameTitle"
@@ -23,7 +24,7 @@
 @elseif ($selectionMethod == 'common-hub')
     Shares {{ $relatedSubject }}
     @if ($relatedGameId > 0)
-        with mastered game:
+        with {{ $relatedGameType }} game:
         <x-game.avatar
             :gameId="$relatedGameId"
             :gameTitle="$relatedGameTitle"
@@ -34,7 +35,7 @@
 @elseif ($selectionMethod == 'common-author')
     Shares set developer {!! userAvatar($relatedSubject, icon: false) !!}
     @if ($relatedGameId > 0)
-        with mastered game:
+        with {{ $relatedGameType }} game:
         <x-game.avatar
             :gameId="$relatedGameId"
             :gameTitle="$relatedGameTitle"
@@ -44,7 +45,7 @@
     @endif
 @elseif ($selectionMethod == 'common-player')
     @if ($relatedGameId > 0)
-        Also mastered by players of mastered game:
+        Mastered by players of {{ $relatedGameType }} game:
         <x-game.avatar
             :gameId="$relatedGameId"
             :gameTitle="$relatedGameTitle"
