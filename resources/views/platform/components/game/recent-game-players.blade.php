@@ -31,15 +31,17 @@ foreach ($recentPlayerData as $recentPlayer) {
         <div class="flex flex-col gap-y-0.5 px-2 py-1.5 odd:bg-embed">
             <div class="w-full flex items-center justify-between">
                 {!! userAvatar($recentPlayer['User'], iconClass: 'rounded-sm', iconSize: 20) !!}
-                <p class="smalldate whitespace-nowrap">{{ $recentPlayer['Date'] }}</p>
-            </div>
 
-            <div class="my-1">
-                <x-game-progress-bar
-                    softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
-                    hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
-                    maxProgress="{{ $recentPlayer['NumAchievements'] }}"
-                />
+                <div class="flex flex-col items-center gap-1">
+                    <p class="smalldate whitespace-nowrap">{{ $recentPlayer['Date'] }}</p>
+                    <div class="w-[115px] max-w-[115px]">
+                        <x-game-progress-bar
+                            softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
+                            hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
+                            maxProgress="{{ $recentPlayer['NumAchievements'] }}"
+                        />
+                    </div>
+                </div>
             </div>
 
             @if ($recentPlayer['IsBroken'])
