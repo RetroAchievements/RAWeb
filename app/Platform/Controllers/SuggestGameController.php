@@ -308,7 +308,7 @@ class SuggestGameController extends Controller
         if ($progress > 0.0) {
             /* player has played this before. lower chance to recommend based on how
                much the user has already completed */
-            if ($progress >= 1.0 || rand(1, 100) < $progress * 100) {
+            if ($progress >= 1.0 || rand(1, 100) - 10 < $progress * 100) {
                 return false;
             }
         }
