@@ -59,11 +59,14 @@ class SuggestGameController extends Controller
             ->pluck('AwardData')
             ->toArray();
 
-        $randomChance = 40;
-        $wantToPlayChance = (int) (count($wantToPlayList) / 8);
-        $relatedToMasteryChance = (int) (count($this->masteredGames) / 2);
+        $wantToPlayChance = (int) ((count($wantToPlayList) + 7) / 8);
+        $relatedToMasteryChance = (int) ((count($this->masteredGames) + 1) / 2);
         $revisedChance = (int) sqrt(count($revisedGames));
-        $totalChance = $wantToPlayChance + $relatedToMasteryChance + $revisedChance + $randomChance;
+        $relatedChance = $wantToPlayChance + $relatedToMasteryChance + $revisedChance;
+        $randomChance = (int)(($relatedChance + 3) / 8);
+        $totalChance = $relatedChance + $randomChance;
+
+        print "$randomChance $wantToPlayChance $relatedToMasteryChance $revisedChance";
 
         for ($i = 0; $i < 30; $i++) {
             $randomValue = rand(0, $totalChance);
