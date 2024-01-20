@@ -106,8 +106,9 @@ class GameListService
             if (substr($game['SortTitle'], 0, 1) == '~') {
                 $tilde = strrpos($game['SortTitle'], '~');
                 $game['SortTitle'] = trim(substr($game['SortTitle'], $tilde + 1) . ' ' . substr($game['SortTitle'], 0, $tilde + 1));
-            } else {
-                $game['SortTitle'] = " " . $game['SortTitle'];
+
+                // Keep these games at the bottom of the list (under the "untagged" game titles).
+                $game['SortTitle'] = '~' . $game['SortTitle'];
             }
 
             $this->games[] = $game;
@@ -145,7 +146,7 @@ class GameListService
 
         switch ($statusValue) {
             case 'unstarted':
-                return !$foundProgress;
+                return (isset($foundProgress) && $foundProgress['achievements_unlocked'] === 0) || !$foundProgress;
 
             case 'lt-beaten-softcore':
                 return
@@ -175,7 +176,10 @@ class GameListService
                     && $foundProgress['completion_percentage'] !== $foundProgress['completion_percentage_hardcore'];
 
             case 'revised':
-                return ($hasAwardKind('completed') || $hasAwardKind('mastered')) && $foundProgress['completion_percentage_hardcore'] < 1;
+                return
+                    ($hasAwardKind('completed') && $foundProgress['completion_percentage'] < 1)
+                    || ($hasAwardKind('mastered') && $foundProgress['completion_percentage_hardcore'] < 1)
+                ;
 
             default:
                 return true;
