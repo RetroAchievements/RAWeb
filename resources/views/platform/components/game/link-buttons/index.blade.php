@@ -107,7 +107,7 @@ if ($canSeeOpenTickets) {
             icon="🕹️"
             href="{{ route('game.suggest-for-game', $gameId) }}"
         >
-            Find something similar to play
+            Find Something Similar to Play
         </x-game.link-buttons.game-link-button>
     @endif
 </ul>
