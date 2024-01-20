@@ -13,11 +13,11 @@ export const cookieName = 'prefers_hidden_user_completed_sets';
  */
 export function toggleUserCompletedSetsVisibility() {
   const checkboxEl = document.getElementById(
-    'hide-user-completed-sets-checkbox'
+    'hide-user-completed-sets-checkbox',
   ) as HTMLInputElement | null;
 
   const completionProgressRowEls = document.querySelectorAll<HTMLTableRowElement>(
-    '#usercompletedgamescomponent tr.completion-progress-completed-row'
+    '#usercompletedgamescomponent tr.completion-progress-completed-row',
   );
 
   if (checkboxEl && completionProgressRowEls) {
