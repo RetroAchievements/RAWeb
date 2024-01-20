@@ -347,6 +347,7 @@ class SuggestGameController extends Controller
                 $relatedHub = GameAlternative::inRandomOrder()
                     ->where('gameID', $gameId)
                     ->join('GameData', 'GameData.ID', '=', 'GameAlternatives.gameIDAlt')
+                    ->where('gameIDAlt', '!=', $gameId)
                     ->whereIn('GameData.ConsoleID', [100, 101])
                     ->select(['gameIDAlt', 'Title'])
                     ->first();
