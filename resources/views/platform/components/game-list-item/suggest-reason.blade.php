@@ -22,7 +22,7 @@
         In Similar Games collection
     @endif
 @elseif ($selectionMethod == 'common-hub')
-    Shares {{ $relatedSubject }}
+    Shares hub {{ $relatedSubject }}
     @if ($relatedGameId > 0)
         with {{ $relatedGameType }} game:
         <x-game.avatar
