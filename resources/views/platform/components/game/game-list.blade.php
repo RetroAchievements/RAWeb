@@ -19,7 +19,11 @@ $areFiltersPristine = empty(
 ?>
 
 <div>
-    @if (!$areFiltersPristine || count($consoles) > 0)
+    @if ($areFiltersPristine && count($consoles) == 0)
+        <div class="mb-12">
+            <x-empty-state>{{ $noGamesMessage }}</x-empty-state>
+        </div>
+    @else
         <x-meta-panel
             :availableSorts="$availableSorts"
             :selectedSortOrder="$sortOrder"
