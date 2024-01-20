@@ -524,7 +524,7 @@ class GameListService
 
                     echo '<td class="text-center">';
                     echo Blade::render('
-                        <x-hardcore-progress
+                        <x-game-progress-bar
                             :softcoreProgress="$softcoreProgress"
                             :hardcoreProgress="$hardcoreProgress"
                             :maxProgress="$maxProgress"
