@@ -258,26 +258,3 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
         }
     }
 }
-
-/**
- * Render completion icon, given that player achieved 100% set progress
- */
-function renderCompletionIcon(
-    int $awardedCount,
-    int $totalCount,
-    float|string $hardcoreRatio,
-    bool $tooltip = false,
-): string {
-    if ($awardedCount === 0 || $awardedCount < $totalCount) {
-        return "<div class='completion-icon'></div>";
-    }
-    [$icon, $class] = $hardcoreRatio == 100.0 ? ['👑', 'mastered'] : ['🎖️', 'completed'];
-    $class = "completion-icon $class";
-    $tooltipText = '';
-    if ($tooltip) {
-        $tooltipText = $hardcoreRatio == 100.0 ? 'Mastered (hardcore)' : 'Completed';
-        $class .= ' tooltip';
-    }
-
-    return "<div class='$class' title='$tooltipText'>$icon</div>";
-}

@@ -44,7 +44,9 @@ function updateHashDetails(event, hash) {
  * @param {string} hash
  * @param {string} hashName
  */
-function unlinkHash(hash, hashName) {
+function unlinkHash(hash) {
+    const hashName = <?= json_encode($hashEntity->Name); ?>;
+
     if (!confirm(`Are you sure you want to unlink hash ${hashName} (${hash}) from this game?`)) {
         return;
     }
@@ -75,7 +77,7 @@ function unlinkHash(hash, hashName) {
             <button
                 type="button"
                 class="btn btn-danger transition-transform lg:active:scale-95"
-                onclick="unlinkHash('{{ $hashEntity->MD5 }}', '{{ $hashEntity->Name }}')"
+                onclick="unlinkHash('{{ $hashEntity->MD5 }}')"
             >
                 Unlink
             </button>
