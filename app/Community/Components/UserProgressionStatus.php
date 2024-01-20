@@ -11,6 +11,7 @@ use Illuminate\View\Component;
 class UserProgressionStatus extends Component
 {
     public array $userCompletionProgress = [];
+    public array $userJoinedGamesAndAwards = [];
     public array $userRecentlyPlayed = [];
     public array $userSiteAwards = [];
     public int $userHardcorePoints = 0;
@@ -19,6 +20,7 @@ class UserProgressionStatus extends Component
     public function __construct(
         protected PlayerProgressionService $playerProgressionService,
         array $userCompletionProgress = [],
+        array $userJoinedGamesAndAwards = [],
         array $userSiteAwards = [],
         array $userRecentlyPlayed = [],
         int $userHardcorePoints = 0,
@@ -26,6 +28,7 @@ class UserProgressionStatus extends Component
     ) {
 
         $this->userCompletionProgress = $userCompletionProgress;
+        $this->userJoinedGamesAndAwards = $userJoinedGamesAndAwards;
         $this->userSiteAwards = $userSiteAwards;
         $this->userRecentlyPlayed = $userRecentlyPlayed;
         $this->userHardcorePoints = $userHardcorePoints;
@@ -35,8 +38,7 @@ class UserProgressionStatus extends Component
     public function render(): ?View
     {
         [$totalCountsMetrics, $consoleProgress] = $this->buildProgressMetrics(
-            $this->userCompletionProgress,
-            $this->userSiteAwards
+            $this->userJoinedGamesAndAwards
         );
 
         [$consoleProgress, $topConsole] = $this->sortConsoleProgress(
@@ -68,22 +70,17 @@ class UserProgressionStatus extends Component
         ]);
     }
 
-    private function buildProgressMetrics(array $userCompletionProgress, array $userSiteAwards): array
+    private function buildProgressMetrics(array $userJoinedGamesAndAwards): array
     {
-        $filteredAndJoinedGamesList = $this->playerProgressionService->filterAndJoinGames(
-            $userCompletionProgress,
-            $userSiteAwards,
-        );
-
         $allConsoleIds = array_unique(array_map(function ($game) {
             return $game['ConsoleID'] ?? 0;
-        }, $filteredAndJoinedGamesList));
+        }, $userJoinedGamesAndAwards));
 
         // Initialize the result array.
         $consoleProgress = [];
 
         $totalCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
-            $filteredAndJoinedGamesList
+            $userJoinedGamesAndAwards
         );
 
         // Loop through joinedData to calculate counts for individual consoles.
@@ -93,7 +90,7 @@ class UserProgressionStatus extends Component
             }
 
             $consoleCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics(
-                $filteredAndJoinedGamesList,
+                $userJoinedGamesAndAwards,
                 $consoleId
             );
 
