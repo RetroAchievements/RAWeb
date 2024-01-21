@@ -126,6 +126,10 @@ return [
         'streamer_key' => env('TWITCH_STREAMER_KEY'),
     ],
 
+    'threads' => [
+        'channel' => env('THREADS_CHANNEL')
+    ],
+
     'twitter' => [
         'channel' => env('TWITTER_CHANNEL'),
         'widget_id' => env('TWITTER_WIDGET_ID'),
