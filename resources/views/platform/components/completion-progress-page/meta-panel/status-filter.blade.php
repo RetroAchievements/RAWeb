@@ -12,6 +12,7 @@ $statuses = [
     'eq-mastered' => 'Mastered',
     'any-beaten' => 'Beaten, either hardcore or softcore',
     'gte-completed' => 'Completed or mastered',
+    'missing-unlocks' => 'Games without 100% completion',
     'awarded' => 'Games with any award',
     'eq-revised' => 'Games with awards for revised sets',
     'gte-beaten-softcore' => 'Games with softcore awards',
