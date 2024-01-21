@@ -13,6 +13,8 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class RoleResource extends Resource
 {
@@ -21,6 +23,19 @@ class RoleResource extends Resource
     protected static ?string $navigationIcon = 'fas-lock';
 
     protected static ?int $navigationSort = 2;
+
+    /**
+     * @param Role $record
+     */
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->name;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name'];
+    }
 
     public static function form(Form $form): Form
     {
