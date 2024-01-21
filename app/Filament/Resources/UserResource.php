@@ -12,6 +12,7 @@ use App\Site\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
+use Filament\Pages\SubNavigationPosition;
 use Filament\Tables;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
@@ -28,36 +29,51 @@ class UserResource extends Resource
 
     protected static ?string $recordRouteKeyName = 'User';
 
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('roles')
-                    ->multiple()
-                    ->relationship(
-                        name: 'roles',
-                        titleAttribute: 'name',
-                        modifyQueryUsing: function (Builder $query) {
-                            return $query->whereIn('name', auth()->user()->assignableRoles);
-                        },
-                    )
-                    ->preload()
-                    ->getOptionLabelFromRecordUsing(fn (\Spatie\Permission\Models\Role $record) => __('permission.role.' . $record->name))
-                    ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
-                Forms\Components\Select::make('Permissions')
-                    ->label('Legacy permissions')
-                    ->options(
-                        collect(Permissions::cases())
-                            ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
-                    )
-                    ->required()
-                    ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
-                Forms\Components\TextInput::make('Motto')
-                    ->maxLength(50),
-                Forms\Components\Toggle::make('ManuallyVerified')
-                    ->label('Forum verified'),
-                Forms\Components\Toggle::make('Untracked'),
-                // Forms\Components\DateTimePicker::make('muted_until'),
+                Forms\Components\Section::make('Permissions')
+                    // ->description('')
+                    ->aside()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Select::make('Permissions')
+                            ->label('Legacy permissions')
+                            ->options(
+                                collect(Permissions::cases())
+                                    ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
+                            )
+                            ->required()
+                            ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
+                    ]),
+                Forms\Components\Section::make('Profile')
+                    // ->description('')
+                    ->aside()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('Motto')
+                            ->maxLength(50),
+                    ]),
+                Forms\Components\Section::make('Community')
+                    // ->description('')
+                    ->aside()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Toggle::make('ManuallyVerified')
+                            ->label('Forum verified'),
+                        // Forms\Components\DateTimePicker::make('muted_until')
+                        //     ->readOnly(),
+                    ]),
+                Forms\Components\Section::make('Permissions')
+                    // ->description('')
+                    ->aside()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Toggle::make('Untracked'),
+                    ]),
             ]);
     }
 
@@ -104,14 +120,14 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ToggleColumn::make('ManuallyVerified')
+                Tables\Columns\IconColumn::make('ManuallyVerified')
                     ->label('Forum verified')
                     ->alignCenter(),
                 // Tables\Columns\TextColumn::make('forum_verified_at')
                 //     ->dateTime()
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ToggleColumn::make('Untracked')
+                Tables\Columns\IconColumn::make('Untracked')
                     ->alignCenter(),
                 // Tables\Columns\TextColumn::make('unranked_at')
                 //     ->dateTime()
@@ -154,6 +170,14 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\Action::make('roles')
+                        ->url(fn ($record) => UserResource::getUrl('roles', ['record' => $record]))
+                        ->icon('fas-lock'),
+                    Tables\Actions\Action::make('audit-log')
+                        ->url(fn ($record) => UserResource::getUrl('audit-log', ['record' => $record]))
+                        ->icon('fas-clock-rotate-left'),
                 ]),
             ])
             ->bulkActions([
@@ -171,9 +195,9 @@ class UserResource extends Resource
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\EditUser::class,
-            // TODO Pages\ManageX::class,
-            // TODO Permissions,
+            Pages\ViewUser::class,
+            Pages\ManageUserRoles::class,
+            Pages\ListUserAuditLog::class,
         ]);
     }
 
@@ -181,7 +205,10 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
+            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
+            'roles' => Pages\ManageUserRoles::route('/{record}/roles'),
+            'audit-log' => Pages\ListUserAuditLog::route('/{record}/audit-log'),
         ];
     }
 

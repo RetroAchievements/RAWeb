@@ -71,4 +71,5 @@ return [
 
     'livewire_loading_delay' => 'default',
 
+    'default_page_options' => [5, 10, 25, 50],
 ];

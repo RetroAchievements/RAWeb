@@ -11,6 +11,11 @@ class EditSystem extends EditRecord
 {
     protected static string $resource = SystemResource::class;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Edit');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

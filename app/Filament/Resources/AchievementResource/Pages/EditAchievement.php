@@ -12,6 +12,11 @@ class EditAchievement extends EditRecord
 {
     protected static string $resource = AchievementResource::class;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Edit');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

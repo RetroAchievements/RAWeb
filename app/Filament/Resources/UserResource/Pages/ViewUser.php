@@ -6,15 +6,16 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
 use App\Site\Models\User;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Pages\Actions;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditUser extends EditRecord
+class ViewUser extends ViewRecord
 {
     protected static string $resource = UserResource::class;
 
     public static function getNavigationLabel(): string
     {
-        return __('Edit');
+        return __('Details');
     }
 
     public function getSubheading(): ?string
@@ -28,6 +29,7 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\EditAction::make(),
         ];
     }
 }

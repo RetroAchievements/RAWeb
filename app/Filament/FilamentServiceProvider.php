@@ -10,10 +10,19 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\MaxWidth;
+use Filament\Tables\Table;
 use Filament\Widgets\AccountWidget;
 
 class FilamentServiceProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        Table::configureUsing(function (Table $table): void {
+            $table
+                ->paginationPageOptions(config('filament.default_page_options'));
+        });
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -37,7 +46,7 @@ class FilamentServiceProvider extends PanelProvider
                 'warning' => Color::Amber,
             ])
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-            ->maxContentWidth(MaxWidth::Full)
+            ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
             ->navigationGroups([
                 'Community',
                 'Development',
@@ -47,6 +56,7 @@ class FilamentServiceProvider extends PanelProvider
                 'Settings',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,

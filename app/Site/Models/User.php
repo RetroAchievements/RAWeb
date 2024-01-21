@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -211,8 +212,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes) {
             if ($relationName === 'roles') {
                 activity()->causedBy(auth()->user())->performedOn($model)
-                    ->withProperty('relationships', [$relationName => $pivotIds])
-                    ->withProperty('attributes', [$relationName => $pivotIdsAttributes])
+                    ->withProperty('old', [$relationName => null])
+                    ->withProperty('attributes', [$relationName => (new Collection($pivotIds))
+                        ->map(fn ($pivotId) => [
+                            'id' => $pivotId,
+                            'attributes' => $pivotIdsAttributes[$pivotId],
+                        ]),
+                    ])
                     ->event('pivotAttached')
                     ->log('pivotAttached');
             }
@@ -221,7 +227,12 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         static::pivotDetached(function ($model, $relationName, $pivotIds) {
             if ($relationName === 'roles') {
                 activity()->causedBy(auth()->user())->performedOn($model)
-                    ->withProperty('relationships', [$relationName => $pivotIds])
+                    ->withProperty('old', [$relationName => (new Collection($pivotIds))
+                        ->map(fn ($pivotId) => [
+                            'id' => $pivotId,
+                        ]),
+                    ])
+                    ->withProperty('attributes', [$relationName => null])
                     ->event('pivotDetached')
                     ->log('pivotDetached');
             }
@@ -302,7 +313,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
                 // 'locale_time',
                 'ManuallyVerified',
                 'Motto',
-                // 'roles.name',
                 'timezone',
                 'unranked_at',
                 'Untracked',

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
-use App\Filament\Resources\RoleResource\Pages\EditRole;
 use App\Filament\Resources\RoleResource\Pages\ListRoles;
+use App\Filament\Resources\RoleResource\Pages\ViewRole;
 use App\Filament\Resources\RoleResource\RelationManager\UserRelationManager;
 use App\Site\Models\Role;
+use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class RoleResource extends Resource
@@ -21,21 +22,37 @@ class RoleResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('name'),
+                        Forms\Components\TextInput::make('display'),
+                    ]),
+            ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->badge()
                     ->formatStateUsing(fn ($state) => __('permission.role.' . $state))
                     ->color(fn (string $state): string => Role::toFilamentColor($state)),
+                Tables\Columns\TextColumn::make('users_count')
+                    ->counts('users')
+                    ->label('Users'),
             ])
             ->paginated(false)
             ->filters([])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\ViewAction::make(),
                 ]),
             ])
             ->bulkActions([
@@ -55,7 +72,10 @@ class RoleResource extends Resource
     {
         return [
             'index' => ListRoles::route('/'),
-            'edit' => EditRole::route('/{record}/edit'),
+            'view' => ViewRole::route('/{record}'),
+            // TODO 'edit' => Pages\EditRole::route('/{record}/edit'),
+            // TODO 'users' => Pages\ManageRoleUsers::route('/{record}/users'),
+            // TODO 'audit-log' => Pages\ListRoleAuditLog::route('/{record}/audit-log'),
         ];
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\RoleResource\RelationManager;
 
+use App\Filament\Resources\UserResource;
+use App\Site\Models\User;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,28 +18,23 @@ class UserRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        // TODO using the resource's table inherits all the actions which open in empty modals
+        // return UserResource::table($table)
         return $table
-            ->heading(__res('user'))
             ->columns([
                 Tables\Columns\TextColumn::make('User')
-                    ->searchable(),
+                    ->url(fn (User $record) => UserResource::getUrl('view', ['record' => $record])),
             ])
-            ->paginationPageOptions([10, 25, 50])
-            ->filters([
-
-            ])
-            ->deferFilters()
+            ->defaultSort('User', 'asc')
             ->headerActions([
-                Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\DetachAction::make(),
-                ]),
+                Tables\Actions\DetachAction::make()
+                    ->label(__('Remove'))
+                    ->authorize(fn (User $record) => auth()->user()->can('detachRole', [$record, $this->getOwnerRecord()])),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 }

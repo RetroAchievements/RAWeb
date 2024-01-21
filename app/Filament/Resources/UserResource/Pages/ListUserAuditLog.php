@@ -1,21 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Filament\Resources\UserResource\Pages;
 
+use App\Filament\Pages\ListAuditLog;
 use App\Filament\Resources\UserResource;
 use App\Site\Models\User;
-use Filament\Resources\Pages\EditRecord;
 
-class EditUser extends EditRecord
+class ListUserAuditLog extends ListAuditLog
 {
     protected static string $resource = UserResource::class;
-
-    public static function getNavigationLabel(): string
-    {
-        return __('Edit');
-    }
 
     public function getSubheading(): ?string
     {
@@ -23,11 +16,5 @@ class EditUser extends EditRecord
         $record = $this->getRecord();
 
         return '[' . $record->ID . '] ' . $record->User;
-    }
-
-    protected function getHeaderActions(): array
-    {
-        return [
-        ];
     }
 }

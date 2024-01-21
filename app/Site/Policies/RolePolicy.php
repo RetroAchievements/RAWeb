@@ -27,18 +27,20 @@ class RolePolicy
 
     public function view(?User $user, Role $model): bool
     {
-        return $user->assignableRoles->contains($model->name);
+        return $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+        ]);
     }
 
     public function create(User $user): bool
     {
-        // nobody creates roles just like that.
         return false;
     }
 
     public function update(User $user, Role $model): bool
     {
-        return $user->assignableRoles->contains($model->name);
+        return false;
     }
 
     public function delete(User $user, Role $model): bool

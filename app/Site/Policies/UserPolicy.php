@@ -7,6 +7,7 @@ namespace App\Site\Policies;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserPolicy
 {
@@ -71,6 +72,40 @@ class UserPolicy
         return false;
     }
 
+    public function updateRoles(User $user, User $model): bool
+    {
+        // users may attach any role to themselves
+        if ($model->is($user)) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
+    public function attachRole(User $user, User $model, SpatieRole $role): bool
+    {
+        if (!$this->requireAdministrativePrivileges($user, $model)) {
+            return false;
+        }
+
+        return $this->assignableRoles->contains($role->name);
+    }
+
+    public function detachRole(User $user, User $model, SpatieRole $role): bool
+    {
+        // users may detach any role from themselves
+        if ($model->is($user)) {
+            return true;
+        }
+
+        if (!$this->requireAdministrativePrivileges($user, $model)) {
+            return false;
+        }
+
+        // make sure only roles are detachable that the request user is allowed to
+        return $user->assignableRoles->contains($role->name);
+    }
+
     public function ban(User $user, User $mode): bool
     {
         return $user->banned_at === null;
@@ -129,9 +164,7 @@ class UserPolicy
 
     public function deleteAvatar(User $user, User $model): bool
     {
-        /*
-         * users may delete their own avatar
-         */
+        // users may delete their own avatar
         if ($user->is($model)) {
             return true;
         }
@@ -141,9 +174,7 @@ class UserPolicy
 
     public function deleteMotto(User $user, User $model): bool
     {
-        /*
-         * users may delete their own avatar
-         */
+        // users may delete their own avatar
         if ($user->is($model)) {
             return true;
         }
@@ -162,23 +193,32 @@ class UserPolicy
         }
 
         /*
-         * users may not delete themselves
+         * users may not manage themselves
          */
         if ($user->is($model)) {
             return false;
         }
 
         /*
-         * admins may not delete other admins
+         * root may not manage other root
          */
-        if ($user->hasRole(Role::ADMINISTRATOR)) {
-            if ($model->hasRole(Role::ADMINISTRATOR)) {
+        if ($user->hasRole(Role::ROOT)) {
+            if ($model->hasAnyRole(Role::ROOT)) {
                 return false;
             }
         }
 
         /*
-         * moderators may not delete admins or other moderators
+         * admins may not manage other admins
+         */
+        if ($user->hasRole(Role::ADMINISTRATOR)) {
+            if ($model->hasAnyRole(Role::ROOT, Role::ADMINISTRATOR)) {
+                return false;
+            }
+        }
+
+        /*
+         * moderators may not delete root, admins, or other moderators
          */
         if ($user->hasRole(Role::MODERATOR)) {
             if ($model->hasAnyRole([Role::ROOT, Role::ADMINISTRATOR, Role::MODERATOR])) {
