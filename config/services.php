@@ -127,7 +127,7 @@ return [
     ],
 
     'threads' => [
-        'channel' => env('THREADS_CHANNEL')
+        'channel' => env('THREADS_CHANNEL'),
     ],
 
     'twitter' => [
