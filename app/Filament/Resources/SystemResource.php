@@ -12,7 +12,9 @@ use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SystemResource extends Resource
@@ -24,6 +26,27 @@ class SystemResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 1;
+
+    /**
+     * @param System $record
+     */
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->name_full;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'ID' => $record->ID,
+            'Short name' => $record->name_short,
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['ID', 'name_full', 'name_short'];
+    }
 
     public static function form(Form $form): Form
     {
