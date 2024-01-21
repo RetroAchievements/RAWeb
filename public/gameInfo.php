@@ -1224,7 +1224,7 @@ sanitize_outputs(
             RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
         }
 
-        if ($numAchievements > 0) {
+        if ($numAchievements > 0 && $isOfficial) {
             echo "<div id='achdistribution' class='component' >";
             echo "<h2 class='text-h3'>Achievement Distribution</h2>";
             echo "<div id='chart_distribution' class='min-h-[260px]'></div>";
