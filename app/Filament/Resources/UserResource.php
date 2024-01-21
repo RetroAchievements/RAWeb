@@ -11,12 +11,16 @@ use App\Site\Models\Role;
 use App\Site\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
 use Filament\Pages\SubNavigationPosition;
 use Filament\Tables;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
@@ -31,48 +35,97 @@ class UserResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
+    protected static int $globalSearchResultsLimit = 5;
+
+    /**
+     * @param User $record
+     */
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->User;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Display name' => $record->display_name,
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['ID', 'User', 'display_name'];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make()
+                    ->columns(3)
+                    ->schema([
+                        Infolists\Components\ImageEntry::make('avatar_url'),
+                        Infolists\Components\TextEntry::make('Motto'),
+                        Infolists\Components\IconEntry::make('Untracked')
+                            ->boolean(),
+                        Infolists\Components\IconEntry::make('ManuallyVerified')
+                            ->boolean(),
+                        Infolists\Components\TextEntry::make('roles.name')
+                            ->badge()
+                            ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
+                            ->color(fn (string $state): string => Role::toFilamentColor($state)),
+                        Infolists\Components\TextEntry::make('Permissions')
+                            ->label('Legacy permissions')
+                            ->badge()
+                            ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
+                            ->color(fn (int $state): string => match ($state) {
+                                Permissions::Spam => 'danger',
+                                Permissions::Banned => 'danger',
+                                Permissions::JuniorDeveloper => 'success',
+                                Permissions::Developer => 'success',
+                                Permissions::Moderator => 'warning',
+                                default => 'gray',
+                            }),
+                    ]),
+            ]);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Permissions')
-                    // ->description('')
+                Forms\Components\Section::make('Player')
+                    ->description('Player profile')
                     ->aside()
                     ->columns(2)
                     ->schema([
-                        Forms\Components\Select::make('Permissions')
-                            ->label('Legacy permissions')
-                            ->options(
-                                collect(Permissions::cases())
-                                    ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
-                            )
-                            ->required()
-                            ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
+                        Forms\Components\Toggle::make('Untracked'),
                     ]),
-                Forms\Components\Section::make('Profile')
-                    // ->description('')
+                Forms\Components\Section::make('Community')
+                    ->description('Community profile')
                     ->aside()
-                    ->columns(2)
+                    ->columns(1)
                     ->schema([
                         Forms\Components\TextInput::make('Motto')
                             ->maxLength(50),
-                    ]),
-                Forms\Components\Section::make('Community')
-                    // ->description('')
-                    ->aside()
-                    ->columns(2)
-                    ->schema([
                         Forms\Components\Toggle::make('ManuallyVerified')
                             ->label('Forum verified'),
                         // Forms\Components\DateTimePicker::make('muted_until')
                         //     ->readOnly(),
                     ]),
                 Forms\Components\Section::make('Permissions')
-                    // ->description('')
+                    ->description('Use roles instead of permissions')
                     ->aside()
                     ->columns(2)
                     ->schema([
-                        Forms\Components\Toggle::make('Untracked'),
+                        Forms\Components\Select::make('Permissions')
+                            ->label('Permissions level (legacy)')
+                            ->options(
+                                collect(Permissions::cases())
+                                    ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
+                            )
+                            ->required()
+                            ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
                     ]),
             ]);
     }
@@ -82,6 +135,8 @@ class UserResource extends Resource
         return $table
             ->defaultSort('ID', 'desc')
             ->columns([
+                Tables\Columns\ImageColumn::make('avatar')
+                    ->defaultImageUrl(fn ($record) => $record->avatar_url),
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->searchable()
