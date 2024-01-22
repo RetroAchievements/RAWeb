@@ -385,7 +385,7 @@ return [
     55 => [
         'name' => 'Super Cassette Vision',
         'name_full' => 'Epoch Co. Super Cassette Vision',
-        'name_short' => 'eSCV',
+        'name_short' => 'ESCV',
         'manufacturer' => 'Epoch Co.',
         'active' => false,
     ],
