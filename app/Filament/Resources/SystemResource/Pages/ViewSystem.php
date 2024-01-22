@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SystemResource\Pages;
 
 use App\Filament\Resources\SystemResource;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Pages\Actions;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditSystem extends EditRecord
+class ViewSystem extends ViewRecord
 {
     protected static string $resource = SystemResource::class;
 
     public static function getNavigationLabel(): string
     {
-        return __('Edit');
+        return __('Details');
     }
 
     public function getSubheading(): ?string
@@ -27,6 +28,7 @@ class EditSystem extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\EditAction::make(),
         ];
     }
 }
