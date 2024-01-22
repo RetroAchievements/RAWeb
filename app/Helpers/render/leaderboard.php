@@ -1,5 +1,7 @@
 <?php
 
+use App\Platform\Enums\ValueFormat;
+
 function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void
 {
     $numLBs = count($lbData);
@@ -39,7 +41,7 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
             if ($bestScoreUser == '') {
                 echo "No entries";
             } else {
-                echo GetFormattedLeaderboardEntry($scoreFormat, $bestScore);
+                echo ValueFormat::format($bestScore, $scoreFormat);
             }
             echo "</a>";
             echo "</div>";

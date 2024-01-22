@@ -302,6 +302,8 @@ class PlayerCompletionProgressController extends Controller
 
             'gte-completed' => fn ($game) => isset($game['HighestAwardKind'])
                 && ($game['HighestAwardKind'] === 'completed' || $game['HighestAwardKind'] === 'mastered'),
+
+            'missing-unlocks' => fn ($game) => $game['PctWon'] < 1,
         ];
 
         if (isset($filters[$statusValue])) {
