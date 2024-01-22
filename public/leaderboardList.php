@@ -1,5 +1,6 @@
 <?php
 
+use App\Platform\Enums\ValueFormat;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
 
@@ -166,18 +167,10 @@ foreach ($lbData as $nextLB) {
 
         echo "<td style='width: 20%;'>";
         echo "<select id='LB_" . $lbID . "_Format' name='i' " . ($editAllowed ? "" : "disabled='true'") . ">";
-        $selected = $lbFormat == "SCORE" ? "selected" : "";
-        echo "<option value='SCORE' $selected>Score</option>";
-        $selected = $lbFormat == "TIME" ? "selected" : "";
-        echo "<option value='TIME' $selected >Time (Frames)</option>";
-        $selected = $lbFormat == "MILLISECS" ? "selected" : "";
-        echo "<option value='MILLISECS' $selected >Time (Centiseconds)</option>";
-        $selected = $lbFormat == "TIMESECS" ? "selected" : "";
-        echo "<option value='TIMESECS' $selected >Time (Seconds)</option>";
-        $selected = $lbFormat == "MINUTES" ? "selected" : "";
-        echo "<option value='MINUTES' $selected >Time (Minutes)</option>";
-        $selected = $lbFormat == "VALUE" ? "selected" : "";
-        echo "<option value='VALUE' $selected>Value</option>";
+        foreach (ValueFormat::cases() as $format) {
+            $selected = $lbFormat === $format ? " selected" : "";
+            echo "<option value='$format'$selected>" . ValueFormat::toString($format) . "</option>";
+        }
         echo "</select>";
 
         // echo "<input type='text' value='$lbFormat' id='LB_" . $lbID . "_Format' />";
