@@ -298,13 +298,15 @@ class AchievementResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
-                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\ActionGroup::make([
+                        Tables\Actions\ViewAction::make(),
+                        Tables\Actions\EditAction::make(),
+                        Tables\Actions\DeleteAction::make(),
+                        Tables\Actions\RestoreAction::make(),
+                        Tables\Actions\ForceDeleteAction::make(),
+                    ])->dropdown(false),
                     Tables\Actions\Action::make('audit-log')
-                        ->url(fn ($record) => UserResource::getUrl('audit-log', ['record' => $record]))
+                        ->url(fn ($record) => AchievementResource::getUrl('audit-log', ['record' => $record]))
                         ->icon('fas-clock-rotate-left'),
                 ]),
             ])

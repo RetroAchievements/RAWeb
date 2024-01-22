@@ -280,8 +280,10 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\ActionGroup::make([
+                        Tables\Actions\ViewAction::make(),
+                        Tables\Actions\EditAction::make(),
+                    ])->dropdown(false),
                     Tables\Actions\Action::make('roles')
                         ->url(fn ($record) => UserResource::getUrl('roles', ['record' => $record]))
                         ->icon('fas-lock'),

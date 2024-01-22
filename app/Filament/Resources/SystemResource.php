@@ -188,10 +188,15 @@ class SystemResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\ActionGroup::make([
+                        Tables\Actions\ViewAction::make(),
+                        Tables\Actions\EditAction::make(),
+                        Tables\Actions\DeleteAction::make(),
+                        Tables\Actions\RestoreAction::make(),
+                    ])->dropdown(false),
+                    Tables\Actions\Action::make('audit-log')
+                        ->url(fn ($record) => SystemResource::getUrl('audit-log', ['record' => $record]))
+                        ->icon('fas-clock-rotate-left'),
                 ]),
             ])
             ->bulkActions([

@@ -9,7 +9,7 @@ return [
             'relationship' => 'Relationship',
         ],
         'events' => [
-            'create' => 'Created',
+            'created' => 'Created',
             'updated' => 'Updated',
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
