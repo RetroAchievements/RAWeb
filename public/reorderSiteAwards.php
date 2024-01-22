@@ -246,6 +246,8 @@ function postAllAwardsDisplayOrder(awards) {
                 $awardTitle = "Achievement Points Earned by Others";
             } elseif ($awardType == AwardType::PatreonSupporter) {
                 $awardTitle = "Patreon Supporter";
+            } elseif ($awardType == AwardType::CertifiedLegend) {
+                $awardTitle = "Certified Legend";
             }
 
             $isHiddenPreChecked = $awardDisplayOrder === -1;
