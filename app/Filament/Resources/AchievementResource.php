@@ -138,7 +138,7 @@ class AchievementResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('BadgeName')
                                 ->required()
-                                ->default('00001'),
+                                ->default('00000'),
                             Forms\Components\Group::make()
                                 ->schema([
                                     Forms\Components\TextInput::make('Title')
