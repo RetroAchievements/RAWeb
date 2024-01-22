@@ -21,6 +21,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\CausesActivity;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Achievement extends BaseModel implements HasComments
 {
@@ -36,6 +39,11 @@ class Achievement extends BaseModel implements HasComments
 
     use Searchable;
     use SoftDeletes;
+
+    use CausesActivity;
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     // TODO rename Achievements table to achievements
     // TODO rename GameID column to game_id
@@ -60,36 +68,37 @@ class Achievement extends BaseModel implements HasComments
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'Title',
+        'BadgeName',
         'Description',
+        'DisplayOrder',
+        'Flags',
         'GameID',
         'Points',
-        'Flags',
+        'Title',
         'type',
-        'DisplayOrder',
     ];
 
     protected $casts = [
         'DateModified' => 'datetime',
+        'Flags' => 'integer',
         'Points' => 'integer',
         'TrueRatio' => 'integer',
-        'Flags' => 'integer',
     ];
 
     protected $visible = [
-        'ID',
-        'GameID',
-        'BadgeName',
-        'Title',
-        'Description',
-        'Points',
-        'TrueRatio',
         'Author',
+        'BadgeName',
         'DateCreated',
         'DateModified',
-        'type',
+        'Description',
         'DisplayOrder',
         'Flags',
+        'GameID',
+        'ID',
+        'Points',
+        'Title',
+        'TrueRatio',
+        'type',
     ];
 
     protected static function newFactory(): AchievementFactory
@@ -113,6 +122,24 @@ class Achievement extends BaseModel implements HasComments
         // TODO return $this->isPublished();
         // TODO return true;
         return false;
+    }
+
+    // audit activity log
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'Title',
+                'Description',
+                'GameID',
+                'Points',
+                'Flags',
+                'type',
+                'BadgeName',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == helpers
@@ -153,28 +180,16 @@ class Achievement extends BaseModel implements HasComments
 
     public function getBadgeLockedUrlAttribute(): string
     {
-        /**
-         * TODO: read from media library
-         */
-        // $badge = 'Badge/' . $this->badge_name . '_lock.png';
-        // if (!file_exists(public_path($badge))) {
-        $badge = 'assets/images/achievement/badge-locked.png';
+        // TODO: read from media library
 
-        // }
-        return $badge;
+        return media_asset('Badge/' . $this->badge_name . '_lock.png');
     }
 
     public function getBadgeUnlockedUrlAttribute(): string
     {
-        /**
-         * TODO: read from media library
-         */
-        // $badge = 'Badge/' . $this->badge_name . '.png';
-        // if (!file_exists(public_path($badge))) {
-        $badge = 'assets/images/achievement/badge.png';
+        // TODO: read from media library
 
-        // }
-        return $badge;
+        return media_asset('Badge/' . $this->badge_name . '.png');
     }
 
     public function getIsPublishedAttribute(): bool
@@ -187,6 +202,11 @@ class Achievement extends BaseModel implements HasComments
     public function getIdAttribute(): int
     {
         return $this->attributes['ID'];
+    }
+
+    public function getBadgeNameAttribute(): string
+    {
+        return $this->attributes['BadgeName'];
     }
 
     public function getGameIdAttribute(): int

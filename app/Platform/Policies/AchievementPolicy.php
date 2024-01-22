@@ -52,7 +52,9 @@ class AchievementPolicy
 
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 
     public function update(User $user, Achievement $achievement): bool
@@ -79,16 +81,26 @@ class AchievementPolicy
 
     public function delete(User $user, Achievement $achievement): bool
     {
-        return false;
+        if ($achievement->is_published) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 
     public function restore(User $user, Achievement $achievement): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 
     public function forceDelete(User $user, Achievement $achievement): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 }

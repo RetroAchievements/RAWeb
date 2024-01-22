@@ -7,15 +7,15 @@ namespace App\Filament\Resources\AchievementResource\Pages;
 use App\Filament\Resources\AchievementResource;
 use App\Platform\Models\Achievement;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditAchievement extends EditRecord
+class ViewAchievement extends ViewRecord
 {
     protected static string $resource = AchievementResource::class;
 
     public static function getNavigationLabel(): string
     {
-        return __('Edit');
+        return __('Details');
     }
 
     public function getSubheading(): ?string
@@ -29,6 +29,7 @@ class EditAchievement extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\EditAction::make(),
             Actions\DeleteAction::make(),
             Actions\RestoreAction::make(),
         ];

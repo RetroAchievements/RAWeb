@@ -144,7 +144,7 @@ class SystemResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('icon_url')
-                    ->label('Icon')
+                    ->label('')
                     ->size(config('media.icon.sm.width')),
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')

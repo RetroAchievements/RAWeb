@@ -1,22 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Filament\Resources\AchievementResource\Pages;
 
+use App\Filament\Pages\ListAuditLog;
 use App\Filament\Resources\AchievementResource;
 use App\Platform\Models\Achievement;
-use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 
-class EditAchievement extends EditRecord
+class ListAchievementAuditLog extends ListAuditLog
 {
     protected static string $resource = AchievementResource::class;
-
-    public static function getNavigationLabel(): string
-    {
-        return __('Edit');
-    }
 
     public function getSubheading(): ?string
     {
@@ -24,13 +16,5 @@ class EditAchievement extends EditRecord
         $record = $this->getRecord();
 
         return '[' . $record->ID . '] ' . $record->Title;
-    }
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-            Actions\RestoreAction::make(),
-        ];
     }
 }

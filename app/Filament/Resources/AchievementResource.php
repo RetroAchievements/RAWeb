@@ -10,13 +10,18 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AchievementResource extends Resource
@@ -29,39 +34,156 @@ class AchievementResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static int $globalSearchResultsLimit = 5;
+
+    /**
+     * @param Achievement $record
+     */
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->title;
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'ID' => $record->id,
+            'Description' => $record->description,
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['ID', 'Title', 'Description'];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->columns(1)
+            ->schema([
+                Infolists\Components\Split::make([
+                    Infolists\Components\Section::make('Details')
+                        ->columns(['xl' => 2, '2xl' => 3])
+                        ->schema([
+                            Infolists\Components\Group::make()
+                                ->schema([
+                                    Infolists\Components\ImageEntry::make('badge_url')
+                                        ->label('Badge')
+                                        ->size(config('media.icon.lg.width')),
+                                    Infolists\Components\ImageEntry::make('badge_locked_url')
+                                        ->label('Badge locked')
+                                        ->size(config('media.icon.lg.width')),
+                                ]),
+                            Infolists\Components\Group::make()
+                                ->schema([
+                                    Infolists\Components\TextEntry::make('Title'),
+                                    Infolists\Components\TextEntry::make('Description'),
+                                    Infolists\Components\TextEntry::make('game')
+                                        ->label('Game')
+                                        ->formatStateUsing(fn (Game $state) => '[' . $state->id . '] ' . $state->title),
+                                    // ->url(GameResource::getUrl('view', ['record' => $state->id])),
+                                ]),
+                            Infolists\Components\Group::make()
+                                ->schema([
+                                    Infolists\Components\TextEntry::make('canonical_url')
+                                        ->label('Canonical URL')
+                                        ->url(fn (Achievement $record): string => $record->getCanonicalUrlAttribute()),
+                                    Infolists\Components\TextEntry::make('permalink')
+                                        ->url(fn (Achievement $record): string => $record->getPermalinkAttribute()),
+                                ]),
+                        ]),
+                    Infolists\Components\Section::make([
+                        Infolists\Components\TextEntry::make('Created')
+                            ->label('Created at')
+                            ->dateTime()
+                            ->hidden(fn ($state) => !$state),
+                        Infolists\Components\TextEntry::make('DateModified')
+                            ->label('Modified at')
+                            ->dateTime()
+                            ->hidden(fn ($state) => !$state),
+                        Infolists\Components\TextEntry::make('Updated')
+                            ->label('Updated at')
+                            ->dateTime()
+                            ->hidden(fn ($state) => !$state),
+                        Infolists\Components\TextEntry::make('Flags')
+                            ->badge()
+                            ->formatStateUsing(fn (int $state): string => match ($state) {
+                                AchievementFlag::OfficialCore => __('published'),
+                                AchievementFlag::Unofficial => __('unpublished'),
+                                default => '',
+                            })
+                            ->color(fn (int $state): string => match ($state) {
+                                AchievementFlag::OfficialCore => 'success',
+                                AchievementFlag::Unofficial => 'info',
+                                default => '',
+                            }),
+                        Infolists\Components\TextEntry::make('type')
+                            ->badge(),
+                        Infolists\Components\TextEntry::make('Points'),
+                        Infolists\Components\TextEntry::make('DisplayOrder'),
+                    ])->grow(false),
+                ])->from('md'),
+            ]);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(1)
             ->schema([
-                Forms\Components\TextInput::make('GameID')
-                    ->label('Game')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('Title')
-                    ->required()
-                    ->maxLength(64),
-                Forms\Components\TextInput::make('Description')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Select::make('Points')
-                    ->required()
-                    ->options(AchievementPoints::cases())
-                    ->default(0),
-                Forms\Components\Select::make('Flags')
-                    ->options([
-                        AchievementFlag::OfficialCore => __('published'),
-                        AchievementFlag::Unofficial => __('unpublished'),
-                    ])
-                    ->required(),
-                Forms\Components\Select::make('type')
-                    ->options(
-                        collect(AchievementType::cases())
-                            ->mapWithKeys(fn ($value) => [$value => __($value)])
-                    ),
-                Forms\Components\TextInput::make('DisplayOrder')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
+                Forms\Components\Split::make([
+                    Forms\Components\Section::make()
+                        ->columns(['xl' => 2, '2xl' => 2])
+                        ->schema([
+                            Forms\Components\TextInput::make('BadgeName')
+                                ->required()
+                                ->numeric(),
+                            Forms\Components\Group::make()
+                                ->schema([
+                                    Forms\Components\TextInput::make('Title')
+                                        ->required()
+                                        ->maxLength(64),
+                                    Forms\Components\TextInput::make('Description')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\Select::make('GameID')
+                                        ->label('Game')
+                                        ->relationship(
+                                            name: 'game',
+                                            titleAttribute: 'Title',
+                                        )
+                                        ->searchable(['ID', 'Title'])
+                                        ->getOptionLabelFromRecordUsing(fn (Model $record) => "[{$record->ID}] {$record->Title}")
+                                        ->required(),
+                                ]),
+                        ]),
+                    Forms\Components\Section::make()
+                        ->grow(false)
+                        ->schema([
+                            Forms\Components\Select::make('Flags')
+                                ->options([
+                                    AchievementFlag::OfficialCore => __('published'),
+                                    AchievementFlag::Unofficial => __('unpublished'),
+                                ])
+                                ->required(),
+                            Forms\Components\Select::make('type')
+                                ->options(
+                                    collect(AchievementType::cases())
+                                        ->mapWithKeys(fn ($value) => [$value => __($value)])
+                                ),
+                            Forms\Components\Select::make('Points')
+                                ->required()
+                                ->options(
+                                    collect(AchievementPoints::cases())
+                                        ->mapWithKeys(fn ($value) => [$value => $value])
+                                ),
+                            Forms\Components\TextInput::make('DisplayOrder')
+                                ->required()
+                                ->numeric()
+                                ->default(0),
+                        ]),
+                ])->from('md'),
             ]);
     }
 
@@ -69,19 +191,26 @@ class AchievementResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('badge_url')
+                    ->label('')
+                    ->size(config('media.icon.sm.width')),
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('Title')
                     ->label('Achievement')
+                    ->wrap()
                     ->description(fn (Achievement $record): string => $record->description)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('Description')
+                    ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
-                Tables\Columns\TextColumn::make('GameID')
-                    ->label('Game'),
+                Tables\Columns\TextColumn::make('game')
+                    ->label('Game')
+                    ->formatStateUsing(fn ($state) => '[' . $state->id . '] ' . $state->title),
+                    // ->url(GameResource::getUrl('view', ['record' => $state->id])),
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
                     ->formatStateUsing(fn (int $state): string => match ($state) {
@@ -144,8 +273,7 @@ class AchievementResource extends Resource
                 Tables\Columns\TextColumn::make('DateModified')
                     ->label('Modified at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('Updated')
                     ->label('Updated at')
                     ->dateTime()
@@ -156,13 +284,8 @@ class AchievementResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('ID', 'desc')
+            ->defaultSort('DateModified', 'desc')
             ->filters([
-                SelectFilter::make('Flags')
-                    ->options([
-                        AchievementFlag::OfficialCore => 'published',
-                        AchievementFlag::Unofficial => 'unpublished',
-                    ]),
                 SelectFilter::make('type')
                     ->multiple()
                     ->options(
@@ -173,13 +296,21 @@ class AchievementResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\ForceDeleteAction::make(),
+                    Tables\Actions\Action::make('audit-log')
+                        ->url(fn ($record) => UserResource::getUrl('audit-log', ['record' => $record]))
+                        ->icon('fas-clock-rotate-left'),
                 ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\ForceDeleteBulkAction::make(),
+                    // Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -192,8 +323,8 @@ class AchievementResource extends Resource
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\EditAchievement::class,
-            // TODO Pages\ManageX::class,
+            Pages\ViewAchievement::class,
+            Pages\ListAchievementAuditLog::class,
         ]);
     }
 
@@ -201,8 +332,10 @@ class AchievementResource extends Resource
     {
         return [
             'index' => Pages\ListAchievements::route('/'),
+            'view' => Pages\ViewAchievement::route('/{record}'),
             'create' => Pages\CreateAchievement::route('/create'),
             'edit' => Pages\EditAchievement::route('/{record}/edit'),
+            'audit-log' => Pages\ListAchievementAuditLog::route('/{record}/audit-log'),
         ];
     }
 
@@ -214,6 +347,7 @@ class AchievementResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->with(['game']);
     }
 }

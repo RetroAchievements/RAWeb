@@ -144,7 +144,7 @@ class UserResource extends Resource
             ->schema([
                 Forms\Components\Split::make([
                     Forms\Components\Section::make()
-                        ->columns(['xl' => 2, '2xl' => 3])
+                        ->columns(['xl' => 2, '2xl' => 2])
                         ->schema([
                             Forms\Components\TextInput::make('Motto')
                                 ->maxLength(50),
@@ -178,7 +178,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar_url')
-                    ->label('Avatar')
+                    ->label('')
                     ->size(config('media.icon.sm.width')),
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
