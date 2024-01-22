@@ -48,6 +48,7 @@ class UserResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
+            'ID' => $record->id,
             'Display name' => $record->display_name,
         ];
     }
@@ -177,7 +178,6 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('ID', 'desc')
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar_url')
                     ->label('Avatar')
@@ -265,6 +265,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('ID', 'desc')
             ->filters([
                 Filters\SelectFilter::make('Permissions')
                     ->multiple()

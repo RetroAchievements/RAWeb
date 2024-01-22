@@ -32,6 +32,8 @@ class SystemResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
+    protected static int $globalSearchResultsLimit = 5;
+
     /**
      * @param System $record
      */
