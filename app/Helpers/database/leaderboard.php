@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Platform\Enums\ValueFormat;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 
@@ -26,7 +27,7 @@ function SubmitLeaderboardEntry(
 
         $lowerIsBetter = (int) $lbData['LowerIsBetter'];
 
-        $scoreFormatted = GetFormattedLeaderboardEntry($lbData['Format'], $newEntry);
+        $scoreFormatted = ValueFormat::format($newEntry, $lbData['Format']);
 
         $retVal['LBData'] = $lbData;
         $retVal['LBData']['LeaderboardID'] = (int) $retVal['LBData']['LeaderboardID'];
@@ -100,7 +101,7 @@ function removeLeaderboardEntry(string $user, int $lbID, ?int &$score): bool
         return false;
     }
 
-    $score = GetFormattedLeaderboardEntry($data['Format'], (int) $data['Score']);
+    $score = ValueFormat::format((int) $data['Score'], $data['Format']);
 
     $userID = getUserIDFromUser($user);
     if ($userID === 0) {
@@ -435,78 +436,6 @@ function GetLeaderboardData(
     return $retVal;
 }
 
-function formatLeaderboardValueSeconds(int $hours, int $mins, int $secs): string
-{
-    if ($hours == 0) {
-        return sprintf("%02d:%02d", $mins, $secs);
-    }
-
-    return sprintf("%02dh%02d:%02d", $hours, $mins, $secs);
-}
-
-function GetFormattedLeaderboardEntry(string $formatType, int $scoreIn): string
-{
-    // NOTE: a/b results in a float, a%b results in an integer
-    if ($formatType === 'TIME') {
-        // Number of frames
-        $hours = $scoreIn / 216000;
-        $hours = (int) $hours;
-        $mins = ($scoreIn / 3600) - ($hours * 60);
-        $secs = ($scoreIn % 3600) / 60;
-        $milli = (($scoreIn % 3600) % 60) * (100.0 / 60.0);
-        $mins = (int) $mins;
-        $secs = (int) $secs;
-        $milli = (int) $milli;
-
-        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
-    }
-    if ($formatType === 'TIMESECS') {
-        // Number of seconds
-        $hours = $scoreIn / 3600;
-        $hours = (int) $hours;
-        $mins = ($scoreIn / 60) - ($hours * 60);
-        $secs = $scoreIn % 60;
-
-        return formatLeaderboardValueSeconds($hours, $mins, $secs);
-    }
-    if ($formatType === 'MILLISECS') {
-        // Hundredths of seconds
-        $hours = $scoreIn / 360000;
-        $hours = (int) $hours;
-        $mins = ($scoreIn / 6000) - ($hours * 60);
-        $secs = ($scoreIn % 6000) / 100;
-        $milli = ($scoreIn % 100);
-        $mins = (int) $mins;
-        $secs = (int) $secs;
-
-        return sprintf("%s.%02d", formatLeaderboardValueSeconds($hours, $mins, $secs), $milli);
-    }
-    if ($formatType === 'MINUTES') { // Number of minutes
-        $hours = $scoreIn / 60;
-        $hours = (int) $hours;
-        $mins = $scoreIn % 60;
-
-        return sprintf("%01dh%02d", $hours, $mins);
-    }
-    if ($formatType == 'SCORE') { // Number padded to six digits
-        return sprintf("%06d", $scoreIn);
-    }
-
-    // Raw number
-    return localized_number($scoreIn);
-}
-
-// TODO replace with Enum
-function isValidLeaderboardFormat(string $formatType): bool
-{
-    return $formatType == 'TIME'      // Frames
-        || $formatType == 'TIMESECS'  // Seconds
-        || $formatType == 'MINUTES'   // Minutes
-        || $formatType == 'MILLISECS' // Hundredths of seconds
-        || $formatType == 'VALUE'     // Raw number
-        || $formatType == 'SCORE';    // Number padded to six digits
-}
-
 function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition): bool
 {
     sanitize_sql_inputs($user);
@@ -710,7 +639,7 @@ function UploadNewLeaderboard(
         return false;
     }
 
-    if (!isValidLeaderboardFormat($format)) {
+    if (!ValueFormat::isValid($format)) {
         $errorOut = "Unknown format: $format";
 
         return false;
