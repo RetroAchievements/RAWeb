@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Platform\Enums\ValueFormat;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
 
@@ -156,7 +157,7 @@ RenderOpenGraphMetadata(
                     if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
                         $nextUser = $nextLBEntry['User'];
                         $nextScore = $nextLBEntry['Score'];
-                        $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
+                        $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
                         echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                     }
                 }
@@ -223,7 +224,7 @@ RenderOpenGraphMetadata(
             $nextUser = $nextEntry['User'];
             $nextScore = $nextEntry['Score'];
             $nextRank = $nextEntry['Rank'];
-            $nextScoreFormatted = GetFormattedLeaderboardEntry($lbFormat, $nextScore);
+            $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
             $nextSubmitAt = $nextEntry['DateSubmitted'];
             $nextSubmitAtNice = getNiceDate($nextSubmitAt);
 
@@ -258,7 +259,7 @@ RenderOpenGraphMetadata(
 
             echo "<td class='lb_result text-right'>$injectFmt1$nextScoreFormatted$injectFmt2</td>";
 
-            echo "<td class='lb_date text-right'>$injectFmt1$nextSubmitAtNice$injectFmt2</td>";
+            echo "<td class='lb_date text-right smalldate'>$injectFmt1$nextSubmitAtNice$injectFmt2</td>";
 
             echo "</tr>";
 

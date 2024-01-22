@@ -2,6 +2,12 @@
     'recentLeaderboardEntries' => null, // Collection
 ])
 
+<?php
+
+use App\Platform\Enums\ValueFormat;
+
+?>
+
 <div>
     <h2 class="text-h4">Recent Leaderboard Entries</h2>
 
@@ -31,7 +37,7 @@
                                 </a>
                             </td>
 
-                            <td>{{ GetFormattedLeaderboardEntry($recentLeaderboardEntry->Format, $recentLeaderboardEntry->Score) }}</td>
+                            <td>{{ ValueFormat::format($recentLeaderboardEntry->Score, $recentLeaderboardEntry->Format) }}</td>
 
                             <td class="py-2">
                                 <x-game.multiline-avatar
