@@ -60,16 +60,42 @@ class UserResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->columns(['lg' => 1, 'xl' => 1, '2xl' => 2])
             ->schema([
-                Infolists\Components\Section::make()
-                    ->columns(3)
+                Infolists\Components\Section::make('Profile')
+                    ->columns(2)
+                    ->columnSpan(1)
                     ->schema([
-                        Infolists\Components\ImageEntry::make('avatar_url'),
-                        Infolists\Components\TextEntry::make('Motto'),
+                        Infolists\Components\ImageEntry::make('avatar_url')
+                            ->label('Avatar')
+                            ->size(config('media.icon.lg.width')),
+                        Infolists\Components\Group::make()
+                            ->schema([
+                                Infolists\Components\TextEntry::make('User')
+                                    ->label('URL')
+                                    ->formatStateUsing(fn ($state) => route('user.show', ['user' => $state]))
+                                    ->url(fn (User $record): string => route('user.show', ['user' => $record])),
+                                Infolists\Components\TextEntry::make('Motto'),
+                            ]),
+                    ]),
+                Infolists\Components\Section::make('Player')
+                    ->columns(2)
+                    ->columnSpan(1)
+                    ->schema([
                         Infolists\Components\IconEntry::make('Untracked')
                             ->boolean(),
+                    ]),
+                Infolists\Components\Section::make('Community')
+                    ->columns(2)
+                    ->columnSpan(1)
+                    ->schema([
                         Infolists\Components\IconEntry::make('ManuallyVerified')
                             ->boolean(),
+                    ]),
+                Infolists\Components\Section::make('Permissions')
+                    ->columns(2)
+                    ->columnSpan(1)
+                    ->schema([
                         Infolists\Components\TextEntry::make('roles.name')
                             ->badge()
                             ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
@@ -93,30 +119,38 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(['lg' => 2, 'xl' => 2, '2xl' => 2])
             ->schema([
-                Forms\Components\Section::make('Player')
-                    ->description('Player profile')
-                    ->aside()
+                Forms\Components\Section::make('Profile')
                     ->columns(2)
+                    ->columnSpan(1)
+                    ->schema([
+                        Forms\Components\Group::make()
+                            ->schema([
+                                // TODO avatar management
+                            ]),
+                        Forms\Components\TextInput::make('Motto')
+                            ->maxLength(50),
+                    ]),
+                Forms\Components\Section::make('Player')
+                    ->columns(2)
+                    ->columnSpan(1)
                     ->schema([
                         Forms\Components\Toggle::make('Untracked'),
                     ]),
                 Forms\Components\Section::make('Community')
-                    ->description('Community profile')
-                    ->aside()
-                    ->columns(1)
+                    ->columns(2)
+                    ->columnSpan(1)
                     ->schema([
-                        Forms\Components\TextInput::make('Motto')
-                            ->maxLength(50),
                         Forms\Components\Toggle::make('ManuallyVerified')
                             ->label('Forum verified'),
                         // Forms\Components\DateTimePicker::make('muted_until')
                         //     ->readOnly(),
                     ]),
                 Forms\Components\Section::make('Permissions')
-                    ->description('Use roles instead of permissions')
-                    ->aside()
+                    ->description('Note: Use roles instead of permissions')
                     ->columns(2)
+                    ->columnSpan(1)
                     ->schema([
                         Forms\Components\Select::make('Permissions')
                             ->label('Permissions level (legacy)')
@@ -136,7 +170,8 @@ class UserResource extends Resource
             ->defaultSort('ID', 'desc')
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar')
-                    ->defaultImageUrl(fn ($record) => $record->avatar_url),
+                    ->defaultImageUrl(fn ($record) => $record->avatar_url)
+                    ->size(config('media.icon.sm.width')),
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->searchable()
@@ -177,12 +212,19 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('ManuallyVerified')
                     ->label('Forum verified')
+                    ->boolean()
                     ->alignCenter(),
                 // Tables\Columns\TextColumn::make('forum_verified_at')
                 //     ->dateTime()
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('Untracked')
+                    ->label('Ranked')
+                    ->boolean()
+                    ->trueColor('danger')
+                    ->trueIcon('heroicon-o-x-circle')
+                    ->falseColor('success')
+                    ->falseIcon('heroicon-o-check-circle')
                     ->alignCenter(),
                 // Tables\Columns\TextColumn::make('unranked_at')
                 //     ->dateTime()
@@ -236,15 +278,13 @@ class UserResource extends Resource
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-        ];
+        return [];
     }
 
     public static function getRecordSubNavigation(Page $page): array
