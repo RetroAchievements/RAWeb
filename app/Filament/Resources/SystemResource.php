@@ -188,6 +188,10 @@ class SystemResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\RestoreAction::make(),
                 ]),
             ])
             ->bulkActions([
@@ -214,8 +218,8 @@ class SystemResource extends Resource
     {
         return [
             'index' => Pages\ListSystems::route('/'),
-            'view' => Pages\ViewSystem::route('/{record}'),
             'create' => Pages\CreateSystem::route('/create'),
+            'view' => Pages\ViewSystem::route('/{record}'),
             'edit' => Pages\EditSystem::route('/{record}/edit'),
             'audit-log' => Pages\ListSystemAuditLog::route('/{record}/audit-log'),
         ];

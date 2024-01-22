@@ -32,7 +32,9 @@ class SystemPolicy
 
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 
     public function update(User $user, System $system): bool
@@ -44,12 +46,20 @@ class SystemPolicy
 
     public function delete(User $user, System $system): bool
     {
-        return false;
+        if ($system->active) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 
     public function restore(User $user, System $system): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+        ]);
     }
 
     public function forceDelete(User $user, System $system): bool

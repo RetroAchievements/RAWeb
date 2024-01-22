@@ -81,6 +81,7 @@ class Achievement extends BaseModel implements HasComments
     protected $casts = [
         'DateModified' => 'datetime',
         'Flags' => 'integer',
+        'GameID' => 'integer',
         'Points' => 'integer',
         'TrueRatio' => 'integer',
     ];
@@ -209,9 +210,11 @@ class Achievement extends BaseModel implements HasComments
         return $this->attributes['BadgeName'];
     }
 
-    public function getGameIdAttribute(): int
+    public function getGameIdAttribute(): ?int
     {
-        return $this->attributes['GameID'];
+        $gameId = $this->attributes['GameID'] ?? null;
+
+        return $gameId ? (int) $gameId : null;
     }
 
     public function getTitleAttribute(): ?string

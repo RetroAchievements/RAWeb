@@ -138,7 +138,7 @@ class AchievementResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('BadgeName')
                                 ->required()
-                                ->numeric(),
+                                ->default('00001'),
                             Forms\Components\Group::make()
                                 ->schema([
                                     Forms\Components\TextInput::make('Title')
@@ -166,6 +166,7 @@ class AchievementResource extends Resource
                                     AchievementFlag::OfficialCore => __('published'),
                                     AchievementFlag::Unofficial => __('unpublished'),
                                 ])
+                                ->default(AchievementFlag::Unofficial)
                                 ->required(),
                             Forms\Components\Select::make('type')
                                 ->options(
@@ -174,6 +175,7 @@ class AchievementResource extends Resource
                                 ),
                             Forms\Components\Select::make('Points')
                                 ->required()
+                                ->default(0)
                                 ->options(
                                     collect(AchievementPoints::cases())
                                         ->mapWithKeys(fn ($value) => [$value => $value])
@@ -332,8 +334,8 @@ class AchievementResource extends Resource
     {
         return [
             'index' => Pages\ListAchievements::route('/'),
-            'view' => Pages\ViewAchievement::route('/{record}'),
             'create' => Pages\CreateAchievement::route('/create'),
+            'view' => Pages\ViewAchievement::route('/{record}'),
             'edit' => Pages\EditAchievement::route('/{record}/edit'),
             'audit-log' => Pages\ListAchievementAuditLog::route('/{record}/audit-log'),
         ];

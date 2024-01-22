@@ -6,6 +6,7 @@ namespace App\Filament\Resources\SystemResource\Pages;
 
 use App\Filament\Resources\SystemResource;
 use App\Platform\Models\System;
+use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
 class EditSystem extends EditRecord
@@ -28,6 +29,8 @@ class EditSystem extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\DeleteAction::make(),
+            Actions\RestoreAction::make(),
         ];
     }
 }

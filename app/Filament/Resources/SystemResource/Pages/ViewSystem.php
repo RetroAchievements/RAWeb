@@ -30,6 +30,8 @@ class ViewSystem extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+            Actions\DeleteAction::make(),
+            Actions\RestoreAction::make(),
         ];
     }
 }
