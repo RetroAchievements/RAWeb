@@ -156,13 +156,26 @@ $menu = collect([
                     <span class="sr-only">Facebook</span>
                 </a>
             @endif
-            @if(config('services.twitter.channel'))
+            @if(config('services.threads.channel'))
+                <a
+                    href="{{ 'https://threads.net/@' . config('services.threads.channel') }}"
+                    data-toggle="tooltip"
+                    title="Follow us on Threads"
+                    rel="noopener"
+                >
+                    <x-fab-threads />
+                    <span class="sr-only">Threads</span>
+                </a>
+            @endif
+
+            {{-- @if(config('services.twitter.channel'))
                 <a href="https://twitter.com/{{ config('services.twitter.channel') }}"
                    data-toggle="tooltip" title="Follow us on Twitter" rel="noopener">
                     <x-fab-twitter/>
                     <span class="sr-only">Twitter</span>
                 </a>
-            @endif
+            @endif --}}
+            
             @if(config('services.reddit.channel'))
                 <a href="https://reddit.com/r/{{ config('services.reddit.channel') }}"
                    data-toggle="tooltip" title="Follow us on Reddit" rel="noopener">
