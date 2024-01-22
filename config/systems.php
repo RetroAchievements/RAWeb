@@ -432,7 +432,6 @@ return [
         'active' => false,
     ],
     62 => [
-        // 'name' => '3DS',
         'name' => 'Nintendo 3DS',
         'name_full' => 'Nintendo 3DS',
         'name_short' => '3DS',
