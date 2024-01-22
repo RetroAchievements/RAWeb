@@ -54,8 +54,8 @@ return [
         'active' => true,
     ],
     8 => [
-        'name' => 'PC Engine/TurboGrafx16',
-        'name_full' => 'NEC PC Engine/TurboGrafx16',
+        'name' => 'PC Engine/TurboGrafx-16',
+        'name_full' => 'NEC PC Engine/TurboGrafx-16',
         'name_short' => 'PCE',
         'manufacturer' => 'NEC',
         'active' => true,
