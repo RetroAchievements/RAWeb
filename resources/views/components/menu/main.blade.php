@@ -7,74 +7,74 @@ $mobile ??= false;
 $menuSystemsList = [
     [
         "Nintendo" => [
-            ["systemName" => "Game Boy", "listID" => 4],
-            ["systemName" => "Game Boy Color", "listID" => 6],
-            ["systemName" => "Game Boy Advance", "listID" => 5],
-            ["systemName" => "NES/Famicom", "listID" => 7],
-            ["systemName" => "SNES/Super Famicom", "listID" => 3],
-            ["systemName" => "Nintendo 64", "listID" => 2],
-            ["systemName" => "Nintendo DS", "listID" => 18],
-            ["systemName" => "Nintendo DSi", "listID" => 78],
-            ["systemName" => "Pokemon Mini", "listID" => 24],
-            ["systemName" => "Virtual Boy", "listID" => 28],
+            4, // Game Boy
+            6, // Game Boy Color
+            5, // Game Boy Advance
+            7, // NES/Famicom
+            3, // SNES/Super Famicom
+            2, // Nintendo 64
+            18, // Nintendo DS
+            78, // Nintendo DSi
+            24, // Pokemon Mini
+            28, // Virtual Boy
         ],
         "Sony" => [
-            ["systemName" => "PlayStation", "listID" => 12],
-            ["systemName" => "PlayStation 2", "listID" => 21],
-            ["systemName" => "PlayStation Portable", "listID" => 41],
+            12, // PlayStation
+            21, // PlayStation 2
+            41, // PlayStation Portable
         ],
         "Atari" => [
-            ["systemName" => "Atari 2600", "listID" => 25],
-            ["systemName" => "Atari 7800", "listID" => 51],
-            ["systemName" => "Atari Jaguar", "listID" => 17],
-            ["systemName" => "Atari Jaguar CD", "listID" => 77],
-            ["systemName" => "Atari Lynx", "listID" => 13],
+            25, // Atari 2600
+            51, // Atari 7800
+            17, // Atari Jaguar
+            77, // Atari Jaguar CD
+            13, // Atari Lynx
         ],
     ],
     [
         "Sega" => [
-            ["systemName" => "SG-1000", "listID" => 33],
-            ["systemName" => "Master System", "listID" => 11],
-            ["systemName" => "Game Gear", "listID" => 15],
-            ["systemName" => "Genesis/Mega Drive", "listID" => 1],
-            ["systemName" => "Sega CD", "listID" => 9],
-            ["systemName" => "Sega 32X", "listID" => 10],
-            ["systemName" => "Sega Saturn", "listID" => 39],
-            ["systemName" => "Sega Dreamcast", "listID" => 40],
+            33, // SG-1000
+            11, // Master System
+            15, // Game Gear
+            1, // Genesis/Mega Drive
+            9, // Sega CD
+            10, // Sega 32X
+            39, // Sega Saturn
+            40, // Sega Dreamcast
         ],
         "NEC" => [
-            ["systemName" => "PC Engine/TurboGrafx-16", "listID" => 8],
-            ["systemName" => "PC Engine CD/TurboGrafx-CD", "listID" => 76],
-            ["systemName" => "PC-8000/8800", "listID" => 47],
-            ["systemName" => "PC-FX", "listID" => 49],
+            8, // PC Engine/TurboGrafx-16
+            76, // PC Engine CD/TurboGrafx-CD
+            47, // PC-8000/8800
+            49, // PC-FX
         ],
         "SNK" => [
-            ["systemName" => "Neo Geo CD", "listID" => 56],
-            ["systemName" => "Neo Geo Pocket", "listID" => 14],
+            56, // Neo Geo CD
+            14, // Neo Geo Pocket
         ],
     ],
     [
         "Other" => [
-            ["systemName" => "3DO Interactive Multiplayer", "listID" => 43],
-            ["systemName" => "Amstrad CPC", "listID" => 37],
-            ["systemName" => "Apple II", "listID" => 38],
-            ["systemName" => "Arcade", "listID" => 27],
-            ["systemName" => "Arcadia 2001", "listID" => 73],
-            ["systemName" => "Arduboy", "listID" => 71],
-            ["systemName" => "ColecoVision", "listID" => 44],
-            ["systemName" => "Elektor TV Games Computer", "listID" => 75],
-            ["systemName" => "Fairchild Channel F", "listID" => 57],
-            ["systemName" => "Intellivision", "listID" => 45],
-            ["systemName" => "Interton VC 4000", "listID" => 74],
-            ["systemName" => "Magnavox Odyssey 2", "listID" => 23],
-            ["systemName" => "Mega Duck", "listID" => 69],
-            ["systemName" => "MSX", "listID" => 29],
-            // ["systemName" => "Standalone", "listID" => 102],
-            ["systemName" => "Uzebox", "listID" => 80],
-            ["systemName" => "Vectrex", "listID" => 46],
-            ["systemName" => "WASM-4", "listID" => 72],
-            ["systemName" => "Watara Supervision", "listID" => 63],
-            ["systemName" => "WonderSwan", "listID" => 53],
+            43, // 3DO Interactive Multiplayer
+            37, // Amstrad CPC
+            38, // Apple II
+            27, // Arcade
+            73, // Arcadia 2001
+            71, // Arduboy
+            44, // ColecoVision
+            75, // Elektor TV Games Computer
+            57, // Fairchild Channel F
+            45, // Intellivision
+            74, // Interton VC 4000
+            23, // Magnavox Odyssey 2
+            69, // Mega Duck
+            29, // MSX
+            // 102, // Standalone
+            80, // Uzebox
+            46, // Vectrex
+            72, // WASM-4
+            63, // Watara Supervision
+            53, // WonderSwan
         ],
 
     ],
@@ -97,16 +97,14 @@ $menuSystemsList = [
     <div class="md:flex">
         @foreach ($menuSystemsList as $column)
             <div class="dropdown-column">
-            @foreach($column as $manufacturer => $systems)
+            @foreach($column as $manufacturer => $systemIds)
                     <x-dropdown-header>{{ $manufacturer }}</x-dropdown-header>
-                    @foreach ($systems as $system)
+                    @foreach ($systemIds as $systemId)
                         <?php
-                        $systemName = $system['systemName'];
-                        $listId = $system['listID'];
-                        $cleanSystemShortName = Str::lower(str_replace("/", "", config("systems.$listId.name_short")));
-                        $iconName = Str::kebab($cleanSystemShortName);
+                        $systemName = config("systems.$systemId.name");
+                        $iconName = Str::kebab(Str::lower(str_replace("/", "", config("systems.$systemId.name_short"))));
                         ?>
-                        <x-dropdown-item :link="url('gameList.php?c=' . $listId)">
+                        <x-dropdown-item :link="url('gameList.php?c=' . $systemId)">
                             <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" loading="lazy" width="16" height="16" alt='{{ $systemName }}'>
                             <span>{{ $systemName }}</span>
                         </x-dropdown-item>
