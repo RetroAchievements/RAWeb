@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SystemResource\Pages;
 
 use App\Filament\Resources\SystemResource;
+use App\Platform\Models\System;
 use Filament\Resources\Pages\EditRecord;
 
 class EditSystem extends EditRecord
@@ -18,7 +19,7 @@ class EditSystem extends EditRecord
 
     public function getSubheading(): ?string
     {
-        /** @var SystemResource\Pages\User $record */
+        /** @var System $record */
         $record = $this->getRecord();
 
         return '[' . $record->ID . '] ' . $record->name_full;
