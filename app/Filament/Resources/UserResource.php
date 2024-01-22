@@ -129,6 +129,7 @@ class UserResource extends Resource
                                 ->label('Forum verified')
                                 ->boolean(),
                             Infolists\Components\TextEntry::make('muted_until')
+                                ->hidden(fn ($state) => !$state)
                                 ->helperText('Disallow post interactions.')
                                 ->color('warning')
                                 ->dateTime(),
