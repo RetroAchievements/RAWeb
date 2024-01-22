@@ -54,8 +54,8 @@ return [
         'active' => true,
     ],
     8 => [
-        'name' => 'PC Engine/TurboGrafx16',
-        'name_full' => 'NEC PC Engine/TurboGrafx16',
+        'name' => 'PC Engine/TurboGrafx-16',
+        'name_full' => 'NEC PC Engine/TurboGrafx-16',
         'name_short' => 'PCE',
         'manufacturer' => 'NEC',
         'active' => true,
@@ -378,14 +378,14 @@ return [
     54 => [
         'name' => 'Cassette Vision',
         'name_full' => 'Epoch Co. Cassette Vision',
-        'name_short' => 'Cassette Vision',
+        'name_short' => 'ECV',
         'manufacturer' => 'Epoch Co.',
         'active' => false,
     ],
     55 => [
         'name' => 'Super Cassette Vision',
         'name_full' => 'Epoch Co. Super Cassette Vision',
-        'name_short' => 'Super Cassette Vision',
+        'name_short' => 'ESCV',
         'manufacturer' => 'Epoch Co.',
         'active' => false,
     ],
@@ -432,7 +432,6 @@ return [
         'active' => false,
     ],
     62 => [
-        // 'name' => '3DS',
         'name' => 'Nintendo 3DS',
         'name_full' => 'Nintendo 3DS',
         'name_short' => '3DS',
@@ -582,7 +581,7 @@ return [
     102 => [
         'name' => 'Standalone',
         'name_full' => 'Standalone',
-        'name_short' => 'Standalone',
+        'name_short' => 'EXE',
         'manufacturer' => '',
         'active' => false,
     ],
