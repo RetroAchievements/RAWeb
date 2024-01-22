@@ -41,7 +41,7 @@ class GameHashPolicy
         ]);
     }
 
-    public function update(User $user, GameHash $gameHash): bool
+    public function update(User $user): bool
     {
         $hasCorrectRole = $user->hasAnyRole([
             Role::DEVELOPER_LEVEL_1,

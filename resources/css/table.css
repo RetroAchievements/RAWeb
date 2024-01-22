@@ -4,25 +4,26 @@ table {
 
 tbody tr {
   outline: 1px solid transparent;
-  transition: all .05s;
+  outline-offset: -1px;
+  transition: all 0.05s;
 }
 
 tbody tr:nth-child(odd) {
-  background-color: rgba(50, 50, 50, .3);
+  background-color: rgba(50, 50, 50, 0.3);
 }
 
-[data-scheme="light"] tbody tr:nth-child(odd) {
-  background-color: rgba(80, 80, 80, .09);
+[data-scheme='light'] tbody tr:nth-child(odd) {
+  background-color: rgba(80, 80, 80, 0.09);
 }
 
 table.table-highlight tr:not(.do-not-highlight):hover {
-  outline-color: rgba(128, 128, 128, .3);
-  background-color: rgba(128, 128, 128, .2);
+  outline-color: rgba(128, 128, 128, 0.3);
+  background-color: rgba(128, 128, 128, 0.2);
 }
 
-[data-scheme="light"] table.table-highlight tr:not(.do-not-highlight):hover {
-  outline-color: rgba(128, 128, 128, .4);
-  background-color: rgba(128, 128, 128, .22);
+[data-scheme='light'] table.table-highlight tr:not(.do-not-highlight):hover {
+  outline-color: rgba(128, 128, 128, 0.4);
+  background-color: rgba(128, 128, 128, 0.22);
 }
 
 td {
@@ -30,21 +31,15 @@ td {
 }
 
 td.smaller {
-  font-size: .9em;
+  font-size: 0.9em;
 }
 
 th {
   font-weight: inherit;
   padding: 8px 8px;
-  /*background-color: #323232;*/
-  /*font-size: 120%;*/
-  /*background-image: -webkit-linear-gradient(left, var(--bg-color), #323232);*/
-  /*font-style: italic;*/
-  /*text-transform: uppercase;*/
   color: var(--menu-link-color);
   margin-bottom: 5px;
   text-align: left;
-  /*border-right: 2px solid var(--bg-color);*/
 }
 
 table.condensed td {

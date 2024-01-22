@@ -9,6 +9,7 @@ use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
 use App\Community\Enums\UserAction;
 use App\Community\Enums\UserRelationship;
+use App\Platform\Services\PlayerProgressionService;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Carbon\Carbon;
@@ -62,8 +63,14 @@ $numGamesFound = 0;
 $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
-// Get user's list of played games and pct completion
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
+$userAwards = getUsersSiteAwards($userPage);
+
+$playerProgressionService = new PlayerProgressionService();
+$userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
+    $userCompletedGamesList,
+    $userAwards,
+);
 
 $excludedConsoles = ["Hubs", "Events"];
 
@@ -92,8 +99,6 @@ sanitize_outputs(
 $pageTitle = "$userPage";
 
 $daysRecentProgressToShow = 14; // fortnight
-
-$userAwards = getUsersSiteAwards($userPage);
 
 $userScoreData = getAwardedList(
     $userPageModel,
@@ -201,7 +206,7 @@ RenderContentStart($userPage);
     echo "<h3>$userPage</h3>";
     echo "<img src='" . media_asset("/UserPic/$userPage.png") . "' alt='$userPage' align='right' width='128' height='128' class='rounded-sm'>";
 
-    if (isset($userMotto)) {
+    if (!empty($userMotto)) {
         echo "<div class='mottocontainer'>";
         echo "<span class='usermotto'>$userMotto</span>";
         echo "</div>";
@@ -494,6 +499,7 @@ RenderContentStart($userPage);
         echo Blade::render('
             <x-user-progression-status
                 :userCompletionProgress="$userCompletionProgress"
+                :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
                 :userSiteAwards="$userSiteAwards"
                 :userRecentlyPlayed="$userRecentlyPlayed"
                 :userHardcorePoints="$userHardcorePoints"
@@ -501,6 +507,7 @@ RenderContentStart($userPage);
             />
         ', [
             'userCompletionProgress' => $userCompletedGamesList,
+            'userJoinedGamesAndAwards' => $userJoinedGamesAndAwards,
             'userSiteAwards' => $userAwards,
             'userRecentlyPlayed' => $userMassData['RecentlyPlayed'],
             'userHardcorePoints' => $totalHardcorePoints,
@@ -565,7 +572,15 @@ RenderContentStart($userPage);
     RenderSiteAwards($userAwards, $userPage);
 
     if (count($userCompletedGamesList) >= 1) {
-        RenderCompletedGamesList($userCompletedGamesList, $userPage, $prefersHiddenUserCompletedSets);
+        echo Blade::render('
+            <x-user.completion-progress
+                :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
+                :username="$username"
+            />
+        ', [
+            'userJoinedGamesAndAwards' => $userJoinedGamesAndAwards,
+            'username' => $userPage,
+        ]);
     }
 
     echo "<div id='achdistribution' class='component'>";

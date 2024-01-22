@@ -11,7 +11,7 @@ return new class() extends Migration {
     {
         Schema::table('GameHashLibrary', function (Blueprint $table) {
             $table->string('compatibility')->nullable()->after('file_name_md5'); // `HashCompatibility`
-            $table->string('patch_url')->nullable()->after('source_version'); // RAPatches .zip File Link
+            $table->string('patch_url')->nullable()->after('source_version'); // RAPatches .zip/.7z File Link
         });
     }
 
