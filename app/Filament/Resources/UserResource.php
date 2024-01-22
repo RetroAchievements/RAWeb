@@ -60,107 +60,117 @@ class UserResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
-            ->columns(['lg' => 1, 'xl' => 1, '2xl' => 2])
+            ->columns(1)
             ->schema([
-                Infolists\Components\Section::make('Profile')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Infolists\Components\ImageEntry::make('avatar_url')
-                            ->label('Avatar')
-                            ->size(config('media.icon.lg.width')),
-                        Infolists\Components\Group::make()
-                            ->schema([
-                                Infolists\Components\TextEntry::make('User')
-                                    ->label('URL')
-                                    ->formatStateUsing(fn ($state) => route('user.show', ['user' => $state]))
-                                    ->url(fn (User $record): string => route('user.show', ['user' => $record])),
-                                Infolists\Components\TextEntry::make('Motto'),
-                            ]),
-                    ]),
-                Infolists\Components\Section::make('Player')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Infolists\Components\IconEntry::make('Untracked')
-                            ->boolean(),
-                    ]),
-                Infolists\Components\Section::make('Community')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Infolists\Components\IconEntry::make('ManuallyVerified')
-                            ->boolean(),
-                    ]),
-                Infolists\Components\Section::make('Permissions')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Infolists\Components\TextEntry::make('roles.name')
-                            ->badge()
-                            ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
-                            ->color(fn (string $state): string => Role::toFilamentColor($state)),
-                        Infolists\Components\TextEntry::make('Permissions')
-                            ->label('Legacy permissions')
-                            ->badge()
-                            ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
-                            ->color(fn (int $state): string => match ($state) {
-                                Permissions::Spam => 'danger',
-                                Permissions::Banned => 'danger',
-                                Permissions::JuniorDeveloper => 'success',
-                                Permissions::Developer => 'success',
-                                Permissions::Moderator => 'warning',
-                                default => 'gray',
-                            }),
-                    ]),
+                Infolists\Components\Split::make([
+                    Infolists\Components\Section::make()
+                        ->columns(['xl' => 2, '2xl' => 3])
+                        ->schema([
+                            Infolists\Components\Group::make()
+                                ->schema([
+                                    Infolists\Components\ImageEntry::make('avatar_url')
+                                        ->label('Avatar')
+                                        ->size(config('media.icon.lg.width')),
+                                    Infolists\Components\TextEntry::make('Motto'),
+                                ]),
+                            Infolists\Components\Group::make()
+                                ->schema([
+                                Infolists\Components\TextEntry::make('roles.name')
+                                    ->badge()
+                                    ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
+                                    ->color(fn (string $state): string => Role::toFilamentColor($state)),
+                                Infolists\Components\TextEntry::make('Permissions')
+                                    ->label('Legacy permissions')
+                                    ->badge()
+                                    ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
+                                    ->color(fn (int $state): string => match ($state) {
+                                        Permissions::Spam => 'danger',
+                                        Permissions::Banned => 'danger',
+                                        Permissions::JuniorDeveloper => 'success',
+                                        Permissions::Developer => 'success',
+                                        Permissions::Moderator => 'warning',
+                                        default => 'gray',
+                                    }),
+                                ]),
+                            Infolists\Components\Group::make()
+                                ->schema([
+                                    Infolists\Components\TextEntry::make('canonical_url')
+                                        ->label('Canonical URL')
+                                        ->url(fn (User $record): string => $record->getCanonicalUrlAttribute()),
+                                    Infolists\Components\TextEntry::make('permalink')
+                                        ->url(fn (User $record): string => $record->getPermalinkAttribute()),
+                                ]),
+                        ]),
+                    Infolists\Components\Section::make()
+                        ->grow(false)
+                        ->schema([
+                            Infolists\Components\TextEntry::make('Created')
+                                ->label('Joined')
+                                ->dateTime(),
+                            Infolists\Components\TextEntry::make('LastLogin')
+                                ->dateTime(),
+
+                            Infolists\Components\TextEntry::make('DeleteRequested')
+                                ->dateTime()
+                                ->hidden(fn($state) => !$state)
+                                ->color('warning'),
+                            Infolists\Components\TextEntry::make('Deleted')
+                                ->dateTime()
+                                ->hidden(fn($state) => !$state)
+                                ->color('danger'),
+
+                            Infolists\Components\IconEntry::make('Untracked')
+                                ->label('Ranked')
+                                ->boolean()
+                                ->trueColor('danger')
+                                ->trueIcon('heroicon-o-x-circle')
+                                ->falseColor('success')
+                                ->falseIcon('heroicon-o-check-circle'),
+                            Infolists\Components\IconEntry::make('ManuallyVerified')
+                                ->label('Forum verified')
+                                ->boolean(),
+                            Infolists\Components\TextEntry::make('muted_until')
+                                ->helperText('Disallow post interactions.')
+                                ->color('warning')
+                                ->dateTime(),
+                        ]),
+                ])->from('md'),
             ]);
     }
 
     public static function form(Form $form): Form
     {
         return $form
-            ->columns(['lg' => 2, 'xl' => 2, '2xl' => 2])
+            ->columns(1)
             ->schema([
-                Forms\Components\Section::make('Profile')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Forms\Components\Group::make()
-                            ->schema([
-                                // TODO avatar management
-                            ]),
-                        Forms\Components\TextInput::make('Motto')
-                            ->maxLength(50),
-                    ]),
-                Forms\Components\Section::make('Player')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Forms\Components\Toggle::make('Untracked'),
-                    ]),
-                Forms\Components\Section::make('Community')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Forms\Components\Toggle::make('ManuallyVerified')
-                            ->label('Forum verified'),
-                        // Forms\Components\DateTimePicker::make('muted_until')
-                        //     ->readOnly(),
-                    ]),
-                Forms\Components\Section::make('Permissions')
-                    ->description('Note: Use roles instead of permissions')
-                    ->columns(2)
-                    ->columnSpan(1)
-                    ->schema([
-                        Forms\Components\Select::make('Permissions')
-                            ->label('Permissions level (legacy)')
-                            ->options(
-                                collect(Permissions::cases())
-                                    ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
-                            )
-                            ->required()
-                            ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
-                    ]),
+                Forms\Components\Split::make([
+                    Forms\Components\Section::make()
+                        ->columns(['xl' => 2, '2xl' => 3])
+                        ->schema([
+                            Forms\Components\TextInput::make('Motto')
+                                ->maxLength(50),
+                            Forms\Components\Select::make('Permissions')
+                                ->label('Permissions level (legacy)')
+                                ->options(
+                                    collect(Permissions::cases())
+                                        ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
+                                )
+                                ->required()
+                                ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
+                        ]),
+                    Forms\Components\Section::make()
+                        ->grow(false)
+                        ->schema([
+                            Forms\Components\DateTimePicker::make('muted_until')
+                                ->readOnly()
+                                ->time(false)
+                                ->suffix('at midnight')
+                                ->native(false),
+                            Forms\Components\Toggle::make('ManuallyVerified')
+                                ->label('Forum verified'),
+                            Forms\Components\Toggle::make('Untracked'),
+                        ]),
+                ])->from('md'),
             ]);
     }
 
@@ -169,8 +179,8 @@ class UserResource extends Resource
         return $table
             ->defaultSort('ID', 'desc')
             ->columns([
-                Tables\Columns\ImageColumn::make('avatar')
-                    ->defaultImageUrl(fn ($record) => $record->avatar_url)
+                Tables\Columns\ImageColumn::make('avatar_url')
+                    ->label('Avatar')
                     ->size(config('media.icon.sm.width')),
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
@@ -206,10 +216,6 @@ class UserResource extends Resource
                 // Tables\Columns\TextColumn::make('country'),
                 // Tables\Columns\TextColumn::make('timezone'),
                 // Tables\Columns\TextColumn::make('locale'),
-                Tables\Columns\TextColumn::make('LastLogin')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('ManuallyVerified')
                     ->label('Forum verified')
                     ->boolean()
@@ -243,6 +249,9 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('LastLogin')
+                    ->dateTime()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('Updated')
                     ->dateTime()
                     ->sortable()

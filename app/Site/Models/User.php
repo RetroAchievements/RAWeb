@@ -142,6 +142,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'locale_number',
         'ManuallyVerified',
         'Motto',
+        'muted_until',
         'password', // fillable for registration
         'Permissions',
         'preferences',

@@ -93,9 +93,11 @@ class SystemResource extends Resource
                         ]),
                     Infolists\Components\Section::make([
                         Infolists\Components\TextEntry::make('Created')
-                            ->dateTime(),
+                            ->dateTime()
+                            ->hidden(fn($state) => !$state),
                         Infolists\Components\TextEntry::make('Updated')
-                            ->dateTime(),
+                            ->dateTime()
+                            ->hidden(fn($state) => !$state),
                         Infolists\Components\IconEntry::make('active')
                             ->boolean(),
                     ])->grow(false),
