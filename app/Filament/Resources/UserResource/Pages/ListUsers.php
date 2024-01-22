@@ -16,15 +16,4 @@ class ListUsers extends ListRecords
         return [
         ];
     }
-
-    // public function getTabs(): array
-    // {
-    //     return [
-    //         'all' => Tab::make(),
-    //         'tracked' => Tab::make()
-    //             ->modifyQueryUsing(fn (Builder $query) => $query->where('Untracked', false)),
-    //         'untracked' => Tab::make()
-    //             ->modifyQueryUsing(fn (Builder $query) => $query->where('Untracked', true)),
-    //     ];
-    // }
 }

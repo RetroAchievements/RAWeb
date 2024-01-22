@@ -12,7 +12,6 @@ use Filament\Forms\Form;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
-use Filament\Pages\SubNavigationPosition;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -29,8 +28,6 @@ class SystemResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 1;
-
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static int $globalSearchResultsLimit = 5;
 
@@ -94,9 +91,11 @@ class SystemResource extends Resource
                         ]),
                     Infolists\Components\Section::make([
                         Infolists\Components\TextEntry::make('Created')
+                            ->label('Created at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
                         Infolists\Components\TextEntry::make('Updated')
+                            ->label('Updated at')
                             ->dateTime()
                             ->hidden(fn ($state) => !$state),
                         Infolists\Components\IconEntry::make('active')
@@ -153,7 +152,8 @@ class SystemResource extends Resource
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)
-                    ->searchable(),
+                    ->searchable()
+                    ->grow(true),
                 Tables\Columns\TextColumn::make('name_short')
                     ->label('Short name')
                     ->searchable()
@@ -168,10 +168,12 @@ class SystemResource extends Resource
                     ->default(false)
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('Created')
+                    ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('Updated')
+                    ->label('Updated at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -195,7 +195,7 @@ class System extends BaseModel implements HasMedia
 
     public function getIconUrlAttribute(): string
     {
-        return asset('/assets/images/system/' . Str::kebab(str_replace('/', '', Str::lower($this->name_short))) . '.png');
+        return asset('assets/images/system/' . Str::kebab(str_replace('/', '', Str::lower($this->name_short))) . '.png');
     }
 
     // == mutators

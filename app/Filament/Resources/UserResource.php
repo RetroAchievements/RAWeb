@@ -14,7 +14,6 @@ use Filament\Forms\Form;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
-use Filament\Pages\SubNavigationPosition;
 use Filament\Tables;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
@@ -32,8 +31,6 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordRouteKeyName = 'User';
-
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static int $globalSearchResultsLimit = 5;
 
@@ -109,17 +106,18 @@ class UserResource extends Resource
                                 ->label('Joined')
                                 ->dateTime(),
                             Infolists\Components\TextEntry::make('LastLogin')
+                                ->label('Last login at')
                                 ->dateTime(),
-
                             Infolists\Components\TextEntry::make('DeleteRequested')
+                                ->label('Deleted requested at')
                                 ->dateTime()
                                 ->hidden(fn ($state) => !$state)
                                 ->color('warning'),
                             Infolists\Components\TextEntry::make('Deleted')
+                                ->label('Deleted at')
                                 ->dateTime()
                                 ->hidden(fn ($state) => !$state)
                                 ->color('danger'),
-
                             Infolists\Components\IconEntry::make('Untracked')
                                 ->label('Ranked')
                                 ->boolean()
@@ -246,26 +244,31 @@ class UserResource extends Resource
                     ->boolean()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('Created')
+                    ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('LastLogin')
+                    ->label('Last login at')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('Updated')
+                    ->label('Updated at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('DeleteRequested')
+                    ->label('Deleted requested at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('Deleted')
+                    ->label('Deleted at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('ID', 'desc')
+            ->defaultSort('LastLogin', 'desc')
             ->filters([
                 Filters\SelectFilter::make('Permissions')
                     ->multiple()

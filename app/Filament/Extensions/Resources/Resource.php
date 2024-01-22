@@ -2,6 +2,7 @@
 
 namespace App\Filament\Extensions\Resources;
 
+use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource as FilamentResource;
 
 /*
@@ -12,6 +13,8 @@ use Filament\Resources\Resource as FilamentResource;
  */
 class Resource extends FilamentResource
 {
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
     public static function canViewAny(): bool
     {
         return static::can('manage');
