@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class GameListService
 {
+    public bool $withConsoleNames = true;
     public bool $withLeaderboardCounts = true;
     public bool $withTicketCounts = false;
 
@@ -378,29 +379,24 @@ class GameListService
 
     private function getTitleColumn(array $filterOptions): array
     {
+        $consoleName = null;
+        if ($this->withConsoleNames) {
+            $consoleName = $filterOptions['console'] ?? null;
+        }
+
         return [
             'header' => 'Title',
-            'render' => function ($game) use ($filterOptions) {
-                if (isset($filterOptions['console']) && !$filterOptions['console']) {
-                    echo '<td class="py-2">';
-                    echo Blade::render('
-                        <x-game.multiline-avatar
-                            :gameId="$ID"
-                            :gameTitle="$Title"
-                            :gameImageIcon="$ImageIcon"
-                            :consoleName="$ConsoleName"
-                        />', $game);
-                    echo '</td>';
-                } else {
-                    echo '<td>';
-                    echo Blade::render('
-                        <x-game.multiline-avatar
-                            :gameId="$ID"
-                            :gameTitle="$Title"
-                            :gameImageIcon="$ImageIcon"
-                        />', $game);
-                    echo '</td>';
-                }
+            'render' => function ($game) use ($consoleName) {
+                echo '<td>';
+                echo Blade::render('
+                    <x-game.multiline-avatar
+                        :gameId="$ID"
+                        :gameTitle="$Title"
+                        :gameImageIcon="$ImageIcon"
+                        :consoleName="$consoleName"
+                    />', array_merge($game, ['consoleName' => $consoleName])
+                );
+                echo '</td>';
             },
         ];
     }

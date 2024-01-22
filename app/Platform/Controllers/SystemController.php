@@ -92,6 +92,7 @@ class SystemController extends Controller
             $loggedInUser !== null
             && $loggedInUser->getPermissionsAttribute() >= Permissions::Developer
         );
+        $this->gameListService->withConsoleNames = false;
 
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
