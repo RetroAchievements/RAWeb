@@ -378,14 +378,14 @@ return [
     54 => [
         'name' => 'Cassette Vision',
         'name_full' => 'Epoch Co. Cassette Vision',
-        'name_short' => 'Cassette Vision',
+        'name_short' => 'ECV',
         'manufacturer' => 'Epoch Co.',
         'active' => false,
     ],
     55 => [
         'name' => 'Super Cassette Vision',
         'name_full' => 'Epoch Co. Super Cassette Vision',
-        'name_short' => 'Super Cassette Vision',
+        'name_short' => 'eSCV',
         'manufacturer' => 'Epoch Co.',
         'active' => false,
     ],
@@ -582,7 +582,7 @@ return [
     102 => [
         'name' => 'Standalone',
         'name_full' => 'Standalone',
-        'name_short' => 'Standalone',
+        'name_short' => 'EXE',
         'manufacturer' => '',
         'active' => false,
     ],
