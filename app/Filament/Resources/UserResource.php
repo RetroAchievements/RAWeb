@@ -112,11 +112,11 @@ class UserResource extends Resource
 
                             Infolists\Components\TextEntry::make('DeleteRequested')
                                 ->dateTime()
-                                ->hidden(fn($state) => !$state)
+                                ->hidden(fn ($state) => !$state)
                                 ->color('warning'),
                             Infolists\Components\TextEntry::make('Deleted')
                                 ->dateTime()
-                                ->hidden(fn($state) => !$state)
+                                ->hidden(fn ($state) => !$state)
                                 ->color('danger'),
 
                             Infolists\Components\IconEntry::make('Untracked')

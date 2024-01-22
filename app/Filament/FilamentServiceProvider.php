@@ -2,9 +2,11 @@
 
 namespace App\Filament;
 
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Infolists\Infolist;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -21,6 +23,14 @@ class FilamentServiceProvider extends PanelProvider
             $table
                 ->paginationPageOptions(config('filament.default_page_options'));
         });
+
+        Table::$defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
+        Infolist::$defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
+        DateTimePicker::$defaultDateDisplayFormat = 'Y-m-d';
+        DateTimePicker::$defaultDateTimeDisplayFormat = 'Y-m-d H:i';
+        DateTimePicker::$defaultDateTimeWithSecondsDisplayFormat = 'Y-m-d H:i:s';
+        DateTimePicker::$defaultTimeDisplayFormat = 'H:i';
+        DateTimePicker::$defaultTimeWithSecondsDisplayFormat = 'H:i:s';
     }
 
     public function panel(Panel $panel): Panel

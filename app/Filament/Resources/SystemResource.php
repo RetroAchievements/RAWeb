@@ -7,7 +7,6 @@ namespace App\Filament\Resources;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\SystemResource\Pages;
 use App\Platform\Models\System;
-use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;
@@ -94,10 +93,10 @@ class SystemResource extends Resource
                     Infolists\Components\Section::make([
                         Infolists\Components\TextEntry::make('Created')
                             ->dateTime()
-                            ->hidden(fn($state) => !$state),
+                            ->hidden(fn ($state) => !$state),
                         Infolists\Components\TextEntry::make('Updated')
                             ->dateTime()
-                            ->hidden(fn($state) => !$state),
+                            ->hidden(fn ($state) => !$state),
                         Infolists\Components\IconEntry::make('active')
                             ->boolean(),
                     ])->grow(false),
