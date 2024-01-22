@@ -12,18 +12,14 @@ class SystemsTableSeeder extends Seeder
 {
     public function run(): void
     {
-        if (System::count() > 0) {
-            return;
-        }
-
         /*
          * System IDs: https://github.com/RetroAchievements/RAIntegration/blob/master/src/RA_Interface.h
          */
         (new Collection(config('systems')))->each(function ($systemData, $systemId) {
-            $systemData['ID'] = $systemId;
             $systemData['Name'] = $systemData['name'];
+            unset($systemData['ID']);
             unset($systemData['name']);
-            System::create($systemData);
+            System::updateOrCreate(['ID' => $systemId], $systemData);
         });
     }
 }
