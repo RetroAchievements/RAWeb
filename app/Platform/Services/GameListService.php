@@ -379,15 +379,19 @@ class GameListService
 
     private function getTitleColumn(array $filterOptions): array
     {
-        $consoleName = null;
-        if ($this->withConsoleNames) {
-            $consoleName = $filterOptions['console'] ?? null;
-        }
-
         return [
             'header' => 'Title',
-            'render' => function ($game) use ($consoleName) {
-                echo '<td>';
+            'render' => function ($game) use ($filterOptions) {
+                $consoleName = null;
+                if ($this->withConsoleNames && empty($filterOptions['console'])) {
+                    $consoleName = $game['ConsoleName'] ?? null;
+                }
+
+                if ($consoleName) {
+                    echo "<td class='py-2'>";
+                } else {
+                    echo '<td>';
+                }
                 echo Blade::render('
                     <x-game.multiline-avatar
                         :gameId="$ID"
