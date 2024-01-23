@@ -16,6 +16,7 @@ $areFiltersPristine = empty(
         return $value !== false && $value !== 'all';
     })
 );
+$groupByConsole = isset($filterOptions['console']) && $filterOptions['console'];
 ?>
 
 <div>
@@ -44,7 +45,7 @@ $areFiltersPristine = empty(
         ?>
 
         @foreach ($consoles as $console)
-            @if ($filterOptions['console'] ?? false)
+            @if ($groupByConsole)
                 <h2 class="flex gap-x-2 items-center text-h3">
                     <img src="{{ getSystemIconUrl($console->ID) }}" alt="Console icon" width="24" height="24">
                     <span>{{ $console->Name }}</span>
@@ -81,7 +82,7 @@ $areFiltersPristine = empty(
 
                     <tbody>
                         @foreach ($games as $game)
-                            @if (($filterOptions['console'] ?? false) && $game['ConsoleID'] != $console['ID'])
+                            @if ($groupByConsole && $game['ConsoleID'] != $console['ID'])
                                 @continue
                             @endif
                             <tr>
@@ -120,7 +121,7 @@ $areFiltersPristine = empty(
                 </table>
             </div>
 
-            @if (!($filterOptions['console'] ?? false))
+            @if (!$groupByConsole)
                 @break
             @endif
         @endforeach
