@@ -314,6 +314,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
                 // 'locale_time',
                 'ManuallyVerified',
                 'Motto',
+                'Permissions',
                 'timezone',
                 'unranked_at',
                 'Untracked',
