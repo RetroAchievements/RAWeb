@@ -75,22 +75,23 @@ class UserResource extends Resource
                                 ]),
                             Infolists\Components\Group::make()
                                 ->schema([
-                                Infolists\Components\TextEntry::make('roles.name')
-                                    ->badge()
-                                    ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
-                                    ->color(fn (string $state): string => Role::toFilamentColor($state)),
-                                Infolists\Components\TextEntry::make('Permissions')
-                                    ->label('Legacy permissions')
-                                    ->badge()
-                                    ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
-                                    ->color(fn (int $state): string => match ($state) {
-                                        Permissions::Spam => 'danger',
-                                        Permissions::Banned => 'danger',
-                                        Permissions::JuniorDeveloper => 'success',
-                                        Permissions::Developer => 'success',
-                                        Permissions::Moderator => 'warning',
-                                        default => 'gray',
-                                    }),
+                                    Infolists\Components\TextEntry::make('roles.name')
+                                        ->badge()
+                                        ->formatStateUsing(fn (string $state): string => __('permission.role.' . $state))
+                                        ->color(fn (string $state): string => Role::toFilamentColor($state))
+                                        ->hidden(fn ($record) => $record->roles->isEmpty()),
+                                    Infolists\Components\TextEntry::make('Permissions')
+                                        ->label('Permissions (legacy)')
+                                        ->badge()
+                                        ->formatStateUsing(fn (int $state): string => Permissions::toString($state))
+                                        ->color(fn (int $state): string => match ($state) {
+                                            Permissions::Spam => 'danger',
+                                            Permissions::Banned => 'danger',
+                                            Permissions::JuniorDeveloper => 'success',
+                                            Permissions::Developer => 'success',
+                                            Permissions::Moderator => 'warning',
+                                            default => 'gray',
+                                        }),
                                 ]),
                             Infolists\Components\Group::make()
                                 ->schema([
@@ -152,7 +153,7 @@ class UserResource extends Resource
                             Forms\Components\TextInput::make('Motto')
                                 ->maxLength(50),
                             Forms\Components\Select::make('Permissions')
-                                ->label('Permissions level (legacy)')
+                                ->label('Permissions (legacy)')
                                 ->options(
                                     collect(Permissions::cases())
                                         ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
