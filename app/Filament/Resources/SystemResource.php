@@ -29,6 +29,8 @@ class SystemResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'id_title';
+
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -214,19 +216,19 @@ class SystemResource extends Resource
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\ViewSystem::class,
-            Pages\ListSystemAuditLog::class,
+            Pages\Details::class,
+            Pages\AuditLog::class,
         ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSystems::route('/'),
-            'create' => Pages\CreateSystem::route('/create'),
-            'view' => Pages\ViewSystem::route('/{record}'),
-            'edit' => Pages\EditSystem::route('/{record}/edit'),
-            'audit-log' => Pages\ListSystemAuditLog::route('/{record}/audit-log'),
+            'index' => Pages\Index::route('/'),
+            'create' => Pages\Create::route('/create'),
+            'view' => Pages\Details::route('/{record}'),
+            'edit' => Pages\Edit::route('/{record}/edit'),
+            'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }
 

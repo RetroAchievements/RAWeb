@@ -6,14 +6,13 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
 use App\Site\Models\Role;
-use App\Site\Models\User;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Models\Role as SpatieRole;
 
-class ManageUserRoles extends ManageRelatedRecords
+class Roles extends ManageRelatedRecords
 {
     protected static string $resource = UserResource::class;
 
@@ -21,22 +20,10 @@ class ManageUserRoles extends ManageRelatedRecords
 
     protected static ?string $navigationIcon = 'fas-lock';
 
-    public static function getNavigationLabel(): string
-    {
-        return __res('role');
-    }
-
-    public function getSubheading(): ?string
-    {
-        /** @var User $record */
-        $record = $this->getRecord();
-
-        return '[' . $record->ID . '] ' . $record->User;
-    }
-
     public function table(Table $table): Table
     {
         // TODO using the resource's table inherits all the actions which open in empty modals
+        // see https://github.com/filamentphp/filament/issues/9492
         // return RoleResource::table($table)
         return $table
             ->columns([

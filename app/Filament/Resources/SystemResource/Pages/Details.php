@@ -6,16 +6,18 @@ namespace App\Filament\Resources\SystemResource\Pages;
 
 use App\Filament\Resources\SystemResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ViewRecord;
 
-class ListSystems extends ListRecords
+class Details extends ViewRecord
 {
     protected static string $resource = SystemResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\EditAction::make(),
+            Actions\DeleteAction::make(),
+            Actions\RestoreAction::make(),
         ];
     }
 }

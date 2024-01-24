@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
-use App\Filament\Resources\RoleResource\Pages\ListRoles;
-use App\Filament\Resources\RoleResource\Pages\ViewRole;
-use App\Filament\Resources\RoleResource\RelationManager\UserRelationManager;
+use App\Filament\Resources\RoleResource\Pages\Details;
+use App\Filament\Resources\RoleResource\Pages\Index;
+use App\Filament\Resources\RoleResource\RelationManager\Users;
 use App\Site\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -23,6 +23,8 @@ class RoleResource extends Resource
     protected static ?string $navigationIcon = 'fas-lock';
 
     protected static ?int $navigationSort = 2;
+
+    protected static ?string $recordTitleAttribute = 'title';
 
     /**
      * @param Role $record
@@ -79,15 +81,15 @@ class RoleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            UserRelationManager::class,
+            Users::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListRoles::route('/'),
-            'view' => ViewRole::route('/{record}'),
+            'index' => Index::route('/'),
+            'view' => Details::route('/{record}'),
             // TODO 'edit' => Pages\EditRole::route('/{record}/edit'),
             // TODO 'users' => Pages\ManageRoleUsers::route('/{record}/users'),
             // TODO 'audit-log' => Pages\ListRoleAuditLog::route('/{record}/audit-log'),

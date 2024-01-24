@@ -5,26 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AchievementResource\Pages;
 
 use App\Filament\Resources\AchievementResource;
-use App\Platform\Models\Achievement;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditAchievement extends EditRecord
+class Edit extends EditRecord
 {
     protected static string $resource = AchievementResource::class;
-
-    public static function getNavigationLabel(): string
-    {
-        return __('Edit');
-    }
-
-    public function getSubheading(): ?string
-    {
-        /** @var Achievement $record */
-        $record = $this->getRecord();
-
-        return '[' . $record->ID . '] ' . $record->Title;
-    }
 
     protected function getHeaderActions(): array
     {

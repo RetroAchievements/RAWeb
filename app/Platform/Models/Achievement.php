@@ -198,6 +198,11 @@ class Achievement extends BaseModel implements HasComments
         return $this->Flags === AchievementFlag::OfficialCore;
     }
 
+    public function getIdTitleAttribute(): string
+    {
+        return '[' . $this->id . '] ' . $this->title;
+    }
+
     // TODO remove after rename
 
     public function getIdAttribute(): int

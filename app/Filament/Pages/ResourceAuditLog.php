@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 use Livewire\Features\SupportPagination\HandlesPagination;
 use Livewire\WithPagination;
 
-abstract class ListAuditLog extends Page implements HasForms
+abstract class ResourceAuditLog extends Page implements HasForms
 {
     use CanPaginateRecords;
     use HandlesPagination;
@@ -28,9 +28,7 @@ abstract class ListAuditLog extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'fas-clock-rotate-left';
 
-    protected static ?string $navigationLabel = 'Audit Log';
-
-    protected static string $view = 'filament.pages.list-audit-log';
+    protected static string $view = 'filament.pages.audit-log';
 
     public function mount(int|string $record): void
     {

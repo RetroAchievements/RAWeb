@@ -198,6 +198,11 @@ class System extends BaseModel implements HasMedia
         return asset('assets/images/system/' . Str::kebab(str_replace('/', '', Str::lower($this->name_short))) . '.png');
     }
 
+    public function getIdTitleAttribute(): string
+    {
+        return '[' . $this->ID . '] ' . $this->name_full;
+    }
+
     // == mutators
 
     // == relations

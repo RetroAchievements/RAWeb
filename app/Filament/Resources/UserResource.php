@@ -32,6 +32,8 @@ class UserResource extends Resource
 
     protected static ?string $recordRouteKeyName = 'User';
 
+    protected static ?string $recordTitleAttribute = 'id_title';
+
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -306,20 +308,20 @@ class UserResource extends Resource
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\ViewUser::class,
-            Pages\ManageUserRoles::class,
-            Pages\ListUserAuditLog::class,
+            Pages\Details::class,
+            Pages\Roles::class,
+            Pages\AuditLog::class,
         ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'view' => Pages\ViewUser::route('/{record}'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
-            'roles' => Pages\ManageUserRoles::route('/{record}/roles'),
-            'audit-log' => Pages\ListUserAuditLog::route('/{record}/audit-log'),
+            'index' => Pages\Index::route('/'),
+            'view' => Pages\Details::route('/{record}'),
+            'edit' => Pages\Edit::route('/{record}/edit'),
+            'roles' => Pages\Roles::route('/{record}/roles'),
+            'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }
 

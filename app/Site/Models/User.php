@@ -366,6 +366,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
     }
 
+    public function getIdTitleAttribute(): string
+    {
+        return '[' . $this->id . '] ' . $this->username;
+    }
+
     // TODO remove after rename
 
     public function getIdAttribute(): ?int

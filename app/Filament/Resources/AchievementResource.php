@@ -34,6 +34,8 @@ class AchievementResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'id_title';
+
     protected static int $globalSearchResultsLimit = 5;
 
     /**
@@ -63,7 +65,7 @@ class AchievementResource extends Resource
             ->columns(1)
             ->schema([
                 Infolists\Components\Split::make([
-                    Infolists\Components\Section::make('Details')
+                    Infolists\Components\Section::make()
                         ->columns(['xl' => 2, '2xl' => 3])
                         ->schema([
                             Infolists\Components\Group::make()
@@ -327,19 +329,19 @@ class AchievementResource extends Resource
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\ViewAchievement::class,
-            Pages\ListAchievementAuditLog::class,
+            Pages\Details::class,
+            Pages\AuditLog::class,
         ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAchievements::route('/'),
-            'create' => Pages\CreateAchievement::route('/create'),
-            'view' => Pages\ViewAchievement::route('/{record}'),
-            'edit' => Pages\EditAchievement::route('/{record}/edit'),
-            'audit-log' => Pages\ListAchievementAuditLog::route('/{record}/audit-log'),
+            'index' => Pages\Index::route('/'),
+            'create' => Pages\Create::route('/create'),
+            'view' => Pages\Details::route('/{record}'),
+            'edit' => Pages\Edit::route('/{record}/edit'),
+            'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }
 

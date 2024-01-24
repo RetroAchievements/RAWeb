@@ -11,7 +11,7 @@ use Filament\Resources\Components;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
-class ListAchievements extends ListRecords
+class Index extends ListRecords
 {
     protected static string $resource = AchievementResource::class;
 

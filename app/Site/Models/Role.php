@@ -144,4 +144,9 @@ class Role extends \Spatie\Permission\Models\Role
             }
         });
     }
+
+    public function getTitleAttribute(): string
+    {
+        return __('permission.role.' . $this->name);
+    }
 }
