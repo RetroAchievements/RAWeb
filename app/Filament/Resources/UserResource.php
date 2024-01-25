@@ -152,14 +152,6 @@ class UserResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('Motto')
                                 ->maxLength(50),
-                            Forms\Components\Select::make('Permissions')
-                                ->label('Permissions (legacy)')
-                                ->options(
-                                    collect(Permissions::cases())
-                                        ->mapWithKeys(fn ($value) => [$value => __(Permissions::toString($value))])
-                                )
-                                ->required()
-                                ->hidden(fn () => auth()->user()->assignableRoles->isEmpty()),
                         ]),
                     Forms\Components\Section::make()
                         ->grow(false)
