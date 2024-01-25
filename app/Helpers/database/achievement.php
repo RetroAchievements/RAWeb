@@ -5,9 +5,7 @@ use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
-use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
-use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
@@ -344,7 +342,6 @@ function UploadNewAchievement(
                         "$author promoted this achievement to the Core set.",
                         $author
                     );
-                    AchievementPublished::dispatch($achievement);
                 } elseif ($flag === AchievementFlag::Unofficial) {
                     addArticleComment(
                         "Server",
@@ -353,7 +350,6 @@ function UploadNewAchievement(
                         "$author demoted this achievement to Unofficial.",
                         $author
                     );
-                    AchievementUnpublished::dispatch($achievement);
                 }
                 expireGameTopAchievers($gameID);
             } else {
@@ -368,13 +364,6 @@ function UploadNewAchievement(
                         $author
                     );
                 }
-            }
-
-            if ($changingPoints) {
-                AchievementPointsChanged::dispatch($achievement);
-            }
-            if ($changingType) {
-                AchievementTypeChanged::dispatch($achievement);
             }
         }
 
