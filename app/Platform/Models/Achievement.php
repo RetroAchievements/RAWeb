@@ -121,11 +121,11 @@ class Achievement extends BaseModel implements HasComments
             }
 
             if ($achievement->wasChanged('Flags')) {
-                if($achievement->Flags === AchievementFlag::OfficialCore) {
+                if ($achievement->Flags === AchievementFlag::OfficialCore) {
                     AchievementPublished::dispatch($achievement);
                 }
 
-                if($achievement->Flags === AchievementFlag::Unofficial) {
+                if ($achievement->Flags === AchievementFlag::Unofficial) {
                     AchievementUnpublished::dispatch($achievement);
                 }
             }
