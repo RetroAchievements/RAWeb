@@ -8,6 +8,7 @@ use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
@@ -110,6 +111,10 @@ class Achievement extends BaseModel implements HasComments
     public static function boot()
     {
         parent::boot();
+
+        static::created(function (Achievement $achievement) {
+            AchievementCreated::dispatch($achievement);
+        });
 
         static::updated(function (Achievement $achievement) {
             if ($achievement->wasChanged('Points')) {
