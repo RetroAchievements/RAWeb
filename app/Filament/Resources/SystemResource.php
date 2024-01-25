@@ -150,11 +150,13 @@ class SystemResource extends Resource
                     ->size(config('media.icon.sm.width')),
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)
                     ->searchable()
+                    ->sortable()
                     ->grow(true),
                 Tables\Columns\TextColumn::make('name_short')
                     ->label('Short name')
@@ -184,6 +186,7 @@ class SystemResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('name_full')
             ->paginated(false)
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
