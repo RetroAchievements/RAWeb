@@ -8,6 +8,11 @@ use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Events\AchievementMoved;
+use App\Platform\Events\AchievementPointsChanged;
+use App\Platform\Events\AchievementPublished;
+use App\Platform\Events\AchievementTypeChanged;
+use App\Platform\Events\AchievementUnpublished;
 use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementFactory;
@@ -101,6 +106,35 @@ class Achievement extends BaseModel implements HasComments
         'TrueRatio',
         'type',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::updated(function (Achievement $achievement) {
+            if ($achievement->wasChanged('Points')) {
+                AchievementPointsChanged::dispatch($achievement);
+            }
+
+            if ($achievement->wasChanged('type')) {
+                AchievementTypeChanged::dispatch($achievement);
+            }
+
+            if ($achievement->wasChanged('Flags')) {
+                if($achievement->Flags === AchievementFlag::OfficialCore) {
+                    AchievementPublished::dispatch($achievement);
+                }
+
+                if($achievement->Flags === AchievementFlag::Unofficial) {
+                    AchievementUnpublished::dispatch($achievement);
+                }
+            }
+
+            if ($achievement->wasChanged('GameID')) {
+                AchievementMoved::dispatch($achievement, Game::find($achievement->getOriginal('GameID')));
+            }
+        });
+    }
 
     protected static function newFactory(): AchievementFactory
     {
