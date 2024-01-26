@@ -431,7 +431,7 @@ class GameListService
     {
         return [
             'header' => 'Achievements',
-            'width' => 12,
+            'width' => 10,
             'tooltip' => 'The number of achievements in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -444,7 +444,7 @@ class GameListService
     {
         return [
             'header' => 'Points',
-            'width' => 10,
+            'width' => 6,
             'tooltip' => 'The number of points associated to achievements in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -457,7 +457,7 @@ class GameListService
     {
         return [
             'header' => 'RetroRatio',
-            'width' => 10,
+            'width' => 8,
             'tooltip' => 'An estimate of rarity for achievements in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -470,7 +470,7 @@ class GameListService
     {
         return [
             'header' => 'Leaderboards',
-            'width' => 10,
+            'width' => 8,
             'tooltip' => 'The number of leaderboards in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -483,7 +483,7 @@ class GameListService
     {
         return [
             'header' => 'Players',
-            'width' => 8,
+            'width' => 6,
             'tooltip' => 'The number of users who have played the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -496,7 +496,7 @@ class GameListService
     {
         return [
             'header' => 'Tickets',
-            'width' => 8,
+            'width' => 6,
             'tooltip' => 'The number of open tickets for achievements in the set',
             'align' => 'right',
             'render' => function ($game) {

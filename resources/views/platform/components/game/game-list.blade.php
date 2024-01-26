@@ -14,12 +14,17 @@
 ])
 
 <?php
+$groupByConsole = isset($filterOptions['console']) && $filterOptions['console'];
 $areFiltersPristine = count(request()->query()) === 0;
 $numGames = count($games);
 ?>
 
 <div>
-    @if (!$areFiltersPristine || count($consoles) > 0)
+    @if ($areFiltersPristine && count($consoles) === 0)
+        <div class="mb-12">
+            <x-empty-state>{{ $noGamesMessage }}</x-empty-state>
+        </div>
+    @else
         <x-meta-panel
             :availableCheckboxFilters="$availableCheckboxFilters"
             :availableRadioFilters="$availableRadioFilters"
@@ -53,7 +58,7 @@ $numGames = count($games);
         ?>
 
         @foreach ($consoles as $console)
-            @if (isset($filterOptions['console']) && $filterOptions['console'])
+            @if ($groupByConsole)
                 <h2 class="flex gap-x-2 items-center text-h3">
                     <img src="{{ getSystemIconUrl($console->ID) }}" alt="Console icon" width="24" height="24">
                     <span>{{ $console->Name }}</span>
@@ -90,7 +95,7 @@ $numGames = count($games);
 
                     <tbody>
                         @foreach ($games as $game)
-                            @if (isset($filterOptions['console']) && $filterOptions['console'] && $game['ConsoleID'] != $console['ID'])
+                            @if ($groupByConsole && $game['ConsoleID'] !== $console['ID'])
                                 @continue
                             @endif
                             <tr>
@@ -129,7 +134,7 @@ $numGames = count($games);
                 </table>
             </div>
 
-            @if (!isset($filterOptions['console']) || !$filterOptions['console'])
+            @if (!$groupByConsole)
                 @break
             @endif
         @endforeach
