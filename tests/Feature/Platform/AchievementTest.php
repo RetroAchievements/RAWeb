@@ -41,7 +41,9 @@ class AchievementTest extends TestCase
 
         $game = Game::factory()->create();
 
-        $achievement = Achievement::factory()->for($game)->create();
+        $achievement = Achievement::factory()->for($game)->create([
+            'Points' => 0,
+        ]);
         Event::assertDispatched(AchievementCreated::class);
 
         $achievement->Flags = AchievementFlag::OfficialCore;
