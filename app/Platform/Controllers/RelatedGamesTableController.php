@@ -28,8 +28,10 @@ class RelatedGamesTableController extends Controller
         }
 
         $loggedInUser = request()->user();
-        $this->gameListService->withTicketCounts =
-            ($loggedInUser !== null && $loggedInUser->getPermissionsAttribute() >= Permissions::Developer);
+        $this->gameListService->withTicketCounts = (
+            $loggedInUser !== null
+            && $loggedInUser->getPermissionsAttribute() >= Permissions::Developer
+        );
 
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:console,title,achievements,points,leaderboards,players,tickets,progress,retroratio,-title,-achievements,-points,-leaderboards,-players,-tickets,-progress,-retroratio',
@@ -46,11 +48,11 @@ class RelatedGamesTableController extends Controller
             $filterOptions['status'] = $validatedData['filter']['status'];
         }
 
-        $gameIDs = GameAlternative::where('gameID', $gameId)->pluck('gameIDAlt')->toArray()
+        $gameIds = GameAlternative::where('gameID', $gameId)->pluck('gameIDAlt')->toArray()
                  + GameAlternative::where('gameIDAlt', $gameId)->pluck('gameID')->toArray();
 
-        $this->gameListService->initializeUserProgress($loggedInUser, $gameIDs);
-        $this->gameListService->initializeGameList($gameIDs);
+        $this->gameListService->initializeUserProgress($loggedInUser, $gameIds);
+        $this->gameListService->initializeGameList($gameIds);
 
         if ($filterOptions['populated']) {
             $this->gameListService->filterGameList(function ($game) {
@@ -65,7 +67,6 @@ class RelatedGamesTableController extends Controller
         }
 
         $this->gameListService->mergeWantToPlay($loggedInUser);
-
         $this->gameListService->sortGameList($sortOrder);
 
         $availableSorts = $this->gameListService->getAvailableSorts();
@@ -97,15 +98,15 @@ class RelatedGamesTableController extends Controller
         }
 
         return view('platform.components.game.game-list', [
-            'consoles' => $this->gameListService->consoles,
-            'games' => $this->gameListService->games,
-            'sortOrder' => $sortOrder,
-            'availableSorts' => $availableSorts,
-            'filterOptions' => $filterOptions,
             'availableCheckboxFilters' => $availableCheckboxFilters,
             'availableSelectFilters' => $availableSelectFilters,
+            'availableSorts' => $availableSorts,
             'columns' => $this->gameListService->getColumns($filterOptions),
+            'consoles' => $this->gameListService->consoles,
+            'filterOptions' => $filterOptions,
+            'games' => $this->gameListService->games,
             'noGamesMessage' => 'No related games.',
+            'sortOrder' => $sortOrder,
         ]);
     }
 }

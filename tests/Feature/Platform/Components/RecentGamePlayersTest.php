@@ -23,6 +23,9 @@ class RecentGamePlayersTest extends TestCase
                 'User' => $user->User,
                 'Date' => $mockDate,
                 'Activity' => 'Playing Sonic the Hedgehog',
+                'NumAwarded' => 10,
+                'NumAwardedHardcore' => 9,
+                'NumAchievements' => 12,
             ],
         ];
 
@@ -49,6 +52,9 @@ class RecentGamePlayersTest extends TestCase
                 'User' => $user->User,
                 'Date' => Carbon::now(),
                 'Activity' => 'Unknown macro this should not appear',
+                'NumAwarded' => 10,
+                'NumAwardedHardcore' => 9,
+                'NumAchievements' => 12,
             ],
         ];
 
