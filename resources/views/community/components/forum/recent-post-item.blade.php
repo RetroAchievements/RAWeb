@@ -6,7 +6,6 @@
     'postedAt' => '',
     'summary' => '',
     'tooltipLabel' => null, // ?string
-    'variant' => 'base', // 'base' | 'desktop-slim'
     'viewHref' => null, // ?string
     'viewLabel' => 'View',
     'view2Href' => null, // ?string
@@ -15,7 +14,7 @@
 
 <div class="embedded">
     <div class="relative flex justify-between items-center">
-        <div @if ($variant === 'desktop-slim') class="lg:flex items-center gap-x-1" @endif>
+        <div>
             {!! userAvatar($authorUsername, iconSize: 16) !!}
             <span
                 class="smalldate {{ $hasDateTooltip ? 'cursor-help' : '' }}"
@@ -23,10 +22,6 @@
             >
                 {{ $postedAt }}
             </span>
-
-            @if ($variant === 'desktop-slim')
-                <p class="hidden lg:block">in <a href="{{ $href }}">{{ $forumTopicTitle }}</a></p>
-            @endif
         </div>
 
         @if ($viewLabel !== '')
@@ -44,9 +39,7 @@
         @endif
     </div>
 
-    <p @if ($variant === 'desktop-slim') class="lg:hidden" @endif>
-        in <a href="{{ $href }}">{{ $forumTopicTitle }}</a>
-    </p>
+    <p>in <a href="{{ $href }}">{{ $forumTopicTitle }}</a></p>
 
     <p class="comment text-overflow-wrap">
         {{ $summary }}

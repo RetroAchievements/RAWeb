@@ -88,7 +88,6 @@ RenderContentStart("Forum Post History");
                 :postedAt="$postedAt"
                 :summary="$summary"
                 :tooltipLabel="$tooltipLabel"
-                :variant="$variant"
                 :viewLabel="$viewLabel"
                 :viewHref="$viewHref"
                 :view2Label="$view2Label"
@@ -102,7 +101,6 @@ RenderContentStart("Forum Post History");
             'postedAt' => $postedAt,
             'summary' => Shortcode::stripAndClamp($postMessage, $messageLength),
             'tooltipLabel' => Carbon::parse($topicPostData['PostedAt'])->format('F j Y, g:ia'),
-            'variant' => 'desktop-slim',
             'viewLabel' => $viewLabel,
             'viewHref' => $viewHref,
             'view2Label' => $view2Label,
