@@ -74,6 +74,14 @@ class UserPolicy
 
     public function updateRoles(User $user, User $model): bool
     {
+        // admins may update roles of non-root admins
+        if (
+            $user->hasRole(Role::ADMINISTRATOR)
+            && !$model->hasAnyRole(Role::ROOT)
+        ) {
+            return true;
+        }
+
         // users may attach any role to themselves
         if ($model->is($user)) {
             return true;
@@ -96,6 +104,14 @@ class UserPolicy
         // users may detach any role from themselves
         if ($model->is($user)) {
             return true;
+        }
+
+        // admins may update roles of non-root admins
+        if (
+            $user->hasRole(Role::ADMINISTRATOR)
+            && !$model->hasAnyRole(Role::ROOT)
+        ) {
+            return $user->assignableRoles->contains($role->name);
         }
 
         if (!$this->requireAdministrativePrivileges($user, $model)) {
