@@ -14,7 +14,7 @@
 
     {{-- If there's game metadata, then show console metadata as a URL. Otherwise, it's plain text. --}}
     @if ($targetConsoleId && $targetConsoleName)
-        <a href="{{ '/gameList.php?c=' . $targetConsoleId }}">{{ $targetConsoleName }}</a>
+        <a href="{{ route('system.game.index', ['system' => $targetConsoleId]) }}">{{ $targetConsoleName }}</a>
     @else
         <span class="font-bold">{{ $targetConsoleName }}</span>
     @endif

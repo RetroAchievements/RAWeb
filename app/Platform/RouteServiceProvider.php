@@ -10,6 +10,8 @@ use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
+use App\Platform\Controllers\SuggestGameController;
+use App\Platform\Controllers\SystemController;
 use App\Platform\Models\GameHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -51,8 +53,8 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::get('system/{system}{slug?}', [SystemController::class, 'show'])->name('system.show');
             // Route::resource('systems', SystemController::class)->only('index')->names(['index' => 'system.index']);
-            // Route::get('system/{system}/games', [SystemController::class, 'games'])
-            //     ->name('system.game.index');
+            Route::get('system/{system}/games', [SystemController::class, 'games'])
+                ->name('system.game.index');
             /*
              * Note: not allowing to filter achievements on the system level for now
              * stick to games for now
@@ -67,6 +69,8 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
+            Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest-for-game');
+            Route::get('game/suggest', SuggestGameController::class)->name('game.suggest');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');

@@ -16,6 +16,11 @@ class GameAlternative extends BaseModel
 
     // == accessors
 
+    protected $visible = [
+        'gameID',
+        'gameIDAlt',
+    ];
+
     // == mutators
 
     // == relations

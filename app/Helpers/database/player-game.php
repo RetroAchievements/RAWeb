@@ -332,13 +332,35 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
             'User' => $session->User,
             'Date' => $session->rich_presence_updated_at->__toString(),
             'Activity' => $session->rich_presence,
+            'NumAwarded' => 0,
+            'NumAwardedHardcore' => 0,
+            'NumAchievements' => 0,
         ];
     }
+
+    $mergePlayerGames = function (array &$retval) use ($gameID): array {
+        $player_games = PlayerGame::where('game_id', $gameID)
+            ->whereIn('user_id', array_column($retval, 'UserID'))
+            ->select(['user_id', 'achievements_unlocked', 'achievements_unlocked_hardcore', 'achievements_total']);
+
+        foreach ($player_games->get() as $player_game) {
+            foreach ($retval as &$entry) {
+                if ($entry['UserID'] == $player_game->user_id) {
+                    $entry['NumAwarded'] = $player_game->achievements_unlocked;
+                    $entry['NumAwardedHardcore'] = $player_game->achievements_unlocked_hardcore;
+                    $entry['NumAchievements'] = $player_game->achievements_total;
+                    break;
+                }
+            }
+        }
+
+        return $retval;
+    };
 
     if ($maximum_results) {
         $maximum_results -= count($retval);
         if ($maximum_results == 0) {
-            return $retval;
+            return $mergePlayerGames($retval);
         }
     }
 
@@ -361,7 +383,7 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
         $retval[] = $data;
     }
 
-    return $retval;
+    return $mergePlayerGames($retval);
 }
 
 /**
