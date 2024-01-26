@@ -228,7 +228,6 @@ class AchievementResource extends Resource
                         default => '',
                     }),
                 Tables\Columns\TextColumn::make('type')
-                    ->searchable()
                     ->badge(),
                 Tables\Columns\TextColumn::make('Points')
                     ->numeric()
