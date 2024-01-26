@@ -17,6 +17,9 @@ foreach ($recentPlayerData as $recentPlayer) {
         'Date' => $date,
         'IsBroken' => $isBroken,
         'Activity' => $recentPlayer['Activity'],
+        'NumAwarded' => (int) $recentPlayer['NumAwarded'],
+        'NumAwardedHardcore' => (int) $recentPlayer['NumAwardedHardcore'],
+        'NumAchievements' => (int) $recentPlayer['NumAchievements'],
     ];
 }
 ?>
@@ -28,7 +31,17 @@ foreach ($recentPlayerData as $recentPlayer) {
         <div class="flex flex-col gap-y-0.5 px-2 py-1.5 odd:bg-embed">
             <div class="w-full flex items-center justify-between">
                 {!! userAvatar($recentPlayer['User'], iconClass: 'rounded-sm', iconSize: 20) !!}
-                <p class="smalldate">{{ $recentPlayer['Date'] }}</p>
+
+                <div class="flex flex-col items-center gap-1">
+                    <p class="smalldate whitespace-nowrap">{{ $recentPlayer['Date'] }}</p>
+                    <div class="w-[115px] max-w-[115px]">
+                        <x-game-progress-bar
+                            softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
+                            hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
+                            maxProgress="{{ $recentPlayer['NumAchievements'] }}"
+                        />
+                    </div>
+                </div>
             </div>
 
             @if ($recentPlayer['IsBroken'])
@@ -48,6 +61,7 @@ foreach ($recentPlayerData as $recentPlayer) {
         <tr>
             <th>Player</th>
             <th>When</th>
+            <th style="width: 10%">Progress</th>
             <th class="w-full">Activity</th>
         </tr>
     </thead>
@@ -57,6 +71,15 @@ foreach ($recentPlayerData as $recentPlayer) {
             <tr>
                 <td class="py-2.5">{!! userAvatar($recentPlayer['User'], iconClass: 'rounded-sm mr-1', iconSize: 28) !!}</td>
                 <td class="whitespace-nowrap smalldate">{{ $recentPlayer['Date'] }}</td>
+
+                <td class="pr-2">
+                    <x-game-progress-bar
+                        softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
+                        hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
+                        maxProgress="{{ $recentPlayer['NumAchievements'] }}"
+                    />
+                </td>
+
                 <td>
                     @if ($recentPlayer['IsBroken'])
                         <div class="cursor-help" title="{{ $recentPlayer['Activity'] }}">
