@@ -46,7 +46,7 @@ class DispatchUpdateGameMetricsJob implements ShouldQueue
             case AchievementMoved::class:
                 $achievement = $event->achievement;
                 $game = $achievement->game;
-                $originalGame = $event->origianlGame;
+                $originalGame = $event->originalGame;
                 break;
             case GamePlayerGameMetricsUpdated::class:
                 $game = $event->game;
