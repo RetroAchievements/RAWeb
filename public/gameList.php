@@ -23,6 +23,10 @@ if ($consoleIDInput == 0 || $filter != 0) {
     $offset = 0;
 }
 
+if ($consoleIDInput > 0) {
+    return redirect()->route('system.game.index', ['system' => $consoleIDInput]);
+}
+
 authenticateFromCookie($user, $permissions, $userDetails);
 
 $listType = isset($user) ? requestInputSanitized('t') : null;
