@@ -76,12 +76,16 @@ class AuthServiceProvider extends ServiceProvider
             return $able;
         });
 
-        Gate::define('viewBeta', function (User $user) {
-            if ($user->hasAnyRole([Role::BETA])) {
-                return true;
-            }
+        Gate::define('viewBeta', fn (User $user) => $user->hasAnyRole([Role::BETA]));
 
-            return $user->can('root');
+        Gate::define('root', fn (User $user) => $user->hasAnyRole([Role::ROOT]));
+
+        Gate::define('tool', function (User $user) {
+            return app()->environment('local')
+                || $user->hasAnyRole([Role::ROOT, Role::ADMINISTRATOR]);
         });
+
+        Gate::define('viewLogViewer', fn (User $user) => $user->can('tool'));
+
     }
 }
