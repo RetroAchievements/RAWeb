@@ -206,6 +206,8 @@ class UserPolicy
             if ($model->hasAnyRole(Role::ROOT)) {
                 return false;
             }
+
+            return true;
         }
 
         /*
