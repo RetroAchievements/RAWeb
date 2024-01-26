@@ -1,5 +1,6 @@
 @props([
     'availableCheckboxFilters' => [],
+    'availableRadioFilters' => [],
     'availableSelectFilters' => [],
     'availableSorts' => [],
     'filterOptions' => [],
@@ -9,11 +10,14 @@
 <?php
     $hasSorts = !empty($availableSorts);;
     $hasCheckboxFilters = !empty($availableCheckboxFilters);
+    $hasRadioFilters = !empty($availableRadioFilters);
     $hasSelectFilters = !empty($availableSelectFilters);
 
+    $hasAnyFilters = $hasCheckboxFilters || $hasRadioFilters || $hasSelectFilters;
+
     if ($hasSorts) {
-        $header = ($hasCheckboxFilters || $hasSelectFilters) ? "Sorts and filters" : "Sorts";
-    } else if ($hasCheckboxFilters || $hasSelectFilters) {
+        $header = $hasAnyFilters ? "Sorts and filters" : "Sorts";
+    } else if ($hasAnyFilters) {
         $header = "Filters";
     } else {
         $header = null;
@@ -42,6 +46,19 @@
                             :kind="$availableSelectFilter['kind']"
                             :label="$availableSelectFilter['label']"
                             :options="$availableSelectFilter['options']"
+                        />
+                    </div>
+                @endforeach
+            @endif
+
+            @if ($hasRadioFilters)
+                @foreach ($availableRadioFilters as $availableRadioFilter)
+                    <div class="grid gap-y-1 sm:px-8 lg:px-4 xl:px-8">
+                        <x-meta-panel.radio-filter
+                            :allFilterOptions="$filterOptions"
+                            :kind="$availableRadioFilter['kind']"
+                            :label="$availableRadioFilter['label']"
+                            :options="$availableRadioFilter['options']"
                         />
                     </div>
                 @endforeach

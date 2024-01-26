@@ -7,9 +7,9 @@
     'relatedGameIcon' => '',
 ])
 
-@if ($selectionMethod == 'want-to-play')
+@if ($selectionMethod === 'want-to-play')
     From your Want to Play list
-@elseif ($selectionMethod == 'similar-to')
+@elseif ($selectionMethod === 'similar-to')
     @if ($relatedGameId > 0)
         Similar to {{ $relatedGameType }} game:
         <x-game.avatar
@@ -21,7 +21,7 @@
     @else
         In Similar Games collection
     @endif
-@elseif ($selectionMethod == 'common-hub')
+@elseif ($selectionMethod === 'common-hub')
     Shares hub {{ $relatedSubject }}
     @if ($relatedGameId > 0)
         with {{ $relatedGameType }} game:
@@ -32,7 +32,7 @@
             :iconSize="16"
         />
     @endif
-@elseif ($selectionMethod == 'common-author')
+@elseif ($selectionMethod === 'common-author')
     Shares set developer {!! userAvatar($relatedSubject, icon: false) !!}
     @if ($relatedGameId > 0)
         with {{ $relatedGameType }} game:
@@ -43,7 +43,7 @@
             :iconSize="16"
         />
     @endif
-@elseif ($selectionMethod == 'common-player')
+@elseif ($selectionMethod === 'common-player')
     @if ($relatedGameId > 0)
         Mastered by players of {{ $relatedGameType }} game:
         <x-game.avatar
@@ -55,7 +55,7 @@
     @else
         Mastered by players of game
     @endif
-@elseif ($selectionMethod == 'revised')
+@elseif ($selectionMethod === 'revised')
     Previously mastered game has been revised
 @else
     Randomly selected

@@ -108,7 +108,7 @@ class SuggestGameController extends Controller
                 $selectedGames[$gameId] = $why;
 
                 $gameIds[] = $gameId;
-                if (count($gameIds) == 10) {
+                if (count($gameIds) === 10) {
                     break;
                 }
             }
@@ -156,7 +156,7 @@ class SuggestGameController extends Controller
                 $selectedGames[$gameId] = $why;
 
                 $gameIds[] = $gameId;
-                if (count($gameIds) == 10) {
+                if (count($gameIds) === 10) {
                     break;
                 }
             }
@@ -210,7 +210,7 @@ class SuggestGameController extends Controller
             $this->gameProgress[$playerGame->game_id] =
                 $playerGame->achievements_unlocked / $playerGame->achievements_total;
 
-            if ($playerGame->achievements_unlocked == $playerGame->achievements_total) {
+            if ($playerGame->achievements_unlocked === $playerGame->achievements_total) {
                 $this->masteredGames[] = $playerGame->game_id;
             } elseif ($playerGame->beaten_at) {
                 $this->beatenGames[] = $playerGame->game_id;
@@ -352,9 +352,9 @@ class SuggestGameController extends Controller
                     ->select(['gameIDAlt', 'Title'])
                     ->first();
 
-                if ($relatedHub != null && !str_starts_with($relatedHub->Title, '[Meta -')) {
+                if ($relatedHub !== null && !str_starts_with($relatedHub->Title, '[Meta -')) {
                     $relatedGameId = $this->selectSimilarGame($relatedHub->gameIDAlt);
-                    if ($relatedGameId != null) {
+                    if ($relatedGameId !== null) {
                         return [$relatedGameId, [
                             'how' => 'common-hub',
                             'hub' => $relatedHub->Title,
@@ -417,7 +417,7 @@ class SuggestGameController extends Controller
                     $othergameIds = [];
                     $maxCount = 0;
                     foreach ($otherMasteredGames->get() as $otherMasteredGame) {
-                        if ($maxCount == 0) {
+                        if ($maxCount === 0) {
                             $maxCount = $otherMasteredGame->Count;
                         } elseif ($otherMasteredGame->Count < $maxCount) {
                             break;
@@ -448,7 +448,7 @@ class SuggestGameController extends Controller
             ->select('gameIDAlt')
             ->first();
 
-        if ($relatedGame != null) {
+        if ($relatedGame !== null) {
             return $relatedGame->gameIDAlt;
         }
 

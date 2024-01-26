@@ -11,6 +11,7 @@ use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
 use App\Platform\Controllers\SuggestGameController;
+use App\Platform\Controllers\SystemController;
 use App\Platform\Models\GameHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -52,8 +53,8 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::get('system/{system}{slug?}', [SystemController::class, 'show'])->name('system.show');
             // Route::resource('systems', SystemController::class)->only('index')->names(['index' => 'system.index']);
-            // Route::get('system/{system}/games', [SystemController::class, 'games'])
-            //     ->name('system.game.index');
+            Route::get('system/{system}/games', [SystemController::class, 'games'])
+                ->name('system.game.index');
             /*
              * Note: not allowing to filter achievements on the system level for now
              * stick to games for now

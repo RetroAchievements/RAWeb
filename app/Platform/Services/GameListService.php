@@ -103,10 +103,13 @@ class GameListService
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
             $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->Name;
-            $game['SortTitle'] = $game['Title'];
-            if (substr($game['Title'], 0, 1) == '~') {
-                $tilde = strrpos($game['Title'], '~');
-                $game['SortTitle'] = trim(substr($game['Title'], $tilde + 1) . ' ' . substr($game['Title'], 0, $tilde + 1));
+            $game['SortTitle'] = mb_strtolower($game['Title']);
+            if (substr($game['SortTitle'], 0, 1) == '~') {
+                $tilde = strrpos($game['SortTitle'], '~');
+                $game['SortTitle'] = trim(substr($game['SortTitle'], $tilde + 1) . ' ' . substr($game['SortTitle'], 0, $tilde + 1));
+
+                // Keep these games at the bottom of the list (under the "untagged" game titles).
+                $game['SortTitle'] = '~' . $game['SortTitle'];
             }
 
             $this->games[] = $game;
@@ -144,7 +147,7 @@ class GameListService
 
         switch ($statusValue) {
             case 'unstarted':
-                return !$foundProgress;
+                return (isset($foundProgress) && $foundProgress['achievements_unlocked'] === 0) || !$foundProgress;
 
             case 'lt-beaten-softcore':
                 return
@@ -174,7 +177,10 @@ class GameListService
                     && $foundProgress['completion_percentage'] !== $foundProgress['completion_percentage_hardcore'];
 
             case 'revised':
-                return ($hasAwardKind('completed') || $hasAwardKind('mastered')) && $foundProgress['completion_percentage_hardcore'] < 1;
+                return
+                    ($hasAwardKind('completed') && $foundProgress['completion_percentage'] < 1)
+                    || ($hasAwardKind('mastered') && $foundProgress['completion_percentage_hardcore'] < 1)
+                ;
 
             default:
                 return true;

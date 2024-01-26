@@ -17,7 +17,7 @@
         :targetGameId="$game->ID"
         :targetGameName="$game->Title"
         currentPageLabel="Game Suggestions"
-        />
+    />
 
     <div class="mt-3 -mb-3 w-full flex gap-x-3">
         {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}

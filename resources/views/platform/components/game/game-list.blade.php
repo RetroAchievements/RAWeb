@@ -1,5 +1,6 @@
 @props([
     'availableCheckboxFilters' => [],
+    'availableRadioFilters' => [],
     'availableSelectFilters' => [],
     'availableSorts' => [],
     'columns' => [],
@@ -8,30 +9,42 @@
     'games' => [],
     'noGamesMessage' => 'No games.',
     'sortOrder' => 'title',
+    'shouldShowCount' => false,
+    'totalUnfilteredCount' => null, // ?int
 ])
 
 <?php
-$areFiltersPristine = empty(
-    array_filter($filterOptions, function ($value) {
-        return $value !== false && $value !== 'all';
-    })
-);
 $groupByConsole = isset($filterOptions['console']) && $filterOptions['console'];
+$areFiltersPristine = count(request()->query()) === 0;
+$numGames = count($games);
 ?>
 
 <div>
-    @if ($areFiltersPristine && count($consoles) == 0)
+    @if ($areFiltersPristine && count($consoles) === 0)
         <div class="mb-12">
             <x-empty-state>{{ $noGamesMessage }}</x-empty-state>
         </div>
     @else
         <x-meta-panel
-            :availableSorts="$availableSorts"
-            :selectedSortOrder="$sortOrder"
             :availableCheckboxFilters="$availableCheckboxFilters"
+            :availableRadioFilters="$availableRadioFilters"
             :availableSelectFilters="$availableSelectFilters"
+            :availableSorts="$availableSorts"
             :filterOptions="$filterOptions"
+            :selectedSortOrder="$sortOrder"
         />
+
+        @if ($shouldShowCount)
+            <p class="mb-4 text-xs">
+                Viewing
+                <span class="font-bold">{{ localized_number($numGames) }}</span>
+                @if (!$areFiltersPristine && isset($totalUnfilteredCount) && $totalUnfilteredCount !== $numGames)
+                    of {{ localized_number($totalUnfilteredCount) }}
+                @endif
+                {{ trans_choice(__('resource.game.title'), $numGames) }}
+            </p>
+        @endif
+
         <?php
         $totals = [];
         foreach ($columns as $column) {
@@ -82,7 +95,7 @@ $groupByConsole = isset($filterOptions['console']) && $filterOptions['console'];
 
                     <tbody>
                         @foreach ($games as $game)
-                            @if ($groupByConsole && $game['ConsoleID'] != $console['ID'])
+                            @if ($groupByConsole && $game['ConsoleID'] !== $console['ID'])
                                 @continue
                             @endif
                             <tr>
