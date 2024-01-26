@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Concerns;
 
 use App\Community\Enums\UserRelationship;
+use App\Community\Models\ForumTopicComment;
 use App\Community\Models\MessageThreadParticipant;
 use App\Community\Models\UserActivity;
 use App\Community\Models\UserComment;
@@ -96,6 +97,14 @@ trait ActsAsCommunityMember
     public function getUnreadMessagesCountAttribute(): int
     {
         return (int) ($this->attributes['UnreadMessageCount'] ?? 0);
+    }
+
+    /**
+     * @return HasMany<ForumTopicComment>
+     */
+    public function forumPosts(): HasMany
+    {
+        return $this->hasMany(ForumTopicComment::class, 'AuthorID', 'ID');
     }
 
     /**

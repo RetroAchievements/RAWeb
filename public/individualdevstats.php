@@ -213,17 +213,11 @@ foreach ($obtainers as $obtainer) {
 }
 
 // Initialize code note variables
-$mostNotedGame = [];
 $userCodeNoteCount = 0;
 
 // Get code note information for user
-$codeNotes = getCodeNoteCounts($dev);
-foreach ($codeNotes as $game) {
-    if (empty($mostNotedGame)) {
-        $mostNotedGame = $game;
-    }
-    $userCodeNoteCount += $game['NoteCount'];
-}
+$codeNotes = collect(getCodeNoteCounts($dev));
+$userCodeNoteCount = $codeNotes->sum('NoteCount');
 
 // Initialize ticket information variables
 $userTickets['total'] = 0;

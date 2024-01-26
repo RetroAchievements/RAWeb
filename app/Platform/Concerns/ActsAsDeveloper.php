@@ -6,6 +6,7 @@ namespace App\Platform\Concerns;
 
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Leaderboard;
+use App\Platform\Models\MemoryNote;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait ActsAsDeveloper
@@ -24,6 +25,14 @@ trait ActsAsDeveloper
     public function authoredAchievements(): HasMany
     {
         return $this->hasMany(Achievement::class, 'Author', 'User');
+    }
+
+    /**
+     * @return HasMany<MemoryNote>
+     */
+    public function authoredCodeNotes(): HasMany
+    {
+        return $this->hasMany(MemoryNote::class, 'AuthorID', 'ID');
     }
 
     /**

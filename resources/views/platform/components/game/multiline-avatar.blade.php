@@ -53,6 +53,7 @@ $showConsoleLine = $consoleId || $consoleName;
             <div class="flex items-center gap-x-1">
                 @if ($consoleId && $consoleName)
                     <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $consoleName }} console icon">
+                    <span class="block text-xs tracking-tighter mt-px">{{ $consoleName }}</span>
                 @endif
 
                 @if ($consoleName && !$consoleId)
