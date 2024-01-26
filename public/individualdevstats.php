@@ -693,7 +693,7 @@ RenderContentStart("$dev's Developer Stats");
         /*
          * Code Notes
          */
-        echo "<h2>Code Notes</h2>";
+        echo "<h2 id='code-notes'>Code Notes</h2>";
         echo "<table><tbody>";
 
         // Code notes created

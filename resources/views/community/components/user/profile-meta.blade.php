@@ -17,6 +17,7 @@
 <?php
 use App\Site\Enums\Permissions;
 
+$registeredPermission = Permissions::Registered;
 $jrDevPermission = Permissions::JuniorDeveloper;
 ?>
 
@@ -28,14 +29,15 @@ $jrDevPermission = Permissions::JuniorDeveloper;
         :username="$username"
     />
 
-    <div class="mb-2 sm:ml-[142px] md:ml-0 md:absolute md:top-0.5 md:right-0 lg:relative lg:ml-[142px] xl:absolute xl:ml-0">
-        <x-user.profile.social-interactivity :username="$username" />
-    </div>
+    @if ($userMassData['Permissions'] >= $registeredPermission)
+        <div class="flex gap-x-1 items-center mb-2 top-0.5 right-0 sm:hidden md:flex md:flex-col md:items-end md:gap-y-1 md:absolute lg:hidden xl:flex xl:absolute">
+            <x-user.profile.social-interactivity :username="$username" />
+            <x-user.profile.follows-you-label :username="$username" />
+        </div>
+    @endif
 </div>
 
 <hr class="border-embed-highlight mb-2" />
-
-<x-user.profile.follows-you-label :username="$username" />
 
 @if (!empty($userMassData['LastGame']))
     <x-user.profile.last-seen-in :userMassData="$userMassData" />
@@ -53,7 +55,7 @@ $jrDevPermission = Permissions::JuniorDeveloper;
     :userMassData="$userMassData"
 />
 
-@if ($userMassData['ContribCount'] > 0 || $userMassData['Permissions'] >= $jrDevPermission)
+@if (!empty($developerStats))
     <x-user.profile.developer-stats
         :developerStats="$developerStats"
         :userClaims="$userClaims"

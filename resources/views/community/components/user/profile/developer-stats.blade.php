@@ -34,7 +34,7 @@ $specialClaims = collect($userClaims)->filter(function ($entity) {
                         {{ localized_number($developerStats['gameAuthoredAchievementsCount']) }}
                     </a>
                 @else
-                    <span>0</span>
+                    <span class="italic text-muted">0</span>
                 @endif
             </x-user.profile.stat-element>
 
@@ -44,7 +44,7 @@ $specialClaims = collect($userClaims)->filter(function ($entity) {
                         {{ localized_number($userMassData['ContribCount']) }}
                     </a>
                 @else
-                    <span>0</span>
+                    <span class="italic text-muted">0</span>
                 @endif
             </x-user.profile.stat-element>
 
@@ -54,7 +54,7 @@ $specialClaims = collect($userClaims)->filter(function ($entity) {
                         {{ localized_number($userMassData['ContribYield']) }}
                     </a>
                 @else
-                    <span>0</span>
+                    <span class="italic text-muted">0</span>
                 @endif
             </x-user.profile.stat-element>
         </div>
@@ -62,11 +62,11 @@ $specialClaims = collect($userClaims)->filter(function ($entity) {
         <div class="flex flex-col gap-y-1">
             <x-user.profile.stat-element label="Code notes created">
                 @if ($developerStats['totalAuthoredCodeNotes'] > 0)
-                    <a href="{{ '/individualdevstats.php?u=' . $username }}" class="font-bold">
+                    <a href="{{ '/individualdevstats.php?u=' . $username . '#code-notes' }}" class="font-bold">
                         {{ localized_number($developerStats['totalAuthoredCodeNotes']) }}
                     </a>
                 @else
-                    <span>0</span>
+                    <span class="italic text-muted">0</span>
                 @endif
             </x-user.profile.stat-element>
     
@@ -76,7 +76,7 @@ $specialClaims = collect($userClaims)->filter(function ($entity) {
                         {{ localized_number($developerStats['totalAuthoredLeaderboards']) }}
                     </a>
                 @else
-                    <span>0</span>
+                    <span class="italic text-muted">0</span>
                 @endif
             </x-user.profile.stat-element>
     
@@ -84,7 +84,7 @@ $specialClaims = collect($userClaims)->filter(function ($entity) {
                 @if ($developerStats['openTickets'] === null)
                     <span class="italic" title="Tickets can't be assigned to {{ $username }}">n/a</span>
                 @elseif ($developerStats['openTickets'] === 0)
-                    <span>0</span>
+                    <span class="italic text-muted">0</span>
                 @else
                     <a href="{{ '/ticketmanager.php?u=' . $username }}" class="font-bold">
                         {{ $developerStats['openTickets'] }}

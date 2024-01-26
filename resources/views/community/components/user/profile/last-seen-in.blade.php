@@ -23,17 +23,19 @@ $mostRecentRichPresenceMessage = (
     ?? $userMassData['RichPresenceMsg']
     ?? null
 );
+
+$parsedDate = Carbon::parse($mostRecentSession->rich_presence_updated_at);
 ?>
 
 @if ($sessionGame)
     <div class="mb-6">
-        <div class="flex w-full items-center gap-x-1.5">
-            <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
+        <div class="flex w-full items-center gap-x-1.5 mb-0.5">
+            <p role="heading" aria-level="2" class="text-2xs font-bold">
                 Most recently played
 
                 @if ($mostRecentSession?->rich_presence_updated_at)
-                    <p class="smalldate min-w-auto">
-                        {{ Carbon::parse($mostRecentSession->rich_presence_updated_at)->diffForHumans() }}
+                    <p class="smalldate min-w-auto cursor-help" title="{{ $parsedDate->format('F j Y, g:ia') }}">
+                        {{ $parsedDate->diffForHumans() }}
                     </p>
                 @endif
             </p>

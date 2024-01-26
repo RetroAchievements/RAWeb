@@ -10,14 +10,14 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('CodeNotes', function (Blueprint $table) {
-            $table->index('AuthorID');
+            $table->index('AuthorID', 'memory_notes_user_id_index');
         });
     }
 
     public function down(): void
     {
         Schema::table('CodeNotes', function (Blueprint $table) {
-            $table->dropIndex('AuthorID');
+            $table->dropIndex('memory_notes_user_id_index');
         });
     }
 };

@@ -69,19 +69,19 @@ $retroRatio = $weightedPoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoi
     >
         <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
             <x-user.profile.stat-element label="Points earned in the last 7 days">
-                <span class="{{ $recentPointsEarned['pointsLast7Days'] > 0 ? 'font-bold' : 'text-muted' }}">
+                <span class="{{ $recentPointsEarned['pointsLast7Days'] > 0 ? 'font-bold' : 'italic text-muted' }}">
                     {{ localized_number($recentPointsEarned['pointsLast7Days']) }}
                 </span>
             </x-user.profile.stat-element>
 
             <x-user.profile.stat-element label="Points earned in the last 30 days">
-                <span class="{{ $recentPointsEarned['pointsLast30Days'] > 0 ? 'font-bold' : 'text-muted' }}">
+                <span class="{{ $recentPointsEarned['pointsLast30Days'] > 0 ? 'font-bold' : 'italic text-muted' }}">
                     {{ localized_number($recentPointsEarned['pointsLast30Days']) }}
                 </span>
             </x-user.profile.stat-element>
 
             <x-user.profile.stat-element label="Average points per week">
-                <span class="{{ $averagePointsPerWeek > 0 ? 'font-bold' : 'text-muted' }}">
+                <span class="{{ $averagePointsPerWeek > 0 ? 'font-bold' : 'italic text-muted' }}">
                     {{ localized_number($averagePointsPerWeek) }}
                 </span>
             </x-user.profile.stat-element>
@@ -92,7 +92,7 @@ $retroRatio = $weightedPoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoi
                 behavior patterns, but we don't want to remove it completely.
             --}}
             <x-user.profile.stat-element label="Average completion percentage">
-                <span class="{{ $averageCompletionPercentage === '0.00' ? 'text-muted' : 'font-bold' }}">
+                <span class="{{ $averageCompletionPercentage === '0.00' ? 'italic text-muted' : 'font-bold' }}">
                     {{ $averageCompletionPercentage }}%
                 </span>
             </x-user.profile.stat-element>

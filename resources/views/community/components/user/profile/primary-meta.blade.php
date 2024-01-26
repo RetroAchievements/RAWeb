@@ -9,7 +9,7 @@
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Carbon;
 
-$hasVisibleRole = $userMassData['Permissions'] >= Permissions::JuniorDeveloper;
+$hasVisibleRole = $userMassData['Permissions'] !== Permissions::Registered;
 $roleLabel = $hasVisibleRole ? Permissions::toString($userMassData['Permissions']) : '';
 $shouldMoveRoleToNextLine =
     $hasVisibleRole
@@ -44,7 +44,7 @@ $shouldMoveRoleToNextLine =
             </div>
         @endif
 
-        {{-- 🚨 Space is limited. Do NOT display more than 4 rows of content here. --}}
+        {{-- 🚨 Space is limited. Do NOT display more than 4 rows of content in this div. --}}
         <div class="text-2xs">
             {{-- Points --}}
             <x-user.profile.points-display
@@ -62,12 +62,14 @@ $shouldMoveRoleToNextLine =
             />
 
             {{-- Last Activity --}}
-            <p>
-                <span class="font-bold">Last Activity:</span>
-                <span class="cursor-help" title="{{ getNiceDate(strtotime($userMassData['LastActivity'])) }}">
-                    {{ Carbon::parse($userMassData['LastActivity'])->diffForHumans() }}
-                </span>
-            </p>
+            @if ($userMassData['LastActivity'])
+                <p>
+                    <span class="font-bold">Last Activity:</span>
+                    <span class="cursor-help" title="{{ getNiceDate(strtotime($userMassData['LastActivity'])) }}">
+                        {{ Carbon::parse($userMassData['LastActivity'])->diffForHumans() }}
+                    </span>
+                </p>
+            @endif
 
             {{-- Member Since --}}
             <p>
@@ -76,6 +78,11 @@ $shouldMoveRoleToNextLine =
                     {{ Carbon::parse($userMassData['MemberSince'])->format('d M Y') }}
                 </span>
             </p>
+        </div>
+
+        <div class="hidden sm:flex sm:gap-x-2 sm:-ml-2 sm:mt-1 md:hidden lg:flex xl:hidden">
+            <x-user.profile.social-interactivity :username="$username" />
+            <x-user.profile.follows-you-label :username="$username" />
         </div>
     </div>
 </div>

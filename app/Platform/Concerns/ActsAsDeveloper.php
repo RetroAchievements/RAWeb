@@ -32,7 +32,7 @@ trait ActsAsDeveloper
      */
     public function authoredCodeNotes(): HasMany
     {
-        return $this->hasMany(MemoryNote::class, 'AuthorID', 'ID');
+        return $this->hasMany(MemoryNote::class, 'AuthorID', 'ID')->where('Note', '!=', '');
     }
 
     /**

@@ -121,24 +121,16 @@ class UserProfileMeta extends Component
             ->select(DB::raw('COUNT(LeaderboardDef.ID) AS TotalAuthoredLeaderboards'))
             ->value('TotalAuthoredLeaderboards');
 
-        $totalAuthoredCodeNotes = $user->authoredCodeNotes()->where('Note', '!=', '')->count();
+        $totalAuthoredCodeNotes = $user->authoredCodeNotes()->count();
 
         $openTickets = null;
-        // FIXME: Uses legacy roles.
-        if ($user->getAttribute('Permissions') >= Permissions::Registered) {
+        if ($user->ContribCount) {
             $openTickets = array_sum(countOpenTicketsByDev($user->User));
-        }
-
-        $ticketsClosedResolved = getNumberOfTicketsClosedForOthers($user->User);
-        $ticketsResolvedForOthers = 0;
-        foreach ($ticketsClosedResolved as $ticketData) {
-            $ticketsResolvedForOthers += $ticketData['ResolvedCount'];
         }
 
         return compact(
             'gameAuthoredAchievementsCount',
             'openTickets',
-            'ticketsResolvedForOthers',
             'totalAuthoredCodeNotes',
             'totalAuthoredLeaderboards',
         );
@@ -212,13 +204,12 @@ class UserProfileMeta extends Component
 
         foreach ($achievements as $playerAchievement) {
             $achievementDate = $playerAchievement->{$dateColumn};
-            $daysAgo = $now->diffInDays($achievementDate, false);
+            $daysAgo = abs($now->diffInDays($achievementDate, false));
 
-            if ($daysAgo <= 30) {
-                $pointsLast30Days += $playerAchievement->achievement->points;
-            }
             if ($daysAgo <= 7) {
                 $pointsLast7Days += $playerAchievement->achievement->points;
+            } else {
+                $pointsLast30Days += $playerAchievement->achievement->points;
             }
         }
 

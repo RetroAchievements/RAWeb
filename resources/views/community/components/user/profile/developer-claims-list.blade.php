@@ -8,7 +8,7 @@
     <p class="text-2xs mb-1">
         <span class="font-bold">{{ $label }}</span>
 
-        @if ($numAllowedClaims !== null && count($claims) <= $numAllowedClaims)
+        @if ($numAllowedClaims !== null)
             ({{ count($claims) }} of {{ $numAllowedClaims }} allowed)
         @endif
     </p>

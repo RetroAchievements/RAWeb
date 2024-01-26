@@ -22,7 +22,7 @@ $hasMixedProgress = $hardcorePoints && $softcorePoints;
 @if ($mode === 'hardcore')
     <x-user.profile.stat-element label="Points">
         @if ($hardcorePoints === 0)
-            <span class="text-muted">0</span>
+            <span class="italic text-muted">0</span>
         @else
             <span class="font-bold">
                 {{ localized_number($hardcorePoints) }}
@@ -49,19 +49,19 @@ $hasMixedProgress = $hardcorePoints && $softcorePoints;
     </x-user.profile.stat-element>
 
     <x-user.profile.stat-element label="Achievements unlocked">
-        <span class="{{ $totalHardcoreAchievements > 0 ? 'font-bold' : 'text-muted' }}">
+        <span class="{{ $totalHardcoreAchievements > 0 ? 'font-bold' : 'italic text-muted' }}">
             {{ localized_number($totalHardcoreAchievements) }}
         </span>
     </x-user.profile.stat-element>
 
     <x-user.profile.stat-element label="RetroRatio">
-        <span class="{{ $retroRatio ? 'font-bold' : 'text-muted' }}">
+        <span class="{{ $retroRatio ? 'font-bold' : 'italic text-muted' }}">
             {{ $retroRatio ?? "none" }}
         </span>
     </x-user.profile.stat-element>
 @elseif ($mode === 'softcore')
     <x-user.profile.stat-element label="Points (softcore)">
-        <span class="{{ $softcorePoints > 0 ? 'font-bold' : 'text-muted' }}">
+        <span class="{{ $softcorePoints > 0 ? 'font-bold' : 'italic text-muted' }}">
             {{ localized_number($softcorePoints) }}
         </span>
     </x-user.profile.stat-element>
@@ -82,13 +82,13 @@ $hasMixedProgress = $hardcorePoints && $softcorePoints;
     </x-user.profile.stat-element>
 
     <x-user.profile.stat-element label="Achievements unlocked (softcore)">
-        <span class="{{ $totalSoftcoreAchievements > 0 ? 'font-bold' : 'text-muted' }}">
+        <span class="{{ $totalSoftcoreAchievements > 0 ? 'font-bold' : 'italic text-muted' }}">
             {{ localized_number($totalSoftcoreAchievements) }}
         </span>
     </x-user.profile.stat-element>
 
     <x-user.profile.stat-element label="Started games beaten">
-        <span class="{{ $hardcorePoints > 0 || $softcorePoints > 0 ? 'font-bold' : 'text-muted' }}">
+        <span class="{{ $hardcorePoints > 0 || $softcorePoints > 0 ? 'font-bold' : 'italic text-muted' }}">
             {{ $averageFinishedGames }}%
         </span>
     </x-user.profile.stat-element>
