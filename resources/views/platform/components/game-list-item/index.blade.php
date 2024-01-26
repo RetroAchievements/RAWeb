@@ -117,7 +117,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
         >
             <hr class="mt-2 border-embed-highlight">
 
-            <div class="py-4 @if ($variant === 'user-recently-played') flex flex-wrap px-0.5 sm:px-4 @endif">
+            <div class="py-4 @if ($variant === 'user-recently-played') place-content-center grid grid-cols-[repeat(auto-fill,minmax(52px,52px))] px-0.5 sm:px-4 @endif">
                 {{ $slot }}
             </div>
         </div>
