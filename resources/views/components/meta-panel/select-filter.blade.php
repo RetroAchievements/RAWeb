@@ -21,7 +21,7 @@ function handleSelectFilterChanged(event) {
 }
 </script>
 
-<label class="text-xs font-bold" for="sort-order-field">{{ $label }}</label>
+<label class="text-xs font-bold" for="{{ $kind }}-filter-select">{{ $label }}</label>
 <select
     id="{{ $kind }}-filter-select"
     class="w-full sm:max-w-[240px]"
