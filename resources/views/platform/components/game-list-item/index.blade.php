@@ -29,7 +29,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
             handleToggle() { this.isExpanded = !this.isExpanded; }
         }"
     @endif
-    class="relative flex flex-col w-full pl-2 py-2 pr-4 transition-all @if (!$isExpandable) rounded-sm @endif {{ $hasAward ? 'bg-zinc-950/60 light:bg-stone-200' : 'bg-embed' }}"
+    class="relative flex flex-col w-full px-2 py-2 transition-all @if (!$isExpandable) rounded-sm @endif {{ $hasAward ? 'bg-zinc-950/60 light:bg-stone-200' : 'bg-embed' }}"
     :class="{ 'rounded-lg': isExpanded, 'rounded-sm': !isExpanded }"
 >
     <div class="flex flex-col sm:flex-row w-full sm:justify-between sm:items-center gap-x-2">
