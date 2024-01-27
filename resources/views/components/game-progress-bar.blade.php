@@ -8,6 +8,9 @@
 
 <?php
     $hardcoreProgressBarWidth = $softcoreProgressBarWidth = '0';
+    settype($hardcoreProgress, 'integer');
+    settype($softcoreProgress, 'integer');
+    settype($maxProgress, 'integer');
 
     if ($maxProgress > 0) {
         if ($softcoreProgress >= $maxProgress) {

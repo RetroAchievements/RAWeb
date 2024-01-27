@@ -21,13 +21,13 @@
     </div>
 
     <x-game.game-list
+        :availableCheckboxFilters="$availableCheckboxFilters"
+        :availableSorts="$availableSorts"
+        :columns="$columns"
         :consoles="$consoles"
+        :filterOptions="$filterOptions"
         :games="$games"
         :sortOrder="$sortOrder"
-        :availableSorts="$availableSorts"
-        :filterOptions="$filterOptions"
-        :availableCheckboxFilters="$availableCheckboxFilters"
-        :columns="$columns"
     />
 
 </x-app-layout>

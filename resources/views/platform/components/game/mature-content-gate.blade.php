@@ -52,7 +52,7 @@ function matureContentNoticeComponent() {
     <p class="mb-4">Are you sure you want to view this page?</p>
 
     <div class="flex flex-col sm:flex-row gap-4 sm:gap-2">
-        <a href="{{ url('gameList.php?c=' . $consoleId) }}" class="btn leading-normal max-w-fit">No. Get me out of here.</a>
+        <a href="{{ route('system.game.index', ['system' => $consoleId]) }}" class="btn leading-normal max-w-fit">No. Get me out of here.</a>
         <a rel="nofollow" href="{{ route('game.show', [$gameId, 'v' => 1]) }}" class="btn leading-normal max-w-fit">Yes. I'm an adult.</a>
 
         @if ($userWebsitePrefs)

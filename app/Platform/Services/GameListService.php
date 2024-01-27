@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class GameListService
 {
+    public bool $withConsoleNames = true;
     public bool $withLeaderboardCounts = true;
     public bool $withTicketCounts = false;
 
@@ -102,10 +103,13 @@ class GameListService
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
             $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->Name;
-            $game['SortTitle'] = $game['Title'];
-            if (substr($game['Title'], 0, 1) == '~') {
-                $tilde = strrpos($game['Title'], '~');
-                $game['SortTitle'] = trim(substr($game['Title'], $tilde + 1) . ' ' . substr($game['Title'], 0, $tilde + 1));
+            $game['SortTitle'] = mb_strtolower($game['Title']);
+            if (substr($game['SortTitle'], 0, 1) == '~') {
+                $tilde = strrpos($game['SortTitle'], '~');
+                $game['SortTitle'] = trim(substr($game['SortTitle'], $tilde + 1) . ' ' . substr($game['SortTitle'], 0, $tilde + 1));
+
+                // Keep these games at the bottom of the list (under the "untagged" game titles).
+                $game['SortTitle'] = '~' . $game['SortTitle'];
             }
 
             $this->games[] = $game;
@@ -143,7 +147,7 @@ class GameListService
 
         switch ($statusValue) {
             case 'unstarted':
-                return !$foundProgress;
+                return (isset($foundProgress) && $foundProgress['achievements_unlocked'] === 0) || !$foundProgress;
 
             case 'lt-beaten-softcore':
                 return
@@ -173,7 +177,10 @@ class GameListService
                     && $foundProgress['completion_percentage'] !== $foundProgress['completion_percentage_hardcore'];
 
             case 'revised':
-                return ($hasAwardKind('completed') || $hasAwardKind('mastered')) && $foundProgress['completion_percentage_hardcore'] < 1;
+                return
+                    ($hasAwardKind('completed') && $foundProgress['completion_percentage'] < 1)
+                    || ($hasAwardKind('mastered') && $foundProgress['completion_percentage_hardcore'] < 1)
+                ;
 
             default:
                 return true;
@@ -375,26 +382,25 @@ class GameListService
         return [
             'header' => 'Title',
             'render' => function ($game) use ($filterOptions) {
-                if (!$filterOptions['console']) {
-                    echo '<td class="py-2">';
-                    echo Blade::render('
-                        <x-game.multiline-avatar
-                            :gameId="$ID"
-                            :gameTitle="$Title"
-                            :gameImageIcon="$ImageIcon"
-                            :consoleName="$ConsoleName"
-                        />', $game);
-                    echo '</td>';
+                $consoleName = null;
+                if ($this->withConsoleNames && empty($filterOptions['console'])) {
+                    $consoleName = $game['ConsoleName'] ?? null;
+                }
+
+                if ($consoleName) {
+                    echo "<td class='py-2'>";
                 } else {
                     echo '<td>';
-                    echo Blade::render('
-                        <x-game.multiline-avatar
-                            :gameId="$ID"
-                            :gameTitle="$Title"
-                            :gameImageIcon="$ImageIcon"
-                        />', $game);
-                    echo '</td>';
                 }
+                echo Blade::render('
+                    <x-game.multiline-avatar
+                        :gameId="$ID"
+                        :gameTitle="$Title"
+                        :gameImageIcon="$ImageIcon"
+                        :consoleName="$consoleName"
+                    />', array_merge($game, ['consoleName' => $consoleName])
+                );
+                echo '</td>';
             },
         ];
     }
@@ -425,7 +431,7 @@ class GameListService
     {
         return [
             'header' => 'Achievements',
-            'width' => 12,
+            'width' => 10,
             'tooltip' => 'The number of achievements in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -438,7 +444,7 @@ class GameListService
     {
         return [
             'header' => 'Points',
-            'width' => 10,
+            'width' => 6,
             'tooltip' => 'The number of points associated to achievements in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -451,7 +457,7 @@ class GameListService
     {
         return [
             'header' => 'RetroRatio',
-            'width' => 10,
+            'width' => 8,
             'tooltip' => 'An estimate of rarity for achievements in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -464,7 +470,7 @@ class GameListService
     {
         return [
             'header' => 'Leaderboards',
-            'width' => 10,
+            'width' => 8,
             'tooltip' => 'The number of leaderboards in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -477,7 +483,7 @@ class GameListService
     {
         return [
             'header' => 'Players',
-            'width' => 8,
+            'width' => 6,
             'tooltip' => 'The number of users who have played the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -490,7 +496,7 @@ class GameListService
     {
         return [
             'header' => 'Tickets',
-            'width' => 8,
+            'width' => 6,
             'tooltip' => 'The number of open tickets for achievements in the set',
             'align' => 'right',
             'render' => function ($game) {
@@ -568,7 +574,7 @@ class GameListService
         ];
     }
 
-    public function getColumns(array $filterOptions): array
+    public function getColumns(array $filterOptions = []): array
     {
         $columns = [];
 
