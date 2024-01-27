@@ -60,7 +60,7 @@ $tools = $settings['tools'] ?? null;
                     @endcan
                     <x-dropdown-item :link="route('integration.release.index')" :active="request()->routeIs('integration.release*')">Integration</x-dropdown-item>
                 @endcan--}}
-                @if($user->Permissions >= Permissions::Moderator)
+                @can('tool')
                     <div class="dropdown-header">Admin</div>
                     <x-dropdown-item :link="url('admin.php')">Admin Tools</x-dropdown-item>
                 @endif
