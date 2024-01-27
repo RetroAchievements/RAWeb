@@ -9,7 +9,20 @@
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Carbon;
 
-$hasVisibleRole = $userMassData['Permissions'] !== Permissions::Registered && $userMassData['Permissions'] !== Permissions::Unregistered;
+$me = Auth::user() ?? null;
+$amIModerator = false;
+if ($me) {
+    $amIModerator = $me->getAttribute('Permissions') >= Permissions::Moderator;
+}
+
+$hasVisibleRole = (
+    (
+        $userMassData['Permissions'] !== Permissions::Registered
+        && $userMassData['Permissions'] !== Permissions::Unregistered
+    )
+    || ($amIModerator && $userMassData['Permissions'] !== Permissions::Registered) 
+);
+
 $roleLabel = $hasVisibleRole ? Permissions::toString($userMassData['Permissions']) : '';
 $shouldMoveRoleToNextLine =
     $hasVisibleRole
