@@ -24,7 +24,7 @@ $mostRecentRichPresenceMessage = (
     ?? null
 );
 
-$parsedDate = Carbon::parse($mostRecentSession->rich_presence_updated_at);
+$parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
 ?>
 
 @if ($sessionGame)
