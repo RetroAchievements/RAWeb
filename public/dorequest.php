@@ -13,6 +13,7 @@ use App\Site\Models\User;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @usage
@@ -229,17 +230,26 @@ switch ($requestType) {
 
     case "gameslist":
         $consoleID = (int) request()->input('c', 0);
-        $response['Response'] = getGamesListDataNamesOnly($consoleID);
+        $cacheKey = 'connect:gameslist:' . $consoleID;
+        $response['Response'] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($consoleID) {
+            return getGamesListDataNamesOnly($consoleID);
+        });
         break;
 
     case "officialgameslist":
         $consoleID = (int) request()->input('c', 0);
-        $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
+        $cacheKey = 'connect:officialgameslist:' . $consoleID;
+        $response['Response'] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($consoleID) {
+            return getGamesListDataNamesOnly($consoleID, true);
+        });
         break;
 
     case "hashlibrary":
         $consoleID = (int) request()->input('c', 0);
-        $response['MD5List'] = getMD5List($consoleID);
+        $cacheKey = 'connect:hashlibrary:' . $consoleID;
+        $response['MD5List'] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($consoleID) {
+            return getMD5List($consoleID);
+        });
         break;
 
     case "latestclient":

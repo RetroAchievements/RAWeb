@@ -13,6 +13,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class GameHashController extends Controller
 {
@@ -100,6 +101,12 @@ class GameHashController extends Controller
 
         if (!$wasDeleted) {
             return response()->json(['message' => 'Failed to delete the game hash.'], 500);
+        } else {
+            $foundGame = Game::find($gameHash->GameID);
+            if ($foundGame) {
+                Cache::forget('connect:hashlibrary:' . $foundGame->ConsoleID);
+                Cache::forget('connect:hashlibrary:0');
+            }
         }
 
         // Log the hash deletion.

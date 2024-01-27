@@ -7,6 +7,7 @@ use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array
@@ -862,6 +863,11 @@ function submitNewGameTitleJSON(
                  */
                 $retVal['Error'] = "Failed to create game title '$titleIn'";
                 $retVal['Success'] = false;
+            } else {
+                Cache::forget('connect:gameslist:0');
+                Cache::forget('connect:gameslist:' . $consoleID);
+                Cache::forget('connect:officialgameslist:0');
+                Cache::forget('connect:officialgameslist:' . $consoleID);
             }
         }
 
@@ -888,6 +894,9 @@ function submitNewGameTitleJSON(
                 /*
                  * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
                  */
+
+                Cache::forget('connect:hashlibrary:' . $consoleID);
+                Cache::forget('connect:hashlibrary:0');
 
                 // Log hash linked
                 if (!empty($unsanitizedDescription)) {
