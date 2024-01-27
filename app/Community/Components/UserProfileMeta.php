@@ -209,6 +209,8 @@ class UserProfileMeta extends Component
             if ($daysAgo <= 7) {
                 $pointsLast7Days += $playerAchievement->achievement->points;
             }
+
+            $pointsLast30Days += $playerAchievement->achievement->points;
         }
 
         return compact('pointsLast30Days', 'pointsLast7Days');
