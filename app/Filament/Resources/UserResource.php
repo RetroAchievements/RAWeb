@@ -274,6 +274,7 @@ class UserResource extends Resource
                     ),
                 Filters\TrashedFilter::make(),
             ])
+            ->deferFilters()
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ActionGroup::make([

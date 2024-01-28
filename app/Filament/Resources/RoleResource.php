@@ -67,6 +67,7 @@ class RoleResource extends Resource
             ])
             ->paginated(false)
             ->filters([])
+            ->deferFilters()
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
