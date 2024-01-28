@@ -26,11 +26,6 @@ class RouteServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // TODO setup rate limiting
-        // RateLimiter::for('web', function (Request $request) {
-        //     return Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip());
-        // });
-
         /*
          * sanitize route model binding patterns
          */
