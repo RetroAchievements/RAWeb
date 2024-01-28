@@ -3,6 +3,7 @@
 namespace App\Platform\Listeners;
 
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementTypeChanged;
@@ -19,6 +20,7 @@ class DispatchUpdateGameMetricsJob implements ShouldQueue
     {
         $achievement = null;
         $game = null;
+        $originalGame = null;
 
         switch ($event::class) {
             case AchievementPublished::class:
@@ -41,6 +43,11 @@ class DispatchUpdateGameMetricsJob implements ShouldQueue
                 $achievement = $event->achievement;
                 $game = $achievement->game;
                 break;
+            case AchievementMoved::class:
+                $achievement = $event->achievement;
+                $game = $achievement->game;
+                $originalGame = $event->originalGame;
+                break;
             case GamePlayerGameMetricsUpdated::class:
                 $game = $event->game;
                 break;
@@ -49,11 +56,14 @@ class DispatchUpdateGameMetricsJob implements ShouldQueue
                 break;
         }
 
-        if (!$game instanceof Game) {
-            return;
+        if ($game instanceof Game) {
+            dispatch(new UpdateGameMetricsJob($game->id))
+                ->onQueue('game-metrics');
         }
 
-        dispatch(new UpdateGameMetricsJob($game->id))
-            ->onQueue('game-metrics');
+        if ($originalGame instanceof Game) {
+            dispatch(new UpdateGameMetricsJob($originalGame->id))
+                ->onQueue('game-metrics');
+        }
     }
 }

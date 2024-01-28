@@ -11,11 +11,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ContentController extends Controller
 {
-    // public function home(): View
-    // {
-    //     return view('home');
-    // }
-
     // public function docs(): View
     // {
     //     return view('docs');

@@ -3,9 +3,14 @@
     "system.alert": false,
     "tools": [
         {
+            "label": "Manage",
+            "route": "filament.admin.pages.dashboard",
+            "abilities": "accessManagementTools"
+        },
+        {
             "label": "Logs",
             "route": "log-viewer.index",
-            "abilities": "viewLogs"
+            "abilities": "viewLogViewer"
         },
         {
             "label": "Horizon Queues",

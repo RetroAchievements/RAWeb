@@ -16,6 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\CausesActivity;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -23,9 +26,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class System extends BaseModel implements HasMedia
 {
+    use CausesActivity;
     use HasFactory;
     use InteractsWithMedia;
-
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
     use Searchable;
     use SoftDeletes;
     use DiscussedInForum;
@@ -54,7 +60,7 @@ class System extends BaseModel implements HasMedia
     }
 
     protected $fillable = [
-        'name',
+        'Name',
         'name_full',
         'name_short',
         'manufacturer',
@@ -65,6 +71,10 @@ class System extends BaseModel implements HasMedia
     protected $visible = [
         'ID',
         'Name',
+        'name_full',
+        'name_short',
+        'manufacturer',
+        'active',
     ];
 
     // == constants
@@ -93,6 +103,22 @@ class System extends BaseModel implements HasMedia
     public static function isHomebrewSystem(int $type): bool
     {
         return in_array($type, self::getHomebrewSystems());
+    }
+
+    // audit activity log
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'Name',
+                'name_full',
+                'name_short',
+                'manufacturer',
+                'active',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == media
@@ -165,6 +191,16 @@ class System extends BaseModel implements HasMedia
     public function getGamesLinkAttribute(): string
     {
         return route('system.game.index', [$this->id, $this->getSlugAttribute()]);
+    }
+
+    public function getIconUrlAttribute(): string
+    {
+        return asset('assets/images/system/' . Str::kebab(str_replace('/', '', Str::lower($this->name_short))) . '.png');
+    }
+
+    public function getIdTitleAttribute(): string
+    {
+        return '[' . $this->ID . '] ' . $this->name_full;
     }
 
     // == mutators

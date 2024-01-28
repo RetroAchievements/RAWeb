@@ -12,6 +12,7 @@
 /public/docs
 /public/media
 /public/storage
+/public/vendor/filament
 /public/tmp
 # TODO replace LatestIntegration.html with integration release management and V2 connect API
 /public/Latest*

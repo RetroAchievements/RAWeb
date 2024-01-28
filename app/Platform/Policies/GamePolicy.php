@@ -13,12 +13,12 @@ class GamePolicy
 {
     use HandlesAuthorization;
 
-    public function manage(User $user, Game $game): bool
+    public function manage(User $user): bool
     {
         return $user->hasAnyRole([
             Role::HUB_MANAGER,
-            Role::DEVELOPER_LEVEL_1,
-            Role::DEVELOPER_LEVEL_2,
+            // Role::DEVELOPER_STAFF,
+            // Role::DEVELOPER,
         ]);
     }
 
@@ -40,18 +40,17 @@ class GamePolicy
     {
         return $user->hasAnyRole([
             Role::HUB_MANAGER,
-            Role::DEVELOPER_LEVEL_1,
-            Role::DEVELOPER_LEVEL_2,
+            // Role::DEVELOPER_STAFF,
+            // Role::DEVELOPER,
         ]);
     }
 
     public function update(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
             Role::HUB_MANAGER,
-            Role::DEVELOPER_LEVEL_1,
-            Role::DEVELOPER_LEVEL_2,
+            // Role::DEVELOPER_STAFF,
+            // Role::DEVELOPER,
         ]);
     }
 
