@@ -16,13 +16,13 @@ use Illuminate\View\Component;
 class UserProfileMeta extends Component
 {
     public function __construct(
-        private string $averageCompletionPercentage = '0.00',
         private User $user,
+        private string $averageCompletionPercentage = '0.00',
         private array $userJoinedGamesAndAwards = [],
         private array $userMassData = [],
-        private ?array $userClaims = null,
         private int $totalHardcoreAchievements = 0,
         private int $totalSoftcoreAchievements = 0,
+        private ?array $userClaims = null,
     ) {
     }
 
