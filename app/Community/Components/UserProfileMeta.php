@@ -15,30 +15,15 @@ use Illuminate\View\Component;
 
 class UserProfileMeta extends Component
 {
-    private string $averageCompletionPercentage = '0.00';
-    private int $totalHardcoreAchievements = 0;
-    private int $totalSoftcoreAchievements = 0;
-    private User $user;
-    private array $userJoinedGamesAndAwards = [];
-    private array $userMassData = [];
-    private ?array $userClaims = null;
-
     public function __construct(
-        string $averageCompletionPercentage,
-        User $user,
-        array $userJoinedGamesAndAwards,
-        array $userMassData,
-        ?array $userClaims,
-        int $totalHardcoreAchievements,
-        int $totalSoftcoreAchievements,
+        private string $averageCompletionPercentage = '0.00',
+        private User $user,
+        private array $userJoinedGamesAndAwards = [],
+        private array $userMassData = [],
+        private ?array $userClaims = null,
+        private int $totalHardcoreAchievements = 0,
+        private int $totalSoftcoreAchievements = 0,
     ) {
-        $this->averageCompletionPercentage = $averageCompletionPercentage;
-        $this->user = $user;
-        $this->userJoinedGamesAndAwards = $userJoinedGamesAndAwards;
-        $this->userMassData = $userMassData;
-        $this->userClaims = $userClaims;
-        $this->totalHardcoreAchievements = $totalHardcoreAchievements;
-        $this->totalSoftcoreAchievements = $totalSoftcoreAchievements;
     }
 
     public function render(): View
