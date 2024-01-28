@@ -64,6 +64,6 @@ class ForumTopicComment extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'AuthorID', 'ID');
+        return $this->belongsTo(User::class, 'AuthorID');
     }
 }
