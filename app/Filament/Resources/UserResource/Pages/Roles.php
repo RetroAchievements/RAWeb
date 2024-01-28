@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Roles extends ManageRelatedRecords
@@ -37,7 +38,7 @@ class Roles extends ManageRelatedRecords
                     ->label(__('Add'))
                     ->color('primary')
                     ->authorize(fn () => auth()->user()->can('updateRoles', $this->getRecord()))
-                    ->recordTitleAttribute('name')
+                    ->recordTitle(fn (Model $record) => __('permission.role.' . $record->name))
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(fn (Builder $query) => $query->whereIn('name', auth()->user()->assignableRoles)),
             ])
