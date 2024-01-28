@@ -3,7 +3,7 @@
         <div class="flex items-center gap-x-3">
             <div class="flex-1">
                 <a href="{{ route('home') }}" class="flex gap-2">
-                    <img src="{{ asset('favicon.png') }}" class="h-6 inline" alt="{{ config('app.name') }}">
+                    <img src="{{ asset('assets/images/favicon.webp') }}" class="h-6 inline" alt="{{ config('app.name') }}">
                     <span>RAWeb</span>
                 </a>
 
