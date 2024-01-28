@@ -9,11 +9,17 @@ use App\Platform\Models\Achievement;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Carbon;
 
 class AchievementCommentPolicy
 {
     use HandlesAuthorization;
+
+    public function manage(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::MODERATOR,
+        ]);
+    }
 
     public function viewAny(?User $user, Achievement $commentable): bool
     {
@@ -41,7 +47,7 @@ class AchievementCommentPolicy
 
     public function create(User $user, ?Achievement $commentable): bool
     {
-        if ($user->muted_until && $user->muted_until < Carbon::now()) {
+        if ($user->isMuted()) {
             return false;
         }
 

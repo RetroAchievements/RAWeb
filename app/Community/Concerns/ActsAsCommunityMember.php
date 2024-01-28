@@ -12,11 +12,10 @@ use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;
 use App\Community\Models\UserRelation;
 use App\Site\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Builder;
 
 trait ActsAsCommunityMember
 {
@@ -39,17 +38,6 @@ trait ActsAsCommunityMember
     {
         return $this->hasMany(UserGameListEntry::class, 'user_id', 'ID')
             ->where('SetRequest.type', $type);
-    }
-
-    /**
-     * @return BelongsTo<UserActivity, User>
-     */
-    public function lastActivity(): BelongsTo
-    {
-        /*
-         * dynamic relationship
-         */
-        return $this->belongsTo(UserActivity::class, 'last_activity_id');
     }
 
     /**
@@ -76,6 +64,31 @@ trait ActsAsCommunityMember
     public function isBlocking(string $username): bool
     {
         return UserRelation::getRelationship($this->User, $username) === UserRelationship::Blocked;
+    }
+
+    public function isForumVerified(): bool
+    {
+        return !empty($this->forum_verified_at);
+    }
+
+    public function isBanned(): bool
+    {
+        return !empty($this->banned_at);
+    }
+
+    public function isNotBanned(): bool
+    {
+        return !$this->isBanned();
+    }
+
+    public function isMuted(): bool
+    {
+        return !empty($this->muted_until) && $this->muted_until->isFuture();
+    }
+
+    public function isNotMuted(): bool
+    {
+        return !$this->isMuted();
     }
 
     /**

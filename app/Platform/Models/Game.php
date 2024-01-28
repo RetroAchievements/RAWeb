@@ -211,6 +211,11 @@ class Game extends BaseModel implements HasComments, HasMedia
         });
     }
 
+    public function getIdTitleAttribute(): string
+    {
+        return '[' . $this->id . '] ' . $this->title;
+    }
+
     // TODO remove after rename
     public function getIdAttribute(): int
     {

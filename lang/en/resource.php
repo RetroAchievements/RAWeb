@@ -169,6 +169,9 @@ return [
     'reply' => [
         'title' => __('reply') . '|' . __('replies'),
     ],
+    'role' => [
+        'title' => __('role') . '|' . __('roles'),
+    ],
     'game-hash' => [
         'title' => __('hash') . '|' . __('hashes'),
     ],

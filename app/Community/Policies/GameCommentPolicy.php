@@ -9,11 +9,17 @@ use App\Platform\Models\Game;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Carbon;
 
 class GameCommentPolicy
 {
     use HandlesAuthorization;
+
+    public function manage(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::MODERATOR,
+        ]);
+    }
 
     public function viewAny(?User $user, Game $commentable): bool
     {
@@ -26,7 +32,6 @@ class GameCommentPolicy
 
         if ($user->hasAnyRole([
             Role::MODERATOR,
-            // Role::ADMINISTRATOR,
         ])) {
             return true;
         }
@@ -41,7 +46,7 @@ class GameCommentPolicy
 
     public function create(User $user, ?Game $commentable): bool
     {
-        if ($user->muted_until && $user->muted_until < Carbon::now()) {
+        if ($user->isMuted()) {
             return false;
         }
 
@@ -64,7 +69,6 @@ class GameCommentPolicy
     {
         if ($user->hasAnyRole([
             Role::MODERATOR,
-            // Role::ADMINISTRATOR,
         ])) {
             return true;
         }

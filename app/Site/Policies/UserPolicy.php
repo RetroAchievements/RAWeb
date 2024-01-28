@@ -7,10 +7,16 @@ namespace App\Site\Policies;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserPolicy
 {
     use HandlesAuthorization;
+
+    public function manage(User $user): bool
+    {
+        return $this->requireAdministrativePrivileges($user);
+    }
 
     public function viewAny(?User $user): bool
     {
@@ -40,6 +46,10 @@ class UserPolicy
 
     public function update(User $user, User $model): bool
     {
+        if ($user->is($model)) {
+            return true;
+        }
+
         /*
          * Note: this is not related to implicit authorization for user settings but for moderation purposes
          */
@@ -60,6 +70,56 @@ class UserPolicy
     {
         // nobody, yet
         return false;
+    }
+
+    public function updateRoles(User $user, User $model): bool
+    {
+        // admins may update roles of non-root admins
+        if (
+            $user->hasRole(Role::ADMINISTRATOR)
+            && !$model->hasAnyRole(Role::ROOT)
+        ) {
+            return true;
+        }
+
+        // users may attach any role to themselves
+        if ($model->is($user)) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
+    public function attachRole(User $user, User $model, SpatieRole $role): bool
+    {
+        if (!$this->requireAdministrativePrivileges($user, $model)) {
+            return false;
+        }
+
+        return $this->assignableRoles->contains($role->name);
+    }
+
+    public function detachRole(User $user, User $model, SpatieRole $role): bool
+    {
+        // users may detach any role from themselves
+        if ($model->is($user)) {
+            return true;
+        }
+
+        // admins may update roles of non-root admins
+        if (
+            $user->hasRole(Role::ADMINISTRATOR)
+            && !$model->hasAnyRole(Role::ROOT)
+        ) {
+            return $user->assignableRoles->contains($role->name);
+        }
+
+        if (!$this->requireAdministrativePrivileges($user, $model)) {
+            return false;
+        }
+
+        // make sure only roles are detachable that the request user is allowed to
+        return $user->assignableRoles->contains($role->name);
     }
 
     public function ban(User $user, User $mode): bool
@@ -120,9 +180,7 @@ class UserPolicy
 
     public function deleteAvatar(User $user, User $model): bool
     {
-        /*
-         * users may delete their own avatar
-         */
+        // users may delete their own avatar
         if ($user->is($model)) {
             return true;
         }
@@ -132,9 +190,7 @@ class UserPolicy
 
     public function deleteMotto(User $user, User $model): bool
     {
-        /*
-         * users may delete their own avatar
-         */
+        // users may delete their own avatar
         if ($user->is($model)) {
             return true;
         }
@@ -142,38 +198,56 @@ class UserPolicy
         return $this->requireAdministrativePrivileges($user, $model);
     }
 
-    private function requireAdministrativePrivileges(User $user, User $model): bool
+    private function requireAdministrativePrivileges(User $user, ?User $model = null): bool
     {
+        if (!$model) {
+            return $user->hasAnyRole([
+                Role::ROOT,
+                Role::ADMINISTRATOR,
+                Role::MODERATOR,
+            ]);
+        }
+
         /*
-         * users may not delete themselves
+         * users may not manage themselves
          */
         if ($user->is($model)) {
             return false;
         }
 
         /*
-         * admins may not delete other admins
+         * root may not manage other root
          */
-        // if ($user->hasRole(Role::ADMINISTRATOR)) {
-        //     if ($model->hasRole(Role::ADMINISTRATOR)) {
-        //         return false;
-        //     }
-        // }
+        if ($user->hasRole(Role::ROOT)) {
+            if ($model->hasAnyRole(Role::ROOT)) {
+                return false;
+            }
+
+            return true;
+        }
 
         /*
-         * moderators may not delete admins or other moderators
+         * admins may not manage other admins
          */
-        // if ($user->hasRole(Role::MODERATOR)) {
-        //     if ($model->hasAnyRole([Role::ADMINISTRATOR, Role::MODERATOR])) {
-        //         return false;
-        //     }
-        // }
+        if ($user->hasRole(Role::ADMINISTRATOR)) {
+            if ($model->hasAnyRole(Role::ROOT, Role::ADMINISTRATOR)) {
+                return false;
+            }
+        }
 
-        // return $user->hasAnyRole([
-        //     Role::ADMINISTRATOR,
-        //     Role::MODERATOR,
-        // ]);
+        /*
+         * moderators may not delete root, admins, or other moderators
+         */
+        if ($user->hasRole(Role::MODERATOR)) {
+            if ($model->hasAnyRole([Role::ROOT, Role::ADMINISTRATOR, Role::MODERATOR])) {
+                return false;
+            }
+        }
 
-        return false;
+        return $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+        ]);
     }
 }

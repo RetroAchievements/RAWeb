@@ -261,6 +261,11 @@ return [
         App\Site\FortifyServiceProvider::class,
         App\Site\HorizonServiceProvider::class,
         App\Site\RouteServiceProvider::class,
+
+        /*
+         * Admin
+         */
+        App\Filament\FilamentServiceProvider::class,
     ])->toArray(),
 
     /*

@@ -36,7 +36,7 @@ class ForumTopicPolicy
 
     public function create(User $user, Forum $forum): bool
     {
-        return !empty($user->email_verified_at);
+        return $user->hasVerifiedEmail();
     }
 
     public function update(User $user, ForumTopic $topic): bool
@@ -47,7 +47,6 @@ class ForumTopicPolicy
     public function delete(User $user, ForumTopic $topic): bool
     {
         if ($user->hasAnyRole([
-            // Role::ADMINISTRATOR,
             Role::MODERATOR,
         ])) {
             return true;

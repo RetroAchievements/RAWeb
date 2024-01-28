@@ -4,11 +4,6 @@ use App\Community\Enums\ArticleType;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Events\AchievementCreated;
-use App\Platform\Events\AchievementPointsChanged;
-use App\Platform\Events\AchievementPublished;
-use App\Platform\Events\AchievementTypeChanged;
-use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Models\Achievement;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -259,9 +254,6 @@ function UploadNewAchievement(
             $author
         );
 
-        // uploaded new achievement
-        AchievementCreated::dispatch($achievement);
-
         return true;
     }
 
@@ -344,7 +336,6 @@ function UploadNewAchievement(
                         "$author promoted this achievement to the Core set.",
                         $author
                     );
-                    AchievementPublished::dispatch($achievement);
                 } elseif ($flag === AchievementFlag::Unofficial) {
                     addArticleComment(
                         "Server",
@@ -353,7 +344,6 @@ function UploadNewAchievement(
                         "$author demoted this achievement to Unofficial.",
                         $author
                     );
-                    AchievementUnpublished::dispatch($achievement);
                 }
                 expireGameTopAchievers($gameID);
             } else {
@@ -368,13 +358,6 @@ function UploadNewAchievement(
                         $author
                     );
                 }
-            }
-
-            if ($changingPoints) {
-                AchievementPointsChanged::dispatch($achievement);
-            }
-            if ($changingType) {
-                AchievementTypeChanged::dispatch($achievement);
             }
         }
 
@@ -416,18 +399,10 @@ function updateAchievementFlag(int|string|array $achID, int $newFlag): void
         return;
     }
 
-    $achievements->update(['Flags' => $newFlag]);
-
     $updatedAchievements = Achievement::whereIn('ID', $achievementIDs)->get();
-
     foreach ($updatedAchievements as $achievement) {
-        if ($newFlag === AchievementFlag::OfficialCore) {
-            AchievementPublished::dispatch($achievement);
-        }
-
-        if ($newFlag === AchievementFlag::Unofficial) {
-            AchievementUnpublished::dispatch($achievement);
-        }
+        $achievement->Flags = $newFlag;
+        $achievement->save();
     }
 }
 

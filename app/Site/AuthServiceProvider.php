@@ -7,25 +7,11 @@ namespace App\Site;
 use App\Site\Enums\Permissions;
 use App\Site\Models\Role;
 use App\Site\Models\User;
-use App\Site\Policies\UserPolicy;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
-     */
-    protected $policies = [
-        /*
-         * Account Policies
-         */
-        User::class => UserPolicy::class,
-    ];
-
     public function boot(): void
     {
         /*
@@ -36,27 +22,6 @@ class AuthServiceProvider extends ServiceProvider
         // Passport::cookie(config('session.cookie') . '_token');
 
         /*
-         * don't drink and root
-         */
-        Gate::before(
-            function (Authenticatable $user, $ability) {
-                if ($user->hasRole(Role::ROOT)) {
-                    return true;
-                }
-
-                // TODO remove as soon as permission matrix is in place
-                if ($user->Permissions >= Permissions::Moderator) {
-                    return true;
-                }
-
-                /*
-                 * If the callback returns a non-null result that result will be considered the result of a positive check.
-                 */
-                // don't: return null;
-            }
-        );
-
-        /*
          * a general manage role
          * not used to actually determine any permissions other than to tell the ui to give access to management tools
          * specific management permissions are specified in specialized permissions (manageForums, manageNews, ...)
@@ -64,32 +29,34 @@ class AuthServiceProvider extends ServiceProvider
          * which actions are allowed specifically has to be defined in the respective policies
          * Note: this ability should not be called 'manage' or policies might default to true if manage() method does not exist there
          */
-        // Gate::define('accessManagementTools', fn (User $user) => $user->hasAnyRole([
-        //     Role::ADMINISTRATOR,
-        //     Role::MODERATOR,
-        //     // Role::COMMUNITY_MANAGER, // rather a mix of moderator and specialized management role?
-        //     Role::EVENT_MANAGER,
-        //     Role::FORUM_MANAGER,
-        //     Role::HUB_MANAGER,
-        //     Role::NEWS_MANAGER,
-        //     Role::RELEASE_MANAGER,
-        //     Role::TICKET_MANAGER,
-        //     Role::DEVELOPER,
-        //     Role::ARTIST,
-        //     Role::WRITER,
-        // ]));
-        // TODO remove as soon as permission matrix is in place
-        Gate::define('accessManagementTools', fn (User $user) => $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
+        Gate::define('accessManagementTools', fn (User $user) => $user->hasAnyRole([
+            Role::ROOT,
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            // Role::COMMUNITY_MANAGER, // rather a mix of moderator and specialized management role?
+            Role::EVENT_MANAGER,
+            Role::FORUM_MANAGER,
+            Role::HUB_MANAGER,
+            Role::NEWS_MANAGER,
+            Role::RELEASE_MANAGER,
+            Role::TICKET_MANAGER,
+            Role::DEVELOPER,
+            Role::ARTIST,
+            Role::WRITER,
+        ])
+            // TODO remove as soon as permission matrix is in place
+            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
 
         /*
          * can "create". meant for creator tools opt-in
          */
-        // Gate::define('develop', fn (User $user) => $user->hasAnyRole([
-        //     Role::DEVELOPER,
-        //     Role::ARTIST,
-        //     Role::WRITER,
-        // ]));
-        Gate::define('develop', fn (User $user) => $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
+        Gate::define('develop', fn (User $user) => $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::ARTIST,
+            Role::WRITER,
+        ])
+            // TODO remove as soon as permission matrix is in place
+            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);
 
         /*
          * settings
@@ -109,12 +76,16 @@ class AuthServiceProvider extends ServiceProvider
             return $able;
         });
 
-        Gate::define('viewBeta', function (User $user) {
-            if ($user->hasAnyRole([Role::BETA])) {
-                return true;
-            }
+        Gate::define('viewBeta', fn (User $user) => $user->hasAnyRole([Role::BETA]));
 
-            return $user->can('root');
+        Gate::define('root', fn (User $user) => $user->hasAnyRole([Role::ROOT]));
+
+        Gate::define('tool', function (User $user) {
+            return app()->environment('local')
+                || $user->hasAnyRole([Role::ROOT, Role::ADMINISTRATOR]);
         });
+
+        Gate::define('viewLogViewer', fn (User $user) => $user->can('tool'));
+
     }
 }

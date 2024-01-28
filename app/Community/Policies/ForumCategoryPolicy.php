@@ -16,7 +16,7 @@ class ForumCategoryPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
+            Role::FORUM_MANAGER,
         ]);
     }
 
@@ -28,14 +28,13 @@ class ForumCategoryPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
+            Role::FORUM_MANAGER,
         ]);
     }
 
     public function update(User $user, ForumCategory $forumCategory): bool
     {
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
             Role::FORUM_MANAGER,
         ]);
     }
