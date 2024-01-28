@@ -1,10 +1,10 @@
 <?php
 
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Models\ForumTopicComment;
 use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Blade;
-use App\Community\Models\ForumTopicComment;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 $userID = $userDetails['ID'] ?? 0;
