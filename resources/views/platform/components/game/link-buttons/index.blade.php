@@ -85,12 +85,21 @@ if ($canSeeOpenTickets) {
     @endif
 
     @if ($canSeeOpenTickets)
+        @if ($isViewingOfficial)
         <x-game.link-buttons.game-link-button
             icon="🎫"
             href="{{ '/ticketmanager.php?g=' . $gameId }}"
         >
-            Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
+            Open Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
+        @else
+        <x-game.link-buttons.game-link-button
+            icon="🎫"
+            href="{!! '/ticketmanager.php?g=' . $gameId . '&f=5' !!}"
+        >
+            Open Unofficial Tickets ({{ $numOpenTickets }})
+        </x-game.link-buttons.game-link-button>
+        @endif
     @endif
 
     @if ($canSeeSetRequestors)
