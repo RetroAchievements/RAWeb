@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Filament\Pages\Page;
+
+class {{ class }} extends Page
+{
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
+    protected static string $view = '{{ view }}';
+}

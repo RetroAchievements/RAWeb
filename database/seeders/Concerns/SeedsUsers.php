@@ -25,17 +25,22 @@ trait SeedsUsers
             $safeRoleName = str_replace('-', '', $role['name']);
         }
 
-        $user = User::create(array_merge([
-            'EmailAddress' => config('mail.from.address'),
-            'email_verified_at' => Carbon::now(),
-            'APIKey' => $username . '-secret',
-            'Motto' => 'I am ' . $username,
-            'RAPoints' => 1000,
-            'Password' => Hash::make($safeUsername),
-            'TrueRAPoints' => 1010,
-            'User' => $safeUsername,
-            'display_name' => $safeUsername,
-        ], $attributes));
+        $user = User::updateOrCreate(
+            [
+                'User' => $safeUsername,
+            ],
+            array_merge([
+                'EmailAddress' => config('mail.from.address'),
+                'email_verified_at' => Carbon::now(),
+                'APIKey' => $username . '-secret',
+                'Motto' => 'I am ' . $username,
+                'RAPoints' => 1000,
+                'Password' => Hash::make($safeUsername),
+                'TrueRAPoints' => 1010,
+                'User' => $safeUsername,
+                'display_name' => $safeUsername,
+            ], $attributes)
+        );
 
         $user->rollConnectToken();
 
@@ -48,12 +53,6 @@ trait SeedsUsers
             return $user->loadMissing('roles');
         }
 
-        if (mb_strpos($safeRoleName, mb_substr(str_replace('-', '', Role::DEVELOPER_LEVEL_1), 0, -1)) === 0) {
-            /*
-             * cannot have a developer rank without being a developer
-             */
-            $user->assignRole('developer');
-        }
         $user->assignRole($role['name']);
 
         return $user;

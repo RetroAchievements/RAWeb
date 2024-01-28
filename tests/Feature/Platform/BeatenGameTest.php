@@ -254,7 +254,7 @@ class BeatenGameTest extends TestCase
         );
     }
 
-    public function testBeatenAwardRevocation(): void
+    public function testBeatenAwardRevocation1(): void
     {
         /** @var User $user */
         $user = User::factory()->create();
@@ -355,14 +355,11 @@ class BeatenGameTest extends TestCase
         $progressionAchievement->save();
         $progressionAchievement->refresh();
 
-        // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics
-        (new UpdatePlayerGameMetrics())->execute($user->playerGame($game));
-
         // The beaten game award should be revoked.
         $this->assertEquals(0, PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count());
     }
 
-    public function testRetroactiveAward(): void
+    public function testRetroactiveAward1(): void
     {
         Carbon::setTestNow(Carbon::now());
 
@@ -381,12 +378,11 @@ class BeatenGameTest extends TestCase
 
         foreach ($gameAchievements as $achievement) {
             $achievement->type = AchievementType::Progression;
-            $achievement->save();
+            $achievement->saveQuietly();
         }
 
         // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics
         (new UpdatePlayerGameMetrics())->execute($user->playerGame($game));
-
         $this->assertEquals(1, PlayerBadge::where('User', $user->User)->where('AwardType', AwardType::GameBeaten)->count());
         $this->assertNotNull(PlayerBadge::where('User', $user->User)
             ->where('AwardType', AwardType::GameBeaten)
@@ -448,7 +444,7 @@ class BeatenGameTest extends TestCase
         $gameAchievements->get(5)->type = AchievementType::WinCondition;
         $gameAchievements->get(6)->type = AchievementType::Progression;
         foreach ($gameAchievements as $achievement) {
-            $achievement->save();
+            $achievement->saveQuietly();
         }
 
         // TODO trigger achievement set update which will trigger UpdatePlayerGameMetrics

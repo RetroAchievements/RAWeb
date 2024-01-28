@@ -8,11 +8,17 @@ use App\Community\Models\UserComment;
 use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Carbon;
 
 class UserCommentPolicy
 {
     use HandlesAuthorization;
+
+    public function manage(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::MODERATOR,
+        ]);
+    }
 
     public function viewAny(?User $user, User $commentable): bool
     {
@@ -56,7 +62,7 @@ class UserCommentPolicy
         //     return false;
         // }
 
-        if ($user->muted_until && $user->muted_until < Carbon::now()) {
+        if ($user->isMuted()) {
             return false;
         }
 
@@ -90,7 +96,6 @@ class UserCommentPolicy
     {
         if ($user->hasAnyRole([
             Role::MODERATOR,
-            // Role::ADMINISTRATOR,
         ])) {
             return true;
         }

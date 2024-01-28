@@ -102,63 +102,9 @@ class RouteServiceProvider extends ServiceProvider
             ], function () {
                 Route::get('game/{game}/hashes/manage', [GameHashController::class, 'manage'])->name('game.hash.manage');
                 Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
-            //     /*
-            //      * Release Management Routes
-            //      */
-            //     Route::resource('emulators', EmulatorController::class)->only('index')->names(['index' => 'emulator.index']);
-            //     Route::resource('emulator', EmulatorController::class)->only(
-            //         'create',
-            //         'store',
-            //         'edit',
-            //         'update',
-            //         'destroy'
-            //     );
-            //     Route::resource('emulator.release', EmulatorReleaseController::class)->only('create', 'store');
-            //     Route::resource('emulator.releases', EmulatorReleaseController::class)->only('index')->names(['index' => 'emulator.release.index']);
-            //     Route::group(['prefix' => 'emulators'], function () {
-            //         Route::resource('emulator.release', EmulatorReleaseController::class)->only('edit', 'update', 'destroy')
-            //             ->names([
-            //                 'edit' => 'emulator.release.edit',
-            //                 'update' => 'emulator.release.update',
-            //                 'destroy' => 'emulator.release.destroy',
-            //             ])
-            //             ->shallow();
-            //         Route::get('release/{release}/restore', [EmulatorReleaseController::class, 'restore'])
-            //             ->name('emulator.release.restore');
-            //         // Route::delete('release/{release}/forceDelete', [EmulatorReleaseController::class, 'forceDestroy'])
-            //         //     ->name('emulator.release.force-destroy');
-            //     });
-            //     Route::group(['prefix' => 'integrations'], function () {
-            //         Route::resource('releases', IntegrationReleaseController::class)->only('index')->names(['index' => 'integration.release.index']);
-            //         Route::resource('release', IntegrationReleaseController::class)
-            //             ->shallow()
-            //             ->only(
-            //                 'create',
-            //                 'store',
-            //                 'edit',
-            //                 'update',
-            //                 'destroy'
-            //             )
-            //             ->names([
-            //                 'create' => 'integration.release.create',
-            //                 'store' => 'integration.release.store',
-            //                 'edit' => 'integration.release.edit',
-            //                 'update' => 'integration.release.update',
-            //                 'destroy' => 'integration.release.destroy',
-            //             ]);
-            //         Route::get('release/{release}/restore', [IntegrationReleaseController::class, 'restore'])
-            //             ->name('integration.release.restore');
-            //         // Route::delete('release/{release}/forceDelete', [IntegrationReleaseController::class, 'forceDestroy'])
-            //         //     ->name('integration.release.force-destroy');
-            //     });
 
-            //     Route::resource('achievement', AchievementController::class)->only('edit', 'update', 'destroy');
-            //     Route::resource('system', SystemController::class)->only('edit', 'update', 'destroy');
-            //     Route::resource('game', GameController::class)->only('edit', 'update', 'destroy');
-            //
-
-            //     Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])
-            //         ->name('user.game.compare');
+                // Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])
+                //     ->name('user.game.compare');
             });
         });
     }

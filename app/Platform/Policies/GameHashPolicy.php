@@ -16,10 +16,12 @@ class GameHashPolicy
 
     public function manage(User $user): bool
     {
-        return $user->getAttribute('Permissions') >= Permissions::Developer;
-        // return $user->hasAnyRole([
-        //     Role::HUB_MANAGER,
-        // ]);
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Developer;
     }
 
     public function viewAny(?User $user): bool
@@ -36,22 +38,16 @@ class GameHashPolicy
     {
         return $user->hasAnyRole([
             Role::HUB_MANAGER,
-            Role::DEVELOPER_LEVEL_1,
-            Role::DEVELOPER_LEVEL_2,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
         ]);
     }
 
     public function update(User $user): bool
     {
-        $hasCorrectRole = $user->hasAnyRole([
-            Role::DEVELOPER_LEVEL_1,
-            Role::DEVELOPER_LEVEL_2,
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
         ]);
-
-        // TODO: Remove when permissions matrix is in place.
-        $hasCorrectPermissions = $user->getAttribute('Permissions') >= Permissions::Developer;
-
-        return $hasCorrectRole || $hasCorrectPermissions;
     }
 
     public function delete(User $user, GameHash $gameHash): bool

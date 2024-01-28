@@ -11,6 +11,11 @@ class UserActivityPolicy
 {
     use HandlesAuthorization;
 
+    public function manage(User $user): bool
+    {
+        return false;
+    }
+
     public function viewAny(?User $user): bool
     {
         return true;
