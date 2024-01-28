@@ -297,6 +297,7 @@ class AchievementResource extends Resource
                     ),
                 Tables\Filters\TrashedFilter::make(),
             ])
+            ->deferFilters()
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ActionGroup::make([
