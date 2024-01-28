@@ -550,8 +550,7 @@ function getGamesList(?int $consoleID, ?array &$dataOut, bool $officialFlag = fa
 
 function getGamesListDataNamesOnly(int $consoleId, bool $officialFlag = false): array
 {
-    return Game::with('system')
-        ->join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
+    return Game::join('Console', 'GameData.ConsoleID', '=', 'Console.ID')
         ->when($consoleId !== 0, function ($query) use ($consoleId) {
             return $query->where('GameData.ConsoleID', '=', $consoleId);
         })
