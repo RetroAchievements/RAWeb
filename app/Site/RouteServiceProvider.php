@@ -26,11 +26,6 @@ class RouteServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // TODO setup rate limiting
-        // RateLimiter::for('web', function (Request $request) {
-        //     return Limit::perMinute(90)->by($request->user()?->ID ?: $request->ip());
-        // });
-
         /*
          * sanitize route model binding patterns
          */
@@ -126,26 +121,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::group([
                 'middleware' => ['auth'],
             ], function () {
-                // Route::group([
-                //     'prefix' => 'inbox',
-                // ], function () {
-                //     Route::get('/', [InboxController::class, 'index'])->name('inbox');
-                // });
-
                 // Route::get('notifications', [NotificationsController::class, 'index'])->name('notification.index');
-
-                /*
-                 * user moderation actions
-                 */
-                // Route::resource('user', UserController::class)->only('edit', 'update', 'destroy');
-                // Route::delete('user/{user}/avatar', [UserController::class, 'destroyAvatar'])->name('user.avatar.destroy');
-                // Route::delete('user/{user}/motto', [UserController::class, 'destroyMotto'])->name('user.motto.destroy');
-                // Route::post('user/{user}/status/mute', [UserController::class, 'mute'])->name('user.mute');
-                // Route::post('user/{user}/status/unmute', [UserController::class, 'mute'])->name('user.unmute');
-                // Route::post('user/{user}/status/ban', [UserController::class, 'ban'])->name('user.ban');
-                // Route::post('user/{user}/status/unban', [UserController::class, 'unban'])->name('user.unban');
-                // Route::post('user/{user}/status/rank', [UserController::class, 'rank'])->name('user.rank');
-                // Route::post('user/{user}/status/unrank', [UserController::class, 'unrank'])->name('user.unrank');
 
                 /*
                  * settings and user attributes

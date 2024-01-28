@@ -6,6 +6,7 @@ namespace App\Community\Policies;
 
 use App\Community\Models\TriggerTicket;
 use App\Site\Enums\Permissions;
+use App\Site\Models\Role;
 use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -15,7 +16,13 @@ class TriggerTicketPolicy
 
     public function manage(User $user): bool
     {
-        return $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        return $user->hasAnyRole([
+            Role::HUB_MANAGER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
     public function view(User $user, TriggerTicket $achievementTicket): bool
@@ -25,7 +32,7 @@ class TriggerTicketPolicy
 
     public function create(User $user): bool
     {
-        return $user->email_verified_at !== null;
+        return $user->hasVerifiedEmail();
     }
 
     public function update(User $user, TriggerTicket $achievementTicket): bool

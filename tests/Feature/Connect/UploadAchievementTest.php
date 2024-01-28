@@ -6,11 +6,14 @@ namespace Tests\Feature\Connect;
 
 use App\Community\Models\AchievementSetClaim;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementPublished;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\System;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\TestCase;
@@ -20,6 +23,80 @@ class UploadAchievementTest extends TestCase
     use BootstrapsConnect;
     use RefreshDatabase;
     use TestsPlayerAchievements;
+
+    public function testItCreatesNewAchievementAndDispatchesEvent(): void
+    {
+        Event::fake([
+            AchievementCreated::class,
+        ]);
+
+        /** @var User $author */
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        AchievementSetClaim::factory()->create(['User' => $author->username, 'GameID' => $game->id]);
+
+        $this->get($this->apiUrl('uploadachievement', [
+            'u' => $author->username,
+            't' => $author->appToken,
+            'g' => $game->ID,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5, // Unofficial - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => 1,
+                'Error' => '',
+            ]);
+
+        Event::assertDispatched(AchievementCreated::class);
+    }
+
+    public function testItPublishesAchievementAndDispatchesEvent(): void
+    {
+        Event::fake([
+            AchievementPublished::class,
+        ]);
+
+        /** @var User $author */
+        $author = User::factory()->create([
+            'Permissions' => Permissions::Developer,
+            'appToken' => Str::random(16),
+        ]);
+        $game = $this->seedGame(withHash: false);
+
+        /** @var Achievement $achievement */
+        $achievement = Achievement::factory()->for($game)->create(['Author' => $author->username]);
+
+        AchievementSetClaim::factory()->create(['User' => $author->username, 'GameID' => $game->id]);
+
+        $this->get($this->apiUrl('uploadachievement', [
+            'a' => $achievement->id,
+            'u' => $author->username,
+            't' => $author->appToken,
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => AchievementFlag::OfficialCore, // Unofficial - hardcode for test to prevent false success if enum changes
+            'b' => '001234',
+        ]))
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $achievement->id,
+                'Error' => '',
+            ]);
+
+        Event::assertDispatched(AchievementPublished::class);
+    }
 
     public function testAchievementLifetime(): void
     {
@@ -33,7 +110,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User]);
+        $achievement1 = Achievement::factory()->create(['Author' => $author->User]);
 
         AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
 

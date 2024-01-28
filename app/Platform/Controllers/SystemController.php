@@ -113,11 +113,9 @@ class SystemController extends Controller
         $this->gameListService->initializeUserProgress($loggedInUser, $gameIds);
         $this->gameListService->initializeGameList($gameIds);
 
-        if (isset($filterOptions['populated'])) {
-            $this->gameListService->filterGameList(function ($game) use ($filterOptions) {
-                return $this->usePopulatedFilter($game, $filterOptions['populated']);
-            });
-        }
+        $this->gameListService->filterGameList(function ($game) use ($filterOptions) {
+            return $this->usePopulatedFilter($game, $filterOptions['populated']);
+        });
 
         if (isset($filterOptions['status'])) {
             $this->gameListService->filterGameList(function ($game) use ($filterOptions) {

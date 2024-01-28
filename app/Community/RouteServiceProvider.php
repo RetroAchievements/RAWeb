@@ -267,18 +267,6 @@ class RouteServiceProvider extends ServiceProvider
                 //             ->only('index')
                 //             ->names(['index' => 'triggers.ticket.index']);
                 //     });
-
-                //     Route::resource('news', NewsController::class)
-                //         ->only(
-                //             'create',
-                //             'store',
-                //             'edit',
-                //             'update',
-                //             'destroy'
-                //         );
-                //     Route::delete('news/{news}/image', [NewsController::class, 'destroyImage'])
-                //         ->name('news.image.destroy');
-                // });
             });
     }
 }

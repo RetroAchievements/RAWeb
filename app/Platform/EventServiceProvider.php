@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Platform\Events\AchievementCreated;
+use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementTypeChanged;
@@ -38,6 +39,9 @@ class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         AchievementCreated::class => [
+            DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+        ],
+        AchievementMoved::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
         ],
         AchievementPublished::class => [

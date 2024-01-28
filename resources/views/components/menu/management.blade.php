@@ -26,7 +26,7 @@ $tools = $settings['tools'] ?? null;
         @endif
         <div class="dropdown-column">
             @can('develop')
-                @can('manage', App\Community\Models\TriggerTicket::class)
+                @can('manage', App\Community\Models\Ticket::class)
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
                     {{--<x-dropdown-item :link="route('triggers.ticket.index')">{{ __res('ticket') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('ticketmanager.php')">{{ __res('ticket') }}</x-dropdown-item>
@@ -46,7 +46,7 @@ $tools = $settings['tools'] ?? null;
                     {{--<x-dropdown-item :link="route('news.index')">{{ __res('news') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
                 @endcan
-                @can('manage', App\Community\Models\Forum::class)
+                @can('manage', App\Site\Models\User::class)
                     {{--<x-dropdown-item :link="route('forum-topic.verify')">Forum Verification</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('viewforum.php?f=0')">Forum Verification</x-dropdown-item>
                 @endcan
@@ -60,7 +60,7 @@ $tools = $settings['tools'] ?? null;
                     @endcan
                     <x-dropdown-item :link="route('integration.release.index')" :active="request()->routeIs('integration.release*')">Integration</x-dropdown-item>
                 @endcan--}}
-                @if($user->Permissions >= Permissions::Moderator)
+                @can('tool')
                     <div class="dropdown-header">Admin</div>
                     <x-dropdown-item :link="url('admin.php')">Admin Tools</x-dropdown-item>
                 @endif

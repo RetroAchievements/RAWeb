@@ -12,6 +12,11 @@ class MessagePolicy
 {
     use HandlesAuthorization;
 
+    public function manage(User $user): bool
+    {
+        return false;
+    }
+
     public function view(User $user, Message $message): bool
     {
         return true;

@@ -16,10 +16,11 @@ class ForumPolicy
 
     public function manage(User $user): bool
     {
-        return $user->getAttribute('Permissions') >= Permissions::Moderator;
-        // return $user->hasAnyRole([
-        //     Role::FORUM_MANAGER,
-        // ]);
+        return $user->hasAnyRole([
+            Role::MODERATOR,
+            Role::FORUM_MANAGER,
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 
     public function viewAny(?User $user): bool
@@ -35,7 +36,7 @@ class ForumPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
+            Role::FORUM_MANAGER,
         ]);
     }
 

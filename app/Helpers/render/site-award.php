@@ -192,7 +192,7 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
 
         $dataAttrGameId = $award['GameID'];
         // NOTE: If these data-* attributes are removed, userscripts will begin breaking.
-        echo "<div class='flex justify-center' data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
+        echo "<div data-gameid='$dataAttrGameId' data-date='$awardDate'>" . gameAvatar($award, label: false, iconSize: $imageSize, context: $ownerUsername, iconClass: $imgclass) . "</div>";
 
         return;
     }
@@ -239,5 +239,5 @@ function RenderAward(array $award, int $imageSize, string $ownerUsername, bool $
         $displayable = "<a href=\"$linkdest\">$displayable</a>";
     }
 
-    echo "<div class='flex justify-center'><div>$displayable</div>$newOverlayDiv</div>";
+    echo "<div><div>$displayable</div>$newOverlayDiv</div>";
 }

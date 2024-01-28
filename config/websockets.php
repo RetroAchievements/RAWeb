@@ -79,7 +79,7 @@ return [
          * The only requirement is that the model should extend
          * `WebSocketsStatisticsEntry` provided by this package.
          */
-        'model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
+        'model' => BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
 
         /*
          * The Statistics Logger will, by default, handle the incoming statistics, store them
@@ -137,5 +137,5 @@ return [
      * The only requirement is that the class should implement
      * `ChannelManager` interface provided by this package.
      */
-    'channel_manager' => \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager::class,
+    'channel_manager' => BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager::class,
 ];

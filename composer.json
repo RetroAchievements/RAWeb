@@ -19,6 +19,8 @@
         "aws/aws-sdk-php": "^3.235",
         "beyondcode/laravel-websockets": "^1.13",
         "doctrine/dbal": "^3.4",
+        "fico7489/laravel-pivot": "^3.0",
+        "filament/filament": "^3.0",
         "graham-campbell/markdown": "^15.0",
         "guzzlehttp/guzzle": "^7.5",
         "jenssegers/agent": "^2.6",
@@ -98,12 +100,14 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "@php artisan vendor:publish --tag=livewire:assets --ansi --force",
-            "@php artisan vendor:publish --tag=horizon-assets --ansi --force"
+            "@php artisan vendor:publish --tag=horizon-assets --ansi --force",
+            "@php artisan filament:upgrade"
         ],
         "post-root-package-install": [
             "@setup"

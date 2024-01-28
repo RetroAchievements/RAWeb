@@ -11,6 +11,7 @@ use App\Site\Commands\LogUsersOnlineCount;
 use App\Site\Commands\SyncUsers;
 use App\Site\Commands\SystemAlert;
 use App\Site\Components\NotificationIcon;
+use App\Site\Models\Role;
 use App\Site\Models\User;
 use Exception;
 use Illuminate\Console\Scheduling\Schedule;
@@ -73,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
          * https://josephsilber.com/posts/2018/07/02/eloquent-polymorphic-relations-morph-map
          */
         Relation::morphMap([
+            'role' => Role::class,
             'user' => User::class,
         ]);
 

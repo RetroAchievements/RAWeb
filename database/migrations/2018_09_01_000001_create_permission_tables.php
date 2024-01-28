@@ -13,7 +13,7 @@ return new class() extends Migration {
         $columnNames = config('permission.column_names');
 
         if (empty($tableNames)) {
-            throw new \Exception('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
+            throw new Exception('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
         }
 
         Schema::create($tableNames['permissions'], function (Blueprint $table) {
@@ -94,7 +94,7 @@ return new class() extends Migration {
         $tableNames = config('permission.table_names');
 
         if (empty($tableNames)) {
-            throw new \Exception('Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.');
+            throw new Exception('Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.');
         }
 
         Schema::dropIfExists($tableNames['role_has_permissions']);

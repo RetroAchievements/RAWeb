@@ -36,10 +36,7 @@ class NewsPolicy
 
     public function create(User $user): bool
     {
-        // TODO: Developers used to be able to write new posts -> ?
-
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
             Role::NEWS_MANAGER,
         ]);
     }
@@ -47,20 +44,22 @@ class NewsPolicy
     public function update(User $user, News $news): bool
     {
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
-            Role::MODERATOR,
             Role::NEWS_MANAGER,
         ]);
     }
 
     public function delete(User $user, News $news): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::NEWS_MANAGER,
+        ]);
     }
 
     public function restore(User $user, News $news): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::NEWS_MANAGER,
+        ]);
     }
 
     public function forceDelete(User $user, News $news): bool
@@ -71,7 +70,6 @@ class NewsPolicy
     public function deleteImage(User $user, News $news): bool
     {
         return $user->hasAnyRole([
-            // Role::ADMINISTRATOR,
             Role::MODERATOR,
             Role::NEWS_MANAGER,
         ]);
