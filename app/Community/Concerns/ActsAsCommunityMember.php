@@ -15,7 +15,6 @@ use App\Site\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Builder;
 
 trait ActsAsCommunityMember
 {
@@ -118,22 +117,5 @@ trait ActsAsCommunityMember
     public function forumPosts(): HasMany
     {
         return $this->hasMany(ForumTopicComment::class, 'AuthorID', 'ID');
-    }
-
-    /**
-     * @param Builder<User> $query
-     */
-    public function scopeWithLastActivity(Builder $query): void
-    {
-        $query->addSelect([
-            'last_activity_id' => function ($query) {
-                /* @var Builder $query */
-                $query->select('user_activities.id')
-                    ->from('user_activities')
-                    ->whereColumn('user_activities.user_id', 'users.id')
-                    ->orderByDesc('created_at')
-                    ->limit(1);
-            },
-        ])->with('lastActivity');
     }
 }
