@@ -11,6 +11,7 @@
 <?php
 use App\Community\Enums\TicketFilters;
 use App\Community\Models\ForumTopic;
+use App\Platform\Enums\AchievementFlag;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,6 +42,12 @@ if ($canSeeOpenTickets) {
         $gameId,
     );
 }
+
+$ticketManagerUrlParams = [
+    'g' => $gameId,
+    'f' => $isViewingOfficial ? null : AchievementFlag::Unofficial,
+];
+$ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketManagerUrlParams);
 ?>
 
 <ul class="flex @if ($variant === 'stacked') flex-col @endif gap-2">
@@ -87,7 +94,7 @@ if ($canSeeOpenTickets) {
     @if ($canSeeOpenTickets)
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{{ '/ticketmanager.php?g=' . $gameId }}"
+            href="{!! $ticketManagerUrl !!}"
         >
             Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
