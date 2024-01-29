@@ -41,6 +41,12 @@ if ($canSeeOpenTickets) {
         $gameId,
     );
 }
+
+if (!$isViewingOfficial) {
+    $viewTag = '&f=5';
+} else {
+    $viewTag = null;
+}
 ?>
 
 <ul class="flex @if ($variant === 'stacked') flex-col @endif gap-2">
@@ -85,21 +91,12 @@ if ($canSeeOpenTickets) {
     @endif
 
     @if ($canSeeOpenTickets)
-        @if ($isViewingOfficial)
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{{ '/ticketmanager.php?g=' . $gameId }}"
+            href="{!! '/ticketmanager.php?g=' . $gameId . $viewTag !!}"
         >
-            Open Tickets ({{ $numOpenTickets }})
+            Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
-        @else
-        <x-game.link-buttons.game-link-button
-            icon="🎫"
-            href="{!! '/ticketmanager.php?g=' . $gameId . '&f=5' !!}"
-        >
-            Open Unofficial Tickets ({{ $numOpenTickets }})
-        </x-game.link-buttons.game-link-button>
-        @endif
     @endif
 
     @if ($canSeeSetRequestors)
