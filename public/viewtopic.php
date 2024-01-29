@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Models\ForumTopicComment;
 use App\Site\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Blade;
@@ -40,7 +41,13 @@ if (!empty($gotoCommentID)) {
 }
 
 // Fetch comments
-$commentList = getTopicComments($requestedTopicID, $offset, $count, $numTotalComments);
+$numTotalComments = ForumTopicComment::where('ForumTopicID', $requestedTopicID)->count();
+$commentList = ForumTopicComment::with('user')
+    ->where('ForumTopicID', $requestedTopicID)
+    ->orderBy('DateCreated', 'asc')
+    ->offset($offset)
+    ->limit($count)
+    ->get();
 
 // We CANNOT have a topic with no comments... this doesn't make sense.
 if (empty($commentList)) {
@@ -155,12 +162,10 @@ RenderContentStart($pageTitle);
     echo "<div class='mb-4'>";
     // Output all posts, and offer 'prev/next page'
     foreach ($commentList as $index => $commentData) {
-        $nextCommentID = $commentData['ID'];
-        $nextCommentPayload = $commentData['Payload'];
-        $nextCommentAuthor = $commentData['Author'];
+        $nextCommentID = $commentData->ID;
+        $nextCommentPayload = $commentData->Payload;
+        $nextCommentAuthor = $commentData->Author;
         $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
-
-        sanitize_outputs($nextCommentPayload, $nextCommentAuthor);
 
         $isOriginalPoster = $nextCommentAuthor === $thisTopicAuthor;
         $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;

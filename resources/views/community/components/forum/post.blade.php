@@ -1,13 +1,13 @@
 @props([
-    'commentData',
-    'currentUser',
-    'currentUserPermissions',
-    'forumTopicId',
-    'isHighlighted',
-    'isOriginalPoster',
-    'isUnverified',
-    'parsedPostContent',
-    'threadPostNumber',
+    'commentData', // Collection|ForumTopicComment[]
+    'currentUser' => '',
+    'currentUserPermissions', // legacy permissions
+    'forumTopicId' => 0,
+    'isHighlighted' => false,
+    'isOriginalPoster' => false,
+    'isUnverified' => false,
+    'parsedPostContent' => '',
+    'threadPostNumber' => 0,
     'isPreview' => false,
 ])
 
@@ -24,15 +24,16 @@ $commentAuthorJoinDate = null;
 $commentAuthorPermissions = null;
 
 if (!$isPreview) {
-    $commentId = $commentData['ID'];
-    $commentAuthor = e($commentData['Author']);
-    $commentAuthorDeletedDate = $commentData['AuthorDeleted'];
-    $commentAuthorJoinDate = $commentData['AuthorJoined'];
-    $commentAuthorPermissions = $commentData['AuthorPermissions'];
-    $commentDateCreated = $commentData['DateCreated'];
-    $commentDateModified = $commentData['DateModified'];
-    $commentIsAuthorised = $commentData['Authorised'];
+    $commentId = $commentData->ID;
+    $commentAuthor = e($commentData->Author);
+    $commentAuthorDeletedDate = $commentData->user->Deleted;
+    $commentAuthorJoinDate = $commentData->user->Created;
+    $commentAuthorPermissions = $commentData->user->Permissions;
+    $commentDateCreated = $commentData->DateCreated;
+    $commentDateModified = $commentData->DateModified;
+    $commentIsAuthorised = $commentData->Authorised;
 
+    // FIXME: legacy permissions
     $isCurrentUserModerator = $currentUserPermissions >= Permissions::Moderator;
     $isCurrentUserAuthor = $currentUser === $commentAuthor;
 
@@ -45,7 +46,7 @@ if (!$isPreview) {
 }
 ?>
 
-@if($isPreview || $canShowPost)
+@if ($isPreview || $canShowPost)
     <x-forum.post-container
         :commentId="$commentId ?? null"
         :isHighlighted="$isHighlighted ?? false"
@@ -59,7 +60,7 @@ if (!$isPreview) {
         />
 
         <div class='comment w-full lg:py-0 px-1 lg:px-6 {{ $isPreview ? "py-2" : "pt-2 pb-4" }}'>
-            @if($isPreview)
+            @if ($isPreview)
                 <div class='{{ $metaContainerClassNames }}'>
                     <p class='smalltext !leading-[14px]'>Preview</p>
                 </div>
@@ -75,11 +76,11 @@ if (!$isPreview) {
                     </div>
 
                     <div class='flex gap-x-1 items-center lg:-mx-4 lg:pl-4 lg:w-[calc(100% + 32px)]'>
-                        @if($showAuthoriseTools)
+                        @if ($showAuthoriseTools)
                             <x-forum.post-moderation-tools :commentAuthor="$commentAuthor"/>
                         @endif
 
-                        @if($showEditButton)
+                        @if ($showEditButton)
                             <a href='/editpost.php?comment={{ $commentId }}' class='btn p-1 lg:text-xs'>Edit</a>
                         @endif
 
