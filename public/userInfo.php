@@ -3,12 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSorting;
-use App\Community\Enums\ClaimSpecial;
-use App\Community\Enums\ClaimType;
-use App\Community\Enums\Rank;
-use App\Community\Enums\RankType;
 use App\Community\Enums\UserAction;
-use App\Community\Enums\UserRelationship;
 use App\Platform\Services\PlayerProgressionService;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
@@ -84,7 +79,7 @@ foreach ($userCompletedGamesList as $nextGame) {
     }
 }
 
-$avgPctWon = "0.0";
+$avgPctWon = "0.00";
 if ($numGamesFound > 0) {
     $avgPctWon = sprintf("%01.2f", ($totalPctWon / $numGamesFound) * 100.0);
 }
@@ -108,6 +103,7 @@ $userScoreData = getAwardedList(
 );
 
 // Get claim data if the user has jr dev or above permissions
+$userClaimData = null;
 if (getActiveClaimCount($userPage, true, true) > 0) {
     // Active claims sorted by game title
     $userClaimData = getFilteredClaims(
@@ -128,204 +124,32 @@ RenderContentStart($userPage);
 
 <article class="overflow-y-hidden">
     <?php
-    echo "<div class='navpath'>";
-    echo "<a href='/userList.php'>All Users</a>";
-    echo " &raquo; <b>$userPage</b>";
+    echo "<div class='mt-1'>";
+    echo Blade::render('
+        <x-user-profile-meta
+            :averageCompletionPercentage="$averageCompletionPercentage"
+            :totalHardcoreAchievements="$totalHardcoreAchievements"
+            :totalSoftcoreAchievements="$totalSoftcoreAchievements"
+            :user="$user"
+            :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
+            :userMassData="$userMassData"
+            :userClaims="$userClaims"
+        />
+    ', [
+        'averageCompletionPercentage' => $avgPctWon,
+        'totalHardcoreAchievements' => $totalHardcoreAchievements,
+        'totalSoftcoreAchievements' => $totalSoftcoreAchievements,
+        'user' => $userPageModel,
+        'userJoinedGamesAndAwards' => $userJoinedGamesAndAwards,
+        'userMassData' => $userMassData,
+        'userClaims' => $userClaimData?->toArray(),
+    ]);
     echo "</div>";
 
-    echo "<div class='usersummary'>";
-    echo "<h3>$userPage</h3>";
-    echo "<img src='" . media_asset("/UserPic/$userPage.png") . "' alt='$userPage' align='right' width='128' height='128' class='rounded-sm'>";
-
-    if (!empty($userMotto)) {
-        echo "<div class='mottocontainer'>";
-        echo "<span class='usermotto'>$userMotto</span>";
-        echo "</div>";
-    }
-
-    if (isset($user) && ($user !== $userPage)) {
-        echo "<div class='flex flex-col sm:flex-row justify-center sm:justify-start sm:gap-1'>";
-
-        $myFriendshipType = GetFriendship($user, $userPage);
-        $areTheyFollowingMe = GetFriendship($userPage, $user) == UserRelationship::Following;
-
-        echo "<div class='flex'>";
-        switch ($myFriendshipType) {
-            case UserRelationship::Following:
-                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='user' value='$userPage'>";
-                echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
-                echo "<button class='btn btn-link !pl-0'>Unfollow</button>";
-                echo "</form>";
-                break;
-            case UserRelationship::NotFollowing:
-                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='user' value='$userPage'>";
-                echo "<input type='hidden' name='action' value='" . UserRelationship::Following . "'>";
-                echo "<button class='btn btn-link !pl-0'>Follow" . ($areTheyFollowingMe ? ' Back' : '') . "</button>";
-                echo "</form>";
-                break;
-        }
-
-        if ($myFriendshipType != UserRelationship::Blocked) {
-            echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
-            echo csrf_field();
-            echo "<input type='hidden' name='user' value='$userPage'>";
-            echo "<input type='hidden' name='action' value='" . UserRelationship::Blocked . "'>";
-            echo "<button class='btn btn-link'>Block</button>";
-            echo "</form>";
-        } else {
-            echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
-            echo csrf_field();
-            echo "<input type='hidden' name='user' value='$userPage'>";
-            echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
-            echo "<button class='btn btn-link'>Unblock</button>";
-            echo "</form>";
-        }
-        echo "<a class='btn btn-link' href='" . route('message.create') . "?to=$userPage'>Message</a>";
-        echo "</div>";
-
-        if ($areTheyFollowingMe) {
-            echo "<p class='sm:px-3'>Follows you</p>";
-        }
-
-        echo "</div>";
-    }
-
-    echo "<br>";
-
-    $niceDateJoined = $userMassData['MemberSince'] ? getNiceDate(strtotime($userMassData['MemberSince'])) : null;
-    if ($niceDateJoined) {
-        echo "Member Since: $niceDateJoined<br>";
-    }
-    // LastLogin is updated on any activity -> "LastActivity"
-    $niceDateLogin = $userMassData['LastActivity'] ? getNiceDate(strtotime($userMassData['LastActivity'])) : null;
-    if ($niceDateLogin) {
-        echo "Last Activity: $niceDateLogin<br>";
-    }
-    echo "Account Type: <b>[" . Permissions::toString($userMassData['Permissions']) . "]</b><br>";
-    echo "<br>";
-
-    $totalHardcorePoints = $userMassData['TotalPoints'];
-    if ($totalHardcorePoints > 0) {
-        $totalTruePoints = $userMassData['TotalTruePoints'];
-
-        $retRatio = sprintf("%01.2f", $totalTruePoints / $totalHardcorePoints);
-        echo "Hardcore Points: " . localized_number($totalHardcorePoints) . "<span class='TrueRatio'> (" . localized_number($totalTruePoints) . ")</span><br>";
-        if ($user) {
-            echo "Hardcore Achievements: " . localized_number($totalHardcoreAchievements) . "<br>";
-        }
-
-        echo "Site Rank: ";
-        if ($userIsUntracked) {
-            echo "<b>Untracked</b>";
-        } elseif ($totalHardcorePoints < Rank::MIN_POINTS) {
-            echo "<i>Needs at least " . Rank::MIN_POINTS . " points.</i>";
-        } else {
-            $countRankedUsers = countRankedUsers();
-            $userRank = $userMassData['Rank'];
-            $rankPct = sprintf("%1.2f", ($userRank / $countRankedUsers) * 100.0);
-            $rankPctLabel = $userRank > 100 ? "(Top $rankPct%)" : "";
-            $rankOffset = (int) (($userRank - 1) / 25) * 25;
-            echo "<a href='/globalRanking.php?s=5&t=2&o=$rankOffset'>#" . localized_number($userRank) . "</a> / " . localized_number($countRankedUsers) . " ranked users $rankPctLabel";
-        }
-        echo "<br>";
-
-        echo "Retro Ratio: <span class='TrueRatio'><b>$retRatio</b></span><br>";
-        echo "<br>";
-    }
-
-    $totalSoftcorePoints = $userMassData['TotalSoftcorePoints'];
-    if ($totalSoftcorePoints > 0) {
-        echo "Softcore Points: " . localized_number($totalSoftcorePoints) . "<br>";
-        echo "Softcore Achievements: " . localized_number($totalSoftcoreAchievements) . "<br>";
-
-        echo "Softcore Rank: ";
-        if ($userIsUntracked) {
-            echo "<b>Untracked</b>";
-        } elseif ($totalSoftcorePoints < Rank::MIN_POINTS) {
-            echo "<i>Needs at least " . Rank::MIN_POINTS . " points.</i>";
-        } else {
-            $countRankedUsers = countRankedUsers(RankType::Softcore);
-            $userRankSoftcore = getUserRank($userPage, RankType::Softcore);
-            $rankPct = sprintf("%1.2f", ($userRankSoftcore / $countRankedUsers) * 100.0);
-            $rankPctLabel = $userRankSoftcore > 100 ? "(Top $rankPct%)" : "";
-            $rankOffset = (int) (($userRankSoftcore - 1) / 25) * 25;
-            echo "<a href='/globalRanking.php?s=2&t=2&o=$rankOffset'>#" . localized_number($userRankSoftcore) . "</a> / " . localized_number($countRankedUsers) . " ranked users $rankPctLabel";
-        }
-        echo "<br>";
-        echo "<br>";
-    }
-
-    if ($user) {
-        echo "Average Completion: <b>$avgPctWon%</b><br><br>";
-    }
-
-    echo "<a href='/forumposthistory.php?u=$userPage'>Forum Post History</a>";
-    echo "<br>";
-
-    echo "<a href='/setRequestList.php?u=$userPage'>Requested Sets</a>"
-        . " - " . $userSetRequestInformation['used']
-        . " of " . $userSetRequestInformation['total'] . " Requests Made";
-    echo "<br><br>";
-
-    if (!empty($userMassData['RichPresenceMsg']) && $userMassData['RichPresenceMsg'] !== 'Unknown') {
-        echo "<div class='mottocontainer'>Last seen ";
-        if (!empty($userMassData['LastGame'])) {
-            echo ' in ' . gameAvatar($userMassData['LastGame'], iconSize: 22) . '<br>';
-        }
-        echo "<code>" . $userMassData['RichPresenceMsg'] . "</code></div>";
-    }
-
-    $contribCount = $userMassData['ContribCount'];
-    $contribYield = $userMassData['ContribYield'];
-    if ($contribCount > 0) {
-        echo "<strong>$userPage Developer Information:</strong><br>";
-        echo "<a href='" . route('developer.sets', $userPageModel) . "'>View all achievements sets <b>$userPage</b> has worked on.</a><br>";
-        echo "<a href='/individualdevstats.php?u=$userPage'>View detailed stats for <b>$userPage</b>.</a><br>";
-        echo "<a href='/claimlist.php?u=$userPage'>View claims for <b>$userPage</b>.</a></br>";
-        if (isset($user) && $permissions >= Permissions::Registered) {
-            $openTicketsData = countOpenTicketsByDev($userPage);
-            echo "<a href='/ticketmanager.php?u=$userPage'>Open Tickets: <b>" . array_sum($openTicketsData) . "</b></a><br>";
-        }
-        echo "Achievements won by others: <b>" . localized_number($contribCount) . "</b><br>";
-        echo "Points awarded to others: <b>" . localized_number($contribYield) . "</b><br><br>";
-    }
-
-    // Display the users active claims
-    if (isset($userClaimData) && (is_countable($userClaimData) ? count($userClaimData) : 0) > 0) {
-        echo "<b>$userPage's</b> current claims:</br>";
-        foreach ($userClaimData as $claim) {
-            $details = "";
-            $isCollab = $claim['ClaimType'] == ClaimType::Collaboration;
-            $isSpecial = $claim['Special'] != ClaimSpecial::None;
-            if ($isCollab) {
-                $details = " (" . ClaimType::toString(ClaimType::Collaboration) . ")";
-            } else {
-                if (!$isSpecial) {
-                    $details = "*";
-                }
-            }
-            $claimGameData = [
-                'ID' => $claim['GameID'],
-                'Title' => $claim['GameTitle'],
-                'ImageIcon' => $claim['GameIcon'],
-                'ConsoleName' => $claim['ConsoleName'],
-            ];
-            echo gameAvatar($claim, iconSize: 22);
-            echo $details . '<br>';
-        }
-        echo "* Counts against reservation limit</br></br>";
-    }
-
-    echo "</div>"; // usersummary
-
     if (isset($user) && $permissions >= Permissions::Moderator) {
-        echo "<div class='devbox'>";
+        echo "<div class='devbox mt-8'>";
         echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
-        echo "<div id='devboxcontent' style='display: none'>";
+        echo "<div id='devboxcontent' class='bg-embed' style='display: none'>";
 
         echo "<table>";
 
@@ -441,8 +265,8 @@ RenderContentStart($userPage);
             'userJoinedGamesAndAwards' => $userJoinedGamesAndAwards,
             'userSiteAwards' => $userAwards,
             'userRecentlyPlayed' => $userMassData['RecentlyPlayed'],
-            'userHardcorePoints' => $totalHardcorePoints,
-            'userSoftcorePoints' => $totalSoftcorePoints,
+            'userHardcorePoints' => $userMassData['TotalPoints'],
+            'userSoftcorePoints' => $userMassData['TotalSoftcorePoints'],
         ]);
         echo "</div>";
     }
