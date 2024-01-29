@@ -20,6 +20,7 @@ use App\Community\Components\ForumRecentPosts;
 use App\Community\Components\GlobalStatistics;
 use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
+use App\Community\Components\UserProfileMeta;
 use App\Community\Components\UserProgressionStatus;
 use App\Community\Components\UserRecentlyPlayed;
 use App\Community\Models\AchievementComment;
@@ -112,6 +113,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('global-statistics', GlobalStatistics::class);
         Blade::component('forum-recent-posts', ForumRecentPosts::class);
         Blade::component('user-card', UserCard::class);
+        Blade::component('user-profile-meta', UserProfileMeta::class);
         Blade::component('user-progression-status', UserProgressionStatus::class);
         Blade::component('user-recently-played', UserRecentlyPlayed::class);
 
