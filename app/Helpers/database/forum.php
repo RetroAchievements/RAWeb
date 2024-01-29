@@ -135,41 +135,6 @@ function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
     return false;
 }
 
-function getTopicComments(int $topicID, int $offset, int $count, ?int &$maxCountOut): ?array
-{
-    $query = "    SELECT COUNT(*) FROM ForumTopicComment AS ftc
-                WHERE ftc.ForumTopicID = $topicID ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $maxCountOut = (int) $data['COUNT(*)'];
-    }
-
-    $query = "SELECT ftc.ID, ftc.ForumTopicID, ftc.Payload, ftc.Author, ftc.AuthorID, ftc.DateCreated, ftc.DateModified, ftc.Authorised, ua.RAPoints, ua.Created AS AuthorJoined, ua.Deleted as AuthorDeleted, ua.Permissions as AuthorPermissions
-                FROM ForumTopicComment AS ftc
-                LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
-                WHERE ftc.ForumTopicID = $topicID
-                ORDER BY DateCreated ASC
-                LIMIT $offset, $count";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = [];
-
-        $numResults = 0;
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $dataOut[$numResults] = $db_entry;
-            $numResults++;
-        }
-
-        return $dataOut;
-    }
-    log_sql_fail();
-
-    return null;
-}
-
 function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
 {
     $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified
