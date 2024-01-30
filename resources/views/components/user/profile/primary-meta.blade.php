@@ -43,14 +43,6 @@ $shouldMoveRoleToNextLine =
         <div class="flex sm:-mt-1 sm:flex-row sm:justify-start sm:items-center gap-x-2 {{ $hasVisibleRole ? 'mb-2 sm:mb-0' : '' }} {{ $shouldMoveRoleToNextLine ? 'flex-col' : 'items-center' }}">
             {{-- Username --}}
             <h1 class='border-0 text-lg sm:text-2xl font-semibold mb-0'>{{ $username }}</h1>
-
-            {{-- Legacy Role --}}
-            {{-- TODO: Support N roles. --}}
-            @if ($hasVisibleRole)
-                <div class="flex h-4 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
-                    <p class="text-2xs -mb-0.5">{{ $roleLabel }}</p>
-                </div>
-            @endif
         </div>
 
         {{-- Motto --}}
@@ -60,15 +52,16 @@ $shouldMoveRoleToNextLine =
             </div>
         @endif
 
-        {{-- 🚨 Space is limited. Do NOT display more than 4 rows of content in this div. --}}
-        <div class="text-2xs">
-            {{-- Points --}}
-            <x-user.profile.points-display
-                :hardcorePoints="$userMassData['TotalPoints']"
-                :softcorePoints="$userMassData['TotalSoftcorePoints']"
-                :weightedPoints="$userMassData['TotalTruePoints']"
-            />
+        <div class="mb-1 -mt-1 flex flex-wrap gap-1">
+            @foreach ($userMassData['Roles'] as $role)
+                <div class="flex h-4 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded max-w-fit">
+                    <p class="text-2xs -mb-0.5">{{ __('permission.role.' . $role['name']) }}</p>
+                </div>
+            @endforeach
+        </div>
 
+        {{-- 🚨 Space is limited. Do NOT display more than 3 rows of content in this div. --}}
+        <div class="text-2xs">
             {{-- Site Rank --}}
             <x-user.profile.site-rank-display
                 :hardcoreRankMeta="$hardcoreRankMeta"

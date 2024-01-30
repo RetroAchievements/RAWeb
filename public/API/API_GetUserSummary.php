@@ -137,6 +137,8 @@ $retVal['LastActivity'] = [
 ];
 unset($retVal['LastActivityID']);
 
+unset($retVal['Roles']);
+
 $retVal['Status'] = 'Offline';
 
 return response()->json($retVal);

@@ -60,7 +60,14 @@ class UserCard extends Component
             function () use ($username): ?array {
                 $foundUser = User::firstWhere('User', $username);
 
-                return $foundUser ? $foundUser->toArray() : null;
+                if (!$foundUser) {
+                    return null;
+                }
+
+                $userData = $foundUser->toArray();
+                $userData['roles'] = $foundUser->getVisibleRoles()->toArray();
+
+                return $userData;
             }
         );
     }
@@ -69,7 +76,7 @@ class UserCard extends Component
     {
         $cardBioData = $this->buildCardBioData($rawUserData);
         $cardRankData = $this->buildCardRankData($username, $rawUserData['RAPoints'], $rawUserData['RASoftcorePoints'], $rawUserData['Untracked'] ? true : false);
-        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['Permissions']);
+        $cardRoleData = $this->buildCardRoleData($username, $rawUserData['roles']);
 
         return array_merge($cardBioData, $cardRankData, $cardRoleData);
     }
@@ -144,14 +151,18 @@ class UserCard extends Component
         );
     }
 
-    private function buildCardRoleData(string $username, int $permissions): array
+    private function buildCardRoleData(string $username, ?array $userRoles = null): array
     {
-        $canShowUserRole = $permissions >= Permissions::JuniorDeveloper;
-        $roleLabel = Permissions::toString($permissions);
+        $roleLabel = null;
+        $useExtraNamePadding = false;
+        $canShowUserRole = isset($userRoles) && !empty($userRoles);
 
-        $useExtraNamePadding =
-            $canShowUserRole
-            && ((mb_strlen($roleLabel) >= 14 && mb_strlen($username) >= 14) || mb_strlen($username) >= 16);
+        if ($canShowUserRole) {
+            $roleLabel = __('permission.role.' . $userRoles[0]['name']);
+
+            $useExtraNamePadding =
+                ((mb_strlen($roleLabel) >= 14 && mb_strlen($username) >= 14) || mb_strlen($username) >= 16);
+        }
 
         return compact(
             'canShowUserRole',
