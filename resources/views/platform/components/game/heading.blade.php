@@ -8,9 +8,10 @@
 ])
 
 <?php
+
 use App\Community\Enums\UserGameListType;
 use App\Platform\Models\System;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 $type = UserGameListType::Play;
 $iconUrl = getSystemIconUrl($consoleId);
@@ -18,7 +19,7 @@ $iconUrl = getSystemIconUrl($consoleId);
 
 <h1 class="text-h3">
     <span class="block mb-1">
-        <x-game-title :rawTitle="$gameTitle" />
+        <x-game-title :rawTitle="$gameTitle"/>
     </span>
 
     <div class="flex justify-between">
@@ -28,7 +29,7 @@ $iconUrl = getSystemIconUrl($consoleId);
         </div>
 
         @if (!empty($user) && $userPermissions >= Permissions::Registered && System::isGameSystem($consoleId))
-            <x-game.add-to-list :gameId="$gameId" :type="$type" :user="$user" />
+            <x-game.add-to-list :gameId="$gameId" :type="$type" :user="$user"/>
         @endif
     </div>
 </h1>

@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Str;
 
 function generateEmailVerificationToken(string $user): ?string

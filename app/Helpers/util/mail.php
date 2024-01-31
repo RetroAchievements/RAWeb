@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;

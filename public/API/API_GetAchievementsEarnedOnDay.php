@@ -25,7 +25,7 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-use App\Site\Models\User;
+use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;

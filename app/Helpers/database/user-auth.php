@@ -1,7 +1,7 @@
 <?php
 
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

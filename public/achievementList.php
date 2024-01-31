@@ -1,8 +1,8 @@
 <?php
 
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\System;
-use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);

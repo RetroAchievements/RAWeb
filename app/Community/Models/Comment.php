@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Models;
 
-use App\Site\Models\User;
+use App\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Exception;
 use Illuminate\Database\Eloquent\Model;

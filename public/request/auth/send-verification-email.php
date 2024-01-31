@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\User;
+use App\Models\User;
 
 /** @var ?User $user */
 $user = request()->user();

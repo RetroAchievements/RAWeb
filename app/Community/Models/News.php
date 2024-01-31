@@ -6,7 +6,7 @@ namespace App\Community\Models;
 
 use App\Community\Concerns\HasAuthor;
 use App\Community\Contracts\HasComments;
-use App\Site\Models\User;
+use App\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

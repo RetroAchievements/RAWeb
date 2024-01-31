@@ -1,10 +1,11 @@
 <?php
+
 use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\TicketState;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 ?>
 
@@ -232,7 +233,7 @@ function completeClaim() {
 
 <!-- If the author is a jr. dev and the current user is a full dev, allow the set to be changed to Review status -->
 @if ($primaryClaimUser && $userPermissions >= Permissions::Moderator && $primaryClaimUser !== $user)
-    <?php $primaryClaimUserPermissions = getUserPermissions($primaryClaimUser); ?>
+        <?php $primaryClaimUserPermissions = getUserPermissions($primaryClaimUser); ?>
     @if ($primaryClaimUserPermissions < Permissions::Developer)
         @if ($primaryClaimStatus !== ClaimStatus::InReview)
             <form

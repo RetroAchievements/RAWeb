@@ -7,7 +7,8 @@
 ])
 
 <?php
-use App\Site\Enums\UserPreference;
+
+use App\Enums\UserPreference;
 
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 $newPreferencesValue = ($userWebsitePrefs ?? 0) | (1 << $matureContentPref);

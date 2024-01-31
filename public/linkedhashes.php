@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);

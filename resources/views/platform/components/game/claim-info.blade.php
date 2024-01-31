@@ -1,10 +1,11 @@
 <?php
+
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\MemoryNote;
 use App\Platform\Models\PlayerSession;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -45,7 +46,7 @@ foreach ($claimData as $claim) {
                 : '';
 
             // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
-            $expirationText = 
+            $expirationText =
                 ($claimExpiration->isPast() ? 'Expired on:' : 'Expires on:') .
                 " $claimFormattedDate $claimTimeAgoDate";
         }

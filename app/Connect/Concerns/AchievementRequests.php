@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Connect\Concerns;
 
+use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerGame;
-use App\Site\Models\User;
 use Illuminate\Http\Request;
 
 trait AchievementRequests

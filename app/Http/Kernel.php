@@ -16,16 +16,16 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
-        \App\Site\Middleware\TrustHosts::class,
-        \App\Site\Middleware\TrustProxies::class,
+        Middleware\TrustHosts::class,
+        Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
-        \App\Site\Middleware\PreventRequestsDuringMaintenance::class,
+        Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
-        \App\Site\Middleware\TrimStrings::class,
+        Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Site\Middleware\RedirectsMissingPages::class,
-        \App\Site\Middleware\RobotsMiddleware::class,
-        \App\Site\Middleware\FeatureFlagMiddleware::class,
+        Middleware\RedirectsMissingPages::class,
+        Middleware\RobotsMiddleware::class,
+        Middleware\FeatureFlagMiddleware::class,
     ];
 
     /**
@@ -35,15 +35,15 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            \App\Site\Middleware\ForceHttps::class,
-            \App\Site\Middleware\EncryptCookies::class,
+            Middleware\ForceHttps::class,
+            Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\Session\Middleware\AuthenticateSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Site\Middleware\VerifyCsrfToken::class,
+            Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Site\Middleware\UserPreferences::class,
+            Middleware\UserPreferences::class,
             // TODO Web Interceptor middleware
             // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.':web',
         ],
@@ -73,15 +73,15 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $middlewareAliases = [
-        'auth' => \App\Site\Middleware\Authenticate::class,
+        'auth' => Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Site\Middleware\RedirectIfAuthenticated::class,
+        'guest' => Middleware\RedirectIfAuthenticated::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
-        'signed' => \App\Site\Middleware\ValidateSignature::class,
+        'signed' => Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
@@ -93,7 +93,7 @@ class Kernel extends HttpKernel
         /*
          * Allows to force JSON response regardless of accept header. Not clean but also clean.
          */
-        'json' => \App\Site\Middleware\JsonResponse::class,
+        'json' => Middleware\JsonResponse::class,
     ];
 
     /**

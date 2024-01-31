@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\User;
+use App\Models\User;
 use Carbon\Carbon;
 
 authenticateFromCookie($user, $permissions, $userDetails);

@@ -2,8 +2,8 @@
 
 namespace App\Platform\Jobs;
 
+use App\Models\User;
 use App\Platform\Actions\UpdatePlayerMetrics;
-use App\Site\Models\User;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;

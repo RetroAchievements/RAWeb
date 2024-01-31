@@ -1,7 +1,7 @@
 <?php
 
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 
 /** @var User $user */
 $user = request()->user();
@@ -46,11 +46,11 @@ $tools = $settings['tools'] ?? null;
                     {{--<x-dropdown-item :link="route('news.index')">{{ __res('news') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
                 @endcan
-                @can('manage', App\Site\Models\User::class)
+                @can('manage', App\Models\User::class)
                     {{--<x-dropdown-item :link="route('forum-topic.verify')">Forum Verification</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('viewforum.php?f=0')">Forum Verification</x-dropdown-item>
                 @endcan
-                {{--@can('manage', App\Site\Models\Event::class)
+                {{--@can('manage', App\Models\Event::class)
                     <h6 class="dropdown-header">Events</h6>
                 @endcan--}}
                 {{--@can('manage', App\Platform\Models\IntegrationRelease::class)

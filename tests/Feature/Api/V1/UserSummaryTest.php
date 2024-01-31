@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\Rank;
+use App\Models\User;
 use App\Platform\Actions\UpdateGameMetrics;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
-use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;

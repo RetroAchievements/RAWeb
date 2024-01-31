@@ -26,7 +26,7 @@
  *    string     GameURL                  site-relative path to the game page
  */
 
-use App\Site\Models\User;
+use App\Models\User;
 
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {

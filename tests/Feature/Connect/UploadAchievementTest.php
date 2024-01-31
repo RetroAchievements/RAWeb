@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Community\Models\AchievementSetClaim;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\System;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;

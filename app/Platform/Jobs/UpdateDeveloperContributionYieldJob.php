@@ -2,8 +2,8 @@
 
 namespace App\Platform\Jobs;
 
+use App\Models\User;
 use App\Platform\Actions\UpdateDeveloperContributionYield;
-use App\Site\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;

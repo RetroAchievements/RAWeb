@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Policies;
 
+use App\Models\User;
 use App\Platform\Models\PlayerAchievement;
-use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PlayerAchievementPolicy

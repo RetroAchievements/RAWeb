@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\User;
+use App\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);

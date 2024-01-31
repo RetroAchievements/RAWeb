@@ -7,7 +7,7 @@ use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Models\AchievementSetClaim;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;

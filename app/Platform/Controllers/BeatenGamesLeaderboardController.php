@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
+use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerStat;
 use App\Platform\Models\System;
-use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -139,10 +139,10 @@ class BeatenGamesLeaderboardController extends Controller
             ->groupBy('user_id');
 
         $query = PlayerStat::selectRaw(
-            'sub.user_id, 
-            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.last_game_id ELSE NULL END) AS last_game_id, 
-            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.stat_updated_at ELSE NULL END) as last_beaten_date, 
-            sub.total_awards, 
+            'sub.user_id,
+            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.last_game_id ELSE NULL END) AS last_game_id,
+            MAX(CASE WHEN player_stats.type IN (\'' . implode("', '", $includedTypes) . '\') THEN player_stats.stat_updated_at ELSE NULL END) as last_beaten_date,
+            sub.total_awards,
             RANK() OVER (ORDER BY sub.total_awards DESC) as rank_number,
             ROW_NUMBER() OVER (ORDER BY sub.total_awards DESC, sub.last_beaten_date ASC) as leaderboard_row_number'
         )

@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Enums\UserRelationship;
-use App\Site\Enums\Permissions;
-use App\Site\Enums\UserPreference;
+use App\Enums\Permissions;
+use App\Enums\UserPreference;
 
 function changeFriendStatus(string $user, string $friend, int $newStatus): string
 {

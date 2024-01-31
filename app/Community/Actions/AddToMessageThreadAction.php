@@ -7,7 +7,7 @@ namespace App\Community\Actions;
 use App\Community\Events\MessageCreated;
 use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 
 class AddToMessageThreadAction

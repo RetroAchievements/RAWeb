@@ -5,9 +5,9 @@
 // using an API endpoint or a lot of JS. The dialog content shouldn't be present in the DOM
 // unless the user has explicitly attempted to open it.
 
+use App\Enums\Permissions;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Game;
-use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;

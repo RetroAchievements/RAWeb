@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievement as UnlockPlayerAchievementAction;
 use App\Platform\Models\Achievement;
-use App\Site\Models\User;
 use Exception;
 use Illuminate\Console\Command;
 

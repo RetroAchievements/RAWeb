@@ -6,8 +6,8 @@ namespace App\Community\Actions;
 
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
+use App\Models\User;
 use App\Platform\Models\Game;
-use App\Site\Models\User;
 
 class AddGameToListAction
 {

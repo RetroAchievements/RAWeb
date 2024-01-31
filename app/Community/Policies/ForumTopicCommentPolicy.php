@@ -6,8 +6,8 @@ namespace App\Community\Policies;
 
 use App\Community\Models\ForumTopic;
 use App\Community\Models\ForumTopicComment;
-use App\Site\Models\Role;
-use App\Site\Models\User;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ForumTopicCommentPolicy

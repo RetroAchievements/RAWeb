@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Components;
 
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;

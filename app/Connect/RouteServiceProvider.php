@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Connect;
 
 use App\Connect\Controllers\ConnectApiController;
-use App\Support\Http\HandlesPublicFileRequests;
+use App\Http\HandlesPublicFileRequests;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 

@@ -6,7 +6,7 @@ namespace App\Community\Components;
 
 use App\Community\Models\News;
 use App\Community\Models\NewsComment;
-use App\Site\Components\Grid;
+use App\Components\Grid;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

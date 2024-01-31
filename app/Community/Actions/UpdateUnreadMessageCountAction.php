@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Models\MessageThreadParticipant;
-use App\Site\Models\User;
+use App\Models\User;
 
 class UpdateUnreadMessageCountAction
 {

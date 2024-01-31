@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\Factory;

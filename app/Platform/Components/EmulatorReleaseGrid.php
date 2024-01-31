@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
-use App\Site\Components\Grid;
+use App\Components\Grid;
 
 class EmulatorReleaseGrid extends Grid
 {

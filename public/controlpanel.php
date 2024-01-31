@@ -1,7 +1,7 @@
 <?php
 
-use App\Site\Enums\Permissions;
-use App\Site\Enums\UserPreference;
+use App\Enums\Permissions;
+use App\Enums\UserPreference;
 use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {

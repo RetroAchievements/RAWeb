@@ -1,6 +1,9 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\Permissions;
+use App\Models\StaticData;
+use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
@@ -8,9 +11,6 @@ use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerGame;
-use App\Site\Enums\Permissions;
-use App\Site\Models\StaticData;
-use App\Site\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 

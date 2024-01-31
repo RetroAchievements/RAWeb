@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Community\Components;
 
 use App\Community\Enums\Rank;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

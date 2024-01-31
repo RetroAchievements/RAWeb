@@ -19,7 +19,7 @@ parameters:
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[a-zA-Z0-9\&\\_]+[_count]#'
         - '#Access to an undefined property App\\Community\\Models\\.*#'
         - '#Access to an undefined property App\\Platform\\Models\\.*#'
-        - '#Access to an undefined property App\\Site\\Models\\.*#'
+        - '#Access to an undefined property App\\Models\\.*#'
         # Builder::exists() is not private
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
         - '#Parameter (.*) of function htmlentities expects#'

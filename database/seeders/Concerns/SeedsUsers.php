@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Concerns;
 
-use App\Site\Models\Role;
-use App\Site\Models\User;
+use App\Models\Role;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;

@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Site\Models\User;
 
 function getUserBestDaysList(User $user, int $offset, int $limit, int $sortBy): array
 {

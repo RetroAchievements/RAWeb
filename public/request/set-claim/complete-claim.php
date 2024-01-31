@@ -3,7 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 

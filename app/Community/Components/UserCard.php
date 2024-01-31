@@ -6,8 +6,8 @@ namespace App\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;

@@ -53,7 +53,7 @@
 
         <x-section>
             <h3>Feature Flags</h3>
-            <x-feature-flags />
+            <x-feature-flags/>
         </x-section>
 
         <div>
@@ -62,7 +62,7 @@
     </x-slot>
 
     <?php
-    $user = request()->user() ?? App\Site\Models\User::first();
+    $user = request()->user() ?? App\Models\User::first();
     ?>
     <x-section>
         <x-section-header class="mb-3">

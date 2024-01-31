@@ -9,10 +9,11 @@
 ])
 
 <?php
+
 use App\Community\Enums\TicketFilters;
 use App\Community\Models\ForumTopic;
 use App\Platform\Enums\AchievementFlag;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Facades\Auth;
 
 $me = Auth::user();
@@ -60,7 +61,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
                 Official Forum Topic
             </x-game.link-buttons.game-link-button>
         @elseif ($canCreateForumTopic)
-            <x-game.link-buttons.create-forum-topic-button :gameId="$gameId" />
+            <x-game.link-buttons.create-forum-topic-button :gameId="$gameId"/>
         @endif
     @endif
 
@@ -96,7 +97,9 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
             icon="🎫"
             href="{!! $ticketManagerUrl !!}"
         >
-            Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
+            Open @if (!$isViewingOfficial)
+                Unofficial
+            @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
     @endif
 

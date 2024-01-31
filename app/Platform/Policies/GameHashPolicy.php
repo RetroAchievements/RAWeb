@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Policies;
 
+use App\Enums\Permissions;
+use App\Models\Role;
+use App\Models\User;
 use App\Platform\Models\GameHash;
-use App\Site\Enums\Permissions;
-use App\Site\Models\Role;
-use App\Site\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class GameHashPolicy

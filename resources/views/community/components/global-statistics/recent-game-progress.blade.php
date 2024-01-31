@@ -6,7 +6,8 @@
 ])
 
 <?php
-use App\Site\Models\User;
+
+use App\Models\User;
 
 $user = User::find($userId);
 
@@ -43,14 +44,14 @@ $gameUrl = route('game.show', $game->ID);
                 >
 
                 <p class="absolute pl-4 top-[-2px] left-[58px] max-w-fit line-clamp-2 mb-px">
-                    <x-game-title :rawTitle="$game->Title" />
+                    <x-game-title :rawTitle="$game->Title"/>
                 </p>
             </a>
 
             <div class="-mt-1 w-full">
                 {{-- Provide invisible space to slide the console underneath --}}
                 <p class="invisible max-w-fit line-clamp-2 mb-px">
-                    <x-game-title :rawTitle="$game->Title" />
+                    <x-game-title :rawTitle="$game->Title"/>
                 </p>
 
                 <p>

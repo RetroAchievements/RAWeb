@@ -2,11 +2,11 @@
 
 namespace App\Platform\Listeners;
 
+use App\Models\User;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerGameAttached;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Game;
-use App\Site\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DispatchUpdatePlayerGameMetricsJob implements ShouldQueue

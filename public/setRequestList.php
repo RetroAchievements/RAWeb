@@ -3,8 +3,8 @@
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
+use App\Models\User;
 use App\Platform\Models\System;
-use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 

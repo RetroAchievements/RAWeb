@@ -1,7 +1,7 @@
 <?php
 
+use App\Enums\Permissions;
 use App\Platform\Enums\AchievementFlag;
-use App\Site\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     abort(401);

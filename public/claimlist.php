@@ -6,7 +6,7 @@ use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 

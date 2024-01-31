@@ -1,12 +1,12 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array

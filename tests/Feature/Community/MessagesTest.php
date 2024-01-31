@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community;
 
+use App\Actions\ClearAccountDataAction;
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
@@ -11,12 +12,11 @@ use App\Community\Actions\ReadMessageThreadAction;
 use App\Community\Enums\UserRelationship;
 use App\Community\Models\Message;
 use App\Community\Models\UserRelation;
-use App\Site\Actions\ClearAccountDataAction;
-use App\Site\Enums\UserPreference;
-use App\Site\Models\User;
+use App\Enums\UserPreference;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\Feature\Site\Concerns\TestsMail;
+use Tests\Feature\Concerns\TestsMail;
 use Tests\TestCase;
 
 class MessagesTest extends TestCase

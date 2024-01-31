@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 
 $playersOnlineChartData = [];
@@ -22,7 +22,7 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
 
 <script defer src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         google.load('visualization', '1.0', { 'packages': ['corechart'] });
         google.setOnLoadCallback(drawCharts);
     });
@@ -72,7 +72,7 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
         var optionsTotalScore = {
             backgroundColor: 'transparent',
             titleTextStyle: { color: '#186DEE' }, // cc9900
-            hAxis: { 
+            hAxis: {
                 textStyle: { color: '#186DEE' },
                 showTextEvery: 2,
             },

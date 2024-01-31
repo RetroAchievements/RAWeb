@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 $sortBy = (int) request()->query('s');
 $offset = (int) request()->query('o');

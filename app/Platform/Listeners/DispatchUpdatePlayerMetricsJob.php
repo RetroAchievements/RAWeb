@@ -2,9 +2,9 @@
 
 namespace App\Platform\Listeners;
 
+use App\Models\User;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use App\Platform\Jobs\UpdatePlayerMetricsJob;
-use App\Site\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DispatchUpdatePlayerMetricsJob implements ShouldQueue

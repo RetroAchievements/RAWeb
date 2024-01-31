@@ -6,7 +6,8 @@
 ])
 
 <?php
-use App\Site\Enums\UserPreference;
+
+use App\Enums\UserPreference;
 use Illuminate\Support\Carbon;
 
 /** @var ?User $user */
@@ -64,14 +65,16 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
 @endif
 
 <p class='smalltext !leading-[14px]'>
-    <span 
+    <span
         @if($shouldUsePostedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
-            title="{{ $formattedPostTimestampTooltip }}" 
-            class="cursor-help"
+            title="{{ $formattedPostTimestampTooltip }}"
+        class="cursor-help"
         @endif
     >
         {{-- Keep this all on a single line so white space isn't added before the comma --}}
-        {{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif
+        {{ $formattedPostTimestamp }}@if($formattedEditTimestamp)
+            ,
+        @endif
     </span>
 
     @if($formattedEditTimestamp)
@@ -80,11 +83,11 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
             <span
                 @if($shouldUseEditedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
                     class="cursor-help"
-                    title="{{ $formattedEditTimestampTooltip }}"
+                title="{{ $formattedEditTimestampTooltip }}"
                 @endif
             >
                 {{ $formattedEditTimestamp }}
             </span>
-        </span> 
+        </span>
     @endif
 </p>

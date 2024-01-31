@@ -7,7 +7,7 @@ namespace App\Community\Commands;
 use App\Community\Models\Message;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
