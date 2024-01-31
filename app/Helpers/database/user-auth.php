@@ -39,9 +39,9 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
             'Success' => false,
             'Status' => 401,
             'Code' => 'invalid_credentials',
-            'Error' => $tokenProvided ?
-                'Invalid user/token combination.' :
-                'Invalid user/password combination. Please try again.',
+            'Error' => $tokenProvided
+                ? 'Invalid user/token combination.'
+                : 'Invalid user/password combination. Please try again.',
         ];
     }
 
@@ -51,9 +51,9 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
             'Success' => false,
             'Status' => 403,
             'Code' => 'access_denied',
-            'Error' => ($permissions === Permissions::Unregistered) ?
-                'Access denied. Please verify your email address.' :
-                'Access denied.',
+            'Error' => $permissions === Permissions::Unregistered
+                ? 'Access denied.'
+                : 'Access denied. Please verify your email address.',
         ];
     }
 
@@ -112,6 +112,11 @@ function authenticateFromPassword(string &$username, string $password): bool
 
     $hashedPassword = $row['Password'];
 
+    // some protected accounts do not have a password anymore
+    if (empty($hashedPassword)) {
+        return false;
+    }
+
     // if the user hasn't logged in for a while, they may still have a salted password, upgrade it
     if (mb_strlen($row['SaltedPass']) === 32) {
         $pepperedPassword = md5($password . config('app.legacy_password_salt'));
@@ -158,6 +163,9 @@ function changePassword(string $username, string $password): string
  * COOKIE
  */
 
+/**
+ * @deprecated use request()->user()
+ */
 function authenticateFromCookie(
     ?string &$userOut,
     ?int &$permissionsOut,
@@ -207,6 +215,9 @@ function authenticateFromCookie(
  * TOKEN
  */
 
+/**
+ * @deprecated use auth('connect-token')->user()
+ */
 function authenticateFromAppToken(
     ?string &$userOut,
     string $token,
