@@ -96,6 +96,8 @@ class AchievementResource extends Resource
                                 ]),
                         ]),
                     Infolists\Components\Section::make([
+                        Infolists\Components\TextEntry::make('id')
+                            ->label('ID'),
                         Infolists\Components\TextEntry::make('Created')
                             ->label('Created at')
                             ->dateTime()
