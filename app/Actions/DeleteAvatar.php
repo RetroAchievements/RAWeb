@@ -6,10 +6,10 @@ namespace App\Actions;
 
 use App\Models\User;
 
-class DeleteAvatarAction
+class DeleteAvatar
 {
     public function __construct(
-        private LinkLatestAvatarAction $linkLatestAvatarAction
+        private LinkLatestAvatar $linkLatestAvatarAction
     ) {
     }
 

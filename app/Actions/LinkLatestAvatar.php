@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Filesystem\Filesystem;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class LinkLatestAvatarAction
+class LinkLatestAvatar
 {
     public function __construct(
         private Filesystem $filesystem

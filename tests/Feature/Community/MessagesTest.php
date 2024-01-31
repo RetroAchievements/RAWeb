@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community;
 
-use App\Actions\ClearAccountDataAction;
+use App\Actions\ClearAccountData;
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Actions\DeleteMessageThreadAction;
@@ -518,7 +518,7 @@ class MessagesTest extends TestCase
         // user2 is deleted
         $now3 = $now2->clone()->addMinutes(5);
         Carbon::setTestNow($now3);
-        (new ClearAccountDataAction())->execute($user2);
+        (new ClearAccountData())->execute($user2);
         $this->assertDatabaseHas('message_threads', [
             'id' => 1,
             'title' => 'This is a message',
@@ -546,7 +546,7 @@ class MessagesTest extends TestCase
         ]);
 
         // user1 is deleted
-        (new ClearAccountDataAction())->execute($user1);
+        (new ClearAccountData())->execute($user1);
         $this->assertDatabaseMissing('message_threads', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 1]);
         $this->assertDatabaseMissing('messages', ['id' => 2]);

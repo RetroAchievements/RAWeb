@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Actions\DeleteAvatarAction;
-use App\Actions\UpdateAvatarAction;
+use App\Actions\DeleteAvatar;
+use App\Actions\UpdateAvatar;
 use App\Models\User;
 use App\Support\Sync\SyncTrait;
 use Exception;
@@ -21,8 +21,8 @@ class SyncUsers extends Command
     protected $description = 'Sync users';
 
     public function __construct(
-        private UpdateAvatarAction $updateAvatarAction,
-        private DeleteAvatarAction $deleteAvatarAction,
+        private UpdateAvatar $updateAvatarAction,
+        private DeleteAvatar $deleteAvatarAction,
     ) {
         parent::__construct();
     }

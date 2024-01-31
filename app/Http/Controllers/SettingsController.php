@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\UpdateAvatarAction;
+use App\Actions\UpdateAvatar;
 use App\Http\Controller;
 use App\Http\Requests\ProfileSettingsRequest;
 use App\Models\User;
@@ -33,7 +33,7 @@ class SettingsController extends Controller
      */
     public function updateProfile(
         ProfileSettingsRequest $request,
-        UpdateAvatarAction $updateAvatarAction
+        UpdateAvatar $updateAvatarAction
     ): RedirectResponse {
         $this->authorize('updateProfileSettings', $request->user());
 

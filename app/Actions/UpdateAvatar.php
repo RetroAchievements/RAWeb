@@ -8,11 +8,11 @@ use App\Models\User;
 use App\Support\MediaLibrary\Actions\AddMediaAction;
 use Illuminate\Http\Request;
 
-class UpdateAvatarAction
+class UpdateAvatar
 {
     public function __construct(
         private AddMediaAction $addMediaAction,
-        private LinkLatestAvatarAction $linkLatestAvatarAction
+        private LinkLatestAvatar $linkLatestAvatarAction
     ) {
     }
 
