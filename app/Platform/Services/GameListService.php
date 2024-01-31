@@ -526,16 +526,19 @@ class GameListService
                     $gameProgress = $this->userProgress[$game['ID']] ?? null;
                     $softcoreProgress = $gameProgress['achievements_unlocked'] ?? 0;
                     $hardcoreProgress = $gameProgress['achievements_unlocked_hardcore'] ?? 0;
+                    $highestAwardKind = $gameProgress['HighestAwardKind'] ?? 'unfinished';
                     $tooltip = "$softcoreProgress of {$game['achievements_published']} unlocked";
 
                     echo '<td class="text-center">';
                     echo Blade::render('
                         <x-game-progress-bar
+                            :awardIndicator="$awardIndicator"
                             :softcoreProgress="$softcoreProgress"
                             :hardcoreProgress="$hardcoreProgress"
                             :maxProgress="$maxProgress"
                             :tooltip="$tooltip"
                         />', [
+                            'awardIndicator' => $highestAwardKind,
                             'softcoreProgress' => $softcoreProgress,
                             'hardcoreProgress' => $hardcoreProgress,
                             'maxProgress' => $game['achievements_published'],
