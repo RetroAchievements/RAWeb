@@ -26,9 +26,9 @@ $commentAuthorPermissions = null;
 if (!$isPreview) {
     $commentId = $commentData->ID;
     $commentAuthor = e($commentData->Author);
-    $commentAuthorDeletedDate = $commentData->user->Deleted;
-    $commentAuthorJoinDate = $commentData->user->Created;
-    $commentAuthorPermissions = $commentData->user->Permissions;
+    $commentAuthorDeletedDate = $commentData->user->Deleted ?? null;
+    $commentAuthorJoinDate = $commentData->user->Created ?? null;
+    $commentAuthorPermissions = $commentData->user->Permissions ?? null;
     $commentDateCreated = $commentData->DateCreated;
     $commentDateModified = $commentData->DateModified;
     $commentIsAuthorised = $commentData->Authorised;
