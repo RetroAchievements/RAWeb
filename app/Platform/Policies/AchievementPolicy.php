@@ -99,8 +99,6 @@ class AchievementPolicy
 
     public function forceDelete(User $user, Achievement $achievement): bool
     {
-        return $user->hasAnyRole([
-            Role::HUB_MANAGER,
-        ]);
+        return false;
     }
 }
