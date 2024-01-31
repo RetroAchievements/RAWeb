@@ -153,8 +153,7 @@ class SystemResource extends Resource
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->sortable()
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name_full')
                     ->label('Full name')
                     ->description(fn (System $record): ?string => $record->name_short)

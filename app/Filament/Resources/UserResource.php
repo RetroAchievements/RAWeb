@@ -181,8 +181,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('User')
                     ->description(fn (User $record): string => $record->display_name)
                     ->label('Username')
