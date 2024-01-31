@@ -32,7 +32,7 @@ class UserResource extends Resource
 
     protected static ?string $recordRouteKeyName = 'User';
 
-    protected static ?string $recordTitleAttribute = 'id_title';
+    protected static ?string $recordTitleAttribute = 'username';
 
     protected static int $globalSearchResultsLimit = 5;
 
@@ -105,6 +105,8 @@ class UserResource extends Resource
                     Infolists\Components\Section::make()
                         ->grow(false)
                         ->schema([
+                            Infolists\Components\TextEntry::make('id')
+                                ->label('ID'),
                             Infolists\Components\TextEntry::make('Created')
                                 ->label('Joined')
                                 ->dateTime(),
@@ -179,7 +181,8 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('User')
                     ->description(fn (User $record): string => $record->display_name)
                     ->label('Username')
