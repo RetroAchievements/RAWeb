@@ -152,7 +152,7 @@ function setAccountForumPostAuth(string $sourceUser, int $sourcePermissions, str
 
     if (!$authorize) {
         // This user is a spam user: remove all their posts and set their account as banned.
-        $query = "UPDATE UserAccounts SET ManuallyVerified = 0, Updated=NOW() WHERE User='$user'";
+        $query = "UPDATE UserAccounts SET ManuallyVerified = 0, forum_verified_at = null, Updated=NOW() WHERE User='$user'";
         $dbResult = s_mysql_query($query);
         if (!$dbResult) {
             return false;
@@ -166,7 +166,7 @@ function setAccountForumPostAuth(string $sourceUser, int $sourcePermissions, str
         return true;
     }
 
-    $query = "UPDATE UserAccounts SET ManuallyVerified = 1, Updated=NOW() WHERE User='$user'";
+    $query = "UPDATE UserAccounts SET ManuallyVerified = 1, forum_verified_at = NOW(), Updated=NOW() WHERE User='$user'";
     $dbResult = s_mysql_query($query);
     if (!$dbResult) {
         return false;
@@ -185,6 +185,8 @@ function setAccountForumPostAuth(string $sourceUser, int $sourcePermissions, str
 
 /**
  * APIKey doesn't have to be reset -> permission >= Registered
+ *
+ * @deprecated TODO move to filament user management
  */
 function banAccountByUsername(string $username, int $permissions): void
 {
@@ -213,7 +215,9 @@ function banAccountByUsername(string $username, int $permissions): void
         u.UserWallActive = 0,
         u.RichPresenceMsg = null,
         u.RichPresenceMsgDate = null,
-        u.PasswordResetToken = ''
+        u.PasswordResetToken = '',
+        u.banned_at = NOW(),
+        u.Updated = NOW()
         WHERE u.User='$username'"
     );
     if (!$dbResult) {

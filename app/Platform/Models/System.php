@@ -200,7 +200,14 @@ class System extends BaseModel implements HasMedia
 
     public function getIdTitleAttribute(): string
     {
-        return '[' . $this->ID . '] ' . $this->name_full;
+        return '[' . $this->id . '] ' . $this->name_full;
+    }
+
+    // TODO remove after rename
+
+    public function getIdAttribute(): ?int
+    {
+        return $this->attributes['ID'] ?? null;
     }
 
     // == mutators

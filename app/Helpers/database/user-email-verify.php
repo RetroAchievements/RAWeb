@@ -1,6 +1,7 @@
 <?php
 
 use App\Site\Enums\Permissions;
+use App\Site\Models\User;
 use Illuminate\Support\Str;
 
 function generateEmailVerificationToken(string $user): ?string
@@ -24,6 +25,9 @@ function generateEmailVerificationToken(string $user): ?string
     return $emailCookie;
 }
 
+/**
+ * @deprecated will be replaced by Fortify and default framework features
+ */
 function validateEmailVerificationToken(string $emailCookie, ?string &$user): bool
 {
     sanitize_sql_inputs($emailCookie);
@@ -57,6 +61,8 @@ function validateEmailVerificationToken(string $emailCookie, ?string &$user): bo
         if ($response['Success']) {
             static_addnewregistereduser($user);
             generateAPIKey($user);
+
+            User::where('User', $user)->update(['email_verified_at' => now()]);
 
             // SUCCESS: validated email address for $user
             return true;
