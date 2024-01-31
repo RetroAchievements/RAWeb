@@ -52,8 +52,8 @@ function authenticateForConnect(?string $username, ?string $pass = null, ?string
             'Status' => 403,
             'Code' => 'access_denied',
             'Error' => $permissions === Permissions::Unregistered
-                ? 'Access denied.'
-                : 'Access denied. Please verify your email address.',
+                ? 'Access denied. Please verify your email address.'
+                : 'Access denied.',
         ];
     }
 
