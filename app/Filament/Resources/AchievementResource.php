@@ -305,7 +305,6 @@ class AchievementResource extends Resource
                         Tables\Actions\EditAction::make(),
                         Tables\Actions\DeleteAction::make(),
                         Tables\Actions\RestoreAction::make(),
-                        Tables\Actions\ForceDeleteAction::make(),
                     ])->dropdown(false),
                     Tables\Actions\Action::make('audit-log')
                         ->url(fn ($record) => AchievementResource::getUrl('audit-log', ['record' => $record]))
@@ -315,7 +314,6 @@ class AchievementResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
-                    // Tables\Actions\ForceDeleteBulkAction::make(),
                     // Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
