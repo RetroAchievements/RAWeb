@@ -152,7 +152,7 @@ function setAccountForumPostAuth(string $sourceUser, int $sourcePermissions, str
 
     if (!$authorize) {
         // This user is a spam user: remove all their posts and set their account as banned.
-        $query = "UPDATE UserAccounts SET ManuallyVerified = 0, forum_verified_at = NOW(), Updated=NOW() WHERE User='$user'";
+        $query = "UPDATE UserAccounts SET ManuallyVerified = 0, forum_verified_at = null, Updated=NOW() WHERE User='$user'";
         $dbResult = s_mysql_query($query);
         if (!$dbResult) {
             return false;
