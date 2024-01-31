@@ -302,7 +302,7 @@ RenderContentStart($pageTitle);
         $countTickets = countOpenTicketsByAchievement($achievementID);
         echo "<div class='flex justify-between mb-2'>";
         if ($countTickets > 0) {
-            echo "<a href='/ticketmanager.php?a=$achievementID'>$countTickets open tickets</a>";
+            echo "<a href='/ticketmanager.php?a=$achievementID'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
         } else {
             echo "<i>No open tickets</i>";
         }

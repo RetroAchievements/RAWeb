@@ -168,6 +168,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         "completion_percentage_average_hardcore",
         "ContribCount",
         "ContribYield",
+        "Deleted",
         "LastLogin",
         "ManuallyVerified",
         "Motto",
