@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Actions\ClearAccountData;
+use App\Actions\ClearAccountDataAction;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -17,7 +17,7 @@ class DeleteOverdueUserAccounts extends Command
     protected $description = 'Delete overdue user accounts marked for deletion';
 
     public function __construct(
-        private readonly ClearAccountData $clearAccountDataAction,
+        private readonly ClearAccountDataAction $clearAccountDataAction,
     ) {
         parent::__construct();
     }

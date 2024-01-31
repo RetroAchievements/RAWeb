@@ -12,7 +12,7 @@ use DB;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class ClearAccountData
+class ClearAccountDataAction
 {
     public function execute(User $user): void
     {
