@@ -184,7 +184,7 @@ class SystemController extends Controller
                 return $game['achievements_published'] > 0;
 
             case 'no':
-                return $game['achievements_published'] === 0 || $game['achievements_published'] === null;
+                return !$game['achievements_published'];
 
             default:
                 return true;
