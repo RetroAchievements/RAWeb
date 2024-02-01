@@ -112,7 +112,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
     @if ($canSeeSuggestedGames)
         <x-game.link-buttons.game-link-button
             icon="🕹️"
-            href="{{ route('game.suggest-for-game', $gameId) }}"
+            href="{{ route('game.suggest', $gameId) }}"
         >
             Find Something Similar to Play
         </x-game.link-buttons.game-link-button>
