@@ -45,7 +45,7 @@ $shouldMoveRoleToNextLine =
             {{-- TODO: Support N roles. --}}
             @if ($hasVisibleRole)
                 <div class="flex h-4 items-center justify-center bg-neutral-700 text-neutral-300 px-1.5 rounded sm:-mt-1">
-                    <p class="text-2xs -mb-0.5">{{ $roleLabel }}</p>
+                    <p class="text-2xs">{{ $roleLabel }}</p>
                 </div>
             @endif
         </div>
