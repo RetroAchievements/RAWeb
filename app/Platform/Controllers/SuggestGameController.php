@@ -30,6 +30,7 @@ class SuggestGameController extends Controller
 
     private array $gameProgress = [];
     private array $masteredGames = [];
+    private array $beatenGames = [];
 
     public function __invoke(Request $request): View
     {
