@@ -23,7 +23,7 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
 $retroRatio = $weightedPoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoints) : null;
 ?>
 
-<p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Player stats</p>
+<p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Player Stats</p>
 <div
     class="relative w-full px-2 pt-2 bg-embed rounded mb-6 pb-4 transition-all"
     x-data="{

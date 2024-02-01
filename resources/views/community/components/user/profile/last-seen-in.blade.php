@@ -31,7 +31,7 @@ $parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
     <div class="mb-6">
         <div class="flex w-full items-center gap-x-1.5 mb-0.5">
             <p role="heading" aria-level="2" class="text-2xs font-bold">
-                Most recently played
+                Most Recently Played
 
                 @if ($mostRecentSession?->rich_presence_updated_at)
                     <p class="smalldate min-w-auto cursor-help" title="{{ $parsedDate->format('F j Y, g:ia') }}">
