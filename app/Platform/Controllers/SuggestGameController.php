@@ -30,6 +30,7 @@ class SuggestGameController extends Controller
 
     private array $gameProgress = [];
     private array $masteredGames = [];
+    private array $beatenGames = [];
 
     public function __invoke(Request $request): View
     {
@@ -104,7 +105,7 @@ class SuggestGameController extends Controller
                 $why = ['how' => 'random'];
             }
 
-            if ($this->isGameEligible($gameId, $gameIds)) {
+            if ($this->isGameEligible($gameId, $gameIds, $why)) {
                 $selectedGames[$gameId] = $why;
 
                 $gameIds[] = $gameId;
@@ -152,7 +153,7 @@ class SuggestGameController extends Controller
         for ($i = 0; $i < 30; $i++) {
             [$gameId, $why] = $this->selectRelatedGame($user, $game->id);
 
-            if ($this->isGameEligible($gameId, $gameIds)) {
+            if ($this->isGameEligible($gameId, $gameIds, $why)) {
                 $selectedGames[$gameId] = $why;
 
                 $gameIds[] = $gameId;
@@ -292,7 +293,7 @@ class SuggestGameController extends Controller
         ];
     }
 
-    public function isGameEligible(int $gameId, array $gameIds): bool
+    public function isGameEligible(int $gameId, array $gameIds, array $why = []): bool
     {
         if ($gameId === 0) {
             /* no game was selected */
@@ -309,6 +310,16 @@ class SuggestGameController extends Controller
             /* player has played this before. lower chance to recommend based on how
                much the user has already completed */
             if ($progress >= 1.0 || rand(1, 100) - 10 < $progress * 100) {
+                return false;
+            }
+        }
+
+        // ignore subsets unless they're from the user's want to play list or have
+        // been picked via similar-to the base game or another subset
+        $how = $why['how'] ?? '';
+        if ($how !== 'want-to-play' && $how !== 'similar-to') {
+            $title = Game::find($gameId, ['Title'])->Title;
+            if (mb_strpos($title, '[Subset') !== false) {
                 return false;
             }
         }
@@ -352,9 +363,10 @@ class SuggestGameController extends Controller
                     ->select(['gameIDAlt', 'Title'])
                     ->first();
 
-                if ($relatedHub !== null && !str_starts_with($relatedHub->Title, '[Meta -')) {
+                if ($relatedHub !== null && !str_starts_with($relatedHub->Title, '[Meta -')
+                        && !str_starts_with($relatedHub->Title, '[Meta|')) {
                     $relatedGameId = $this->selectSimilarGame($relatedHub->gameIDAlt);
-                    if ($relatedGameId !== null) {
+                    if ($relatedGameId !== null && $relatedGameId !== $gameId) {
                         return [$relatedGameId, [
                             'how' => 'common-hub',
                             'hub' => $relatedHub->Title,
