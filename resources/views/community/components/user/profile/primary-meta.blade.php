@@ -33,7 +33,7 @@ $shouldMoveRoleToNextLine =
     <img
         src="{{ media_asset('/UserPic/' . $username . '.png') }}"
         alt="{{ $username }}'s avatar"
-        class="rounded-sm h-[64px] w-[64px] sm:max-h-[128px] sm:max-w-[128px] sm:min-w-[128px] sm:min-h-[128px] bg-stone-900 light:bg-neutral-100"
+        class="rounded-sm h-[64px] w-[64px] sm:max-h-[128px] sm:max-w-[128px] sm:min-w-[128px] sm:min-h-[128px]"
     >
 
     <div class="w-full">
