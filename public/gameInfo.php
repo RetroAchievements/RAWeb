@@ -15,7 +15,9 @@ use App\Platform\Services\GameListService;
 use App\Site\Enums\Permissions;
 use App\Site\Enums\UserPreference;
 use App\Site\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -1179,8 +1181,30 @@ sanitize_outputs(
     <?php view()->share('sidebar', true) ?>
     <aside>
         <?php
+        $boxArtImgSrc = media_asset($gameData['ImageBoxArt']);
+
+        $boxArtImgSize = Cache::remember(
+            'game:box-art-dimensions:' . $gameID,
+            Carbon::now()->addDays(7),
+            function () use ($boxArtImgSrc) {
+                $boxArtImgSize = @getimagesize($boxArtImgSrc);
+                $boxArtImgWidth = null;
+                $boxArtImgHeight = null;
+
+                if ($boxArtImgSize !== false) {
+                    list($width, $height) = $boxArtImgSize;
+                    $boxArtImgWidth = $width;
+                    $boxArtImgHeight = $height;
+                } else {
+                    return null;
+                }
+
+                return [$boxArtImgWidth, $boxArtImgHeight];
+            }
+        );
+
         echo "<div class='component text-center mb-6'>";
-        echo "<img class='max-w-full rounded-sm' src='" . media_asset($gameData['ImageBoxArt']) . "' alt='Boxart'>";
+        echo "<img class='max-w-full rounded-sm animate-fade-in' src='$boxArtImgSrc' " . (isset($boxArtImgSize) ? "width='$boxArtImgSize[0]' height='$boxArtImgSize[1]'" : "") . " alt='Boxart'>";
         echo "</div>";
 
         echo "<div class='component'>";

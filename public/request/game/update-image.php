@@ -5,6 +5,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Platform\Enums\ImageType;
 use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -64,6 +65,10 @@ $label = match ($imageType) {
     ImageType::GameBoxArt => 'game box art',
     default => '?', // should never hit this because of the match above
 };
+
+if ($imageType === ImageType::GameBoxArt) {
+    Cache::forget('game:box-art-dimensions:' . $gameID);
+}
 
 addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the $label");
 
