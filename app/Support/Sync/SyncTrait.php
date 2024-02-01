@@ -352,7 +352,7 @@ trait SyncTrait
 
         $this->modelClass = config('sync.kinds.' . $this->kind . '.model');
         $this->model = new $this->modelClass();
-        $this->table = $this->Model::getFullTableName();
+        $this->table = $this->model::getFullTableName();
 
         $this->referenceModelClass = config('sync.kinds.' . $this->kind . '.reference_model');
         $this->referenceModel = new $this->referenceModelClass();
