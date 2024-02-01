@@ -29,7 +29,7 @@ class SystemResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $recordTitleAttribute = 'id_title';
+    protected static ?string $recordTitleAttribute = 'name_full';
 
     protected static int $globalSearchResultsLimit = 5;
 
