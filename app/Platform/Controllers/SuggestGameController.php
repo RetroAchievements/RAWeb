@@ -353,7 +353,8 @@ class SuggestGameController extends Controller
                     ->select(['gameIDAlt', 'Title'])
                     ->first();
 
-                if ($relatedHub !== null && !str_starts_with($relatedHub->Title, '[Meta -')) {
+                if ($relatedHub !== null && !str_starts_with($relatedHub->Title, '[Meta -')
+                        && !str_starts_with($relatedHub->Title, '[Meta|')) {
                     $relatedGameId = $this->selectSimilarGame($relatedHub->gameIDAlt);
                     if ($relatedGameId !== null) {
                         return [$relatedGameId, [
