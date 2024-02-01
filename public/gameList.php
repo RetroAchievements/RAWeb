@@ -23,7 +23,7 @@ if ($consoleIDInput == 0 || $filter != 0) {
     $offset = 0;
 }
 
-if ($consoleIDInput > 0 && $consoleIDInput !== System::Hubs) {
+if ($consoleIDInput > 0 && System::isGameSystem($consoleIDInput)) {
     return redirect()->route('system.game.index', ['system' => $consoleIDInput]);
 }
 
