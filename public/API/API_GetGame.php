@@ -22,29 +22,34 @@
  *  string     Released                   release date information for the game
  */
 
+use App\Platform\Models\Game;
+
 $gameID = (int) request()->query('i');
 
-$game = getGameData($gameID);
+$gameSystem = Game::find($gameID)->system->Name;
+$gameData = collect([Game::find($gameID)])->map(function ($gd) use ($gameID, $gameSystem) {
+    return [
+        'Title' => $gd->Title,
+        'GameTitle' => $gd->Title,
+        'ConsoleID' => $gd->ConsoleID,
+        'ConsoleName' => $gameSystem,
+        'Console' => $gameSystem,
+        'ForumTopicID' => $gd->ForumTopicID,
+        'Flags' => (int) 0, // Always '0'
+        'GameIcon' => $gd->ImageIcon,
+        'ImageIcon' => $gd->ImageIcon,
+        'ImageTitle' => $gd->ImageTitle,
+        'ImageIngame' => $gd->ImageIngame,
+        'ImageBoxArt' => $gd->ImageBoxArt,
+        'Publisher' => $gd->Publisher,
+        'Developer' => $gd->Developer,
+        'Genre' => $gd->Genre,
+        'Released' => $gd->Released,
+    ];
+})->first();
 
-if ($game === null) {
+if ($gameID === null) {
     return response()->json();
 }
 
-return response()->json([
-    'Title' => $game['Title'],
-    'GameTitle' => $game['Title'],
-    'ConsoleID' => $game['ConsoleID'],
-    'ConsoleName' => $game['ConsoleName'],
-    'Console' => $game['ConsoleName'],
-    'ForumTopicID' => $game['ForumTopicID'],
-    'Flags' => (int) $game['Flags'],
-    'GameIcon' => $game['ImageIcon'],
-    'ImageIcon' => $game['ImageIcon'],
-    'ImageTitle' => $game['ImageTitle'],
-    'ImageIngame' => $game['ImageIngame'],
-    'ImageBoxArt' => $game['ImageBoxArt'],
-    'Publisher' => $game['Publisher'],
-    'Developer' => $game['Developer'],
-    'Genre' => $game['Genre'],
-    'Released' => $game['Released'],
-]);
+return response()->json($gameData);

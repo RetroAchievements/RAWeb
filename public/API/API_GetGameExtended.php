@@ -51,27 +51,111 @@
  */
 
 use App\Platform\Enums\AchievementFlag;
+use App\Community\Models\AchievementSetClaim;
+use App\Platform\Models\Game;
+use App\Platform\Models\Achievement;
+use Carbon\Carbon;
 
 $gameID = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
-getGameMetadata($gameID, null, $achData, $gameData, flag: $flag, metrics: true);
 
-if ($gameData === null) {
-    return response()->json();
-}
+function getParentGameId(string $title, int $consoleID, int $gameID): ?int
+{
 
-if (empty($achData)) {
-    $gameData['Achievements'] = new ArrayObject(); // issue #484 - force serialization to {}
-} else {
-    foreach ($achData as &$achievement) {
-        $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
+    $result = Game::where('Title', 'LIKE', '%' . $title . '%')->where('ConsoleID', '=', $consoleID)->first();
+
+    if ($result) {
+        $matchValue = $result->Title;
+        $remainingValue = preg_replace('/(?:^|\s)\[.*Subset - .*\](?:\s|$)/', '', $matchValue);
+        $remainingResult = Game::where('Title', $remainingValue)->first();
+
+        if ($gameID == $remainingResult->ID) {
+            return null;
+        } else {
+            return $remainingResult->ID;
+        }
     }
-    $gameData['Achievements'] = $achData;
 }
-$gameData['Claims'] = getClaimData($gameID, false);
-$gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 
-$gameData['NumDistinctPlayersCasual'] = $gameData['NumDistinctPlayers'];
-$gameData['NumDistinctPlayersHardcore'] = $gameData['NumDistinctPlayers'];
+/* Maps
+    These return the data in the order that the v1 api expects, originally
+    the endpoint used function calls that made queries with the data in the
+    order that the endpoint returns but the Eloquent collections order the
+    data by how the columns are laid out in the database. This mapping adds
+    between 20-30ms to the response time on average. Average 90ms on the old
+    implementation vs average 110ms on this refactor.
+*/
 
-return response()->json($gameData);
+$gameData = collect([Game::find($gameID)])->map(function ($gd) {
+    return [
+        'ID' => $gd->ID,
+        'Title' => $gd->Title,
+        'ConsoleID' => $gd->ConsoleID,
+        'ForumTopicID' => $gd->ForumTopicID,
+        'Flags' => (int) 0, // Always '0'
+        'ImageIcon' => $gd->ImageIcon,
+        'ImageTitle' => $gd->ImageTitle,
+        'ImageIngame' => $gd->ImageIngame,
+        'ImageBoxArt' => $gd->ImageBoxArt,
+        'Publisher' => $gd->Publisher,
+        'Developer' => $gd->Developer,
+        'Genre' => $gd->Genre,
+        'Released' => $gd->Released,
+        'IsFinal' => $gd->IsFinal,
+        'RichPresencePatch' => md5($gd->RichPresencePatch),
+        'GuideURL' => $gd->GuideURL,
+        'Updated' => $gd->Updated,
+    ];
+})->first();
+
+if (!Game::find($gameID)->achievements->isEmpty()) {
+    $gameAchievements = Game::find($gameID)->achievements->where('Flags', $flag)->map(function ($am) use ($gameID) {
+        return [
+            'ID' => $am->ID,
+            'NumAwarded' => Achievement::find($gameID)->unlocks_total,
+            'NumAwardedHardcore' => Achievement::find($gameID)->unlocks_hardcore_total,
+            'Title' => $am->Title,
+            'Description' => $am->Description,
+            'Points' => $am->Points,
+            'TrueRatio' => $am->TrueRatio,
+            'Author' => $am->Author,
+            'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
+            'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
+            'BadgeName' => $am->BadgeName,
+            'DisplayOrder' => $am->DisplayOrder,
+            'MemAddr' => md5(Achievement::find($gameID)->MemAddr),
+            'type' => $am->type,
+        ];
+    })->keyBy('ID');
+} else {
+    $gameAchievements = new ArrayObject();
+}
+
+if (!AchievementSetClaim::where('GameID', $gameID)->get()->isEmpty()) {
+    $gameClaims = AchievementSetClaim::where('GameID', $gameID)->get()->map(function ($gc) {
+        return [
+            'User' => $gc->User,
+            'SetType' => $gc->SetType,
+            'GameID' => $gc->GameID,
+            'ClaimType' => $gc->ClaimType,
+            'Created' => $gc->Created,
+            'Expired' => $gc->Finished,
+        ];
+    });
+} else {
+    $gameClaims = [];
+}
+
+$getGameExtended = array_merge(
+    $gameData,
+    array('ConsoleName' => Game::find($gameID)->system->Name),
+    array('ParentGameID' => getParentGameId(Game::find($gameID)->Title, Game::find($gameID)->ConsoleID, $gameID)),
+    array('NumDistinctPlayers' => count(Game::find($gameID)->players)),
+    array('NumAchievements' => count($gameAchievements)),
+    array('Achievements' => $gameAchievements),
+    array('Claims' => $gameClaims),
+    array('NumDistinctPlayersCausal' => count(Game::find($gameID)->players)), //Deprecated - Only here to maintain API V1 compat
+    array('NumDistinctPlayersHardcore' => count(Game::find($gameID)->players)), //Deprecated - Only here to maintain API V1 compat
+);
+
+return response()->json($getGameExtended);
