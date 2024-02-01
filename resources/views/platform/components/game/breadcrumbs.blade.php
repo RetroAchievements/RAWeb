@@ -5,7 +5,13 @@
     'targetGameName' => null, // string | null,
     'currentPageLabel' => null, // string | null
 ])
+<?php
+use App\Platform\Models\System;
 
+$gameListHref = System::isGameSystem($targetConsoleId)
+    ? route('system.game.index', ['system' => $targetConsoleId])
+    : '/gameList.php?c=' . $targetConsoleId;
+?>
 {{-- All Games >> Console Name >> Game Name >> Page Name --}}
 <div class="navpath">
     <a href="/gameList.php">All Games</a>
@@ -14,7 +20,7 @@
 
     {{-- If there's game metadata, then show console metadata as a URL. Otherwise, it's plain text. --}}
     @if ($targetConsoleId && $targetConsoleName)
-        <a href="{{ route('system.game.index', ['system' => $targetConsoleId]) }}">{{ $targetConsoleName }}</a>
+        <a href="{{ $gameListHref }}">{{ $targetConsoleName }}</a>
     @else
         <span class="font-bold">{{ $targetConsoleName }}</span>
     @endif

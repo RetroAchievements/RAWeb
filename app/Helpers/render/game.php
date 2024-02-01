@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Platform\Models\System;
 use Illuminate\Support\Facades\Blade;
 
 function gameAvatar(
@@ -110,8 +111,12 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
         return [$mainID, $renderedMain, $subsetID ?? null, $renderedSubset ?? null];
     };
 
+    $gameListHref = System::isGameSystem($consoleID)
+        ? route('system.game.index', ['system' => $consoleID])
+        : '/gameList.php?c=' . $consoleID;
+
     $html = "<a href='/gameList.php'>All Games</a>"
-        . $nextCrumb($consoleName, route('system.game.index', ['system' => $consoleID]));
+        . $nextCrumb($consoleName, $gameListHref);
 
     [$mainID, $renderedMain, $subsetID, $renderedSubset] = $getSplitData($data);
     $baseHref = (($addLinkToLastCrumb || $subsetID) && $mainID) ? "/game/$mainID" : '';
