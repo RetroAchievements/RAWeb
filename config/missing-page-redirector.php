@@ -24,6 +24,8 @@ return [
      * You can use Laravel's route parameters here.
      */
     'redirects' => [
+        // temp
+        '/game/suggest' => '/games/suggest',
         /*
          * lowercase routes
          */
