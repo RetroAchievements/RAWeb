@@ -1233,7 +1233,9 @@ sanitize_outputs(
             RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
         }
 
-        RenderGameLeaderboardsComponent($lbData, $forumTopicID);
+        if (isValidConsoleId($consoleID)) {
+            RenderGameLeaderboardsComponent($lbData, $forumTopicID);
+        }
         ?>
     </aside>
 <?php endif ?>

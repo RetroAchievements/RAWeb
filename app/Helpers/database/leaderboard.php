@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Models\Game;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 
@@ -24,6 +25,14 @@ function SubmitLeaderboardEntry(
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $lbData = mysqli_fetch_assoc($dbResult);
+
+        $foundGame = Game::find($lbData['GameID']);
+        if ($foundGame?->ConsoleID && !isValidConsoleId($foundGame->ConsoleID)) {
+            $retVal['Success'] = false;
+            $retVal['Error'] = "Cannot insert the value $newEntry into leaderboard with ID: $lbID because the game's system is not yet validated.";
+
+            return $retVal;
+        }
 
         $lowerIsBetter = (int) $lbData['LowerIsBetter'];
 
@@ -633,8 +642,8 @@ function UploadNewLeaderboard(
         }
     }
 
-    if (!isValidConsoleId(getGameData($gameID)['ConsoleID'])) {
-        $errorOut = "You cannot promote leaderboards for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ").";
+    if (!isValidConsoleId(getGameData($gameID)['ConsoleID']) && !hasSetClaimed($author, $gameID, false)) {
+        $errorOut = "You cannot promote leaderboards for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ") unless you have an active claim on the game.";
 
         return false;
     }
