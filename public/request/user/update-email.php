@@ -16,7 +16,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $email = $input['email'];
 
-DB::statement("UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", email_verified_at = NULL, Updated=NOW() WHERE User='$username'")
+DB::statement("UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", email_verified_at = NULL, Updated=NOW() WHERE User='$username'");
 
 sendValidationEmail($username, $email);
 
