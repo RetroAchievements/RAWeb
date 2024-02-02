@@ -122,27 +122,27 @@
         "debug": "export XDEBUG_MODE=debug && php artisan serve --port=64000",
         "fix": "vendor/bin/pint",
         "ide-helpers": [
-            "php artisan ide-helper:generate",
-            "php artisan ide-helper:meta",
-            "php artisan ide-helper:models --nowrite"
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta",
+            "@php artisan ide-helper:models --nowrite"
         ],
-        "lint": "vendor/bin/pint --test",
+        "lint": "@php vendor/bin/pint --test",
         "log": "tail -f -n 450 storage/logs/laravel*.log | grep -i -E \"^\\[\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}\\]|Next [\\w\\W]+?\\:\" --color",
-        "mfs": "php artisan migrate:refresh --seed",
-        "octane": "php artisan octane:start --watch --port=64888",
-        "paratest": "php artisan test --parallel",
-        "rector": "vendor/bin/rector process",
+        "mfs": "@php artisan migrate:refresh --seed",
+        "octane": "@php artisan octane:start --watch --port=64888",
+        "paratest": "@php artisan test --parallel",
+        "rector": "@php vendor/bin/rector process",
         "setup": [
-            "composer install",
+            "@php composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate --ansi",
             "@php -r \"copy('storage/app/releases.dist.php', 'storage/app/releases.php');\"",
             "@php -r \"file_exists('storage/app/settings.json') || copy('storage/app/settings.dist.json', 'storage/app/settings.json');\""
         ],
-        "stan": "vendor/bin/phpstan analyse --memory-limit 768M --ansi",
-        "stan-clear": "vendor/bin/phpstan clear-result-cache",
-        "start": "php artisan serve --port=64000",
-        "test": "php artisan test"
+        "stan": "@php vendor/bin/phpstan analyse --memory-limit 768M --ansi",
+        "stan-clear": "@php vendor/bin/phpstan clear-result-cache",
+        "start": "@php artisan serve --port=64000",
+        "test": "@php artisan test"
     },
     "scripts-descriptions": {
         "analyse": "Run static analysis",
