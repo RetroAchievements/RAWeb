@@ -6,7 +6,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
 }
 ?>
 
-<h4 class="!leading-none mb-2">Progression Status</h4>
+<h2 class="text-h4 !leading-none mb-2">Progression Status</h2>
 
 <div x-data="{ widthMode: '{{ $widthMode }}' }">
     <div class="flex flex-col-reverse gap-y-2 sm:gap-y-0 sm:flex-row sm:justify-between w-full mb-2">

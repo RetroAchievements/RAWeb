@@ -24,7 +24,7 @@ $specialClaims = collect($userClaims)->filter(function ($entity) {
 })->toArray();
 ?>
 
-<p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Developer stats</p>
+<p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Developer Stats</p>
 <div class="relative w-full p-2 mb-6 bg-embed rounded">
     <div class="grid md:grid-cols-2 gap-x-12 gap-y-1 {{ !empty($userClaims) ? 'mb-4' : '' }}">
         <div class="flex flex-col gap-y-1">
