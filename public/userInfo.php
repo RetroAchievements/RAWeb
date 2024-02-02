@@ -298,7 +298,7 @@ RenderContentStart($userPage);
 
     echo "<div class='commentscomponent left mt-8'>";
 
-    echo "<h4>User Wall</h4>";
+    echo "<h2 class='text-h4'>User Wall</h2>";
 
     if ($userWallActive) {
         // passing 'null' for $user disables the ability to add comments
