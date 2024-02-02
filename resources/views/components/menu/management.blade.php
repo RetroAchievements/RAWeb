@@ -46,7 +46,7 @@ $tools = $settings['tools'] ?? null;
                     {{--<x-dropdown-item :link="route('news.index')">{{ __res('news') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
                 @endcan
-                @can('manage', App\Models\User::class)
+                @if($user->can('manage', User::class) || $user->Permissions === Permissions::Moderator)
                     {{--<x-dropdown-item :link="route('forum-topic.verify')">Forum Verification</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('viewforum.php?f=0')">Forum Verification</x-dropdown-item>
                 @endcan
@@ -60,7 +60,7 @@ $tools = $settings['tools'] ?? null;
                     @endcan
                     <x-dropdown-item :link="route('integration.release.index')" :active="request()->routeIs('integration.release*')">Integration</x-dropdown-item>
                 @endcan--}}
-                @can('tool')
+                @if($user->can('tool') || $user->Permissions === Permissions::Moderator)
                     <div class="dropdown-header">Admin</div>
                     <x-dropdown-item :link="url('admin.php')">Admin Tools</x-dropdown-item>
                 @endif

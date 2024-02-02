@@ -243,7 +243,7 @@ RenderContentStart($pageTitle);
                 x-on:input='autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 60000;'
             >$defaultMessage</textarea>
         HTML;
-        $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200" aria-hidden="true" />');
+        $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="opacity-0 transition-all duration-200" aria-hidden="true" />');
 
         echo <<<HTML
             <div class="flex justify-between mb-2">

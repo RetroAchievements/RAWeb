@@ -47,7 +47,8 @@ class GameHashPolicy
     {
         return $user->hasAnyRole([
             Role::HUB_MANAGER,
-        ]);
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Developer;
     }
 
     public function delete(User $user, GameHash $gameHash): bool

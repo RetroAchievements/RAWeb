@@ -380,6 +380,9 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
     }
 
     foreach (legacyDbFetchAll($query) as $data) {
+        $data['NumAwarded'] = 0;
+        $data['NumAwardedHardcore'] = 0;
+        $data['NumAchievements'] = 0;
         $retval[] = $data;
     }
 

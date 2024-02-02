@@ -40,7 +40,7 @@ use Illuminate\Support\Carbon;
 
                         $nextDate = Carbon::parse($dayInfo['Date']);
                         $nextYear = $nextDate->year;
-                        $nextMonth = $nextDate->month;
+                        $nextMonth = $nextDate->month - 1;
                         $nextDay = $nextDate->day;
                         $dateStr = $nextDate->format('d M Y');
 
