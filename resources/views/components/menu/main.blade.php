@@ -69,7 +69,7 @@ $menuSystemsList = [
             23, // Magnavox Odyssey 2
             69, // Mega Duck
             29, // MSX
-            // 102, // Standalone
+            102, // Standalone
             80, // Uzebox
             46, // Vectrex
             72, // WASM-4
