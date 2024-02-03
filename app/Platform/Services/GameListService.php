@@ -111,7 +111,7 @@ class GameListService
              * that titles with "~" are grouped together and sorted alphabetically based
              * on their designated categories and then by their actual game title.
              *
-             * The "zzz" prefix is added to the SortTitle of games with "~" to ensure these
+             * The "~" prefix is retained in the SortTitle of games with "~" to ensure these
              * games are sorted at the end of the list, maintaining a clear separation from
              * non-prefixed titles. This approach allows game titles to be grouped and sorted
              * in a specific order:
@@ -128,7 +128,7 @@ class GameListService
                     $withinTildes = substr($game['SortTitle'], 1, $endOfFirstTilde - 1);
                     $afterTildes = trim(substr($game['SortTitle'], $endOfFirstTilde + 1));
 
-                    $game['SortTitle'] = 'zzz' . $withinTildes . ' ' . $afterTildes;
+                    $game['SortTitle'] = '~' . $withinTildes . ' ' . $afterTildes;
                 }
             }
 
