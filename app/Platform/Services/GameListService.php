@@ -103,13 +103,33 @@ class GameListService
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
 
             $game['ConsoleName'] = $this->consoles[$gameModel->ConsoleID]->Name;
-            $game['SortTitle'] = mb_strtolower($game['Title']);
-            if (substr($game['SortTitle'], 0, 1) == '~') {
-                $tilde = strrpos($game['SortTitle'], '~');
-                $game['SortTitle'] = trim(substr($game['SortTitle'], $tilde + 1) . ' ' . substr($game['SortTitle'], 0, $tilde + 1));
 
-                // Keep these games at the bottom of the list (under the "untagged" game titles).
-                $game['SortTitle'] = '~' . $game['SortTitle'];
+            /**
+             * Ensure games on the list are sorted properly.
+             * For titles starting with "~", the sort order is determined by the content
+             * within the "~" markers followed by the content after the "~". This ensures
+             * that titles with "~" are grouped together and sorted alphabetically based
+             * on their designated categories and then by their actual game title.
+             * 
+             * The "zzz" prefix is added to the SortTitle of games with "~" to ensure these
+             * games are sorted at the end of the list, maintaining a clear separation from
+             * non-prefixed titles. This approach allows game titles to be grouped and sorted
+             * in a specific order:
+             * 
+             * 1. Non-prefixed titles are sorted alphabetically at the beginning of the list.
+             * 2. Titles prefixed with "~" are grouped at the end, sorted first by the category
+             *    specified within the "~" markers, and then alphabetically by the title following
+             *    the "~".
+             */
+            $game['SortTitle'] = mb_strtolower($game['Title']);
+            if ($game['SortTitle'][0] === '~') {
+                $endOfFirstTilde = strpos($game['SortTitle'], '~', 1);
+                if ($endOfFirstTilde !== false) {
+                    $withinTildes = substr($game['SortTitle'], 1, $endOfFirstTilde - 1);
+                    $afterTildes = trim(substr($game['SortTitle'], $endOfFirstTilde + 1));
+                    
+                    $game['SortTitle'] = 'zzz' . $withinTildes . ' ' . $afterTildes;
+                }
             }
 
             $this->games[] = $game;
