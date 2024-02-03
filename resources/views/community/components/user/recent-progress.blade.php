@@ -1,4 +1,5 @@
 @props([
+    'hasAnyPoints' => false,
     'username' => '',
     'userScoreData' => [],
 ])
@@ -83,6 +84,9 @@ use Illuminate\Support\Carbon;
         </script>
 
         <div id="chart_recentprogress" class="mb-5 min-h-[200px]"></div>
+    @endif
+
+    @if ($hasAnyPoints)
         <div class="text-right">
             <a href="/history.php?u={{ $username }}">more...</a>
         </div>
