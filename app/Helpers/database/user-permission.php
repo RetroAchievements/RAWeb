@@ -201,6 +201,7 @@ function banAccountByUsername(string $username, int $permissions): void
     }
 
     $dbResult = s_mysql_query("UPDATE UserAccounts u SET
+        u.email_verified_at = null,
         u.Password = null,
         u.SaltedPass = '',
         u.Permissions = $permissions,
@@ -209,6 +210,8 @@ function banAccountByUsername(string $username, int $permissions): void
         u.cookie = null,
         u.appToken = null,
         u.appTokenExpiry = null,
+        u.ManuallyVerified = 0,
+        u.forum_verified_at = null,
         u.Motto = '',
         u.Untracked = 1,
         u.APIKey = null,
