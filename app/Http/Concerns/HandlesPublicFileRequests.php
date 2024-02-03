@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http;
+namespace App\Http\Concerns;
 
 use Exception;
 use Illuminate\Contracts\View\View;

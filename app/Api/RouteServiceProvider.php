@@ -7,7 +7,7 @@ namespace App\Api;
 use App\Api\Controllers\WebApiController;
 use App\Api\Controllers\WebApiV1Controller;
 use App\Api\Middleware\LogApiUsage;
-use App\Http\HandlesPublicFileRequests;
+use App\Http\Concerns\HandlesPublicFileRequests;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
