@@ -328,10 +328,6 @@ class UserProfileMeta extends Component
     {
         $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
 
-        if (!$softcorePoints) {
-            return [];
-        }
-
         // Softcore points
         $softcorePointsStat = [
             'label' => 'Points (softcore)',
