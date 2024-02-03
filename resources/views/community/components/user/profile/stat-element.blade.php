@@ -23,7 +23,7 @@
             @if ($hrefLabel && $value)
                 <span>{{ $value }}</span>
             @endif
-        @elseif (!$hrefLabel && $value)
+        @elseif (!$hrefLabel && isset($value))
             {{ $value }}
             @if ($weightedPoints)
                 <x-points-weighted-container>
