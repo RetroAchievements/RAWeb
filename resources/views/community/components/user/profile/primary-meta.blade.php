@@ -29,7 +29,7 @@ $shouldMoveRoleToNextLine =
     && ((mb_strlen($roleLabel) >= 12 && mb_strlen($username) >= 12) || mb_strlen($username) >= 16);
 ?>
 
-<div class="flex border-x border-b border-embed-highlight flex-row-reverse sm:flex-row gap-x-4 pb-5 bg-embed -mx-5 px-5 mt-[-15px] pt-5">
+<div class="flex border-x border-embed-highlight flex-row-reverse sm:flex-row gap-x-4 pb-5 bg-embed -mx-5 px-5 mt-[-15px] pt-5">
     <img
         src="{{ media_asset('/UserPic/' . $username . '.png') }}"
         alt="{{ $username }}'s avatar"
