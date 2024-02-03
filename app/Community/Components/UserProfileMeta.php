@@ -6,6 +6,7 @@ namespace App\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
+use App\Platform\Models\PlayerStat;
 use App\Site\Enums\Permissions;
 use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
@@ -28,58 +29,255 @@ class UserProfileMeta extends Component
 
     public function render(): View
     {
-        $username = $this->user->User;
         $hardcorePoints = $this->userMassData['TotalPoints'] ?? 0;
         $softcorePoints = $this->userMassData['TotalSoftcorePoints'] ?? 0;
 
         $hardcoreRankMeta = ['rank' => 0];
         $softcoreRankMeta = ['rank' => 0];
         if ($hardcorePoints >= Rank::MIN_POINTS) {
-            $hardcoreRankMeta = $this->buildRankMetadata($username, predefinedRank: $this->userMassData['Rank']);
+            $hardcoreRankMeta = $this->buildRankMetadata($this->user, predefinedRank: $this->userMassData['Rank']);
         }
         if ($softcorePoints >= Rank::MIN_POINTS) {
-            $softcoreRankMeta = $this->buildRankMetadata($username, RankType::Softcore);
+            $softcoreRankMeta = $this->buildRankMetadata($this->user, RankType::Softcore);
         }
-
-        $preferredMode = $softcorePoints > $hardcorePoints ? 'softcore' : 'hardcore';
-
-        $averagePointsPerWeek = $this->calculateAveragePointsPerWeek(
-            $this->userMassData['MemberSince'],
-            // Calculate based on the user's primary playing mode.
-            $preferredMode === 'softcore' ? $softcorePoints : $hardcorePoints,
-        );
 
         $developerStats = [];
         // FIXME: Uses legacy roles.
         if ($this->userMassData['ContribCount'] > 0 || $this->user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
-            $developerStats = $this->buildDeveloperStats($this->user);
+            $developerStats = $this->buildDeveloperStats($this->user, $this->userMassData);
         }
 
         $this->calculateRecentPointsEarned($this->user);
 
         return view('community.components.user.profile-meta', [
-            'averageCompletionPercentage' => $this->averageCompletionPercentage,
-            'averageFinishedGames' => $this->calculateAverageFinishedGames($this->userJoinedGamesAndAwards),
-            'averagePointsPerWeek' => $averagePointsPerWeek,
             'developerStats' => $developerStats,
             'hardcoreRankMeta' => $hardcoreRankMeta,
-            'recentPointsEarned' => $this->calculateRecentPointsEarned($this->user, $preferredMode),
+            'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta, $this->userJoinedGamesAndAwards),
             'socialStats' => $this->buildSocialStats($this->user),
             'softcoreRankMeta' => $softcoreRankMeta,
-            'totalHardcoreAchievements' => $this->totalHardcoreAchievements,
-            'totalSoftcoreAchievements' => $this->totalSoftcoreAchievements,
             'userClaims' => $this->userClaims,
             'userMassData' => $this->userMassData,
             'username' => $this->user->User,
         ]);
     }
 
+    private function buildDeveloperStats(User $user, array $userMassData): array
+    {
+        // Achievement sets worked on
+        $gameAuthoredAchievementsCount = $user->authoredAchievements()
+            ->published()
+            ->select(DB::raw('COUNT(DISTINCT GameID) as game_count'))
+            ->first()
+            ->game_count;
+        $setsWorkedOnStat = [
+            'label' => 'Achievement sets worked on',
+            'value' => localized_number($gameAuthoredAchievementsCount),
+            'href' => $gameAuthoredAchievementsCount ? route('developer.sets', $user->User) : null,
+            'isMuted' => !$gameAuthoredAchievementsCount,
+        ];
+
+        // Achievements unlocked by players
+        $achievementsUnlockedByPlayersStat = [
+            'label' => 'Achievements unlocked by players',
+            'value' => localized_number($userMassData['ContribCount']),
+            'href' => $userMassData['ContribCount'] > 0 ? route('developer.feed', $user->User) : null,
+            'isMuted' => !$userMassData['ContribCount'],
+        ];
+
+        // Points awarded to players
+        $pointsAwardedToPlayersStat = [
+            'label' => 'Points awarded to players',
+            'value' => localized_number($userMassData['ContribYield']),
+            'href' => $userMassData['ContribYield'] > 0 ? route('developer.feed', $user->User) : null,
+            'isMuted' => !$userMassData['ContribYield'],
+        ];
+
+        // Code notes created
+        $totalAuthoredCodeNotes = $user->authoredCodeNotes()->count();
+        $codeNotesCreatedStat = [
+            'label' => 'Code notes created',
+            'value' => localized_number($totalAuthoredCodeNotes),
+            'href' => $totalAuthoredCodeNotes ? '/individualdevstats.php?u=' . $user->User . '#code-notes' : null,
+            'isMuted' => !$totalAuthoredCodeNotes,
+        ];
+
+        // Leaderboards created
+        $totalAuthoredLeaderboards = $user->authoredLeaderboards()
+            ->select(DB::raw('COUNT(LeaderboardDef.ID) AS TotalAuthoredLeaderboards'))
+            ->value('TotalAuthoredLeaderboards');
+        $leaderboardsCreatedStat = [
+            'label' => 'Leaderboards created',
+            'value' => localized_number($totalAuthoredLeaderboards),
+            'href' => $totalAuthoredLeaderboards ? '/individualdevstats.php?u=' . $user->User : null,
+            'isMuted' => !$totalAuthoredLeaderboards,
+        ];
+
+        // Open tickets
+        $openTickets = null;
+        if ($user->ContribCount) {
+            $openTickets = array_sum(countOpenTicketsByDev($user->User));
+        }
+        $openTicketsStat = [
+            'label' => 'Open tickets',
+            'value' => $openTickets === null ? "Tickets can't be assigned to {$user->User}." : localized_number($openTickets),
+            'href' => $openTickets ? '/ticketmanager.php?u=' . $user->User : null,
+            'isMuted' => !$openTickets,
+        ];
+
+        return compact(
+            'achievementsUnlockedByPlayersStat',
+            'codeNotesCreatedStat',
+            'leaderboardsCreatedStat',
+            'openTicketsStat',
+            'pointsAwardedToPlayersStat',
+            'setsWorkedOnStat',
+        );
+    }
+
+    private function buildHardcorePlayerStats(User $user, array $userMassData, array $hardcoreRankMeta): array
+    {
+        $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
+        $weightedPoints = $userMassData['TotalTruePoints'] ?? 0;
+        $retroRatio = $weightedPoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoints) : null;
+
+        // Hardcore points
+        $hardcorePointsStat = [
+            'label' => 'Points',
+            'value' => localized_number($hardcorePoints),
+            'weightedPoints' => $userMassData['TotalTruePoints'],
+            'isMuted' => !$hardcorePoints,
+        ];
+
+        // Hardcore site rank
+        $hardcoreSiteRankValue = '';
+        if ($userMassData['Untracked']) {
+            $hardcoreSiteRankValue = 'Untracked';
+        } elseif ($hardcorePoints > 0 && !$hardcoreRankMeta['rank']) {
+            $hardcoreSiteRankValue = 'requires ' . Rank::MIN_POINTS . ' points';
+        } elseif ($hardcorePoints === 0 && !$hardcoreRankMeta['rank']) {
+            $hardcoreSiteRankValue = 'none';
+        } else {
+            $hardcoreSiteRankValue = "#" . localized_number($hardcoreRankMeta['rank']) . " of " . localized_number($hardcoreRankMeta['numRankedUsers']);
+        }
+        $hardcoreSiteRankStat = [
+            'label' => 'Site rank',
+            'value' => $hardcoreSiteRankValue,
+            'isMuted' => (
+                $userMassData['Untracked']
+                || ($hardcorePoints > 0 && !$hardcoreRankMeta['rank'])
+                || ($hardcorePoints === 0 && !$hardcoreRankMeta['rank'])
+            ),
+            'shouldEnableBolding' => false,
+            'href' => isset($hardcoreRankMeta['rankOffset']) ? '/globalRanking.php?t=2&o=' . $hardcoreRankMeta['rankOffset'] . '&s=5' : null,
+        ];
+
+        // Achievements unlocked
+        $hardcoreAchievementsUnlockedStat = [
+            'label' => 'Achievements unlocked',
+            'value' => localized_number($this->totalHardcoreAchievements),
+            'isMuted' => !$this->totalHardcoreAchievements,
+        ];
+
+        // RetroRatio
+        $retroRatioStat = [
+            'label' => 'RetroRatio',
+            'value' => $retroRatio ?? 'none',
+            'isMuted' => !$retroRatio,
+        ];
+
+        return compact(
+            'hardcoreAchievementsUnlockedStat',
+            'hardcorePointsStat',
+            'hardcoreSiteRankStat',
+            'retroRatioStat',
+        );
+    }
+
+    private function buildPlayerStats(
+        User $user,
+        array $userMassData,
+        array $hardcoreRankMeta,
+        array $softcoreRankMeta,
+        array $userJoinedGamesAndAwards
+    ): array {
+        $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
+        $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
+        $preferredMode = $softcorePoints > $hardcorePoints ? 'softcore' : 'hardcore';
+
+        $recentPointsEarned = $this->calculateRecentPointsEarned($user, $preferredMode);
+
+        // Total games beaten
+        $totalGamesBeaten = (int) PlayerStat::where('user_id', $user->ID) // keep in mind, this is hardcore only.
+            ->where('system_id', null)
+            ->sum('value');
+        $totalGamesBeatenStat = [
+            'label' => 'Total games beaten',
+            'value' => localized_number($totalGamesBeaten),
+            'isMuted' => !$totalGamesBeaten,
+            // TODO: href to 'ranking.beaten-games' for a specific user.
+        ];
+
+        // Started games beaten
+        $startedGamesBeatenPercentage = $this->calculateAverageFinishedGames($this->userJoinedGamesAndAwards);
+        $startedGamesBeatenPercentageStat = [
+            'label' => 'Started games beaten',
+            'value' => $startedGamesBeatenPercentage . '%',
+            'isMuted' => $hardcorePoints === 0 && $softcorePoints === 0,
+        ];
+
+        // Points earned in the last 7 days
+        $pointsLast7DaysStat = [
+            'label' => 'Points earned in the last 7 days',
+            'value' => localized_number($recentPointsEarned['pointsLast7Days']),
+            'isMuted' => !$recentPointsEarned['pointsLast7Days'],
+        ];
+
+        // Points earned in the last 30 days
+        $pointsLast30DaysStat = [
+            'label' => 'Points earned in the last 30 days',
+            'value' => localized_number($recentPointsEarned['pointsLast30Days']),
+            'isMuted' => !$recentPointsEarned['pointsLast30Days'],
+        ];
+
+        // Average points per week
+        $averagePointsPerWeek = $this->calculateAveragePointsPerWeek(
+            $this->userMassData['MemberSince'],
+            // Calculate based on the user's primary playing mode.
+            $preferredMode === 'softcore' ? $softcorePoints : $hardcorePoints,
+        );
+        $averagePointsPerWeekStat = [
+            'label' => 'Average points per week',
+            'value' => localized_number($averagePointsPerWeek),
+            'isMuted' => !$averagePointsPerWeek,
+        ];
+
+        // Average completion percentage
+        $averageCompletionStat = [
+            'label' => 'Average completion',
+            'value' => $this->averageCompletionPercentage . "%",
+            'isMuted' => $this->averageCompletionPercentage === '0.0',
+        ];
+
+        return array_merge(
+            compact(
+                'averageCompletionStat',
+                'averagePointsPerWeekStat',
+                'pointsLast30DaysStat',
+                'pointsLast7DaysStat',
+                'startedGamesBeatenPercentageStat',
+                'totalGamesBeatenStat',
+            ),
+            $this->buildHardcorePlayerStats($user, $userMassData, $hardcoreRankMeta),
+            $this->buildSoftcorePlayerStats($user, $userMassData, $softcoreRankMeta),
+        );
+    }
+
     private function buildRankMetadata(
-        string $username = '',
+        User $user,
         int $rankType = RankType::Hardcore,
         ?int $predefinedRank = null
     ): array {
-        $rank = $predefinedRank ?? getUserRank($username, $rankType);
+        $rank = $predefinedRank ?? getUserRank($user->User, $rankType);
         $numRankedUsers = countRankedUsers($rankType);
         $rankPercent = sprintf("%1.2f", ($rank / $numRankedUsers) * 100.0);
         $rankPercentLabel = $rank > 100 ? "(Top $rankPercent%)" : "";
@@ -94,51 +292,104 @@ class UserProfileMeta extends Component
         );
     }
 
-    private function buildDeveloperStats(User $user): array
-    {
-        $gameAuthoredAchievementsCount = $user->authoredAchievements()
-            ->published()
-            ->select(DB::raw('COUNT(DISTINCT GameID) as game_count'))
-            ->first()
-            ->game_count;
-
-        $totalAuthoredLeaderboards = $user->authoredLeaderboards()
-            ->select(DB::raw('COUNT(LeaderboardDef.ID) AS TotalAuthoredLeaderboards'))
-            ->value('TotalAuthoredLeaderboards');
-
-        $totalAuthoredCodeNotes = $user->authoredCodeNotes()->count();
-
-        $openTickets = null;
-        if ($user->ContribCount) {
-            $openTickets = array_sum(countOpenTicketsByDev($user->User));
-        }
-
-        return compact(
-            'gameAuthoredAchievementsCount',
-            'openTickets',
-            'totalAuthoredCodeNotes',
-            'totalAuthoredLeaderboards',
-        );
-    }
-
     private function buildSocialStats(User $user): array
     {
         $userSetRequestInformation = getUserRequestsInformation($user);
         $numForumPosts = $user->forumPosts()->count();
 
+        // Forum posts
+        $forumPostsStat = [
+            'label' => 'Forum posts',
+            'value' => localized_number($numForumPosts),
+            'href' => $numForumPosts ? "/forumposthistory.php?u={$user->User}" : null,
+            'isMuted' => $numForumPosts === 0,
+        ];
+
+        // Achievement sets requested
+        $setRequests = $userSetRequestInformation;
+        $setsRequestedValue = $setRequests['used'] === 0 && $setRequests['remaining'] > 0
+            ? "0 ({$setRequests['remaining']} left)"
+            : $setRequests['used'] . ($setRequests['remaining'] > 0 ? " ({$setRequests['remaining']} left)" : "");
+
+        $setsRequestedStat = [
+            'label' => 'Achievement sets requested',
+            'value' => $setsRequestedValue,
+            'href' => $setRequests['used'] !== 0 ? "/setRequestList.php?u={$user->User}" : null,
+            'isMuted' => $setRequests['used'] === 0,
+        ];
+
         return compact(
-            'numForumPosts',
-            'userSetRequestInformation',
+            'forumPostsStat',
+            'setsRequestedStat',
+        );
+    }
+
+    private function buildSoftcorePlayerStats(User $user, array $userMassData, array $softcoreRankMeta): array
+    {
+        $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
+
+        if (!$softcorePoints) {
+            return [];
+        }
+
+        // Softcore points
+        $softcorePointsStat = [
+            'label' => 'Points (softcore)',
+            'value' => localized_number($softcorePoints),
+            'isMuted' => !$softcorePoints,
+        ];
+
+        // Softcore site rank
+        $softcoreSiteRankValue = '';
+        if ($userMassData['Untracked']) {
+            $softcoreSiteRankValue = 'Untracked';
+        } elseif ($softcorePoints > 0 && !$softcoreRankMeta['rank']) {
+            $softcoreSiteRankValue = 'requires ' . Rank::MIN_POINTS . ' points';
+        } elseif ($softcorePoints === 0 && !$softcoreRankMeta['rank']) {
+            $softcoreSiteRankValue = 'none';
+        } else {
+            $softcoreSiteRankValue = "#" . localized_number($softcoreRankMeta['rank']) . " of " . localized_number($softcoreRankMeta['numRankedUsers']);
+        }
+        $softcoreSiteRankStat = [
+            'label' => 'Softcore rank',
+            'value' => $softcoreSiteRankValue,
+            'isMuted' => (
+                $userMassData['Untracked']
+                || ($softcorePoints > 0 && !$softcoreRankMeta['rank'])
+                || ($softcorePoints === 0 && !$softcoreRankMeta['rank'])
+            ),
+            'shouldEnableBolding' => false,
+            'href' => isset($softcoreRankMeta['rankOffset']) ? '/globalRanking.php?t=2&o=' . $softcoreRankMeta['rankOffset'] . '&s=2' : null,
+        ];
+
+        // Achievements unlocked (softcore)
+        $softcoreAchievementsUnlockedStat = [
+            'label' => 'Achievements unlocked (softcore)',
+            'value' => localized_number($this->totalSoftcoreAchievements),
+            'isMuted' => !$this->totalSoftcoreAchievements,
+        ];
+
+        return compact(
+            'softcoreAchievementsUnlockedStat',
+            'softcorePointsStat',
+            'softcoreSiteRankStat',
         );
     }
 
     private function calculateAverageFinishedGames(array $userJoinedGamesAndAwards): string
     {
-        $totalGames = count($userJoinedGamesAndAwards);
+        $totalGames = 0;
         $finishedGames = 0;
 
         // Iterate over each game to check if it is finished.
         foreach ($userJoinedGamesAndAwards as $game) {
+            // Ignore subsets.
+            if (strpos($game['Title'], '[Subset') !== false) {
+                continue;
+            }
+
+            $totalGames++;
+
             if (isset($game['HighestAwardKind']) && $game['HighestAwardKind'] !== null) {
                 $finishedGames++;
             }
