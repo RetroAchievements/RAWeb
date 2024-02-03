@@ -23,7 +23,7 @@ $jrDevPermission = Permissions::JuniorDeveloper;
 $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_stats') !== 'true';
 ?>
 
-<div class="relative">
+<div class="relative mb-2">
     <x-user.profile.primary-meta
         :hardcoreRankMeta="$hardcoreRankMeta"
         :softcoreRankMeta="$softcoreRankMeta"
@@ -38,8 +38,6 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
         </div>
     @endif
 </div>
-
-<hr class="border-embed-highlight mb-2" />
 
 @if (!empty($userMassData['LastGame']))
     <x-user.profile.last-seen-in :userMassData="$userMassData" />
