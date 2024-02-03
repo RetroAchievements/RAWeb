@@ -29,7 +29,7 @@ function SubmitLeaderboardEntry(
         $foundGame = Game::find($lbData['GameID']);
         if ($foundGame?->ConsoleID && !isValidConsoleId($foundGame->ConsoleID)) {
             $retVal['Success'] = false;
-            $retVal['Error'] = "Cannot insert the value $newEntry into leaderboard with ID: $lbID because the game's system is not yet validated.";
+            $retVal['Error'] = "Cannot submit entry for unsupported console";
 
             return $retVal;
         }
