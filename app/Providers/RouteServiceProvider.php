@@ -68,9 +68,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('gameList.php', fn () => $this->handlePageRequest('gameList'))->name('game.index');
             Route::post('{path}.php', fn (string $path) => $this->handleRequest($path))->where('path', '(.*)');
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
-            Route::get('/', HomeController::class)->name('home');
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
-            Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
             Route::get('achievement/{achievement}{slug?}', fn ($achievement) => $this->handlePageRequest('achievementInfo', $achievement))->name('achievement.show');
             Route::get('game/{game}{slug?}', fn ($game) => $this->handlePageRequest('gameInfo', $game))->name('game.show');
             Route::get('leaderboard/{leaderboard}{slug?}', fn ($leaderboard) => $this->handlePageRequest('leaderboardinfo', $leaderboard))->name('leaderboard.show');
@@ -80,7 +78,7 @@ class RouteServiceProvider extends ServiceProvider
             /*
              * content
              */
-            // Route::get('/', [ContentController::class, 'home'])->name('home');
+            Route::get('/', HomeController::class)->name('home');
             Route::get('demo', [ContentController::class, 'demo'])->name('demo');
             Route::get('demo/error/{code}', [ContentController::class, 'errorDemo'])->name('demo.error');
             Route::get('terms', [ContentController::class, 'terms'])->name('terms');
@@ -112,7 +110,7 @@ class RouteServiceProvider extends ServiceProvider
              */
             // Route::resource('user', UserController::class)->only('show');
             // Route::resource('users', UserController::class)->only('index')->names(['index' => 'user.index']);
-            // Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
+            Route::get('u/{hashId}', [UserController::class, 'permalink'])->name('user.permalink');
 
             /*
              * protected routes, need an authenticated user with a verified email address
