@@ -64,7 +64,7 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
         x-show="isExpanded"
         x-transition:enter="ease-in-out duration-100"
         x-transition:enter-start="opacity-0 max-h-0 -translate-y-1 overflow-hidden"
-        x-transition:enter-end="opacity-1 max-h-[96px] md:max-h-[36px] translate-y-0 overflow-hidden"
+        x-transition:enter-end="opacity-1 {{ $hasMixedProgress ? 'max-h-[114px] md:max-h-[54px]' : 'max-h-[96px] md:max-h-[36px]' }} translate-y-0 overflow-hidden"
         class="pt-1"
     >
         {{--
@@ -72,12 +72,22 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
             There is plenty of feedback to suggest this statistic leads to some undesirable
             behavior patterns, but we don't want to remove it completely.
         --}}
-        <x-user.profile.arranged-stat-items
-            :stats="[
-                $playerStats['pointsLast7DaysStat'],        $playerStats['pointsLast30DaysStat'],
-                $playerStats['averagePointsPerWeekStat'],   $playerStats['averageCompletionStat'],
-            ]"
-        />
+        @if ($hasMixedProgress)
+            <x-user.profile.arranged-stat-items
+                :stats="[
+                    $playerStats['pointsLast7DaysStat'],        $playerStats['pointsLast30DaysStat'],
+                    $playerStats['averagePointsPerWeekStat'],   $playerStats['totalGamesBeatenStat'],
+                    $playerStats['averageCompletionStat'],
+                ]"
+            />
+        @else
+            <x-user.profile.arranged-stat-items
+                :stats="[
+                    $playerStats['pointsLast7DaysStat'],        $playerStats['pointsLast30DaysStat'],
+                    $playerStats['averagePointsPerWeekStat'],   $playerStats['averageCompletionStat'],
+                ]"
+            />
+        @endif
     </div>
 
     <button
