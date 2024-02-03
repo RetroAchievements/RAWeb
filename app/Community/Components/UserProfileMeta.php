@@ -149,6 +149,7 @@ class UserProfileMeta extends Component
         ];
 
         // Hardcore site rank
+        $hardcoreSiteRankHrefLabel = null;
         $hardcoreSiteRankValue = '';
         if ($userMassData['Untracked']) {
             $hardcoreSiteRankValue = 'Untracked';
@@ -157,10 +158,12 @@ class UserProfileMeta extends Component
         } elseif ($hardcorePoints === 0 && !$hardcoreRankMeta['rank']) {
             $hardcoreSiteRankValue = 'none';
         } else {
-            $hardcoreSiteRankValue = "#" . localized_number($hardcoreRankMeta['rank']) . " of " . localized_number($hardcoreRankMeta['numRankedUsers']);
+            $hardcoreSiteRankHrefLabel = "#" . localized_number($hardcoreRankMeta['rank']);
+            $hardcoreSiteRankValue = "of " . localized_number($hardcoreRankMeta['numRankedUsers']);
         }
         $hardcoreSiteRankStat = [
             'label' => 'Site rank',
+            'hrefLabel' => $hardcoreSiteRankHrefLabel,
             'value' => $hardcoreSiteRankValue,
             'isMuted' => (
                 $userMassData['Untracked']
@@ -336,6 +339,7 @@ class UserProfileMeta extends Component
         ];
 
         // Softcore site rank
+        $softcoreSiteRankHrefLabel = null;
         $softcoreSiteRankValue = '';
         if ($userMassData['Untracked']) {
             $softcoreSiteRankValue = 'Untracked';
@@ -344,10 +348,12 @@ class UserProfileMeta extends Component
         } elseif ($softcorePoints === 0 && !$softcoreRankMeta['rank']) {
             $softcoreSiteRankValue = 'none';
         } else {
-            $softcoreSiteRankValue = "#" . localized_number($softcoreRankMeta['rank']) . " of " . localized_number($softcoreRankMeta['numRankedUsers']);
+            $softcoreSiteRankHrefLabel = "#" . localized_number($softcoreRankMeta['rank']);
+            $softcoreSiteRankValue = "of " . localized_number($softcoreRankMeta['numRankedUsers']);
         }
         $softcoreSiteRankStat = [
             'label' => 'Softcore rank',
+            'hrefLabel' => $softcoreSiteRankHrefLabel,
             'value' => $softcoreSiteRankValue,
             'isMuted' => (
                 $userMassData['Untracked']
