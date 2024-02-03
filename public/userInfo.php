@@ -340,10 +340,12 @@ RenderContentStart($userPage);
 
     echo Blade::render('
         <x-user.recent-progress
+            :hasAnyPoints="$hasAnyPoints"
             :username="$username"
             :userScoreData="$userScoreData"
         />
     ', [
+        'hasAnyPoints' => $userMassData['TotalPoints'] > 0 || $userMassData['TotalSoftcorePoints'] > 0,
         'username' => $userPage,
         'userScoreData' => $userScoreData,
     ]);
