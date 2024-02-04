@@ -150,7 +150,7 @@ RenderContentStart($userPage);
         && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
 
     if ($canShowProgressionStatusComponent) {
-        echo "<hr class='border-embed-highlight my-4' />";
+        echo "<hr class='border-neutral-700 black:border-embed-highlight light:border-embed-highlight my-4' />";
 
         echo "<div class='mt-1 mb-8 bg-embed p-5 rounded'>";
         echo Blade::render('

@@ -102,11 +102,18 @@ module.exports = {
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
 
-    // Add support for `light:` prefixes to better support light mode users.
+    // Add support for `light:` and `black:` prefixes to better support light & black mode users.
+    // `dark` is considered the default scheme, thus a `dark:` prefix is always implied similar to `xs:`.
     function ({ addVariant, e }) {
       addVariant('light', ({ modifySelectors, separator }) => {
         modifySelectors(
           ({ className }) => `[data-scheme="light"] .${e(`light${separator}${className}`)}`,
+        );
+      });
+
+      addVariant('black', ({ modifySelectors, separator }) => {
+        modifySelectors(
+          ({ className }) => `[data-scheme="black"] .${e(`black${separator}${className}`)}`,
         );
       });
     },
