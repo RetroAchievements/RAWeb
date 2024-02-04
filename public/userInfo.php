@@ -122,9 +122,8 @@ RenderOpenGraphMetadata(
 RenderContentStart($userPage);
 ?>
 
-<article class="overflow-y-hidden">
+<article class="overflow-y-hidden !border-t-embed-highlight">
     <?php
-    echo "<div class='mt-1'>";
     echo Blade::render('
         <x-user-profile-meta
             :averageCompletionPercentage="$averageCompletionPercentage"
@@ -144,10 +143,38 @@ RenderContentStart($userPage);
         'userMassData' => $userMassData,
         'userClaims' => $userClaimData?->toArray(),
     ]);
-    echo "</div>";
+
+    $canShowProgressionStatusComponent =
+        !empty($userCompletedGamesList)
+        // Needs at least one non-event game.
+        && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
+
+    if ($canShowProgressionStatusComponent) {
+        echo "<hr class='border-neutral-700 black:border-embed-highlight light:border-embed-highlight my-4' />";
+
+        echo "<div class='mt-1 mb-8 bg-embed p-5 rounded'>";
+        echo Blade::render('
+            <x-user-progression-status
+                :userCompletionProgress="$userCompletionProgress"
+                :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
+                :userSiteAwards="$userSiteAwards"
+                :userRecentlyPlayed="$userRecentlyPlayed"
+                :userHardcorePoints="$userHardcorePoints"
+                :userSoftcorePoints="$userSoftcorePoints"
+            />
+        ', [
+            'userCompletionProgress' => $userCompletedGamesList,
+            'userJoinedGamesAndAwards' => $userJoinedGamesAndAwards,
+            'userSiteAwards' => $userAwards,
+            'userRecentlyPlayed' => $userMassData['RecentlyPlayed'],
+            'userHardcorePoints' => $userMassData['TotalPoints'],
+            'userSoftcorePoints' => $userMassData['TotalSoftcorePoints'],
+        ]);
+        echo "</div>";
+    }
 
     if (isset($user) && $permissions >= Permissions::Moderator) {
-        echo "<div class='devbox mt-8'>";
+        echo "<div class='devbox mt-0'>";
         echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Admin ▼</span>";
         echo "<div id='devboxcontent' class='bg-embed' style='display: none'>";
 
@@ -242,33 +269,6 @@ RenderContentStart($userPage);
         echo "</div>"; // devboxcontent
 
         echo "</div>"; // devbox
-    }
-
-    $canShowProgressionStatusComponent =
-        !empty($userCompletedGamesList)
-        // Needs at least one non-event game.
-        && count(array_filter($userCompletedGamesList, fn ($game) => $game['ConsoleID'] != 101)) > 0;
-
-    if ($canShowProgressionStatusComponent) {
-        echo "<div class='my-8'>";
-        echo Blade::render('
-            <x-user-progression-status
-                :userCompletionProgress="$userCompletionProgress"
-                :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
-                :userSiteAwards="$userSiteAwards"
-                :userRecentlyPlayed="$userRecentlyPlayed"
-                :userHardcorePoints="$userHardcorePoints"
-                :userSoftcorePoints="$userSoftcorePoints"
-            />
-        ', [
-            'userCompletionProgress' => $userCompletedGamesList,
-            'userJoinedGamesAndAwards' => $userJoinedGamesAndAwards,
-            'userSiteAwards' => $userAwards,
-            'userRecentlyPlayed' => $userMassData['RecentlyPlayed'],
-            'userHardcorePoints' => $userMassData['TotalPoints'],
-            'userSoftcorePoints' => $userMassData['TotalSoftcorePoints'],
-        ]);
-        echo "</div>";
     }
 
     echo "<div class='my-8'>";
