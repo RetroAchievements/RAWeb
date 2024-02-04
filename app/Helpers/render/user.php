@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Enums\UserRelationship;
 use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
