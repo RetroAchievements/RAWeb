@@ -30,13 +30,14 @@ class BeatenGamesLeaderboardController extends Controller
             'filter.user' => 'sometimes|string',
         ]);
 
-        $targetUser = null;
+        $foundUserByFilter = null;
         $isUserFilterSet = isset($validatedData['filter']['user']);
         if ($isUserFilterSet) {
-            $targetUser = User::byDisplayName($validatedData['filter']['user'])->first();
-        }
-        if (!$targetUser) {
-            $targetUser = Auth::user() ?? null;
+            $foundUserByFilter = User::byDisplayName($validatedData['filter']['user'])->first();
+
+            if (!$foundUserByFilter) {
+                return redirect()->route('ranking.beaten-games');
+            }
         }
 
         $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
@@ -59,6 +60,7 @@ class BeatenGamesLeaderboardController extends Controller
         $isUserOnCurrentPage = false;
         $targetUserRankingData = null;
         $userPageNumber = null;
+        $targetUser = $foundUserByFilter ?? Auth::user() ?? null;
         if ($targetUser) {
             $targetUserRankingData = $this->getUserRankingData($targetUser->id, $allBeatenGameAwardsRankedRows);
             $userPageNumber = (int) $targetUserRankingData['userPageNumber'];
@@ -66,10 +68,16 @@ class BeatenGamesLeaderboardController extends Controller
         }
 
         // If there's an active user filter and we have their ranking data, redirect to that user's page and remove the filter.
-        if ($targetUser && $targetUserRankingData && $isUserFilterSet && !$isUserOnCurrentPage) {
-            return redirect()->route('ranking.beaten-games', [
-                'page[number]' => $userPageNumber,
-            ]);
+        if ($targetUser && $isUserFilterSet) {
+            if ($targetUserRankingData) {
+                return redirect()->route('ranking.beaten-games', [
+                    'page[number]' => $userPageNumber,
+                ]);
+            }
+
+            // We could end up here for a number of reasons, such as
+            // the target user being untracked or being softcore-only.
+            return redirect()->route('ranking.beaten-games');
         }
 
         $currentPageRows = $allBeatenGameAwardsRankedRows->slice($offset, $this->pageSize);
