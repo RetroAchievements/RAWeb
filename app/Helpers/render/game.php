@@ -587,3 +587,17 @@ function ListGames(
 
     echo "</tbody></table></div>";
 }
+
+function renderConsoleHeading(int $consoleID, string $consoleName, bool $isSmall = false): string
+{
+    $systemIconUrl = getSystemIconUrl($consoleID);
+    $iconSize = $isSmall ? 24 : 32;
+    $headingSizeClassName = $isSmall ? 'text-h3' : '';
+
+    return <<<HTML
+        <h2 class="flex gap-x-2 items-center $headingSizeClassName">
+            <img src="$systemIconUrl" alt="Console icon" width="$iconSize" height="$iconSize">
+            <span>$consoleName</span>
+        </h2>
+    HTML;
+}

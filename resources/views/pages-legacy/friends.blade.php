@@ -23,61 +23,6 @@ foreach (GetExtendedFriendsList($user) as $entry) {
 asort($blockedUsersList);
 
 $followersList = GetFollowers($user);
-
-function RenderUserList(string $header, array $users, int $friendshipType, array $followingList): void
-{
-    if (count($users) == 0) {
-        return;
-    }
-
-    echo "<br/><h2>$header</h2>";
-    echo "<table class='table-highlight'><tbody>";
-    foreach ($users as $user) {
-        echo "<tr>";
-
-        echo "<td>";
-        echo userAvatar($user, label: false);
-        echo "</td>";
-
-        echo "<td class='w-full'>";
-        echo userAvatar($user, icon: false);
-        echo "</td>";
-
-        echo "<td style='vertical-align:middle;'>";
-        echo "<div class='flex justify-end gap-2'>";
-        switch ($friendshipType) {
-            case UserRelationship::Following:
-                if (!in_array($user, array_column($followingList, 'User'))) {
-                    echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='user' value='$user'>";
-                    echo "<input type='hidden' name='action' value='" . UserRelationship::Following . "'>";
-                    echo "<button class='btn btn-link'>Follow</button>";
-                    echo "</form>";
-                }
-                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='user' value='$user'>";
-                echo "<input type='hidden' name='action' value='" . UserRelationship::Blocked . "'>";
-                echo "<button class='btn btn-link'>Block</button>";
-                echo "</form>";
-                break;
-            case UserRelationship::Blocked:
-                echo "<form class='inline-block' action='/request/user/update-relationship.php' method='post'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='user' value='$user'>";
-                echo "<input type='hidden' name='action' value='" . UserRelationship::NotFollowing . "'>";
-                echo "<button class='btn btn-link'>Unblock</button>";
-                echo "</form>";
-                break;
-        }
-        echo "</div>";
-        echo "</td>";
-
-        echo "</tr>";
-    }
-    echo "</tbody></table>";
-}
 ?>
 <x-app-layout pageTitle="Following">
     <h2>Following</h2>
