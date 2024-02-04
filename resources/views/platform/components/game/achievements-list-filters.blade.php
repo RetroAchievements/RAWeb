@@ -25,7 +25,7 @@ if ($isMissableFilterAllowed) {
                 class="cursor-pointer"
                 @change="toggleNonMissableRows"
             >
-            Only show missables
+                Only show missables
             </input>
         </label>
     @endif
@@ -38,7 +38,7 @@ if ($isMissableFilterAllowed) {
                 class="cursor-pointer"
                 @change="toggleUnlockedRows"
             >
-            Hide unlocked achievements
+                Hide unlocked achievements
             </input>
         </label>
     @endif

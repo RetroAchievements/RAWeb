@@ -54,7 +54,7 @@ if ($achievementType === $missableTypeValue) {
                         Progression
                     </span>
                     <div class="w-[18px] h-[18px]" aria-label="Progression">
-                        <x-icon.progression/>
+                        <x-icon.progression />
                     </div>
                 @endif
 
@@ -68,7 +68,7 @@ if ($achievementType === $missableTypeValue) {
                         Win Condition
                     </span>
                     <div class="w-[18px] h-[18px]" aria-label="Win Condition">
-                        <x-icon.win-condition/>
+                        <x-icon.win-condition />
                     </div>
                 @endif
 
@@ -82,7 +82,7 @@ if ($achievementType === $missableTypeValue) {
                         Missable
                     </span>
                     <div class="w-[18px] h-[18px] z-10" aria-label="Missable">
-                        <x-icon.missable/>
+                        <x-icon.missable />
                     </div>
 
                     {{-- Backwards compatibility for users who search the page by "[m]" --}}

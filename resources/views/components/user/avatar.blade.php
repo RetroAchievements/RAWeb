@@ -28,11 +28,7 @@ $iconHeight = config('media.icon.' . $iconSize . '.height');
             <img src="{{ asset($user->avatarUrl) }}" class="icon-{{ $iconSize }} {{ $class }}" loading="lazy"
                  width="{{ $iconWidth }}" height="{{ $iconHeight }}" alt="{{ $user->display_name }}">
         @endif
-        @if($display === 'id')
-            {{ $user->id }}
-        @endif
-        @if($display === 'name')
-            {{ $user->display_name ?? $user->username }}
-        @endif
+        @if($display === 'id'){{ $user->id }}@endif
+        @if($display === 'name'){{ $user->display_name ?? $user->username }}@endif
     @endif
 </x-avatar>

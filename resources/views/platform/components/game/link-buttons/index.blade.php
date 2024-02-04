@@ -61,7 +61,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
                 Official Forum Topic
             </x-game.link-buttons.game-link-button>
         @elseif ($canCreateForumTopic)
-            <x-game.link-buttons.create-forum-topic-button :gameId="$gameId"/>
+            <x-game.link-buttons.create-forum-topic-button :gameId="$gameId" />
         @endif
     @endif
 
@@ -97,9 +97,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
             icon="🎫"
             href="{!! $ticketManagerUrl !!}"
         >
-            Open @if (!$isViewingOfficial)
-                Unofficial
-            @endif Tickets ({{ $numOpenTickets }})
+            Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
     @endif
 

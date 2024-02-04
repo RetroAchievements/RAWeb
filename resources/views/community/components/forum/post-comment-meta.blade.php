@@ -68,13 +68,11 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
     <span
         @if($shouldUsePostedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
             title="{{ $formattedPostTimestampTooltip }}"
-        class="cursor-help"
+            class="cursor-help"
         @endif
     >
         {{-- Keep this all on a single line so white space isn't added before the comma --}}
-        {{ $formattedPostTimestamp }}@if($formattedEditTimestamp)
-            ,
-        @endif
+        {{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif
     </span>
 
     @if($formattedEditTimestamp)
@@ -83,7 +81,7 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
             <span
                 @if($shouldUseEditedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
                     class="cursor-help"
-                title="{{ $formattedEditTimestampTooltip }}"
+                    title="{{ $formattedEditTimestampTooltip }}"
                 @endif
             >
                 {{ $formattedEditTimestamp }}

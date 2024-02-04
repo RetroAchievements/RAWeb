@@ -35,7 +35,7 @@ function deleteMessage(id) {
 >
     <h1 class="w-full">Messages</h1>
 
-    <div class='ml-2'>
+    <div class="ml-2">
         You have {{ $unreadCount }} unread @choice('message|messages', $unreadCount)
         in {{ $totalMessages }} @choice('message thread|message threads', $totalMessages).
     </div>
@@ -43,23 +43,23 @@ function deleteMessage(id) {
     <div class="w-full flex mt-2">
         <div class="mr-6">
             <a href="{{ route('message.create') }}">
-                <button class='btn'>New Message</button>
+                <button class="btn">New Message</button>
             </a>
         </div>
         <div class="w-full flex justify-end">
-            <x-paginator :totalPages="$totalPages" :currentPage="$currentPage"/>
+            <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
         </div>
     </div>
 
     <div>
-        <table class='table-highlight mb-4'>
+        <table class="table-highlight mb-4">
             <tbody>
 
             <tr>
-                <th style='width:20%'>With</th>
-                <th style='width:55%'>Title</th>
-                <th style='width:10%' class='text-right'>Messages</th>
-                <th style='width:15%' class='text-right'>Last Message</th>
+                <th style="width:20%">With</th>
+                <th style="width:55%">Title</th>
+                <th style="width:10%" class="text-right">Messages</th>
+                <th style="width:15%" class="text-right">Last Message</th>
             </tr>
             @foreach ($messages as $message)
                     <?php
@@ -85,7 +85,7 @@ function deleteMessage(id) {
                         </a>
                     </td>
 
-                    <td class='text-right'>
+                    <td class="text-right">
                         @if ($num_unread == 0)
                             {{ $message->num_messages }}
                         @elseif ($num_unread == $message->num_messages)
@@ -95,11 +95,11 @@ function deleteMessage(id) {
                         @endif
                     </td>
 
-                    <td class='text-right'>
+                    <td class="text-right">
                         @if ($isShowAbsoluteDatesPreferenceSet || $mostRecentUpdate < $monthAgo)
-                            <span class='smalldate'>{{ $humanDate }}</span>
+                            <span class="smalldate">{{ $humanDate }}</span>
                         @else
-                            <span class='smalldate cursor-help' title='{{ $humanDate }}'>{{ $mostRecentUpdate->diffForHumans() }}</span>
+                            <span class="smalldate cursor-help" title="{{ $humanDate }}">{{ $mostRecentUpdate->diffForHumans() }}</span>
                         @endif
                     </td>
                 </tr>

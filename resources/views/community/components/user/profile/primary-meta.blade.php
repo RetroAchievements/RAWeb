@@ -95,8 +95,8 @@ $shouldMoveRoleToNextLine =
         </div>
 
         <div class="hidden sm:flex sm:gap-x-2 sm:-ml-2 sm:mt-1 md:hidden lg:flex xl:hidden">
-            <x-user.profile.social-interactivity :username="$username"/>
-            <x-user.profile.follows-you-label :username="$username"/>
+            <x-user.profile.social-interactivity :username="$username" />
+            <x-user.profile.follows-you-label :username="$username" />
         </div>
     </div>
 </div>

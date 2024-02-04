@@ -22,7 +22,7 @@ $numPlayers = User::where('LastLogin', '>', Carbon::now()->subMinutes(10))->coun
 
 <script defer src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         google.load('visualization', '1.0', { 'packages': ['corechart'] });
         google.setOnLoadCallback(drawCharts);
     });

@@ -6,9 +6,9 @@ namespace App\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
-use App\Platform\Models\PlayerStat;
 use App\Enums\Permissions;
 use App\Models\User;
+use App\Platform\Models\PlayerStat;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;

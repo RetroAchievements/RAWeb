@@ -9,7 +9,7 @@ $user = request()->user();
 @guest
     <div class="nav-item">
         <a class="nav-link" href="{{ route('login') }}">
-            <x-fas-power-off class="mr-1"/>
+            <x-fas-power-off class="mr-1" />
             <span class="sr-only">{{ __('Sign in') }}</span>
             <span class="hidden lg:inline-block">{{ __('Sign in') }}</span>
         </a>
@@ -18,7 +18,7 @@ $user = request()->user();
         <div class="nav-item">
             {{--<a class="nav-link" href="{{ route('register') }}">--}}
             <a class="nav-link nav-link-themed" href="{{ url('createaccount.php') }}">
-                <x-fas-user-plus class="mr-1 link-color"/>
+                <x-fas-user-plus class="mr-1 link-color" />
                 <span class="sr-only">{{ __('Sign up') }}</span>
                 <span class="hidden lg:inline-block link-color">{{ __('Sign up') }}</span>
             </a>
@@ -47,7 +47,7 @@ $user = request()->user();
     </div>
     <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" :desktopHref="route('user.show', $user)">
         <x-slot name="trigger">
-            <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false" class="rounded-sm"/>
+            <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false" class="rounded-sm" />
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
         <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>

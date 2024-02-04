@@ -45,7 +45,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
     pageTitle="{{ $thread->title }}"
     pageDescription="{{ $pageDescription }}"
 >
-    <x-message.breadcrumbs currentPage="{!! $thread->title !!}"/>
+    <x-message.breadcrumbs currentPage="{!! $thread->title !!}" />
 
     <div class="mt-3 w-full flex gap-x-3">
         <h1 class="mt-[10px] w-full">{!! $thread->title !!}</h1>
@@ -53,14 +53,14 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
 
     <div class="w-full flex my-2">
         <div class="mr-6">
-            <form action="{{ route('message-thread.destroy', $thread->id) }}" method='post'>
+            <form action="{{ route('message-thread.destroy', $thread->id) }}" method="post">
                 {{ method_field('DELETE') }}
                 {{ csrf_field() }}
                 <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message thread?')">Delete</button>
             </form>
         </div>
         <div class="w-full flex justify-end">
-            <x-paginator :totalPages="$totalPages" :currentPage="$currentPage"/>
+            <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
         </div>
     </div>
 
@@ -72,9 +72,9 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
                         {!! userAvatar($participants[$message->author_id], iconSize: 24) !!}
                             <?php $humanDate = $message->created_at->format('F j Y, g:ia'); ?>
                         @if ($isShowAbsoluteDatesPreferenceSet || $message->created_at < $monthAgo)
-                            <span class='smalldate'>{{ $humanDate }}</span>
+                            <span class="smalldate">{{ $humanDate }}</span>
                         @else
-                            <span class='smalldate cursor-help' title='{{ $humanDate }}'>{{ $message->created_at->diffForHumans() }}</span>
+                            <span class="smalldate cursor-help" title="{{ $humanDate }}">{{ $message->created_at->diffForHumans() }}</span>
                         @endif
                     </div>
                 </div>
@@ -89,13 +89,13 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
         @if (!$canReply)
             <i>Cannot reply to deleted user.</i>
         @else
-            <form action="{{ route('message.store') }}" method='post' x-data='{ isValid: true }'>
+            <form action="{{ route('message.store') }}" method="post" x-data="{ isValid: true }">
                 {{ csrf_field() }}
-                <input type='hidden' name='thread_id' value='{{ $thread->id }}'/>
+                <input type="hidden" name="thread_id" value="{{ $thread->id }}"/>
 
                 <x-input.shortcode-textarea
-                    name='body'
-                    placholder='Enter your message here...'
+                    name="body"
+                    placholder="Enter your message here..."
                 />
             </form>
         @endif

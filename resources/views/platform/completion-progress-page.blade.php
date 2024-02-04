@@ -19,7 +19,7 @@ $pageDescription = "View {$targetUsername}'s game completion stats and milestone
 
 <x-app-layout :pageTitle="$headingLabel" :pageDescription="$pageDescription">
     <div>
-        <x-user.breadcrumbs :targetUsername="$targetUsername" currentPage="Completion Progress"/>
+        <x-user.breadcrumbs :targetUsername="$targetUsername" currentPage="Completion Progress" />
 
         <div class="mt-3 -mb-3 w-full flex gap-x-3">
             {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
@@ -60,7 +60,7 @@ $pageDescription = "View {$targetUsername}'s game completion stats and milestone
 
             @if ($isFiltering || $selectedSortOrder !== 'unlock_date')
                 <a href="{{ route('user.completion-progress', $targetUsername) }}" class="btn flex items-center gap-x-0.5 transition lg:active:scale-95">
-                    <x-fas-undo/>
+                    <x-fas-undo />
                     <span>Reset filters/sort</span>
                 </a>
             @else
@@ -79,11 +79,11 @@ $pageDescription = "View {$targetUsername}'s game completion stats and milestone
             </div>
         @endif
 
-        <x-completion-progress-page.game-list :completedGamesList="$completedGamesList" :targetUsername="$targetUsername"/>
+        <x-completion-progress-page.game-list :completedGamesList="$completedGamesList" :targetUsername="$targetUsername" />
 
         @if ($totalPages > 0)
             <div class="w-full flex justify-end mt-2">
-                <x-paginator :totalPages="$totalPages" :currentPage="$currentPage"/>
+                <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
             </div>
         @endif
     </div>

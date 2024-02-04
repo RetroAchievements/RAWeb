@@ -53,7 +53,7 @@
 
         <x-section>
             <h3>Feature Flags</h3>
-            <x-feature-flags/>
+            <x-feature-flags />
         </x-section>
 
         <div>
