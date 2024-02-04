@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Enums\UserGameListType;
+use App\Enums\Permissions;
 use App\Platform\Models\System;
-use App\Site\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);

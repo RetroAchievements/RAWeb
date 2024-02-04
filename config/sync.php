@@ -10,6 +10,7 @@ use App\Community\Models\Rating;
 use App\Community\Models\Ticket;
 use App\Community\Models\UserRelation;
 use App\Community\Models\Vote;
+use App\Models\User;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\GameAlternative;
@@ -22,7 +23,6 @@ use App\Platform\Models\MemoryNote;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
-use App\Site\Models\User;
 use App\Support\Sync\SyncStrategy;
 
 return [

@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Site\Enums\Permissions;
-use App\Site\Enums\SearchType;
+use App\Enums\Permissions;
+use App\Enums\SearchType;
 
 function canSearch(int $searchType, int $permissions): bool
 {

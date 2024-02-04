@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
+use App\Models\User;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\System;
-use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 

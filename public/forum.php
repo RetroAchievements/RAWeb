@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');

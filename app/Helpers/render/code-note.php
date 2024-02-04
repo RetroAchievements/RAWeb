@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $editingPermissions = null): void
 {

@@ -1,8 +1,8 @@
 <?php
 
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Models\MemoryNote;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 
 function getCodeNotesData(int $gameID): array
 {

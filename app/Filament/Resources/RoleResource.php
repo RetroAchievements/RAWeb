@@ -8,7 +8,7 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\RoleResource\Pages\Details;
 use App\Filament\Resources\RoleResource\Pages\Index;
 use App\Filament\Resources\RoleResource\RelationManager\Users;
-use App\Site\Models\Role;
+use App\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;

@@ -7,7 +7,8 @@
 ])
 
 <?php
-use App\Site\Enums\UserPreference;
+
+use App\Enums\UserPreference;
 
 $canShowMissableCount = true;
 if ($numMissableAchievements > 0) {
@@ -43,8 +44,8 @@ if ($numMissableAchievements > 0) {
                     <x-icon.missable />
                 </div>
                 <span id="missable-toggle-button-content">
-                    This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}.
-                </span>
+                        This set has {{ $numMissableAchievements }} missable {{ mb_strtolower(__res('achievement', $numMissableAchievements)) }}.
+                    </span>
             </div>
         </p>
     @endif

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetrics as UpdatePlayerGameMetricsAction;
 use App\Platform\Actions\UpdatePlayerMetrics as UpdatePlayerMetricsAction;
 use App\Platform\Models\Game;
-use App\Site\Models\User;
 use Illuminate\Console\Command;
 
 class UpdatePlayerGameMetrics extends Command

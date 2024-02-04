@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Events\SiteBadgeAwarded;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerBadge;
-use App\Site\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class UpdateDeveloperContributionYield

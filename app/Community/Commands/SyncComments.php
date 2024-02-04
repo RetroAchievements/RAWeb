@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Community\Commands;
 
 use App\Community\Models\News;
+use App\Models\User;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\Leaderboard;
-use App\Site\Models\User;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;

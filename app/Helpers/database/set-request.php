@@ -4,7 +4,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\RequestStatus;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
-use App\Site\Models\User;
+use App\Models\User;
 
 /**
  * Gets the total and remaining set requests left for the given user.

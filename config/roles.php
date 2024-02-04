@@ -1,7 +1,7 @@
 <?php
 
-use App\Site\Enums\Permissions;
-use App\Site\Models\Role;
+use App\Enums\Permissions;
+use App\Models\Role;
 
 $rootAssignable = [
     Role::ADMINISTRATOR,

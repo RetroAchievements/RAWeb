@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\User;
+use App\Models\User;
 
 /*
  *  API_GetUserGameRankAndScore - gets user's High Scores entry for a game

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Models;
 
-use App\Site\Models\User;
+use App\Models\User;
 use App\Support\Database\Eloquent\BasePivot;
 use Database\Factories\PlayerAchievementFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

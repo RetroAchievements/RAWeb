@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Concerns;
 
 use App\Community\Enums\AwardType;
+use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerBadge;
-use App\Site\Models\User;
 use Carbon\Carbon;
 
 trait TestsPlayerBadges

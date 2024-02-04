@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Site\Models\User;
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.

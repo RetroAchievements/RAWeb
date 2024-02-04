@@ -2,9 +2,9 @@
 
 namespace App\Platform\Jobs;
 
+use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievement;
 use App\Platform\Models\Achievement;
-use App\Site\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

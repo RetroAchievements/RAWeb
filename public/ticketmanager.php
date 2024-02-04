@@ -5,11 +5,11 @@ use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\PlayerAchievement;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 

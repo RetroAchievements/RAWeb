@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Connect;
 
 use App\Community\Enums\AwardType;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
@@ -13,8 +15,6 @@ use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
 use App\Platform\Models\System;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;

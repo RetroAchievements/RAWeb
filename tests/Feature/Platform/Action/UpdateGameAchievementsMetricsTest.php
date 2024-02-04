@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Action;
 
+use App\Models\User;
 use App\Platform\Models\Achievement;
-use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;

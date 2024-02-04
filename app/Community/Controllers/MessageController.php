@@ -9,7 +9,7 @@ use App\Community\Actions\CreateMessageThreadAction;
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

@@ -13,7 +13,7 @@
 
 <?php
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 $metaContainerClassNames = "w-full mb-4 lg:mb-3 gap-x-2 flex justify-between";
 

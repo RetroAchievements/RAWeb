@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Platform\Concerns;
 
 use App\Connect\Controllers\ConnectApiController;
+use App\Models\User;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerBadge;
 use App\Platform\Models\PlayerGame;
 use App\Platform\Models\PlayerSession;
-use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

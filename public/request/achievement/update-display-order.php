@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ClaimSetType;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 

@@ -1,10 +1,10 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Models\Game;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 
 function SubmitLeaderboardEntry(
     string $user,

@@ -6,7 +6,8 @@
 ])
 
 <?php
-use App\Site\Enums\UserPreference;
+
+use App\Enums\UserPreference;
 use Illuminate\Support\Carbon;
 
 /** @var ?User $user */
@@ -64,9 +65,9 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
 @endif
 
 <p class='smalltext !leading-[14px]'>
-    <span 
+    <span
         @if($shouldUsePostedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
-            title="{{ $formattedPostTimestampTooltip }}" 
+            title="{{ $formattedPostTimestampTooltip }}"
             class="cursor-help"
         @endif
     >
@@ -85,6 +86,6 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
             >
                 {{ $formattedEditTimestamp }}
             </span>
-        </span> 
+        </span>
     @endif
 </p>

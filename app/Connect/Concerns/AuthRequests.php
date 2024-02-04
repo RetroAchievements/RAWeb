@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Connect\Concerns;
 
 use App\Connect\Controllers\ConnectApiController;
-use App\Site\Models\User;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 

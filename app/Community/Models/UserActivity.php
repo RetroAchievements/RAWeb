@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Community\Models;
 
 use App\Community\Enums\UserActivityType;
+use App\Models\User;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
-use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\UserActivityFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

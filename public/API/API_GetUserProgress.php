@@ -15,7 +15,7 @@
  *    string     ScoreAchievedHardcore      number of points earned by the user in hardcore
  */
 
- use App\Site\Models\User;
+ use App\Models\User;
 
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
-use App\Site\Components\Concerns\DeferLoading;
-use App\Site\Models\User;
+use App\Components\Concerns\DeferLoading;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 

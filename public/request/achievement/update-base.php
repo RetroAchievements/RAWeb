@@ -1,8 +1,8 @@
 <?php
 
+use App\Enums\Permissions;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Models\Achievement;
-use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;

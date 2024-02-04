@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\RoleResource\RelationManager;
 
 use App\Filament\Resources\UserResource;
-use App\Site\Models\User;
+use App\Models\User;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;

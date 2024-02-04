@@ -6,7 +6,8 @@
 ])
 
 <?php
-use App\Site\Enums\Permissions;
+
+use App\Enums\Permissions;
 use Illuminate\Support\Carbon;
 
 $me = Auth::user() ?? null;
@@ -20,7 +21,7 @@ $hasVisibleRole = (
         $userMassData['Permissions'] !== Permissions::Registered
         && $userMassData['Permissions'] !== Permissions::Unregistered
     )
-    || ($amIModerator && $userMassData['Permissions'] !== Permissions::Registered) 
+    || ($amIModerator && $userMassData['Permissions'] !== Permissions::Registered)
 );
 
 $roleLabel = $hasVisibleRole ? Permissions::toString($userMassData['Permissions']) : '';

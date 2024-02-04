@@ -6,7 +6,8 @@
 ])
 
 <?php
-use App\Site\Models\User;
+
+use App\Models\User;
 
 $user = User::find($userId);
 

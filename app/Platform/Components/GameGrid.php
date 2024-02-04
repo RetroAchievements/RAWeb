@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Components;
 
+use App\Components\Grid;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
-use App\Site\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\AllowedSort;
 

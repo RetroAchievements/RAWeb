@@ -2,11 +2,11 @@
 
 namespace App\Platform\Listeners;
 
+use App\Models\User;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Jobs\UpdatePlayerStatsJob;
-use App\Site\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DispatchUpdatePlayerStatsJob implements ShouldQueue

@@ -3,6 +3,7 @@
 namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
@@ -10,7 +11,6 @@ use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use App\Platform\Models\Achievement;
-use App\Site\Models\User;
 
 class ResetPlayerProgress
 {

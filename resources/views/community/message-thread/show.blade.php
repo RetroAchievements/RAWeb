@@ -9,8 +9,8 @@
 
 <?php
 
-use App\Site\Enums\UserPreference;
-use App\Site\Models\User;
+use App\Enums\UserPreference;
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 
@@ -53,10 +53,10 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
 
     <div class="w-full flex my-2">
         <div class="mr-6">
-            <form action="{{ route('message-thread.destroy', $thread->id) }}" method='post'>
-            {{ method_field('DELETE') }}
-            {{ csrf_field() }}
-            <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message thread?')">Delete</button>
+            <form action="{{ route('message-thread.destroy', $thread->id) }}" method="post">
+                {{ method_field('DELETE') }}
+                {{ csrf_field() }}
+                <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message thread?')">Delete</button>
             </form>
         </div>
         <div class="w-full flex justify-end">
@@ -69,16 +69,16 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
             <div class="embedded mb-2">
                 <div class="flex justify-between items-center">
                     <div>
-                    {!! userAvatar($participants[$message->author_id], iconSize: 24) !!}
-                    <?php $humanDate = $message->created_at->format('F j Y, g:ia'); ?>
-                    @if ($isShowAbsoluteDatesPreferenceSet || $message->created_at < $monthAgo)
-                        <span class='smalldate'>{{ $humanDate }}</span>
-                    @else
-                        <span class='smalldate cursor-help' title='{{ $humanDate }}'>{{ $message->created_at->diffForHumans() }}</span>
-                    @endif
+                        {!! userAvatar($participants[$message->author_id], iconSize: 24) !!}
+                            <?php $humanDate = $message->created_at->format('F j Y, g:ia'); ?>
+                        @if ($isShowAbsoluteDatesPreferenceSet || $message->created_at < $monthAgo)
+                            <span class="smalldate">{{ $humanDate }}</span>
+                        @else
+                            <span class="smalldate cursor-help" title="{{ $humanDate }}">{{ $message->created_at->diffForHumans() }}</span>
+                        @endif
                     </div>
                 </div>
-                <hr class="w-full border-embed-highlight my-2" />
+                <hr class="w-full border-embed-highlight my-2"/>
 
                 <p class="comment text-overflow-wrap">{!! Shortcode::render($message->body) !!}</p>
             </div>
@@ -86,23 +86,23 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
     </div>
 
     <div class="mt-2">
-    @if (!$canReply)
-        <i>Cannot reply to deleted user.</i>
-    @else
-        <form action="{{ route('message.store') }}" method='post' x-data='{ isValid: true }'>
-            {{ csrf_field() }}
-            <input type='hidden' name='thread_id' value='{{ $thread->id }}' />
+        @if (!$canReply)
+            <i>Cannot reply to deleted user.</i>
+        @else
+            <form action="{{ route('message.store') }}" method="post" x-data="{ isValid: true }">
+                {{ csrf_field() }}
+                <input type="hidden" name="thread_id" value="{{ $thread->id }}"/>
 
-            <x-input.shortcode-textarea
-                name='body'
-                placholder='Enter your message here...'
-            />
-        </form>
-    @endif
+                <x-input.shortcode-textarea
+                    name="body"
+                    placholder="Enter your message here..."
+                />
+            </form>
+        @endif
     </div>
 
     <div class="w-full flex justify-end mt-2">
-        <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
+        <x-paginator :totalPages="$totalPages" :currentPage="$currentPage"/>
     </div>
 
 </x-app-layout>

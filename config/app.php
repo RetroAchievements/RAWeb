@@ -254,13 +254,13 @@ return [
         /*
          * Site Providers
          */
-        App\Site\AppServiceProvider::class,
-        App\Site\AuthServiceProvider::class,
-        // App\Site\BroadcastServiceProvider::class,
-        App\Site\EventServiceProvider::class,
-        App\Site\FortifyServiceProvider::class,
-        App\Site\HorizonServiceProvider::class,
-        App\Site\RouteServiceProvider::class,
+        App\Providers\AppServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
+        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
+        App\Providers\FortifyServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class,
+        App\Providers\RouteServiceProvider::class,
 
         /*
          * Admin

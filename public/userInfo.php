@@ -4,9 +4,9 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\UserAction;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Services\PlayerProgressionService;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 $userPage = request('user');

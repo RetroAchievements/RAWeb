@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Enums\UserPreference;
+use App\Enums\UserPreference;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
 

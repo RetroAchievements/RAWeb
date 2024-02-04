@@ -1,7 +1,7 @@
 <?php
 
+use App\Enums\SearchType;
 use App\Platform\Models\Achievement;
-use App\Site\Enums\SearchType;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

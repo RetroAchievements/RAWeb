@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\Permissions;
 use App\Platform\Enums\AchievementFlag;
-use App\Site\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;

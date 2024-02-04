@@ -1,10 +1,11 @@
 <?php
+
 use App\Community\Enums\ClaimFilters;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\TicketState;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 ?>
 
