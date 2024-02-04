@@ -50,15 +50,16 @@
  *    string    Expiration                date the claim will expire
  */
 
-use App\Platform\Enums\AchievementFlag;
 use App\Community\Models\AchievementSetClaim;
-use App\Platform\Models\Game;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
+use App\Platform\Models\Game;
 use Carbon\Carbon;
 
 $gameID = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
+if (!function_exists('getParentGameId')) {
 function getParentGameId(string $title, int $consoleID, int $gameID): ?int
 {
 
@@ -71,10 +72,11 @@ function getParentGameId(string $title, int $consoleID, int $gameID): ?int
 
         if ($gameID == $remainingResult->ID) {
             return null;
-        } else {
-            return $remainingResult->ID;
         }
+
+        return $remainingResult->ID ? $remainingResult->ID : null;
     }
+}
 }
 
 /* Maps
@@ -86,34 +88,38 @@ function getParentGameId(string $title, int $consoleID, int $gameID): ?int
     implementation vs average 110ms on this refactor.
 */
 
-$gameData = collect([Game::find($gameID)])->map(function ($gd) {
-    return [
-        'ID' => $gd->ID,
-        'Title' => $gd->Title,
-        'ConsoleID' => $gd->ConsoleID,
-        'ForumTopicID' => $gd->ForumTopicID,
-        'Flags' => (int) 0, // Always '0'
-        'ImageIcon' => $gd->ImageIcon,
-        'ImageTitle' => $gd->ImageTitle,
-        'ImageIngame' => $gd->ImageIngame,
-        'ImageBoxArt' => $gd->ImageBoxArt,
-        'Publisher' => $gd->Publisher,
-        'Developer' => $gd->Developer,
-        'Genre' => $gd->Genre,
-        'Released' => $gd->Released,
-        'IsFinal' => $gd->IsFinal,
-        'RichPresencePatch' => md5($gd->RichPresencePatch),
-        'GuideURL' => $gd->GuideURL,
-        'Updated' => $gd->Updated,
-    ];
-})->first();
+if (Game::where('ID', $gameID)->exists()) {
+    $gameData = collect([Game::find($gameID)])->map(function ($gd) {
+        return [
+            'ID' => $gd->ID,
+            'Title' => $gd->Title,
+            'ConsoleID' => $gd->ConsoleID,
+            'ForumTopicID' => $gd->ForumTopicID,
+            'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
+            'ImageIcon' => $gd->ImageIcon,
+            'ImageTitle' => $gd->ImageTitle,
+            'ImageIngame' => $gd->ImageIngame,
+            'ImageBoxArt' => $gd->ImageBoxArt,
+            'Publisher' => $gd->Publisher,
+            'Developer' => $gd->Developer,
+            'Genre' => $gd->Genre,
+            'Released' => $gd->Released,
+            'IsFinal' => $gd->IsFinal,
+            'RichPresencePatch' => md5($gd->RichPresencePatch),
+            'GuideURL' => $gd->GuideURL,
+            'Updated' => $gd->Updated,
+        ];
+    })->first();
+} else {
+    return response()->json();
+}
 
 if (!Game::find($gameID)->achievements->isEmpty()) {
     $gameAchievements = Game::find($gameID)->achievements->where('Flags', $flag)->map(function ($am) use ($gameID) {
         return [
             'ID' => $am->ID,
-            'NumAwarded' => Achievement::find($gameID)->unlocks_total,
-            'NumAwardedHardcore' => Achievement::find($gameID)->unlocks_hardcore_total,
+            'NumAwarded' => Achievement::find($am->ID)->unlocks_total,
+            'NumAwardedHardcore' => Achievement::find($am->ID)->unlocks_hardcore_total,
             'Title' => $am->Title,
             'Description' => $am->Description,
             'Points' => $am->Points,
@@ -127,6 +133,7 @@ if (!Game::find($gameID)->achievements->isEmpty()) {
             'type' => $am->type,
         ];
     })->keyBy('ID');
+    $gameAchievements->sortBy('DisplayOrder');
 } else {
     $gameAchievements = new ArrayObject();
 }
@@ -138,8 +145,8 @@ if (!AchievementSetClaim::where('GameID', $gameID)->get()->isEmpty()) {
             'SetType' => $gc->SetType,
             'GameID' => $gc->GameID,
             'ClaimType' => $gc->ClaimType,
-            'Created' => $gc->Created,
-            'Expired' => $gc->Finished,
+            'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
+            'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
         ];
     });
 } else {
@@ -148,14 +155,14 @@ if (!AchievementSetClaim::where('GameID', $gameID)->get()->isEmpty()) {
 
 $getGameExtended = array_merge(
     $gameData,
-    array('ConsoleName' => Game::find($gameID)->system->Name),
-    array('ParentGameID' => getParentGameId(Game::find($gameID)->Title, Game::find($gameID)->ConsoleID, $gameID)),
-    array('NumDistinctPlayers' => count(Game::find($gameID)->players)),
-    array('NumAchievements' => count($gameAchievements)),
-    array('Achievements' => $gameAchievements),
-    array('Claims' => $gameClaims),
-    array('NumDistinctPlayersCausal' => count(Game::find($gameID)->players)), //Deprecated - Only here to maintain API V1 compat
-    array('NumDistinctPlayersHardcore' => count(Game::find($gameID)->players)), //Deprecated - Only here to maintain API V1 compat
+    ['ConsoleName' => Game::find($gameID)->system->Name],
+    ['ParentGameID' => getParentGameId(Game::find($gameID)->Title, Game::find($gameID)->ConsoleID, $gameID)],
+    ['NumDistinctPlayers' => count(Game::find($gameID)->players)],
+    ['NumAchievements' => count($gameAchievements)],
+    ['Achievements' => $gameAchievements],
+    ['Claims' => $gameClaims],
+    ['NumDistinctPlayersCasual' => count(Game::find($gameID)->players)], // Deprecated - Only here to maintain API V1 compat
+    ['NumDistinctPlayersHardcore' => count(Game::find($gameID)->players)], // Deprecated - Only here to maintain API V1 compat
 );
 
 return response()->json($getGameExtended);
