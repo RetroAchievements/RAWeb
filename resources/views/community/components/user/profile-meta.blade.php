@@ -1,14 +1,9 @@
 @props([
-    'averageCompletionPercentage' => '0.0',
-    'averageFinishedGames' => 0,
-    'averagePointsPerWeek' => 0,
     'developerStats' => [],
     'hardcoreRankMeta' => [],
-    'recentPointsEarned' => [],
+    'playerStats' => [],
     'socialStats' => [],
     'softcoreRankMeta' => [],
-    'totalHardcoreAchievements' => 0,
-    'totalSoftcoreAchievements' => 0,
     'userClaims' => null, // ?array
     'userMassData' => [],
     'username' => '',
@@ -82,14 +77,7 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
     >
         <div class="pt-3">
             <x-user.profile.player-stats
-                :averageCompletionPercentage="$averageCompletionPercentage"
-                :averageFinishedGames="$averageFinishedGames"
-                :averagePointsPerWeek="$averagePointsPerWeek"
-                :hardcoreRankMeta="$hardcoreRankMeta"
-                :recentPointsEarned="$recentPointsEarned"
-                :softcoreRankMeta="$softcoreRankMeta"
-                :totalHardcoreAchievements="$totalHardcoreAchievements"
-                :totalSoftcoreAchievements="$totalSoftcoreAchievements"
+                :playerStats="$playerStats"
                 :userMassData="$userMassData"
             />
 
@@ -98,14 +86,10 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
                     :developerStats="$developerStats"
                     :userClaims="$userClaims"
                     :userMassData="$userMassData"
-                    :username="$username"
                 />
             @endif
 
-            <x-user.profile.social-stats
-                :socialStats="$socialStats"
-                :username="$username"
-            />
+            <x-user.profile.social-stats :socialStats="$socialStats" />
         </div>
     </div>
 </div>
