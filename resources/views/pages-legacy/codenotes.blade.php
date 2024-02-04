@@ -16,11 +16,22 @@ $codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'
 <x-app-layout pageTitle="Code Notes - {{ $gameData['Title']}}">
 <script>
 window.addEventListener('beforeunload', function (event) {
-    // If any textareas are non-hidden, dirtiness is implied.
-    const visibleTextareas = Array.from(document.querySelectorAll('textarea:not(.hidden)'));
+    const rows = document.querySelectorAll('tr.note-row');
+    const hasDirtyTextareaEls = Array.from(rows).some((row) => {
+        const noteDisplayEl = row.querySelector('.note-display');
+        const noteEditEl = row.querySelector('.note-edit');
+        
+        if (!noteDisplayEl || !noteEditEl || noteEditEl.classList.contains('hidden')) {
+            return false;
+        }
 
-    if (visibleTextareas.length) {
-        const confirmationMessage = 'There are rows still in edit mode. Any unsaved changes will be lost if you navigate away.';
+        // "<br>" "<br />" "<br>\n"
+        const originalValue = noteDisplayEl.innerHTML.replace(/<br\s*\/?>\n?/g, '\n');
+        return originalValue !== noteEditEl.value;
+    });
+
+    if (hasDirtyTextareaEls) {
+        const confirmationMessage = 'Any unsaved changes will be lost if you navigate away.';
         (event || window.event).returnValue = confirmationMessage;
         
         return confirmationMessage;
@@ -84,9 +95,12 @@ function cancelEditMode(rowIndex) {
     // Restore the original value so unsaved edits are not persisted.
     const noteDisplayEl = rowEl.querySelector('.note-display');
     const noteEditEl = rowEl.querySelector('.note-edit');
-
     // "<br>" "<br />" "<br>\n"
-    const originalValue = noteDisplayEl.innerHTML.replace(/<br\s*\/?>\n?/g, '\n');
+    const originalValue = noteDisplayEl ? noteDisplayEl.innerHTML.replace(/<br\s*\/?>\n?/g, '\n') : '';
+
+    if (originalValue !== noteEditEl.value && !confirm('Are you sure you want to discard your unsaved changes?')) {
+        return;
+    }
 
     noteEditEl.value = originalValue;
 
