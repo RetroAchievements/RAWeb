@@ -11,6 +11,7 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -20,13 +21,23 @@ class BeatenGamesLeaderboardController extends Controller
 {
     private int $pageSize = 25;
 
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request): View|RedirectResponse
     {
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
             'filter.system' => 'sometimes|integer',
             'filter.kind' => 'sometimes|string',
+            'filter.user' => 'sometimes|string',
         ]);
+
+        $targetUser = null;
+        $isUserFilterSet = isset($validatedData['filter']['user']);
+        if ($isUserFilterSet) {
+            $targetUser = User::byDisplayName($validatedData['filter']['user'])->first();
+        }
+        if (!$targetUser) {
+            $targetUser = Auth::user() ?? null;
+        }
 
         $targetSystemId = (int) ($validatedData['filter']['system'] ?? 0);
         [$gameKindFilterOptions, $leaderboardKind] = $this->determineGameKindFilterOptions(
@@ -44,23 +55,28 @@ class BeatenGamesLeaderboardController extends Controller
             $targetSystemId,
         );
 
-        // We need to know how many rows there are, otherwise the
-        // paginator can't determine what the max page number should be.
-        $rankedRowsCount = $allBeatenGameAwardsRankedRows->count();
-
-        // Where does the authed user currently rank?
+        // Where does the authed or target user currently rank?
         $isUserOnCurrentPage = false;
-        $myRankingData = null;
-        $myUsername = null;
+        $targetUserRankingData = null;
         $userPageNumber = null;
-        $me = Auth::user() ?? null;
-        if ($me) {
-            $myRankingData = $this->getUserRankingData($me->id, $allBeatenGameAwardsRankedRows);
-            $userPageNumber = (int) $myRankingData['userPageNumber'];
+        if ($targetUser) {
+            $targetUserRankingData = $this->getUserRankingData($targetUser->id, $allBeatenGameAwardsRankedRows);
+            $userPageNumber = (int) $targetUserRankingData['userPageNumber'];
             $isUserOnCurrentPage = (int) $currentPage === $userPageNumber;
         }
 
+        // If there's an active user filter and we have their ranking data, redirect to that user's page and remove the filter.
+        if ($targetUser && $targetUserRankingData && $isUserFilterSet && !$isUserOnCurrentPage) {
+            return redirect()->route('ranking.beaten-games', [
+                'page[number]' => $userPageNumber,
+            ]);
+        }
+
         $currentPageRows = $allBeatenGameAwardsRankedRows->slice($offset, $this->pageSize);
+
+        // We need to know how many rows there are, otherwise the
+        // paginator can't determine what the max page number should be.
+        $rankedRowsCount = $allBeatenGameAwardsRankedRows->count();
 
         $paginator = new LengthAwarePaginator($currentPageRows, $rankedRowsCount, $this->pageSize, $currentPage, [
             'path' => $request->url(),
@@ -75,8 +91,7 @@ class BeatenGamesLeaderboardController extends Controller
             'gameKindFilterOptions' => $gameKindFilterOptions,
             'isUserOnCurrentPage' => $isUserOnCurrentPage,
             'leaderboardKind' => $leaderboardKind,
-            'myRankingData' => $myRankingData,
-            'myUsername' => $myUsername,
+            'targetUserRankingData' => $targetUserRankingData,
             'paginator' => $paginator,
             'selectedConsoleId' => $targetSystemId,
             'userPageNumber' => $userPageNumber,

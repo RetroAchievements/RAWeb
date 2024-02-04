@@ -9,6 +9,7 @@ use App\Community\Enums\RankType;
 use App\Enums\Permissions;
 use App\Models\PlayerStat;
 use App\Models\User;
+use App\Platform\Enums\PlayerStatType;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -209,15 +210,19 @@ class UserProfileMeta extends Component
 
         $recentPointsEarned = $this->calculateRecentPointsEarned($user, $preferredMode);
 
-        // Total games beaten
-        $totalGamesBeaten = (int) PlayerStat::where('user_id', $user->ID) // keep in mind, this is hardcore only.
+        // Retail games beaten
+        $retailGamesBeaten = (int) PlayerStat::where('user_id', $user->ID) // keep in mind, this is hardcore only.
             ->where('system_id', null)
+            ->whereIn('type', [
+                PlayerStatType::GamesBeatenHardcoreRetail,
+                PlayerStatType::GamesBeatenHardcoreUnlicensed,
+            ])
             ->sum('value');
-        $totalGamesBeatenStat = [
-            'label' => 'Total games beaten',
-            'value' => localized_number($totalGamesBeaten),
-            'isMuted' => !$totalGamesBeaten,
-            // TODO: href to 'ranking.beaten-games' for a specific user.
+        $retailGamesBeatenStat = [
+            'label' => 'Retail games beaten',
+            'value' => localized_number($retailGamesBeaten),
+            'isMuted' => !$retailGamesBeaten,
+            'href' => route('ranking.beaten-games', ['filter[user]' => $user->username]),
         ];
 
         // Started games beaten
@@ -267,8 +272,8 @@ class UserProfileMeta extends Component
                 'averagePointsPerWeekStat',
                 'pointsLast30DaysStat',
                 'pointsLast7DaysStat',
+                'retailGamesBeatenStat',
                 'startedGamesBeatenPercentageStat',
-                'totalGamesBeatenStat',
             ),
             $this->buildHardcorePlayerStats($user, $userMassData, $hardcoreRankMeta),
             $this->buildSoftcorePlayerStats($user, $userMassData, $softcoreRankMeta),
@@ -385,8 +390,8 @@ class UserProfileMeta extends Component
 
         // Iterate over each game to check if it is finished.
         foreach ($userJoinedGamesAndAwards as $game) {
-            // Ignore subsets.
-            if (strpos($game['Title'], '[Subset') !== false) {
+            // Ignore subsets and test kits.
+            if (mb_strpos($game['Title'], '[Subset') !== false || mb_strpos($game['Title'], '~Test Kit~')) {
                 continue;
             }
 
