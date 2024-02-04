@@ -222,7 +222,7 @@ class UserProfileMeta extends Component
             'label' => 'Retail games beaten',
             'value' => localized_number($retailGamesBeaten),
             'isMuted' => !$retailGamesBeaten,
-            'href' => route('ranking.beaten-games', ['filter[user]' => $user->username]),
+            'href' => $retailGamesBeaten ? route('ranking.beaten-games', ['filter[user]' => $user->username]) : null,
         ];
 
         // Started games beaten
