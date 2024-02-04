@@ -1,8 +1,8 @@
 <?php
 
+use App\Enums\Permissions;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
-use App\Site\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {

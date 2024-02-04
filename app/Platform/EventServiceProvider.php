@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
+use App\Events\UserDeleted;
 use App\Platform\Events\AchievementCreated;
 use App\Platform\Events\AchievementMoved;
 use App\Platform\Events\AchievementPointsChanged;
@@ -32,7 +33,6 @@ use App\Platform\Listeners\DispatchUpdatePlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdatePlayerStatsJob;
 use App\Platform\Listeners\ResetPlayerProgress;
 use App\Platform\Listeners\ResumePlayerSession;
-use App\Site\Events\UserDeleted;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider

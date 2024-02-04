@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\User;
+use App\Models\User;
 use Carbon\Carbon;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -82,7 +82,7 @@ RenderContentStart("$userPage's Legacy");
       legend: { position: 'none' },
       chartArea: { 'width': '86%', 'height': '70%' },
       height: 250,
-      colors: ['#186DEE','#8c8c8c'],
+      colors: ['#cc9900','#737373'],
     };
 
     var dataBestDays = new google.visualization.DataTable();

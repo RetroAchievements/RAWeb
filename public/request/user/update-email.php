@@ -1,8 +1,9 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 if (!authenticateFromCookie($username, $permissions, $userDetail)) {
@@ -15,13 +16,7 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $email = $input['email'];
 
-$dbResult = s_mysql_query(
-    "UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", Updated=NOW() WHERE User='$username'"
-);
-
-if (!$dbResult) {
-    return back()->withErrors(__('legacy.error.error'));
-}
+DB::statement("UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", email_verified_at = NULL, Updated=NOW() WHERE User='$username'");
 
 sendValidationEmail($username, $email);
 

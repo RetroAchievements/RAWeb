@@ -8,9 +8,10 @@
 ])
 
 <?php
+
 use App\Community\Enums\UserGameListType;
 use App\Platform\Models\System;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 $type = UserGameListType::Play;
 $iconUrl = getSystemIconUrl($consoleId);

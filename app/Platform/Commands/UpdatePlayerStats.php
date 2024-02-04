@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\User;
 use App\Platform\Actions\UpdatePlayerStats as UpdatePlayerStatsAction;
 use App\Platform\Jobs\UpdatePlayerStatsJob;
-use App\Site\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;

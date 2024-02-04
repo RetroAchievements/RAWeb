@@ -3,8 +3,9 @@
 ])
 
 <?php
+
 use App\Platform\Enums\AchievementType;
-use App\Site\Enums\UserPreference;
+use App\Enums\UserPreference;
 use Illuminate\Support\Facades\Auth;
 
 $progressionType = AchievementType::Progression;

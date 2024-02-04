@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\TicketState;
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Action;
 
 use App\Community\Enums\AwardType;
+use App\Models\User;
 use App\Platform\Actions\UpdateDeveloperContributionYield;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
-use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;

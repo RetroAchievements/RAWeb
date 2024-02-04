@@ -6,7 +6,7 @@ namespace App\Community\Components;
 
 use App\Community\Models\Forum;
 use App\Community\Models\ForumTopic;
-use App\Site\Components\Grid;
+use App\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
 
 class ForumTopics extends Grid

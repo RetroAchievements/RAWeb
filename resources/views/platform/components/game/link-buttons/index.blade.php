@@ -9,10 +9,11 @@
 ])
 
 <?php
+
 use App\Community\Enums\TicketFilters;
 use App\Community\Models\ForumTopic;
 use App\Platform\Enums\AchievementFlag;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Facades\Auth;
 
 $me = Auth::user();

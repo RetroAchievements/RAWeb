@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Sync;
 
-use App\Site\Models\User;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;

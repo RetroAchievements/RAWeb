@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
+use App\Models\StaticData;
 use App\Platform\Models\Game;
-use App\Site\Models\StaticData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\View\Component;

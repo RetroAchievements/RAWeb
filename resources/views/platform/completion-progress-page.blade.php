@@ -1,5 +1,6 @@
 <?php
-use App\Site\Models\User;
+
+use App\Models\User;
 
 $targetUsername = $user->User;
 $isMe = $me?->User === $targetUsername;

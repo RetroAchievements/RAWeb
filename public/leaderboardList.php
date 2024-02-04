@@ -1,8 +1,8 @@
 <?php
 
+use App\Enums\Permissions;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Models\System;
-use App\Site\Enums\Permissions;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 

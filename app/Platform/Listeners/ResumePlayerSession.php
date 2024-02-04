@@ -2,10 +2,10 @@
 
 namespace App\Platform\Listeners;
 
+use App\Models\User;
 use App\Platform\Actions\ResumePlayerSession as ResumePlayerSessionAction;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Models\Game;
-use App\Site\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ResumePlayerSession implements ShouldQueue

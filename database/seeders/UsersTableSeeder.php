@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Carbon\Carbon;
 use Database\Seeders\Concerns\SeedsUsers;
 use Illuminate\Database\Seeder;

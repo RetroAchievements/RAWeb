@@ -2,12 +2,12 @@
 
 namespace App\Platform\Listeners;
 
+use App\Models\User;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementUnpublished;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
-use App\Site\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue

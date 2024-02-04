@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permissions;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\UserResource\Pages;
-use App\Site\Enums\Permissions;
-use App\Site\Models\Role;
-use App\Site\Models\User;
+use App\Models\Role;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;

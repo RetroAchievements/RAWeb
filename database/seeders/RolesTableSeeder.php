@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Site\Models\Role;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Spatie\Permission\Models\Permission;

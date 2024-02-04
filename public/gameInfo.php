@@ -6,15 +6,15 @@ use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
+use App\Enums\Permissions;
+use App\Enums\UserPreference;
+use App\Models\User;
 use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
-use App\Site\Enums\Permissions;
-use App\Site\Enums\UserPreference;
-use App\Site\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 $gameID = (int) request('game');
@@ -1233,7 +1233,9 @@ sanitize_outputs(
             RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
         }
 
-        RenderGameLeaderboardsComponent($lbData, $forumTopicID);
+        if (isValidConsoleId($consoleID)) {
+            RenderGameLeaderboardsComponent($lbData, $forumTopicID);
+        }
         ?>
     </aside>
 <?php endif ?>

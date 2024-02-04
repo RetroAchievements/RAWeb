@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Models;
 
+use App\Models\User;
 use App\Platform\Models\Game;
-use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

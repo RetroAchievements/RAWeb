@@ -2,8 +2,8 @@
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 
 function GetUserData(string $username): ?array
 {

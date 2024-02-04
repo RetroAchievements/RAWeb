@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community\Components;
 
+use App\Models\User;
 use App\Platform\Models\Game;
 use App\Platform\Models\System;
-use App\Site\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;

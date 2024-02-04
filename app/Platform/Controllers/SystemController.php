@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Enums\Permissions;
 use App\Http\Controller;
 use App\Platform\Models\System;
 use App\Platform\Requests\SystemRequest;
 use App\Platform\Services\GameListService;
-use App\Site\Enums\Permissions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

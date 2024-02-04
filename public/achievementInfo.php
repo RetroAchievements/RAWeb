@@ -1,12 +1,12 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Models\PlayerAchievement;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Blade;
 

@@ -49,7 +49,7 @@
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
  */
 
- use App\Site\Models\User;
+ use App\Models\User;
 
 $gameID = (int) request()->query('g');
 $targetUser = User::firstWhere('User', request()->query('u'));

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Components;
 
 use App\Community\Models\UserComment;
-use App\Site\Components\Grid;
-use App\Site\Models\User;
+use App\Components\Grid;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

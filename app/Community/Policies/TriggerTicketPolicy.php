@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Community\Policies;
 
 use App\Community\Models\TriggerTicket;
-use App\Site\Enums\Permissions;
-use App\Site\Models\Role;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TriggerTicketPolicy

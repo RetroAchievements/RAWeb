@@ -1,4 +1,5 @@
 @props([
+    'hasAnyPoints' => false,
     'username' => '',
     'userScoreData' => [],
 ])
@@ -40,7 +41,7 @@ use Illuminate\Support\Carbon;
 
                         $nextDate = Carbon::parse($dayInfo['Date']);
                         $nextYear = $nextDate->year;
-                        $nextMonth = $nextDate->month;
+                        $nextMonth = $nextDate->month - 1;
                         $nextDay = $nextDate->day;
                         $dateStr = $nextDate->format('d M Y');
 
@@ -83,6 +84,9 @@ use Illuminate\Support\Carbon;
         </script>
 
         <div id="chart_recentprogress" class="mb-5 min-h-[200px]"></div>
+    @endif
+
+    @if ($hasAnyPoints)
         <div class="text-right">
             <a href="/history.php?u={{ $username }}">more...</a>
         </div>

@@ -6,7 +6,7 @@ namespace App\Community\Components;
 
 use App\Community\Models\ForumTopic;
 use App\Community\Models\ForumTopicComment;
-use App\Site\Components\Grid;
+use App\Components\Grid;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

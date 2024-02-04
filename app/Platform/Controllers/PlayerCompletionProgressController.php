@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Controllers;
 
+use App\Enums\Permissions;
 use App\Http\Controller;
+use App\Models\User;
 use App\Platform\Services\PlayerProgressionService;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

@@ -56,6 +56,12 @@ const setLoadingIconVisibility = (elementId: string, options: { isVisible: boole
   const loadingImageEl = document.getElementById('preview-loading-icon') as HTMLImageElement | null;
 
   if (loadingImageEl) {
-    loadingImageEl.style.opacity = options.isVisible ? '100' : '0';
+    if (options.isVisible) {
+      loadingImageEl.style.opacity = '100';
+      loadingImageEl.classList.add('animate-spin');
+    } else {
+      loadingImageEl.style.opacity = '0';
+      loadingImageEl.classList.remove('animate-spin');
+    }
   }
 };

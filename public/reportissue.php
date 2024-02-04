@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
@@ -63,7 +63,7 @@ function reportIssueComponent() {
             const networkRegex = /(manual\s+unlock|internet)/ig;
             return networkRegex.test(this.description);
         },
-        
+
         get descriptionIsUnhelpful() {
             const unhelpfulRegex = /(n'?t|not?).*work/ig;
             return this.description.length < 25 && unhelpfulRegex.test(this.description);
@@ -245,7 +245,7 @@ function reportIssueComponent() {
                             for instructions on how to request a manual unlock.
                         </p>
                         <p x-show="descriptionIsUnhelpful">
-                            Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you 
+                            Please be more specific with your issue&mdash;such as by adding specific reproduction steps or what you
                             did before encountering it&mdash;instead of simply stating that it doesn't work. The more specific, the better.
                         </p>
                     </div>

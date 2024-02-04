@@ -2,8 +2,8 @@
 
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
+use App\Models\User;
 use App\Platform\Events\PlayerRankedStatusChanged;
-use App\Site\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;

@@ -2,10 +2,10 @@
 
 namespace App\Platform\Jobs;
 
+use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetrics;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerGame;
-use App\Site\Models\User;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;

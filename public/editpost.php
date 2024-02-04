@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -80,7 +80,7 @@ RenderContentStart("Edit post");
     HTML;
     echo "</td></tr>";
 
-    $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="animate-spin opacity-0 transition-all duration-200 mt-1" aria-hidden="true" />');
+    $loadingIcon = Blade::render('<x-fas-spinner id="preview-loading-icon" class="opacity-0 transition-all duration-200 mt-1" aria-hidden="true" />');
 
     echo <<<HTML
         <tr>

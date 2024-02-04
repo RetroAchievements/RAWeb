@@ -25,7 +25,7 @@
  *    string     ScoreAchievedHardcore    number of points earned by the user in hardcore
  */
 
-use App\Site\Models\User;
+use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;

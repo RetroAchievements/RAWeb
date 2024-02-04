@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\User;
 use App\Platform\Events\PlayerMetricsUpdated;
-use App\Site\Models\User;
 
 class UpdatePlayerMetrics
 {

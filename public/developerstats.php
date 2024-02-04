@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\TicketFilters;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

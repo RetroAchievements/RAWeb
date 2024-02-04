@@ -8,61 +8,6 @@
 use Illuminate\Support\Carbon;
 ?>
 
-<script>
-/**
- * @param {Event} event
- * @param {string} hash
- */
-function updateHashDetails(event, hash) {
-    event.preventDefault();
-
-    const gameId = {{ $gameId }};
-    const user = "{{ $myUsername }}";
-    const name = document.querySelector(`#HASH_${hash}_Name`).value.trim();
-    const labels = document.querySelector(`#HASH_${hash}_Labels`).value.trim();
-    const patchUrl = document.querySelector(`#HASH_${hash}_PatchURL`).value.trim();
-    const source = document.querySelector(`#HASH_${hash}_SourceURL`).value.trim();
-
-    showStatusMessage('Updating hash...');
-    $.ajax({
-        url: `/game-hash/${hash}`,
-        type: 'PUT',
-        data: {
-            name,
-            labels,
-            source,
-            patch_url: patchUrl
-        },
-        success: () => {
-            // Hard refresh the page rather than doing an optimistic UI update.
-            window.location.reload();
-        },
-    });
-}
-
-/**
- * @param {string} hash
- * @param {string} hashName
- */
-function unlinkHash(hash) {
-    const hashName = <?= json_encode($hashEntity->Name); ?>;
-
-    if (!confirm(`Are you sure you want to unlink hash ${hashName} (${hash}) from this game?`)) {
-        return;
-    }
-
-    showStatusMessage('Unlinking hash...');
-    $.ajax({
-        url: `/game-hash/${hash}`,
-        type: 'DELETE',
-        success: () => {
-            // Hard refresh the page rather than doing an optimistic UI update.
-            window.location.reload();
-        }
-    });
-}
-</script>
-
 <div class="border border-embed-highlight bg-embed rounded-lg overflow-hidden">
     <div class="flex w-full justify-between px-4 py-2 bg-stone-950 light:bg-stone-100 border-b border-embed-highlight items-center">
         <p class="font-bold">

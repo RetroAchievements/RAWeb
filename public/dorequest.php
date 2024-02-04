@@ -1,6 +1,8 @@
 <?php
 
 use App\Community\Enums\ActivityType;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerSessionHeartbeat;
@@ -8,8 +10,6 @@ use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use App\Support\Media\FilenameIterator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;

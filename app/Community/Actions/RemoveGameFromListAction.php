@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Enums\UserGameListType;
+use App\Models\User;
 use App\Platform\Models\Game;
-use App\Site\Models\User;
 
 class RemoveGameFromListAction
 {

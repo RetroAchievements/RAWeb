@@ -3,9 +3,9 @@
 use App\Community\Actions\AddGameToListAction;
 use App\Community\Actions\RemoveGameFromListAction;
 use App\Community\Enums\UserGameListType;
+use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Models\Game;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;

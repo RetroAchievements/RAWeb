@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Community\Controllers;
 
 use App\Http\Controller;
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

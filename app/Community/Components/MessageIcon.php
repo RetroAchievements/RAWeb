@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 

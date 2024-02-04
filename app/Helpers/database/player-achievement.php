@@ -1,11 +1,11 @@
 <?php
 
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use App\Platform\Models\PlayerAchievement;
 use App\Platform\Models\PlayerGame;
-use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 

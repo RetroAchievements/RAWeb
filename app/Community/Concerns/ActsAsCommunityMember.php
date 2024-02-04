@@ -11,7 +11,7 @@ use App\Community\Models\UserActivity;
 use App\Community\Models\UserComment;
 use App\Community\Models\UserGameListEntry;
 use App\Community\Models\UserRelation;
-use App\Site\Models\User;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;

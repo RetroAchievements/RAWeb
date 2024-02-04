@@ -6,6 +6,7 @@ namespace App\Platform\Models;
 
 use App\Community\Concerns\HasAchievementCommunityFeatures;
 use App\Community\Contracts\HasComments;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\AchievementCreated;
@@ -14,7 +15,6 @@ use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
-use App\Site\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementFactory;
 use Illuminate\Database\Eloquent\Builder;

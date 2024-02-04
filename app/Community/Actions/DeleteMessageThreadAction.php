@@ -6,7 +6,7 @@ namespace App\Community\Actions;
 
 use App\Community\Models\MessageThread;
 use App\Community\Models\MessageThreadParticipant;
-use App\Site\Models\User;
+use App\Models\User;
 
 class DeleteMessageThreadAction
 {

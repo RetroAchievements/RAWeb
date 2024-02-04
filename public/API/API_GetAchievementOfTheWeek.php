@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\StaticData;
+use App\Models\StaticData;
 use Illuminate\Support\Carbon;
 
 /*

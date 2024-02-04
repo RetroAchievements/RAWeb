@@ -1,7 +1,7 @@
 <?php
 
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     abort(401);

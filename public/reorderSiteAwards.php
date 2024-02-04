@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\AwardType;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {

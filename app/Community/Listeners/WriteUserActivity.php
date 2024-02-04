@@ -6,13 +6,13 @@ namespace App\Community\Listeners;
 
 use App\Community\Enums\UserActivityType;
 use App\Community\Models\UserActivity;
+use App\Models\User;
 use App\Platform\Events\AchievementSetBeaten;
 use App\Platform\Events\AchievementSetCompleted;
 use App\Platform\Events\LeaderboardEntryCreated;
 use App\Platform\Events\LeaderboardEntryUpdated;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerGameAttached;
-use App\Site\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Login;
 

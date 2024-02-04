@@ -1,6 +1,6 @@
 <?php
 
-use App\Site\Models\Role;
+use App\Models\Role;
 
 return [
     'role' => [

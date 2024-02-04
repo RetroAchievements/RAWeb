@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Models\News;
-use App\Site\Enums\Permissions;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Developer)) {
@@ -80,7 +80,7 @@ RenderContentStart("Manage News");
                         <img src="<?= $newsImage ?>" width="470" alt="News header image preview">
                     </div>
                     <input type="file" name="file" id="uploadimagefile" onchange="return UploadImage();">
-                    <?= Blade::render('<x-fas-spinner id="loadingicon" class="animate-spin opacity-0 transition-all duration-200" aria-hidden="true" />') ?>
+                    <?= Blade::render('<x-fas-spinner id="loadingicon" class="opacity-0 transition-all duration-200" aria-hidden="true" />') ?>
                 </td>
             </tr>
             <tr>
@@ -112,9 +112,11 @@ function UploadImage() {
     reader.onload = function () {
         var loadingIcon = document.getElementById('loadingicon');
         loadingIcon.classList.remove('opacity-0');
+        loadingIcon.classList.add('animate-spin');
         $.post('/request/news/update-image.php', { image: reader.result },
             function (data) {
                 loadingIcon.classList.add('opacity-0');
+                loadingIcon.classList.remove('animate-spin');
 
                 var image = data.filename;
                 $('#image').val(image);

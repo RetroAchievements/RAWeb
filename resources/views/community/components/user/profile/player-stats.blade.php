@@ -1,12 +1,5 @@
 @props([
-    'averageCompletionPercentage' => '0.0',
-    'averageFinishedGames' => 0,
-    'averagePointsPerWeek' => 0,
-    'hardcoreRankMeta' => [],
-    'recentPointsEarned' => [],
-    'softcoreRankMeta' => [],
-    'totalHardcoreAchievements' => 0,
-    'totalSoftcoreAchievements' => 0,
+    'playerStats' => [],
     'userMassData' => [],
 ])
 
@@ -20,10 +13,9 @@ $weightedPoints = $userMassData['TotalTruePoints'] ?? 0;
 $hasMixedProgress = $hardcorePoints && $softcorePoints;
 $primaryMode = $softcorePoints > $hardcorePoints ? 'softcore' : 'hardcore';
 $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
-$retroRatio = $weightedPoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoints) : null;
 ?>
 
-<p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Player stats</p>
+<p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Player Stats</p>
 <div
     class="relative w-full px-2 pt-2 bg-embed rounded mb-6 pb-4 transition-all"
     x-data="{
@@ -32,71 +24,70 @@ $retroRatio = $weightedPoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoi
     }"
     :class="{ '!pb-2': isExpanded }"
 >
-    <div class="grid md:grid-cols-2 gap-x-12 gap-y-1" :class="{ 'mb-1': isExpanded }">
-        <div class="flex flex-col gap-y-1">
-            <x-user.profile.mode-player-stat-cells
-                :averageFinishedGames="$averageFinishedGames"
-                :hardcoreRankMeta="$hardcoreRankMeta"
-                :mode="$primaryMode"    
-                :retroRatio="$retroRatio"
-                :softcoreRankMeta="$softcoreRankMeta"
-                :totalHardcoreAchievements="$totalHardcoreAchievements"
-                :totalSoftcoreAchievements="$totalSoftcoreAchievements"
-                :userMassData="$userMassData"
+    @if ($hasMixedProgress)
+        @if ($primaryMode === 'hardcore')
+            <x-user.profile.arranged-stat-items
+                :stats="[
+                    $playerStats['hardcorePointsStat'],                 $playerStats['softcorePointsStat'],
+                    $playerStats['hardcoreSiteRankStat'],               $playerStats['softcoreSiteRankStat'],
+                    $playerStats['hardcoreAchievementsUnlockedStat'],   $playerStats['softcoreAchievementsUnlockedStat'],
+                    $playerStats['retroRatioStat'],                     $playerStats['startedGamesBeatenPercentageStat'],
+                ]"
             />
-        </div>
-
-        <div class="flex flex-col gap-y-1">
-            <x-user.profile.mode-player-stat-cells
-                :averageFinishedGames="$averageFinishedGames"
-                :hardcoreRankMeta="$hardcoreRankMeta"
-                :mode="$secondaryMode"    
-                :retroRatio="$retroRatio"
-                :softcoreRankMeta="$softcoreRankMeta"
-                :totalHardcoreAchievements="$totalHardcoreAchievements"
-                :totalSoftcoreAchievements="$totalSoftcoreAchievements"
-                :userMassData="$userMassData"
+        @elseif ($primaryMode === 'softcore')
+            <x-user.profile.arranged-stat-items
+                :stats="[
+                    $playerStats['softcorePointsStat'],                 $playerStats['hardcorePointsStat'],
+                    $playerStats['softcoreSiteRankStat'],               $playerStats['hardcoreSiteRankStat'],
+                    $playerStats['softcoreAchievementsUnlockedStat'],   $playerStats['hardcoreAchievementsUnlockedStat'],
+                    $playerStats['startedGamesBeatenPercentageStat'],   $playerStats['retroRatioStat'],
+                ]"
             />
-        </div>
-    </div>
+        @endif
+    @elseif ($primaryMode === 'hardcore')
+        <x-user.profile.arranged-stat-items
+            :stats="[
+                $playerStats['hardcoreAchievementsUnlockedStat'],   $playerStats['retroRatioStat'],
+                $playerStats['totalGamesBeatenStat'],               $playerStats['startedGamesBeatenPercentageStat'],   
+            ]"
+        />
+    @elseif ($primaryMode === 'softcore')
+        <x-user.profile.arranged-stat-items
+            :stats="[
+                $playerStats['softcoreAchievementsUnlockedStat'],   $playerStats['startedGamesBeatenPercentageStat'], 
+            ]"
+        />
+    @endif
 
     <div
         x-cloak
         x-show="isExpanded"
         x-transition:enter="ease-in-out duration-100"
         x-transition:enter-start="opacity-0 max-h-0 -translate-y-1 overflow-hidden"
-        x-transition:enter-end="opacity-1 max-h-[90px] md:max-h-[32px] translate-y-0 overflow-hidden"
+        x-transition:enter-end="opacity-1 {{ $hasMixedProgress ? 'max-h-[114px] md:max-h-[54px]' : 'max-h-[96px] md:max-h-[36px]' }} translate-y-0 overflow-hidden"
+        class="pt-1"
     >
-        <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
-            <x-user.profile.stat-element label="Points earned in the last 7 days">
-                <span class="{{ $recentPointsEarned['pointsLast7Days'] > 0 ? 'font-bold' : 'italic text-muted' }}">
-                    {{ localized_number($recentPointsEarned['pointsLast7Days']) }}
-                </span>
-            </x-user.profile.stat-element>
-
-            <x-user.profile.stat-element label="Points earned in the last 30 days">
-                <span class="{{ $recentPointsEarned['pointsLast30Days'] > 0 ? 'font-bold' : 'italic text-muted' }}">
-                    {{ localized_number($recentPointsEarned['pointsLast30Days']) }}
-                </span>
-            </x-user.profile.stat-element>
-
-            <x-user.profile.stat-element label="Average points per week">
-                <span class="{{ $averagePointsPerWeek > 0 ? 'font-bold' : 'italic text-muted' }}">
-                    {{ localized_number($averagePointsPerWeek) }}
-                </span>
-            </x-user.profile.stat-element>
-
-            {{--
-                We very intentionally bury Average Completion Percentage behind a secondary click.
-                There is plenty of feedback to suggest this statistic leads to some undesirable
-                behavior patterns, but we don't want to remove it completely.
-            --}}
-            <x-user.profile.stat-element label="Average completion percentage">
-                <span class="{{ $averageCompletionPercentage === '0.00' ? 'italic text-muted' : 'font-bold' }}">
-                    {{ $averageCompletionPercentage }}%
-                </span>
-            </x-user.profile.stat-element>
-        </div>
+        {{--
+            We very intentionally bury Average Completion Percentage behind a secondary click.
+            There is plenty of feedback to suggest this statistic leads to some undesirable
+            behavior patterns, but we don't want to remove it completely.
+        --}}
+        @if ($hasMixedProgress)
+            <x-user.profile.arranged-stat-items
+                :stats="[
+                    $playerStats['pointsLast7DaysStat'],        $playerStats['totalGamesBeatenStat'],
+                    $playerStats['pointsLast30DaysStat'],       $playerStats['averageCompletionStat'],
+                    $playerStats['averagePointsPerWeekStat'],
+                ]"
+            />
+        @else
+            <x-user.profile.arranged-stat-items
+                :stats="[
+                    $playerStats['pointsLast7DaysStat'],        $playerStats['averagePointsPerWeekStat'],
+                    $playerStats['pointsLast30DaysStat'],       $playerStats['averageCompletionStat'],
+                ]"
+            />
+        @endif
     </div>
 
     <button

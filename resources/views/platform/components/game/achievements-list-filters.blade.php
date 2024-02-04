@@ -4,7 +4,8 @@
 ])
 
 <?php
-use App\Site\Enums\UserPreference;
+
+use App\Enums\UserPreference;
 
 $isMissableFilterAllowed = $numMissableAchievements > 0;
 if ($isMissableFilterAllowed) {
@@ -31,7 +32,7 @@ if ($isMissableFilterAllowed) {
 
     @if ($canShowHideUnlockedAchievements)
         <label class="flex items-center gap-x-1 select-none transition lg:active:scale-95 cursor-pointer">
-            <input 
+            <input
                 type="checkbox"
                 autocomplete="off"
                 class="cursor-pointer"

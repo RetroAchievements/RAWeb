@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Site\Enums\Permissions;
+use App\Enums\Permissions;
 use Carbon\Carbon;
 
 function getDeleteDate(string|Carbon $deleteRequested): string

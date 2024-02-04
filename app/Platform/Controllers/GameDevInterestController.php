@@ -6,8 +6,8 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
+use App\Enums\Permissions;
 use App\Http\Controller;
-use App\Site\Enums\Permissions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 

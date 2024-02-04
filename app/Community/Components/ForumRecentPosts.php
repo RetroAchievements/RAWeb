@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Site\Enums\Permissions;
-use App\Site\Enums\UserPreference;
-use App\Site\Models\User;
+use App\Enums\Permissions;
+use App\Enums\UserPreference;
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
