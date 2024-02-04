@@ -15,6 +15,18 @@ $codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'
 ?>
 <x-app-layout pageTitle="Code Notes - {{ $gameData['Title']}}">
 <script>
+window.addEventListener('beforeunload', function (event) {
+    // If any textareas are non-hidden, dirtiness is implied.
+    const visibleTextareas = Array.from(document.querySelectorAll('textarea:not(.hidden)'));
+
+    if (visibleTextareas.length) {
+        const confirmationMessage = 'There are rows still in edit mode. Any unsaved changes will be lost if you navigate away.';
+        (event || window.event).returnValue = confirmationMessage;
+        
+        return confirmationMessage;
+    }
+});
+
 /**
  * Toggle the editing state of a code note row and
  * show/hide the elements necessary to perform an edit.
