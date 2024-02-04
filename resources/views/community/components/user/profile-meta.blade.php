@@ -43,17 +43,19 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
     <x-user.profile.last-seen-in :userMassData="$userMassData" />
 @endif
 
-<div x-data="{
-    isExpanded: {{ $isUserStatsDefaultExpanded ? 'true' : 'false' }},
-    handleToggle() {
-        const newValue = !this.isExpanded;
+<div
+    x-data="{
+        isExpanded: {{ $isUserStatsDefaultExpanded ? 'true' : 'false' }},
+        handleToggle() {
+            const newValue = !this.isExpanded;
 
-        this.isExpanded = newValue;
-        window.setCookie('prefers_hidden_user_profile_stats', String(!newValue));
-    }
-}">
+            this.isExpanded = newValue;
+            window.setCookie('prefers_hidden_user_profile_stats', String(!newValue));
+        }
+    }"
+>
     <div>
-        <div class="flex w-full justify-between items-center mb-3">
+        <div class="flex w-full justify-between items-center">
             <h2 class="text-h4 !mb-0">User Stats</h2>
 
             <button @click="handleToggle" class="btn transition-transform lg:active:scale-95 duration-75">
@@ -78,7 +80,7 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
         x-transition:leave-end="opacity-0 max-h-0 overflow-hidden"
         class="transition-all"
     >
-        <div class="pb-6">
+        <div class="pt-3">
             <x-user.profile.player-stats
                 :averageCompletionPercentage="$averageCompletionPercentage"
                 :averageFinishedGames="$averageFinishedGames"
