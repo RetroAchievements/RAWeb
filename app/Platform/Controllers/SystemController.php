@@ -162,7 +162,7 @@ class SystemController extends Controller
             ];
         }
 
-        return view($this->resourceName() . '-games-page', [
+        return view('pages.system.games', [
             'availableCheckboxFilters' => $availableCheckboxFilters,
             'availableRadioFilters' => $availableRadioFilters,
             'availableSelectFilters' => $availableSelectFilters,

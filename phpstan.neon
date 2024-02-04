@@ -39,9 +39,5 @@ parameters:
         - public/tmp
         # disabled features
         - public/API/API_GetFeed.php
-        - public/awardedList.php
-        - public/feed.php
-        - public/popularGames.php
-        - public/rss-activity.xml.php
         # third party
         - app/Helpers/util/recaptcha.php

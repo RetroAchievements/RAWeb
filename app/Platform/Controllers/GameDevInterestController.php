@@ -40,7 +40,7 @@ class GameDevInterestController extends Controller
             ->orderBy('UserAccounts.User')
             ->pluck('UserAccounts.User');
 
-        return view('platform.components.game.dev-interest-page', [
+        return view('components.game.dev-interest-page', [
             'gameId' => $gameData['ID'],
             'gameTitle' => $gameData['Title'],
             'consoleId' => $gameData['ConsoleID'],

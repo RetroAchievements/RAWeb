@@ -43,7 +43,7 @@ class UserRecentlyPlayed extends Component
             $this->userAwards,
         );
 
-        return view('community.components.user.recently-played.index', [
+        return view('components.user.recently-played.index', [
             'processedRecentlyPlayedEntities' => $processedRecentlyPlayedEntities,
             'recentlyPlayedCount' => $this->recentlyPlayedCount,
             'targetUsername' => $this->targetUsername,

@@ -35,7 +35,7 @@ class ActivePlayers extends Component
             $this->targetGameIds,
         );
 
-        return view('community.components.active-players.active-players', [
+        return view('components.active-players.active-players', [
             'activePlayersCount' => $loadedActivePlayers['count'],
             'initialActivePlayers' => $loadedActivePlayers['records'],
             'initialSearch' => $this->variant === 'focused' ? null : $this->initialSearch,

@@ -57,7 +57,7 @@ class MessageThreadController extends Controller
                 ->value('num_unread');
         }
 
-        return view('community.message-thread.index', [
+        return view('pages.message-thread.index', [
             'messages' => $messageThreads,
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
@@ -109,7 +109,7 @@ class MessageThreadController extends Controller
             })
             ->toArray();
 
-        return view('community.message-thread.show', [
+        return view('pages.message-thread.show', [
             'thread' => $messageThread,
             'messages' => $messages,
             'participants' => $participants,

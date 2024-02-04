@@ -49,7 +49,7 @@ class UserProfileMeta extends Component
 
         $this->calculateRecentPointsEarned($this->user);
 
-        return view('community.components.user.profile-meta', [
+        return view('components.user.profile-meta', [
             'developerStats' => $developerStats,
             'hardcoreRankMeta' => $hardcoreRankMeta,
             'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta, $this->userJoinedGamesAndAwards),

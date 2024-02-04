@@ -97,7 +97,7 @@ class RelatedGamesTableController extends Controller
             ];
         }
 
-        return view('platform.components.game.game-list', [
+        return view('components.game.game-list', [
             'availableCheckboxFilters' => $availableCheckboxFilters,
             'availableSelectFilters' => $availableSelectFilters,
             'availableSorts' => $availableSorts,

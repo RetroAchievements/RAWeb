@@ -28,6 +28,10 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+    protected $dontReport = [
+        ViewRedirect::class,
+    ];
+
     /**
      * Register the exception handling callbacks for the application.
      */
@@ -96,6 +100,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e): Response
     {
+        if ($e instanceof ViewRedirect) {
+            return $e->redirect;
+        }
+
         if ($request->expectsJson()) {
             if ($e instanceof HttpExceptionInterface) {
                 return response()->json([

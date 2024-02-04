@@ -42,7 +42,7 @@ class GameHashController extends Controller
             $query->orderBy('Name');
         }])->findOrFail($game->id);
 
-        return view('platform.manage-hashes-page', [
+        return view('pages.game.hashes.manage', [
             'game' => $gameWithSortedHashes,
             'me' => Auth::user(),
         ]);

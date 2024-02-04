@@ -11,6 +11,6 @@ class ContactController extends Controller
 {
     public function __invoke(): View
     {
-        return view('community.contact');
+        return view('pages.contact');
     }
 }

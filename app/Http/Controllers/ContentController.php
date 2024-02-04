@@ -11,19 +11,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ContentController extends Controller
 {
-    // public function docs(): View
-    // {
-    //     return view('docs');
-    // }
-
     public function terms(): View
     {
-        return view('terms');
+        return view('pages.terms');
     }
 
     public function demo(): View
     {
-        return view('demo');
+        return view('pages.demo');
     }
 
     public function errorDemo(int $code): View

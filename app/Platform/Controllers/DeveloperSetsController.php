@@ -147,7 +147,7 @@ class DeveloperSetsController extends Controller
         };
         $columns['tickets']['tally'] = function ($game) { return $game['NumAuthoredTickets']; };
 
-        return view('platform.components.developer.sets-page', [
+        return view('components.developer.sets-page', [
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,

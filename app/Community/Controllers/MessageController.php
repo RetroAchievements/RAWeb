@@ -24,7 +24,7 @@ class MessageController extends Controller
         $subject = $request->input('subject') ?? '';
         $message = $request->input('message') ?? '';
 
-        return view('community.message.create', [
+        return view('pages.message.create', [
             'toUser' => $toUser,
             'subject' => $subject,
             'message' => $message,

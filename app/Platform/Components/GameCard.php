@@ -55,7 +55,7 @@ class GameCard extends Component
             $this->userGameProgressionAwards
         );
 
-        return view('platform.components.cards.game', $cardViewValues);
+        return view('components.cards.game', $cardViewValues);
     }
 
     /**

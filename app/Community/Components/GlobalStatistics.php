@@ -29,7 +29,7 @@ class GlobalStatistics extends Component
             $this->dbStaticData
         );
 
-        return view('community.components.global-statistics.global-statistics', $globalStatisticsViewValues);
+        return view('components.global-statistics.global-statistics', $globalStatisticsViewValues);
     }
 
     private function buildAllGlobalStatisticsViewValues(StaticData $staticData): array

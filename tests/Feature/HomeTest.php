@@ -41,4 +41,14 @@ class HomeTest extends TestCase
             ->assertSee($game->Title)
             ->assertSee($achievement->Title);
     }
+
+    public function testItRendersContactPage(): void
+    {
+        $this->get('/contact')->assertSuccessful();
+    }
+
+    public function testItRendersTermsPage(): void
+    {
+        $this->get('/terms')->assertSuccessful();
+    }
 }

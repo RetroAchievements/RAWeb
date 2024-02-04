@@ -18,10 +18,10 @@ class HomeController extends Controller
         $currentEventMetadata = $this->fetchCurrentEventMetadata();
 
         if ($currentEventMetadata === null) {
-            return view('home');
+            return view('pages.index');
         }
 
-        return view('home', $currentEventMetadata);
+        return view('pages.index', $currentEventMetadata);
     }
 
     // TODO: This should eventually support multiple different kinds of events.

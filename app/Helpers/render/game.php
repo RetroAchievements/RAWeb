@@ -263,3 +263,327 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
         }
     }
 }
+
+function generateGameMetaDescription(
+    string $gameTitle,
+    string $consoleName,
+    int $numAchievements = 0,
+    int $gamePoints = 0,
+    bool $isEventGame = false,
+): string {
+    if ($isEventGame) {
+        return "$gameTitle: An event at RetroAchievements. Check out the page for more details on this unique challenge.";
+    } elseif ($numAchievements === 0) {
+        return "No achievements have been created yet for $gameTitle. Join RetroAchievements to request achievements for $gameTitle and earn achievements on many other classic games.";
+    }
+
+    $localizedPoints = localized_number($gamePoints);
+
+    return "There are $numAchievements achievements worth $localizedPoints points. $gameTitle for $consoleName - explore and compete on this classic game at RetroAchievements.";
+}
+
+function generateEmptyBucketsWithBounds(int $numAchievements): array
+{
+    $DYNAMIC_BUCKETING_THRESHOLD = 44;
+    $GENERATED_RANGED_BUCKETS_COUNT = 20;
+
+    // Enable bucketing based on the number of achievements in the set.
+    // This number was picked arbitrarily, but generally reflects when we start seeing
+    // width constraints in the Achievements Distribution bar chart.
+    $isDynamicBucketingEnabled = $numAchievements >= $DYNAMIC_BUCKETING_THRESHOLD;
+
+    // If bucketing is enabled, we'll dynamically generate 19 buckets. The final 20th
+    // bucket will contain all users who have completed/mastered the game.
+    $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements;
+
+    // Bucket size is determined based on the total number of achievements in the set.
+    // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by $bucketCount).
+    // If bucketing is not enabled, each achievement gets its own bucket (bucket size is 1).
+    $bucketSize = $isDynamicBucketingEnabled ? ($numAchievements - 1) / $bucketCount : 1;
+
+    $buckets = [];
+    $currentUpperBound = 1;
+    for ($i = 0; $i < $bucketCount; $i++) {
+        if ($isDynamicBucketingEnabled) {
+            $start = $i === 0 ? 1 : $currentUpperBound + 1;
+            $end = intval(round($bucketSize * ($i + 1)));
+            $buckets[$i] = ['start' => $start, 'end' => $end, 'hardcore' => 0, 'softcore' => 0];
+
+            $currentUpperBound = $end;
+        } else {
+            $buckets[$i] = ['start' => $i + 1, 'end' => $i + 1, 'hardcore' => 0, 'softcore' => 0];
+        }
+    }
+
+    return [$buckets, $isDynamicBucketingEnabled];
+}
+
+function findBucketIndex(array $buckets, int $achievementNumber): int
+{
+    $low = 0;
+    $high = count($buckets) - 1;
+
+    // Perform a binary search.
+    while ($low <= $high) {
+        $mid = intdiv($low + $high, 2);
+        if ($achievementNumber >= $buckets[$mid]['start'] && $achievementNumber <= $buckets[$mid]['end']) {
+            return $mid;
+        }
+        if ($achievementNumber < $buckets[$mid]['start']) {
+            $high = $mid - 1;
+        } else {
+            $low = $mid + 1;
+        }
+    }
+
+    // Error: This should not happen unless something is terribly wrong with the page.
+    return -1;
+}
+
+function calculateBuckets(
+    array &$buckets,
+    bool $isDynamicBucketingEnabled,
+    int $numAchievements,
+    array $achDist,
+    array $achDistHardcore
+): array {
+    $largestWonByCount = 0;
+
+    // Iterate through the achievements and distribute them into the buckets.
+    for ($i = 1; $i < $numAchievements; $i++) {
+        // Determine the bucket index based on the current achievement number.
+        $targetBucketIndex = $isDynamicBucketingEnabled ? findBucketIndex($buckets, $i) : $i - 1;
+
+        // Distribute the achievements into the bucket by adding the number of hardcore
+        // users who achieved it and the number of softcore users who achieved it to
+        // the respective counts.
+        $wonByUserCount = $achDist[$i];
+        $buckets[$targetBucketIndex]['hardcore'] += $achDistHardcore[$i];
+        $buckets[$targetBucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
+
+        // We need to also keep tracked of `largestWonByCount`, which is later used for chart
+        // configuration, such as determining the number of gridlines to show.
+        $currentTotal = $buckets[$targetBucketIndex]['hardcore'] + $buckets[$targetBucketIndex]['softcore'];
+        $largestWonByCount = max($currentTotal, $largestWonByCount);
+    }
+
+    return [$buckets, $largestWonByCount];
+}
+
+function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int
+{
+    if ($numAchievements <= 0) {
+        return 0;
+    }
+
+    // Add a bucket for the users who have earned all achievements.
+    $buckets[] = [
+        'hardcore' => $achDistHardcore[$numAchievements],
+        'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements],
+    ];
+
+    // Calculate the total count of users who have earned all achievements.
+    // This will later be used for chart configuration in determining the
+    // number of gridlines to show on one of the axes.
+    $allAchievementsCount = (
+        $achDistHardcore[$numAchievements] + ($achDist[$numAchievements] - $achDistHardcore[$numAchievements])
+    );
+
+    return $allAchievementsCount;
+}
+
+function printBucketIteration(int $bucketIteration, int $numAchievements, array $bucket, string $label): void
+{
+    echo "[ {v:$bucketIteration, f:\"$label\"}, {$bucket['hardcore']}, {$bucket['softcore']} ]";
+}
+
+function generateBucketLabelsAndValues(int $numAchievements, array $buckets): array
+{
+    $bucketLabels = [];
+    $hAxisValues = [];
+    $bucketIteration = 0;
+    $bucketCount = count($buckets);
+
+    // Loop through each bucket to generate their labels and values.
+    foreach ($buckets as $index => $bucket) {
+        if ($bucketIteration++ > 0) {
+            echo ", ";
+        }
+
+        // Is this the last bucket? If so, we only want it to include
+        // players who have earned all the achievements, not a range.
+        if ($index == $bucketCount - 1) {
+            $label = "Earned $numAchievements achievements";
+            printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+
+            $hAxisValues[] = $numAchievements;
+        } else {
+            // For other buckets, the label indicates the range of achievements that
+            // the bucket represents.
+            $start = $bucket['start'];
+            $end = $bucket['end'];
+
+            // Pluralize 'achievement' if the range contains more than one achievement.
+            $plural = $end > 1 ? 's' : '';
+            $label = "Earned $start achievement$plural";
+            if ($start !== $end) {
+                $label = "Earned $start-$end achievement$plural";
+            }
+
+            printBucketIteration($bucketIteration, $numAchievements, $bucket, $label);
+
+            $hAxisValues[] = $start;
+        }
+    }
+
+    return $hAxisValues;
+}
+
+function ListGames(
+    array $gamesList,
+    string $queryParams = '',
+    int $sortBy = 0,
+    bool $showTickets = false,
+    bool $showConsoleName = false,
+    bool $showTotals = false,
+    bool $showClaims = false,
+): void {
+    echo "\n<div class='table-wrapper'><table class='table-highlight'><tbody>";
+
+    $sort1 = ($sortBy <= 1) ? 11 : 1;
+    $sort2 = ($sortBy == 2) ? 12 : 2;
+    $sort3 = ($sortBy == 3) ? 13 : 3;
+    $sort4 = ($sortBy == 4) ? 14 : 4;
+    $sort5 = ($sortBy == 5) ? 15 : 5;
+    $sort6 = ($sortBy == 6) ? 16 : 6;
+    $sort7 = ($sortBy == 7) ? 17 : 7;
+
+    echo "<tr class='do-not-highlight'>";
+    echo "<th><a href='/gameList.php?s=$sort1$queryParams'>Title</a></th>";
+    echo "<th class='text-right'><a href='/gameList.php?s=$sort2$queryParams'>Achievements</a></th>";
+    echo "<th class='text-right'><a href='/gameList.php?s=$sort3$queryParams'>Points</a></th>";
+    echo "<th class='text-right'><a href='/gameList.php?s=$sort7$queryParams'>Retro Ratio</a></th>";
+    echo "<th style='white-space: nowrap' class='text-right'><a href='/gameList.php?s=$sort6$queryParams'>Last Updated</a></th>";
+    echo "<th class='text-right'><a href='/gameList.php?s=$sort4$queryParams'>Leaderboards</a></th>";
+
+    if ($showTickets) {
+        echo "<th class='whitespace-nowrap text-right'><a href='/gameList.php?s=$sort5&$queryParams'>Open Tickets</a></th>";
+    }
+
+    if ($showClaims) {
+        echo "<th class='whitespace-nowrap'>Claimed By</th>";
+    }
+
+    echo "</tr>";
+
+    $gameCount = 0;
+    $pointsTally = 0;
+    $achievementsTally = 0;
+    $truePointsTally = 0;
+    $lbCount = 0;
+    $ticketsCount = 0;
+
+    foreach ($gamesList as $gameEntry) {
+        $title = $gameEntry['Title'];
+        $gameID = $gameEntry['ID'];
+        $maxPoints = $gameEntry['MaxPointsAvailable'] ?? 0;
+        $totalTrueRatio = $gameEntry['TotalTruePoints'];
+        $retroRatio = $gameEntry['RetroRatio'];
+        $totalAchievements = null;
+        $numAchievements = $gameEntry['NumAchievements'];
+        $numPoints = $maxPoints;
+        $numTrueRatio = $totalTrueRatio;
+        $numLBs = $gameEntry['NumLBs'];
+
+        sanitize_outputs($title);
+
+        echo "<tr>";
+
+        if ($showConsoleName) {
+            echo "<td class='pr-0 py-2 w-full xl:w-auto'>";
+        } else {
+            echo "<td class='pr-0 w-full xl:w-auto'>";
+        }
+        echo Blade::render('
+            <x-game.multiline-avatar
+                :gameId="$gameId"
+                :gameTitle="$gameTitle"
+                :gameImageIcon="$gameImageIcon"
+                :consoleName="$consoleName"
+            />
+        ', [
+            'gameId' => $gameEntry['ID'],
+            'gameTitle' => $gameEntry['Title'],
+            'gameImageIcon' => $gameEntry['GameIcon'],
+            'consoleName' => $showConsoleName ? $gameEntry['ConsoleName'] : null,
+        ]);
+        echo "</td>";
+
+        echo "<td class='text-right'>$numAchievements</td>";
+        echo "<td class='whitespace-nowrap text-right'>" . localized_number($maxPoints);
+        echo Blade::render("<x-points-weighted-container>(" . localized_number($numTrueRatio) . ")</x-points-weighted-container>");
+        echo "</td>";
+        echo "<td class='text-right'>$retroRatio</td>";
+
+        if ($gameEntry['DateModified'] != null) {
+            $lastUpdated = date("d M, Y", strtotime($gameEntry['DateModified']));
+            echo "<td class='text-right'>$lastUpdated</td>";
+        } else {
+            echo "<td/>";
+        }
+
+        echo "<td class='text-right'>";
+        if ($numLBs > 0) {
+            echo "<a href=\"game/$gameID\">$numLBs</a>";
+            $lbCount += $numLBs;
+        }
+        echo "</td>";
+
+        if ($showTickets) {
+            $openTickets = $gameEntry['OpenTickets'];
+            echo "<td class='text-right'>";
+            if ($openTickets > 0) {
+                echo "<a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
+                $ticketsCount += $openTickets;
+            }
+            echo "</td>";
+        }
+
+        if ($showClaims) {
+            echo "<td>";
+            if (array_key_exists('ClaimedBy', $gameEntry)) {
+                foreach ($gameEntry['ClaimedBy'] as $claimUser) {
+                    echo userAvatar($claimUser);
+                    echo "</br>";
+                }
+            }
+            echo "</td>";
+        }
+
+        echo "</tr>";
+
+        $gameCount++;
+        $pointsTally += $numPoints;
+        $achievementsTally += $numAchievements;
+        $truePointsTally += $numTrueRatio;
+    }
+
+    if ($showTotals) {
+        // Totals:
+        echo "<tr class='do-not-highlight'>";
+        echo "<td><b>Totals: " . localized_number($gameCount) . " " . trans_choice(__('resource.game.title'), $gameCount) . "</b></td>";
+        echo "<td class='text-right'><b>" . localized_number($achievementsTally) . "</b></td>";
+        echo "<td class='text-right'><b>" . localized_number($pointsTally) . "</b>";
+        echo Blade::render("<x-points-weighted-container>(" . localized_number($truePointsTally) . ")</x-points-weighted-container>");
+        echo "</td>";
+        echo "<td></td>";
+        echo "<td></td>";
+        echo "<td class='text-right'><b>" . localized_number($lbCount) . "</b></td>";
+        if ($showTickets) {
+            echo "<td class='text-right'><b>" . localized_number($ticketsCount) . "</b></td>";
+        }
+        echo "</tr>";
+    }
+
+    echo "</tbody></table></div>";
+}

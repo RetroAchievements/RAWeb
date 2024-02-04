@@ -3,30 +3,6 @@
 // see resources/views/layouts/app.blade.php
 // see resources/views/layouts/partials/head.blade.php
 
-function RenderContentStart(?string $pageTitle = null): void
-{
-    // hijack view variables
-    view()->share('pageTitle', $pageTitle);
-
-    // TBD add legacy content wrapper start
-}
-
-function RenderContentEnd(): void
-{
-    // TBD add legacy content wrapper end
-}
-
-function RenderOpenGraphMetadata(string $title, ?string $OGType, string $imageURL, string $description): void
-{
-    // hijack view variables
-    view()->share('pageTitle', $title);
-    view()->share('pageDescription', $description);
-    if ($OGType) {
-        view()->share('pageType', 'retroachievements:' . $OGType);
-    }
-    view()->share('pageImage', $imageURL);
-}
-
 function RenderPaginator(int $numItems, int $perPage, int $offset, string $urlPrefix): void
 {
     // floor to current page

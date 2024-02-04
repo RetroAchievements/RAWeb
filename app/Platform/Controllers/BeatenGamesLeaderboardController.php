@@ -70,7 +70,7 @@ class BeatenGamesLeaderboardController extends Controller
         // Grab all the systems so we can build the system filter options.
         $allSystems = System::orderBy('Name')->get(['ID', 'Name']);
 
-        return view('platform.beaten-games-leaderboard-page', [
+        return view('pages.ranking.beaten-games', [
             'allSystems' => $allSystems,
             'gameKindFilterOptions' => $gameKindFilterOptions,
             'isUserOnCurrentPage' => $isUserOnCurrentPage,
