@@ -133,7 +133,7 @@ if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
             'MemAddr' => md5(Achievement::find($am->ID)->MemAddr),
             'type' => $am->type,
         ];
-    })->sortBy('DisplayOrder');
+    });
 } else {
     $gameAchievements = new ArrayObject();
 }
