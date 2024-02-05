@@ -59,24 +59,23 @@ use Carbon\Carbon;
 $gameID = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
+// TODO move to seprate file
 if (!function_exists('getParentGameId')) {
-function getParentGameId(string $title, int $consoleID, int $gameID): ?int
-{
-
-    $result = Game::where('Title', 'LIKE', '%' . $title . '%')->where('ConsoleID', '=', $consoleID)->first();
-
-    if ($result) {
-        $matchValue = $result->Title;
-        $remainingValue = preg_replace('/(?:^|\s)\[.*Subset - .*\](?:\s|$)/', '', $matchValue);
-        $remainingResult = Game::where('Title', $remainingValue)->first();
-
-        if ($gameID == $remainingResult->ID) {
+    function getParentGameId(string $title, int $consoleID, int $gameID): ?int
+    {
+    
+        $result = Game::where('Title', 'LIKE', '%' . $title . '%')->where('ConsoleID', '=', $consoleID)->first();
+    
+        if ($result->Title = $title) {
             return null;
+        } else {
+            $matchValue = $result->Title;
+            $remainingValue = preg_replace('/(?:^|\s)\[.*Subset - .*\](?:\s|$)/', '', $matchValue);
+            $remainingResult = Game::where('Title', $remainingValue)->first();
+    
+            return (int) $remainingResult->ID ? $remainingResult->ID : null;
         }
-
-        return $remainingResult->ID ? $remainingResult->ID : null;
     }
-}
 }
 
 /* Maps
@@ -115,11 +114,11 @@ if (Game::where('ID', $gameID)->exists()) {
 }
 
 if (!Game::find($gameID)->achievements->isEmpty()) {
-    $gameAchievements = Game::find($gameID)->achievements->where('Flags', $flag)->map(function ($am) {
+    $gameAchievements = Game::find($gameID)->achievements->where('Flags', $flag)->keyBy('ID')->map(function ($am) {
         return [
             'ID' => $am->ID,
-            'NumAwarded' => Achievement::find($am->ID)->unlocks_total,
-            'NumAwardedHardcore' => Achievement::find($am->ID)->unlocks_hardcore_total,
+            'NumAwarded' => (int) Achievement::find($am->ID)->unlocks_total,
+            'NumAwardedHardcore' => (int) Achievement::find($am->ID)->unlocks_hardcore_total,
             'Title' => $am->Title,
             'Description' => $am->Description,
             'Points' => $am->Points,
@@ -132,8 +131,7 @@ if (!Game::find($gameID)->achievements->isEmpty()) {
             'MemAddr' => md5(Achievement::find($am->ID)->MemAddr),
             'type' => $am->type,
         ];
-    })->keyBy('ID');
-    $gameAchievements->sortBy('DisplayOrder');
+    })->sortBy('DisplayOrder');
 } else {
     $gameAchievements = new ArrayObject();
 }
