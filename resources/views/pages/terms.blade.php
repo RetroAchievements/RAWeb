@@ -1,3 +1,10 @@
+<?php
+
+use function Laravel\Folio\{name};
+
+name('terms');
+
+?>
 <x-app-layout :page-title="__('Legal & Terms')">
     <div class="lg:grid grid-flow-col gap-5">
         <div>

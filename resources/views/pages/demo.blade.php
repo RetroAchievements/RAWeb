@@ -1,3 +1,10 @@
+<?php
+
+use function Laravel\Folio\{name};
+
+name('demo');
+
+?>
 <x-demo-layout
     :page-title="__('Demo')"
 >

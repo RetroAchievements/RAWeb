@@ -1,6 +1,38 @@
 <?php
+
 use Illuminate\Support\Carbon;
+use function Laravel\Folio\{name};
+
+name('home');
+
 ?>
+
+@php
+$staticData = StaticData::first();
+
+if ($staticData === null) {
+    return null;
+}
+
+$aotwAchievementId = $staticData['Event_AOTW_AchievementID'];
+$eventForumTopicId = $staticData['Event_AOTW_ForumID'];
+$achievement = Achievement::find($aotwAchievementId);
+
+if (!$achievement) {
+    return null;
+}
+
+$game = Game::find($achievement->GameID);
+$consoleName = System::find($game->ConsoleID)->Name;
+
+$currentEventMetadata = [
+    'eventAchievement' => $achievement,
+    'eventGame' => $game,
+    'eventConsoleName' => $consoleName,
+    'eventForumTopicId' => $eventForumTopicId,
+];
+@endphp
+
 <x-app-layout>
     @guest
         <x-content.welcome />
