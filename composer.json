@@ -26,6 +26,7 @@
         "jenssegers/agent": "^2.6",
         "jenssegers/optimus": "^1.1",
         "laravel-notification-channels/webhook": "^2.3",
+        "laravel/folio": "^1.1",
         "laravel/fortify": "^1.13",
         "laravel/framework": "^10.10",
         "laravel/horizon": "^5.10",
