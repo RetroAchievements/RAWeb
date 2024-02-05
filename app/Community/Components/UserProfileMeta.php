@@ -211,16 +211,19 @@ class UserProfileMeta extends Component
         $recentPointsEarned = $this->calculateRecentPointsEarned($user, $preferredMode);
 
         // Total games beaten
-        $totalGamesBeaten = (int) PlayerStat::where('user_id', $user->ID)
+        $gamesBeatenStats = PlayerStat::where('user_id', $user->ID)
             ->where('system_id', null)
-            ->sum('value');
-        $retailGamesBeaten = (int) PlayerStat::where('user_id', $user->ID)
-            ->where('system_id', null)
-            ->whereIn('type', [
-                PlayerStatType::GamesBeatenHardcoreRetail,
-                PlayerStatType::GamesBeatenHardcoreUnlicensed,
-            ])
-            ->sum('value');
+            ->selectRaw('
+                SUM(value) as totalGamesBeaten,
+                SUM(CASE WHEN type IN (?, ?) THEN value ELSE 0 END) AS retailGamesBeaten',
+                [
+                    PlayerStatType::GamesBeatenHardcoreRetail,
+                    PlayerStatType::GamesBeatenHardcoreUnlicensed,
+                ]
+            )
+            ->first();
+        $totalGamesBeaten = (int) $gamesBeatenStats->totalGamesBeaten;
+        $retailGamesBeaten = (int) $gamesBeatenStats->retailGamesBeaten;
         $totalGamesBeatenStat = [
             'label' => 'Total games beaten',
             'hrefLabel' => "(" . localized_number($retailGamesBeaten) . " retail)",
