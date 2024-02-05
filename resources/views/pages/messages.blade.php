@@ -1,3 +1,15 @@
+<?php
+
+use App\Enums\UserPreference;
+use App\Models\User;
+use Illuminate\Support\Carbon;
+use function Laravel\Folio\{middleware, name};
+
+middleware(['auth', 'can:viewAny,game', 'can:viewAny,' . MessageThread::class]);
+name('message.index');
+
+?>
+
 @props([
     'messages' => [],
     'currentPage' => 1,
@@ -6,17 +18,11 @@
     'totalMessages' => 0,
 ])
 
-<?php
-
-use App\Enums\UserPreference;
-use App\Models\User;
-use Illuminate\Support\Carbon;
-
+@php
 $user = request()->user();
 $isShowAbsoluteDatesPreferenceSet = BitSet($user->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
 $monthAgo = Carbon::now()->subMonth(1);
-
-?>
+@endphp
 
 <script>
 function deleteMessage(id) {
@@ -62,12 +68,12 @@ function deleteMessage(id) {
                 <th style="width:15%" class="text-right">Last Message</th>
             </tr>
             @foreach ($messages as $message)
-                    <?php
+                @php
                     $mostRecentUpdate = Carbon::parse($message->last_message_at);
                     $humanDate = $mostRecentUpdate->format('F j Y, g:ia');
 
                     $num_unread = $message->num_unread;
-                    ?>
+                @endphp
                 <tr>
                     <td @if ($num_unread > 0) class="font-bold" @endif>
                         @if (empty($message->other_participants))
@@ -80,7 +86,7 @@ function deleteMessage(id) {
                     </td>
 
                     <td @if ($num_unread > 0) class="font-bold" @endif>
-                        <a href="{{ route('message-thread.show', $message->id) }}">
+                        <a href="{{ route('message-thread.show', ['messageThread' => $message->id]) }}">
                             {{ $message->title }}
                         </a>
                     </td>

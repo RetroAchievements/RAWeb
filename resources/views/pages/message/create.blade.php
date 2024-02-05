@@ -5,6 +5,7 @@ use function Laravel\Folio\{middleware, name};
 
 middleware(['auth', 'can:create,' . Message::class]);
 name('message.create');
+
 ?>
 
 @php
