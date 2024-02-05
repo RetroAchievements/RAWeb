@@ -5,7 +5,7 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use function Laravel\Folio\{middleware, name};
 
-middleware(['auth', 'can:viewAny,game', 'can:viewAny,' . MessageThread::class]);
+middleware(['auth', 'can:viewAny,' . MessageThread::class]);
 name('message.index');
 
 ?>
