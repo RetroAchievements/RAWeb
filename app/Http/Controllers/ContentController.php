@@ -11,13 +11,4 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ContentController extends Controller
 {
-    public function errorDemo(int $code): View
-    {
-        if (!view()->exists('errors.' . $code)) {
-            throw new NotFoundHttpException();
-        }
-
-        return view('errors.' . $code)
-            ->with('exception', new Exception('', $code));
-    }
 }

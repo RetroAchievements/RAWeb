@@ -76,7 +76,6 @@ class RouteServiceProvider extends ServiceProvider
             /*
              * content
              */
-            Route::get('demo/error/{code}', [ContentController::class, 'errorDemo'])->name('demo.error');
             // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
             // Route::get('feed', [FeedController::class, 'index'])->name('feed.index');
             // Route::get('rss', [RssController::class, 'index'])->name('rss.index');
