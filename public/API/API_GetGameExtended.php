@@ -59,36 +59,9 @@ use Carbon\Carbon;
 $gameID = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
-$game = Game::with('system')->find($gameID);
-$gameSetClaims = AchievementSetClaim::find($gameID);
-
-// TODO move to seprate file
-if (!function_exists('getParentGameId')) {
-    function getParentGameId(string $title, int $consoleID, int $gameID): ?int
-    {
-
-        $result = Game::where('Title', 'LIKE', '%' . $title . '%')->where('ConsoleID', '=', $consoleID)->first();
-
-        if ($result->Title = $title) {
-            return null;
-        } else {
-            $matchValue = $result->Title;
-            $remainingValue = preg_replace('/(?:^|\s)\[.*Subset - .*\](?:\s|$)/', '', $matchValue);
-            $remainingResult = Game::where('Title', $remainingValue)->first();
-
-            return (int) $remainingResult->ID ? $remainingResult->ID : null;
-        }
-    }
+if ($game = Game::with('system')->find($gameID)) {
+    $gameSetClaims = AchievementSetClaim::find($gameID);
 }
-
-/* Maps
-    These return the data in the order that the v1 api expects, originally
-    the endpoint used function calls that made queries with the data in the
-    order that the endpoint returns but the Eloquent collections order the
-    data by how the columns are laid out in the database. This mapping adds
-    between 20-30ms to the response time on average. Average 90ms on the old
-    implementation vs average 110ms on this refactor.
-*/
 
 if ($game) {
     $gameData =
@@ -114,6 +87,14 @@ if ($game) {
     } else {
     return response()->json();
 }
+
+/* Achievements Map
+    The map here is return the data in the order that the v1 api expects, originally
+    the endpoint used function calls that made queries with the data in the
+    order that the endpoint returns but the Eloquent collections order the
+    data by how the columns are laid out in the database. This adds a few ms to the
+    response time, though not enough that it has any real impact.
+*/
 
 if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
     $gameAchievements = $game->achievements->where('Flags', $flag)->keyBy('ID')->map(function ($am) {
@@ -155,7 +136,7 @@ if ($gameSetClaims) {
 $getGameExtended = array_merge(
     $gameData,
     ['ConsoleName' => $game->system->Name],
-    ['ParentGameID' => getParentGameId($game->Title, $game->ConsoleID, $gameID)],
+    ['ParentGameID' => $game->getParentGameId($game->Title, $game->ConsoleID, $gameID)],
     ['NumDistinctPlayers' => count($game->players)],
     ['NumAchievements' => count($gameAchievements)],
     ['Achievements' => $gameAchievements],
