@@ -5,7 +5,7 @@ use App\Models\User;
 $achievementID = requestInputSanitized('i', 0, 'integer');
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
-    return redirect(route('achievement.show', $achievementID));
+    abort_with(redirect(route('achievement.show', $achievementID)));
 }
 
 if ($achievementID == 0) {
@@ -20,7 +20,7 @@ if (empty($dataOut)) {
 $userModel = request()->user();
 $ticketID = getExistingTicketID($userModel, $achievementID);
 if ($ticketID !== 0) {
-    return redirect(url("/ticketmanager.php?i=$ticketID"))->withErrors(__('legacy.error.ticket_exists'));
+    abort_with(redirect(url("/ticketmanager.php?i=$ticketID"))->withErrors(__('legacy.error.ticket_exists')));
 }
 
 $emulators = getActiveEmulatorReleases();

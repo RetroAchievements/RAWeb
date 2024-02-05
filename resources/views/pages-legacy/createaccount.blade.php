@@ -5,7 +5,7 @@
 authenticateFromCookie($user, $permissions, $userDetails);
 
 if (request()->user()) {
-    return redirect(route('home'));
+    abort_with(redirect(route('home')));
 }
 ?>
 <x-app-layout pageTitle="Create Account">

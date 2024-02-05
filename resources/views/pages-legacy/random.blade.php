@@ -2,4 +2,4 @@
 
 $gameID = getRandomGameWithAchievements();
 
-return redirect(url("/game/$gameID"));
+abort_with(redirect(route('game.show', $gameID)));

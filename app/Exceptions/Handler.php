@@ -29,7 +29,6 @@ class Handler extends ExceptionHandler
     ];
 
     protected $dontReport = [
-        ViewRedirect::class,
     ];
 
     /**
@@ -100,6 +99,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e): Response
     {
+        // TODO do not redirect in views, refactor to controller when needed
         if ($e instanceof ViewRedirect) {
             return $e->redirect;
         }

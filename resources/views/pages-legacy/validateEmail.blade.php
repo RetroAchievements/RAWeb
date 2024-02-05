@@ -12,7 +12,7 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 ]);
 
 if (validateEmailVerificationToken($input['v'], $user)) {
-    return redirect(route('home'))->with('success', __('legacy.success.email_verify'));
+    abort_with(redirect(route('home'))->with('success', __('legacy.success.email_verify')));
 }
 
-return redirect(route('home'))->withErrors(__('legacy.error.token'));
+abort_with(redirect(route('home'))->withErrors(__('legacy.error.token')));

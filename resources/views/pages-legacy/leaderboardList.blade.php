@@ -33,7 +33,7 @@ $pageTitle .= $gameData['Title'];
 $lbData = getLeaderboardsList($gameID, $sortBy);
 
 if (empty($lbData)) {
-    return redirect(route('game.show', $gameID));
+    abort_with(redirect(route('game.show', $gameID)));
 }
 
 sanitize_outputs(

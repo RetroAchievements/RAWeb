@@ -8,7 +8,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 // TODO validate
 $dev = requestInputSanitized('u');
 if (empty($dev)) {
-    return redirect(route('home'));
+    abort_with(redirect(route('home')));
 }
 
 /** @var ?User $devUser */
@@ -22,7 +22,7 @@ $userArchInfo = getUserAchievementInformation($dev);
 
 // Only get stats if the user has a contribution count
 if (empty($userArchInfo)) {
-    return redirect(route('user.show', $dev));
+    abort_with(redirect(route('user.show', $dev)));
 }
 
 $userContribCount = $userArchInfo[0]['ContribCount'];

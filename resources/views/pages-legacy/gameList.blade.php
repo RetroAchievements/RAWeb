@@ -11,7 +11,7 @@ $sortBy = requestInputSanitized('s', 1, 'integer');
 
 $dev = requestInputSanitized('d');
 if ($dev !== null) {
-    return redirect()->route('developer.sets', $dev);
+    abort_with(redirect()->route('developer.sets', $dev));
 }
 
 if ($consoleIDInput == 0 || $filter != 0) {
@@ -23,7 +23,7 @@ if ($consoleIDInput == 0 || $filter != 0) {
 }
 
 if ($consoleIDInput > 0 && System::isGameSystem($consoleIDInput)) {
-    return redirect()->route('system.game.index', ['system' => $consoleIDInput]);
+    abort_with(redirect()->route('system.game.index', ['system' => $consoleIDInput]));
 }
 
 authenticateFromCookie($user, $permissions, $userDetails);

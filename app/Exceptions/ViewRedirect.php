@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
-use RuntimeException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
- * @deprecated do not redirect in views, refactor to controller when needed
+ * @deprecated TODO do not redirect in views, refactor to controller when needed
  */
-class ViewRedirect extends RuntimeException
+class ViewRedirect extends HttpException
 {
-    public function __construct(public RedirectResponse $redirect)
-    {
-        parent::__construct();
+    public function __construct(
+        public RedirectResponse $redirect
+    ) {
     }
 }

@@ -19,7 +19,7 @@ if (empty($commentData)) {
 }
 
 if ($user != $commentData['Author'] && $permissions < Permissions::Moderator) {
-    return back()->withErrors(__('legacy.error.permissions'));
+    abort_with(back()->withErrors(__('legacy.error.permissions')));
 }
 
 if (!getTopicDetails($commentData['ForumTopicID'], $topicData)) {
