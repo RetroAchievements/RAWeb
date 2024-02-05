@@ -101,7 +101,6 @@ class RouteServiceProvider extends ServiceProvider
             Route::group([
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
-                Route::get('game/{game}/hashes/manage', [GameHashController::class, 'manage'])->name('game.hash.manage');
                 Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
 
                 // Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])

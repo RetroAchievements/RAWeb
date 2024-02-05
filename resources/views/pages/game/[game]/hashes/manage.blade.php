@@ -1,14 +1,24 @@
-@props([
-    'game',
-    'me',
-])
-
 <?php
+
 use App\Community\Enums\ArticleType;
+use App\Models\Game;
+use App\Models\GameHash;
+use function Laravel\Folio\{middleware, name};
+
+middleware(['auth', 'can:view,game', 'can:manage,' . GameHash::class]);
+name('game.hash.manage');
+?>
+
+@php
+$gameWithSortedHashes = $game->load(['hashes' => function ($query) {
+    $query->orderBy('Name');
+}]);
+
+$user = request()->user();
 
 $articleTypeGameHash = ArticleType::GameHash;
 $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
-?>
+@endphp
 
 <x-app-layout pageTitle="{{ 'Manage Game Hashes - ' . $game->Title }}">
     <div>
@@ -71,21 +81,21 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
             <x-manage-hashes.hashes-list
                 :gameId="$game->ID"
                 :hashes="$game->hashes"
-                :myUsername="$me->User"
+                :myUsername="$user->username"
             />
         </div>
 
         <div>
-            {!!
+            @php
                 RenderCommentsComponent(
-                    $me->User,
+                    $user->username,
                     $numLogs,
                     $logs,
                     $game->ID,
                     $articleTypeGameHash,
-                    $me->Permissions,
+                    $user->Permissions,
                 )
-            !!}
+            @endphp
         </div>
     </div>
 </x-app-layout>
