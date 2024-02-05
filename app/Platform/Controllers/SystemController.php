@@ -6,7 +6,7 @@ namespace App\Platform\Controllers;
 
 use App\Enums\Permissions;
 use App\Http\Controller;
-use App\Platform\Models\System;
+use App\Models\System;
 use App\Platform\Requests\SystemRequest;
 use App\Platform\Services\GameListService;
 use Illuminate\Contracts\View\View;

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controller;
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\StaticData;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
+use App\Models\System;
 use Illuminate\Contracts\View\View;
 
 class HomeController extends Controller

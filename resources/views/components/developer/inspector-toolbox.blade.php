@@ -1,3 +1,9 @@
+<?php
+
+use App\Platform\Enums\AchievementFlag;
+use App\Platform\Enums\AchievementType;
+?>
+
 @props([
     'canHaveBeatenTypes' => true,
     'gameId' => 0,
@@ -6,9 +12,6 @@
 ])
 
 <?php
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\AchievementType;
-
 $progressionType = AchievementType::Progression;
 $winConditionType = AchievementType::WinCondition;
 $missableType = AchievementType::Missable;

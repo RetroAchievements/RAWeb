@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\LinkHashToGame;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
 use Database\Seeders\Concerns\SeedsUsers;
 use Database\Seeders\RolesTableSeeder;
 use Database\Seeders\UsersTableSeeder;

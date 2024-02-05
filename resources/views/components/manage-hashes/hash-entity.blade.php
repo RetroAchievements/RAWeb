@@ -1,12 +1,13 @@
+<?php
+
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'gameId' => 1,
     'hashEntity' => null, // GameHash
     'myUsername' => '',
 ])
-
-<?php
-use Illuminate\Support\Carbon;
-?>
 
 <div class="border border-embed-highlight bg-embed rounded-lg overflow-hidden">
     <div class="flex w-full justify-between px-4 py-2 bg-stone-950 light:bg-stone-100 border-b border-embed-highlight items-center">

@@ -1,3 +1,8 @@
+<?php
+
+use App\Enums\UserPreference;
+?>
+
 @props([
     'gameId' => 0,
     'gameTitle' => 'Unknown game',
@@ -7,9 +12,6 @@
 ])
 
 <?php
-
-use App\Enums\UserPreference;
-
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 $newPreferencesValue = ($userWebsitePrefs ?? 0) | (1 << $matureContentPref);
 ?>

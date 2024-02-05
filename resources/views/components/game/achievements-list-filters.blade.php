@@ -1,12 +1,14 @@
+<?php
+
+use App\Enums\UserPreference;
+?>
+
 @props([
     'canShowHideUnlockedAchievements' => false,
     'numMissableAchievements' => 0,
 ])
 
 <?php
-
-use App\Enums\UserPreference;
-
 $isMissableFilterAllowed = $numMissableAchievements > 0;
 if ($isMissableFilterAllowed) {
     $currentUser = Auth::user();

@@ -6,11 +6,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\AchievementResource\Pages;
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;

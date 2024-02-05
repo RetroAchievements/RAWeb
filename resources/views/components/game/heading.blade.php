@@ -1,3 +1,10 @@
+<?php
+
+use App\Community\Enums\UserGameListType;
+use App\Models\System;
+use App\Enums\Permissions;
+?>
+
 @props([
     'gameId' => 0,
     'gameTitle' => 'Unknown Game',
@@ -8,11 +15,6 @@
 ])
 
 <?php
-
-use App\Community\Enums\UserGameListType;
-use App\Platform\Models\System;
-use App\Enums\Permissions;
-
 $type = UserGameListType::Play;
 $iconUrl = getSystemIconUrl($consoleId);
 ?>

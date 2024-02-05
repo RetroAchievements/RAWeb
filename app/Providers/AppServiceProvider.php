@@ -102,9 +102,6 @@ class AppServiceProvider extends ServiceProvider
             if (class_exists('App\\Community\\Models\\' . $factoryBasename)) {
                 return 'App\\Community\\Models\\' . $factoryBasename;
             }
-            if (class_exists('App\\Platform\\Models\\' . $factoryBasename)) {
-                return 'App\\Platform\\Models\\' . $factoryBasename;
-            }
 
             return 'App\\Models\\' . $factoryBasename;
         });

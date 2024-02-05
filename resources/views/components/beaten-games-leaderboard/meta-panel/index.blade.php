@@ -1,3 +1,8 @@
+<?php
+
+use App\Models\System;
+?>
+
 @props([
     'allSystems' => null,
     'gameKindFilterOptions' => [],
@@ -6,8 +11,6 @@
 ])
 
 <?php
-use App\Platform\Models\System;
-
 // Some consoles were never sold in stores and are considered "homebrew".
 // They do not have games that would conventionally be considered "retail".
 $allowsRetail = !System::isHomebrewSystem($selectedConsoleId);

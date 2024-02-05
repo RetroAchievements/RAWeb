@@ -1,3 +1,9 @@
+<?php
+
+use App\Enums\Permissions;
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'hardcoreRankMeta' => [],
     'softcoreRankMeta' => [],
@@ -6,10 +12,6 @@
 ])
 
 <?php
-
-use App\Enums\Permissions;
-use Illuminate\Support\Carbon;
-
 $me = Auth::user() ?? null;
 $amIModerator = false;
 if ($me) {

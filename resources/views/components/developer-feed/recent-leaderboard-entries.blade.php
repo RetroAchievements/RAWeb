@@ -1,12 +1,11 @@
-@props([
-    'recentLeaderboardEntries' => null, // Collection
-])
-
 <?php
 
 use App\Platform\Enums\ValueFormat;
-
 ?>
+
+@props([
+    'recentLeaderboardEntries' => null, // Collection
+])
 
 <div>
     <h2 class="text-h4">Recent Leaderboard Entries</h2>

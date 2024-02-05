@@ -1,12 +1,14 @@
+<?php
+
+use App\Community\Enums\UserRelationship;
+?>
+
 @props([
     'username' => '',
 ])
 
 <?php
-use App\Community\Enums\UserRelationship;
-use Illuminate\Support\Facades\Auth;
-
-$me = Auth::user() ?? null;
+$me = auth()->user() ?? null;
 
 $myFriendshipType = UserRelationship::NotFollowing;
 if ($me) {

@@ -4,7 +4,7 @@
 
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\System;
+use App\Models\System;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = (int) request()->input('z', 0);

@@ -6,8 +6,8 @@ namespace App\Platform\Components;
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Models\AchievementSetClaim;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameAlternative;
+use App\Models\Game;
+use App\Models\GameAlternative;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;

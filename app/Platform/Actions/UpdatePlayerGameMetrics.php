@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\Achievement;
+use App\Models\PlayerAchievement;
+use App\Models\PlayerGame;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerGame;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 

@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\PlayerAchievement;
+use App\Models\PlayerAchievement;
 use App\Support\Shortcode\Shortcode;
 
 authenticateFromCookie($user, $permissions, $userDetails);

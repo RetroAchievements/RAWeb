@@ -1,3 +1,9 @@
+<?php
+
+use App\Enums\UserPreference;
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'showUnverifiedDisclaimer' => false,
     'isOriginalPoster' => false,
@@ -6,10 +12,6 @@
 ])
 
 <?php
-
-use App\Enums\UserPreference;
-use Illuminate\Support\Carbon;
-
 /** @var ?User $user */
 $user = auth()->user();
 $preferences = $user?->websitePrefs ?? 0;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Models;
 
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

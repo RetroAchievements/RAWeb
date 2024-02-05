@@ -1,8 +1,10 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
+
 $display ??= 'name';
 $resource ??= 'resource';
-if (empty($model) || !($model instanceof Illuminate\Database\Eloquent\Model)) {
+if (empty($model) || !($model instanceof Model)) {
     if ($display == 'name') {
         echo '<i>' . __('Unknown :Resource', ['resource' => $resource]) . '</i>';
     }

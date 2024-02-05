@@ -2,8 +2,8 @@
 
 namespace App\Platform\Jobs;
 
+use App\Models\Game;
 use App\Platform\Actions\UpdateGamePlayerGames;
-use App\Platform\Models\Game;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;

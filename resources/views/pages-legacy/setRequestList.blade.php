@@ -6,7 +6,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\UserGameListType;
 use App\Community\Models\UserGameListEntry;
 use App\Models\User;
-use App\Platform\Models\System;
+use App\Models\System;
 use Illuminate\Support\Facades\DB;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {

@@ -6,7 +6,7 @@ namespace App\Community\Components;
 
 use App\Community\Models\AchievementComment;
 use App\Components\Grid;
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

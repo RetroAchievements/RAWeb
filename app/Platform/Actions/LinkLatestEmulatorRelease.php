@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Models\Emulator;
+use App\Models\Emulator;
 
 class LinkLatestEmulatorRelease
 {

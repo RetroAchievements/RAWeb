@@ -2,9 +2,9 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Game;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
-use App\Platform\Models\Game;
 
 function SubmitLeaderboardEntry(
     string $user,

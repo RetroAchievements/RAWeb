@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 
 /*
  *  API_GetAchievementCount - returns the achievements associated to a game

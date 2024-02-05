@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\GameHash;
+use App\Models\GameHashSet;
+use App\Models\System;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHash;
-use App\Platform\Models\GameHashSet;
-use App\Platform\Models\System;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 

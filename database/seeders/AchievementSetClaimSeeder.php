@@ -6,7 +6,7 @@ namespace Database\Seeders;
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Models\AchievementSetClaim;
-use App\Platform\Models\Game;
+use App\Models\Game;
 use Illuminate\Database\Seeder;
 
 class AchievementSetClaimSeeder extends Seeder

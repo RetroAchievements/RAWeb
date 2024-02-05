@@ -1,12 +1,13 @@
+<?php
+
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'hasAnyPoints' => false,
     'username' => '',
     'userScoreData' => [],
 ])
-
-<?php
-use Illuminate\Support\Carbon;
-?>
 
 <div class="component">
     <h3>Recent Progress</h3>

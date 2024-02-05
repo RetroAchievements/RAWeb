@@ -3,7 +3,7 @@
 // TODO migrate to SearchController pages/search.blade.php
 
 use App\Enums\SearchType;
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

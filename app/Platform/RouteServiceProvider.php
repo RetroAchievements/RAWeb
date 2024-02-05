@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
+use App\Models\GameHash;
 use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
@@ -12,7 +13,6 @@ use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
 use App\Platform\Controllers\SuggestGameController;
 use App\Platform\Controllers\SystemController;
-use App\Platform\Models\GameHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 

@@ -6,9 +6,8 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\ArticleType;
 use App\Http\Controller;
+use App\Models\GameHash;
 use App\Models\User;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHash;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

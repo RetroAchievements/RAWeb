@@ -2,8 +2,8 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Achievement;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 

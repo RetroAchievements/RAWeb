@@ -9,7 +9,7 @@ use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Community\Models\Comment;
 use App\Community\Models\GameComment;
 use App\Community\Requests\CommentRequest;
-use App\Platform\Models\Game;
+use App\Models\Game;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 

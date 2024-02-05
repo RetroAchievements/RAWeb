@@ -2,11 +2,11 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\Achievement;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 

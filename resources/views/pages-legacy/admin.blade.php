@@ -3,7 +3,7 @@
 use App\Enums\Permissions;
 use App\Models\StaticData;
 use App\Models\User;
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     abort(401);

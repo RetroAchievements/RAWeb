@@ -1,3 +1,8 @@
+<?php
+
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'achievement' => [],
     'beatenGameCreditDialogContext' => 's:|h:',
@@ -10,8 +15,6 @@
 ])
 
 <?php
-use Illuminate\Support\Carbon;
-
 $isUnlocked = $isUnlocked || isset($achievement['DateEarnedHardcore']) || isset($achievement['DateEarned']);
 $isUnlockedOnHardcore = $isUnlockedHardcore || isset($achievement['DateEarnedHardcore']);
 

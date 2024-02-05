@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Events;
 
-use App\Platform\Models\PlayerBadge;
+use App\Models\PlayerBadge;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;

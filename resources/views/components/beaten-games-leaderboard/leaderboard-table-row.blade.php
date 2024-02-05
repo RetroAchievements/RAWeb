@@ -1,3 +1,8 @@
+<?php
+
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'isHighlighted' => null,
     'paginatedRow' => null,
@@ -5,8 +10,6 @@
 ])
 
 <?php
-use Illuminate\Support\Carbon;
-
 $isHighlighted = $isHighlighted || ($paginatedRow->User === $myUsername);
 $lastBeatenDate = Carbon::parse($paginatedRow->last_beaten_date)->format('F j Y');
 ?>
@@ -35,7 +38,7 @@ $lastBeatenDate = Carbon::parse($paginatedRow->last_beaten_date)->format('F j Y'
     <td>
         {{ $lastBeatenDate }}
     </td>
-    
+
     <td
         class='text-right'
         data-testid="{{ $paginatedRow->User }}-count-{{ $paginatedRow->total_awards }}"

@@ -1,11 +1,14 @@
+<?php
+
+use App\Community\Enums\UserGameListType;
+?>
+
 @props([
     'gameId' => 0,
     'user' => null,
 ])
 
 <?php
-use App\Community\Enums\UserGameListType;
-
 $gameRequests = getSetRequestCount($gameId);
 $userRequests = getUserRequestsInformation($user, $gameId);
 $userRequestsRemaining = $userRequests['remaining'];

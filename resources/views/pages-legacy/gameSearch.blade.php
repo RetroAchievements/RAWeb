@@ -1,6 +1,6 @@
 <?php
 
-use App\Platform\Models\System;
+use App\Models\System;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

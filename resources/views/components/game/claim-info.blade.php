@@ -2,9 +2,9 @@
 
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimStatus;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\MemoryNote;
-use App\Platform\Models\PlayerSession;
+use App\Models\Achievement;
+use App\Models\MemoryNote;
+use App\Models\PlayerSession;
 use App\Enums\Permissions;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;

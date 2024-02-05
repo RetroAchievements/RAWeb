@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
-use App\Platform\Models\System;
+use App\Models\System;
 use Illuminate\Support\Facades\Blade;
 
 function gameAvatar(

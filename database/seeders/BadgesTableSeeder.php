@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Platform\Models\Badge;
+use App\Models\Badge;
 use Illuminate\Database\Seeder;
 
 class BadgesTableSeeder extends Seeder

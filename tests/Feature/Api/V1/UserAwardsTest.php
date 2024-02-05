@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\AwardType;
+use App\Models\Game;
+use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerBadge;
-use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;

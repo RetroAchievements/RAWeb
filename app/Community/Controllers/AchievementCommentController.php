@@ -9,7 +9,7 @@ use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Community\Models\AchievementComment;
 use App\Community\Models\Comment;
 use App\Community\Requests\CommentRequest;
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 

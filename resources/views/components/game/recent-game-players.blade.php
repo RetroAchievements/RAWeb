@@ -1,11 +1,14 @@
+<?php
+
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'recentPlayerData' => [],
     'gameTitle' => '',
 ])
 
 <?php
-use Illuminate\Support\Carbon;
-
 $processedRecentPlayers = [];
 
 foreach ($recentPlayerData as $recentPlayer) {

@@ -1,3 +1,8 @@
+<?php
+
+use App\Models\User;
+?>
+
 @props([
     'game',
     'headingLabel' => 'Most recent game mastered',
@@ -6,9 +11,6 @@
 ])
 
 <?php
-
-use App\Models\User;
-
 $user = User::find($userId);
 
 if (!$user) {

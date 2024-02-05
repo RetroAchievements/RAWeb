@@ -2,14 +2,14 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\PlayerAchievement;
+use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Jobs\UnlockPlayerAchievementJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerGame;
 use Illuminate\Support\Carbon;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {

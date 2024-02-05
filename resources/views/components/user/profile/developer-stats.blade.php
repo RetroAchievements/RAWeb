@@ -1,3 +1,9 @@
+<?php
+
+use App\Community\Enums\ClaimType;
+use App\Community\Enums\ClaimSpecial;
+?>
+
 @props([
     'developerStats' => [],
     'userClaims' => null, // ?array
@@ -5,9 +11,6 @@
 ])
 
 <?php
-use App\Community\Enums\ClaimType;
-use App\Community\Enums\ClaimSpecial;
-
 $numAllowedClaims = permissionsToClaim($userMassData['Permissions']);
 
 $primaryClaims = collect($userClaims)->filter(function ($entity) {

@@ -36,7 +36,7 @@ $tools = $settings['tools'] ?? null;
                 @can('manage', App\Community\Models\AchievementSetClaim::class)
                     <x-dropdown-item :link="url('expiringclaims.php')">Expiring Claims</x-dropdown-item>
                 @endcan
-                @can('manage', App\Platform\Models\GameHash::class)
+                @can('manage', App\Models\GameHash::class)
                     <x-dropdown-item :link="url('latesthasheslinked.php')">Latest Linked Hashes</x-dropdown-item>
                 @endcan
             @endif
@@ -53,9 +53,9 @@ $tools = $settings['tools'] ?? null;
                 {{--@can('manage', App\Models\Event::class)
                     <h6 class="dropdown-header">Events</h6>
                 @endcan--}}
-                {{--@can('manage', App\Platform\Models\IntegrationRelease::class)
+                {{--@can('manage', App\Models\IntegrationRelease::class)
                     <x-dropdown-header>Releases</x-dropdown-header>
-                    @can('manage', App\Platform\Models\Emulator::class)
+                    @can('manage', App\Models\Emulator::class)
                         <x-dropdown-item :link="route('emulator.index')" :active="request()->routeIs('emulator*')">Emulators</x-dropdown-item>
                     @endcan
                     <x-dropdown-item :link="route('integration.release.index')" :active="request()->routeIs('integration.release*')">Integration</x-dropdown-item>

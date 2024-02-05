@@ -2,9 +2,9 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;

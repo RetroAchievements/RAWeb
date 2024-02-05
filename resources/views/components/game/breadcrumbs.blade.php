@@ -1,3 +1,8 @@
+<?php
+
+use App\Models\System;
+?>
+
 @props([
     'targetConsoleId' => 1,
     'targetConsoleName' => 'Mega Drive',
@@ -5,13 +10,13 @@
     'targetGameName' => null, // string | null,
     'currentPageLabel' => null, // string | null
 ])
-<?php
-use App\Platform\Models\System;
 
+<?php
 $gameListHref = System::isGameSystem($targetConsoleId)
     ? route('system.game.index', ['system' => $targetConsoleId])
     : '/gameList.php?c=' . $targetConsoleId;
 ?>
+
 {{-- All Games >> Console Name >> Game Name >> Page Name --}}
 <div class="navpath">
     <a href="/gameList.php">All Games</a>

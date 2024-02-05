@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\AwardType;
-use App\Platform\Models\PlayerBadge;
+use App\Models\PlayerBadge;
 
 function SeparateAwards(array $userAwards): array
 {

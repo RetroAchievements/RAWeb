@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controller;
-use App\Platform\Models\Emulator;
-use App\Platform\Models\IntegrationRelease;
+use App\Models\Emulator;
+use App\Models\IntegrationRelease;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 

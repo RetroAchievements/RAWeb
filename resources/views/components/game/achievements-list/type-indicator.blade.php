@@ -1,3 +1,11 @@
+<?php
+
+use App\Platform\Enums\AchievementType;
+use App\Enums\UserPreference;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+?>
+
 @props([
     'achievementType' => null,
     'beatenGameCreditDialogContext' => 's:|h:',
@@ -6,12 +14,6 @@
 ])
 
 <?php
-
-use App\Platform\Enums\AchievementType;
-use App\Enums\UserPreference;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
 $gameId ??= request()->route('game');
 
 $progressionTypeValue = AchievementType::Progression;

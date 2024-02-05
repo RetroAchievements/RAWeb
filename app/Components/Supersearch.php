@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Components;
 
 use App\Community\Models\News;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
 use App\Support\Concerns\HandlesResources;
 use Exception;
 use Illuminate\Contracts\View\View;

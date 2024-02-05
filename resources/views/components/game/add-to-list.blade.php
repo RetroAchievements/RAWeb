@@ -1,3 +1,8 @@
+<?php
+
+use App\Enums\Permissions;
+?>
+
 @props([
     'user' => null,
     'gameId' => 0,
@@ -5,9 +10,6 @@
 ])
 
 <?php
-
-use App\Enums\Permissions;
-
 $addButtonTooltip = __('user-game-list.' . $type . '.add');
 $removeButtonTooltip = __('user-game-list.' . $type . '.remove');
 $addVisibility = '';

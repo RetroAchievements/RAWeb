@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\Game;
+use App\Models\GameHash;
+use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHash;
-use App\Platform\Models\PlayerSession;
 use Carbon\Carbon;
 
 class ResumePlayerSession

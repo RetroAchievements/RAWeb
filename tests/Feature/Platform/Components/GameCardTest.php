@@ -11,11 +11,11 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Models\AchievementSetClaim;
 use App\Enums\Permissions;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerBadge;
-use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

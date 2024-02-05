@@ -1,11 +1,14 @@
+<?php
+
+use App\Community\Enums\UserRelationship;
+use Illuminate\Support\Facades\Auth;
+?>
+
 @props([
     'username' => '',
 ])
 
 <?php
-use App\Community\Enums\UserRelationship;
-use Illuminate\Support\Facades\Auth;
-
 $me = Auth::user() ?? null;
 
 $areTheyFollowingMe = false;

@@ -1,3 +1,8 @@
+<?php
+
+use App\Enums\Permissions;
+?>
+
 @props([
     'developerStats' => [],
     'hardcoreRankMeta' => [],
@@ -10,9 +15,6 @@
 ])
 
 <?php
-
-use App\Enums\Permissions;
-
 $registeredPermission = Permissions::Registered;
 $jrDevPermission = Permissions::JuniorDeveloper;
 

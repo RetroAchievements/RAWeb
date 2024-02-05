@@ -1,11 +1,14 @@
+<?php
+
+use App\Community\Enums\Rank;
+?>
+
 @props([
     'playerStats' => [],
     'userMassData' => [],
 ])
 
 <?php
-use App\Community\Enums\Rank;
-
 $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
 $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
 $weightedPoints = $userMassData['TotalTruePoints'] ?? 0;

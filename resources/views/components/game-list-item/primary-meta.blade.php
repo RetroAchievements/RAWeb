@@ -1,3 +1,8 @@
+<?php
+
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'firstWonDate' => '',
     'gameId' => 0,
@@ -14,8 +19,6 @@
 ])
 
 <?php
-use Illuminate\Support\Carbon;
-
 $firstUnlockDate = Carbon::parse($firstWonDate);
 $mostRecentUnlockDate = Carbon::parse($mostRecentWonDate);
 

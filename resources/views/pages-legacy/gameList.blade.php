@@ -2,7 +2,7 @@
 
 use App\Community\Enums\UserGameListType;
 use App\Enums\Permissions;
-use App\Platform\Models\System;
+use App\Models\System;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleIDInput = requestInputSanitized('c', 0, 'integer');

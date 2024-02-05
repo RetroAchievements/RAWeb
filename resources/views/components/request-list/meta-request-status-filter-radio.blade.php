@@ -1,4 +1,5 @@
 <?php
+
 use App\Community\Enums\RequestStatus;
 
 $any = RequestStatus::Any;

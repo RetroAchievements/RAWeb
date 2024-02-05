@@ -1,11 +1,14 @@
+<?php
+
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+?>
+
 @props([
     'milestone' => [],
 ])
 
 <?php
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
-
 $kindLabel = '';
 if ($milestone['which'] === 'most recent') {
     $kindLabel = 'Latest';

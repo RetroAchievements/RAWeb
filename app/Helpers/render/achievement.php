@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\Achievement;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\Achievement;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;

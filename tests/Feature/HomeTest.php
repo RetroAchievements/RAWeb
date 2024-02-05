@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\StaticData;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
+use App\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

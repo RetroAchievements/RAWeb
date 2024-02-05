@@ -4,10 +4,10 @@ use App\Community\Enums\ArticleType;
 use App\Community\Models\Ticket;
 use App\Enums\Permissions;
 use App\Models\User;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\Leaderboard;
-use App\Platform\Models\System;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Leaderboard;
+use App\Models\System;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 

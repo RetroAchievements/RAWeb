@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Community\Policies;
 
 use App\Community\Models\GameComment;
+use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
-use App\Platform\Models\Game;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class GameCommentPolicy

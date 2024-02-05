@@ -1,3 +1,8 @@
+<?php
+
+use App\Community\Enums\Rank;
+?>
+
 @props([
     'hardcoreRankMeta' => [],
     'softcoreRankMeta' => [],
@@ -6,8 +11,6 @@
 ])
 
 <?php
-use App\Community\Enums\Rank;
-
 $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
 $softcorePoints = $userMassData['TotalSoftcorePoints'] ?? 0;
 

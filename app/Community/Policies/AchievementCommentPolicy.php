@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Community\Policies;
 
 use App\Community\Models\AchievementComment;
+use App\Models\Achievement;
 use App\Models\Role;
 use App\Models\User;
-use App\Platform\Models\Achievement;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AchievementCommentPolicy

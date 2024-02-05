@@ -1,12 +1,15 @@
+<?php
+
+use App\Models\PlayerSession;
+use App\Models\Game;
+use Illuminate\Support\Carbon;
+?>
+
 @props([
     'userMassData' => [],
 ])
 
 <?php
-use App\Platform\Models\PlayerSession;
-use App\Platform\Models\Game;
-use Illuminate\Support\Carbon;
-
 $mostRecentSession = PlayerSession::where('user_id', $userMassData['ID'])
     ->with('game')
     ->orderBy('created_at', 'desc')

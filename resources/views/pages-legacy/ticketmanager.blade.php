@@ -10,8 +10,8 @@ use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerAchievement;
+use App\Models\Achievement;
+use App\Models\PlayerAchievement;
 use Illuminate\Support\Str;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {

@@ -1,3 +1,8 @@
+<?php
+
+use App\Enums\UserPreference;
+?>
+
 @props([
     'isOfficial' => true,
     'numAchievements' => 0,
@@ -7,9 +12,6 @@
 ])
 
 <?php
-
-use App\Enums\UserPreference;
-
 $canShowMissableCount = true;
 if ($numMissableAchievements > 0) {
     $currentUser = Auth::user();
