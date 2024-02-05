@@ -3,7 +3,8 @@
 use App\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    abort(401);
+    session(['url.intended' => url()->full()]);
+    return redirect()->route('login');
 }
 
 $gameID = (int) request()->query('g');
