@@ -6,6 +6,7 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\ArticleType;
 use App\Http\Controller;
+use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
