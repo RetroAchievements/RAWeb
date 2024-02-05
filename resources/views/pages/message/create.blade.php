@@ -1,8 +1,17 @@
-@props([
-    'toUser' => '',
-    'subject' => '',
-    'message' => '',
-])
+<?php
+
+use App\Models\Message;
+use function Laravel\Folio\{middleware, name};
+
+middleware(['auth', 'can:create,' . Message::class]);
+name('message.create');
+?>
+
+@php
+$toUser = request()->input('to') ?? '';
+$subject = request()->input('subject') ?? '';
+$message = request()->input('message') ?? '';
+@endphp
 
 <x-app-layout
     pageTitle="New Message"
