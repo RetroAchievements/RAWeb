@@ -7,6 +7,7 @@ use function Laravel\Folio\{middleware, name};
 
 middleware(['auth', 'can:view,game', 'can:manage,' . GameHash::class]);
 name('game.hash.manage');
+
 ?>
 
 @php

@@ -1,3 +1,11 @@
+<?php
+
+use function Laravel\Folio\{name};
+
+name('developer.feed');
+
+?>
+
 @props([
     'awardsContributed' => 0,
     'foundTargetUser' => null, // User

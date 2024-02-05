@@ -1,7 +1,13 @@
 <?php
 
 use App\Models\User;
+use function Laravel\Folio\{name};
 
+name('user.completion-progress');
+
+?>
+
+@php
 $targetUsername = $user->User;
 $isMe = $me?->User === $targetUsername;
 
@@ -15,9 +21,11 @@ if ($isMe) {
 }
 
 $pageDescription = "View {$targetUsername}'s game completion stats and milestones on RetroAchievements. Track their played, unfinished, and mastered games from various systems.";
-?>
-
-<x-app-layout :pageTitle="$headingLabel" :pageDescription="$pageDescription">
+@endphp
+<x-app-layout
+    :pageTitle="$headingLabel"
+    :pageDescription="$pageDescription"
+>
     <div>
         <x-user.breadcrumbs :targetUsername="$targetUsername" currentPage="Completion Progress" />
 

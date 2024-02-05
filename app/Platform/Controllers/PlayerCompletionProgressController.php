@@ -95,7 +95,7 @@ class PlayerCompletionProgressController extends Controller
             $this->pageSize,
         );
 
-        return view('pages.user.progress', [
+        return view('pages.user.[user].progress', [
             'allAvailableConsoleIds' => $allAvailableConsoleIds,
             'completedGamesList' => $paginatedGamesList,
             'currentPage' => $currentPage,

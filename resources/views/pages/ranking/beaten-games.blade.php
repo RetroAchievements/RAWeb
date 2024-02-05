@@ -1,3 +1,16 @@
+<?php
+
+use App\Enums\UserPreference;
+use App\Models\MessageThread;
+use App\Models\User;
+use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Carbon;
+use function Laravel\Folio\{name};
+
+name('ranking.beaten-games');
+
+?>
+
 @props([
     'allSystems' => [],
     'gameKindFilterOptions' => [],

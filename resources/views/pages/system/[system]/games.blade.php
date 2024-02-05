@@ -1,3 +1,11 @@
+<?php
+
+use function Laravel\Folio\{name};
+
+name('system.game.index');
+
+?>
+
 @props([
     'availableCheckboxFilters' => [],
     'availableRadioFilters' => [],
@@ -12,7 +20,7 @@
     'totalUnfilteredCount' => null, // ?int
 ])
 
-<?php
+@php
 $pageMetaDescription = '';
 $areFiltersPristine = count(request()->query()) === 0;
 
@@ -34,7 +42,7 @@ if ($areFiltersPristine) {
         $pageMetaDescription = "Explore {$localizedCount}+ {$system->Name} games on RetroAchievements. Our achievements bring a fresh perspective to classic games, letting you track your progress as you beat and master each title.";
     }
 }
-?>
+@endphp
 
 <x-app-layout
     pageTitle="{{ $system->Name }} Games"

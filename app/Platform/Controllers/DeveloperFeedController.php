@@ -42,7 +42,7 @@ class DeveloperFeedController extends Controller
         $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($foundTargetUser);
         $recentLeaderboardEntries = $this->fetchRecentLeaderboardEntriesForDev($foundTargetUser);
 
-        return view('pages.user.developer.feed', [
+        return view('pages.user.[user].developer.feed', [
             'awardsContributed' => $awardsContributed,
             'foundTargetUser' => $foundTargetUser,
             'leaderboardEntriesContributed' => $leaderboardEntriesContributed,

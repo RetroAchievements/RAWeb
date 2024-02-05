@@ -1,3 +1,10 @@
+<?php
+
+use function Laravel\Folio\{name};
+
+name('redirect');
+
+?>
 <x-app-layout :page-title="__('Redirect')">
     <x-section>
         <x-section-header>

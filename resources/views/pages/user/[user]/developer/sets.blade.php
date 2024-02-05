@@ -1,3 +1,11 @@
+<?php
+
+use function Laravel\Folio\{name};
+
+name('developer.sets');
+
+?>
+
 @props([
     'user' => null,
     'consoles' => [],
