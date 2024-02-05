@@ -33,7 +33,8 @@ class HomeTest extends TestCase
         ]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create([
-            'ID' => $staticData->LastCreatedAchievementID, 'GameID' => $staticData->LastCreatedGameID,
+            'ID' => $staticData->LastCreatedAchievementID,
+            'GameID' => $staticData->LastCreatedGameID,
         ]);
 
         $this->get('/')->assertSuccessful()

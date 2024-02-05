@@ -12,29 +12,22 @@ name('home');
 ?>
 
 @php
+$eventAchievement = null;
+$eventGame = null;
+$eventConsoleName = null;
+$eventForumTopicId = null;
+
 $staticData = StaticData::first();
+if ($staticData) {
+    $aotwAchievementId = $staticData['Event_AOTW_AchievementID'];
+    $eventForumTopicId = $staticData['Event_AOTW_ForumID'];
+    $eventAchievement = Achievement::find($aotwAchievementId);
 
-if ($staticData === null) {
-    return null;
+    if ($eventAchievement) {
+        $eventGame =  Game::find($eventAchievement->GameID);
+        $eventConsoleName = System::find($eventGame->ConsoleID)->Name;
+    }
 }
-
-$aotwAchievementId = $staticData['Event_AOTW_AchievementID'];
-$eventForumTopicId = $staticData['Event_AOTW_ForumID'];
-$achievement = Achievement::find($aotwAchievementId);
-
-if (!$achievement) {
-    return null;
-}
-
-$game = Game::find($achievement->GameID);
-$consoleName = System::find($game->ConsoleID)->Name;
-
-$currentEventMetadata = [
-    'eventAchievement' => $achievement,
-    'eventGame' => $game,
-    'eventConsoleName' => $consoleName,
-    'eventForumTopicId' => $eventForumTopicId,
-];
 @endphp
 
 <x-app-layout>
