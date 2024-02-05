@@ -44,7 +44,7 @@ if ($followed == 1) {
     $data = getRecentProgressionAwardData($date, null, $offset, $maxCount + 1, $awardType, $unlockMode);
 }
 ?>
-<x-app-layout pageTitle="Recent {{ $lbUsers }} Game Awards'">
+<x-app-layout pageTitle="Recent {{ $lbUsers }} Game Awards">
     <h2>Recent {{ $lbUsers }} Game Awards</h2>
     <x-recent-awards.meta-panel
         :minAllowedDate="$minDate"

@@ -129,12 +129,12 @@ ffff - abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrs
 ?>
 <x-app-layout>
     <h1>Triggers</h1>
-    @php foreach ($triggers as $trigger): @endphp
+    @foreach ($triggers as $trigger)
         @php
         $conditions = $trigger['conditions'];
         $conditions = trim($conditions);
         $conditions = str_replace("\n", '', $conditions);
         echo getAchievementPatchReadableHTML($conditions, $trigger['notes']);
         @endphp
-    @php endforeach @endphp
+    @endforeach
 </x-app-layout>

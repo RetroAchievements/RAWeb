@@ -24,7 +24,7 @@ $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userDetails);
 
 $dateStr = strftime("%d %b %Y", $dateInput);
 ?>
-<x-app-layout pageTitle="{{ $userPage }} 's History - {{ $dateStr }}">
+<x-app-layout pageTitle="{{ $userPage }}'s History - {{ $dateStr }}">
 <script>
   function convertDate() {
     const { dateinput, d } = document.gotodateform;

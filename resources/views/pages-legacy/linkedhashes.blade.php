@@ -23,7 +23,7 @@ $gameIcon = $gameData['ImageIcon'];
 $forumTopicID = $gameData['ForumTopicID'];
 $hashes = getHashListByGameID($gameID);
 ?>
-<x-app-layout pageTitle="Supported Game Files {{ $gameTitle }}">
+<x-app-layout pageTitle="Supported Game Files - {{ $gameTitle }}">
     <div class='navpath'>
         <?= renderGameBreadcrumb($gameData) ?>
         &raquo; <b>Supported Game Files</b>
