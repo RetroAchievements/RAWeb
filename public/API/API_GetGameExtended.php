@@ -59,6 +59,9 @@ use Carbon\Carbon;
 $gameID = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
+$game = Game::with('system')->find($gameID);
+$gameSetClaims = AchievementSetClaim::find($gameID);
+
 // TODO move to seprate file
 if (!function_exists('getParentGameId')) {
     function getParentGameId(string $title, int $consoleID, int $gameID): ?int
@@ -87,34 +90,33 @@ if (!function_exists('getParentGameId')) {
     implementation vs average 110ms on this refactor.
 */
 
-if (Game::where('ID', $gameID)->exists()) {
-    $gameData = collect([Game::find($gameID)])->map(function ($gd) {
-        return [
-            'ID' => $gd->ID,
-            'Title' => $gd->Title,
-            'ConsoleID' => $gd->ConsoleID,
-            'ForumTopicID' => $gd->ForumTopicID,
+if ($game) {
+    $gameData =
+        [
+            'ID' => $game->ID,
+            'Title' => $game->Title,
+            'ConsoleID' => $game->ConsoleID,
+            'ForumTopicID' => $game->ForumTopicID,
             'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
-            'ImageIcon' => $gd->ImageIcon,
-            'ImageTitle' => $gd->ImageTitle,
-            'ImageIngame' => $gd->ImageIngame,
-            'ImageBoxArt' => $gd->ImageBoxArt,
-            'Publisher' => $gd->Publisher,
-            'Developer' => $gd->Developer,
-            'Genre' => $gd->Genre,
-            'Released' => $gd->Released,
-            'IsFinal' => $gd->IsFinal,
-            'RichPresencePatch' => md5($gd->RichPresencePatch),
-            'GuideURL' => $gd->GuideURL,
-            'Updated' => $gd->Updated,
+            'ImageIcon' => $game->ImageIcon,
+            'ImageTitle' => $game->ImageTitle,
+            'ImageIngame' => $game->ImageIngame,
+            'ImageBoxArt' => $game->ImageBoxArt,
+            'Publisher' => $game->Publisher,
+            'Developer' => $game->Developer,
+            'Genre' => $game->Genre,
+            'Released' => $game->Released,
+            'IsFinal' => $game->IsFinal,
+            'RichPresencePatch' => md5($game->RichPresencePatch),
+            'GuideURL' => $game->GuideURL,
+            'Updated' => $game->Updated,
         ];
-    })->first();
-} else {
+    } else {
     return response()->json();
 }
 
-if (!Game::find($gameID)->achievements->isEmpty()) {
-    $gameAchievements = Game::find($gameID)->achievements->where('Flags', $flag)->keyBy('ID')->map(function ($am) {
+if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
+    $gameAchievements = $game->achievements->where('Flags', $flag)->keyBy('ID')->map(function ($am) {
         return [
             'ID' => $am->ID,
             'NumAwarded' => (int) Achievement::find($am->ID)->unlocks_total,
@@ -135,32 +137,32 @@ if (!Game::find($gameID)->achievements->isEmpty()) {
 } else {
     $gameAchievements = new ArrayObject();
 }
+//dd($gameAchievements);
 
-if (AchievementSetClaim::where('GameID', $gameID)->get()) {
-    $gameClaims = AchievementSetClaim::where('GameID', $gameID)->get()->map(function ($gc) {
-        return [
-            'User' => $gc->User,
-            'SetType' => $gc->SetType,
-            'GameID' => $gc->GameID,
-            'ClaimType' => $gc->ClaimType,
-            'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
-            'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
-        ];
-    });
+if ($gameSetClaims) {
+    $gameClaims =
+        [[
+            'User' => $gameSetClaims->User,
+            'SetType' => $gameSetClaims->SetType,
+            'GameID' => $gameSetClaims->GameID,
+            'ClaimType' => $gameSetClaims->ClaimType,
+            'Created' => Carbon::parse($gameSetClaims->Created)->format('Y-m-d H:i:s'),
+            'Expiration' => Carbon::parse($gameSetClaims->Finished)->format('Y-m-d H:i:s'),
+        ]];
 } else {
     $gameClaims = [];
 }
 
 $getGameExtended = array_merge(
     $gameData,
-    ['ConsoleName' => Game::find($gameID)->system->Name],
-    ['ParentGameID' => getParentGameId(Game::find($gameID)->Title, Game::find($gameID)->ConsoleID, $gameID)],
-    ['NumDistinctPlayers' => count(Game::find($gameID)->players)],
+    ['ConsoleName' => $game->system->Name],
+    ['ParentGameID' => getParentGameId($game->Title, $game->ConsoleID, $gameID)],
+    ['NumDistinctPlayers' => count($game->players)],
     ['NumAchievements' => count($gameAchievements)],
     ['Achievements' => $gameAchievements],
     ['Claims' => $gameClaims],
-    ['NumDistinctPlayersCasual' => count(Game::find($gameID)->players)], // Deprecated - Only here to maintain API V1 compat
-    ['NumDistinctPlayersHardcore' => count(Game::find($gameID)->players)], // Deprecated - Only here to maintain API V1 compat
+    ['NumDistinctPlayersCasual' => count($game->players)], // Deprecated - Only here to maintain API V1 compat
+    ['NumDistinctPlayersHardcore' => count($game->players)], // Deprecated - Only here to maintain API V1 compat
 );
 
 return response()->json($getGameExtended);

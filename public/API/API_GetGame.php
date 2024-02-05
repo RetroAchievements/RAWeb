@@ -26,28 +26,29 @@ use App\Platform\Models\Game;
 
 $gameID = (int) request()->query('i');
 
-if (Game::where('ID', $gameID)->exists()) {
-    $gameSystem = Game::find($gameID)->system->Name;
-    $gameData = collect([Game::find($gameID)])->map(function ($gd) use ($gameSystem) {
-        return [
-            'Title' => $gd->Title,
-            'GameTitle' => $gd->Title,
-            'ConsoleID' => $gd->ConsoleID,
-            'ConsoleName' => (string) $gameSystem,
-            'Console' => (string) $gameSystem,
-            'ForumTopicID' => $gd->ForumTopicID,
+$game = Game::with('system')->find($gameID);
+
+if ($game) {
+
+    $gameData =
+         [
+            'Title' => $game->Title,
+            'GameTitle' => $game->Title,
+            'ConsoleID' => $game->ConsoleID,
+            'ConsoleName' => (string) $game->system->Name,
+            'Console' => (string) $game->system->Name,
+            'ForumTopicID' => $game->ForumTopicID,
             'Flags' => 0, // Always '0'
-            'GameIcon' => $gd->ImageIcon,
-            'ImageIcon' => $gd->ImageIcon,
-            'ImageTitle' => $gd->ImageTitle,
-            'ImageIngame' => $gd->ImageIngame,
-            'ImageBoxArt' => $gd->ImageBoxArt,
-            'Publisher' => $gd->Publisher,
-            'Developer' => $gd->Developer,
-            'Genre' => $gd->Genre,
-            'Released' => $gd->Released,
+            'GameIcon' => $game->ImageIcon,
+            'ImageIcon' => $game->ImageIcon,
+            'ImageTitle' => $game->ImageTitle,
+            'ImageIngame' => $game->ImageIngame,
+            'ImageBoxArt' => $game->ImageBoxArt,
+            'Publisher' => $game->Publisher,
+            'Developer' => $game->Developer,
+            'Genre' => $game->Genre,
+            'Released' => $game->Released,
         ];
-    })->first();
 
     return response()->json($gameData);
 } else {
