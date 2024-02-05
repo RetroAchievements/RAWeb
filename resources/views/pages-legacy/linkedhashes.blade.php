@@ -4,6 +4,7 @@ use App\Enums\Permissions;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     session(['url.intended' => url()->full()]);
+
     return redirect()->route('login');
 }
 
