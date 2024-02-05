@@ -161,6 +161,24 @@ class Game extends BaseModel implements HasComments, HasMedia
         return false;
     }
 
+    // == temp subset detection
+
+    public function getParentGameId(string $title, int $consoleID, int $gameID): ?int
+    {
+
+        $result = Game::where('Title', 'LIKE', '%' . $title . '%')->where('ConsoleID', '=', $consoleID)->first();
+
+        if ($result->Title = $title) {
+            return null;
+        } else {
+            $matchValue = $result->Title;
+            $remainingValue = preg_replace('/(?:^|\s)\[.*Subset - .*\](?:\s|$)/', '', $matchValue);
+            $remainingResult = Game::where('Title', $remainingValue)->first();
+
+            return (int) $remainingResult->ID ? $remainingResult->ID : null;
+        }
+    }
+
     // == actions
 
     // == accessors
