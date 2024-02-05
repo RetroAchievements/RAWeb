@@ -184,7 +184,7 @@ $menu = collect([
                 </a>
             @endif
             {{--<a href="{{ route('rss.index') }}"--}}
-            <a href="{{ url('rss.php') }}"
+            <a href="{{ route('rss.index') }}"
                data-toggle="tooltip" title="RSS Feeds">
                 <x-fas-rss/>
                 <span class="sr-only">RSS</span>
