@@ -1,3 +1,15 @@
+<?php
+
+use App\Community\Enums\ArticleType;
+use App\Models\Game;
+use App\Models\GameHash;
+use function Laravel\Folio\{middleware, name};
+
+middleware(['auth', 'can:view,game', 'can:develop']);
+name('game.dev-interest');
+
+?>
+
 @props([
     'gameId' => 0,
     'gameTitle' => 'Unknown Game',
