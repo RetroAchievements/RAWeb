@@ -2,7 +2,7 @@
 
 // TODO migrate to Filament
 
-use App\Community\Models\News;
+use App\Models\News;
 use App\Enums\Permissions;
 use App\Models\User;
 

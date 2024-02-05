@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\GameComment;
 use App\Components\Grid;
 use App\Models\Game;
+use App\Models\GameComment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

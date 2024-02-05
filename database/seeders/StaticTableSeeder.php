@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Community\Models\ForumTopic;
 use App\Models\Achievement;
+use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
 use App\Models\StaticData;

@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Community\Models\Comment;
 use App\Enums\Permissions;
+use App\Models\Comment;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerSession;

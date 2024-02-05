@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Components;
 
-use App\Community\Models\News;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\News;
 use App\Models\System;
 use App\Models\User;
 use App\Support\Concerns\HandlesResources;

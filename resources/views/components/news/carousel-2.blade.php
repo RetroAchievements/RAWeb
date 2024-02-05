@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Models\News;
+use App\Models\News;
 
 $totalNewsCount = 10;
 
@@ -13,7 +13,7 @@ if ($newsData->isEmpty()) {
 <div class="mb-6 xl:flex xl:flex-col xl:items-center xl:bg-embed xl:rounded-lg xl:pt-1 xl:pb-4 xl:border xl:border-embed-highlight" aria-live="polite" aria-atomic="true" x-data="newsCarouselComponent()">
     <h2 class="sr-only">News</h2>
 
-    <div 
+    <div
         class="mt-2 relative h-[300px] max-h-[300px] sm:h-[270px] sm:max-h-[270px] xl:w-[700px]"
         @mouseenter="pause()"
         @mouseleave="resume()"

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\News;
+use App\Models\News;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 

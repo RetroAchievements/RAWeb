@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Community\Models\Forum;
+use App\Models\Forum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

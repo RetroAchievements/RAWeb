@@ -5,7 +5,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
-use App\Community\Models\UserGameListEntry;
+use App\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Models\User;
@@ -50,7 +50,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics:true);
+$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics: true);
 
 if (empty($gameData)) {
     abort(404);

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Models\TriggerTicket;
 use App\Http\Controller;
 use App\Models\Achievement;
+use App\Models\TriggerTicket;
 use App\Support\Concerns\HandlesResources;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;

@@ -6,10 +6,10 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
-use App\Community\Models\Message;
-use App\Community\Models\MessageThread;
-use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
+use App\Models\Message;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

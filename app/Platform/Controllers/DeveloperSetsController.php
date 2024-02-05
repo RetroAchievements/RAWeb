@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketState;
-use App\Community\Models\Ticket;
 use App\Http\Controller;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Services\GameListService;
 use Illuminate\Contracts\View\View;

@@ -4,7 +4,7 @@
 
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\UserGameListType;
-use App\Community\Models\UserGameListEntry;
+use App\Models\UserGameListEntry;
 use App\Models\User;
 use App\Models\System;
 use Illuminate\Support\Facades\DB;

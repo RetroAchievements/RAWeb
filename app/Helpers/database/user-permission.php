@@ -3,8 +3,8 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Community\Models\AchievementSetClaim;
 use App\Enums\Permissions;
+use App\Models\AchievementSetClaim;
 
 function getUserPermissions(?string $user): int
 {

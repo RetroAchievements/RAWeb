@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Commands;
 
-use App\Community\Models\Message;
-use App\Community\Models\MessageThread;
-use App\Community\Models\MessageThreadParticipant;
+use App\Models\Message;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Listeners;
 
 use App\Community\Enums\UserActivityType;
-use App\Community\Models\UserActivity;
 use App\Models\User;
+use App\Models\UserActivity;
 use App\Platform\Events\AchievementSetBeaten;
 use App\Platform\Events\AchievementSetCompleted;
 use App\Platform\Events\LeaderboardEntryCreated;

@@ -26,14 +26,14 @@ $tools = $settings['tools'] ?? null;
         @endif
         <div class="dropdown-column">
             @can('develop')
-                @can('manage', App\Community\Models\Ticket::class)
+                @can('manage', App\Models\Ticket::class)
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
                     {{--<x-dropdown-item :link="route('triggers.ticket.index')">{{ __res('ticket') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('ticketmanager.php')">{{ __res('ticket') }}</x-dropdown-item>
                     <x-dropdown-item :link="url('ticketmanager.php?f=1')">Most Reported Games</x-dropdown-item>
                     <x-dropdown-item :link="url('achievementinspector.php')">Achievement Inspector</x-dropdown-item>
                 @endcan
-                @can('manage', App\Community\Models\AchievementSetClaim::class)
+                @can('manage', App\Models\AchievementSetClaim::class)
                     <x-dropdown-item :link="url('expiringclaims.php')">Expiring Claims</x-dropdown-item>
                 @endcan
                 @can('manage', App\Models\GameHash::class)
@@ -42,7 +42,7 @@ $tools = $settings['tools'] ?? null;
             @endif
             @if($user->Permissions >= Permissions::Developer)
                 <x-dropdown-header>{{ __('Community') }}</x-dropdown-header>
-                @can('manage', App\Community\Models\News::class)
+                @can('manage', App\Models\News::class)
                     {{--<x-dropdown-item :link="route('news.index')">{{ __res('news') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
                 @endcan

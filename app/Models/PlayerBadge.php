@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\AwardType;
-use App\Models\User;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\PlayerBadgeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

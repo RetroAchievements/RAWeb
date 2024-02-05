@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\News;
-use App\Community\Models\NewsComment;
 use App\Components\Grid;
+use App\Models\News;
+use App\Models\NewsComment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

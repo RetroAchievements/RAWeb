@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Community\Enums\ClaimStatus;
-use App\Community\Models\AchievementSetClaim;
+use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use Illuminate\Database\Seeder;
 

@@ -6,9 +6,9 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
-use App\Community\Models\ForumTopic;
-use App\Community\Models\ForumTopicComment;
 use App\Community\Requests\ForumTopicCommentRequest;
+use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 

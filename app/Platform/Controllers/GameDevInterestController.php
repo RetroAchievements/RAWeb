@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\UserGameListType;
-use App\Community\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Http\Controller;
+use App\Models\UserGameListEntry;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 

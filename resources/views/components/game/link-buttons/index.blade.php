@@ -11,7 +11,7 @@
 <?php
 
 use App\Community\Enums\TicketFilters;
-use App\Community\Models\ForumTopic;
+use App\Models\ForumTopic;
 use App\Platform\Enums\AchievementFlag;
 use App\Enums\Permissions;
 use Illuminate\Support\Facades\Auth;

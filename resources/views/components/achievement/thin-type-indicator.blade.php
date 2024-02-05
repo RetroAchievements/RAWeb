@@ -1,13 +1,15 @@
-@props([
-    'type' => null, // AchievementType
-])
-
 <?php
 
 use App\Platform\Enums\AchievementType;
 use App\Enums\UserPreference;
 use Illuminate\Support\Facades\Auth;
+?>
 
+@props([
+    'type' => null, // AchievementType
+])
+
+<?php
 $progressionType = AchievementType::Progression;
 $winConditionType = AchievementType::WinCondition;
 $missableType = AchievementType::Missable;

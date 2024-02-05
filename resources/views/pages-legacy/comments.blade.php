@@ -1,7 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Community\Models\Ticket;
+use App\Models\Ticket;
 use App\Enums\Permissions;
 use App\Models\User;
 use App\Models\Achievement;

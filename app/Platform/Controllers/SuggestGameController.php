@@ -6,7 +6,6 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\UserGameListType;
-use App\Community\Models\UserGameListEntry;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -15,6 +14,7 @@ use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\GameListService;
 use Illuminate\Contracts\View\View;

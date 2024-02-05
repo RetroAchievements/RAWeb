@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
-use App\Community\Models\AchievementSetClaim;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;

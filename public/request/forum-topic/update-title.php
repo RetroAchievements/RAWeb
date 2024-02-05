@@ -1,7 +1,7 @@
 <?php
 
-use App\Community\Models\ForumTopic;
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
