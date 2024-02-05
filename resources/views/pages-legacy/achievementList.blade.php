@@ -45,7 +45,7 @@ if ($consoleIDInput !== 0) {
     $requestedConsole = " " . $consoleList[$consoleIDInput];
 }
 ?>
-<x-app-layout pageTitle="Achievements {{ $requestedConsole }}">
+<x-app-layout pageTitle="Achievement List{{ $requestedConsole }}">
     <?php
     echo "<div class='navpath'>";
     if ($requestedConsole == "") {
