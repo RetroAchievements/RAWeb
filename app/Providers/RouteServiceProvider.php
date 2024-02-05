@@ -78,7 +78,6 @@ class RouteServiceProvider extends ServiceProvider
              */
             // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
             // Route::get('feed', [FeedController::class, 'index'])->name('feed.index');
-            // Route::get('rss', [RssController::class, 'index'])->name('rss.index');
             // Route::get('rss/{resource}', [RssController::class, 'show'])->name('rss.show');
             // Route::get('search', [SearchController::class, 'index'])->name('search');
 
