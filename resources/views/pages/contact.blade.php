@@ -1,3 +1,10 @@
+<?php
+
+use function Laravel\Folio\{name};
+
+name('contact');
+
+?>
 <x-app-layout :page-title="__('Contact Us')">
     <div class="lg:grid grid-cols-2 gap-5">
         <div>
