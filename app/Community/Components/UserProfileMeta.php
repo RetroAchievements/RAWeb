@@ -210,18 +210,23 @@ class UserProfileMeta extends Component
 
         $recentPointsEarned = $this->calculateRecentPointsEarned($user, $preferredMode);
 
-        // Retail games beaten
-        $retailGamesBeaten = (int) PlayerStat::where('user_id', $user->ID) // keep in mind, this is hardcore only.
+        // Total games beaten
+        $totalGamesBeaten = (int) PlayerStat::where('user_id', $user->ID)
+            ->where('system_id', null)
+            ->sum('value');
+        $retailGamesBeaten = (int) PlayerStat::where('user_id', $user->ID)
             ->where('system_id', null)
             ->whereIn('type', [
                 PlayerStatType::GamesBeatenHardcoreRetail,
                 PlayerStatType::GamesBeatenHardcoreUnlicensed,
             ])
             ->sum('value');
-        $retailGamesBeatenStat = [
-            'label' => 'Retail games beaten',
-            'value' => localized_number($retailGamesBeaten),
-            'isMuted' => !$retailGamesBeaten,
+        $totalGamesBeatenStat = [
+            'label' => 'Total games beaten',
+            'hrefLabel' => "(" . localized_number($retailGamesBeaten) . " retail)",
+            'value' => localized_number($totalGamesBeaten),
+            'isHrefLabelBeforeLabel' => false,
+            'isMuted' => !$totalGamesBeaten,
             'href' => $retailGamesBeaten ? route('ranking.beaten-games', ['filter[user]' => $user->username]) : null,
         ];
 
@@ -272,8 +277,8 @@ class UserProfileMeta extends Component
                 'averagePointsPerWeekStat',
                 'pointsLast30DaysStat',
                 'pointsLast7DaysStat',
-                'retailGamesBeatenStat',
                 'startedGamesBeatenPercentageStat',
+                'totalGamesBeatenStat',
             ),
             $this->buildHardcorePlayerStats($user, $userMassData, $hardcoreRankMeta),
             $this->buildSoftcorePlayerStats($user, $userMassData, $softcoreRankMeta),

@@ -51,7 +51,7 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
         <x-user.profile.arranged-stat-items
             :stats="[
                 $playerStats['hardcoreAchievementsUnlockedStat'],   $playerStats['retroRatioStat'],
-                $playerStats['retailGamesBeatenStat'],              $playerStats['startedGamesBeatenPercentageStat'],   
+                $playerStats['totalGamesBeatenStat'],               $playerStats['startedGamesBeatenPercentageStat'],   
             ]"
         />
     @elseif ($primaryMode === 'softcore')
@@ -78,7 +78,7 @@ $secondaryMode = $softcorePoints > $hardcorePoints ? 'hardcore' : 'softcore';
         @if ($hasMixedProgress)
             <x-user.profile.arranged-stat-items
                 :stats="[
-                    $playerStats['pointsLast7DaysStat'],        $playerStats['retailGamesBeatenStat'],
+                    $playerStats['pointsLast7DaysStat'],        $playerStats['totalGamesBeatenStat'],
                     $playerStats['pointsLast30DaysStat'],       $playerStats['averageCompletionStat'],
                     $playerStats['averagePointsPerWeekStat'],
                 ]"
