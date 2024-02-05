@@ -137,7 +137,7 @@ if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
 } else {
     $gameAchievements = new ArrayObject();
 }
-//dd($gameAchievements);
+// dd($gameAchievements);
 
 if ($gameSetClaims) {
     $gameClaims =
