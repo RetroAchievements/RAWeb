@@ -33,8 +33,8 @@ if (Game::where('ID', $gameID)->exists()) {
             'Title' => $gd->Title,
             'GameTitle' => $gd->Title,
             'ConsoleID' => $gd->ConsoleID,
-            'ConsoleName' => $gameSystem,
-            'Console' => $gameSystem,
+            'ConsoleName' => (string) $gameSystem,
+            'Console' => (string) $gameSystem,
             'ForumTopicID' => $gd->ForumTopicID,
             'Flags' => 0, // Always '0'
             'GameIcon' => $gd->ImageIcon,
