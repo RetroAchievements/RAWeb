@@ -115,7 +115,7 @@ if (Game::where('ID', $gameID)->exists()) {
 }
 
 if (!Game::find($gameID)->achievements->isEmpty()) {
-    $gameAchievements = Game::find($gameID)->achievements->where('Flags', $flag)->map(function ($am) use ($gameID) {
+    $gameAchievements = Game::find($gameID)->achievements->where('Flags', $flag)->map(function ($am) {
         return [
             'ID' => $am->ID,
             'NumAwarded' => Achievement::find($am->ID)->unlocks_total,
@@ -129,7 +129,7 @@ if (!Game::find($gameID)->achievements->isEmpty()) {
             'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
             'BadgeName' => $am->BadgeName,
             'DisplayOrder' => $am->DisplayOrder,
-            'MemAddr' => md5(Achievement::find($gameID)->MemAddr),
+            'MemAddr' => md5(Achievement::find($am->ID)->MemAddr),
             'type' => $am->type,
         ];
     })->keyBy('ID');
@@ -138,7 +138,7 @@ if (!Game::find($gameID)->achievements->isEmpty()) {
     $gameAchievements = new ArrayObject();
 }
 
-if (!AchievementSetClaim::where('GameID', $gameID)->get()->isEmpty()) {
+if (AchievementSetClaim::where('GameID', $gameID)->get()) {
     $gameClaims = AchievementSetClaim::where('GameID', $gameID)->get()->map(function ($gc) {
         return [
             'User' => $gc->User,
