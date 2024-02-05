@@ -1,3 +1,12 @@
+<?php
+
+use function Laravel\Folio\{middleware, name};
+
+middleware(['auth']);
+name('games.suggest');
+
+?>
+
 @props([
     'user' => null,
     'consoles' => [],

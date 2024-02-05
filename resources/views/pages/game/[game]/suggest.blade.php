@@ -1,3 +1,12 @@
+<?php
+
+use function Laravel\Folio\{middleware, name};
+
+middleware(['auth', 'can:view,game']);
+name('game.suggest');
+
+?>
+
 @props([
     'game' => null,
     'user' => null,
