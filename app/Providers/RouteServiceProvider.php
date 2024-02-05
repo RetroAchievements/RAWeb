@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Concerns\HandlesPublicFileRequests;
-use App\Http\Controllers\ContentController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -80,12 +79,6 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('feed', [FeedController::class, 'index'])->name('feed.index');
             // Route::get('rss/{resource}', [RssController::class, 'show'])->name('rss.show');
             // Route::get('search', [SearchController::class, 'index'])->name('search');
-
-            /*
-             * docs
-             */
-            // Route::get('docs', [ContentController::class, 'docs'])->name('docs.index');
-            // Route::get('docs/api/download', [ApiController::class, 'download'])->name('api.download');
 
             /*
              * Octane test route
