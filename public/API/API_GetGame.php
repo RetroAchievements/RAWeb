@@ -29,7 +29,6 @@ $gameID = (int) request()->query('i');
 $game = Game::with('system')->find($gameID);
 
 if (!$game) {
-
     return response()->json();
 } else {
     return response()->json([
