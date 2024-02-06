@@ -64,27 +64,26 @@ if ($game = Game::with('system')->find($gameID)) {
 }
 
 if ($game) {
-    $gameData =
-        [
-            'ID' => $game->ID,
-            'Title' => $game->Title,
-            'ConsoleID' => $game->ConsoleID,
-            'ForumTopicID' => $game->ForumTopicID,
-            'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
-            'ImageIcon' => $game->ImageIcon,
-            'ImageTitle' => $game->ImageTitle,
-            'ImageIngame' => $game->ImageIngame,
-            'ImageBoxArt' => $game->ImageBoxArt,
-            'Publisher' => $game->Publisher,
-            'Developer' => $game->Developer,
-            'Genre' => $game->Genre,
-            'Released' => $game->Released,
-            'IsFinal' => $game->IsFinal,
-            'RichPresencePatch' => md5($game->RichPresencePatch),
-            'GuideURL' => $game->GuideURL,
-            'Updated' => $game->Updated,
-        ];
-    } else {
+    $gameData = [
+        'ID' => $game->ID,
+        'Title' => $game->Title,
+        'ConsoleID' => $game->ConsoleID,
+        'ForumTopicID' => $game->ForumTopicID,
+        'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
+        'ImageIcon' => $game->ImageIcon,
+        'ImageTitle' => $game->ImageTitle,
+        'ImageIngame' => $game->ImageIngame,
+        'ImageBoxArt' => $game->ImageBoxArt,
+        'Publisher' => $game->Publisher,
+        'Developer' => $game->Developer,
+        'Genre' => $game->Genre,
+        'Released' => $game->Released,
+        'IsFinal' => $game->IsFinal,
+        'RichPresencePatch' => md5($game->RichPresencePatch),
+        'GuideURL' => $game->GuideURL,
+        'Updated' => $game->Updated,
+    ];
+} else {
     return response()->json();
 }
 
@@ -120,20 +119,21 @@ if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
 }
 
 if ($gameSetClaims) {
-    $gameClaims =
-        [[
+    $gameClaims =[
+        [
             'User' => $gameSetClaims->User,
             'SetType' => $gameSetClaims->SetType,
             'GameID' => $gameSetClaims->GameID,
             'ClaimType' => $gameSetClaims->ClaimType,
             'Created' => Carbon::parse($gameSetClaims->Created)->format('Y-m-d H:i:s'),
             'Expiration' => Carbon::parse($gameSetClaims->Finished)->format('Y-m-d H:i:s'),
-        ]];
+        ]
+    ];
 } else {
     $gameClaims = [];
 }
 
-$getGameExtended = array_merge(
+return response()->json(array_merge(
     $gameData,
     ['ConsoleName' => $game->system->Name],
     ['ParentGameID' => $game->getParentGameId($game->Title, $game->ConsoleID, $gameID)],
@@ -143,6 +143,4 @@ $getGameExtended = array_merge(
     ['Claims' => $gameClaims],
     ['NumDistinctPlayersCasual' => count($game->players)], // Deprecated - Only here to maintain API V1 compat
     ['NumDistinctPlayersHardcore' => count($game->players)], // Deprecated - Only here to maintain API V1 compat
-);
-
-return response()->json($getGameExtended);
+));
