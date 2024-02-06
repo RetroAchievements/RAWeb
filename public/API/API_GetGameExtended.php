@@ -119,7 +119,7 @@ if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
 }
 
 if ($gameSetClaims) {
-    $gameClaims =[
+    $gameClaims = [
         [
             'User' => $gameSetClaims->User,
             'SetType' => $gameSetClaims->SetType,
@@ -127,7 +127,7 @@ if ($gameSetClaims) {
             'ClaimType' => $gameSetClaims->ClaimType,
             'Created' => Carbon::parse($gameSetClaims->Created)->format('Y-m-d H:i:s'),
             'Expiration' => Carbon::parse($gameSetClaims->Finished)->format('Y-m-d H:i:s'),
-        ]
+        ],
     ];
 } else {
     $gameClaims = [];
