@@ -104,7 +104,7 @@ $shouldMoveRoleToNextLine =
 
     @if ($amIModerator)
         <button class="absolute bottom-0 right-0 btn" onclick="toggleModeratorTools()">
-            Moderator ▼
+            Moderate ▼
         </button>
     @endif
 </div>
