@@ -132,7 +132,7 @@ class SuggestGameController extends Controller
         $this->gameListService->mergeWantToPlay($user);
         $this->gameListService->sortGameList('title');
 
-        return view('games.suggest', [
+        return view('pages.games.suggest', [
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,
