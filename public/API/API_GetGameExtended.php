@@ -56,14 +56,16 @@ use App\Platform\Models\Achievement;
 use App\Platform\Models\Game;
 use Carbon\Carbon;
 
-$gameID = (int) request()->query('i');
+$gameId = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
-if ($game = Game::with('system')->find($gameID)) {
-    $gameSetClaims = AchievementSetClaim::find($gameID);
+if ($game = Game::with('system')->find($gameId)) {
+    $gameSetClaims = AchievementSetClaim::where('GameID', $gameId)->get();
 }
 
-if ($game) {
+if (!$game) {
+    return response()->json();
+} else {
     $gameData = [
         'ID' => $game->ID,
         'Title' => $game->Title,
@@ -83,12 +85,10 @@ if ($game) {
         'GuideURL' => $game->GuideURL,
         'Updated' => $game->Updated,
     ];
-} else {
-    return response()->json();
 }
 
 /* Achievements Map
-    The map here is return the data in the order that the v1 api expects, originally
+    The maps here are return the data in the order that the v1 api expects, originally
     the endpoint used function calls that made queries with the data in the
     order that the endpoint returns but the Eloquent collections order the
     data by how the columns are laid out in the database. This adds a few ms to the
@@ -118,25 +118,25 @@ if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
     $gameAchievements = new ArrayObject();
 }
 
-if ($gameSetClaims) {
-    $gameClaims = [
-        [
-            'User' => $gameSetClaims->User,
-            'SetType' => $gameSetClaims->SetType,
-            'GameID' => $gameSetClaims->GameID,
-            'ClaimType' => $gameSetClaims->ClaimType,
-            'Created' => Carbon::parse($gameSetClaims->Created)->format('Y-m-d H:i:s'),
-            'Expiration' => Carbon::parse($gameSetClaims->Finished)->format('Y-m-d H:i:s'),
-        ],
-    ];
-} else {
+if (!$gameSetClaims) {
     $gameClaims = [];
+} else {
+    $gameClaims = $gameSetClaims->map(function ($gc) {
+        return [
+            'User' => $gc->User,
+            'SetType' => $gc->SetType,
+            'GameID' => $gc->GameID,
+            'ClaimType' => $gc->ClaimType,
+            'Created' => $gc->Created,
+            'Expired' => $gc->Finished,
+        ];
+    });
 }
 
 return response()->json(array_merge(
     $gameData,
     ['ConsoleName' => $game->system->Name],
-    ['ParentGameID' => $game->getParentGameId($game->Title, $game->ConsoleID, $gameID)],
+    ['ParentGameID' => $game->getParentGameId($game->Title, $game->ConsoleID, $gameId)],
     ['NumDistinctPlayers' => count($game->players)],
     ['NumAchievements' => count($gameAchievements)],
     ['Achievements' => $gameAchievements],
