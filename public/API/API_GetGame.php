@@ -28,29 +28,26 @@ $gameID = (int) request()->query('i');
 
 $game = Game::with('system')->find($gameID);
 
-if ($game) {
+if (!$game) {
 
-    $gameData =
-         [
-            'Title' => $game->Title,
-            'GameTitle' => $game->Title,
-            'ConsoleID' => $game->ConsoleID,
-            'ConsoleName' => (string) $game->system->Name,
-            'Console' => (string) $game->system->Name,
-            'ForumTopicID' => $game->ForumTopicID,
-            'Flags' => 0, // Always '0'
-            'GameIcon' => $game->ImageIcon,
-            'ImageIcon' => $game->ImageIcon,
-            'ImageTitle' => $game->ImageTitle,
-            'ImageIngame' => $game->ImageIngame,
-            'ImageBoxArt' => $game->ImageBoxArt,
-            'Publisher' => $game->Publisher,
-            'Developer' => $game->Developer,
-            'Genre' => $game->Genre,
-            'Released' => $game->Released,
-        ];
-
-    return response()->json($gameData);
-} else {
     return response()->json();
+} else {
+    return response()->json([
+        'Title' => $game->Title,
+        'GameTitle' => $game->Title,
+        'ConsoleID' => $game->ConsoleID,
+        'ConsoleName' => $game->system->Name,
+        'Console' => $game->system->Name,
+        'ForumTopicID' => $game->ForumTopicID,
+        'Flags' => 0, // Always '0'
+        'GameIcon' => $game->ImageIcon,
+        'ImageIcon' => $game->ImageIcon,
+        'ImageTitle' => $game->ImageTitle,
+        'ImageIngame' => $game->ImageIngame,
+        'ImageBoxArt' => $game->ImageBoxArt,
+        'Publisher' => $game->Publisher,
+        'Developer' => $game->Developer,
+        'Genre' => $game->Genre,
+        'Released' => $game->Released,
+    ]);
 }
