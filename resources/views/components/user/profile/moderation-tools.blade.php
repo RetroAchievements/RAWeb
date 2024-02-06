@@ -1,12 +1,14 @@
+<?php
+use App\Community\Enums\ArticleType;
+use App\Community\Enums\UserAction;
+use App\Enums\Permissions;
+?>
+
 @props([
     'targetUser' => null, // User
 ])
 
 <?php
-use App\Community\Enums\ArticleType;
-use App\Community\Enums\UserAction;
-use App\Enums\Permissions;
-
 $isTargetUserUntracked = $targetUser->Untracked;
 $targetUsername = $targetUser->User;
 $targetUserPermissions = $targetUser->getAttribute('Permissions');
