@@ -127,8 +127,8 @@ if (!$gameSetClaims) {
             'SetType' => $gc->SetType,
             'GameID' => $gc->GameID,
             'ClaimType' => $gc->ClaimType,
-            'Created' => $gc->Created,
-            'Expired' => $gc->Finished,
+            'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
+            'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
         ];
     });
 }
