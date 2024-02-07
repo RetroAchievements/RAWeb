@@ -206,7 +206,7 @@ function getArticleComments(
     $numArticleComments = 0;
     $order = $recent ? ' DESC' : '';
 
-    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, c.ID, c.UserID,
+    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, ua.banned_at, c.ID, c.UserID,
                      c.Payload AS CommentPayload,
                      UNIX_TIMESTAMP(c.Submitted) AS Submitted, c.Edited
               FROM Comment AS c
