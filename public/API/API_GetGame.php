@@ -24,9 +24,9 @@
 
 use App\Platform\Models\Game;
 
-$gameID = (int) request()->query('i');
+$gameId = (int) request()->query('i');
 
-$game = Game::with('system')->find($gameID);
+$game = Game::with('system')->find($gameId);
 
 if (!$game) {
     return response()->json();
