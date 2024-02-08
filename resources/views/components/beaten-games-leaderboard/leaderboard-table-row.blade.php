@@ -5,6 +5,7 @@ use Illuminate\Support\Carbon;
 
 @props([
     'isHighlighted' => null,
+    'myUsername' => '',
     'paginatedRow' => null,
 ])
 
