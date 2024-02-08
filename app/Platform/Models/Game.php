@@ -169,16 +169,16 @@ class Game extends BaseModel implements HasComments, HasMedia
         if (preg_match('/(.+)\[Subset - .+\]/', $this->Title, $matches)) {
             // Trim to ensure no leading/trailing spaces.
             $baseSetTitle = trim($matches[1]);
-            
+
             // Attempt to find a game with the base title and the same console ID.
             $game = Game::where('Title', $baseSetTitle)
                  ->where('ConsoleID', $this->ConsoleID)
                  ->first();
-    
+
             // If a matching game is found, return its ID.
             return $game?->id ?? null;
         }
-    
+
         // Return null if the title does not match the subset pattern or no game is found.
         return null;
     }
