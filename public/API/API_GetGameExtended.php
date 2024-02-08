@@ -59,13 +59,14 @@ use Carbon\Carbon;
 $gameId = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
-if ($game = Game::with('system')->find($gameId)) {
-    $gameSetClaims = AchievementSetClaim::where('GameID', $gameId)->get();
-}
+$game = Game::with('system')->find($gameId);
 
 if (!$game) {
     return response()->json();
 } else {
+    $gameSetClaims = AchievementSetClaim::where('GameID', $gameId)->get();
+    $gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag)->findMany($game->achievements);
+
     $gameData = [
         'ID' => $game->ID,
         'Title' => $game->Title,
@@ -85,62 +86,64 @@ if (!$game) {
         'GuideURL' => $game->GuideURL,
         'Updated' => $game->Updated,
     ];
+
+    /* Maps
+        The maps here are return the data in the order that the v1 api expects, originally
+        the endpoint used function calls that made queries with the data in the
+        order that the endpoint returns but the Eloquent collections order the
+        data by how the columns are laid out in the database. This adds a few ms to the
+        response time, though not enough that it has any real impact.
+    */
+
+    if (!$gameAchievements->isEmpty()) {
+        $gameListAchievements = $gameAchievements->keyBy('ID')->map(function ($am) {
+            return [
+                'ID' => $am->ID,
+                'NumAwarded' => $am->unlocks_total,
+                'NumAwardedHardcore' => $am->unlocks_hardcore_total,
+                'Title' => $am->Title,
+                'Description' => $am->Description,
+                'Points' => $am->Points,
+                'TrueRatio' => $am->TrueRatio,
+                'Author' => $am->Author,
+                'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
+                'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
+                'BadgeName' => $am->BadgeName,
+                'DisplayOrder' => $am->DisplayOrder,
+                'MemAddr' => md5($am->MemAddr),
+                'type' => $am->type,
+            ];
+        });
+    } else {
+        $gameListAchievements = new ArrayObject();
+    }
+
+    if (!$gameSetClaims) {
+        $gameClaims = [];
+    } else {
+        $gameClaims = $gameSetClaims->map(function ($gc) {
+            return [
+                'User' => $gc->User,
+                'SetType' => $gc->SetType,
+                'GameID' => $gc->GameID,
+                'ClaimType' => $gc->ClaimType,
+                'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
+                'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
+            ];
+        });
+    }
+
+    return response()->json(array_merge(
+        $gameData,
+        [
+            'ConsoleName' => $game->system->Name,
+            'ParentGameID' => $game->getParentGameId(),
+            'NumDistinctPlayers' => count($game->players),
+            'NumAchievements' => count($gameAchievements),
+            'Achievements' => $gameListAchievements,
+            'Claims' => $gameClaims,
+            'NumDistinctPlayersCasual' => count($game->players), // Deprecated - Only here to maintain API V1 compat
+            'NumDistinctPlayersHardcore' => count($game->players), // Deprecated - Only here to maintain API V1 compat
+        ]
+    ));
 }
-
-/* Achievements Map
-    The maps here are return the data in the order that the v1 api expects, originally
-    the endpoint used function calls that made queries with the data in the
-    order that the endpoint returns but the Eloquent collections order the
-    data by how the columns are laid out in the database. This adds a few ms to the
-    response time, though not enough that it has any real impact.
-*/
-
-if (!$game->achievements->where('Flags', $flag)->isEmpty()) {
-    $gameAchievements = $game->achievements->where('Flags', $flag)->keyBy('ID')->map(function ($am) {
-        return [
-            'ID' => $am->ID,
-            'NumAwarded' => (int) Achievement::find($am->ID)->unlocks_total,
-            'NumAwardedHardcore' => (int) Achievement::find($am->ID)->unlocks_hardcore_total,
-            'Title' => $am->Title,
-            'Description' => $am->Description,
-            'Points' => $am->Points,
-            'TrueRatio' => $am->TrueRatio,
-            'Author' => $am->Author,
-            'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
-            'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
-            'BadgeName' => $am->BadgeName,
-            'DisplayOrder' => $am->DisplayOrder,
-            'MemAddr' => md5(Achievement::find($am->ID)->MemAddr),
-            'type' => $am->type,
-        ];
-    });
-} else {
-    $gameAchievements = new ArrayObject();
-}
-
-if (!$gameSetClaims) {
-    $gameClaims = [];
-} else {
-    $gameClaims = $gameSetClaims->map(function ($gc) {
-        return [
-            'User' => $gc->User,
-            'SetType' => $gc->SetType,
-            'GameID' => $gc->GameID,
-            'ClaimType' => $gc->ClaimType,
-            'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
-            'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
-        ];
-    });
-}
-
-return response()->json(array_merge(
-    $gameData,
-    ['ConsoleName' => $game->system->Name],
-    ['ParentGameID' => $game->getParentGameId($game->Title, $game->ConsoleID, $gameId)],
-    ['NumDistinctPlayers' => count($game->players)],
-    ['NumAchievements' => count($gameAchievements)],
-    ['Achievements' => $gameAchievements],
-    ['Claims' => $gameClaims],
-    ['NumDistinctPlayersCasual' => count($game->players)], // Deprecated - Only here to maintain API V1 compat
-    ['NumDistinctPlayersHardcore' => count($game->players)], // Deprecated - Only here to maintain API V1 compat
-));
