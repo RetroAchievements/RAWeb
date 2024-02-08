@@ -24,17 +24,11 @@ function getGameData(int $gameID): ?array
 }
 
 // If the game is a subset, identify its parent game ID.
-function getParentGameIdFromGameTitle(string $title, int $consoleID): ?int
+function getParentGameIdFromGameTitle(string $title, int $consoleId): ?int
 {
-    if (preg_match('/(.+)(\[Subset - .+\])/', $title, $matches)) {
-        $baseSetTitle = trim($matches[1]);
-        $query = "SELECT ID FROM GameData WHERE Title = :title AND ConsoleID = :consoleId";
-        $result = legacyDbFetch($query, ['title' => $baseSetTitle, 'consoleId' => $consoleID]);
+    $foundGame = Game::where('Title', $title)->where('ConsoleID', $consoleId)->first();
 
-        return $result ? $result['ID'] : null;
-    }
-
-    return null;
+    return $foundGame->getParentGameId() ?? null;
 }
 
 function getGameMetadata(
