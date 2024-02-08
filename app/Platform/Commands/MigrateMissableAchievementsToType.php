@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\Achievement;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\Achievement;
 use Illuminate\Console\Command;
 
 class MigrateMissableAchievementsToType extends Command

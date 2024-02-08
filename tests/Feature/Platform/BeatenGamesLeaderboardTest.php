@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform;
 
+use App\Models\Game;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerStats;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;

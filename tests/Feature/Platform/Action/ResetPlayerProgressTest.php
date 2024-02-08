@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Action;
 
+use App\Models\Achievement;
+use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Platform\Actions\ResetPlayerProgress;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerBadge;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;

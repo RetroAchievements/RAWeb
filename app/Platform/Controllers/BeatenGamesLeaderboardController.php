@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
+use App\Models\Game;
+use App\Models\PlayerStat;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerStat;
-use App\Platform\Models\System;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -70,7 +70,7 @@ class BeatenGamesLeaderboardController extends Controller
         // Grab all the systems so we can build the system filter options.
         $allSystems = System::orderBy('Name')->get(['ID', 'Name']);
 
-        return view('platform.beaten-games-leaderboard-page', [
+        return view('pages.ranking.beaten-games', [
             'allSystems' => $allSystems,
             'gameKindFilterOptions' => $gameKindFilterOptions,
             'isUserOnCurrentPage' => $isUserOnCurrentPage,

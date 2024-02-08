@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Controllers;
 
 use App\Community\Actions\GetUrlToCommentDestinationAction;
-use App\Community\Models\Comment;
 use App\Http\Controller;
+use App\Models\Comment;
 use Illuminate\Http\RedirectResponse;
 
 class CommentController extends Controller

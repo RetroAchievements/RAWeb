@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\Forum;
-use App\Community\Models\ForumTopic;
 use App\Components\Grid;
+use App\Models\Forum;
+use App\Models\ForumTopic;
 use Illuminate\Database\Eloquent\Builder;
 
 class ForumTopics extends Grid

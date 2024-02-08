@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Commands;
 
-use App\Community\Models\News;
+use App\Models\News;
 use App\Support\MediaLibrary\Actions\AddMediaAction;
 use App\Support\MediaLibrary\Actions\DeleteLatestMediaAction;
 use App\Support\Sync\SyncTrait;

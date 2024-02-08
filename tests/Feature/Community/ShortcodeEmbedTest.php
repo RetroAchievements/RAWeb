@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Community;
 
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\System;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

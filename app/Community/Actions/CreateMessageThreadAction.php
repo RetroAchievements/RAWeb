@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Models\MessageThread;
-use App\Community\Models\MessageThreadParticipant;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 

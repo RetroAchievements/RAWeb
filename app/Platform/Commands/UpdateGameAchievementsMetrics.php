@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\Game;
 use App\Platform\Actions\UpdateGameAchievementsMetrics as UpdateGameAchievementsMetricsAction;
-use App\Platform\Models\Game;
 use Illuminate\Console\Command;
 
 class UpdateGameAchievementsMetrics extends Command

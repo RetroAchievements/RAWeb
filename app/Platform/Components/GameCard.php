@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Components;
 
 use App\Community\Enums\ClaimStatus;
-use App\Community\Models\AchievementSetClaim;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameAlternative;
+use App\Models\AchievementSetClaim;
+use App\Models\Game;
+use App\Models\GameAlternative;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
@@ -55,7 +55,7 @@ class GameCard extends Component
             $this->userGameProgressionAwards
         );
 
-        return view('platform.components.cards.game', $cardViewValues);
+        return view('components.cards.game', $cardViewValues);
     }
 
     /**

@@ -22,7 +22,7 @@ class GameTitle extends Component
     {
         $strippedTitleAndTags = $this->stripTagsFromTitle($this->rawTitle);
 
-        return view('platform.components.game.title', [
+        return view('components.game.title', [
             'showTags' => $this->showTags,
             'nonSubsetTags' => $strippedTitleAndTags['nonSubsetTags'],
             'strippedTitle' => $strippedTitleAndTags['strippedTitle'],

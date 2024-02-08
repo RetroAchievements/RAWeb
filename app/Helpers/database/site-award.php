@@ -1,9 +1,9 @@
 <?php
 
 use App\Community\Enums\AwardType;
+use App\Models\PlayerBadge;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
-use App\Platform\Models\PlayerBadge;
 use Carbon\Carbon;
 
 /**

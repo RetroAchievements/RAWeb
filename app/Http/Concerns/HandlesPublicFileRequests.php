@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Concerns;
 
-use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,40 +22,13 @@ trait HandlesPublicFileRequests
             $_GET['ID'] = $resourceId;
         }
 
-        $scriptPath = public_path("$file.php");
-        if (!file_exists($scriptPath) || $file === 'index') {
+        $viewPath = 'pages-legacy.' . str_replace('/', '.', $file);
+
+        if (!\Illuminate\Support\Facades\View::exists($viewPath) || $file === 'index') {
             throw new NotFoundHttpException();
         }
 
-        ob_start();
-        try {
-            $response = require $scriptPath;
-
-            if ($response instanceof Response) {
-                ob_end_clean();
-
-                return $response;
-            }
-
-            if ($response instanceof RedirectResponse) {
-                ob_end_clean();
-
-                return $response;
-            }
-
-            if ($response instanceof View) {
-                ob_end_clean();
-
-                return $response;
-            }
-        } catch (Exception $e) {
-            ob_end_clean();
-            throw $e;
-        }
-        $bufferedOutput = ob_get_clean();
-
-        return view('layouts.app')
-            ->with('bufferedOutput', $bufferedOutput);
+        return view($viewPath);
     }
 
     /**

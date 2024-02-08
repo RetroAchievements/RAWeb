@@ -21,7 +21,9 @@ class RedirectController extends Controller
         $url = $request->get('url');
 
         if (!$url) {
-            return back();
+            return back()->getRequest()->getPathInfo() === '/redirect'
+                ? redirect('/')
+                : back();
         }
 
         /**
@@ -35,26 +37,7 @@ class RedirectController extends Controller
             }
         }
 
-        return view('redirect')
+        return view('pages.redirect')
             ->with('url', $url);
     }
-
-    // TODO move wiki-edit-redirect.php over here
-    // public function wiki(): void
-    // {
-    //     if (empty($_GET['page'])) {
-    //         return;
-    //     }
-    //     $page = pathinfo($_GET['page'])['filename'];
-    //     if (empty($page)) {
-    //         return;
-    //     }
-    //     // path rewrites
-    //     switch ($page) {
-    //         case 'index':
-    //             $page = 'Home';
-    //             break;
-    //     }
-    //     header("location: https://github.com/retroachievements/docs/wiki/$page/_edit");
-    // }
 }

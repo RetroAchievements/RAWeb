@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\Game;
+use App\Models\PlayerGame;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\BatchRepository;
 use Illuminate\Support\Collection;

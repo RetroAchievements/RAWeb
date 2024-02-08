@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform;
 
 use App\Community\Enums\AwardType;
+use App\Models\Achievement;
+use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetrics;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\PlayerBadge;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;

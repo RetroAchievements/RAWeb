@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\Game;
 use App\Platform\Actions\LinkHashToGame;
-use App\Platform\Models\Game;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;

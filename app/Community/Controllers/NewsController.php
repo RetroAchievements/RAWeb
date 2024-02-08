@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Models\News;
 use App\Community\Requests\NewsRequest;
 use App\Http\Controller;
+use App\Models\News;
 use App\Support\MediaLibrary\Actions\AddMediaAction;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

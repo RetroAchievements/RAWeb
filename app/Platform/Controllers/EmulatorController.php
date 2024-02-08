@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
-use App\Platform\Models\Emulator;
+use App\Models\Emulator;
 use App\Platform\Requests\EmulatorRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

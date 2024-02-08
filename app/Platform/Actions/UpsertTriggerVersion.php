@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\Trigger;
 use App\Platform\Contracts\HasVersionedTrigger;
-use App\Platform\Models\Trigger;
 use Illuminate\Database\Eloquent\Model;
 
 class UpsertTriggerVersion

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Community\Models\Forum;
-use App\Community\Models\ForumCategory;
+use App\Models\Forum;
+use App\Models\ForumCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;

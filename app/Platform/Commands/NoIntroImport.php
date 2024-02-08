@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Models\GameHash;
-use App\Platform\Models\System;
+use App\Models\GameHash;
+use App\Models\System;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;

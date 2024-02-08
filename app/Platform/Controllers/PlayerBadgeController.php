@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
+use App\Models\PlayerBadge;
 use App\Models\User;
-use App\Platform\Models\PlayerBadge;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 

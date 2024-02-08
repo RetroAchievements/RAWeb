@@ -6,11 +6,10 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
-use App\Community\Models\MessageThread;
-use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\User;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -18,19 +17,6 @@ use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
 {
-    public function create(Request $request): View
-    {
-        $toUser = $request->input('to') ?? '';
-        $subject = $request->input('subject') ?? '';
-        $message = $request->input('message') ?? '';
-
-        return view('community.message.create', [
-            'toUser' => $toUser,
-            'subject' => $subject,
-            'message' => $message,
-        ]);
-    }
-
     public function store(Request $request): RedirectResponse
     {
         /** @var User $user */

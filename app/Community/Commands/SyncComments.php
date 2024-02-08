@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Community\Commands;
 
-use App\Community\Models\News;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Leaderboard;
+use App\Models\News;
 use App\Models\User;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\Leaderboard;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;

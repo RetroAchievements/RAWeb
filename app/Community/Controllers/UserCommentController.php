@@ -6,10 +6,10 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddCommentAction;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
-use App\Community\Models\Comment;
-use App\Community\Models\UserComment;
 use App\Community\Requests\CommentRequest;
+use App\Models\Comment;
 use App\Models\User;
+use App\Models\UserComment;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 

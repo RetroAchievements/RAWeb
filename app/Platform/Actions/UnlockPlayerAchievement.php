@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Events\PlayerAchievementUnlocked;
-use App\Platform\Models\Achievement;
 use Carbon\Carbon;
 use Exception;
 

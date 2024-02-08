@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Community\Models\News;
+use App\Models\News;
 use Illuminate\Database\Seeder;
 
 class NewsTableSeeder extends Seeder

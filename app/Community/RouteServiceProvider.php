@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Community;
 
-use App\Community\Controllers\ContactController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -35,8 +34,6 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'csp'])
             ->group(function () {
-                Route::get('contact', ContactController::class)->name('contact');
-
                 /*
                  * shallow comment routes - keep comments at the root level, not nested (topic.comment, user.comment, achievement.comment)
                  * -> deeplinks & legacy links
@@ -236,10 +233,10 @@ class RouteServiceProvider extends ServiceProvider
                 Route::group([
                     'middleware' => ['auth'], // TODO add 'verified' middleware
                 ], function () {
-                    Route::resource('message', MessageController::class)->only(['create', 'store']);
+                    Route::resource('message', MessageController::class)->only(['store']);
 
                     Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
-                    Route::resource('message-thread', MessageThreadController::class)->only(['show', 'destroy']);
+                    Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['show', 'destroy']);
                 });
 
                 //     /*

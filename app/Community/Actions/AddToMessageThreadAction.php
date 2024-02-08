@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Community\Actions;
 
 use App\Community\Events\MessageCreated;
-use App\Community\Models\Message;
-use App\Community\Models\MessageThread;
+use App\Models\Message;
+use App\Models\MessageThread;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 

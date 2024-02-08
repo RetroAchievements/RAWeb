@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
-use App\Community\Models\Forum;
-use App\Community\Models\ForumCategory;
 use App\Community\Requests\ForumRequest;
+use App\Models\Forum;
+use App\Models\ForumCategory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

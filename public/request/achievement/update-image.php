@@ -2,7 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
