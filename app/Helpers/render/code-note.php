@@ -32,7 +32,7 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
             || ($editingPermissions === Permissions::JuniorDeveloper && $nextCodeNote['User'] === $editingUser)
         );
 
-        echo "<tr id='row-$rowIndex'>";
+        echo "<tr id='row-$rowIndex' class='note-row'>";
 
         $addr = $nextCodeNote['Address'];
         $addrInt = hexdec($addr);
