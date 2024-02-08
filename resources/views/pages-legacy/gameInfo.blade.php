@@ -925,7 +925,6 @@ sanitize_outputs(
                 :gameForumTopicId="$forumTopicID"
                 :gameId="$gameID"
             />
-        ]);
         <?php
         echo "</div>";
 
