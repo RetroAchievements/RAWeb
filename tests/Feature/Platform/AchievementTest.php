@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform;
 
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
@@ -13,8 +15,6 @@ use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;

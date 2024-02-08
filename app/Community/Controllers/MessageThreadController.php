@@ -6,10 +6,10 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\DeleteMessageThreadAction;
 use App\Community\Actions\ReadMessageThreadAction;
-use App\Community\Models\Message;
-use App\Community\Models\MessageThread;
-use App\Community\Models\MessageThreadParticipant;
 use App\Http\Controller;
+use App\Models\Message;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -57,7 +57,7 @@ class MessageThreadController extends Controller
                 ->value('num_unread');
         }
 
-        return view('community.message-thread.index', [
+        return view('pages.messages', [
             'messages' => $messageThreads,
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
@@ -109,8 +109,8 @@ class MessageThreadController extends Controller
             })
             ->toArray();
 
-        return view('community.message-thread.show', [
-            'thread' => $messageThread,
+        return view('pages.message-thread.[messageThread]', [
+            'messageThread' => $messageThread,
             'messages' => $messages,
             'participants' => $participants,
             'totalPages' => $totalPages,

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Community\Models\ForumTopic;
+use App\Models\Achievement;
+use App\Models\ForumTopic;
+use App\Models\Game;
+use App\Models\PlayerAchievement;
 use App\Models\StaticData;
 use App\Models\User;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievement;
 use Illuminate\Database\Seeder;
 
 class StaticTableSeeder extends Seeder

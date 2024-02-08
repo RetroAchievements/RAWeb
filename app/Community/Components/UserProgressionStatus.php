@@ -54,7 +54,7 @@ class UserProgressionStatus extends Component
         $totalCompletedCount = $totalCountsMetrics['numCompleted'];
         $totalMasteredCount = $totalCountsMetrics['numMastered'];
 
-        return view('community.components.user.progression-status.root', [
+        return view('components.user.progression-status.root', [
             'userCompletionProgress' => $this->userCompletionProgress,
             'userSiteAwards' => $this->userSiteAwards,
             'userRecentlyPlayed' => $this->userRecentlyPlayed,

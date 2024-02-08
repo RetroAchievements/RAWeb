@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controller;
+use App\Models\PlayerGame;
 use App\Models\User;
-use App\Platform\Models\PlayerGame;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

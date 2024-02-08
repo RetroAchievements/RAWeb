@@ -1,11 +1,11 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\Game;
+use App\Models\PlayerGame;
+use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
-use App\Platform\Models\PlayerSession;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

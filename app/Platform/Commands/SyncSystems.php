@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Models\System;
+use App\Models\System;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;

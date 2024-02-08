@@ -8,7 +8,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
-use App\Community\Models\AchievementSetClaim;
+use App\Models\AchievementSetClaim;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;

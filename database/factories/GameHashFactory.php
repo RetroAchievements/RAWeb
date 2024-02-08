@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Platform\Models\GameHash;
+use App\Models\GameHash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

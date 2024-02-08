@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Community\Enums\AwardType;
-use App\Platform\Models\PlayerBadge;
+use App\Models\PlayerBadge;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
+use App\Models\Game;
 use App\Models\StaticData;
-use App\Platform\Models\Game;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\View\Component;
@@ -29,7 +29,7 @@ class GlobalStatistics extends Component
             $this->dbStaticData
         );
 
-        return view('community.components.global-statistics.global-statistics', $globalStatisticsViewValues);
+        return view('components.global-statistics.global-statistics', $globalStatisticsViewValues);
     }
 
     private function buildAllGlobalStatisticsViewValues(StaticData $staticData): array

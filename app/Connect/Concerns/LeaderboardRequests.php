@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Concerns;
 
-use App\Platform\Models\LeaderboardEntry;
+use App\Models\LeaderboardEntry;
 use Illuminate\Http\Request;
 
 trait LeaderboardRequests

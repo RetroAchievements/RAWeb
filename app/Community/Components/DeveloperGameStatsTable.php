@@ -42,7 +42,7 @@ class DeveloperGameStatsTable extends Component
     {
         $builtStats = $this->buildStats($this->targetDeveloperUsername, $this->targetGameIds);
 
-        return view('platform.components.developer.game-stats-table', array_merge(
+        return view('components.developer.game-stats-table', array_merge(
             $builtStats, [
                 'easiestGame' => $this->easiestGame,
                 'hardestGame' => $this->hardestGame,

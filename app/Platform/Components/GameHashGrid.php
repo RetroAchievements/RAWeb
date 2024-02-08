@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Components;
 
 use App\Components\Grid;
-use App\Platform\Models\GameHash;
+use App\Models\GameHash;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\AllowedSort;
 

@@ -28,6 +28,9 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+    protected $dontReport = [
+    ];
+
     /**
      * Register the exception handling callbacks for the application.
      */
@@ -96,6 +99,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e): Response
     {
+        // TODO do not redirect in views, refactor to controller when needed
+        if ($e instanceof ViewRedirect) {
+            return $e->redirect;
+        }
+
         if ($request->expectsJson()) {
             if ($e instanceof HttpExceptionInterface) {
                 return response()->json([

@@ -1,13 +1,13 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Community\Models\Comment;
 use App\Enums\Permissions;
+use App\Models\Comment;
+use App\Models\Game;
+use App\Models\PlayerAchievement;
+use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerSession;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;

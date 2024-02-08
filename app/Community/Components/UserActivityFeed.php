@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\UserActivity;
 use App\Components\Grid;
+use App\Models\UserActivity;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;

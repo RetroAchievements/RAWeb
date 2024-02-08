@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connect\Concerns;
 
-use App\Platform\Models\IntegrationRelease;
+use App\Models\IntegrationRelease;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 

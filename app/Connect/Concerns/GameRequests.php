@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Connect\Concerns;
 
+use App\Models\Game;
+use App\Models\GameHash;
+use App\Models\GameHashSet;
 use App\Platform\Actions\ResumePlayerSession;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHash;
-use App\Platform\Models\GameHashSet;
 use Exception;
 use Illuminate\Http\Request;
 

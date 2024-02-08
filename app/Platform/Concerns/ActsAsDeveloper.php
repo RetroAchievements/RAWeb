@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Concerns;
 
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Leaderboard;
-use App\Platform\Models\MemoryNote;
+use App\Models\Achievement;
+use App\Models\Leaderboard;
+use App\Models\MemoryNote;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait ActsAsDeveloper

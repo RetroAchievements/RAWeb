@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\GameHash;
+use App\Models\System;
 use App\Platform\Actions\UpdateGameMetrics;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHash;
-use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

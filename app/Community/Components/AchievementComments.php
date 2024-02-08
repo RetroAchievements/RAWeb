@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\AchievementComment;
 use App\Components\Grid;
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
+use App\Models\AchievementComment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Events;
 
-use App\Community\Models\Message;
+use App\Models\Message;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;

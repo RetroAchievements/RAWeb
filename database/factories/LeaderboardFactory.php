@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Platform\Models\Leaderboard;
+use App\Models\Leaderboard;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

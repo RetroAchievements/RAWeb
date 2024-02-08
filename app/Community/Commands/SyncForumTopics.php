@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Commands;
 
-use App\Community\Models\ForumTopic;
+use App\Models\ForumTopic;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;

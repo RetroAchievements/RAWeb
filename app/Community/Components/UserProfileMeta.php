@@ -7,8 +7,8 @@ namespace App\Community\Components;
 use App\Community\Enums\Rank;
 use App\Community\Enums\RankType;
 use App\Enums\Permissions;
+use App\Models\PlayerStat;
 use App\Models\User;
-use App\Platform\Models\PlayerStat;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -49,7 +49,7 @@ class UserProfileMeta extends Component
 
         $this->calculateRecentPointsEarned($this->user);
 
-        return view('community.components.user.profile-meta', [
+        return view('components.user.profile-meta', [
             'developerStats' => $developerStats,
             'hardcoreRankMeta' => $hardcoreRankMeta,
             'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta, $this->userJoinedGamesAndAwards),

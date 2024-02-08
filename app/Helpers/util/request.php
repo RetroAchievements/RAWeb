@@ -1,5 +1,8 @@
 <?php
 
+use App\Exceptions\ViewRedirect;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 /**
  * Get request input sanitized for output
  *
@@ -16,4 +19,14 @@ function requestInputSanitized(string $key, mixed $default = null, mixed $type =
     settype($input, $type);
 
     return $input;
+}
+
+/**
+ * @deprecated TODO do not redirect in views, refactor to controller when needed
+ *
+ * @throws ViewRedirect
+ */
+function abort_with(RedirectResponse $redirect): void
+{
+    throw new ViewRedirect($redirect);
 }

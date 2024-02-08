@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\Game;
+use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Events\PlayerGameAttached;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
 use Exception;
 
 class AttachPlayerGame

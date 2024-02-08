@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
+use App\Models\PlayerStat;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerStatsUpdated;
-use App\Platform\Models\PlayerStat;
-use App\Platform\Models\System;
 
 class UpdatePlayerStats
 {

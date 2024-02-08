@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Actions\ResetPlayerProgress as ResetPlayerProgressAction;
-use App\Platform\Models\PlayerAchievement;
 use Exception;
 use Illuminate\Console\Command;
 

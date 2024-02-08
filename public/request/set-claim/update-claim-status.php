@@ -2,8 +2,8 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimStatus;
-use App\Community\Models\AchievementSetClaim;
 use App\Enums\Permissions;
+use App\Models\AchievementSetClaim;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\UserGameListType;
-use App\Community\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Http\Controller;
+use App\Models\UserGameListEntry;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -40,7 +40,7 @@ class GameDevInterestController extends Controller
             ->orderBy('UserAccounts.User')
             ->pluck('UserAccounts.User');
 
-        return view('platform.components.game.dev-interest-page', [
+        return view('pages.game.[game].dev-interest', [
             'gameId' => $gameData['ID'],
             'gameTitle' => $gameData['Title'],
             'consoleId' => $gameData['ConsoleID'],

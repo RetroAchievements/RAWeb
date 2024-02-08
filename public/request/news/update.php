@@ -1,7 +1,7 @@
 <?php
 
-use App\Community\Models\News;
 use App\Enums\Permissions;
+use App\Models\News;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;

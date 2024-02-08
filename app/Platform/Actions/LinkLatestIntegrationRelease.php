@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Models\IntegrationRelease;
+use App\Models\IntegrationRelease;
 use Illuminate\Filesystem\Filesystem;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
