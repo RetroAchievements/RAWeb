@@ -172,8 +172,8 @@ class Game extends BaseModel implements HasComments, HasMedia
 
             // Attempt to find a game with the base title and the same console ID.
             $game = Game::where('Title', $baseSetTitle)
-                 ->where('ConsoleID', $this->ConsoleID)
-                 ->first();
+                ->where('ConsoleID', $this->ConsoleID)
+                ->first();
 
             // If a matching game is found, return its ID.
             return $game?->id ?? null;
