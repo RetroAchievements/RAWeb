@@ -333,8 +333,10 @@ switch ($requestType) {
              */
             $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
 
-            dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
-                ->onQueue('player-achievements');
+            if ($foundAchievement->is_published) {
+                dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
+                    ->onQueue('player-achievements');
+            }
         } else {
             $response['Error'] = "Data not found for achievement {$achIDToAward}";
             $response['Success'] = false;
@@ -430,7 +432,7 @@ switch ($requestType) {
         foreach ($awardableAchievements as $achievement) {
             $unlockAchievementResult = unlockAchievement($targetUser, $achievement->id, $hardcore);
 
-            if (!isset($unlockAchievementResult['Error'])) {
+            if (!isset($unlockAchievementResult['Error']) && $achievement->is_published) {
                 dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
                     ->onQueue('player-achievements');
 
