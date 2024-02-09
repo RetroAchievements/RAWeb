@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 ])
 
 <?php
+$isAuthenticated = Auth::user() !== null;
 $processedRecentPlayers = [];
 
 foreach ($recentPlayerData as $recentPlayer) {
@@ -76,16 +77,24 @@ foreach ($recentPlayerData as $recentPlayer) {
                 <td class="whitespace-nowrap smalldate">{{ $recentPlayer['Date'] }}</td>
 
                 <td class="pr-2">
-                    <a
-                        class="h-full w-full inline-block py-4"
-                        href="{{ '/gamecompare.php?ID=' . $gameId . '&f=' . $recentPlayer['User'] }}"
-                    >
+                    @if ($isAuthenticated)
+                        <a
+                            class="h-full w-full inline-block py-4"
+                            href="{{ '/gamecompare.php?ID=' . $gameId . '&f=' . $recentPlayer['User'] }}"
+                        >
+                            <x-game-progress-bar
+                                softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
+                                hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
+                                maxProgress="{{ $recentPlayer['NumAchievements'] }}"
+                            />
+                        </a>
+                    @else
                         <x-game-progress-bar
                             softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
                             hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
                             maxProgress="{{ $recentPlayer['NumAchievements'] }}"
                         />
-                    </a>
+                    @endif
                 </td>
 
                 <td>
