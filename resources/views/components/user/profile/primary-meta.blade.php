@@ -55,8 +55,10 @@ $shouldMoveRoleToNextLine =
 
         {{-- Motto --}}
         @if (!empty($userMassData['Motto']))
-            <div class="rounded bg-box-bg px-2 py-1 max-w-fit italic text-2xs hyphens-auto mb-3">
-                <p style="word-break: break-word;">{{ $userMassData['Motto'] }}</p>
+            <div x-data="{}" class="rounded bg-box-bg px-2 py-1 max-w-fit italic text-2xs hyphens-auto mb-3">
+                <p x-linkify class="[&>a]:text-text [&>a]:transition-colors [&>a]:duration-700 [&>a]:ease-out" style="word-break: break-word;">
+                    {{ $userMassData['Motto'] }}
+                </p>
             </div>
         @endif
 
