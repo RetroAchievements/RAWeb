@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
+use App\Models\Emulator;
+use App\Models\EmulatorRelease;
 use App\Platform\Actions\LinkLatestEmulatorRelease;
-use App\Platform\Models\Emulator;
-use App\Platform\Models\EmulatorRelease;
 use App\Platform\Requests\EmulatorReleaseRequest;
 use App\Support\MediaLibrary\Actions\AddMediaAction;
 use Illuminate\Contracts\View\View;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
+use App\Models\GameHash;
 use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
@@ -12,7 +13,6 @@ use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
 use App\Platform\Controllers\SuggestGameController;
 use App\Platform\Controllers\SystemController;
-use App\Platform\Models\GameHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -90,6 +90,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
             // Route::resource('user.game', PlayerGameController::class)->only('show');
+            // Route::get('user/{user}/game/{game}', [PlayerGameController::class, 'activity'])->only('user.game.activity');
 
             // Route::resource('user.badges', PlayerBadgeController::class)->only('index')->names(['index' => 'user.badge.index']);
             // Route::resource('user.badge', PlayerBadgeController::class)->only('show');
@@ -100,7 +101,6 @@ class RouteServiceProvider extends ServiceProvider
             Route::group([
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
-                Route::get('game/{game}/hashes/manage', [GameHashController::class, 'manage'])->name('game.hash.manage');
                 Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
 
                 // Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])

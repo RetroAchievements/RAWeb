@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\ForumTopic;
-use App\Community\Models\ForumTopicComment;
 use App\Components\Grid;
+use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

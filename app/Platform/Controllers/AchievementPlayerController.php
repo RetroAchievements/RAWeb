@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use Illuminate\Contracts\View\View;
 
 class AchievementPlayerController extends Controller

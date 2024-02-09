@@ -6,8 +6,8 @@
 // unless the user has explicitly attempted to open it.
 
 use App\Enums\Permissions;
+use App\Models\Game;
 use App\Platform\Enums\AchievementType;
-use App\Platform\Models\Game;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;

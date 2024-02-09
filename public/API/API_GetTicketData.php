@@ -138,8 +138,8 @@
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Models\Achievement;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Achievement;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
 $defaultTicketFilter = TicketFilters::Default;

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Community\Enums\AwardType;
+use App\Models\PlayerBadge;
+use App\Models\PlayerGame;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Events\PlayerGameBeaten;
 use App\Platform\Events\PlayerGameCompleted;
-use App\Platform\Models\PlayerBadge;
-use App\Platform\Models\PlayerGame;
 use Carbon\Carbon;
 
 class RevalidateAchievementSetBadgeEligibility

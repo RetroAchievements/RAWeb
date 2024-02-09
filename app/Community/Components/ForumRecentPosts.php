@@ -32,7 +32,7 @@ class ForumRecentPosts extends Component
             $this->user?->websitePrefs ?? 0,
         );
 
-        return view('community.components.forum.recent-posts', [
+        return view('components.forum.recent-posts', [
             'recentForumPosts' => $recentForumPosts,
             'userPreferences' => $this->user?->websitePrefs ?? 0,
         ]);

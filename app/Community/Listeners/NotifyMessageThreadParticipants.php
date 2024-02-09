@@ -6,10 +6,10 @@ namespace App\Community\Listeners;
 
 use App\Community\Actions\UpdateUnreadMessageCountAction;
 use App\Community\Events\MessageCreated;
-use App\Community\Models\Message;
-use App\Community\Models\MessageThread;
-use App\Community\Models\MessageThreadParticipant;
 use App\Enums\UserPreference;
+use App\Models\Message;
+use App\Models\MessageThread;
+use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;

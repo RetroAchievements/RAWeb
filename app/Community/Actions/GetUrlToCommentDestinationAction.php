@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Actions;
 
-use App\Community\Models\Comment;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Route;
 
 class GetUrlToCommentDestinationAction

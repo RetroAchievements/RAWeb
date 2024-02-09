@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Models\Achievement;
+use App\Models\Emulator;
+use App\Models\Game;
+use App\Models\Leaderboard;
+use App\Models\System;
 use App\Models\User;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Emulator;
-use App\Platform\Models\Game;
-use App\Platform\Models\Leaderboard;
-use App\Platform\Models\System;
 
 if (!function_exists('__res')) {
     function __res(string $resource = 'resource', int $amount = 2): array|string

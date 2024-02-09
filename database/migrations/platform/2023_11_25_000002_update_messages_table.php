@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Community\Models\Message;
+use App\Models\Message;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

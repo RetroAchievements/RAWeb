@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Community\Models\News;
+use App\Models\News;
 use App\Models\User;
 use Database\Seeders\Concerns\SeedsUsers;
 use Illuminate\Database\Eloquent\Factories\Factory;

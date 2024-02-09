@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Concerns;
 
+use App\Models\Achievement;
 use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievement;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Achievement;
 use Carbon\Carbon;
 
 trait TestsPlayerAchievements

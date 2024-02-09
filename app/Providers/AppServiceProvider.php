@@ -99,13 +99,6 @@ class AppServiceProvider extends ServiceProvider
         Factory::guessModelNamesUsing(function ($factory) {
             $factoryBasename = Str::replaceLast('Factory', '', class_basename($factory));
 
-            if (class_exists('App\\Community\\Models\\' . $factoryBasename)) {
-                return 'App\\Community\\Models\\' . $factoryBasename;
-            }
-            if (class_exists('App\\Platform\\Models\\' . $factoryBasename)) {
-                return 'App\\Platform\\Models\\' . $factoryBasename;
-            }
-
             return 'App\\Models\\' . $factoryBasename;
         });
 

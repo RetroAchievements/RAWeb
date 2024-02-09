@@ -50,10 +50,10 @@
  *    string    Expiration                date the claim will expire
  */
 
-use App\Community\Models\AchievementSetClaim;
+use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
+use App\Models\Game;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
 use Carbon\Carbon;
 
 $gameId = (int) request()->query('i');

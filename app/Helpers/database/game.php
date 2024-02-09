@@ -2,11 +2,11 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Game;
+use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerGame;
 use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array

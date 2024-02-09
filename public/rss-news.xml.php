@@ -1,6 +1,6 @@
 <?php
 
-use App\Community\Models\News;
+use App\Models\News;
 
 $dom = new DOMDocument('1.0', 'UTF-8');
 

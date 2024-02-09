@@ -6,11 +6,11 @@ namespace Tests\Feature\Api\V1;
 
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Community\Models\Ticket;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\System;
+use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Concerns;
 
-use App\Community\Models\ForumTopic;
+use App\Models\ForumTopic;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait DiscussedInForum

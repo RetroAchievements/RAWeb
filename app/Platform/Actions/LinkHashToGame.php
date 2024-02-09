@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHash;
-use App\Platform\Models\GameHashSet;
+use App\Models\Game;
+use App\Models\GameHash;
+use App\Models\GameHashSet;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class LinkHashToGame

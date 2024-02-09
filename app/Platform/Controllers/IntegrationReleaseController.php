@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Http\Controller;
+use App\Models\IntegrationRelease;
 use App\Platform\Actions\LinkLatestIntegrationRelease;
-use App\Platform\Models\IntegrationRelease;
 use App\Platform\Requests\IntegrationReleaseRequest;
 use App\Support\MediaLibrary\Actions\AddMediaAction;
 use Illuminate\Contracts\View\View;

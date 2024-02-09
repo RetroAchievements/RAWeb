@@ -18,6 +18,7 @@ use App\Platform\Contracts\Developer;
 use App\Platform\Contracts\Player;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
 use App\Support\HashId\HasHashId;
+use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
 use Filament\Models\Contracts\FilamentUser;
@@ -345,6 +346,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
          * TODO: this might not hold up for changeable usernames -> find a better solution
          */
         return 'User';
+    }
+
+    public function isNew(): bool
+    {
+        return Carbon::now()->diffInMonths($this->Created) < 1;
     }
 
     public function getCanonicalUrlAttribute(): string

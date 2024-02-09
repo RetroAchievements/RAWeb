@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Models\GameHashSet;
-use App\Platform\Models\PlayerSession;
+use App\Models\GameHashSet;
+use App\Models\PlayerSession;
 use App\Support\Sync\SyncTrait;
 use Carbon\Carbon;
 use Exception;

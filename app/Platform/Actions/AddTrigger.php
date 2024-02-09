@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use Illuminate\Http\Request;
 
 class AddTrigger

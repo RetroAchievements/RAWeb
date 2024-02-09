@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Components;
 
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

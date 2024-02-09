@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Community\Models\Ticket;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 

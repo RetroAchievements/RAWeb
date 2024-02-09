@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
-use App\Community\Models\News;
 use App\Components\Concerns\DeferLoading;
+use App\Models\News;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;

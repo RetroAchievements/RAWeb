@@ -44,20 +44,12 @@
     <x-slot name="breadcrumb">
         {{ $breadcrumb ?? '' }}
     </x-slot>
-    @if ($bufferedOutput ?? false)
-        <x-container>
-            <main class="mb-5 {{ trim($sidebar ?? false) ? 'with-sidebar' : '' }}" data-scroll-target>
-                {!! $bufferedOutput ?? '' !!}
-            </main>
-        </x-container>
-    @else
-        <x-main :sidebarPosition="$sidebarPosition ?? 'right'">
-            <x-slot name="sidebar">
-                {{ $sidebar ?? '' }}
-            </x-slot>
-            {{ $slot ?? '' }}
-        </x-main>
-    @endif
+    <x-main :sidebarPosition="$sidebarPosition ?? 'right'">
+        <x-slot name="sidebar">
+            {{ $sidebar ?? '' }}
+        </x-slot>
+        {{ $slot ?? '' }}
+    </x-main>
 </x-content>
 <footer>
     {{--@if(!Route::is('news.index'))

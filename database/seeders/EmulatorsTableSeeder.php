@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Platform\Models\Emulator;
+use App\Models\Emulator;
 use Illuminate\Database\Seeder;
 
 class EmulatorsTableSeeder extends Seeder

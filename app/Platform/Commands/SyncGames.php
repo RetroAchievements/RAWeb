@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
+use App\Models\Game;
+use App\Models\GameHashSet;
 use App\Platform\Actions\AddImageToGame;
 use App\Platform\Actions\UpsertTriggerVersion;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHashSet;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;

@@ -17,8 +17,6 @@ parameters:
         # accessors to polymorphic relationships
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[trigger|subject]#'
         - '#Access to an undefined property [a-zA-Z0-9\&\\_]+::\$[a-zA-Z0-9\&\\_]+[_count]#'
-        - '#Access to an undefined property App\\Community\\Models\\.*#'
-        - '#Access to an undefined property App\\Platform\\Models\\.*#'
         - '#Access to an undefined property App\\Models\\.*#'
         # Builder::exists() is not private
         #- '#Call to private method exists\(\) of parent class Illuminate\\Database\\Eloquent\\Builder<Illuminate\\Database\\Eloquent\\Model>.#'
@@ -39,9 +37,5 @@ parameters:
         - public/tmp
         # disabled features
         - public/API/API_GetFeed.php
-        - public/awardedList.php
-        - public/feed.php
-        - public/popularGames.php
-        - public/rss-activity.xml.php
         # third party
         - app/Helpers/util/recaptcha.php

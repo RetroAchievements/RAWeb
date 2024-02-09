@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Platform\Models\Emulator;
-use App\Platform\Models\EmulatorRelease;
-use App\Platform\Models\IntegrationRelease;
+use App\Models\Emulator;
+use App\Models\EmulatorRelease;
+use App\Models\IntegrationRelease;
 use Illuminate\Database\Seeder;
 
 class ReleaseTablesSeeder extends Seeder

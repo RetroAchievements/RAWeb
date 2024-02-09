@@ -22,7 +22,7 @@
  *  string     Released                   release date information for the game
  */
 
-use App\Platform\Models\Game;
+use App\Models\Game;
 
 $gameId = (int) request()->query('i');
 

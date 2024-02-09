@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Components;
 
 use App\Components\Grid;
-use App\Platform\Models\PlayerSession;
+use App\Models\PlayerSession;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 

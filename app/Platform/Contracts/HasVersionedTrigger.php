@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Contracts;
 
-use App\Platform\Models\Trigger;
+use App\Models\Trigger;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 interface HasVersionedTrigger

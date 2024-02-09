@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Community\Enums\AwardType;
+use App\Models\PlayerBadge;
 use App\Models\StaticData;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\PlayerBadge;
 use Illuminate\Console\Command;
 
 /**

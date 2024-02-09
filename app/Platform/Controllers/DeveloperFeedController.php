@@ -7,14 +7,14 @@ namespace App\Platform\Controllers;
 use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
 use App\Http\Controller;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\LeaderboardEntryLegacy;
+use App\Models\PlayerAchievement;
+use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\LeaderboardEntryLegacy;
-use App\Platform\Models\PlayerAchievement;
-use App\Platform\Models\PlayerBadge;
-use App\Platform\Models\System;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -42,7 +42,7 @@ class DeveloperFeedController extends Controller
         $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($foundTargetUser);
         $recentLeaderboardEntries = $this->fetchRecentLeaderboardEntriesForDev($foundTargetUser);
 
-        return view('platform.developer-feed-page', [
+        return view('pages.user.[user].developer.feed', [
             'awardsContributed' => $awardsContributed,
             'foundTargetUser' => $foundTargetUser,
             'leaderboardEntriesContributed' => $leaderboardEntriesContributed,

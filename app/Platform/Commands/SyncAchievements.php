@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Commands;
 
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use App\Support\Sync\SyncTrait;
 use Exception;
 use Illuminate\Console\Command;

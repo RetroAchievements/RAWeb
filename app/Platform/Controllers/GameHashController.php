@@ -6,9 +6,8 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\ArticleType;
 use App\Http\Controller;
+use App\Models\GameHash;
 use App\Models\User;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameHash;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,20 +31,6 @@ class GameHashController extends Controller
     public function show(GameHash $gameHash): void
     {
         dump($gameHash->toArray());
-    }
-
-    public function manage(Game $game): View
-    {
-        $this->authorize('manage', $this->resourceClass());
-
-        $gameWithSortedHashes = Game::with(['hashes' => function ($query) {
-            $query->orderBy('Name');
-        }])->findOrFail($game->id);
-
-        return view('platform.manage-hashes-page', [
-            'game' => $gameWithSortedHashes,
-            'me' => Auth::user(),
-        ]);
     }
 
     public function edit(GameHash $gameHash): void

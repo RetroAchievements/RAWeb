@@ -6,12 +6,12 @@ namespace Tests\Feature\Platform;
 
 use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\PlayerBadge;
-use App\Platform\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\StaticData;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\System;
+use App\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,12 +33,23 @@ class HomeTest extends TestCase
         ]);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->create([
-            'ID' => $staticData->LastCreatedAchievementID, 'GameID' => $staticData->LastCreatedGameID,
+            'ID' => $staticData->LastCreatedAchievementID,
+            'GameID' => $staticData->LastCreatedGameID,
         ]);
 
         $this->get('/')->assertSuccessful()
             ->assertSee('Achievement of the Week')
             ->assertSee($game->Title)
             ->assertSee($achievement->Title);
+    }
+
+    public function testItRendersContactPage(): void
+    {
+        $this->get('/contact')->assertSuccessful();
+    }
+
+    public function testItRendersTermsPage(): void
+    {
+        $this->get('/terms')->assertSuccessful();
     }
 }

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Concerns\HandlesPublicFileRequests;
-use App\Http\Controllers\ContentController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -66,7 +64,6 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['web', 'csp'])->group(function () {
             Route::get('download.php', fn () => $this->handlePageRequest('download'))->name('download.index');
             Route::get('gameList.php', fn () => $this->handlePageRequest('gameList'))->name('game.index');
-            Route::post('{path}.php', fn (string $path) => $this->handleRequest($path))->where('path', '(.*)');
             Route::get('{path}.php', fn (string $path) => $this->handlePageRequest($path))->where('path', '(.*)');
             Route::get('user/{user}', fn (string $user) => $this->handlePageRequest('userInfo', $user))->name('user.show');
             Route::get('achievement/{achievement}{slug?}', fn ($achievement) => $this->handlePageRequest('achievementInfo', $achievement))->name('achievement.show');
@@ -78,21 +75,10 @@ class RouteServiceProvider extends ServiceProvider
             /*
              * content
              */
-            Route::get('/', HomeController::class)->name('home');
-            Route::get('demo', [ContentController::class, 'demo'])->name('demo');
-            Route::get('demo/error/{code}', [ContentController::class, 'errorDemo'])->name('demo.error');
-            Route::get('terms', [ContentController::class, 'terms'])->name('terms');
             // Route::get('downloads', [DownloadController::class, 'index'])->name('download.index');
             // Route::get('feed', [FeedController::class, 'index'])->name('feed.index');
-            // Route::get('rss', [RssController::class, 'index'])->name('rss.index');
             // Route::get('rss/{resource}', [RssController::class, 'show'])->name('rss.show');
             // Route::get('search', [SearchController::class, 'index'])->name('search');
-
-            /*
-             * docs
-             */
-            // Route::get('docs', [ContentController::class, 'docs'])->name('docs.index');
-            // Route::get('docs/api/download', [ApiController::class, 'download'])->name('api.download');
 
             /*
              * Octane test route
@@ -103,7 +89,6 @@ class RouteServiceProvider extends ServiceProvider
              * redirects
              */
             Route::get('redirect', [RedirectController::class, 'redirect'])->name('redirect');
-            // Route::get('wiki-edit-redirect', [RedirectController::class, 'wiki']);
 
             /*
              * user & permalinks

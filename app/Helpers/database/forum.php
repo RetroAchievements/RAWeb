@@ -3,7 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
-use App\Platform\Models\Game;
+use App\Models\Game;
 use Illuminate\Support\Collection;
 
 function getForumList(int $categoryID = 0): array

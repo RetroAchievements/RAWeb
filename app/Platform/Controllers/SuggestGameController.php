@@ -6,16 +6,16 @@ namespace App\Platform\Controllers;
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\UserGameListType;
-use App\Community\Models\UserGameListEntry;
 use App\Http\Controller;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\GameAlternative;
+use App\Models\PlayerBadge;
+use App\Models\PlayerGame;
+use App\Models\System;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Models\Achievement;
-use App\Platform\Models\Game;
-use App\Platform\Models\GameAlternative;
-use App\Platform\Models\PlayerBadge;
-use App\Platform\Models\PlayerGame;
-use App\Platform\Models\System;
 use App\Platform\Services\GameListService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -132,7 +132,7 @@ class SuggestGameController extends Controller
         $this->gameListService->mergeWantToPlay($user);
         $this->gameListService->sortGameList('title');
 
-        return view('platform.components.player.suggest-game-page', [
+        return view('pages.games.suggest', [
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,
@@ -170,7 +170,7 @@ class SuggestGameController extends Controller
         $this->gameListService->mergeWantToPlay($user);
         $this->gameListService->sortGameList('title');
 
-        return view('platform.components.game.suggest-game-page', [
+        return view('pages.game.[game].suggest', [
             'game' => $game,
             'user' => $user,
             'consoles' => $this->gameListService->consoles,

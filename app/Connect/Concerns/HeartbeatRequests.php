@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Connect\Concerns;
 
 use App\Community\Enums\ActivityType;
-use App\Community\Models\UserActivity;
+use App\Models\Game;
+use App\Models\UserActivity;
 use App\Platform\Events\PlayerSessionHeartbeat;
-use App\Platform\Models\Game;
 use Exception;
 use Illuminate\Http\Request;
 

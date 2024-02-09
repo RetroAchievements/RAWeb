@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Events;
 
-use App\Platform\Models\Achievement;
+use App\Models\Achievement;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;

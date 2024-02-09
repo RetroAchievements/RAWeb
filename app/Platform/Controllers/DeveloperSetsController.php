@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\Controllers;
 
 use App\Community\Enums\TicketState;
-use App\Community\Models\Ticket;
 use App\Http\Controller;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Services\GameListService;
 use Illuminate\Contracts\View\View;
@@ -147,7 +147,7 @@ class DeveloperSetsController extends Controller
         };
         $columns['tickets']['tally'] = function ($game) { return $game['NumAuthoredTickets']; };
 
-        return view('platform.components.developer.sets-page', [
+        return view('pages.user.[user].developer.sets', [
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,

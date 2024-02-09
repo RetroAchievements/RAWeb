@@ -112,13 +112,11 @@ return [
          */
         '/faq.php' => 'https://docs.retroachievements.org/FAQ/',
         '/GetRA_API.php' => 'https://github.com/retroachievements/web-api-client-php',
-        '/wiki-edit-redirect.php' => '/wiki-edit-redirect?page={page}',
 
         /*
          * rss
          */
         '/rss.php' => '/rss',
-        '/rss-news.xml.php' => '/rss/news',
 
         /*
          * TODO: external service routes
