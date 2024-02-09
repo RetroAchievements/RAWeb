@@ -32,18 +32,22 @@ foreach ($recentPlayerData as $recentPlayer) {
 
 <div class="sm:hidden flex flex-col gap-y-2">
     @foreach ($processedRecentPlayers as $recentPlayer)
-        <div class="flex flex-col gap-y-0.5 px-2 py-1.5 odd:bg-embed">
+        <div class="flex flex-col gap-y-1.5 px-2 py-1.5 odd:bg-embed">
             <div class="w-full flex items-center justify-between">
                 {!! userAvatar($recentPlayer['User'], iconClass: 'rounded-sm', iconSize: 20) !!}
 
                 <div class="flex flex-col items-center gap-1">
                     <p class="smalldate whitespace-nowrap">{{ $recentPlayer['Date'] }}</p>
                     <div class="w-[115px] max-w-[115px]">
-                        <x-game-progress-bar
-                            softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
-                            hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
-                            maxProgress="{{ $recentPlayer['NumAchievements'] }}"
-                        />
+                        <x-conditional-link-wrapper
+                            :href="$isAuthenticated ? '/gamecompare.php?ID=' . $gameId . '&f=' . $recentPlayer['User'] : null"
+                        >
+                            <x-game-progress-bar
+                                softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
+                                hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
+                                maxProgress="{{ $recentPlayer['NumAchievements'] }}"
+                            />
+                        </x-conditional-link-wrapper>
                     </div>
                 </div>
             </div>
@@ -77,24 +81,16 @@ foreach ($recentPlayerData as $recentPlayer) {
                 <td class="whitespace-nowrap smalldate">{{ $recentPlayer['Date'] }}</td>
 
                 <td class="pr-2">
-                    @if ($isAuthenticated)
-                        <a
-                            class="h-full w-full inline-block py-4"
-                            href="{{ '/gamecompare.php?ID=' . $gameId . '&f=' . $recentPlayer['User'] }}"
-                        >
-                            <x-game-progress-bar
-                                softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
-                                hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
-                                maxProgress="{{ $recentPlayer['NumAchievements'] }}"
-                            />
-                        </a>
-                    @else
+                    <x-conditional-link-wrapper
+                        class="h-full w-full inline-block py-4"
+                        :href="$isAuthenticated ? '/gamecompare.php?ID=' . $gameId . '&f=' . $recentPlayer['User'] : null"
+                    >
                         <x-game-progress-bar
                             softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
                             hardcoreProgress="{{ $recentPlayer['NumAwardedHardcore'] }}"
                             maxProgress="{{ $recentPlayer['NumAchievements'] }}"
                         />
-                    @endif
+                    </x-conditional-link-wrapper>
                 </td>
 
                 <td>
