@@ -181,7 +181,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         // Return null if the title does not match the subset pattern or no game is found.
         return null;
     }
-  
+
     // == actions
 
     // == accessors
