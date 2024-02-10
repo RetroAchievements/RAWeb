@@ -7,6 +7,7 @@
     :page-type="$pageType ?? null"
     :permalink="$permalink ?? null"
     :canonical-url="$permalink ?? null"
+    :noindex="$noindex ?? null"
 />
 <body
     data-scheme="{{ request()->cookie('scheme', '') }}"

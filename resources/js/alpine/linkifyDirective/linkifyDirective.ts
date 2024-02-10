@@ -7,7 +7,11 @@ export function linkifyDirective(
   { effect }: DirectiveUtilities,
 ) {
   effect(() => {
-    el.innerHTML = linkifyHtml(el.innerHTML);
+    el.innerHTML = linkifyHtml(el.innerHTML, {
+      formatHref: {
+        url: (href) => `/redirect?url=${href}`,
+      },
+    });
 
     requestAnimationFrame(() => {
       el.classList.add('[&>a]:!text-link');
