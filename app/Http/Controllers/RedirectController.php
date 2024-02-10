@@ -12,8 +12,20 @@ use Illuminate\Http\Request;
 class RedirectController extends Controller
 {
     private array $allowedDomains = [
+        // First-party
         'news.retroachievements.org',
         'docs.retroachievements.org',
+
+        // Third-party
+        'backloggd.com',
+        'completionist.me',
+        'exophase.com',
+        'github.com',
+        'howlongtobeat.com',
+        'psnprofiles.com',
+        'steamcommunity.com',
+        'twitch.tv',
+        'youtube.com',
     ];
 
     public function redirect(Request $request): View|RedirectResponse
