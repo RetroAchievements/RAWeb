@@ -1,7 +1,3 @@
-<x-input.textarea :model="$model ?? null"
-                  :attribute="$attribute ?? null"
-                  class="code"
-                  :required="$required ?? null"
-                  :disabled="$disabled ?? null"
-                  :icon="$icon ?? null"
-                  :label="__('Current Email')" />
+<x-input.textarea {{ $attributes->merge([
+    // TODO enhance this code editor with syntax highlighting
+])->class('font-mono') }} />

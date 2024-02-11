@@ -1,35 +1,68 @@
 <?php
-$id ??= 'search';
-$autoFocus ??= false;
-$loading ??= false;
+
+use Illuminate\Support\Str;
 ?>
-<div class="input-group {{ ($sm ?? false) ? 'input-group-sm' : '' }}">
-    @if(!isset($showIcon) || $showIcon)
-        <span class="input-group-prepend">
-            <label for="{{ $id }}" class="input-group-text bg-transparent border-0">
-                @if($loading)
-                    <span wire:loading wire:target="search"><x-loader size="xs" /></span>
-                    <x-fas-search wire:loading.remove wire:target="search" />
-                @else
-                    <x-fas-search />
-                @endif
-                <span class="sr-only">Search</span>
-            </label>
-        </span>
-    @endif
-    <input wire:model.live.debounce.500ms="search"
-           name="search"
-           {{ $autoFocus ? 'autofocus' : '' }}
-           type="search"
-           id="{{ $id }}"
-           class="form-control border-0"
-           placeholder="{{ __('Search') }}&hellip;">
-    @if($showButton ?? false)
+
+@props([
+    'autofocus' => false,
+    'disabled' => false,
+    'fullWidth' => true,
+    'help' => null,
+    'icon' => false,
+    'id' => null,
+    'inline' => false,
+    'label' => true,
+    'loading' => false,
+    'maxlength' => 255,
+    'model' => null,
+    'name' => 'search',
+    'placeholder' => false,
+    'readonly' => false,
+    'required' => false,
+    'requiredSilent' => false,
+    'showButton' => false,
+    'type' => 'search',
+    'value' => '',
+])
+
+<?php
+$id = $id ?: 'input_' . Str::random();
+?>
+
+<x-form-field
+    :help="$help"
+    :hidden="$type === 'hidden'"
+    :icon="$icon"
+    :id="$id"
+    :inline="$inline"
+    :model="$model"
+    :name="$name"
+>
+    <x-slot name="prepend">
+        <label for="{{ $id }}">
+            @if($loading)
+                <span wire:loading wire:target="search"><x-loader size="xs" /></span>
+                <x-fas-search wire:loading.remove wire:target="search" />
+            @else
+                <x-fas-search />
+            @endif
+            <span class="sr-only">Search</span>
+        </label>
+    </x-slot>
+    <input
+        autocomplete="off"
+        class="form-control {{ $fullWidth ? 'w-full' : '' }} {{ $name && $errors && $errors->has($name) ? 'is-invalid' : '' }}"
+        id="{{ $id }}"
+        maxlength="{{ $maxlength }}"
+        name="{{ $name }}"
+        placeholder="{{ __('Search') }}&hellip;"
+        type="{{ $type }}"
+        wire:model.live.debounce.500ms="search"
+        {{ $autofocus ? 'autofocus' : '' }}
+    >
+    @if($showButton)
         <span class="input-group-append">
             <button class="btn btn-link">{{ __('Search') }}</button>
         </span>
     @endif
-</div>
-{{--<script nonce="{{ csp_nonce() }}">
-    //document.getElementById('search').focus()
-</script>--}}
+</x-form-field>

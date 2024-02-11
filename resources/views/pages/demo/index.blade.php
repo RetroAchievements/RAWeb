@@ -47,7 +47,7 @@ name('demo');
     </x-slot>
 
     <x-slot name="sidebar">
-        <x-section>
+        <x-section class="mb-5">
             <h3>Sidebar</h3>
             <p class="mb-3">
                 Sidebar only shows when content was set.
@@ -71,7 +71,8 @@ name('demo');
     @php
     $user = request()->user() ?? App\Models\User::first();
     @endphp
-    <x-section>
+
+    <x-section class="mb-8">
         <x-section-header class="mb-3">
             <x-slot name="title">
                 <h2>Title</h2>
@@ -97,7 +98,8 @@ name('demo');
         <p class="text-muted">Muted Text</p>
         <p><small>Small Text</small></p>
     </x-section>
-    <x-section>
+
+    <x-section class="mb-8">
         <x-section-header>
             <x-slot name="title">
                 <h2>Links - canonical and permalinks</h2>
@@ -113,15 +115,16 @@ name('demo');
             {{--@userIcon($user, 10) @user($user)--}}
         @endif
     </x-section>
-    <x-section>
+
+    <x-section class="mb-8">
         <x-section-header>
             <x-slot name="title">
                 <h2>{{ '<h2>' }} headline in main content</h2>
             </x-slot>
-
         </x-section-header>
     </x-section>
-    <x-section>
+
+    <x-section class="mb-8">
         <x-section-header>
             <x-slot name="title">
                 <h2>Icons & Flags</h2>
@@ -144,36 +147,111 @@ name('demo');
             <x-flag-4x3-br/>
         </p>
     </x-section>
-    <x-section>
+
+    <x-section class="mb-8">
         <x-section-header>
             <x-slot name="title">
                 <h2>Buttons</h2>
             </x-slot>
         </x-section-header>
-        <div class="mb-3">
-            @foreach([null, 'warning', 'danger'] as $modifier)
-                <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }} mb-2">
-                    <x-fas-exclamation-triangle/>
-                    {{ $modifier }}
-                </x-button>
-            @endforeach
-        </div>
+        @foreach([null, 'warning', 'danger'] as $modifier)
+            <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }} mb-2">
+                <x-fas-exclamation-triangle/>
+                {{ $modifier }}
+            </x-button>
+        @endforeach
     </x-section>
+
+    <x-section class="mb-8">
+        <x-section-header>
+            <x-slot name="title">
+                <h2>Forms</h2>
+            </x-slot>
+        </x-section-header>
+    </x-section>
+
+    <x-section class="mb-8">
+        <x-section-header>
+            <x-slot name="title">
+                <h4>Form inputs</h4>
+            </x-slot>
+        </x-section-header>
+        <x-form>
+            <div class="lg:grid grid-cols-2 gap-3">
+                <div>
+                    <x-input.checkbox label="Checkbox" />
+                    <x-input.checkbox label="Checkbox checked" checked />
+                    <x-input.checkbox label="Checkbox disabled" checked disabled />
+                    <x-input.code label="Code" />
+                    <x-input.date label="Date" value="2024-12-31" :fullWidth="false" />
+                    <x-input.datetime-local label="Datetime local" value="2024-12-31 00:00:00" :fullWidth="false" />
+                    <x-input.email label="Email" value="test@example.com" :fullWidth="false" />
+                    <x-input.file label="File" :fullWidth="false" />
+                    <x-input.image label="Image" :fullWidth="false" />
+                </div>
+                <div>
+                    <x-input.number label="Number (stepper)" value="1234.5" :fullWidth="false" />
+                    <x-input.password value="password" :fullWidth="false" />
+                    <x-input.password-confirmed value="password" :fullWidth="false" />
+                    <x-input.search :fullWidth="false" />
+                    <x-input.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" :fullWidth="false" />
+                    <x-input.select label="Select with only one option, not required" :options="['Only option']" :fullWidth="false" />
+                    <x-input.select label="Select with only one option, required" required :options="['Only option and required lorem ipsum']" :fullWidth="false" />
+                    <x-input.select label="Select with long options" required :options="['A long option label lorem ipsum', 'Another long option label lorem ipsum']" :fullWidth="false" />
+                </div>
+            </div>
+        </x-form>
+    </x-section>
+
+    <x-form x-on:submit.prevent="alert('Preventing submission')" validate>
+        <x-section class="mb-8">
+            <x-section-header>
+                <x-slot name="title">
+                    <h4>Inline Form with only required fields</h4>
+                </x-slot>
+                <x-slot name="actions">
+                    <div>Valid: <span x-text="isValid"></span></div>
+                    <div>Sending: <span x-text="isSending"></span></div>
+                    <x-form-actions />
+                </x-slot>
+            </x-section-header>
+            <x-input.text name="text" requiredSilent inline help="Some helpful text describing this input" />
+            <x-input.user requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
+            <x-input.user requiredSilent inline help="Search user" />
+            <x-input.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
+            <x-input.checkbox label="Checkbox" checked inline requiredSilent />
+            <x-form-actions inline />
+        </x-section>
+    </x-form>
+
+    <x-form x-on:submit.prevent="alert('Preventing submission')" validate>
+        <x-section class="mb-8">
+            <x-section-header>
+                <x-slot name="title">
+                    <h4>Form with multiple rich-text textareas</h4>
+                </x-slot>
+                <x-slot name="actions">
+                    <div>Valid: <span x-text="isValid"></span></div>
+                    <div>Sending: <span x-text="isSending"></span></div>
+                </x-slot>
+            </x-section-header>
+            <x-input.textarea name="message" required richText maxlength="20000" help="Textarea with rich-text controls" />
+            <x-input.textarea name="body" richText maxlength="60000" help="Textarea with rich-text controls" />
+            <x-form-actions hasRequiredFields />
+        </x-section>
+    </x-form>
+
     <x-section>
         <x-section-header>
             <x-slot name="title">
-                <h2>Form Inputs</h2>
+                <h4>Styled form inputs (Tailwind)</h4>
             </x-slot>
         </x-section-header>
-        <h4>Unstyled input</h4>
-        <div class="flex gap-3 flex-col items-start">
-            <input type="text" value="test">
-            <textarea>Test</textarea>
-        </div>
-        <h4>Styled input</h4>
-        <div class="flex gap-3 flex-col items-start">
-            <input type="text" class="form-input" value="test">
-            <textarea class="form-textarea">Test</textarea>
-        </div>
+        <x-form>
+            <div class="flex gap-3 flex-col items-start">
+                <input type="text" class="form-input" value="test">
+                <textarea class="form-textarea">Test</textarea>
+            </div>
+        </x-form>
     </x-section>
 </x-demo-layout>

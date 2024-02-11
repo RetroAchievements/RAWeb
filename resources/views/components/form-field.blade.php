@@ -1,33 +1,41 @@
-<div class="{{ ($inline ?? false) ? 'lg:flex' : '' }} {{ ($fullWidth ?? false) ? '' : '' }} mb-2">
-    @if($label ?? false)
-        <div class="{{ ($fullWidth ?? false) ? '' : (($inline ?? false) ? 'lg:w-36 lg:pr-3 lg:text-right' : '') }} pt-1 whitespace-nowrap {{ $errors && $errors->has($attribute ?? null) ? 'text-danger' : '' }}">
-            <label for="{{ $fieldId ?? $attribute ?? null }}">
-                {{ $label }} {{ !empty($required) ? '*' : '' }}
-            </label>
-        </div>
+@props([
+    'help' => null,
+    'hidden' => null,
+    'icon' => null,
+    'id' => null,
+    'inline' => false,
+    'label' => false,
+    'name' => null,
+    'prepend' => null,
+    'required' => false,
+])
+
+<div class="{{ $inline ? 'lg:flex' : '' }} {{ $hidden && !($name && $errors && $errors->has($name)) ? '' : 'mb-3 last-of-type:mb-0' }}">
+    @if($label)
+        <label for="{{ $id ?? $name }}" class="block {{ $inline ? 'lg:w-36 lg:pr-3 lg:text-right lg:pt-1 whitespace-nowrap' : 'mb-1' }} {{ $name && $errors && $errors->has($name) ? 'text-danger' : '' }}">
+            {{ $label }} {{ $required ? '*' : '' }}
+        </label>
     @endif
     <div class="grow">
-        @if(!empty($icon))
-            <div class="input-group">
-                <span class="input-group-prepend">
-                    <span class="input-group-text">
-                        {{ svg('fas-'.$icon, 'icon') }}
-                    </span>
-                </span>
+        @if($icon || $prepend)
+            <div class="flex flex-row">
+                <div class="form-control-prepend flex items-center">
+                    {{ $icon ? svg('fas-' . $icon, 'icon') : $prepend }}
+                </div>
                 {{ $slot }}
             </div>
         @else
             {{ $slot }}
         @endif
-        @if(!empty($help))
-            <p class="help-block text-secondary mb-0">
+        @if($help)
+            <p class="help-block text-muted">
                 {!! $help  !!}
             </p>
         @endif
-        @if($attribute ?? null)
-            @error($attribute)
-            <p class="help-block text-danger mb-0" id="error-{{ $fieldId ?? $attribute }}">
-                <x-fas-exclamation-triangle /> {{ $errors->first($attribute) }}
+        @if($name)
+            @error($name)
+            <p class="help-block text-danger" id="error-{{ $id ?? $name }}">
+                <x-fas-exclamation-triangle /> {{ $errors->first($name) }}
             </p>
             @enderror
         @endif

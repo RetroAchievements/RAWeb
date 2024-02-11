@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Create the user and tooltip div that is shown when you hover over a username or user avatar.
+ * @deprecated use <x-user.avatar />
  */
 function userAvatar(
     string|User|null $user,

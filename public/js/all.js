@@ -125,32 +125,6 @@ jQuery(document).ready(function onReady($) {
     return false;
   });
 
-  var $searchUser = $('.searchuser');
-  $searchUser.autocomplete({
-    source: function (request, response) {
-      request.source = 'user';
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
-    },
-    minLength: 2
-  });
-  $searchUser.autocomplete({
-    select: function (event, ui) {
-      var TABKEY = 9;
-      if (event.keyCode === TABKEY) {
-        $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
-      }
-      return false;
-    },
-  });
-  $searchUser.on('autocompleteselect', function (event, ui) {
-    $searchUser.val(ui.item.label);
-    $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
-    return false;
-  });
-
   // Add highlights to deep-linked comments.
   const urlHash = window.location.hash;
   if (urlHash.startsWith('#comment_')) {

@@ -1,3 +1,8 @@
-<section class="{{ $class ?? 'mb-5' }}" style="{{ $style ?? '' }}">
+@props([
+    'class' => null,
+    'style' => null,
+])
+
+<section class="{{ $class }}" style="{{ $style }}">
     {{ $slot }}
 </section>

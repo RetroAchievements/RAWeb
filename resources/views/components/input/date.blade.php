@@ -1,3 +1,4 @@
 <x-input.text {{ $attributes->merge([
-    'type' => 'number',
+    'type' => 'date',
+    'icon' => 'calendar'
 ]) }} />

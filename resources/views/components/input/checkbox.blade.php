@@ -1,19 +1,51 @@
+<?php
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+?>
+
+@props([
+    'checked' => false,
+    'disabled' => false,
+    'help' => null,
+    'id' => null,
+    'inline' => false,
+    'label' => null,
+    'model' => null,
+    'name' => null,
+    'required' => false,
+    'requiredSilent' => false,
+])
+
+<?php
+if ($model) {
+    assert($model instanceof Model);
+}
+
+$id = $id ?: 'input_' . Str::random();
+?>
+
 <x-form-field
-    :model="$model ?? null"
-    :attribute="$attribute"
-    :help="$help ?? null"
+    :help="$help"
+    :id="$id"
+    :inline="$inline"
+    :model="$model"
+    :name="$name"
 >
-    <div class="custom-control custom-checkbox">
+    <div class="flex gap-2 items-center {{ $inline ? 'lg:ml-36' : '' }}">
         <input
+            class="form-control {{ $name && $errors && $errors->has($name) ? 'is-invalid' : '' }}"
+            id="{{ $id }}"
+            name="{{ $name }}"
             type="checkbox"
-            class="checkbox"
-            id="{{ $attribute }}"
-            name="{{ $attribute }}"
             value="1"
-            {{ old($attribute, !empty($model) ? $model->getAttribute($attribute) : null) ? 'checked' : '' }}
+            {{ $name ? (old($name, $model?->getAttribute($name) ?? $checked) ? 'checked' : '') : ($checked ? 'checked' : '') }}
+            @if($name && $errors && $errors->has($name))aria-describedby="error-{{ $id }}"@endif
+            {{ $disabled ? 'disabled' : '' }}
+            {{ ($required || $requiredSilent) ? 'required' : '' }}
         >
-        <label class="custom-control-label" for="{{ $attribute }}">
-            {{ $label ?? __('validation.attributes.'.$attribute) }} {{ !empty($required) ? '*' : '' }}
+        <label class="" for="{{ $id }}">
+            {{ $label ?? __('validation.attributes.'.$name) }} {{ $required && !$requiredSilent ? '*' : '' }}
         </label>
     </div>
 </x-form-field>

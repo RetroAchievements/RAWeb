@@ -93,21 +93,25 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
         @endforeach
     </div>
 
-    <div class="mt-2">
-        @if (!$canReply)
-            <i>Cannot reply to deleted user.</i>
-        @else
-            <form action="{{ route('message.store') }}" method="post" x-data="{ isValid: true }">
-                {{ csrf_field() }}
-                <input type="hidden" name="thread_id" value="{{ $messageThread->id }}"/>
-
-                <x-input.shortcode-textarea
-                    name="body"
-                    placholder="Enter your message here..."
-                />
-            </form>
-        @endif
-    </div>
+    <x-section>
+        <div class="mt-2">
+            @if (!$canReply)
+                <i>Cannot reply to deleted user.</i>
+            @else
+                <x-form action="{{ route('message.store') }}" validate>
+                    <input type="hidden" name="thread_id" value="{{ $messageThread->id }}"/>
+                    <x-input.textarea
+                        name="body"
+                        label="{{ __res('message', 1) }}"
+                        placeholder="Enter your message here..."
+                        requiredSilent
+                        richText
+                    />
+                    <x-form-actions />
+                </x-form>
+            @endif
+        </div>
+    </x-section>
 
     <div class="w-full flex justify-end mt-2">
         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage"/>

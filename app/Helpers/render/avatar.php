@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated use <x-avatar />
+ */
 function avatar(
     string $resource,
     int|string $id,

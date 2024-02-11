@@ -6,10 +6,10 @@
     </x-slot>
 
     <x-form :action="route('login')">
-        <x-input.text attribute="User" required />
-        <x-input.password attribute="password" required />
-        <x-input.checkbox attribute="remember" :label="__('Remember Me')" />
-        <x-button type="submit" class="w-full text-center py-2 mb-4">{{ __('Sign in') }}</x-button>
+        <x-input.text name="User" label="Username" requiredSilent />
+        <x-input.password name="password" requiredSilent />
+        <x-input.checkbox name="remember" :label="__('Remember Me')" />
+        <x-form-actions :submitLabel="__('Sign in')" :largeSubmit="true" />
         <div class="flex flex-col justify-between">
             <a class="btn btn-link" href="{{ url('resetPassword.php') }}">
                 {{ __('Forgot your password?') }}
