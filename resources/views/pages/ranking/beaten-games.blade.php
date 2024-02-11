@@ -16,10 +16,9 @@ name('ranking.beaten-games');
     'gameKindFilterOptions' => [],
     'isUserOnCurrentPage' => false,
     'leaderboardKind' => 'retail',
-    'myRankingData' => null,
-    'myUsername' => null,
     'paginator' => null,
     'selectedConsoleId' => null,
+    'targetUserRankingData' => null,
     'userPageNumber' => null,
 ])
 
@@ -45,9 +44,8 @@ name('ranking.beaten-games');
         <div class="mb-4">
             <x-beaten-games-leaderboard.leaderboard-table
                 :isUserOnCurrentPage="$isUserOnCurrentPage"
-                :myRankingData="$myRankingData"
-                :myUsername="$myUsername"
                 :paginator="$paginator"
+                :targetUserRankingData="$targetUserRankingData"
             />
         </div>
 

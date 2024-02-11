@@ -9,6 +9,7 @@ use App\Community\Enums\RankType;
 use App\Enums\Permissions;
 use App\Models\PlayerStat;
 use App\Models\User;
+use App\Platform\Enums\PlayerStatType;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -55,9 +56,10 @@ class UserProfileMeta extends Component
             'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta, $this->userJoinedGamesAndAwards),
             'socialStats' => $this->buildSocialStats($this->user),
             'softcoreRankMeta' => $softcoreRankMeta,
+            'user' => $this->user,
             'userClaims' => $this->userClaims,
-            'userMassData' => $this->userMassData,
-            'username' => $this->user->User,
+            'userMassData' => $this->userMassData, // TODO: replace w/ props from user model
+            'username' => $this->user->User, // TODO: remove
         ]);
     }
 
@@ -171,7 +173,9 @@ class UserProfileMeta extends Component
                 || ($hardcorePoints === 0 && !$hardcoreRankMeta['rank'])
             ),
             'shouldEnableBolding' => false,
-            'href' => isset($hardcoreRankMeta['rankOffset']) ? '/globalRanking.php?t=2&o=' . $hardcoreRankMeta['rankOffset'] . '&s=5' : null,
+            'href' => !$userMassData['Untracked'] && isset($hardcoreRankMeta['rankOffset'])
+                ? '/globalRanking.php?t=2&o=' . $hardcoreRankMeta['rankOffset'] . '&s=5'
+                : null,
         ];
 
         // Achievements unlocked
@@ -210,14 +214,26 @@ class UserProfileMeta extends Component
         $recentPointsEarned = $this->calculateRecentPointsEarned($user, $preferredMode);
 
         // Total games beaten
-        $totalGamesBeaten = (int) PlayerStat::where('user_id', $user->ID) // keep in mind, this is hardcore only.
+        $gamesBeatenStats = PlayerStat::where('user_id', $user->ID)
             ->where('system_id', null)
-            ->sum('value');
+            ->selectRaw('
+                SUM(value) as totalGamesBeaten,
+                SUM(CASE WHEN type IN (?, ?) THEN value ELSE 0 END) AS retailGamesBeaten',
+                [
+                    PlayerStatType::GamesBeatenHardcoreRetail,
+                    PlayerStatType::GamesBeatenHardcoreUnlicensed,
+                ]
+            )
+            ->first();
+        $totalGamesBeaten = (int) $gamesBeatenStats->totalGamesBeaten;
+        $retailGamesBeaten = (int) $gamesBeatenStats->retailGamesBeaten;
         $totalGamesBeatenStat = [
             'label' => 'Total games beaten',
+            'hrefLabel' => "(" . localized_number($retailGamesBeaten) . " retail)",
             'value' => localized_number($totalGamesBeaten),
+            'isHrefLabelBeforeLabel' => false,
             'isMuted' => !$totalGamesBeaten,
-            // TODO: href to 'ranking.beaten-games' for a specific user.
+            'href' => $retailGamesBeaten ? route('ranking.beaten-games', ['filter[user]' => $user->username]) : null,
         ];
 
         // Started games beaten
@@ -361,7 +377,9 @@ class UserProfileMeta extends Component
                 || ($softcorePoints === 0 && !$softcoreRankMeta['rank'])
             ),
             'shouldEnableBolding' => false,
-            'href' => isset($softcoreRankMeta['rankOffset']) ? '/globalRanking.php?t=2&o=' . $softcoreRankMeta['rankOffset'] . '&s=2' : null,
+            'href' => !$userMassData['Untracked'] && isset($softcoreRankMeta['rankOffset'])
+                ? '/globalRanking.php?t=2&o=' . $softcoreRankMeta['rankOffset'] . '&s=2'
+                : null,
         ];
 
         // Achievements unlocked (softcore)
@@ -385,8 +403,8 @@ class UserProfileMeta extends Component
 
         // Iterate over each game to check if it is finished.
         foreach ($userJoinedGamesAndAwards as $game) {
-            // Ignore subsets.
-            if (strpos($game['Title'], '[Subset') !== false) {
+            // Ignore subsets and test kits.
+            if (mb_strpos($game['Title'], '[Subset') !== false || mb_strpos($game['Title'], '~Test Kit~')) {
                 continue;
             }
 
