@@ -24,7 +24,11 @@
     </style>
 
     <div id="debug" role="button" x-init="{}" @click="handleClick($el)" class="text-2xs flex flex-col rounded-lg bg-black/20 p-1">
-        <b class="text-danger text-capitalize">{{ app()->environment() }} ({{ config('app.branch') }})</b>
+        <b class="text-danger text-capitalize">
+            {{ app()->environment() }}
+            {{ $_SERVER['LARAVEL_OCTANE'] ?? false ? '[Octane]' : '' }}
+            ({{ config('app.branch') }})
+        </b>
 
         <div>
             <b>

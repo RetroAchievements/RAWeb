@@ -64,6 +64,10 @@ function RenderCommentsComponent(
     $lastKnownDate = 'Init';
 
     foreach ($commentData as $comment) {
+        if (isset($comment['banned_at']) && $permissions < Permissions::Moderator) {
+            continue;
+        }
+
         $dow = date("d/m", (int) $comment['Submitted']);
         if ($lastKnownDate == 'Init') {
             $lastKnownDate = $dow;
@@ -108,7 +112,7 @@ function RenderArticleComment(
     ?string $localUser,
     int $articleTypeID,
     int $commentID,
-    bool $allowDelete
+    bool $allowDelete,
 ): void {
     $class = '';
     $deleteIcon = '';
