@@ -333,7 +333,7 @@ switch ($requestType) {
              */
             $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
 
-            if ($foundAchievement->is_published) {
+            if ($response['Success']) {
                 dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
                     ->onQueue('player-achievements');
             }
@@ -432,7 +432,7 @@ switch ($requestType) {
         foreach ($awardableAchievements as $achievement) {
             $unlockAchievementResult = unlockAchievement($targetUser, $achievement->id, $hardcore);
 
-            if (!isset($unlockAchievementResult['Error']) && $achievement->is_published) {
+            if (!isset($unlockAchievementResult['Error'])) {
                 dispatch(new UnlockPlayerAchievementJob($targetUser->id, $achievement->id, $hardcore))
                     ->onQueue('player-achievements');
 

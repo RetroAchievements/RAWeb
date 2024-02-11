@@ -77,7 +77,9 @@ class UnlockPlayerAchievement
         }
 
         // commit the unlock
-        $unlock->save();
+        if ($achievement->is_published) {
+            $unlock->save();
+        }
 
         // post the unlock notification
         PlayerAchievementUnlocked::dispatch($user, $achievement, $hardcore);
