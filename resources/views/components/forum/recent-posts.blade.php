@@ -27,7 +27,7 @@
                 <p>in <a href="{{ $recentForumPost['URL'] }}">{{ $recentForumPost['ForumTopicTitle'] }}</a></p>
 
                 <p class="comment text-overflow-wrap">
-                    {{ $recentForumPost['ShortMsg'] }}
+                    {{ html_entity_decode($recentForumPost['ShortMsg']) }}
                 </p>
             </div>
         @endforeach

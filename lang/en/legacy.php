@@ -10,6 +10,7 @@ return [
         'account' => __("There appears to be a problem with your account. Please contact <a href='" . route('user.show', 'RAdmin') . "'>RAdmin</a> for more details."),
         'credentials' => __("Incorrect credentials."),
         'image_upload' => "Image could not be uploaded.",
+        'invalid_news_content' => __("Problems encountered with news content. Ensure any given HTML is valid."),
         'game_modify' => __("Problems encountered while performing modification. Does the target game already exist? If so, try a merge instead on the target game title."),
         'game_merge' => __("Problems encountered while performing merge."),
         'permissions' => __('Insufficient permissions.'),

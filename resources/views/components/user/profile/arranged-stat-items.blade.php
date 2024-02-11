@@ -13,6 +13,7 @@
                 <x-user.profile.stat-element
                     :href="$stat['href'] ?? null"
                     :hrefLabel="$stat['hrefLabel'] ?? null"
+                    :isHrefLabelBeforeLabel="$stat['isHrefLabelBeforeLabel'] ?? true"
                     :isMuted="$stat['isMuted'] ?? false"
                     :label="$stat['label']"
                     :shouldEnableBolding="isset($stat['shouldEnableBolding']) ? $stat['shouldEnableBolding'] : true"
@@ -29,6 +30,7 @@
                 <x-user.profile.stat-element
                     :href="$stat['href'] ?? null"
                     :hrefLabel="$stat['hrefLabel'] ?? null"
+                    :isHrefLabelBeforeLabel="$stat['isHrefLabelBeforeLabel'] ?? true"
                     :isMuted="$stat['isMuted'] ?? false"
                     :label="$stat['label']"
                     :shouldEnableBolding="isset($stat['shouldEnableBolding']) ? $stat['shouldEnableBolding'] : true"
