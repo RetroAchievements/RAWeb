@@ -6,6 +6,7 @@ namespace App\Platform;
 
 use App\Models\GameHash;
 use App\Platform\Controllers\BeatenGamesLeaderboardController;
+use App\Platform\Controllers\CompareUnlocksController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
@@ -71,6 +72,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
             Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest');
+            Route::get('game/{game}/achievements/compare/{user}', CompareUnlocksController::class)->name('game.compare-unlocks');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');

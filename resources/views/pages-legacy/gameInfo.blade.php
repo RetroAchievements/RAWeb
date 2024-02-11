@@ -5,10 +5,12 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
+use App\Models\Game;
 use App\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Models\User;
+use App\Platform\Controllers\CompareUnlocksController;
 use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
@@ -21,10 +23,8 @@ if (empty($gameID)) {
     abort(404);
 }
 
-$friendScores = [];
-if (authenticateFromCookie($user, $permissions, $userDetails)) {
-    getAllFriendsProgress($user, $gameID, $friendScores);
-}
+authenticateFromCookie($user, $permissions, $userDetails);
+
 $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
@@ -999,7 +999,15 @@ sanitize_outputs(
         }
 
         if ($user !== null && $numAchievements > 0) {
-            RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
+            $gameModel = Game::find($gameID);
+            $followedUserCompletion = CompareUnlocksController::getFollowedUsersCompletion($userModel, $gameModel);
+            ?>
+            <x-game.compare-progress
+                :game="$gameModel"
+                :user="$userModel"
+                :followedUserCompletion="$followedUserCompletion"
+            />
+            <?php
         }
 
         if ($numAchievements > 0 && $isOfficial) {
