@@ -21,13 +21,17 @@ class RedirectController extends Controller
 
         // Third-party
         'backloggd.com',
+        'backloggery.com',
         'completionist.me',
         'exophase.com',
         'github.com',
         'howlongtobeat.com',
+        'infinitebacklog.net',
+        'infinitebacklog.nl',
         'psnprofiles.com',
         'steamcommunity.com',
         'twitch.tv',
+        'twitter.com',
         'youtube.com',
     ];
 
