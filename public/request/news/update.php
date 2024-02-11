@@ -21,6 +21,31 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'image' => 'required|url',
 ]);
 
+/**
+ * TODO: Migrate to Markdown. This is a temporary stopgap.
+ * Corrects missing quotes in `href` attributes of anchor
+ * tags so they don't break the site homepage.
+ */
+function sanitizeMaybeInvalidHtml(string $htmlContent): string
+{
+    $pattern = '/<a\s+href=([^\'" >]+)(.*?)>(.*?)<\/a>/i';
+    $replacement = '<a href="$1"$2>$3</a>';
+    $fixedHtml = preg_replace($pattern, $replacement, $htmlContent);
+
+    // Any tags other than <a> and <br> are considered invalid.
+    $allowedTags = '<a><br>';
+    $saferHtml = strip_tags($fixedHtml, $allowedTags);
+
+    return $saferHtml;
+}
+
+// Sanitize the 'body' field so news managers can't inject any HTML they want.
+$input['body'] = sanitizeMaybeInvalidHtml($input['body']);
+
+if (empty($input['body'])) {
+    return back()->withErrors(__('legacy.error.invalid_news_content'));
+}
+
 $id = (int) $input['news'];
 
 if (empty($id)) {
