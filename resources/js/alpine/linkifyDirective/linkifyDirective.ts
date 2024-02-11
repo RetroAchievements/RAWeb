@@ -9,7 +9,25 @@ export function linkifyDirective(
   effect(() => {
     el.innerHTML = linkifyHtml(el.innerHTML, {
       formatHref: {
-        url: (href) => `/redirect?url=${href}`,
+        url: (href) => {
+          if (href.toLowerCase().includes('retroachievements.org')) {
+            return href;
+          }
+
+          return `/redirect?url=${href}`;
+        },
+      },
+
+      validate: {
+        url: (text) => {
+          const sanitized = text.toLowerCase();
+
+          if (sanitized.endsWith('.mp') || sanitized.endsWith('.ar')) {
+            return false;
+          }
+
+          return true;
+        },
       },
     });
 
