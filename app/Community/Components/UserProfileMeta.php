@@ -172,7 +172,9 @@ class UserProfileMeta extends Component
                 || ($hardcorePoints === 0 && !$hardcoreRankMeta['rank'])
             ),
             'shouldEnableBolding' => false,
-            'href' => isset($hardcoreRankMeta['rankOffset']) ? '/globalRanking.php?t=2&o=' . $hardcoreRankMeta['rankOffset'] . '&s=5' : null,
+            'href' => !$userMassData['Untracked'] && isset($hardcoreRankMeta['rankOffset'])
+                ? '/globalRanking.php?t=2&o=' . $hardcoreRankMeta['rankOffset'] . '&s=5'
+                : null,
         ];
 
         // Achievements unlocked
@@ -374,7 +376,9 @@ class UserProfileMeta extends Component
                 || ($softcorePoints === 0 && !$softcoreRankMeta['rank'])
             ),
             'shouldEnableBolding' => false,
-            'href' => isset($softcoreRankMeta['rankOffset']) ? '/globalRanking.php?t=2&o=' . $softcoreRankMeta['rankOffset'] . '&s=2' : null,
+            'href' => !$userMassData['Untracked'] && isset($softcoreRankMeta['rankOffset'])
+                ? '/globalRanking.php?t=2&o=' . $softcoreRankMeta['rankOffset'] . '&s=2'
+                : null,
         ];
 
         // Achievements unlocked (softcore)
