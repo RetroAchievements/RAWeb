@@ -1,5 +1,4 @@
 <?php
-
 // TODO migrate to Filament
 
 use App\Models\News;
@@ -24,6 +23,7 @@ $newsAuthor = $news['Author'] ?? $user->User;
 $newsLink = $news['Link'] ?? '';
 $newsImage = old('image', $news['Image'] ?? '');
 ?>
+
 <x-app-layout pageTitle="Manage News">
     <div class="mb-5">
         <h2 class="longheader">Manage News</h2>
@@ -36,6 +36,7 @@ $newsImage = old('image', $news['Image'] ?? '');
             </div>
         </div>
     </div>
+
     <form action="/request/news/update.php" method="post">
         <?= csrf_field() ?>
         <input type="hidden" name="news" value="<?= $newsId ?>">
@@ -102,28 +103,29 @@ $newsImage = old('image', $news['Image'] ?? '');
             </tbody>
         </table>
     </form>
-<script>
-function UploadImage() {
-    var photo = document.getElementById('uploadimagefile');
-    var file = photo.files[0];
-    var reader = new FileReader();
-    reader.onload = function () {
-        var loadingIcon = document.getElementById('loadingicon');
-        loadingIcon.classList.remove('opacity-0');
-        loadingIcon.classList.add('animate-spin');
-        $.post('/request/news/update-image.php', { image: reader.result },
-            function (data) {
-                loadingIcon.classList.add('opacity-0');
-                loadingIcon.classList.remove('animate-spin');
+    
+    <script>
+    function UploadImage() {
+        var photo = document.getElementById('uploadimagefile');
+        var file = photo.files[0];
+        var reader = new FileReader();
+        reader.onload = function () {
+            var loadingIcon = document.getElementById('loadingicon');
+            loadingIcon.classList.remove('opacity-0');
+            loadingIcon.classList.add('animate-spin');
+            $.post('/request/news/update-image.php', { image: reader.result },
+                function (data) {
+                    loadingIcon.classList.add('opacity-0');
+                    loadingIcon.classList.remove('animate-spin');
 
-                var image = data.filename;
-                $('#image').val(image);
-                $('#imagePreview img').attr('src', image);
-                $('#imagePreview').show();
-            });
-    };
-    reader.readAsDataURL(file);
-    return false;
-}
-</script>
+                    var image = data.filename;
+                    $('#image').val(image);
+                    $('#imagePreview img').attr('src', image);
+                    $('#imagePreview').show();
+                });
+        };
+        reader.readAsDataURL(file);
+        return false;
+    }
+    </script>
 </x-app-layout>

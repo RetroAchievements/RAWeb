@@ -496,6 +496,18 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     // == scopes
 
     /**
+     * To make the transition to customizable usernames a little easier
+     * once `display_name` is populated in the database.
+     *
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeByDisplayName(Builder $query, string $username): Builder
+    {
+        return $query->where('User', $username);
+    }
+
+    /**
      * @param Builder<User> $query
      * @return Builder<User>
      */
