@@ -56,9 +56,10 @@ class UserProfileMeta extends Component
             'playerStats' => $this->buildPlayerStats($this->user, $this->userMassData, $hardcoreRankMeta, $softcoreRankMeta, $this->userJoinedGamesAndAwards),
             'socialStats' => $this->buildSocialStats($this->user),
             'softcoreRankMeta' => $softcoreRankMeta,
+            'user' => $this->user,
             'userClaims' => $this->userClaims,
-            'userMassData' => $this->userMassData,
-            'username' => $this->user->User,
+            'userMassData' => $this->userMassData, // TODO: replace w/ props from user model
+            'username' => $this->user->User, // TODO: remove
         ]);
     }
 
