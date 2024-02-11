@@ -282,6 +282,18 @@ class Achievement extends BaseModel implements HasComments
 
     // == mutators
 
+    public function promote()
+    {
+        $this->Flags = AchievementFlag::OfficialCore;
+        $this->save();
+    }
+
+    public function demote()
+    {
+        $this->Flags = AchievementFlag::Unofficial;
+        $this->save();
+    }
+
     // == relations
 
     /**
