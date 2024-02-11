@@ -13,8 +13,11 @@ class RedirectController extends Controller
 {
     private array $allowedDomains = [
         // First-party
-        'news.retroachievements.org',
+        'api-docs.retroachievements.org',
         'docs.retroachievements.org',
+        'media.retroachievements.org',
+        'news.retroachievements.org',
+        'retroachievements.org',
 
         // Third-party
         'backloggd.com',
