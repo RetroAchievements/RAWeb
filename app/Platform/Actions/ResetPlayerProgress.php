@@ -11,6 +11,7 @@ use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerStatsJob;
 
 class ResetPlayerProgress
 {
@@ -101,6 +102,8 @@ class ResetPlayerProgress
                 dispatch(new UpdateGameMetricsJob($affectedGameID));
             }
         }
+
+        dispatch(new UpdatePlayerStatsJob($user->id));
 
         $user->save();
     }
