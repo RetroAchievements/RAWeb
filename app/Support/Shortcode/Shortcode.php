@@ -337,7 +337,7 @@ final class Shortcode
                 // If we use Laravel's `route()` helper, this will point to "localhost" in tests.
                 $redirectBaseUrl = "https://retroachievements.org/redirect?url=";
                 $redirectUrl = $redirectBaseUrl . urlencode($matches[1]);
-                    
+
                 return '<a href="' . htmlspecialchars($redirectUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') . '</a>';
             },
             $text
