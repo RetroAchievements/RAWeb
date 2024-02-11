@@ -1,6 +1,7 @@
 @props([
     'href' => null, // ?string
     'hrefLabel' => null, // ?string
+    'isHrefLabelBeforeLabel' => true,
     'isMuted' => false,
     'label' => 'Label',
     'shouldEnableBolding' => true,
@@ -15,12 +16,17 @@
 
     <p class="z-[2] bg-embed pl-2 {{ $isMuted ? 'text-muted italic' : '' }} {{ $shouldEnableBolding && !$isMuted ? 'font-bold' : '' }}">
         @if ($href)
+            {{-- Allows for only fragments to be linked --}}
+            @if (!$isHrefLabelBeforeLabel && $hrefLabel && $value)
+                <span>{{ $value }}</span>
+            @endif
+
             <a href="{{ $href }}">
                 {{ $hrefLabel ?? $value }}
             </a>
 
-            {{-- Allows for only fragments to be linked (see: site rank stats) --}}
-            @if ($hrefLabel && $value)
+            {{-- Allows for only fragments to be linked --}}
+            @if ($isHrefLabelBeforeLabel && $hrefLabel && $value)
                 <span>{{ $value }}</span>
             @endif
         @elseif (!$hrefLabel && isset($value))
