@@ -11,28 +11,24 @@
 
 $userName = request()->query('u');
 $lbID = (int) request()->query('lbID');
-$lowerIsBetter = true;
 
-$totalEntries = 0;
-$lastRank = 1;
-getLeaderboardRanking($userName, $lbID, $userRank, $totalEntries);
-
-if ($lowerIsBetter) {
-    $lastRank = $totalEntries;
-} else {
-    $lastRank = 1;
-}
+$lowerIsBetter = (bool) Leaderboard::find($lbID)->LowerIsBetter;
 
 $rankingData = GetLeaderboardRankingJSON($userName, $lbID, $lowerIsBetter);
 
 if (empty($rankingData)) {
-    $rankingData = [
-        'Rank' => $lastRank,
+    $totalEntries = Leaderboard::find($lbID)->entries()->count();
+    return response()->json([
+        'User' => $userName,
+        'LeaderboardID' => $lbID,
+        'Rank' => $totalEntries,
         'NumEntries' => $totalEntries
-    ];
+    ]);
 }
 
-return response()->json(array_map('intval', [
-    'Rank' => $rankingData['Rank'] ?? 0,
-    'NumEntries' => $rankingData['NumEntries'] ?? 0
-]));
+return response()->json([
+    'User' => $userName,
+    'LeaderboardID' => $lbID,
+    'Rank' => $rankingData['Rank'],
+    'NumEntries' => $rankingData['NumEntries']
+]);
