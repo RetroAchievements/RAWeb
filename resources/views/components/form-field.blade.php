@@ -12,7 +12,7 @@
 
 <div class="{{ $inline ? 'lg:flex' : '' }} {{ $hidden && !($name && $errors && $errors->has($name)) ? '' : 'mb-3 last-of-type:mb-0' }}">
     @if($label)
-        <label for="{{ $id ?? $name }}" class="block {{ $inline ? 'lg:w-36 lg:pr-3 lg:text-right lg:pt-1 whitespace-nowrap' : 'mb-1' }} {{ $name && $errors && $errors->has($name) ? 'text-danger' : '' }}">
+        <label for="{{ $id }}" class="block {{ $inline ? 'lg:w-36 lg:pr-3 lg:text-right lg:pt-1 whitespace-nowrap' : 'mb-1' }} {{ $name && $errors && $errors->has($name) ? 'text-danger' : '' }}">
             {{ $label }} {{ $required ? '*' : '' }}
         </label>
     @endif
@@ -34,7 +34,7 @@
         @endif
         @if($name)
             @error($name)
-            <p class="help-block text-danger" id="error-{{ $id ?? $name }}">
+            <p class="help-block text-danger" id="error-{{ $id }}">
                 <x-fas-exclamation-triangle /> {{ $errors->first($name) }}
             </p>
             @enderror
