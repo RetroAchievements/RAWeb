@@ -1,6 +1,6 @@
 <button
-    {{ $attributes->merge([
-        'class' => 'btn whitespace-nowrap',
+    {{ $attributes->class([
+        'btn whitespace-nowrap',
     ]) }}
     :disabled="!isValid || isSending"
 >

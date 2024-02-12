@@ -212,7 +212,7 @@ name('demo');
                 <x-slot name="actions">
                     <div>Valid: <span x-text="isValid"></span></div>
                     <div>Sending: <span x-text="isSending"></span></div>
-                    <x-form-actions />
+                    <x-button.submit class="btn-warning" icon="heart">{{ __('Submit in section header') }}</x-button.submit>
                 </x-slot>
             </x-section-header>
             <x-input.text name="text" requiredSilent inline help="Some helpful text describing this input" />

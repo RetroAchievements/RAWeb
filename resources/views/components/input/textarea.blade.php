@@ -90,7 +90,7 @@ $id = $id ?: 'input_' . Str::random();
                 <x-fas-spinner id="preview-loading-icon" class="opacity-0 transition-all duration-200" aria-hidden="true" />
                 <button
                     type="button"
-                    class="btn py-1"
+                    class="btn py-1 mt-1"
                     onclick="window.loadPostPreview('{{ $id }}', 'post-preview-{{ $id }}')"
                     :disabled="!isValid || isSending"
                 >{{ __('Preview') }}</button>
