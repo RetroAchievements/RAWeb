@@ -23,7 +23,7 @@ $leaderboardData = GetLeaderboardData($lbID, null, $limit, $offset, true);
 if (empty($leaderboardData['Entries'])) {
     return response()->json([
         'LeaderboardID' => $lbID,
-        'Entries' => []
+        'Entries' => [],
     ]);
 }
 
@@ -34,7 +34,7 @@ return response()->json([
             'User' => $entry['User'],
             'Score' => $entry['Score'],
             'DateSubmitted' => date('c', $entry['DateSubmitted']), // Convert timestamp to ISO 8601
-            'Rank' => $entry['Rank']
+            'Rank' => $entry['Rank'],
         ];
     }, $leaderboardData['Entries'])
 ]);
