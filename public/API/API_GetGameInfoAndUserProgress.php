@@ -91,6 +91,9 @@ if (!empty($achData)) {
     }
 }
 
+getLeaderboardsForGame($gameID, $leaderboardData, $targetUser);
+$gameData['Leaderboards'] = $leaderboardData;
+
 unset($gameData['system']);
 unset($gameData['achievement_set_version_hash']);
 unset($gameData['Updated']);
