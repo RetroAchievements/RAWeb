@@ -11,16 +11,25 @@
 
 $userName = request()->query('u');
 $lbID = (int) request()->query('lbID');
-
 $lowerIsBetter = true;
+
+$totalEntries = 0;
+$lastRank = 1;
+getLeaderboardRanking($userName, $lbID, $userRank, $totalEntries);
+
+if ($lowerIsBetter) {
+    $lastRank = $totalEntries;
+} else {
+    $lastRank = 1;
+}
 
 $rankingData = GetLeaderboardRankingJSON($userName, $lbID, $lowerIsBetter);
 
 if (empty($rankingData)) {
-    return response()->json([
-        'User' => $userName,
-        'LeaderboardID' => $lbID
-    ], 404);
+    $rankingData = [
+        'Rank' => $lastRank,
+        'NumEntries' => $totalEntries
+    ];
 }
 
 return response()->json(array_map('intval', [
