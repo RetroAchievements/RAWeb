@@ -33,8 +33,8 @@ return response()->json([
         return [
             'User' => $entry['User'],
             'Score' => $entry['Score'],
-            'DateSubmitted' => date('c', $entry['DateSubmitted']), // Convert timestamp to ISO 8601
+            'DateSubmitted' => date('c', $entry['DateSubmitted']),
             'Rank' => $entry['Rank'],
         ];
-    }, $leaderboardData['Entries'])
+    }, $leaderboardData['Entries'],)
 ]);
