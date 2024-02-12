@@ -92,6 +92,13 @@ if (!empty($achData)) {
 }
 
 getLeaderboardsForGame($gameID, $leaderboardData, $targetUser);
+
+foreach ($leaderboardData as &$leaderboard) {
+    $lbID = $leaderboard['LeaderboardID'];
+    $userScoreData = GetLeaderboardRankingJSON($targetUser, $lbID, $leaderboard['LowerIsBetter']);
+    $leaderboard['UserScore'] = $userScoreData;
+}
+
 $gameData['Leaderboards'] = $leaderboardData;
 
 unset($gameData['system']);
