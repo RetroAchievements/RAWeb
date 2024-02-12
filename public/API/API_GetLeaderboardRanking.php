@@ -20,12 +20,12 @@ if (empty($rankingData)) {
     return response()->json([
         'User' => $userName,
         'LeaderboardID' => $lbID,
-        'Rank' => null
+        'Rank' => null,
     ]);
 }
 
 return response()->json([
     'User' => $userName,
     'LeaderboardID' => $lbID,
-    'Rank' => $rankingData['Rank']
+    'Rank' => $rankingData['Rank'],
 ]);
