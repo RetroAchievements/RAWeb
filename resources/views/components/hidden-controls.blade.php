@@ -2,18 +2,10 @@
     function toggleHiddenControls() {
         const buttonEl = document.getElementById('hidden-controls-toggle-button');
         const contentEl = document.getElementById('hidden-controls-content');
-        if (contentEl) {
-            if (contentEl.classList.contains('hidden')) {
-                contentEl.classList.remove('hidden');
-                if (buttonEl) {
-                    buttonEl.innerHTML = buttonEl.innerText.substring(0, buttonEl.innerText.length-1) + "▲";
-                }
-            } else {
-                contentEl.classList.add('hidden');
-                if (buttonEl) {
-                    buttonEl.innerHTML = buttonEl.innerText.substring(0, buttonEl.innerText.length-1) + "▼";
-                }
-            }
+        if (contentEl && buttonEl) {
+            contentEl.classList.toggle('hidden');
+            buttonEl.innerHTML = buttonEl.innerText.substring(0, buttonEl.innerText.length-1) +
+                (contentEl.classList.contains('hidden') ? "▼" : "▲");
         }
     }
 </script>
