@@ -93,7 +93,8 @@ class V1Test extends TestCase
 
         // Unlocks can't be granted while an achievement is in unofficial status.
         $this->addHardcoreUnlock($this->user, $publishedAchievements->get(2));
-        $publishedAchievements->get(2)->demote();
+        $publishedAchievements->get(2)->Flags = AchievementFlag::Unofficial;
+        $publishedAchievements->get(2)->save();
 
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore, 'f' => AchievementFlag::Unofficial]))
             ->assertSuccessful()

@@ -8,6 +8,7 @@ use App\Models\Achievement;
 use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Platform\Actions\ResetPlayerProgress;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -201,7 +202,8 @@ class ResetPlayerProgressTest extends TestCase
         /** @var Achievement $unofficialAchievement */
         $unofficialAchievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($user, $unofficialAchievement);
-        $unofficialAchievement->demote();
+        $unofficialAchievement->Flags = AchievementFlag::Unofficial;
+        $unofficialAchievement->save();
 
         foreach ($achievements as $achievement) {
             $this->addHardcoreUnlock($user, $achievement);
