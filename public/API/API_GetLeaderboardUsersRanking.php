@@ -15,8 +15,8 @@
  */
 
 $lbID = (int) request()->query('lbID');
-$offset = (int) request()->query('offset', 0); // default to 0 if not provided
-$limit = (int) request()->query('limit', 100); // default to 100 if not provided
+$offset = (int) request()->query('offset', '0'); // default to '0' if not provided
+$limit = (int) request()->query('limit', '100'); // default to '100' if not provided
 
 $leaderboardData = GetLeaderboardData($lbID, null, $limit, $offset, true);
 
