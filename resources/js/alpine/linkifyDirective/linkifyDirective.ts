@@ -17,18 +17,6 @@ export function linkifyDirective(
           return `/redirect?url=${href}`;
         },
       },
-
-      validate: {
-        url: (text) => {
-          const sanitized = text.toLowerCase();
-
-          if (sanitized.endsWith('.mp') || sanitized.endsWith('.ar')) {
-            return false;
-          }
-
-          return true;
-        },
-      },
     });
 
     requestAnimationFrame(() => {

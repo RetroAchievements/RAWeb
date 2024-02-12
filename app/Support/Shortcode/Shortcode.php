@@ -184,8 +184,11 @@ final class Shortcode
         }
 
         // Finally, build and return the needed anchor tag.
-        // HTML escape the visible URL to prevent XSS vulnerabilities.
-        return sprintf('<a href="%s">%s</a>', $finalUrl, htmlspecialchars($prefixedUrl, ENT_QUOTES, 'UTF-8'));
+        return sprintf(
+            '<a href="%s">%s</a>',
+            $finalUrl,
+            $shortcode->getContent() ?: $this->protocolPrefix($shortcode->getBbCode())
+        );
     }
 
     private function renderLink(ShortcodeInterface $shortcode): string
@@ -204,7 +207,11 @@ final class Shortcode
 
         // Finally, build and return the needed anchor tag.
         // HTML escape the content to prevent XSS vulnerabilities.
-        return sprintf('<a href="%s">%s</a>', $finalUrl, htmlspecialchars($shortcode->getContent(), ENT_QUOTES, 'UTF-8'));
+        return sprintf(
+            '<a href="%s">%s</a>',
+            $finalUrl,
+            htmlspecialchars($shortcode->getContent(), ENT_QUOTES, 'UTF-8')
+        );
     }
 
     private function protocolPrefix(?string $href): string
