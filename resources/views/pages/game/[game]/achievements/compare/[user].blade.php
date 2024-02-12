@@ -107,16 +107,16 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
         />
 
         <div class="overflow-x-auto lg:overflow-x-visible">
-            <table class='table-highlight mb-4'>
+            <table class="table-highlight mb-4">
                 <thead>
                     <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[1] bg-box">
-                        <th style='width:30%'>
+                        <th style="width:30%">
                         {!! userAvatar($user->User, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
                         </th>
-                        <th style='width:30%'>
+                        <th style="width:30%">
                         {!! userAvatar($otherUser->User, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
                         </th>
-                        <th style='width:40%'>Achievement</th>
+                        <th style="width:40%">Achievement</th>
                     </tr>
                 </thead>
 
