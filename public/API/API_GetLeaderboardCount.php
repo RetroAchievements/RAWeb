@@ -17,5 +17,5 @@ $leaderboardCount = getLeaderboardsForGame($gameID, $leaderboardData, null, true
 return response()->json([
     'GameID' => $gameID,
     'LeaderboardCount' => $leaderboardCount,
-    'Leaderboards' => array_values($leaderboardData)
+    'Leaderboards' => array_values($leaderboardData),
 ]);
