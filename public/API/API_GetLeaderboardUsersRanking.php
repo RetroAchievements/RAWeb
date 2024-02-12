@@ -36,5 +36,5 @@ return response()->json([
             'DateSubmitted' => date('c', $entry['DateSubmitted']),
             'Rank' => $entry['Rank'],
         ];
-    }, $leaderboardData['Entries'],)
+    }, $leaderboardData['Entries'])
 ]);
