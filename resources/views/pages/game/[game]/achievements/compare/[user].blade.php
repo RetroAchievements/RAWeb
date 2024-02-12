@@ -70,7 +70,7 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
         <h1 class="mt-[10px] w-full">Compare Unlocks: {{ $otherUser->User }}</h1>
 
         @if ($canModerate)
-            <x-hidden-controls-toggle-button label="Moderate" />
+            <x-hidden-controls-toggle-button>Moderate</x-hidden-controls-toggle-button>
         @endif
     </div>
 
