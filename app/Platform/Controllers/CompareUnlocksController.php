@@ -21,8 +21,6 @@ class CompareUnlocksController extends Controller
             abort(403);
         }
 
-        $this->getFollowedUsersCompletion($activeUser, $game);
-
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:selfUnlocks,otherUnlocks,display,title',
         ]);
