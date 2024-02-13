@@ -18,7 +18,6 @@ name('contact');
                 <ul class="mb-3 list-disc list-inside">
                     <li>Reporting offensive behavior.</li>
                     <li>Reporting copyrighted material.</li>
-                    <li>Reporting cheating to be investigated.</li>
                     <li>Requesting to be untracked.</li>
                 </ul>
             </x-section>
