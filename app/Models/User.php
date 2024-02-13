@@ -525,4 +525,12 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     {
         return $query->where('Permissions', '>', 0);
     }
+
+    /**
+     * Get the leaderboard entries for the user.
+     */
+    public function leaderboardEntries(): HasMany
+    {
+        return $this->hasMany(LeaderboardEntry::class);
+    }
 }
