@@ -22,29 +22,31 @@
  *  string     Released                   release date information for the game
  */
 
-$gameID = (int) request()->query('i');
+use App\Models\Game;
 
-$game = getGameData($gameID);
+$gameId = (int) request()->query('i');
 
-if ($game === null) {
+$game = Game::with('system')->find($gameId);
+
+if (!$game) {
     return response()->json();
 }
 
 return response()->json([
-    'Title' => $game['Title'],
-    'GameTitle' => $game['Title'],
-    'ConsoleID' => $game['ConsoleID'],
-    'ConsoleName' => $game['ConsoleName'],
-    'Console' => $game['ConsoleName'],
-    'ForumTopicID' => $game['ForumTopicID'],
-    'Flags' => (int) $game['Flags'],
-    'GameIcon' => $game['ImageIcon'],
-    'ImageIcon' => $game['ImageIcon'],
-    'ImageTitle' => $game['ImageTitle'],
-    'ImageIngame' => $game['ImageIngame'],
-    'ImageBoxArt' => $game['ImageBoxArt'],
-    'Publisher' => $game['Publisher'],
-    'Developer' => $game['Developer'],
-    'Genre' => $game['Genre'],
-    'Released' => $game['Released'],
+    'Title' => $game->Title,
+    'GameTitle' => $game->Title,
+    'ConsoleID' => $game->ConsoleID,
+    'ConsoleName' => $game->system->Name,
+    'Console' => $game->system->Name,
+    'ForumTopicID' => $game->ForumTopicID,
+    'Flags' => 0, // Always '0'
+    'GameIcon' => $game->ImageIcon,
+    'ImageIcon' => $game->ImageIcon,
+    'ImageTitle' => $game->ImageTitle,
+    'ImageIngame' => $game->ImageIngame,
+    'ImageBoxArt' => $game->ImageBoxArt,
+    'Publisher' => $game->Publisher,
+    'Developer' => $game->Developer,
+    'Genre' => $game->Genre,
+    'Released' => $game->Released,
 ]);
