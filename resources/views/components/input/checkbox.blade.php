@@ -44,7 +44,7 @@ $id = $id ?: 'input_' . Str::random();
             {{ $disabled ? 'disabled' : '' }}
             {{ ($required || $requiredSilent) ? 'required' : '' }}
         >
-        <label class="" for="{{ $id }}">
+        <label for="{{ $id }}">
             {{ $label ?? __('validation.attributes.'.$name) }} {{ $required && !$requiredSilent ? '*' : '' }}
         </label>
     </div>
