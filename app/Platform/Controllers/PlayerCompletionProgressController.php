@@ -25,7 +25,7 @@ class PlayerCompletionProgressController extends Controller
         $targetUsername = $request->route()->parameters['user'];
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
-            'filter.system' => 'sometimes|integer|between:0,99|not_in:101',
+            'filter.system' => 'sometimes|integer|between:0,102|not_in:100,101',
             'filter.status' => 'sometimes|string|min:2|max:30',
             'sort' => 'sometimes|string|in:unlock_date,pct_won,-unlock_date,-pct_won,game_title,-game_title',
         ]);
