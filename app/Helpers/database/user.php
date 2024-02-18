@@ -170,7 +170,39 @@ function getUserListByPerms(int $sortBy, int $offset, int $count, ?array &$dataO
     return count($dataOut);
 }
 
-function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): array
+// TODO: Used in developerstats.blade.php. Migrate to a controller.
+function getDeveloperStatsTotalCount(int $devFilter = 7): int
+{
+    $query = User::where('ContribCount', '>', 0)
+        ->where('ContribYield', '>', 0);
+
+    switch ($devFilter) {
+        case 1: // Active
+            $query->where('Permissions', '>=', Permissions::Developer);
+            break;
+        case 2: // Junior
+            $query->where('Permissions', '=', Permissions::JuniorDeveloper);
+            break;
+        case 3: // Active + Junior
+            $query->where('Permissions', '>=', Permissions::JuniorDeveloper);
+            break;
+        case 4: // Inactive
+            $query->where('Permissions', '<=', Permissions::Registered);
+            break;
+        case 5: // Active + Inactive
+            $query->where('Permissions', '<>', Permissions::JuniorDeveloper);
+            break;
+        case 6: // Junior + Inactive
+            $query->where('Permissions', '<=', Permissions::JuniorDeveloper);
+            break;
+        default: // Active + Junior + Inactive
+            break;
+    }
+
+    return $query->count();
+}
+
+function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy, int $devFilter = 7): array
 {
     $stateCond = match ($devFilter) {
         // Active
@@ -282,7 +314,7 @@ function GetDeveloperStatsFull(int $count, int $sortBy, int $devFilter = 7): arr
                   WHERE $stateCond
                   GROUP BY ua.ID
                   ORDER BY $order
-                  LIMIT $count";
+                  LIMIT $offset, $count";
         $buildData($query);
     }
 
