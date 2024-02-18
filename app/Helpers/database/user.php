@@ -202,7 +202,7 @@ function getDeveloperStatsTotalCount(int $devFilter = 7): int
     return $query->count();
 }
 
-function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy, int $devFilter = 7): array
+function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int $devFilter = 7): array
 {
     $stateCond = match ($devFilter) {
         // Active
