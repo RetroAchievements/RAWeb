@@ -24,6 +24,7 @@ class RedirectController extends Controller
         'backloggery.com',
         'completionist.me',
         'exophase.com',
+        'discord.com',
         'github.com',
         'howlongtobeat.com',
         'infinitebacklog.net',
