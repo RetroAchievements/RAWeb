@@ -34,6 +34,22 @@
   padding-left: 10px;
 }
 
+#search-listbox>li {
+  padding: 3px 6px;
+  font-family: Segoe UI, Arial, sans-serif;
+}
+
+#search-listbox>li:hover {
+  padding: 1px 4px;
+}
+
+#search-listbox>li.listbox-item--hover {
+  background: rgb(253 230 138);
+  border: 2px solid rgb(161 98 7);
+  border-radius: 0.5rem;
+  padding: 1px 4px;
+}
+
 @media only screen and (max-width: 374px) {
   .searchbox-top .searchboxinput:focus,
   .searchbox-top .searchboxinput:not(:placeholder-shown) {

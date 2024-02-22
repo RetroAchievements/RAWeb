@@ -6,6 +6,7 @@ import type {
   newsCarouselComponent as NewsCarouselComponent,
   toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
+  navbarSearchComponent as NavbarSearchComponent,
 } from '@/alpine';
 import type { fetcher as Fetcher } from '@/utils/fetcher';
 import type { getStringByteCount as GetStringByteCount } from '@/utils/getStringByteCount';
@@ -38,6 +39,7 @@ declare global {
   var loadPostPreview: typeof LoadPostPreview;
   var modalComponent: typeof ModalComponent;
   var newsCarouselComponent: typeof NewsCarouselComponent;
+  var navbarSearchComponent: typeof NavbarSearchComponent;
   var setCookie: typeof SetCookie;
   var showStatusFailure: (message: string) => void;
   var showStatusSuccess: (message: string) => void;

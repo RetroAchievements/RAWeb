@@ -12,6 +12,7 @@ import {
   newsCarouselComponent,
   toggleAchievementRowsComponent,
   tooltipComponent,
+  navbarSearchComponent,
 } from './alpine';
 import {
   autoExpandTextInput,
@@ -59,6 +60,7 @@ window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
 window.toggleAchievementRowsComponent = toggleAchievementRowsComponent;
 window.tooltipComponent = tooltipComponent;
+window.navbarSearchComponent = navbarSearchComponent;
 
 // Alpine.js Directives
 Alpine.directive('linkify', linkifyDirective);
