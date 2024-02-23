@@ -16,6 +16,7 @@ class Head extends Component
         public ?string $permalink = null,
         public ?string $pageType = null,
         public ?string $canonicalUrl = null,
+        public ?bool $noindex = false,
     ) {
     }
 
