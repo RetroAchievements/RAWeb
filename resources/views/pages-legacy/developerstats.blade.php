@@ -16,7 +16,7 @@ $resolvedForOthersTicketFilter = (
     & ~TicketFilters::StateClosed
 );
 
-$devStatsList = GetDeveloperStatsFull(100, $offset, $type, $devFilter);
+$devStatsList = GetDeveloperStatsFull(50, $offset, $type, $devFilter);
 $filteredDevCount = sizeof($devStatsList);
 $totalDevCount = getDeveloperStatsTotalCount($devFilter);
 $totalPages = ceil($totalDevCount / $filteredDevCount);
@@ -26,11 +26,11 @@ $previousPageHref = null;
 $nextPageHref = null;
 if ($currentPage > 1) {
     $previousOffset = $offset - $filteredDevCount;
-    $previousPageHref = url('developerstats.php?o=' . $previousOffset);
+    $previousPageHref = url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $previousOffset);
 }
 if ($currentPage < $totalPages) {
     $nextOffset = $offset + $filteredDevCount;
-    $nextPageHref = url('developerstats.php?o=' . $nextOffset);
+    $nextPageHref = url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $nextOffset);
 }
 ?>
 
