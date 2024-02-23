@@ -17,8 +17,9 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
 <div
      x-data="navbarSearchComponent"
      class="searchbox-container"
+     x-init="init($refs.searchForm,$refs.searchListbox)"
      @click.outside="showSearchResults = false">
-    <form class="flex searchbox-top" action="/searchresults.php">
+    <form class="flex searchbox-top" x-ref="searchForm" action="/searchresults.php">
         <input
                name="s"
                type="text"
@@ -42,13 +43,15 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
         role="listbox"
         aria-label="Search"
         class="p-0.5 w-fit absolute top-0 left-0 rounded-lg bg-yellow-100"
+        x-ref="searchListbox"
         x-show="showSearchResults">
         <template x-for="(result, i) in results">
             <li
                 :id="result.mylink.slice(1).replace('/','-')"
                 role="option"
                 tabindex="-1"
-                class="text-sm cursor-pointer 
+                class="text-sm 
+                cursor-pointer 
                 hover:rounded-lg 
                 hover:bg-amber-200
                 hover:border-2 
@@ -65,30 +68,3 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
         </template>
     </ul>
 </div>
-<script>
-// For FloatingUI
-document.addEventListener('DOMContentLoaded', () => {
-    const SearchBoxTop = document.querySelector('.searchbox-top');
-    const SearchBoxTopDropdown = document.querySelector('#search-listbox');
-
-    const {
-        computePosition,
-        autoUpdate
-    } = window.FloatingUIDOM
-
-    autoUpdate(SearchBoxTop, SearchBoxTopDropdown, () => {
-        computePosition(SearchBoxTop, SearchBoxTopDropdown, {
-            placement: 'bottom-start'
-        }).then(({
-            x,
-            y
-        }) => {
-            Object.assign(SearchBoxTopDropdown.style, {
-                left: `${x}px`,
-                top: `${y}px`,
-            });
-        });
-    });
-
-});
-</script>

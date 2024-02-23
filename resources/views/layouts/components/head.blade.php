@@ -43,9 +43,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.1"></script>
-
     @if (app()->environment('local'))
         <script src="/js/all.js?v={{ random_int(0, mt_getrandmax()) }}"></script>
     @else

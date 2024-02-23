@@ -1,4 +1,5 @@
 import { fetcher } from '@/utils';
+import { computePosition, autoUpdate, ReferenceElement } from '@floating-ui/dom';
 
 type SearchResult = {
   label: string,
@@ -11,6 +12,7 @@ type NavbarSearchComponentType = {
   results: SearchResult[],
   selectedIndex:number,
   activeDecendentId: string,
+  init: (formEl: ReferenceElement, ulEl:HTMLElement)=>void,
   handleClickSearchResult: (label: string) => void,
   handleKeyDown: (e:KeyboardEvent) => void,
   handleKeyUp: (e:KeyboardEvent, el:HTMLInputElement) => void,
@@ -22,6 +24,24 @@ export function navbarSearchComponent(): NavbarSearchComponentType {
     searchText: '',
     results: [],
     selectedIndex: -1,
+
+    init(formEl: ReferenceElement, ulEl: HTMLElement) {
+      if (formEl !== undefined && ulEl !== undefined) {
+        autoUpdate(formEl, ulEl, () => {
+          computePosition(formEl, ulEl, {
+            placement: 'bottom-start'
+          }).then(({
+            x,
+            y
+          }) => {
+            Object.assign(ulEl.style, {
+              left: `${x}px`,
+              top: `${y}px`,
+            });
+          });
+        });
+      }
+    },
 
     get activeDecendentId() {
       if (this.selectedIndex !== -1) {
