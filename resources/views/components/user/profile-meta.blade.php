@@ -9,6 +9,7 @@ use App\Enums\Permissions;
     'playerStats' => [],
     'socialStats' => [],
     'softcoreRankMeta' => [],
+    'user' => null, // User
     'userClaims' => null, // ?array
     'userMassData' => [],
     'username' => '',
@@ -19,6 +20,11 @@ $registeredPermission = Permissions::Registered;
 $jrDevPermission = Permissions::JuniorDeveloper;
 
 $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_stats') !== 'true';
+$me = Auth::user() ?? null;
+$amIModerator = false;
+if ($me) {
+    $amIModerator = $me->getAttribute('Permissions') >= Permissions::Moderator;
+}
 ?>
 
 <div class="relative mb-2">
@@ -36,6 +42,10 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
         </div>
     @endif
 </div>
+
+@if ($amIModerator)
+    <x-user.profile.moderation-tools :targetUser="$user" />
+@endif
 
 @if (!empty($userMassData['LastGame']))
     <x-user.profile.last-seen-in :userMassData="$userMassData" />

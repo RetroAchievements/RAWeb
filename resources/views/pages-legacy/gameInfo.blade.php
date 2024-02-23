@@ -933,7 +933,11 @@ sanitize_outputs(
             if (!empty($recentPlayerData)) {
                 echo "<div class='mt-6 mb-8'>";
                 ?>
-                    <x-game.recent-game-players :recentPlayerData="$recentPlayerData" :gameTitle="$gameTitle" />
+                    <x-game.recent-game-players
+                        :gameId="$gameID"
+                        :gameTitle="$gameTitle"
+                        :recentPlayerData="$recentPlayerData"
+                    />
                 <?php
                 echo "</div>";
             }
