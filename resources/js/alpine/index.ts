@@ -1,3 +1,4 @@
+export * from './linkifyDirective';
 export * from './modalComponent';
 export * from './newsCarouselComponent';
 export * from './toggleAchievementRowsComponent';

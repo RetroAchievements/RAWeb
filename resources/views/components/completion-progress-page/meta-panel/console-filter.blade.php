@@ -20,7 +20,7 @@ usort($availableConsoleIds, function ($a, $b) {
     <option @if (!$selectedConsoleId) selected @endif value="0">All systems</option>
 
     @foreach ($availableConsoleIds as $consoleId)
-        @if (isValidConsoleId($consoleId) && $consoleId != 101)
+        @if (isValidConsoleId($consoleId))
             @if ($selectedConsoleId == $consoleId)
                 <option selected>{{ config('systems')[$consoleId]['name'] }}</option>
             @else

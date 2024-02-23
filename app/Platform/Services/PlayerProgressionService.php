@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Community\Enums\AwardType;
+use App\Models\System;
 use App\Platform\Enums\UnlockMode;
 
 class PlayerProgressionService
@@ -46,7 +47,7 @@ class PlayerProgressionService
         return $metrics;
     }
 
-    public function filterAndJoinGames(array $gamesList, array $siteAwards): array
+    public function filterAndJoinGames(array $gamesList, array $siteAwards, bool $allowEvents = false): array
     {
         /**
          * We need to append the most prestigious award kind+date to the game entities,
@@ -100,8 +101,8 @@ class PlayerProgressionService
         foreach ($gamesList as &$game) {
             $canUseGame = (
                 isValidConsoleId($game['ConsoleID'])
-                && $game['ConsoleID'] != 101
-                && $game['NumAwarded'] != 0
+                && ($allowEvents ? true : $game['ConsoleID'] !== System::Events)
+                && $game['NumAwarded'] !== 0
             );
 
             if ($canUseGame) {
@@ -143,7 +144,11 @@ class PlayerProgressionService
                     $award = current($searchResults);
                 }
 
-                if ($award && isValidConsoleId($award['ConsoleID']) && $award['ConsoleID'] != 101) {
+                if (
+                    $award
+                    && isValidConsoleId($award['ConsoleID'])
+                    && ($allowEvents ? true : $award['ConsoleID'] !== System::Events)
+                ) {
                     $newGame = [
                         'GameID' => $gameId,
                         'ConsoleID' => $award['ConsoleID'],
