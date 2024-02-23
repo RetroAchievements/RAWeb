@@ -5,8 +5,8 @@ function mediaAsset(uri) {
 // global xhr headers
 $.ajaxSetup({
   headers: {
-    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-  }
+    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+  },
 });
 
 // global xhr error handler
@@ -41,7 +41,7 @@ $(document).ajaxSuccess(function (event, xhr) {
 });
 
 function getParameterByName(name) {
-  name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
+  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regexS = '[\\?&]' + name + '=([^&#]*)';
   var regex = new RegExp(regexS);
   var results = regex.exec(window.location.search);
@@ -76,19 +76,20 @@ jQuery(document).ready(function onReady($) {
 
   $('.searchboxinput').each(function () {
     // eslint-disable-next-line no-underscore-dangle
-    $(this).autocomplete({
-      source: function (request, response) {
-        $.post('/request/search.php', request)
-          .done(function (data) {
+    $(this)
+      .autocomplete({
+        source: function (request, response) {
+          $.post('/request/search.php', request).done(function (data) {
             response(data);
           });
-      },
-      minLength: 2,
-      select: function (_, ui) {
-        window.location = ui.item.mylink;
-        return false;
-      }
-    }).data('autocomplete')._renderItem = function (ul, item) {
+        },
+        minLength: 2,
+        select: function (_, ui) {
+          window.location = ui.item.mylink;
+          return false;
+        },
+      })
+      .data('autocomplete')._renderItem = function (ul, item) {
       const li = $('<li>');
       const a = $('<a>', {
         text: item.label,
@@ -103,12 +104,11 @@ jQuery(document).ready(function onReady($) {
   $seachBoxCompareUser.autocomplete({
     source: function (request, response) {
       request.source = 'game-compare';
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
+      $.post('/request/search.php', request).done(function (data) {
+        response(data);
+      });
     },
-    minLength: 2
+    minLength: 2,
   });
   $seachBoxCompareUser.autocomplete({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -129,12 +129,11 @@ jQuery(document).ready(function onReady($) {
   $searchUser.autocomplete({
     source: function (request, response) {
       request.source = 'user';
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
+      $.post('/request/search.php', request).done(function (data) {
+        response(data);
+      });
     },
-    minLength: 2
+    minLength: 2,
   });
   $searchUser.autocomplete({
     select: function (event, ui) {
@@ -154,7 +153,8 @@ jQuery(document).ready(function onReady($) {
   // Add highlights to deep-linked comments.
   const urlHash = window.location.hash;
   if (urlHash.startsWith('#comment_')) {
-    const highlightTargetEl = document.querySelector(`${urlHash}_highlight`) || document.getElementById(urlHash);
+    const highlightTargetEl =
+      document.querySelector(`${urlHash}_highlight`) || document.getElementById(urlHash);
     if (highlightTargetEl) {
       highlightTargetEl.classList.add('highlight');
     }
@@ -180,13 +180,12 @@ function removeComment(artTypeID, artID, commentID) {
 
   $.post('/request/comment/delete.php', {
     commentable: artID,
-    comment: commentID
-  })
-    .done(function () {
-      document.querySelectorAll(`[id^="comment_${commentID}"]`).forEach(function (el) {
-        el.style.display = 'none';
-      });
+    comment: commentID,
+  }).done(function () {
+    document.querySelectorAll(`[id^="comment_${commentID}"]`).forEach(function (el) {
+      el.style.display = 'none';
     });
+  });
   return true;
 }
 

@@ -3,14 +3,13 @@ import userEvent from '@testing-library/user-event';
 import {
   // @prettier-ignore
   describe,
-  it,
   expect,
+  it,
   vi,
 } from 'vitest';
 
-import { loadPostPreview } from './loadPostPreview';
-
 import * as fetcherModule from './fetcher';
+import { loadPostPreview } from './loadPostPreview';
 
 function render(textContent = '') {
   (document as any).loadPostPreview = loadPostPreview;

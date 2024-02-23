@@ -3,12 +3,14 @@
 
 // eslint-disable-next-line import/no-unresolved
 import { Livewire } from 'livewire';
+
 import {
   modalComponent,
   newsCarouselComponent,
   toggleAchievementRowsComponent,
   tooltipComponent,
 } from './alpine';
+import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 import {
   autoExpandTextInput,
   copyToClipboard,
@@ -25,7 +27,6 @@ import {
   toggleUserCompletedSetsVisibility,
   updateUrlParameter,
 } from './utils';
-import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 
 // livewire_hot_reload();
 
