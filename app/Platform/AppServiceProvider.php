@@ -27,6 +27,7 @@ use App\Models\System;
 use App\Platform\Commands\DeleteOrphanedLeaderboardEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
+use App\Platform\Commands\PopulateCoreGameAchievementSet;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\SyncAchievements;
 use App\Platform\Commands\SyncGameHashes;
@@ -63,9 +64,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 // Games
+                PopulateCoreGameAchievementSet::class,
                 TrimGameMetadata::class,
-                UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
+                UpdateGameMetrics::class,
                 UpdateGamePlayerGames::class,
 
                 // Game Hashes

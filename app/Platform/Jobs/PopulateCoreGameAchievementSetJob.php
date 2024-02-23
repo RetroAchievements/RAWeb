@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Platform\Jobs;
 
-use App\Models\User;
-use App\Platform\Actions\UpdatePlayerStats;
+use App\Models\Game;
+use App\Platform\Actions\PopulateCoreGameAchievementSet;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdatePlayerStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+class PopulateCoreGameAchievementSetJob implements ShouldQueue
 {
     use Batchable;
     use Dispatchable;
@@ -23,7 +22,7 @@ class UpdatePlayerStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     use SerializesModels;
 
     public function __construct(
-        private readonly int $userId,
+        private readonly int $gameId,
     ) {
     }
 
@@ -31,7 +30,7 @@ class UpdatePlayerStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
     public function uniqueId(): string
     {
-        return config('queue.default') === 'sync' ? '' : $this->userId;
+        return config('queue.default') === 'sync' ? '' : $this->gameId;
     }
 
     /**
@@ -40,7 +39,7 @@ class UpdatePlayerStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     public function tags(): array
     {
         return [
-            User::class . ':' . $this->userId,
+            Game::class . ':' . $this->gameId,
         ];
     }
 
@@ -50,14 +49,13 @@ class UpdatePlayerStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
             return;
         }
 
-        $user = User::find($this->userId);
+        $game = Game::find($this->gameId);
 
-        if (!$user) {
-            // might've been deleted
+        if (!$game) {
             return;
         }
 
-        app()->make(UpdatePlayerStats::class)
-            ->execute(User::findOrFail($this->userId));
+        app()->make(PopulateCoreGameAchievementSet::class)
+            ->execute(Game::findOrFail($this->gameId));
     }
 }

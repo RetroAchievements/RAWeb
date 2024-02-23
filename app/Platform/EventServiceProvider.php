@@ -11,6 +11,7 @@ use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementTypeChanged;
 use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\CoreGameAchievementSetPopulated;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
 use App\Platform\Events\PlayerAchievementLocked;
@@ -60,6 +61,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,
+        ],
+        CoreGameAchievementSetPopulated::class => [
         ],
         GameMetricsUpdated::class => [
         ],
