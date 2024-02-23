@@ -11,8 +11,11 @@
     <meta name="description" content="{{ $pageDescription ?? __('app.description') }}">
     <meta name="keywords" content="games, achievements, retro, emulator">
     <meta name="format-detection" content="telephone=no">
-    @if(config('services.facebook.client_id'))
+    @if (config('services.facebook.client_id'))
         <meta property="fb:app_id" content="{{ config('services.facebook.client_id') }}">
+    @endif
+    @if ($noindex)
+        <meta name="robots" content="noindex,nofollow" />
     @endif
     <meta property="og:title" content="{{ $pageTitle ?? config('app.name') }}">
     <meta property="og:description" content="{{ $pageDescription ?? $pageTitle ?? __('app.description') }}">
@@ -40,7 +43,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 
-    @if(app()->environment('local'))
+    @if (app()->environment('local'))
         <script src="/js/all.js?v={{ random_int(0, mt_getrandmax()) }}"></script>
     @else
         <script src="/js/all-{{ config('app.version') }}.js"></script>
