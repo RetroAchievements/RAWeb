@@ -12,8 +12,11 @@ use Illuminate\Http\Request;
 class RedirectController extends Controller
 {
     private array $allowedDomains = [
-        'news.retroachievements.org',
+        'api-docs.retroachievements.org',
         'docs.retroachievements.org',
+        'media.retroachievements.org',
+        'news.retroachievements.org',
+        'retroachievements.org',
     ];
 
     public function redirect(Request $request): View|RedirectResponse

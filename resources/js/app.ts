@@ -1,9 +1,13 @@
-// eslint-disable-next-line camelcase,import/no-unresolved
+/* eslint-disable import/no-unresolved */
+
+// eslint-disable-next-line camelcase
 // import { livewire_hot_reload } from 'virtual:livewire-hot-reload';
 
-// eslint-disable-next-line import/no-unresolved
-import { Livewire } from 'livewire';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- This actually works in a TALL stack app with Livewire 3.
+// @ts-ignore
+import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
 import {
+  linkifyDirective,
   modalComponent,
   newsCarouselComponent,
   toggleAchievementRowsComponent,
@@ -56,14 +60,8 @@ window.newsCarouselComponent = newsCarouselComponent;
 window.toggleAchievementRowsComponent = toggleAchievementRowsComponent;
 window.tooltipComponent = tooltipComponent;
 
-// https://livewire.laravel.com/docs/alpine#manually-bundling-alpine-in-your-javascript-build
-// Alpine.directive('clipboard', (el) => {
-//   const text = el.textContent;
-//
-//   el.addEventListener('click', () => {
-//     navigator.clipboard.writeText(text);
-//   });
-// });
+// Alpine.js Directives
+Alpine.directive('linkify', linkifyDirective);
 
 Livewire.start();
 

@@ -27,7 +27,7 @@ final class ShortcodeTest extends TestCase
         );
 
         $this->assertSame(
-            '<a href="http://example.com">http://example.com</a>.',
+            '<a href="https://retroachievements.org/redirect?url=http%3A%2F%2Fexample.com">http://example.com</a>.',
             Shortcode::render('http://example.com.')
         );
 
