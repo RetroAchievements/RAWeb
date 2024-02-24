@@ -16,6 +16,7 @@ class AppLayout extends Component
         public ?string $permalink = null,
         public ?string $pageType = null,
         public ?string $canonicalUrl = null,
+        public ?bool $noindex = false,
         public string $sidebarPosition = 'right',
         public false $withoutMainWrappers = false,
     ) {
