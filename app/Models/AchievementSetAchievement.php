@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\AchievementSetAchievementFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AchievementSetAchievement extends BaseModel
 {
+    use HasFactory;
+
     protected $table = 'achievement_set_achievements';
 
     protected $fillable = [
@@ -22,6 +26,11 @@ class AchievementSetAchievement extends BaseModel
         'achievement_id' => 'integer',
         'order_column' => 'integer',
     ];
+
+    protected static function newFactory(): AchievementSetAchievementFactory
+    {
+        return AchievementSetAchievementFactory::new();
+    }
 
     // == accessors
 

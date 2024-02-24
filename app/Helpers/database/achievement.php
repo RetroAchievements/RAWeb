@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
+use App\Models\AchievementSetAchievement;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
@@ -369,10 +370,21 @@ function UploadNewAchievement(
 
 function updateAchievementDisplayID(int $achID, int $newID): bool
 {
-    $query = "UPDATE Achievements SET DisplayOrder = $newID, Updated=NOW() WHERE ID = $achID";
-    $dbResult = s_mysql_query($query);
+    $foundAchievement = Achievement::find($achID);
 
-    return $dbResult !== false;
+    if (!$foundAchievement) {
+        return false;
+    }
+
+    $foundAchievement->DisplayOrder = $newID;
+    $foundAchievement->Updated = Carbon::now();
+    $foundAchievement->save();
+
+    // [multiset] double write
+    AchievementSetAchievement::where('achievement_id', $achID)
+        ->update(['order_column' => $newID]);
+
+    return true;
 }
 
 function updateAchievementEmbedVideo(int $achID, ?string $newURL): bool

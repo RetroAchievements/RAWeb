@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\AchievementSetFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AchievementSet extends BaseModel
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $table = 'achievement_sets';
@@ -34,6 +37,11 @@ class AchievementSet extends BaseModel
         'points_weighted' => 'integer',
         'user_id' => 'integer',
     ];
+
+    protected static function newFactory(): AchievementSetFactory
+    {
+        return AchievementSetFactory::new();
+    }
 
     // == accessors
 
