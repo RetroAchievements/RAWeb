@@ -15,7 +15,7 @@ interface NavbarSearchComponentProps {
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
   handleClickSearchResult: (label: string) => void;
   handleKeyDown: (e: KeyboardEvent) => void;
-  handleKeyUp: (e: KeyboardEvent, el: HTMLInputElement) => void;
+  handleKeyUp: (e: KeyboardEvent, inputEl: HTMLInputElement) => void;
 }
 
 export function navbarSearchComponent(): NavbarSearchComponentProps {
@@ -65,7 +65,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       }
     },
 
-    async handleKeyUp(e:KeyboardEvent, el: HTMLInputElement) {
+    async handleKeyUp(e:KeyboardEvent, inputEl: HTMLInputElement) {
       if (e.key === 'ArrowLeft'
           || e.key === 'ArrowRight'
           || e.key === 'Shift'
@@ -76,7 +76,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
 
       const {
         value
-      } = el;
+      } = inputEl;
 
       if (value.length < 2) {
         this.showSearchResults = false;
