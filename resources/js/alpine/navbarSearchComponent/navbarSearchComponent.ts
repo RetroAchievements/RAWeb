@@ -26,21 +26,20 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
     selectedIndex: -1,
 
     init(formEl: ReferenceElement, ulEl: HTMLElement) {
-      if (formEl !== undefined && ulEl !== undefined) {
-        autoUpdate(formEl, ulEl, () => {
-          computePosition(formEl, ulEl, {
-            placement: 'bottom-start'
-          }).then(({
-            x,
-            y
-          }) => {
-            Object.assign(ulEl.style, {
-              left: `${x}px`,
-              top: `${y}px`,
-            });
+      if (!formEl || !ulEl) return;
+      autoUpdate(formEl, ulEl, () => {
+        computePosition(formEl, ulEl, {
+          placement: 'bottom-start'
+        }).then(({
+          x,
+          y
+        }) => {
+          Object.assign(ulEl.style, {
+            left: `${x}px`,
+            top: `${y}px`,
           });
         });
-      }
+      });
     },
 
     get activeDecendentId() {
