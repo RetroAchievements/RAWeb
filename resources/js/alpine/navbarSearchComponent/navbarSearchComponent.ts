@@ -1,21 +1,21 @@
 import { fetcher } from '@/utils';
 import { computePosition, autoUpdate, ReferenceElement } from '@floating-ui/dom';
 
-type SearchResult = {
+interface SearchResult {
   label: string,
   mylink: string,
 }
 
-type NavbarSearchComponentType = {
-  showSearchResults:boolean,
-  searchText:string,
-  results: SearchResult[],
-  selectedIndex:number,
-  activeDecendentId: string,
-  init: (formEl: ReferenceElement, ulEl:HTMLElement)=>void,
-  handleClickSearchResult: (label: string) => void,
-  handleKeyDown: (e:KeyboardEvent) => void,
-  handleKeyUp: (e:KeyboardEvent, el:HTMLInputElement) => void,
+interface NavbarSearchComponentType {
+  showSearchResults: boolean;
+  searchText: string;
+  results: SearchResult[];
+  selectedIndex: number;
+  activeDecendentId: string;
+  init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
+  handleClickSearchResult: (label: string) => void;
+  handleKeyDown: (e: KeyboardEvent) => void;
+  handleKeyUp: (e: KeyboardEvent, el: HTMLInputElement) => void;
 }
 
 export function navbarSearchComponent(): NavbarSearchComponentType {
