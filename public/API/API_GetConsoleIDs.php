@@ -20,7 +20,7 @@ foreach ($systems as $system) {
     $data = [
         'ID' => $system['ID'],
         'Name' => $system['Name'],
-        'IconURL' => '/' . $system->getIconUrlPath(),
+        'IconURL' => $system->icon_url,
     ];
     $response[] = $data;
 }
