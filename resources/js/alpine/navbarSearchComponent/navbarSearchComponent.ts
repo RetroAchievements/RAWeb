@@ -50,12 +50,12 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
     },
 
     handleClickSearchResult(label: string) {
-      const input = document.querySelector<HTMLInputElement>('.searchboxinput');
+      const inputEl = document.querySelector<HTMLInputElement>('.searchboxinput');
       this.searchText = label;
-      if (input) {
-        input.value = label;
+      if (inputEl) {
+        inputEl.value = label;
         this.showSearchResults = false;
-        input.scrollLeft = input.scrollWidth * -1;
+        inputEl.scrollLeft = inputEl.scrollWidth * -1;
       }
     },
 
