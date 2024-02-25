@@ -46,7 +46,7 @@ $id = $id ?: 'input_' . Str::random();
 
     @if($richText)
         <div class="mb-1">
-            <x-input.textarea-rich-text-controls :id="$id" />
+            <x-base.form.textarea-rich-text-controls :id="$id" />
         </div>
     @endif
 

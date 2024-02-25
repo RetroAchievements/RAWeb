@@ -1,4 +1,4 @@
-<x-input.file {{ $attributes->merge([
+<x-base.form.input.file {{ $attributes->merge([
     'icon' => 'image',
 ]) }} />
 <?php

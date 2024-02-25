@@ -53,11 +53,11 @@ $thisAuthor = $commentData['Author'];
 
     <x-section>
         <x-form action="{{ url('request/forum-topic-comment/update.php') }}">
-            <x-input.text type="hidden" name="comment" value="{{ $commentData['ID'] }}" />
-            <x-input.text label="{{ __res('forum', 1) }}" readonly value="{{ $thisForumTitle }}" inline :fullWidth="false" />
-            <x-input.text label="{{ __res('author', 1) }}" readonly value="{{ $thisAuthor }}" inline :fullWidth="false" />
-            <x-input.text label="{{ __res('forum-topic', 1) }}" readonly value="{{ $thisTopicTitle }}" inline />
-            <x-input.textarea
+            <x-base.form.input type="hidden" name="comment" value="{{ $commentData['ID'] }}" />
+            <x-base.form.input label="{{ __res('forum', 1) }}" readonly value="{{ $thisForumTitle }}" inline :fullWidth="false" />
+            <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $thisAuthor }}" inline :fullWidth="false" />
+            <x-base.form.input label="{{ __res('forum-topic', 1) }}" readonly value="{{ $thisTopicTitle }}" inline />
+            <x-base.form.textarea
                 label="{{ __res('message', 1)}} "
                 value="{{ $commentData['Payload'] }}"
                 maxlength="60000"

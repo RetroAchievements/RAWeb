@@ -6,9 +6,9 @@
     </x-slot>
 
     <x-form :action="route('login')">
-        <x-input.text name="User" label="Username" requiredSilent />
-        <x-input.password name="password" requiredSilent />
-        <x-input.checkbox name="remember" :label="__('Remember Me')" />
+        <x-base.form.input name="User" label="Username" requiredSilent />
+        <x-base.form.input.password name="password" requiredSilent />
+        <x-base.form.input.checkbox name="remember" :label="__('Remember Me')" />
         <x-form-actions :submitLabel="__('Sign in')" :largeSubmit="true" />
         <div class="flex flex-col justify-between">
             <a class="btn btn-link" href="{{ url('resetPassword.php') }}">

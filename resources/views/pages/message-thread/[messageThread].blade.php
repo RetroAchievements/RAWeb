@@ -100,7 +100,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
             @else
                 <x-form action="{{ route('message.store') }}" validate>
                     <input type="hidden" name="thread_id" value="{{ $messageThread->id }}"/>
-                    <x-input.textarea
+                    <x-base.form.textarea
                         name="body"
                         label="{{ __res('message', 1) }}"
                         placeholder="Enter your message here..."

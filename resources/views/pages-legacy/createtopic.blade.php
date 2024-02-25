@@ -36,11 +36,11 @@ $thisCategoryName = htmlentities($forumData['CategoryName']);
 
     <x-section>
         <x-form action="{{ url('request/forum-topic/create.php') }}" validate>
-            <x-input.text type="hidden" name="forum" value="{{ $requestedForumID }}" />
-            <x-input.text label="Forum" value="{{ $thisForumTitle }}" inline readonly :fullWidth="false" />
-            <x-input.text label="Author" value="{{ $user }}" inline readonly :fullWidth="false" />
-            <x-input.text name="title" inline />
-            <x-input.textarea
+            <x-base.form.input type="hidden" name="forum" value="{{ $requestedForumID }}" />
+            <x-base.form.input label="{{ __res('forum', 1) }}" value="{{ $thisForumTitle }}" inline readonly :fullWidth="false" />
+            <x-base.form.input label="{{ __res('author', 1) }}" value="{{ $user }}" inline readonly :fullWidth="false" />
+            <x-base.form.input name="title" inline />
+            <x-base.form.textarea
                 maxlength="60000"
                 name="body"
                 rows="22"

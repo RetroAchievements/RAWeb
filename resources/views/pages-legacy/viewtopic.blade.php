@@ -209,8 +209,8 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
                     </div>
                     <div class="grow lg:py-0 px-1 lg:px-6 pt-2 pb-4">
                         <x-form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
-                            <x-input.text type="hidden" name="topic" value="{{ $thisTopicID }}" />
-                            <x-input.textarea
+                            <x-base.form.input type="hidden" name="topic" value="{{ $thisTopicID }}" />
+                            <x-base.form.textarea
                                 label="{{ __('Reply') }}"
                                 maxlength="60000"
                                 name="body"

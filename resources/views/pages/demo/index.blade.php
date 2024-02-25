@@ -179,28 +179,28 @@ name('demo');
         <x-form>
             <div class="lg:grid grid-cols-2 gap-3">
                 <div>
-                    <x-input.checkbox label="Checkbox" />
-                    <x-input.checkbox label="Checkbox checked" checked />
-                    <x-input.checkbox label="Checkbox disabled" checked disabled />
-                    <x-input.checkbox>
+                    <x-base.form.input.checkbox label="Checkbox" />
+                    <x-base.form.input.checkbox label="Checkbox checked" checked />
+                    <x-base.form.input.checkbox label="Checkbox disabled" checked disabled />
+                    <x-base.form.input.checkbox>
                         Checkbox with long label text<br>a break<br>and a <x-link link="{{ route('demo') }}">Link</x-link>
                     </x-input.checkbox>
-                    <x-input.code label="Code" />
-                    <x-input.date label="Date" value="2024-12-31" :fullWidth="false" />
-                    <x-input.datetime-local label="Datetime local" value="2024-12-31 00:00:00" :fullWidth="false" />
-                    <x-input.email label="Email" value="test@example.com" :fullWidth="false" />
-                    <x-input.file label="File" :fullWidth="false" />
-                    <x-input.image label="Image" :fullWidth="false" />
+                    <x-base.form.input.code label="Code" />
+                    <x-base.form.input.date label="Date" value="2024-12-31" :fullWidth="false" />
+                    <x-base.form.input.datetime-local label="Datetime local" value="2024-12-31 00:00:00" :fullWidth="false" />
+                    <x-base.form.input.email label="Email" value="test@example.com" :fullWidth="false" />
+                    <x-base.form.input.file label="File" :fullWidth="false" />
+                    <x-base.form.input.image label="Image" :fullWidth="false" />
                 </div>
                 <div>
-                    <x-input.number label="Number (stepper)" value="1234.5" :fullWidth="false" />
-                    <x-input.password value="password" :fullWidth="false" />
-                    <x-input.password-confirmed value="password" :fullWidth="false" />
-                    <x-input.search :fullWidth="false" />
-                    <x-input.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" :fullWidth="false" />
-                    <x-input.select label="Select with only one option, not required" :options="['Only option']" :fullWidth="false" />
-                    <x-input.select label="Select with only one option, required" required :options="['Only option and required lorem ipsum']" :fullWidth="false" />
-                    <x-input.select label="Select with long options" required :options="['A long option label lorem ipsum', 'Another long option label lorem ipsum']" :fullWidth="false" />
+                    <x-base.form.input.number label="Number (stepper)" value="1234.5" :fullWidth="false" />
+                    <x-base.form.input.password value="password" :fullWidth="false" />
+                    <x-base.form.input.password-confirmed value="password" :fullWidth="false" />
+                    <x-base.form.input.search :fullWidth="false" />
+                    <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" :fullWidth="false" />
+                    <x-base.form.select label="Select with only one option, not required" :options="['Only option']" :fullWidth="false" />
+                    <x-base.form.select label="Select with only one option, required" required :options="['Only option and required lorem ipsum']" :fullWidth="false" />
+                    <x-base.form.select label="Select with long options" required :options="['A long option label lorem ipsum', 'Another long option label lorem ipsum']" :fullWidth="false" />
                 </div>
             </div>
         </x-form>
@@ -218,11 +218,11 @@ name('demo');
                     <x-button.submit class="btn-warning" icon="heart">{{ __('Submit in section header') }}</x-button.submit>
                 </x-slot>
             </x-section-header>
-            <x-input.text name="text" requiredSilent inline help="Some helpful text describing this input" />
-            <x-input.user requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
-            <x-input.user requiredSilent inline help="Search user" />
-            <x-input.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
-            <x-input.checkbox label="Checkbox" checked inline requiredSilent />
+            <x-base.form.input name="text" requiredSilent inline help="Some helpful text describing this input" />
+            <x-base.form.input.user requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
+            <x-base.form.input.user requiredSilent inline help="Search user" />
+            <x-base.form.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
+            <x-base.form.input.checkbox label="Checkbox" checked inline requiredSilent />
             <x-form-actions inline />
         </x-section>
     </x-form>
@@ -238,8 +238,8 @@ name('demo');
                     <div>Sending: <span x-text="isSending"></span></div>
                 </x-slot>
             </x-section-header>
-            <x-input.textarea name="message" required richText maxlength="20000" help="Textarea with rich-text controls" />
-            <x-input.textarea name="body" richText maxlength="60000" help="Textarea with rich-text controls" />
+            <x-base.form.textarea name="message" required richText maxlength="20000" help="Textarea with rich-text controls" />
+            <x-base.form.textarea name="body" richText maxlength="60000" help="Textarea with rich-text controls" />
             <x-form-actions hasRequiredFields />
         </x-section>
     </x-form>
