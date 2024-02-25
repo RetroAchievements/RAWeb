@@ -182,6 +182,9 @@ name('demo');
                     <x-input.checkbox label="Checkbox" />
                     <x-input.checkbox label="Checkbox checked" checked />
                     <x-input.checkbox label="Checkbox disabled" checked disabled />
+                    <x-input.checkbox>
+                        Checkbox with long label text<br>a break<br>and a <x-link link="{{ route('demo') }}">Link</x-link>
+                    </x-input.checkbox>
                     <x-input.code label="Code" />
                     <x-input.date label="Date" value="2024-12-31" :fullWidth="false" />
                     <x-input.datetime-local label="Datetime local" value="2024-12-31 00:00:00" :fullWidth="false" />
