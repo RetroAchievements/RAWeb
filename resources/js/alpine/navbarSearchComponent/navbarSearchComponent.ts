@@ -6,7 +6,7 @@ interface SearchResult {
   mylink: string,
 }
 
-interface NavbarSearchComponentType {
+interface NavbarSearchComponentProps {
   showSearchResults: boolean;
   searchText: string;
   results: SearchResult[];
@@ -18,7 +18,7 @@ interface NavbarSearchComponentType {
   handleKeyUp: (e: KeyboardEvent, el: HTMLInputElement) => void;
 }
 
-export function navbarSearchComponent(): NavbarSearchComponentType {
+export function navbarSearchComponent(): NavbarSearchComponentProps {
   return {
     showSearchResults: false,
     searchText: '',
