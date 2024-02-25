@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\System;
-
 /*
  *  API_GetConsoleIDs - returns mapping of known consoles
  *
@@ -9,6 +8,20 @@ use App\Models\System;
  *   object    [value]
  *    string    ID                  unique identifier of the console
  *    string    Name                name of the console
+ *    string    IconURL             site-relative path to the console icon
  */
 
-return response()->json(System::select(['ID', 'Name'])->get());
+$systems = System::select()->get();
+
+$response = [];
+
+foreach ($systems as $system) {
+    $data = [
+        'ID' => $system['ID'],
+        'Name' => $system['Name'],
+        'IconURL' => '/' . $system->getIconUrlPath(),
+    ];
+    $response[] = $data;
+}
+
+return response()->json($response);
