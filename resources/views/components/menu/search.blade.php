@@ -24,7 +24,7 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
                name="s"
                type="text"
                role="combobox"
-               class="flex-1 cursor-pointer searchboxinput"
+               class="flex-1 searchboxinput"
                placeholder=" {{ __('Search') }}"
                x-model="searchText"
                @keyup="handleKeyUp($event, $el)"
