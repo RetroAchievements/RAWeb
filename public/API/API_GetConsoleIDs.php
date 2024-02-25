@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\System;
+
 /*
  *  API_GetConsoleIDs - returns mapping of known consoles
  *
