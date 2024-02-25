@@ -15,7 +15,7 @@ interface NavbarSearchComponentProps {
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
   handleClickSearchResult: (label: string) => void;
   handleKeyDown: (e: KeyboardEvent) => void;
-  handleKeyUp: (e: KeyboardEvent, inputEl: HTMLInputElement) => void;
+  handleKeyUp: (e: KeyboardEvent, inputEl: HTMLInputElement) => Promise<void>;
 }
 
 export function navbarSearchComponent(): NavbarSearchComponentProps {
