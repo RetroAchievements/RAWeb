@@ -11,7 +11,7 @@ interface NavbarSearchComponentProps {
   searchText: string;
   results: SearchResult[];
   selectedIndex: number;
-  activeDecendentId: string;
+  activeDescendentId: string;
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
   handleClickSearchResult: (label: string) => void;
   handleKeyDown: (e: KeyboardEvent) => void;
@@ -42,7 +42,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       });
     },
 
-    get activeDecendentId() {
+    get activeDescendentId() {
       if (this.selectedIndex !== -1) {
         return this.results[this.selectedIndex - 2].mylink.slice(1).replace('/', '-');
       }

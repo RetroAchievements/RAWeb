@@ -33,7 +33,7 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
                aria-autocomplete="list"
                aria-controls="search-listbox"
                :aria-expanded="showSearchResults"
-               :aria-activedescendant="activeDecendentId">
+               :aria-activedescendant="activeDescendentId">
         <button class="nav-link" title="Search">
             <x-fas-search />
         </button>
