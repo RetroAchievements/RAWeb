@@ -334,6 +334,7 @@ function getUserGameActivity(string $username, int $gameID): array
                 'Points' => $playerAchievement->Points,
                 'Type' => $playerAchievement->type,
                 'BadgeName' => $playerAchievement->BadgeName,
+                'UnlockedBy' => $playerAchievement->unlocker_id,
             ];
         };
 
@@ -350,7 +351,7 @@ function getUserGameActivity(string $username, int $gameID): array
 
                     return;
                 }
-                $possibleSession = $session;
+                $possibleSession = &$session;
             }
         }
 
@@ -366,8 +367,9 @@ function getUserGameActivity(string $username, int $gameID): array
 
             $index = array_search($sessions, $possibleSession);
             if ($index < count($sessions)) {
-                $possibleSession = $sessions[$index + 1];
-                if ($possibleSession['StartTime'] - $when < $maxSessionGap) {
+                $possibleSession = &$sessions[$index + 1];
+
+                if ($when > $possibleSession['StartTime'] && $when - $possibleSession['StartTime'] < $maxSessionGap) {
                     $possibleSession['Achievements'][] = $createSessionAchievement($playerAchievement, $when, $hardcore);
                     $possibleSession['StartTime'] = $when;
 
@@ -426,6 +428,17 @@ function getUserGameActivity(string $username, int $gameID): array
         $totalTime += $elapsed;
 
         if (!empty($session['Achievements'])) {
+            $onlyManualUnlocks = true;
+            foreach ($session['Achievements'] as &$achievement) {
+                if (!$achievement['UnlockedBy']) {
+                    $onlyManualUnlocks = false;
+                    break;
+                }
+            }
+            if ($onlyManualUnlocks) {
+                continue;
+            }
+
             if ($achievementsTime > 0) {
                 $achievementsTime += $intermediateTime;
                 $unlockSessionCount += $intermediateSessionCount;

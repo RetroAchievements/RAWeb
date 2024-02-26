@@ -3,6 +3,7 @@
 // TODO migrate to PlayerGameController::activity() pages/user/game/activity.blade.php
 
 use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
@@ -99,6 +100,12 @@ $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
 
             if ($achievement['UnlockedLater'] ?? false) {
                 echo " (unlocked again later)";
+            }
+
+            if ($achievement['UnlockedBy']) {
+                echo " (unlocked by ";
+                echo userAvatar(User::find($achievement['UnlockedBy']), label:true, icon:false);
+                echo ")";
             }
 
             echo "</td></tr>";
