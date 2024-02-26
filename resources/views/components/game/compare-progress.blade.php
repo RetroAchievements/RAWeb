@@ -1,14 +1,38 @@
 <?php
+use App\Models\PlayerGame;
 use App\Models\User;
 ?>
 
 @props([
     'game' => null,
     'user' => null,
-    'followedUserCompletion' => null,
 ])
 
 <?php
+$followedUserIds = $user->following()->select(['UserAccounts.ID', 'UserAccounts.User'])->pluck('ID');
+
+$followedUserCompletion = null;
+if (!empty($followedUserIds)) {
+    $fields = [
+        'user_id',
+        'achievements_unlocked',
+        'achievements_unlocked_hardcore',
+        'achievements_total',
+        'points',
+        'points_hardcore',
+        'points_total',
+        'last_played_at',
+    ];
+
+    $followedUserCompletion = PlayerGame::where('game_id', $game->ID)
+        ->whereIn('user_id', $followedUserIds)
+        ->select($fields)
+        ->orderBy('achievements_unlocked_hardcore', 'DESC')
+        ->orderBy('achievements_unlocked', 'DESC')
+        ->get()
+        ->toArray();
+}
+
 $baseUrl = str_replace($user->User, '', route('game.compare-unlocks', [$game, $user]));
 ?>
 

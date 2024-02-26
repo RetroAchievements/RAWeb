@@ -6,7 +6,6 @@ namespace App\Platform\Controllers;
 
 use App\Http\Controller;
 use App\Models\Game;
-use App\Models\PlayerGame;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -79,7 +78,6 @@ class CompareUnlocksController extends Controller
             'game' => $game,
             'achievements' => $achievements,
             'sortOrder' => $sortOrder,
-            'followedUserCompletion' => CompareUnlocksController::getFollowedUsersCompletion($activeUser, $game),
         ]);
     }
 
@@ -118,35 +116,5 @@ class CompareUnlocksController extends Controller
         }
 
         return $a['DisplayOrder'] <=> $b['DisplayOrder'];
-    }
-
-    public static function getFollowedUsersCompletion(User $user, Game $game): ?array
-    {
-        $followedUserIds = $user->following()->select(['UserAccounts.ID', 'UserAccounts.User'])->pluck('ID');
-
-        if (empty($followedUserIds)) {
-            return null;
-        }
-
-        $fields = [
-            'user_id',
-            'achievements_unlocked',
-            'achievements_unlocked_hardcore',
-            'achievements_total',
-            'points',
-            'points_hardcore',
-            'points_total',
-            'last_played_at',
-        ];
-
-        $playerGames = PlayerGame::where('game_id', $game->ID)
-            ->whereIn('user_id', $followedUserIds)
-            ->select($fields)
-            ->orderBy('achievements_unlocked_hardcore', 'DESC')
-            ->orderBy('achievements_unlocked', 'DESC')
-            ->get()
-            ->toArray();
-
-        return $playerGames;
     }
 }

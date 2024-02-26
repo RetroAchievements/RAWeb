@@ -10,7 +10,6 @@ use App\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 use App\Models\User;
-use App\Platform\Controllers\CompareUnlocksController;
 use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
@@ -1004,12 +1003,10 @@ sanitize_outputs(
 
         if ($user !== null && $numAchievements > 0) {
             $gameModel = Game::find($gameID);
-            $followedUserCompletion = CompareUnlocksController::getFollowedUsersCompletion($userModel, $gameModel);
             ?>
             <x-game.compare-progress
                 :game="$gameModel"
                 :user="$userModel"
-                :followedUserCompletion="$followedUserCompletion"
             />
             <?php
         }

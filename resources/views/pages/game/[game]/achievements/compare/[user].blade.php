@@ -13,7 +13,6 @@ name('game.compare-unlocks');
     'game' => null,
     'achievements' => [],
     'sortOrder' => 'display',
-    'followedUserCompletion' => [],
 ])
 
 @php
@@ -97,7 +96,6 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
             <x-game.compare-progress
                 :game="$game"
                 :user="$user"
-                :followedUserCompletion="$followedUserCompletion" 
             />
         </x-slot>
 
