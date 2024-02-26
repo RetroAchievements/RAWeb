@@ -27,10 +27,10 @@ name('demo');
             </x-slot>
             <x-slot name="actions">
                 @foreach([null, 'warning', 'danger'] as $modifier)
-                    <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }}">
+                    <x-base.button class="{{ $modifier ? 'btn-' . $modifier : '' }}">
                         <x-fas-fire/>
                         Action
-                    </x-button>
+                    </x-base.button>
                 @endforeach
             </x-slot>
             <x-slot name="stats">
@@ -79,10 +79,10 @@ name('demo');
             </x-slot>
             <x-slot name="actions">
                 @foreach([null, 'warning', 'danger'] as $modifier)
-                    <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }}">
+                    <x-base.button class="{{ $modifier ? 'btn-' . $modifier : '' }}">
                         <x-fas-heart/>
                         Action
-                    </x-button>
+                    </x-base.button>
                 @endforeach
             </x-slot>
             <p>Text in section header -> actions will be below on smaller screens.</p>
@@ -108,9 +108,9 @@ name('demo');
         @if($user)
             <x-user.avatar :user="$user" display="icon" icon-size="xs"/>
             <x-user.avatar :user="$user"/>
-            <x-button.permalink :model="$user" class="btn">
+            <x-base.button.permalink :model="$user" class="btn">
                 permalink: {{ $user->permalink }}
-            </x-button.permalink>
+            </x-base.button.permalink>
             {{--<x-user.edit>test</x-user.edit>--}}
             {{--@userIcon($user, 10) @user($user)--}}
         @endif
@@ -155,10 +155,10 @@ name('demo');
             </x-slot>
         </x-section-header>
         @foreach([null, 'warning', 'danger'] as $modifier)
-            <x-button class="{{ $modifier ? 'btn-' . $modifier : '' }} mb-2">
+            <x-base.button class="{{ $modifier ? 'btn-' . $modifier : '' }} mb-2">
                 <x-fas-exclamation-triangle/>
                 {{ $modifier }}
-            </x-button>
+            </x-base.button>
         @endforeach
     </x-section>
 
@@ -215,7 +215,7 @@ name('demo');
                 <x-slot name="actions">
                     <div>Valid: <span x-text="isValid"></span></div>
                     <div>Sending: <span x-text="isSending"></span></div>
-                    <x-button.submit class="btn-warning" icon="heart">{{ __('Submit in section header') }}</x-button.submit>
+                    <x-base.button.submit class="btn-warning" icon="heart">{{ __('Submit in section header') }}</x-base.button.submit>
                 </x-slot>
             </x-section-header>
             <x-base.form.input name="text" requiredSilent inline help="Some helpful text describing this input" />
