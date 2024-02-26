@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
 $id = $id ?: 'input_' . Str::random();
 ?>
 
-<x-form-field
+<x-base.form-field
     :help="$help"
     :hidden="$type === 'hidden'"
     :icon="$icon"
@@ -65,4 +65,4 @@ $id = $id ?: 'input_' . Str::random();
             <button class="btn btn-link">{{ __('Search') }}</button>
         </span>
     @endif
-</x-form-field>
+</x-base.form-field>

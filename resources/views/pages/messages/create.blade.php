@@ -25,7 +25,7 @@ $message = request()->input('message') ?? '';
     </div>
 
     <x-section>
-        <x-form action="{{ route('message.store') }}" validate>
+        <x-base.form action="{{ route('message.store') }}" validate>
             <x-base.form.user-select name="recipient" value="{{ $toUser }}" requiredSilent inline />
             <x-base.form.input name="title" label="{{ __('Subject') }}" requiredSilent inline />
             <x-base.form.textarea
@@ -36,7 +36,7 @@ $message = request()->input('message') ?? '';
                 maxlength="60000"
                 placeholder="Enter your message here..."
             />
-            <x-form-actions inline />
-        </x-form>
+            <x-base.form-actions inline />
+        </x-base.form>
     </x-section>
 </x-app-layout>

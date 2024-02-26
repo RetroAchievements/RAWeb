@@ -208,7 +208,7 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
                         <x-user.avatar :user="request()->user()" />
                     </div>
                     <div class="grow lg:py-0 px-1 lg:px-6 pt-2 pb-4">
-                        <x-form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
+                        <x-base.form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
                             <x-base.form.input type="hidden" name="topic" value="{{ $thisTopicID }}" />
                             <x-base.form.textarea
                                 label="{{ __('Reply') }}"
@@ -220,8 +220,8 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
                                 help="Don't share links to copyrighted ROMs."
                                 placeholder="Don't share links to copyrighted ROMs."
                             />
-                            <x-form-actions submitLabel="Submit reply" />
-                        </x-form>
+                            <x-base.form-actions submitLabel="Submit reply" />
+                        </x-base.form>
                     </div>
                 @endauth
             </div>

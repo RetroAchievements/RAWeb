@@ -98,7 +98,7 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
             @if (!$canReply)
                 <i>Cannot reply to deleted user.</i>
             @else
-                <x-form action="{{ route('message.store') }}" validate>
+                <x-base.form action="{{ route('message.store') }}" validate>
                     <input type="hidden" name="thread_id" value="{{ $messageThread->id }}"/>
                     <x-base.form.textarea
                         name="body"
@@ -107,8 +107,8 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
                         requiredSilent
                         richText
                     />
-                    <x-form-actions />
-                </x-form>
+                    <x-base.form-actions />
+                </x-base.form>
             @endif
         </div>
     </x-section>

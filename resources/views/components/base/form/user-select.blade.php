@@ -73,7 +73,7 @@ $(function () {
 });
 </script>
 
-<x-form-field
+<x-base.form-field
     :help="$help"
     :id="$id"
     :inline="$inline"
@@ -103,4 +103,4 @@ $(function () {
             {{ $required ? 'required' : '' }}
         >
     </div>
-</x-form-field>
+</x-base.form-field>

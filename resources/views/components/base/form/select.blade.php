@@ -33,7 +33,7 @@ $options = !$options instanceof Collection ? collect($options) : $options;
 $id = $id ?: 'input_' . Str::random();
 ?>
 
-<x-form-field
+<x-base.form-field
     :label="$label"
     :model="$model ?? null"
     :name="$name"
@@ -67,4 +67,4 @@ $id = $id ?: 'input_' . Str::random();
             @endforeach
         </select>
     @endif
-</x-form-field>
+</x-base.form-field>

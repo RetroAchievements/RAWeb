@@ -25,7 +25,7 @@ if ($model) {
 $id = $id ?: 'input_' . Str::random();
 ?>
 
-<x-form-field
+<x-base.form-field
     :help="$help"
     :id="$id"
     :inline="$inline"
@@ -51,4 +51,4 @@ $id = $id ?: 'input_' . Str::random();
             </span>
         </label>
     </div>
-</x-form-field>
+</x-base.form-field>

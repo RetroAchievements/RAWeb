@@ -52,7 +52,7 @@ $thisAuthor = $commentData['Author'];
     <h2>Edit post</h2>
 
     <x-section>
-        <x-form action="{{ url('request/forum-topic-comment/update.php') }}">
+        <x-base.form action="{{ url('request/forum-topic-comment/update.php') }}">
             <x-base.form.input type="hidden" name="comment" value="{{ $commentData['ID'] }}" />
             <x-base.form.input label="{{ __res('forum', 1) }}" readonly value="{{ $thisForumTitle }}" inline :fullWidth="false" />
             <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $thisAuthor }}" inline :fullWidth="false" />
@@ -69,7 +69,7 @@ $thisAuthor = $commentData['Author'];
                 required-silent
                 richText
             />
-            <x-form-actions inline />
-        </x-form>
+            <x-base.form-actions inline />
+        </x-base.form>
     </x-section>
 </x-app-layout>

@@ -31,7 +31,7 @@ if ($model && !$model instanceof Model) {
 $id = $id ?: 'input_' . Str::random();
 ?>
 
-<x-form-field
+<x-base.form-field
     :help="$help"
     :icon="$icon"
     :id="$id"
@@ -55,4 +55,4 @@ $id = $id ?: 'input_' . Str::random();
         {{ $readonly ? 'readonly' : '' }}
         {{ ($required || $requiredSilent) ? 'required' : '' }}
     >
-</x-form-field>
+</x-base.form-field>

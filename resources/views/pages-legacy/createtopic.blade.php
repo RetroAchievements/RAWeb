@@ -35,7 +35,7 @@ $thisCategoryName = htmlentities($forumData['CategoryName']);
     <h2>Create Topic: {{ $thisForumTitle }}</h2>
 
     <x-section>
-        <x-form action="{{ url('request/forum-topic/create.php') }}" validate>
+        <x-base.form action="{{ url('request/forum-topic/create.php') }}" validate>
             <x-base.form.input type="hidden" name="forum" value="{{ $requestedForumID }}" />
             <x-base.form.input label="{{ __res('forum', 1) }}" value="{{ $thisForumTitle }}" inline readonly :fullWidth="false" />
             <x-base.form.input label="{{ __res('author', 1) }}" value="{{ $user }}" inline readonly :fullWidth="false" />
@@ -50,7 +50,7 @@ $thisCategoryName = htmlentities($forumData['CategoryName']);
                 required-silent
                 richText
             />
-            <x-form-actions submitLabel="Submit new topic" inline />
-        </x-form>
+            <x-base.form-actions submitLabel="Submit new topic" inline />
+        </x-base.form>
     </x-section>
 </x-app-layout>

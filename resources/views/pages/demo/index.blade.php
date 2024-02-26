@@ -176,7 +176,7 @@ name('demo');
                 <h4>Form inputs</h4>
             </x-slot>
         </x-section-header>
-        <x-form>
+        <x-base.form>
             <div class="lg:grid grid-cols-2 gap-3">
                 <div>
                     <x-base.form.input.checkbox label="Checkbox" />
@@ -203,10 +203,10 @@ name('demo');
                     <x-base.form.select label="Select with long options" required :options="['A long option label lorem ipsum', 'Another long option label lorem ipsum']" :fullWidth="false" />
                 </div>
             </div>
-        </x-form>
+        </x-base.form>
     </x-section>
 
-    <x-form x-on:submit.prevent="alert('Preventing submission')" validate>
+    <x-base.form x-on:submit.prevent="alert('Preventing submission')" validate>
         <x-section class="mb-8">
             <x-section-header>
                 <x-slot name="title">
@@ -224,11 +224,11 @@ name('demo');
             <x-base.form.input type="hidden" name="email" requiredSilent inline />
             <x-base.form.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
             <x-base.form.input.checkbox label="Checkbox" checked inline requiredSilent />
-            <x-form-actions inline />
+            <x-base.form-actions inline />
         </x-section>
-    </x-form>
+    </x-base.form>
 
-    <x-form x-on:submit.prevent="alert('Preventing submission')" validate>
+    <x-base.form x-on:submit.prevent="alert('Preventing submission')" validate>
         <x-section class="mb-8">
             <x-section-header>
                 <x-slot name="title">
@@ -241,9 +241,9 @@ name('demo');
             </x-section-header>
             <x-base.form.textarea name="message" required richText maxlength="20000" help="Textarea with rich-text controls" />
             <x-base.form.textarea name="body" richText maxlength="60000" help="Textarea with rich-text controls" />
-            <x-form-actions hasRequiredFields />
+            <x-base.form-actions hasRequiredFields />
         </x-section>
-    </x-form>
+    </x-base.form>
 
     <x-section>
         <x-section-header>
@@ -251,11 +251,11 @@ name('demo');
                 <h4>Styled form inputs (Tailwind)</h4>
             </x-slot>
         </x-section-header>
-        <x-form>
+        <x-base.form>
             <div class="flex gap-3 flex-col items-start">
                 <input type="text" class="form-input" value="test">
                 <textarea class="form-textarea">Test</textarea>
             </div>
-        </x-form>
+        </x-base.form>
     </x-section>
 </x-demo-layout>

@@ -31,7 +31,7 @@ if ($model && !$model instanceof Model) {
 $id = $id ?: 'input_' . Str::random();
 ?>
 
-<x-form-field
+<x-base.form-field
     :help="false"
     :id="$id"
     :inline="$inline"
@@ -93,4 +93,4 @@ $id = $id ?: 'input_' . Str::random();
     </div>
 
     <div id="post-preview-{{ $id }}"></div>
-</x-form-field>
+</x-base.form-field>
