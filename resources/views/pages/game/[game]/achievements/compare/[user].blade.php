@@ -110,13 +110,13 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
             <table class="table-highlight mb-4">
                 <thead>
                     <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[1] bg-box">
-                        <th style="width:30%">
-                        {!! userAvatar($user->User, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
-                        </th>
+                        <th style="width:40%">Achievement</th>
                         <th style="width:30%">
                         {!! userAvatar($otherUser->User, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
                         </th>
-                        <th style="width:40%">Achievement</th>
+                        <th style="width:30%">
+                        {!! userAvatar($user->User, label: true, icon: true, iconSize: 24, iconClass: 'rounded-sm') !!}
+                        </th>
                     </tr>
                 </thead>
 
@@ -124,16 +124,10 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
                     @foreach ($achievements as $achievement)
                         <tr>
                             <td>
-                                @if ($achievement['userTimestamp'] ?? null)
-                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'], iconSize: 32, iconClass: ($achievement['userHardcore'] ?? false) ? 'goldimage' : 'badgeimage') !!}
-                                    <span class="smalldate whitespace-nowrap">{{ $achievement['userTimestamp'] }}
-                                        @if ($achievement['userHardcore'] ?? false)
-                                            <br>HARDCORE
-                                        @endif
-                                    </span>
-                                @else
-                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'] . '_lock', iconSize: 32) !!}
-                                @endif
+                                <div>
+                                    {!! achievementAvatar($achievement, label: true, icon: false) !!}
+                                    <p>{{ $achievement['Description'] }}</p>
+                                </div>
                             </td>
                             <td>
                                 @if ($achievement['otherUserTimestamp'] ?? null)
@@ -148,22 +142,21 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
                                 @endif
                             </td>
                             <td>
-                                <div>
-                                    {!! achievementAvatar($achievement, label: true, icon: false) !!}
-                                    <p>{{ $achievement['Description'] }}</p>
-                                </div>
+                                @if ($achievement['userTimestamp'] ?? null)
+                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'], iconSize: 32, iconClass: ($achievement['userHardcore'] ?? false) ? 'goldimage' : 'badgeimage') !!}
+                                    <span class="smalldate whitespace-nowrap">{{ $achievement['userTimestamp'] }}
+                                        @if ($achievement['userHardcore'] ?? false)
+                                            <br>HARDCORE
+                                        @endif
+                                    </span>
+                                @else
+                                    {!! achievementAvatar($achievement, label: false, icon: $achievement['BadgeName'] . '_lock', iconSize: 32) !!}
+                                @endif
                             </td>
                         </tr>
                     @endforeach
                     <tr>
-                        <td>
-                            {{ $userUnlockCount }} of {{ $numAchievements }} unlocked
-                            @if ($userUnlockHardcoreCount === 0 && $userUnlockCount > 0)
-                                (softcore only)
-                            @elseif ($userUnlockCount > $userUnlockHardcoreCount)
-                                ({{ $userUnlockCount - $userUnlockHardcoreCount }} softcore)
-                            @endif
-                        </td>
+                        <td></td>
                         <td>
                             {{ $otherUserUnlockCount }} of {{ $numAchievements }} unlocked
                             @if ($otherUserUnlockHardcoreCount === 0 && $otherUserUnlockCount > 0)
@@ -172,7 +165,14 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
                                 ({{ $otherUserUnlockCount - $otherUserUnlockHardcoreCount }} softcore)
                             @endif
                         </td>
-                        <td></td>
+                        <td>
+                            {{ $userUnlockCount }} of {{ $numAchievements }} unlocked
+                            @if ($userUnlockHardcoreCount === 0 && $userUnlockCount > 0)
+                                (softcore only)
+                            @elseif ($userUnlockCount > $userUnlockHardcoreCount)
+                                ({{ $userUnlockCount - $userUnlockHardcoreCount }} softcore)
+                            @endif
+                        </td>
                     </tr>
                 </tbody>
             </table>
