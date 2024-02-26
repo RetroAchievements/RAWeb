@@ -12,17 +12,12 @@ use App\Models\System;
  *    string    IconURL             system icon URL
  */
 
-$systems = System::select()->get();
-
-$response = [];
-
-foreach ($systems as $system) {
-    $data = [
-        'ID' => $system['ID'],
-        'Name' => $system['Name'],
+$systems = System::all()->map(function ($system) {
+    return [
+        'ID' => $system->ID,
+        'Name' => $system->Name,
         'IconURL' => $system->icon_url,
     ];
-    $response[] = $data;
-}
+});
 
 return response()->json($response);
