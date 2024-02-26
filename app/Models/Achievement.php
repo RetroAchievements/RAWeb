@@ -136,7 +136,10 @@ class Achievement extends BaseModel implements HasComments
             }
 
             if ($achievement->wasChanged('GameID')) {
-                AchievementMoved::dispatch($achievement, Game::find($achievement->getOriginal('GameID')));
+                $originalGame = Game::find($achievement->getOriginal('GameID'));
+                if ($originalGame) {
+                    AchievementMoved::dispatch($achievement, $originalGame);
+                }
             }
         });
     }
