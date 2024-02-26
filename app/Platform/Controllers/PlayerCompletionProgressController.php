@@ -6,6 +6,7 @@ namespace App\Platform\Controllers;
 
 use App\Enums\Permissions;
 use App\Http\Controller;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Services\PlayerProgressionService;
 use Illuminate\Contracts\View\View;
@@ -25,7 +26,7 @@ class PlayerCompletionProgressController extends Controller
         $targetUsername = $request->route()->parameters['user'];
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
-            'filter.system' => 'sometimes|integer|between:0,99|not_in:101',
+            'filter.system' => 'sometimes|integer|between:0,102|not_in:100',
             'filter.status' => 'sometimes|string|min:2|max:30',
             'sort' => 'sometimes|string|in:unlock_date,pct_won,-unlock_date,-pct_won,game_title,-game_title',
         ]);
@@ -65,6 +66,7 @@ class PlayerCompletionProgressController extends Controller
         $filteredAndJoinedGamesList = $this->playerProgressionService->filterAndJoinGames(
             $userGamesList,
             $userSiteAwards,
+            allowEvents: $targetSystemId === System::Events,
         );
         $primaryCountsMetrics = $this->playerProgressionService->buildPrimaryCountsMetrics($filteredAndJoinedGamesList);
 

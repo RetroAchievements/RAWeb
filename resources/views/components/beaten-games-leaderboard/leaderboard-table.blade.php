@@ -1,23 +1,19 @@
 @props([
     'isUserOnCurrentPage' => false,
-    'myRankingData' => null, // always null if unauthenticated or no rank
-    'myUsername' => null,
     'paginator' => null,
+    'targetUserRankingData' => null, // always null if unauthenticated, no user filter, or no rank
 ])
 
 <div class="sm:hidden flex flex-col gap-y-1">
     @foreach ($paginator as $paginatedRow)
-        <x-beaten-games-leaderboard.leaderboard-card-row
-            :myUsername="$myUsername"
-            :paginatedRow="$paginatedRow"
-        />
+        <x-beaten-games-leaderboard.leaderboard-card-row :paginatedRow="$paginatedRow" />
     @endforeach
 
-    @if ($myRankingData && $myRankingData['userRank'] && !$isUserOnCurrentPage)
+    @if ($targetUserRankingData && $targetUserRankingData['userRank'] && !$isUserOnCurrentPage)
         <x-beaten-games-leaderboard.leaderboard-card-row
             :isHighlighted="true"
-            :paginatedRow="$myRankingData['userRankingData']"
-            :rank="$myRankingData['userRank']"
+            :paginatedRow="$targetUserRankingData['userRankingData']"
+            :rank="$targetUserRankingData['userRank']"
         />
     @endif
 </div>
@@ -35,19 +31,16 @@
 
     <tbody>
         @foreach ($paginator as $paginatedRow)
-            <x-beaten-games-leaderboard.leaderboard-table-row
-                :myUsername="$myUsername"
-                :paginatedRow="$paginatedRow"
-            />
+            <x-beaten-games-leaderboard.leaderboard-table-row :paginatedRow="$paginatedRow" />
         @endforeach
 
-        @if ($myRankingData && $myRankingData['userRank'] && !$isUserOnCurrentPage)
+        @if ($targetUserRankingData && $targetUserRankingData['userRank'] && !$isUserOnCurrentPage)
             <tr class="do-not-highlight"><td colspan="5">&nbsp;</td></tr>
 
             <x-beaten-games-leaderboard.leaderboard-table-row
                 :isHighlighted="true"
-                :paginatedRow="$myRankingData['userRankingData']"
-                :rank="$myRankingData['userRank']"
+                :paginatedRow="$targetUserRankingData['userRankingData']"
+                :rank="$targetUserRankingData['userRank']"
             />
         @endif
     </tbody>

@@ -8,6 +8,7 @@ use App\Models\Achievement;
 use App\Models\PlayerBadge;
 use App\Models\User;
 use App\Platform\Actions\ResetPlayerProgress;
+use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -197,10 +198,12 @@ class ResetPlayerProgressTest extends TestCase
             ->count(PlayerBadge::MINIMUM_ACHIEVEMENTS_COUNT_FOR_MASTERY)
             ->create(['GameID' => $game->ID]);
 
-        // normally, a user can only have an unofficial unlock if the achievement was demoted after it was unlocked
+        // a user can only have an unofficial unlock if the achievement was demoted after it was unlocked
         /** @var Achievement $unofficialAchievement */
-        $unofficialAchievement = Achievement::factory()->create(['GameID' => $game->ID]);
+        $unofficialAchievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         $this->addHardcoreUnlock($user, $unofficialAchievement);
+        $unofficialAchievement->Flags = AchievementFlag::Unofficial;
+        $unofficialAchievement->save();
 
         foreach ($achievements as $achievement) {
             $this->addHardcoreUnlock($user, $achievement);

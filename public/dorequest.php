@@ -333,8 +333,10 @@ switch ($requestType) {
              */
             $response = array_merge($response, unlockAchievement($user, $achIDToAward, $hardcore));
 
-            dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
-                ->onQueue('player-achievements');
+            if ($response['Success']) {
+                dispatch(new UnlockPlayerAchievementJob($user->id, $achIDToAward, $hardcore))
+                    ->onQueue('player-achievements');
+            }
         } else {
             $response['Error'] = "Data not found for achievement {$achIDToAward}";
             $response['Success'] = false;

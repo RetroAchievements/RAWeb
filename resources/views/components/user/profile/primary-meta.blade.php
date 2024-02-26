@@ -32,7 +32,7 @@ $shouldMoveRoleToNextLine =
     && ((mb_strlen($roleLabel) >= 12 && mb_strlen($username) >= 12) || mb_strlen($username) >= 16);
 ?>
 
-<div class="flex border-x border-embed-highlight flex-row-reverse sm:flex-row gap-x-4 pb-5 bg-embed -mx-5 px-5 mt-[-15px] pt-5">
+<div class="relative flex border-x border-embed-highlight flex-row-reverse sm:flex-row gap-x-4 pb-5 bg-embed -mx-5 px-5 mt-[-15px] pt-5">
     <img
         src="{{ media_asset('/UserPic/' . $username . '.png') }}"
         alt="{{ $username }}'s avatar"
@@ -55,8 +55,10 @@ $shouldMoveRoleToNextLine =
 
         {{-- Motto --}}
         @if (!empty($userMassData['Motto']))
-            <div class="rounded bg-box-bg px-2 py-1 max-w-fit italic text-2xs hyphens-auto mb-3">
-                <p style="word-break: break-word;">{{ $userMassData['Motto'] }}</p>
+            <div x-data="{}" class="rounded bg-box-bg px-2 py-1 max-w-fit italic text-2xs hyphens-auto mb-3">
+                <p x-linkify class="[&>a]:text-text [&>a]:transition-colors [&>a]:duration-700 [&>a]:ease-out" style="word-break: break-word;">
+                    {{ $userMassData['Motto'] }}
+                </p>
             </div>
         @endif
 
@@ -101,4 +103,25 @@ $shouldMoveRoleToNextLine =
             <x-user.profile.follows-you-label :username="$username" />
         </div>
     </div>
+
+    @if ($amIModerator)
+        <button class="absolute bottom-0 right-0 btn" onclick="toggleModeratorTools()">
+            Moderate ▼
+        </button>
+    @endif
 </div>
+
+@if ($amIModerator)
+    <script>
+    function toggleModeratorTools() {
+        const toolsEl = document.getElementById('moderator-tools-content');
+        if (toolsEl) {
+            if (toolsEl.classList.contains('hidden')) {
+                toolsEl.classList.remove('hidden');
+            } else {
+                toolsEl.classList.add('hidden');
+            }
+        }
+    }
+    </script>
+@endif

@@ -51,6 +51,7 @@ $doesGameHaveAchievements = !!$game['MaxPossible'];
 
             <x-game-list-item.primary-meta
                 :gameId="$gameId"
+                :consoleId="$consoleId"
                 :gameTitle="$game['Title']"
                 :numAwardedAchievements="$game['NumAwarded']"
                 :numPossibleAchievements="$game['MaxPossible']"
