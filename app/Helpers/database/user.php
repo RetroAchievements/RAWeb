@@ -244,11 +244,11 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         }
     };
 
-    $buildDevList = function ($query) use ($count, $buildData, &$devs) {
+    $buildDevList = function ($query) use ($count, $offset, $buildData, &$devs) {
         // build an ordered list of the user_ids that will be displayed
         // these will be used to limit the query results of the subsequent queries
         $devs = [];
-        foreach (legacyDbFetchAll($query . " LIMIT $count") as $row) {
+        foreach (legacyDbFetchAll($query . " LIMIT $offset, $count") as $row) {
             $devs[] = $row['ID'];
         }
         if (empty($devs)) {

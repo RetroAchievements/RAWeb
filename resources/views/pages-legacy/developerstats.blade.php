@@ -16,7 +16,7 @@ $resolvedForOthersTicketFilter = (
     & ~TicketFilters::StateClosed
 );
 
-$devStatsList = GetDeveloperStatsFull(50, $offset, $type, $devFilter);
+$devStatsList = GetDeveloperStatsFull(25, $offset, $type, $devFilter);
 $filteredDevCount = sizeof($devStatsList);
 $totalDevCount = getDeveloperStatsTotalCount($devFilter);
 $totalPages = ceil($totalDevCount / $filteredDevCount);
