@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
     'help' => null,
     'id' => null,
     'inline' => false,
-    'label' => true,
+    'label' => null,
     'maxlength' => 2000,
     'model' => null,
     'name' => null,
@@ -38,12 +38,6 @@ $id = $id ?: 'input_' . Str::random();
     :label="$label"
     :name="$name"
 >
-    @if($label)
-        <x-slot name="label">
-            {{ $label === true ? __('validation.attributes.'.strtolower($name)) : $label }} {{ $required && !$requiredSilent ? '*' : '' }}
-        </x-slot>
-    @endif
-
     @if($richText)
         <div class="mb-1">
             <x-base.form.textarea-rich-text-controls :id="$id" />

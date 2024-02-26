@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
     'help' => null,
     'id' => null,
     'inline' => false,
-    'label' => true,
+    'label' => null,
     'model' => null,
     'name' => 'username',
     'placeholder' => false,
@@ -77,13 +77,9 @@ $(function () {
     :help="$help"
     :id="$id"
     :inline="$inline"
+    :label="$label"
     :name="$name"
 >
-    @if($label)
-        <x-slot name="label">
-            {{ $label === true ? __('validation.attributes.' . strtolower($name)) : $label }} {{ $required && !$requiredSilent ? '*' : '' }}
-        </x-slot>
-    @endif
     <div class="w-full flex gap-2 justify-start items-center">
         <img
             id="select-user-avatar-{{ $id }}"

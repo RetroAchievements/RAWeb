@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
     'icon' => false,
     'id' => null,
     'inline' => false,
-    'label' => true,
+    'label' => null,
     'options' => collect(),
     'model' => null,
     'name' => null,
@@ -34,16 +34,11 @@ $id = $id ?: 'input_' . Str::random();
 ?>
 
 <x-form-field
+    :label="$label"
     :model="$model ?? null"
     :name="$name"
     :help="$help ?? null"
 >
-    @if($label)
-        <x-slot name="label">
-            {{ $label === true ? __('validation.attributes.' . strtolower($name)) : $label }} {{ $required && !$requiredSilent ? '*' : '' }}
-        </x-slot>
-    @endif
-
     @if($options->count() == 1 && $required)
         <input
             class="form-control {{ $fullWidth ? 'w-full' : '' }} {{ $name && $errors && $errors->has($name) ? 'is-invalid' : '' }}"
