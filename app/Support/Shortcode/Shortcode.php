@@ -171,12 +171,47 @@ final class Shortcode
 
     private function renderUrlLink(ShortcodeInterface $shortcode): string
     {
-        return '<a href="' . $this->protocolPrefix($shortcode->getBbCode() ?: $shortcode->getContent()) . '">' . ($shortcode->getContent() ?: $this->protocolPrefix($shortcode->getBbCode())) . '</a>';
+        // Determine the URL from the shortcode's BBCode or content.
+        $url = $shortcode->getBbCode() ?: $shortcode->getContent();
+
+        // Ensure the correct protocol prefix (http/https) is being used.
+        $prefixedUrl = $this->protocolPrefix($url);
+
+        // Is this an external link? If so, it needs to go through the redirect gateway.
+        $finalUrl = $prefixedUrl;
+        if (strpos($prefixedUrl, 'retroachievements.org') === false) {
+            $finalUrl = route('redirect', ['url' => $prefixedUrl]);
+        }
+
+        // Finally, build and return the needed anchor tag.
+        return sprintf(
+            '<a href="%s">%s</a>',
+            $finalUrl,
+            $shortcode->getContent() ?: $this->protocolPrefix($shortcode->getBbCode())
+        );
     }
 
     private function renderLink(ShortcodeInterface $shortcode): string
     {
-        return '<a href="' . $this->protocolPrefix($shortcode->getParameter('url') ?: $shortcode->getContent()) . '">' . $shortcode->getContent() . '</a>';
+        // Determine the URL from the shortcode's 'url' parameter or content.
+        $url = $shortcode->getParameter('url') ?: $shortcode->getContent();
+
+        // Ensure the correct protocol prefix (http/https) is being used.
+        $prefixedUrl = $this->protocolPrefix($url);
+
+        // Is this an external link? If so, it needs to go through the redirect gateway.
+        $finalUrl = $prefixedUrl;
+        if (strpos($prefixedUrl, 'retroachievements.org') === false) {
+            $finalUrl = route('redirect', ['url' => $prefixedUrl]);
+        }
+
+        // Finally, build and return the needed anchor tag.
+        // HTML escape the content to prevent XSS vulnerabilities.
+        return sprintf(
+            '<a href="%s">%s</a>',
+            $finalUrl,
+            htmlspecialchars($shortcode->getContent(), ENT_QUOTES, 'UTF-8')
+        );
     }
 
     private function protocolPrefix(?string $href): string
@@ -297,7 +332,7 @@ final class Shortcode
         // [...] it's probably safe to assume a semicolon at the end of a URL is meant as sentence punctuation.
         // The same goes for other sentence-punctuation characters like periods, question marks, quotes, etc..
         // lookahead: (?<![!,.?;:"\'()-])
-        return (string) preg_replace(
+        return preg_replace_callback(
             '~
             (https?://[\w!#$%&\'()*+,./:;=?@\[\]-]+(?<![!,.?;:"\'()]))
             (?!                 # Assert URL is not pre-linked.
@@ -305,7 +340,13 @@ final class Shortcode
               | [^<>]*</a>      # End recognized pre-linked alts.
             )                   # End negative lookahead assertion.
             ~ix',
-            '<a href="$1">$1</a>',
+            function ($matches) {
+                // If we use Laravel's `route()` helper, this will point to "localhost" in tests.
+                $redirectBaseUrl = "https://retroachievements.org/redirect?url=";
+                $redirectUrl = $redirectBaseUrl . urlencode($matches[1]);
+
+                return '<a href="' . htmlspecialchars($redirectUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') . '</a>';
+            },
             $text
         );
     }

@@ -91,6 +91,11 @@ class V1Test extends TestCase
                 '3' => 0,
             ]);
 
+        // Unlocks can't be granted while an achievement is in unofficial status.
+        $this->addHardcoreUnlock($this->user, $publishedAchievements->get(2));
+        $publishedAchievements->get(2)->Flags = AchievementFlag::Unofficial;
+        $publishedAchievements->get(2)->save();
+
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Hardcore, 'f' => AchievementFlag::Unofficial]))
             ->assertSuccessful()
             ->assertExactJson([
@@ -99,6 +104,7 @@ class V1Test extends TestCase
                 '3' => 0,
                 '4' => 0,
                 '5' => 0,
+                '6' => 0,
             ]);
 
         $this->get($this->apiUrl('GetAchievementDistribution', ['i' => $game->ID, 'h' => UnlockMode::Softcore, 'f' => AchievementFlag::Unofficial]))
@@ -107,8 +113,9 @@ class V1Test extends TestCase
                 '1' => 0,
                 '2' => 0,
                 '3' => 0,
-                '4' => 1, // hardcore unlock also counts as a softcore unlock (3+1=4)
-                '5' => 0,
+                '4' => 0,
+                '5' => 1, // hardcore unlock also counts as a softcore unlock (4+1=5)
+                '6' => 0,
             ]);
     }
 
