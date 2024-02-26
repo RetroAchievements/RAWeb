@@ -42,7 +42,7 @@ $id = $id ?: 'input_' . Str::random();
                 type="checkbox"
                 value="1"
                 {{ $name ? (old($name, $model?->getAttribute($name) ?? $checked) ? 'checked' : '') : ($checked ? 'checked' : '') }}
-                @if($name && $errors && $errors->has($name))aria-describedby="error-{{ $id }}"@endif
+                aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
                 {{ $disabled ? 'disabled' : '' }}
                 {{ ($required || $requiredSilent) ? 'required' : '' }}
             >

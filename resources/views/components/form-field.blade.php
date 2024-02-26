@@ -28,7 +28,7 @@
             {{ $slot }}
         @endif
         @if($help)
-            <p class="help-block text-muted">
+            <p class="help-block text-muted" id="help-{{ $id }}">
                 {!! $help  !!}
             </p>
         @endif

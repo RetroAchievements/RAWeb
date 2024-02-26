@@ -73,7 +73,7 @@ $id = $id ?: 'input_' . Str::random();
         {{ $disabled ? 'disabled' : '' }}
         {{ $readonly ? 'readonly' : '' }}
         {{ ($required || $requiredSilent) ? 'required' : '' }}
-        @if($name && $errors && $errors->has($name))aria-describedby="error-{{ $id }}"@endif
+        aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
     >{{ $name ? old($name, $model?->getAttribute($name) ?? $value) : $value }}</textarea>
 
     <div class="help-block text-muted md:flex justify-between items-start">

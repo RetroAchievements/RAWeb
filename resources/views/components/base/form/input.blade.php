@@ -49,7 +49,7 @@ $id = $id ?: 'input_' . Str::random();
         name="{{ $name }}"
         type="{{ $type }}"
         value="{{ $name ? old($name, $model?->getAttribute($name) ?? $value) : $value }}"
-        @if($name && $errors && $errors->has($name))aria-describedby="error-{{ $id }}"@endif
+        aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
         @if($placeholder)placeholder="{{ $placeholder === true ? __('validation.attributes.' . strtolower($name)) : $placeholder }}"@endif
         {{ $disabled ? 'disabled' : '' }}
         {{ $readonly ? 'readonly' : '' }}

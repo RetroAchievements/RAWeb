@@ -51,7 +51,7 @@ $id = $id ?: 'input_' . Str::random();
             name="{{ $name }}"
             type="text"
             value="{{ $options->first() }}"
-            @if($name && $errors && $errors->has($name))aria-describedby="error-{{ $id }}"@endif
+            aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
             readonly
         >
     @elseif($options->count() > 1 || !$required)
@@ -59,7 +59,7 @@ $id = $id ?: 'input_' . Str::random();
             class="form-control {{ $fullWidth ? 'w-full' : '' }} {{ $name && $errors && $errors->has($name) ? 'is-invalid' : '' }}"
             id="{{ $id }}"
             name="{{ $name }}"
-            @if($name && $errors && $errors->has($name))aria-describedby="error-{{ $id }}"@endif
+            aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
         >
             @if(empty($required))
                 <option value="">-</option>
