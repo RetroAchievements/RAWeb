@@ -108,15 +108,6 @@ function getGameMetadata(
         $gameDataOut['ParentGameID'] = $parentGameId;
         $gameDataOut['NumDistinctPlayers'] = $gameMetrics['NumDistinctPlayers'] ?? 0;
 
-        // Handle the rare situation where there is a parent game ID that doesn't have a set.
-        // We should only fall into this block if there's a subset linked to a parent game ID
-        // that actually has no players. In this case, use the subset's true player count.
-        if ($parentGameId && $gameDataOut['NumDistinctPlayers'] === 0) {
-            $query = "SELECT players_total AS NumDistinctPlayers FROM GameData WHERE ID=" . $gameID;
-            $gameMetrics = legacyDbFetch($query);
-            $gameDataOut['NumDistinctPlayers'] = $gameMetrics['NumDistinctPlayers'] ?? 0;
-        }
-
         $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
     }
 
