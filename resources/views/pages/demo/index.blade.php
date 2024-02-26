@@ -196,7 +196,7 @@ name('demo');
                     <x-base.form.input.number label="Number (stepper)" value="1234.5" :fullWidth="false" />
                     <x-base.form.input.password value="password" :fullWidth="false" />
                     <x-base.form.input.password-confirmed value="password" :fullWidth="false" />
-                    <x-base.form.input.search :fullWidth="false" />
+                    <x-base.form.search label="Search" :fullWidth="false" />
                     <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" :fullWidth="false" />
                     <x-base.form.select label="Select with only one option, not required" :options="['Only option']" :fullWidth="false" />
                     <x-base.form.select label="Select with only one option, required" required :options="['Only option and required lorem ipsum']" :fullWidth="false" />

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
     'icon' => false,
     'id' => null,
     'inline' => false,
-    'label' => true,
+    'label' => null,
     'loading' => false,
     'maxlength' => 255,
     'model' => null,
@@ -35,6 +35,7 @@ $id = $id ?: 'input_' . Str::random();
     :icon="$icon"
     :id="$id"
     :inline="$inline"
+    :label="$label"
     :model="$model"
     :name="$name"
 >
