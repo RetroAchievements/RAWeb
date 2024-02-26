@@ -219,8 +219,8 @@ name('demo');
                 </x-slot>
             </x-section-header>
             <x-base.form.input name="text" requiredSilent inline help="Some helpful text describing this input" />
-            <x-base.form.input.user requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
-            <x-base.form.input.user requiredSilent inline help="Search user" />
+            <x-base.form.user-select requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
+            <x-base.form.user-select requiredSilent inline help="Search user" />
             <x-base.form.input type="hidden" name="email" requiredSilent inline />
             <x-base.form.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
             <x-base.form.input.checkbox label="Checkbox" checked inline requiredSilent />

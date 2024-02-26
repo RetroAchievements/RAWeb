@@ -26,7 +26,7 @@ $message = request()->input('message') ?? '';
 
     <x-section>
         <x-form action="{{ route('message.store') }}" validate>
-            <x-base.form.input.user name="recipient" value="{{ $toUser }}" requiredSilent inline />
+            <x-base.form.user-select name="recipient" value="{{ $toUser }}" requiredSilent inline />
             <x-base.form.input name="title" label="{{ __('Subject') }}" requiredSilent inline />
             <x-base.form.textarea
                 name="body"
