@@ -84,9 +84,6 @@ $hashes = getHashListByGameID($gameID);
         }
 
         echo '<br/><code> ' . $hash['Hash'] . '</code>';
-        if (!empty($hash['User'])) {
-            echo ' linked by ' . userAvatar($hash['User'], icon: false);
-        }
         echo '</p></li>';
     }
 
@@ -98,9 +95,6 @@ $hashes = getHashListByGameID($gameID);
             }
 
             echo '<code> ' . $hash['Hash'] . '</code>';
-            if (!empty($hash['User'])) {
-                echo " linked by " . userAvatar($hash['User'], icon: false);
-            }
             echo '<br/>';
         }
         echo "</p></li>";
