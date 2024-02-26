@@ -31,7 +31,6 @@ $id = $id ?: 'input_' . Str::random();
 
 <x-base.form-field
     :help="$help"
-    :hidden="$type === 'hidden'"
     :icon="$icon"
     :id="$id"
     :inline="$inline"

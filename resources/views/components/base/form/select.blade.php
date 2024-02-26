@@ -34,11 +34,12 @@ $id = $id ?: 'input_' . Str::random();
 ?>
 
 <x-base.form-field
-    :id="$id"
-    :label="$label"
-    :model="$model ?? null"
-    :name="$name"
     :help="$help ?? null"
+    :id="$id"
+    :inline="$inline"
+    :label="$label"
+    :model="$model"
+    :name="$name"
 >
     @if($options->count() == 1 && $required)
         <input

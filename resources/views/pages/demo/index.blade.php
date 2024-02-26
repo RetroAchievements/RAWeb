@@ -197,8 +197,8 @@ name('demo');
                     <x-base.form.input.password value="password" :fullWidth="false" />
                     <x-base.form.input.password-confirmed value="password" :fullWidth="false" />
                     <x-base.form.search label="Search" :fullWidth="false" />
-                    <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" :fullWidth="false" />
-                    <x-base.form.select label="Select with only one option, not required" :options="['Only option']" :fullWidth="false" />
+                    <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" />
+                    <x-base.form.select label="Select with only one option, not required" :options="['Only option']" />
                     <x-base.form.select label="Select with only one option, required" required :options="['Only option and required lorem ipsum']" :fullWidth="false" />
                     <x-base.form.select label="Select with long options" required :options="['A long option label lorem ipsum', 'Another long option label lorem ipsum']" :fullWidth="false" />
                 </div>
@@ -222,6 +222,7 @@ name('demo');
             <x-base.form.user-select requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
             <x-base.form.user-select requiredSilent inline help="Search user" />
             <x-base.form.input type="hidden" name="email" requiredSilent inline />
+            <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" inline :fullWidth="false" />
             <x-base.form.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
             <x-base.form.input.checkbox label="Checkbox" checked inline requiredSilent />
             <x-base.form-actions inline />
