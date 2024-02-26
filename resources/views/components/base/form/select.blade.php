@@ -34,6 +34,7 @@ $id = $id ?: 'input_' . Str::random();
 ?>
 
 <x-base.form-field
+    :id="$id"
     :label="$label"
     :model="$model ?? null"
     :name="$name"
