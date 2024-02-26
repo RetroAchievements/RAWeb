@@ -10,6 +10,10 @@
     'required' => false,
 ])
 
+<?php
+$id = $id ?: 'input_' . Str::random();
+?>
+
 <div class="{{ $inline ? 'lg:flex' : '' }} {{ $inputType === 'hidden' && !($name && $errors && $errors->has($name)) ? '' : 'mb-3 last-of-type:mb-0' }}">
     @if($inputType !== 'hidden' && $inputType !== 'checkbox')
         <label for="{{ $id }}" class="block {{ $inline ? 'lg:w-36 lg:pr-3 lg:text-right lg:pt-1 whitespace-nowrap' : 'mb-1' }} {{ $name && $errors && $errors->has($name) ? 'text-danger' : '' }}">
