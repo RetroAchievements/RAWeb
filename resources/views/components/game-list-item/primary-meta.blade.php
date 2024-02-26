@@ -1,11 +1,13 @@
 <?php
 
+use App\Models\System;
 use Illuminate\Support\Carbon;
 ?>
 
 @props([
     'firstWonDate' => '',
     'gameId' => 0,
+    'consoleId' => 0,
     'gameTitle' => '',
     'highestAwardDate' => null,
     'highestAwardKind' => null, // null | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered'
@@ -19,13 +21,15 @@ use Illuminate\Support\Carbon;
 ])
 
 <?php
+$isEvent = $consoleId === System::Events;
+
 $firstUnlockDate = Carbon::parse($firstWonDate);
 $mostRecentUnlockDate = Carbon::parse($mostRecentWonDate);
 
 $timeToSiteAwardLabelPartOne = '';
 $timeToSiteAwardLabelPartTwo = '';
 $mostRecentUnlockDateLabel = $mostRecentUnlockDate->format('F j Y');
-if ($highestAwardKind && $highestAwardDate) {
+if ($highestAwardKind && $highestAwardDate && !$isEvent) {
     $highestAwardedAt = Carbon::createFromTimestamp($highestAwardDate);
 
     $awardLabelMap = [
@@ -107,25 +111,27 @@ if ($highestAwardKind && $highestAwardDate) {
         </div>
     @endif
 
-    {{-- c.progress-pmeta__root > div --}}
-    <div @if ($variant === 'user-recently-played') class="flex !flex-col-reverse" @endif>
-        <p>
-            @if ($variant === 'user-recently-played')
-                <span>Last played</span>
-            @endif
-            {{ $mostRecentUnlockDateLabel }}
-        </p>
-
-        @if ($timeToSiteAwardLabelPartOne && $timeToSiteAwardLabelPartTwo)
+    @if (!$isEvent)
+        {{-- c.progress-pmeta__root > div --}}
+        <div @if ($variant === 'user-recently-played') class="flex !flex-col-reverse" @endif>
             <p>
-                <span class="hidden md:inline lg:hidden">•</span>
-                {{ $timeToSiteAwardLabelPartOne }}
-                
-                @if ($numPossibleAchievements > 0)
-                    in
-                    <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
+                @if ($variant === 'user-recently-played')
+                    <span>Last played</span>
                 @endif
+                {{ $mostRecentUnlockDateLabel }}
             </p>
-        @endif
-    </div>
+
+            @if ($timeToSiteAwardLabelPartOne && $timeToSiteAwardLabelPartTwo)
+                <p>
+                    <span class="hidden md:inline lg:hidden">•</span>
+                    {{ $timeToSiteAwardLabelPartOne }}
+                    
+                    @if ($numPossibleAchievements > 0)
+                        in
+                        <span class="font-bold">{{ $timeToSiteAwardLabelPartTwo }}</span>
+                    @endif
+                </p>
+            @endif
+        </div>
+    @endif
 </div>

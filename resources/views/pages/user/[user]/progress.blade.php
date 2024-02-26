@@ -22,6 +22,7 @@ if ($isMe) {
 
 $pageDescription = "View {$targetUsername}'s game completion stats and milestones on RetroAchievements. Track their played, unfinished, and mastered games from various systems.";
 @endphp
+
 <x-app-layout
     :pageTitle="$headingLabel"
     :pageDescription="$pageDescription"

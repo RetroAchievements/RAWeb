@@ -17,17 +17,20 @@
 $groupByConsole = isset($filterOptions['console']) && $filterOptions['console'];
 $areFiltersPristine = count(request()->query()) === 0;
 $numGames = count($games);
+$areGamesMaybePresent = !$areFiltersPristine || $numGames > 0;
 ?>
 
 <div>
-    <x-meta-panel
-        :availableCheckboxFilters="$availableCheckboxFilters"
-        :availableRadioFilters="$availableRadioFilters"
-        :availableSelectFilters="$availableSelectFilters"
-        :availableSorts="$availableSorts"
-        :filterOptions="$filterOptions"
-        :selectedSortOrder="$sortOrder"
-    />
+    @if ($areGamesMaybePresent)
+        <x-meta-panel
+            :availableCheckboxFilters="$availableCheckboxFilters"
+            :availableRadioFilters="$availableRadioFilters"
+            :availableSelectFilters="$availableSelectFilters"
+            :availableSorts="$availableSorts"
+            :filterOptions="$filterOptions"
+            :selectedSortOrder="$sortOrder"
+        />
+    @endif
 
     @if ($shouldShowCount)
         <p class="mb-4 text-xs">
@@ -134,7 +137,7 @@ $numGames = count($games);
         @endif
     @endforeach
 
-    @if (empty($games))
+    @if (empty($games) && $areGamesMaybePresent)
         <div class="mb-12">
             <x-empty-state>{{ $noGamesMessage }}</x-empty-state>
         </div>
