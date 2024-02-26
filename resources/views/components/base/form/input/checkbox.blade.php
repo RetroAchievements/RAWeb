@@ -29,6 +29,7 @@ $id = $id ?: 'input_' . Str::random();
     :help="$help"
     :id="$id"
     :inline="$inline"
+    inputType="checkbox"
     :model="$model"
     :name="$name"
 >

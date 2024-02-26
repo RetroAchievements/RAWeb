@@ -1,19 +1,19 @@
 @props([
     'help' => null,
-    'hidden' => null,
     'icon' => null,
     'id' => null,
     'inline' => false,
-    'label' => false,
+    'inputType' => null,
+    'label' => null,
     'name' => null,
     'prepend' => null,
     'required' => false,
 ])
 
-<div class="{{ $inline ? 'lg:flex' : '' }} {{ $hidden && !($name && $errors && $errors->has($name)) ? '' : 'mb-3 last-of-type:mb-0' }}">
-    @if($label)
+<div class="{{ $inline ? 'lg:flex' : '' }} {{ $inputType === 'hidden' && !($name && $errors && $errors->has($name)) ? '' : 'mb-3 last-of-type:mb-0' }}">
+    @if($inputType !== 'hidden' && $inputType !== 'checkbox')
         <label for="{{ $id }}" class="block {{ $inline ? 'lg:w-36 lg:pr-3 lg:text-right lg:pt-1 whitespace-nowrap' : 'mb-1' }} {{ $name && $errors && $errors->has($name) ? 'text-danger' : '' }}">
-            {{ $label }} {{ $required ? '*' : '' }}
+            {{ $label ?: __('validation.attributes.' . strtolower($name)) }} {{ $required && !$requiredSilent ? '*' : '' }}
         </label>
     @endif
     <div class="grow">

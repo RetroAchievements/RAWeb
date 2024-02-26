@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
     'icon' => false,
     'id' => null,
     'inline' => false,
-    'label' => true,
+    'label' => null,
     'maxlength' => 255,
     'model' => null,
     'name' => null,
@@ -33,19 +33,14 @@ $id = $id ?: 'input_' . Str::random();
 
 <x-form-field
     :help="$help"
-    :hidden="$type === 'hidden'"
     :icon="$icon"
     :id="$id"
     :inline="$inline"
+    :inputType="$type"
+    :label="$label"
     :model="$model"
     :name="$name"
 >
-    @if($label && $type !== 'hidden')
-        <x-slot name="label">
-            {{ $label === true ? __('validation.attributes.' . strtolower($name)) : $label }} {{ $required && !$requiredSilent ? '*' : '' }}
-        </x-slot>
-    @endif
-
     <input
         autocomplete="off"
         class="form-control {{ $fullWidth ? 'w-full' : '' }} {{ $name && $errors && $errors->has($name) ? 'is-invalid' : '' }}"
