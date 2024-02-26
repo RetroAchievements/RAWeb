@@ -9,7 +9,7 @@ use App\Models\System;
  *   object    [value]
  *    string    ID                  unique identifier of the console
  *    string    Name                name of the console
- *    string    IconURL             System icon URL
+ *    string    IconURL             system icon URL
  */
 
 $systems = System::select()->get();
