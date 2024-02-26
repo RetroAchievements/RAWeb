@@ -20,4 +20,4 @@ $systems = System::all()->map(function ($system) {
     ];
 });
 
-return response()->json($response);
+return response()->json($systems);
