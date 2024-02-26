@@ -19,7 +19,7 @@
     <div class="grow">
         @if($icon || $prepend)
             <div class="flex flex-row">
-                <div class="form-control-prepend flex items-center">
+                <div class="form-control-prepend flex items-center" aria-hidden="true">
                     {{ $icon ? svg('fas-' . $icon, 'icon') : $prepend }}
                 </div>
                 {{ $slot }}
