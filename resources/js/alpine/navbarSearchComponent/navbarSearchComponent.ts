@@ -85,7 +85,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
         this.handleNavigationKeys(e.key, optionsCount);
         return;
       }
-
+      if (this.searchText.length < 2) return;
       await this.performSearch();
     },
 
