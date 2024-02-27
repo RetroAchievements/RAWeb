@@ -27,7 +27,7 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
                class="flex-1 searchboxinput"
                placeholder=" {{ __('Search') }}"
                x-model="searchText"
-               @keyup="handleKeyUp($event, $el)"
+               @keyup="handleKeyUp($event)"
                @keydown="handleKeyDown"
                @blur="showSearchResults = false"
                aria-autocomplete="list"

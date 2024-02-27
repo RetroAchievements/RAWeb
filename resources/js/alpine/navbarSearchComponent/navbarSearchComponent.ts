@@ -15,7 +15,9 @@ interface NavbarSearchComponentProps {
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
   handleClickSearchResult: (label: string) => void;
   handleKeyDown: (e: KeyboardEvent) => void;
-  handleKeyUp: (e: KeyboardEvent, inputEl: HTMLInputElement) => Promise<void>;
+  handleKeyUp: (e: KeyboardEvent) => Promise<void>;
+  handleNavigationKeys: (key: string, optionsCount: number) => void
+  performSearch: () => Promise<void>;
 }
 
 export function navbarSearchComponent(): NavbarSearchComponentProps {
@@ -65,42 +67,42 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       }
     },
 
-    async handleKeyUp(e:KeyboardEvent, inputEl: HTMLInputElement) {
-      if (e.key === 'ArrowLeft'
-          || e.key === 'ArrowRight'
-          || e.key === 'Shift'
-          || e.key === 'Control'
-          || e.key === 'Alt'
-          || e.key === 'Meta'
-      ) return;
-
-      const {
-        value
-      } = inputEl;
-
-      if (value.length < 2) {
-        this.showSearchResults = false;
-        this.selectedIndex = -1;
+    async handleKeyUp(e:KeyboardEvent) {
+      const ignoredKeys = ['ArrowLeft', 'ArrowRight', 'Shift', 'Control', 'Alt', 'Meta'];
+      if (ignoredKeys.includes(e.key)) {
         return;
       }
-      const SearchBoxTopDropdown = document.querySelector('#search-listbox');
-      const SearchBoxTopDropdownOptions = SearchBoxTopDropdown?.childNodes;
-      if (SearchBoxTopDropdownOptions === undefined) return;
 
-      switch (e.key) {
+      if (this.searchText.length < 2) {
+        this.showSearchResults = false;
+        this.selectedIndex = -1;
+      }
+
+      const searchBoxDropdownEl = document.querySelector('#search-listbox');
+      const optionsCount = searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
+
+      if (['ArrowUp', 'ArrowDown', 'Enter', 'Escape'].includes(e.key)) {
+        this.handleNavigationKeys(e.key, optionsCount);
+        return;
+      }
+
+      await this.performSearch();
+    },
+
+    handleNavigationKeys(key: string, optionsCount: number) {
+      switch (key) {
         case 'ArrowUp':
           if (this.showSearchResults) {
             if (this.selectedIndex === -1 || this.selectedIndex === 2) {
-              this.selectedIndex = SearchBoxTopDropdownOptions.length - 2;
+              this.selectedIndex = optionsCount - 2;
             } else {
               this.selectedIndex--;
             }
           }
-
-          return;
+          break;
         case 'ArrowDown':
           if (this.showSearchResults) {
-            if (this.selectedIndex === -1 || this.selectedIndex === SearchBoxTopDropdownOptions.length - 2) {
+            if (this.selectedIndex === -1 || this.selectedIndex === optionsCount - 2) {
               this.selectedIndex = 2;
             } else {
               this.selectedIndex++;
@@ -108,7 +110,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
           } else {
             this.showSearchResults = true;
           }
-          return;
+          break;
         case 'Enter':
           if (this.showSearchResults) {
             this.showSearchResults = false;
@@ -120,17 +122,19 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
           } else {
             document.querySelector<HTMLFormElement>('.searchbox-top')?.requestSubmit();
           }
-          return;
+          break;
         case 'Escape':
           if (this.showSearchResults) {
             this.showSearchResults = false;
           } else {
             this.searchText = '';
           }
-          return;
+          break;
         default:
       }
+    },
 
+    async performSearch() {
       this.selectedIndex = -1;
 
       const formData = new FormData();
