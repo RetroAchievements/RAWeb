@@ -245,18 +245,4 @@ name('demo');
             <x-base.form-actions hasRequiredFields />
         </x-section>
     </x-base.form>
-
-    <x-section>
-        <x-section-header>
-            <x-slot name="title">
-                <h4>Styled form inputs (Tailwind)</h4>
-            </x-slot>
-        </x-section-header>
-        <x-base.form>
-            <div class="flex gap-3 flex-col items-start">
-                <input type="text" class="form-input" value="test">
-                <textarea class="form-textarea">Test</textarea>
-            </div>
-        </x-base.form>
-    </x-section>
 </x-demo-layout>
