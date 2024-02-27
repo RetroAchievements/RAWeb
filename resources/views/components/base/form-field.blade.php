@@ -6,7 +6,6 @@
     'inputType' => null,
     'label' => null,
     'name' => null,
-    'prepend' => null,
     'required' => false,
 ])
 
@@ -21,10 +20,10 @@ $id = $id ?: 'input_' . Str::random();
         </label>
     @endif
     <div class="grow">
-        @if($icon || $prepend)
+        @if($icon)
             <div class="flex flex-row">
                 <div class="form-control-prepend flex items-center" aria-hidden="true">
-                    {{ $icon ? svg('fas-' . $icon, 'icon') : $prepend }}
+                    {{ $icon ? svg('fas-' . $icon, 'icon') : '' }}
                 </div>
                 {{ $slot }}
             </div>
