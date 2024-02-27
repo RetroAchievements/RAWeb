@@ -14,9 +14,11 @@ interface NavbarSearchComponentProps {
   activeDescendentId: string;
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
   handleClickSearchResult: (label: string) => void;
-  handleKeyDown: (e: KeyboardEvent) => void;
+  handleEnter: () => void;
+  handleEscape: () => void;
+  handleUp: () => void;
+  handleDown: () => void;
   handleKeyUp: (e: KeyboardEvent) => Promise<void>;
-  handleNavigationKeys: (key: string, optionsCount: number) => void
   performSearch: () => Promise<void>;
 }
 
@@ -61,14 +63,68 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       }
     },
 
-    handleKeyDown(e:KeyboardEvent) {
-      if (e.key === 'ArrowUp' || e.key === 'Enter') {
-        e.preventDefault();
+    handleEnter() {
+      if (this.showSearchResults) {
+        this.showSearchResults = false;
+
+        if (this.selectedIndex !== -1) {
+          this.searchText = this.results[this.selectedIndex - 2].label;
+          window.location.href = this.results[this.selectedIndex - 2].mylink;
+        }
+      } else {
+        document.querySelector<HTMLFormElement>('.searchbox-top')?.requestSubmit();
+      }
+    },
+
+    handleEscape() {
+      if (this.showSearchResults) {
+        this.showSearchResults = false;
+      } else {
+        this.searchText = '';
+      }
+    },
+
+    handleUp() {
+      const searchBoxDropdownEl = document.querySelector('#search-listbox');
+      const optionsCount = searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
+
+      if (this.showSearchResults) {
+        if (this.selectedIndex === -1 || this.selectedIndex === 2) {
+          this.selectedIndex = optionsCount - 2;
+        } else {
+          this.selectedIndex--;
+        }
+      }
+    },
+
+    handleDown() {
+      const searchBoxDropdownEl = document.querySelector('#search-listbox');
+      const optionsCount = searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
+
+      if (this.showSearchResults) {
+        if (this.selectedIndex === -1 || this.selectedIndex === optionsCount - 2) {
+          this.selectedIndex = 2;
+        } else {
+          this.selectedIndex++;
+        }
+      } else {
+        this.showSearchResults = true;
       }
     },
 
     async handleKeyUp(e:KeyboardEvent) {
-      const ignoredKeys = ['ArrowLeft', 'ArrowRight', 'Shift', 'Control', 'Alt', 'Meta'];
+      const ignoredKeys = [
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+        'Enter',
+        'Escape',
+        'Shift',
+        'Control',
+        'Alt',
+        'Meta'];
+
       if (ignoredKeys.includes(e.key)) {
         return;
       }
@@ -76,62 +132,10 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       if (this.searchText.length < 2) {
         this.showSearchResults = false;
         this.selectedIndex = -1;
-      }
-
-      const searchBoxDropdownEl = document.querySelector('#search-listbox');
-      const optionsCount = searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
-
-      if (['ArrowUp', 'ArrowDown', 'Enter', 'Escape'].includes(e.key)) {
-        this.handleNavigationKeys(e.key, optionsCount);
         return;
       }
-      if (this.searchText.length < 2) return;
+
       await this.performSearch();
-    },
-
-    handleNavigationKeys(key: string, optionsCount: number) {
-      switch (key) {
-        case 'ArrowUp':
-          if (this.showSearchResults) {
-            if (this.selectedIndex === -1 || this.selectedIndex === 2) {
-              this.selectedIndex = optionsCount - 2;
-            } else {
-              this.selectedIndex--;
-            }
-          }
-          break;
-        case 'ArrowDown':
-          if (this.showSearchResults) {
-            if (this.selectedIndex === -1 || this.selectedIndex === optionsCount - 2) {
-              this.selectedIndex = 2;
-            } else {
-              this.selectedIndex++;
-            }
-          } else {
-            this.showSearchResults = true;
-          }
-          break;
-        case 'Enter':
-          if (this.showSearchResults) {
-            this.showSearchResults = false;
-
-            if (this.selectedIndex !== -1) {
-              this.searchText = this.results[this.selectedIndex - 2].label;
-              window.location.href = this.results[this.selectedIndex - 2].mylink;
-            }
-          } else {
-            document.querySelector<HTMLFormElement>('.searchbox-top')?.requestSubmit();
-          }
-          break;
-        case 'Escape':
-          if (this.showSearchResults) {
-            this.showSearchResults = false;
-          } else {
-            this.searchText = '';
-          }
-          break;
-        default:
-      }
     },
 
     async performSearch() {
