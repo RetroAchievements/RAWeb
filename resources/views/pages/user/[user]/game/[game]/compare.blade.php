@@ -56,17 +56,16 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
     pageTitle="Compare Unlocks - {{ $game->Title }}"
     pageDescription="Compares unlocks between {{ $user->User }} and {{ $otherUser->User }} for {{ $game->Title }}"
 >
-    <x-game.breadcrumbs 
-        :targetConsoleId="$game->system->ID"
-        :targetConsoleName="$game->system->Name"
-        :targetGameId="$game->ID"
-        :targetGameName="$game->Title"
-        currentPageLabel="Compare Unlocks: {{ $otherUser->User }}"
+    <x-user.breadcrumbs
+        :targetUsername="$otherUser->User"
+        :parentPage="$game->Title"
+        :parentPageUrl="$game->permalink"
+        currentPage="Compare Unlocks"
     />
 
     <div class="mt-3 mb-3 w-full relative flex gap-x-3">
         {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">Compare Unlocks: {{ $otherUser->User }}</h1>
+        <h1 class="mt-[10px] w-full">Compare Unlocks</h1>
 
         @if ($canModerate)
             <x-hidden-controls-toggle-button>Moderate</x-hidden-controls-toggle-button>

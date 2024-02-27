@@ -72,7 +72,6 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
             Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest');
-            Route::get('game/{game}/achievements/compare/{user}', CompareUnlocksController::class)->name('game.compare-unlocks');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
@@ -93,6 +92,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
             // Route::resource('user.game', PlayerGameController::class)->only('show');
             // Route::get('user/{user}/game/{game}', [PlayerGameController::class, 'activity'])->only('user.game.activity');
+            Route::get('user/{user}/game/{game}/compare', CompareUnlocksController::class)->name('game.compare-unlocks');
 
             // Route::resource('user.badges', PlayerBadgeController::class)->only('index')->names(['index' => 'user.badge.index']);
             // Route::resource('user.badge', PlayerBadgeController::class)->only('show');

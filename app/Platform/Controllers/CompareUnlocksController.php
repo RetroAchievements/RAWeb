@@ -13,7 +13,7 @@ use Illuminate\Support\Carbon;
 
 class CompareUnlocksController extends Controller
 {
-    public function __invoke(Request $request, Game $game, User $user): View
+    public function __invoke(Request $request, User $user, Game $game): View
     {
         $activeUser = $request->user();
         if ($activeUser === null) {
@@ -72,7 +72,7 @@ class CompareUnlocksController extends Controller
 
         $this->sortList($achievements, $sortOrder);
 
-        return view('pages.game.[game].achievements.compare.[user]', [
+        return view('pages.user.[user].game.[game].compare', [
             'user' => $activeUser,
             'otherUser' => $user,
             'game' => $game,
