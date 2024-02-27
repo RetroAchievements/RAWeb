@@ -50,8 +50,8 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
                 :id="result.mylink.slice(1).replace('/','-')"
                 role="option"
                 tabindex="-1"
-                class="text-sm cursor-pointer hover:rounded-lg hover:bg-amber-200 hover:border-2 hover:border-yellow-700"
-                :class="selectedIndex - 2 === i ? 'listbox-item--hover' : ''"
+                class="text-sm cursor-pointer"
+                :class="selectedIndex - 2 === i ? 'rounded-lg bg-amber-200 border-2 border-yellow-700 py-[1px] px-[4px]' : 'py-[3px] px-[6px] hover:rounded-lg hover:bg-amber-200 hover:border-2 hover:border-yellow-700 hover:py-[1px] hover:px-[4px]'"
                 :aria-selected="selectedIndex - 2 === i"
                 @click="handleClickSearchResult(result.label)"
                 @mouseDown="$event.preventDefault()">
