@@ -33,7 +33,10 @@ if (!empty($followedUserIds)) {
         ->toArray();
 }
 
-$baseUrl = str_replace($user->User, '', route('game.compare-unlocks', [$game, $user]));
+$placeholderUser = new User();
+$placeholderUser->User = '[user]';
+$placeholderUrl = route('game.compare-unlocks', ['game' => $game, 'user' => $placeholderUser]);
+// NOTE: placeholderUrl will be url encoded (i.e '[user]' => '%5Buser%5D')
 ?>
 
 <script>
@@ -56,14 +59,16 @@ jQuery(document).ready(function onReady($) {
     },
   });
   $searchBoxCompareuser.on('autocompleteselect', function (event, ui) {
-    window.location = "{!! $baseUrl !!}" + ui.item.label;
+    var placeholderUrl = "{!! $placeholderUrl !!}";
+    window.location = placeholderUrl.replace("%5Buser%5D", ui.item.label);
     return false;
   });
 });
 
 function selectSearchBoxUser() {
   var $searchBoxCompareuser = $('.searchboxgamecompareuser');
-  window.location = "{!! $baseUrl !!}" + $searchBoxCompareuser.val();
+  var placeholderUrl = "{!! $placeholderUrl !!}";
+  window.location = placeholderUrl.replace("%5Buser%5D", $searchBoxCompareuser.val());
 }
 </script>
 
