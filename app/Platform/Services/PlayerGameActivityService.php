@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 class PlayerGameActivityService
 {
     public array $sessions = [];
+    public int $achievementsUnlocked = 0;
 
     public function initialize(User $user, Game $game): void
     {
@@ -67,6 +68,8 @@ class PlayerGameActivityService
             } else {
                 $this->addUnlockEvent($playerAchievement, $playerAchievement->unlocked_at, false);
             }
+
+            $this->achievementsUnlocked++;
         }
 
         foreach ($this->sessions as &$session) {
@@ -74,7 +77,7 @@ class PlayerGameActivityService
         }
     }
 
-    private function addUnlockEvent(object $playerAchievement, Carbon $when, bool $hardcore): void
+    private function addUnlockEvent(object $playerAchievement, Carbon $when, bool $hardcore, bool $repeat = false): void
     {
         $event = [
             'type' => 'unlock',
@@ -88,6 +91,7 @@ class PlayerGameActivityService
                 'Points' => $playerAchievement->Points,
                 'BadgeName' => $playerAchievement->BadgeName,
                 'Flags' => $playerAchievement->Flags,
+                'HardcoreMode' => $hardcore,
             ],
         ];
 
@@ -97,6 +101,10 @@ class PlayerGameActivityService
             if ($unlocker) {
                 $event['unlocker'] = $unlocker;
             }
+        }
+
+        if (!$hardcore && $when < $playerAchievement->unlocked_hardcore_at) {
+            $event['hardcoreLater'] = true;
         }
 
         $existingSessionIndex = $this->findSession('player-session', $when);

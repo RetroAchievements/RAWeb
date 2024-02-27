@@ -3,8 +3,10 @@
 // TODO migrate to PlayerGameController::activity() pages/user/game/activity.blade.php
 
 use App\Enums\Permissions;
+use App\Models\Game;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\PlayerGameActivityService;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
     abort(401);
@@ -17,114 +19,141 @@ if (empty($user2) || $gameID <= 0) {
     abort(404);
 }
 
-$gameData = getGameData($gameID);
-$gameTitle = $gameData['Title'];
-$consoleID = $gameData['ConsoleID'];
-$consoleName = $gameData['ConsoleName'];
-
-$activity = getUserGameActivity($user2, $gameID);
-if (empty($activity)) {
+$targetUser = User::firstWhere('User', $user2);
+$game = Game::firstWhere('ID', $gameID);
+if (!$targetUser || !$game) {
     abort(404);
 }
 
-$estimated = ($activity['PerSessionAdjustment'] !== 0) ? " (estimated)" : "";
+$activity = new PlayerGameActivityService();
+$activity->initialize($targetUser, $game);
+$summary = $activity->summarize();
 
-$unlockSessionCount = $activity['UnlockSessionCount'];
+$estimated = ($summary['generatedSessionAdjustment'] !== 0) ? " (estimated)" : "";
+
+$unlockSessionCount = $summary['achievementSessionCount'];
 $sessionInfo = "$unlockSessionCount session";
 if ($unlockSessionCount != 1) {
     $sessionInfo .= 's';
 
     if ($unlockSessionCount > 1) {
-        $elapsedAchievementDays = ceil($activity['TotalUnlockTime'] / (24 * 60 * 60));
+        $elapsedAchievementDays = ceil($summary['totalUnlockTime'] / (24 * 60 * 60));
         if ($elapsedAchievementDays > 2) {
             $sessionInfo .= " over $elapsedAchievementDays days";
         } else {
-            $sessionInfo .= " over " . ceil($activity['TotalUnlockTime'] / (60 * 60)) . " hours";
+            $sessionInfo .= " over " . ceil($summary['totalUnlockTime'] / (60 * 60)) . " hours";
         }
     }
 }
 
-$gameAchievementCount = $activity['CoreAchievementCount'] ?? 0;
+$gameAchievementCount = $game->achievements_published ?? 0;
 $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
-    $gameAchievementCount, $activity['AchievementsUnlocked'] * 100 / $gameAchievementCount) : "n/a";
+    $gameAchievementCount, $activity->achievementsUnlocked * 100 / $gameAchievementCount) : "n/a";
 ?>
-<x-app-layout pageTitle="{{ $user2 }}'s activity for {{ $gameTitle }}">
-    <?php
-    echo "<div class='navpath'>";
-    echo renderGameBreadcrumb($gameData);
-    echo " &raquo; <b>$user2</b>";
-    echo "</div>";
+<x-app-layout pageTitle="{{ $targetUser->User }}'s activity for {{ $game->Title }}">
+    <x-user.breadcrumbs
+        :targetUsername="$targetUser->User"
+        :parentPage="$game->Title"
+        :parentPageUrl="$game->permalink"
+        currentPage="Activity"
+    />
 
-    echo "<h3>$gameTitle</h3>";
+    <div class="mt-3 w-full relative flex gap-x-3">
+        {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">Game Activity: {{ $targetUser->User }}</h1>
+    </div>
+@if (!empty($activity->sessions))
+    <div>
+    @if ($summary['totalPlaytime'] != $summary['achievementPlaytime'])
+        <p>
+            <span class="font-bold">Total Playtime:</span>
+            <span>{{ formatHMS($summary['totalPlaytime']) }}{{ $estimated }}</span>
+        </p>
+    @endif
+        <p>
+            <span class="font-bold">Achievement Playtime:</span>
+            <span>{{ formatHMS($summary['achievementPlaytime']) }}{{ $estimated }}</span>
+        </p>
+        <p>
+            <span class="font-bold">Achievement Sessions:</span>
+            <span>{{ $sessionInfo }}</span>
+        </p>
+        <p>
+            <span class="font-bold">Achievements Unlocked:</span>
+            <span>{{ $activity->achievementsUnlocked }}{{ $userProgress }}</span>
+        </p>
+    </div>
+@endif
 
-    $pageTitleAttr = attributeEscape($gameTitle);
-    $imageIcon = media_asset($gameData['ImageIcon']);
+@if (empty($activity->sessions))
+    <p>{{ $targetUser->User }} has not played {{ $game->Title }}.</p>
+@else
+    <div class="overflow-x-auto lg:overflow-x-visible">
+        <table class="do-not-highlight mb-4">
+            <thead>
+                <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[1] bg-box">
+                    <th style="width:25%">When</th>
+                    <th style="width:75%">What</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+                @foreach ($activity->sessions as $session)
+                    <tr class='do-not-highlight'>
+                        <td>{{ $session['startTime']->format("j M Y, H:i:s") }}</td>
+                    @if ($session['type'] === 'player-session')
+                        <td class='text-muted'>Started Playing</td>
+                    @elseif ($session['type'] === 'generated')
+                        <td class='text-muted'>Generated Session</td>
+                    @elseif ($session['type'] === 'manual-unlock')
+                        <td class='text-muted'>Manual Unlock</td>
+                    @else
+                        <td class='text-muted'>{{ $session['type'] }}</td>
+                    @endif
+                    </tr>
 
-    echo "<div class='sm:flex justify-between items-start gap-3 mb-3'>";
-    echo "<img class='aspect-1 object-cover' src='$imageIcon' width='96' height='96' alt='$pageTitleAttr'>";
-    echo "<table class='table-highlight'><colgroup><col class='w-48'></colgroup><tbody>";
-    echo "<tr><td>User:</td><td>" . userAvatar($user2, icon: false) . "</td></tr>";
-    if ($activity['TotalTime'] != $activity['AchievementsTime']) {
-        echo "<tr><td>Total Playtime:</td><td>" . formatHMS($activity['TotalTime']) . "$estimated</td></tr>";
-    }
-    echo "<tr><td>Achievement Playtime:</td><td>" . formatHMS($activity['AchievementsTime']) . "$estimated</td></tr>";
-    echo "<tr><td>Achievement Sessions:</td><td>$sessionInfo</td></tr>";
-    echo "<tr><td>Achievements Unlocked:</td><td>" . $activity['AchievementsUnlocked'] . "$userProgress</td></tr>";
-    echo "</tbody></table>";
-    echo "</div>";
-
-    echo "<div id='activity'>";
-    echo "<table class='table-highlight'>";
-    echo "<tr class='do-not-highlight'><th style='width: 20'></th><th style='width: 250'></th><th></th></tr>";
-
-    foreach ($activity['Sessions'] as $session) {
-        $startDate = getNiceDate($session['StartTime']);
-        if ($session['IsGenerated'] ?? false) {
-            echo "<tr><td colspan=2>$startDate</td><td>Generated Session</td></tr>";
-        } else {
-            echo "<tr><td colspan=2>$startDate</td><td>Started Playing</td></tr>";
-        }
-
-        $prevWhen = $session['StartTime'];
-        foreach ($session['Achievements'] as $achievement) {
-            $when = getNiceDate($achievement['When']);
-            $formatted = formatHMS($achievement['When'] - $prevWhen);
-            $prevWhen = $achievement['When'];
-
-            echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>";
-            echo achievementAvatar($achievement);
-
-            if ($achievement['Flags'] != AchievementFlag::OfficialCore) {
-                echo " (Unofficial)";
-            }
-
-            if ($achievement['UnlockedLater'] ?? false) {
-                echo " (unlocked again later)";
-            }
-
-            if ($achievement['UnlockedBy']) {
-                echo " (unlocked by ";
-                echo userAvatar(User::find($achievement['UnlockedBy']), label:true, icon:false);
-                echo ")";
-            }
-
-            echo "</td></tr>";
-        }
-
-        if (array_key_exists('RichPresence', $session) && !empty($session['RichPresence'])) {
-            $when = getNiceDate($session['RichPresenceTime']);
-            $formatted = formatHMS($session['RichPresenceTime'] - $prevWhen);
-            echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>Rich Presence: {$session['RichPresence']}</td></tr>";
-            $prevWhen = $session['RichPresenceTime'];
-        }
-
-        if ($session['EndTime'] != $prevWhen) {
-            $when = getNiceDate($session['EndTime']);
-            $formatted = formatHMS($session['EndTime'] - $prevWhen);
-            echo "<tr><td>&nbsp;</td><td>$when<span class='smalltext text-muted'> (+$formatted)</span></td><td>End of session</td></tr>";
-        }
-    }
-
-    echo "</table></div>";
-    ?>
+                    <?php $prevWhen = $session['startTime'] ?>
+                    @foreach ($session['events'] as $event)
+                        <tr>
+                            <td>
+                                <span>&nbsp;</span>
+                                <span>{{ $event['when']->format("H:i:s") }}</span>
+                                <span class='smalltext text-muted'> (+{{ formatHms($event['when']->diffInSeconds($prevWhen)) }})</span>
+                            </td>
+                            <td>
+                                @if ($event['type'] === 'unlock')
+                                    <?php $achievement = $event['achievement'] ?>
+                                    {!! achievementAvatar($achievement) !!}
+                                    @if ($achievement['Flags'] != AchievementFlag::OfficialCore)
+                                        (Unofficial)
+                                    @endif
+                                    @if ($event['hardcoreLater'] ?? false)
+                                        (unlocked later in hardcore)
+                                    @endif
+                                    @if ($event['unlocker'] ?? null)
+                                        (unlocked by {!! userAvatar($event['unlocker'], label:true, icon:false) !!})
+                                    @endif
+                                @elseif ($event['type'] === 'rich-presence')
+                                    <span class='text-muted'>Rich Presence:</span>
+                                    <span>{{ $event['description'] }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <?php $prevWhen = $event['when'] ?>
+                    @endforeach
+                    @if ($prevWhen != $session['endTime'])
+                        <tr>
+                            <td>
+                                <span>&nbsp;</span>
+                                <span>{{ $session['endTime']->format("H:i:s") }}</span>
+                                <span class='smalltext text-muted'> (+{{ formatHms($session['endTime']->diffInSeconds($prevWhen)) }})</span>
+                            </td>
+                            <td class='text-muted'>End of session</td>
+                        </tr>
+                    @endif
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endif
 </x-app-layout>
