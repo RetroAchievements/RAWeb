@@ -32,8 +32,8 @@ class PlayerGameActivityService
                 'type' => 'player-session',
                 'playerSession' => $playerSession,
                 'startTime' => $playerSession->created_at,
-                'endTime' => $playerSession->created_at->addSeconds($playerSession->duration),
-                'duration' => $playerSession->duration,
+                'endTime' => $playerSession->created_at->addMinutes($playerSession->duration),
+                'duration' => $playerSession->duration * 60,
                 'events' => [],
             ];
 
@@ -207,5 +207,91 @@ class PlayerGameActivityService
         }
 
         return $index;
+    }
+
+    public function summarize(): array
+    {
+        $generatedSessionCount = 0;
+        $generatedUnlockSessionCount = 0;
+        $totalTime = 0;
+        $achievementsUnlocked = 0;
+        $achievementsTime = 0;
+        $unlockSessionCount = 0;
+        $intermediateTime = 0;
+        $intermediateSessionCount = 0;
+        $firstAchievementTime = null;
+        $lastAchievementTime = null;
+
+        foreach ($this->sessions as $session) {
+            if ($session['type'] === 'manual-unlock') {
+                continue;
+            } elseif ($session['type'] == 'generated') {
+                $generatedSessionCount++;
+            }
+
+            $totalTime += $session['duration'];
+
+            $hasAchievements = false;
+            foreach ($session['events'] as $event) {
+                if ($event['type'] == 'unlock') {
+                    $achievementsUnlocked++;
+                    $hasAchievements = true;
+
+                    if ($firstAchievementTime === null || $event['when'] < $firstAchievementTime) {
+                        $firstAchievementTime = $event['when'];
+                    }
+                    if ($lastAchievementTime === null || $event['when'] > $lastAchievementTime) {
+                        $lastAchievementTime = $event['when'];
+                    }
+                }
+            }
+            
+            if ($hasAchievements) {
+                if ($achievementsTime > 0) {
+                    $achievementsTime += $intermediateTime;
+                    $unlockSessionCount += $intermediateSessionCount;
+                }
+                $achievementsTime += $session['duration'];
+                $intermediateTime = 0;
+                $intermediateSessionCount = 0;    
+
+                $unlockSessionCount++;
+                if ($session['type'] == 'generated') {
+                    $generatedUnlockSessionCount++;
+                }
+            } elseif ($session['type'] == 'player-session') {
+                $intermediateTime += $session['duration'];
+                $intermediateSessionCount++;
+            }
+        }
+
+        // assume every achievement took roughly the same amount of time to earn. divide the
+        // user's total known playtime by the number of achievements they've earned to get the
+        // approximate time per achievement earned. add this value to each session to account
+        // for time played after getting the last achievement of the session.
+        $sessionAdjustment = 0;
+        if ($generatedSessionCount > 0 && $achievementsUnlocked > 0) {
+            $sessionAdjustment = $achievementsTime / $achievementsUnlocked;
+
+            $totalTime += $sessionAdjustment * $generatedSessionCount;
+
+            if ($generatedUnlockSessionCount > 0) {
+                $achievementsTime += $sessionAdjustment * $generatedUnlockSessionCount;
+            }
+        }
+
+        return [
+            // total time from sessions where achievements were earned
+            'achievementPlaytime' => $achievementsTime,
+            // number of sessions where achievements were earned
+            'achievementSessionCount' => $unlockSessionCount,
+            // adjustment applied to generated sessions
+            'generatedSessionAdjustment' => $sessionAdjustment,
+            // distance between the first unlock and last unlock (includes time between sessions)
+            'totalUnlockTime' => ($lastAchievementTime != null) ? 
+                $lastAchievementTime->diffInSeconds($firstAchievementTime) : 0,
+            // total time from all sessions (including those before the first or after the last earned achievement)
+            'totalPlaytime' => $totalTime,
+        ];
     }
 }
