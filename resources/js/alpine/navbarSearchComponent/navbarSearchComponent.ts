@@ -12,6 +12,7 @@ interface NavbarSearchComponentProps {
   results: SearchResult[];
   selectedIndex: number;
   activeDescendentId: string;
+  optionsCount: number;
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
   handleClickSearchResult: (label: string) => void;
   handleEnter: () => void;
@@ -29,6 +30,18 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
     results: [],
     selectedIndex: -1,
 
+    get activeDescendentId() {
+      if (this.selectedIndex !== -1) {
+        return this.results[this.selectedIndex - 2].mylink.slice(1).replace('/', '-');
+      }
+      return '';
+    },
+
+    get optionsCount() {
+      const searchBoxDropdownEl = document.querySelector('#search-listbox');
+      return searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
+    },
+
     init(formEl: ReferenceElement, ulEl: HTMLElement) {
       if (!formEl || !ulEl) return;
       autoUpdate(formEl, ulEl, () => {
@@ -44,13 +57,6 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
           });
         });
       });
-    },
-
-    get activeDescendentId() {
-      if (this.selectedIndex !== -1) {
-        return this.results[this.selectedIndex - 2].mylink.slice(1).replace('/', '-');
-      }
-      return '';
     },
 
     handleClickSearchResult(label: string) {
@@ -85,12 +91,9 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
     },
 
     handleUp() {
-      const searchBoxDropdownEl = document.querySelector('#search-listbox');
-      const optionsCount = searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
-
       if (this.showSearchResults) {
         if (this.selectedIndex === -1 || this.selectedIndex === 2) {
-          this.selectedIndex = optionsCount - 2;
+          this.selectedIndex = this.optionsCount - 2;
         } else {
           this.selectedIndex--;
         }
@@ -98,11 +101,8 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
     },
 
     handleDown() {
-      const searchBoxDropdownEl = document.querySelector('#search-listbox');
-      const optionsCount = searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
-
       if (this.showSearchResults) {
-        if (this.selectedIndex === -1 || this.selectedIndex === optionsCount - 2) {
+        if (this.selectedIndex === -1 || this.selectedIndex === this.optionsCount - 2) {
           this.selectedIndex = 2;
         } else {
           this.selectedIndex++;
