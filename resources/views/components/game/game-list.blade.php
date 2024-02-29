@@ -9,6 +9,7 @@
     'games' => [],
     'noGamesMessage' => 'No games.',
     'sortOrder' => 'title',
+    'shouldAlwaysShowMetaSurface' => false,
     'shouldShowCount' => false,
     'totalUnfilteredCount' => null, // ?int
 ])
@@ -17,7 +18,12 @@
 $groupByConsole = isset($filterOptions['console']) && $filterOptions['console'];
 $areFiltersPristine = count(request()->query()) === 0;
 $numGames = count($games);
-$areGamesMaybePresent = !$areFiltersPristine || $numGames > 0;
+
+$areGamesMaybePresent = (
+    !$areFiltersPristine
+    || $numGames > 0
+    || $shouldAlwaysShowMetaSurface
+);
 ?>
 
 <div>
