@@ -23,5 +23,3 @@ abstract class SystemFlag
         return in_array($flag, self::cases());
     }
 }
-
-?>

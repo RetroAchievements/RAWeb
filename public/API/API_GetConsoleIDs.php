@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\System;
-use App\Platform\Enums\SystemFlag;
 
 /*
  *  API_GetConsoleIDs - returns mapping of known consoles
@@ -14,21 +13,20 @@ use App\Platform\Enums\SystemFlag;
  *    string    Name                name of the console
  *    string    IconURL             system icon URL
  *    bool      Active              boolean value indicating if the console is active in RA
- *    bool      IsGameSystem        boolean value indicating if is a game system (not Events, Hubs, etc.) 
+ *    bool      IsGameSystem        boolean value indicating if is a game system (not Events, Hubs, etc.)
  */
 
-$activeFlag = (int) request()->query('a', SystemFlag::AllSystems);
-$gamesConsoleFlag = (int) request()->query('g', 0);
+$activeFlag = (int) request()->query('a', '0');
+$gamesConsoleFlag = (int) request()->query('g', '0');
 
 $systems = getSystemsData($activeFlag, $gamesConsoleFlag);
 
-$response = $systems->map(fn ($system) =>
-    [
+$response = $systems->map(fn ($system) => [
         'ID' => $system->ID,
         'Name' => $system->Name,
         'IconURL' => $system->icon_url,
         'Active' => boolval($system->active),
-        'IsGameSystem' => System::isGameSystem($system->ID)
+        'IsGameSystem' => System::isGameSystem($system->ID),
     ]
 );
 
