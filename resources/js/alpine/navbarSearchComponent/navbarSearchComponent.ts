@@ -32,14 +32,15 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
 
     get activeDescendentId() {
       if (this.selectedIndex !== -1) {
-        return this.results[this.selectedIndex - 2].mylink.slice(1).replace('/', '-');
+        return this.results[this.selectedIndex].mylink.slice(1).replace('/', '-');
       }
       return '';
     },
 
     get optionsCount() {
       const searchBoxDropdownEl = document.querySelector('#search-listbox');
-      return searchBoxDropdownEl ? searchBoxDropdownEl.childNodes.length : 0;
+      return searchBoxDropdownEl && searchBoxDropdownEl.childNodes.length > 3
+        ? searchBoxDropdownEl.childNodes.length - 3 : 0;
     },
 
     init(formEl: ReferenceElement, ulEl: HTMLElement) {
@@ -74,8 +75,8 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
         this.showSearchResults = false;
 
         if (this.selectedIndex !== -1) {
-          this.searchText = this.results[this.selectedIndex - 2].label;
-          window.location.href = this.results[this.selectedIndex - 2].mylink;
+          this.searchText = this.results[this.selectedIndex].label;
+          window.location.href = this.results[this.selectedIndex].mylink;
         }
       } else {
         document.querySelector<HTMLFormElement>('.searchbox-top')?.requestSubmit();
@@ -87,13 +88,15 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
         this.showSearchResults = false;
       } else {
         this.searchText = '';
+        this.results = [];
+        this.selectedIndex = -1;
       }
     },
 
     handleUp() {
       if (this.showSearchResults) {
-        if (this.selectedIndex === -1 || this.selectedIndex === 2) {
-          this.selectedIndex = this.optionsCount - 2;
+        if (this.selectedIndex === -1 || this.selectedIndex === 0) {
+          this.selectedIndex = this.optionsCount - 1;
         } else {
           this.selectedIndex--;
         }
@@ -102,12 +105,12 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
 
     handleDown() {
       if (this.showSearchResults) {
-        if (this.selectedIndex === -1 || this.selectedIndex === this.optionsCount - 2) {
-          this.selectedIndex = 2;
+        if (this.selectedIndex === -1 || this.selectedIndex === this.optionsCount - 1) {
+          this.selectedIndex = 0;
         } else {
           this.selectedIndex++;
         }
-      } else {
+      } else if (this.results.length) {
         this.showSearchResults = true;
       }
     },
