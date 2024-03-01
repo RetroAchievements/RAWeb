@@ -6,6 +6,8 @@ declare(strict_types=1);
  *  API_GetRecentGameAwards - gets a list of all beaten and mastery awards granted across the userbase, ordered by date
  *    d : starting date (YYYY-MM-DD) (default: now)
  *    o : offset - number of entries to skip (default: 0)
+ *    k : desired game award kinds, can be a comma-separated list.
+ *        possible values are "beaten-softcore", "beaten-hardcore", "completed", and "mastered". (default: all)
  *
  *  int         Count                       number of game awards returned in the response
  *  int         Total                       number of game awards total which satisfy the filter criteria
