@@ -22,7 +22,6 @@ require_once __DIR__ . '/database/set-request.php';
 require_once __DIR__ . '/database/site-award.php';
 require_once __DIR__ . '/database/static.php';
 require_once __DIR__ . '/database/subscription.php';
-require_once __DIR__ . '/database/system.php';
 require_once __DIR__ . '/database/ticket.php';
 require_once __DIR__ . '/database/user.php';
 require_once __DIR__ . '/database/user-account-deletion.php';

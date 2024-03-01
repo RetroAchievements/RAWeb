@@ -32,18 +32,74 @@ class ConsoleIDsTest extends TestCase
                 [
                     'ID' => $system1->ID,
                     'Name' => $system1->Name,
+                    'IconURL' => $system1->icon_url,
+                    'Active' => boolval($system1->active),
+                    'IsGameSystem' => System::isGameSystem($system1->ID),
                 ],
                 [
                     'ID' => $system2->ID,
                     'Name' => $system2->Name,
+                    'IconURL' => $system2->icon_url,
+                    'Active' => boolval($system2->active),
+                    'IsGameSystem' => System::isGameSystem($system2->ID),
                 ],
                 [
                     'ID' => $system3->ID,
                     'Name' => $system3->Name,
+                    'IconURL' => $system3->icon_url,
+                    'Active' => boolval($system3->active),
+                    'IsGameSystem' => System::isGameSystem($system3->ID),
                 ],
                 [
                     'ID' => $system4->ID,
                     'Name' => $system4->Name,
+                    'IconURL' => $system4->icon_url,
+                    'Active' => boolval($system4->active),
+                    'IsGameSystem' => System::isGameSystem($system4->ID),
+                ],
+            ]);
+    }
+
+    public function testGetConsoleIdsOnlyActive(): void
+    {
+        /** @var System $system1 */
+        $system1 = System::factory()->create(['active' => 1]);
+        /** @var System $system2 */
+        $system2 = System::factory()->create(['active' => 0]);
+
+        // only active systems
+        $this->get($this->apiUrl('GetConsoleIDs', ['a' => 1]))
+            ->assertSuccessful()
+            ->assertJsonCount(1)
+            ->assertJson([
+                [
+                    'ID' => $system1->ID,
+                    'Name' => $system1->Name,
+                    'IconURL' => $system1->icon_url,
+                    'Active' => boolval($system1->active),
+                    'IsGameSystem' => System::isGameSystem($system1->ID),
+                ],
+            ]);
+    }
+
+    public function testGetConsoleIdsOnlyGameSystems(): void
+    {
+        /** @var System $system1 */
+        $system1 = System::factory()->create();
+        /** @var System $system2 */
+        $system2 = System::factory()->create(['ID' => System::Events]);
+
+        // only game systems
+        $this->get($this->apiUrl('GetConsoleIDs', ['g' => 1]))
+            ->assertSuccessful()
+            ->assertJsonCount(1)
+            ->assertJson([
+                [
+                    'ID' => $system1->ID,
+                    'Name' => $system1->Name,
+                    'IconURL' => $system1->icon_url,
+                    'Active' => boolval($system1->active),
+                    'IsGameSystem' => System::isGameSystem($system1->ID),
                 ],
             ]);
     }

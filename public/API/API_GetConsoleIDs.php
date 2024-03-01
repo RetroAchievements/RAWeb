@@ -9,17 +9,24 @@ use App\Models\System;
  *
  *  array
  *   object    [value]
- *    string    ID                  unique identifier of the console
+ *    int       ID                  unique identifier of the console
  *    string    Name                name of the console
  *    string    IconURL             system icon URL
  *    bool      Active              boolean value indicating if the console is active in RA
  *    bool      IsGameSystem        boolean value indicating if is a game system (not Events, Hubs, etc.)
  */
 
-$activeFlag = (int) request()->query('a', '0');
-$gamesConsoleFlag = (int) request()->query('g', '0');
+$onlyActive = (bool) request()->query('a', '0');
+$onlyGameConsoles = (bool) request()->query('g', '0');
 
-$systems = getSystemsData($activeFlag, $gamesConsoleFlag);
+$systems = match ($onlyActive) {
+    true => System::where('active', true)->get(),
+    false => System::all(),
+};
+
+if ($onlyGameConsoles == 1) {
+    $systems = $systems->filter(fn ($system) => System::isGameSystem($system->ID));
+}
 
 $response = $systems->map(fn ($system) => [
         'ID' => $system->ID,
