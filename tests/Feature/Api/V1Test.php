@@ -326,7 +326,7 @@ class V1Test extends TestCase
             ->assertJsonFragment([
                 'ID' => $system->ID,
                 'Name' => $system->Name,
-                'Active' => boolval($system->active),
+                'Active' => isValidConsoleId($system->ID),
                 'IsGameSystem' => true,
             ]);
     }

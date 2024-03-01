@@ -32,7 +32,7 @@ $response = $systems->map(fn ($system) => [
         'ID' => $system->ID,
         'Name' => $system->Name,
         'IconURL' => $system->icon_url,
-        'Active' => boolval($system->active),
+        'Active' => boolval(isValidConsoleId($system->ID)),
         'IsGameSystem' => System::isGameSystem($system->ID),
     ]
 );
