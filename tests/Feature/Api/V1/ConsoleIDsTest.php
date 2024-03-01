@@ -34,28 +34,28 @@ class ConsoleIDsTest extends TestCase
                     'Name' => $system1->Name,
                     'IconURL' => $system1->icon_url,
                     'Active' => boolval($system1->active),
-                    'IsGameSystem' => System::isGameSystem($system1->ID),
+                    'IsGameSystem' => true,
                 ],
                 [
                     'ID' => $system2->ID,
                     'Name' => $system2->Name,
                     'IconURL' => $system2->icon_url,
                     'Active' => boolval($system2->active),
-                    'IsGameSystem' => System::isGameSystem($system2->ID),
+                    'IsGameSystem' => true,
                 ],
                 [
                     'ID' => $system3->ID,
                     'Name' => $system3->Name,
                     'IconURL' => $system3->icon_url,
                     'Active' => boolval($system3->active),
-                    'IsGameSystem' => System::isGameSystem($system3->ID),
+                    'IsGameSystem' => true,
                 ],
                 [
                     'ID' => $system4->ID,
                     'Name' => $system4->Name,
                     'IconURL' => $system4->icon_url,
                     'Active' => boolval($system4->active),
-                    'IsGameSystem' => System::isGameSystem($system4->ID),
+                    'IsGameSystem' => true,
                 ],
             ]);
     }
@@ -77,7 +77,7 @@ class ConsoleIDsTest extends TestCase
                     'Name' => $system1->Name,
                     'IconURL' => $system1->icon_url,
                     'Active' => boolval($system1->active),
-                    'IsGameSystem' => System::isGameSystem($system1->ID),
+                    'IsGameSystem' => true,
                 ],
             ]);
     }
@@ -87,7 +87,7 @@ class ConsoleIDsTest extends TestCase
         /** @var System $system1 */
         $system1 = System::factory()->create();
         /** @var System $system2 */
-        $system2 = System::factory()->create(['ID' => System::Events]);
+        $system2 = System::factory()->create(['ID' => System::Hubs]);
 
         // only game systems
         $this->get($this->apiUrl('GetConsoleIDs', ['g' => 1]))
@@ -99,7 +99,7 @@ class ConsoleIDsTest extends TestCase
                     'Name' => $system1->Name,
                     'IconURL' => $system1->icon_url,
                     'Active' => boolval($system1->active),
-                    'IsGameSystem' => System::isGameSystem($system1->ID),
+                    'IsGameSystem' => true,
                 ],
             ]);
     }
