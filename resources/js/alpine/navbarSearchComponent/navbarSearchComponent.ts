@@ -43,7 +43,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
         ? searchBoxDropdownEl.childNodes.length - 3 : 0;
     },
 
-    init(formEl: ReferenceElement, ulEl: HTMLElement) {
+    init(formEl?: ReferenceElement, ulEl?: HTMLElement) {
       if (!formEl || !ulEl) return;
       autoUpdate(formEl, ulEl, () => {
         computePosition(formEl, ulEl, {
