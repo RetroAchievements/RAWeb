@@ -33,7 +33,7 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
                @keyup.escape="handleEscape"
                @keyup.up="handleUp"
                @keyup.down="handleDown"
-               @keyup.debounce.500ms="handleKeyUp($event)"
+               @keyup.debounce="handleKeyUp($event)"
                @blur="showSearchResults = false"
                aria-autocomplete="list"
                aria-controls="search-listbox"
