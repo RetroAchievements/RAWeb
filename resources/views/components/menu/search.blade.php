@@ -52,7 +52,7 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
         x-show="showSearchResults">
         <template x-for="(result, i) in results">
             <li
-                :id="result.mylink.slice(1).replace('/','-')"
+                :id="getOptionId(result)"
                 role="option"
                 tabindex="-1"
                 class="text-sm cursor-pointer"

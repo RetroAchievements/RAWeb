@@ -14,6 +14,7 @@ interface NavbarSearchComponentProps {
   activeDescendentId: string;
   optionsCount: number;
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
+  getOptionId: (result: SearchResult) => string;
   handleClickSearchResult: (label: string) => void;
   handleEnter: () => void;
   handleEscape: () => void;
@@ -32,7 +33,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
 
     get activeDescendentId() {
       if (this.selectedIndex !== -1) {
-        return this.results[this.selectedIndex].mylink.slice(1).replace('/', '-');
+        return this.getOptionId(this.results[this.selectedIndex]);
       }
       return '';
     },
@@ -58,6 +59,12 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
           });
         });
       });
+    },
+
+    // Generates the option id based off of the link
+    // '/game/234' -> 'game-234'
+    getOptionId(result: SearchResult) {
+      return result.mylink.slice(1).replace('/', '-');
     },
 
     handleClickSearchResult(label: string) {
