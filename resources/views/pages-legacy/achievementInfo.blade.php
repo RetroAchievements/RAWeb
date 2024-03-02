@@ -59,6 +59,10 @@ sanitize_outputs(
     $author
 );
 
+$decodedAchievementTitle = html_entity_decode($achievementTitle, ENT_QUOTES, 'UTF-8');
+$decodedGameTitle = html_entity_decode($gameTitle, ENT_QUOTES, 'UTF-8');
+$pageTitle = "{$decodedAchievementTitle} in {$decodedGameTitle} ({$consoleName})";
+
 $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $numWinners = 0;
@@ -125,7 +129,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
 getCodeNotes($gameID, $codeNotes);
 ?>
 <x-app-layout
-    pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
+    :pageTitle="$pageTitle"
     :pageDescription="generateAchievementMetaDescription($achievementDescriptionRaw, $achType, $gameTitleRaw, $consoleName, $achPoints, $numWinners)"
     :pageImage="media_asset('/Badge/' . $badgeName . '.png')"
     pageType="retroachievements:achievement"
