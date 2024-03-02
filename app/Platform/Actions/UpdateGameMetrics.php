@@ -34,7 +34,7 @@ class UpdateGameMetrics
             // NOTE: This assumes everyone who plays a child set also plays the parent set.
             //       These counts should technically be the union of users from both sets.
             $parentGame = Game::firstWhere('ID', $parentGameId);
-            if ($parentGame) {
+            if ($parentGame && $parentGame->players_total > 0) {
                 $game->players_total = $parentGame->players_total;
                 $game->players_hardcore = $parentGame->players_hardcore;
             } else {
