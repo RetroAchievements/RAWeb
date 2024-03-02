@@ -15,6 +15,7 @@ name('system.game.index');
     'filterOptions' => [],
     'gameListConsoles' => [],
     'games' => [],
+    'shouldAlwaysShowMetaSurface' => true,
     'sortOrder' => 'title',
     'system', // System
     'totalUnfilteredCount' => null, // ?int
@@ -64,6 +65,7 @@ if ($areFiltersPristine) {
             :filterOptions="$filterOptions"
             :games="$games"
             :sortOrder="$sortOrder"
+            :shouldAlwaysShowMetaSurface="$shouldAlwaysShowMetaSurface"
             :shouldShowCount="true"
             :totalUnfilteredCount="$totalUnfilteredCount"
         />

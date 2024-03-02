@@ -140,7 +140,7 @@ class UserProfileMeta extends Component
     {
         $hardcorePoints = $userMassData['TotalPoints'] ?? 0;
         $weightedPoints = $userMassData['TotalTruePoints'] ?? 0;
-        $retroRatio = $weightedPoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoints) : null;
+        $retroRatio = $hardcorePoints ? sprintf("%01.2f", $weightedPoints / $hardcorePoints) : null;
 
         // Hardcore points
         $hardcorePointsStat = [
