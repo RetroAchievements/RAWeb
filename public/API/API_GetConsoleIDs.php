@@ -19,14 +19,13 @@ use App\Models\System;
 $onlyActive = (bool) request()->query('a', '0');
 $onlyGameConsoles = (bool) request()->query('g', '0');
 
-$systems = match ($onlyActive) {
-    true => System::where('active', true)->get(),
-    false => System::all(),
-};
-
-if ($onlyGameConsoles == 1) {
-    $systems = $systems->filter(fn ($system) => System::isGameSystem($system->ID));
-}
+$systems = System::all()
+    ->filter(function ($system) use ($onlyActive) {
+        return $onlyActive ? isValidConsoleId($system->ID) : true;
+    })
+    ->filter(function ($system) use ($onlyGameConsoles) {
+        return $onlyGameConsoles ? System::isGameSystem($system->ID) : true;
+    });
 
 $response = $systems->map(fn ($system) => [
         'ID' => $system->ID,
@@ -34,7 +33,7 @@ $response = $systems->map(fn ($system) => [
         'IconURL' => $system->icon_url,
         'Active' => boolval(isValidConsoleId($system->ID)),
         'IsGameSystem' => System::isGameSystem($system->ID),
-    ]
-);
+    ])
+    ->values();
 
 return response()->json($response);
