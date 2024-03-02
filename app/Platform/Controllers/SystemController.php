@@ -171,6 +171,7 @@ class SystemController extends Controller
             'filterOptions' => $filterOptions,
             'gameListConsoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,
+            'shouldAlwaysShowMetaSurface' => !isValidConsoleId($system->id) || $system->id === System::Events,
             'sortOrder' => $sortOrder,
             'system' => $system,
             'totalUnfilteredCount' => $totalUnfilteredCount,
