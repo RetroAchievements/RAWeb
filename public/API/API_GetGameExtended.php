@@ -139,11 +139,11 @@ return response()->json(array_merge(
     [
         'ConsoleName' => $game->system->Name,
         'ParentGameID' => $game->getParentGameId(),
-        'NumDistinctPlayers' => count($game->players),
+        'NumDistinctPlayers' => $game->players_total,
         'NumAchievements' => count($gameAchievements),
         'Achievements' => $gameListAchievements,
         'Claims' => $gameClaims,
-        'NumDistinctPlayersCasual' => count($game->players), // Deprecated - Only here to maintain API V1 compat
-        'NumDistinctPlayersHardcore' => count($game->players), // Deprecated - Only here to maintain API V1 compat
+        'NumDistinctPlayersCasual' => $game->players_total, // Deprecated - Only here to maintain API V1 compat
+        'NumDistinctPlayersHardcore' => $game->players_total, // Deprecated - Only here to maintain API V1 compat
     ]
 ));
