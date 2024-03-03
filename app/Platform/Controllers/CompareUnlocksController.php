@@ -85,16 +85,12 @@ class CompareUnlocksController extends Controller
 
     private function sortByUnlockTimestamps(array $a, array $b, string $field): int
     {
-        $aTimestamp = $a[$field] ?? null;
-        $bTimestamp = $b[$field] ?? null;
+        // '~' is guaranteed to be lexigraphically after any date time (regardless of the
+        // format) because it follows all alphanumeric characters in the ASCII table.
+        $aTimestamp = $a[$field] ?? '~';
+        $bTimestamp = $b[$field] ?? '~';
         if ($aTimestamp != $bTimestamp) {
-            if ($aTimestamp === null) {
-                return 1;
-            } elseif ($bTimestamp == null) {
-                return -1;
-            } else {
-                return $aTimestamp <=> $bTimestamp;
-            }
+            return $aTimestamp <=> $bTimestamp;
         }
 
         return $a['DisplayOrder'] <=> $b['DisplayOrder'];
