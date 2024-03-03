@@ -138,7 +138,7 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
     if ($canShowProgressionStatusComponent) {
         echo "<hr class='border-neutral-700 black:border-embed-highlight light:border-embed-highlight my-4' />";
 
-        echo "<div class='mt-1 mb-8 bg-embed p-5 rounded'>";
+        echo "<div class='mt-1 mb-8 bg-embed p-5 rounded sm:p-2.5 md:p-5 lg:p-3 xl:p-5'>";
         ?>
         <x-user-progression-status
             :userCompletionProgress="$userCompletedGamesList"

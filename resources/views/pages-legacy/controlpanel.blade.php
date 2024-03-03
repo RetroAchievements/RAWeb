@@ -259,8 +259,8 @@ function confirmEmailChange(event) {
             echo "<td class='align-top'>Web API Key</td>";
             echo "<td>";
             ?>
-            <button x-init="{}" @click="copyToClipboard('$apiKey')" class="btn flex items-center gap-x-2 mb-2" title="Copy your web API key to the clipboard" aria-label="Copy your web API key to the clipboard">
-                <span class="font-mono">$apiKey</span>
+            <button x-init="{}" @click="copyToClipboard('{{ $apiKey }}')" class="btn flex items-center gap-x-2 mb-2" title="Copy your web API key to the clipboard" aria-label="Copy your web API key to the clipboard">
+                <span class="font-mono">{{ $apiKey }}</span>
                 <x-fas-copy />
             </button>
             <div class="mb-2">
