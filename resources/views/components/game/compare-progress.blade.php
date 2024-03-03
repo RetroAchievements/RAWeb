@@ -105,7 +105,7 @@ function selectSearchBoxUser() {
         <p class="mt-3">Compare with any user:</p>
 
         <div class="w-full flex items-center gap-x-2">
-          <input size="24" name="compareuser" type="text" class="searchboxgamecompareuser" placeholder="Enter User..." />
+          <input name="compareuser" type="text" class="searchboxgamecompareuser w-full" placeholder="Enter User..." />
           <button class="btn" onclick="selectSearchBoxUser()">Select</button>
         </div>
     </div>
