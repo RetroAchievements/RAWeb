@@ -162,7 +162,7 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     // == temp subset detection
 
-    public function getParentGameId(): ?int
+    public function getParentGame(): ?Game
     {
         // Use regular expression to check if the title includes a subset pattern and extract the base title.
         if (preg_match('/(.+)\[Subset - .+\]/', $this->Title, $matches)) {
@@ -174,8 +174,8 @@ class Game extends BaseModel implements HasComments, HasMedia
                 ->where('ConsoleID', $this->ConsoleID)
                 ->first();
 
-            // If a matching game is found, return its ID.
-            return $game?->id ?? null;
+            // If a matching game is found, return its model.
+            return $game ?? null;
         }
 
         // Return null if the title does not match the subset pattern or no game is found.
