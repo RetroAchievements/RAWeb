@@ -87,7 +87,7 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
     </x-hidden-controls>
 @endif
 
-@if (@$numAchievements === 0)
+@if ($numAchievements === 0)
     <p>This game has no published achievements.</p>
 @else
     <x-main sidebarPosition="left">
