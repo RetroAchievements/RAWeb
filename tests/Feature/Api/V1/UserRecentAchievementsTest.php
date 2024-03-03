@@ -44,6 +44,11 @@ class UserRecentAchievementsTest extends TestCase
         $unlock3Date = $now->clone()->subMinutes(1);
         $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
 
+        // Refresh the achievements.
+        $achievement1 = Achievement::findOrFail($achievement1->id);
+        $achievement2 = Achievement::findOrFail($achievement2->id);
+        $achievement3 = Achievement::findOrFail($achievement3->id);
+
         // nothing in the last 0 minutes
         $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 0]))
             ->assertSuccessful()
@@ -71,6 +76,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
+                    'TrueRatio' => $achievement3->points_weighted,
                     'Title' => $achievement3->Title,
                     'GameID' => $game2->ID,
                     'GameTitle' => $game2->Title,
@@ -93,6 +99,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
+                    'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
                     'GameID' => $game2->ID,
@@ -109,6 +116,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement2->Points,
+                    'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
                     'GameID' => $game2->ID,
@@ -132,6 +140,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
+                    'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
                     'GameID' => $game2->ID,
@@ -148,6 +157,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement2->Points,
+                    'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
                     'GameID' => $game2->ID,
@@ -171,6 +181,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement3->Description,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement3->Points,
+                    'TrueRatio' => $achievement3->points_weighted,
                     'Type' => $achievement3->type,
                     'Title' => $achievement3->Title,
                     'GameID' => $game2->ID,
@@ -187,6 +198,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement2->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement2->Points,
+                    'TrueRatio' => $achievement2->points_weighted,
                     'Type' => $achievement2->type,
                     'Title' => $achievement2->Title,
                     'GameID' => $game2->ID,
@@ -203,6 +215,7 @@ class UserRecentAchievementsTest extends TestCase
                     'Description' => $achievement1->Description,
                     'HardcoreMode' => UnlockMode::Hardcore,
                     'Points' => $achievement1->Points,
+                    'TrueRatio' => $achievement1->points_weighted,
                     'Type' => $achievement1->type,
                     'Title' => $achievement1->Title,
                     'GameID' => $game1->ID,
