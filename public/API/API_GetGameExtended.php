@@ -138,7 +138,7 @@ return response()->json(array_merge(
     $gameData,
     [
         'ConsoleName' => $game->system->Name,
-        'ParentGameID' => $game->getParentGameId(),
+        'ParentGameID' => $game->getParentGame()?->id,
         'NumDistinctPlayers' => $game->players_total,
         'NumAchievements' => count($gameAchievements),
         'Achievements' => $gameListAchievements,
