@@ -30,45 +30,8 @@ class CompareUnlocksController extends Controller
             $achievements[$achievement->ID] = $achievement->toArray();
         }
 
-        $activeUserUnlocks = $activeUser->playerAchievements()
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->where('Achievements.GameID', $game->ID)
-            ->select(['achievement_id', 'unlocked_at', 'unlocked_hardcore_at']);
-        foreach ($activeUserUnlocks->get() as $unlock) {
-            if (!array_key_exists($unlock->achievement_id, $achievements)) {
-                continue;
-            }
-
-            if ($unlock->unlocked_hardcore_at) {
-                $achievements[$unlock->achievement_id]['userTimestampRaw'] = $unlock->unlocked_hardcore_at;
-                $achievements[$unlock->achievement_id]['userTimestamp'] = Carbon::parse($unlock->unlocked_hardcore_at)->format('d M Y, g:ia');
-                $achievements[$unlock->achievement_id]['userHardcore'] = true;
-            } elseif ($unlock->unlocked_at) {
-                $achievements[$unlock->achievement_id]['userTimestampRaw'] = $unlock->unlocked_at;
-                $achievements[$unlock->achievement_id]['userTimestamp'] = Carbon::parse($unlock->unlocked_at)->format('d M Y, g:ia');
-                $achievements[$unlock->achievement_id]['userHardcore'] = false;
-            }
-        }
-
-        $otherUserUnlocks = $user->playerAchievements()
-            ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-            ->where('Achievements.GameID', $game->ID)
-            ->select(['achievement_id', 'unlocked_at', 'unlocked_hardcore_at']);
-        foreach ($otherUserUnlocks->get() as $unlock) {
-            if (!array_key_exists($unlock->achievement_id, $achievements)) {
-                continue;
-            }
-
-            if ($unlock->unlocked_hardcore_at) {
-                $achievements[$unlock->achievement_id]['otherUserTimestampRaw'] = $unlock->unlocked_hardcore_at;
-                $achievements[$unlock->achievement_id]['otherUserTimestamp'] = Carbon::parse($unlock->unlocked_hardcore_at)->format('d M Y, g:ia');
-                $achievements[$unlock->achievement_id]['otherUserHardcore'] = true;
-            } elseif ($unlock->unlocked_at) {
-                $achievements[$unlock->achievement_id]['otherUserTimestampRaw'] = $unlock->unlocked_at;
-                $achievements[$unlock->achievement_id]['otherUserTimestamp'] = Carbon::parse($unlock->unlocked_at)->format('d M Y, g:ia');
-                $achievements[$unlock->achievement_id]['otherUserHardcore'] = false;
-            }
-        }
+        $this->mergeUserUnlocks($achievements, $activeUser, 'user');
+        $this->mergeUserUnlocks($achievements, $user, 'otherUser');
 
         $this->sortList($achievements, $sortOrder);
 
@@ -79,6 +42,25 @@ class CompareUnlocksController extends Controller
             'achievements' => $achievements,
             'sortOrder' => $sortOrder,
         ]);
+    }
+
+    private function mergeUserUnlocks(array &$achievements, User $user, string $prefix): void
+    {
+        $userUnlocks = $user->playerAchievements()
+            ->whereIn('achievement_id', array_keys($achievements))
+            ->select(['achievement_id', 'unlocked_at', 'unlocked_hardcore_at']);
+
+        foreach ($userUnlocks->get() as $unlock) {
+            if ($unlock->unlocked_hardcore_at) {
+                $achievements[$unlock->achievement_id][$prefix . 'TimestampRaw'] = $unlock->unlocked_hardcore_at;
+                $achievements[$unlock->achievement_id][$prefix . 'Timestamp'] = Carbon::parse($unlock->unlocked_hardcore_at)->format('d M Y, g:ia');
+                $achievements[$unlock->achievement_id][$prefix . 'Hardcore'] = true;
+            } elseif ($unlock->unlocked_at) {
+                $achievements[$unlock->achievement_id][$prefix . 'TimestampRaw'] = $unlock->unlocked_at;
+                $achievements[$unlock->achievement_id][$prefix . 'Timestamp'] = Carbon::parse($unlock->unlocked_at)->format('d M Y, g:ia');
+                $achievements[$unlock->achievement_id][$prefix . 'Hardcore'] = false;
+            }
+        }
     }
 
     private function sortList(array &$achievements, string $sortOrder): void
