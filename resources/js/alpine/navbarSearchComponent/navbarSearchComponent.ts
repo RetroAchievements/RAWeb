@@ -18,7 +18,7 @@ interface NavbarSearchComponentProps {
   handleClickSearchResult: (label: string) => void;
   handleEnter: () => void;
   handleEscape: () => void;
-  handleUp: () => void;
+  handleUp: (e: Event) => void;
   handleDown: () => void;
   handleKeyUp: (e: KeyboardEvent) => Promise<void>;
   performSearch: () => Promise<void>;
@@ -100,7 +100,8 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       }
     },
 
-    handleUp() {
+    handleUp(e) {
+      e.preventDefault();
       if (this.showSearchResults) {
         if (this.selectedIndex === -1 || this.selectedIndex === 0) {
           this.selectedIndex = this.optionsCount - 1;
