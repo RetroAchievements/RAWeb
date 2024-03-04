@@ -125,7 +125,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
 getCodeNotes($gameID, $codeNotes);
 ?>
 <x-app-layout
-    pageTitle="{{ $achievementTitleRaw }} in {{ $gameTitleRaw }} ({{ $consoleName }})"
+    pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
     :pageDescription="generateAchievementMetaDescription($achievementDescriptionRaw, $achType, $gameTitleRaw, $consoleName, $achPoints, $numWinners)"
     :pageImage="media_asset('/Badge/' . $badgeName . '.png')"
     pageType="retroachievements:achievement"
