@@ -107,6 +107,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
         } else {
           this.selectedIndex--;
         }
+        this.searchText = this.results[this.selectedIndex].label;
       }
     },
 
@@ -117,6 +118,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
         } else {
           this.selectedIndex++;
         }
+        this.searchText = this.results[this.selectedIndex].label;
       } else if (this.results.length) {
         this.showSearchResults = true;
       }
