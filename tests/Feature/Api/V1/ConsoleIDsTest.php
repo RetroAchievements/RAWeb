@@ -21,7 +21,7 @@ class ConsoleIDsTest extends TestCase
         $system2 = System::factory()->create();
         /** @var System $system3 */
         $system3 = System::factory()->create();
-        // /** @var System $system4 */
+        /** @var System $system4 */
         $system4 = System::factory()->create(['ID' => System::Events]);
 
         // games with achievements for all systems
