@@ -30,6 +30,8 @@ function themeSelect() {
     'select[data-choose-scheme]'
   );
 
+  handleAutoMode('data-scheme');
+
   setPersistedValue('theme', 'data-theme');
   setPersistedValue('scheme', 'data-scheme');
 
@@ -40,6 +42,21 @@ function themeSelect() {
   if (schemeSelect) {
     handleSelectChange(schemeSelect, 'scheme', 'data-scheme');
   }
+}
+
+/**
+ * Automatically switch between light and dark mode
+ * based on the user's system preference.
+ */
+function handleAutoMode(dataAttrName: string) {
+  const isDark = '(prefers-color-scheme: dark)';
+  const mediaQueryList = window.matchMedia(isDark);
+
+  mediaQueryList.addEventListener('change', function (event) {
+    const newColorScheme = event.matches ? 'dark' : 'light';
+
+    document.body.setAttribute(dataAttrName, newColorScheme);
+  });
 }
 
 /**

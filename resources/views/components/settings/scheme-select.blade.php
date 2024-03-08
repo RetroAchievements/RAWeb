@@ -4,6 +4,7 @@ $schemes = [
     '' => __('Dark'),
     'black' => __('Black'),
     'light' => __('Light'),
+    'auto' => __('Auto'),
 ];
 $currentScheme = request()->cookie('scheme') ?? 'system';
 $sm = !isset($sm) || $sm;
