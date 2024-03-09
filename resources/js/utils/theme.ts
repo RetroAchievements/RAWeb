@@ -29,15 +29,11 @@ function themeSelect() {
   const schemeSelect = document.querySelector<HTMLSelectElement>(
     'select[data-choose-scheme]'
   );
-  const mediaColor = window.matchMedia(
-    '(prefers-color-scheme: dark)'
-  );
 
-  setPersistedValue('theme', 'data-theme');
+  autoModeChangeEvent();
+
   setPersistedValue('scheme', 'data-scheme');
-
-  autoModeChangeEvent('data-scheme', mediaColor);
-  initialAutoDetection('data-scheme', mediaColor);
+  setPersistedValue('theme', 'data-theme');
 
   if (themeSelect) {
     handleSelectChange(themeSelect, 'theme', 'data-theme');
@@ -49,30 +45,31 @@ function themeSelect() {
 }
 
 /**
- * Detects when the user's system preference changes.
+ * Detects when the user's system preference on change.
  */
-function autoModeChangeEvent(
-  dataAttrName: string,
-  mediaColor: MediaQueryList,
-) {
-  mediaColor.addEventListener('change', function (event) {
-    const newColorScheme = event.matches ? 'dark' : 'light';
+function autoModeChangeEvent() {
+  const mediaColor = window.matchMedia(
+    '(prefers-color-scheme: dark)'
+  );
 
-    document.body.setAttribute(dataAttrName, newColorScheme);
+  mediaColor.addEventListener('change', function (event) {
+    const persistedValue = getCookie('scheme');
+
+    if (persistedValue === 'auto') {
+      document.body.setAttribute('data-scheme', getColor(event));
+    }
   });
 }
 
 /**
- * Automatically switch between light and dark mode
- * based on the user's system preference.
+ * Get the color scheme based on the user's system preference.
  */
-function initialAutoDetection(
-  dataAttrName: string,
-  mediaColor: MediaQueryList,
+function getColor(
+  mediaColor: MediaQueryList | MediaQueryListEvent = window.matchMedia(
+    '(prefers-color-scheme: dark)'
+  )
 ) {
-  const initialValue = mediaColor.matches ? 'dark' : 'light';
-
-  document.body.setAttribute(dataAttrName, initialValue);
+  return mediaColor.matches ? 'dark' : 'light';
 }
 
 /**
@@ -81,7 +78,10 @@ function initialAutoDetection(
  */
 function setPersistedValue(cookieName: string, dataAttrName: string) {
   const persistedValue = getCookie(cookieName);
-  if (persistedValue) {
+
+  if (persistedValue === 'auto') {
+    document.body.setAttribute(dataAttrName, getColor());
+  } else if (persistedValue) {
     document.body.setAttribute(dataAttrName, persistedValue);
   }
 
@@ -102,8 +102,13 @@ function handleSelectChange(
   dataAttrName: string
 ) {
   select.addEventListener('change', function () {
-    document.body.setAttribute(dataAttrName, this.value);
-    setCookie(cookieName, document.body.getAttribute(dataAttrName));
+    if (this.value === 'auto' && cookieName === 'scheme') {
+      document.body.setAttribute(dataAttrName, getColor());
+      setCookie(cookieName, this.value);
+    } else {
+      document.body.setAttribute(dataAttrName, this.value);
+      setCookie(cookieName, document.body.getAttribute(dataAttrName));
+    }
   });
 
   const toggleOption = document.querySelector<HTMLOptionElement>(
