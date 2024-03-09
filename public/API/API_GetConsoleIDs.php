@@ -12,8 +12,8 @@ use App\Models\System;
  *    int       ID                  unique identifier of the console
  *    string    Name                name of the console
  *    string    IconURL             system icon URL
- *    bool      Active              boolean value indicating if the console is active in RA
- *    bool      IsGameSystem        boolean value indicating if is a game system (not Events, Hubs, etc.)
+ *    bool      Active              indicates if the system is active in RA
+ *    bool      IsGameSystem        indicates if the system is a game system (not Events, Hubs, etc.)
  */
 
 $onlyActive = (bool) request()->query('a', '0');
