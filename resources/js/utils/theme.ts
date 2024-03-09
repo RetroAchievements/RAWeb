@@ -29,11 +29,15 @@ function themeSelect() {
   const schemeSelect = document.querySelector<HTMLSelectElement>(
     'select[data-choose-scheme]'
   );
-
-  handleAutoMode('data-scheme');
+  const mediaColor = window.matchMedia(
+    '(prefers-color-scheme: dark)'
+  );
 
   setPersistedValue('theme', 'data-theme');
   setPersistedValue('scheme', 'data-scheme');
+
+  autoModeChangeEvent('data-scheme', mediaColor);
+  initialAutoDetection('data-scheme', mediaColor);
 
   if (themeSelect) {
     handleSelectChange(themeSelect, 'theme', 'data-theme');
@@ -45,18 +49,30 @@ function themeSelect() {
 }
 
 /**
- * Automatically switch between light and dark mode
- * based on the user's system preference.
+ * Detects when the user's system preference changes.
  */
-function handleAutoMode(dataAttrName: string) {
-  const isDark = '(prefers-color-scheme: dark)';
-  const mediaQueryList = window.matchMedia(isDark);
-
-  mediaQueryList.addEventListener('change', function (event) {
+function autoModeChangeEvent(
+  dataAttrName: string,
+  mediaColor: MediaQueryList,
+) {
+  mediaColor.addEventListener('change', function (event) {
     const newColorScheme = event.matches ? 'dark' : 'light';
 
     document.body.setAttribute(dataAttrName, newColorScheme);
   });
+}
+
+/**
+ * Automatically switch between light and dark mode
+ * based on the user's system preference.
+ */
+function initialAutoDetection(
+  dataAttrName: string,
+  mediaColor: MediaQueryList,
+) {
+  const initialValue = mediaColor.matches ? 'dark' : 'light';
+
+  document.body.setAttribute(dataAttrName, initialValue);
 }
 
 /**
