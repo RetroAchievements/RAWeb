@@ -85,6 +85,23 @@ a:hover {
   --divider-color: rgb(190, 190, 190);
 }
 
+[data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --bg-color: rgb(248, 248, 248);
+    --box-bg-color: rgb(255, 255, 255);
+    --box-shadow-color: rgb(22, 22, 22, .3);
+    --embed-color: rgb(240, 240, 240);
+    --embed-highlight-color: rgb(230, 230, 230);
+    --heading-color: rgb(50, 50, 50);
+    --link-hover-color: rgb(0, 0, 0);
+    --menu-link-color: rgb(66, 66, 66);
+    --menu-link-hover-color: rgb(0, 0, 0);
+    --text-color: rgb(66, 66, 66);
+    --text-color-muted: rgb(130, 130, 130);
+    --divider-color: rgb(190, 190, 190);
+  }
+}
+
 /* Theme */
 /* https://tailwindcss.com/docs/customizing-colors */
 
@@ -105,6 +122,13 @@ a:hover {
   --link-color: theme("colors.slate.500");
   --link-hover-color: theme("colors.slate.400");
 }
+[data-theme="slate"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.slate.900");
+    --link-color: theme("colors.slate.500");
+    --link-hover-color: theme("colors.slate.400");
+  }
+}
 
 [data-theme="stone"] {
   --heading-color: theme("colors.stone.600");
@@ -116,6 +140,13 @@ a:hover {
   --text-color: theme("colors.stone.900");
   --link-color: theme("colors.stone.500");
   --link-hover-color: theme("colors.stone.400");
+}
+[data-theme="stone"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.stone.900");
+    --link-color: theme("colors.stone.500");
+    --link-hover-color: theme("colors.stone.400");
+  }
 }
 
 [data-theme="red"] {
@@ -131,6 +162,11 @@ a:hover {
 [data-theme="red"][data-scheme="light"] {
   --text-color: theme("colors.red.900");
 }
+[data-theme="red"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.red.900");
+  }
+}
 
 [data-theme="orange"] {
   /*--heading-color: rgb(253, 126, 20);*/
@@ -144,6 +180,11 @@ a:hover {
 [data-theme="orange"][data-scheme="light"] {
   --text-color: theme("colors.orange.900");
 }
+[data-theme="orange"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.orange.900");
+  }
+}
 
 [data-theme="amber"] {
   --heading-color: theme("colors.amber.600");
@@ -155,6 +196,13 @@ a:hover {
   --text-color: theme("colors.amber.900");
   --link-color: theme("colors.amber.500");
   --link-hover-color: theme("colors.amber.400");
+}
+[data-theme="amber"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.amber.900");
+    --link-color: theme("colors.amber.500");
+    --link-hover-color: theme("colors.amber.400");
+  }
 }
 
 [data-theme="yellow"] {
@@ -168,6 +216,13 @@ a:hover {
   --link-color: theme("colors.yellow.500");
   --link-hover-color: theme("colors.yellow.400");
 }
+[data-theme="yellow"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.yellow.900");
+    --link-color: theme("colors.yellow.500");
+    --link-hover-color: theme("colors.yellow.400");
+  }
+}
 
 [data-theme="lime"] {
   --heading-color: theme("colors.lime.600");
@@ -179,6 +234,13 @@ a:hover {
   --text-color: theme("colors.lime.900");
   --link-color: theme("colors.lime.600");
   --link-hover-color: theme("colors.lime.500");
+}
+[data-theme="lime"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.lime.900");
+    --link-color: theme("colors.lime.600");
+    --link-hover-color: theme("colors.lime.500");
+  }
 }
 
 [data-theme="green"] {
@@ -197,6 +259,13 @@ a:hover {
   --link-color: theme("colors.green.500");
   --link-hover-color: theme("colors.green.400");
 }
+[data-theme="green"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.green.900");
+    --link-color: theme("colors.green.500");
+    --link-hover-color: theme("colors.green.400");
+  }
+}
 
 [data-theme="emerald"] {
   --heading-color: theme("colors.emerald.600");
@@ -208,6 +277,13 @@ a:hover {
   --text-color: theme("colors.emerald.900");
   --link-color: theme("colors.emerald.500");
   --link-hover-color: theme("colors.emerald.400");
+}
+[data-theme="emerald"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.emerald.900");
+    --link-color: theme("colors.emerald.500");
+    --link-hover-color: theme("colors.emerald.400");
+  }
 }
 
 [data-theme="teal"] {
@@ -221,6 +297,13 @@ a:hover {
   --link-color: theme("colors.teal.500");
   --link-hover-color: theme("colors.teal.400");
 }
+[data-theme="teal"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.teal.900");
+    --link-color: theme("colors.teal.500");
+    --link-hover-color: theme("colors.teal.400");
+  }
+}
 
 [data-theme="cyan"] {
   --heading-color: theme("colors.cyan.600");
@@ -233,6 +316,13 @@ a:hover {
   --link-color: theme("colors.cyan.500");
   --link-hover-color: theme("colors.cyan.400");
 }
+[data-theme="cyan"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.cyan.900");
+    --link-color: theme("colors.cyan.500");
+    --link-hover-color: theme("colors.cyan.400");
+  }
+}
 
 [data-theme="sky"] {
   --heading-color: theme("colors.sky.600");
@@ -244,6 +334,13 @@ a:hover {
   --text-color: theme("colors.sky.900");
   --link-color: theme("colors.sky.500");
   --link-hover-color: theme("colors.sky.400");
+}
+[data-theme="sky"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.sky.900");
+    --link-color: theme("colors.sky.500");
+    --link-hover-color: theme("colors.sky.400");
+  }
 }
 
 [data-theme="blue"] {
@@ -260,6 +357,13 @@ a:hover {
   --link-color: theme("colors.blue.500");
   --link-hover-color: theme("colors.blue.400");
 }
+[data-theme="blue"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.blue.900");
+    --link-color: theme("colors.blue.500");
+    --link-hover-color: theme("colors.blue.400");
+  }
+}
 
 [data-theme="indigo"] {
   --heading-color: theme("colors.indigo.600");
@@ -271,6 +375,13 @@ a:hover {
   --text-color: theme("colors.indigo.900");
   --link-color: theme("colors.indigo.500");
   --link-hover-color: theme("colors.indigo.400");
+}
+[data-theme="indigo"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.indigo.900");
+    --link-color: theme("colors.indigo.500");
+    --link-hover-color: theme("colors.indigo.400");
+  }
 }
 
 [data-theme="violet"] {
@@ -284,6 +395,13 @@ a:hover {
   --link-color: theme("colors.violet.500");
   --link-hover-color: theme("colors.violet.400");
 }
+[data-theme="violet"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.violet.900");
+    --link-color: theme("colors.violet.500");
+    --link-hover-color: theme("colors.violet.400");
+  }
+}
 
 [data-theme="purple"] {
   --heading-color: theme("colors.purple.600");
@@ -296,6 +414,13 @@ a:hover {
   --link-color: theme("colors.purple.500");
   --link-hover-color: theme("colors.purple.400");
 }
+[data-theme="purple"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.purple.800");
+    --link-color: theme("colors.purple.500");
+    --link-hover-color: theme("colors.purple.400");
+  }
+}
 
 [data-theme="fuchsia"] {
   --heading-color: theme("colors.fuchsia.600");
@@ -307,6 +432,13 @@ a:hover {
   --text-color: theme("colors.fuchsia.800");
   --link-color: theme("colors.fuchsia.500");
   --link-hover-color: theme("colors.fuchsia.400");
+}
+[data-theme="fuchsia"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.fuchsia.800");
+    --link-color: theme("colors.fuchsia.500");
+    --link-hover-color: theme("colors.fuchsia.400");
+  }
 }
 
 [data-theme="pink"] {
@@ -323,6 +455,13 @@ a:hover {
   --link-color: theme("colors.pink.500");
   --link-hover-color: theme("colors.pink.400");
 }
+[data-theme="pink"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.pink.800");
+    --link-color: theme("colors.pink.500");
+    --link-hover-color: theme("colors.pink.400");
+  }
+}
 
 [data-theme="rose"] {
   --heading-color: theme("colors.rose.600");
@@ -334,4 +473,11 @@ a:hover {
   --text-color: theme("colors.rose.800");
   --link-color: theme("colors.rose.500");
   --link-hover-color: theme("colors.rose.400");
+}
+[data-theme="rose"][data-scheme="auto"] {
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.rose.800");
+    --link-color: theme("colors.rose.500");
+    --link-hover-color: theme("colors.rose.400");
+  }
 }

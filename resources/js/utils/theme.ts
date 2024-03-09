@@ -30,10 +30,8 @@ function themeSelect() {
     'select[data-choose-scheme]'
   );
 
-  autoModeChangeEvent();
-
-  setPersistedValue('scheme', 'data-scheme');
   setPersistedValue('theme', 'data-theme');
+  setPersistedValue('scheme', 'data-scheme');
 
   if (themeSelect) {
     handleSelectChange(themeSelect, 'theme', 'data-theme');
@@ -45,43 +43,12 @@ function themeSelect() {
 }
 
 /**
- * Detects when the user's system preference on change.
- */
-function autoModeChangeEvent() {
-  const mediaColor = window.matchMedia(
-    '(prefers-color-scheme: dark)'
-  );
-
-  mediaColor.addEventListener('change', function (event) {
-    const persistedValue = getCookie('scheme');
-
-    if (persistedValue === 'auto') {
-      document.body.setAttribute('data-scheme', getColor(event));
-    }
-  });
-}
-
-/**
- * Get the color scheme based on the user's system preference.
- */
-function getColor(
-  mediaColor: MediaQueryList | MediaQueryListEvent = window.matchMedia(
-    '(prefers-color-scheme: dark)'
-  )
-) {
-  return mediaColor.matches ? 'dark' : 'light';
-}
-
-/**
  * Set persisted theme/scheme values in the UI if they're stored
  * on the user's machine.
  */
 function setPersistedValue(cookieName: string, dataAttrName: string) {
   const persistedValue = getCookie(cookieName);
-
-  if (persistedValue === 'auto') {
-    document.body.setAttribute(dataAttrName, getColor());
-  } else if (persistedValue) {
+  if (persistedValue) {
     document.body.setAttribute(dataAttrName, persistedValue);
   }
 
@@ -102,13 +69,8 @@ function handleSelectChange(
   dataAttrName: string
 ) {
   select.addEventListener('change', function () {
-    if (this.value === 'auto' && cookieName === 'scheme') {
-      document.body.setAttribute(dataAttrName, getColor());
-      setCookie(cookieName, this.value);
-    } else {
-      document.body.setAttribute(dataAttrName, this.value);
-      setCookie(cookieName, document.body.getAttribute(dataAttrName));
-    }
+    document.body.setAttribute(dataAttrName, this.value);
+    setCookie(cookieName, document.body.getAttribute(dataAttrName));
   });
 
   const toggleOption = document.querySelector<HTMLOptionElement>(
