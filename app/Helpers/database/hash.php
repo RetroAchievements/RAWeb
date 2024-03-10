@@ -38,7 +38,7 @@ function getHashListByGameID(int $gameId): array
                 'Hash' => $hash->md5,
                 'Name' => $hash->name,
                 'Labels' => $hash->labels,
-                'User' => $hash->user ? $hash->user->User : null,
+                'User' => $hash->user?->User,
             ];
         });
 
