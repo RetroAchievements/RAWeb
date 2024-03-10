@@ -23,7 +23,7 @@ export function renderTooltip(
   html: string,
   givenX?: number,
   givenY?: number,
-  options?: Partial<{ isBorderless: boolean }>,
+  options?: Partial<{ isBorderless: boolean }>
 ) {
   if (store.tooltipEl !== null) {
     store.tooltipEl.remove();
@@ -48,7 +48,7 @@ export function renderTooltip(
     'rounded',
     'pointer-events-none',
     'overflow-hidden',
-    'z-10',
+    'z-20'
   );
 
   if (!options?.isBorderless) {
