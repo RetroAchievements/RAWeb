@@ -827,7 +827,9 @@ function submitNewGameTitleJSON(
     $retVal['GameTitle'] = $titleIn;
     $retVal['Success'] = true;
 
-    $permissions = getUserPermissions($user);
+    $userModel = User::where('User', $user)->first();
+    $permissions = (int) $userModel->getAttribute('Permissions');
+    $userId = $userModel->id;
 
     if (!isset($user)) {
         $retVal['Error'] = "User doesn't appear to be set or have permissions?";
@@ -877,7 +879,7 @@ function submitNewGameTitleJSON(
             /**
              * Associate md5 to $gameID
              */
-            $query = "INSERT INTO GameHashLibrary (MD5, GameID, User, Name) VALUES( '$md5', '$gameID', '$user', ";
+            $query = "INSERT INTO game_hashes (md5, game_id, User, user_id, name) VALUES( '$md5', '$gameID', '$user', '$userId', ";
             if (!empty($description)) {
                 $query .= "'$description'";
             } else {
@@ -889,7 +891,7 @@ function submitNewGameTitleJSON(
             $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {
                 /*
-                 * $user added $md5, $gameID to GameHashLibrary, and $gameID, $titleIn to GameData
+                 * $user added $md5, $gameID to game_hashes, and $gameID, $titleIn to GameData
                  */
 
                 // Log hash linked

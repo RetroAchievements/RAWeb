@@ -1,66 +1,55 @@
 <?php
 
-use App\Community\Enums\ArticleType;
+use App\Models\Game;
+use App\Models\GameHash;
 
-function getMD5List(int $consoleID): array
+function getMD5List(int $consoleId): array
 {
-    $retVal = [];
+    $query = GameHash::query()
+        ->select('game_hashes.md5', 'game_hashes.game_id')
+        ->leftJoin('GameData as gd', 'gd.ID', '=', 'game_hashes.game_id')
+        ->when($consoleId > 0, function ($q) use ($consoleId) {
+            $q->where('gd.ConsoleID', $consoleId);
+        })
+        ->orderBy('game_hashes.game_id', 'asc');
 
-    $whereClause = "";
-    if ($consoleID > 0) {
-        $whereClause = "WHERE gd.ConsoleID = $consoleID ";
-    }
-
-    $query = "SELECT MD5, GameID
-              FROM GameHashLibrary AS ghl
-              LEFT JOIN GameData AS gd ON gd.ID = ghl.GameID
-              $whereClause
-              ORDER BY GameID ASC";
-
-    foreach (legacyDbFetchAll($query) as $nextData) {
-        $nextData['GameID'] = (int) $nextData['GameID'];
-        $retVal[$nextData['MD5']] = $nextData['GameID'];
-    }
-
-    return $retVal;
+    return $query->pluck('game_id', 'md5')->toArray();
 }
 
-function getHashListByGameID(int $gameID): array
+function getHashListByGameID(int $gameId): array
 {
-    if ($gameID < 1) {
+    if ($gameId < 1) {
         return [];
     }
 
-    $query = "SELECT MD5 AS Hash, Name, Labels, User
-              FROM GameHashLibrary
-              WHERE GameID = $gameID
-              ORDER BY Name, Hash";
-
-    $retVal = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
+    $game = Game::find($gameId);
+    if (!$game) {
+        return [];
     }
 
-    return $retVal;
+    $hashes = $game->hashes()
+        ->with('user')
+        ->select('md5', 'name', 'labels', 'user_id')
+        ->orderBy('name')
+        ->orderBy('md5')
+        ->get()
+        ->map(function ($hash) {
+            return [
+                'Hash' => $hash->md5,
+                'Name' => $hash->name,
+                'Labels' => $hash->labels,
+                'User' => $hash->user ? $hash->user->User : null,
+            ];
+        });
+
+    return $hashes->toArray();
 }
 
 function getGameIDFromMD5(string $md5): int
 {
-    sanitize_sql_inputs($md5);
+    $gameHash = GameHash::where('md5', $md5)->first(['game_id']);
 
-    $query = "SELECT GameID FROM GameHashLibrary WHERE MD5='$md5'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false && mysqli_num_rows($dbResult) >= 1) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return (int) $data['GameID'];
-    }
-
-    return 0;
+    return $gameHash ? $gameHash->game_id : 0;
 }
 
 /**
@@ -68,75 +57,35 @@ function getGameIDFromMD5(string $md5): int
  */
 function getHashList(int $offset, int $count, ?string $searchedHash): array
 {
-    sanitize_sql_inputs($searchedHash);
+    $query = GameHash::with(['user', 'game' => function ($query) {
+                $query->select('ID', 'Title', 'ImageIcon', 'ConsoleID');
+            },
+            'game.system' => function ($query) {
+                $query->select('ID', 'Name');
+            }])
+        ->select('md5', 'game_id', 'user_id', 'created_at');
 
-    $searchQuery = "";
     if (!empty($searchedHash)) {
+        $query->where('md5', $searchedHash);
         $offset = 0;
         $count = 1;
-        $searchQuery = " WHERE h.MD5='" . $searchedHash . "'";
     }
 
-    $query = "
-    SELECT
-        h.MD5 as Hash,
-        h.GameID as GameID,
-        h.User as User,
-        h.Created as DateAdded,
-        gd.Title as GameTitle,
-        gd.ImageIcon as GameIcon,
-        c.name as ConsoleName
-    FROM
-        GameHashLibrary h
-    LEFT JOIN
-        GameData gd ON (h.GameID = gd.ID)
-    LEFT JOIN
-        Console c ON (gd.ConsoleID = c.ID)
-    " . $searchQuery . "
-    ORDER BY
-        h.Created DESC
-    LIMIT $offset, $count";
+    $hashList = $query->orderBy('created_at', 'desc')
+        ->offset($offset)
+        ->limit($count)
+        ->get();
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    $retVal = [];
-
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
-        }
-    }
-
-    return $retVal;
-}
-
-/**
- * Gets the total number of hashes in the database.
- */
-function getTotalHashes(): int
-{
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, "SELECT COUNT(*) AS TotalHashes FROM GameHashLibrary");
-
-    if (!$dbResult) {
-        return 0;
-    }
-
-    return (int) mysqli_fetch_assoc($dbResult)['TotalHashes'];
-}
-
-function removeHash(string $user, int $gameID, string $hash): bool
-{
-    sanitize_sql_inputs($hash);
-
-    $query = "DELETE FROM GameHashLibrary WHERE GameID = $gameID AND MD5 = '$hash'";
-    $dbResult = s_mysql_query($query);
-
-    $result = $dbResult !== false;
-
-    // Log hash unlink
-    addArticleComment("Server", ArticleType::GameHash, $gameID, $hash . " unlinked by " . $user);
-
-    return $result;
+    return $hashList->map(function ($hash) {
+        return [
+            'Hash' => $hash->md5,
+            'GameID' => $hash->game_id,
+            'User' => $hash->user ? $hash->user->User : null,
+            'DateAdded' => $hash->created_at,
+            'GameTitle' => $hash->game ? $hash->game->Title : null,
+            'GameIcon' => $hash->game ? $hash->game->ImageIcon : null,
+            'ConsoleName' => $hash->game->system ? $hash->game->system->Name : null,
+        ];
+    })
+        ->toArray();
 }

@@ -302,7 +302,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function hashes(): HasMany
     {
-        return $this->hasMany(GameHash::class, 'GameID');
+        return $this->hasMany(GameHash::class, 'game_id');
     }
 
     // == scopes

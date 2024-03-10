@@ -21,26 +21,20 @@ class GameHash extends BaseModel
     use SoftDeletes;
     // TODO use LogsActivity;
 
-    // TODO rename GameHashLibrary table to game_hashes
-    // TODO rename MD5 column to md5
-    // TODO rename Name column to name
-    // TODO rename Created column to created_at
-    // TODO drop GameID, migrate to game_hash_sets relation
-    // TODO drop game_hashes_md5_unique
-    protected $table = 'GameHashLibrary';
-
-    public const CREATED_AT = 'Created';
+    // TODO drop User in favor of user_id
+    protected $table = 'game_hashes';
 
     protected $fillable = [
         'description',
-        'GameID',
+        'game_id',
         'hash',
-        'Labels',
-        'MD5',
+        'labels',
+        'md5',
         'compatibility',
-        'Name',
+        'name',
         'system_id',
         'User',
+        'user_id',
         'source',
         'patch_url',
     ];
@@ -127,11 +121,11 @@ class GameHash extends BaseModel
     // == relations
 
     /**
-     * @return BelongsTo<System, GameHash>
+     * @return BelongsTo<Game, GameHash>
      */
-    public function system(): BelongsTo
+    public function game(): BelongsTo
     {
-        return $this->belongsTo(System::class);
+        return $this->belongsTo(Game::class, 'game_id');
     }
 
     /**
@@ -142,6 +136,22 @@ class GameHash extends BaseModel
         return $this->belongsToMany(GameHashSet::class, 'game_hash_set_hashes')
             ->using(GameHashSetHash::class)
             ->withTimestamps();
+    }
+
+    /**
+     * @return BelongsTo<System, GameHash>
+     */
+    public function system(): BelongsTo
+    {
+        return $this->belongsTo(System::class);
+    }
+
+    /**
+     * @return BelongsTo<User, GameHash>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // == scopes
