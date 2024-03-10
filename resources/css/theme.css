@@ -117,11 +117,7 @@ a:hover {
   --link-color: theme("colors.slate.400");
   --link-hover-color: theme("colors.slate.200");
 }
-[data-theme="slate"][data-scheme="light"] {
-  --text-color: theme("colors.slate.900");
-  --link-color: theme("colors.slate.500");
-  --link-hover-color: theme("colors.slate.400");
-}
+[data-theme="slate"][data-scheme="light"],
 [data-theme="slate"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.slate.900");
@@ -136,11 +132,7 @@ a:hover {
   --link-color: theme("colors.stone.400");
   --link-hover-color: theme("colors.stone.200");
 }
-[data-theme="stone"][data-scheme="light"] {
-  --text-color: theme("colors.stone.900");
-  --link-color: theme("colors.stone.500");
-  --link-hover-color: theme("colors.stone.400");
-}
+[data-theme="stone"][data-scheme="light"],
 [data-theme="stone"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.stone.900");
@@ -159,9 +151,7 @@ a:hover {
   --link-color: rgb(240, 12, 0);
   --link-hover-color: theme("colors.red.400");
 }
-[data-theme="red"][data-scheme="light"] {
-  --text-color: theme("colors.red.900");
-}
+[data-theme="red"][data-scheme="light"],
 [data-theme="red"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.red.900");
@@ -177,9 +167,7 @@ a:hover {
   --link-color: theme("colors.orange.400");
   --link-hover-color: theme("colors.orange.200");
 }
-[data-theme="orange"][data-scheme="light"] {
-  --text-color: theme("colors.orange.900");
-}
+[data-theme="orange"][data-scheme="light"],
 [data-theme="orange"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.orange.900");
@@ -192,11 +180,7 @@ a:hover {
   --link-color: theme("colors.amber.400");
   --link-hover-color: theme("colors.amber.200");
 }
-[data-theme="amber"][data-scheme="light"] {
-  --text-color: theme("colors.amber.900");
-  --link-color: theme("colors.amber.500");
-  --link-hover-color: theme("colors.amber.400");
-}
+[data-theme="amber"][data-scheme="light"],
 [data-theme="amber"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.amber.900");
@@ -211,11 +195,7 @@ a:hover {
   --link-color: theme("colors.yellow.400");
   --link-hover-color: theme("colors.yellow.200");
 }
-[data-theme="yellow"][data-scheme="light"] {
-  --text-color: theme("colors.yellow.900");
-  --link-color: theme("colors.yellow.500");
-  --link-hover-color: theme("colors.yellow.400");
-}
+[data-theme="yellow"][data-scheme="light"],
 [data-theme="yellow"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.yellow.900");
@@ -230,11 +210,7 @@ a:hover {
   --link-color: theme("colors.lime.400");
   --link-hover-color: theme("colors.lime.200");
 }
-[data-theme="lime"][data-scheme="light"] {
-  --text-color: theme("colors.lime.900");
-  --link-color: theme("colors.lime.600");
-  --link-hover-color: theme("colors.lime.500");
-}
+[data-theme="lime"][data-scheme="light"],
 [data-theme="lime"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.lime.900");
@@ -252,19 +228,15 @@ a:hover {
   --link-color: theme("colors.green.400");
   --link-hover-color: theme("colors.green.200");
 }
-[data-theme="green"][data-scheme="light"] {
-  /*--link-color: rgb(20, 174, 13);*/
-  /*--link-hover-color: rgb(24, 212, 16);*/
-  --text-color: theme("colors.green.900");
-  --link-color: theme("colors.green.500");
-  --link-hover-color: theme("colors.green.400");
-}
+[data-theme="green"][data-scheme="light"],
 [data-theme="green"][data-scheme="system"] {
-  @media (prefers-color-scheme: light) {
-    --text-color: theme("colors.green.900");
-    --link-color: theme("colors.green.500");
-    --link-hover-color: theme("colors.green.400");
-  }
+    @media (prefers-color-scheme: light) {
+      /*--link-color: rgb(20, 174, 13);*/
+      /*--link-hover-color: rgb(24, 212, 16);*/
+      --text-color: theme("colors.green.900");
+      --link-color: theme("colors.green.500");
+      --link-hover-color: theme("colors.green.400");
+    }
 }
 
 [data-theme="emerald"] {
@@ -273,11 +245,7 @@ a:hover {
   --link-color: theme("colors.emerald.400");
   --link-hover-color: theme("colors.emerald.200");
 }
-[data-theme="emerald"][data-scheme="light"] {
-  --text-color: theme("colors.emerald.900");
-  --link-color: theme("colors.emerald.500");
-  --link-hover-color: theme("colors.emerald.400");
-}
+[data-theme="emerald"][data-scheme="light"],
 [data-theme="emerald"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.emerald.900");
@@ -292,11 +260,7 @@ a:hover {
   --link-color: theme("colors.teal.400");
   --link-hover-color: theme("colors.teal.200");
 }
-[data-theme="teal"][data-scheme="light"] {
-  --text-color: theme("colors.teal.900");
-  --link-color: theme("colors.teal.500");
-  --link-hover-color: theme("colors.teal.400");
-}
+[data-theme="teal"][data-scheme="light"],
 [data-theme="teal"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.teal.900");
@@ -311,11 +275,7 @@ a:hover {
   --link-color: theme("colors.cyan.400");
   --link-hover-color: theme("colors.cyan.200");
 }
-[data-theme="cyan"][data-scheme="light"] {
-  --text-color: theme("colors.cyan.900");
-  --link-color: theme("colors.cyan.500");
-  --link-hover-color: theme("colors.cyan.400");
-}
+[data-theme="cyan"][data-scheme="light"],
 [data-theme="cyan"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.cyan.900");
@@ -330,11 +290,7 @@ a:hover {
   --link-color: theme("colors.sky.400");
   --link-hover-color: theme("colors.sky.200");
 }
-[data-theme="sky"][data-scheme="light"] {
-  --text-color: theme("colors.sky.900");
-  --link-color: theme("colors.sky.500");
-  --link-hover-color: theme("colors.sky.400");
-}
+[data-theme="sky"][data-scheme="light"],
 [data-theme="sky"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.sky.900");
@@ -352,11 +308,7 @@ a:hover {
   --link-color: theme("colors.blue.400");
   --link-hover-color: theme("colors.blue.200");
 }
-[data-theme="blue"][data-scheme="light"] {
-  --text-color: theme("colors.blue.900");
-  --link-color: theme("colors.blue.500");
-  --link-hover-color: theme("colors.blue.400");
-}
+[data-theme="blue"][data-scheme="light"],
 [data-theme="blue"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.blue.900");
@@ -371,11 +323,7 @@ a:hover {
   --link-color: theme("colors.indigo.400");
   --link-hover-color: theme("colors.indigo.200");
 }
-[data-theme="indigo"][data-scheme="light"] {
-  --text-color: theme("colors.indigo.900");
-  --link-color: theme("colors.indigo.500");
-  --link-hover-color: theme("colors.indigo.400");
-}
+[data-theme="indigo"][data-scheme="light"],
 [data-theme="indigo"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.indigo.900");
@@ -390,11 +338,7 @@ a:hover {
   --link-color: theme("colors.violet.400");
   --link-hover-color: theme("colors.violet.200");
 }
-[data-theme="violet"][data-scheme="light"] {
-  --text-color: theme("colors.violet.900");
-  --link-color: theme("colors.violet.500");
-  --link-hover-color: theme("colors.violet.400");
-}
+[data-theme="violet"][data-scheme="light"],
 [data-theme="violet"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.violet.900");
@@ -409,11 +353,7 @@ a:hover {
   --link-color: theme("colors.purple.400");
   --link-hover-color: theme("colors.purple.200");
 }
-[data-theme="purple"][data-scheme="light"] {
-  --text-color: theme("colors.purple.800");
-  --link-color: theme("colors.purple.500");
-  --link-hover-color: theme("colors.purple.400");
-}
+[data-theme="purple"][data-scheme="light"],
 [data-theme="purple"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.purple.800");
@@ -428,11 +368,7 @@ a:hover {
   --link-color: theme("colors.fuchsia.400");
   --link-hover-color: theme("colors.fuchsia.200");
 }
-[data-theme="fuchsia"][data-scheme="light"] {
-  --text-color: theme("colors.fuchsia.800");
-  --link-color: theme("colors.fuchsia.500");
-  --link-hover-color: theme("colors.fuchsia.400");
-}
+[data-theme="fuchsia"][data-scheme="light"],
 [data-theme="fuchsia"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.fuchsia.800");
@@ -450,11 +386,7 @@ a:hover {
   --link-color: theme("colors.pink.400");
   --link-hover-color: theme("colors.pink.200");
 }
-[data-theme="pink"][data-scheme="light"] {
-  --text-color: theme("colors.pink.800");
-  --link-color: theme("colors.pink.500");
-  --link-hover-color: theme("colors.pink.400");
-}
+[data-theme="pink"][data-scheme="light"],
 [data-theme="pink"][data-scheme="system"] {
   @media (prefers-color-scheme: light) {
     --text-color: theme("colors.pink.800");
@@ -469,15 +401,11 @@ a:hover {
   --link-color: theme("colors.rose.400");
   --link-hover-color: theme("colors.rose.200");
 }
-[data-theme="rose"][data-scheme="light"] {
-  --text-color: theme("colors.rose.800");
-  --link-color: theme("colors.rose.500");
-  --link-hover-color: theme("colors.rose.400");
-}
+[data-theme="rose"][data-scheme="light"],
 [data-theme="rose"][data-scheme="system"] {
-  @media (prefers-color-scheme: light) {
-    --text-color: theme("colors.rose.800");
-    --link-color: theme("colors.rose.500");
-    --link-hover-color: theme("colors.rose.400");
-  }
+    @media (prefers-color-scheme: light) {
+      --text-color: theme("colors.rose.800");
+      --link-color: theme("colors.rose.500");
+      --link-hover-color: theme("colors.rose.400");
+    }
 }
