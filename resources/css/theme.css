@@ -403,9 +403,9 @@ a:hover {
 }
 [data-theme="rose"][data-scheme="light"],
 [data-theme="rose"][data-scheme="system"] {
-    @media (prefers-color-scheme: light) {
-      --text-color: theme("colors.rose.800");
-      --link-color: theme("colors.rose.500");
-      --link-hover-color: theme("colors.rose.400");
-    }
+  @media (prefers-color-scheme: light) {
+    --text-color: theme("colors.rose.800");
+    --link-color: theme("colors.rose.500");
+    --link-hover-color: theme("colors.rose.400");
+  }
 }
