@@ -1,10 +1,9 @@
 <?php
 $schemes = [
-    // 'system' => __('System Default'), // not needed - detected initially and listened for
     '' => __('Dark'),
     'black' => __('Black'),
     'light' => __('Light'),
-    'auto' => __('Auto'),
+    'system' => __('System'),
 ];
 $currentScheme = request()->cookie('scheme') ?? 'system';
 $sm = !isset($sm) || $sm;
