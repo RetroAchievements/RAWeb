@@ -22,6 +22,7 @@ class GameHash extends BaseModel
     // TODO use LogsActivity;
 
     // TODO drop User in favor of user_id
+    // TODO migrate functionality from md5 to hash. ensure md5 retains external md5 values and hash is the primary reference for game detection
     protected $table = 'game_hashes';
 
     protected $fillable = [
