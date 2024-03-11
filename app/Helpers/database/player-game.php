@@ -256,26 +256,6 @@ function GetAllUserProgress(User $user, int $consoleID): array
     return $retVal;
 }
 
-function getUsersGameList(User $user): array
-{
-    $dataOut = [];
-
-    $query = "SELECT gd.ID, gd.Title, c.Name AS ConsoleName,
-                     gd.achievements_published AS NumAchievements,
-                     pg.achievements_unlocked AS NumAchieved
-              FROM player_games pg
-              INNER JOIN GameData AS gd ON gd.ID = pg.game_id
-              INNER JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE pg.user_id = {$user->id}
-              AND pg.achievements_unlocked > 0";
-
-    foreach (legacyDbFetchAll($query) as $row) {
-        $dataOut[$row['ID']] = $row;
-    }
-
-    return $dataOut;
-}
-
 function getUsersCompletedGamesAndMax(string $user): array
 {
     if (!isValidUsername($user)) {
