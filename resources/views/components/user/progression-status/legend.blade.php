@@ -5,13 +5,6 @@
     'totalMasteredCount' => 0,
 ])
 
-@php
-    $totalBeatenHardcoreCount = 10;
-    $totalBeatenSoftcoreCount = 0;
-    $totalCompletedCount = 0;
-    $totalMasteredCount = 3;
-@endphp
-
 <div class="flex flex-wrap gap-x-4 [&>div]:flex [&>div]:items-center [&>div]:gap-x-1 sm:gap-x-3 md:gap-x-4">
     <div>
         <p class="text-zinc-500 font-bold text-xs">Unfinished</p>
