@@ -2,13 +2,15 @@ env:
   browser: true
 
 extends:
-  - airbnb-base
+  - eslint:recommended
+  - plugin:prettier/recommended
   - plugin:@typescript-eslint/recommended
-  - plugin:import/typescript
 
-parser: '@typescript-eslint/parser'
+parser: "@typescript-eslint/parser"
 plugins:
-  - '@typescript-eslint'
+  - "@typescript-eslint"
+  - simple-import-sort
+  - import
 
 settings:
   # allows for tsconfig path aliases
@@ -62,22 +64,26 @@ rules:
   no-use-before-define: off
   vars-on-top: off
 
-  # airbnb-base has some settings that stumble over TypeScript
-  import/extensions:
-    - error
-    - ignorePackages
-    - js: never
-      ts: never
-  import/no-extraneous-dependencies: off
-  import/prefer-default-export: off
+  # sort and organize imports/exports
+  simple-import-sort/imports: error
+  simple-import-sort/exports: error
+  import/first: error
+  import/newline-after-import: error
+  import/no-duplicates: error
 
   # tailwind.config.js
   global-require: off
 
+  # set up prettier as an eslint plugin
+  prettier/prettier:
+    - error
+    - tabWidth: 2
+      printWidth: 100
+      singleQuote: true
 
 # don't enforce explicit-any rule in test files
 overrides:
   - files:
-      - '*.test.ts'
+      - "*.test.ts"
     rules:
-      '@typescript-eslint/no-explicit-any': 'off'
+      "@typescript-eslint/no-explicit-any": "off"

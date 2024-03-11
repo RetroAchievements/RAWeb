@@ -67,6 +67,7 @@ return [
         '/gameInfo.php' => '/game/{ID}',
         '/gameList.php' => '/system/{c}/games',
         '/gameSearch.php' => '/games',
+        '/gamecompare.php' => '/game/{ID}/achievements/compare/{f}',
         '/codenotes.php' => '/game/{g}/notes',
         '/linkedhashes.php' => '/game/{g}/assets',
         '/popularGames.php' => '/games/popular',
@@ -92,7 +93,6 @@ return [
         '/friends.php' => '/friends',
         '/createmessage.php' => '/message/create?to={t}&subject={s}&message={p}',
         '/inbox.php' => '/messages',
-        '/gamecompare.php' => '/user/{f}/game/{ID}/compare',
         '/manageuserpic.php' => '/settings',
 
         /*

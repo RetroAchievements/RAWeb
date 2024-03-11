@@ -5,14 +5,16 @@
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- This actually works in a TALL stack app with Livewire 3.
 // @ts-ignore
-import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
+import { Alpine, Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm';
 import {
   linkifyDirective,
   modalComponent,
+  navbarSearchComponent,
   newsCarouselComponent,
   toggleAchievementRowsComponent,
   tooltipComponent,
 } from './alpine';
+import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 import {
   autoExpandTextInput,
   copyToClipboard,
@@ -29,7 +31,6 @@ import {
   toggleUserCompletedSetsVisibility,
   updateUrlParameter,
 } from './utils';
-import { lazyLoadModuleOnIdFound } from './lazyLoadModuleOnIdFound';
 
 // livewire_hot_reload();
 
@@ -59,6 +60,7 @@ window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
 window.toggleAchievementRowsComponent = toggleAchievementRowsComponent;
 window.tooltipComponent = tooltipComponent;
+window.navbarSearchComponent = navbarSearchComponent;
 
 // Alpine.js Directives
 Alpine.directive('linkify', linkifyDirective);
