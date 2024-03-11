@@ -17,7 +17,7 @@ if ($widthMode !== 'equal' && $widthMode !== 'dynamic') {
             :totalMasteredCount="$totalMasteredCount"
         />
 
-        <label class="flex items-center gap-x-1 select-none cursor-pointer text-xs transition md:active:scale-95">
+        <label class="flex items-center gap-x-1 select-none cursor-pointer text-xs transition sm:-mt-[2px] md:active:scale-95">
             <input
                 type="checkbox"
                 autocomplete="off"

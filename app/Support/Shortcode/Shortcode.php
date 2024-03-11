@@ -468,7 +468,7 @@ final class Shortcode
 
         // https://clips.twitch.tv/AmorphousCautiousLegPanicVis
         $text = preg_replace(
-            '~(?:https?://)?clips.twitch.tv/([a-z0-9]+)~i',
+            '~(?:https?://)?clips.twitch.tv/([a-zA-Z0-9-_]+)~i',
             $this->embedVideo('//clips.twitch.tv/embed?clip=$1&parent=' . $parent . '&autoplay=false'),
             $text
         );
