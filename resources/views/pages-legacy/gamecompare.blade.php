@@ -119,6 +119,7 @@ sanitize_outputs(
 
         $iconSize = 48;
 
+        echo "<div class='overflow-auto'>";
         echo "<table class='table-highlight'><tbody>";
 
         echo "<tr class='do-not-highlight'>";
@@ -272,7 +273,7 @@ sanitize_outputs(
             echo "</tr>";
         }
 
-        echo "</tbody></table>";
+        echo "</tbody></table></div>";
 
         echo "<br><br>";
         ?>
