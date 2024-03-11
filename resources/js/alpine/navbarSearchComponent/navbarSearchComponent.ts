@@ -1,9 +1,10 @@
+import { autoUpdate, computePosition, ReferenceElement } from '@floating-ui/dom';
+
 import { fetcher } from '@/utils';
-import { computePosition, autoUpdate, ReferenceElement } from '@floating-ui/dom';
 
 interface SearchResult {
-  label: string,
-  mylink: string,
+  label: string;
+  mylink: string;
 }
 
 interface NavbarSearchComponentProps {
@@ -41,18 +42,16 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
     get optionsCount() {
       const searchBoxDropdownEl = document.querySelector('#search-listbox');
       return searchBoxDropdownEl && searchBoxDropdownEl.childNodes.length > 3
-        ? searchBoxDropdownEl.childNodes.length - 3 : 0;
+        ? searchBoxDropdownEl.childNodes.length - 3
+        : 0;
     },
 
     init(formEl?: ReferenceElement, ulEl?: HTMLElement) {
       if (!formEl || !ulEl) return;
       autoUpdate(formEl, ulEl, () => {
         computePosition(formEl, ulEl, {
-          placement: 'bottom-start'
-        }).then(({
-          x,
-          y
-        }) => {
+          placement: 'bottom-start',
+        }).then(({ x, y }) => {
           Object.assign(ulEl.style, {
             left: `${x}px`,
             top: `${y}px`,
@@ -125,7 +124,7 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       }
     },
 
-    async handleKeyUp(e:KeyboardEvent) {
+    async handleKeyUp(e: KeyboardEvent) {
       const ignoredKeys = [
         'ArrowUp',
         'ArrowDown',
@@ -136,7 +135,8 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
         'Shift',
         'Control',
         'Alt',
-        'Meta'];
+        'Meta',
+      ];
 
       if (ignoredKeys.includes(e.key)) {
         return;
@@ -164,6 +164,6 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
 
       this.results = response;
       this.showSearchResults = this.results.length > 0;
-    }
+    },
   };
 }

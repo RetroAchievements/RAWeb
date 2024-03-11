@@ -23,12 +23,8 @@ export const themeChange = (isAttachingToDOM = true) => {
 function themeSelect() {
   // Get the references to the scheme and theme select controls
   // that live in the footer of the page.
-  const themeSelect = document.querySelector<HTMLSelectElement>(
-    'select[data-choose-theme]'
-  );
-  const schemeSelect = document.querySelector<HTMLSelectElement>(
-    'select[data-choose-scheme]'
-  );
+  const themeSelect = document.querySelector<HTMLSelectElement>('select[data-choose-theme]');
+  const schemeSelect = document.querySelector<HTMLSelectElement>('select[data-choose-scheme]');
 
   setPersistedValue('theme', 'data-theme');
   setPersistedValue('scheme', 'data-scheme');
@@ -53,7 +49,7 @@ function setPersistedValue(cookieName: string, dataAttrName: string) {
   }
 
   const toggleOption = document.querySelector<HTMLOptionElement>(
-    `select[data-choose-${cookieName}] [value='${persistedValue}']`
+    `select[data-choose-${cookieName}] [value='${persistedValue}']`,
   );
   if (toggleOption) {
     toggleOption.selected = true;
@@ -63,18 +59,14 @@ function setPersistedValue(cookieName: string, dataAttrName: string) {
 /**
  * When a user selects a scheme or theme, persist their selection.
  */
-function handleSelectChange(
-  select: HTMLSelectElement,
-  cookieName: string,
-  dataAttrName: string
-) {
+function handleSelectChange(select: HTMLSelectElement, cookieName: string, dataAttrName: string) {
   select.addEventListener('change', function () {
     document.body.setAttribute(dataAttrName, this.value);
     setCookie(cookieName, document.body.getAttribute(dataAttrName));
   });
 
   const toggleOption = document.querySelector<HTMLOptionElement>(
-    `select[data-choose-${cookieName}] [value='${getCookie(cookieName)}']`
+    `select[data-choose-${cookieName}] [value='${getCookie(cookieName)}']`,
   );
   if (toggleOption) {
     toggleOption.selected = true;
