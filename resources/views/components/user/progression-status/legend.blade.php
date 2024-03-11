@@ -5,7 +5,7 @@
     'totalMasteredCount' => 0,
 ])
 
-<div class="{{ ($totalCompletedCount || $totalBeatenSoftcoreCount) ? 'grid grid-cols-2' : 'flex' }} sm:flex gap-x-4 [&>div]:flex [&>div]:items-center [&>div]:gap-x-1">
+<div class="{{ ($totalCompletedCount || $totalBeatenSoftcoreCount) ? 'grid grid-cols-2' : 'flex' }} gap-x-4 [&>div]:flex [&>div]:items-center [&>div]:gap-x-1 sm:flex sm:gap-x-3 md:gap-x-4">
     <div class="order-1">
         <p class="text-zinc-500 font-bold text-xs">Unfinished</p>
     </div>

@@ -29,7 +29,7 @@ Before submitting a pull request:
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 
-- **Document any change in behaviour** - Make sure the `README.md` and any other relevant documentation are up-to-date.
+- **Document any change in behaviour** - Make sure the `README.md` and any other relevant documentation are up-to-date. If you are changing the API in some way, please also open an accompanying PR in [the api-docs repository](https://github.com/RetroAchievements/api-docs).
 
 - **Consider our release cycle** - We try to follow [SemVer v2.0.0](https://semver.org/). Randomly breaking public APIs is not an option.
 

@@ -100,49 +100,6 @@ function GetFriendship(string $user, string $friend): int
     return UserRelationship::NotFollowing;
 }
 
-function getAllFriendsProgress(string $user, int $gameID, ?array &$friendScoresOut): int
-{
-    sanitize_sql_inputs($user);
-
-    $friendScoresOut = [];
-    // Subquery one: select all friends this user has added:
-    // Subquery two: select all achievements associated with this game:
-
-    if (!isValidUsername($user)) {
-        return 0;
-    }
-
-    $friendSubquery = GetFriendsSubquery($user, false);
-
-    $query = "SELECT ua.User, ua.Motto, ua.RAPoints, ua.RichPresenceMsg,
-                     pg.points_hardcore AS TotalPoints
-              FROM player_games pg
-              INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
-              WHERE ua.User IN ( $friendSubquery ) AND pg.game_id = $gameID
-              AND pg.points_hardcore > 0
-              ORDER BY TotalPoints DESC, ua.User";
-
-    $dbResult = s_mysql_query($query);
-
-    $numFriends = 0;
-
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            if (!isset($friendScoresOut[$db_entry['User']])) {
-                $friendScoresOut[$db_entry['User']] = 0;
-            }
-
-            // Tally up our friend's scores
-            $friendScoresOut[$db_entry['User']] = $db_entry;
-            $numFriends++;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $numFriends;
-}
-
 function GetFriendList(string $user): array
 {
     sanitize_sql_inputs($user);

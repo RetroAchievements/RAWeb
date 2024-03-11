@@ -9,6 +9,15 @@ use App\Models\System;
  *   object    [value]
  *    string    ID                  unique identifier of the console
  *    string    Name                name of the console
+ *    string    IconURL             system icon URL
  */
 
-return response()->json(System::select(['ID', 'Name'])->get());
+$systems = System::all()->map(function ($system) {
+    return [
+        'ID' => $system->ID,
+        'Name' => $system->Name,
+        'IconURL' => $system->icon_url,
+    ];
+});
+
+return response()->json($systems);

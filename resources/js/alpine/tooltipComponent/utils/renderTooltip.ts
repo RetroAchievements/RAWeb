@@ -48,7 +48,7 @@ export function renderTooltip(
     'rounded',
     'pointer-events-none',
     'overflow-hidden',
-    'z-10',
+    'z-20',
   );
 
   if (!options?.isBorderless) {

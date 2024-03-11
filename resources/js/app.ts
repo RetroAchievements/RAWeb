@@ -9,6 +9,7 @@ import { Alpine, Livewire } from '../../vendor/livewire/livewire/dist/livewire.e
 import {
   linkifyDirective,
   modalComponent,
+  navbarSearchComponent,
   newsCarouselComponent,
   toggleAchievementRowsComponent,
   tooltipComponent,
@@ -59,6 +60,7 @@ window.modalComponent = modalComponent;
 window.newsCarouselComponent = newsCarouselComponent;
 window.toggleAchievementRowsComponent = toggleAchievementRowsComponent;
 window.tooltipComponent = tooltipComponent;
+window.navbarSearchComponent = navbarSearchComponent;
 
 // Alpine.js Directives
 Alpine.directive('linkify', linkifyDirective);

@@ -74,57 +74,6 @@ function useCard(type, id, context = null, html = '') {
 jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
 
-  $('.searchboxinput').each(function () {
-    // eslint-disable-next-line no-underscore-dangle
-    $(this)
-      .autocomplete({
-        source: function (request, response) {
-          $.post('/request/search.php', request).done(function (data) {
-            response(data);
-          });
-        },
-        minLength: 2,
-        select: function (_, ui) {
-          window.location = ui.item.mylink;
-          return false;
-        },
-      })
-      .data('autocomplete')._renderItem = function (ul, item) {
-      const li = $('<li>');
-      const a = $('<a>', {
-        text: item.label,
-        href: item.mylink,
-      });
-
-      return li.data('item.autocomplete', item).append(a).appendTo(ul);
-    };
-  });
-
-  var $seachBoxCompareUser = $('.searchboxgamecompareuser');
-  $seachBoxCompareUser.autocomplete({
-    source: function (request, response) {
-      request.source = 'game-compare';
-      $.post('/request/search.php', request).done(function (data) {
-        response(data);
-      });
-    },
-    minLength: 2,
-  });
-  $seachBoxCompareUser.autocomplete({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    select: function (event, ui) {
-      return false;
-    },
-  });
-  $seachBoxCompareUser.on('autocompleteselect', function (event, ui) {
-    var gameID = getParameterByName('ID');
-    if (window.location.pathname.substring(0, 6) === '/game/') {
-      gameID = window.location.pathname.substring(6);
-    }
-    window.location = '/gamecompare.php?ID=' + gameID + '&f=' + ui.item.label;
-    return false;
-  });
-
   var $searchUser = $('.searchuser');
   $searchUser.autocomplete({
     source: function (request, response) {
