@@ -89,10 +89,10 @@ export function handleRowDrop(event: DragEvent) {
     // Ensure both rows belong to the same table.
     if (draggedTableEl === dropTargetTableEl) {
       const draggedRowIndex = Array.from(grabbedRowEl.parentNode?.children ?? []).indexOf(
-        grabbedRowEl
+        grabbedRowEl,
       );
       const dropTargetIndex = Array.from(dropTargetEl.parentNode?.children ?? []).indexOf(
-        dropTargetEl
+        dropTargetEl,
       );
 
       // Don't do anything if the user drops the row back into place.
@@ -177,7 +177,8 @@ export function isRowHidden(rowEl: HTMLTableRowElement | null) {
  * @returns {string[]} - An ordered array of award kinds, eg `["game", "event"]`
  */
 export function buildSectionsOrderList(): string[] {
-  const sectionOrderSelectEls = document.querySelectorAll<HTMLSelectElement>('select[data-award-kind]');
+  const sectionOrderSelectEls =
+    document.querySelectorAll<HTMLSelectElement>('select[data-award-kind]');
   const selectedValues: Record<string, string> = {};
 
   let hasDuplicates = false;
@@ -242,7 +243,8 @@ export function computeDisplayOrderValues(mappedTableRows: MappedTableRow[]) {
       // The second group will have an offset of 3000.
       // The third group will have an offset of 6000.
       // etc...
-      const groupOffsetBoost = sectionsOrder.findIndex((sectionName) => sectionName === row.kind) * 3000;
+      const groupOffsetBoost =
+        sectionsOrder.findIndex((sectionName) => sectionName === row.kind) * 3000;
 
       // Set the display order value considering the row index, offset, and an arbitrary shift of 20.
       displayOrder = rowIndex + 20 + groupOffsetBoost;
@@ -287,7 +289,7 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
   const isHiddenChecked = (event.target as HTMLInputElement).checked;
 
   const targetRowEl = document.querySelector<HTMLTableRowElement>(
-    `tr[data-row-index="${rowIndex}"]`
+    `tr[data-row-index="${rowIndex}"]`,
   );
 
   if (targetRowEl) {
@@ -379,7 +381,7 @@ export function moveRow(rowIndex: number, moveBy: number, scrollToRow = false) {
   store.isFormDirty = true;
 
   const targetRowEl = document.querySelector<HTMLTableRowElement>(
-    `tr[data-row-index="${rowIndex}"]`
+    `tr[data-row-index="${rowIndex}"]`,
   );
 
   if (targetRowEl) {
