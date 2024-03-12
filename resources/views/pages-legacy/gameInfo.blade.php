@@ -294,12 +294,12 @@ sanitize_outputs(
 
 @if ($gate)
     <?php
-        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->get(['ImageIcon']);
+        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->value('ImageIcon');
     ?>
     <x-app-layout
         :pageTitle="$pageTitle"
         :pageDescription="$pageDescription ?? null"
-        :pageImage="media_asset($matureHubIcon['ImageIcon'])"
+        :pageImage="media_asset($matureHubIcon)"
         :pageType="$pageType ?? null"
     >
         <x-game.mature-content-gate
