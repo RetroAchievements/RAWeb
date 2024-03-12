@@ -24,8 +24,8 @@ export function trackTooltipMouseMovement(
   store.trackedMouseY = event.pageY;
 
   if (
-    tooltipEl
-    && (tooltipKind === 'static' || (tooltipKind === 'dynamic' && anchorEl === store.activeAnchorEl))
+    tooltipEl &&
+    (tooltipKind === 'static' || (tooltipKind === 'dynamic' && anchorEl === store.activeAnchorEl))
   ) {
     updateTooltipPosition(anchorEl, tooltipEl, store.trackedMouseX + 12, store.trackedMouseY + 6);
   }

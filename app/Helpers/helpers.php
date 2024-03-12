@@ -39,7 +39,6 @@ require_once __DIR__ . '/render/comment.php';
 require_once __DIR__ . '/render/game.php';
 require_once __DIR__ . '/render/layout.php';
 require_once __DIR__ . '/render/leaderboard.php';
-require_once __DIR__ . '/render/player-game-compare.php';
 require_once __DIR__ . '/render/ranking.php';
 require_once __DIR__ . '/render/shortcode.php';
 require_once __DIR__ . '/render/site-award.php';

@@ -1,5 +1,5 @@
-import linkifyHtml from 'linkify-html';
 import type { DirectiveData, DirectiveUtilities } from 'alpinejs';
+import linkifyHtml from 'linkify-html';
 
 export function linkifyDirective(
   el: HTMLElement,
