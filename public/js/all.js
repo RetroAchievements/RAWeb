@@ -5,8 +5,8 @@ function mediaAsset(uri) {
 // global xhr headers
 $.ajaxSetup({
   headers: {
-    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-  }
+    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+  },
 });
 
 // global xhr error handler
@@ -40,37 +40,6 @@ $(document).ajaxSuccess(function (event, xhr) {
   }
 });
 
-function getParameterByName(name) {
-  name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
-  var regexS = '[\\?&]' + name + '=([^&#]*)';
-  var regex = new RegExp(regexS);
-  var results = regex.exec(window.location.search);
-  if (results == null) {
-    return '';
-  }
-  return decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
-
-var cardsCache = {};
-
-// - used by avatar.php and activePlayersBootstrap.js
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function useCard(type, id, context = null, html = '') {
-  var cardId = `tooltip_card_${type}_${id}`;
-
-  if (context) {
-    cardId += `_${context}`;
-  }
-
-  if (cardsCache[cardId]) {
-    return cardsCache[cardId];
-  }
-
-  cardsCache[cardId] = html;
-
-  return html;
-}
-
 jQuery(document).ready(function onReady($) {
   $('.msgPayload').hide();
 
@@ -78,12 +47,11 @@ jQuery(document).ready(function onReady($) {
   $searchUser.autocomplete({
     source: function (request, response) {
       request.source = 'user';
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
+      $.post('/request/search.php', request).done(function (data) {
+        response(data);
+      });
     },
-    minLength: 2
+    minLength: 2,
   });
   $searchUser.autocomplete({
     select: function (event, ui) {
@@ -103,21 +71,12 @@ jQuery(document).ready(function onReady($) {
   // Add highlights to deep-linked comments.
   const urlHash = window.location.hash;
   if (urlHash.startsWith('#comment_')) {
-    const highlightTargetEl = document.querySelector(`${urlHash}_highlight`) || document.getElementById(urlHash);
+    const highlightTargetEl =
+      document.querySelector(`${urlHash}_highlight`) || document.getElementById(urlHash);
     if (highlightTargetEl) {
       highlightTargetEl.classList.add('highlight');
     }
   }
-});
-
-$(function () {
-  function repeatFade($element, delay, duration) {
-    $element.delay(delay).fadeToggle(duration, function () {
-      repeatFade($element, delay, duration);
-    });
-  }
-
-  repeatFade($('.trophyimageincomplete'), 200, 300);
 });
 
 // - used by comment widget, which may exist multiple times on a single page
@@ -129,13 +88,12 @@ function removeComment(artTypeID, artID, commentID) {
 
   $.post('/request/comment/delete.php', {
     commentable: artID,
-    comment: commentID
-  })
-    .done(function () {
-      document.querySelectorAll(`[id^="comment_${commentID}"]`).forEach(function (el) {
-        el.style.display = 'none';
-      });
+    comment: commentID,
+  }).done(function () {
+    document.querySelectorAll(`[id^="comment_${commentID}"]`).forEach(function (el) {
+      el.style.display = 'none';
     });
+  });
   return true;
 }
 
