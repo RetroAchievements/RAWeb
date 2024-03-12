@@ -295,6 +295,8 @@ sanitize_outputs(
 @if ($gate)
     <x-app-layout
         :pageTitle="$pageTitle"
+        :pageDescription="$pageDescription ?? null"
+        :pageImage="media_asset('/Images/044930.png')" {{-- hardcoded to use the mature hub icon --}}
     >
         <x-game.mature-content-gate
             :gameId="$gameID"
