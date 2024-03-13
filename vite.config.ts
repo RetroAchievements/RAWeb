@@ -1,10 +1,10 @@
 /// <reference types="vitest" />
 
-import { defineConfig, loadEnv } from 'vite';
-import laravel from 'laravel-vite-plugin';
 import { existsSync, readFileSync } from 'fs';
+import laravel from 'laravel-vite-plugin';
 import { homedir } from 'os';
 import { resolve } from 'path';
+import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -22,18 +22,13 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
-      assetsInlineLimit: 4096
+      assetsInlineLimit: 4096,
     },
     // https://vitejs.dev/config/#plugins
     plugins: [
       laravel({
-        input: [
-          'resources/css/app.css',
-          'resources/js/app.ts',
-        ],
-        refresh: [
-          'resources/views/**'
-        ]
+        input: ['resources/css/app.css', 'resources/js/app.ts'],
+        refresh: ['resources/views/**'],
       }),
     ],
     resolve: {
@@ -45,7 +40,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       setupFiles: 'resources/js/setupTests.ts',
-      include: ['resources/js/**/*.{test,spec}.ts']
+      include: ['resources/js/**/*.{test,spec}.ts'],
     },
     // @ see https://vitejs.dev/config/#server-options
     server: detectServerConfig(env),
@@ -56,11 +51,7 @@ function detectServerConfig(env) {
   const watch = {
     // Explicitly ignore large volume directories to prevent running into system-level limits
     // See https://vitejs.dev/config/server-options.html#server-watch
-    ignored: [
-      '**/public/**',
-      '**/storage/**',
-      '**/vendor/**',
-    ],
+    ignored: ['**/public/**', '**/storage/**', '**/vendor/**'],
   };
 
   const { host } = new URL(env.APP_URL);

@@ -67,6 +67,7 @@ return [
         '/gameInfo.php' => '/game/{ID}',
         '/gameList.php' => '/system/{c}/games',
         '/gameSearch.php' => '/games',
+        '/gamecompare.php' => '/game/{ID}/achievements/compare/{f}',
         '/codenotes.php' => '/game/{g}/notes',
         '/linkedhashes.php' => '/game/{g}/assets',
         '/popularGames.php' => '/games/popular',
@@ -94,7 +95,6 @@ return [
         // temp redirect
         '/message/create' => '/messages/create?to={to}&subject={subject}&message={message}',
         '/inbox.php' => '/messages',
-        '/gamecompare.php' => '/user/{f}/game/{ID}/compare',
         '/manageuserpic.php' => '/settings',
 
         /*

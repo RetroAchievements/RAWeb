@@ -1,5 +1,5 @@
-import { showSavedHiddenRowsCookie } from './showSavedHiddenRowsCookie';
 import { setSavedHiddenRowsVisiblity } from './setSavedHiddenRowsVisibility';
+import { showSavedHiddenRowsCookie } from './showSavedHiddenRowsCookie';
 
 /**
  * Toggles the visibility of saved hidden rows in a table based on

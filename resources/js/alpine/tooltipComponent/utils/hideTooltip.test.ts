@@ -1,12 +1,7 @@
-import {
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { hideTooltip } from './hideTooltip';
 import { tooltipStore as store } from '../state/tooltipStore';
+import { hideTooltip } from './hideTooltip';
 
 describe('Util: hideTooltip', () => {
   it('is defined #sanity', () => {
