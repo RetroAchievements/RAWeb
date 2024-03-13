@@ -209,18 +209,20 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
                     </div>
                     <div class="grow lg:py-0 px-1 lg:px-6 pt-2 pb-4">
                         <x-base.form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
-                            <x-base.form.input type="hidden" name="topic" value="{{ $thisTopicID }}" />
-                            <x-base.form.textarea
-                                label="{{ __('Reply') }}"
-                                maxlength="60000"
-                                name="body"
-                                rows="10"
-                                richText
-                                required-silent
-                                help="Don't share links to copyrighted ROMs."
-                                placeholder="Don't share links to copyrighted ROMs."
-                            />
-                            <x-base.form-actions submitLabel="Submit reply" />
+                            <div class="flex flex-col gap-y-3">
+                                <x-base.form.input type="hidden" name="topic" value="{{ $thisTopicID }}" />
+                                <x-base.form.textarea
+                                    label="{{ __('Reply') }}"
+                                    maxlength="60000"
+                                    name="body"
+                                    rows="10"
+                                    richText
+                                    required-silent
+                                    help="Don't share links to copyrighted ROMs."
+                                    placeholder="Don't share links to copyrighted ROMs."
+                                />
+                                <x-base.form-actions submitLabel="Submit reply" />
+                            </div>
                         </x-base.form>
                     </div>
                 @endauth

@@ -26,17 +26,19 @@ $message = request()->input('message') ?? '';
 
     <x-section>
         <x-base.form action="{{ route('message.store') }}" validate>
-            <x-base.form.user-select name="recipient" value="{{ $toUser }}" requiredSilent inline />
-            <x-base.form.input name="title" label="{{ __('Subject') }}" requiredSilent inline />
-            <x-base.form.textarea
-                name="body"
-                requiredSilent
-                inline
-                richText
-                maxlength="60000"
-                placeholder="Enter your message here..."
-            />
-            <x-base.form-actions inline />
+            <div class="flex flex-col gap-y-3">
+                <x-base.form.user-select name="recipient" value="{{ $toUser }}" requiredSilent inline />
+                <x-base.form.input name="title" label="{{ __('Subject') }}" requiredSilent inline />
+                <x-base.form.textarea
+                    name="body"
+                    requiredSilent
+                    inline
+                    richText
+                    maxlength="60000"
+                    placeholder="Enter your message here..."
+                />
+                <x-base.form-actions inline />
+            </div>
         </x-base.form>
     </x-section>
 </x-app-layout>

@@ -178,7 +178,7 @@ name('demo');
         </x-section-header>
         <x-base.form>
             <div class="lg:grid grid-cols-2 gap-3">
-                <div>
+                <div class="flex flex-col gap-y-3">
                     <x-base.form.input.checkbox label="Checkbox" />
                     <x-base.form.input.checkbox label="Checkbox checked" checked />
                     <x-base.form.input.checkbox label="Checkbox disabled" checked disabled />
@@ -192,7 +192,7 @@ name('demo');
                     <x-base.form.input.file label="File" :fullWidth="false" />
                     <x-base.form.input.image label="Image" :fullWidth="false" />
                 </div>
-                <div>
+                <div class="flex flex-col gap-y-3">
                     <x-base.form.input.number label="Number (stepper)" value="1234.5" :fullWidth="false" />
                     <x-base.form.input.password value="password" :fullWidth="false" />
                     <x-base.form.input.password-confirmed value="password" :fullWidth="false" />
@@ -218,14 +218,16 @@ name('demo');
                     <x-base.button.submit class="btn-warning" icon="heart">{{ __('Submit in section header') }}</x-base.button.submit>
                 </x-slot>
             </x-section-header>
-            <x-base.form.input name="text" requiredSilent inline help="Some helpful text describing this input" />
-            <x-base.form.user-select requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
-            <x-base.form.user-select requiredSilent inline help="Search user" />
-            <x-base.form.input type="hidden" name="email" requiredSilent inline />
-            <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" inline :fullWidth="false" />
-            <x-base.form.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
-            <x-base.form.input.checkbox label="Checkbox" checked inline requiredSilent />
-            <x-base.form-actions inline />
+            <div class="flex flex-col gap-y-3">
+                <x-base.form.input name="text" requiredSilent inline help="Some helpful text describing this input" />
+                <x-base.form.user-select requiredSilent label="{{ __res('user', 1) }}" value="Scott" inline help="Scott preselected" />
+                <x-base.form.user-select requiredSilent inline help="Search user" />
+                <x-base.form.input type="hidden" name="email" requiredSilent inline />
+                <x-base.form.select label="Select with preselected value" :options="[5 => 'Integer value 5', 4 => 'Integer value 4', '3' => 'String value 3', '2' => 'String value 2']" value="3" inline :fullWidth="false" />
+                <x-base.form.textarea label="{{ __res('message', 1) }}" requiredSilent inline maxlength="20" help="Some helpful text describing this input" />
+                <x-base.form.input.checkbox label="Checkbox" checked inline requiredSilent />
+                <x-base.form-actions inline />
+            </div>
         </x-section>
     </x-base.form>
 
@@ -240,9 +242,11 @@ name('demo');
                     <div>Sending: <span x-text="isSending"></span></div>
                 </x-slot>
             </x-section-header>
-            <x-base.form.textarea name="message" required richText maxlength="20000" help="Textarea with rich-text controls" />
-            <x-base.form.textarea name="body" richText maxlength="60000" help="Textarea with rich-text controls" />
-            <x-base.form-actions hasRequiredFields />
+            <div class="flex flex-col gap-y-3">
+                <x-base.form.textarea name="message" required richText maxlength="20000" help="Textarea with rich-text controls" />
+                <x-base.form.textarea name="body" richText maxlength="60000" help="Textarea with rich-text controls" />
+                <x-base.form-actions hasRequiredFields />
+            </div>
         </x-section>
     </x-base.form>
 </x-demo-layout>

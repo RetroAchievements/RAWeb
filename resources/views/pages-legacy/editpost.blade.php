@@ -53,23 +53,25 @@ $thisAuthor = $commentData['Author'];
 
     <x-section>
         <x-base.form action="{{ url('request/forum-topic-comment/update.php') }}">
-            <x-base.form.input type="hidden" name="comment" value="{{ $commentData['ID'] }}" />
-            <x-base.form.input label="{{ __res('forum', 1) }}" readonly value="{{ $thisForumTitle }}" inline :fullWidth="false" />
-            <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $thisAuthor }}" inline :fullWidth="false" />
-            <x-base.form.input label="{{ __res('forum-topic', 1) }}" readonly value="{{ $thisTopicTitle }}" inline />
-            <x-base.form.textarea
-                label="{{ __res('message', 1)}} "
-                value="{{ $commentData['Payload'] }}"
-                maxlength="60000"
-                name="body"
-                rows="22"
-                help="Don't share links to copyrighted ROMs."
-                placeholder="Don't share links to copyrighted ROMs."
-                inline
-                required-silent
-                richText
-            />
-            <x-base.form-actions inline />
+            <div class="flex flex-col gap-y-3">
+                <x-base.form.input type="hidden" name="comment" value="{{ $commentData['ID'] }}" />
+                <x-base.form.input label="{{ __res('forum', 1) }}" readonly value="{{ $thisForumTitle }}" inline :fullWidth="false" />
+                <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $thisAuthor }}" inline :fullWidth="false" />
+                <x-base.form.input label="{{ __res('forum-topic', 1) }}" readonly value="{{ $thisTopicTitle }}" inline />
+                <x-base.form.textarea
+                    label="{{ __res('message', 1)}} "
+                    value="{{ $commentData['Payload'] }}"
+                    maxlength="60000"
+                    name="body"
+                    rows="22"
+                    help="Don't share links to copyrighted ROMs."
+                    placeholder="Don't share links to copyrighted ROMs."
+                    inline
+                    required-silent
+                    richText
+                />
+                <x-base.form-actions inline />
+            </div>
         </x-base.form>
     </x-section>
 </x-app-layout>

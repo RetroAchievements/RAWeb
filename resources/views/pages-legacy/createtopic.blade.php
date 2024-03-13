@@ -36,21 +36,23 @@ $thisCategoryName = htmlentities($forumData['CategoryName']);
 
     <x-section>
         <x-base.form action="{{ url('request/forum-topic/create.php') }}" validate>
-            <x-base.form.input type="hidden" name="forum" value="{{ $requestedForumID }}" />
-            <x-base.form.input label="{{ __res('forum', 1) }}" value="{{ $thisForumTitle }}" inline readonly :fullWidth="false" />
-            <x-base.form.input label="{{ __res('author', 1) }}" value="{{ $user }}" inline readonly :fullWidth="false" />
-            <x-base.form.input name="title" inline />
-            <x-base.form.textarea
-                maxlength="60000"
-                name="body"
-                rows="22"
-                help="Don't share links to copyrighted ROMs."
-                placeholder="Don't share links to copyrighted ROMs."
-                inline
-                required-silent
-                richText
-            />
-            <x-base.form-actions submitLabel="Submit new topic" inline />
+            <div class="flex flex-col gap-y-3">
+                <x-base.form.input type="hidden" name="forum" value="{{ $requestedForumID }}" />
+                <x-base.form.input label="{{ __res('forum', 1) }}" value="{{ $thisForumTitle }}" inline readonly :fullWidth="false" />
+                <x-base.form.input label="{{ __res('author', 1) }}" value="{{ $user }}" inline readonly :fullWidth="false" />
+                <x-base.form.input name="title" inline />
+                <x-base.form.textarea
+                    maxlength="60000"
+                    name="body"
+                    rows="22"
+                    help="Don't share links to copyrighted ROMs."
+                    placeholder="Don't share links to copyrighted ROMs."
+                    inline
+                    required-silent
+                    richText
+                />
+                <x-base.form-actions submitLabel="Submit new topic" inline />
+            </div>
         </x-base.form>
     </x-section>
 </x-app-layout>
