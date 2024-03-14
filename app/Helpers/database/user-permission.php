@@ -118,7 +118,7 @@ function SetAccountPermissionsJSON(
     ) {
         $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
 
-        $targetUserClaims = $targetUserModel->achievementSetClaims();
+        $targetUserClaims = $targetUserModel->achievementSetClaims()->get();
         foreach ($targetUserClaims as $claim) {
             $claim->Status = ClaimStatus::Dropped;
             $claim->save();
