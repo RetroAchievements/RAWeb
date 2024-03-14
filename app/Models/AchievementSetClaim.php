@@ -29,11 +29,11 @@ class AchievementSetClaim extends BaseModel
         return AchievementSetClaimFactory::new();
     }
 
-    // == accessors ==
+    // == accessors
 
-    // == mutators ==
+    // == mutators
 
-    // == relations ==
+    // == relations
 
-    // == scopes ==
+    // == scopes
 }
