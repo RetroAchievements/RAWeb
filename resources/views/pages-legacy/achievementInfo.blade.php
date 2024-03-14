@@ -187,7 +187,8 @@ getCodeNotes($gameID, $codeNotes);
      * @param {3 | 5} newFlag - see AchievementFlag.php
      */
     function updateAchievementFlag(newFlag) {
-        if (!confirm(`Are you sure you want to ${(newFlag === <?= AchievementFlag::OfficialCore ?> ? 'promote' : 'demote')} these achievements?`)) {
+        const actionLabel = newFlag === <?= AchievementFlag::OfficialCore ?> ? 'promote' : 'demote';
+        if (!confirm(`Are you sure you want to ${actionLabel} this achievement?`)) {
             return;
         }
         showStatusMessage('Updating...');
@@ -401,9 +402,12 @@ getCodeNotes($gameID, $codeNotes);
     }
 
     if (!empty($embedVidURL)) {
+        echo "<div class='mb-4'>";
         echo Shortcode::render($embedVidURL, ['imgur' => true]);
+        echo "</div>";
     }
 
+    echo "<div class='mb-4'>";
     RenderCommentsComponent(
         $user,
         $numArticleComments,
@@ -412,6 +416,7 @@ getCodeNotes($gameID, $codeNotes);
         ArticleType::Achievement,
         $permissions
     );
+    echo "</div>";
 
     echo "</div>"; // achievement
 
