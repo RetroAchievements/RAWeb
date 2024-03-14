@@ -5,6 +5,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
+use App\Models\User;
 
 function getUserPermissions(?string $user): int
 {
@@ -27,13 +28,13 @@ function SetAccountPermissionsJSON(
     $retVal = [];
     sanitize_sql_inputs($actingUser, $targetUser);
 
-    $targetUserData = [];
-    if (!getAccountDetails($targetUser, $targetUserData)) {
+    $targetUserModel = User::where('User', $targetUser)->first();
+    if (!$targetUserModel) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$targetUser not found";
     }
 
-    $targetUserCurrentPermissions = $targetUserData['Permissions'];
+    $targetUserCurrentPermissions = (int) $targetUserModel->getAttribute('Permissions');
 
     $retVal = [
         'DestUser' => $targetUser,
@@ -43,17 +44,17 @@ function SetAccountPermissionsJSON(
 
     $permissionChangeAllowed = true;
 
-    // only admins can change permissions
+    // Only moderators can change another user's permissions.
     if ($actingUserPermissions < Permissions::Moderator) {
         $permissionChangeAllowed = false;
     }
 
-    // do not act on users on same or above level
+    // Do not act on users on same or above level.
     if ($targetUserCurrentPermissions >= $actingUserPermissions) {
         $permissionChangeAllowed = false;
     }
 
-    // do not allow to set role to same or above level
+    // Do not allow to set role to same or above level.
     if ($targetUserNewPermissions >= $actingUserPermissions) {
         $permissionChangeAllowed = false;
     }
@@ -71,23 +72,32 @@ function SetAccountPermissionsJSON(
         return $retVal;
     }
 
-    $query = "UPDATE UserAccounts SET Permissions = $targetUserNewPermissions, Updated=NOW() WHERE User='$targetUser'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        $retVal['Success'] = false;
-        $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Cannot find user: '$targetUser'!";
-
-        return $retVal;
-    }
+    // Write the new permissions.
+    $targetUserModel->Permissions = $targetUserNewPermissions;
+    $targetUserModel->save();
 
     if ($targetUserNewPermissions < Permissions::Unregistered) {
         banAccountByUsername($targetUser, $targetUserNewPermissions);
     }
 
-    /* Junior developers can have claims in review. When being promoted from Junior Developer,
-     * change any In Review claims to Active. */
-    if ($targetUserCurrentPermissions === Permissions::JuniorDeveloper
-        && $targetUserNewPermissions > Permissions::JuniorDeveloper) {
+    // If the user is being unbanned, clear their `banned_at` timestamp.
+    if (
+        $targetUserCurrentPermissions < Permissions::Unregistered
+        && $targetUserNewPermissions >= Permissions::Unregistered
+    ) {
+        $userModel = User::where('User', $targetUser)->first();
+        if ($userModel) {
+            $userModel->banned_at = null;
+            $userModel->save();
+        }
+    }
+
+    // Junior developers can have claims in review.
+    // When being promoted from Junior Developer, change any In Review claims to Active.
+    if (
+        $targetUserCurrentPermissions === Permissions::JuniorDeveloper
+        && $targetUserNewPermissions > Permissions::JuniorDeveloper
+    ) {
         $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
         $comment = "$actingUser updated $targetUser's claim via promotion to $targetUserNewPermissionsString. Claim Status: " . ClaimStatus::toString(ClaimStatus::Active);
 
@@ -101,12 +111,15 @@ function SetAccountPermissionsJSON(
         }
     }
 
-    /* If the user loses developer permissions, drop all claims held by the user */
-    if ($targetUserCurrentPermissions >= Permissions::JuniorDeveloper
-        && $targetUserNewPermissions < Permissions::JuniorDeveloper) {
+    // If the user loses developer permissions, drop all claims held by the user.
+    if (
+        $targetUserCurrentPermissions >= Permissions::JuniorDeveloper
+        && $targetUserNewPermissions < Permissions::JuniorDeveloper
+    ) {
         $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
 
-        foreach (AchievementSetClaim::where('User', $targetUser)->get() as $claim) {
+        $targetUserClaims = $targetUserModel->achievementSetClaims();
+        foreach ($targetUserClaims as $claim) {
             $claim->Status = ClaimStatus::Dropped;
             $claim->save();
 
@@ -117,7 +130,7 @@ function SetAccountPermissionsJSON(
 
     $retVal['Success'] = true;
 
-    addArticleComment('Server', ArticleType::UserModeration, $targetUserData['ID'],
+    addArticleComment('Server', ArticleType::UserModeration, $targetUserModel->id,
         $actingUser . ' set account type to ' . Permissions::toString($targetUserNewPermissions)
     );
 

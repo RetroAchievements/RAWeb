@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Concerns;
 
 use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
 use App\Models\Leaderboard;
 use App\Models\MemoryNote;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -41,6 +42,14 @@ trait ActsAsDeveloper
     public function authoredLeaderboards(): HasMany
     {
         return $this->hasMany(Leaderboard::class, 'Author', 'User');
+    }
+
+    /**
+     * @return HasMany<AchievementSetClaim>
+     */
+    public function achievementSetClaims(): HasMany
+    {
+        return $this->hasMany(AchievementSetClaim::class, 'User', 'User');
     }
 
     // == scopes
