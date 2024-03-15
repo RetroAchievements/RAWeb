@@ -9,7 +9,7 @@ function render(start: string, end = '') {
 
   document.body.innerHTML = /** @html */ `
     <textarea id="commentTextarea"></textarea>
-    <button onclick="injectShortcode('${start}', '${end}')">Insert shortcode</button>
+    <button onclick="injectShortcode('commentTextarea', '${start}', '${end}')">Insert shortcode</button>
   `;
 }
 
