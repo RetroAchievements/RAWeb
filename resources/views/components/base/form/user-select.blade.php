@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
     'help' => null,
     'id' => null,
     'inline' => false,
+    'isLabelVisible' => true,
     'label' => null,
     'model' => null,
     'name' => 'username',
@@ -77,6 +78,7 @@ $(function () {
     :help="$help"
     :id="$id"
     :inline="$inline"
+    :isLabelVisible="$isLabelVisible"
     :label="$label"
     :name="$name"
 >

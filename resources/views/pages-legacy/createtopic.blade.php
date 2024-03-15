@@ -42,17 +42,22 @@ $thisCategoryName = htmlentities($forumData['CategoryName']);
                 <x-base.form.input label="{{ __res('author', 1) }}" value="{{ $user }}" inline readonly :fullWidth="false" />
                 <x-base.form.input name="title" inline />
                 <x-base.form.textarea
+                    id="input_compose"
                     maxlength="60000"
                     name="body"
                     rows="22"
-                    help="Don't share links to copyrighted ROMs."
                     placeholder="Don't share links to copyrighted ROMs."
                     inline
                     required-silent
                     richText
-                />
-                <x-base.form-actions submitLabel="Submit new topic" inline />
+                >
+                    <x-slot name="formActions">
+                        <x-base.form-actions />
+                    </x-slot>
+                </x-base.form.textarea>
             </div>
         </x-base.form>
+
+        <div id="post-preview-input_compose"></div>
     </x-section>
 </x-app-layout>
