@@ -122,7 +122,7 @@ class MessageThreadController extends Controller
     public function destroy(Request $request, MessageThread $messageThread): RedirectResponse
     {
         /** @var User $user */
-        $user = request()->user();
+        $user = $request->user();
 
         $participating = MessageThreadParticipant::where('thread_id', $messageThread->id)
             ->where('user_id', $user->ID)

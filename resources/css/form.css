@@ -10,6 +10,25 @@ textarea, input, select {
   line-height: 1em;
 }
 
+.form-control-prepend + {
+  textarea, input, select {
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+  }
+}
+
+.form-control-prepend {
+  padding: 0.4em 0.6em;
+  background: var(--embed-color);
+  border: 1px solid var(--text-color-muted);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  color: var(--menu-link-color);
+  font-size: 13px;
+  max-width: 100%;
+  line-height: 1em;
+}
+
 input[readonly] {
   color: var(--text-color-muted);
 }
@@ -18,18 +37,8 @@ input[disabled] {
   color: var(--text-color-muted);
 }
 
-input, optgroup, select, textarea {
-  /*background: white;*/
-  /*color: black;*/
-}
-
 [data-scheme=""] ::-webkit-calendar-picker-indicator, [data-scheme="black"] ::-webkit-calendar-picker-indicator {
   filter: invert(1);
-}
-
-.form-control {
-  display: block;
-  width: 100%;
 }
 
 .form-control:disabled, .form-control[readonly] {
