@@ -222,7 +222,7 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
                                     required-silent
                                     placeholder="Don't share links to copyrighted ROMs."
                                 >
-                                    <x-slot name="primaryButton">
+                                    <x-slot name="formActions">
                                         <x-base.form-actions submitLabel="Submit" />
                                     </x-slot>
                                 </x-base.form.textarea>
