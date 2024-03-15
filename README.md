@@ -106,7 +106,7 @@ REDIS_PORT=${FORWARD_REDIS_PORT}
 ```
 
 > **Note**
-> Connect with a database client of you choice using the forwarded ports
+> Connect with a database client of your choice using the forwarded ports
 > or use phpMyAdmin which runs at http://localhost:64080 by default. 
 
 Use mailpit as SMTP server for local mails testing:
