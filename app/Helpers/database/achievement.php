@@ -241,6 +241,7 @@ function UploadNewAchievement(
         $achievement->Points = $points;
         $achievement->Flags = $flag;
         $achievement->type = ($typeValue == 'NULL') ? null : $type;
+        $achievement->Author = $author->User;
         $achievement->user_id = $author->id;
         $achievement->BadgeName = $badge;
 
