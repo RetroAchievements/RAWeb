@@ -4,8 +4,8 @@ import {
   // @prettier-ignore
   beforeEach,
   describe,
-  it,
   expect,
+  it,
 } from 'vitest';
 
 import { toggleAchievementRowsComponent } from './toggleAchievementRowsComponent';
@@ -47,7 +47,9 @@ describe('Component: toggleAchievementRowsComponent', () => {
   describe('Util: toggleUnlockedRows', () => {
     it('renders without crashing #sanity', () => {
       expect(
-        screen.getByRole('checkbox', { name: /hide unlocked achievements/i }),
+        screen.getByRole('checkbox', {
+          name: /hide unlocked achievements/i,
+        }),
       ).toBeInTheDocument();
     });
 

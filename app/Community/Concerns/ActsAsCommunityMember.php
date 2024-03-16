@@ -44,7 +44,13 @@ trait ActsAsCommunityMember
      */
     public function following(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'Friends', 'user_id', 'related_user_id');
+        // return $this->belongsToMany(User::class, 'Friends', 'user_id', 'related_user_id');
+        return $this->belongsToMany(User::class,
+            'Friends', // related table
+            'User',    // foreign key in related table pointing to this model
+            'Friend',  // foreign key in related table pointing to target model
+            'User',    // local key in this model
+            'User');   // local key in target model
     }
 
     /**
@@ -82,7 +88,7 @@ trait ActsAsCommunityMember
 
     public function isMuted(): bool
     {
-        return !empty($this->muted_until) && $this->muted_until->isFuture();
+        return $this->muted_until?->isFuture() ?? false;
     }
 
     public function isNotMuted(): bool

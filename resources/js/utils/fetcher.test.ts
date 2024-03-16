@@ -1,10 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  type Mock
-} from 'vitest';
+import { describe, expect, it, type Mock, vi } from 'vitest';
 
 import { fetcher } from './fetcher';
 
@@ -70,7 +64,9 @@ describe('Util: fetcher', () => {
       json: vi.fn(),
     });
 
-    await fetcher('/request/some-endpoint.php', { headers: { Authorization: 'Bearer 12345' } });
+    await fetcher('/request/some-endpoint.php', {
+      headers: { Authorization: 'Bearer 12345' },
+    });
 
     expect(fetch).toHaveBeenCalledWith(
       expect.anything(),

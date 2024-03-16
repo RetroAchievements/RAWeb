@@ -1,15 +1,9 @@
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as FetcherModule from '@/utils/fetcher';
 
-import { loadDynamicTooltip } from './loadDynamicTooltip';
 import { tooltipStore as store } from '../state/tooltipStore';
+import { loadDynamicTooltip } from './loadDynamicTooltip';
 import * as RenderTooltipModule from './renderTooltip';
 
 vi.mock('../state/tooltipStore', () => ({
