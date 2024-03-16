@@ -43,7 +43,6 @@ use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
-use App\Platform\Commands\UpdateGameHashesUserIds;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
@@ -70,7 +69,6 @@ class AppServiceProvider extends ServiceProvider
                 UpdateGamePlayerGames::class,
 
                 // Game Hashes
-                UpdateGameHashesUserIds::class,
                 NoIntroImport::class,
 
                 // Achievements
