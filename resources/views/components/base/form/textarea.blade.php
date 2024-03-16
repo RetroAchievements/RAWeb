@@ -30,6 +30,8 @@ if ($model && !$model instanceof Model) {
     throw new Exception('"model" is not an Eloquent model');
 }
 
+$hasProvidedId = $id !== null;
+
 $id = $id ?: 'input_' . Str::random();
 ?>
 
@@ -94,7 +96,7 @@ $id = $id ?: 'input_' . Str::random();
 
                     <button
                         type="button"
-                        class="btn btn-link"
+                        class="btn"
                         onclick="window.loadPostPreview('{{ $id }}', 'post-preview-{{ $id }}')"
                         :disabled="!isValid || isSending"
                     >
@@ -108,4 +110,8 @@ $id = $id ?: 'input_' . Str::random();
             @endif
         </div>
     </div>
+
+    @if ($richText && !$hasProvidedId)
+        <div id="post-preview-{{ $id }}"></div>
+    @endif
 </x-base.form-field>
