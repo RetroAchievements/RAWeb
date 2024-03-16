@@ -20,24 +20,24 @@ function getUserPermissions(?string $user): int
 }
 
 function SetAccountPermissionsJSON(
-    string $actingUser,
+    string $actingUsername,
     int $actingUserPermissions,
-    string $targetUser,
+    string $targetUsername,
     int $targetUserNewPermissions
 ): array {
     $retVal = [];
-    sanitize_sql_inputs($actingUser, $targetUser);
+    sanitize_sql_inputs($actingUsername, $targetUsername);
 
-    $targetUserModel = User::where('User', $targetUser)->first();
-    if (!$targetUserModel) {
+    $targetUser = User::where('User', $targetUsername)->first();
+    if (!$targetUser) {
         $retVal['Success'] = false;
-        $retVal['Error'] = "$targetUser not found";
+        $retVal['Error'] = "$targetUsername not found";
     }
 
-    $targetUserCurrentPermissions = (int) $targetUserModel->getAttribute('Permissions');
+    $targetUserCurrentPermissions = (int) $targetUser->getAttribute('Permissions');
 
     $retVal = [
-        'DestUser' => $targetUser,
+        'DestUser' => $targetUsername,
         'DestPrevPermissions' => $targetUserCurrentPermissions,
         'NewPermissions' => $targetUserNewPermissions,
     ];
@@ -61,7 +61,7 @@ function SetAccountPermissionsJSON(
 
     if (!$permissionChangeAllowed) {
         $retVal['Success'] = false;
-        $retVal['Error'] = "$actingUser ($actingUserPermissions) is trying to set $targetUser ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Not allowed!";
+        $retVal['Error'] = "$actingUsername ($actingUserPermissions) is trying to set $targetUsername ($targetUserCurrentPermissions) to $targetUserNewPermissions??! Not allowed!";
 
         return $retVal;
     }
@@ -73,11 +73,11 @@ function SetAccountPermissionsJSON(
     }
 
     // Write the new permissions.
-    $targetUserModel->Permissions = $targetUserNewPermissions;
-    $targetUserModel->save();
+    $targetUser->Permissions = $targetUserNewPermissions;
+    $targetUser->save();
 
     if ($targetUserNewPermissions < Permissions::Unregistered) {
-        banAccountByUsername($targetUser, $targetUserNewPermissions);
+        banAccountByUsername($targetUsername, $targetUserNewPermissions);
     }
 
     // If the user is being unbanned, clear their `banned_at` timestamp.
@@ -85,7 +85,7 @@ function SetAccountPermissionsJSON(
         $targetUserCurrentPermissions < Permissions::Unregistered
         && $targetUserNewPermissions >= Permissions::Unregistered
     ) {
-        $userModel = User::where('User', $targetUser)->first();
+        $userModel = User::where('User', $targetUsername)->first();
         if ($userModel) {
             $userModel->banned_at = null;
             $userModel->save();
@@ -99,9 +99,9 @@ function SetAccountPermissionsJSON(
         && $targetUserNewPermissions > Permissions::JuniorDeveloper
     ) {
         $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
-        $comment = "$actingUser updated $targetUser's claim via promotion to $targetUserNewPermissionsString. Claim Status: " . ClaimStatus::toString(ClaimStatus::Active);
+        $comment = "$actingUsername updated $targetUsername's claim via promotion to $targetUserNewPermissionsString. Claim Status: " . ClaimStatus::toString(ClaimStatus::Active);
 
-        $inReviewClaims = AchievementSetClaim::where('User', $targetUser)
+        $inReviewClaims = AchievementSetClaim::where('User', $targetUsername)
             ->where('Status', ClaimStatus::InReview)->get();
         foreach ($inReviewClaims as $claim) {
             $claim->Status = ClaimStatus::Active;
@@ -118,20 +118,20 @@ function SetAccountPermissionsJSON(
     ) {
         $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
 
-        $targetUserClaims = $targetUserModel->achievementSetClaims()->get();
+        $targetUserClaims = $targetUser->achievementSetClaims()->get();
         foreach ($targetUserClaims as $claim) {
             $claim->Status = ClaimStatus::Dropped;
             $claim->save();
 
-            $comment = "$actingUser dropped $targetUser's " . ClaimType::toString($claim->ClaimType) . " claim via demotion to $targetUserNewPermissionsString.";
+            $comment = "$actingUsername dropped $targetUsername's " . ClaimType::toString($claim->ClaimType) . " claim via demotion to $targetUserNewPermissionsString.";
             addArticleComment('Server', ArticleType::SetClaim, $claim->GameID, $comment);
         }
     }
 
     $retVal['Success'] = true;
 
-    addArticleComment('Server', ArticleType::UserModeration, $targetUserModel->id,
-        $actingUser . ' set account type to ' . Permissions::toString($targetUserNewPermissions)
+    addArticleComment('Server', ArticleType::UserModeration, $targetUser->id,
+        $actingUsername . ' set account type to ' . Permissions::toString($targetUserNewPermissions)
     );
 
     return $retVal;
