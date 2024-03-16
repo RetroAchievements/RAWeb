@@ -44,10 +44,9 @@ class UserRecentAchievementsTest extends TestCase
         $unlock3Date = $now->clone()->subMinutes(1);
         $this->addSoftcoreUnlock($this->user, $achievement3, $unlock3Date);
 
-        // Refresh the achievements.
-        $achievement1 = Achievement::findOrFail($achievement1->id);
-        $achievement2 = Achievement::findOrFail($achievement2->id);
-        $achievement3 = Achievement::findOrFail($achievement3->id);
+        $achievement1->refresh();
+        $achievement2->refresh();
+        $achievement3->refresh();
 
         // nothing in the last 0 minutes
         $this->get($this->apiUrl('GetUserRecentAchievements', ['u' => $this->user->User, 'm' => 0]))
