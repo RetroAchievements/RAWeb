@@ -5,6 +5,7 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
+use App\Models\Game;
 use App\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
@@ -21,10 +22,8 @@ if (empty($gameID)) {
     abort(404);
 }
 
-$friendScores = [];
-if (authenticateFromCookie($user, $permissions, $userDetails)) {
-    getAllFriendsProgress($user, $gameID, $friendScores);
-}
+authenticateFromCookie($user, $permissions, $userDetails);
+
 $userID = $userDetails['ID'] ?? 0;
 $userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
@@ -294,8 +293,14 @@ sanitize_outputs(
 <?php endif ?>
 
 @if ($gate)
+    <?php
+        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->value('ImageIcon');
+    ?>
     <x-app-layout
         :pageTitle="$pageTitle"
+        :pageDescription="$pageDescription ?? null"
+        :pageImage="media_asset($matureHubIcon)"
+        :pageType="$pageType ?? null"
     >
         <x-game.mature-content-gate
             :gameId="$gameID"
@@ -1003,7 +1008,13 @@ sanitize_outputs(
         }
 
         if ($user !== null && $numAchievements > 0) {
-            RenderGameCompare($user, $gameID, $friendScores, $totalPossible);
+            $gameModel = Game::find($gameID);
+            ?>
+            <x-game.compare-progress
+                :game="$gameModel"
+                :user="$userModel"
+            />
+            <?php
         }
 
         if ($numAchievements > 0 && $isOfficial) {

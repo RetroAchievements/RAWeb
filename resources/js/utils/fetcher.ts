@@ -5,11 +5,9 @@ export function fetcher<T>(
     body: BodyInit;
     credentials: RequestCredentials;
     headers: HeadersInit;
-  }>
+  }>,
 ): Promise<T> {
-  const csrfToken = document
-    .querySelector('meta[name="csrf-token"]')
-    ?.getAttribute('content');
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
   const modifiedFetchOptions: RequestInit = {
     ...fetchOptions,
