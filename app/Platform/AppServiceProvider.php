@@ -40,6 +40,7 @@ use App\Platform\Commands\SyncPlayerRichPresence;
 use App\Platform\Commands\SyncPlayerSession;
 use App\Platform\Commands\TrimGameMetadata;
 use App\Platform\Commands\UnlockPlayerAchievement;
+use App\Platform\Commands\UpdateAchievementsUserIds;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
@@ -73,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Achievements
                 MigrateMissableAchievementsToType::class,
+                UpdateAchievementsUserIds::class,
 
                 // Leaderboards
                 UpdateLeaderboardMetrics::class,

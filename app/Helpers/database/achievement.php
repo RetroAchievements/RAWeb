@@ -149,7 +149,7 @@ function GetAchievementData(int $achievementId): ?array
 }
 
 function UploadNewAchievement(
-    string $author,
+    string $authorUsername,
     int $gameID,
     string $title,
     string $desc,
@@ -165,10 +165,12 @@ function UploadNewAchievement(
     $consoleID = $gameData['ConsoleID'];
     $consoleName = $gameData['ConsoleName'];
     $isEventGame = $consoleName == 'Events';
-    $userPermissions = getUserPermissions($author);
+
+    $author = User::where('User', $authorUsername)->first();
+    $authorPermissions = (int) $author->getAttribute('Permissions');
 
     // Prevent <= registered users from uploading or modifying achievements
-    if ($userPermissions < Permissions::JuniorDeveloper) {
+    if ($authorPermissions < Permissions::JuniorDeveloper) {
         $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
         return false;
@@ -225,7 +227,7 @@ function UploadNewAchievement(
     if (empty($idInOut)) {
         // New achievement added
         // Prevent users from uploading achievements for games they do not have an active claim on unless it's an event game
-        if (!hasSetClaimed($author, $gameID, false) && !$isEventGame) {
+        if (!hasSetClaimed($authorUsername, $gameID, false) && !$isEventGame) {
             $errorOut = "You must have an active claim on this game to perform this action.";
 
             return false;
@@ -239,7 +241,7 @@ function UploadNewAchievement(
         $achievement->Points = $points;
         $achievement->Flags = $flag;
         $achievement->type = ($typeValue == 'NULL') ? null : $type;
-        $achievement->Author = $author;
+        $achievement->user_id = $author->id;
         $achievement->BadgeName = $badge;
 
         $achievement->save();
@@ -250,8 +252,8 @@ function UploadNewAchievement(
             "Server",
             ArticleType::Achievement,
             $idInOut,
-            "$author uploaded this achievement.",
-            $author
+            "$authorUsername uploaded this achievement.",
+            $authorUsername
         );
 
         return true;
@@ -301,10 +303,10 @@ function UploadNewAchievement(
         }
 
         if ($flag === AchievementFlag::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
-            // changing ach set detected; user is $author, permissions is $userPermissions, target set is $flag
+            // changing ach set detected; user is $authorUsername, permissions is $authorPermissions, target set is $flag
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
-            if ($userPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $achievement->Author !== $author)) {
+            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $achievement->Author !== $authorUsername)) {
                 // Must be developer to modify core logic!
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
@@ -314,7 +316,7 @@ function UploadNewAchievement(
 
         if ($flag === AchievementFlag::Unofficial) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
-            if ($userPermissions == Permissions::JuniorDeveloper && $achievement->Author !== $author) {
+            if ($authorPermissions == Permissions::JuniorDeveloper && $achievement->Author !== $authorUsername) {
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
                 return false;
@@ -333,16 +335,16 @@ function UploadNewAchievement(
                         "Server",
                         ArticleType::Achievement,
                         $idInOut,
-                        "$author promoted this achievement to the Core set.",
-                        $author
+                        "$authorUsername promoted this achievement to the Core set.",
+                        $authorUsername
                     );
                 } elseif ($flag === AchievementFlag::Unofficial) {
                     addArticleComment(
                         "Server",
                         ArticleType::Achievement,
                         $idInOut,
-                        "$author demoted this achievement to Unofficial.",
-                        $author
+                        "$authorUsername demoted this achievement to Unofficial.",
+                        $authorUsername
                     );
                 }
                 expireGameTopAchievers($gameID);
@@ -354,8 +356,8 @@ function UploadNewAchievement(
                         "Server",
                         ArticleType::Achievement,
                         $idInOut,
-                        "$author edited this achievement's $editString.",
-                        $author
+                        "$authorUsername edited this achievement's $editString.",
+                        $authorUsername
                     );
                 }
             }
