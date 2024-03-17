@@ -17,7 +17,7 @@ Validated to run on Windows, macOS, and Linux with any of the setup options belo
 
 See [Laravel Sail documentation](https://laravel.com/docs/sail).
 
-### **[XAMPP](https://www.apachefriends.org/download.html)** (indows, Linux, macOS)
+### **[XAMPP](https://www.apachefriends.org/download.html)** (Windows, Linux, macOS)
 
 Install the XAMPP version packaged with PHP 8.2 to run an Apache web server, MySQL/MariaDB, and PHP on your system.
 
