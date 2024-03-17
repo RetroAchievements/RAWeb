@@ -3,8 +3,8 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
-use Illuminate\Support\Facades\Blade;
 use App\Models\User;
+use Illuminate\Support\Facades\Blade;
 
 function RenderCommentsComponent(
     ?string $username,
