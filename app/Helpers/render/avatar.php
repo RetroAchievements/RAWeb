@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated use <x-avatar />
+ */
 function avatar(
     string $resource,
     int|string $id,
@@ -37,7 +40,7 @@ function avatar(
         if (is_string($tooltip)) {
             $escapedTooltip = tooltipEscape($tooltip);
             $tooltipTrigger = <<<HTML
-                x-data="tooltipComponent(\$el, { staticHtmlContent: useCard('$resource', '$id', '$context', '$escapedTooltip') })"
+                x-data="tooltipComponent(\$el, { staticHtmlContent: '$escapedTooltip' })"
                 @mouseover="showTooltip(\$event)"
                 @mouseleave="hideTooltip"
                 @mousemove="trackMouseMovement(\$event)"
