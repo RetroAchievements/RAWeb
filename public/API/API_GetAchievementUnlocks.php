@@ -11,7 +11,7 @@
  *   string     Title                   title of the achievement
  *   string     Description             description of the achievement
  *   string     Points                  number of points the achievement is worth
- *   string     TrueRatio               number of "white" points the achievement is worth
+ *   string     TrueRatio               number of RetroPoints ("white points") the achievement is worth
  *   string     Author                  user who first created the achievement
  *   datetime   DateCreated             when the achievement was created
  *   datetime   DateModified            when the achievement was last modified
