@@ -11,6 +11,7 @@ use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
+use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,6 +40,18 @@ trait ActsAsPlayer
         $this->save();
     }
 
+    // == instance methods
+
+    public function hasPlayed(Game $game): bool
+    {
+        return $this->playerGame($game)->exists();
+    }
+
+    public function playerGame(Game $game): ?PlayerGame
+    {
+        return $this->playerGames()->where('game_id', $game->id)->first();
+    }
+
     // == accessors
 
     public function getPointsRatioAttribute(): float|string
@@ -55,6 +68,24 @@ trait ActsAsPlayer
     {
         return $this->belongsToMany(Achievement::class, 'player_achievements', 'user_id', 'achievement_id')
             ->using(PlayerAchievement::class);
+    }
+
+    /**
+     * @return BelongsToMany<Game>
+     */
+    public function games(): BelongsToMany
+    {
+        return $this->belongsToMany(Game::class, 'player_games', 'user_id', 'game_id')
+            ->using(PlayerGame::class)
+            ->withTimestamps('created_at', 'updated_at');
+    }
+
+    /**
+     * @return BelongsTo<Game, User>
+     */
+    public function lastGame(): BelongsTo
+    {
+        return $this->belongsTo(Game::class, 'LastGameID', 'ID');
     }
 
     /**
@@ -76,29 +107,11 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return BelongsToMany<Game>
-     */
-    public function games(): BelongsToMany
-    {
-        return $this->belongsToMany(Game::class, 'player_games', 'user_id', 'game_id')
-            ->using(PlayerGame::class)
-            ->withTimestamps('created_at', 'updated_at');
-    }
-
-    /**
      * @return HasMany<PlayerSession>
      */
     public function playerSessions(): HasMany
     {
         return $this->hasMany(PlayerSession::class, 'user_id');
-    }
-
-    /**
-     * @return BelongsTo<Game, User>
-     */
-    public function lastGame(): BelongsTo
-    {
-        return $this->belongsTo(Game::class, 'LastGameID', 'ID');
     }
 
     /**
@@ -109,14 +122,12 @@ trait ActsAsPlayer
         return $this->hasMany(PlayerGame::class, 'user_id');
     }
 
-    public function playerGame(Game $game): ?PlayerGame
+    /**
+     * @return HasMany<Ticket>
+     */
+    public function reportedTickets(): HasMany
     {
-        return $this->playerGames()->where('game_id', $game->id)->first();
-    }
-
-    public function hasPlayed(Game $game): bool
-    {
-        return $this->playerGame($game)->exists();
+        return $this->hasMany(Ticket::class, 'reporter_id', 'ID');
     }
 
     // == scopes
