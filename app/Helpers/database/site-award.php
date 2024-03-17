@@ -11,6 +11,7 @@ use Carbon\Carbon;
  */
 function AddSiteAward(
     string $user,
+    int $userId,
     int $awardType,
     ?int $data = null,
     int $dataExtra = 0,
@@ -29,6 +30,7 @@ function AddSiteAward(
     PlayerBadge::updateOrInsert(
         [
             'User' => $user,
+            'user_id' => $userId,
             'AwardType' => $awardType,
             'AwardData' => $data,
             'AwardDataExtra' => $dataExtra,
@@ -172,12 +174,12 @@ function HasPatreonBadge(string $username): bool
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetPatreonSupporter(string $username, bool $enable): void
+function SetPatreonSupporter(string $username, int $userId, bool $enable): void
 {
     sanitize_sql_inputs($username);
 
     if ($enable) {
-        $badge = AddSiteAward($username, AwardType::PatreonSupporter, 0, 0);
+        $badge = AddSiteAward($username, $userId, AwardType::PatreonSupporter, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
         // TODO PatreonSupporterAdded::dispatch($user);
     } else {
@@ -199,15 +201,15 @@ function HasCertifiedLegendBadge(string $username): bool
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetCertifiedLegend(string $usernameIn, bool $enable): void
+function SetCertifiedLegend(string $username, int $userId, bool $enable): void
 {
-    sanitize_sql_inputs($usernameIn);
+    sanitize_sql_inputs($username);
 
     if ($enable) {
-        $badge = AddSiteAward($usernameIn, AwardType::CertifiedLegend, 0, 0);
+        $badge = AddSiteAward($username, $userId, AwardType::CertifiedLegend, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = " . AwardType::CertifiedLegend;
+        $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::CertifiedLegend;
         s_mysql_query($query);
     }
 }
