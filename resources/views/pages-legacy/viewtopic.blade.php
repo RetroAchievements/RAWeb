@@ -195,7 +195,7 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
     <?php
     $user = auth()->user();
     ?>
-    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail())
+    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->isMuted)
         <x-section>
             <div class="flex w-full bg-embed p-2 rounded-lg">
                 @guest

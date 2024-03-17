@@ -84,7 +84,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($permissions >= Permissions::Registered) {
+    if ($permissions >= Permissions::Registered && !$userDetails['isMuted']) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";
@@ -163,7 +163,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($permissions >= Permissions::Registered) {
+    if ($permissions >= Permissions::Registered && !$userDetails['isMuted']) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";

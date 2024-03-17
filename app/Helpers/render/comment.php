@@ -4,9 +4,10 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use Illuminate\Support\Facades\Blade;
+use App\Models\User;
 
 function RenderCommentsComponent(
-    ?string $user,
+    ?string $username,
     int $numComments,
     array $commentData,
     int $articleID,
@@ -16,7 +17,7 @@ function RenderCommentsComponent(
     int $offset = 0,
     bool $embedded = true
 ): void {
-    $userID = getUserIDFromUser($user);
+    $user = User::where('User', $username)->first();
 
     echo "<div class='commentscomponent'>";
 
@@ -44,7 +45,7 @@ function RenderCommentsComponent(
     if (isset($user)) {
         $subjectType = SubscriptionSubjectType::fromArticleType($articleTypeID);
         if ($subjectType !== null) {
-            $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $userID);
+            $isSubscribed = isUserSubscribedToArticleComments($articleTypeID, $articleID, $user->id);
             echo "<div>";
             RenderUpdateSubscriptionForm(
                 'updatesubscription',
@@ -79,7 +80,7 @@ function RenderCommentsComponent(
             $lastID = $comment['ID'];
         }
 
-        $canDeleteComment = $articleTypeID == ArticleType::User && $userID === $articleID || $permissions >= Permissions::Moderator;
+        $canDeleteComment = $articleTypeID == ArticleType::User && $user->id === $articleID || $permissions >= Permissions::Moderator;
 
         RenderArticleComment(
             $articleID,
@@ -87,14 +88,14 @@ function RenderCommentsComponent(
             $comment['CommentPayload'],
             // TODO no unix timestamp here
             (int) $comment['Submitted'],
-            $user,
+            $username,
             $articleTypeID,
             (int) $comment['ID'],
             $canDeleteComment
         );
     }
 
-    if (isset($user)) {
+    if (isset($user) && !$user->isMuted) {
         // User comment input:
         RenderCommentInputRow($user, $articleTypeID, $articleID);
     }
