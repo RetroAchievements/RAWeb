@@ -187,7 +187,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
     protected $appends = [
         'avatarUrl',
-        'isMuted',
     ];
 
     protected $casts = [
