@@ -1,29 +1,32 @@
 <?php
 
 use App\Community\Enums\SubscriptionSubjectType;
+use App\Models\Subscription;
 
 /**
  * Update a subscription, i.e, either subscribe or unsubscribe a given user to or from a subject.
  *
  * @param bool $state whether the user is to be subscribed (true) or unsubscribed (false)
  */
-function updateSubscription(string $subjectType, int $subjectID, int $userID, bool $state): bool
+function updateSubscription(string $subjectType, int $subjectId, int $userId, bool $state): bool
 {
-    sanitize_sql_inputs($subjectType);
-    $state = (int) $state;
+    Subscription::updateOrCreate(
+        [
+            'subject_type' => $subjectType,
+            'subject_id' => $subjectId,
+            'user_id' => $userId,
+        ],
+        [
+            'state' => $state,
+        ]
+    );
 
-    $query = "
-        INSERT INTO Subscription(SubjectType, SubjectID, UserID, State)
-        VALUES ('$subjectType', $subjectID, $userID, '$state')
-        ON DUPLICATE KEY UPDATE State = '$state'
-    ";
-
-    $dbResult = s_mysql_query($query);
-
-    return (bool) $dbResult;
+    return true;
 }
 
 /**
+ * @deprecated $implicitSubscriptionQry considered harmful. Use Eloquent ORM.
+ *
  * Checks whether a given user is subscribed to a subject, whether implicitly or explicitly.
  *
  * @param string|null $implicitSubscriptionQry optional sql query capable of identifying the existence of an implicit
@@ -39,12 +42,12 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
     if ($implicitSubscriptionQry === null) {
         $query = "
             SELECT 1
-            FROM Subscription
+            FROM subscriptions
             WHERE
-              SubjectType = '$subjectType'
-              AND SubjectID = $subjectID
-              AND UserID = $userID
-              AND State = 1
+              subject_type = '$subjectType'
+              AND subject_id = $subjectID
+              AND user_id = $userID
+              AND state = 1
         ";
     } else {
         // either there's an explicit subscription...
@@ -53,16 +56,16 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
         // subscription to the subject (must be usable inside an EXISTS clause)
         $query = "
             SELECT 1
-            FROM Subscription
+            FROM subscriptions
             WHERE
               EXISTS (
                 SELECT 1
-                FROM Subscription
+                FROM subscriptions
                 WHERE
-                  SubjectType = '$subjectType'
-                  AND SubjectID = $subjectID
-                  AND UserID = $userID
-                  AND State = 1
+                  subject_type = '$subjectType'
+                  AND subject_id = $subjectID
+                  AND user_id = $userID
+                  AND state = 1
               )
               OR (
                   EXISTS (
@@ -70,12 +73,12 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
                   )
                   AND NOT EXISTS (
                     SELECT 1
-                    FROM Subscription
+                    FROM subscriptions
                     WHERE
-                      SubjectType = '$subjectType'
-                      AND SubjectID = $subjectID
-                      AND UserID = $userID
-                      AND State = 0
+                      subject_type = '$subjectType'
+                      AND subject_id = $subjectID
+                      AND user_id = $userID
+                      AND state = 0
                   )
               )
         ";
@@ -93,6 +96,8 @@ function isUserSubscribedTo(string $subjectType, int $subjectID, int $userID, ?s
 }
 
 /**
+ * @deprecated $implicitSubscriptionQry considered harmful. Use Eloquent ORM.
+ *
  * Retrieves the list of users that are subscribed to a given subject either implicitly or explicitly.
  *
  * @param ?int $reqWebsitePrefs optional required website preferences for a user to be considered a subscriber
@@ -112,13 +117,13 @@ function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsiteP
           _ua.User,
           _ua.EmailAddress
         FROM
-          Subscription AS _sub
+          subscriptions AS _sub
           INNER JOIN UserAccounts AS _ua
-              ON _ua.ID = _sub.UserID
+              ON _ua.ID = _sub.user_id
         WHERE
-          _sub.SubjectType = '$subjectType'
-          AND _sub.SubjectID = $subjectID
-          AND _sub.State = 1
+          _sub.subject_type = '$subjectType'
+          AND _sub.subject_id = $subjectID
+          AND _sub.state = 1
           $websitePrefsFilter
     ";
 
@@ -133,12 +138,12 @@ function getSubscribersOf(string $subjectType, int $subjectID, ?int $reqWebsiteP
             (
               $implicitSubscriptionQry
             ) as _ua
-            LEFT JOIN Subscription AS _sub
-                ON (_sub.SubjectType = '$subjectType'
-                    AND _sub.SubjectID = $subjectID
-                    AND _sub.UserID = _ua.ID)
+            LEFT JOIN subscriptions AS _sub
+                ON (_sub.subject_type = '$subjectType'
+                    AND _sub.subject_id = $subjectID
+                    AND _sub.user_id = _ua.ID)
             WHERE
-              COALESCE(_sub.State, 1) = 1
+              COALESCE(_sub.state, 1) = 1
               $websitePrefsFilter
           UNION
           $explicitSubscriptionQry
