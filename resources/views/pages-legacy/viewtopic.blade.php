@@ -66,6 +66,8 @@ $thisTopicForumID = $topicData['ForumID'];
 $thisTopicTitle = $topicData['TopicTitle'];
 $thisTopicPermissions = $topicData['RequiredPermissions'];
 
+$pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
+
 sanitize_outputs(
     $thisTopicAuthor,
     $thisTopicCategory,
@@ -75,7 +77,7 @@ sanitize_outputs(
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 ?>
-<x-app-layout pageTitle="Topic: {{ $thisTopicForum }} - {{ $thisTopicTitle }}">
+<x-app-layout :pageTitle="$pageTitle">
     <?php
     echo "<div class='navpath'>";
     echo "<a href='/forum.php'>Forum Index</a>";
