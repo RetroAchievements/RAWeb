@@ -51,7 +51,7 @@ return new class() extends Migration {
 
         // [4] Enforce a unique constraint on type, subject_id, and user_id combos.
         Schema::table('Subscription', function (Blueprint $table) {
-            $table->unique(['type', 'subject_id', 'user_id']);
+            $table->unique(['subject_type', 'subject_id', 'user_id']);
         });
 
         // [5] Add a foreign key to UserAccounts.
@@ -75,7 +75,7 @@ return new class() extends Migration {
 
         // [4] Enforce a unique constraint on type, subject_id, and user_id combos.
         Schema::table('Subscription', function (Blueprint $table) {
-            $table->dropUnique(['type', 'subject_id', 'user_id']);
+            $table->dropUnique(['subject_type', 'subject_id', 'user_id']);
         });
 
         // [3] Change the datatype of `user_id` to match `UserAccounts.ID`.
