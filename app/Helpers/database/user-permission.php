@@ -26,9 +26,11 @@ function SetAccountPermissionsJSON(
     int $targetUserNewPermissions
 ): array {
     $retVal = [];
+
+    $rawTargetUsername = $targetUsername;
     sanitize_sql_inputs($actingUsername, $targetUsername);
 
-    $targetUser = User::where('User', $targetUsername)->first();
+    $targetUser = User::firstWhere('User', $rawTargetUsername);
     if (!$targetUser) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$targetUsername not found";
@@ -72,24 +74,20 @@ function SetAccountPermissionsJSON(
         return $retVal;
     }
 
-    // Write the new permissions.
-    $targetUser->Permissions = $targetUserNewPermissions;
-    $targetUser->save();
-
-    if ($targetUserNewPermissions < Permissions::Unregistered) {
-        banAccountByUsername($targetUsername, $targetUserNewPermissions);
-    }
-
     // If the user is being unbanned, clear their `banned_at` timestamp.
     if (
         $targetUserCurrentPermissions < Permissions::Unregistered
         && $targetUserNewPermissions >= Permissions::Unregistered
     ) {
-        $userModel = User::where('User', $targetUsername)->first();
-        if ($userModel) {
-            $userModel->banned_at = null;
-            $userModel->save();
-        }
+        $targetUser->banned_at = null;
+    }
+    // Write the new permissions.
+    $targetUser->Permissions = $targetUserNewPermissions;
+
+    $targetUser->save();
+
+    if ($targetUserNewPermissions < Permissions::Unregistered) {
+        banAccountByUsername($targetUsername, $targetUserNewPermissions);
     }
 
     // Junior developers can have claims in review.
