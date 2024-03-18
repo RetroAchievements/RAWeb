@@ -9,7 +9,7 @@ declare(strict_types=1);
  *    k : desired game award kinds, can be a comma-separated list.
  *        possible values are "beaten-softcore", "beaten-hardcore", "completed", and "mastered". (default: all)
  *
- *  int         Count                       number of game awards returned in the response
+ *  int         Count                       number of game awards returned in the response (default: 25, maximum: 100)
  *  int         Total                       number of game awards total which satisfy the filter criteria
  *  array       Results
  *   object      [value]
@@ -32,17 +32,31 @@ use Illuminate\Support\Facades\Validator;
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'd' => ['sometimes', 'date', 'before_or_equal:today'],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
+    'c' => ['sometimes', 'integer', 'min:1'],
     'k' => ['sometimes', 'string'],
 ]);
 
-$offset = $input['o'] ?? 0;
 $targetDate = $input['d'] ?? null;
+$offset = $input['o'] ?? 0;
+$count = $input['c'] ?? 25;
 $awardKindsCsv = $input['k'] ?? '';
 
-// Any given kind which isn't included in $validAwardKinds will just be ignored.
+// If $count exceeds 100, force it down to 100.
+$count = min($count, 100);
+
+// Filter by given award kinds.
 $validAwardKinds = ['beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'];
 $awardKinds = explode(',', $awardKindsCsv);
 $awardKinds = array_filter($awardKinds, fn ($kind) => in_array($kind, $validAwardKinds, true));
+
+// If award kinds are provided but they're all invalid, return 0 records.
+if (!empty($awardKindsCsv) && empty($awardKinds)) {
+    return response()->json([
+        'Count' => 0,
+        'Total' => 0,
+        'Results' => [],
+    ]);
+}
 
 // Construct the initial base query, which pulls beaten and mastery awards.
 $baseQuery = PlayerBadge::where(function ($query) {
@@ -79,7 +93,7 @@ if ($awardKinds !== null) {
 // Now, actually make the fetch, which includes both a limit and the offset.
 $fetchedGameAwards = (clone $baseQuery)->orderBy('AwardDate', 'desc')
     ->skip($offset)
-    ->limit(25)
+    ->limit($count)
     ->get();
 
 $gameAwardGameIds = $fetchedGameAwards->pluck('AwardData')->unique()->filter();
