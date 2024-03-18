@@ -22,7 +22,7 @@ $targetUsername = $input['target'];
 $propertyType = (int) $input['property'];
 $value = (int) $input['value'];
 
-$foundTargetUser = User::where('User', $targetUsername)->first();
+$foundTargetUser = User::firstWhere('User', $targetUsername);
 
 if ($propertyType === UserAction::UpdatePermissions) {
     $response = SetAccountPermissionsJSON($user, $permissions, $targetUsername, $value);
@@ -47,7 +47,7 @@ if ($propertyType === UserAction::UpdateForumPostPermissions) {
 
 if ($propertyType === UserAction::PatreonBadge) {
     $hasBadge = HasPatreonBadge($targetUsername);
-    SetPatreonSupporter($targetUsername, $foundTargetUser->id, !$hasBadge);
+    SetPatreonSupporter($foundTargetUser, !$hasBadge);
 
     if ($foundTargetUser) {
         addArticleComment(
@@ -63,7 +63,7 @@ if ($propertyType === UserAction::PatreonBadge) {
 
 if ($propertyType === UserAction::LegendBadge) {
     $hasBadge = HasCertifiedLegendBadge($targetUsername);
-    SetCertifiedLegend($targetUsername, $foundTargetUser->id, !$hasBadge);
+    SetCertifiedLegend($foundTargetUser, !$hasBadge);
 
     if ($foundTargetUser) {
         addArticleComment(

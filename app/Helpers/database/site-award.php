@@ -2,6 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
+use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
 use Carbon\Carbon;
@@ -10,8 +11,7 @@ use Carbon\Carbon;
  * @deprecated use PlayerBadge model
  */
 function AddSiteAward(
-    string $user,
-    int $userId,
+    User $user,
     int $awardType,
     ?int $data = null,
     int $dataExtra = 0,
@@ -21,7 +21,7 @@ function AddSiteAward(
     if (!isset($displayOrder)) {
         $displayOrder = 0;
         $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
-        $dbData = legacyDbFetch($query, ['user' => $user]);
+        $dbData = legacyDbFetch($query, ['user' => $user->User]);
         if (isset($dbData['MaxDisplayOrder'])) {
             $displayOrder = (int) $dbData['MaxDisplayOrder'] + 1;
         }
@@ -29,8 +29,8 @@ function AddSiteAward(
 
     PlayerBadge::updateOrInsert(
         [
-            'User' => $user,
-            'user_id' => $userId,
+            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => $awardType,
             'AwardData' => $data,
             'AwardDataExtra' => $dataExtra,
@@ -41,7 +41,7 @@ function AddSiteAward(
         ]
     );
 
-    return PlayerBadge::where('User', $user)
+    return PlayerBadge::where('User', $user->User)
         ->where('AwardType', $awardType)
         ->where('AwardData', $data)
         ->where('AwardDataExtra', $dataExtra)
@@ -174,12 +174,12 @@ function HasPatreonBadge(string $username): bool
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetPatreonSupporter(string $username, int $userId, bool $enable): void
+function SetPatreonSupporter(User $user, bool $enable): void
 {
-    sanitize_sql_inputs($username);
+    $username = $user->User;
 
     if ($enable) {
-        $badge = AddSiteAward($username, $userId, AwardType::PatreonSupporter, 0, 0);
+        $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
         // TODO PatreonSupporterAdded::dispatch($user);
     } else {
@@ -201,12 +201,12 @@ function HasCertifiedLegendBadge(string $username): bool
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetCertifiedLegend(string $username, int $userId, bool $enable): void
+function SetCertifiedLegend(User $user, bool $enable): void
 {
-    sanitize_sql_inputs($username);
+    $username = $user->User;
 
     if ($enable) {
-        $badge = AddSiteAward($username, $userId, AwardType::CertifiedLegend, 0, 0);
+        $badge = AddSiteAward($user, AwardType::CertifiedLegend, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
     } else {
         $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::CertifiedLegend;
