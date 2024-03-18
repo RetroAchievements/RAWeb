@@ -11,9 +11,10 @@ class MessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'recipient' => 'required|string|min:3|max:250',
-            'subject' => 'required|string|min:3|max:250',
-            'message' => 'required|string|min:3|max:2000',
+            'body' => 'required|string|max:60000',
+            'recipient' => 'required_without:thread_id|exists:UserAccounts,User',
+            'thread_id' => 'nullable|integer',
+            'title' => 'required_without:thread_id|string|max:255',
         ];
     }
 }

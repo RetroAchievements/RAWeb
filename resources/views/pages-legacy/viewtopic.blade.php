@@ -192,73 +192,43 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
         RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
         echo "</div>";
     }
-
-    if ($user !== null && $user !== "" && $thisTopicID != 0) {
-        echo "<table><tbody>";
-        echo "<tr>";
-
-        echo "<td class='align-top'>";
-        echo userAvatar($user, label: false, iconSize: 64);
-        echo "<br>";
-        echo userAvatar($user, icon: false);
-        echo "</td>";
-
-        echo "<td class='w-full'>";
-
-        RenderShortcodeButtons();
-
-        $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
-        $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
-        $buttonEnabled = ($permissions >= Permissions::Registered) ? ":disabled='!isValid'" : "disabled";
-
-        echo <<<EOF
-           <script>
-               function disableRepost() {
-                  var btn = $('#postBtn');
-                  btn.attr('disabled', true);
-                  btn.html('Sending...');
-               }
-           </script>
-        EOF;
-        echo "<form action='/request/forum-topic-comment/create.php' method='post' x-data='{ isValid: true }'>";
-        echo csrf_field();
-        echo "<input type='hidden' name='topic' value='$thisTopicID'>";
-        echo <<<HTML
-            <textarea
-                id="commentTextarea"
-                class="w-full mb-2"
-                rows="10" cols="63"
-                $inputEnabled
-                maxlength="60000"
-                name="body"
-                placeholder="Don't share links to copyrighted ROMs."
-                x-on:input='autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 60000;'
-            >$defaultMessage</textarea>
-        HTML;
-        ?>
-            <div class="flex justify-between mb-2">
-                <span class="textarea-counter" data-textarea-id="commentTextarea">0 / 60000</span>
-
-                <div>
-                    <x-fas-spinner id="preview-loading-icon" class="opacity-0 transition-all duration-200" aria-hidden="true" />
-                    <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" $buttonEnabled>Preview</button>
-                    <button id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" $buttonEnabled>Submit</button>
-                </div>
-            </div>
-        <?php
-        echo "</form>";
-
-        echo "</td>";
-        echo "</tr>";
-        echo "</tbody></table>";
-
-        echo "</tr>";
-
-        echo "<div id='post-preview'></div>";
-        echo "</tbody></table></div>";
-
-    } else {
-        echo "<br/>You must log in before you can join this conversation.<br/>";
-    }
     ?>
+
+    <?php
+    $user = auth()->user();
+    ?>
+    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail())
+        <x-section>
+            <div class="flex w-full bg-embed p-2 rounded-lg">
+                @guest
+                    You must log in before you can join this conversation.
+                @endguest
+
+                @auth
+                    <div class="flex flex-col gap-1 justify-start items-center lg:border-r border-neutral-700 px-0.5 pb-2 lg:py-2 lg:w-44">
+                        <x-user.avatar :user="request()->user()" display="icon" iconSize="md" />
+                        <x-user.avatar :user="request()->user()" />
+                    </div>
+                    <div class="grow lg:py-0 px-1 lg:px-6 pt-2 pb-4">
+                        <x-base.form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
+                            <div class="flex flex-col gap-y-3">
+                                <x-base.form.input type="hidden" name="topic" value="{{ $thisTopicID }}" />
+                                <x-base.form.textarea
+                                    label="{{ __('Reply') }}"
+                                    maxlength="60000"
+                                    name="body"
+                                    rows="10"
+                                    richText
+                                    required-silent
+                                    help="Don't share links to copyrighted ROMs."
+                                    placeholder="Don't share links to copyrighted ROMs."
+                                />
+                                <x-base.form-actions submitLabel="Submit reply" />
+                            </div>
+                        </x-base.form>
+                    </div>
+                @endauth
+            </div>
+        </x-section>
+    @endif
 </x-app-layout>

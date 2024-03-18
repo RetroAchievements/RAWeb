@@ -6,28 +6,24 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\AddToMessageThreadAction;
 use App\Community\Actions\CreateMessageThreadAction;
+use App\Community\Requests\MessageRequest;
 use App\Http\Controller;
+use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
 {
-    public function store(Request $request): RedirectResponse
+    public function store(MessageRequest $request): RedirectResponse
     {
+        $this->authorize('create', Message::class);
+
         /** @var User $user */
         $user = request()->user();
 
-        $input = Validator::validate(Arr::wrap(request()->post()), [
-            'thread_id' => 'nullable|integer',
-            'body' => 'required|string|max:60000',
-            'title' => 'required_without:thread_id|string|max:255',
-            'recipient' => 'required_without:thread_id|exists:UserAccounts,User',
-        ]);
+        $input = $request->validated();
 
         if (array_key_exists('thread_id', $input) && $input['thread_id'] != null) {
             $thread = MessageThread::firstWhere('id', $input['thread_id']);
