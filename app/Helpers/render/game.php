@@ -4,6 +4,9 @@ use App\Enums\Permissions;
 use App\Models\System;
 use Illuminate\Support\Facades\Blade;
 
+/**
+ * @deprecated use <x-game.avatar />
+ */
 function gameAvatar(
     int|string|array $game,
     ?bool $label = null,

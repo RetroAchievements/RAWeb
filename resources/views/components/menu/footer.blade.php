@@ -77,13 +77,13 @@ $menu = collect([
             [
                 'active' => Route::is('terms'),
                 'label' => __('Privacy Policy'),
-                'url' => route('terms'),
+                'url' => route('terms') . '#privacy-policy',
                 'visible' => true,
             ],
             [
                 'active' => Route::is('terms'),
                 'label' => __('Legal'),
-                'url' => route('terms'),
+                'url' => route('terms') . '#conditions',
                 'visible' => true,
             ],
             // [
