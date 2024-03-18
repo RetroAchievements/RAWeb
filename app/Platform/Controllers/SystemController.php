@@ -111,7 +111,7 @@ class SystemController extends Controller
         $totalUnfilteredCount = count($gameIds);
 
         $this->gameListService->initializeUserProgress($loggedInUser, $gameIds);
-        $this->gameListService->initializeGameList($gameIds);
+        $this->gameListService->initializeGameList($gameIds, $system->id === System::Events);
 
         $this->gameListService->filterGameList(function ($game) use ($filterOptions) {
             return $this->usePopulatedFilter($game, $filterOptions['populated']);
