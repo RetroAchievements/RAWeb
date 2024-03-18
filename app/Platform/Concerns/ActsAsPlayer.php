@@ -44,7 +44,7 @@ trait ActsAsPlayer
 
     public function hasPlayed(Game $game): bool
     {
-        return $this->playerGame($game)->exists();
+        return $this->playerGames()->where('game_id', $game->id)->exists();
     }
 
     public function playerGame(Game $game): ?PlayerGame
