@@ -166,8 +166,8 @@ function UploadNewAchievement(
     $consoleName = $gameData['ConsoleName'];
     $isEventGame = $consoleName == 'Events';
 
-    $author = User::where('User', $authorUsername)->first();
-    $authorPermissions = (int) $author->getAttribute('Permissions');
+    $author = User::firstWhere('User', $authorUsername);
+    $authorPermissions = (int) $author?->getAttribute('Permissions');
 
     // Prevent <= registered users from uploading or modifying achievements
     if ($authorPermissions < Permissions::JuniorDeveloper) {
