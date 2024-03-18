@@ -27,14 +27,13 @@ function SetAccountPermissionsJSON(
 ): array {
     $retVal = [];
 
-    $rawTargetUsername = $targetUsername;
-    sanitize_sql_inputs($actingUsername, $targetUsername);
-
-    $targetUser = User::firstWhere('User', $rawTargetUsername);
+    $targetUser = User::firstWhere('User', $targetUsername);
     if (!$targetUser) {
         $retVal['Success'] = false;
         $retVal['Error'] = "$targetUsername not found";
     }
+
+    sanitize_sql_inputs($actingUsername, $targetUsername);
 
     $targetUserCurrentPermissions = (int) $targetUser->getAttribute('Permissions');
 
