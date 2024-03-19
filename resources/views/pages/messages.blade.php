@@ -46,11 +46,13 @@ function deleteMessage(id) {
         in {{ $totalMessages }} @choice('message thread|message threads', $totalMessages).
     </div>
 
-    <div class="w-full flex mt-2">
+    <div class="w-full flex mt-2 mb-2">
         <div class="mr-6">
-            <a href="{{ route('message.create') }}">
-                <button class="btn">New Message</button>
-            </a>
+            @can('create', App\Models\Message::class)
+                <a class="btn" href="{{ route('message.create') }}">
+                    New Message
+                </a>
+            @endcan
         </div>
         <div class="w-full flex justify-end">
             <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
@@ -62,8 +64,8 @@ function deleteMessage(id) {
             <tbody>
 
             <tr>
+                <th style="width:55%">Subject</th>
                 <th style="width:20%">With</th>
-                <th style="width:55%">Title</th>
                 <th style="width:10%" class="text-right">Messages</th>
                 <th style="width:15%" class="text-right">Last Message</th>
             </tr>
@@ -76,6 +78,12 @@ function deleteMessage(id) {
                 @endphp
                 <tr>
                     <td @if ($num_unread > 0) class="font-bold" @endif>
+                        <a href="{{ route('message-thread.show', ['messageThread' => $message->id]) }}">
+                            {{ $message->title }}
+                        </a>
+                    </td>
+
+                    <td @if ($num_unread > 0) class="font-bold" @endif>
                         @if (empty($message->other_participants))
                             {!! userAvatar($user, iconSize: 24) !!}
                         @else
@@ -83,12 +91,6 @@ function deleteMessage(id) {
                                 {!! userAvatar($participant, iconSize: 24) !!}
                             @endforeach
                         @endif
-                    </td>
-
-                    <td @if ($num_unread > 0) class="font-bold" @endif>
-                        <a href="{{ route('message-thread.show', ['messageThread' => $message->id]) }}">
-                            {{ $message->title }}
-                        </a>
                     </td>
 
                     <td class="text-right">

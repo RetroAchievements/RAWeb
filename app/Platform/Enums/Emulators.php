@@ -49,10 +49,6 @@ abstract class Emulators
 
     public const WinArcadia = 'winarcadia';
 
-    public const PizzaBoyGBC = 'pizzaboygbc';
-
-    public const PizzaBoyGBA = 'pizzaboygba';
-
     public static function cases(): array
     {
         return [
