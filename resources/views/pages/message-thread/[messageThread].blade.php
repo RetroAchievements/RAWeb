@@ -44,12 +44,13 @@ if (empty($participants)) {
         }
     }
 }
+
 $pageDescription = "Conversation between " . implode(' and ', $participants);
 @endphp
 
 <x-app-layout
-    pageTitle="{{ $messageThread->title }}"
-    pageDescription="{{ $pageDescription }}"
+    :pageTitle="$messageThread->title"
+    :pageDescription="$pageDescription"
 >
     <x-message.breadcrumbs currentPage="{!! $messageThread->title !!}" />
 
