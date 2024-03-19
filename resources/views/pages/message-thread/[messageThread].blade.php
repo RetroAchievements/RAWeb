@@ -103,17 +103,24 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
                     <div class="flex flex-col gap-y-3">
                         <input type="hidden" name="thread_id" value="{{ $messageThread->id }}"/>
                         <x-base.form.textarea
+                            :isLabelVisible="false"
+                            id="input_compose"
                             name="body"
                             label="{{ __res('message', 1) }}"
                             placeholder="Enter your message here..."
                             requiredSilent
                             richText
-                        />
-                        <x-base.form-actions />
+                        >
+                            <x-slot name="formActions">
+                                <x-base.form-actions />
+                            </x-slot>
+                        </x-base.form.textarea>
                     </div>
                 </x-base.form>
             @endif
         </div>
+
+        <div id="post-preview-input_compose"></div>
     </x-section>
 
     <div class="w-full flex justify-end mt-2">

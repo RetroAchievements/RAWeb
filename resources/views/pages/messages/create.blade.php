@@ -30,15 +30,21 @@ $message = request()->input('message') ?? '';
                 <x-base.form.user-select name="recipient" value="{{ $toUser }}" requiredSilent inline />
                 <x-base.form.input name="title" label="{{ __('Subject') }}" requiredSilent inline />
                 <x-base.form.textarea
+                    id="input_compose"
                     name="body"
                     requiredSilent
                     inline
                     richText
                     maxlength="60000"
                     placeholder="Enter your message here..."
-                />
-                <x-base.form-actions inline />
+                >
+                    <x-slot name="formActions">
+                        <x-base.form-actions />
+                    </x-slot>
+                </x-base.form.textarea>
             </div>
         </x-base.form>
+
+        <div id="post-preview-input_compose"></div>
     </x-section>
 </x-app-layout>
