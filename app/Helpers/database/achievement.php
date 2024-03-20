@@ -325,6 +325,7 @@ function UploadNewAchievement(
         }
 
         if ($achievement->isDirty()) {
+            $achievement->DateModified = now();
             $achievement->save();
 
             static_setlastupdatedgame($gameID);

@@ -6,10 +6,12 @@ use Illuminate\Support\Str;
 
 @props([
     'disabled' => false,
+    'formActions' => null, // slot
     'fullWidth' => true,
     'help' => null,
     'id' => null,
     'inline' => false,
+    'isLabelVisible' => true,
     'label' => null,
     'maxlength' => 2000,
     'model' => null,
@@ -28,6 +30,8 @@ if ($model && !$model instanceof Model) {
     throw new Exception('"model" is not an Eloquent model');
 }
 
+$hasProvidedId = $id !== null;
+
 $id = $id ?: 'input_' . Str::random();
 ?>
 
@@ -35,6 +39,7 @@ $id = $id ?: 'input_' . Str::random();
     :help="false"
     :id="$id"
     :inline="$inline"
+    :isLabelVisible="$isLabelVisible"
     :label="$label"
     :name="$name"
 >
@@ -70,7 +75,7 @@ $id = $id ?: 'input_' . Str::random();
         aria-describedby="{{ $name && $errors && $errors->has($name) ? 'error-' . $id : ($help ? 'help-' . $id : '') }}"
     >{{ $name ? old($name, $model?->getAttribute($name) ?? $value) : $value }}</textarea>
 
-    <div class="help-block text-muted md:flex justify-between items-start">
+    <div class="help-block text-muted flex justify-between items-center">
         <div>
             @if($maxlength)
                 <span class="textarea-counter" data-textarea-id="{{ $id }}">0 / {{ $maxlength }}</span>
@@ -79,18 +84,34 @@ $id = $id ?: 'input_' . Str::random();
                 <span class="ml-3">{{ $help }}</span>
             @endif
         </div>
-        <div>
-            @if($richText)
-                <x-fas-spinner id="preview-loading-icon" class="opacity-0 transition-all duration-200" aria-hidden="true" />
-                <button
-                    type="button"
-                    class="btn py-1 mt-1"
-                    onclick="window.loadPostPreview('{{ $id }}', 'post-preview-{{ $id }}')"
-                    :disabled="!isValid || isSending"
-                >{{ __('Preview') }}</button>
+
+        <div class="flex items-center gap-x-1">
+            <div>
+                @if ($richText)
+                    <x-fas-spinner
+                        id="preview-loading-icon"
+                        class="opacity-0 transition-all duration-200"
+                        aria-hidden="true"
+                    />
+
+                    <button
+                        type="button"
+                        class="btn"
+                        onclick="window.loadPostPreview('{{ $id }}', 'post-preview-{{ $id }}')"
+                        :disabled="!isValid || isSending"
+                    >
+                        {{ __('Preview') }}
+                    </button>
+                @endif
+            </div>
+
+            @if ($formActions)
+                {{ $formActions }}
             @endif
         </div>
     </div>
 
-    <div id="post-preview-{{ $id }}"></div>
+    @if ($richText && !$hasProvidedId)
+        <div id="post-preview-{{ $id }}"></div>
+    @endif
 </x-base.form-field>
