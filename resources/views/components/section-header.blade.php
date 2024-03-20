@@ -1,9 +1,15 @@
-<div class="flex justify-between {{ $class ?? null }}">
+@props([
+    'actionsClass' => null,
+    'class' => null,
+    'style' => null,
+    'title' => null,
+])
+
+<div class="flex flex-wrap justify-between {{ $class }}">
     {{--<div class="w-100">--}}{{-- width 100% to have navigations not extend out of viewport --}}
     <div class="">
-        {{--<code>section-header</code>--}}
         <div class="">
-            {{ $title ?? null }}
+            {{ $title }}
         </div>
         @if(trim($slot))
             <div>
@@ -13,8 +19,8 @@
     </div>
     <div class="actions-container">
         @if(trim($actions ?? null))
-            <div class="actions {{ $actionsClass ?? null }}">
-                <div class="flex gap-1 justify-end">
+            <div class="actions {{ $actionsClass }}">
+                <div class="flex gap-1 justify-end items-center">
                     {{ $actions }}
                 </div>
             </div>
