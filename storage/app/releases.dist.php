@@ -213,26 +213,6 @@ See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibi
                 75, // Elektor TV Games Computer
             ],
         ],
-        Emulators::PizzaBoyGBC => [
-            'name' => 'Pizza Boy GBC',
-            'handle' => 'Pizza Boy GBC',
-            'active' => true,
-            'description' => '<strong>NOTE:</strong> Only runs on Android devices.',
-            'download_url' => 'https://play.google.com/store/apps/details?id=it.dbtecno.pizzaboy',
-            'systems' => [
-                6, // Gameboy Color
-            ],
-        ],
-        Emulators::PizzaBoyGBA => [
-            'name' => 'Pizza Boy GBA',
-            'handle' => 'Pizza Boy GBA',
-            'active' => true,
-            'description' => '<strong>NOTE:</strong> Only runs on Android devices.',
-            'download_url' => 'https://play.google.com/store/apps/details?id=it.dbtecno.pizzaboygba',
-            'systems' => [
-                5, // Gameboy Advance
-            ],
-        ],
         Emulators::RAppleWin => [
             'minimum_version' => '1.1.1',
             'latest_version' => '1.3.0',

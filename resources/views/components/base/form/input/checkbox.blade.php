@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
     'help' => null,
     'id' => null,
     'inline' => false,
+    'isLabelVisible' => true,
     'label' => null,
     'model' => null,
     'name' => null,
@@ -29,6 +30,7 @@ $id = $id ?: 'input_' . Str::random();
     :help="$help"
     :id="$id"
     :inline="$inline"
+    :isLabelVisible="$isLabelVisible"
     inputType="checkbox"
     :model="$model"
     :name="$name"
