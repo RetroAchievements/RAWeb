@@ -191,6 +191,7 @@ return [
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => [
+                'core-game-achievement-sets',
                 'player-achievements',
                 'player-metrics',
                 'player-stats',

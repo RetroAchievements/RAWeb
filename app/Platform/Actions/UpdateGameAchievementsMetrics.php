@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Models\AchievementSet;
+use App\Models\AchievementSetAchievement;
 use App\Models\Game;
+use App\Platform\Enums\AchievementFlag;
 
 class UpdateGameAchievementsMetrics
 {
     public function execute(Game $game): void
     {
-        // TODO refactor to do this for each achievement set
-
         // NOTE if game has a parent game it contains the parent game's players metrics
         $playersTotal = $game->players_total;
         $playersHardcore = $game->players_hardcore;
@@ -51,6 +52,56 @@ class UpdateGameAchievementsMetrics
         $game->TotalTruePoints = $pointsWeightedTotal;
         $game->save();
 
+        // [multiset] double write
+        // TODO: eventually achievement sets should be the only entities holding this data
+        $this->updateAchievementSetsMetrics($game);
         // TODO GameAchievementSetMetricsUpdated::dispatch($game);
+    }
+
+    private function updateAchievementSetsMetrics(Game $game): void
+    {
+        // We need to update denormalized AchievementSet values for each set that the game's
+        // achievements live in. To do this, we'll first find all the relevant achievement sets
+        // associated with this game's achievements. Then, we'll do some math and save the new
+        // denormalized values.
+
+        $allGameAchievementIds = $game->achievements->pluck('id');
+
+        $targetAchievementSetIds = AchievementSetAchievement::whereIn('achievement_id', $allGameAchievementIds)
+            ->distinct()
+            ->get(['achievement_set_id']);
+
+        $targetAchievementSets = AchievementSet::with('achievementSetAchievements.achievement')
+            ->whereIn('id', $targetAchievementSetIds)
+            ->get();
+
+        foreach ($targetAchievementSets as $achievementSet) {
+            $allSetAchievements = $achievementSet->achievementSetAchievements;
+
+            $achievementsPublished = $allSetAchievements->filter(function ($item) {
+                return $item->achievement->Flags === AchievementFlag::OfficialCore;
+            });
+            $achievementsUnpublished = $allSetAchievements->filter(function ($item) {
+                return $item->achievement->Flags === AchievementFlag::Unofficial;
+            });
+            $pointsTotal = $achievementsPublished->sum(function ($item) {
+                return $item->achievement->points;
+            });
+            $pointsWeighted = $achievementsPublished->sum(function ($item) {
+                return $item->achievement->TrueRatio;
+            });
+
+            // This is currently tied to the game's core set player count. We may want to change
+            // this in the future so achievement sets have their own discrete player counts.
+            $achievementSet->players_total = $game->players_total;
+            $achievementSet->players_hardcore = $game->players_hardcore;
+
+            $achievementSet->achievements_published = $achievementsPublished->count();
+            $achievementSet->achievements_unpublished = $achievementsUnpublished->count();
+            $achievementSet->points_total = $pointsTotal;
+            $achievementSet->points_weighted = $pointsWeighted;
+
+            $achievementSet->save();
+        }
     }
 }
