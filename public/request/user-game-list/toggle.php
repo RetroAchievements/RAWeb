@@ -19,15 +19,15 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'type' => ['required', 'string', Rule::in(UserGameListType::cases())],
 ]);
 
-$gameID = (int) $input['game'];
-$game = Game::findOrFail($gameID);
+$gameId = (int) $input['game'];
+$game = Game::findOrFail($gameId);
 
 $type = (string) $input['type'];
 $command = '';
 
 /** @var User $user */
 $user = User::findOrFail($userDetails['ID']);
-if ($user->gameList($type)->where('GameID', $gameID)->exists()) {
+if ($user->gameLists($type)->where('GameID', $gameId)->exists()) {
     $action = new RemoveGameFromListAction();
     $success = $action->execute($user, $game, $type);
     $command = 'removed';

@@ -17,14 +17,14 @@ class AddGameToListAction
             return null;
         }
 
-        if ($user->gameList($type)->where('GameID', $game->ID)->exists()) {
+        if ($user->gameLists($type)->where('GameID', $game->ID)->exists()) {
             return null;
         }
 
         if ($type === UserGameListType::AchievementSetRequest) {
             $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 
-            $count = $user->gameList($type)->withoutAchievements()->count();
+            $count = $user->gameLists($type)->withoutAchievements()->count();
             if ($count >= $requestInfo['total']) {
                 return null;
             }
@@ -32,12 +32,11 @@ class AddGameToListAction
 
         $entry = new UserGameListEntry([
             'user_id' => $user->ID,
-            'User' => $user->User,
             'type' => $type,
             'GameID' => $game->ID,
         ]);
 
-        $user->gameList($type)->save($entry);
+        $user->gameLists($type)->save($entry);
 
         return $entry;
     }
