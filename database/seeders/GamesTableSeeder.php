@@ -32,12 +32,10 @@ class GamesTableSeeder extends Seeder
          * add hashes to games
          */
         Game::all()->each(function (Game $game) {
-            $game->gameHashSets()->save(new GameHashSet([
-                'game_id' => $game->ID,
-            ]))->hashes()->save(new GameHash([
+            $game->hashes()->save(new GameHash([
                 'system_id' => $game->ConsoleID,
-                'hash' => Str::random(16),
-                'md5' => Str::random(16),
+                'hash' => Str::random(32),
+                'md5' => Str::random(32),
             ]));
         });
 
