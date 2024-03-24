@@ -36,7 +36,7 @@ function insertClaim(User $user, int $gameId, int $claimType, int $setType, int 
             $finishedAt = $primaryClaimFinishTime;
             $special = ClaimSpecial::None;
         }
-    } else if ($special === ClaimSpecial::None) {
+    } elseif ($special === ClaimSpecial::None) {
         // Different roles are allowed a maximum number of active primary claims.
         // Does this user currently have fewer primary claims than that maximum?
         $isUserAllowedToClaim = getActiveClaimCount($user->User, false) < permissionsToClaim($userPermissions);
