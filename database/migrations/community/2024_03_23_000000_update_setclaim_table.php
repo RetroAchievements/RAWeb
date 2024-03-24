@@ -40,7 +40,14 @@ return new class() extends Migration {
         // [1] Rename GameID to game_id, establish foreign key relationship to GameData table.
         Schema::table('SetClaim', function (Blueprint $table) {
             $table->dropForeign(['game_id']);
+        });
+        Schema::table('SetClaim', function (Blueprint $table) {
+            $table->unsignedBigInteger('game_id')->change();
+        });
+        Schema::table('SetClaim', function (Blueprint $table) {
             $table->renameColumn('game_id', 'GameID');
+        });
+        Schema::table('SetClaim', function (Blueprint $table) {
             $table->unsignedInteger('GameID')->change();
         });
     }
