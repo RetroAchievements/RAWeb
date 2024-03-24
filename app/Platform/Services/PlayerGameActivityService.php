@@ -28,13 +28,11 @@ class PlayerGameActivityService
             ];
 
             if (!empty($playerSession->rich_presence)) {
-                $event = [
+                $session['events'][] = [
                     'type' => 'rich-presence',
                     'description' => $playerSession->rich_presence,
                     'when' => $playerSession->rich_presence_updated_at,
                 ];
-
-                $this->insertEvent($session, $event);
 
                 // since $playerSession->duration is in minutes, and $playerSession->rich_presence_updated_at
                 // is an actual timestamp, it might be some number of seconds ahead of 'endTime' due to duration
@@ -73,7 +71,7 @@ class PlayerGameActivityService
         }
     }
 
-    private function addUnlockEvent(object $playerAchievement, Carbon $when, bool $hardcore, bool $repeat = false): void
+    private function addUnlockEvent(object $playerAchievement, Carbon $when, bool $hardcore): void
     {
         $event = [
             'type' => 'unlock',
@@ -115,12 +113,6 @@ class PlayerGameActivityService
         $this->sessions[$existingSessionIndex]['events'][] = $event;
     }
 
-    private function insertEvent(array &$session, array $event): void
-    {
-        $session['events'][] = $event;
-        $this->sortEvents($session['events']);
-    }
-
     private function sortEvents(array &$events): void
     {
         usort($events, function ($a, $b) {
@@ -147,7 +139,7 @@ class PlayerGameActivityService
     {
         $index = 0;
         foreach ($this->sessions as &$session) {
-            if ($session['type'] == 'player-session'
+            if ($session['type'] == $type
                 && $session['startTime'] <= $when
                 && $session['endTime'] >= $when) {
                 return $index;

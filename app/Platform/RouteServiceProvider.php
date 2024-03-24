@@ -92,7 +92,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
             // Route::resource('user.game', PlayerGameController::class)->only('show');
-            Route::get('user/{user}/game/{game}', [PlayerGameController::class, 'activity'])->name('user.game.activity');
+            Route::get('user/{user}/game/{game}/activity', [PlayerGameController::class, 'activity'])->name('user.game.activity');
             Route::get('user/{user}/game/{game}/compare', CompareUnlocksController::class)->name('game.compare-unlocks');
 
             // Route::resource('user.badges', PlayerBadgeController::class)->only('index')->names(['index' => 'user.badge.index']);
