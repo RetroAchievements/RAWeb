@@ -19,7 +19,6 @@ class Comment extends BaseModel
 
     // TODO rename Comment table to comments
     // TODO rename ID column id
-    // TODO rename UserID column to user_id
     // TODO drop ArticleType, migrate to commentable_type (morph map)
     // TODO drop ArticleID, migrate to commentable_id
     // TODO rename Payload to body or payload
@@ -95,6 +94,6 @@ class Comment extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'UserID')->withDefault(['username' => 'Deleted User']);
+        return $this->belongsTo(User::class, 'user_id', 'ID')->withDefault(['username' => 'Deleted User']);
     }
 }

@@ -139,7 +139,7 @@ function performSearch(
 
     if ($articleTypes !== []) {
         $counts[] = "SELECT COUNT(*) AS Count FROM Comment AS c
-            LEFT JOIN UserAccounts AS cua ON cua.ID=c.UserID
+            LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
             LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype=" . ArticleType::User . "
             WHERE c.Payload LIKE '%$searchQuery%'
             AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
@@ -173,7 +173,7 @@ function performSearch(
                 ELSE CONCAT( '...', MID( c.Payload, GREATEST( LOCATE('$searchQuery', c.Payload)-25, 1), 60 ), '...' )
             END AS Title
             FROM Comment AS c
-            LEFT JOIN UserAccounts AS cua ON cua.ID=c.UserID
+            LEFT JOIN UserAccounts AS cua ON cua.ID=c.user_id
             LEFT JOIN UserAccounts AS ua ON ua.ID=c.ArticleID AND c.articletype in (" . ArticleType::User . "," . ArticleType::UserModeration . ")
             WHERE c.Payload LIKE '%$searchQuery%'
             AND cua.User != 'Server' AND c.articletype IN (" . implode(',', $articleTypes) . ")
