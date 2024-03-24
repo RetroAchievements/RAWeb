@@ -2,24 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Platform;
+namespace Tests\Feature\Platform\Services;
 
-use App\Community\Enums\AwardType;
-use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\PlayerBadge;
 use App\Models\PlayerSession;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSession;
 use App\Platform\Actions\UnlockPlayerAchievement;
-use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\PlayerGameActivityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
-use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
 class PlayerGameActivityServiceTest extends TestCase
@@ -40,7 +34,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $time1 = $now->clone()->subMinutes(100);
         Carbon::setTestNow($time1);
         /** @var PlayerSession $playerSession */
-        $playerSession = (new ResumePlayerSession)->execute($user, $game);
+        $playerSession = (new ResumePlayerSession())->execute($user, $game);
         $playerSession->duration = $now->diffInMinutes($time1);
         $playerSession->save();
 
@@ -128,7 +122,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $time5 = $time4->clone()->addHours(8);
         Carbon::setTestNow($time5);
         /** @var PlayerSession $playerSession2 */
-        $playerSession2 = (new ResumePlayerSession)->execute($user, $game);
+        $playerSession2 = (new ResumePlayerSession())->execute($user, $game);
 
         $activity = new PlayerGameActivityService();
         $activity->initialize($user, $game);

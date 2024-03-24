@@ -4,20 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Community\Enums\AwardType;
-use App\Community\Enums\TicketState;
-use App\Community\Enums\UserGameListType;
 use App\Models\Game;
-use App\Models\System;
-use App\Models\Ticket;
 use App\Models\User;
-use App\Models\UserGameListEntry;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PlayerGameActivityService
 {
@@ -150,11 +139,10 @@ class PlayerGameActivityService
     private function findSession(string $type, Carbon $when): int
     {
         $index = 0;
-        foreach ($this->sessions as &$session)
-        {
-            if ($session['type'] == 'player-session' &&
-                $session['startTime'] <= $when &&
-                $session['endTime'] >= $when) {
+        foreach ($this->sessions as &$session) {
+            if ($session['type'] == 'player-session'
+                && $session['startTime'] <= $when
+                && $session['endTime'] >= $when) {
                 return $index;
             }
 
@@ -171,11 +159,10 @@ class PlayerGameActivityService
         $whenAfter = $when->clone()->addHours($mergeHours);
 
         $index = 0;
-        foreach ($this->sessions as &$session)
-        {
-            if ($session['type'] == 'generated' &&
-                $session['startTime'] >= $whenBefore &&
-                $session['endTime'] <= $whenAfter) {
+        foreach ($this->sessions as &$session) {
+            if ($session['type'] == 'generated'
+                && $session['startTime'] >= $whenBefore
+                && $session['endTime'] <= $whenAfter) {
 
                 if ($when < $session['startTime']) {
                     $session['startTime'] = $when;
@@ -203,11 +190,10 @@ class PlayerGameActivityService
         usort($this->sessions, fn ($a, $b) => $a['startTime']->timestamp - $b['startTime']->timestamp);
 
         $index = 0;
-        foreach ($this->sessions as &$session)
-        {
-            if ($session['type'] == $type &&
-                $session['startTime'] <= $when &&
-                $session['endTime'] >= $when) {
+        foreach ($this->sessions as &$session) {
+            if ($session['type'] == $type
+                && $session['startTime'] <= $when
+                && $session['endTime'] >= $when) {
                 break;
             }
 
@@ -296,7 +282,7 @@ class PlayerGameActivityService
             // adjustment applied to generated sessions
             'generatedSessionAdjustment' => $sessionAdjustment,
             // distance between the first unlock and last unlock (includes time between sessions)
-            'totalUnlockTime' => ($lastAchievementTime != null) ? 
+            'totalUnlockTime' => ($lastAchievementTime != null) ?
                 $lastAchievementTime->diffInSeconds($firstAchievementTime) : 0,
             // total time from all sessions (including those before the first or after the last earned achievement)
             'totalPlaytime' => $totalTime,

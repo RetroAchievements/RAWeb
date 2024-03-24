@@ -3,13 +3,8 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Comment;
-use App\Models\Game;
-use App\Models\PlayerAchievement;
-use App\Models\PlayerSession;
 use App\Models\User;
-use App\Platform\Enums\AchievementFlag;
 use App\Support\Cache\CacheKey;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 function RemoveComment(int $commentID, int $userID, int $permissions): bool
