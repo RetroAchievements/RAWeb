@@ -17,7 +17,8 @@ export const lazyLoadModuleOnIdFound = (options: {
   document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector(`#${elementId}`)) {
       import(`./dynamic/${codeFileName}.ts`).then((lazyLoadedModule) => {
-        (window as unknown as Record<string, unknown>)[moduleNameToAttachToWindow] = lazyLoadedModule;
+        (window as unknown as Record<string, unknown>)[moduleNameToAttachToWindow] =
+          lazyLoadedModule;
       });
     }
   });

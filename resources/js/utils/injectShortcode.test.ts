@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { injectShortcode } from './injectShortcode';
 
@@ -9,7 +9,7 @@ function render(start: string, end = '') {
 
   document.body.innerHTML = /** @html */ `
     <textarea id="commentTextarea"></textarea>
-    <button onclick="injectShortcode('${start}', '${end}')">Insert shortcode</button>
+    <button onclick="injectShortcode('commentTextarea', '${start}', '${end}')">Insert shortcode</button>
   `;
 }
 

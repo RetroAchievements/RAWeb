@@ -24,7 +24,7 @@
  *    string     Title                    title of the achievement
  *    string     Description              description of the achievement
  *    string     Points                   number of points the achievement is worth
- *    string     TrueRatio                number of "white" points the achievement is worth
+ *    string     TrueRatio                number of RetroPoints ("white points") the achievement is worth
  *    string     BadgeName                unique identifier of the badge image for the achievement
  *    int        NumAwarded               number of times the achievement has been awarded
  *    int        NumAwardedHardcore       number of times the achievement has been awarded in hardcore

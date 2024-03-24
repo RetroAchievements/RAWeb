@@ -1,11 +1,6 @@
 import { screen } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
-import {
-  describe,
-  it,
-  expect,
-  vi
-} from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import * as CookieModule from '@/utils/cookie';
 

@@ -1,8 +1,8 @@
 import { asset, fetcher } from '@/utils';
 
 import { tooltipStore as store } from '../state/tooltipStore';
-import { renderTooltip } from './renderTooltip';
 import { pinTooltipToCursorPosition } from './pinTooltipToCursorPosition';
+import { renderTooltip } from './renderTooltip';
 
 /**
  * Fetch the HTML content for a dynamic tooltip and then display it

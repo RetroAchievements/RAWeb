@@ -27,13 +27,13 @@ export const loadPostPreview = async (
 
   try {
     setLoadingIconVisibility(loadingElId, { isVisible: true });
-    const { postPreviewHtml } = await fetcher<{ message: string; postPreviewHtml: string }>(
-      '/request/forum-topic-comment/preview.php',
-      {
-        method: 'POST',
-        body: `body=${encodeURIComponent(postContent)}`,
-      },
-    );
+    const { postPreviewHtml } = await fetcher<{
+      message: string;
+      postPreviewHtml: string;
+    }>('/request/forum-topic-comment/preview.php', {
+      method: 'POST',
+      body: `body=${encodeURIComponent(postContent)}`,
+    });
 
     if (postPreviewHtml) {
       previewEl.innerHTML = postPreviewHtml;

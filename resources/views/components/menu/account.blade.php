@@ -89,9 +89,9 @@ $user = request()->user();
         {{--<x-dropdown-item :link="route('settings')">{{ __res('setting') }}</x-dropdown-item>--}}
         <x-dropdown-item :link="url('controlpanel.php')">Settings</x-dropdown-item>
         <div class="dropdown-divider"></div>
-        {{--<x-form :action="route('logout')">--}}
-        <x-form :action="route('logout')">
+        {{--<x-base.form :action="route('logout')">--}}
+        <x-base.form :action="route('logout')">
             <button class="dropdown-item">{{ __('Sign out') }}</button>
-        </x-form>
+        </x-base.form>
     </x-nav-dropdown>
 @endauth
