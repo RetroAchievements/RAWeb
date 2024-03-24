@@ -144,7 +144,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->Author, $author->User);
-        $this->assertNull($achievement2->user_id);
+        $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
         $game->refresh();
@@ -854,7 +854,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->Author, $author->User);
-        $this->assertNull($achievement2->user_id);
+        $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
         $game->refresh();
@@ -975,7 +975,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->Author, $author->User);
-        $this->assertNull($achievement2->user_id);
+        $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
         $game->refresh();

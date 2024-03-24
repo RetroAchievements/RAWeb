@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\GameHash;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
     abort(401);
@@ -16,7 +17,7 @@ if ($offset < 0) {
 }
 
 $hashList = getHashList($offset, $count, $searchedHash);
-$totalHashes = getTotalHashes();
+$totalHashes = GameHash::count();
 ?>
 <x-app-layout pageTitle="Hash List">
     <?php

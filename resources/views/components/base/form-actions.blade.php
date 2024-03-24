@@ -10,7 +10,7 @@
         {{ $submitLabel }}
     </x-base.button.submit>
 
-    @if($hasRequiredFields)
+    @if ($hasRequiredFields)
         <div class="{{ $largeSubmit ? 'mt-2' : 'ml-3' }} whitespace-nowrap">
             * {{ __('Required') }}
         </div>

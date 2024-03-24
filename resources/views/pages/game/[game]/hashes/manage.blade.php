@@ -11,9 +11,12 @@ name('game.hash.manage');
 ?>
 
 @php
-$gameWithSortedHashes = $game->load(['hashes' => function ($query) {
-    $query->orderBy('Name');
-}]);
+$gameWithSortedHashes = $game->load([
+    'hashes' => function ($query) {
+        $query->orderBy('Name');
+    },
+    'hashes.user'
+]);
 
 $user = request()->user();
 
