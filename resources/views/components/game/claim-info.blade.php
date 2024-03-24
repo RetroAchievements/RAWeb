@@ -81,7 +81,7 @@ if ($userPermissions >= Permissions::Moderator) {
             }
 
             $note = MemoryNote::where('GameID', $gameId)
-                ->join('UserAccounts', 'UserAccounts.ID', '=', 'AuthorID')
+                ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
                 ->where('UserAccounts.User', '=', $claim['User'])
                 ->select(DB::raw('MAX(CodeNotes.Updated) AS last_updated'))
                 ->first();

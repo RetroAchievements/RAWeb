@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
  *   string     Title                   title of the achievement
  *   string     Description             description of the achievement
  *   int        Points                  number of points the achievement is worth
- *   int        TrueRatio               number of "white" points the achievement is worth
+ *   int        TrueRatio               number of RetroPoints ("white points") the achievement is worth
  *   string     Type                    null, "progression", "win_condition", or "missable"
  *   string     Author                  user who first created the achievement
  *   string     BadgeName               unique identifier of the badge image for the achievement

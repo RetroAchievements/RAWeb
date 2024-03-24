@@ -14,7 +14,6 @@ class MemoryNote extends BaseModel
 
     // TODO rename CodeNotes table to memory_notes
     // TODO rename Address column to address
-    // TODO rename AuthorID column to user_id
     // TODO rename Note column to body
     // TODO rename Created column to created_at
     // TODO rename Updated column to updated_at
@@ -25,7 +24,7 @@ class MemoryNote extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'AuthorID',
+        'user_id',
         'GameID',
         'Address',
         'Note',

@@ -54,8 +54,8 @@ class GameHashController extends Controller
 
         $originalAttributes = $gameHash->getOriginal();
         $updatedAttributes = [
-            'Name' => $input['name'],
-            'Labels' => $input['labels'],
+            'name' => $input['name'],
+            'labels' => $input['labels'],
             'patch_url' => $input['patch_url'] ?? null,
             'source' => $input['source'] ?? null,
         ];
@@ -77,8 +77,8 @@ class GameHashController extends Controller
 
     public function destroy(GameHash $gameHash): JsonResponse
     {
-        $gameId = $gameHash->GameID;
-        $hash = $gameHash->MD5;
+        $gameId = $gameHash->game_id;
+        $hash = $gameHash->md5;
         $user = Auth::user()->User;
 
         $wasDeleted = $gameHash->forceDelete();
@@ -95,7 +95,7 @@ class GameHashController extends Controller
 
     private function logGameHashUpdate(GameHash $gameHash, array $changedAttributes, User $user): void
     {
-        $commentParts = ["{$gameHash->MD5} updated by {$user->User}."];
+        $commentParts = ["{$gameHash->md5} updated by {$user->User}."];
 
         foreach ($changedAttributes as $attribute => $newValue) {
             $newValueDisplay = $newValue ?? 'None';
@@ -117,6 +117,6 @@ class GameHashController extends Controller
         }
 
         $comment = implode(' ', $commentParts);
-        addArticleComment("Server", ArticleType::GameHash, $gameHash->GameID, $comment);
+        addArticleComment("Server", ArticleType::GameHash, $gameHash->game_id, $comment);
     }
 }
