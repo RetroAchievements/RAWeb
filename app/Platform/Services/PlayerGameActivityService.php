@@ -35,6 +35,13 @@ class PlayerGameActivityService
                 ];
 
                 $this->insertEvent($session, $event);
+
+                // since $playerSession->duration is in minutes, and $playerSession->rich_presence_updated_at
+                // is an actual timestamp, it might be some number of seconds ahead of 'endTime' due to duration
+                // being floored by the conversion to minutes.
+                if ($playerSession->rich_presence_updated_at > $session['endTime']) {
+                    $session['endTime'] = $playerSession->rich_presence_updated_at;
+                }
             }
 
             $this->sessions[] = $session;
