@@ -205,7 +205,7 @@ class PlayerGameActivityService
         $index = 0;
         foreach ($this->sessions as &$session)
         {
-            if ($session['type'] == $type && 
+            if ($session['type'] == $type &&
                 $session['startTime'] <= $when &&
                 $session['endTime'] >= $when) {
                 break;
@@ -253,7 +253,7 @@ class PlayerGameActivityService
                     }
                 }
             }
-            
+
             if ($hasAchievements) {
                 if ($achievementsTime > 0) {
                     $achievementsTime += $intermediateTime;
@@ -261,7 +261,7 @@ class PlayerGameActivityService
                 }
                 $achievementsTime += $session['duration'];
                 $intermediateTime = 0;
-                $intermediateSessionCount = 0;    
+                $intermediateSessionCount = 0;
 
                 $unlockSessionCount++;
                 if ($session['type'] == 'generated') {

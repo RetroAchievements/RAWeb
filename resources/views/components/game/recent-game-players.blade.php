@@ -40,7 +40,7 @@ foreach ($recentPlayerData as $recentPlayer) {
                     <p class="smalldate whitespace-nowrap">{{ $recentPlayer['Date'] }}</p>
                     <div class="w-[115px] max-w-[115px]">
                         <x-conditional-link-wrapper
-                            :href="$isAuthenticated ? '/gamecompare.php?ID=' . $gameId . '&f=' . $recentPlayer['User'] : null"
+                            :href="$isAuthenticated ? route('game.compare-unlocks', ['user' => $recentPlayer['User'], 'game' => $gameId]) : null"
                         >
                             <x-game-progress-bar
                                 softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"
@@ -83,7 +83,7 @@ foreach ($recentPlayerData as $recentPlayer) {
                 <td class="pr-2">
                     <x-conditional-link-wrapper
                         class="h-full w-full inline-block py-4"
-                        :href="$isAuthenticated ? '/gamecompare.php?ID=' . $gameId . '&f=' . $recentPlayer['User'] : null"
+                        :href="$isAuthenticated ? route('game.compare-unlocks', ['user' => $recentPlayer['User'], 'game' => $gameId]) : null"
                     >
                         <x-game-progress-bar
                             softcoreProgress="{{ $recentPlayer['NumAwarded'] }}"

@@ -12,6 +12,7 @@ use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerCompletionProgressController;
+use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\SuggestGameController;
 use App\Platform\Controllers\SystemController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -91,7 +92,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
             // Route::resource('user.game', PlayerGameController::class)->only('show');
-            // Route::get('user/{user}/game/{game}', [PlayerGameController::class, 'activity'])->only('user.game.activity');
+            Route::get('user/{user}/game/{game}', [PlayerGameController::class, 'activity'])->name('user.game.activity');
             Route::get('user/{user}/game/{game}/compare', CompareUnlocksController::class)->name('game.compare-unlocks');
 
             // Route::resource('user.badges', PlayerBadgeController::class)->only('index')->names(['index' => 'user.badge.index']);
