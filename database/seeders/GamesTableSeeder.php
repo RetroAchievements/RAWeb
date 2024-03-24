@@ -7,7 +7,6 @@ namespace Database\Seeders;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
-use App\Models\GameHashSet;
 use App\Models\System;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Seeder;
@@ -32,12 +31,10 @@ class GamesTableSeeder extends Seeder
          * add hashes to games
          */
         Game::all()->each(function (Game $game) {
-            $game->gameHashSets()->save(new GameHashSet([
-                'game_id' => $game->ID,
-            ]))->hashes()->save(new GameHash([
+            $game->hashes()->save(new GameHash([
                 'system_id' => $game->ConsoleID,
-                'hash' => Str::random(16),
-                'MD5' => Str::random(16),
+                'hash' => Str::random(32),
+                'md5' => Str::random(32),
             ]));
         });
 

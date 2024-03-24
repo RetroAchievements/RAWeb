@@ -12,18 +12,18 @@ use Illuminate\Support\Carbon;
 <div class="border border-embed-highlight bg-embed rounded-lg overflow-hidden">
     <div class="flex w-full justify-between px-4 py-2 bg-stone-950 light:bg-stone-100 border-b border-embed-highlight items-center">
         <p class="font-bold">
-            {{ $hashEntity->Name }}
+            {{ $hashEntity->name }}
         </p>
 
         <div class="flex gap-x-4 items-center">
             <p class="font-mono text-neutral-200 light:text-neutral-700">
-                {{ $hashEntity->MD5 }}
+                {{ $hashEntity->md5 }}
             </p>
 
             <button
                 type="button"
                 class="btn btn-danger transition-transform lg:active:scale-95"
-                onclick="unlinkHash('{{ $hashEntity->MD5 }}')"
+                onclick="unlinkHash('{{ $hashEntity->md5 }}')"
             >
                 Unlink
             </button>
@@ -31,54 +31,54 @@ use Illuminate\Support\Carbon;
     </div>
 
     <div class="p-4">
-        @if ($hashEntity->User)
+        @if ($hashEntity->user)
             <p class="mb-4">
-                Linked by {!! userAvatar($hashEntity->User, icon: false) !!}
-                @if ($hashEntity->Created)
-                    on {{ Carbon::parse($hashEntity->Created)->format('F j Y, g:ia') }}
+                Linked by {!! userAvatar($hashEntity->user, icon: false) !!}
+                @if ($hashEntity->created_at)
+                    on {{ Carbon::parse($hashEntity->created_at)->format('F j Y, g:ia') }}
                 @endif
             </p>
-        @elseif ($hashEntity->Created)
+        @elseif ($hashEntity->created_at)
             <p class="mb-4">
-                Linked on {{ Carbon::parse($hashEntity->Created)->format('F j Y, g:ia') }}
+                Linked on {{ Carbon::parse($hashEntity->created_at)->format('F j Y, g:ia') }}
             </p>
         @endif
 
-        <form onsubmit="updateHashDetails(event, '{{ $hashEntity->MD5 }}')">
+        <form onsubmit="updateHashDetails(event, '{{ $hashEntity->md5 }}')">
             <div class="grid lg:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label
-                        for="{{ 'HASH_' . $hashEntity->MD5 . '_Name' }}"
+                        for="{{ 'HASH_' . $hashEntity->md5 . '_Name' }}"
                         class="text-2xs font-semibold"
                     >
                         File Name
                     </label>
 
                     <input
-                        id="{{ 'HASH_' . $hashEntity->MD5 . '_Name' }}"
+                        id="{{ 'HASH_' . $hashEntity->md5 . '_Name' }}"
                         class="w-full"
-                        value="{{ $hashEntity->Name }}"
+                        value="{{ $hashEntity->name }}"
                     >
                 </div>
 
                 <div>
                     <label
-                        for="{{ 'HASH_' . $hashEntity->MD5 . '_Labels' }}"
+                        for="{{ 'HASH_' . $hashEntity->md5 . '_Labels' }}"
                         class="text-2xs font-semibold"
                     >
                         Labels
                     </label>
 
                     <input
-                        id="{{ 'HASH_' . $hashEntity->MD5 . '_Labels' }}"
+                        id="{{ 'HASH_' . $hashEntity->md5 . '_Labels' }}"
                         class="w-full"
-                        value="{{ $hashEntity->Labels }}"
+                        value="{{ $hashEntity->labels }}"
                     >
                 </div>
 
                 <div>
                     <label
-                        for="{{ 'HASH_' . $hashEntity->MD5 . '_PatchURL' }}"
+                        for="{{ 'HASH_' . $hashEntity->md5 . '_PatchURL' }}"
                         class="text-2xs font-semibold cursor-help flex items-center gap-x-0.5"
                         title="Optional. This MUST be a URL to a .zip or .7z file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
                     >
@@ -87,7 +87,7 @@ use Illuminate\Support\Carbon;
                     </label>
 
                     <input
-                        id="{{ 'HASH_' . $hashEntity->MD5 . '_PatchURL' }}"
+                        id="{{ 'HASH_' . $hashEntity->md5 . '_PatchURL' }}"
                         class="w-full"
                         value="{{ $hashEntity->patch_url }}"
                         placeholder="https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip"
@@ -97,7 +97,7 @@ use Illuminate\Support\Carbon;
                 <div>
                     <div class="flex w-full justify-between">
                         <label
-                            for="{{ 'HASH_' . $hashEntity->MD5 . '_SourceURL' }}"
+                            for="{{ 'HASH_' . $hashEntity->md5 . '_SourceURL' }}"
                             class="text-2xs font-semibold cursor-help flex items-center gap-x-0.5"
                             title="Optional. Link to a specific No Intro, Redump, RHDN, SMWCentral, itch.io, etc. page."
                         >
@@ -109,7 +109,7 @@ use Illuminate\Support\Carbon;
                     </div>
 
                     <input
-                        id="{{ 'HASH_' . $hashEntity->MD5 . '_SourceURL' }}"
+                        id="{{ 'HASH_' . $hashEntity->md5 . '_SourceURL' }}"
                         class="w-full"
                         value="{{ $hashEntity->source }}"
                         placeholder="http://redump.org/disc/23548/"

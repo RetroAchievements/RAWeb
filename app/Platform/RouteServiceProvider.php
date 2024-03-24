@@ -33,7 +33,7 @@ class RouteServiceProvider extends ServiceProvider
          * Don't reference hash identifiers by their raw ID
          */
         Route::bind('gameHash', function ($value) {
-            return GameHash::where('MD5', $value)->firstOrFail();
+            return GameHash::where('md5', $value)->firstOrFail();
         });
     }
 

@@ -105,6 +105,7 @@ class Achievement extends BaseModel implements HasComments
         'Title',
         'TrueRatio',
         'type',
+        'user_id',
     ];
 
     public static function boot()
