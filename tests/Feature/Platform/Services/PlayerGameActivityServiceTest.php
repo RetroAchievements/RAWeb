@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Platform\Services;
 
+use App\Enums\PlayerGameActivityEventType;
+use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\PlayerSession;
@@ -42,7 +44,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(1, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($playerSession->id, $session['playerSession']->id);
         $this->assertEquals($time1, $session['startTime']);
         $this->assertEquals($now, $session['endTime']);
@@ -63,7 +65,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(1, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time1, $session['startTime']);
         $this->assertEquals($playerSession->duration * 60, $session['duration']);
         $this->assertEquals($now, $session['endTime']);
@@ -86,7 +88,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(1, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time1, $session['startTime']);
         $this->assertEquals($playerSession->duration * 60, $session['duration']);
         $this->assertEquals($now, $session['endTime']);
@@ -108,7 +110,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(1, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time1, $session['startTime']);
         $this->assertEquals($playerSession->duration * 60, $session['duration']);
         $this->assertEquals($now, $session['endTime']);
@@ -128,7 +130,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(2, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time1, $session['startTime']);
         $this->assertEquals($playerSession->duration * 60, $session['duration']);
         $this->assertEquals($now, $session['endTime']);
@@ -138,7 +140,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertUnlockEvent($session['events'][2], $ach3->id, $time3, true);
         $this->assertRichPresenceEvent($session['events'][3], $playerSession->rich_presence, $time4);
         $session = $activity->sessions[1];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5, $session['startTime']);
         $this->assertEquals(60, $session['duration']); // new session always has 1 minute duration
         $this->assertEquals($time5->clone()->addMinutes(1), $session['endTime']);
@@ -152,7 +154,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(2, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('generated', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);
@@ -161,7 +163,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertUnlockEvent($session['events'][1], $ach2->id, $time3, true);
         $this->assertUnlockEvent($session['events'][2], $ach3->id, $time3, true);
         $session = $activity->sessions[1];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5, $session['startTime']);
         $this->assertEquals(60, $session['duration']); // new session always has 1 minute duration
         $this->assertEquals($time5->clone()->addMinutes(1), $session['endTime']);
@@ -179,7 +181,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(3, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('generated', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);
@@ -188,14 +190,14 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertUnlockEvent($session['events'][1], $ach2->id, $time3, true);
         $this->assertUnlockEvent($session['events'][2], $ach3->id, $time3, true);
         $session = $activity->sessions[1];
-        $this->assertEquals('manual-unlock', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::ManualUnlock, $session['type']);
         $this->assertEquals($time6, $session['startTime']);
         $this->assertEquals(0, $session['duration']);
         $this->assertEquals($time6, $session['endTime']);
         $this->assertEquals(1, count($session['events']));
         $this->assertManualUnlockEvent($session['events'][0], $ach4->id, $time6, true, $user2);
         $session = $activity->sessions[2];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5, $session['startTime']);
         $this->assertEquals(60, $session['duration']); // new session always has 1 minute duration
         $this->assertEquals($time5->clone()->addMinutes(1), $session['endTime']);
@@ -225,7 +227,7 @@ class PlayerGameActivityServiceTest extends TestCase
         $activity->initialize($user, $game);
         $this->assertEquals(3, count($activity->sessions));
         $session = $activity->sessions[0];
-        $this->assertEquals('generated', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Generated, $session['type']);
         $this->assertEquals($time2, $session['startTime']);
         $this->assertEquals($time3->diffInSeconds($time2), $session['duration']);
         $this->assertEquals($time3, $session['endTime']);
@@ -234,14 +236,14 @@ class PlayerGameActivityServiceTest extends TestCase
         $this->assertUnlockEvent($session['events'][1], $ach2->id, $time3, true);
         $this->assertUnlockEvent($session['events'][2], $ach3->id, $time3, true);
         $session = $activity->sessions[1];
-        $this->assertEquals('manual-unlock', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::ManualUnlock, $session['type']);
         $this->assertEquals($time6, $session['startTime']);
         $this->assertEquals(0, $session['duration']);
         $this->assertEquals($time6, $session['endTime']);
         $this->assertEquals(1, count($session['events']));
         $this->assertManualUnlockEvent($session['events'][0], $ach4->id, $time6, true, $user2);
         $session = $activity->sessions[2];
-        $this->assertEquals('player-session', $session['type']);
+        $this->assertEquals(PlayerGameActivitySessionType::Player, $session['type']);
         $this->assertEquals($time5, $session['startTime']);
         $this->assertEquals($time7->diffInSeconds($time5), $session['duration']); // new session always has 1 minute duration
         $this->assertEquals($time7, $session['endTime']);
@@ -266,14 +268,14 @@ class PlayerGameActivityServiceTest extends TestCase
 
     private function assertRichPresenceEvent(array $event, string $message, Carbon $time): void
     {
-        $this->assertEquals('rich-presence', $event['type']);
+        $this->assertEquals(PlayerGameActivityEventType::RichPresence, $event['type']);
         $this->assertEquals($message, $event['description']);
         $this->assertEquals($time, $event['when']);
     }
 
     private function assertUnlockEvent(array $event, int $achievementId, Carbon $time, bool $hardcore): void
     {
-        $this->assertEquals('unlock', $event['type']);
+        $this->assertEquals(PlayerGameActivityEventType::Unlock, $event['type']);
         $this->assertEquals($achievementId, $event['id']);
         $this->assertEquals($hardcore, $event['hardcore']);
         $this->assertEquals($time, $event['when']);

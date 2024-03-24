@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Enums\PlayerGameActivityEventType;
+use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Game;
 use App\Models\User;
 use Carbon\Carbon;
@@ -19,7 +21,7 @@ class PlayerGameActivityService
 
         foreach ($playerSessions as $playerSession) {
             $session = [
-                'type' => 'player-session',
+                'type' => PlayerGameActivitySessionType::Player,
                 'playerSession' => $playerSession,
                 'startTime' => $playerSession->created_at,
                 'endTime' => $playerSession->created_at->addMinutes($playerSession->duration),
@@ -29,7 +31,7 @@ class PlayerGameActivityService
 
             if (!empty($playerSession->rich_presence)) {
                 $session['events'][] = [
-                    'type' => 'rich-presence',
+                    'type' => PlayerGameActivityEventType::RichPresence,
                     'description' => $playerSession->rich_presence,
                     'when' => $playerSession->rich_presence_updated_at,
                 ];
@@ -74,7 +76,7 @@ class PlayerGameActivityService
     private function addUnlockEvent(object $playerAchievement, Carbon $when, bool $hardcore): void
     {
         $event = [
-            'type' => 'unlock',
+            'type' => PlayerGameActivityEventType::Unlock,
             'id' => $playerAchievement->achievement_id,
             'hardcore' => $hardcore,
             'when' => $when,
@@ -101,12 +103,12 @@ class PlayerGameActivityService
             $event['hardcoreLater'] = true;
         }
 
-        $existingSessionIndex = $this->findSession('player-session', $when);
+        $existingSessionIndex = $this->findSession(PlayerGameActivitySessionType::Player, $when);
         if ($existingSessionIndex < 0) {
             if ($unlocker) {
-                $existingSessionIndex = $this->generateSession('manual-unlock', $when);
+                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::ManualUnlock, $when);
             } else {
-                $existingSessionIndex = $this->generateSession('generated', $when);
+                $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Generated, $when);
             }
         }
 
@@ -120,9 +122,9 @@ class PlayerGameActivityService
             if ($diff === 0) {
                 if ($a['type'] !== $b['type']) {
                     // rich-presence event should always be after unlocks
-                    if ($a['type'] === 'rich-presence') {
+                    if ($a['type'] === PlayerGameActivityEventType::RichPresence) {
                         return 1;
-                    } elseif ($b['type'] === 'rich-presence') {
+                    } elseif ($b['type'] === PlayerGameActivityEventType::RichPresence) {
                         return -1;
                     }
                 } else {
@@ -139,7 +141,7 @@ class PlayerGameActivityService
     {
         $index = 0;
         foreach ($this->sessions as &$session) {
-            if ($session['type'] == $type
+            if ($session['type'] === $type
                 && $session['startTime'] <= $when
                 && $session['endTime'] >= $when) {
                 return $index;
@@ -153,13 +155,13 @@ class PlayerGameActivityService
 
     private function generateSession(string $type, Carbon $when): int
     {
-        $mergeHours = ($type == 'manual-unlock') ? 1 : 4;
+        $mergeHours = ($type === PlayerGameActivitySessionType::ManualUnlock) ? 1 : 4;
         $whenBefore = $when->clone()->subHours($mergeHours);
         $whenAfter = $when->clone()->addHours($mergeHours);
 
         $index = 0;
         foreach ($this->sessions as &$session) {
-            if ($session['type'] == 'generated'
+            if ($session['type'] === PlayerGameActivitySessionType::Generated
                 && $session['startTime'] >= $whenBefore
                 && $session['endTime'] <= $whenAfter) {
 
@@ -188,18 +190,7 @@ class PlayerGameActivityService
         $this->sessions[] = $newSession;
         usort($this->sessions, fn ($a, $b) => $a['startTime']->timestamp - $b['startTime']->timestamp);
 
-        $index = 0;
-        foreach ($this->sessions as &$session) {
-            if ($session['type'] == $type
-                && $session['startTime'] <= $when
-                && $session['endTime'] >= $when) {
-                break;
-            }
-
-            $index++;
-        }
-
-        return $index;
+        return $this->findSession($type, $when);
     }
 
     public function summarize(): array
@@ -216,9 +207,9 @@ class PlayerGameActivityService
         $lastAchievementTime = null;
 
         foreach ($this->sessions as $session) {
-            if ($session['type'] === 'manual-unlock') {
+            if ($session['type'] === PlayerGameActivitySessionType::ManualUnlock) {
                 continue;
-            } elseif ($session['type'] == 'generated') {
+            } elseif ($session['type'] === PlayerGameActivitySessionType::Generated) {
                 $generatedSessionCount++;
             }
 
@@ -226,7 +217,7 @@ class PlayerGameActivityService
 
             $hasAchievements = false;
             foreach ($session['events'] as $event) {
-                if ($event['type'] == 'unlock') {
+                if ($event['type'] === PlayerGameActivityEventType::Unlock) {
                     $achievementsUnlocked++;
                     $hasAchievements = true;
 
@@ -249,10 +240,10 @@ class PlayerGameActivityService
                 $intermediateSessionCount = 0;
 
                 $unlockSessionCount++;
-                if ($session['type'] == 'generated') {
+                if ($session['type'] === PlayerGameActivitySessionType::Generated) {
                     $generatedUnlockSessionCount++;
                 }
-            } elseif ($session['type'] == 'player-session') {
+            } elseif ($session['type'] === PlayerGameActivitySessionType::Player) {
                 $intermediateTime += $session['duration'];
                 $intermediateSessionCount++;
             }

@@ -14,6 +14,8 @@ name('game.compare-unlocks');
 
 @php
 
+use App\Enums\PlayerGameActivityEventType;
+use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -97,11 +99,11 @@ $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
                 @foreach ($activity->sessions as $session)
                     <tr class='do-not-highlight'>
                         <td>{{ $session['startTime']->format("j M Y, H:i:s") }}</td>
-                    @if ($session['type'] === 'player-session')
+                    @if ($session['type'] === PlayerGameActivitySessionType::Player)
                         <td class='text-muted'>Started Playing</td>
-                    @elseif ($session['type'] === 'generated')
+                    @elseif ($session['type'] === PlayerGameActivitySessionType::Generated)
                         <td class='text-muted'>Generated Session</td>
-                    @elseif ($session['type'] === 'manual-unlock')
+                    @elseif ($session['type'] === PlayerGameActivitySessionType::ManualUnlock)
                         <td class='text-muted'>Manual Unlock</td>
                     @else
                         <td class='text-muted'>{{ $session['type'] }}</td>
@@ -117,7 +119,7 @@ $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
                                 <span class='smalltext text-muted'> (+{{ formatHms($event['when']->diffInSeconds($prevWhen)) }})</span>
                             </td>
                             <td>
-                                @if ($event['type'] === 'unlock')
+                                @if ($event['type'] === PlayerGameActivityEventType::Unlock)
                                     @php $achievement = $event['achievement'] @endphp
                                     {!! achievementAvatar($achievement) !!}
                                     @if ($achievement['Flags'] != AchievementFlag::OfficialCore)
@@ -129,7 +131,7 @@ $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
                                     @if ($event['unlocker'] ?? null)
                                         (unlocked by {!! userAvatar($event['unlocker'], label:true, icon:false) !!})
                                     @endif
-                                @elseif ($event['type'] === 'rich-presence')
+                                @elseif ($event['type'] === PlayerGameActivityEventType::RichPresence)
                                     <span class='text-muted'>Rich Presence:</span>
                                     <span>{{ $event['description'] }}</span>
                                 @endif
