@@ -90,6 +90,7 @@ function getUserPageInfo(string $username, int $numGames = 0, int $numRecentAchi
     $libraryOut['TotalSoftcorePoints'] = (int) $user->RASoftcorePoints;
     $libraryOut['TotalTruePoints'] = (int) $user->TrueRAPoints;
     $libraryOut['Permissions'] = (int) $user->getAttribute('Permissions');
+    $libraryOut['Roles'] = $user->getVisibleRoles()->toArray();
     $libraryOut['Untracked'] = (int) $user->Untracked;
     $libraryOut['ID'] = (int) $user->ID;
     $libraryOut['UserWallActive'] = (int) $user->UserWallActive;

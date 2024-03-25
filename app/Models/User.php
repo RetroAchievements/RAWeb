@@ -26,6 +26,7 @@ use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as DbCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -324,6 +325,23 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    // roles
+
+    /**
+     * @return DbCollection<int, Role>
+     */
+    public function getVisibleRoles(): Collection
+    {
+        /** @var DbCollection|Role[] $roles */
+        $roles = $this->roles()
+            ->where('display', '>', 0)
+            ->orderBy('display')
+            ->orderBy('name')
+            ->get();
+
+        return $roles;
     }
 
     // == media
