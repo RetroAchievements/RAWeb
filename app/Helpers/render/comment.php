@@ -17,7 +17,7 @@ function RenderCommentsComponent(
     int $offset = 0,
     bool $embedded = true
 ): void {
-    $user = User::where('User', $username)->first();
+    $user = User::firstWhere('User', $username);
 
     echo "<div class='commentscomponent'>";
 
@@ -103,6 +103,16 @@ function RenderCommentsComponent(
     echo "</tbody></table>";
 
     echo "</div>";
+
+    if (isset($user) && $user->isMuted) {
+        $mutedDate = getNiceDate($user->muted_until->timestamp);
+
+        echo <<<HTML
+            <div class="bg-embed p-2 rounded-b-lg">
+                <p class="text-center text-muted">You are muted until $mutedDate.</p>
+            </div>
+        HTML;
+    }
 }
 
 function RenderArticleComment(

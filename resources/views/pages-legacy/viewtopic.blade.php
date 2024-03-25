@@ -195,13 +195,15 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
     <?php
     $user = auth()->user();
     ?>
+    @guest
+        <p class="text-center">
+            You must log in before you can join this conversation.
+        </p>
+    @endguest
+
     @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->isMuted)
         <x-section>
             <div class="flex w-full bg-embed p-2 rounded-lg">
-                @guest
-                    You must log in before you can join this conversation.
-                @endguest
-
                 @auth
                     <div class="flex flex-col gap-1 justify-start items-center lg:border-r border-neutral-700 px-0.5 pb-2 lg:py-2 lg:w-44">
                         <x-user.avatar :user="request()->user()" display="icon" iconSize="md" />
