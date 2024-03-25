@@ -91,7 +91,9 @@ return [
          */
         '/controlpanel.php' => '/settings',
         '/friends.php' => '/friends',
-        '/createmessage.php' => '/message/create?to={t}&subject={s}&message={p}',
+        '/createmessage.php' => '/messages/create?to={t}&subject={s}&message={p}',
+        // temp redirect
+        '/message/create' => '/messages/create?to={to}&subject={subject}&message={message}',
         '/inbox.php' => '/messages',
         '/manageuserpic.php' => '/settings',
 

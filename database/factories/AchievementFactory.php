@@ -32,6 +32,7 @@ class AchievementFactory extends Factory
             'Description' => fake()->sentence(),
             'MemAddr' => '0x000000',
             'Author' => $this->fakeUsername(),
+            'user_id' => 1,
             'Flags' => AchievementFlag::Unofficial,
             'type' => null,
             'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),

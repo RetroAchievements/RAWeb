@@ -44,12 +44,13 @@ if (empty($participants)) {
         }
     }
 }
+
 $pageDescription = "Conversation between " . implode(' and ', $participants);
 @endphp
 
 <x-app-layout
-    pageTitle="{{ $messageThread->title }}"
-    pageDescription="{{ $pageDescription }}"
+    :pageTitle="$messageThread->title"
+    :pageDescription="$pageDescription"
 >
     <x-message.breadcrumbs currentPage="{!! $messageThread->title !!}" />
 
@@ -93,21 +94,34 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
         @endforeach
     </div>
 
-    <div class="mt-2">
-        @if (!$canReply)
-            <i>Cannot reply to deleted user.</i>
-        @else
-            <form action="{{ route('message.store') }}" method="post" x-data="{ isValid: true }">
-                {{ csrf_field() }}
-                <input type="hidden" name="thread_id" value="{{ $messageThread->id }}"/>
+    <x-section>
+        <div class="mt-2">
+            @if (!$canReply)
+                <i>Cannot reply to deleted user.</i>
+            @else
+                <x-base.form action="{{ route('message.store') }}" validate>
+                    <div class="flex flex-col gap-y-3">
+                        <input type="hidden" name="thread_id" value="{{ $messageThread->id }}"/>
+                        <x-base.form.textarea
+                            :isLabelVisible="false"
+                            id="input_compose"
+                            name="body"
+                            label="{{ __res('message', 1) }}"
+                            placeholder="Enter your message here..."
+                            requiredSilent
+                            richText
+                        >
+                            <x-slot name="formActions">
+                                <x-base.form-actions />
+                            </x-slot>
+                        </x-base.form.textarea>
+                    </div>
+                </x-base.form>
+            @endif
+        </div>
 
-                <x-input.shortcode-textarea
-                    name="body"
-                    placholder="Enter your message here..."
-                />
-            </form>
-        @endif
-    </div>
+        <div id="post-preview-input_compose"></div>
+    </x-section>
 
     <div class="w-full flex justify-end mt-2">
         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage"/>

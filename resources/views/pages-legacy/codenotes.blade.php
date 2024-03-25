@@ -12,8 +12,10 @@ if (empty($gameData)) {
 
 getCodeNotes($gameID, $codeNotes);
 $codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));
+
+$pageTitle = "Code Notes - {$gameData['Title']}";
 ?>
-<x-app-layout pageTitle="Code Notes - {{ $gameData['Title']}}">
+<x-app-layout :pageTitle="$pageTitle">
 <script>
 window.addEventListener('beforeunload', function (event) {
     const rows = document.querySelectorAll('tr.note-row');
