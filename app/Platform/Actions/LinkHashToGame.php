@@ -52,7 +52,7 @@ class LinkHashToGame
         }
 
         $gameHash = GameHash::firstOrCreate(['hash' => $hash, 'system_id' => $game->system_id], [
-            'Name' => $gameHashTitle,
+            'name' => $gameHashTitle,
             'description' => $gameHashTitle,
         ]);
         $gameHashSet->hashes()->save($gameHash);

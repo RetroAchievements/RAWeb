@@ -66,6 +66,8 @@ $thisTopicForumID = $topicData['ForumID'];
 $thisTopicTitle = $topicData['TopicTitle'];
 $thisTopicPermissions = $topicData['RequiredPermissions'];
 
+$pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
+
 sanitize_outputs(
     $thisTopicAuthor,
     $thisTopicCategory,
@@ -75,7 +77,7 @@ sanitize_outputs(
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 ?>
-<x-app-layout pageTitle="Topic: {{ $thisTopicForum }} - {{ $thisTopicTitle }}">
+<x-app-layout :pageTitle="$pageTitle">
     <?php
     echo "<div class='navpath'>";
     echo "<a href='/forum.php'>Forum Index</a>";
@@ -201,34 +203,50 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
         </p>
     @endguest
 
+    @if ($user?->isMuted)
+        <div class="flex justify-center bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
+            <p class="text-center text-muted">You are muted until {{ getNiceDate($user->muted_until->timestamp) }}.</p>
+        </div>
+    @endif
+
     @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->isMuted)
         <x-section>
-            <div class="flex w-full bg-embed p-2 rounded-lg">
+            <div class="flex bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
+                @guest
+                    You must log in before you can join this conversation.
+                @endguest
+
                 @auth
-                    <div class="flex flex-col gap-1 justify-start items-center lg:border-r border-neutral-700 px-0.5 pb-2 lg:py-2 lg:w-44">
-                        <x-user.avatar :user="request()->user()" display="icon" iconSize="md" />
+                    <div class="hidden sm:flex flex-col gap-1 justify-start items-center lg:border-r border-neutral-700 px-0.5 pb-2 lg:py-2 lg:w-44">
+                        <x-user.avatar :user="request()->user()" display="icon" iconSize="md" class="rounded-sm" />
                         <x-user.avatar :user="request()->user()" />
                     </div>
                     <div class="grow lg:py-0 px-1 lg:px-6 pt-2 pb-4">
                         <x-base.form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
-                            <div class="flex flex-col gap-y-3">
+                            <div class="flex flex-col">
                                 <x-base.form.input type="hidden" name="topic" value="{{ $thisTopicID }}" />
                                 <x-base.form.textarea
+                                    :isLabelVisible="false"
+                                    id="input_quickreply"
                                     label="{{ __('Reply') }}"
                                     maxlength="60000"
                                     name="body"
                                     rows="10"
                                     richText
                                     required-silent
-                                    help="Don't share links to copyrighted ROMs."
                                     placeholder="Don't share links to copyrighted ROMs."
-                                />
-                                <x-base.form-actions submitLabel="Submit reply" />
+                                >
+                                    <x-slot name="formActions">
+                                        <x-base.form-actions submitLabel="Submit" />
+                                    </x-slot>
+                                </x-base.form.textarea>
                             </div>
                         </x-base.form>
                     </div>
                 @endauth
             </div>
+
+            <div id="post-preview-input_quickreply"></div>
         </x-section>
     @endif
 </x-app-layout>

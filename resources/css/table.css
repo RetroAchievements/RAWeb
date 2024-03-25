@@ -12,7 +12,8 @@ tbody tr:nth-child(odd) {
   background-color: rgba(50, 50, 50, 0.3);
 }
 
-[data-scheme='light'] tbody tr:nth-child(odd) {
+[data-scheme='light'] tbody tr:nth-child(odd),
+[data-scheme='system'] tbody tr:nth-child(odd) {
   background-color: rgba(80, 80, 80, 0.09);
 }
 
@@ -21,7 +22,8 @@ table.table-highlight tr:not(.do-not-highlight):hover {
   background-color: rgba(128, 128, 128, 0.2);
 }
 
-[data-scheme='light'] table.table-highlight tr:not(.do-not-highlight):hover {
+[data-scheme='light'] table.table-highlight tr:not(.do-not-highlight):hover,
+[data-scheme='system'] table.table-highlight tr:not(.do-not-highlight):hover {
   outline-color: rgba(128, 128, 128, 0.4);
   background-color: rgba(128, 128, 128, 0.22);
 }
