@@ -58,7 +58,9 @@ function parseOperand(string $mem): array
     } elseif ($max > 2 && $mem[0] == 'f' || $mem[0] == 'F') {
         switch ($mem[1]) {
             case 'f': case 'F': $size = 'Float'; break;
+            case 'b': case 'B': $size = 'Float BE'; break;
             case 'm': case 'M': $size = 'MBF32'; break;
+            case 'l': case 'L': $size = 'MBF32 LE'; break;
 
             case '+': case '-': case '.':
             case '0': case '1': case '2': case '3': case '4':
