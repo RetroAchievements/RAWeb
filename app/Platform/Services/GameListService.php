@@ -216,7 +216,7 @@ class GameListService
             return;
         }
 
-        $wantToPlayGames = UserGameListEntry::where('user_id', $user->ID)
+        $wantToPlayGames = UserGameListEntry::where('user_id', $user->id)
             ->where('type', UserGameListType::Play)
             ->pluck('GameID')
             ->toArray();

@@ -9,12 +9,12 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'user' => 'required|string|exists:UserAccounts,User',
 ]);
 
-$gameID = (int) $input['game'];
+$gameId = (int) $input['game'];
 $user = $input['user'];
 
 $userModel = User::firstWhere('User', $user);
 
-$totalRequests = getUserRequestsInformation($userModel, $gameID);
-$totalRequests['gameRequests'] = getSetRequestCount($gameID);
+$totalRequests = getUserRequestsInformation($userModel, $gameId);
+$totalRequests['gameRequests'] = getSetRequestCount($gameId);
 
 return response()->json($totalRequests);

@@ -9,7 +9,7 @@ use App\Models\UserGameListEntry;
 /**
  * Gets the total and remaining set requests left for the given user.
  */
-function getUserRequestsInformation(User $user, int $gameID = -1): array
+function getUserRequestsInformation(User $user, int $gameId = -1): array
 {
     $requests = UserGameListEntry::getUserSetRequestsInformation($user);
 
@@ -18,7 +18,7 @@ function getUserRequestsInformation(User $user, int $gameID = -1): array
 
     // Determine how many of the users current requests are still valid.
     // Requests made for games that since received achievements do not count towards a used request
-    $setRequests = UserGameListEntry::where('user_id', $user->ID)
+    $setRequests = UserGameListEntry::where('user_id', $user->id)
         ->where('type', UserGameListType::AchievementSetRequest)
         ->join('GameData', 'GameData.ID', '=', 'GameId')
         ->select(['GameData.ID', 'GameData.achievements_published']);
@@ -29,7 +29,7 @@ function getUserRequestsInformation(User $user, int $gameID = -1): array
         }
 
         // Determine if we have made a request for the input game
-        if ($request['ID'] == $gameID) {
+        if ($request['ID'] == $gameId) {
             $requests['requestedThisGame'] = 1;
         }
     }
@@ -42,73 +42,50 @@ function getUserRequestsInformation(User $user, int $gameID = -1): array
 /**
  * Gets the number of set requests for a given game.
  */
-function getSetRequestCount(int $gameID): int
+function getSetRequestCount(int $gameId): int
 {
-    if ($gameID < 1) {
+    if ($gameId < 1) {
         return 0;
     }
 
-    $query = "SELECT COUNT(*) AS Request FROM
-                SetRequest
-                WHERE GameID = $gameID
-                AND type='" . UserGameListType::AchievementSetRequest . "'";
-
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        return (int) (mysqli_fetch_assoc($dbResult)['Request'] ?? 0);
-    }
-
-    return 0;
+    return UserGameListEntry::where("GameID", $gameId)
+        ->where("type", UserGameListType::AchievementSetRequest)
+        ->count();
 }
 
 /**
  * Gets a list of set requestors for a given game.
  */
-function getSetRequestorsList(int $gameID, bool $getEmailInfo = false): array
+function getSetRequestorsList(int $gameId, bool $getEmailInfo = false): array
 {
-    $retVal = [];
-
-    if ($gameID < 1) {
+    if ($gameId < 1) {
         return [];
     }
 
+    $query = UserGameListEntry::where('GameID', $gameId)
+        ->where('type', UserGameListType::AchievementSetRequest)
+        ->with('user');
+
     if ($getEmailInfo) {
-        $query = "
-        SELECT
-            sr.User AS Requestor,
-            ua.EmailAddress AS Email,
-            gd.Title AS Title
-        FROM
-            SetRequest AS sr
-        LEFT JOIN
-            UserAccounts ua on ua.User = sr.User
-        LEFT JOIN
-            GameData gd ON sr.GameID = gd.ID
-        WHERE
-        GameID = $gameID
-        AND sr.type='" . UserGameListType::AchievementSetRequest . "'";
-    } else {
-        $query = "
-            SELECT
-            User AS Requestor
-        FROM
-            SetRequest
-        WHERE
-            GameID = $gameID
-            AND type='" . UserGameListType::AchievementSetRequest . "'";
+        $query->with(['game:ID,title']);
     }
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($nextData = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $nextData;
+    $setRequests = $query->get();
+
+    $processedValues = $setRequests->map(function ($setRequest) use ($getEmailInfo) {
+        $record = [
+            'Requestor' => $setRequest->user->User,
+        ];
+
+        if ($getEmailInfo) {
+            $record['Email'] = $setRequest->user->EmailAddress;
+            $record['Title'] = $setRequest->game->Title;
         }
-    } else {
-        log_sql_fail();
-    }
 
-    return $retVal;
+        return $record;
+    });
+
+    return $processedValues->toArray();
 }
 
 /**
@@ -120,7 +97,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
 
     $query = "
         SELECT
-            COUNT(DISTINCT(sr.User)) AS Requests,
+            COUNT(DISTINCT(sr.user_id)) AS Requests,
             sr.GameID as GameID,
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
@@ -218,12 +195,11 @@ function getGamesWithRequests(array|int|null $console, int $requestStatus = Requ
     return (int) mysqli_fetch_assoc($dbResult)['Games'];
 }
 
-function getUserGameListsContaining(string $user, int $gameID): array
+function getUserGameListsContaining(User $user, int $gameId): array
 {
-    $query = "SELECT type FROM SetRequest WHERE User=:user AND GameID=$gameID";
-    $bindings = ['user' => $user];
-
-    return collect(legacyDbSelect($query, $bindings))
-        ->map(fn ($row) => $row->type)
+    return UserGameListEntry::where("user_id", $user->id)
+        ->where("GameID", $gameId)
+        ->get(["type"])
+        ->pluck("type")
         ->toArray();
 }

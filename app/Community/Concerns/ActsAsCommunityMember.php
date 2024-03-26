@@ -34,10 +34,15 @@ trait ActsAsCommunityMember
     /**
      * @return HasMany<UserGameListEntry>
      */
-    public function gameList(string $type): HasMany
+    public function gameListEntries(?string $type = null): HasMany
     {
-        return $this->hasMany(UserGameListEntry::class, 'user_id', 'ID')
-            ->where('SetRequest.type', $type);
+        $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
+
+        if ($type !== null) {
+            $query->where('SetRequest.type', $type);
+        }
+
+        return $query;
     }
 
     /**
