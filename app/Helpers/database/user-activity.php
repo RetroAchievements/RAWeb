@@ -19,7 +19,7 @@ function RemoveComment(int $commentID, int $userID, int $permissions): bool
     // if not UserWall's owner nor admin, check if it's the author
     // TODO use policies to explicitly determine ability to delete a comment instead of piggy-backing query specificity
     if ($articleID != $userID && $permissions < Permissions::Moderator) {
-        $query .= " AND UserID = $userID";
+        $query .= " AND user_id = $userID";
     }
 
     $db = getMysqliConnection();
@@ -38,7 +38,7 @@ function getIsCommentDoublePost(int $userID, array|int $articleID, string $comme
 {
     $query = "SELECT Comment.Payload, Comment.ArticleID
         FROM Comment
-        WHERE UserID = :userId
+        WHERE user_id = :userId
         ORDER BY Comment.Submitted DESC
         LIMIT 1";
 
@@ -87,7 +87,7 @@ function addArticleComment(
         $articleIDs = $articleID;
         $arrayCount = count($articleID);
         $count = 0;
-        $query = "INSERT INTO Comment (ArticleType, ArticleID, UserID, Payload) VALUES";
+        $query = "INSERT INTO Comment (ArticleType, ArticleID, user_id, Payload) VALUES";
         foreach ($articleID as $id) {
             $bindings['commentPayload' . $count] = $commentPayload;
             $query .= "( $articleType, $id, $userID, :commentPayload$count )";
@@ -96,7 +96,7 @@ function addArticleComment(
             }
         }
     } else {
-        $query = "INSERT INTO Comment (ArticleType, ArticleID, UserID, Payload) VALUES( $articleType, $articleID, $userID, :commentPayload)";
+        $query = "INSERT INTO Comment (ArticleType, ArticleID, user_id, Payload) VALUES( $articleType, $articleID, $userID, :commentPayload)";
         $bindings = ['commentPayload' => $commentPayload];
         $articleIDs = [$articleID];
     }
@@ -106,7 +106,7 @@ function addArticleComment(
     // Inform Subscribers of this comment:
     foreach ($articleIDs as $id) {
         $query = "SELECT MAX(ID) AS CommentID FROM Comment
-                  WHERE ArticleType=$articleType AND ArticleID=$id AND UserID=$userID";
+                  WHERE ArticleType=$articleType AND ArticleID=$id AND user_id=$userID";
         $commentID = legacyDbFetch($query)['CommentID'];
 
         informAllSubscribersAboutActivity($articleType, $id, $user, $commentID, $onBehalfOfUser);
@@ -201,11 +201,11 @@ function getArticleComments(
     $numArticleComments = 0;
     $order = $recent ? ' DESC' : '';
 
-    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, ua.banned_at, c.ID, c.UserID,
+    $query = "SELECT SQL_CALC_FOUND_ROWS ua.User, ua.RAPoints, ua.banned_at, c.ID, c.user_id,
                      c.Payload AS CommentPayload,
                      UNIX_TIMESTAMP(c.Submitted) AS Submitted, c.Edited
               FROM Comment AS c
-              LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = c.user_id
               WHERE c.ArticleType=$articleTypeID AND c.ArticleID=$articleID
               ORDER BY c.Submitted$order, c.ID$order
               LIMIT $offset, $count";
