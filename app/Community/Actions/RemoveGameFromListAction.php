@@ -16,6 +16,6 @@ class RemoveGameFromListAction
             return false;
         }
 
-        return $user->gameLists($type)->where('GameID', $game->ID)->delete() === 1;
+        return $user->gameListEntries($type)->where('GameID', $game->ID)->delete() === 1;
     }
 }

@@ -27,7 +27,7 @@ $command = '';
 
 /** @var User $user */
 $user = User::findOrFail($userDetails['ID']);
-if ($user->gameLists($type)->where('GameID', $gameId)->exists()) {
+if ($user->gameListEntries($type)->where('GameID', $gameId)->exists()) {
     $action = new RemoveGameFromListAction();
     $success = $action->execute($user, $game, $type);
     $command = 'removed';

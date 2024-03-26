@@ -152,7 +152,7 @@ class UserGameListTest extends TestCase
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry2);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry3);
 
-        $this->assertEquals($user->gameLists(UserGameListType::AchievementSetRequest)->get()->toArray(), [
+        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry2->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
@@ -161,7 +161,7 @@ class UserGameListTest extends TestCase
         $deleteAction = new RemoveGameFromListAction();
         $this->assertTrue($deleteAction->execute($user, $game2, UserGameListType::AchievementSetRequest));
 
-        $this->assertEquals($user->gameLists(UserGameListType::AchievementSetRequest)->get()->toArray(), [
+        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
         ]);
@@ -172,7 +172,7 @@ class UserGameListTest extends TestCase
         // re-add. should appear at end TODO not appearing at the end
         $userGameListEntry4 = $action->execute($user, $game2, UserGameListType::AchievementSetRequest);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry4);
-        $this->assertEquals($user->gameLists(UserGameListType::AchievementSetRequest)->get()->toArray(), [
+        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry4->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
@@ -200,7 +200,7 @@ class UserGameListTest extends TestCase
         $this->assertNull($action->execute($user, $game1, UserGameListType::AchievementSetRequest));
         $this->assertNull($action->execute($user, $game2, UserGameListType::AchievementSetRequest));
 
-        $this->assertEquals($user->gameLists(UserGameListType::AchievementSetRequest)->get()->toArray(), [
+        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry2->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
         ]);
@@ -225,7 +225,7 @@ class UserGameListTest extends TestCase
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry1);
         $this->assertNull($action->execute($user, $game2, UserGameListType::AchievementSetRequest));
 
-        $this->assertEquals($user->gameLists(UserGameListType::AchievementSetRequest)->get()->toArray(), [
+        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
         ]);
     }
@@ -254,13 +254,13 @@ class UserGameListTest extends TestCase
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry2);
         $this->assertInstanceOf(UserGameListEntry::class, $userGameListEntry3);
 
-        $this->assertEquals($user->gameLists(UserGameListType::AchievementSetRequest)->get()->toArray(), [
+        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry2->id, 'GameID' => $game2->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
         ]);
 
-        $this->assertEquals($user->gameLists(UserGameListType::AchievementSetRequest)->withoutAchievements()->get()->toArray(), [
+        $this->assertEquals($user->gameListEntries(UserGameListType::AchievementSetRequest)->withoutAchievements()->get()->toArray(), [
             ['id' => $userGameListEntry1->id, 'GameID' => $game1->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
             ['id' => $userGameListEntry3->id, 'GameID' => $game3->ID, 'Updated' => $now, 'user_id' => $user->ID, 'type' => UserGameListType::AchievementSetRequest, 'created_at' => $now],
         ]);

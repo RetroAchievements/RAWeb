@@ -10,6 +10,9 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('SetRequest', function (Blueprint $table) {
+            $table->dropUnique('user_game_list_entry_username_game_id_type_unique');
+        });
+        Schema::table('SetRequest', function (Blueprint $table) {
             $table->dropColumn('User');
         });
     }
@@ -18,6 +21,9 @@ return new class() extends Migration {
     {
         Schema::table('SetRequest', function (Blueprint $table) {
             $table->string('User', 32);
+        });
+        Schema::table('SetRequest', function (Blueprint $table) {
+            $table->unique(['User', 'GameID', 'type'], 'user_game_list_entry_username_game_id_type_unique');
         });
     }
 };
