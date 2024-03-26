@@ -4,6 +4,7 @@
     'id' => null,
     'inline' => false,
     'inputType' => null,
+    'isLabelVisible' => true,
     'label' => null,
     'name' => null,
     'required' => false,
@@ -14,13 +15,13 @@ $id = $id ?: 'input_' . Str::random();
 ?>
 
 <div class="{{ $inline ? 'lg:flex' : '' }}">
-    @if($inputType !== 'hidden' && $inputType !== 'checkbox')
-        <label for="{{ $id }}" class="block {{ $inline ? 'lg:w-36 lg:pr-3 lg:text-right lg:pt-1' : 'mb-1' }} {{ $name && $errors && $errors->has($name) ? 'text-danger' : '' }}">
+    @if ($inputType !== 'hidden' && $inputType !== 'checkbox')
+        <label for="{{ $id }}" class="block {{ $inline ? 'lg:w-36 lg:pr-3 lg:text-right lg:pt-1' : 'mb-1' }} {{ $name && $errors && $errors->has($name) ? 'text-danger' : '' }} {{ $isLabelVisible ? '' : 'sr-only' }}">
             {{ $label ?: __('validation.attributes.' . strtolower($name)) }} {{ $required && !$requiredSilent ? '*' : '' }}
         </label>
     @endif
     <div class="grow">
-        @if($icon)
+        @if ($icon)
             <div class="flex flex-row">
                 <div class="form-control-prepend flex items-center" aria-hidden="true">
                     {{ $icon ? svg('fas-' . $icon, 'icon') : '' }}
@@ -30,13 +31,13 @@ $id = $id ?: 'input_' . Str::random();
         @else
             {{ $slot }}
         @endif
-        @if($help)
+        @if ($help)
             <p class="help-block text-muted" id="help-{{ $id }}">
                 {!! $help  !!}
             </p>
         @endif
-        @if($name)
-            @error($name)
+        @if ($name)
+            @error ($name)
             <p class="help-block text-danger" id="error-{{ $id }}">
                 <x-fas-exclamation-triangle /> {{ $errors->first($name) }}
             </p>

@@ -59,19 +59,24 @@ $thisAuthor = $commentData['Author'];
                 <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $thisAuthor }}" inline :fullWidth="false" />
                 <x-base.form.input label="{{ __res('forum-topic', 1) }}" readonly value="{{ $thisTopicTitle }}" inline />
                 <x-base.form.textarea
+                    id="input_compose"
                     label="{{ __res('message', 1)}} "
                     value="{{ $commentData['Payload'] }}"
                     maxlength="60000"
                     name="body"
                     rows="22"
-                    help="Don't share links to copyrighted ROMs."
                     placeholder="Don't share links to copyrighted ROMs."
                     inline
                     required-silent
                     richText
-                />
-                <x-base.form-actions inline />
+                >
+                    <x-slot name="formActions">
+                        <x-base.form-actions />
+                    </x-slot>
+                </x-base.form.textarea>
             </div>
         </x-base.form>
+
+        <div id="post-preview-input_compose"></div>
     </x-section>
 </x-app-layout>

@@ -24,7 +24,6 @@ class ForumTopic extends BaseModel
     // TODO rename ID column to id
     // TODO rename ForumID to forum_id
     // TODO rename Title to title
-    // TODO rename AuthorID to author_id
     // TODO rename DateCreated to created_at
     // TODO rename Updated to updated_at
     // TODO refactor RequiredPermissions to use RBAC
@@ -96,7 +95,7 @@ class ForumTopic extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'AuthorID');
+        return $this->belongsTo(User::class, 'author_id', 'ID');
     }
 
     /**

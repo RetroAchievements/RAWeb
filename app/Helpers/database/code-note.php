@@ -10,7 +10,7 @@ function getCodeNotesData(int $gameID): array
 
     $query = "SELECT ua.User, cn.Address, cn.Note
               FROM CodeNotes AS cn
-              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.user_id
               WHERE cn.GameID = '$gameID'
               ORDER BY cn.Address ";
 
@@ -32,7 +32,7 @@ function getCodeNotes(int $gameID, ?array &$codeNotesOut): bool
 {
     $query = "SELECT ua.User, cn.Address, cn.Note
               FROM CodeNotes AS cn
-              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.AuthorID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.user_id
               WHERE cn.GameID = $gameID
               ORDER BY cn.Address ";
 
@@ -90,7 +90,7 @@ function submitCodeNote2(string $username, int $gameID, int $address, string $no
             'Address' => $address,
         ],
         [
-            'AuthorID' => $user->ID,
+            'user_id' => $user->ID,
             'Note' => $note,
         ]
     );
@@ -109,12 +109,12 @@ function getCodeNoteCounts(string $username): array
 
     $retVal = [];
     $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as TotalNotes,
-              SUM(CASE WHEN cn.AuthorID = $userId THEN 1 ELSE 0 END) AS NoteCount
+              SUM(CASE WHEN cn.user_id = $userId THEN 1 ELSE 0 END) AS NoteCount
               FROM CodeNotes AS cn
               LEFT JOIN GameData AS gd ON gd.ID = cn.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               WHERE LENGTH(Note) > 0
-              AND gd.ID IN (SELECT GameID from CodeNotes WHERE AuthorID = $userId GROUP BY GameID)
+              AND gd.ID IN (SELECT GameID from CodeNotes WHERE user_id = $userId GROUP BY GameID)
               AND gd.Title IS NOT NULL
               GROUP BY GameID, GameTitle
               HAVING NoteCount > 0
