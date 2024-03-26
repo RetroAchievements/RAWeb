@@ -25,6 +25,7 @@ class PlayerBadgeFactory extends Factory
     {
         return [
             'User' => $this->fakeUsername(),
+            'user_id' => 1,
             'AwardType' => AwardType::Mastery,
             'AwardData' => fake()->numberBetween(0, 9999) * 10,
             'AwardDataExtra' => 0,
