@@ -72,9 +72,9 @@ class GameListTest extends TestCase
                        $game4Achievements->get(1)->Points +
                        $game4Achievements->get(2)->Points +
                        $game4Achievements->get(3)->Points;
-        $hash1 = new GameHash(['GameID' => $game4->ID, 'MD5' => 'abcdef0123456789']);
+        $hash1 = new GameHash(['game_id' => $game4->ID, 'md5' => 'abcdef0123456789']);
         $game4->hashes()->save($hash1);
-        $hash2 = new GameHash(['GameID' => $game4->ID, 'MD5' => 'deadbeefdeadbeef']);
+        $hash2 = new GameHash(['game_id' => $game4->ID, 'md5' => 'deadbeefdeadbeef']);
         $game4->hashes()->save($hash2);
 
         // ensure metrics are updated
@@ -147,8 +147,8 @@ class GameListTest extends TestCase
                     'NumLeaderboards' => 0,
                     'ForumTopicID' => null,
                     'Hashes' => [
-                        $hash1->MD5,
-                        $hash2->MD5,
+                        $hash1->md5,
+                        $hash2->md5,
                     ],
                 ],
                 [
