@@ -237,7 +237,7 @@ function getSubscribersOfArticle(
     $qry = "
         SELECT DISTINCT _ua.*
         FROM Comment AS _c
-        INNER JOIN UserAccounts as _ua ON _ua.ID = _c.UserID
+        INNER JOIN UserAccounts as _ua ON _ua.ID = _c.user_id
         WHERE _c.ArticleType = $articleType
               AND _c.ArticleID = $articleID
               $websitePrefsFilter
@@ -284,11 +284,11 @@ function isUserSubscribedToArticleComments(int $articleType, int $articleID, int
             SELECT DISTINCT ua.*
             FROM
                 Comment AS c
-                LEFT JOIN UserAccounts AS ua ON ua.ID = c.UserID
+                LEFT JOIN UserAccounts AS ua ON ua.ID = c.user_id
             WHERE
                 c.ArticleType = $articleType
                 AND c.ArticleID = $articleID
-                AND c.UserID = $userID
+                AND c.user_id = $userID
         "
     );
 }
