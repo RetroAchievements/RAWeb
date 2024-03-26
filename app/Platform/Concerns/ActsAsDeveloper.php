@@ -61,13 +61,5 @@ trait ActsAsDeveloper
         return $this->hasMany(Ticket::class, 'resolver_id', 'ID');
     }
 
-    /**
-     * @return HasMany<AchievementSetClaim>
-     */
-    public function achievementSetClaims(): HasMany
-    {
-        return $this->hasMany(AchievementSetClaim::class, 'User', 'User');
-    }
-
     // == scopes
 }
