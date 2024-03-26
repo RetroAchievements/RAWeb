@@ -48,12 +48,11 @@ class AchievementSetClaimTest extends TestCase
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
 
         insertClaim(
-            $user->User,
+            $user,
             $game->ID,
             ClaimType::Primary,
             ClaimSetType::NewSet,
             ClaimSpecial::None,
-            Permissions::Developer
         );
 
         completeClaim(
@@ -100,12 +99,11 @@ class AchievementSetClaimTest extends TestCase
         $user = User::factory()->create(['Permissions' => Permissions::JuniorDeveloper]);
 
         insertClaim(
-            $user->User,
+            $user,
             $game->ID,
             ClaimType::Primary,
             ClaimSetType::NewSet,
             ClaimSpecial::None,
-            Permissions::JuniorDeveloper
         );
 
         dropClaim(
@@ -169,12 +167,11 @@ class AchievementSetClaimTest extends TestCase
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
 
         insertClaim(
-            $user->User,
+            $user,
             $game->ID,
             ClaimType::Primary,
             ClaimSetType::NewSet,
             ClaimSpecial::None,
-            Permissions::Developer
         );
         $claim = AchievementSetClaim::first();
 

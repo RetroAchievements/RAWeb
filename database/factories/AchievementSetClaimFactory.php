@@ -29,7 +29,8 @@ class AchievementSetClaimFactory extends Factory
     {
         return [
             'User' => $this->fakeUsername(),
-            'GameID' => 0,
+            'user_id' => 1,
+            'game_id' => 0,
             'ClaimType' => ClaimType::Primary,
             'SetType' => ClaimSetType::NewSet,
             'Status' => ClaimStatus::Active,

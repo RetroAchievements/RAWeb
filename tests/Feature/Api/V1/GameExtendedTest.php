@@ -188,9 +188,14 @@ class GameExtendedTest extends TestCase
         ]);
 
         /** @var User $user2 */
-        $user2 = User::factory()->create();
-        insertClaim($user2->User, $game->ID, ClaimType::Primary, ClaimSetType::NewSet,
-                    ClaimSpecial::None, Permissions::Developer);
+        $user2 = User::factory()->create(['Permissions' => Permissions::Developer]);
+        insertClaim(
+            $user2,
+            $game->id,
+            ClaimType::Primary,
+            ClaimSetType::NewSet,
+            ClaimSpecial::None
+        );
         $claim = AchievementSetClaim::first();
 
         $this->get($this->apiUrl('GetGameExtended', ['i' => $game->ID]))

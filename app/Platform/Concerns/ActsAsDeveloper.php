@@ -22,6 +22,14 @@ trait ActsAsDeveloper
     // == relations
 
     /**
+     * @return HasMany<AchievementSetClaim>
+     */
+    public function achievementSetClaims(): HasMany
+    {
+        return $this->hasMany(AchievementSetClaim::class, 'user_id', 'ID');
+    }
+
+    /**
      * @return HasMany<Achievement>
      */
     public function authoredAchievements(): HasMany
@@ -51,14 +59,6 @@ trait ActsAsDeveloper
     public function resolvedTickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'resolver_id', 'ID');
-    }
-
-    /**
-     * @return HasMany<AchievementSetClaim>
-     */
-    public function achievementSetClaims(): HasMany
-    {
-        return $this->hasMany(AchievementSetClaim::class, 'User', 'User');
     }
 
     // == scopes

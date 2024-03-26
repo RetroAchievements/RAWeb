@@ -37,19 +37,18 @@ class UserClaimsTest extends TestCase
         Carbon::setTestNow(Carbon::now());
 
         /** @var User $user */
-        $user = User::factory()->create();
+        $user = User::factory()->create(['Permissions' => Permissions::Developer]);
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
 
         insertClaim(
-            $user->User,
-            $game->ID,
+            $user,
+            $game->id,
             ClaimType::Primary,
             ClaimSetType::NewSet,
             ClaimSpecial::None,
-            Permissions::Developer
         );
         $claim = AchievementSetClaim::first();
 
