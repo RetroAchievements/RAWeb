@@ -26,7 +26,7 @@
         </p>
 
         <div class="hidden sm:flex flex-col newsauthor shadowoutline absolute bottom-2 right-2">
-            {!! userAvatar($news->Author, icon: false) !!}
+            {!! userAvatar($news->user->User, icon: false) !!}
             {{ $news->Timestamp->format('M j, Y') }}
         </div>
     </div>
