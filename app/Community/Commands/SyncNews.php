@@ -39,8 +39,8 @@ class SyncNews extends Command
     protected function query(): Builder
     {
         return DB::table('News')
-            ->select('News.*', 'UserAccounts.ID as AuthorID')
-            ->join('UserAccounts', 'UserAccounts.User', '=', 'News.Author');
+            ->select('News.*', 'UserAccounts.ID')
+            ->join('UserAccounts', 'UserAccounts.ID', '=', 'News.user_id');
     }
 
     protected function preProcessEntity(object $origin, array $transformed): array

@@ -34,7 +34,6 @@ class News extends BaseModel implements HasComments, HasMedia
     // TODO rename Updated column to updated_at
     // TODO rename Title column to title
     // TODO rename Payload column to body
-    // TODO drop Author, migrate to user_id
     // TODO drop Link, include in body/Payload
     // TODO drop Image, migrate to media
     protected $table = 'News';
@@ -48,7 +47,7 @@ class News extends BaseModel implements HasComments, HasMedia
         'Title',
         'lead',
         'Payload',
-        'Author',
+        'user_id',
         'Link',
         'Image',
         'publish_at',
@@ -146,7 +145,7 @@ class News extends BaseModel implements HasComments, HasMedia
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     // == scopes
