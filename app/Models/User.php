@@ -160,16 +160,17 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     ];
 
     protected $visible = [
-        "ID",
-        "avatarUrl",
-        'Created',
-        "achievements_unlocked",
         "achievements_unlocked_hardcore",
-        "completion_percentage_average",
+        "achievements_unlocked",
+        "avatarUrl",
         "completion_percentage_average_hardcore",
+        "completion_percentage_average",
         "ContribCount",
         "ContribYield",
+        "Created",
         "Deleted",
+        "ID",
+        "isMuted",
         "LastLogin",
         "ManuallyVerified",
         "Motto",
@@ -177,11 +178,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         "RAPoints",
         "RASoftcorePoints",
         "TrueRAPoints",
-        "websitePrefs",
-        'UnreadMessageCount',
+        "UnreadMessageCount",
         "Untracked",
         "User",
         "UserWallActive",
+        "websitePrefs",
     ];
 
     protected $appends = [
@@ -371,6 +372,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     public function getAvatarUrlAttribute(): string
     {
         return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
+    }
+
+    public function getIsMutedAttribute(): bool
+    {
+        return $this->isMuted();
     }
 
     // TODO remove after rename

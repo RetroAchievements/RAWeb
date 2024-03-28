@@ -180,6 +180,7 @@ function authenticateFromCookie(
     }
 
     $userDetailsOut = $user->toArray();
+    $userDetailsOut['isMuted'] = $user->isMuted;
     $userOut = $user->getAttribute('User');
     $permissionsOut = $user->getAttribute('Permissions');
 
