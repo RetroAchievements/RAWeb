@@ -96,7 +96,7 @@ abstract class TestCase extends BaseTestCase
         }
 
         /** @var Collection<int, Achievement> $achievements */
-        $achievements = $game->achievements()->saveMany(Achievement::factory()->count($amount)->create());
+        $achievements = $game->achievements()->saveMany(Achievement::factory()->published()->count($amount)->create());
 
         return $achievements;
     }
