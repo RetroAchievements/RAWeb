@@ -80,7 +80,10 @@ if (!$isPreview) {
                             <x-forum.post-moderation-tools :commentAuthor="$commentAuthor"/>
                         @endif
 
-                        @if ($showEditButton)
+                        @php
+                            $user = auth()->user();
+                        @endphp
+                        @if ($showEditButton && !$user?->isMuted)
                             <a href='/editpost.php?comment={{ $commentId }}' class='btn p-1 lg:text-xs'>Edit</a>
                         @endif
 
