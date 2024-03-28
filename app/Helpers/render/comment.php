@@ -97,7 +97,7 @@ function RenderCommentsComponent(
 
     if (isset($user) && !$user->isMuted) {
         // User comment input:
-        RenderCommentInputRow($user, $articleTypeID, $articleID);
+        RenderCommentInputRow($user->User, $articleTypeID, $articleID);
     }
 
     echo "</tbody></table>";
