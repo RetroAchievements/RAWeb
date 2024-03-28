@@ -29,20 +29,19 @@ class UpdateGameMetrics
         $game->points_total = $game->achievements()->published()->sum('points');
         // NOTE $game->TotalTruePoints are updated separately
 
-        $parentGameId = getParentGameIdFromGameTitle($game->Title, $game->system_id);
-        if ($parentGameId) {
+        $parentGame = getParentGameFromGameTitle($game->Title, $game->system_id);
+        if ($parentGame) {
             // NOTE: This assumes everyone who plays a child set also plays the parent set.
             //       These counts should technically be the union of users from both sets.
-            $parentGame = Game::firstWhere('ID', $parentGameId);
-            if ($parentGame && $parentGame->players_total > 0) {
+            if ($parentGame->players_total > 0) {
                 $game->players_total = $parentGame->players_total;
                 $game->players_hardcore = $parentGame->players_hardcore;
             } else {
-                $parentGameId = null;
+                $parentGame = null;
             }
         }
 
-        if (!$parentGameId) {
+        if (!$parentGame) {
             $game->players_total = $game->playerGames()
                 ->join('UserAccounts as user', 'user.ID', '=', 'player_games.user_id')
                 ->where('player_games.achievements_unlocked', '>', 0)

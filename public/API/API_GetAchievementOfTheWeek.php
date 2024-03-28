@@ -85,9 +85,8 @@ $forumTopic = [
     'ID' => $staticData['Event_AOTW_ForumID'] ?? null,
 ];
 
-$parentGameID = getParentGameIdFromGameTitle($game['Title'], $achievementData['ConsoleID']);
-
-$unlocks = getAchievementUnlocksData((int) $achievementID, null, $numWinners, $numWinnersHardcore, $numPossibleWinners, $parentGameID, 0, 500);
+$parentGame = getParentGameFromGameTitle($game['Title'], $achievementData['ConsoleID']);
+$unlocks = getAchievementUnlocksData((int) $achievementID, null, $numWinners, $numWinnersHardcore, $numPossibleWinners, $parentGame?->id, 0, 500);
 
 /*
  * reset unlocks if there is no start date to prevent listing invalid entries
