@@ -263,9 +263,9 @@ function getAllTickets(
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
-    // Karama condition
-    $notAuthorCond = getNotAuthorCondition($ticketFilters);
-    $notReporterCond = getNotReporterCondition($ticketFilters);
+    // Karma condition - warning: excludes unresolved tickets
+    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
+    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
 
     // Progression filter
     $progressionCond = getProgressionCondition($ticketFilters);
@@ -521,16 +521,16 @@ function countOpenTickets(
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
-    // Not Reporter condition
+    // Not Reporter condition - warning: excludes unresolved tickets
     $reporterJoin = "";
-    $notReporterCond = getNotReporterCondition($ticketFilters);
+    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
     if ($notReporterCond != "") {
         $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id";
     }
 
-    // Not Author condition
+    // Not Author condition - warning: excludes unresolved tickets
     $resolverJoin = "";
-    $notAuthorCond = getNotAuthorCondition($ticketFilters);
+    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
     if ($notAuthorCond != "" || $notReporterCond != "") {
         $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
@@ -775,8 +775,9 @@ function getDevActiveCondition(int $ticketFilters): ?string
 
 /**
  * Gets the Not Author condition to put into the main ticket query.
+ * Warning: excludes unresolved tickets
  */
-function getNotAuthorCondition(int $ticketFilters): string
+function getResolvedByNonAuthorCondition(int $ticketFilters): string
 {
     $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonAuthor);
 
@@ -789,8 +790,9 @@ function getNotAuthorCondition(int $ticketFilters): string
 
 /**
  * Gets the Not Reporter condition to put into the main ticket query.
+ * Warning: excludes unresolved tickets
  */
-function getNotReporterCondition(int $ticketFilters): string
+function getResolvedByNonReporterCondition(int $ticketFilters): string
 {
     $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonReporter);
 
