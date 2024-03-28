@@ -80,7 +80,7 @@ function RenderCommentsComponent(
             $lastID = $comment['ID'];
         }
 
-        $canDeleteComment = $articleTypeID == ArticleType::User && $user->id === $articleID || $permissions >= Permissions::Moderator;
+        $canDeleteComment = $articleTypeID == ArticleType::User && $user?->id === $articleID || $permissions >= Permissions::Moderator;
 
         RenderArticleComment(
             $articleID,
