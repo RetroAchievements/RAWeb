@@ -90,7 +90,7 @@ function selectSearchBoxUser() {
                 <p>Find users to follow <a href="/userList.php">here</a>!</p>
             @endif
         @elseif (empty($followedUserCompletion))
-            <p>None of your followed users have played this game</p>
+            <p>None of your followed users have unlocked any achievements for this game.</p>
         @else
             <p>Compare to a followed user:</p>
             <div class="">
@@ -108,13 +108,11 @@ function selectSearchBoxUser() {
                             href="{!! route('game.compare-unlocks', ['game' => $game, 'user' => $friend->User]) !!}"
                         >
                             <x-game-progress-bar
+                                containerClassNames="py-2.5"
                                 :softcoreProgress="$completion['achievements_unlocked']"
                                 :hardcoreProgress="$completion['achievements_unlocked_hardcore']"
                                 :maxProgress="$completion['achievements_total']"
                             />
-                            <p class="text-2xs">
-                                {{ $completion['achievements_unlocked']}} of {{ $completion['achievements_total'] }}
-                            </p>
                         </a>
                     </div>
                 @endforeach
