@@ -26,6 +26,10 @@ if (!empty($followedUserIds)) {
 
     $followedUserCompletion = PlayerGame::where('game_id', $game->ID)
         ->whereIn('user_id', $followedUserIds)
+        ->where(function ($query) {
+            $query->where('achievements_unlocked', '>', 0)
+                ->orWhere('achievements_unlocked_hardcore', '>', 0);
+        })
         ->select($fields)
         ->orderBy('achievements_unlocked_hardcore', 'DESC')
         ->orderBy('achievements_unlocked', 'DESC')
@@ -41,40 +45,43 @@ $placeholderUrl = route('game.compare-unlocks', ['game' => $game, 'user' => $pla
 
 <script>
 jQuery(document).ready(function onReady($) {
-  var $searchBoxCompareuser = $('.searchboxgamecompareuser');
-  $searchBoxCompareuser.autocomplete({
-    source: function (request, response) {
-      request.source = 'game-compare';
-      $.post('/request/search.php', request)
-        .done(function (data) {
-          response(data);
-        });
-    },
-    minLength: 2
-  });
-  $searchBoxCompareuser.autocomplete({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    select: function (event, ui) {
-      return false;
-    },
-  });
-  $searchBoxCompareuser.on('autocompleteselect', function (event, ui) {
-    var placeholderUrl = "{!! $placeholderUrl !!}";
-    window.location = placeholderUrl.replace("%5Buser%5D", ui.item.label);
-    return false;
-  });
+    const $searchBoxCompareuser = $(".searchboxgamecompareuser");
+    $searchBoxCompareuser.autocomplete({
+        source(request, response) {
+            request.source = "game-compare";
+            $.post("/request/search.php", request).done(function (data) {
+                response(data);
+            });
+        },
+        minLength: 2,
+    });
+    $searchBoxCompareuser.autocomplete({
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        select(event, ui) {
+            return false;
+        },
+    });
+    $searchBoxCompareuser.on("autocompleteselect", function (event, ui) {
+        const placeholderUrl = "{!! $placeholderUrl !!}";
+        window.location = placeholderUrl.replace("%5Buser%5D", ui.item.label);
+
+        return false;
+    });
 });
 
 function selectSearchBoxUser() {
-  var $searchBoxCompareuser = $('.searchboxgamecompareuser');
-  var placeholderUrl = "{!! $placeholderUrl !!}";
-  window.location = placeholderUrl.replace("%5Buser%5D", $searchBoxCompareuser.val());
+    const $searchBoxCompareuser = $(".searchboxgamecompareuser");
+    const placeholderUrl = "{!! $placeholderUrl !!}";
+    window.location = placeholderUrl.replace(
+        "%5Buser%5D",
+        $searchBoxCompareuser.val()
+    );
 }
 </script>
 
 <div id="gamecompare" class="component">
     <h2 class="text-h3">Compare Progress</h2>
-    <div class="nicebox">
+    <div class="nicebox flex flex-col gap-y-2">
         @if ($followedUserCompletion === null)
             <p>RetroAchievements is a lot more fun with others.</p>
             @if ($user === null)
@@ -86,27 +93,40 @@ function selectSearchBoxUser() {
             <p>None of your followed users have played this game</p>
         @else
             <p>Compare to a followed user:</p>
-            <table class="table-highlight"><tbody>
-            @foreach ($followedUserCompletion as $completion)
-                <?php $friend = User::find($completion['user_id']); ?>
-                <tr>
-                    <td>{!! userAvatar($friend, iconSize: 20) !!}</td>
-                    <td class="text-right">
-                        <a href="{!! route('game.compare-unlocks', ['game' => $game, 'user' => $friend->User]) !!}">
-                            {{ $completion['achievements_unlocked'] }}/{{ $completion['achievements_total'] }}
-                        </a>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody></table>
+            <div class="">
+                @foreach ($followedUserCompletion as $completion)
+                    @php
+                        $friend = User::find($completion['user_id']);
+                    @endphp
+                    <div class="odd:bg-embed hover:bg-embed-highlight border border-transparent hover:border-[rgba(128,128,128,.3)] p-1 flex items-center justify-between w-full">
+                        <div>
+                            {!! userAvatar($friend, iconSize: 20) !!}
+                        </div>
 
+                        <a
+                            class="min-w-[100px] flex flex-col"
+                            href="{!! route('game.compare-unlocks', ['game' => $game, 'user' => $friend->User]) !!}"
+                        >
+                            <x-game-progress-bar
+                                :softcoreProgress="$completion['achievements_unlocked']"
+                                :hardcoreProgress="$completion['achievements_unlocked_hardcore']"
+                                :maxProgress="$completion['achievements_total']"
+                            />
+                            <p class="text-2xs">
+                                {{ $completion['achievements_unlocked']}} of {{ $completion['achievements_total'] }}
+                            </p>
+                        </a>
+                    </div>
+                @endforeach
+            </table>
         @endif
 
-        <p class="mt-3">Compare with any user:</p>
-
-        <div class="w-full flex items-center gap-x-2">
-          <input name="compareuser" type="text" class="searchboxgamecompareuser w-full" placeholder="Enter User..." />
-          <button class="btn" onclick="selectSearchBoxUser()">Select</button>
+        <div>
+            <p>Compare with any user:</p>
+            <div class="w-full flex items-center gap-x-2">
+                <input name="compareuser" type="text" class="searchboxgamecompareuser w-full" placeholder="Enter User..." />
+                <button class="btn" onclick="selectSearchBoxUser()">Select</button>
+            </div>
         </div>
     </div>
 </div>
