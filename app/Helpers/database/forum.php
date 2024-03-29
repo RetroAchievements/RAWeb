@@ -137,7 +137,7 @@ function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
 
 function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
 {
-    $query = "    SELECT ID, ForumTopicID, Payload, Author, author_id AS AuthorID, DateCreated, DateModified
+    $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified
                 FROM ForumTopicComment
                 WHERE ID=$forumPostID";
 

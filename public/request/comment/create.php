@@ -10,6 +10,10 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
+if ($userDetails['isMuted']) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:2000',
     'commentable_id' => 'required|integer',

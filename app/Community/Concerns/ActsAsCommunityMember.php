@@ -51,7 +51,8 @@ trait ActsAsCommunityMember
             'User',    // foreign key in related table pointing to this model
             'Friend',  // foreign key in related table pointing to target model
             'User',    // local key in this model
-            'User');   // local key in target model
+            'User')    // local key in target model
+            ->where('Friendship', '=', UserRelationship::Following);
     }
 
     /**
@@ -59,6 +60,7 @@ trait ActsAsCommunityMember
      */
     public function followers(): BelongsToMany
     {
+        // untested - likely needs to be refactored to match following() implementation
         return $this->belongsToMany(User::class, 'Friends', 'related_user_id', 'user_id');
     }
 

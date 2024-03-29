@@ -197,13 +197,21 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
     <?php
     $user = auth()->user();
     ?>
-    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail())
+    @guest
+        <p class="text-center">
+            You must log in before you can join this conversation.
+        </p>
+    @endguest
+
+    @if ($user?->isMuted)
+        <div class="flex justify-center bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
+            <p class="text-center text-muted">You are muted until {{ getNiceDate($user->muted_until->timestamp) }}.</p>
+        </div>
+    @endif
+
+    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->isMuted)
         <x-section>
             <div class="flex bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
-                @guest
-                    You must log in before you can join this conversation.
-                @endguest
-
                 @auth
                     <div class="hidden sm:flex flex-col gap-1 justify-start items-center lg:border-r border-neutral-700 px-0.5 pb-2 lg:py-2 lg:w-44">
                         <x-user.avatar :user="request()->user()" display="icon" iconSize="md" class="rounded-sm" />
