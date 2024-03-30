@@ -11,6 +11,8 @@ return new class() extends Migration {
     {
         Schema::table('messages', function (Blueprint $table) {
             $table->dropColumn('UserTo');
+        });
+        Schema::table('messages', function (Blueprint $table) {
             $table->dropColumn('UserFrom');
         });
     }
