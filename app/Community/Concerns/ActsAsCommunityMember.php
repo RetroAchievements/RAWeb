@@ -45,14 +45,7 @@ trait ActsAsCommunityMember
      */
     public function following(): BelongsToMany
     {
-        // return $this->belongsToMany(User::class, 'Friends', 'user_id', 'related_user_id');
-        return $this->belongsToMany(User::class,
-            'Friends', // related table
-            'User',    // foreign key in related table pointing to this model
-            'Friend',  // foreign key in related table pointing to target model
-            'User',    // local key in this model
-            'User')    // local key in target model
-            ->where('Friendship', '=', UserRelationship::Following);
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
     }
 
     /**
@@ -60,8 +53,7 @@ trait ActsAsCommunityMember
      */
     public function followers(): BelongsToMany
     {
-        // untested - likely needs to be refactored to match following() implementation
-        return $this->belongsToMany(User::class, 'Friends', 'related_user_id', 'user_id');
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
     }
 
     public function isFollowing(string $username): bool

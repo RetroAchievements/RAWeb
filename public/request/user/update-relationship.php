@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\UserRelationship;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,14 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'action' => ['required', 'integer', Rule::in(UserRelationship::cases())],
 ]);
 
-if (changeFriendStatus($user, $input['user'], (int) $input['action']) !== 'error') {
+$senderUser = auth()->user();
+$targetUser = User::firstWhere('User', $input['user']);
+
+if (!$targetUser) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+
+if (changeFriendStatus($senderUser, $targetUser, (int) $input['action']) !== 'error') {
     return back()->with('success', __('legacy.success.ok'));
 }
 

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Connect;
 
+use App\Community\Enums\UserRelationship;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Models\UserRelation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
@@ -159,11 +161,22 @@ class AchievementWonDataTest extends TestCase
 
         // second achievement - friends only
         $this->assertEquals($this->user->ID, $users[1]->ID); /* logic assumes that first user is making API call */
-        // TODO: Use UserRelation model
-        legacyDbStatement("INSERT INTO Friends (User, Friend, Friendship) VALUES (:user, :friend, 1)",
-            ['user' => $this->user->User, 'friend' => $users[10]->User]);
-        legacyDbStatement("INSERT INTO Friends (User, Friend, Friendship) VALUES (:user, :friend, 1)",
-            ['user' => $this->user->User, 'friend' => $users[4]->User]);
+
+        UserRelation::create([
+            'User' => $this->user->User,
+            'user_id' => $this->user->id,
+            'Friend' => $users[10]->User,
+            'related_user_id' => $users[10]->id,
+            'Friendship' => UserRelationship::Following,
+        ]);
+        UserRelation::create([
+            'User' => $this->user->User,
+            'user_id' => $this->user->id,
+            'Friend' => $users[4]->User,
+            'related_user_id' => $users[4]->id,
+            'Friendship' => UserRelationship::Following,
+        ]);
+
         $this->get($this->apiUrl('achievementwondata', ['a' => $achievement2->ID, 'f' => 1]))
             ->assertExactJson([
                 'Success' => true,
