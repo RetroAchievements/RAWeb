@@ -165,7 +165,7 @@ function GetLeaderboardRankingJSON(string $user, int $lbID, bool $lowerIsBetter)
     return $retVal;
 }
 
-// TODO Deprecate: fold into above
+/** @deprecated fold into GetLeaderboardRankingJSON */
 function getLeaderboardRanking(string $user, int $lbID, ?int &$rankOut = 0, ?int &$totalEntries = 0): bool
 {
     sanitize_sql_inputs($user);
@@ -580,16 +580,16 @@ function submitLBData(
     return false;
 }
 
-function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, string $user): bool
+function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, User $user): bool
 {
     if ($gameID == 0) {
         return false;
     }
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
-    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created)
+    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, author_id, Created)
                                 VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
-                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), '$user', NOW())";
+                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), '{$user->User}', {$user->id}, NOW())";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -631,8 +631,10 @@ function UploadNewLeaderboard(
         }
     }
 
+    $authorModel = User::firstWhere('User', $author);
+
     // Prevent non-developers from uploading or modifying leaderboards
-    $userPermissions = getUserPermissions($author);
+    $userPermissions = (int) $authorModel->getAttribute('Permissions');
     if ($userPermissions < Permissions::Developer) {
         if ($userPermissions < Permissions::JuniorDeveloper
             || (!empty($originalAuthor) && $author !== $originalAuthor)) {
@@ -655,7 +657,7 @@ function UploadNewLeaderboard(
     }
 
     if (!isset($idInOut) || $idInOut == 0) {
-        if (!SubmitNewLeaderboard($gameID, $idInOut, $author)) {
+        if (!SubmitNewLeaderboard($gameID, $idInOut, $authorModel)) {
             $errorOut = "Internal error creating new leaderboard.";
 
             return false;
