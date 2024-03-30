@@ -29,8 +29,8 @@ class ClearAccountDataAction
         // TODO $user->activities()->delete();
         // TODO $user->emailConfirmations()->delete();
         DB::statement('DELETE FROM EmailConfirmations WHERE User = :username', ['username' => $user->User]);
-        $user->followers()->delete();
-        $user->following()->delete();
+        $user->relationships()->delete();
+        $user->inverseRelationships()->delete();
         // TODO $user->ratings()->delete();
         DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
         // TODO $user->achievementSetRequests()->delete();

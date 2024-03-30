@@ -43,6 +43,22 @@ trait ActsAsCommunityMember
     /**
      * @return BelongsToMany<User>
      */
+    public function relationships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function inverseRelationships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
     public function following(): BelongsToMany
     {
         return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id')
