@@ -9,12 +9,17 @@ use Illuminate\Support\Facades\Schema;
 return new class() extends Migration {
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('UserTo');
-        });
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('UserFrom');
-        });
+        if (Schema::hasColumn('messages', 'UserTo')) {
+            Schema::table('messages', function (Blueprint $table) {
+                $table->dropColumn('UserTo');
+            });
+        }
+
+        if (Schema::hasColumn('messages', 'UserFrom')) {
+            Schema::table('messages', function (Blueprint $table) {
+                $table->dropColumn('UserFrom');
+            });
+        }
     }
 
     public function down(): void
