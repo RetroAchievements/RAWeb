@@ -12,6 +12,8 @@ class Message extends BaseModel
 {
     use Searchable;
 
+    protected $table = 'messages';
+
     public const UPDATED_AT = null;
 
     protected $fillable = [
