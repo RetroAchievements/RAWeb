@@ -20,7 +20,7 @@ class Rating extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'User',
+        'user_id',
         'RatingObjectType',
         'RatingID',
         'RatingValue',

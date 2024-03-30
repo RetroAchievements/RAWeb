@@ -7,6 +7,7 @@ namespace App\Community\Concerns;
 use App\Community\Enums\UserRelationship;
 use App\Models\ForumTopicComment;
 use App\Models\MessageThreadParticipant;
+use App\Models\Rating;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\UserActivity;
@@ -126,6 +127,14 @@ trait ActsAsCommunityMember
     public function forumPosts(): HasMany
     {
         return $this->hasMany(ForumTopicComment::class, 'AuthorID', 'ID');
+    }
+
+    /**
+     * @return HasMany<Rating>
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class, 'user_id', 'ID');
     }
 
     /**
