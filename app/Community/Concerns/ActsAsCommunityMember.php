@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+// TODO organize accessors, relations, and scopes
+
 trait ActsAsCommunityMember
 {
     public static function bootActsAsCommunityMember(): void
