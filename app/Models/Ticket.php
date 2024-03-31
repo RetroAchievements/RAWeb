@@ -19,12 +19,10 @@ class Ticket extends BaseModel
 
     // TODO rename Ticket table to tickets
     // TODO rename ID column to id
-    // TODO rename ReportedByUserID column to reporter_id
     // TODO rename ReportType column to type
     // TODO rename ReportNotes column to body
     // TODO rename ReportedAt column to created_at
     // TODO rename ResolvedAt column to resolved_at
-    // TODO rename ResolvedByUserID column to resolver_id
     // TODO rename ReportState column to state
     // TODO rename Updated column to updated_at
     // TODO drop AchievementID, use ticketable morph instead
@@ -73,6 +71,22 @@ class Ticket extends BaseModel
     public function achievement(): BelongsTo
     {
         return $this->belongsTo(Achievement::class, 'AchievementID');
+    }
+
+    /**
+     * @return BelongsTo<User, Ticket>
+     */
+    public function reporter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reporter_id', 'ID');
+    }
+
+    /**
+     * @return BelongsTo<User, Ticket>
+     */
+    public function resolver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolver_id', 'ID');
     }
 
     // == scopes

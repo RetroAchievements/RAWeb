@@ -8,6 +8,10 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
+if ($userDetails['isMuted']) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'forum' => 'required|integer|exists:Forum,ID',
     'title' => 'required|string|max:255',

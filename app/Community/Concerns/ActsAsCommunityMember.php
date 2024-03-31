@@ -7,6 +7,7 @@ namespace App\Community\Concerns;
 use App\Community\Enums\UserRelationship;
 use App\Models\ForumTopicComment;
 use App\Models\MessageThreadParticipant;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Models\UserComment;
@@ -55,7 +56,8 @@ trait ActsAsCommunityMember
             'User',    // foreign key in related table pointing to this model
             'Friend',  // foreign key in related table pointing to target model
             'User',    // local key in this model
-            'User');   // local key in target model
+            'User')    // local key in target model
+            ->where('Friendship', '=', UserRelationship::Following);
     }
 
     /**
@@ -63,6 +65,7 @@ trait ActsAsCommunityMember
      */
     public function followers(): BelongsToMany
     {
+        // untested - likely needs to be refactored to match following() implementation
         return $this->belongsToMany(User::class, 'Friends', 'related_user_id', 'user_id');
     }
 
@@ -128,5 +131,13 @@ trait ActsAsCommunityMember
     public function forumPosts(): HasMany
     {
         return $this->hasMany(ForumTopicComment::class, 'AuthorID', 'ID');
+    }
+
+    /**
+     * @return HasMany<Subscription>
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, 'user_id', 'ID');
     }
 }

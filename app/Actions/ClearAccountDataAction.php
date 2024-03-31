@@ -37,8 +37,7 @@ class ClearAccountDataAction
         $user->gameListEntries()->delete();
         // TODO $user->badges()->delete();
         DB::statement('DELETE FROM SiteAwards WHERE User = :username', ['username' => $user->User]);
-        // TODO $user->subscriptions()->delete();
-        DB::statement('DELETE FROM Subscription WHERE UserID = :userId', ['userId' => $user->ID]);
+        $user->subscriptions()->delete();
 
         // use action to delete each participation so threads with no remaing active participants get cleaned up
         $deleteMessageThreadAction = new DeleteMessageThreadAction();
