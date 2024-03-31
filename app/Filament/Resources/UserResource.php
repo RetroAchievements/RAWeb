@@ -168,7 +168,10 @@ class UserResource extends Resource
                                 ->maxDate('2038-01-18')
                                 ->afterStateHydrated(function (DateTimePicker $component, ?string $state) use ($form) {
                                     if (!$state) {
-                                        $component->state($form->model?->muted_until);
+                                        /** @var User $user */
+                                        $user = $form->model;
+
+                                        $component->state($user->muted_until);
                                     }
                                 }),
                             Forms\Components\Toggle::make('ManuallyVerified')
