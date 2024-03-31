@@ -109,6 +109,21 @@ trait ActsAsCommunityMember
         return !$this->isMuted();
     }
 
+    public function getIsMutedAttribute(): bool
+    {
+        return $this->isMuted();
+    }
+
+    public function getIsUnrankedAttribute(): bool
+    {
+        return $this->isUnranked();
+    }
+
+    public function getIsBannedAttribute(): bool
+    {
+        return $this->isBanned();
+    }
+
     /**
      * @return MorphMany<UserComment>
      */

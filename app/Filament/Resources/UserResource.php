@@ -135,7 +135,13 @@ class UserResource extends Resource
                                 ->label('Forum verified')
                                 ->boolean(),
                             Infolists\Components\TextEntry::make('muted_until')
-                                ->hidden(fn ($state) => !$state)
+                                ->hidden(function ($state) {
+                                    if (!$state) {
+                                        return true;
+                                    }
+
+                                    return $state->isPast();
+                                })
                                 ->helperText('Community interactions not allowed.')
                                 ->color('warning')
                                 ->dateTime(),
@@ -171,7 +177,9 @@ class UserResource extends Resource
                                         /** @var User $user */
                                         $user = $form->model;
 
-                                        $component->state($user->muted_until);
+                                        $utcMutedUntil = $user->muted_until?->setTimezone('UTC');
+                                        $formattedDate = $utcMutedUntil?->format('Y-m-d');
+                                        $component->state($formattedDate);
                                     }
                                 }),
                             Forms\Components\Toggle::make('ManuallyVerified')

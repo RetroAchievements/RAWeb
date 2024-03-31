@@ -385,21 +385,6 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return media_asset('UserPic/' . $this->getAttribute('User') . '.png');
     }
 
-    public function getIsMutedAttribute(): bool
-    {
-        return $this->isMuted();
-    }
-
-    public function getIsUnrankedAttribute(): bool
-    {
-        return $this->isUnranked();
-    }
-
-    public function getIsBannedAttribute(): bool
-    {
-        return $this->isBanned();
-    }
-
     // TODO remove after rename
 
     public function getIdAttribute(): ?int
