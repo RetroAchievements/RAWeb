@@ -5,10 +5,11 @@ use App\Community\Enums\UserGameListType;
 
 @props([
     'gameId' => 0,
-    'user' => null,
 ])
 
 <?php
+$user = auth()->user();
+
 $gameRequests = getSetRequestCount($gameId);
 $userRequests = getUserRequestsInformation($user, $gameId);
 $userRequestsRemaining = $userRequests['remaining'];
