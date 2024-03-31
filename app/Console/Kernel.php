@@ -59,7 +59,6 @@ class Kernel extends ConsoleKernel
                     // $this->call('ra:sync:comments');
                     // $this->call('ra:sync:user-relations');
                     // $this->call('ra:sync:messages');
-                    // $this->call('ra:sync:ratings');
                     // $this->call('ra:sync:tickets');
                     // $this->call('ra:sync:votes');
                 });

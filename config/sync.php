@@ -17,7 +17,6 @@ use App\Models\Message;
 use App\Models\News;
 use App\Models\PlayerBadge;
 use App\Models\PlayerSession;
-use App\Models\Rating;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -316,22 +315,6 @@ return [
         //         'UserID' => [
         //             'key' => 'user_id',
         //         ],
-        //     ],
-        // ],
-
-        /*
-         * Rating                 41k    incremental by Updated
-         */
-        // TODO
-        // 'ratings' => [
-        //     'model' => Rating::class,
-        //     'strategy' => SyncStrategy::UPSERT,
-        //     'reference_model' => Rating::class,
-        //     'reference_key' => 'Updated',
-        //     'unique_key' => 'id',
-        //     'require' => [
-        //     ],
-        //     'map' => [
         //     ],
         // ],
 

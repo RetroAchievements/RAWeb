@@ -10,7 +10,6 @@ use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
 use App\Community\Commands\SyncForumTopics;
 use App\Community\Commands\SyncNews;
-use App\Community\Commands\SyncRatings;
 use App\Community\Commands\SyncTickets;
 use App\Community\Commands\SyncUserRelations;
 use App\Community\Commands\SyncVotes;
@@ -34,7 +33,6 @@ use App\Models\GameComment;
 use App\Models\Message;
 use App\Models\News;
 use App\Models\NewsComment;
-use App\Models\Rating;
 use App\Models\Subscription;
 use App\Models\Ticket;
 use App\Models\TriggerTicket;
@@ -61,7 +59,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncForums::class,
                 SyncForumTopics::class,
                 SyncNews::class,
-                SyncRatings::class,
                 SyncTickets::class,
                 SyncUserRelations::class,
                 SyncVotes::class,
@@ -82,7 +79,6 @@ class AppServiceProvider extends ServiceProvider
             'message' => Message::class,
             'news' => News::class,
             'news.comment' => NewsComment::class,
-            'rating' => Rating::class,
             'subscription' => Subscription::class,
             'ticket' => Ticket::class,
             'trigger.ticket' => TriggerTicket::class,

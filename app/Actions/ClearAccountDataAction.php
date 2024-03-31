@@ -32,8 +32,6 @@ class ClearAccountDataAction
         // TODO $user->followers()->delete();
         // TODO $user->following()->delete();
         DB::statement('DELETE FROM Friends WHERE User = :username OR Friend = :friendUsername', ['username' => $user->User, 'friendUsername' => $user->User]);
-        // TODO $user->ratings()->delete();
-        DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
         // TODO $user->achievementSetRequests()->delete();
         DB::statement('DELETE FROM SetRequest WHERE User = :username', ['username' => $user->User]);
         // TODO $user->badges()->delete();
