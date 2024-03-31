@@ -164,7 +164,7 @@ class UserResource extends Resource
                                 ->time(false)
                                 ->suffix('at midnight')
                                 ->native(false)
-                                ->displayFormat('m/d/Y')
+                                ->displayFormat('Y-m-d')
                                 ->maxDate('2038-01-18')
                                 ->afterStateHydrated(function (DateTimePicker $component, ?string $state) use ($form) {
                                     if (!$state) {
