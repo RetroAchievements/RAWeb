@@ -104,6 +104,7 @@ $shouldMoveRoleToNextLine =
         </div>
     </div>
 
+    {{-- TODO port moderator tools to Filament, replace button with <a> link to Filament panel /manage/users/{username} --}}
     @if ($amIModerator)
         <button class="absolute bottom-0 right-0 btn" onclick="toggleModeratorTools()">
             Moderate ▼
@@ -111,6 +112,7 @@ $shouldMoveRoleToNextLine =
     @endif
 </div>
 
+{{-- TODO remove when moderator tools ported to Filament --}}
 @if ($amIModerator)
     <script>
     function toggleModeratorTools() {

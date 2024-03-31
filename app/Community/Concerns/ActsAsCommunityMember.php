@@ -79,6 +79,16 @@ trait ActsAsCommunityMember
         return !empty($this->forum_verified_at);
     }
 
+    public function isUnranked(): bool
+    {
+        return !empty($this->unranked_at);
+    }
+
+    public function isRanked(): bool
+    {
+        return !$this->isUnranked();
+    }
+
     public function isBanned(): bool
     {
         return !empty($this->banned_at);

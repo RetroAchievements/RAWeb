@@ -317,6 +317,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
                 // 'locale_time',
                 'ManuallyVerified',
                 'Motto',
+                'muted_until',
                 'timezone',
                 'unranked_at',
                 'Untracked',
@@ -349,6 +350,16 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return 'User';
     }
 
+    public function isModerated(): bool
+    {
+        return
+            $this->muted_until?->isFuture()
+            || $this->unranked_at !== null
+            || $this->banned_at !== null
+            || $this->DeleteRequested !== null
+        ;
+    }
+
     public function isNew(): bool
     {
         return Carbon::now()->diffInMonths($this->Created) < 1;
@@ -377,6 +388,16 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     public function getIsMutedAttribute(): bool
     {
         return $this->isMuted();
+    }
+
+    public function getIsUnrankedAttribute(): bool
+    {
+        return $this->isUnranked();
+    }
+
+    public function getIsBannedAttribute(): bool
+    {
+        return $this->isBanned();
     }
 
     // TODO remove after rename

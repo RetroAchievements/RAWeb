@@ -29,6 +29,7 @@ $hasPatreonBadge = HasPatreonBadge($targetUsername);
 $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUsername);
 ?>
 
+{{-- TODO port to Filament and delete component --}}
 <div
     id="moderator-tools-content"
     class="bg-embed hidden border-x border-b border-text-muted py-2 px-4 w-[calc(100%+40px)] -mx-5 -mt-3 sm:-mt-1.5 mb-4"
