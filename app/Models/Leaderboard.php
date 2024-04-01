@@ -68,6 +68,12 @@ class Leaderboard extends BaseModel
         return route('leaderboard.show', [$this, $this->getSlugAttribute()]);
     }
 
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
     public function getPermalinkAttribute(): string
     {
         return route('leaderboard.show', $this);
@@ -87,6 +93,6 @@ class Leaderboard extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class);
+        return $this->belongsTo(Game::class, 'GameID', 'ID');
     }
 }

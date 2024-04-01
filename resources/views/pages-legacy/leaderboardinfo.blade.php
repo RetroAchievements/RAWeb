@@ -173,8 +173,6 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         // else
         //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br><br>";
 
-        echo "<div class='larger'>$lbTitle: $lbDescription</div>";
-
         echo "<table class='table-highlight'><tbody>";
         echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th class='text-right'>Result</th><th class='text-right'>Date Submitted</th></tr>";
 
