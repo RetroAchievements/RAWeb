@@ -468,8 +468,7 @@ sanitize_outputs(
                 :gameTitle="$gameTitle"
                 :consoleId="$consoleID"
                 :consoleName="$consoleName"
-                :user="$user"
-                :userPermissions="$permissions"
+                :includeAddToListButton="true"
             />
             <x-game.primary-meta
                 :developer="$developer"
@@ -568,7 +567,6 @@ sanitize_outputs(
                             <x-game.add-to-list
                                 :gameId="$gameID"
                                 :type="UserGameListType::Develop"
-                                :user="$user"
                             />
                     @endif
                     <x-game.devbox-claim-management
@@ -763,10 +761,7 @@ sanitize_outputs(
             // Only show set request option for logged in users, games without achievements, and core achievement page
             if ($user !== null && $numAchievements == 0 && $flagParam == $officialFlag) {
                 ?>
-                    <x-game.set-requests
-                        :gameId="$gameID"
-                        :user="$userModel"
-                    />
+                    <x-game.set-requests :gameId="$gameID" />
                 <?php
             }
 
