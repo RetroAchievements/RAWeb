@@ -138,7 +138,7 @@ trait ActsAsCommunityMember
      */
     public function forumPosts(): HasMany
     {
-        return $this->hasMany(ForumTopicComment::class, 'AuthorID', 'ID');
+        return $this->hasMany(ForumTopicComment::class, 'author_id', 'ID');
     }
 
     /**

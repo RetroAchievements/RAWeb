@@ -18,7 +18,6 @@ class ForumTopicComment extends BaseModel
     // TODO rename ID column to id
     // TODO rename ForumTopicID to forum_topic_id
     // TODO rename Payload column to body
-    // TODO rename AuthorID to author_id
     // TODO rename DateCreated to created_at
     // TODO rename DateModified to updated_at
     // TODO drop Author -> derived
@@ -63,6 +62,6 @@ class ForumTopicComment extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'AuthorID');
+        return $this->belongsTo(User::class, 'author_id');
     }
 }
