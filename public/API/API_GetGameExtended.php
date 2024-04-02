@@ -88,14 +88,7 @@ $gameData = [
     'Updated' => $game->Updated,
 ];
 
-/* Maps
-    The maps here are return the data in the order that the v1 api expects, originally
-    the endpoint used function calls that made queries with the data in the
-    order that the endpoint returns but the Eloquent collections order the
-    data by how the columns are laid out in the database. This adds a few ms to the
-    response time, though not enough that it has any real impact.
-*/
-
+// Use maps to structure the data with how legacy API consumers might expect it to be returned.
 if (!$gameAchievements->isEmpty()) {
     $gameListAchievements = $gameAchievements->keyBy('ID')->map(function ($am) {
         return [

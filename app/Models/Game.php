@@ -160,8 +160,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         return false;
     }
 
-    // == temp subset detection
-
+    // TODO refactor when game_achievement_sets is ready
     public function getParentGame(): ?Game
     {
         // Use regular expression to check if the title includes a subset pattern and extract the base title.
