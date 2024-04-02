@@ -85,7 +85,7 @@ $gameData = [
     'IsFinal' => $game->IsFinal,
     'RichPresencePatch' => md5($game->RichPresencePatch),
     'GuideURL' => $game->GuideURL,
-    'Updated' => $game->Updated,
+    'Updated' => $game->Updated->format('Y-m-d H:i:s'),
 ];
 
 // Use maps to structure the data with how legacy API consumers might expect it to be returned.
