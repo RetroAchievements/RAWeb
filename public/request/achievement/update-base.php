@@ -29,7 +29,7 @@ if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Autho
 $achievementId = $achievement['ID'];
 
 if (UploadNewAchievement(
-    author: $user,
+    authorUsername: $user,
     gameID: $achievement['GameID'],
     title: $input['title'],
     desc: $input['description'],

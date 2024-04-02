@@ -13,7 +13,7 @@
  *  int        ID                      unique identifier of the user
  *  int        TotalPoints             number of hardcore points the user has
  *  int        TotalSoftcorePoints     number of softcore points the user has
- *  int        TotalTruePoints         number of "white" points the user has
+ *  int        TotalTruePoints         number of RetroPoints ("white points") the user has
  *  int        Permissions             unique identifier of user's account type
  *  datetime   MemberSince             when the user joined the site
  *  int?       Rank                    user's site rank

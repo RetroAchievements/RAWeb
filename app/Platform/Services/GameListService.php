@@ -40,7 +40,7 @@ class GameListService
         $this->initializeUserAwards($user, $gameIds);
     }
 
-    public function initializeGameList(array $gameIds): void
+    public function initializeGameList(array $gameIds, bool $allowNonGameSystems = false): void
     {
         if ($this->withTicketCounts) {
             $gameTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
@@ -62,19 +62,22 @@ class GameListService
             $gameTicketsList = [];
         }
 
-        $gameModels = Game::whereIn('ID', $gameIds)
-            ->whereNotIn('ConsoleID', System::getNonGameSystems())
+        $gameModelsQuery = Game::whereIn('ID', $gameIds)
             ->orderBy('Title')
             ->select([
                 'ID', 'Title', 'ImageIcon', 'ConsoleID', 'players_total',
                 'achievements_published', 'points_total', 'TotalTruePoints',
             ]);
 
-        if ($this->withLeaderboardCounts) {
-            $gameModels = $gameModels->withCount('leaderboards');
+        if (!$allowNonGameSystems) {
+            $gameModelsQuery->whereNotIn('ConsoleID', System::getNonGameSystems());
         }
 
-        $gameModels = $gameModels->get();
+        if ($this->withLeaderboardCounts) {
+            $gameModelsQuery->withCount('leaderboards');
+        }
+
+        $gameModels = $gameModelsQuery->get();
 
         $this->consoles = System::whereIn('ID', $gameModels->pluck('ConsoleID')->unique())
             ->orderBy('Name')
@@ -213,7 +216,7 @@ class GameListService
             return;
         }
 
-        $wantToPlayGames = UserGameListEntry::where('user_id', $user->ID)
+        $wantToPlayGames = UserGameListEntry::where('user_id', $user->id)
             ->where('type', UserGameListType::Play)
             ->pluck('GameID')
             ->toArray();

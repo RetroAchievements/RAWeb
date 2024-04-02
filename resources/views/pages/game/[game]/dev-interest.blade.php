@@ -16,9 +16,14 @@ name('game.dev-interest');
     'users' => [],
 ])
 
+@php
+    $pageTitle = "{$gameTitle} - Developer Interest";
+    $pageDescription = "Developers interested in working on {$gameTitle}";
+@endphp
+
 <x-app-layout
-    pageTitle="{{ $gameTitle }} - Developer Interest"
-    pageDescription="Developers interested in working on {{ $gameTitle }}"
+    :pageTitle="$pageTitle"
+    :pageDescription="$pageDescription"
 >
     <div class='navpath'>
         {!! renderGameBreadcrumb(['GameID' => $gameId, 'GameTitle' => $gameTitle, 'ConsoleID' => $consoleId, 'ConsoleName' => $consoleName], true) !!}

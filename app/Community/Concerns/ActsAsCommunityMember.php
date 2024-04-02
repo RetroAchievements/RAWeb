@@ -7,6 +7,7 @@ namespace App\Community\Concerns;
 use App\Community\Enums\UserRelationship;
 use App\Models\ForumTopicComment;
 use App\Models\MessageThreadParticipant;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Models\UserComment;
@@ -33,10 +34,31 @@ trait ActsAsCommunityMember
     /**
      * @return HasMany<UserGameListEntry>
      */
-    public function gameList(string $type): HasMany
+    public function gameListEntries(?string $type = null): HasMany
     {
-        return $this->hasMany(UserGameListEntry::class, 'user_id', 'ID')
-            ->where('SetRequest.type', $type);
+        $query = $this->hasMany(UserGameListEntry::class, 'user_id', 'ID');
+
+        if ($type !== null) {
+            $query->where('SetRequest.type', $type);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function relationships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function inverseRelationships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
     }
 
     /**
@@ -44,13 +66,7 @@ trait ActsAsCommunityMember
      */
     public function following(): BelongsToMany
     {
-        // return $this->belongsToMany(User::class, 'Friends', 'user_id', 'related_user_id');
-        return $this->belongsToMany(User::class,
-            'Friends', // related table
-            'User',    // foreign key in related table pointing to this model
-            'Friend',  // foreign key in related table pointing to target model
-            'User',    // local key in this model
-            'User');   // local key in target model
+        return $this->relationships()->where('Friendship', '=', UserRelationship::Following);
     }
 
     /**
@@ -58,7 +74,7 @@ trait ActsAsCommunityMember
      */
     public function followers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'Friends', 'related_user_id', 'user_id');
+        return $this->inverseRelationships()->where('Friendship', '=', UserRelationship::Following);
     }
 
     public function isFollowing(string $username): bool
@@ -122,6 +138,14 @@ trait ActsAsCommunityMember
      */
     public function forumPosts(): HasMany
     {
-        return $this->hasMany(ForumTopicComment::class, 'AuthorID', 'ID');
+        return $this->hasMany(ForumTopicComment::class, 'author_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<Subscription>
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, 'user_id', 'ID');
     }
 }
