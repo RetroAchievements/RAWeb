@@ -48,7 +48,7 @@ class RevalidateAchievementSetBadgeEligibility
 
         if ($playerGame->beaten_hardcore_at === null && $playerGame->beaten_at !== null && !$softcoreBadge->exists()) {
             $badge = AddSiteAward(
-                $playerGame->user->username,
+                $playerGame->user,
                 AwardType::GameBeaten,
                 $playerGame->game->id,
                 UnlockMode::Softcore,
@@ -62,7 +62,7 @@ class RevalidateAchievementSetBadgeEligibility
             $softcoreBadge->delete();
 
             $badge = AddSiteAward(
-                $playerGame->user->username,
+                $playerGame->user,
                 AwardType::GameBeaten,
                 $playerGame->game->id,
                 UnlockMode::Hardcore,
@@ -111,7 +111,7 @@ class RevalidateAchievementSetBadgeEligibility
 
         if ($playerGame->completed_hardcore_at === null && $playerGame->completed_at !== null && !$softcoreBadge->exists()) {
             $badge = AddSiteAward(
-                $playerGame->user->username,
+                $playerGame->user,
                 AwardType::Mastery,
                 $playerGame->game->id,
                 UnlockMode::Softcore,
@@ -125,7 +125,7 @@ class RevalidateAchievementSetBadgeEligibility
             $softcoreBadge->delete();
 
             $badge = AddSiteAward(
-                $playerGame->user->username,
+                $playerGame->user,
                 AwardType::Mastery,
                 $playerGame->game->id,
                 UnlockMode::Hardcore,
