@@ -87,7 +87,7 @@ function performSearch(
                CASE WHEN CHAR_LENGTH(ftc.Payload) <= 64 THEN ftc.Payload ELSE
                CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) END AS Title
         FROM ForumTopicComment AS ftc
-        LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
+        LEFT JOIN UserAccounts AS ua ON ua.ID = ftc.author_id
         LEFT JOIN ForumTopic AS ft ON ft.ID = ftc.ForumTopicID
         WHERE ftc.Payload LIKE '%$searchQuery%' AND ft.deleted_at IS NULL
         AND ft.RequiredPermissions <= '$permissions'

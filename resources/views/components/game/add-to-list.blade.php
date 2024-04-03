@@ -4,7 +4,6 @@ use App\Enums\Permissions;
 ?>
 
 @props([
-    'user' => null,
     'gameId' => 0,
     'type' => 'play',
 ])
@@ -14,7 +13,9 @@ $addButtonTooltip = __('user-game-list.' . $type . '.add');
 $removeButtonTooltip = __('user-game-list.' . $type . '.remove');
 $addVisibility = '';
 $removeVisibility = '';
-$onLists = !empty($user) ? getUserGameListsContaining($user, $gameId) : [];
+
+$user = auth()->user();
+$onLists = $user ? getUserGameListsContaining($user, $gameId) : [];
 
 $buttonTooltip = '';
 if (in_array($type, $onLists)) {

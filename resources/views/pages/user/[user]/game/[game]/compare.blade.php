@@ -78,7 +78,7 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
             <ul class="flex flex-col gap-2">
                 <x-game.link-buttons.game-link-button
                     icon="🔬"
-                    href="/usergameactivity.php?ID={{ $game->ID }}&f={{ $otherUser->User }}"
+                    href="{{ route('user.game.activity', ['user' => $otherUser, 'game' => $game]) }}"
                 >
                     View User Game Activity
                 </x-game.link-buttons.game-link-button>
