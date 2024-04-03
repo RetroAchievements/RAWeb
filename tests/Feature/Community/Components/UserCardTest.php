@@ -6,6 +6,7 @@ namespace Tests\Feature\Community\Components;
 
 use App\Community\Enums\Rank;
 use App\Enums\Permissions;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,6 +42,12 @@ class UserCardTest extends TestCase
 
     public function testItDisplaysUserRoleWhenAppropriate(): void
     {
+        Role::create([
+            'name' => Role::DEVELOPER_JUNIOR,
+            'display' => 5,
+            'guard_name' => 'web',
+        ]);
+
         User::factory()->create([
             'User' => 'mockUser',
             'Motto' => 'mockMotto',
@@ -48,10 +55,9 @@ class UserCardTest extends TestCase
             'RASoftcorePoints' => 50,
             'TrueRAPoints' => 6500,
             'Untracked' => false,
-            'Permissions' => Permissions::JuniorDeveloper,
             'Created' => '2023-07-01 00:00:00',
             'LastLogin' => '2023-07-10 00:00:00',
-        ]);
+        ])->assignRole('developer-junior');
 
         $view = $this->blade('<x-user-card user="mockUser" />');
 

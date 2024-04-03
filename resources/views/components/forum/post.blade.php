@@ -21,14 +21,13 @@ $metaContainerClassNames = "w-full mb-4 lg:mb-3 gap-x-2 flex justify-between";
 $commentAuthor = null;
 $commentAuthorDeletedDate = null;
 $commentAuthorJoinDate = null;
-$commentAuthorPermissions = null;
 
 if (!$isPreview) {
     $commentId = $commentData->ID;
     $commentAuthor = e($commentData->Author);
     $commentAuthorDeletedDate = $commentData->user->Deleted ?? null;
     $commentAuthorJoinDate = $commentData->user->Created ?? null;
-    $commentAuthorPermissions = $commentData->user->Permissions ?? null;
+    $commentAuthorVisibleRoles = $commentData->user->getVisibleRoles();
     $commentDateCreated = $commentData->DateCreated;
     $commentDateModified = $commentData->DateModified;
     $commentIsAuthorised = $commentData->Authorised;
@@ -55,7 +54,7 @@ if (!$isPreview) {
         <x-forum.post-author-box
             :authorUserName="$commentAuthor"
             :authorJoinDate="$commentAuthorJoinDate"
-            :authorPermissions="$commentAuthorPermissions"
+            :authorVisibleRoles="$commentAuthorVisibleRoles"
             :isAuthorDeleted="$commentAuthorDeletedDate !== null"
         />
 
