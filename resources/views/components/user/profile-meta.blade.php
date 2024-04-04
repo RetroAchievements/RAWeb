@@ -48,7 +48,7 @@ if ($me) {
 @endif
 
 @if (!empty($userMassData['LastGame']))
-    <x-user.profile.last-seen-in :userMassData="$userMassData" />
+    <x-user.profile.last-seen-in :userMassData="$userMassData" :user="$user" />
 @endif
 
 <div

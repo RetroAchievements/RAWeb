@@ -7,10 +7,11 @@ use Illuminate\Support\Carbon;
 
 @props([
     'userMassData' => [],
+    'user' => null, // User
 ])
 
 <?php
-$mostRecentSession = PlayerSession::where('user_id', $userMassData['ID'])
+$mostRecentSession = PlayerSession::where('user_id', $user->id)
     ->with('game')
     ->orderBy('created_at', 'desc')
     ->first();
@@ -23,7 +24,7 @@ if (!$mostRecentSession) {
 
 $mostRecentRichPresenceMessage = (
     $mostRecentSession?->rich_presence
-    ?? $userMassData['RichPresenceMsg']
+    ?? $user->RichPresenceMsg
     ?? null
 );
 
@@ -54,7 +55,8 @@ $parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
             />
 
             @if (
-                $mostRecentRichPresenceMessage
+                !$user->is_muted
+                && $mostRecentRichPresenceMessage
                 && $mostRecentRichPresenceMessage !== 'Unknown'
                 && $mostRecentRichPresenceMessage !== 'Playing ' . $sessionGame->Title
             )
