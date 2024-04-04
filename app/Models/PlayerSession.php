@@ -20,6 +20,8 @@ class PlayerSession extends BasePivot
         'duration',
         'rich_presence',
         'rich_presence_updated_at',
+        'user_agent',
+        'ip_addr',
     ];
 
     protected $casts = [

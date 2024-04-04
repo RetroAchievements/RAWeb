@@ -20,6 +20,8 @@ class ResumePlayerSession
         ?GameHash $gameHash = null,
         ?string $presence = null,
         ?Carbon $timestamp = null,
+        ?string $userAgent = null,
+        ?string $ipAddr = null,
     ): PlayerSession {
         // upsert player game and update last played date right away
         $playerGame = app()->make(AttachPlayerGame::class)
@@ -33,6 +35,12 @@ class ResumePlayerSession
         /** @var ?PlayerSession $playerSession */
         $playerSession = $user->playerSessions()
             ->where('game_id', $game->id)
+            ->where(function ($query) use ($userAgent) {
+                if ($userAgent) {
+                    $query->where('user_agent', $userAgent)
+                        ->orWhereNull('user_agent');
+                }
+            })
             ->orderByDesc('id')
             ->first();
 
@@ -43,9 +51,10 @@ class ResumePlayerSession
             $user->save();
         }
 
-        // if the session hasn't been updated in the last 10 minutes resume session
+        // if the session is less than 10 minutes old, resume session
         if ($playerSession && $timestamp->diffInMinutes($playerSession->rich_presence_updated_at) < 10) {
             $playerSession->duration = max(1, $timestamp->diffInMinutes($playerSession->created_at));
+
             if ($presence) {
                 $playerSession->rich_presence = $presence;
 
@@ -55,6 +64,15 @@ class ResumePlayerSession
                 $user->save();
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
+
+            if ($userAgent && !$playerSession->user_agent) {
+                $playerSession->user_agent = $userAgent;
+            }
+
+            if ($ipAddr && !$playerSession->ip_addr) {
+                $playerSession->ip_addr = $ipAddr;
+            }
+
             $playerSession->save(['touch' => true]);
 
             PlayerSessionResumed::dispatch($user, $game, $presence);
@@ -82,11 +100,11 @@ class ResumePlayerSession
             'rich_presence' => $presence,
             'rich_presence_updated_at' => $timestamp,
             'duration' => 1, // 1 minute is minimum duration
+            'user_agent' => $userAgent,
+            'ip_addr' => $ipAddr,
         ]);
 
         $user->playerSessions()->save($playerSession);
-
-        // TODO: store user agent
 
         PlayerSessionStarted::dispatch($user, $game, $presence);
 

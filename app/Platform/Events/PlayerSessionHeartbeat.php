@@ -25,8 +25,16 @@ class PlayerSessionHeartbeat
         public ?string $message = null,
         public ?GameHash $gameHash = null,
         public ?Carbon $timestamp = null,
+        public ?string $userAgent = null,
+        public ?string $ipAddr = null,
     ) {
         $this->timestamp ??= Carbon::now();
+
+        $request = request();
+        if ($request) {
+            $this->userAgent ??= $request->header('User-Agent', '[not provided]');
+            $this->ipAddr ??= $request->ip();
+        }
     }
 
     public function broadcastOn(): PrivateChannel
