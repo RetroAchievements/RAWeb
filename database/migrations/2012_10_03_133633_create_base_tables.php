@@ -633,6 +633,7 @@ return new class() extends Migration {
 
         if (!Schema::hasTable('Subscription')) {
             Schema::create('Subscription', function (Blueprint $table) {
+                $table->bigIncrements('id');
                 $table->enum('SubjectType', [
                     'ForumTopic',
                     'UserWall',
@@ -645,7 +646,7 @@ return new class() extends Migration {
                 $table->unsignedInteger('UserID');
                 $table->unsignedTinyInteger('State')->comment('Whether UserID is subscribed (1) or unsubscribed (0)');
 
-                $table->primary(['SubjectType', 'SubjectID', 'UserID']);
+                $table->unique(['SubjectType', 'SubjectID', 'UserID']);
             });
         }
 

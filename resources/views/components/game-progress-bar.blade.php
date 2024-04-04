@@ -1,5 +1,6 @@
 @props([
     'awardIndicator' => null, // 'unfinished' | 'beaten-softcore' | 'beaten-hardcore' | 'completed' | 'mastered' | null
+    'containerClassNames' => '',
     'hardcoreProgress' => 0,
     'maxProgress' => 100,
     'softcoreProgress' => 0,
@@ -32,7 +33,7 @@
             $tooltipLabel = "Progress: {$hardcoreProgress}/{$maxProgress} (hardcore)";
         } else if ($hardcoreProgress === 0 && $softcoreProgress > 0) {
             // Only softcore progress.
-            $tooltipLabel = "Progress: {$softcoreProgress}/{$maxProgress} (softcore only)";
+            $tooltipLabel = "Progress: {$softcoreProgress}/{$maxProgress} (softcore)";
         } else {
             // Mixed progress.
             $tooltipLabel = "Progress: {$softcoreProgress}/{$maxProgress} (softcore), {$hardcoreProgress}/{$maxProgress} (hardcore)";
@@ -40,14 +41,13 @@
     }
 ?>
 
-<div class="flex items-center">
+<div class="flex items-center {{ $containerClassNames }}" title="{{ $tooltipLabel }}">
     <div
         role="progressbar"
         aria-valuemin="0"
         aria-valuemax="{{ $maxProgress }}"
         aria-valuenow="{{ $softcoreProgress }}"
         aria-label="{{ $tooltipLabel }}"
-        title="{{ $tooltipLabel }}"
         class="w-full h-1 bg-zinc-950 light:bg-zinc-300 flex space-x-px overflow-hidden {{ $awardIndicator ? 'rounded-l' : 'rounded' }}"
     >
         @if ($hardcoreProgress > 0)

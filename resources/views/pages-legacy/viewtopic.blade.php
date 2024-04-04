@@ -66,6 +66,8 @@ $thisTopicForumID = $topicData['ForumID'];
 $thisTopicTitle = $topicData['TopicTitle'];
 $thisTopicPermissions = $topicData['RequiredPermissions'];
 
+$pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
+
 sanitize_outputs(
     $thisTopicAuthor,
     $thisTopicCategory,
@@ -75,7 +77,7 @@ sanitize_outputs(
 
 $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 ?>
-<x-app-layout pageTitle="Topic: {{ $thisTopicForum }} - {{ $thisTopicTitle }}">
+<x-app-layout :pageTitle="$pageTitle">
     <?php
     echo "<div class='navpath'>";
     echo "<a href='/forum.php'>Forum Index</a>";
@@ -190,73 +192,57 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
         RenderPaginator($numTotalComments, $count, $offset, "/viewtopic.php?t=$requestedTopicID&o=");
         echo "</div>";
     }
-
-    if ($user !== null && $user !== "" && $thisTopicID != 0) {
-        echo "<table><tbody>";
-        echo "<tr>";
-
-        echo "<td class='align-top'>";
-        echo userAvatar($user, label: false, iconSize: 64);
-        echo "<br>";
-        echo userAvatar($user, icon: false);
-        echo "</td>";
-
-        echo "<td class='w-full'>";
-
-        RenderShortcodeButtons();
-
-        $defaultMessage = ($permissions >= Permissions::Registered) ? "" : "** Your account appears to be locked. Did you confirm your email? **";
-        $inputEnabled = ($permissions >= Permissions::Registered) ? "" : "disabled";
-        $buttonEnabled = ($permissions >= Permissions::Registered) ? ":disabled='!isValid'" : "disabled";
-
-        echo <<<EOF
-           <script>
-               function disableRepost() {
-                  var btn = $('#postBtn');
-                  btn.attr('disabled', true);
-                  btn.html('Sending...');
-               }
-           </script>
-        EOF;
-        echo "<form action='/request/forum-topic-comment/create.php' method='post' x-data='{ isValid: true }'>";
-        echo csrf_field();
-        echo "<input type='hidden' name='topic' value='$thisTopicID'>";
-        echo <<<HTML
-            <textarea
-                id="commentTextarea"
-                class="w-full mb-2"
-                rows="10" cols="63"
-                $inputEnabled
-                maxlength="60000"
-                name="body"
-                placeholder="Don't share links to copyrighted ROMs."
-                x-on:input='autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 60000;'
-            >$defaultMessage</textarea>
-        HTML;
-        ?>
-            <div class="flex justify-between mb-2">
-                <span class="textarea-counter" data-textarea-id="commentTextarea">0 / 60000</span>
-
-                <div>
-                    <x-fas-spinner id="preview-loading-icon" class="opacity-0 transition-all duration-200" aria-hidden="true" />
-                    <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" $buttonEnabled>Preview</button>
-                    <button id="postBtn" class="btn" onclick="this.form.submit(); disableRepost();" $buttonEnabled>Submit</button>
-                </div>
-            </div>
-        <?php
-        echo "</form>";
-
-        echo "</td>";
-        echo "</tr>";
-        echo "</tbody></table>";
-
-        echo "</tr>";
-
-        echo "<div id='post-preview'></div>";
-        echo "</tbody></table></div>";
-
-    } else {
-        echo "<br/>You must log in before you can join this conversation.<br/>";
-    }
     ?>
+
+    <?php
+    $user = auth()->user();
+    ?>
+    @guest
+        <p class="text-center">
+            You must log in before you can join this conversation.
+        </p>
+    @endguest
+
+    @if ($user?->isMuted)
+        <div class="flex justify-center bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
+            <p class="text-center text-muted">You are muted until {{ getNiceDate($user->muted_until->timestamp) }}.</p>
+        </div>
+    @endif
+
+    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->isMuted)
+        <x-section>
+            <div class="flex bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
+                @auth
+                    <div class="hidden sm:flex flex-col gap-1 justify-start items-center lg:border-r border-neutral-700 px-0.5 pb-2 lg:py-2 lg:w-44">
+                        <x-user.avatar :user="request()->user()" display="icon" iconSize="md" class="rounded-sm" />
+                        <x-user.avatar :user="request()->user()" />
+                    </div>
+                    <div class="grow lg:py-0 px-1 lg:px-6 pt-2 pb-4">
+                        <x-base.form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
+                            <div class="flex flex-col">
+                                <x-base.form.input type="hidden" name="topic" value="{{ $thisTopicID }}" />
+                                <x-base.form.textarea
+                                    :isLabelVisible="false"
+                                    id="input_quickreply"
+                                    label="{{ __('Reply') }}"
+                                    maxlength="60000"
+                                    name="body"
+                                    rows="10"
+                                    richText
+                                    required-silent
+                                    placeholder="Don't share links to copyrighted ROMs."
+                                >
+                                    <x-slot name="formActions">
+                                        <x-base.form-actions submitLabel="Submit" />
+                                    </x-slot>
+                                </x-base.form.textarea>
+                            </div>
+                        </x-base.form>
+                    </div>
+                @endauth
+            </div>
+
+            <div id="post-preview-input_quickreply"></div>
+        </x-section>
+    @endif
 </x-app-layout>

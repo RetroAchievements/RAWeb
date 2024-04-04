@@ -43,6 +43,7 @@ class UserFactory extends Factory
             'fbUser' => 0,
             'Untracked' => 0,
             'UserWallActive' => 1,
+            'muted_until' => null,
 
             // nullable
             'APIKey' => 'apiKey',

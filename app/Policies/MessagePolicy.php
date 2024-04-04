@@ -24,7 +24,7 @@ class MessagePolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->isNotMuted();
     }
 
     public function update(User $user, Message $message): bool

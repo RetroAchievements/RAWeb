@@ -31,7 +31,7 @@ class Leaderboard extends BaseModel
     // TODO rename Created column to created_at
     // TODO rename Updated column to updated_at
     // TODO drop Mem, migrate to triggerable morph
-    // TODO drop Author, migrate to triggerable morph author
+    // TODO drop Author and author_id, migrate to triggerable morph author
     protected $table = 'LeaderboardDef';
 
     protected $primaryKey = 'ID';

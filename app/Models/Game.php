@@ -249,6 +249,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
+     * @return HasMany<AchievementSetClaim>
+     */
+    public function achievementSetClaims(): HasMany
+    {
+        return $this->hasMany(AchievementSetClaim::class, 'game_id');
+    }
+
+    /**
      * @return BelongsTo<System, Game>
      */
     public function system(): BelongsTo
@@ -302,7 +310,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function hashes(): HasMany
     {
-        return $this->hasMany(GameHash::class, 'GameID');
+        return $this->hasMany(GameHash::class, 'game_id');
     }
 
     // == scopes

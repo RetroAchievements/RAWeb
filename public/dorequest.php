@@ -575,7 +575,7 @@ switch ($requestType) {
     case "uploadachievement":
         $errorOut = "";
         $response['Success'] = UploadNewAchievement(
-            author: $username,
+            authorUsername: $username,
             gameID: $gameID,
             title: request()->input('n'),
             desc: request()->input('d'),

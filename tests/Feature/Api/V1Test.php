@@ -192,6 +192,8 @@ class V1Test extends TestCase
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
         $this->addSoftcoreUnlock($this->user, $achievement, Carbon::now()->subDays(5));
 
+        $achievement = Achievement::first();
+
         $this->get(
             $this->apiUrl('GetAchievementsEarnedBetween', [
                 'u' => $this->user->User,
@@ -213,6 +215,7 @@ class V1Test extends TestCase
                     'GameURL' => '/game/' . $game->ID,
                     'HardcoreMode' => UnlockMode::Softcore,
                     'Points' => $achievement->Points,
+                    'TrueRatio' => $achievement->points_weighted,
                     'Type' => AchievementType::Progression,
                     'Title' => $achievement->Title,
                 ],
@@ -326,6 +329,8 @@ class V1Test extends TestCase
             ->assertJsonFragment([
                 'ID' => $system->ID,
                 'Name' => $system->Name,
+                'Active' => isValidConsoleId($system->ID),
+                'IsGameSystem' => true,
             ]);
     }
 

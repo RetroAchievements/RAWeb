@@ -67,7 +67,6 @@ return [
         '/gameInfo.php' => '/game/{ID}',
         '/gameList.php' => '/system/{c}/games',
         '/gameSearch.php' => '/games',
-        '/gamecompare.php' => '/game/{ID}/achievements/compare/{f}',
         '/codenotes.php' => '/game/{g}/notes',
         '/linkedhashes.php' => '/game/{g}/assets',
         '/popularGames.php' => '/games/popular',
@@ -85,13 +84,17 @@ return [
         '/userList.php' => '/users',
         '/history.php' => '/user/{u}/history',
         '/historyexamine.php' => '/user/{u}/history/{d}',
+        '/usergameactivity.php' => '/user/{f}/game/{ID}',
+        '/gamecompare.php' => '/user/{f}/game/{ID}/compare',
 
         /*
          * user context
          */
         '/controlpanel.php' => '/settings',
         '/friends.php' => '/friends',
-        '/createmessage.php' => '/message/create?to={t}&subject={s}&message={p}',
+        '/createmessage.php' => '/messages/create?to={t}&subject={s}&message={p}',
+        // temp redirect
+        '/message/create' => '/messages/create?to={to}&subject={subject}&message={message}',
         '/inbox.php' => '/messages',
         '/manageuserpic.php' => '/settings',
 

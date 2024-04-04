@@ -1,103 +1,73 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
 $requestedComment = (int) request()->query('comment');
-
 if (empty($requestedComment)) {
     abort(404);
 }
-if (!getSingleTopicComment($requestedComment, $commentData)) {
-    abort(404);
-}
-if (empty($commentData)) {
+
+$foundPost = ForumTopicComment::find($requestedComment);
+if (!$foundPost) {
     abort(404);
 }
 
-if ($user != $commentData['Author'] && $permissions < Permissions::Moderator) {
+if ($user !== $foundPost->user->User && $permissions < Permissions::Moderator) {
     abort_with(back()->withErrors(__('legacy.error.permissions')));
 }
 
-if (!getTopicDetails($commentData['ForumTopicID'], $topicData)) {
+$topic = ForumTopic::with('forum.category')->find($foundPost->ForumTopicID);
+if (!$topic) {
     abort(404);
 }
-if (empty($topicData)) {
-    abort(404);
-}
 
-$thisForumID = $topicData['ForumID'];
-$thisForumTitle = htmlentities($topicData['Forum']);
-$thisCategoryID = $topicData['CategoryID'];
-$thisCategoryName = htmlentities($topicData['Category']);
-
-$existingComment = old('body', $commentData['Payload']);
-
-$thisForumTitle = htmlentities($topicData['Forum']);
-$thisTopicTitle = htmlentities($topicData['TopicTitle']);
-$thisTopicID = $commentData['ForumTopicID'];
-$thisTopicAuthor = $topicData['Author'];
-$thisAuthor = $commentData['Author'];
 ?>
+
 <x-app-layout pageTitle="Edit post">
-    <?php
-    echo "<div class='navpath'>";
-    echo "<a href='forum.php'>Forum Index</a>";
-    echo " &raquo; <a href='/forum.php?c=$thisCategoryID'>$thisCategoryName</a>";
-    echo " &raquo; <a href='/viewforum.php?f=$thisForumID'>$thisForumTitle</a>";
-    echo " &raquo; <a href='/viewtopic.php?t=$thisTopicID'>$thisTopicTitle</a>";
-    echo " &raquo; <b>Edit Post</b></a>";
-    echo "</div>";
+    <div class="navpath">
+        <a href="forum.php">Forum Index</a>
+        &raquo; <a href="/forum.php?c={{ $topic->forum->category->ID }}">{{ $topic->forum->category->Name }}</a>
+        &raquo; <a href="/viewforum.php?f={{ $topic->ForumID }}">{{ $topic->forum->Title }}</a>
+        &raquo; <a href="/viewtopic.php?t={{ $topic->ID }}">{{ $topic->Title }}</a>
+        &raquo; <b>Edit Post</b></a>
+    </div>
 
-    echo "<h2>Edit post</h2>";
+    <h1 class="text-h2">Edit post</h1>
 
-    echo "<form action='/request/forum-topic-comment/update.php' method='post'>";
-    echo csrf_field();
-    echo "<input type='hidden' value='$requestedComment' name='comment'>";
-    echo "<table>";
-    echo "<tbody x-data='{ isValid: true }'>";
-    echo "<tr><td>Forum:</td><td><input type='text' readonly value='$thisForumTitle'></td></tr>";
-    echo "<tr><td>Author:</td><td><input type='text' readonly value='$thisAuthor'></td></tr>";
-    echo "<tr><td>Topic:</td><td><input type='text' readonly class='w-full' value='$thisTopicTitle'></td></tr>";
-    echo "<tr><td>Message:</td><td>";
-    RenderShortcodeButtons();
-    echo <<<HTML
-        <textarea
-            id="commentTextarea"
-            class="w-full"
-            style="height:300px"
-            rows="32" cols="32"
-            maxlength="60000"
-            name="body"
-            placeholder="Don't share links to copyrighted ROMs."
-            x-on:input='isValid = window.getStringByteCount(\$event.target.value) <= 60000'
-        >$existingComment</textarea>
-    HTML;
-    echo "</td></tr>";
-    ?>
-        <tr>
-            <td></td>
-            <td>
-                <div class="flex justify-between items-center">
-                    <div class="textarea-counter text-right" data-textarea-id="commentTextarea"></div>
+    <x-section>
+        <x-base.form action="{{ url('request/forum-topic-comment/update.php') }}">
+            <div class="flex flex-col gap-y-3">
+                <x-base.form.input type="hidden" name="comment" value="{{ $foundPost->ID }}" />
 
-                    <div class="flex gap-2">
-                        <x-fas-spinner id="preview-loading-icon" class="opacity-0 transition-all duration-200 mt-1" aria-hidden="true" />
-                        <a class="btn btn-link" href="/viewtopic.php?t=$thisTopicID&c=$requestedComment#$requestedComment">Back</a>
-                        <button id="preview-button" type="button" class="btn" onclick="window.loadPostPreview()" :disabled="!isValid">Preview</button>
-                        <button class="btn" :disabled="!isValid">Submit</button>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    <?php
-    echo "</tbody>";
-    echo "</table>";
-    echo "</form>";
+                <x-base.form.input label="{{ __res('forum', 1) }}" readonly value="{{ $topic->forum->Title }}" inline :fullWidth="false" />
+                <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $topic->user->User }}" inline :fullWidth="false" />
+                <x-base.form.input label="{{ __res('forum-topic', 1) }}" readonly :value="$topic->Title" inline />
 
-    echo "<div id='post-preview'></div>";
-    ?>
+                <x-base.form.textarea
+                    id="input_compose"
+                    label="{{ __res('message', 1)}} "
+                    :value="$foundPost->Payload"
+                    maxlength="60000"
+                    name="body"
+                    rows="22"
+                    placeholder="Don't share links to copyrighted ROMs."
+                    inline
+                    required-silent
+                    richText
+                >
+                    <x-slot name="formActions">
+                        <x-base.form-actions />
+                    </x-slot>
+                </x-base.form.textarea>
+            </div>
+        </x-base.form>
+
+        <div id="post-preview-input_compose"></div>
+    </x-section>
 </x-app-layout>

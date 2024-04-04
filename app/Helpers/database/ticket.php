@@ -117,7 +117,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $userId = $user->ID;
     $username = $user->User;
 
-    $query = "INSERT INTO Ticket (AchievementID, ReportedByUserID, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, ResolvedByUserID )
+    $query = "INSERT INTO Ticket (AchievementID, reporter_id, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, resolver_id )
               VALUES($achID, $userId, $reportType, $hardcoreValue, \"$noteSanitized\", NOW(), NULL, NULL )";
 
     $db = getMysqliConnection();
@@ -179,7 +179,7 @@ $bugReportDetails";
 function getExistingTicketID(User $user, int $achievementID): int
 {
     $userID = $user->ID;
-    $query = "SELECT ID FROM Ticket WHERE ReportedByUserID=$userID AND AchievementID=$achievementID"
+    $query = "SELECT ID FROM Ticket WHERE reporter_id=$userID AND AchievementID=$achievementID"
            . " AND ReportState NOT IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     $dbResult = s_mysql_query($query);
     if ($dbResult) {
@@ -263,9 +263,9 @@ function getAllTickets(
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
-    // Karama condition
-    $notAuthorCond = getNotAuthorCondition($ticketFilters);
-    $notReporterCond = getNotReporterCondition($ticketFilters);
+    // Karma condition - warning: excludes unresolved tickets
+    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
+    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
 
     // Progression filter
     $progressionCond = getProgressionCondition($ticketFilters);
@@ -283,8 +283,8 @@ function getAllTickets(
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
-              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
+              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
               $devJoin
               WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond $notReporterCond $progressionCond
               ORDER BY tick.ID DESC
@@ -302,8 +302,8 @@ function getTicket(int $ticketID): ?array
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
               LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID
-              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID
+              LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
+              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
               WHERE tick.ID = $ticketID
               ";
 
@@ -319,9 +319,9 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
 
     $resolvedFields = "";
     if ($ticketVal == TicketState::Resolved || $ticketVal == TicketState::Closed) {
-        $resolvedFields = ", ResolvedAt=NOW(), ResolvedByUserID=$userID ";
+        $resolvedFields = ", ResolvedAt=NOW(), resolver_id=$userID ";
     } elseif ($ticketData['ReportState'] == TicketState::Resolved || $ticketData['ReportState'] == TicketState::Closed) {
-        $resolvedFields = ", ResolvedAt=NULL, ResolvedByUserID=NULL ";
+        $resolvedFields = ", ResolvedAt=NULL, resolver_id=NULL ";
     }
 
     $query = "UPDATE Ticket
@@ -411,7 +411,7 @@ function countRequestTicketsByUser(?User $user = null): int
 
     return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($user) {
         return Ticket::where('ReportState', TicketState::Request)
-            ->where('ReportedByUserID', $user->ID)
+            ->where('reporter_id', $user->ID)
             ->count();
     });
 }
@@ -521,18 +521,18 @@ function countOpenTickets(
         $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
     }
 
-    // Not Reporter condition
+    // Not Reporter condition - warning: excludes unresolved tickets
     $reporterJoin = "";
-    $notReporterCond = getNotReporterCondition($ticketFilters);
+    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
     if ($notReporterCond != "") {
-        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID";
+        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id";
     }
 
-    // Not Author condition
+    // Not Author condition - warning: excludes unresolved tickets
     $resolverJoin = "";
-    $notAuthorCond = getNotAuthorCondition($ticketFilters);
+    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
     if ($notAuthorCond != "" || $notReporterCond != "") {
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
+        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
 
     // Author condition
@@ -545,7 +545,7 @@ function countOpenTickets(
     // Reporter condition
     $reporterCond = "";
     if ($reportedByUser != null) {
-        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.ReportedByUserID";
+        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id";
         $reporterCond = " AND ua.User = :reportedByUsername";
         $bindings['reportedByUsername'] = $reportedByUser;
     }
@@ -555,7 +555,7 @@ function countOpenTickets(
     if ($resolvedByUser != null) {
         $resolverCond = " AND ua2.User = :resolvedByUsername";
         $bindings['resolvedByUsername'] = $resolvedByUser;
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.ResolvedByUserID AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
+        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
     }
 
     // Progression condition
@@ -775,8 +775,9 @@ function getDevActiveCondition(int $ticketFilters): ?string
 
 /**
  * Gets the Not Author condition to put into the main ticket query.
+ * Warning: excludes unresolved tickets
  */
-function getNotAuthorCondition(int $ticketFilters): string
+function getResolvedByNonAuthorCondition(int $ticketFilters): string
 {
     $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonAuthor);
 
@@ -789,8 +790,9 @@ function getNotAuthorCondition(int $ticketFilters): string
 
 /**
  * Gets the Not Reporter condition to put into the main ticket query.
+ * Warning: excludes unresolved tickets
  */
-function getNotReporterCondition(int $ticketFilters): string
+function getResolvedByNonReporterCondition(int $ticketFilters): string
 {
     $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonReporter);
 
@@ -929,11 +931,11 @@ function getUserWhoCreatedMostTickets(string $user): ?array
 
     $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
+              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               WHERE a.Author = '$user'
               AND t.ReportState != " . TicketState::Closed . "
-              GROUP BY t.ReportedByUserID
+              GROUP BY t.reporter_id
               ORDER BY TicketCount DESC
               LIMIT 1";
 
@@ -957,8 +959,8 @@ function getNumberOfTicketsClosedForOthers(string $user): array
               SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
-              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.ResolvedByUserID
+              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
+              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
               AND ua.User NOT LIKE '$user'
@@ -990,8 +992,8 @@ function getNumberOfTicketsClosed(string $user): array
               SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.ReportedByUserID
-              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.ResolvedByUserID
+              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
+              LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
               LEFT JOIN Achievements as a ON a.ID = t.AchievementID
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
               AND ua.User NOT LIKE '$user'

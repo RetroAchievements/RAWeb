@@ -97,4 +97,14 @@ class PlayerGameController extends Controller
          * TODO: detach
          */
     }
+
+    public function activity(User $user, Game $game): View
+    {
+        $this->authorize('manage', [User::class, $user]);
+
+        return view('pages.user.[user].game.[game].activity', [
+            'user' => $user,
+            'game' => $game,
+        ]);
+    }
 }

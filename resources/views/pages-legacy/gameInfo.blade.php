@@ -293,8 +293,14 @@ sanitize_outputs(
 <?php endif ?>
 
 @if ($gate)
+    <?php
+        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->value('ImageIcon');
+    ?>
     <x-app-layout
         :pageTitle="$pageTitle"
+        :pageDescription="$pageDescription ?? null"
+        :pageImage="media_asset($matureHubIcon)"
+        :pageType="$pageType ?? null"
     >
         <x-game.mature-content-gate
             :gameId="$gameID"
@@ -462,8 +468,7 @@ sanitize_outputs(
                 :gameTitle="$gameTitle"
                 :consoleId="$consoleID"
                 :consoleName="$consoleName"
-                :user="$user"
-                :userPermissions="$permissions"
+                :includeAddToListButton="true"
             />
             <x-game.primary-meta
                 :developer="$developer"
@@ -562,7 +567,6 @@ sanitize_outputs(
                             <x-game.add-to-list
                                 :gameId="$gameID"
                                 :type="UserGameListType::Develop"
-                                :user="$user"
                             />
                     @endif
                     <x-game.devbox-claim-management
@@ -757,10 +761,7 @@ sanitize_outputs(
             // Only show set request option for logged in users, games without achievements, and core achievement page
             if ($user !== null && $numAchievements == 0 && $flagParam == $officialFlag) {
                 ?>
-                    <x-game.set-requests
-                        :gameId="$gameID"
-                        :user="$userModel"
-                    />
+                    <x-game.set-requests :gameId="$gameID" />
                 <?php
             }
 
@@ -1004,10 +1005,12 @@ sanitize_outputs(
         if ($user !== null && $numAchievements > 0) {
             $gameModel = Game::find($gameID);
             ?>
-            <x-game.compare-progress
-                :game="$gameModel"
-                :user="$userModel"
-            />
+            <div class="mb-4">
+                <x-game.compare-progress
+                    :game="$gameModel"
+                    :user="$userModel"
+                />
+            </div>
             <?php
         }
 

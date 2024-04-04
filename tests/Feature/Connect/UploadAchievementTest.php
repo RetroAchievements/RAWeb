@@ -37,7 +37,11 @@ class UploadAchievementTest extends TestCase
         ]);
         $game = $this->seedGame(withHash: false);
 
-        AchievementSetClaim::factory()->create(['User' => $author->username, 'GameID' => $game->id]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('uploadachievement', [
             'u' => $author->username,
@@ -75,7 +79,11 @@ class UploadAchievementTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->for($game)->create(['Author' => $author->username]);
 
-        AchievementSetClaim::factory()->create(['User' => $author->username, 'GameID' => $game->id]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('uploadachievement', [
             'a' => $achievement->id,
@@ -112,7 +120,11 @@ class UploadAchievementTest extends TestCase
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->create(['Author' => $author->User]);
 
-        AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         $params = [
             'u' => $author->User,
@@ -144,7 +156,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->Author, $author->User);
-        $this->assertNull($achievement2->user_id);
+        $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
         $game->refresh();
@@ -416,7 +428,11 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // junior developer can create achievement with claim
-        AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
@@ -606,7 +622,11 @@ class UploadAchievementTest extends TestCase
 
         // ====================================================
         // developer can create achievement with claim
-        AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
@@ -819,7 +839,11 @@ class UploadAchievementTest extends TestCase
         $game->Title .= " [Subset - Testing]";
         $game->save();
 
-        AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User]);
@@ -854,7 +878,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->Author, $author->User);
-        $this->assertNull($achievement2->user_id);
+        $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
         $game->refresh();
@@ -940,7 +964,11 @@ class UploadAchievementTest extends TestCase
         $system = System::factory()->create(['ID' => 500]);
         $game = $this->seedGame(system: $system, withHash: false);
 
-        AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User]);
@@ -975,7 +1003,7 @@ class UploadAchievementTest extends TestCase
         $this->assertEquals($achievement2->Flags, AchievementFlag::Unofficial);
         $this->assertNull($achievement2->type);
         $this->assertEquals($achievement2->Author, $author->User);
-        $this->assertNull($achievement2->user_id);
+        $this->assertEquals($achievement2->user_id, $author->id);
         $this->assertEquals($achievement2->BadgeName, '001234');
 
         $game->refresh();
@@ -1044,7 +1072,11 @@ class UploadAchievementTest extends TestCase
         ]);
         $game = $this->seedGame(withHash: false);
 
-        AchievementSetClaim::factory()->create(['User' => $author->User, 'GameID' => $game->ID]);
+        AchievementSetClaim::factory()->create([
+            'User' => $author->username,
+            'user_id' => $author->id,
+            'game_id' => $game->id,
+        ]);
 
         $params = [
             'u' => $author->User,
