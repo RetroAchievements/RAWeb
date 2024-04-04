@@ -27,10 +27,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
 <x-app-layout pageTitle="{{ 'Manage Game Hashes - ' . $game->Title }}">
     <div>
         <x-game.breadcrumbs
-            :targetConsoleId="$game->system->ID"
-            :targetConsoleName="$game->system->Name"
-            :targetGameId="$game->ID"
-            :targetGameName="$game->Title"
+            :game="$game"
             currentPageLabel="Manage Hashes"
         />
 

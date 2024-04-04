@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\Game;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     abort(401);
@@ -11,39 +12,55 @@ if (empty($gameID)) {
     abort(404);
 }
 
-$gameData = getGameData($gameID);
-if (!$gameData) {
+$game = Game::with('system')->find($gameID);
+if (!$game) {
     abort(404);
 }
 
-$consoleName = $gameData['ConsoleName'];
-$consoleID = $gameData['ConsoleID'];
-$gameTitle = $gameData['Title'];
-$gameIcon = $gameData['ImageIcon'];
-$forumTopicID = $gameData['ForumTopicID'];
-$hashes = getHashListByGameID($gameID);
+$hashes = $game->hashes()->with('user')->orderBy('name')->orderBy('md5')->get();
+
+$numHashes = $hashes->count();
+
+$unlabeledHashes = $hashes->filter(function ($hash) {
+    return empty($hash->name);
+});
+$labeledHashes = $hashes->reject(function ($hash) {
+    return empty($hash->name);
+});
 ?>
-<x-app-layout pageTitle="Supported Game Files - {{ $gameTitle }}">
-    <div class='navpath'>
-        <?= renderGameBreadcrumb($gameData) ?>
-        &raquo; <b>Supported Game Files</b>
+
+<x-app-layout pageTitle="Supported Game Files - {{ $game->title }}">
+    <x-game.breadcrumbs
+        :game="$game"
+        currentPageLabel="Supported Game Files"
+    />
+
+    <div class="mt-3 -mb-3 w-full flex gap-x-3">
+        {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">Supported Game Files</h1>
     </div>
 
-    <h3>List of Supported Game Files</h3>
+    <div class="bg-embed rounded p-4 mt-8 flex flex-col gap-y-4">
+        <p>
+            <span class="font-bold">
+                RetroAchievements requires that the game files you use with your emulator
+                are the same as, or compatible with, those used to create the game's achievements.
+            </span>
+            This page shows you what ROM hashes are compatible with the game's achievements.
+        </p>
+
+        <p>
+            Details on how the hash is generated for each system can be found
+            <a href='https://docs.retroachievements.org/Game-Identification/'>here</a>.
+
+            @if ($game->ForumTopicID > 0)
+                Additional information for these hashes may be listed on the
+                <a href="{{ 'viewtopic.php?t=' . $game->ForumTopicID }}">official forum topic</a>.
+            @endif
+        </p>
+    </div>
 
     <?php
-    $numHashes = count($hashes);
-
-    echo gameAvatar($gameData, iconSize: 64);
-    echo "<br><br>";
-
-    echo "<p class='embedded p-4'><b>Game file hashes are used to confirm if two copies of a game file are identical. " .
-         "We use it to ensure the player is using the same ROM as the achievement developer, or a compatible one." .
-         "<br/><br/>RetroAchievements only hashes portions of larger game files to minimize load times, and strips " .
-         "headers on smaller ones. Details on how the hash is generated for each system can be found " .
-         "<a href='https://docs.retroachievements.org/Game-Identification/'>here</a>." .
-         "</b></p>";
-
     echo "<div class='mt-4 mb-1'>";
     if ($permissions >= Permissions::Developer) {
         echo "<div class='devbox mb-3'>";
@@ -53,59 +70,32 @@ $hashes = getHashListByGameID($gameID);
         echo "</div>";
         echo "</div>";
     }
-
-    echo "<p class='mt-4 mb-1'>There " . ($numHashes === 1 ? "is" : "are") . " currently <span class='font-bold'>" . $numHashes . "</span> supported game file " . strtolower(__res('game-hash', $numHashes)) . " registered for this game.</p>";
-    echo "</div>";
-
-    echo "<ul>";
-    $hasUnlabeledHashes = false;
-    foreach ($hashes as $hash) {
-        if (empty($hash['Name'])) {
-            $hasUnlabeledHashes = true;
-            continue;
-        }
-
-        $hashName = $hash['Name'];
-        sanitize_outputs($hashName);
-        echo "<li><p class='embedded p-4'><b>$hashName</b>";
-        if (!empty($hash['Labels'])) {
-            foreach (explode(',', $hash['Labels']) as $label) {
-                if (empty($label)) {
-                    continue;
-                }
-
-                $image = "/assets/images/labels/" . $label . '.png';
-                $publicPath = public_path($image);
-                if (file_exists($publicPath)) {
-                    echo ' <img class="inline-image" src="' . asset($image) . '">';
-                } else {
-                    echo ' [' . $label . ']';
-                }
-            }
-        }
-
-        echo '<br/><code> ' . $hash['Hash'] . '</code>';
-        echo '</p></li>';
-    }
-
-    if ($hasUnlabeledHashes) {
-        echo '<li><p class="embedded p-4"><b>Unlabeled Game File Hashes</b><br/>';
-        foreach ($hashes as $hash) {
-            if (!empty($hash['Name'])) {
-                continue;
-            }
-
-            echo '<code> ' . $hash['Hash'] . '</code>';
-            echo '<br/>';
-        }
-        echo "</p></li>";
-    }
-
-    echo "</ul>";
-    echo "<br>";
-
-    if ($forumTopicID > 0) {
-        echo "Additional information for these hashes may be listed on the <a href='viewtopic.php?t=$forumTopicID'>official forum topic</a>.<br/>";
-    }
     ?>
+
+    <p class="mt-4 mb-1">
+        There {{ $numHashes === 1 ? 'is' : 'are' }} currently <span class="font-bold">{{ $numHashes }}</span>
+        supported game file {{ strtolower(__res('game-hash', $numHashes)) }} registered for this game.
+    </p>
+
+    <div class="bg-embed p-4 rounded">
+        <ul class="flex flex-col gap-y-3">
+            @foreach ($labeledHashes as $hash)
+                <x-supported-game-files.hash-listing :hash="$hash" />
+            @endforeach
+        </ul>
+
+        @if (!$labeledHashes->isEmpty() && !$unlabeledHashes->isEmpty())
+            <div class="my-6"></div>
+        @endif
+        
+        @if (!$unlabeledHashes->isEmpty())
+            <p class="font-bold">Unlabeled Game File Hashes</p>
+
+            <ul class="flex flex-col gap-y-0">
+                @foreach ($unlabeledHashes as $hash)
+                        <x-supported-game-files.hash-listing :hash="$hash" />
+                @endforeach
+            </ul>
+        @endif
+    </div>
 </x-app-layout>
