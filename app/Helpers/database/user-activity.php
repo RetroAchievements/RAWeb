@@ -257,7 +257,7 @@ function getLatestRichPresenceUpdates(): array
     $timestampStatement = timestampAddMinutesStatement(-$recentMinutes);
 
     $query = "SELECT ua.User, $ifRAPoints as RAPoints, $ifRASoftcorePoints as RASoftcorePoints,
-                     ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
+                     ua.muted_until AS MutedUntil, ua.RichPresenceMsg, gd.ID AS GameID, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, c.Name AS ConsoleName
               FROM UserAccounts AS ua
               LEFT JOIN GameData AS gd ON gd.ID = ua.LastGameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID

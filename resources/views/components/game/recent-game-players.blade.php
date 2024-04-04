@@ -20,6 +20,7 @@ foreach ($recentPlayerData as $recentPlayer) {
         'User' => $recentPlayer['User'],
         'Date' => $date,
         'IsBroken' => $isBroken,
+        'IsMuted' => isset($recentPlayer['MutedUntil']) && Carbon::parse($recentPlayer['MutedUntil'])->isFuture(),
         'Activity' => $recentPlayer['Activity'],
         'NumAwarded' => (int) $recentPlayer['NumAwarded'],
         'NumAwardedHardcore' => (int) $recentPlayer['NumAwardedHardcore'],
@@ -99,6 +100,8 @@ foreach ($recentPlayerData as $recentPlayer) {
                             <span>⚠️</span>
                             <span>Playing {{ $gameTitle }}</span>
                         </div>
+                    @elseif ($recentPlayer['IsMuted'])
+                        Playing {{ $gameTitle }}
                     @else
                         {{ $recentPlayer['Activity'] }}
                     @endif

@@ -31,6 +31,7 @@ class ActivePlayersService
         $filteredActivePlayers = $allActivePlayers;
         $filteredActivePlayers = $this->useDevelopmentGameTitle($filteredActivePlayers);
         $filteredActivePlayers = $this->useTargetGameIds($filteredActivePlayers, $targetGameIds);
+        $filteredActivePlayers = $this->useSuppressedMutedUserPresences($filteredActivePlayers);
 
         $trendingGames = isset($targetGameIds) ? [] : $this->computeTrendingGames($filteredActivePlayers);
 
@@ -140,6 +141,19 @@ class ActivePlayersService
 
         return $activePlayers->filter(function ($activePlayer) use ($targetGameIds) {
             return in_array($activePlayer['GameID'], $targetGameIds);
+        });
+    }
+
+    private function useSuppressedMutedUserPresences(mixed $activePlayers): mixed
+    {
+        return $activePlayers->map(function ($activePlayer) {
+            $isMuted = isset($activePlayer['MutedUntil']) && Carbon::parse($activePlayer['MutedUntil'])->isFuture();
+
+            if ($isMuted) {
+                $activePlayer['RichPresenceMsg'] = 'Playing ' . $activePlayer['GameTitle'];
+            }
+
+            return $activePlayer;
         });
     }
 }
