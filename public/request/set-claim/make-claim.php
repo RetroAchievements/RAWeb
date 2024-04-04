@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -24,8 +25,10 @@ $claimType = (int) $input['claim_type'];
 $setType = (int) $input['set_type'];
 $createForumTopic = (bool) ($input['create_topic'] ?? false);
 
+$userModel = User::findOrFail($userDetails['ID']);
+
 $special = (int) checkIfSoleDeveloper($user, $gameID);
-if (insertClaim($user, $gameID, $claimType, $setType, $special, (int) $permissions)) {
+if (insertClaim($userModel, $gameID, $claimType, $setType, $special)) {
     addArticleComment("Server", ArticleType::SetClaim, $gameID, ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $user);
 
     if ($createForumTopic && $permissions >= Permissions::Developer) {
