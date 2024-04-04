@@ -65,7 +65,7 @@ if (!$game) {
     return response()->json();
 }
 
-$gameSetClaims = AchievementSetClaim::where('GameID', $gameId)->get();
+$gameSetClaims = AchievementSetClaim::where('game_id', $gameId)->get();
 $gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag)->findMany($game->achievements);
 
 $gameData = [
@@ -119,7 +119,7 @@ if (!$gameSetClaims) {
         return [
             'User' => $gc->User,
             'SetType' => $gc->SetType,
-            'GameID' => $gc->GameID,
+            'GameID' => $gc->game_id,
             'ClaimType' => $gc->ClaimType,
             'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
             'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
