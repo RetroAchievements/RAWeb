@@ -91,7 +91,7 @@ class GameCard extends Component
             $foundGameConsoleId = $foundGame->system->ID;
             $foundGameAchievements = $foundGame->achievements->toArray();
 
-            $foundClaims = AchievementSetClaim::where('GameID', $gameId)->get()->toArray();
+            $foundClaims = AchievementSetClaim::where('game_id', $gameId)->get()->toArray();
 
             $foundAltGames = [];
             if ($foundGameConsoleId === $this->hubConsoleId) {
