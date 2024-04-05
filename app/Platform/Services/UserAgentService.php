@@ -10,14 +10,7 @@ class UserAgentService
 
     public function decode(string $userAgent): array
     {
-        if (array_key_exists($userAgent, $this->cache)) {
-            return $this->cache[$userAgent];
-        }
-
-        $data = $this->parseUserAgent($userAgent);
-        $this->cache[$userAgent] = $data;
-
-        return $data;
+        return $this->cache[$userAgent] ??= $this->parseUserAgent($userAgent);
     }
 
     private function parseUserAgent(string $userAgent): array
@@ -142,29 +135,12 @@ class UserAgentService
 
     private function looksLikeVersion(string $version): bool
     {
-        // look for string starting with "N.N"
         $len = strlen($version);
         if ($len >= 3) {
-            // match leading digits
-            $index = 0;
-            do {
-                $c = substr($version, $index, 1);
-                if (!is_numeric($c)) {
-                    break;
-                }
-                $index++;
-            } while ($index < $len);
-
-            if ($index > 0 && $index < $len - 1) {
-                // match decimal
-                $c = substr($version, $index, 1);
-                if ($c === '.') {
-                    // match trailing digits
-                    $c = substr($version, $index + 1, 1);
-                    if (is_numeric($c)) {
-                        return true;
-                    }
-                }
+            // look for string starting with "N.N"
+            $c = substr($version, 0, 1);
+            if (is_numeric($c)) {
+                return preg_match('/^\d+(?:\.\d+)+/', $version) === 1;
             }
         }
 
@@ -173,11 +149,6 @@ class UserAgentService
 
     private function trimOperatingSystem(string $os): string
     {
-        $index = strpos($os, ';');
-        if ($index !== false) {
-            $os = substr($os, 0, $index);
-        }
-
-        return trim($os);
+        return trim(strtok($os, ';'));
     }
 }

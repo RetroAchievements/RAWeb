@@ -21,7 +21,7 @@ class ResumePlayerSession
         ?string $presence = null,
         ?Carbon $timestamp = null,
         ?string $userAgent = null,
-        ?string $ipAddr = null,
+        ?string $ipAddress = null,
     ): PlayerSession {
         // upsert player game and update last played date right away
         $playerGame = app()->make(AttachPlayerGame::class)
@@ -69,8 +69,8 @@ class ResumePlayerSession
                 $playerSession->user_agent = $userAgent;
             }
 
-            if ($ipAddr && !$playerSession->ip_addr) {
-                $playerSession->ip_addr = $ipAddr;
+            if ($ipAddress && !$playerSession->ip_address) {
+                $playerSession->ip_address = $ipAddress;
             }
 
             $playerSession->save(['touch' => true]);
@@ -101,7 +101,7 @@ class ResumePlayerSession
             'rich_presence_updated_at' => $timestamp,
             'duration' => 1, // 1 minute is minimum duration
             'user_agent' => $userAgent,
-            'ip_addr' => $ipAddr,
+            'ip_address' => $ipAddress,
         ]);
 
         $user->playerSessions()->save($playerSession);

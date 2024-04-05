@@ -20,7 +20,7 @@ class ResumePlayerSession implements ShouldQueue
         $timestamp = null;
         $gameHash = null;
         $userAgent = null;
-        $ipAddr = null;
+        $ipAddress = null;
 
         switch ($event::class) {
             case PlayerSessionHeartbeat::class:
@@ -29,7 +29,7 @@ class ResumePlayerSession implements ShouldQueue
                 $message = $event->message;
                 $timestamp = $event->timestamp;
                 $userAgent = $event->userAgent;
-                $ipAddr = $event->ipAddr;
+                $ipAddress = $event->ipAddress;
                 // temp fix for PHPStan always-read-written-properties
                 $gameHash = $event->gameHash;
                 // TODO GameHash::where('hash', $this->gameHash)->firstOrFail(),
@@ -55,7 +55,7 @@ class ResumePlayerSession implements ShouldQueue
                 $message,
                 $timestamp,
                 $userAgent,
-                $ipAddr,
+                $ipAddress,
             );
     }
 }

@@ -26,14 +26,14 @@ class PlayerSessionHeartbeat
         public ?GameHash $gameHash = null,
         public ?Carbon $timestamp = null,
         public ?string $userAgent = null,
-        public ?string $ipAddr = null,
+        public ?string $ipAddress = null,
     ) {
         $this->timestamp ??= Carbon::now();
 
         $request = request();
         if ($request) {
             $this->userAgent ??= $request->header('User-Agent', '[not provided]');
-            $this->ipAddr ??= $request->ip();
+            $this->ipAddress ??= $request->ip();
         }
     }
 
