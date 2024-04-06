@@ -16,7 +16,7 @@ interface NavbarSearchComponentProps {
   optionsCount: number;
   init: (formEl: ReferenceElement, ulEl: HTMLElement) => void;
   getOptionId: (result: SearchResult) => string;
-  handleClickSearchResult: (label: string) => void;
+  handleClickSearchResult: (label: string, url: string) => void;
   handleEnter: () => void;
   handleEscape: () => void;
   handleUp: (e: Event) => void;
@@ -66,13 +66,17 @@ export function navbarSearchComponent(): NavbarSearchComponentProps {
       return result.mylink.slice(1).replace('/', '-');
     },
 
-    handleClickSearchResult(label: string) {
-      const inputEl = document.querySelector<HTMLInputElement>('.searchboxinput');
+    handleClickSearchResult(label: string, url: string) {
       this.searchText = label;
+
+      const inputEl = document.querySelector<HTMLInputElement>('.searchboxinput');
       if (inputEl) {
         inputEl.value = label;
         this.showSearchResults = false;
         inputEl.scrollLeft = inputEl.scrollWidth * -1;
+
+        // Force the URL to change, even if the cursor misses an anchor tag.
+        window.location.href = url;
       }
     },
 

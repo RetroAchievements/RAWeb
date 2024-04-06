@@ -61,8 +61,8 @@ class UserRegistrationNotification extends Notification implements ShouldQueue
         //     'inline' => true,
         // ];
 
-        if ($user->Created) {
-            $descriptionElements[] = 'Joined ' . $user->Created->format('Y-m-d');
+        if ($user->created_at) {
+            $descriptionElements[] = 'Joined ' . $user->created_at->format('Y-m-d');
         }
 
         $embeds[] = [
