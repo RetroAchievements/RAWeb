@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\UpdatePlayerGameMetrics;
+use App\Platform\Actions\UpdatePlayerMetrics;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -70,13 +71,12 @@ class UpdatePlayerGameMetricsJob implements ShouldQueue, ShouldBeUniqueUntilProc
         // by a game metrics update.
         // make sure to update player metrics directly, as the silent flag will not
         // trigger an event (to not further cascade into another game metrics update).
-        // TODO enable this again as soon as player_games are all populated and are used for players' points aggregation
-        // if ($isBatched) {
-        //     $user = User::find($this->userId);
-        //     if ($user) {
-        //         app()->make(UpdatePlayerMetrics::class)
-        //             ->execute($user);
-        //     }
-        // }
+        if ($isBatched) {
+            $user = User::find($this->userId);
+            if ($user) {
+                app()->make(UpdatePlayerMetrics::class)
+                    ->execute($user);
+            }
+        }
     }
 }
