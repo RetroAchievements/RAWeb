@@ -104,18 +104,13 @@ module.exports = {
 
     // Add support for `light:` and `black:` prefixes to better support light & black mode users.
     // `dark` is considered the default scheme, thus a `dark:` prefix is always implied similar to `xs:`.
-    function ({ addVariant, e }) {
-      addVariant('light', ({ modifySelectors, separator }) => {
-        modifySelectors(
-          ({ className }) => `[data-scheme="light"] .${e(`light${separator}${className}`)}`,
-        );
-      });
+    function ({ addVariant }) {
+      addVariant('light', [
+        '@media (prefers-color-scheme: light) { [data-scheme="system"] & }',
+        '[data-scheme="light"] &',
+      ]);
 
-      addVariant('black', ({ modifySelectors, separator }) => {
-        modifySelectors(
-          ({ className }) => `[data-scheme="black"] .${e(`black${separator}${className}`)}`,
-        );
-      });
+      addVariant('black', ['[data-scheme="black"] &']);
     },
   ],
 };

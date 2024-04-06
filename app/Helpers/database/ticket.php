@@ -6,7 +6,6 @@ use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Models\NotificationPreferences;
-use App\Models\PlayerGame;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -15,18 +14,6 @@ use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-
-function isAllowedToSubmitTickets(string $username): bool
-{
-    $user = User::firstWhere('User', $username);
-    if (!$user || $user->Created->diffInDays() < 1) {
-        return false;
-    }
-
-    return PlayerGame::where('user_id', $user->id)
-        ->where('time_taken', '>', 5)
-        ->exists();
-}
 
 function submitNewTicketsJSON(
     string $userSubmitter,
@@ -42,7 +29,7 @@ function submitNewTicketsJSON(
     /** @var User $user */
     $user = User::firstWhere('User', $userSubmitter);
 
-    if (!$user->exists() || !isAllowedToSubmitTickets($userSubmitter)) {
+    if (!$user->exists() || !$user->can('create', Ticket::class)) {
         $returnMsg['Success'] = false;
 
         return $returnMsg;
@@ -90,7 +77,7 @@ function submitNewTicketsJSON(
 
 function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore, string $note): int
 {
-    if (!isAllowedToSubmitTickets($user->User)) {
+    if (!$user->can('create', Ticket::class)) {
         return 0;
     }
 
