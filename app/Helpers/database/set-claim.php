@@ -8,47 +8,58 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
+use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Checks if the user is able to make a claim and inserts the claim into the database. If the claim
  * is a collaboration claim then the claim will have the same Finished time as the primary claim for the game.
  */
-function insertClaim(string $user, int $gameID, int $claimType, int $setType, int $special, int $permissions): bool
+function insertClaim(User $user, int $gameId, int $claimType, int $setType, int $special): bool
 {
-    if ($claimType === ClaimType::Primary) {
-        // Primary Claim
-        // Prevent if user has no available slots except for when they are the sole dev of the set
-        if ($special === ClaimSpecial::None && getActiveClaimCount($user, false) >= permissionsToClaim($permissions)) {
+    $userPermissions = (int) $user->getAttribute('Permissions');
+
+    $finishedAt = Carbon::now()->addMonths(3); // Default to 3 months from now.
+
+    if ($claimType !== ClaimType::Primary) {
+        $primaryClaimFinishTime = AchievementSetClaim::where('game_id', $gameId)
+            ->where('Status', ClaimStatus::Active)
+            ->where('ClaimType', ClaimType::Primary)
+            ->value('Finished');
+
+        // If a primary claim doesn't exist, treat the new claim as a primary claim.
+        if ($primaryClaimFinishTime) {
+            $finishedAt = $primaryClaimFinishTime;
+            $special = ClaimSpecial::None;
+        }
+    } elseif ($special === ClaimSpecial::None) {
+        // Different roles are allowed a maximum number of active primary claims.
+        // Does this user currently have fewer primary claims than that maximum?
+        $isUserAllowedToClaim = getActiveClaimCount($user->User, false) < permissionsToClaim($userPermissions);
+
+        if (!$isUserAllowedToClaim) {
             return false;
         }
-
-        $now = Carbon::now();
-        $finished = Carbon::now()->addMonths(3);
-
-        $query = "
-            INSERT INTO
-                SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
-            VALUES
-                ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '$special', '$now', '$finished', '$now')";
-
-        return legacyDbStatement($query);
     }
 
-    // Collaboration claim
-    // For a collaboration claim we want to use the same Finished time as the primary claim
-    $query = "
-        INSERT INTO
-            SetClaim (`User`, `GameID`, `ClaimType`, `SetType`, `Status`, `Extension`, `Special`, `Created`, `Finished` ,`Updated`)
-        VALUES
-            ('$user', '$gameID', '$claimType', '$setType', '" . ClaimStatus::Active . "', '0', '" . ClaimSpecial::None . "', NOW(),
-            (SELECT Finished FROM (SELECT Finished FROM SetClaim WHERE GameID = '$gameID' AND Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ") AND ClaimType = " . ClaimType::Primary . ") AS sc),
-            NOW())";
+    // Create the claim.
+    AchievementSetClaim::create([
+        'User' => $user->User,
+        'user_id' => $user->id,
+        'game_id' => $gameId,
+        'ClaimType' => $claimType,
+        'SetType' => $setType,
+        'Status' => ClaimStatus::Active,
+        'Extension' => 0,
+        'Special' => $special,
+        'Finished' => $finishedAt,
+    ]);
 
-    return legacyDbStatement($query);
+    return true;
 }
 
 /**
@@ -83,7 +94,7 @@ function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = fal
             $claimTypeCondition
             $setTypeCondition
             AND User = :username
-            AND GameID = :gameId";
+            AND game_id = :gameId";
 
     return legacyDbFetch($query, $bindings)['claimCount'] > 0;
 }
@@ -109,7 +120,7 @@ function completeClaim(string $user, int $gameID): bool
                 Updated = '$now'
             WHERE
                 Status = " . ClaimStatus::Active . "
-                AND GameID = '$gameID'";
+                AND game_id = '$gameID'";
 
         return legacyDbStatement($query);
     }
@@ -135,7 +146,7 @@ function dropClaim(string $user, int $gameID): bool
         WHERE
             Status = " . ClaimStatus::Active . "
             AND User = '$user'
-            AND GameID = '$gameID'";
+            AND game_id = '$gameID'";
 
     return legacyDbStatement($query);
 }
@@ -156,7 +167,7 @@ function extendClaim(string $user, int $gameID): bool
                 Updated = NOW()
             WHERE
                 Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
-                AND GameID = '$gameID'
+                AND game_id = '$gameID'
                 AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
         if (s_mysql_query($query)) {
@@ -174,7 +185,7 @@ function extendClaim(string $user, int $gameID): bool
  */
 function getClaimData(int|array $gameID, bool $getFullData = true): array
 {
-    $query = "SELECT sc.User as User, sc.SetType as SetType, sc.GameID as GameID,
+    $query = "SELECT sc.User as User, sc.SetType as SetType, sc.game_id as GameID,
         sc.ClaimType as ClaimType, sc.Created as Created, sc.Finished as Expiration";
 
     if ($getFullData) {
@@ -192,7 +203,7 @@ function getClaimData(int|array $gameID, bool $getFullData = true): array
         $gameIDs = $gameID;
     }
 
-    $query .= " FROM SetClaim sc WHERE sc.GameID IN ($gameIDs)
+    $query .= " FROM SetClaim sc WHERE sc.game_id IN ($gameIDs)
                  AND sc.Status IN (" . ClaimStatus::Active . "," . ClaimStatus::InReview . ")
                ORDER BY sc.ClaimType ASC";
 
@@ -329,7 +340,7 @@ function getFilteredClaims(
     $gameCondition = '';
     if ($gameID !== null && $gameID > 0) {
         $bindings['gameId'] = $gameID;
-        $gameCondition = "AND sc.GameID = :gameId";
+        $gameCondition = "AND sc.game_id = :gameId";
     }
 
     // Get expiring claims only
@@ -342,7 +353,7 @@ function getFilteredClaims(
     $selectCondition = "
         sc.ID AS ID,
         sc.User AS User,
-        sc.GameID AS GameID,
+        sc.game_id AS GameID,
         gd.Title AS GameTitle,
         gd.ImageIcon AS GameIcon,
         c.ID AS ConsoleID,
@@ -365,7 +376,7 @@ function getFilteredClaims(
         FROM
             SetClaim sc
         LEFT JOIN
-            GameData AS gd ON gd.ID = sc.GameID
+            GameData AS gd ON gd.ID = sc.game_id
         LEFT JOIN
             Console AS c ON c.ID = gd.ConsoleID
         LEFT JOIN

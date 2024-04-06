@@ -4,14 +4,17 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\PlayerAchievement;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
-use App\Models\PlayerAchievement;
 use App\Support\Shortcode\Shortcode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$userModel = User::firstWhere('User', $user);
 
 $achievementID = (int) request('achievement');
 if (empty($achievementID)) {
@@ -101,7 +104,6 @@ foreach ($unlocks as $userObject) {
 }
 
 if ($dateWonLocal === "" && isset($user)) {
-    $userModel = User::firstWhere('User', $user);
     if ($userModel) {
         $playerAchievement = PlayerAchievement::where('user_id', $userModel->id)
             ->where('achievement_id', $achievementID)
@@ -255,7 +257,7 @@ getCodeNotes($gameID, $codeNotes);
         } else {
             echo "<i>No open tickets</i>";
         }
-        if (isAllowedToSubmitTickets($user)) {
+        if ($userModel?->can('create', Ticket::class)) {
             echo "<a class='btn btn-link' href='/reportissue.php?i=$achievementID'>Report an issue</a>";
         }
         echo "</div>";
