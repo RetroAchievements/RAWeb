@@ -35,6 +35,7 @@ if ($_SERVER['SCRIPT_NAME'] === '/searchresults.php') {
             @keyup.escape="handleEscape"
             @keyup.debounce="handleKeyUp($event)"
             @blur="showSearchResults = false"
+            autocomplete="off"
             aria-autocomplete="list"
             aria-controls="search-listbox"
             :aria-expanded="showSearchResults"
