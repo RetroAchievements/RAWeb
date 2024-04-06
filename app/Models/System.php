@@ -37,7 +37,7 @@ class System extends BaseModel implements HasMedia
     use DiscussedInForum;
 
     // TODO rename Console table to systems
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename Name column to name
     // TODO rename Created column to created_at
     // TODO rename Updated column to updated_at

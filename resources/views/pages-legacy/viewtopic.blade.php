@@ -17,7 +17,7 @@ if ($requestedTopicID == 0) {
     abort(404);
 }
 
-getTopicDetails($requestedTopicID, $topicData);
+$topicData = getTopicDetails($requestedTopicID);
 
 if (empty($topicData)) {
     abort(404);
@@ -58,7 +58,6 @@ if (empty($commentList)) {
 $thisTopicID = $topicData['ID'];
 $thisTopicID = (int) $thisTopicID;
 $thisTopicAuthor = $topicData['Author'];
-$thisTopicAuthorID = $topicData['AuthorID'];
 $thisTopicCategory = $topicData['Category'];
 $thisTopicCategoryID = $topicData['CategoryID'];
 $thisTopicForum = $topicData['Forum'];

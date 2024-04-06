@@ -3,6 +3,7 @@
 use App\Enums\UserPreference;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Carbon;
+use App\Models\User;
 
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount = 25;
@@ -58,12 +59,18 @@ if (empty($forUser)) {
 
     $isShowAbsoluteDatesPreferenceSet = $websitePrefs && BitSet($websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
 
+    $fetchedUserCache = [];
+
     foreach ($recentPosts as $topicPostData) {
         $postMessage = $topicPostData['ShortMsg'];
         if ($topicPostData['IsTruncated']) {
             $postMessage .= '...';
         }
-        $postAuthor = $topicPostData['Author'];
+        
+        $authorId = $topicPostData['author_id'];
+        $fetchedUserCache[$authorId] ??= User::find($authorId);
+
+        $postAuthor = $fetchedUserCache[$authorId] ?? null;
         $forumID = $topicPostData['ForumID'] ?? 0;
         $forumTitle = $topicPostData['ForumTitle'] ?? '';
         $forumTopicID = $topicPostData['ForumTopicID'];
@@ -84,7 +91,7 @@ if (empty($forUser)) {
         echo "<tr>";
 
         echo "<td class='py-2.5'>";
-        echo userAvatar($postAuthor, iconSize: 24);
+        echo userAvatar($postAuthor ?? 'Deleted User', iconSize: 24);
         echo "</td>";
 
         $tooltipClassName = $isShowAbsoluteDatesPreferenceSet ? "" : "cursor-help";

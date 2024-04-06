@@ -8,7 +8,6 @@ use App\Community\Commands\MigrateMessages;
 use App\Community\Commands\SyncComments;
 use App\Community\Commands\SyncForumCategories;
 use App\Community\Commands\SyncForums;
-use App\Community\Commands\SyncForumTopics;
 use App\Community\Commands\SyncNews;
 use App\Community\Commands\SyncRatings;
 use App\Community\Commands\SyncTickets;
@@ -59,7 +58,6 @@ class AppServiceProvider extends ServiceProvider
                 SyncComments::class,
                 SyncForumCategories::class,
                 SyncForums::class,
-                SyncForumTopics::class,
                 SyncNews::class,
                 SyncRatings::class,
                 SyncTickets::class,

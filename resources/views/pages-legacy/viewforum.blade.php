@@ -3,6 +3,7 @@
 // TODO migrate to ForumController::show() pages/forum.blade.php
 
 use App\Enums\Permissions;
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -101,27 +102,27 @@ sanitize_outputs(
 
     $topicCount = is_countable($topicList) ? count($topicList) : 0;
 
+    $fetchedUserCache = [];
+
     // Output all topics, and offer 'prev/next page'
     foreach ($topicList as $topicData) {
         // Output one forum, then loop
         $nextTopicID = $topicData['ForumTopicID'];
         $nextTopicTitle = $topicData['TopicTitle'];
         $nextTopicPreview = $topicData['TopicPreview'];
-        $nextTopicAuthor = $topicData['Author'];
-        $nextTopicAuthorID = $topicData['AuthorID'];
         $nextTopicPostedDate = $topicData['ForumTopicPostedDate'];
         $nextTopicLastCommentID = $topicData['LatestCommentID'];
-        $nextTopicLastCommentAuthor = $topicData['LatestCommentAuthor'];
-        $nextTopicLastCommentAuthorID = $topicData['LatestCommentAuthorID'];
         $nextTopicLastCommentPostedDate = $topicData['LatestCommentPostedDate'];
         $nextTopicNumReplies = $topicData['NumTopicReplies'];
 
-        sanitize_outputs(
-            $nextTopicTitle,
-            $nextTopicPreview,
-            $nextTopicAuthor,
-            $nextTopicLastCommentAuthor,
-        );
+        $nextTopicAuthorID = $topicData['AuthorID'];
+        $nextTopicLastCommentAuthorID = $topicData['LatestCommentAuthorID'];
+        $fetchedUserCache[$nextTopicAuthorID] ??= User::find($nextTopicAuthorID);
+        $fetchedUserCache[$nextTopicLastCommentAuthorID] ??= User::find($nextTopicLastCommentAuthorID);
+        $nextTopicAuthor = $fetchedUserCache[$nextTopicAuthorID] ?? null;
+        $nextTopicLastCommentAuthor = $fetchedUserCache[$nextTopicLastCommentAuthorID] ?? null;
+
+        sanitize_outputs($nextTopicTitle, $nextTopicPreview);
 
         $nextTopicPostedNiceDate = $nextTopicPostedDate !== null ? getNiceDate(strtotime($nextTopicPostedDate)) : "None";
 
@@ -145,11 +146,11 @@ sanitize_outputs(
         echo "</div>";
         echo "</td>";
         echo "<td>";
-        echo "<div>" . userAvatar($nextTopicAuthor, icon: false) . "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
+        echo "<div>" . userAvatar($nextTopicAuthor ?? 'Deleted User', icon: false) . "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
         echo "</td>";
         echo "<td>" . localized_number($nextTopicNumReplies) . "</td>";
         echo "<td>";
-        echo "<div class='xl:flex xl:flex-col xl:items-end xl:gap-y-0.5'>" . userAvatar($nextTopicLastCommentAuthor, icon: false) . "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
+        echo "<div class='xl:flex xl:flex-col xl:items-end xl:gap-y-0.5'>" . userAvatar($nextTopicLastCommentAuthor ?? 'Deleted User', icon: false) . "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
         echo "<a class='text-2xs' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
         echo "</div>";
         echo "</td>";
