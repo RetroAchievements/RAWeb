@@ -62,7 +62,7 @@ class UserCommentPolicy
         //     return false;
         // }
 
-        if ($user->isMuted()) {
+        if ($user->is_muted) {
             return false;
         }
 
