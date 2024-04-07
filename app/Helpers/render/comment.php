@@ -4,6 +4,7 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
 
 function RenderCommentsComponent(
@@ -61,38 +62,34 @@ function RenderCommentsComponent(
 
     echo "<table id='feed' class='table-highlight'><tbody>";
 
-    $lastID = 0;
-    $lastKnownDate = 'Init';
+    // moderators can delete any comment
+    // users can delete any comment off of their wall
+    $canDeleteAnyComment =             
+        $permissions >= Permissions::Moderator || 
+        ($articleTypeID === ArticleType::User && $user?->id === $articleID);
 
     foreach ($commentData as $comment) {
-        if (isset($comment['banned_at']) && $permissions < Permissions::Moderator) {
-            continue;
-        }
+        // users can delete their own comments
+        $canDeleteComment = $canDeleteAnyComment || $comment['User'] === $username;
 
-        $dow = date("d/m", (int) $comment['Submitted']);
-        if ($lastKnownDate == 'Init') {
-            $lastKnownDate = $dow;
-        } elseif ($lastKnownDate !== $dow) {
-            $lastKnownDate = $dow;
-        }
-
-        if ($lastID != $comment['ID']) {
-            $lastID = $comment['ID'];
-        }
-
-        $canDeleteComment = $articleTypeID == ArticleType::User && $user?->id === $articleID || $permissions >= Permissions::Moderator;
-
-        RenderArticleComment(
-            $articleID,
-            $comment['User'],
-            $comment['CommentPayload'],
-            // TODO no unix timestamp here
-            (int) $comment['Submitted'],
-            $username,
-            $articleTypeID,
-            (int) $comment['ID'],
-            $canDeleteComment
-        );
+        echo Blade::render(
+            '<x-comment.item
+                :author="$author"
+                :when="$when"
+                :payload="$payload"
+                :articleType="$articleType"
+                :articleId="$articleId"
+                :commentId="$commentId"
+                :allowDelete="$allowDelete"
+            />', [
+                'author' => User::withTrashed()->firstWhere('User', $comment['User']),
+                'when' => Carbon::createFromTimestamp($comment['Submitted']),
+                'payload' => nl2br($comment['CommentPayload']),
+                'articleType' => $articleTypeID,
+                'articleId' => $articleID,
+                'commentId' => $comment['ID'],
+                'allowDelete' => $canDeleteComment,
+            ]);
     }
 
     if (isset($user) && !$user->isMuted) {
@@ -113,66 +110,6 @@ function RenderCommentsComponent(
             </div>
         HTML;
     }
-}
-
-function RenderArticleComment(
-    int $articleID,
-    ?string $user,
-    string $comment,
-    int $submittedDate,
-    ?string $localUser,
-    int $articleTypeID,
-    int $commentID,
-    bool $allowDelete,
-): void {
-    $class = '';
-    $deleteIcon = '';
-
-    if ($user && $user === $localUser || $allowDelete) {
-        $img = Blade::render('<x-fas-xmark class="text-red-600 h-5 w-5" />');
-        $deleteIcon = "<div style='float: right;'><a onclick=\"removeComment($articleTypeID, $articleID, $commentID); return false;\" href='#' aria-label='Delete comment' title='Delete comment'>$img</a></div>";
-    }
-
-    if ($user === 'Server') {
-        $deleteIcon = null;
-        $class .= ' system';
-    }
-
-    echo "<tr class='comment$class' id='comment_" . $commentID . "_highlight'>";
-
-    $niceDate = date("j M Y ", $submittedDate);
-    $niceDate .= date("H:i", $submittedDate);
-
-    sanitize_outputs($user, $comment);
-    $comment = nl2br($comment);
-
-    echo "<td class='align-top py-2'>";
-
-    echo <<<HTML
-        <div class="relative">
-            <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_$commentID"></div>
-        </div>
-    HTML;
-
-    if ($user !== 'Server') {
-        echo userAvatar($user, label: false);
-    }
-    echo "</td>";
-    echo "<td class='w-full py-2' colspan='3'>";
-    echo $deleteIcon;
-    echo "<div>";
-    if ($user !== 'Server') {
-        echo userAvatar($user, label: true);
-    }
-    echo " <span class='smalldate'>$niceDate</span>";
-    echo "</div>";
-
-    echo "<div style='word-break: break-word'>";
-    echo $comment;
-    echo "</div>";
-    echo "</td>";
-
-    echo "</tr>";
 }
 
 function RenderCommentInputRow(string $user, int $articleTypeId, int $articleId): void
