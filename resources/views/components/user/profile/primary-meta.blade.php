@@ -13,17 +13,13 @@ use Illuminate\Support\Carbon;
 
 <?php
 $me = Auth::user() ?? null;
-$amIModerator = false;
-if ($me) {
-    $amIModerator = $me->getAttribute('Permissions') >= Permissions::Moderator;
-}
 
 $hasVisibleRole = (
     (
         $userMassData['Permissions'] !== Permissions::Registered
         && $userMassData['Permissions'] !== Permissions::Unregistered
     )
-    || ($amIModerator && $userMassData['Permissions'] !== Permissions::Registered)
+    || ($me?->can('manage', App\Models\User::class) && $userMassData['Permissions'] !== Permissions::Registered)
 );
 
 $roleLabel = $hasVisibleRole ? Permissions::toString($userMassData['Permissions']) : '';
@@ -104,14 +100,16 @@ $shouldMoveRoleToNextLine =
         </div>
     </div>
 
-    @if ($amIModerator)
+    {{-- TODO port moderator tools to Filament, replace button with <a> link to Filament panel /manage/users/{username} --}}
+    @can('manage', App\Models\User::class)
         <button class="absolute bottom-0 right-0 btn" onclick="toggleModeratorTools()">
             Moderate ▼
         </button>
-    @endif
+    @endcan
 </div>
 
-@if ($amIModerator)
+{{-- TODO remove when moderator tools ported to Filament --}}
+@can('manage', App\Models\User::class)
     <script>
     function toggleModeratorTools() {
         const toolsEl = document.getElementById('moderator-tools-content');
@@ -124,4 +122,4 @@ $shouldMoveRoleToNextLine =
         }
     }
     </script>
-@endif
+@endcan
