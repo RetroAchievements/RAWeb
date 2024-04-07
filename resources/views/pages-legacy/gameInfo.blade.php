@@ -208,8 +208,7 @@ if ($isFullyFeaturedGame) {
             // Tally up how many Progression and Win Condition achievements the user has earned.
             // We'll use this to determine if they're potentially missing a beaten game award.
             if (
-                $user
-                && isset($nextAch['type'])
+                isset($nextAch['type'])
                 && ($nextAch['type'] == AchievementType::Progression || $nextAch['type'] == AchievementType::WinCondition)
             ) {
                 $isGameBeatable = true;
@@ -249,7 +248,7 @@ if ($isFullyFeaturedGame) {
 
     // Show the beaten award display in the progress component optimistically.
     // The actual award metadata is updated async via actions/background jobs.
-    if ($isGameBeatable) {
+    if ($user && $isGameBeatable) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
 
@@ -858,7 +857,7 @@ sanitize_outputs(
                     <x-game.achievements-list.root
                         :achievements="$achievementData"
                         :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                        :isCreditDialogEnabled="$user && $flagParam != $unofficialFlag"
+                        :isCreditDialogEnabled="$flagParam != $unofficialFlag"
                         :showAuthorNames="!$isOfficial && isset($user) && $permissions >= Permissions::JuniorDeveloper"
                         :totalPlayerCount="$numDistinctPlayers"
                     />
