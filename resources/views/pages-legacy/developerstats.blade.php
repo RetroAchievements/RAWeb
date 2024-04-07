@@ -16,11 +16,12 @@ $resolvedForOthersTicketFilter = (
     & ~TicketFilters::StateClosed
 );
 
-$devStatsList = GetDeveloperStatsFull(25, $offset, $type, $devFilter);
+$maxItemsPerPage = 25;
+$devStatsList = GetDeveloperStatsFull($maxItemsPerPage, $offset, $type, $devFilter);
 $filteredDevCount = sizeof($devStatsList);
 $totalDevCount = getDeveloperStatsTotalCount($devFilter);
-$totalPages = ceil($totalDevCount / $filteredDevCount);
-$currentPage = ($offset / $filteredDevCount) + 1;
+$totalPages = ceil($totalDevCount / $maxItemsPerPage);
+$currentPage = ($offset / $maxItemsPerPage) + 1;
 
 $previousPageHref = null;
 $nextPageHref = null;
