@@ -22,6 +22,7 @@ class PlayerBadge extends BaseModel
 
     protected $fillable = [
         'User',
+        'user_id',
         'AwardType',
         'AwardData',
         'AwardDataExtra',

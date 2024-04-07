@@ -1005,10 +1005,12 @@ sanitize_outputs(
         if ($user !== null && $numAchievements > 0) {
             $gameModel = Game::find($gameID);
             ?>
-            <x-game.compare-progress
-                :game="$gameModel"
-                :user="$userModel"
-            />
+            <div class="mb-4">
+                <x-game.compare-progress
+                    :game="$gameModel"
+                    :user="$userModel"
+                />
+            </div>
             <?php
         }
 
