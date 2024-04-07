@@ -28,7 +28,7 @@
         @endif
     </p>
 
-    <div class="flex flex-col">
+    <div class="flex flex-col pl-2 border-l-2 border-neutral-700 black:border-neutral-700 light:border-embed-highlight">
         <p class="font-mono text-neutral-200 light:text-neutral-700">
             {{ $hash->md5 }}
         </p>

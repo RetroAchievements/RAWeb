@@ -1,24 +1,16 @@
 <?php
 
-use App\Enums\Permissions;
 use App\Models\Game;
+use App\Models\GameHash;
+use function Laravel\Folio\{middleware, name};
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    abort(401);
-}
+middleware(['auth', 'can:view,game']);
+name('game.hash');
 
-$gameID = (int) request()->query('g');
-if (empty($gameID)) {
-    abort(404);
-}
+?>
 
-$game = Game::with('system')->find($gameID);
-if (!$game) {
-    abort(404);
-}
-
+@php
 $hashes = $game->hashes()->with('user')->orderBy('name')->orderBy('md5')->get();
-
 $numHashes = $hashes->count();
 
 $unlabeledHashes = $hashes->filter(function ($hash) {
@@ -27,7 +19,7 @@ $unlabeledHashes = $hashes->filter(function ($hash) {
 $labeledHashes = $hashes->reject(function ($hash) {
     return empty($hash->name);
 });
-?>
+@endphp
 
 <x-app-layout pageTitle="Supported Game Files - {{ $game->title }}">
     <x-game.breadcrumbs
@@ -35,12 +27,22 @@ $labeledHashes = $hashes->reject(function ($hash) {
         currentPageLabel="Supported Game Files"
     />
 
-    <div class="mt-3 -mb-3 w-full flex gap-x-3">
+    <div class="mt-3 w-full flex gap-x-3">
         {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
         <h1 class="mt-[10px] w-full">Supported Game Files</h1>
     </div>
 
-    <div class="bg-embed rounded p-4 mt-8 flex flex-col gap-y-4">
+    @can('manage', App\Models\GameHash::class, ['game' => $game])
+        <div class="mt-1 mb-6">
+            <x-game.link-buttons.index
+                :allowedLinks="['manage-hashes']"
+                :game="$game"
+                variant="row"
+            />
+        </div>
+    @endcan
+
+    <div class="bg-embed rounded p-4 mt-2 flex flex-col gap-y-4">
         <p>
             <span class="font-bold">
                 RetroAchievements requires that the game files you use with your emulator
@@ -59,18 +61,6 @@ $labeledHashes = $hashes->reject(function ($hash) {
             @endif
         </p>
     </div>
-
-    <?php
-    echo "<div class='mt-4 mb-1'>";
-    if ($permissions >= Permissions::Developer) {
-        echo "<div class='devbox mb-3'>";
-        echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-        echo "<div id='devboxcontent' style='display: none'>";
-        echo "<a href='/game/$gameID/hashes/manage'>Manage Hashes</a>";
-        echo "</div>";
-        echo "</div>";
-    }
-    ?>
 
     <p class="mt-4 mb-1">
         There {{ $numHashes === 1 ? 'is' : 'are' }} currently <span class="font-bold">{{ $numHashes }}</span>
@@ -93,7 +83,7 @@ $labeledHashes = $hashes->reject(function ($hash) {
 
             <ul class="flex flex-col gap-y-0">
                 @foreach ($unlabeledHashes as $hash)
-                        <x-supported-game-files.hash-listing :hash="$hash" />
+                    <x-supported-game-files.hash-listing :hash="$hash" />
                 @endforeach
             </ul>
         @endif
