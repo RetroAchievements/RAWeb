@@ -29,4 +29,13 @@ class TicketPolicy
     {
         return true;
     }
+
+    public function create(User $user): bool
+    {
+        if ($user->created_at->diffInDays() < 1 || $user->is_muted || $user->banned_at) {
+            return false;
+        }
+
+        return $user->playerGames()->where('time_taken', '>', 5)->exists();
+    }
 }

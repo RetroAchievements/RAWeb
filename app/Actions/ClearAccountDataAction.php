@@ -38,7 +38,7 @@ class ClearAccountDataAction
         DB::statement('DELETE FROM SiteAwards WHERE User = :username', ['username' => $user->User]);
         $user->subscriptions()->delete();
 
-        // use action to delete each participation so threads with no remaing active participants get cleaned up
+        // use action to delete each participation so threads with no remaining active participants get cleaned up
         $deleteMessageThreadAction = new DeleteMessageThreadAction();
         foreach ($user->messageThreadParticipations()->get() as $participation) {
             $deleteMessageThreadAction->execute($participation->thread, $user);
