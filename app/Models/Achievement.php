@@ -180,6 +180,8 @@ class Achievement extends BaseModel implements HasComments
                 'Flags',
                 'type',
                 'BadgeName',
+                'MemAddr',
+                'user_id',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
