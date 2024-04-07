@@ -52,7 +52,7 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
-$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
+$parentGame = getParentGameFromGameTitle($gameTitle, $consoleID);
 
 sanitize_outputs(
     $achievementTitle,
@@ -74,7 +74,7 @@ $unlocks = getAchievementUnlocksData(
     $numWinners,
     $numWinnersHardcore,
     $numPossibleWinners,
-    $parentGameID,
+    $parentGame?->id,
     0,
     50
 );
