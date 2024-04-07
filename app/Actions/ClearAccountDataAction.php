@@ -29,18 +29,16 @@ class ClearAccountDataAction
         // TODO $user->activities()->delete();
         // TODO $user->emailConfirmations()->delete();
         DB::statement('DELETE FROM EmailConfirmations WHERE User = :username', ['username' => $user->User]);
-        // TODO $user->followers()->delete();
-        // TODO $user->following()->delete();
-        DB::statement('DELETE FROM Friends WHERE User = :username OR Friend = :friendUsername', ['username' => $user->User, 'friendUsername' => $user->User]);
+        $user->relationships()->delete();
+        $user->inverseRelationships()->delete();
         // TODO $user->ratings()->delete();
         DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
-        // TODO $user->achievementSetRequests()->delete();
-        DB::statement('DELETE FROM SetRequest WHERE User = :username', ['username' => $user->User]);
+        $user->gameListEntries()->delete();
         // TODO $user->badges()->delete();
         DB::statement('DELETE FROM SiteAwards WHERE User = :username', ['username' => $user->User]);
         $user->subscriptions()->delete();
 
-        // use action to delete each participation so threads with no remaing active participants get cleaned up
+        // use action to delete each participation so threads with no remaining active participants get cleaned up
         $deleteMessageThreadAction = new DeleteMessageThreadAction();
         foreach ($user->messageThreadParticipations()->get() as $participation) {
             $deleteMessageThreadAction->execute($participation->thread, $user);

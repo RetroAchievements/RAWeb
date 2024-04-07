@@ -17,6 +17,8 @@ class UserRelation extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
+        'user_id',
+        'related_user_id',
         'User',
         'Friend',
         'Friendship',

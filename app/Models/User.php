@@ -18,7 +18,6 @@ use App\Platform\Contracts\Developer;
 use App\Platform\Contracts\Player;
 use App\Support\Database\Eloquent\Concerns\HasFullTableName;
 use App\Support\HashId\HasHashId;
-use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
 use Filament\Models\Contracts\FilamentUser;
@@ -30,6 +29,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
@@ -362,7 +362,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
     public function isNew(): bool
     {
-        return Carbon::now()->diffInMonths($this->Created) < 1;
+        return Carbon::now()->diffInMonths($this->created_at) < 1;
     }
 
     public function getCanonicalUrlAttribute(): string
@@ -386,10 +386,17 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     }
 
     // TODO remove after rename
-
     public function getIdAttribute(): ?int
     {
         return $this->attributes['ID'] ?? null;
+    }
+
+    // TODO remove after rename
+    public function getCreatedAtAttribute(): Carbon
+    {
+        return $this->attributes['Created']
+            ? Carbon::parse($this->attributes['Created'])
+            : Carbon::now(); // Created is currently nullable
     }
 
     public function getDisplayNameAttribute(): ?string

@@ -3,53 +3,48 @@
 use App\Community\Enums\UserRelationship;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Models\User;
+use App\Models\UserRelation;
 
-function changeFriendStatus(string $user, string $friend, int $newStatus): string
+function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus): string
 {
-    sanitize_sql_inputs($user, $friend);
-
-    $query = "SELECT Friendship FROM Friends WHERE User='$user' AND Friend='$friend'";
-    $dbresult = s_mysql_query($query);
-    if (!$dbresult) {
-        log_sql_fail();
-
-        return "error";
-    }
+    $existingUserRelation = UserRelation::where('User', $senderUser->User)
+        ->where('Friend', $targetUser->User)
+        ->first();
 
     $newRelationship = false;
-    $data = mysqli_fetch_assoc($dbresult);
-    if ($data) {
-        $oldStatus = (int) $data['Friendship'];
-        $query = "UPDATE Friends SET Friendship=$newStatus WHERE User='$user' AND Friend='$friend'";
+    if ($existingUserRelation) {
+        $oldStatus = $existingUserRelation->Friendship;
     } else {
         $newRelationship = true;
         $oldStatus = UserRelationship::NotFollowing;
-        $query = "INSERT INTO Friends (User, Friend, Friendship) VALUES ('$user', '$friend', $newStatus)";
     }
 
-    if ($oldStatus === $newStatus) {
-        return "nochange";
-    }
-
-    if ($newStatus == UserRelationship::Following && isUserBlocking($friend, $user)) {
+    if ($newStatus === UserRelationship::Following && isUserBlocking($targetUser->User, $senderUser->User)) {
         // other user has blocked this user, can't follow them
         return "error";
     }
 
-    $dbresult = s_mysql_query($query);
-    if (!$dbresult) {
-        return "error";
+    // Upsert the relationship.
+    if ($existingUserRelation) {
+        $existingUserRelation->Friendship = $newStatus;
+        $existingUserRelation->save();
+    } else {
+        UserRelation::create([
+            'User' => $senderUser->User,
+            'user_id' => $senderUser->id,
+            'Friend' => $targetUser->User,
+            'related_user_id' => $targetUser->id,
+            'Friendship' => $newStatus,
+        ]);
     }
 
     switch ($newStatus) {
         case UserRelationship::Following:
             // attempt to notify the target of the new follower
-            $friendData = [];
-            if (getAccountDetails($friend, $friendData)) {
-                if ($newRelationship && BitSet($friendData['websitePrefs'], UserPreference::EmailOn_Followed)) {
-                    // notify the new friend of the request
-                    sendFriendEmail($friend, $friendData['EmailAddress'], 0, $user);
-                }
+            if ($newRelationship && BitSet($targetUser->websitePrefs, UserPreference::EmailOn_Followed)) {
+                // notify the new friend of the request
+                sendFriendEmail($targetUser->User, $targetUser->EmailAddress, 0, $senderUser->User);
             }
 
             return "user_follow";
@@ -62,10 +57,11 @@ function changeFriendStatus(string $user, string $friend, int $newStatus): strin
             };
 
         case UserRelationship::Blocked:
-            if (!isUserBlocking($friend, $user)) {
+            if (!isUserBlocking($targetUser->User, $senderUser->User)) {
                 // if the other user hasn't blocked the user, clear out their friendship status too
-                $query = "UPDATE Friends SET Friendship=" . UserRelationship::NotFollowing . " WHERE User='$friend' AND Friend='$user'";
-                $dbResult = s_mysql_query($query);
+                UserRelation::where('User', $targetUser->User)
+                    ->where('Friend', $senderUser->User)
+                    ->update(['Friendship' => UserRelationship::NotFollowing]);
             }
 
             return "user_block";

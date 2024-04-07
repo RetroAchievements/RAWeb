@@ -58,7 +58,7 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
         $maxCountOut = (int) $data['COUNT(*)'];
     }
 
-    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.Author, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
+    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.Author, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
@@ -90,7 +90,7 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
 
 function getUnauthorisedForumLinks(): ?array
 {
-    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.Author, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.AuthorID AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
+    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.Author, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
@@ -137,7 +137,7 @@ function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
 
 function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
 {
-    $query = "    SELECT ID, ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified
+    $query = "    SELECT ID, ForumTopicID, Payload, Author, author_id as AuthorID, DateCreated, DateModified
                 FROM ForumTopicComment
                 WHERE ID=$forumPostID";
 
@@ -241,7 +241,7 @@ function getIsForumDoublePost(
 ): bool {
     $query = "SELECT ftc.Payload, ftc.ForumTopicID
         FROM ForumTopicComment AS ftc
-        WHERE AuthorID = :authorId
+        WHERE author_id = :authorId
         ORDER BY ftc.DateCreated DESC
         LIMIT 1";
 
@@ -288,7 +288,7 @@ function submitTopicComment(
 
     $authFlags = getUserForumPostAuth($user) ? 1 : 0;
 
-    $query = "INSERT INTO ForumTopicComment (ForumTopicID, Payload, Author, AuthorID, DateCreated, DateModified, Authorised) VALUES ($topicID, '$commentPayload', '$user', $userID, NOW(), NULL, $authFlags ) ";
+    $query = "INSERT INTO ForumTopicComment (ForumTopicID, Payload, Author, author_id, DateCreated, DateModified, Authorised) VALUES ($topicID, '$commentPayload', '$user', $userID, NOW(), NULL, $authFlags ) ";
 
     $db = getMysqliConnection();
     $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
@@ -328,7 +328,7 @@ function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string 
             SELECT DISTINCT ua.*
             FROM
                 ForumTopicComment as ftc
-                INNER JOIN UserAccounts AS ua ON ua.ID = ftc.AuthorID
+                INNER JOIN UserAccounts AS ua ON ua.ID = ftc.author_id
             WHERE
                 ftc.ForumTopicID = $topicID
         "
@@ -613,6 +613,6 @@ function isUserSubscribedToForumTopic(int $topicID, int $userID): bool
         SubscriptionSubjectType::ForumTopic,
         $topicID,
         $userID,
-        "SELECT 1 FROM ForumTopicComment WHERE ForumTopicID = $topicID AND AuthorID = $userID"
+        "SELECT 1 FROM ForumTopicComment WHERE ForumTopicID = $topicID AND author_id = $userID"
     );
 }
