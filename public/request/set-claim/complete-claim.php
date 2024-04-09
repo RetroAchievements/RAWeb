@@ -29,7 +29,8 @@ if (!empty($claimData) && completeClaim($user, $gameID)) { // Check that the cla
 
         $userAwards = PlayerBadge::with('user')
             ->where('AwardData', $gameID)
-            ->where('AwardType', AwardType::Mastery);
+            ->where('AwardType', AwardType::Mastery)
+            ->get();
 
         foreach ($userAwards as $userAward) {
             sendSetRevisionEmail(
