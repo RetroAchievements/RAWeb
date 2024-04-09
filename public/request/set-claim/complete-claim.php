@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
+use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
 use App\Models\PlayerBadge;
@@ -26,7 +27,10 @@ if (!empty($claimData) && completeClaim($user, $gameID)) { // Check that the cla
         // Send email to users who had previously mastered the set
         $gameTitle = getGameData($gameID)['Title'];
 
-        $userAwards = PlayerBadge::with('user')->where('AwardData', $gameID);
+        $userAwards = PlayerBadge::with('user')
+            ->where('AwardData', $gameID)
+            ->where('AwardType', AwardType::Mastery);
+
         foreach ($userAwards as $userAward) {
             sendSetRevisionEmail(
                 $userAward->user->User,
