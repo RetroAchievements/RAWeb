@@ -57,7 +57,7 @@ $labeledHashes = $hashes->reject(function ($hash) {
 
             @if ($game->ForumTopicID > 0)
                 Additional information for these hashes may be listed on the
-                <a href="{{ 'viewtopic.php?t=' . $game->ForumTopicID }}">official forum topic</a>.
+                <a href="{{ '/viewtopic.php?t=' . $game->ForumTopicID }}">official forum topic</a>.
             @endif
         </p>
     </div>
