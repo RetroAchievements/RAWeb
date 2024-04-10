@@ -28,7 +28,7 @@ $message = request()->input('message') ?? '';
         <x-base.form action="{{ route('message.store') }}" validate>
             <div class="flex flex-col gap-y-3">
                 <x-base.form.user-select name="recipient" value="{{ $toUser }}" requiredSilent inline />
-                <x-base.form.input name="title" label="{{ __('Subject') }}" requiredSilent inline />
+                <x-base.form.input name="title" label="{{ __('Subject') }}" value="{!! $subject !!}" requiredSilent inline />
                 <x-base.form.textarea
                     id="input_compose"
                     name="body"
@@ -37,6 +37,7 @@ $message = request()->input('message') ?? '';
                     richText
                     maxlength="60000"
                     placeholder="Enter your message here..."
+                    value="{!! $message !!}"
                 >
                     <x-slot name="formActions">
                         <x-base.form-actions />
