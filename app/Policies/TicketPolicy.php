@@ -25,6 +25,11 @@ class TicketPolicy
             || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
     public function view(User $user, Ticket $ticket): bool
     {
         return true;
