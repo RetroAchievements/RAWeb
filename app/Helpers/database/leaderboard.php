@@ -66,7 +66,7 @@ function SubmitLeaderboardEntry(
             $retVal['BestScore'] = $newEntry;
         } else {
             // No change made.
-            $retVal['BestScore'] = $existingLeaderboardEntry->Score;
+            $retVal['BestScore'] = $existingLeaderboardEntry->score;
         }
     } else {
         // No existing leaderboard entry. Let's insert a new one.
@@ -127,7 +127,7 @@ function writeLegacyLeaderboardEntry(
     }
 }
 
-function removeLeaderboardEntry(User $user, int $lbID, ?int &$score): bool
+function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
 {
     $leaderboardEntry = LeaderboardEntry::with('leaderboard')
         ->where('leaderboard_id', $lbID)
