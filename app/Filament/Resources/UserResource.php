@@ -10,6 +10,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Form;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
@@ -134,8 +135,14 @@ class UserResource extends Resource
                                 ->label('Forum verified')
                                 ->boolean(),
                             Infolists\Components\TextEntry::make('muted_until')
-                                ->hidden(fn ($state) => !$state)
-                                ->helperText('Disallow post interactions.')
+                                ->hidden(function ($state) {
+                                    if (!$state) {
+                                        return true;
+                                    }
+
+                                    return $state->isPast();
+                                })
+                                ->helperText('Community interactions not allowed.')
                                 ->color('warning')
                                 ->dateTime(),
                         ]),
@@ -158,11 +165,23 @@ class UserResource extends Resource
                     Forms\Components\Section::make()
                         ->grow(false)
                         ->schema([
-                            Forms\Components\DateTimePicker::make('muted_until')
+                            DateTimePicker::make('muted_until')
                                 ->readOnly()
                                 ->time(false)
                                 ->suffix('at midnight')
-                                ->native(false),
+                                ->native(false)
+                                ->displayFormat('Y-m-d')
+                                ->maxDate('2038-01-18')
+                                ->afterStateHydrated(function (DateTimePicker $component, ?string $state) use ($form) {
+                                    if (!$state) {
+                                        /** @var User $user */
+                                        $user = $form->model;
+
+                                        $utcMutedUntil = $user->muted_until?->setTimezone('UTC');
+                                        $formattedDate = $utcMutedUntil?->format('Y-m-d');
+                                        $component->state($formattedDate);
+                                    }
+                                }),
                             Forms\Components\Toggle::make('ManuallyVerified')
                                 ->label('Forum verified'),
                             Forms\Components\Toggle::make('Untracked'),

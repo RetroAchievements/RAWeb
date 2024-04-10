@@ -38,7 +38,7 @@ class UserProfileTest extends TestCase
             ->assertJson([
                 'User' => $user->User,
                 'UserPic' => sprintf("/UserPic/%s.png", $user->User),
-                'MemberSince' => $user->Created?->toDateTimeString(),
+                'MemberSince' => $user->created_at->toDateTimeString(),
                 'RichPresenceMsg' => ($user->RichPresenceMsg) ? $user->RichPresenceMsg : null,
                 'LastGameID' => $user->LastGameID,
                 'ContribCount' => $user->ContribCount,

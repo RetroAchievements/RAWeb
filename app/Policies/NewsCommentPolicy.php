@@ -45,7 +45,7 @@ class NewsCommentPolicy
 
     public function create(User $user, ?News $commentable): bool
     {
-        if ($user->isMuted()) {
+        if ($user->is_muted) {
             return false;
         }
 

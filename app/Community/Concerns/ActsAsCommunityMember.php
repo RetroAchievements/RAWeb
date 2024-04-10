@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+// TODO organize accessors, relations, and scopes
+
 trait ActsAsCommunityMember
 {
     public static function bootActsAsCommunityMember(): void
@@ -48,16 +50,25 @@ trait ActsAsCommunityMember
     /**
      * @return BelongsToMany<User>
      */
+    public function relationships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function inverseRelationships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
+    }
+
+    /**
+     * @return BelongsToMany<User>
+     */
     public function following(): BelongsToMany
     {
-        // return $this->belongsToMany(User::class, 'Friends', 'user_id', 'related_user_id');
-        return $this->belongsToMany(User::class,
-            'Friends', // related table
-            'User',    // foreign key in related table pointing to this model
-            'Friend',  // foreign key in related table pointing to target model
-            'User',    // local key in this model
-            'User')    // local key in target model
-            ->where('Friendship', '=', UserRelationship::Following);
+        return $this->relationships()->where('Friendship', '=', UserRelationship::Following);
     }
 
     /**
@@ -65,8 +76,7 @@ trait ActsAsCommunityMember
      */
     public function followers(): BelongsToMany
     {
-        // untested - likely needs to be refactored to match following() implementation
-        return $this->belongsToMany(User::class, 'Friends', 'related_user_id', 'user_id');
+        return $this->inverseRelationships()->where('Friendship', '=', UserRelationship::Following);
     }
 
     public function isFollowing(string $username): bool
@@ -82,6 +92,16 @@ trait ActsAsCommunityMember
     public function isForumVerified(): bool
     {
         return !empty($this->forum_verified_at);
+    }
+
+    public function isUnranked(): bool
+    {
+        return !empty($this->unranked_at);
+    }
+
+    public function isRanked(): bool
+    {
+        return !$this->isUnranked();
     }
 
     public function isBanned(): bool
@@ -102,6 +122,21 @@ trait ActsAsCommunityMember
     public function isNotMuted(): bool
     {
         return !$this->isMuted();
+    }
+
+    public function getIsMutedAttribute(): bool
+    {
+        return $this->isMuted();
+    }
+
+    public function getIsUnrankedAttribute(): bool
+    {
+        return $this->isUnranked();
+    }
+
+    public function getIsBannedAttribute(): bool
+    {
+        return $this->isBanned();
     }
 
     /**
@@ -130,7 +165,7 @@ trait ActsAsCommunityMember
      */
     public function forumPosts(): HasMany
     {
-        return $this->hasMany(ForumTopicComment::class, 'AuthorID', 'ID');
+        return $this->hasMany(ForumTopicComment::class, 'author_id', 'ID');
     }
 
     /**

@@ -50,28 +50,93 @@
  *    string    Expiration                date the claim will expire
  */
 
+use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
+use App\Models\Game;
 use App\Platform\Enums\AchievementFlag;
+use Carbon\Carbon;
 
-$gameID = (int) request()->query('i');
+$gameId = (int) request()->query('i');
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
-getGameMetadata($gameID, null, $achData, $gameData, flag: $flag, metrics: true);
 
-if ($gameData === null) {
+$game = Game::with('system')->find($gameId);
+
+if (!$game) {
     return response()->json();
 }
 
-if (empty($achData)) {
-    $gameData['Achievements'] = new ArrayObject(); // issue #484 - force serialization to {}
+$gameSetClaims = AchievementSetClaim::where('game_id', $gameId)->get();
+$gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag)->findMany($game->achievements);
+
+$gameData = [
+    'ID' => $game->ID,
+    'Title' => $game->Title,
+    'ConsoleID' => $game->ConsoleID,
+    'ForumTopicID' => $game->ForumTopicID,
+    'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
+    'ImageIcon' => $game->ImageIcon,
+    'ImageTitle' => $game->ImageTitle,
+    'ImageIngame' => $game->ImageIngame,
+    'ImageBoxArt' => $game->ImageBoxArt,
+    'Publisher' => $game->Publisher,
+    'Developer' => $game->Developer,
+    'Genre' => $game->Genre,
+    'Released' => $game->Released,
+    'IsFinal' => $game->IsFinal,
+    'RichPresencePatch' => md5($game->RichPresencePatch),
+    'GuideURL' => $game->GuideURL,
+    'Updated' => $game->Updated->format('Y-m-d\TH:i:s.u\Z'),
+];
+
+// Use maps to structure the data with how legacy API consumers might expect it to be returned.
+if (!$gameAchievements->isEmpty()) {
+    $gameListAchievements = $gameAchievements->keyBy('ID')->map(function ($am) {
+        return [
+            'ID' => $am->ID,
+            'NumAwarded' => $am->unlocks_total,
+            'NumAwardedHardcore' => $am->unlocks_hardcore_total,
+            'Title' => $am->Title,
+            'Description' => $am->Description,
+            'Points' => $am->Points,
+            'TrueRatio' => $am->TrueRatio,
+            'Author' => $am->Author,
+            'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
+            'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
+            'BadgeName' => $am->BadgeName,
+            'DisplayOrder' => $am->DisplayOrder,
+            'MemAddr' => md5($am->MemAddr),
+            'type' => $am->type,
+        ];
+    });
 } else {
-    foreach ($achData as &$achievement) {
-        $achievement['MemAddr'] = md5($achievement['MemAddr'] ?? null);
-    }
-    $gameData['Achievements'] = $achData;
+    $gameListAchievements = new ArrayObject();
 }
-$gameData['Claims'] = getClaimData($gameID, false);
-$gameData['RichPresencePatch'] = md5($gameData['RichPresencePatch'] ?? null);
 
-$gameData['NumDistinctPlayersCasual'] = $gameData['NumDistinctPlayers'];
-$gameData['NumDistinctPlayersHardcore'] = $gameData['NumDistinctPlayers'];
+if (!$gameSetClaims) {
+    $gameClaims = [];
+} else {
+    $gameClaims = $gameSetClaims->map(function ($gc) {
+        return [
+            'User' => $gc->User,
+            'SetType' => $gc->SetType,
+            'GameID' => $gc->game_id,
+            'ClaimType' => $gc->ClaimType,
+            'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
+            'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
+        ];
+    });
+}
 
-return response()->json($gameData);
+return response()->json(array_merge(
+    $gameData,
+    [
+        'ConsoleName' => $game->system->Name,
+        'ParentGameID' => $game->getParentGame()?->id,
+        'NumDistinctPlayers' => $game->players_total,
+        'NumAchievements' => count($gameAchievements),
+        'Achievements' => $gameListAchievements,
+        'Claims' => $gameClaims,
+        'NumDistinctPlayersCasual' => $game->players_total, // Deprecated - Only here to maintain API V1 compat
+        'NumDistinctPlayersHardcore' => $game->players_total, // Deprecated - Only here to maintain API V1 compat
+    ]
+));
