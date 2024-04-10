@@ -26,6 +26,7 @@ class PlayerGameActivityService
                 'startTime' => $playerSession->created_at,
                 'endTime' => $playerSession->created_at->addMinutes($playerSession->duration),
                 'duration' => $playerSession->duration * 60,
+                'userAgent' => $playerSession->user_agent,
                 'events' => [],
             ];
 
@@ -41,6 +42,7 @@ class PlayerGameActivityService
                 // being floored by the conversion to minutes.
                 if ($playerSession->rich_presence_updated_at > $session['endTime']) {
                     $session['endTime'] = $playerSession->rich_presence_updated_at;
+                    $session['duration'] = $session['endTime']->diffInSeconds($session['startTime']);
                 }
             }
 
