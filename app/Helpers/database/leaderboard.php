@@ -140,7 +140,7 @@ function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
 
     $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
 
-    // TODO change reads to respect soft deletes
+    // TODO utilize soft deletes
     $wasLeaderboardEntryDeleted = $leaderboardEntry->forceDelete();
 
     // TODO delete this code once LeaderboardEntry is dropped in favor of leaderboard_entries
