@@ -27,7 +27,7 @@ function getGameData(int $gameID): ?array
 // If the game is a subset, identify its parent game.
 function getParentGameFromGameTitle(string $title, int $consoleId): ?Game
 {
-    if (strstr('[Subset - ', $title) !== false) {
+    if (mb_strpos($title, '[Subset') !== false) {
         $foundGame = Game::where('Title', $title)->where('ConsoleID', $consoleId)->first();
 
         return $foundGame->getParentGame() ?? null;
