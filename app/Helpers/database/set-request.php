@@ -67,7 +67,7 @@ function getSetRequestorsList(int $gameId, bool $getEmailInfo = false): array
         ->with('user');
 
     if ($getEmailInfo) {
-        $query->with(['game:ID,title']);
+        $query->with(['game:ID,Title']);
     }
 
     $setRequests = $query->get();
