@@ -140,22 +140,23 @@ function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
 
     $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
 
-    $numAffectedRows = $leaderboardEntry->delete();
+    // TODO change reads to respect soft deletes
+    $wasLeaderboardEntryDeleted = $leaderboardEntry->forceDelete();
 
     // TODO delete this code once LeaderboardEntry is dropped in favor of leaderboard_entries
-    $numLegacyAffectedRows = 0;
+    $wasLegacyLeaderboardEntryDeleted = false;
     $legacyLeaderboardEntry = LeaderboardEntryLegacy::where('LeaderboardID', $lbID)
         ->where('UserID', $user->id)
         ->first();
 
     if ($legacyLeaderboardEntry) {
         // Eloquent ORM requires a new query because this table has a composite primary key.
-        LeaderboardEntryLegacy::where(['LeaderboardID' => $lbID, 'UserID' => $user->id])->delete();
+        $wasLegacyLeaderboardEntryDeleted =
+            LeaderboardEntryLegacy::where(['LeaderboardID' => $lbID, 'UserID' => $user->id])->delete();
     }
     // TODO end delete this code once LeaderboardEntry is dropped in favor of leaderboard_entries
 
-    // `false` is reported if there's an error executing a query.
-    return $numAffectedRows !== false && $numLegacyAffectedRows !== false;
+    return $wasLeaderboardEntryDeleted && $wasLegacyLeaderboardEntryDeleted;
 }
 
 function GetLeaderboardRankingJSON(string $username, int $lbID, bool $lowerIsBetter): array
