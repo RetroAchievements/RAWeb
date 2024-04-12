@@ -3,9 +3,12 @@
     'prefix' => '',
 ])
 
-<table class="table-highlight">
-    @php $j = 1 @endphp
-    @foreach ($groups as $group)
+@php $j = 1 @endphp
+@foreach ($groups as $group)
+    @if ($j !== 1)
+        <hr class="border-embed-highlight"/>
+    @endif
+    <table class="table-highlight">
         <tr class="do-not-highlight text-center">
             <td colspan="10"><b>{{ $group['Label'] }}</b></td>
         </tr>
@@ -71,5 +74,6 @@
                 </td>
             </tr>
         @endif
-    @endforeach
-</table>
+    </table>
+    @php $j = $j + 1 @endphp
+@endforeach
