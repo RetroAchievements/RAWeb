@@ -3,6 +3,8 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Services\TriggerDecoderService;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -101,9 +103,9 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "</p>";
 
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-            echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-            echo "<div id='devboxcontent' style='display: none'>";
+            echo "<div>";
+            echo "<button class='btn' id='devboxbutton' onclick=\"toggleExpander('devboxbutton', 'devboxcontent');\">Dev ▼</button>";
+            echo "<div id='devboxcontent' class='hidden devboxcontainer'>";
 
             echo "<ul>";
             echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
@@ -157,11 +159,37 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 }
             }
 
-            getCodeNotes($gameID, $codeNotes);
-            ExplainLeaderboardTrigger('Start', $memStart, $codeNotes);
-            ExplainLeaderboardTrigger('Cancel', $memCancel, $codeNotes);
-            ExplainLeaderboardTrigger('Submit', $memSubmit, $codeNotes);
-            ExplainLeaderboardTrigger('Value', $memValue, $codeNotes);
+            $explainLeaderboardTrigger = function(string $name, string $triggerDef) use ($gameID) : void
+            {
+                echo "<div>";
+                echo "<button id='devbox{$name}Button' class='btn' onclick=\"toggleExpander('devbox{$name}Button', 'devbox{$name}Content');\">$name ▼</button>";
+                echo "<div id='devbox{$name}Content' class='hidden devboxcontainer'>";
+
+                echo "<li>Mem:</li>";
+                echo "<code>" . htmlspecialchars($triggerDef) . "</code>";
+
+                echo "<li>Mem explained:</li>";
+
+                $service = new TriggerDecoderService();
+                if ($name === 'Value') {
+                    $groups = $service->decodeValue($triggerDef);
+                } else {
+                    $groups = $service->decode($triggerDef);
+                }
+                $service->addCodeNotes($groups, $gameID);
+
+                echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" :prefix=\"\$prefix\" />",
+                    ['groups' => $groups, 'prefix' => strtolower($name)]
+                );
+
+                echo "</div>"; // devboxcontent
+                echo "</div>"; // devbox
+            };
+
+            $explainLeaderboardTrigger('Start', $memStart);
+            $explainLeaderboardTrigger('Cancel', $memCancel);
+            $explainLeaderboardTrigger('Submit', $memSubmit);
+            $explainLeaderboardTrigger('Value', $memValue);
 
             echo "</div>";
             echo "</div>";

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Services;
 
 use App\Models\MemoryNote;
+use Illuminate\Support\Str;
 
 class TriggerDecoderService
 {
@@ -379,7 +380,7 @@ class TriggerDecoderService
     public function decodeValue(string $serializedValue): array
     {
         // if it contains a colon, it's already in a trigger format (i.e. M:0xH001234)
-        if (!Str::contains($valueDef, ':')) {
+        if (!Str::contains($serializedValue, ':')) {
             $serializedValue = $this->convertToTrigger($serializedValue);
         }
 
@@ -406,7 +407,7 @@ class TriggerDecoderService
         $float_replace_replacement = '${1}*f${2}.${3}';
 
         // convert max_of elements to alt groups
-        $parts = explode('$', $valueDef);
+        $parts = explode('$', $serializedValue);
         foreach ($parts as $part) {
             if (count($parts) > 1) {
                 $result .= 'S';

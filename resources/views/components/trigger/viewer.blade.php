@@ -1,18 +1,7 @@
 @props([
     'groups' => [],
+    'prefix' => '',
 ])
-
-<script>
-    function toggleNotes($i) {
-        const buttonEl = document.getElementById('toggle-notes' + $i);
-        const contentEl = document.getElementById('notes' + $i);
-        if (contentEl && buttonEl) {
-            contentEl.classList.toggle('hidden');
-            buttonEl.innerHTML = buttonEl.innerText.substring(0, buttonEl.innerText.length-1) +
-                (contentEl.classList.contains('hidden') ? "▼" : "▲");
-        }
-    }
-</script>
 
 <table class="table-highlight">
     @php $j = 1 @endphp
@@ -69,8 +58,8 @@
             <tr class="do-not-highlight">
                 <td colspan="10">
                     <div class="flex flex-col w-full">
-                        <button id="toggle-notes{{ $j }}" onclick="toggleNotes({{ $j }})">Notes ▼</button>
-                        <table id="notes{{ $j }}" class="hidden">
+                        <button id="toggle-notes{{ $prefix }}{{ $j }}" onclick="toggleExpander('toggle-notes{{ $prefix }}{{ $j }}', 'notes{{ $prefix }}{{ $j }}')">Notes ▼</button>
+                        <table id="notes{{ $prefix }}{{ $j }}" class="hidden">
                             @foreach ($group['Notes'] as $addr => $note)
                                 <tr>
                                     <td class="whitespace-nowrap align-top font-mono"><b>{{ $addr }}</b></td>

@@ -125,3 +125,13 @@ function showStatusFailure(message) {
     console.trace();
   }
 }
+
+function toggleExpander($buttonName, $contentName) {
+  const buttonEl = document.getElementById($buttonName);
+  const contentEl = document.getElementById($contentName);
+  if (contentEl && buttonEl) {
+    contentEl.classList.toggle('hidden');
+    buttonEl.innerHTML = buttonEl.innerText.substring(0, buttonEl.innerText.length-1) +
+      (contentEl.classList.contains('hidden') ? "▼" : "▲");
+  }
+}
