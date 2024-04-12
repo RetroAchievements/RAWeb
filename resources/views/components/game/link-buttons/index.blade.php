@@ -55,7 +55,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
                 Official Forum Topic
             </x-game.link-buttons.game-link-button>
         @else
-            @can('createForumTopic', App\Models\Game::class)
+            @can('createForumTopic', App\Models\User::class, App\Models\Game::class)
                 <x-game.link-buttons.create-forum-topic-button :gameId="$game->id" />
             @endcan
         @endif
