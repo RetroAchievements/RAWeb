@@ -357,6 +357,8 @@ class TriggerDecoderService
     {
         foreach ($groups as &$group) {
             $groupNotes = [];
+            $indirectNote = '';
+            $indirectChain = '';
             foreach ($group['Conditions'] as &$condition) {
                 if (!$condition['IsIndirect']) {
                     if ($this->isMemoryReference($condition['SourceType'])) {
@@ -376,10 +378,111 @@ class TriggerDecoderService
                             $groupNotes[$address] = $note;
                         }
                     }
+                } else if (!empty($indirectNote)) {
+                    if ($this->isMemoryReference($condition['SourceType'])) {
+                        $address = $condition['SourceAddress'];
+                        $note = $this->getIndirectNote($indirectNote, hexdec($address));
+                        if (!empty($note)) {
+                            $condition['SourceTooltip'] = "[Indirect $indirectChain + $address]\n$note";
+                        }
+                    }
+
+                    if ($this->isMemoryReference($condition['TargetType'])) {
+                        $address = $condition['TargetAddress'];
+                        $note = $this->getIndirectNote($indirectNote, hexdec($address));
+                        if (!empty($note)) {
+                            $condition['TargetTooltip'] = "[Indirect $indirectChain + $address]\n$note";
+                        }
+                    }
+                }
+
+                if ($condition['Flag'] === 'Add Address' && ($condition['Operator'] === '' || $condition['Operator'] === '&')) {
+                    $indirectNote = $condition['SourceTooltip'] ?? '';
+                    $index = strpos($indirectNote, "\n+");
+                    if ($index !== false) {
+                        $firstLine = substr($indirectNote, 0, $index);
+                        if (!empty($firstLine) && stripos($firstLine, 'pointer') !== false) {
+                            $condition['SourceTooltip'] = trim($firstLine);
+                            if (empty($indirectChain)) {
+                                $indirectChain = $condition['SourceAddress'];
+                            } else {
+                                $indirectChain .= ' + ' . $condition['SourceAddress'];
+                            }
+                        } else {
+                            $indirectNote = '';
+                            $indirectChain = '';
+                        }
+                    }
+                } else {
+                    $indirectNote = '';
+                    $indirectChain = '';
                 }
             }
             $group['Notes'] = $groupNotes;
         }
+    }
+
+    private function getIndirectNote(string $parentNote, int $offset): string
+    {
+        $index = strpos($parentNote, "\n+");
+        if ($index === false) {
+            return ''; // unexpected - should have already been matched to reach this code
+        }
+
+        $index += 2;
+        do {
+            $nextIndex = strpos($parentNote, "\n+", $index);
+            if ($nextIndex === false) {
+                $line = trim(substr($parentNote, $index));
+            } else {
+                $line = trim(substr($parentNote, $index, $nextIndex - $index));
+            }
+
+            $len = strlen($line);
+            if ($len > 3) {
+                $index = 0;
+                while ($index < $len && (
+                    (($c = strtolower($line[$index])) >= '0' && $c <= '9') ||
+                    ($c >= 'a' && $c <= 'f') || ($c == 'x'))) {
+                    $index++;
+                }
+                $lineOffset = intval(substr($line, 0, $index), 0);
+                if ($lineOffset === $offset) {
+                    // found the applicable offset
+                    // skip whitespace, any single non-alphanumeric character, and whitespace
+                    while ($index < $len && ctype_space($line[$index])) {
+                        $index++;
+                    }
+                    if ($index < $len && !ctype_alnum($line[$index])) { 
+                        $index++;
+                        while ($index < $len && ctype_space($line[$index])) {
+                            $index++;
+                        }
+                    }
+
+                    $childNote = substr($line, $index);
+
+                    while ($nextIndex !== false && $parentNote[$nextIndex + 2] === '+') {
+                        $index = $nextIndex + 2;
+                        $nextIndex = strpos($parentNote, "\n+", $index);
+                        if ($nextIndex === false) {
+                            $line = trim(substr($parentNote, $index));
+                        } else {
+                            $line = trim(substr($parentNote, $index, $nextIndex - $index));
+                        }
+                        $childNote .= "\n" . $line;
+                    }
+
+                    return $childNote;
+                }
+            }
+
+            if ($nextIndex === false) {
+                break;
+            }
+
+            $index = $nextIndex + 2;
+        } while (true);
     }
 
     public function decodeValue(string $serializedValue): array

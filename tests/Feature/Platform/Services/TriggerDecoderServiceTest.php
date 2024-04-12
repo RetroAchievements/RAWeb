@@ -295,4 +295,49 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionTargetTooltip($condition, '36');
         $this->assertConditionHitTarget($condition, '0');
     }
+
+    public function testMergeCodeNotesIndirect(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("I:0xX1234_I:0xX0004_0x 0002!=0x 0000");
+        $service->mergeCodeNotes($groups, [
+            '0x001234' => "[32-bit] pointer\n" .
+                          "+0 | [32-bit] index\n" .
+                          "+4 | [32-bit] nested pointer\n" .
+                          "++0 | [16-bit] value1\n" .
+                          "++2 | [16-bit] value2\n" .
+                          "++4 | [32-bit] link\n" .
+                          "+8 | [32-bit] unused\n",
+        ]);
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(3, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceTooltip($condition, '[32-bit] pointer');
+        $this->assertConditionOperator($condition, '');
+        $this->assertConditionTargetOperand($condition, '', '', '');
+        $this->assertConditionTargetTooltip($condition, '');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x000004');
+        $this->assertConditionSourceTooltip($condition, "[Indirect 0x001234 + 0x000004]\n[32-bit] nested pointer");
+        $this->assertConditionOperator($condition, '');
+        $this->assertConditionTargetOperand($condition, '', '', '');
+        $this->assertConditionTargetTooltip($condition, '');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][2];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '16-bit', '0x000002');
+        $this->assertConditionSourceTooltip($condition, "[Indirect 0x001234 + 0x000004 + 0x000002]\n[16-bit] value2");
+        $this->assertConditionOperator($condition, '!=');
+        $this->assertConditionTargetOperand($condition, 'Mem', '16-bit', '0x000000');
+        $this->assertConditionTargetTooltip($condition, "[Indirect 0x001234 + 0x000004 + 0x000000]\n[16-bit] value1");
+        $this->assertConditionHitTarget($condition, '0');
+    }
 }
