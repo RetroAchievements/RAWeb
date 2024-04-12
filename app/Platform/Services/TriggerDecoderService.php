@@ -350,6 +350,11 @@ class TriggerDecoderService
             })
             ->toArray();
 
+        $this->mergeCodeNotes($groups, $codeNotes);
+    }
+
+    public function mergeCodeNotes(array &$groups, array $codeNotes)
+    {
         foreach ($groups as &$group) {
             $groupNotes = [];
             foreach ($group['Conditions'] as &$condition) {

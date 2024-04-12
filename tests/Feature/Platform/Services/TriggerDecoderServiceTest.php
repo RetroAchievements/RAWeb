@@ -105,6 +105,10 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertParseOperand('h1234', 'Value', '', '0x001234'); // hex value
         $this->assertParseOperand('v1234', 'Value', '', '0x0004d2'); // legacy raw value
         $this->assertParseOperand('v-1234', 'Value', '', '0xfffffb2e'); // signed legacy raw value
+
+        $this->assertParseOperand('f123.4', 'Float', '', '123.4');
+        $this->assertParseOperand('f-5.432', 'Float', '', '-5.432');
+        $this->assertParseOperand('f8.0', 'Float', '', '8.0');
     }
 
     public function testParseCondition(): void
