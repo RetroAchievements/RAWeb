@@ -10,7 +10,9 @@ use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -123,8 +125,6 @@ if ($dateWonLocal === "" && isset($user)) {
 $achievedLocal = ($dateWonLocal !== "");
 
 $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achievementID, $commentData);
-
-getCodeNotes($gameID, $codeNotes);
 ?>
 <x-app-layout
     pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
@@ -396,7 +396,15 @@ getCodeNotes($gameID, $codeNotes);
 
         echo "<code>" . htmlspecialchars($achMem) . "</code>";
         echo "<li>Mem explained:</li>";
-        echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
+
+        $service = new TriggerDecoderService();
+        $groups = $service->decode($achMem);
+        $service->addCodeNotes($groups, $gameID);
+
+        echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" />",
+            ['groups' => $groups]
+        );
+
         echo "</div>";
 
         echo "</div>"; // devboxcontent
