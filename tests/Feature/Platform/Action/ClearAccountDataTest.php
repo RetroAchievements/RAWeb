@@ -8,18 +8,12 @@ use App\Actions\ClearAccountDataAction;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Enums\UserRelationship;
-use App\Models\Achievement;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
-use App\Models\PlayerBadge;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
-use App\Platform\Actions\ResetPlayerProgress;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\AchievementType;
-use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Platform\Concerns\TestsPlayerAchievements;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
@@ -38,7 +32,7 @@ class ClearAccountDataTest extends TestCase
         $user1 = User::factory()->create();
         /** @var User $user2 */
         $user2 = User::factory()->create();
-        
+
         $this->assertNotEquals('', $user2->EmailAddress);
 
         UserRelation::create([
