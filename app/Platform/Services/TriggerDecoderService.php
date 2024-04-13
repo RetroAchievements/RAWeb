@@ -15,7 +15,7 @@ class TriggerDecoderService
         if ($end === 0) {
             return ['Invalid', '', '', ''];
         }
-    
+
         $type = '';
         switch ($mem[0]) {
             case 'd': case 'D': $type = 'Delta'; $mem = substr($mem, 1); $end--; break;
@@ -23,14 +23,14 @@ class TriggerDecoderService
             case 'b': case 'B': $type = 'BCD'; $mem = substr($mem, 1); $end--; break;
             case '~':           $type = 'Inverted'; $mem = substr($mem, 1); $end--; break;
         }
-    
+
         $size = '';
         if ($end > 3 && $mem[0] === '0' && $mem[1] === 'x') {
             switch ($mem[2]) {
                 case 'h': case 'H': $size = '8-bit'; break;
                 case ' ':           $size = '16-bit'; break;
                 case 'x': case 'X': $size = '32-bit'; break;
-    
+
                 case 'm': case 'M': $size = 'Bit0'; break;
                 case 'n': case 'N': $size = 'Bit1'; break;
                 case 'o': case 'O': $size = 'Bit2'; break;
@@ -46,7 +46,7 @@ class TriggerDecoderService
                 case 'g': case 'G': $size = '32-bit BE'; break;
                 case 'i': case 'I': $size = '16-bit BE'; break;
                 case 'j': case 'J': $size = '24-bit BE'; break;
-    
+
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':
                 case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
@@ -55,12 +55,12 @@ class TriggerDecoderService
                     $size = '16-bit';
                     $mem = substr($mem, 0, 2) . ' ' . substr($mem, 2);
                     break;
-    
+
                 default:
                     $size = $mem[2];
                     break;
             }
-    
+
             $mem = substr($mem, 3);
         } elseif ($end > 2 && $mem[0] === 'f' || $mem[0] === 'F') {
             switch ($mem[1]) {
@@ -70,7 +70,7 @@ class TriggerDecoderService
                 case 'i': case 'I': $size = 'Double32 BE'; break;
                 case 'm': case 'M': $size = 'MBF32'; break;
                 case 'l': case 'L': $size = 'MBF32 LE'; break;
-    
+
                 case '+': case '-': case '.':
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':
@@ -88,31 +88,31 @@ class TriggerDecoderService
                             $count++;
                         }
                     }
-    
+
                     $value = substr($mem, 1, $count - 1); // ignore 'f'
                     $mem = substr($mem, $count);
-    
+
                     return [$type, $size, $value, $mem];
-    
+
                 default:
                     $size = $mem[1];
                     break;
             }
-    
+
             $mem = substr($mem, 2);
         } elseif ($end > 1 && $mem[0] === 'h' || $mem[0] === 'H') {
             $type = 'Value';
-    
+
             $mem = substr($mem, 1);
             $count = 0;
             $end = strlen($mem);
             while ($count < $end && ctype_alnum($mem[$count])) {
                 $count++;
             }
-    
+
             $value = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
             $mem = substr($mem, $count);
-    
+
             return [$type, $size, $value, $mem];
         } else {
             $type = 'Value';
@@ -139,33 +139,33 @@ class TriggerDecoderService
                     $size = 'Float';
                 }
             }
-    
+
             $padded = str_pad(dechex((int) substr($mem, 0, $count)), 6, '0', STR_PAD_LEFT);
             if (strlen($padded) > 8) {
                 $padded = substr($padded, -8);
             }
             $value = '0x' . $padded;
             $mem = substr($mem, $count);
-    
+
             return [$type, $size, $value, $mem];
         }
-    
+
         if (!$type) {
             $type = 'Mem';
         }
-    
+
         $count = 0;
         $end = strlen($mem);
         while ($count < $end && ctype_alnum($mem[$count])) {
             $count++;
         }
-    
+
         $address = '0x' . str_pad(substr($mem, 0, $count), 6, '0', STR_PAD_LEFT);
         $mem = substr($mem, $count);
-    
+
         return [$type, $size, $address, $mem];
     }
-    
+
     private function isScalerOperator(string $cmp): bool
     {
         return match ($cmp) {
@@ -194,7 +194,7 @@ class TriggerDecoderService
         $rMemVal = '';
         $hits = '';
         $scalable = false;
-    
+
         if (strlen($mem) > 2 && $mem[1] === ':') {
             switch ($mem[0]) {
                 case 'p': case 'P': $flag = 'Pause If'; break;
@@ -213,12 +213,12 @@ class TriggerDecoderService
                 case 'g': case 'G': $flag = 'Measured %'; break;
                 default: $flag = $mem[0]; break;
             }
-    
+
             $mem = substr($mem, 2);
         }
-    
+
         [$lType, $lSize, $lMemory, $mem] = $this->parseOperand($mem);
-    
+
         if (strlen($mem) === 0) {
             // no operator
         } elseif ($scalable && !$this->isScalerOperator($mem[0])) {
@@ -232,21 +232,21 @@ class TriggerDecoderService
                         $cmplen = 2;
                     }
                     break;
-    
+
                 case '!':
                     if ($mem[1] === '=') {
                         $cmp = '!=';
                         $cmplen = 2;
                     }
                     break;
-    
+
                 case '<':
                     if ($mem[1] === '=') {
                         $cmp = '<=';
                         $cmplen = 2;
                     }
                     break;
-    
+
                 case '>':
                     if ($mem[1] === '=') {
                         $cmp = '>=';
@@ -255,15 +255,15 @@ class TriggerDecoderService
                     break;
             }
             $mem = substr($mem, $cmplen);
-    
+
             [$rType, $rSize, $rMemVal, $mem] = $this->parseOperand($mem);
-    
+
             $hits = $scalable ? '' : '0';
             if (strlen($mem) > 0 && ($mem[0] === '(' || $mem[0] === '.')) {
                 $hits = substr($mem, 1, strlen($mem) - 2);
             }
         }
-    
+
         return [
             'Flag' => $flag,
             'SourceType' => $lType,
@@ -280,7 +280,7 @@ class TriggerDecoderService
     public function decode(string $serializedTrigger): array
     {
         $groups = [];
-        
+
         // separating CoreGroup and AltGroups
         $serializedGroups = preg_split("/(?<!0x)[S$]/", $serializedTrigger);
         $groupsCount = is_countable($serializedGroups) ? count($serializedGroups) : 0;
@@ -297,7 +297,7 @@ class TriggerDecoderService
                 if (empty($reqs[$j])) {
                     continue;
                 }
-    
+
                 $condition = $this->parseCondition($reqs[$j]);
                 $condition['IsIndirect'] = $isIndirect;
 
@@ -353,7 +353,7 @@ class TriggerDecoderService
         $this->mergeCodeNotes($groups, $codeNotes);
     }
 
-    public function mergeCodeNotes(array &$groups, array $codeNotes)
+    public function mergeCodeNotes(array &$groups, array $codeNotes): void
     {
         foreach ($groups as &$group) {
             $groupNotes = [];
@@ -378,7 +378,7 @@ class TriggerDecoderService
                             $groupNotes[$address] = $note;
                         }
                     }
-                } else if (!empty($indirectNote)) {
+                } elseif (!empty($indirectNote)) {
                     if ($this->isMemoryReference($condition['SourceType'])) {
                         $address = $condition['SourceAddress'];
                         $note = $this->getIndirectNote($indirectNote, hexdec($address));
@@ -430,7 +430,7 @@ class TriggerDecoderService
         }
 
         $index += 2;
-        do {
+        while (true) {
             $nextIndex = strpos($parentNote, "\n+", $index);
             if ($nextIndex === false) {
                 $line = trim(substr($parentNote, $index));
@@ -442,8 +442,8 @@ class TriggerDecoderService
             if ($len > 3) {
                 $index = 0;
                 while ($index < $len && (
-                    (($c = strtolower($line[$index])) >= '0' && $c <= '9') ||
-                    ($c >= 'a' && $c <= 'f') || ($c == 'x'))) {
+                    (($c = strtolower($line[$index])) >= '0' && $c <= '9')
+                    || ($c >= 'a' && $c <= 'f') || ($c == 'x'))) {
                     $index++;
                 }
                 $lineOffset = intval(substr($line, 0, $index), 0);
@@ -453,7 +453,7 @@ class TriggerDecoderService
                     while ($index < $len && ctype_space($line[$index])) {
                         $index++;
                     }
-                    if ($index < $len && !ctype_alnum($line[$index])) { 
+                    if ($index < $len && !ctype_alnum($line[$index])) {
                         $index++;
                         while ($index < $len && ctype_space($line[$index])) {
                             $index++;
@@ -482,7 +482,9 @@ class TriggerDecoderService
             }
 
             $index = $nextIndex + 2;
-        } while (true);
+        }
+
+        return '';
     }
 
     public function decodeValue(string $serializedValue): array
@@ -499,7 +501,7 @@ class TriggerDecoderService
             $values[0]['Label'] = 'Value';
         } else {
             for ($i = 0; $i < $numValues; $i++) {
-                $values[$i]['Label'] = 'Value ' + ($i + 1);
+                $values[$i]['Label'] = 'Value ' . ($i + 1);
             }
         }
 

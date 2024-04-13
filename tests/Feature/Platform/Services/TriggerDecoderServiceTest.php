@@ -9,41 +9,41 @@ use Tests\TestCase;
 
 class TriggerDecoderServiceTest extends TestCase
 {
-    private function assertConditionFlag(array $condition, string $type)
+    private function assertConditionFlag(array $condition, string $type): void
     {
         $this->assertEquals($type, $condition['Flag']);
     }
 
-    private function assertConditionSourceOperand(array $condition, string $type, string $size, string $address)
+    private function assertConditionSourceOperand(array $condition, string $type, string $size, string $address): void
     {
         $this->assertEquals($type, $condition['SourceType']);
         $this->assertEquals($size, $condition['SourceSize']);
         $this->assertEquals($address, $condition['SourceAddress']);
     }
 
-    private function assertConditionSourceTooltip(array $condition, string $tooltip)
+    private function assertConditionSourceTooltip(array $condition, string $tooltip): void
     {
         $this->assertEquals($tooltip, $condition['SourceTooltip'] ?? '');
     }
 
-    private function assertConditionOperator(array $condition, string $operator)
+    private function assertConditionOperator(array $condition, string $operator): void
     {
         $this->assertEquals($operator, $condition['Operator']);
     }
 
-    private function assertConditionTargetOperand(array $condition, string $type, string $size, string $address)
+    private function assertConditionTargetOperand(array $condition, string $type, string $size, string $address): void
     {
         $this->assertEquals($type, $condition['TargetType']);
         $this->assertEquals($size, $condition['TargetSize']);
         $this->assertEquals($address, $condition['TargetAddress']);
     }
 
-    private function assertConditionTargetTooltip(array $condition, string $tooltip)
+    private function assertConditionTargetTooltip(array $condition, string $tooltip): void
     {
         $this->assertEquals($tooltip, $condition['TargetTooltip'] ?? '');
     }
 
-    private function assertConditionHitTarget(array $condition, string $target)
+    private function assertConditionHitTarget(array $condition, string $target): void
     {
         $this->assertEquals($target, $condition['HitTarget']);
     }
@@ -57,7 +57,7 @@ class TriggerDecoderServiceTest extends TestCase
         return $groups[0]['Conditions'][0];
     }
 
-    private function assertParseOperand(string $operand, string $type, string $size, string $address)
+    private function assertParseOperand(string $operand, string $type, string $size, string $address): void
     {
         $condition = $this->parseSingleCondition($operand);
         $this->assertConditionSourceOperand($condition, $type, $size, $address);

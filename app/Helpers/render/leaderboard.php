@@ -56,4 +56,3 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
 
     echo "</div>";
 }
-
