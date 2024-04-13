@@ -95,7 +95,7 @@ class ForumTopic extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id', 'ID');
+        return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
     }
 
     /**
