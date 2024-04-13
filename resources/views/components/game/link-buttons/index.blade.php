@@ -47,7 +47,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
 
 <ul class="flex @if ($variant === 'stacked') flex-col @endif gap-2">
     @if (in_array('forum-topic', $allowedLinks))
-        @if ($game->ForumTopicID)
+        @if ($game->ForumTopicID && ForumTopic::find($game->ForumTopicID)?->exists())
             <x-game.link-buttons.game-link-button
                 icon="💬"
                 href="{{ '/viewtopic.php?t=' . $game->ForumTopicID }}"
