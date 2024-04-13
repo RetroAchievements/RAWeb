@@ -795,7 +795,7 @@ function requestDeleteLB(int $lbID): bool
         return false;
     }
 
-    $leaderboard->delete();
+    $leaderboard->forceDelete();
 
     return true;
 }
