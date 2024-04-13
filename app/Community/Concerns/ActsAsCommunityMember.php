@@ -16,6 +16,7 @@ use App\Models\UserRelation;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Support\Relations\NoDeleteBelongsToMany;
 
 // TODO organize accessors, relations, and scopes
 
@@ -48,23 +49,39 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return NoDeleteBelongsToMany<User>
      */
     public function relationships(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
+        return new NoDeleteBelongsToMany(
+            User::query(),
+            $this,
+            (new UserRelation())->getTable(),
+            'user_id',
+            'related_user_id',
+            'id',
+            'ID',
+        );
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return NoDeleteBelongsToMany<User>
      */
     public function inverseRelationships(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
+        return new NoDeleteBelongsToMany(
+            User::query(),
+            $this,
+            (new UserRelation())->getTable(),
+            'related_user_id',
+            'user_id',
+            'id',
+            'ID',
+        );
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return NoDeleteBelongsToMany<User>
      */
     public function following(): BelongsToMany
     {
@@ -72,7 +89,7 @@ trait ActsAsCommunityMember
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return NoDeleteBelongsToMany<User>
      */
     public function followers(): BelongsToMany
     {
