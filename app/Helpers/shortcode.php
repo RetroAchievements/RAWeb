@@ -113,6 +113,13 @@ function normalize_user_shortcodes(string $value): string
 
 function normalize_game_shortcodes(string $value): string
 {
+    // If the original string contains a subpath beyond the game ID,
+    // eg: "https://retroachievements.org/game/5236/hashes", return the 
+    // original string rather than attempting to normalize it.
+    if (preg_match("~https?://[\w\-\.]+/game/\d+/.+~si", $value)) {
+        return $value;
+    }
+
     $find = [
         "~\<a [^/>]*retroachievements\.org/game/(\d+)[^/>]*\][^</a>]*</a>~si",
         "~\[url[^\]]*retroachievements\.org/game/(\d+)[^\]]*\][^\[]*\[/url\]~si",
