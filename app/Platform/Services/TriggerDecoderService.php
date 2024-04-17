@@ -62,7 +62,7 @@ class TriggerDecoderService
             }
 
             $mem = substr($mem, 3);
-        } elseif ($end > 2 && $mem[0] === 'f' || $mem[0] === 'F') {
+        } elseif ($end > 2 && ($mem[0] === 'f' || $mem[0] === 'F')) {
             switch ($mem[1]) {
                 case 'f': case 'F': $size = 'Float'; break;
                 case 'b': case 'B': $size = 'Float BE'; break;
@@ -100,7 +100,7 @@ class TriggerDecoderService
             }
 
             $mem = substr($mem, 2);
-        } elseif ($end > 1 && $mem[0] === 'h' || $mem[0] === 'H') {
+        } elseif ($end > 1 && ($mem[0] === 'h' || $mem[0] === 'H')) {
             $type = 'Value';
 
             $mem = substr($mem, 1);
@@ -293,12 +293,12 @@ class TriggerDecoderService
             $reqs = explode('_', $serializedGroups[$i]);
             $reqsCount = count($reqs);
             $isIndirect = false;
-            for ($j = 0; $j < $reqsCount; $j++) {
-                if (empty($reqs[$j])) {
+            foreach ($reqs as $req) {
+                if (empty($req)) {
                     continue;
                 }
 
-                $condition = $this->parseCondition($reqs[$j]);
+                $condition = $this->parseCondition($req);
                 $condition['IsIndirect'] = $isIndirect;
 
                 if ($condition['SourceType'] === 'Value') {

@@ -397,9 +397,9 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
         echo "<code>" . htmlspecialchars($achMem) . "</code>";
         echo "<li>Mem explained:</li>";
 
-        $service = new TriggerDecoderService();
-        $groups = $service->decode($achMem);
-        $service->addCodeNotes($groups, $gameID);
+        $triggerDecoderService = new TriggerDecoderService();
+        $groups = $triggerDecoderService->decode($achMem);
+        $triggerDecoderService->addCodeNotes($groups, $gameID);
 
         echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" />",
             ['groups' => $groups]

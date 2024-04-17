@@ -126,11 +126,15 @@ function showStatusFailure(message) {
   }
 }
 
-// - used by several pages
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function toggleExpander($buttonName, $contentName) {
-  const buttonEl = document.getElementById($buttonName);
-  const contentEl = document.getElementById($contentName);
+/**
+ * @param {string} buttonName
+ * @param {string} contentName
+ * @returns {void}
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by several pages
+function toggleExpander(buttonName, contentName) {
+  const buttonEl = document.getElementById(buttonName);
+  const contentEl = document.getElementById(contentName);
   if (contentEl && buttonEl) {
     contentEl.classList.toggle('hidden');
     buttonEl.innerHTML =

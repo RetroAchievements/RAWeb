@@ -159,37 +159,31 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 }
             }
 
-            $explainLeaderboardTrigger = function(string $name, string $triggerDef) use ($gameID) : void
-            {
-                echo "<div>";
-                echo "<button id='devbox{$name}Button' class='btn' onclick=\"toggleExpander('devbox{$name}Button', 'devbox{$name}Content');\">$name ▼</button>";
-                echo "<div id='devbox{$name}Content' class='hidden devboxcontainer'>";
+            $triggerDecoderService = new TriggerDecoderService();
 
-                echo "<li>Mem:</li>";
-                echo "<code>" . htmlspecialchars($triggerDef) . "</code>";
+            $groups = $triggerDecoderService->decode($memStart);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memStart, 'header' => 'Start']
+            );
 
-                echo "<li>Mem explained:</li>";
+            $groups = $triggerDecoderService->decode($memCancel);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memCancel, 'header' => 'Cancel']
+            );
 
-                $service = new TriggerDecoderService();
-                if ($name === 'Value') {
-                    $groups = $service->decodeValue($triggerDef);
-                } else {
-                    $groups = $service->decode($triggerDef);
-                }
-                $service->addCodeNotes($groups, $gameID);
+            $groups = $triggerDecoderService->decode($memSubmit);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memSubmit, 'header' => 'Submit']
+            );
 
-                echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" :prefix=\"\$prefix\" />",
-                    ['groups' => $groups, 'prefix' => strtolower($name)]
-                );
-
-                echo "</div>"; // devboxcontent
-                echo "</div>"; // devbox
-            };
-
-            $explainLeaderboardTrigger('Start', $memStart);
-            $explainLeaderboardTrigger('Cancel', $memCancel);
-            $explainLeaderboardTrigger('Submit', $memSubmit);
-            $explainLeaderboardTrigger('Value', $memValue);
+            $groups = $triggerDecoderService->decodeValue($memValue);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memValue, 'header' => 'Value']
+            );
 
             echo "</div>";
             echo "</div>";

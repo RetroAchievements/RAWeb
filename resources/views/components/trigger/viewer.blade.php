@@ -3,12 +3,10 @@
     'prefix' => '',
 ])
 
+<div class="flex flex-col gap-y-8">
 @php $j = 1 @endphp
 @foreach ($groups as $group)
-    @if ($j !== 1)
-        <hr class="border-embed-highlight"/>
-    @endif
-    <table class="table-highlight">
+    <table class="table-highlight border-t border-embed-highlight">
         <tr class="do-not-highlight text-center">
             <td colspan="10"><b>{{ $group['Label'] }}</b></td>
         </tr>
@@ -58,10 +56,15 @@
             @php $i = $i + 1 @endphp
         @endforeach
         @if (!empty($group['Notes']))
-            <tr class="do-not-highlight">
-                <td colspan="10">
+            <tr class="do-not-highlight border border-embed-highlight bg-box">
+                <td colspan="10" class="p-1">
                     <div class="flex flex-col w-full">
-                        <button id="toggle-notes{{ $prefix }}{{ $j }}" onclick="toggleExpander('toggle-notes{{ $prefix }}{{ $j }}', 'notes{{ $prefix }}{{ $j }}')">Notes ▼</button>
+                        <button id="toggle-notes{{ $prefix }}{{ $j }}" 
+                                class="btn w-full text-center"
+                                onclick="toggleExpander('toggle-notes{{ $prefix }}{{ $j }}', 'notes{{ $prefix }}{{ $j }}')"
+                        >
+                            Notes ▼
+                        </button>
                         <table id="notes{{ $prefix }}{{ $j }}" class="hidden">
                             @foreach ($group['Notes'] as $addr => $note)
                                 <tr>
@@ -77,3 +80,4 @@
     </table>
     @php $j = $j + 1 @endphp
 @endforeach
+</div>
