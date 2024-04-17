@@ -25,7 +25,10 @@ class UserProfileMeta extends Component
         private int $totalHardcoreAchievements = 0,
         private int $totalSoftcoreAchievements = 0,
         private ?array $userClaims = null,
+        private array $firstAchievement = [],
+        private array $firstHardcoreAchievement = [],
     ) {
+
     }
 
     public function render(): View
@@ -259,11 +262,18 @@ class UserProfileMeta extends Component
         ];
 
         // Average points per week
-        $averagePointsPerWeek = $this->calculateAveragePointsPerWeek(
-            $this->userMassData['MemberSince'],
-            // Calculate based on the user's primary playing mode.
-            $preferredMode === 'softcore' ? $softcorePoints : $hardcorePoints,
-        );
+
+        $averagePointsPerWeek = match ($preferredMode) {
+            "softcore" => $this->calculateAveragePointsPerWeek(
+                $this->firstAchievement["Unlock"] ?? null,
+                $softcorePoints
+            ),
+            default => $this->calculateAveragePointsPerWeek(
+                $this->firstHardcoreAchievement["Unlock"] ?? null,
+                $hardcorePoints
+            ),
+        };
+
         $averagePointsPerWeekStat = [
             'label' => 'Average points per week',
             'value' => localized_number($averagePointsPerWeek),
@@ -425,12 +435,17 @@ class UserProfileMeta extends Component
         return number_format($averageFinishedGames, 2, '.', '');
     }
 
-    private function calculateAveragePointsPerWeek(string $userMemberSince, int $points = 0): int
+    private function calculateAveragePointsPerWeek(?string $startingDateStr, int $points = 0): int
     {
-        $memberSince = Carbon::createFromFormat('Y-m-d H:i:s', $userMemberSince);
+        if (is_null($startingDateStr)) {
+            return 0;
+        }
+
+        $startingDate = Carbon::createFromFormat('Y-m-d H:i:s', $startingDateStr);
+
         $now = Carbon::now();
 
-        $weeksOfMembership = $memberSince->diffInWeeks($now);
+        $weeksOfMembership = $startingDate->diffInWeeks($now);
 
         // Avoid division by zero.
         if ($weeksOfMembership == 0) {

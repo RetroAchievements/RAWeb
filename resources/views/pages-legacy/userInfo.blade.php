@@ -113,6 +113,10 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
         username: $userPage
     );
 }
+
+$firstAchievement = getFirstAchievement($userPageID, false);
+$firstHardcoreAchievement = getFirstAchievement($userPageID, true);
+
 ?>
 <x-app-layout
     :pageTitle="$userPage"
@@ -128,6 +132,8 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
         :userJoinedGamesAndAwards="$userJoinedGamesAndAwards"
         :userMassData="$userMassData"
         :userClaims="$userClaimData?->toArray()"
+        :firstAchievement="$firstAchievement"
+        :firstHardcoreAchievement="$firstHardcoreAchievement"
     />
     <?php
     $canShowProgressionStatusComponent =
