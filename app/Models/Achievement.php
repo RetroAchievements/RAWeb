@@ -317,7 +317,7 @@ class Achievement extends BaseModel implements HasComments
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_achievements', 'achievement_id', 'user_id')
             ->using(PlayerAchievement::class);
