@@ -24,9 +24,7 @@ class UserProfileMeta extends Component
         private array $userMassData = [],
         private int $totalHardcoreAchievements = 0,
         private int $totalSoftcoreAchievements = 0,
-        private ?array $userClaims = null,
-        private array $firstAchievement = [],
-        private array $firstHardcoreAchievement = [],
+        private ?array $userClaims = null
     ) {
 
     }
@@ -261,18 +259,11 @@ class UserProfileMeta extends Component
             'isMuted' => !$recentPointsEarned['pointsLast30Days'],
         ];
 
-        // Average points per week
-
-        $averagePointsPerWeek = match ($preferredMode) {
-            "softcore" => $this->calculateAveragePointsPerWeek(
-                $this->firstAchievement["Unlock"] ?? null,
-                $softcorePoints
-            ),
-            default => $this->calculateAveragePointsPerWeek(
-                $this->firstHardcoreAchievement["Unlock"] ?? null,
-                $hardcorePoints
-            ),
-        };
+        $averagePointsPerWeek = $this->calculateAveragePointsPerWeek(
+            $this->user,
+            $preferredMode !== "softcore",
+            $preferredMode !== "softcore" ? $hardcorePoints : $softcorePoints,
+        );
 
         $averagePointsPerWeekStat = [
             'label' => 'Average points per week',
@@ -435,24 +426,30 @@ class UserProfileMeta extends Component
         return number_format($averageFinishedGames, 2, '.', '');
     }
 
-    private function calculateAveragePointsPerWeek(?string $startingDateStr, int $points = 0): int
+    private function calculateAveragePointsPerWeek(User $user, bool $hardcore, int $points = 0): int
     {
-        if (is_null($startingDateStr)) {
+        $field = $hardcore ? "unlocked_hardcore_at" : "unlocked_at";
+
+        $startingDate = $user
+            ->playerAchievements()
+            ->whereNotNull($field)
+            ->orderBy($field)
+            ->first()[$field] ?? null;
+
+        if (is_null($startingDate)) {
             return 0;
         }
 
-        $startingDate = Carbon::createFromFormat('Y-m-d H:i:s', $startingDateStr);
-
         $now = Carbon::now();
 
-        $weeksOfMembership = $startingDate->diffInWeeks($now);
+        $weeksSinceFirstUnlock = $startingDate->diffInWeeks($now);
 
         // Avoid division by zero.
-        if ($weeksOfMembership == 0) {
+        if ($weeksSinceFirstUnlock <= 0) {
             return $points;
         }
 
-        $averagePointsPerWeek = $points / $weeksOfMembership;
+        $averagePointsPerWeek = $points / $weeksSinceFirstUnlock;
 
         return (int) round($averagePointsPerWeek);
     }

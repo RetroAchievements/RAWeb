@@ -3,7 +3,6 @@
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
 use App\Enums\Permissions;
-use App\Models\PlayerAchievement;
 use App\Models\User;
 
 function GetUserData(string $username): ?array
@@ -452,20 +451,4 @@ function getMostAwardedGames(array $gameIDs): array
     }
 
     return $retVal;
-}
-
-function getFirstAchievement(int $userId, bool $hardcore): array
-{
-    $firstAchievement = PlayerAchievement::query()
-        ->where('user_id', $userId)
-        ->orderBy($hardcore ? 'unlocked_hardcore_at' : 'unlocked_at')
-        ->first(['achievement_id', 'unlocked_hardcore_at', 'unlocked_at']);
-
-    $out = [];
-    if (!is_null($firstAchievement)) {
-        $out["AchievementId"] = $firstAchievement->achievement_id;
-        $out["Unlock"] = ($hardcore ? $firstAchievement->unlocked_hardcore_at : $firstAchievement->unlocked_at)?->__toString();
-    }
-
-    return $out;
 }
