@@ -50,7 +50,7 @@ trait ActsAsCommunityMember
     /**
      * @return BelongsToMany<User>
      */
-    public function relationships(): BelongsToMany
+    public function relatedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
     }
@@ -58,7 +58,7 @@ trait ActsAsCommunityMember
     /**
      * @return BelongsToMany<User>
      */
-    public function inverseRelationships(): BelongsToMany
+    public function inverseRelatedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
     }
@@ -66,17 +66,17 @@ trait ActsAsCommunityMember
     /**
      * @return BelongsToMany<User>
      */
-    public function following(): BelongsToMany
+    public function followedUsers(): BelongsToMany
     {
-        return $this->relationships()->where('Friendship', '=', UserRelationship::Following);
+        return $this->relatedUsers()->where('Friendship', '=', UserRelationship::Following);
     }
 
     /**
      * @return BelongsToMany<User>
      */
-    public function followers(): BelongsToMany
+    public function followerUsers(): BelongsToMany
     {
-        return $this->inverseRelationships()->where('Friendship', '=', UserRelationship::Following);
+        return $this->inverseRelatedUsers()->where('Friendship', '=', UserRelationship::Following);
     }
 
     public function isFollowing(string $username): bool
