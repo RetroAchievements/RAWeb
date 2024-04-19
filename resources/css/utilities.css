@@ -52,3 +52,15 @@ span.smalldate {
 [x-cloak] {
   display: none !important;
 }
+
+.dot-low {
+  color: var(--dot-color-low);
+}
+
+.dot-warning {
+  color: var(--dot-color-warning);
+}
+
+.dot-urgent {
+  color: var(--dot-color-urgent);
+}
