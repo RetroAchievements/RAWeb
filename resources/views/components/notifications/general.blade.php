@@ -6,9 +6,19 @@
     <x-slot name="trigger">
         <x-fas-bell />
         @if($count ?? 0)
-            <div class="text-danger absolute translate-x-3 -translate-y-1 text-[8px]">
+            @switch($priority)
+                @case(1)
+                    @php($dot = 'dot-warning')
+                    @break
+                @case(2)
+                    @php($dot = 'dot-urgent')
+                    @break
+                @default
+                    @php($dot = 'dot-low')
+            @endswitch
+            <div class="{{ $dot }} absolute translate-x-3 -translate-y-1 text-[8px]">
                 <x-fas-circle />
-            </div>
+            </div> 
         @endif
     </x-slot>
     @if($notifications->isNotEmpty())
