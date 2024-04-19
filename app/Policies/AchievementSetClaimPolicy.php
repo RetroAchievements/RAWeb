@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -15,7 +16,11 @@ class AchievementSetClaimPolicy
 
     public function manage(User $user): bool
     {
-        return $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+        ]) || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
     public function view(User $user, AchievementSetClaim $achievementSetClaim): bool
