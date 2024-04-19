@@ -113,7 +113,6 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
         username: $userPage
     );
 }
-
 ?>
 <x-app-layout
     :pageTitle="$userPage"
