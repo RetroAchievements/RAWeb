@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Components\NotificationIcon;
-use App\Components\TicketIcon;
+use App\Components\GeneralNotificationsIcon;
+use App\Components\TicketNotificationsIcon;
 use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
@@ -88,8 +88,8 @@ class AppServiceProvider extends ServiceProvider
         /*
          * Register Livewire components
          */
-        Livewire::component('notification-icon', NotificationIcon::class);
-        Livewire::component('notification-ticket', TicketIcon::class);
+        Livewire::component('general-notifications-icon', GeneralNotificationsIcon::class);
+        Livewire::component('ticket-notifications-icon', TicketNotificationsIcon::class);
         // Livewire::component('supersearch', Supersearch::class);
         // Livewire::component('user-grid', UserGrid::class);
 
