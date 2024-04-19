@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Components;
 
 use App\Community\Enums\TicketFilters;
-use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -29,30 +29,15 @@ class NotificationIcon extends Component
             ]);
         }
 
-        // Ticket notifications
-        if ($user->getAttribute('Permissions') >= Permissions::JuniorDeveloper) {
-            $openTicketsData = countOpenTicketsByDev($user->User);
-            if ($openTicketsData[TicketState::Open]) {
+        // Ticket feedback for users without manage permissions
+        if ($user->cannot('manage', Ticket::class)) {
+            $ticketFeedback = countRequestTicketsByUser($user);
+            if ($ticketFeedback) {
                 $notifications->push([
-                    'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest)),
-                    'title' => $openTicketsData[TicketState::Open] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open]) . ' for you to resolve',
-                    'class' => 'text-danger',
+                    'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
+                    'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
                 ]);
             }
-            if ($openTicketsData[TicketState::Request]) {
-                $notifications->push([
-                    'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
-                    'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
-                    'read' => true,
-                ]);
-            }
-        }
-        $ticketFeedback = countRequestTicketsByUser($user);
-        if ($ticketFeedback) {
-            $notifications->push([
-                'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
-                'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
-            ]);
         }
 
         // Claim expiry notifications
