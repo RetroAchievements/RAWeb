@@ -28,7 +28,6 @@ class TicketNotificationsIcon extends Component
                 'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest)),
                 'title' => $openTicketsData[TicketState::Open] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open]) . ' for you to resolve',
                 'class' => 'text-danger',
-                'priority' => 2,
             ]);
         }
         if ($openTicketsData[TicketState::Request]) {
@@ -36,7 +35,6 @@ class TicketNotificationsIcon extends Component
                 'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
                 'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
                 'read' => true,
-                'priority' => 1,
             ]);
         }
 
@@ -45,16 +43,13 @@ class TicketNotificationsIcon extends Component
             $notifications->push([
                 'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
                 'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
-                'priority' => 1,
             ]);
         }
 
         $unreadCount = $notifications->filter(fn ($notification) => !($notification['read'] ?? false))->count();
-        $priority = $notifications->max('priority');
 
         return view('components.notifications.ticket')
             ->with('notifications', $notifications)
-            ->with('count', $unreadCount)
-            ->with('priority', $priority);
+            ->with('count', $unreadCount);
     }
 }

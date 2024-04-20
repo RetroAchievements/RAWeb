@@ -22,13 +22,10 @@ class GeneralNotificationsIcon extends Component
 
         $notifications = collect();
 
-        $dot = null;
-
         if ($user->unread_messages_count) {
             $notifications->push([
                 'link' => route('message-thread.index'),
                 'title' => $user->unread_messages_count . ' ' . __res('message', (int) $user->unread_messages_count),
-                'priority' => 0,
             ]);
         }
 
@@ -39,7 +36,6 @@ class GeneralNotificationsIcon extends Component
                 $notifications->push([
                     'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
                     'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
-                    'priority' => 1,
                 ]);
             }
         }
@@ -52,24 +48,20 @@ class GeneralNotificationsIcon extends Component
                     'link' => url('/expiringclaims.php?u=' . $user->User),
                     'title' => 'Claim Expired',
                     'class' => 'text-danger',
-                    'priority' => 2,
                 ]);
             } elseif ($expiringClaims['Expiring'] ?? 0) {
                 $notifications->push([
                     'link' => url('/expiringclaims.php?u=' . $user->User),
                     'title' => 'Claim Expiring Soon',
                     'class' => 'text-danger',
-                    'priority' => 1,
                 ]);
             }
         }
 
         $unreadCount = $notifications->filter(fn ($notification) => !($notification['read'] ?? false))->count();
-        $priority = $notifications->max('priority');
 
         return view('components.notifications.general')
             ->with('notifications', $notifications)
-            ->with('count', $unreadCount)
-            ->with('priority', $priority);
+            ->with('count', $unreadCount);
     }
 }

@@ -6,14 +6,7 @@
     <x-slot name="trigger">
         <x-fas-ticket />
         @if($count ?? 0)
-            @switch($priority)
-                @case(2)
-                    @php($dot = 'dot-urgent')
-                    @break
-                @default
-                    @php($dot = 'dot-warning')
-            @endswitch
-            <div class="{{ $dot }} absolute translate-x-3 -translate-y-1 text-[8px]">
+            <div class="text-danger absolute translate-x-3 -translate-y-1 text-[8px]">
                 <x-fas-circle />
             </div>
         @endif
