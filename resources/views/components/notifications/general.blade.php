@@ -1,6 +1,6 @@
 @props([
     'trigger' => '',
-    'count' => null, //int
+    'count' => 0,
     'notifications' => null, //Collection
     'link' => '',
     'class' => '',
