@@ -30,7 +30,11 @@ class AchievementSetClaimPolicy
 
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+        ]) || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
     public function update(User $user, AchievementSetClaim $achievementSetClaim): bool

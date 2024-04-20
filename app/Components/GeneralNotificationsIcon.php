@@ -41,7 +41,7 @@ class GeneralNotificationsIcon extends Component
         }
 
         // Claim expiry notifications
-        if ($user->can('manage', AchievementSetClaim::class)) {
+        if ($user->can('create', AchievementSetClaim::class)) {
             $expiringClaims = getExpiringClaim($user->User);
             if ($expiringClaims['Expired'] ?? 0) {
                 $notifications->push([
