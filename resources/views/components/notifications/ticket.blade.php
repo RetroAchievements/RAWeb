@@ -1,3 +1,12 @@
+@props([
+    'trigger' => '',
+    'count' => null, //int
+    'notifications' => null, //Collection
+    'link' => '',
+    'class' => '',
+    'title' => '',
+])
+
 <x-nav-dropdown
     :class="$class ?? ''"
     dropdown-class="dropdown-menu-right dropdown-items-right"
