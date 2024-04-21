@@ -64,9 +64,9 @@ function RenderCommentsComponent(
 
     // moderators can delete any comment
     // users can delete any comment off of their wall
-    $canDeleteAnyComment =             
-        $permissions >= Permissions::Moderator || 
-        ($articleTypeID === ArticleType::User && $user?->id === $articleID);
+    $canDeleteAnyComment =
+        $permissions >= Permissions::Moderator
+        || ($articleTypeID === ArticleType::User && $user?->id === $articleID);
 
     foreach ($commentData as $comment) {
         // users can delete their own comments

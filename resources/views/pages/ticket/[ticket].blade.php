@@ -160,7 +160,11 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                 <x-ticket.stat-element label="Report type">{{ $ticketType }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Mode">{{ $ticketMode }}</x-ticket.stat-element>
                 @if (!TicketState::isOpen($ticket->ReportState))
-                    <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver, iconSize:16) !!}</x-ticket.stat-element>
+                    @if ($ticket->resolver)
+                        <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver, iconSize:16) !!}</x-ticket.stat-element>
+                    @else
+                        <x-ticket.stat-element label="Resolved by"><span class="text-muted">Unknown</span></x-ticket.stat-element>
+                    @endif
                     <x-ticket.stat-element label="Resolved at">{{ getNiceDate($ticket->ResolvedAt->unix()) }}</x-ticket.stat-element>
                 @else
                     <x-ticket.stat-element label="Times earned since reported">{{ $unlocksSinceReported }}</b></x-ticket.stat-element>

@@ -1,6 +1,6 @@
 @props([
-    'author' => null,
-    'when' => null,
+    'author' => null, // ?User
+    'when' => null, // ?Carbon
     'payload' => '',
     'articleType' => 0,
     'articleId' => 0,
@@ -8,7 +8,7 @@
     'allowDelete' => false,
 ])
 
-@if ($author->User === 'Server')
+@if ($author && $author->User === 'Server')
     <tr class="comment system">
         <td class="align-top py-2">
             @if ($commentId > 0)
@@ -27,7 +27,7 @@
             </div>
         </td>
     </tr>
-@elseif ($author->banned_at && !request()->user()?->can('manage', $author))
+@elseif ($author && $author->banned_at && !request()->user()?->can('manage', $author))
     {{-- banned user comments are only visible to moderators --}}
 @else
     @if ($commentId > 0)
@@ -41,7 +41,10 @@
                     <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_{{ $commentId }}"></div>
                 </div>
             @endif
-            @if ($author->trashed())
+            @if (!$author)
+                <img loading="lazy" decoding="async" width="32" height="32"
+                     src="{!! media_asset('/UserPic/_User.png') !!}" class="badgeimg" />
+            @elseif ($author->trashed())
                 {!! userAvatar($author->User, label: false) !!}
             @else
                 {!! userAvatar($author, label: false) !!}
@@ -56,7 +59,9 @@
                 </div>
             @endif
             <div>
-                @if ($author->trashed())
+                @if (!$author)
+                    <del>Unknown</del>
+                @elseif ($author->trashed())
                     {!! userAvatar($author->User, label: true) !!}
                 @else
                     {!! userAvatar($author, label: true) !!}
