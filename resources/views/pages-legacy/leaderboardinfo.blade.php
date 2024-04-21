@@ -22,7 +22,6 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
-$lbData = GetLeaderboardData($lbID, $user, $count, $offset);
 $leaderboard = Leaderboard::with('entries.user')->find($lbID);
 
 if (!$leaderboard) {
@@ -45,7 +44,6 @@ $lbAuthor = $leaderboard?->authorUser?->User;
 $lbCreated = $leaderboard->created_at;
 $lbUpdated = $leaderboard->updated_at;
 $lbMemory = $leaderboard->Mem;
-$sortDesc = !$leaderboard->rank_asc;
 
 $gameID = $leaderboard->game->id;
 $gameTitle = $leaderboard->game->title;
@@ -80,7 +78,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
 
         echo "<tr>";
         echo "<td style='width:70px' class='p-0'>";
-        echo gameAvatar($lbData, label: false, iconSize: 96);
+        echo gameAvatar($leaderboard->game->toArray(), label: false, iconSize: 96);
         echo "</td>";
 
         echo "<td class='px-3'>";
