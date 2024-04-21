@@ -304,7 +304,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_games')
             ->using(PlayerGame::class);
