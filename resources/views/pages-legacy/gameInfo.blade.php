@@ -285,7 +285,7 @@ sanitize_outputs(
     ?>
 @endif
 
-<?php if ($isFullyFeaturedGame): ?>
+@if ($isFullyFeaturedGame)
     <?php
         $pageType = 'retroachievements:game';
         $pageImage = media_asset($gameData['ImageIcon']);
@@ -297,7 +297,7 @@ sanitize_outputs(
             $isEventGame
         );
     ?>
-<?php endif ?>
+@endif
 
 @if ($gate)
     <x-app-layout
