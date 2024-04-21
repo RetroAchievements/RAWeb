@@ -121,6 +121,9 @@ if ($permissions < Permissions::Developer) {
         if ($decoded['clientVersion'] !== 'Unknown') {
             $client .= ' (' . $decoded['clientVersion'] . ')';
         }
+        if (array_key_exists('clientVariation', $decoded)) {
+            $client .= ' - ' . $decoded['clientVariation'];
+        }
         $userAgentLinks[] = "<span title=\"$userAgent\">$client</span>";
     }
 }
@@ -206,8 +209,9 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                 @if (empty($userAgentLinks))
                     <span class="text-muted">No client data available</span>
                 @else
-                    <span>Clients used:
-                    {!! implode(', ', $userAgentLinks) !!}
+                    <span>
+                        <span class="font-bold">Clients used:</span>
+                        <span>{!! implode(', ', $userAgentLinks) !!}</span>
                     </span>
                 @endif
 
@@ -248,7 +252,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                     @endif
                 </div>
 
-                <div class="flex w-full justify-between border-embed-highlight items-center">
+                <div class="flex mt-2 w-full justify-between border-embed-highlight items-center">
                     @if ($existingUnlock)
                         @php $unlockedAt = $existingUnlock->unlocked_hardcore_at ?? $existingUnlock->unlocked_at; @endphp
                         @if ($existingUnlock->unlocker_id)
