@@ -278,12 +278,12 @@ sanitize_outputs(
 );
 ?>
 
-<?php if (!$isFullyFeaturedGame): ?>
+@if (!$isFullyFeaturedGame)
     <?php
         $pageType = 'retroachievements:hub';
         $pageImage = media_asset($gameData['ImageIcon']);;
     ?>
-<?php endif ?>
+@endif
 
 <?php if ($isFullyFeaturedGame): ?>
     <?php
