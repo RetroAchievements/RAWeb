@@ -218,7 +218,7 @@ $userScoreData = getAwardedList($userDetails);
     }
     echo "</b><br>";
 
-    echo "Member since: " . getNiceDate(strtotime($userDetails->Created)) . "<br>";
+    echo "Member since: " . getNiceDate(strtotime($userDetails->created_at)) . "<br>";
     echo "<br>";
     echo "<form name='gotodateform' action='/historyexamine.php' onsubmit='convertDate()'>";
     echo "<label for='d' class='font-bold'>Jump to Date: </label>";

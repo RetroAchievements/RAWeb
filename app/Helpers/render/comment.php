@@ -92,7 +92,7 @@ function RenderCommentsComponent(
             ]);
     }
 
-    if (isset($user) && !$user->isMuted) {
+    if (isset($user) && !$user->is_muted) {
         // User comment input:
         RenderCommentInputRow($user->User, $articleTypeID, $articleID);
     }
@@ -101,7 +101,7 @@ function RenderCommentsComponent(
 
     echo "</div>";
 
-    if (isset($user) && $user->isMuted) {
+    if (isset($user) && $user->is_muted) {
         $mutedDate = getNiceDate($user->muted_until->timestamp);
 
         echo <<<HTML

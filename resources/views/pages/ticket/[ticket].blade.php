@@ -21,6 +21,7 @@ use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Services\PlayerGameActivityService;
+use App\Platform\Services\TriggerDecoderService;
 use App\Platform\Services\UserAgentService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -201,18 +202,20 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             </div>
 
             <div class="relative w-full p-2 bg-embed rounded">
+                <div class="w-full relative flex gap-x-3">
                 @if (empty($userAgentLinks))
                     <span class="text-muted">No client data available</span>
                 @else
-                    <span>Clients used:</span>
+                    <span>Clients used:
                     {!! implode(', ', $userAgentLinks) !!}
+                    </span>
                 @endif
 
-                <div class="mt-4 w-full relative flex gap-x-3">
-                    <x-hidden-controls-toggle-button>Unlock History</x-hidden-controls-toggle-button>
+                    <button id="unlockHistoryButton" class="absolute bottom-0 right-0 btn"
+                            onclick="toggleExpander('unlockHistoryButton', 'unlockHistoryContent')">Unlock History ▼</button>
                 </div>
 
-                <x-hidden-controls>
+                <div id="unlockHistoryContent" class="hidden devboxcontainer">
                     @if (empty($history))
                         {{ $ticket->reporter->User }} has not earned any achievements for this game.
                     @else
@@ -243,7 +246,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                             </tbody>
                         </table>
                     @endif
-                </x-hidden-controls>
+                </div>
 
                 <div class="flex w-full justify-between border-embed-highlight items-center">
                     @if ($existingUnlock)
@@ -385,20 +388,26 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
 
         @if ($permissions >= Permissions::JuniorDeveloper)
             <div class="mt-4 w-full relative flex gap-x-3">
-                <x-hidden-controls-toggle-button name="achievementLogic">Achievement Logic</x-hidden-controls-toggle-button>
+                <button id="achievementLogicButton" class="btn"
+                        onclick="toggleExpander('achievementLogicButton', 'achievementLogicContent')">Achievement Logic ▼</button>
             </div>
 
-            <x-hidden-controls name="achievementLogic">
+            <div id="achievementLogicContent" class="hidden devboxcontainer">
                 <div style='clear:both;'></div>
                 <li>Achievement ID: {{ $ticket->achievement->id }}</li>
                 <div>
                     <li>Mem:</li>
                     <code>{{ $ticket->achievement->MemAddr }}</code>
                     <li>Mem explained:</li>
-                    @php getCodeNotes($ticket->achievement->game->id, $codeNotes) @endphp
-                    <code>{!! getAchievementPatchReadableHTML($ticket->achievement->MemAddr, $codeNotes) !!}</code>
+
+                    @php
+                        $triggerDecoderService = new TriggerDecoderService();
+                        $groups = $triggerDecoderService->decode($ticket->achievement->MemAddr);
+                        $triggerDecoderService->addCodeNotes($groups, $ticket->achievement->GameID);
+                    @endphp
+                    <x-trigger.viewer :groups="$groups" />
                 </div>
-            </x-hidden-controls>
+            </div>
         @endif
     </div>
 </x-app-layout>

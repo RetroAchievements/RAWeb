@@ -68,7 +68,7 @@ return [
         '/gameList.php' => '/system/{c}/games',
         '/gameSearch.php' => '/games',
         '/codenotes.php' => '/game/{g}/notes',
-        '/linkedhashes.php' => '/game/{g}/assets',
+        '/linkedhashes.php' => '/game/{g}/hashes',
         '/popularGames.php' => '/games/popular',
 
         /*

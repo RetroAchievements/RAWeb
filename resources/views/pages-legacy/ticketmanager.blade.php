@@ -11,10 +11,11 @@ use App\Enums\Permissions;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\TriggerDecoderService;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Str;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);

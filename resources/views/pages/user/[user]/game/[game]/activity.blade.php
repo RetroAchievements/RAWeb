@@ -112,7 +112,7 @@ $userAgentService = new UserAgentService();
                                 @if ($userAgent['clientVersion'] !== 'Unknown')
                                     {{ $userAgent['clientVersion'] }}
                                 @endif
-                                @if ($userAgent['os'])
+                                @if (!empty($userAgent['os']))
                                     ({{ $userAgent['os'] }})
                                 @endif
                                 </span>

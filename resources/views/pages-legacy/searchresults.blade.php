@@ -94,10 +94,13 @@ if (strlen($searchQuery) >= 2) {
 
                     case SearchType::Achievement:
                         echo "<td>Achievement</td>";
-                        echo "<td colspan='2'>";
+                        echo "<td>";
                         /** @var ?Achievement $achievement */
                         $achievement = Achievement::find($nextID);
                         echo achievementAvatar($achievement);
+                        echo "</td><td>";
+                        $gameData = getGameData($achievement['GameID']);
+                        echo gameAvatar($gameData);
                         echo "</td>";
                         break;
 
