@@ -290,7 +290,9 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                                 </script>
                                 <div class="flex items-center gap-x-3">
                                     <button class="btn" onclick="AwardManually(0)">Award Softcore</button>
+                                    @if ($ticket->Hardcore)
                                     <button class="btn" onclick="AwardManually(1)">Award Hardcore</button>
+                                    @endif
                                 </div>
                             @endif
                         </div>
