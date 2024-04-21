@@ -38,7 +38,7 @@ class System extends BaseModel implements HasMedia
 
     // TODO rename Console table to systems
     // TODO rename ID column to id
-    // TODO rename Name column to name
+    // TODO rename Name column to name, remove getNameAttribute()
     // TODO rename Created column to created_at
     // TODO rename Updated column to updated_at
     // TODO: store aggregates?
@@ -199,10 +199,15 @@ class System extends BaseModel implements HasMedia
     }
 
     // TODO remove after rename
-
     public function getIdAttribute(): ?int
     {
         return $this->attributes['ID'] ?? null;
+    }
+
+    // TODO remove after rename
+    public function getNameAttribute(): string
+    {
+        return $this->attributes['Name'];
     }
 
     // == mutators

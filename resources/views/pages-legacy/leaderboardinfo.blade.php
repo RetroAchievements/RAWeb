@@ -2,6 +2,8 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Platform\Enums\ValueFormat;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -19,34 +21,39 @@ $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset);
+$leaderboard = Leaderboard::with('entries.user')->find($lbID);
 
-if (empty($lbData['LBID'] ?? null)) {
+if (!$leaderboard) {
     abort(404);
 }
 
-$numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
+$numEntries = $leaderboard->entries->count();
+$orderedEntries = $leaderboard->entries()
+    ->whereHas('user') // Don't include entries from deleted users.
+    ->with('user')
+    ->offset($offset)
+    ->limit($count)
+    ->orderBy('score', $leaderboard->rank_asc ? 'ASC' : 'DESC')
+    ->get();
 
-$lbTitle = $lbData['LBTitle'];
-$lbDescription = $lbData['LBDesc'];
-$lbFormat = $lbData['LBFormat'];
-$lbAuthor = $lbData['LBAuthor'];
-$lbCreated = $lbData['LBCreated'];
-$lbUpdated = $lbData['LBUpdated'];
+$lbTitle = $leaderboard->title;
+$lbDescription = $leaderboard->description;
+$lbFormat = $leaderboard->format;
+$lbAuthor = $leaderboard?->authorUser?->User;
+$lbCreated = $leaderboard->created_at;
+$lbUpdated = $leaderboard->updated_at;
+$lbMemory = $leaderboard->Mem;
+$sortDesc = !$leaderboard->rank_asc;
 
-$gameID = $lbData['GameID'];
-$gameTitle = $lbData['GameTitle'];
-$gameIcon = $lbData['GameIcon'];
-
-$sortDesc = $lbData['LowerIsBetter'];
-$lbMemory = $lbData['LBMem'];
-
-$consoleID = $lbData['ConsoleID'];
-$consoleName = $lbData['ConsoleName'];
-$forumTopicID = $lbData['ForumTopicID'];
+$gameID = $leaderboard->game->id;
+$gameTitle = $leaderboard->game->title;
+$gameIcon = $leaderboard->game->ImageIcon;
+$consoleID = $leaderboard->game->system->id;
+$consoleName = $leaderboard->game->system->name;
+$forumTopicID = $leaderboard->game->ForumTopicID;
 
 $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
-$numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, $commentData);
 ?>
 <x-app-layout
@@ -56,17 +63,16 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
     pageType="retroachievements:leaderboard"
 >
     <div id="lbinfo">
-        <?php
-        echo "<div class='navpath'>";
-        echo renderGameBreadcrumb($lbData);
-        echo " &raquo; <b>$lbTitle</b>";
-        echo "</div>";
-        ?>
-            <x-game.heading
-                :consoleId="$consoleID"
-                :consoleName="$consoleName"
-                :gameTitle="$gameTitle"
-            />
+        <x-game.breadcrumbs 
+            :game="$leaderboard->game"
+            :currentPageLabel="$lbTitle"
+        />
+
+        <x-game.heading
+            :consoleId="$consoleID"
+            :consoleName="$consoleName"
+            :gameTitle="$gameTitle"
+        />
         <?php
         echo "<table class='nicebox'><tbody>";
 
@@ -93,7 +99,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "<p class='embedded smalldata my-2'>";
         echo "<small>";
         if (is_null($lbAuthor)) {
-            echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+            echo "Created on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         } else {
             echo "Created by " . userAvatar($lbAuthor, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         }
@@ -110,7 +116,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
 
             echo "<li>Manage Entries</li>";
             echo "<div>";
-            if (!empty($lbData['Entries'])) {
+            if (!$orderedEntries->isEmpty()) {
                 echo "<tr><td>";
                 echo "<form method='post' action='/request/leaderboard/remove-entry.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                 echo csrf_field();
@@ -118,11 +124,14 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 echo "Remove Entry:";
                 echo "<select name='user'>";
                 echo "<option selected>-</option>";
-                foreach ($lbData['Entries'] as $nextLBEntry) {
+                foreach ($orderedEntries as $nextLBEntry) {
                     // Display all entries for devs, display only own entry for jr. devs
-                    if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
-                        $nextUser = $nextLBEntry['User'];
-                        $nextScore = $nextLBEntry['Score'];
+                    if (
+                        ($user === $nextLBEntry->user->User && $permissions === Permissions::JuniorDeveloper)
+                        || $permissions >= Permissions::Developer
+                    ) {
+                        $nextUser = $nextLBEntry->user->User;
+                        $nextScore = $nextLBEntry->score;
                         $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
                         echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                     }
@@ -167,38 +176,29 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
             echo "</div>";
         }
 
-        // Not implemented
-        // if( $friendsOnly )
-        //    echo "<b>Friends Only</b> - <a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=0'>Show All Results</a><br><br>";
-        // else
-        //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br><br>";
-
-        echo "<div class='larger'>$lbTitle: $lbDescription</div>";
-
         echo "<table class='table-highlight'><tbody>";
         echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th class='text-right'>Result</th><th class='text-right'>Date Submitted</th></tr>";
 
         $numActualEntries = 0;
         $localUserFound = false;
         $resultsDrawn = 0;
-        $nextRank = 1;
-
-        // for( $i = 0; $i < $numEntries; $i++ )
-        foreach ($lbData['Entries'] as $nextEntry) {
-            // $nextEntry = $lbData[$i];
-
-            $nextUser = $nextEntry['User'];
-            $nextScore = $nextEntry['Score'];
-            $nextRank = $nextEntry['Rank'];
+        $previousScore = null;
+        $currentRank = 1;
+        foreach ($orderedEntries as $nextEntry) {
+            $nextUser = $nextEntry->user->User;
+            $nextScore = $nextEntry->score;
             $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
-            $nextSubmitAt = $nextEntry['DateSubmitted'];
-            $nextSubmitAtNice = getNiceDate($nextSubmitAt);
+            $nextSubmitAt = $nextEntry->created_at;
+            $nextSubmitAtNice = getNiceDate(strtotime($nextSubmitAt));
+
+            if ($previousScore !== null && $previousScore !== $nextScore) {
+                $currentRank = $resultsDrawn + 1;
+            }
+            $previousScore = $nextScore;
 
             $isLocal = (strcmp($nextUser, $user) == 0);
             $lastEntry = ($resultsDrawn + 1 == $numEntries);
             $userAppendedInResults = ($numEntries > $count);
-
-            // echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
 
             if ($lastEntry && $isLocal && $userAppendedInResults) {
                 // This is the local, outside-rank user at the end of the table
@@ -217,7 +217,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
             $injectFmt1 = $isLocal ? "<b>" : "";
             $injectFmt2 = $isLocal ? "</b>" : "";
 
-            echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
+            echo "<td class='lb_rank'>$injectFmt1$currentRank$injectFmt2</td>";
 
             echo "<td class='lb_user'>";
             echo userAvatar($nextUser);
@@ -244,8 +244,6 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
             echo "<a class='btn btn-link' href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a> - ";
         }
 
-        // echo "$numActualEntries";
-
         if ($numActualEntries == $count) {
             // Max number fetched, i.e. there are more. Can goto next 20.
             $nextOffset = $offset + $count;
@@ -267,9 +265,8 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "<br><br>";
         ?>
     </div>
+    
     <x-slot name="sidebar">
-        <?php
-        RenderGameLeaderboardsComponent($allGameLBData, null);
-        ?>
+        <x-game.leaderboards-listing :game="$leaderboard->game" />
     </x-slot>
 </x-app-layout>
