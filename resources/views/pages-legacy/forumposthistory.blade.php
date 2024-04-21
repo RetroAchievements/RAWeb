@@ -15,20 +15,21 @@ $websitePrefs = $userDetails['websitePrefs'] ?? 0;
 $messageLength = 120;
 
 $forUser = requestInputSanitized('u');
-if (empty($forUser)) {
+$foundTargetUser = $forUser ? User::firstWhere('User', $forUser) : null;
+if (empty($forUser) || !$foundTargetUser) {
     $recentPosts = getRecentForumTopics($offset, $count, $permissions, $messageLength);
 } else {
     $messageLength = 150;
-    $recentPosts = getRecentForumPosts($offset, $count, $messageLength, $permissions, $forUser);
+    $recentPosts = getRecentForumPosts($offset, $count, $messageLength, $permissions, $foundTargetUser->id);
 }
 ?>
 <x-app-layout pageTitle="Forum Recent Posts">
     <?php
     echo "<div class='navpath'>";
     echo "<a href='/forum.php'>Forum Index</a>";
-    if ($forUser != null) {
+    if ($foundTargetUser) {
         echo " &raquo; <a href='/forumposthistory.php'>Forum Post History</a>";
-        echo " &raquo; <b>$forUser</b>";
+        echo " &raquo; <b>$foundTargetUser->User</b>";
     } else {
         echo " &raquo; <b>Forum Post History</b>";
     }
@@ -47,7 +48,7 @@ if (empty($forUser)) {
     echo "<tbody>";
 
     echo "<tr class='do-not-highlight'>";
-    if (empty($forUser)) {
+    if (!$foundTargetUser) {
         echo "<th>Last Post By</th>";
         echo "<th>Message</th>";
         echo "<th>Additional Posts</th>";
@@ -108,7 +109,7 @@ if (empty($forUser)) {
         echo "</td>";
 
         echo "<td>";
-        if (empty($forUser)) {
+        if (!$foundTargetUser) {
             if ($count_7d > 1) {
                 echo "<span class='smalltext whitespace-nowrap'>";
 
@@ -138,8 +139,8 @@ if (empty($forUser)) {
 
     echo "<div class='text-right'>";
     $baseUrl = '/forumposthistory.php';
-    if ($forUser != null) {
-        $baseUrl .= "?u=$forUser&o=";
+    if ($foundTargetUser) {
+        $baseUrl .= "?u=$foundTargetUser->User&o=";
     } else {
         $baseUrl .= "?o=";
     }

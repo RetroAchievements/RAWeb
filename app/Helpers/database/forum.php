@@ -442,7 +442,7 @@ function getRecentForumPosts(
     int $limit,
     int $numMessageChars,
     ?int $permissions = Permissions::Unregistered,
-    ?string $fromUser = null
+    ?int $fromAuthorId = null
 ): Collection {
     $bindings = [
         'fromOffset' => $offset,
@@ -451,9 +451,9 @@ function getRecentForumPosts(
         'limit' => $limit,
     ];
 
-    if (!empty($fromUser)) {
-        $bindings['fromAuthor'] = $fromUser;
-        $userClause = "ftc.Author = :fromAuthor";
+    if (!empty($fromAuthorId)) {
+        $bindings['fromAuthorId'] = $fromAuthorId;
+        $userClause = "ftc.author_id = :fromAuthorId";
         if ($permissions < Permissions::Moderator) {
             $userClause .= " AND ftc.Authorised = 1";
         }
@@ -465,11 +465,12 @@ function getRecentForumPosts(
     $query = "
         SELECT LatestComments.DateCreated AS PostedAt,
             LatestComments.Payload,
-            LatestComments.Author,
+            ua.User as Author,
             ua.RAPoints,
             ua.Motto,
             ft.ID AS ForumTopicID,
             ft.Title AS ForumTopicTitle,
+            LatestComments.author_id AS author_id,
             LatestComments.ID AS CommentID
         FROM
         (
@@ -481,7 +482,7 @@ function getRecentForumPosts(
         ) AS LatestComments
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-        LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
+        LEFT JOIN UserAccounts AS ua ON ua.ID = LatestComments.author_id
         WHERE ft.RequiredPermissions <= :permissions AND ft.deleted_at IS NULL
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, :limit";
