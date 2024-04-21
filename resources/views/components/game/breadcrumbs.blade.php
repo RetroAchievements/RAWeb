@@ -4,17 +4,16 @@ use App\Models\System;
 ?>
 
 @props([
-    'targetConsoleId' => 1,
-    'targetConsoleName' => 'Mega Drive',
-    'targetGameId' => null, // int | null
-    'targetGameName' => null, // string | null,
-    'currentPageLabel' => null, // string | null
+    'game' => null, // Game
+    'currentPageLabel' => null, // ?string
 ])
 
 <?php
-$gameListHref = System::isGameSystem($targetConsoleId)
-    ? route('system.game.index', ['system' => $targetConsoleId])
-    : '/gameList.php?c=' . $targetConsoleId;
+$game->load('system');
+
+$gameListHref = System::isGameSystem($game->system->id)
+    ? route('system.game.index', ['system' => $game->system->id])
+    : '/gameList.php?c=' . $game->system->id;
 ?>
 
 {{-- All Games >> Console Name >> Game Name >> Page Name --}}
@@ -24,25 +23,23 @@ $gameListHref = System::isGameSystem($targetConsoleId)
     &raquo;
 
     {{-- If there's game metadata, then show console metadata as a URL. Otherwise, it's plain text. --}}
-    @if ($targetConsoleId && $targetConsoleName)
-        <a href="{{ $gameListHref }}">{{ $targetConsoleName }}</a>
+    @if ($gameListHref)
+        <a href="{{ $gameListHref }}">{{ $game->system->Name }}</a>
     @else
-        <span class="font-bold">{{ $targetConsoleName }}</span>
+        <span class="font-bold">{{ $game->system->Name }}</span>
     @endif
 
-    @if ($targetGameId && $targetGameName)
-        &raquo;
+    &raquo;
 
-        {{-- If there's a current page label, then show game metadata as a URL. Otherwise, it's plain text. --}}
-        @if ($currentPageLabel)
-            <a href="{{ route('game.show', $targetGameId) }}">
-                <x-game-title :rawTitle="$targetGameName" />
-            </a>
-        @else
-            <span class="font-bold">
-                <x-game-title :rawTitle="$targetGameName" />
-            </span>
-        @endif
+    {{-- If there's a current page label, then show game metadata as a URL. Otherwise, it's plain text. --}}
+    @if ($currentPageLabel)
+        <a href="{{ route('game.show', $game->id) }}">
+            <x-game-title :rawTitle="$game->Title" />
+        </a>
+    @else
+        <span class="font-bold">
+            <x-game-title :rawTitle="$game->Title" />
+        </span>
     @endif
 
     @if ($currentPageLabel)

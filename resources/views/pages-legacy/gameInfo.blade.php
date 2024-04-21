@@ -50,8 +50,9 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
 }
 
 $numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics: true);
+$gameModel = Game::find($gameID);
 
-if (empty($gameData)) {
+if (!$gameModel) {
     abort(404);
 }
 
@@ -921,8 +922,7 @@ sanitize_outputs(
         ?>
             <x-game.link-buttons
                 :allowedLinks="['forum-topic']"
-                :gameForumTopicId="$forumTopicID"
-                :gameId="$gameID"
+                :game="$gameModel"
             />
         <?php
         echo "</div>";
@@ -955,10 +955,7 @@ sanitize_outputs(
         echo "<div class='component'>";
         ?>
             <x-game.link-buttons
-                :gameAchievementsCount="$numAchievements"
-                :gameForumTopicId="$forumTopicID"
-                :gameGuideUrl="$guideURL"
-                :gameId="$gameID"
+                :game="$gameModel"
                 :isViewingOfficial="$flagParam !== $unofficialFlag"
             />
         <?php
@@ -1002,7 +999,6 @@ sanitize_outputs(
         }
 
         if ($user !== null && $numAchievements > 0) {
-            $gameModel = Game::find($gameID);
             ?>
             <div class="mb-4">
                 <x-game.compare-progress
