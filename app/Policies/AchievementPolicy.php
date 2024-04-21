@@ -22,7 +22,9 @@ class AchievementPolicy
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            // Role::DEVELOPER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
 
             /*
              * moderators may remove unfit content from achievements
@@ -71,7 +73,9 @@ class AchievementPolicy
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
              */
-            // Role::DEVELOPER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
 
             /*
              * artists may update achievement badges if the respective achievements are open for editing
