@@ -176,7 +176,7 @@ function submitNewTopic(
 
     // $authFlags = getUserForumPostAuth( $user );
 
-    $query = "INSERT INTO ForumTopic (ForumID, Title, Author, author_id, DateCreated, LatestCommentID, RequiredPermissions) VALUES ( $forumID, '$topicTitle', '$user', $userID, NOW(), 0, 0 )";
+    $query = "INSERT INTO ForumTopic (ForumID, Title, author_id, DateCreated, LatestCommentID, RequiredPermissions) VALUES ( $forumID, '$topicTitle', $userID, NOW(), 0, 0 )";
 
     $db = getMysqliConnection();
     if (!mysqli_query($db, $query)) {

@@ -181,7 +181,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
     $targetUser->forum_verified_at = now();
     $targetUser->save();
 
-    authorizeAllForumPostsForUser($targetUser->User);
+    authorizeAllForumPostsForUser($targetUser);
 
     addArticleComment('Server', ArticleType::UserModeration, $sourceUser->id,
         $sourceUser->User . ' authorized user\'s forum posts'
