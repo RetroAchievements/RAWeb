@@ -20,6 +20,7 @@ use App\Models\Game;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\PlayerGameActivityService;
+use App\Platform\Services\UserAgentService;
 
 $activity = new PlayerGameActivityService();
 $activity->initialize($user, $game);
@@ -45,6 +46,8 @@ if ($unlockSessionCount != 1) {
 $gameAchievementCount = $game->achievements_published ?? 0;
 $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
     $gameAchievementCount, $activity->achievementsUnlocked * 100 / $gameAchievementCount) : "n/a";
+
+$userAgentService = new UserAgentService();
 
 @endphp
 
@@ -100,7 +103,21 @@ $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
                     <tr class='do-not-highlight'>
                         <td>{{ $session['startTime']->format("j M Y, H:i:s") }}</td>
                     @if ($session['type'] === PlayerGameActivitySessionType::Player)
-                        <td class='text-muted'>Started Playing</td>
+                        <td>
+                            <span class='text-muted'>Started Playing</span>
+                            @if ($session['userAgent'])
+                                <span class="smalltext" title="{{ $session['userAgent'] }}">
+                                @php $userAgent = $userAgentService->decode($session['userAgent']) @endphp
+                                {{ $userAgent['client'] }}
+                                @if ($userAgent['clientVersion'] !== 'Unknown')
+                                    {{ $userAgent['clientVersion'] }}
+                                @endif
+                                @if (!empty($userAgent['os']))
+                                    ({{ $userAgent['os'] }})
+                                @endif
+                                </span>
+                            @endif
+                        </td>
                     @elseif ($session['type'] === PlayerGameActivitySessionType::Generated)
                         <td class='text-muted'>Generated Session</td>
                     @elseif ($session['type'] === PlayerGameActivitySessionType::ManualUnlock)

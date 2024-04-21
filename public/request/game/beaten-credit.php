@@ -5,16 +5,11 @@
 // using an API endpoint or a lot of JS. The dialog content shouldn't be present in the DOM
 // unless the user has explicitly attempted to open it.
 
-use App\Enums\Permissions;
 use App\Models\Game;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
-
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
-    return back()->withErrors(__('legacy.error.permissions'));
-}
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'id' => 'required|integer|exists:GameData,ID',

@@ -5,6 +5,7 @@ use App\Models\System;
 use App\Enums\Permissions;
 ?>
 
+{{-- TODO accept a Game model as a prop --}}
 @props([
     'gameId' => 0,
     'gameTitle' => 'Unknown Game',

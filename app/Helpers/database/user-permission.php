@@ -121,7 +121,7 @@ function SetAccountPermissionsJSON(
             $claim->save();
 
             $comment = "$actingUsername dropped $targetUsername's " . ClaimType::toString($claim->ClaimType) . " claim via demotion to $targetUserNewPermissionsString.";
-            addArticleComment('Server', ArticleType::SetClaim, $claim->GameID, $comment);
+            addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
         }
     }
 
