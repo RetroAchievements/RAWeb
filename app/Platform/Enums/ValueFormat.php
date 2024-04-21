@@ -21,6 +21,9 @@ abstract class ValueFormat
     // hhhmm
     public const TimeMinutes = 'MINUTES';
 
+    // hhhmm calculated by taking value / 60
+    public const TimeSecondsAsMinutes = 'SECS_AS_MINS';
+
     // number followed by three zeroes
     public const ValueThousands = 'THOUSANDS';
 
@@ -45,6 +48,9 @@ abstract class ValueFormat
     // n.nnn calculated by taking number / 1000
     public const Fixed3 = 'FIXED3';
 
+    // NOTE: RichPresence supports additional types for floats, but leaderboards can't
+    //       store floats.
+
     public static function cases(): array
     {
         return [
@@ -53,11 +59,12 @@ abstract class ValueFormat
             self::TimeCentiseconds,
             self::TimeSeconds,
             self::TimeMinutes,
-            self::ValueThousands,
-            self::ValueHundreds,
-            self::ValueTens,
+            self::TimeSecondsAsMinutes,
             self::Value,
             self::ValueUnsigned,
+            self::ValueTens,
+            self::ValueHundreds,
+            self::ValueThousands,
             self::Fixed1,
             self::Fixed2,
             self::Fixed3,
@@ -77,14 +84,15 @@ abstract class ValueFormat
             self::TimeCentiseconds => 'Time (Centiseconds)',
             self::TimeSeconds => 'Time (Seconds)',
             self::TimeMinutes => 'Time (Minutes)',
-            self::ValueThousands => 'Value (Thousands)',
-            self::ValueHundreds => 'Value (Hundreds)',
-            self::ValueTens => 'Value (Tens)',
+            self::TimeSecondsAsMinutes => 'Time (Seconds as Minutes)',
             self::Value => 'Value',
-            self::ValueUnsigned => 'Value (unsigned)',
-            self::Fixed1 => 'Fixed1',
-            self::Fixed2 => 'Fixed2',
-            self::Fixed3 => 'Fixed3',
+            self::ValueUnsigned => 'Value (Unsigned)',
+            self::ValueTens => 'Value (Tens)',
+            self::ValueHundreds => 'Value (Hundreds)',
+            self::ValueThousands => 'Value (Thousands)',
+            self::Fixed1 => 'Value (Fixed1)',
+            self::Fixed2 => 'Value (Fixed2)',
+            self::Fixed3 => 'Value (Fixed3)',
             default => 'Unknown',
         };
     }
@@ -104,6 +112,7 @@ abstract class ValueFormat
             self::TimeCentiseconds => sprintf("%s.%02d", ValueFormat::formatSeconds((int) ($value / 100)), $value % 100),
             self::TimeSeconds => ValueFormat::formatSeconds($value),
             self::TimeMinutes => sprintf("%01dh%02d", (int) $value / 60, $value % 60),
+            self::TimeSecondsAsMinutes => sprintf("%01dh%02d", (int) $value / 60 / 60, ($value / 60) % 60),
             self::ValueThousands => localized_number($value * 1000),
             self::ValueHundreds => localized_number($value * 100),
             self::ValueTens => localized_number($value * 10),
