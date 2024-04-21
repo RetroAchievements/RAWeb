@@ -9,7 +9,7 @@ use App\Models\User;
 ])
 
 <?php
-$followedUserIds = $user->following()->select(['UserAccounts.ID', 'UserAccounts.User'])->pluck('ID');
+$followedUserIds = $user->followedUsers()->select(['UserAccounts.ID', 'UserAccounts.User'])->pluck('ID');
 
 $followedUserCompletion = null;
 if (!empty($followedUserIds)) {

@@ -10,8 +10,10 @@ use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
+use App\Platform\Services\TriggerDecoderService;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
@@ -966,11 +968,10 @@ $pageTitle = "Ticket Manager";
             echo "</div>";
 
             if ($permissions >= Permissions::Developer && $dataOut = GetAchievementData($achID)) {
-                getCodeNotes($gameID, $codeNotes);
                 $achMem = $dataOut['MemAddr'];
-                echo "<div class='devbox'>";
-                echo "<span onclick=\"$('#achievementlogic').toggle(); return false;\">Achievement Logic ▼</span>";
-                echo "<div id='achievementlogic' style='display: none'>";
+                echo "<div>";
+                echo "<button id='devboxLogicButton' class='btn' onclick=\"toggleExpander('devboxLogicButton', 'devboxLogicContent');\">Achievement Logic ▼</button>";
+                echo "<div id='devboxLogicContent' class='hidden devboxcontainer'>";
 
                 echo "<div style='clear:both;'></div>";
                 echo "<li> Achievement ID: " . $achID . "</li>";
@@ -978,7 +979,14 @@ $pageTitle = "Ticket Manager";
                 echo "<li>Mem:</li>";
                 echo "<code>" . htmlspecialchars($achMem) . "</code>";
                 echo "<li>Mem explained:</li>";
-                echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
+
+                $triggerDecoderService = new TriggerDecoderService();
+                $groups = $triggerDecoderService->decode($achMem);
+                $triggerDecoderService->addCodeNotes($groups, $gameID);
+
+                echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" />",
+                    ['groups' => $groups]
+                );
                 echo "</div>";
 
                 echo "</div>"; // achievementlogic

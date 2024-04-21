@@ -74,7 +74,7 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
 
 @if ($canModerate)
     <x-hidden-controls>
-        <div style="width:20%">
+        <div class="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             <ul class="flex flex-col gap-2">
                 <x-game.link-buttons.game-link-button
                     icon="🔬"

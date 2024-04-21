@@ -38,7 +38,6 @@ require_once __DIR__ . '/render/code-note.php';
 require_once __DIR__ . '/render/comment.php';
 require_once __DIR__ . '/render/game.php';
 require_once __DIR__ . '/render/layout.php';
-require_once __DIR__ . '/render/leaderboard.php';
 require_once __DIR__ . '/render/ranking.php';
 require_once __DIR__ . '/render/site-award.php';
 require_once __DIR__ . '/render/subscription.php';
@@ -55,7 +54,6 @@ require_once __DIR__ . '/util/mobile-browser.php';
 require_once __DIR__ . '/util/recaptcha.php'; // TODO refactor
 require_once __DIR__ . '/util/request.php'; // TODO refactor
 require_once __DIR__ . '/util/string.php';
-require_once __DIR__ . '/util/trigger.php';
 
 require_once __DIR__ . '/formatters.php';
 require_once __DIR__ . '/resources.php';

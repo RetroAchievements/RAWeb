@@ -46,15 +46,17 @@ function achievementAvatar(
         $tooltip = $tooltip !== false ? $achievement : false;
     }
 
+    $iconUrl = $icon !== false && ($icon || !$label) ? $icon : null;
+
     return avatar(
         resource: 'achievement',
         id: $id,
         label: $label !== false && ($label || !$icon) ? $label : null,
         link: route('achievement.show', $id),
         tooltip: is_array($tooltip)
-            ? renderAchievementCard($tooltip, iconUrl: $icon)
+            ? renderAchievementCard($tooltip, iconUrl: $iconUrl)
             : $tooltip,
-        iconUrl: $icon !== false && ($icon || !$label) ? $icon : null,
+        iconUrl: $iconUrl,
         iconSize: $iconSize,
         iconClass: $iconClass,
         context: $context,
