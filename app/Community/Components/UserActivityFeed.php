@@ -46,7 +46,7 @@ class UserActivityFeed extends Grid
         return [
             AllowedFilter::callback('users', function (Builder $query, $value) {
                 if (request()->user() && $value === 'following') {
-                    $followingIds = request()->user()->following()->get(['id'])->pluck('id');
+                    $followingIds = request()->user()->followedUsers()->get(['id'])->pluck('id');
                     $followingIds[] = request()->user()->ID;
                     $query->whereIn('user_id', $followingIds);
                 }

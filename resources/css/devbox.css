@@ -11,7 +11,7 @@
   @apply btn;
 }
 
-.devbox > div, .codetags {
+.devbox > div, .codetags, .devboxcontainer {
   border: 1px solid var(--text-color-muted);
   padding: 8px 12px;
   border-radius: 4px;
