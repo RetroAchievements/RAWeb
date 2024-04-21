@@ -138,7 +138,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
     pageType="retroachievements:ticket"
 >
     <div class="navpath">
-        <a href="/ticketmanager.php">All Tickets</a>
+        <a href="/ticketmanager.php">Open Tickets</a>
         &raquo;
         <a href="/ticketmanager.php?g={{ $ticket->achievement->game->ID }}">{{ $ticket->achievement->game->Title }}</a>
         &raquo;
