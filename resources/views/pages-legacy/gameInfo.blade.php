@@ -278,6 +278,13 @@ sanitize_outputs(
 );
 ?>
 
+<?php if (!$isFullyFeaturedGame): ?>
+    <?php
+        $pageType = 'retroachievements:hub';
+        $pageImage = media_asset($gameData['ImageIcon']);;
+    ?>
+<?php endif ?>
+
 <?php if ($isFullyFeaturedGame): ?>
     <?php
         $pageType = 'retroachievements:game';
@@ -293,13 +300,10 @@ sanitize_outputs(
 <?php endif ?>
 
 @if ($gate)
-    <?php
-        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->value('ImageIcon');
-    ?>
     <x-app-layout
         :pageTitle="$pageTitle"
         :pageDescription="$pageDescription ?? null"
-        :pageImage="media_asset($matureHubIcon)"
+        :pageImage="$pageImage ?? null"
         :pageType="$pageType ?? null"
     >
         <x-game.mature-content-gate
