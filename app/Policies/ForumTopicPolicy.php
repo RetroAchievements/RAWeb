@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\Permissions;
 use App\Models\Forum;
 use App\Models\ForumTopic;
 use App\Models\Role;
@@ -17,8 +18,10 @@ class ForumTopicPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
+            Role::MODERATOR,
             Role::FORUM_MANAGER,
-        ]);
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 
     public function viewAny(?User $user): bool
@@ -36,23 +39,32 @@ class ForumTopicPolicy
 
     public function create(User $user, Forum $forum): bool
     {
-        return $user->hasVerifiedEmail();
+        if ($user->isMuted()) {
+            return false;
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            return false;
+        }
+
+        return true;
     }
 
     public function update(User $user, ForumTopic $topic): bool
     {
-        return $user->is($topic->user);
+        // Muted users might update the topic title (or other properties)
+        // to abuse other users or the platform. We won't allow muted users
+        // to update topics.
+        if ($user->isMuted()) {
+            return false;
+        }
+
+        return $this->manage($user) || $user->is($topic->user);
     }
 
     public function delete(User $user, ForumTopic $topic): bool
     {
-        if ($user->hasAnyRole([
-            Role::MODERATOR,
-        ])) {
-            return true;
-        }
-
-        return $user->is($topic->user);
+        return $this->manage($user) || $user->is($topic->user);
     }
 
     public function restore(User $user, ForumTopic $topic): bool

@@ -16,7 +16,7 @@ class ForumCategory extends BaseModel
     use SoftDeletes;
 
     // TODO rename ForumCategory table to forum_categories
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename Name column to title
     // TODO rename Description column to description
     // TODO rename DisplayOrder column to order_column
@@ -56,6 +56,12 @@ class ForumCategory extends BaseModel
     public function getCanonicalUrlAttribute(): string
     {
         return route('forum-category.show', [$this, $this->getSlugAttribute()]);
+    }
+
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
     }
 
     public function getPermalinkAttribute(): string

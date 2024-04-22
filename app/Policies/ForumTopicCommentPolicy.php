@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Models\Role;
@@ -17,8 +18,10 @@ class ForumTopicCommentPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
+            Role::MODERATOR,
             Role::FORUM_MANAGER,
-        ]);
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 
     public function viewAny(?User $user): bool
@@ -28,8 +31,15 @@ class ForumTopicCommentPolicy
 
     public function view(User $user, ForumTopicComment $comment): bool
     {
-        // no route
-        return true;
+        // If the comment is authorized, then it's publicly viewable.
+        if ($comment->Authorised) {
+            return true;
+        }
+
+        // Users are allowed to see their own unauthorized comments.
+        // If the user is allowed to manage ForumTopicComment entities,
+        // they can also view the comment.
+        return $this->manage($user) || $user->is($comment->user);
     }
 
     public function create(User $user, ?ForumTopic $commentable): bool
@@ -51,10 +61,16 @@ class ForumTopicCommentPolicy
 
     public function update(User $user, ForumTopicComment $comment): bool
     {
-        /*
-         * users can edit their own comments
-         */
-        return $user->is($comment->user);
+        // Muted users might edit their existing comments to post abuse.
+        // Therefore, we will not allow muted users to edit their comments.
+        if ($user->isMuted()) {
+            return false;
+        }
+
+        // Otherwise, users are allowed to edit their own comments.
+        // If the user is allowed to manage ForumTopicComment entities,
+        // they can also edit the comment.
+        return $this->manage($user) || $user->is($comment->user);
     }
 
     public function delete(User $user, ForumTopicComment $comment): bool
@@ -63,16 +79,10 @@ class ForumTopicCommentPolicy
             return false;
         }
 
-        if ($user->hasAnyRole([
-            Role::MODERATOR,
-        ])) {
-            return true;
-        }
-
-        /*
-         * users can delete their own comments
-         */
-        return $user->is($comment->user);
+        // Users are allowed to delete their own comments.
+        // If the user is allowed to manage ForumTopicComment entities,
+        // they can also delete the comment.
+        return $this->manage($user) || $user->is($comment->user);
     }
 
     public function restore(User $user, ForumTopicComment $comment): bool

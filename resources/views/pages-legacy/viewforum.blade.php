@@ -3,9 +3,13 @@
 // TODO migrate to ForumController::show() pages/forum.blade.php
 
 use App\Enums\Permissions;
+use App\Models\Forum;
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$userModel = Auth::user();
 
 $requestedForumID = requestInputSanitized('f', null, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -36,15 +40,16 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Moderator) {
 
     $requestedForum = "Forum Verification";
 } else {
-    if (!getForumDetails($requestedForumID, $forumDataOut)) {
+    $forum = Forum::find($requestedForumID);
+    if (!$forum) {
         abort(404);
     }
 
-    $thisForumID = $forumDataOut['ID'];
-    $thisForumTitle = $forumDataOut['ForumTitle'];
-    $thisForumDescription = $forumDataOut['ForumDescription'];
-    $thisCategoryID = $forumDataOut['CategoryID'];
-    $thisCategoryName = $forumDataOut['CategoryName'];
+    $thisForumID = $forum->id;
+    $thisForumTitle = $forum->title;
+    $thisForumDescription = $forum->description;
+    $thisCategoryID = $forum->category->id;
+    $thisCategoryName = $forum->category->title;
 
     $topicList = getForumTopics($requestedForumID, $offset, $count, $permissions, $numTotalTopics);
 
@@ -84,7 +89,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($permissions >= Permissions::Registered && !$userDetails['isMuted']) {
+    if ($userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";
@@ -163,7 +168,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($permissions >= Permissions::Registered && !$userDetails['isMuted']) {
+    if ($userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";

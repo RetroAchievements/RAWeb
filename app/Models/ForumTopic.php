@@ -21,9 +21,9 @@ class ForumTopic extends BaseModel
     use SoftDeletes;
 
     // TODO rename ForumTopic table to forum_topics
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename ForumID to forum_id
-    // TODO rename Title to title
+    // TODO rename Title to title, remove getTitleAttribute()
     // TODO rename DateCreated to created_at
     // TODO rename Updated to updated_at
     // TODO refactor RequiredPermissions to use RBAC
@@ -64,6 +64,12 @@ class ForumTopic extends BaseModel
 
     // == accessors
 
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
     public function getCanonicalUrlAttribute(): string
     {
         return route('forum-topic.show', [$this, $this->getSlugAttribute()]);
@@ -84,6 +90,12 @@ class ForumTopic extends BaseModel
         return ($this->forum->category->title ? '-' . Str::slug($this->forum->category->title) : '')
             . ($this->forum->title ? '-' . Str::slug($this->forum->title) : '')
             . ($this->title ? '-' . Str::slug($this->title) : '');
+    }
+
+    // TODO remove after rename
+    public function getTitleAttribute(): string
+    {
+        return $this->attributes['Title'];
     }
 
     // == mutators

@@ -15,8 +15,8 @@ class ForumTopicComment extends BaseModel
     use SoftDeletes;
 
     // TODO rename ForumTopicComment table to forum_topic_comments
-    // TODO rename ID column to id
-    // TODO rename ForumTopicID to forum_topic_id
+    // TODO rename ID column to id, remove getIdAttribute()
+    // TODO rename ForumTopicID to forum_topic_id, remove getForumTopicIdAttribute()
     // TODO rename Payload column to body
     // TODO rename DateCreated to created_at
     // TODO rename DateModified to updated_at
@@ -53,6 +53,20 @@ class ForumTopicComment extends BaseModel
     public function getPermalinkAttribute(): string
     {
         return route('forum-topic-comment.show', $this);
+    }
+
+    // == accessors
+
+    // TODO remove after rename
+    public function getForumTopicIdAttribute(): int
+    {
+        return $this->attributes['ForumTopicID'];
+    }
+
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
     }
 
     // == relations
