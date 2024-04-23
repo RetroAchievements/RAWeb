@@ -176,7 +176,7 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
     if ($userWallActive) {
         // passing 'null' for $user disables the ability to add comments
         RenderCommentsComponent(
-            !isUserBlocking($userPage, $user) ? $user : null,
+            !$userPageModel->isBlocking(request()->user()) ? $user : null,
             $numArticleComments,
             $commentData,
             $userPageID,
@@ -212,7 +212,7 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
         />
 
         @if ($user !== null && $user === $userPage)
-            <x-user.followed-leaderboard-cta :friendCount="getFriendCount($user)" />
+            <x-user.followed-leaderboard-cta :friendCount="getFriendCount($userPageModel)" />
         @endif
     </x-slot>
 </x-app-layout>

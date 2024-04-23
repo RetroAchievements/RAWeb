@@ -448,7 +448,7 @@ switch ($requestType) {
         break;
 
     case "getfriendlist":
-        $response['Friends'] = GetFriendList($username);
+        $response['Friends'] = GetFriendList($user);
         break;
 
     case "lbinfo":

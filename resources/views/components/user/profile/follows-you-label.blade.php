@@ -5,17 +5,13 @@ use Illuminate\Support\Facades\Auth;
 ?>
 
 @props([
-    'username' => '',
+    'user' => null, // User
 ])
 
-<?php
-$me = Auth::user() ?? null;
-
-$areTheyFollowingMe = false;
-if ($me) {
-    $areTheyFollowingMe = GetFriendship($username, $me->User) === UserRelationship::Following;
-}
-?>
+@php
+    $me = Auth::user() ?? null;
+    $areTheyFollowingMe = $me ? $user->isFollowing($me) : false;
+@endphp
 
 @if ($areTheyFollowingMe)
     <div class="h-[24px] max-w-fit flex justify-center items-center bg-embed px-1 py-0.5 border border-embed-highlight rounded">
