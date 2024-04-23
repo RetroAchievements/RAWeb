@@ -2,6 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
+use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
 use Carbon\Carbon;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
  * @deprecated use PlayerBadge model
  */
 function AddSiteAward(
-    string $user,
+    User $user,
     int $awardType,
     ?int $data = null,
     int $dataExtra = 0,
@@ -20,7 +21,7 @@ function AddSiteAward(
     if (!isset($displayOrder)) {
         $displayOrder = 0;
         $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
-        $dbData = legacyDbFetch($query, ['user' => $user]);
+        $dbData = legacyDbFetch($query, ['user' => $user->User]);
         if (isset($dbData['MaxDisplayOrder'])) {
             $displayOrder = (int) $dbData['MaxDisplayOrder'] + 1;
         }
@@ -28,7 +29,8 @@ function AddSiteAward(
 
     PlayerBadge::updateOrInsert(
         [
-            'User' => $user,
+            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => $awardType,
             'AwardData' => $data,
             'AwardDataExtra' => $dataExtra,
@@ -39,23 +41,11 @@ function AddSiteAward(
         ]
     );
 
-    return PlayerBadge::where('User', $user)
+    return PlayerBadge::where('User', $user->User)
         ->where('AwardType', $awardType)
         ->where('AwardData', $data)
         ->where('AwardDataExtra', $dataExtra)
         ->first();
-}
-
-function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): array
-{
-    $query = "SELECT u.User, u.EmailAddress FROM SiteAwards saw
-              LEFT JOIN UserAccounts u ON u.User=saw.User
-              WHERE saw.AwardType=$awardType AND saw.AwardData=$data";
-    if ($dataExtra != null) {
-        $query .= " AND saw.AwardDataExtra=$dataExtra";
-    }
-
-    return legacyDbFetchAll($query)->toArray();
 }
 
 function removeDuplicateGameAwards(array &$dbResult, array $gamesToDedupe, int $awardType): void
@@ -172,12 +162,12 @@ function HasPatreonBadge(string $username): bool
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetPatreonSupporter(string $username, bool $enable): void
+function SetPatreonSupporter(User $user, bool $enable): void
 {
-    sanitize_sql_inputs($username);
+    $username = $user->User;
 
     if ($enable) {
-        $badge = AddSiteAward($username, AwardType::PatreonSupporter, 0, 0);
+        $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
         // TODO PatreonSupporterAdded::dispatch($user);
     } else {
@@ -199,15 +189,15 @@ function HasCertifiedLegendBadge(string $username): bool
     return mysqli_num_rows($dbResult) > 0;
 }
 
-function SetCertifiedLegend(string $usernameIn, bool $enable): void
+function SetCertifiedLegend(User $user, bool $enable): void
 {
-    sanitize_sql_inputs($usernameIn);
+    $username = $user->User;
 
     if ($enable) {
-        $badge = AddSiteAward($usernameIn, AwardType::CertifiedLegend, 0, 0);
+        $badge = AddSiteAward($user, AwardType::CertifiedLegend, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$usernameIn' AND AwardType = " . AwardType::CertifiedLegend;
+        $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::CertifiedLegend;
         s_mysql_query($query);
     }
 }

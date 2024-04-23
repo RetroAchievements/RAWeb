@@ -63,6 +63,7 @@ class UpdateDeveloperContributionYield
         // add new award
         $badge = PlayerBadge::create([
             'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => $type,
             'AwardData' => $tier,
             'DisplayOrder' => $displayOrder,
@@ -100,6 +101,7 @@ class UpdateDeveloperContributionYield
                 if ($tier > $lastAwardedTier) {
                     PlayerBadge::create([
                         'User' => $user->User,
+                        'user_id' => $user->id,
                         'AwardType' => $type,
                         'AwardData' => $tier,
                         'AwardDate' => $unlock->unlocked_at,

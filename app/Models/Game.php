@@ -160,6 +160,27 @@ class Game extends BaseModel implements HasComments, HasMedia
         return false;
     }
 
+    // TODO refactor when game_achievement_sets is ready
+    public function getParentGame(): ?Game
+    {
+        // Use regular expression to check if the title includes a subset pattern and extract the base title.
+        if (preg_match('/(.+)\[Subset - .+\]/', $this->Title, $matches)) {
+            // Trim to ensure no leading/trailing spaces.
+            $baseSetTitle = trim($matches[1]);
+
+            // Attempt to find a game with the base title and the same console ID.
+            $game = Game::where('Title', $baseSetTitle)
+                ->where('ConsoleID', $this->ConsoleID)
+                ->first();
+
+            // If a matching game is found, return its model.
+            return $game ?? null;
+        }
+
+        // Return null if the title does not match the subset pattern or no game is found.
+        return null;
+    }
+
     // == actions
 
     // == accessors
@@ -249,6 +270,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
+     * @return HasMany<AchievementSetClaim>
+     */
+    public function achievementSetClaims(): HasMany
+    {
+        return $this->hasMany(AchievementSetClaim::class, 'game_id');
+    }
+
+    /**
      * @return BelongsTo<System, Game>
      */
     public function system(): BelongsTo
@@ -258,6 +287,8 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     /**
      * @return BelongsTo<System, Game>
+     *
+     * @deprecated use `->system`
      */
     public function console(): BelongsTo
     {
@@ -275,7 +306,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_games')
             ->using(PlayerGame::class);

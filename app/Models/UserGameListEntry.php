@@ -13,7 +13,6 @@ class UserGameListEntry extends BaseModel
 {
     // TODO rename SetRequest to user_game_list_entry or integrate into player_games table
     // TODO rename GameID to game_id
-    // TODO drop User
     // TODO drop user_game_list_entry_username_game_id_type_unique
     protected $table = 'SetRequest';
 
@@ -23,7 +22,6 @@ class UserGameListEntry extends BaseModel
     protected $fillable = [
         'user_id',
         'type',
-        'User',
         'GameID',
     ];
 
@@ -44,7 +42,7 @@ class UserGameListEntry extends BaseModel
      */
     public function game(): BelongsTo
     {
-        return $this->belongsTo(Game::class, 'GameID');
+        return $this->belongsTo(Game::class, 'GameID', 'ID');
     }
 
     /**
@@ -93,7 +91,7 @@ class UserGameListEntry extends BaseModel
         }
 
         // adding the number of years the user is here
-        $requests['total'] += Carbon::now()->diffInYears($user->Created);
+        $requests['total'] += Carbon::now()->diffInYears($user->created_at);
 
         // adding the number of event awards
         $requests['total'] += getUserEventAwardCount($user->User);

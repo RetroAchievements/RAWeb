@@ -423,15 +423,21 @@ function sendSetRequestEmail(string $user, string $email, int $gameID, string $g
 }
 
 /**
- * Sends an email to all users who have mastered a set when a revision set claim has been marked as complete.
+ * Sends an email to all users who have mastered or completed a set when a revision set claim has been marked as complete.
  */
-function sendSetRevisionEmail(string $user, string $email, int $gameID, string $gameTitle): bool
-{
+function sendSetRevisionEmail(
+    string $user,
+    string $email,
+    bool $isHardcore,
+    int $gameId,
+    string $gameTitle,
+): bool {
     $emailTitle = "Revision Completed for " . $gameTitle;
-    $link = "<a href='" . config('app.url') . "/game/$gameID'>$gameTitle</a>";
+    $link = "<a href='" . config('app.url') . "/game/$gameId'>$gameTitle</a>";
+    $awardLabel = $isHardcore ? 'mastered' : 'completed';
 
     $msg = "Hello $user,<br>" .
-        "A set that you have previously mastered has been revised. Check out the changes to $link.<br><br>" .
+        "A set that you have previously $awardLabel has been revised. Check out the changes to $link.<br><br>" .
         "Thanks!<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 

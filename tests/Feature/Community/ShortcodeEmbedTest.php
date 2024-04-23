@@ -7,6 +7,7 @@ namespace Tests\Feature\Community;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -38,11 +39,15 @@ class ShortcodeEmbedTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var User $user */
+        $user = User::factory()->create();
+
         Achievement::factory()->published()->create([
             'ID' => 1,
             'GameID' => $game->ID,
             'Title' => 'Ring Collector',
             'Points' => 5,
+            'user_id' => $user->id,
         ]);
 
         $this->assertSame(
@@ -93,11 +98,15 @@ class ShortcodeEmbedTest extends TestCase
             'ConsoleID' => $system->ID,
         ]);
 
+        /** @var User $user */
+        $user = User::factory()->create();
+
         Achievement::factory()->published()->create([
             'ID' => 1,
             'GameID' => $game->ID,
             'Title' => 'Finish the Game [100% Completion]',
             'Points' => 50,
+            'user_id' => $user->id,
         ]);
 
         $this->assertSame(

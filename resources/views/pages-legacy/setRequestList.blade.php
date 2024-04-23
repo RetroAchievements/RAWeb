@@ -57,12 +57,12 @@ if (empty($username)) {
     }
     $userSetRequestInformation = getUserRequestsInformation($userModel);
 
-    $setRequestList = UserGameListEntry::where('user_id', $userModel->ID)
+    $setRequestList = UserGameListEntry::where('SetRequest.user_id', $userModel->id)
         ->where('type', UserGameListType::AchievementSetRequest)
         ->join('GameData', 'GameData.ID', '=', 'GameId')
         ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
         ->leftJoin('SetClaim', function ($join) {
-            $join->on('SetClaim.GameID', '=', 'GameData.ID')
+            $join->on('SetClaim.game_id', '=', 'GameData.ID')
                 ->whereIn('SetClaim.Status', [ClaimStatus::Active, ClaimStatus::InReview]);
         })
         ->select([

@@ -25,8 +25,22 @@ class TicketPolicy
             || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
     public function view(User $user, Ticket $ticket): bool
     {
         return true;
+    }
+
+    public function create(User $user): bool
+    {
+        if ($user->created_at->diffInDays() < 1 || $user->is_muted || $user->banned_at) {
+            return false;
+        }
+
+        return $user->playerGames()->where('time_taken', '>', 5)->exists();
     }
 }

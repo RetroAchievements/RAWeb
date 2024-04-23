@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Ticket;
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
 
@@ -18,6 +19,11 @@ if (empty($dataOut)) {
 
 /** @var User $userModel */
 $userModel = request()->user();
+
+if (!$userModel->can('create', Ticket::class)) {
+    abort_with(redirect(route('achievement.show', $achievementID)));
+}
+
 $ticketID = getExistingTicketID($userModel, $achievementID);
 if ($ticketID !== 0) {
     abort_with(redirect(url("/ticketmanager.php?i=$ticketID"))->withErrors(__('legacy.error.ticket_exists')));

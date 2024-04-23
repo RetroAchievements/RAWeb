@@ -5,17 +5,17 @@ use App\Models\System;
 use App\Enums\Permissions;
 ?>
 
+{{-- TODO accept a Game model as a prop --}}
 @props([
     'gameId' => 0,
     'gameTitle' => 'Unknown Game',
     'consoleId' => 0,
     'consoleName' => 'Unknown Console',
-    'user' => null,
-    'userPermissions' => null,
+    'includeAddToListButton' => false,
 ])
 
 <?php
-$type = UserGameListType::Play;
+$addToListType = UserGameListType::Play;
 $iconUrl = getSystemIconUrl($consoleId);
 ?>
 
@@ -30,8 +30,11 @@ $iconUrl = getSystemIconUrl($consoleId);
             <span class="block text-sm tracking-tighter">{{ $consoleName }}</span>
         </div>
 
-        @if (!empty($user) && $userPermissions >= Permissions::Registered && System::isGameSystem($consoleId))
-            <x-game.add-to-list :gameId="$gameId" :type="$type" :user="$user" />
+        @php
+            $user = $includeAddToListButton ? auth()->user() : null;
+        @endphp
+        @if ($user?->getAttribute('Permissions') >= Permissions::Registered && System::isGameSystem($consoleId))
+            <x-game.add-to-list :gameId="$gameId" :type="$addToListType" />
         @endif
     </div>
 </h1>

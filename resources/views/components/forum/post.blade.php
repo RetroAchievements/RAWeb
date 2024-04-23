@@ -27,7 +27,7 @@ if (!$isPreview) {
     $commentId = $commentData->ID;
     $commentAuthor = e($commentData->Author);
     $commentAuthorDeletedDate = $commentData->user->Deleted ?? null;
-    $commentAuthorJoinDate = $commentData->user->Created ?? null;
+    $commentAuthorJoinDate = $commentData->user->created_at ?? null;
     $commentAuthorPermissions = $commentData->user->Permissions ?? null;
     $commentDateCreated = $commentData->DateCreated;
     $commentDateModified = $commentData->DateModified;
@@ -80,7 +80,11 @@ if (!$isPreview) {
                             <x-forum.post-moderation-tools :commentAuthor="$commentAuthor"/>
                         @endif
 
-                        @if ($showEditButton)
+                        @php
+                            $user = auth()->user();
+                        @endphp
+                        {{-- TODO use a policy --}}
+                        @if ($showEditButton && !$user?->is_muted)
                             <a href='/editpost.php?comment={{ $commentId }}' class='btn p-1 lg:text-xs'>Edit</a>
                         @endif
 
