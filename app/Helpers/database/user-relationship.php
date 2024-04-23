@@ -71,9 +71,6 @@ function changeFriendStatus(User $senderUser, User $targetUser, int $newStatus):
     }
 }
 
-// jamiras if you see this comment it means i forgot to delete it before submitting
-// a PR. this function adds 30ms of execution time over the original function for the
-// worst case scenario user.
 function GetFriendList(User $user): array
 {
     $friendList = $user->followedUsers()
