@@ -276,28 +276,21 @@ sanitize_outputs(
     $richPresenceData,
     $user,
 );
-?>
 
-@if (!$isFullyFeaturedGame)
-    <?php
-        $pageType = 'retroachievements:hub';
-        $pageImage = media_asset($gameData['ImageIcon']);;
-    ?>
-@endif
+$pageType = $isFullyFeaturedGame ? 'retroachievements:game' : 'retroachievements:hub';
+$pageImage = media_asset($gameData['ImageIcon']);
 
-@if ($isFullyFeaturedGame)
-    <?php
-        $pageType = 'retroachievements:game';
-        $pageImage = media_asset($gameData['ImageIcon']);
-        $pageDescription = generateGameMetaDescription(
+if ($isFullyFeaturedGame) {
+    $pageDescription = generateGameMetaDescription(
             $gameTitle,
             $consoleName,
             $numAchievements,
             $totalPossible,
             $isEventGame
         );
-    ?>
-@endif
+}
+
+?>
 
 @if ($gate)
     <x-app-layout
