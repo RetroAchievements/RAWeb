@@ -106,8 +106,8 @@ if ($gameData['NumAchievements'] ?? false) {
     $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore'] / $gameData['NumAchievements']) * 100.0);
 }
 
-$includeAwardMetadata = request()->query('a', 0);
-if ($includeAwardMetadata == 1) {
+$includeAwardMetadata = request()->query('a', '0');
+if ($includeAwardMetadata == '1') {
     $highestAwardMetadata = PlayerBadge::getHighestUserAwardForGameId($targetUser, $gameID);
 
     if ($highestAwardMetadata) {
