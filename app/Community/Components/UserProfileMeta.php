@@ -260,9 +260,9 @@ class UserProfileMeta extends Component
 
         // Average points per week
         $averagePointsPerWeek = $this->calculateAveragePointsPerWeek(
-            $this->userMassData['MemberSince'],
-            // Calculate based on the user's primary playing mode.
-            $preferredMode === 'softcore' ? $softcorePoints : $hardcorePoints,
+            $this->user,
+            $preferredMode !== "softcore",
+            $preferredMode !== "softcore" ? $hardcorePoints : $softcorePoints,
         );
         $averagePointsPerWeekStat = [
             'label' => 'Average points per week',
@@ -425,19 +425,27 @@ class UserProfileMeta extends Component
         return number_format($averageFinishedGames, 2, '.', '');
     }
 
-    private function calculateAveragePointsPerWeek(string $userMemberSince, int $points = 0): int
+    private function calculateAveragePointsPerWeek(User $user, bool $doesUserPreferHardcore, int $points = 0): int
     {
-        $memberSince = Carbon::createFromFormat('Y-m-d H:i:s', $userMemberSince);
-        $now = Carbon::now();
+        $field = $doesUserPreferHardcore ? "unlocked_hardcore_at" : "unlocked_at";
 
-        $weeksOfMembership = $memberSince->diffInWeeks($now);
+        $startingDate = $user->playerAchievements()
+            ->whereNotNull($field)
+            ->orderBy($field)
+            ->value($field);
+
+        if (is_null($startingDate)) {
+            return 0;
+        }
+
+        $weeksSinceFirstUnlock = $startingDate->diffInWeeks(Carbon::now());
 
         // Avoid division by zero.
-        if ($weeksOfMembership == 0) {
+        if ($weeksSinceFirstUnlock <= 0) {
             return $points;
         }
 
-        $averagePointsPerWeek = $points / $weeksOfMembership;
+        $averagePointsPerWeek = $points / $weeksSinceFirstUnlock;
 
         return (int) round($averagePointsPerWeek);
     }
