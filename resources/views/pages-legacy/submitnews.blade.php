@@ -13,13 +13,13 @@ if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::
 $user = request()->user();
 
 $newsId = (int) request()->query('news');
-$newsItems = News::orderByDesc('ID')->take(500)->get();
+$newsItems = News::with('user')->orderByDesc('ID')->take(500)->get();
 
 /** @var ?News $news */
 $news = $newsItems->firstWhere('ID', $newsId);
 $newsTitle = $news['Title'] ?? '';
 $newsContent = $news['Payload'] ?? '';
-$newsAuthor = $news['Author'] ?? $user->User;
+$newsAuthor = $news?->user?->User ?? $user->User;
 $newsLink = $news['Link'] ?? '';
 $newsImage = old('image', $news['Image'] ?? '');
 ?>

@@ -53,7 +53,7 @@ if (empty($id)) {
     $news = News::create([
         'Title' => $input['title'],
         'Payload' => $input['body'],
-        'Author' => $user->User,
+        'user_id' => $user->id,
         'Link' => $input['link'],
         'Image' => $input['image'],
     ]);

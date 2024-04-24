@@ -33,7 +33,6 @@ foreach ($newsData as $news) {
     $newsID = $news['ID'];
     $newsDate = date("D, d M Y H:i:s O", strtotime($news['Timestamp']));
     $newsImage = $news['Image'];
-    $newsAuthor = $news['Author'];
     $newsLink = config('app.url');
     $newsTitle = "<![CDATA[" . htmlspecialchars(strip_tags($news['Title'])) . "]]>";
 
