@@ -4,8 +4,8 @@
 ])
 
 <li>
-    <a class="btn py-2 pr-3 block transition-transform lg:active:scale-[97%]" href="{{ $href }}">
-        <span class="icon icon-md mx-1">{{ $icon }}</span>
-        {{ $slot }}
+    <a class="btn py-2 w-full px-3 inline-flex gap-x-2 transition-transform lg:active:scale-[97%]" href="{{ $href }}">
+        <span>{{ $icon }}</span>
+        <span>{{ $slot }}</span>
     </a>
 </li>

@@ -112,7 +112,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
         </x-game.link-buttons.game-link-button>
     @endif
 
-    @if (in_array('set-requestors', $allowedLinks) && $game->achievements->isEmpty())
+    @if (in_array('set-requestors', $allowedLinks) && !$game->achievements()->published()->exists())
         @can('viewAny', App\Models\Game::class)
             <x-game.link-buttons.game-link-button
                 icon="📜"

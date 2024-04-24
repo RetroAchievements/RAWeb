@@ -100,7 +100,7 @@ function getGameMetadata(
     $metricsBindings = [];
     if ($metrics) {
         $parentGame = getParentGameFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
-        $numDistinctPlayersSelector = $parentGame?->players_total ?? getGameData($gameID)['NumDistinctPlayers'];
+        $numDistinctPlayersSelector = $parentGame?->players_total ?: getGameData($gameID)['NumDistinctPlayers'];
         $gameDataOut['ParentGameID'] = $parentGame?->id;
         $gameDataOut['NumDistinctPlayers'] = $numDistinctPlayersSelector ?? 0;
 
