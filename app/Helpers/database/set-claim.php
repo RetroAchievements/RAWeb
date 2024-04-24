@@ -171,7 +171,7 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
             $claim->Status = ClaimStatus::Active;
             $claim->save();
 
-            addArticleComment('Server', ArticleType::SetClaim, $claim->GameID, $comment);
+            addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
         }
     }
 
@@ -180,8 +180,8 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
         $permissionsString = Permissions::toString($permissionsAfter);
 
         $activeClaims = $user->achievementSetClaims()
-            ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
-        foreach ($activeClaims->get() as $claim) {
+            ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])->get();
+        foreach ($activeClaims as $claim) {
             $claim->Status = ClaimStatus::Dropped;
             $claim->save();
 

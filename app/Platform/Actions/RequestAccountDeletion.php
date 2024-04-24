@@ -23,6 +23,9 @@ class RequestAccountDeletion
         if ($currentPermissions > Permissions::Registered) {
             $user->setAttribute('Permissions', Permissions::Registered);
 
+            $user->roles()->detach();
+            $user->permissions()->detach();
+
             updateClaimsForPermissionChange($user, Permissions::Registered, $currentPermissions);
         }
 
