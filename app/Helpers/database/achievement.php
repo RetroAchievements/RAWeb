@@ -154,7 +154,7 @@ function GetAchievementData(int $achievementId): ?array
         'TrueRatio' => $achievement->points_weighted,
         'Flags' => $achievement->Flags,
         'type' => $achievement->type,
-        'Author' => $achievement->developer->User,
+        'Author' => $achievement->developer?->User,
         'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
         'DateModified' => $achievement->DateModified->format('Y-m-d H:i:s'),
         'BadgeName' => $achievement->badge_name,
