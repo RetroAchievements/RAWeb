@@ -2,134 +2,166 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
-use App\Models\Game;
+use App\Models\Leaderboard;
+use App\Models\LeaderboardEntry;
+use App\Models\LeaderboardEntryLegacy;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 
 function SubmitLeaderboardEntry(
-    string $user,
+    User $user,
     int $lbID,
     int $newEntry,
     string $validation
 ): array {
-    $db = getMysqliConnection();
-    sanitize_sql_inputs($user);
+    $retVal = ['Success' => true];
 
-    $retVal = [];
-    $retVal['Success'] = true;
+    $leaderboard = Leaderboard::with('game')->find($lbID);
 
-    // Fetch some always-needed data
-    $query = "SELECT Format, ID AS LeaderboardID, GameID, Title, LowerIsBetter
-              FROM LeaderboardDef AS ld
-              WHERE ld.ID = $lbID";
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $lbData = mysqli_fetch_assoc($dbResult);
-
-        $foundGame = Game::find($lbData['GameID']);
-        if ($foundGame?->ConsoleID && !isValidConsoleId($foundGame->ConsoleID)) {
-            $retVal['Success'] = false;
-            $retVal['Error'] = "Cannot submit entry for unsupported console";
-
-            return $retVal;
-        }
-
-        $lowerIsBetter = (int) $lbData['LowerIsBetter'];
-
-        $scoreFormatted = ValueFormat::format($newEntry, $lbData['Format']);
-
-        $retVal['LBData'] = $lbData;
-        $retVal['LBData']['LeaderboardID'] = (int) $retVal['LBData']['LeaderboardID'];
-        $retVal['LBData']['GameID'] = (int) $retVal['LBData']['GameID'];
-        $retVal['LBData']['LowerIsBetter'] = (int) $retVal['LBData']['LowerIsBetter'];
-
-        $retVal['Score'] = $newEntry;
-        $retVal['ScoreFormatted'] = $scoreFormatted;
-
-        $comparisonOp = $lowerIsBetter === 1 ? '<' : '>';
-
-        // Read: IF the score VALUE provided $compares as "betterthan" the existing score, use the VALUE given, otherwise the existing Score.
-        // Also, if the score VALUE provided $compares as "betterthan" the existing score, use NOW(), otherwise the existing DateSubmitted.
-        $query = "
-        INSERT INTO LeaderboardEntry (LeaderboardID, UserID, Score, DateSubmitted)
-                VALUES('$lbID', (SELECT ID FROM UserAccounts WHERE User='$user' ), '$newEntry', NOW())
-        ON DUPLICATE KEY
-            UPDATE
-                LeaderboardID=LeaderboardID, UserID=UserID,
-                DateSubmitted=IF(( VALUES(Score) $comparisonOp Score), VALUES(DateSubmitted), DateSubmitted),
-                Score=IF((VALUES(Score) $comparisonOp Score), VALUES(Score), Score)";
-
-        $dbResult = s_mysql_query($query);
-
-        if ($dbResult !== false) {
-            $numRowsAffected = mysqli_affected_rows($db);
-            if ($numRowsAffected == 0) {
-                // No change made!
-                // Worst case: go fetch my existing score, it was better
-                $query = "SELECT Score FROM LeaderboardEntry WHERE LeaderboardID=$lbID AND UserID=(SELECT ID FROM UserAccounts WHERE User='$user')";
-                $dbResult = s_mysql_query($query);
-                $data = mysqli_fetch_assoc($dbResult);
-                $retVal['BestScore'] = (int) $data['Score'];
-            } elseif ($numRowsAffected == 1) {
-                // (New) Entry added!
-                $retVal['BestScore'] = $newEntry;
-            } else { // if ( $numRowsAffected == 2 )
-                // Improved Entry added!
-                $retVal['BestScore'] = $newEntry;
-            }
-
-            // If you fall through to here, populate $dataOut with some juicy info :)
-            $retVal['TopEntries'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, false);
-            $retVal['TopEntriesFriends'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, true);
-            $retVal['RankInfo'] = GetLeaderboardRankingJSON($user, $lbID, (bool) $lowerIsBetter);
-        } else {
-            $retVal['Success'] = false;
-            $retVal['Error'] = "Cannot insert the value $newEntry into leaderboard with ID: $lbID (unknown issue)";
-        }
-    } else {
+    if (!$leaderboard) {
         $retVal['Success'] = false;
         $retVal['Error'] = "Cannot find the leaderboard with ID: $lbID";
+
+        return $retVal;
     }
+
+    if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
+        $retVal['Success'] = false;
+        $retVal['Error'] = "Cannot submit entry for unsupported console";
+
+        return $retVal;
+    }
+
+    $retVal['LBData'] = [
+        'Format' => $leaderboard->Format,
+        'LeaderboardID' => $leaderboard->id,
+        'GameID' => $leaderboard->GameID,
+        'Title' => $leaderboard->Title,
+        'LowerIsBetter' => $leaderboard->LowerIsBetter,
+        'Score' => $newEntry,
+        'ScoreFormatted' => ValueFormat::format($newEntry, $leaderboard->Format),
+    ];
+
+    // TODO delete after LeaderboardEntries table is dropped and replaced by leaderboard_entries
+    writeLegacyLeaderboardEntry($user, $leaderboard, $newEntry);
+
+    $existingLeaderboardEntry = LeaderboardEntry::where('leaderboard_id', $leaderboard->id)
+        ->where('user_id', $user->id)
+        ->first();
+
+    if ($existingLeaderboardEntry) {
+        // If the user is submitting a better score than their current entry,
+        // we'll override the current entry with their new score.
+        $comparisonOp = $leaderboard->LowerIsBetter === 1 ? '<' : '>';
+        $hasBetterScore =
+            ($comparisonOp === '<' && $newEntry < $existingLeaderboardEntry->score)
+            || ($comparisonOp === '>' && $newEntry > $existingLeaderboardEntry->score)
+        ;
+
+        if ($hasBetterScore) {
+            // Update the player's entry.
+            $existingLeaderboardEntry->score = $newEntry;
+            $existingLeaderboardEntry->save();
+
+            $retVal['BestScore'] = $newEntry;
+        } else {
+            // No change made.
+            $retVal['BestScore'] = $existingLeaderboardEntry->score;
+        }
+    } else {
+        // No existing leaderboard entry. Let's insert a new one.
+        LeaderboardEntry::create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user->id,
+            'score' => $newEntry,
+        ]);
+
+        $retVal['BestScore'] = $newEntry;
+    }
+
+    $retVal['TopEntries'] = GetLeaderboardEntriesDataJSON($lbID, $user->User, 10, 0, false);
+    $retVal['TopEntriesFriends'] = GetLeaderboardEntriesDataJSON($lbID, $user->User, 10, 0, true);
+    $retVal['RankInfo'] = GetLeaderboardRankingJSON($user->User, $lbID, (bool) $leaderboard->LowerIsBetter);
 
     return $retVal;
 }
 
-function removeLeaderboardEntry(string $user, int $lbID, ?int &$score): bool
-{
-    sanitize_sql_inputs($user);
+/**
+ * @deprecated
+ * This is intended only for double writes.
+ * Delete when LeaderboardEntry is dropped in favor of leaderboard_entries.
+ */
+function writeLegacyLeaderboardEntry(
+    User $user,
+    Leaderboard $leaderboard,
+    int $newEntry,
+): void {
+    $existingLegacyLeaderboardEntry = LeaderboardEntryLegacy::where('LeaderboardID', $leaderboard->id)
+        ->where('UserID', $user->id)
+        ->first();
 
-    $query = "SELECT le.Score, ld.Format FROM LeaderboardEntry AS le
-              LEFT JOIN LeaderboardDef AS ld ON ld.ID = le.LeaderboardID
-              LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-              WHERE ua.User = '$user' AND ld.ID = $lbID ";
+    if ($existingLegacyLeaderboardEntry) {
+        // If the user is submitting a better score than their current entry,
+        // we'll override the current entry with their new score.
+        $comparisonOp = $leaderboard->LowerIsBetter === 1 ? '<' : '>';
+        $hasBetterScore =
+            ($comparisonOp === '<' && $newEntry < $existingLegacyLeaderboardEntry->Score)
+            || ($comparisonOp === '>' && $newEntry > $existingLegacyLeaderboardEntry->Score)
+        ;
 
-    $dbResult = s_mysql_query($query);
-    $data = mysqli_fetch_assoc($dbResult);
-
-    if (!$data) {
-        return false;
+        if ($hasBetterScore) {
+            // Update the player's entry.
+            // This has to use `update()` because the table has a composite primary key.
+            LeaderboardEntryLegacy::where('LeaderboardID', $leaderboard->id)
+                ->where('UserID', $user->id)
+                ->update(['Score' => $newEntry, 'DateSubmitted' => now()]);
+        }
+    } else {
+        // No existing leaderboard entry. Let's insert a new one.
+        LeaderboardEntryLegacy::create([
+            'LeaderboardID' => $leaderboard->id,
+            'UserID' => $user->id,
+            'Score' => $newEntry,
+            'DateSubmitted' => now(),
+        ]);
     }
-
-    $score = ValueFormat::format((int) $data['Score'], $data['Format']);
-
-    $userID = getUserIDFromUser($user);
-    if ($userID === 0) {
-        return false;
-    }
-
-    $query = "DELETE FROM LeaderboardEntry
-              WHERE ( LeaderboardID = $lbID AND UserID = $userID )";
-
-    s_mysql_query($query);
-
-    $db = getMysqliConnection();
-
-    return mysqli_affected_rows($db) != 0;
 }
 
-function GetLeaderboardRankingJSON(string $user, int $lbID, bool $lowerIsBetter): array
+function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
 {
-    sanitize_sql_inputs($user);
+    $leaderboardEntry = LeaderboardEntry::with('leaderboard')
+        ->where('leaderboard_id', $lbID)
+        ->where('user_id', $user->id)
+        ->first();
+
+    if (!$leaderboardEntry) {
+        return false;
+    }
+
+    $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
+
+    // TODO utilize soft deletes
+    $wasLeaderboardEntryDeleted = $leaderboardEntry->forceDelete();
+
+    // TODO delete this code once LeaderboardEntry is dropped in favor of leaderboard_entries
+    $wasLegacyLeaderboardEntryDeleted = false;
+    $legacyLeaderboardEntry = LeaderboardEntryLegacy::where('LeaderboardID', $lbID)
+        ->where('UserID', $user->id)
+        ->first();
+
+    if ($legacyLeaderboardEntry) {
+        // Eloquent ORM requires a new query because this table has a composite primary key.
+        $wasLegacyLeaderboardEntryDeleted =
+            LeaderboardEntryLegacy::where(['LeaderboardID' => $lbID, 'UserID' => $user->id])->delete();
+    }
+    // TODO end delete this code once LeaderboardEntry is dropped in favor of leaderboard_entries
+
+    return $wasLeaderboardEntryDeleted && $wasLegacyLeaderboardEntryDeleted;
+}
+
+function GetLeaderboardRankingJSON(string $username, int $lbID, bool $lowerIsBetter): array
+{
+    sanitize_sql_inputs($username);
 
     $retVal = [];
 
@@ -141,7 +173,7 @@ function GetLeaderboardRankingJSON(string $user, int $lbID, bool $lowerIsBetter)
               INNER JOIN LeaderboardEntry AS lbe2 ON lbe.LeaderboardID = lbe2.LeaderboardID AND lbe.Score " . ($lowerIsBetter ? '<=' : '<') . " lbe2.Score
               LEFT JOIN UserAccounts AS ua ON ua.ID = lbe.UserID
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = lbe2.UserID
-              WHERE ua.User = '$user' AND lbe.LeaderboardID = $lbID
+              WHERE ua.User = '$username' AND lbe.LeaderboardID = $lbID
               AND NOT ua.Untracked AND NOT ua2.Untracked";
 
     $dbResult = s_mysql_query($query);
@@ -253,14 +285,14 @@ function getLeaderboardsForGame(int $gameID, ?array &$dataOut, ?string $localUse
     return 0;
 }
 
-function GetLeaderboardEntriesDataJSON(int $lbID, string $user, int $numToFetch, int $offset, bool $friendsOnly): array
+function GetLeaderboardEntriesDataJSON(int $lbID, string $username, int $numToFetch, int $offset, bool $friendsOnly): array
 {
-    sanitize_sql_inputs($user);
+    sanitize_sql_inputs($username);
 
     $retVal = [];
 
     // 'Me or my friends'
-    $friendQuery = $friendsOnly ? "( ua.User IN ( " . GetFriendsSubquery($user) . " ) )" : "TRUE";
+    $friendQuery = $friendsOnly ? "( ua.User IN ( " . GetFriendsSubquery($username) . " ) )" : "TRUE";
 
     // Get entries:
     $query = "SELECT ua.User, le.Score, UNIX_TIMESTAMP( le.DateSubmitted ) AS DateSubmitted
@@ -743,22 +775,27 @@ function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNum
 
 function requestResetLB(int $lbID): bool
 {
-    if ($lbID == 0) {
-        return false;
-    }
+    // TODO remove when LeaderboardEntry is dropped
+    $legacyEntries = LeaderboardEntryLegacy::where('LeaderboardID', $lbID);
+    $legacyDeleted = $legacyEntries->delete();
+    // TODO end remove when LeaderboardEntry is dropped
 
-    $query = "DELETE FROM LeaderboardEntry
-              WHERE LeaderboardID = $lbID";
-    $dbResult = s_mysql_query($query);
+    $entries = LeaderboardEntry::where('leaderboard_id', $lbID);
+    $entriesDeleted = $entries->delete();
 
-    return $dbResult !== false;
+    // When `delete()` returns false, it indicates an error has occurred.
+    return $entriesDeleted !== false && $legacyDeleted !== false;
 }
 
 function requestDeleteLB(int $lbID): bool
 {
-    $query = "DELETE FROM LeaderboardDef WHERE ID = $lbID";
+    $leaderboard = Leaderboard::find($lbID);
 
-    $dbResult = s_mysql_query($query);
+    if (!$leaderboard) {
+        return false;
+    }
 
-    return $dbResult !== false;
+    $leaderboard->forceDelete();
+
+    return true;
 }

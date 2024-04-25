@@ -5,6 +5,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket as TicketViewModel;
+use App\Models\Achievement;
 use App\Models\NotificationPreferences;
 use App\Models\Ticket;
 use App\Models\User;
@@ -91,8 +92,8 @@ function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore,
 
 function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, string $note): int
 {
-    $achData = GetAchievementData($achID);
-    if (empty($achData)) {
+    $achievement = Achievement::find($achID);
+    if (!$achievement) {
         return 0;
     }
 
@@ -101,7 +102,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
 
     $hardcoreValue = $hardcore === null ? 'NULL' : (string) $hardcore;
 
-    $userId = $user->ID;
+    $userId = $user->id;
     $username = $user->User;
 
     $query = "INSERT INTO Ticket (AchievementID, reporter_id, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, resolver_id )
@@ -117,12 +118,11 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
 
     $ticketID = mysqli_insert_id($db);
 
-    $achAuthor = $achData['Author'];
-    $achTitle = $achData['Title'];
-    $gameID = $achData['GameID'];
-    $gameTitle = $achData['GameTitle'];
+    $achTitle = $achievement->title;
+    $gameID = $achievement->game->id;
+    $gameTitle = $achievement->game->title;
 
-    expireUserTicketCounts($achAuthor);
+    expireUserTicketCounts($achievement->developer->User);
 
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
@@ -139,19 +139,18 @@ This ticket will be raised and will be available for all developers to inspect a
 
 Thanks!";
 
-    $author = User::firstWhere('User', $achAuthor);
-    if ($author && BitSet($author->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
-        $emailBody = "Hi, {$author->User}!
+    if ($achievement->developer && BitSet($achievement->developer->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
+        $emailBody = "Hi, {$achievement->developer->User}!
 
 $username would like to report a bug with an achievement you've created:
 $bugReportDetails";
-        sendRAEmail($author->EmailAddress, $emailHeader, $emailBody);
+        sendRAEmail($achievement->developer->EmailAddress, $emailHeader, $emailBody);
     }
 
     // notify subscribers other than the achievement's author
     $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << NotificationPreferences::EmailOn_PrivateMessage);
     foreach ($subscribers as $sub) {
-        if ($sub['User'] != $achAuthor && $sub['User'] != $username) {
+        if ($sub['User'] !== $achievement->developer->User && $sub['User'] != $username) {
             $emailBody = "Hi, " . $sub['User'] . "!
 
 $username would like to report a bug with an achievement you're subscribed to:

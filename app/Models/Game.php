@@ -183,13 +183,6 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     // == actions
 
-    // == instance functions
-
-    public function visibleLeaderboards()
-    {
-        return $this->leaderboards()->where('DisplayOrder', '>=', 0);
-    }
-
     // == accessors
 
     public function getCanHaveBeatenTypes(): bool
@@ -294,6 +287,8 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     /**
      * @return BelongsTo<System, Game>
+     *
+     * @deprecated use `->system`
      */
     public function console(): BelongsTo
     {
@@ -339,6 +334,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function hashes(): HasMany
     {
         return $this->hasMany(GameHash::class, 'game_id');
+    }
+
+    /**
+     * @return HasMany<Leaderboard>
+     */
+    public function visibleLeaderboards(): HasMany
+    {
+        return $this->leaderboards()->where('DisplayOrder', '>=', 0);
     }
 
     // == scopes

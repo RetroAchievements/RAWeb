@@ -45,13 +45,13 @@ class LeaderboardEntryPolicy
             Role::DEVELOPER,
         ];
 
-        if ($user->hasAnyRole($canAlwaysDelete) || $user->Permissions >= Permissions::Developer) {
+        if ($user->hasAnyRole($canAlwaysDelete) || (int) $user->getAttribute('Permissions') >= Permissions::Developer) {
             return true;
         }
 
         // Junior Developers can only delete their own entries.
         if (
-            ($user->hasRole(Role::DEVELOPER_JUNIOR) || $user->Permissions === Permissions::JuniorDeveloper)
+            ($user->hasRole(Role::DEVELOPER_JUNIOR) || (int) $user->getAttribute('Permissions') === Permissions::JuniorDeveloper)
             && $leaderboardEntry->user_id === $user->id
         ) {
             return true;
