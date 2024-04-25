@@ -5,11 +5,11 @@
 <div class="component">
     <h2 class="text-h3">Leaderboards</h2>
 
-    @if (!$game->leaderboards()->exists())
+    @if (!$game->visibleLeaderboards()->exists())
         <x-game.leaderboards-listing.empty-state :game="$game" />
     @else
         <x-game.leaderboards-listing.leaderboards-list
-            :gameLeaderboards="$game->leaderboards"
+            :gameLeaderboards="$game->visibleLeaderboards"
         />
     @endif
 </div>

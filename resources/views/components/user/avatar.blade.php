@@ -16,7 +16,7 @@ $iconHeight = config('media.icon.' . $iconSize . '.height');
 ?>
 
 {{--
-    TODO $display should be an array, allowing the developer to 
+    TODO $display should allow the developer to 
     render both the icon and username if they choose.
 --}}
 

@@ -6,9 +6,12 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\TriggerDecoderService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$userModel = Auth::user();
 
 $lbID = requestInputSanitized('i', null, 'integer');
 if (empty($lbID)) {
@@ -30,7 +33,6 @@ if (!$leaderboard) {
 
 $numEntries = $leaderboard->entries->count();
 $orderedEntries = $leaderboard->entries()
-    ->whereHas('user') // Don't include entries from deleted users.
     ->with('user')
     ->offset($offset)
     ->limit($count)
@@ -126,10 +128,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 echo "<option selected>-</option>";
                 foreach ($orderedEntries as $nextLBEntry) {
                     // Display all entries for devs, display only own entry for jr. devs
-                    if (
-                        ($user === $nextLBEntry->user->User && $permissions === Permissions::JuniorDeveloper)
-                        || $permissions >= Permissions::Developer
-                    ) {
+                    if ($userModel->can('delete', $nextLBEntry)) {
                         $nextUser = $nextLBEntry->user->User;
                         $nextScore = $nextLBEntry->score;
                         $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);

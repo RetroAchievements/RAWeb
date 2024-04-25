@@ -183,6 +183,13 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     // == actions
 
+    // == instance functions
+
+    public function visibleLeaderboards()
+    {
+        return $this->leaderboards()->where('DisplayOrder', '>=', 0);
+    }
+
     // == accessors
 
     public function getCanHaveBeatenTypes(): bool

@@ -147,7 +147,8 @@ class Leaderboard extends BaseModel
      */
     public function entries(): HasMany
     {
-        return $this->hasMany(LeaderboardEntry::class, 'leaderboard_id');
+        return $this->hasMany(LeaderboardEntry::class, 'leaderboard_id')
+            ->whereHas('user'); // Ignore entries from deleted users.
     }
 
     /**
