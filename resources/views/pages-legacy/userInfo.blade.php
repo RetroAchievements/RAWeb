@@ -173,7 +173,7 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
 
     echo "<h2 class='text-h4'>User Wall</h2>";
 
-    if ($userWallActive) {
+    if ($userWallActive && request()->user()) {
         // passing 'null' for $user disables the ability to add comments
         RenderCommentsComponent(
             !$userPageModel->isBlocking(request()->user()) ? $user : null,
