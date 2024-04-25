@@ -302,10 +302,10 @@ class TriggerDecoderService
                 $condition['IsIndirect'] = $isIndirect;
 
                 if ($condition['SourceType'] === 'Value') {
-                    $condition['SourceTooltip'] = hexdec($condition['SourceAddress']);
+                    $condition['SourceTooltip'] = (string)hexdec($condition['SourceAddress']);
                 }
                 if ($condition['TargetType'] === 'Value') {
-                    $condition['TargetTooltip'] = hexdec($condition['TargetAddress']);
+                    $condition['TargetTooltip'] = (string)hexdec($condition['TargetAddress']);
                 }
 
                 $group['Conditions'][] = $condition;
