@@ -539,7 +539,7 @@ switch ($requestType) {
 
         // TODO dispatch job or event/listener using an action
 
-        $response['Response'] = SubmitLeaderboardEntry($username, $lbID, $score, $validation);
+        $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];
