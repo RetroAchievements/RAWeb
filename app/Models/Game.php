@@ -287,6 +287,8 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     /**
      * @return BelongsTo<System, Game>
+     *
+     * @deprecated use `->system`
      */
     public function console(): BelongsTo
     {
@@ -304,7 +306,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_games')
             ->using(PlayerGame::class);

@@ -241,7 +241,6 @@ class Achievement extends BaseModel implements HasComments
     }
 
     // TODO remove after rename
-
     public function getIdAttribute(): int
     {
         return $this->attributes['ID'];
@@ -290,20 +289,12 @@ class Achievement extends BaseModel implements HasComments
 
     /**
      * @return BelongsTo<User, Achievement>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
-    }
-
-    /**
-     * @return BelongsTo<User, Achievement>
      *
      * @deprecated make this multiple developers
      */
     public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'Author', 'User');
+        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
     }
 
     /**
@@ -317,7 +308,7 @@ class Achievement extends BaseModel implements HasComments
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_achievements', 'achievement_id', 'user_id')
             ->using(PlayerAchievement::class);

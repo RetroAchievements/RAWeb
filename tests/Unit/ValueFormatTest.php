@@ -22,7 +22,7 @@ final class ValueFormatTest extends TestCase
 
     public function testFormatUnsignedValue(): void
     {
-        $this->assertEquals("Value (unsigned)", ValueFormat::toString(ValueFormat::ValueUnsigned));
+        $this->assertEquals("Value (Unsigned)", ValueFormat::toString(ValueFormat::ValueUnsigned));
 
         $this->assertEquals("12,345", ValueFormat::format(12345, ValueFormat::ValueUnsigned));
         $this->assertEquals("4,294,954,951", ValueFormat::format(-12345, ValueFormat::ValueUnsigned));
@@ -83,6 +83,16 @@ final class ValueFormatTest extends TestCase
         $this->assertEquals("0h01", ValueFormat::format(1, ValueFormat::TimeMinutes));
     }
 
+    public function testFormatSecondsAsMinutes(): void
+    {
+        $this->assertEquals("Time (Seconds as Minutes)", ValueFormat::toString(ValueFormat::TimeSecondsAsMinutes));
+
+        $this->assertEquals("3h25", ValueFormat::format(12345, ValueFormat::TimeSecondsAsMinutes));
+        $this->assertEquals("0h05", ValueFormat::format(345, ValueFormat::TimeSecondsAsMinutes));
+        $this->assertEquals("0h00", ValueFormat::format(0, ValueFormat::TimeSecondsAsMinutes));
+        $this->assertEquals("0h00", ValueFormat::format(1, ValueFormat::TimeSecondsAsMinutes));
+    }
+
     public function testFormatThousands(): void
     {
         $this->assertEquals("Value (Thousands)", ValueFormat::toString(ValueFormat::ValueThousands));
@@ -121,7 +131,7 @@ final class ValueFormatTest extends TestCase
 
     public function testFormatFixed1(): void
     {
-        $this->assertEquals("Fixed1", ValueFormat::toString(ValueFormat::Fixed1));
+        $this->assertEquals("Value (Fixed1)", ValueFormat::toString(ValueFormat::Fixed1));
 
         $this->assertEquals("1,234.5", ValueFormat::format(12345, ValueFormat::Fixed1));
         $this->assertEquals("-1,234.5", ValueFormat::format(-12345, ValueFormat::Fixed1));
@@ -133,7 +143,7 @@ final class ValueFormatTest extends TestCase
 
     public function testFormatFixed2(): void
     {
-        $this->assertEquals("Fixed2", ValueFormat::toString(ValueFormat::Fixed2));
+        $this->assertEquals("Value (Fixed2)", ValueFormat::toString(ValueFormat::Fixed2));
 
         $this->assertEquals("123.45", ValueFormat::format(12345, ValueFormat::Fixed2));
         $this->assertEquals("-123.45", ValueFormat::format(-12345, ValueFormat::Fixed2));
@@ -145,7 +155,7 @@ final class ValueFormatTest extends TestCase
 
     public function testFormatFixed3(): void
     {
-        $this->assertEquals("Fixed3", ValueFormat::toString(ValueFormat::Fixed3));
+        $this->assertEquals("Value (Fixed3)", ValueFormat::toString(ValueFormat::Fixed3));
 
         $this->assertEquals("12.345", ValueFormat::format(12345, ValueFormat::Fixed3));
         $this->assertEquals("-12.345", ValueFormat::format(-12345, ValueFormat::Fixed3));

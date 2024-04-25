@@ -55,7 +55,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
                 Official Forum Topic
             </x-game.link-buttons.game-link-button>
         @else
-            @can('createForumTopic', App\Models\Game::class)
+            @can('createForumTopic', $game)
                 <x-game.link-buttons.create-forum-topic-button :gameId="$game->id" />
             @endcan
         @endif
@@ -112,7 +112,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
         </x-game.link-buttons.game-link-button>
     @endif
 
-    @if (in_array('set-requestors', $allowedLinks) && $game->achievements->isEmpty())
+    @if (in_array('set-requestors', $allowedLinks) && !$game->achievements()->published()->exists())
         @can('viewAny', App\Models\Game::class)
             <x-game.link-buttons.game-link-button
                 icon="📜"
