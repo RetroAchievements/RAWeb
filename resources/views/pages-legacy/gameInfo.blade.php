@@ -276,30 +276,27 @@ sanitize_outputs(
     $richPresenceData,
     $user,
 );
-?>
 
-<?php if ($isFullyFeaturedGame): ?>
-    <?php
-        $pageType = 'retroachievements:game';
-        $pageImage = media_asset($gameData['ImageIcon']);
-        $pageDescription = generateGameMetaDescription(
+$pageType = $isFullyFeaturedGame ? 'retroachievements:game' : 'retroachievements:hub';
+$pageImage = media_asset($gameData['ImageIcon']);
+
+if ($isFullyFeaturedGame) {
+    $pageDescription = generateGameMetaDescription(
             $gameTitle,
             $consoleName,
             $numAchievements,
             $totalPossible,
             $isEventGame
         );
-    ?>
-<?php endif ?>
+}
+
+?>
 
 @if ($gate)
-    <?php
-        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->value('ImageIcon');
-    ?>
     <x-app-layout
         :pageTitle="$pageTitle"
         :pageDescription="$pageDescription ?? null"
-        :pageImage="media_asset($matureHubIcon)"
+        :pageImage="$pageImage ?? null"
         :pageType="$pageType ?? null"
     >
         <x-game.mature-content-gate

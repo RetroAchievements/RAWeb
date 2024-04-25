@@ -15,6 +15,13 @@ class LeaderboardEntryLegacy extends BaseModel
     public const CREATED_AT = 'Created';
     public const UPDATED_AT = 'DateSubmitted';
 
+    protected $fillable = [
+        'LeaderboardID',
+        'UserID',
+        'Score',
+        'DateSubmitted',
+    ];
+
     // == accessors
 
     // == mutators
