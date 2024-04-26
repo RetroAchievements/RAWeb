@@ -204,7 +204,7 @@ final class ShortcodeTest extends TestCase
 
     public function testNormalizeGameShortcodesWithSubpaths(): void
     {
-        $rawString = 'https://retroachievements.org/user/game/1/hashes';
+        $rawString = 'https://retroachievements.org/game/1/hashes';
 
         $normalized = normalize_shortcodes($rawString);
 
@@ -228,7 +228,7 @@ final class ShortcodeTest extends TestCase
 
     public function testNormalizeAchievementShortcodesWithSubpaths(): void
     {
-        $rawString = 'https://retroachievements.org/user/achievement/9/subpath';
+        $rawString = 'https://retroachievements.org/achievement/9/subpath';
 
         $normalized = normalize_shortcodes($rawString);
 
