@@ -4,6 +4,7 @@
  *  API_GetGameInfoAndUserProgress
  *    g : game id
  *    u : username
+ *    a : if 1, include highest award metadata (default: 0)
  *
  *  int        ID                         unique identifier of the game
  *  string     Title                      name of the game
@@ -47,8 +48,11 @@
  *  string     Released                   release date information for the game
  *  bool       IsFinal
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
+ *  ?string    HighestAwardKind           "mastered", "completed", "beaten-hardcore", "beaten-softcore", or null. requires the 'a' query param to be 1.
+ *  ?datetime  HighestAwardDate           an ISO8601 timestamp string, or null, for when the HighestAwardKind was granted. requires the 'a' query param to be 1.
  */
 
+ use App\Models\PlayerBadge;
  use App\Models\User;
 
 $gameID = (int) request()->query('g');
@@ -100,6 +104,19 @@ $gameData['UserCompletionHardcore'] = '0.00%';
 if ($gameData['NumAchievements'] ?? false) {
     $gameData['UserCompletion'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUser'] / $gameData['NumAchievements']) * 100.0);
     $gameData['UserCompletionHardcore'] = sprintf("%01.2f%%", ($gameData['NumAwardedToUserHardcore'] / $gameData['NumAchievements']) * 100.0);
+}
+
+$includeAwardMetadata = request()->query('a', '0');
+if ($includeAwardMetadata == '1') {
+    $highestAwardMetadata = PlayerBadge::getHighestUserAwardForGameId($targetUser, $gameID);
+
+    if ($highestAwardMetadata) {
+        $gameData['HighestAwardKind'] = $highestAwardMetadata['highestAwardKind'];
+        $gameData['HighestAwardDate'] = $highestAwardMetadata['highestAward']->AwardDate->toIso8601String();
+    } else {
+        $gameData['HighestAwardKind'] = null;
+        $gameData['HighestAwardDate'] = null;
+    }
 }
 
 return response()->json($gameData);

@@ -4,7 +4,7 @@
 ])
 
 <div class="flex flex-col gap-y-8">
-@php $j = 1 @endphp
+@php $j = 1; $addrFormat = '0x%06x'; @endphp
 @foreach ($groups as $group)
     <table class="table-highlight border-t border-embed-highlight">
         <tr class="do-not-highlight text-center">
@@ -32,6 +32,9 @@
                 <td>{{ $condition['SourceSize'] }}</td>
                 @if (($condition['SourceTooltip'] ?? '') !== '')
                     <td class="cursor-help" title="{{ $condition['SourceTooltip'] }}">{{ $condition['SourceAddress'] }}</td>
+                    @if (str_starts_with($condition['SourceAddress'], '0x') && strlen($condition['SourceAddress']) === 10)
+                        @php $addrFormat = '0x%08x'; @endphp
+                    @endif
                 @else
                     <td>{{ $condition['SourceAddress'] }}</td>
                 @endif
@@ -68,7 +71,7 @@
                         <table id="notes{{ $prefix }}{{ $j }}" class="hidden">
                             @foreach ($group['Notes'] as $addr => $note)
                                 <tr>
-                                    <td class="whitespace-nowrap align-top font-mono"><b>{{ $addr }}</b></td>
+                                    <td class="whitespace-nowrap align-top font-mono"><b>{{ sprintf($addrFormat, $addr) }}</b></td>
                                     <td class="text-xs"><code>{{ $note }}<code></td>
                                 </tr>
                             @endforeach

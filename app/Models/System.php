@@ -38,7 +38,7 @@ class System extends BaseModel implements HasMedia
 
     // TODO rename Console table to systems
     // TODO rename ID column to id, remove getIdAttribute()
-    // TODO rename Name column to name
+    // TODO rename Name column to name, remove getNameAttribute()
     // TODO rename Created column to created_at
     // TODO rename Updated column to updated_at
     // TODO: store aggregates?
@@ -95,14 +95,16 @@ class System extends BaseModel implements HasMedia
         return [System::Hubs, System::Events];
     }
 
-    public static function isGameSystem(int $type): bool
+    // TODO add attribute accessor ($system->is_game_system)
+    public static function isGameSystem(int $systemId): bool
     {
-        return $type != System::Hubs && $type != System::Events;
+        return $systemId !== System::Hubs && $systemId !== System::Events;
     }
 
-    public static function isHomebrewSystem(int $type): bool
+    // TODO add attribute accessor ($system->is_homebrew_system)
+    public static function isHomebrewSystem(int $systemId): bool
     {
-        return in_array($type, self::getHomebrewSystems());
+        return in_array($systemId, self::getHomebrewSystems());
     }
 
     // audit activity log
@@ -199,10 +201,15 @@ class System extends BaseModel implements HasMedia
     }
 
     // TODO remove after rename
-
-    public function getIdAttribute(): ?int
+    public function getIdAttribute(): int
     {
-        return $this->attributes['ID'] ?? null;
+        return $this->attributes['ID'];
+    }
+
+    // TODO remove after rename
+    public function getNameAttribute(): string
+    {
+        return $this->attributes['Name'];
     }
 
     // == mutators
