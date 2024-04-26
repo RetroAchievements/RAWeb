@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,17 +17,21 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 ]);
 
 $leaderboardId = (int) $input['leaderboard'];
-$targetUser = $input['user'];
+$targetUser = User::firstWhere('User', $input['user']);
 $reason = $input['reason'];
 
+if (!$targetUser) {
+    return back()->withErrors(__('legacy.error.error'));
+}
+
 // Only let jr. devs remove their own entries
-if ($permissions == Permissions::JuniorDeveloper && $user !== $targetUser) {
+if ($permissions == Permissions::JuniorDeveloper && $user !== $targetUser->User) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 if (removeLeaderboardEntry($targetUser, $leaderboardId, $score)) {
-    if ($targetUser !== $user) {
-        $commentText = 'removed "' . $targetUser . '"s entry of "' . $score . '" from this leaderboard';
+    if ($targetUser->User !== $user) {
+        $commentText = 'removed "' . $targetUser->User . '"s entry of "' . $score . '" from this leaderboard';
         if (!empty($reason)) {
             $commentText .= '. Reason: ' . $reason;
         }

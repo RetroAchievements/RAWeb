@@ -294,7 +294,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
+        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
     }
 
     /**
