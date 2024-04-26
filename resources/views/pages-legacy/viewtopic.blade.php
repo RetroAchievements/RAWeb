@@ -20,14 +20,13 @@ if ($requestedTopicID == 0) {
     abort(404);
 }
 
-getTopicDetails($requestedTopicID, $topicData);
-$forumTopic = ForumTopic::find($requestedTopicID); // TODO have getTopicData() just return a ForumTopic
+$forumTopic = ForumTopic::with(['forum.category', 'user'])->find($requestedTopicID);
 
-if (empty($topicData) || !$forumTopic) {
+if (!$forumTopic) {
     abort(404);
 }
 
-if ($permissions < $topicData['RequiredPermissions']) {
+if ($permissions < $forumTopic->RequiredPermissions) {
     abort(403);
 }
 
@@ -59,16 +58,14 @@ if (empty($allForumTopicCommentsForTopic)) {
     abort(404);
 }
 
-$thisTopicID = $topicData['ID'];
-$thisTopicID = (int) $thisTopicID;
-$thisTopicAuthor = $topicData['Author'];
-$thisTopicAuthorID = $topicData['AuthorID'];
-$thisTopicCategory = $topicData['Category'];
-$thisTopicCategoryID = $topicData['CategoryID'];
-$thisTopicForum = $topicData['Forum'];
-$thisTopicForumID = $topicData['ForumID'];
-$thisTopicTitle = $topicData['TopicTitle'];
-$thisTopicPermissions = $topicData['RequiredPermissions'];
+$thisTopicID = $forumTopic->id;
+$thisTopicAuthor = $forumTopic->user?->User ?? 'Deleted User';
+$thisTopicCategory = $forumTopic->forum->category->title;
+$thisTopicCategoryID = $forumTopic->forum->category->id;
+$thisTopicForum = $forumTopic->forum->title;
+$thisTopicForumID = $forumTopic->forum->id;
+$thisTopicTitle = $forumTopic->title;
+$thisTopicPermissions = $forumTopic->RequiredPermissions;
 
 $pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
 

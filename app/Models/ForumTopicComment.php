@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
@@ -29,6 +30,14 @@ class ForumTopicComment extends BaseModel
     public const CREATED_AT = 'DateCreated';
     public const UPDATED_AT = 'DateModified';
 
+    protected $fillable = [
+        'ForumTopicID',
+        'Payload',
+        'author_id',
+        'Authorised',
+        'authorized_at',
+    ];
+
     // == search
 
     public function toSearchableArray(): array
@@ -45,9 +54,16 @@ class ForumTopicComment extends BaseModel
         return false;
     }
 
+    // == accessors
+
     public function getEditLinkAttribute(): string
     {
         return route('forum-topic-comment.edit', $this);
+    }
+
+    public function getIsAuthorizedAttribute(): bool
+    {
+        return $this->authorized_at?->isPast() || (bool) $this->attributes['Authorised'];
     }
 
     public function getPermalinkAttribute(): string
@@ -72,10 +88,44 @@ class ForumTopicComment extends BaseModel
     // == relations
 
     /**
+     * @return BelongsTo<ForumTopic, ForumTopicComment>
+     */
+    public function forumTopic(): BelongsTo
+    {
+        return $this->belongsTo(ForumTopic::class, 'ForumTopicID');
+    }
+
+    /**
      * @return BelongsTo<User, ForumTopicComment>
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id')->withTrashed();
+    }
+
+    // == scopes
+
+    /**
+     * @param Builder<ForumTopicComment> $query
+     * @return Builder<ForumTopicComment>
+     */
+    public function scopeAuthorized(Builder $query): Builder
+    {
+        return $query->where(function ($query) {
+            $query->where('Authorised', 1)
+                ->orWhereNotNull('authorized_at');
+        });
+    }
+
+    /**
+     * @param Builder<ForumTopicComment> $query
+     * @return Builder<ForumTopicComment>
+     */
+    public function scopeUnauthorized(Builder $query): Builder
+    {
+        return $query->where(function ($query) {
+            $query->where('Authorised', 0)
+                ->orWhereNull('authorized_at');
+        });
     }
 }

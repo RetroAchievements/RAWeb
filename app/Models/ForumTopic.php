@@ -28,7 +28,6 @@ class ForumTopic extends BaseModel
     // TODO rename Updated to updated_at
     // TODO refactor RequiredPermissions to use RBAC
     // TODO add body from first comment as that's the topic itself
-    // TODO drop Author -> derived
     protected $table = 'ForumTopic';
 
     protected $primaryKey = 'ID';
