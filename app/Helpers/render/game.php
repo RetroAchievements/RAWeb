@@ -1,8 +1,8 @@
 <?php
 
 use App\Enums\Permissions;
-use App\Models\Game;
 use App\Models\ForumTopic;
+use App\Models\Game;
 use App\Models\System;
 use Illuminate\Support\Facades\Blade;
 

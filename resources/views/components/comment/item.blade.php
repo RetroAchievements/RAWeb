@@ -30,11 +30,7 @@
 @elseif ($author && $author->banned_at && !request()->user()?->can('manage', $author))
     {{-- banned user comments are only visible to moderators --}}
 @else
-    @if ($commentId > 0)
-    <tr class="comment" id="comment_{{ $commentId }}_highlight">
-    @else
-    <tr class="comment">
-    @endif
+    <tr class="comment" @if ($commentId > 0) id="comment_{{ $commentId }}_highlight" @endif>
         <td class="align-top py-2">
             @if ($commentId > 0)
                 <div class="relative">

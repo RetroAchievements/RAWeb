@@ -78,7 +78,8 @@ foreach ($ticket->achievement->game->hashes as $hash) {
     }
 }
 
-if ($permissions < Permissions::Developer) {
+$canManageTicket = $user->can('manage', Ticket::class);
+if (!$canManageTicket) {
     $history = [];
     $userAgentLinks = [];
 } else {
@@ -200,7 +201,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
         </div>
     </div>
 
-    @if ($permissions >= Permissions::Developer)
+    @if ($canManageTicket)
         <div class="mt-2">
             <div class="flex w-full justify-between border-embed-highlight items-center">
                 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
@@ -307,10 +308,10 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
                 Comments
             </p>
-            @if ($permissions >= Permissions::Developer)
+            @if ($canManageTicket)
                 <div class="flex flex-col gap-y-1">
-                    <a class="btn py-2 block transition-transform lg:active:scale-[97%]" href="{!! $contactReporterUrl !!}">
-                        Contact the reporter
+                    <a class="btn" href="{!! $contactReporterUrl !!}">
+                        Message the reporter
                     </a>
                 </div>
             @endif
@@ -396,20 +397,23 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             @endif
         </form>
 
-        @if ($permissions >= Permissions::JuniorDeveloper)
+        @if ($canManageTicket)
             <div class="mt-4 w-full relative flex gap-x-3">
                 <button id="achievementLogicButton" class="btn"
                         onclick="toggleExpander('achievementLogicButton', 'achievementLogicContent')">Achievement Logic ▼</button>
             </div>
 
             <div id="achievementLogicContent" class="hidden devboxcontainer">
-                <div style='clear:both;'></div>
-                <li>Achievement ID: {{ $ticket->achievement->id }}</li>
-                <div>
-                    <li>Mem:</li>
-                    <code>{{ $ticket->achievement->MemAddr }}</code>
-                    <li>Mem explained:</li>
+                <ul class="list-disc ml-4 mb-2">
+                    <li>Achievement ID: {{ $ticket->achievement->id }}</li>
+                    <li>
+                        Mem:
+                        <code>{{ $ticket->achievement->MemAddr }}</code>
+                    </li>
+                </ul>
 
+                <p>Mem explained:</p>
+                <div>
                     @php
                         $triggerDecoderService = new TriggerDecoderService();
                         $groups = $triggerDecoderService->decode($ticket->achievement->MemAddr);
