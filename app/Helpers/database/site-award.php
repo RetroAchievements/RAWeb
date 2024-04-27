@@ -2,6 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
@@ -20,10 +21,9 @@ function AddSiteAward(
 ): PlayerBadge {
     if (!isset($displayOrder)) {
         $displayOrder = 0;
-        $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
-        $dbData = legacyDbFetch($query, ['user' => $user->User]);
-        if (isset($dbData['MaxDisplayOrder'])) {
-            $displayOrder = (int) $dbData['MaxDisplayOrder'] + 1;
+        $maxDisplayOrder = PlayerBadge::where('user_id', $user->id)->max('DisplayOrder');
+        if ($maxDisplayOrder) {
+            $displayOrder = $maxDisplayOrder + 1;
         }
     }
 
@@ -68,17 +68,17 @@ function removeDuplicateGameAwards(array &$dbResult, array $gamesToDedupe, int $
     }
 }
 
-function getUsersSiteAwards(string $user, bool $showHidden = false): array
+function getUsersSiteAwards(?User $user, bool $showHidden = false): array
 {
     $dbResult = [];
 
-    if (!isValidUsername($user)) {
+    if (!$user) {
         return $dbResult;
     }
 
     $bindings = [
-        'username' => $user,
-        'username2' => $user,
+        'userId' => $user->id,
+        'userId2' => $user->id,
     ];
 
     $query = "
@@ -89,7 +89,7 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
             WHERE
                 saw.AwardType IN(" . implode(',', AwardType::game()) . ")
-                AND saw.User = :username
+                AND saw.user_id = :userId
             GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
         UNION
         -- non-game awards (developer contribution, ...)
@@ -97,7 +97,7 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
             FROM SiteAwards AS saw
             WHERE
                 saw.AwardType NOT IN(" . implode(',', AwardType::game()) . ")
-                AND saw.User = :username2
+                AND saw.user_id = :userId2
             GROUP BY saw.AwardType
         ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
@@ -150,55 +150,39 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     return $dbResult;
 }
 
-function HasPatreonBadge(string $username): bool
+function HasPatreonBadge(User $user): bool
 {
-    sanitize_sql_inputs($username);
-
-    $query = "SELECT * FROM SiteAwards AS sa "
-        . "WHERE sa.AwardType = " . AwardType::PatreonSupporter . " AND sa.User = '$username'";
-
-    $dbResult = s_mysql_query($query);
-
-    return mysqli_num_rows($dbResult) > 0;
+    return $user->playerBadges()
+        ->where('AwardType', AwardType::PatreonSupporter)
+        ->exists();
 }
 
 function SetPatreonSupporter(User $user, bool $enable): void
 {
-    $username = $user->User;
-
     if ($enable) {
         $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
         // TODO PatreonSupporterAdded::dispatch($user);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::PatreonSupporter;
-        s_mysql_query($query);
+        $user->playerBadges()->where('AwardType', AwardType::PatreonSupporter)->delete();
         // TODO PatreonSupporterRemoved::dispatch($user);
     }
 }
 
-function HasCertifiedLegendBadge(string $username): bool
+function HasCertifiedLegendBadge(User $user): bool
 {
-    sanitize_sql_inputs($username);
-
-    $query = "SELECT * FROM SiteAwards AS sa "
-        . "WHERE sa.AwardType = " . AwardType::CertifiedLegend . " AND sa.User = '$username'";
-
-    $dbResult = s_mysql_query($query);
-
-    return mysqli_num_rows($dbResult) > 0;
+    return $user->playerBadges()
+        ->where('AwardType', AwardType::CertifiedLegend)
+        ->exists();
 }
 
 function SetCertifiedLegend(User $user, bool $enable): void
 {
-    $username = $user->User;
-
     if ($enable) {
         $badge = AddSiteAward($user, AwardType::CertifiedLegend, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::CertifiedLegend;
-        s_mysql_query($query);
+        $user->playerBadges()->where('AwardType', AwardType::CertifiedLegend)->delete();
     }
 }
 
@@ -211,80 +195,84 @@ function SetCertifiedLegend(User $user, bool $enable): void
  */
 function getRecentProgressionAwardData(
     string $date,
-    ?string $friendsOf = null,
+    ?User $friendsOfUser = null,
     int $offset = 0,
     int $count = 50,
     ?int $onlyAwardType = null,
     ?int $onlyUnlockMode = null,
 ): array {
-    // Determine the friends condition
-    $friendCondAward = "";
-    if ($friendsOf !== null) {
-        $friendSubquery = GetFriendsSubquery($friendsOf);
-        $friendCondAward = "AND saw.User IN ($friendSubquery)";
-    }
+    $startOfDay = Carbon::createFromFormat("Y-m-d", $date)->startOfDay();
+    $endOfDay = Carbon::createFromFormat("Y-m-d", $date)->endOfDay();
 
-    $onlyAwardTypeClause = "
-        WHERE saw.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
-    ";
-    if ($onlyAwardType) {
-        $onlyAwardTypeClause = "WHERE saw.AwardType = $onlyAwardType";
-    }
+    $initialResults = PlayerBadge::with(['user', 'gameIfApplicable.system'])
+        ->whereBetween('AwardDate', [$startOfDay, $endOfDay])
+        ->when($onlyAwardType !== null, fn ($query) => $query->where('AwardType', $onlyAwardType))
+        ->when($onlyUnlockMode !== null, fn ($query) => $query->where('AwardDataExtra', $onlyUnlockMode))
+        ->when($friendsOfUser !== null, fn ($query) => $query->whereIn('user_id', $friendsOfUser->followedUsers()->pluck('UserAccounts.id')->toArray())
+        )
+        ->orderBy('AwardDate', 'DESC')
+        ->offset($offset)
 
-    $onlyUnlockModeClause = "saw.AwardDataExtra IS NOT NULL";
-    if (isset($onlyUnlockMode)) {
-        $onlyUnlockModeClause = "saw.AwardDataExtra = $onlyUnlockMode";
-    }
+        // We don't want to show multiple rows per user for the same game if they earned
+        // multiple awards very quickly (ie: beat a game and also mastered it simultaneously).
+        // Unfortunately, using window functions like ROW_NUMBER() with Eloquent ORM is
+        // a huge hassle and arguably makes this code much more difficult to maintain. Rather than
+        // try to use a window function, we'll slightly overfetch from the database, then manually
+        // filter the records down later.
+        ->limit($count * 2)
 
-    $retVal = [];
-    $query = "SELECT s.User, s.AwardedAt, s.AwardedAtUnix, s.AwardType, s.AwardData, s.AwardDataExtra, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
-        FROM (
-            SELECT 
-                saw.User, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType, 
-                saw.AwardData, saw.AwardDataExtra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
-                ROW_NUMBER() OVER (PARTITION BY saw.User, saw.AwardData, TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) ORDER BY saw.AwardType ASC) AS rn
-            FROM SiteAwards AS saw
-            LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
-            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN SiteAwards AS saw2 ON saw2.User = saw.User AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
-            $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
-            AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
-        ) s
-        WHERE s.rn = 1
-        ORDER BY AwardedAt DESC
-        LIMIT $offset, $count";
+        ->get();
 
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            $retVal[] = $db_entry;
+    $filteredResults = $initialResults->reduce(function ($carry, $item) {
+        if (is_null($carry)) {
+            $carry = collect([$item]);
+        } else {
+            $last = $carry->last();
+            $lastUser = $last?->user;
+            $itemUser = $item?->user;
+
+            if (
+                $lastUser === null
+                || $itemUser === null
+                || !$lastUser->is($itemUser)
+                || $last->AwardData !== $item->AwardData
+                || $last->AwardDate->diffInMinutes($item->AwardDate) >= 15
+            ) {
+                $carry->push($item);
+            }
         }
-    }
 
-    return $retVal;
+        return $carry;
+    }, collect())->take($count);
+
+    // Now that we've queried and filtered, we'll perform a final mapping and return.
+    return $filteredResults->map(function ($badge) {
+        return [
+            'User' => $badge->user->User,
+            'AwardedAt' => $badge->AwardDate->format('Y-m-d H:i:s'),
+            'AwardType' => $badge->AwardType,
+            'AwardData' => $badge->AwardData,
+            'AwardDataExtra' => $badge->AwardDataExtra,
+            'GameTitle' => $badge->game?->title,
+            'GameID' => $badge->game?->id,
+            'ConsoleName' => $badge->game?->system->name,
+            'GameIcon' => $badge->game?->ImageIcon,
+        ];
+    })->toArray();
 }
 
 /**
  * Gets the number of event awards a user has earned
  */
-function getUserEventAwardCount(string $user): int
+function getUserEventAwardCount(User $user): int
 {
-    $bindings = [
-        'user' => $user,
-        'type' => AwardType::Mastery,
-        'event' => 101,
-    ];
-
-    $query = "SELECT COUNT(DISTINCT AwardData) AS TotalAwards
-              FROM SiteAwards sa
-              INNER JOIN GameData gd ON gd.ID = sa.AwardData
-              WHERE User = :user
-              AND AwardType = :type
-              AND gd.ConsoleID = :event";
-
-    $dataOut = legacyDbFetch($query, $bindings);
-
-    return $dataOut['TotalAwards'];
+    return $user->playerBadges()
+        ->where('AwardType', AwardType::Mastery)
+        ->whereHas('gameIfApplicable.system', function ($query) {
+            $query->where('ID', System::Events);
+        })
+        ->distinct('AwardData')
+        ->count('AwardData');
 }
 
 /**

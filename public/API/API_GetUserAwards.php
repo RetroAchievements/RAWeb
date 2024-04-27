@@ -27,6 +27,7 @@
 declare(strict_types=1);
 
 use App\Community\Enums\AwardType;
+use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
@@ -39,7 +40,8 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 
 $user = request()->query('u');
 
-$userAwards = getUsersSiteAwards($user);
+$userModel = User::firstWhere('User', $user);
+$userAwards = getUsersSiteAwards($userModel);
 [$gameMasteryAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
 $masteryCount = 0;
