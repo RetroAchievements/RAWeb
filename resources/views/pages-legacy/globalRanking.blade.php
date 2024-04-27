@@ -2,8 +2,11 @@
 
 use App\Community\Enums\RankType;
 use App\Platform\Enums\UnlockMode;
+use Illuminate\Support\Facades\Auth;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$userModel = Auth::user();
 
 $maxCount = 25;
 
@@ -45,7 +48,7 @@ $lbUsers = match ($friends) {
 if ($friends == 1) {
     // We do a maxCount + 1 so that if we get maxCount + 1 rows returned we know
     // there are more row to get and we can add a "Next X" link for page traversal
-    $data = getGlobalRankingData($type, $sort, $date, null, $user, $untracked, 0, getFriendCount($user) + 1, 0);
+    $data = getGlobalRankingData($type, $sort, $date, null, $user, $untracked, 0, getFriendCount($userModel) + 1, 0);
 } else {
     $data = getGlobalRankingData($type, $sort, $date, null, null, $untracked, $offset, $maxCount + 1, 0);
 }

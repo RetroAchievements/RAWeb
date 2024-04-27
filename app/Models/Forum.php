@@ -18,9 +18,9 @@ class Forum extends BaseModel
     use SoftDeletes;
 
     // TODO rename Forum table to forums
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename CategoryID to forum_category_id
-    // TODO rename Title to title
+    // TODO rename Title to title, remove getTitleAttribute()
     // TODO rename Description to description
     // TODO rename DisplayOrder to order_column
     // TODO rename Created to created_at
@@ -56,6 +56,18 @@ class Forum extends BaseModel
     }
 
     // == accessors
+
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
+    // TODO remove after rename
+    public function getTitleAttribute(): string
+    {
+        return $this->attributes['Title'];
+    }
 
     public function getCanonicalUrlAttribute(): string
     {

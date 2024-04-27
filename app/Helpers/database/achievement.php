@@ -137,15 +137,35 @@ function getAchievementsList(
 
 function GetAchievementData(int $achievementId): ?array
 {
-    $query = "SELECT ach.ID AS ID, ach.ID AS AchievementID, ach.GameID, ach.Title AS Title, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio,
-                ach.Flags, ach.type, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.DisplayOrder, ach.AssocVideo, ach.MemAddr,
-                c.ID AS ConsoleID, c.Name AS ConsoleName, g.Title AS GameTitle, g.ImageIcon AS GameIcon
-              FROM Achievements AS ach
-              LEFT JOIN GameData AS g ON g.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = g.ConsoleID
-              WHERE ach.ID = :achievementId";
+    $achievement = Achievement::find($achievementId);
 
-    return legacyDbFetch($query, ['achievementId' => $achievementId]);
+    if (!$achievement) {
+        return null;
+    }
+
+    return [
+        'ID' => $achievement->id,
+        'AchievementID' => $achievement->id,
+        'GameID' => $achievement->game->id,
+        'Title' => $achievement->title,
+        'AchievementTitle' => $achievement->title,
+        'Description' => $achievement->description,
+        'Points' => $achievement->points,
+        'TrueRatio' => $achievement->points_weighted,
+        'Flags' => $achievement->Flags,
+        'type' => $achievement->type,
+        'Author' => $achievement->developer?->User,
+        'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
+        'DateModified' => $achievement->DateModified->format('Y-m-d H:i:s'),
+        'BadgeName' => $achievement->badge_name,
+        'DisplayOrder' => $achievement->DisplayOrder,
+        'AssocVideo' => $achievement->AssocVideo,
+        'MemAddr' => $achievement->MemAddr,
+        'ConsoleID' => $achievement->game->system->id,
+        'ConsoleName' => $achievement->game->system->name,
+        'GameTitle' => $achievement->game->title,
+        'GameIcon' => $achievement->game->ImageIcon,
+    ];
 }
 
 function UploadNewAchievement(

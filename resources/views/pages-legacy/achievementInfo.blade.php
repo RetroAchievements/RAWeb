@@ -466,11 +466,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
     </div>
     <x-slot name="sidebar">
         <?php
-        if ($user !== null) {
-            // FIXME: https://discord.com/channels/476211979464343552/1026595325038833725/1162746245996093450
-            // RenderPointsRankingComponent($user, true);
-        }
-        RenderGameLeaderboardsComponent($lbData, null);
+            RenderGameLeaderboardsComponent($lbData, null);
         ?>
     </x-slot>
 </x-app-layout>

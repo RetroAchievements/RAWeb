@@ -302,10 +302,10 @@ class TriggerDecoderService
                 $condition['IsIndirect'] = $isIndirect;
 
                 if ($condition['SourceType'] === 'Value') {
-                    $condition['SourceTooltip'] = hexdec($condition['SourceAddress']);
+                    $condition['SourceTooltip'] = (string) hexdec($condition['SourceAddress']);
                 }
                 if ($condition['TargetType'] === 'Value') {
-                    $condition['TargetTooltip'] = hexdec($condition['TargetAddress']);
+                    $condition['TargetTooltip'] = (string) hexdec($condition['TargetAddress']);
                 }
 
                 $group['Conditions'][] = $condition;
@@ -346,7 +346,7 @@ class TriggerDecoderService
             ->whereIn('Address', $memoryReferences)
             ->get()
             ->mapWithKeys(function ($row, $key) {
-                return [sprintf("0x%06x", $row['Address']) => $row['Note']];
+                return [$row['Address'] => $row['Note']];
             })
             ->toArray();
 
@@ -362,7 +362,7 @@ class TriggerDecoderService
             foreach ($group['Conditions'] as &$condition) {
                 if (!$condition['IsIndirect']) {
                     if ($this->isMemoryReference($condition['SourceType'])) {
-                        $address = $condition['SourceAddress'];
+                        $address = hexdec($condition['SourceAddress']);
                         if (array_key_exists($address, $codeNotes)) {
                             $note = $codeNotes[$address];
                             $condition['SourceTooltip'] = $note;
@@ -371,7 +371,7 @@ class TriggerDecoderService
                     }
 
                     if ($this->isMemoryReference($condition['TargetType'])) {
-                        $address = $condition['TargetAddress'];
+                        $address = hexdec($condition['TargetAddress']);
                         if (array_key_exists($address, $codeNotes)) {
                             $note = $codeNotes[$address];
                             $condition['TargetTooltip'] = $note;

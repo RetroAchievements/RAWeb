@@ -245,7 +245,7 @@ class TriggerDecoderServiceTest extends TestCase
     public function testMergeCodeNotes(): void
     {
         $service = new TriggerDecoderService();
-        $groups = $service->decode("0xH1234>d0xH1234_0xH1235=36");
+        $groups = $service->decode("0xH1234>d0xH00001234_0xH1235=36");
 
         $this->assertEquals(1, count($groups));
         $this->assertEquals(2, count($groups[0]['Conditions']));
@@ -255,7 +255,7 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
         $this->assertConditionSourceTooltip($condition, '');
         $this->assertConditionOperator($condition, '>');
-        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x001234');
+        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x00001234');
         $this->assertConditionTargetTooltip($condition, '');
         $this->assertConditionHitTarget($condition, '0');
 
@@ -269,12 +269,12 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionHitTarget($condition, '0');
 
         $service->mergeCodeNotes($groups, [
-            '0x001234' => 'Lives',
-            '0x001236' => 'Unused',
+            0x001234 => 'Lives',
+            0x001236 => 'Unused',
         ]);
 
         $this->assertEquals($groups[0]['Notes'], [
-            '0x001234' => 'Lives',
+            0x001234 => 'Lives',
         ]);
 
         $condition = $groups[0]['Conditions'][0];
@@ -282,7 +282,7 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001234');
         $this->assertConditionSourceTooltip($condition, 'Lives');
         $this->assertConditionOperator($condition, '>');
-        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x001234');
+        $this->assertConditionTargetOperand($condition, 'Delta', '8-bit', '0x00001234');
         $this->assertConditionTargetTooltip($condition, 'Lives');
         $this->assertConditionHitTarget($condition, '0');
 
@@ -301,13 +301,13 @@ class TriggerDecoderServiceTest extends TestCase
         $service = new TriggerDecoderService();
         $groups = $service->decode("I:0xX1234_I:0xX0004_0x 0002!=0x 0000");
         $service->mergeCodeNotes($groups, [
-            '0x001234' => "[32-bit] pointer\n" .
-                          "+0 | [32-bit] index\n" .
-                          "+4 | [32-bit] nested pointer\n" .
-                          "++0 | [16-bit] value1\n" .
-                          "++2 | [16-bit] value2\n" .
-                          "++4 | [32-bit] link\n" .
-                          "+8 | [32-bit] unused\n",
+            0x001234 => "[32-bit] pointer\n" .
+                        "+0 | [32-bit] index\n" .
+                        "+4 | [32-bit] nested pointer\n" .
+                        "++0 | [16-bit] value1\n" .
+                        "++2 | [16-bit] value2\n" .
+                        "++4 | [32-bit] link\n" .
+                        "+8 | [32-bit] unused\n",
         ]);
 
         $this->assertEquals(1, count($groups));

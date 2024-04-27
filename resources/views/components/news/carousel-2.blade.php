@@ -4,7 +4,7 @@ use App\Models\News;
 
 $totalNewsCount = 10;
 
-$newsData = News::orderByDesc('ID')->take($totalNewsCount)->get();
+$newsData = News::with('user')->orderByDesc('ID')->take($totalNewsCount)->get();
 if ($newsData->isEmpty()) {
     return;
 }
