@@ -36,7 +36,7 @@ class CreateMessageThreadAction
             ]);
 
             // if the recipient has blocked the sender, immediately mark the thread as deleted for the recipient
-            if ($userTo->isBlocking($userFrom->User)) {
+            if ($userTo->isBlocking($userFrom)) {
                 $participantTo->deleted_at = Carbon::now();
             }
 

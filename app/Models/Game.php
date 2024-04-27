@@ -41,7 +41,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     use SoftDeletes;
 
     // TODO rename GameData table to games
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename Title column to title
     // TODO rename ConsoleID column to system_id
     // TODO rename Publisher column to publisher
@@ -160,6 +160,27 @@ class Game extends BaseModel implements HasComments, HasMedia
         return false;
     }
 
+    // TODO refactor when game_achievement_sets is ready
+    public function getParentGame(): ?Game
+    {
+        // Use regular expression to check if the title includes a subset pattern and extract the base title.
+        if (preg_match('/(.+)\[Subset - .+\]/', $this->Title, $matches)) {
+            // Trim to ensure no leading/trailing spaces.
+            $baseSetTitle = trim($matches[1]);
+
+            // Attempt to find a game with the base title and the same console ID.
+            $game = Game::where('Title', $baseSetTitle)
+                ->where('ConsoleID', $this->ConsoleID)
+                ->first();
+
+            // If a matching game is found, return its model.
+            return $game ?? null;
+        }
+
+        // Return null if the title does not match the subset pattern or no game is found.
+        return null;
+    }
+
     // == actions
 
     // == accessors
@@ -266,6 +287,8 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     /**
      * @return BelongsTo<System, Game>
+     *
+     * @deprecated use `->system`
      */
     public function console(): BelongsTo
     {
@@ -283,7 +306,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_games')
             ->using(PlayerGame::class);

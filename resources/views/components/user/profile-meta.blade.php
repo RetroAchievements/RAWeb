@@ -20,11 +20,6 @@ $registeredPermission = Permissions::Registered;
 $jrDevPermission = Permissions::JuniorDeveloper;
 
 $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_stats') !== 'true';
-$me = Auth::user() ?? null;
-$amIModerator = false;
-if ($me) {
-    $amIModerator = $me->getAttribute('Permissions') >= Permissions::Moderator;
-}
 ?>
 
 <div class="relative mb-2">
@@ -32,20 +27,27 @@ if ($me) {
         :hardcoreRankMeta="$hardcoreRankMeta"
         :softcoreRankMeta="$softcoreRankMeta"
         :userMassData="$userMassData"
-        :username="$username"
+        :user="$user"
     />
 
     @if ($userMassData['Permissions'] >= $registeredPermission)
         <div class="flex gap-x-1 items-center mt-2 mb-2 top-5 right-0 sm:hidden md:mt-0 md:flex md:flex-col md:items-end md:gap-y-1 md:absolute lg:hidden xl:flex xl:absolute">
-            <x-user.profile.social-interactivity :username="$username" />
-            <x-user.profile.follows-you-label :username="$username" />
+            <x-user.profile.social-interactivity :user="$user" />
+            <x-user.profile.follows-you-label :user="$user" />
         </div>
     @endif
 </div>
 
-@if ($amIModerator)
+{{-- TODO migrate moderation utilities to Filament and remove this component --}}
+@can('manage', App\Models\User::class)
     <x-user.profile.moderation-tools :targetUser="$user" />
-@endif
+@endcan
+
+@can('manage', App\Models\User::class)
+    @if ($user->isModerated())
+        <x-user.profile.moderation-overview :targetUser="$user" />
+    @endif
+@endcan
 
 @if (!empty($userMassData['LastGame']))
     <x-user.profile.last-seen-in :userMassData="$userMassData" />

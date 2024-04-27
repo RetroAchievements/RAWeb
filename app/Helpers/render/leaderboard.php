@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\ForumTopic;
 use App\Platform\Enums\ValueFormat;
 
+// TODO migrate to a Blade component
 function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): void
 {
     $numLBs = count($lbData);
@@ -9,7 +11,7 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
     echo "<h2 class='text-h3'>Leaderboards</h2>";
 
     if ($numLBs == 0) {
-        if (!empty($forumTopicID) && getTopicDetails($forumTopicID)) {
+        if (!empty($forumTopicID) && ForumTopic::where('ID', $forumTopicID)->exists()) {
             echo "No leaderboards found: why not <a href='/viewtopic.php?t=$forumTopicID'>suggest some</a> for this game? ";
         } else {
             echo "No leaderboards found: why not suggest some for this game? ";
@@ -55,27 +57,4 @@ function RenderGameLeaderboardsComponent(array $lbData, ?int $forumTopicID): voi
     // echo "<div class='text-right'><a href='/forumposthistory.php'>more...</a></div>";
 
     echo "</div>";
-}
-
-function ExplainLeaderboardTrigger(string $name, string $triggerDef, array $codeNotes): void
-{
-    echo "<div class='devbox'>";
-    echo "<span onclick=\"$('#devbox{$name}content').toggle(); return false;\">$name ▼</span>";
-    echo "<div id='devbox{$name}content' style='display: none'>";
-
-    echo "<div>";
-
-    echo "<li>Mem:</li>";
-    echo "<code>" . htmlspecialchars($triggerDef) . "</code>";
-
-    if ($name === 'Value') {
-        $triggerDef = ValueToTrigger($triggerDef);
-    }
-
-    echo "<li>Mem explained:</li>";
-    echo "<code>" . getAchievementPatchReadableHTML($triggerDef, $codeNotes) . "</code>";
-    echo "</div>";
-
-    echo "</div>"; // devboxcontent
-    echo "</div>"; // devbox
 }

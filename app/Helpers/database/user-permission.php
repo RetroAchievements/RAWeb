@@ -1,10 +1,7 @@
 <?php
 
 use App\Community\Enums\ArticleType;
-use App\Community\Enums\ClaimStatus;
-use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
-use App\Models\AchievementSetClaim;
 use App\Models\User;
 
 function getUserPermissions(?string $user): int
@@ -89,40 +86,8 @@ function SetAccountPermissionsJSON(
         banAccountByUsername($targetUsername, $targetUserNewPermissions);
     }
 
-    // Junior developers can have claims in review.
-    // When being promoted from Junior Developer, change any In Review claims to Active.
-    if (
-        $targetUserCurrentPermissions === Permissions::JuniorDeveloper
-        && $targetUserNewPermissions > Permissions::JuniorDeveloper
-    ) {
-        $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
-        $comment = "$actingUsername updated $targetUsername's claim via promotion to $targetUserNewPermissionsString. Claim Status: " . ClaimStatus::toString(ClaimStatus::Active);
-
-        $inReviewClaims = AchievementSetClaim::where('User', $targetUsername)
-            ->where('Status', ClaimStatus::InReview)->get();
-        foreach ($inReviewClaims as $claim) {
-            $claim->Status = ClaimStatus::Active;
-            $claim->save();
-
-            addArticleComment('Server', ArticleType::SetClaim, $claim->GameID, $comment);
-        }
-    }
-
-    // If the user loses developer permissions, drop all claims held by the user.
-    if (
-        $targetUserCurrentPermissions >= Permissions::JuniorDeveloper
-        && $targetUserNewPermissions < Permissions::JuniorDeveloper
-    ) {
-        $targetUserNewPermissionsString = Permissions::toString($targetUserNewPermissions);
-
-        $targetUserClaims = $targetUser->achievementSetClaims()->get();
-        foreach ($targetUserClaims as $claim) {
-            $claim->Status = ClaimStatus::Dropped;
-            $claim->save();
-
-            $comment = "$actingUsername dropped $targetUsername's " . ClaimType::toString($claim->ClaimType) . " claim via demotion to $targetUserNewPermissionsString.";
-            addArticleComment('Server', ArticleType::SetClaim, $claim->GameID, $comment);
-        }
+    if ($targetUserNewPermissions !== $targetUserCurrentPermissions) {
+        updateClaimsForPermissionChange($targetUser, $targetUserNewPermissions, $targetUserCurrentPermissions, $actingUsername);
     }
 
     $retVal['Success'] = true;
@@ -154,40 +119,38 @@ function getUserForumPostAuth(string $user): bool
     return false;
 }
 
-function setAccountForumPostAuth(string $sourceUser, int $sourcePermissions, string $user, bool $authorize): bool
+function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User $targetUser, bool $authorize): bool
 {
-    sanitize_sql_inputs($user, $authorize);
-
-    // $sourceUser is setting $user's forum post permissions.
+    // $sourceUser is setting $targetUser's forum post permissions.
 
     if (!$authorize) {
-        // This user is a spam user: remove all their posts and set their account as banned.
-        $query = "UPDATE UserAccounts SET ManuallyVerified = 0, forum_verified_at = null, Updated=NOW() WHERE User='$user'";
-        $dbResult = s_mysql_query($query);
-        if (!$dbResult) {
-            return false;
-        }
+        // This user is a spam user. Remove all their posts and set their account as banned.
+        $targetUser->ManuallyVerified = 0;
+        $targetUser->forum_verified_at = null;
+        $targetUser->save();
+
+        // Purge all of the spammer's unauthorized posts.
+        $targetUser->forumPosts()->where(function ($query) {
+            $query->whereNull('authorized_at')
+                ->orWhere('Authorised', 0);
+        })->delete();
 
         // Also ban the spammy user!
-        RemoveUnauthorisedForumPosts($user);
-
-        SetAccountPermissionsJSON($sourceUser, $sourcePermissions, $user, Permissions::Spam);
+        SetAccountPermissionsJSON($sourceUser->User, $sourcePermissions, $targetUser->User, Permissions::Spam);
 
         return true;
     }
 
-    $query = "UPDATE UserAccounts SET ManuallyVerified = 1, forum_verified_at = NOW(), Updated=NOW() WHERE User='$user'";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return false;
-    }
-    AuthoriseAllForumPosts($user);
+    // This user is not a spam user. Authorize all their posts and set their account to verified.
+    $targetUser->ManuallyVerified = 1;
+    $targetUser->forum_verified_at = now();
+    $targetUser->save();
 
-    if (getAccountDetails($user, $userData)) {
-        addArticleComment('Server', ArticleType::UserModeration, $userData['ID'],
-            $sourceUser . ' authorized user\'s forum posts'
-        );
-    }
+    authorizeAllForumPostsForUser($targetUser);
+
+    addArticleComment('Server', ArticleType::UserModeration, $sourceUser->id,
+        $sourceUser->User . ' authorized user\'s forum posts'
+    );
 
     // SUCCESS! Upgraded $user to allow forum posts, authorised by $sourceUser ($sourcePermissions)
     return true;

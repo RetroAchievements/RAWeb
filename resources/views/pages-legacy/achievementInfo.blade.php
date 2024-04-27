@@ -4,14 +4,19 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\PlayerAchievement;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
-use App\Models\PlayerAchievement;
+use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$userModel = User::firstWhere('User', $user);
 
 $achievementID = (int) request('achievement');
 if (empty($achievementID)) {
@@ -49,7 +54,7 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
-$parentGameID = getParentGameIdFromGameTitle($gameTitle, $consoleID);
+$parentGame = getParentGameFromGameTitle($gameTitle, $consoleID);
 
 sanitize_outputs(
     $achievementTitle,
@@ -71,7 +76,7 @@ $unlocks = getAchievementUnlocksData(
     $numWinners,
     $numWinnersHardcore,
     $numPossibleWinners,
-    $parentGameID,
+    $parentGame?->id,
     0,
     50
 );
@@ -101,7 +106,6 @@ foreach ($unlocks as $userObject) {
 }
 
 if ($dateWonLocal === "" && isset($user)) {
-    $userModel = User::firstWhere('User', $user);
     if ($userModel) {
         $playerAchievement = PlayerAchievement::where('user_id', $userModel->id)
             ->where('achievement_id', $achievementID)
@@ -121,8 +125,6 @@ if ($dateWonLocal === "" && isset($user)) {
 $achievedLocal = ($dateWonLocal !== "");
 
 $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achievementID, $commentData);
-
-getCodeNotes($gameID, $codeNotes);
 ?>
 <x-app-layout
     pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
@@ -255,7 +257,7 @@ getCodeNotes($gameID, $codeNotes);
         } else {
             echo "<i>No open tickets</i>";
         }
-        if (isAllowedToSubmitTickets($user)) {
+        if ($userModel?->can('create', Ticket::class)) {
             echo "<a class='btn btn-link' href='/reportissue.php?i=$achievementID'>Report an issue</a>";
         }
         echo "</div>";
@@ -394,7 +396,15 @@ getCodeNotes($gameID, $codeNotes);
 
         echo "<code>" . htmlspecialchars($achMem) . "</code>";
         echo "<li>Mem explained:</li>";
-        echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
+
+        $triggerDecoderService = new TriggerDecoderService();
+        $groups = $triggerDecoderService->decode($achMem);
+        $triggerDecoderService->addCodeNotes($groups, $gameID);
+
+        echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" />",
+            ['groups' => $groups]
+        );
+
         echo "</div>";
 
         echo "</div>"; // devboxcontent
@@ -456,11 +466,7 @@ getCodeNotes($gameID, $codeNotes);
     </div>
     <x-slot name="sidebar">
         <?php
-        if ($user !== null) {
-            // FIXME: https://discord.com/channels/476211979464343552/1026595325038833725/1162746245996093450
-            // RenderPointsRankingComponent($user, true);
-        }
-        RenderGameLeaderboardsComponent($lbData, null);
+            RenderGameLeaderboardsComponent($lbData, null);
         ?>
     </x-slot>
 </x-app-layout>

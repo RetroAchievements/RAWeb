@@ -17,7 +17,7 @@ if ($requestedTopicID == 0) {
     abort(404);
 }
 
-getTopicDetails($requestedTopicID, $topicData);
+$topicData = getTopicDetails($requestedTopicID);
 
 if (empty($topicData)) {
     abort(404);
@@ -58,7 +58,6 @@ if (empty($commentList)) {
 $thisTopicID = $topicData['ID'];
 $thisTopicID = (int) $thisTopicID;
 $thisTopicAuthor = $topicData['Author'];
-$thisTopicAuthorID = $topicData['AuthorID'];
 $thisTopicCategory = $topicData['Category'];
 $thisTopicCategoryID = $topicData['CategoryID'];
 $thisTopicForum = $topicData['Forum'];
@@ -203,13 +202,15 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
         </p>
     @endguest
 
-    @if ($user?->isMuted)
+    {{-- TODO use a policy --}}
+    @if ($user?->is_muted)
         <div class="flex justify-center bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
             <p class="text-center text-muted">You are muted until {{ getNiceDate($user->muted_until->timestamp) }}.</p>
         </div>
     @endif
 
-    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->isMuted)
+    {{-- TODO use a policy --}}
+    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->is_muted)
         <x-section>
             <div class="flex bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
                 @auth

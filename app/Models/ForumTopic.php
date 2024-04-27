@@ -21,14 +21,13 @@ class ForumTopic extends BaseModel
     use SoftDeletes;
 
     // TODO rename ForumTopic table to forum_topics
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename ForumID to forum_id
-    // TODO rename Title to title
+    // TODO rename Title to title, remove getTitleAttribute()
     // TODO rename DateCreated to created_at
     // TODO rename Updated to updated_at
     // TODO refactor RequiredPermissions to use RBAC
     // TODO add body from first comment as that's the topic itself
-    // TODO drop Author -> derived
     protected $table = 'ForumTopic';
 
     protected $primaryKey = 'ID';
@@ -64,6 +63,18 @@ class ForumTopic extends BaseModel
 
     // == accessors
 
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
+    // TODO remove after rename
+    public function getTitleAttribute(): string
+    {
+        return $this->attributes['Title'];
+    }
+
     public function getCanonicalUrlAttribute(): string
     {
         return route('forum-topic.show', [$this, $this->getSlugAttribute()]);
@@ -95,7 +106,7 @@ class ForumTopic extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id', 'ID');
+        return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
     }
 
     /**

@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+// TODO organize accessors, relations, and scopes
+
 trait ActsAsCommunityMember
 {
     public static function bootActsAsCommunityMember(): void
@@ -48,48 +50,67 @@ trait ActsAsCommunityMember
     /**
      * @return BelongsToMany<User>
      */
-    public function relationships(): BelongsToMany
+    public function relatedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id')
+            ->withPivot('Friendship'); // TODO rename to `status`
     }
 
     /**
      * @return BelongsToMany<User>
      */
-    public function inverseRelationships(): BelongsToMany
+    public function inverseRelatedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id')
+            ->withPivot('Friendship'); // TODO rename to `status`
     }
 
     /**
      * @return BelongsToMany<User>
      */
-    public function following(): BelongsToMany
+    public function followedUsers(): BelongsToMany
     {
-        return $this->relationships()->where('Friendship', '=', UserRelationship::Following);
+        return $this->relatedUsers()->where('Friendship', '=', UserRelationship::Following);
     }
 
     /**
      * @return BelongsToMany<User>
      */
-    public function followers(): BelongsToMany
+    public function followerUsers(): BelongsToMany
     {
-        return $this->inverseRelationships()->where('Friendship', '=', UserRelationship::Following);
+        return $this->inverseRelatedUsers()->where('Friendship', '=', UserRelationship::Following);
     }
 
-    public function isFollowing(string $username): bool
+    public function getRelationship(User $user): int
     {
-        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Following;
+        $relatedUser = $this->relatedUsers()->where('related_user_id', $user->id)->first();
+
+        return $relatedUser ? $relatedUser->pivot->Friendship : UserRelationship::NotFollowing;
     }
 
-    public function isBlocking(string $username): bool
+    public function isFollowing(User $user): bool
     {
-        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Blocked;
+        return $this->getRelationship($user) === UserRelationship::Following;
+    }
+
+    public function isBlocking(User $user): bool
+    {
+        return $this->getRelationship($user) === UserRelationship::Blocked;
     }
 
     public function isForumVerified(): bool
     {
         return !empty($this->forum_verified_at);
+    }
+
+    public function isUnranked(): bool
+    {
+        return !empty($this->unranked_at);
+    }
+
+    public function isRanked(): bool
+    {
+        return !$this->isUnranked();
     }
 
     public function isBanned(): bool
@@ -110,6 +131,21 @@ trait ActsAsCommunityMember
     public function isNotMuted(): bool
     {
         return !$this->isMuted();
+    }
+
+    public function getIsMutedAttribute(): bool
+    {
+        return $this->isMuted();
+    }
+
+    public function getIsUnrankedAttribute(): bool
+    {
+        return $this->isUnranked();
+    }
+
+    public function getIsBannedAttribute(): bool
+    {
+        return $this->isBanned();
     }
 
     /**

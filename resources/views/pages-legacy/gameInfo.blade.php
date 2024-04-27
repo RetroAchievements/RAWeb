@@ -50,8 +50,9 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
 }
 
 $numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics: true);
+$gameModel = Game::find($gameID);
 
-if (empty($gameData)) {
+if (!$gameModel) {
     abort(404);
 }
 
@@ -208,8 +209,7 @@ if ($isFullyFeaturedGame) {
             // Tally up how many Progression and Win Condition achievements the user has earned.
             // We'll use this to determine if they're potentially missing a beaten game award.
             if (
-                $user
-                && isset($nextAch['type'])
+                isset($nextAch['type'])
                 && ($nextAch['type'] == AchievementType::Progression || $nextAch['type'] == AchievementType::WinCondition)
             ) {
                 $isGameBeatable = true;
@@ -249,7 +249,7 @@ if ($isFullyFeaturedGame) {
 
     // Show the beaten award display in the progress component optimistically.
     // The actual award metadata is updated async via actions/background jobs.
-    if ($isGameBeatable) {
+    if ($user && $isGameBeatable) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
 
@@ -276,30 +276,27 @@ sanitize_outputs(
     $richPresenceData,
     $user,
 );
-?>
 
-<?php if ($isFullyFeaturedGame): ?>
-    <?php
-        $pageType = 'retroachievements:game';
-        $pageImage = media_asset($gameData['ImageIcon']);
-        $pageDescription = generateGameMetaDescription(
+$pageType = $isFullyFeaturedGame ? 'retroachievements:game' : 'retroachievements:hub';
+$pageImage = media_asset($gameData['ImageIcon']);
+
+if ($isFullyFeaturedGame) {
+    $pageDescription = generateGameMetaDescription(
             $gameTitle,
             $consoleName,
             $numAchievements,
             $totalPossible,
             $isEventGame
         );
-    ?>
-<?php endif ?>
+}
+
+?>
 
 @if ($gate)
-    <?php
-        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->value('ImageIcon');
-    ?>
     <x-app-layout
         :pageTitle="$pageTitle"
         :pageDescription="$pageDescription ?? null"
-        :pageImage="media_asset($matureHubIcon)"
+        :pageImage="$pageImage ?? null"
         :pageType="$pageType ?? null"
     >
         <x-game.mature-content-gate
@@ -858,7 +855,7 @@ sanitize_outputs(
                     <x-game.achievements-list.root
                         :achievements="$achievementData"
                         :beatenGameCreditDialogContext="$beatenGameCreditDialogContext"
-                        :isCreditDialogEnabled="$user && $flagParam != $unofficialFlag"
+                        :isCreditDialogEnabled="$flagParam != $unofficialFlag"
                         :showAuthorNames="!$isOfficial && isset($user) && $permissions >= Permissions::JuniorDeveloper"
                         :totalPlayerCount="$numDistinctPlayers"
                     />
@@ -922,8 +919,7 @@ sanitize_outputs(
         ?>
             <x-game.link-buttons
                 :allowedLinks="['forum-topic']"
-                :gameForumTopicId="$forumTopicID"
-                :gameId="$gameID"
+                :game="$gameModel"
             />
         <?php
         echo "</div>";
@@ -956,10 +952,7 @@ sanitize_outputs(
         echo "<div class='component'>";
         ?>
             <x-game.link-buttons
-                :gameAchievementsCount="$numAchievements"
-                :gameForumTopicId="$forumTopicID"
-                :gameGuideUrl="$guideURL"
-                :gameId="$gameID"
+                :game="$gameModel"
                 :isViewingOfficial="$flagParam !== $unofficialFlag"
             />
         <?php
@@ -1003,7 +996,6 @@ sanitize_outputs(
         }
 
         if ($user !== null && $numAchievements > 0) {
-            $gameModel = Game::find($gameID);
             ?>
             <div class="mb-4">
                 <x-game.compare-progress

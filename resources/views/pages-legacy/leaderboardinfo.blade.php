@@ -3,6 +3,8 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Services\TriggerDecoderService;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -101,9 +103,9 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "</p>";
 
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-            echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-            echo "<div id='devboxcontent' style='display: none'>";
+            echo "<div>";
+            echo "<button class='btn' id='devboxbutton' onclick=\"toggleExpander('devboxbutton', 'devboxcontent');\">Dev ▼</button>";
+            echo "<div id='devboxcontent' class='hidden devboxcontainer'>";
 
             echo "<ul>";
             echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
@@ -157,11 +159,31 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 }
             }
 
-            getCodeNotes($gameID, $codeNotes);
-            ExplainLeaderboardTrigger('Start', $memStart, $codeNotes);
-            ExplainLeaderboardTrigger('Cancel', $memCancel, $codeNotes);
-            ExplainLeaderboardTrigger('Submit', $memSubmit, $codeNotes);
-            ExplainLeaderboardTrigger('Value', $memValue, $codeNotes);
+            $triggerDecoderService = new TriggerDecoderService();
+
+            $groups = $triggerDecoderService->decode($memStart);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memStart, 'header' => 'Start']
+            );
+
+            $groups = $triggerDecoderService->decode($memCancel);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memCancel, 'header' => 'Cancel']
+            );
+
+            $groups = $triggerDecoderService->decode($memSubmit);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memSubmit, 'header' => 'Submit']
+            );
+
+            $groups = $triggerDecoderService->decodeValue($memValue);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memValue, 'header' => 'Value']
+            );
 
             echo "</div>";
             echo "</div>";
@@ -172,8 +194,6 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         //    echo "<b>Friends Only</b> - <a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=0'>Show All Results</a><br><br>";
         // else
         //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br><br>";
-
-        echo "<div class='larger'>$lbTitle: $lbDescription</div>";
 
         echo "<table class='table-highlight'><tbody>";
         echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th class='text-right'>Result</th><th class='text-right'>Date Submitted</th></tr>";

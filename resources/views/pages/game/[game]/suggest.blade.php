@@ -21,10 +21,7 @@ name('game.suggest');
     pageDescription="A list of random games that a user might want to play if they enjoyed {{ $game->Title }}"
 >
     <x-game.breadcrumbs 
-        :targetConsoleId="$game->system->ID"
-        :targetConsoleName="$game->system->Name"
-        :targetGameId="$game->ID"
-        :targetGameName="$game->Title"
+        :game="$game"
         currentPageLabel="Game Suggestions"
     />
 

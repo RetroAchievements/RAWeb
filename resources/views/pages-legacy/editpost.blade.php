@@ -18,7 +18,7 @@ if (!$foundPost) {
     abort(404);
 }
 
-if ($user !== $foundPost->user->User && $permissions < Permissions::Moderator) {
+if ($user !== $foundPost->user?->User && $permissions < Permissions::Moderator) {
     abort_with(back()->withErrors(__('legacy.error.permissions')));
 }
 
@@ -33,8 +33,8 @@ if (!$topic) {
     <div class="navpath">
         <a href="forum.php">Forum Index</a>
         &raquo; <a href="/forum.php?c={{ $topic->forum->category->ID }}">{{ $topic->forum->category->Name }}</a>
-        &raquo; <a href="/viewforum.php?f={{ $topic->ForumID }}">{{ $topic->forum->Title }}</a>
-        &raquo; <a href="/viewtopic.php?t={{ $topic->ID }}">{{ $topic->Title }}</a>
+        &raquo; <a href="/viewforum.php?f={{ $topic->ForumID }}">{{ $topic->forum->title }}</a>
+        &raquo; <a href="/viewtopic.php?t={{ $topic->id }}">{{ $topic->title }}</a>
         &raquo; <b>Edit Post</b></a>
     </div>
 
@@ -45,9 +45,9 @@ if (!$topic) {
             <div class="flex flex-col gap-y-3">
                 <x-base.form.input type="hidden" name="comment" value="{{ $foundPost->ID }}" />
 
-                <x-base.form.input label="{{ __res('forum', 1) }}" readonly value="{{ $topic->forum->Title }}" inline :fullWidth="false" />
-                <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $topic->user->User }}" inline :fullWidth="false" />
-                <x-base.form.input label="{{ __res('forum-topic', 1) }}" readonly :value="$topic->Title" inline />
+                <x-base.form.input label="{{ __res('forum', 1) }}" readonly value="{{ $topic->forum->title }}" inline :fullWidth="false" />
+                <x-base.form.input label="{{ __res('author', 1) }}" readonly value="{{ $topic->user?->User ?? 'Deleted user' }}" inline :fullWidth="false" />
+                <x-base.form.input label="{{ __res('forum-topic', 1) }}" readonly :value="$topic->title" inline />
 
                 <x-base.form.textarea
                     id="input_compose"

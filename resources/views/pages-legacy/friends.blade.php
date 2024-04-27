@@ -2,14 +2,17 @@
 
 use App\Community\Enums\UserRelationship;
 use App\Enums\Permissions;
+use Illuminate\Support\Facades\Auth;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Unregistered)) {
     abort(401);
 }
 
+$userModel = Auth::user();
+
 $followingList = [];
 $blockedUsersList = [];
-foreach (GetExtendedFriendsList($user) as $entry) {
+foreach (GetExtendedFriendsList($userModel) as $entry) {
     switch ($entry['Friendship']) {
         case UserRelationship::Following:
             $followingList[] = $entry;
@@ -22,8 +25,9 @@ foreach (GetExtendedFriendsList($user) as $entry) {
 // GetExtendedFriendsList() returns most recent users first. sort by name for block list
 asort($blockedUsersList);
 
-$followersList = GetFollowers($user);
+$followersList = $userModel->followerUsers()->pluck('UserAccounts.User')->toArray();
 ?>
+
 <x-app-layout pageTitle="Following">
     <h2>Following</h2>
     <?php
@@ -97,7 +101,7 @@ $followersList = GetFollowers($user);
     @if (!empty($followingList))
         <x-slot name="sidebar">
             <?php
-            RenderPointsRankingComponent($user, true);
+                RenderPointsRankingComponent($userModel, true);
             ?>
         </x-slot>
     @endif

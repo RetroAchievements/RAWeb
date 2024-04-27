@@ -2,12 +2,12 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Enums\AchievementFlag;
-use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array
 {
@@ -20,18 +20,17 @@ function getGameData(int $gameID): ?array
     return !$game ? null : array_merge($game->toArray(), [
         'ConsoleID' => $game->system->ID,
         'ConsoleName' => $game->system->Name,
+        'NumDistinctPlayers' => $game->players_total,
     ]);
 }
 
-// If the game is a subset, identify its parent game ID.
-function getParentGameIdFromGameTitle(string $title, int $consoleID): ?int
+// If the game is a subset, identify its parent game.
+function getParentGameFromGameTitle(string $title, int $consoleId): ?Game
 {
-    if (preg_match('/(.+)(\[Subset - .+\])/', $title, $matches)) {
-        $baseSetTitle = trim($matches[1]);
-        $query = "SELECT ID FROM GameData WHERE Title = :title AND ConsoleID = :consoleId";
-        $result = legacyDbFetch($query, ['title' => $baseSetTitle, 'consoleId' => $consoleID]);
+    if (mb_strpos($title, '[Subset') !== false) {
+        $foundGame = Game::where('Title', $title)->where('ConsoleID', $consoleId)->first();
 
-        return $result ? $result['ID'] : null;
+        return $foundGame->getParentGame() ?? null;
     }
 
     return null;
@@ -100,13 +99,10 @@ function getGameMetadata(
     $metricsJoin = '';
     $metricsBindings = [];
     if ($metrics) {
-        $parentGameId = getParentGameIdFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
-
-        $query = "SELECT players_total AS NumDistinctPlayers FROM GameData WHERE ID=" . ($parentGameId ?? $gameID);
-        $gameMetrics = legacyDbFetch($query);
-
-        $gameDataOut['ParentGameID'] = $parentGameId;
-        $gameDataOut['NumDistinctPlayers'] = $gameMetrics['NumDistinctPlayers'] ?? 0;
+        $parentGame = getParentGameFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
+        $numDistinctPlayersSelector = $parentGame?->players_total ?: getGameData($gameID)['NumDistinctPlayers'];
+        $gameDataOut['ParentGameID'] = $parentGame?->id;
+        $gameDataOut['NumDistinctPlayers'] = $numDistinctPlayersSelector ?? 0;
 
         $metricsColumns = 'ach.unlocks_total AS NumAwarded, ach.unlocks_hardcore_total AS NumAwardedHardcore,';
     }
@@ -727,18 +723,18 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
     }
 }
 
-function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bool
+function modifyGameForumTopic(string $user, int $gameID, int $newForumTopicId): bool
 {
-    if ($gameID == 0 || $newForumTopic == 0) {
+    if ($gameID == 0 || $newForumTopicId == 0) {
         return false;
     }
 
-    if (!getTopicDetails($newForumTopic)) {
+    if (!ForumTopic::where('ID', $newForumTopicId)->exists()) {
         return false;
     }
 
     $db = getMysqliConnection();
-    $query = "UPDATE GameData SET ForumTopicID = $newForumTopic WHERE ID = $gameID";
+    $query = "UPDATE GameData SET ForumTopicID = $newForumTopicId WHERE ID = $gameID";
     echo $query;
 
     if (!mysqli_query($db, $query)) {

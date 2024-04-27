@@ -13,16 +13,26 @@ return new class() extends Migration {
         // [1] Create `id` column as the new primary key.
         // SQLite doesn't let us change a primary key after the initial migration.
         /** @see 2012_10_03_133633_create_base_tables.php */
-        Schema::table('Subscription', function (Blueprint $table) {
-            if (DB::connection()->getDriverName() !== 'sqlite') {
-                $table->dropPrimary(['SubjectType', 'SubjectID', 'UserID']);
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            Schema::table('Subscription', function (Blueprint $table) {
+                $sm = Schema::getConnection()->getDoctrineSchemaManager();
+                $indexesFound = $sm->listTableIndexes('Subscription');
+
+                $index = $indexesFound['subscription_subjecttype_subjectid_userid_unique'] ?? null;
+                if ($index) {
+                    if ($index->isUnique()) {
+                        $table->dropUnique(['SubjectType', 'SubjectID', 'UserID']);
+                    } else {
+                        $table->dropPrimary(['SubjectType', 'SubjectID', 'UserID']);
+                    }
+                }
+            });
+            if (!Schema::hasColumn('Subscription', 'id')) {
+                Schema::table('Subscription', function (Blueprint $table) {
+                    $table->bigIncrements('id')->first();
+                });
             }
-        });
-        Schema::table('Subscription', function (Blueprint $table) {
-            if (DB::connection()->getDriverName() !== 'sqlite') {
-                $table->bigIncrements('id')->first();
-            }
-        });
+        }
 
         // [2] Rename columns to align with Laravel conventions.
         Schema::table('Subscription', function (Blueprint $table) {
