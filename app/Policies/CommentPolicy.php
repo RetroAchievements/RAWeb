@@ -24,4 +24,18 @@ class CommentPolicy
     {
         return true;
     }
+
+    public function delete(User $user, Comment $comment): bool
+    {
+        // users can delete their own comments
+        if ($comment->user_id == $user->id)
+            return true;
+
+        // users can delete any comment off of their wall
+        if ($comment->ArticleType == ArticleType::User && $comment->ArticleID == $user->id)
+            return true;
+
+        // moderators can delete any comment
+        return $this->manage($user);
+    }
 }
