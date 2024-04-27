@@ -4,7 +4,6 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Forum;
 use App\Models\ForumCategory;
-use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\GameAlternative;
 use App\Models\GameHash;
@@ -109,27 +108,6 @@ return [
         //     'map' => [
         //         'Description' => [
         //             'key' => 'description',
-        //             'fixEncoding' => true,
-        //         ],
-        //     ],
-        // ],
-
-        /*
-         * ForumTopics            60k    incremental by Updated
-         */
-        // 'forum_topics' => [
-        //     'model' => ForumTopic::class,
-        //     'strategy' => SyncStrategy::UPSERT,
-        //     'reference_model' => ForumTopic::class,
-        //     'reference_key' => 'Updated',
-        //     'unique_key' => 'ID',
-        //     'require' => [
-        //         'forums',
-        //         'games',
-        //     ],
-        //     'map' => [
-        //         'Title' => [
-        //             'key' => 'title',
         //             'fixEncoding' => true,
         //         ],
         //     ],

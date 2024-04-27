@@ -65,7 +65,7 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
 
             <div>
                 {{-- Provide invisible space to slide the console underneath --}}
-                <p class="invisible max-w-fit pl-4 font-semibold mb-0.5 text-xs">
+                <p class="invisible max-w-fit font-semibold mb-0.5 text-xs">
                     <x-game-title :rawTitle="$game->Title" />
                 </p>
 

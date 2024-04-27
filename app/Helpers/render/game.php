@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
 use App\Models\System;
 use Illuminate\Support\Facades\Blade;
 
@@ -62,6 +63,8 @@ function gameAvatar(
  *
  * Format: `All Games » (console) » (game title)`.
  * If given data is for a subset, then `» Subset - (name)` is also added.
+ *
+ * @deprecated use <x-game.breadcrumbs />
  */
 function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true): string
 {
@@ -254,7 +257,7 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
         $gameTitle,
     );
 
-    if (!empty($forumTopicID) && getTopicDetails($forumTopicID)) {
+    if (!empty($forumTopicID) && ForumTopic::where('ID', $forumTopicID)->exists()) {
         echo "<a class='btn py-2 mb-2 block' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
     } else {
         if ($permissions >= Permissions::Developer) {

@@ -27,13 +27,13 @@ $isUserStatsDefaultExpanded = request()->cookie('prefers_hidden_user_profile_sta
         :hardcoreRankMeta="$hardcoreRankMeta"
         :softcoreRankMeta="$softcoreRankMeta"
         :userMassData="$userMassData"
-        :username="$username"
+        :user="$user"
     />
 
     @if ($userMassData['Permissions'] >= $registeredPermission)
         <div class="flex gap-x-1 items-center mt-2 mb-2 top-5 right-0 sm:hidden md:mt-0 md:flex md:flex-col md:items-end md:gap-y-1 md:absolute lg:hidden xl:flex xl:absolute">
-            <x-user.profile.social-interactivity :username="$username" />
-            <x-user.profile.follows-you-label :username="$username" />
+            <x-user.profile.social-interactivity :user="$user" />
+            <x-user.profile.follows-you-label :user="$user" />
         </div>
     @endif
 </div>

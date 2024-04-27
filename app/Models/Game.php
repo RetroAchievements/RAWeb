@@ -41,7 +41,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     use SoftDeletes;
 
     // TODO rename GameData table to games
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename Title column to title
     // TODO rename ConsoleID column to system_id
     // TODO rename Publisher column to publisher
@@ -287,6 +287,8 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     /**
      * @return BelongsTo<System, Game>
+     *
+     * @deprecated use `->system`
      */
     public function console(): BelongsTo
     {

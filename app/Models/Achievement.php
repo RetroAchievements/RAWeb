@@ -50,14 +50,15 @@ class Achievement extends BaseModel implements HasComments
         LogsActivity::activities as auditLog;
     }
 
+    // TODO rename ID to id, remove getIdAttribute()
     // TODO rename Achievements table to achievements
     // TODO rename GameID column to game_id
     // TODO rename Title column to title
     // TODO rename Description column to description
     // TODO rename Points column to points
-    // TODO drop AssocVideo, move to guides or something
     // TODO rename TrueRation column to points_weighted
     // TODO rename unlocks_hardcore_total to unlocks_hardcore
+    // TODO drop AssocVideo, move to guides or something
     // TODO drop MemAddr, migrate to triggerable morph
     // TODO drop Progress, ProgressMax, ProgressFormat migrate to triggerable morph
     // TODO drop Flags, derived from being included in an achievement set
@@ -241,7 +242,6 @@ class Achievement extends BaseModel implements HasComments
     }
 
     // TODO remove after rename
-
     public function getIdAttribute(): int
     {
         return $this->attributes['ID'];
@@ -290,20 +290,12 @@ class Achievement extends BaseModel implements HasComments
 
     /**
      * @return BelongsTo<User, Achievement>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
-    }
-
-    /**
-     * @return BelongsTo<User, Achievement>
      *
      * @deprecated make this multiple developers
      */
     public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'Author', 'User');
+        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
     }
 
     /**
