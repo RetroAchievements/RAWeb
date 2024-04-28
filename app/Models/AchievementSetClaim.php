@@ -16,7 +16,7 @@ class AchievementSetClaim extends BaseModel
     // TODO rename SetClaim to achievement_set_claims
     // TODO rename ClaimType to claim_type
     // TODO rename SetType to set_type
-    // TODO rename Status to claim_status
+    // TODO rename Status to status
     // TODO rename Extension to extensions_count
     // TODO rename Special to special_type
     // TODO rename Finished to finished_at
@@ -52,6 +52,12 @@ class AchievementSetClaim extends BaseModel
     }
 
     // == accessors
+
+    // TODO remove after rename from "Status" to "status"
+    public function getStatusAttribute(): int
+    {
+        return $this->attributes['Status'] ?? null;
+    }
 
     // == mutators
 
