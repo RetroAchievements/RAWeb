@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\AchievementSetClaimFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,7 +20,7 @@ class AchievementSetClaim extends BaseModel
     // TODO rename SetClaim to achievement_set_claims
     // TODO rename ClaimType to claim_type
     // TODO rename SetType to set_type
-    // TODO rename Status to claim_status
+    // TODO rename Status to status
     // TODO rename Extension to extensions_count
     // TODO rename Special to special_type
     // TODO rename Finished to finished_at
@@ -74,4 +78,103 @@ class AchievementSetClaim extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeClaimType(Builder $query, int $claimType): Builder
+    {
+        return $query->where('ClaimType', $claimType);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopePrimaryClaim(Builder $query): Builder
+    {
+        return $this->scopeClaimType($query, ClaimType::Primary);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeCollaborationClaim(Builder $query): Builder
+    {
+        return $this->scopeClaimType($query, ClaimType::Collaboration);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeSetType(Builder $query, int $setType): Builder
+    {
+        return $query->where('SetType', $setType);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeNewSet(Builder $query): Builder
+    {
+        return $this->scopeSetType($query, ClaimSetType::NewSet);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeRevisionSet(Builder $query): Builder
+    {
+        return $this->scopeSetType($query, ClaimSetType::Revision);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeStatus(Builder $query, int $claimStatus): Builder
+    {
+        return $query->where('Status', $claimStatus);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $this->scopeStatus($query, ClaimStatus::Active);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeComplete(Builder $query): Builder
+    {
+        return $this->scopeStatus($query, ClaimStatus::Complete);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeDropped(Builder $query): Builder
+    {
+        return $this->scopeStatus($query, ClaimStatus::Dropped);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeInReview(Builder $query): Builder
+    {
+        return $this->scopeStatus($query, ClaimStatus::InReview);
+    }
 }

@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,7 +16,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $gameID = (int) $input['game'];
 
-if (extendClaim($user, $gameID)) { // Check that the claim was successfully added
+$userModel = User::firstWhere('User', $user);
+
+if (extendClaim($userModel, $gameID)) { // Check that the claim was successfully added
     addArticleComment("Server", ArticleType::SetClaim, $gameID, "Claim extended by " . $user);
 
     return back()->with('success', __('legacy.success.ok'));
