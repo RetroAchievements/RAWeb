@@ -57,6 +57,12 @@ class AchievementSetClaim extends BaseModel
 
     // == accessors
 
+    // TODO remove after rename from "Status" to "status"
+    public function getStatusAttribute(): int
+    {
+        return $this->attributes['Status'] ?? null;
+    }
+
     // == mutators
 
     // == relations
