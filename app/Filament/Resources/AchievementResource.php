@@ -8,6 +8,7 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\AchievementResource\Pages;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
@@ -23,6 +24,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class AchievementResource extends Resource
 {
@@ -74,7 +76,7 @@ class AchievementResource extends Resource
                                         ->label('Badge')
                                         ->size(config('media.icon.lg.width')),
                                     Infolists\Components\ImageEntry::make('badge_locked_url')
-                                        ->label('Badge locked')
+                                        ->label('Badge (locked)')
                                         ->size(config('media.icon.lg.width')),
                                 ]),
                             Infolists\Components\Group::make()
@@ -84,7 +86,9 @@ class AchievementResource extends Resource
                                     Infolists\Components\TextEntry::make('game')
                                         ->label('Game')
                                         ->formatStateUsing(fn (Game $state) => '[' . $state->id . '] ' . $state->title),
-                                    // ->url(GameResource::getUrl('view', ['record' => $state->id])),
+                                    Infolists\Components\TextEntry::make('user')
+                                        ->label('Author')
+                                        ->formatStateUsing(fn (User $state) => $state->User),
                                 ]),
                             Infolists\Components\Group::make()
                                 ->schema([
@@ -133,6 +137,9 @@ class AchievementResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         return $form
             ->columns(1)
             ->schema([
@@ -140,28 +147,33 @@ class AchievementResource extends Resource
                     Forms\Components\Section::make()
                         ->columns(['xl' => 2, '2xl' => 2])
                         ->schema([
+                            Forms\Components\TextInput::make('Title')
+                                ->required()
+                                ->maxLength(64)
+                                ->disabled(!$user->can('updateField', [$form->model, 'title'])),
+
+                            Forms\Components\TextInput::make('Description')
+                                ->required()
+                                ->maxLength(255)
+                                ->disabled(!$user->can('updateField', [$form->model, 'description'])),
+
                             Forms\Components\TextInput::make('BadgeName')
                                 ->required()
-                                ->default('00000'),
-                            Forms\Components\Group::make()
-                                ->schema([
-                                    Forms\Components\TextInput::make('Title')
-                                        ->required()
-                                        ->maxLength(64),
-                                    Forms\Components\TextInput::make('Description')
-                                        ->required()
-                                        ->maxLength(255),
-                                    Forms\Components\Select::make('GameID')
-                                        ->label('Game')
-                                        ->relationship(
-                                            name: 'game',
-                                            titleAttribute: 'Title',
-                                        )
-                                        ->searchable(['ID', 'Title'])
-                                        ->getOptionLabelFromRecordUsing(fn (Model $record) => "[{$record->ID}] {$record->Title}")
-                                        ->required(),
-                                ]),
+                                ->default('00000')
+                                ->disabled(!$user->can('updateField', [$form->model, 'badge_name'])),
+
+                            Forms\Components\Select::make('GameID')
+                                ->label('Game')
+                                ->relationship(
+                                    name: 'game',
+                                    titleAttribute: 'Title',
+                                )
+                                ->searchable(['ID', 'Title'])
+                                ->getOptionLabelFromRecordUsing(fn (Model $record) => "[{$record->ID}] {$record->Title}")
+                                ->required()
+                                ->disabled(!$user->can('updateField', [$form->model, 'game_id'])),
                         ]),
+
                     Forms\Components\Section::make()
                         ->grow(false)
                         ->schema([
@@ -171,23 +183,30 @@ class AchievementResource extends Resource
                                     AchievementFlag::Unofficial => __('unpublished'),
                                 ])
                                 ->default(AchievementFlag::Unofficial)
-                                ->required(),
+                                ->required()
+                                ->disabled(!$user->can('updateField', [$form->model, 'flags'])),
+
                             Forms\Components\Select::make('type')
                                 ->options(
                                     collect(AchievementType::cases())
                                         ->mapWithKeys(fn ($value) => [$value => __($value)])
-                                ),
+                                )
+                                ->disabled(!$user->can('updateField', [$form->model, 'type'])),
+
                             Forms\Components\Select::make('Points')
                                 ->required()
                                 ->default(0)
                                 ->options(
                                     collect(AchievementPoints::cases())
                                         ->mapWithKeys(fn ($value) => [$value => $value])
-                                ),
+                                )
+                                ->disabled(!$user->can('updateField', [$form->model, 'points'])),
+
                             Forms\Components\TextInput::make('DisplayOrder')
                                 ->required()
                                 ->numeric()
-                                ->default(0),
+                                ->default(0)
+                                ->disabled(!$user->can('updateField', [$form->model, 'display_order'])),
                         ]),
                 ])->from('md'),
             ]);

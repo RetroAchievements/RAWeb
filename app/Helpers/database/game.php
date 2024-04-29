@@ -2,12 +2,12 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Enums\AchievementFlag;
-use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array
 {
@@ -723,18 +723,18 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
     }
 }
 
-function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bool
+function modifyGameForumTopic(string $user, int $gameID, int $newForumTopicId): bool
 {
-    if ($gameID == 0 || $newForumTopic == 0) {
+    if ($gameID == 0 || $newForumTopicId == 0) {
         return false;
     }
 
-    if (!getTopicDetails($newForumTopic)) {
+    if (!ForumTopic::where('ID', $newForumTopicId)->exists()) {
         return false;
     }
 
     $db = getMysqliConnection();
-    $query = "UPDATE GameData SET ForumTopicID = $newForumTopic WHERE ID = $gameID";
+    $query = "UPDATE GameData SET ForumTopicID = $newForumTopicId WHERE ID = $gameID";
     echo $query;
 
     if (!mysqli_query($db, $query)) {

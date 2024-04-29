@@ -46,7 +46,7 @@ class NotifyMessageThreadParticipants
                 continue;
             }
 
-            if ($userTo->isBlocking($userFrom->User)) {
+            if ($userTo->isBlocking($userFrom)) {
                 // ignore users who have blocked the sender
                 continue;
             }

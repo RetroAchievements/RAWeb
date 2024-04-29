@@ -2,12 +2,13 @@
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\Rank;
+use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 
 /**
  * Renders the friends and global ranking.
  */
-function RenderPointsRankingComponent(string $user, bool $friendsOnly, int $numToFetch = 10): void
+function RenderPointsRankingComponent(User $user, bool $friendsOnly, int $numToFetch = 10): void
 {
     $lbTypes = [
         "Daily_",
@@ -61,7 +62,7 @@ function RenderPointsRankingComponent(string $user, bool $friendsOnly, int $numT
             }
 
             if ($friendsOnly) {
-                $data = getGlobalRankingData($j, 5, $currentDate, null, $user, 0, 0, $friendCount + 1, 1);
+                $data = getGlobalRankingData($j, 5, $currentDate, null, $user->User, 0, 0, $friendCount + 1, 1);
             } else {
                 $data = getGlobalRankingData($j, 5, $currentDate, null, null, 0, 0, $numToFetch, 1);
             }
@@ -90,7 +91,7 @@ function RenderPointsRankingComponent(string $user, bool $friendsOnly, int $numT
 
                 // Add the table rows
                 if ($keepAddingRows) {
-                    if ($user !== null && $user == $dataPoint['User']) {
+                    if ($user !== null && $user->User == $dataPoint['User']) {
                         echo "<tr style='outline: thin solid'>";
                         $userListed = true;
                     } else {
@@ -109,7 +110,7 @@ function RenderPointsRankingComponent(string $user, bool $friendsOnly, int $numT
                     echo " <span class='TrueRatio'>(" . $dataPoint['RetroPoints'] . ")</span></td>";
                 } else {
                     // Get the users rank among friends then break out since we are not display any more rows
-                    if ($user !== null && $user == $dataPoint['User']) {
+                    if ($user !== null && $user->User == $dataPoint['User']) {
                         $userRank = $rank;
                         break;
                     }
@@ -119,27 +120,27 @@ function RenderPointsRankingComponent(string $user, bool $friendsOnly, int $numT
 
             // Display the current user at the bottom of the list if they are not already included
             if ($user !== null && !$userListed) {
-                $userData = getGlobalRankingData($j, 5, $currentDate, $user, null, 0, 0, 1, 1);
+                $userData = getGlobalRankingData($j, 5, $currentDate, $user->User, null, 0, 0, 1, 1);
                 if (!empty($userData)) {
                     echo "<tr><td colspan='3'></td></tr>";
                     echo "<tr style='outline: thin solid'>";
 
                     if ($j == 2 && !$friendsOnly) {
-                        echo "<td class='rank'>" . getUserRank($user, 0) . "</td>";
+                        echo "<td class='rank'>" . getUserRank($user->User, 0) . "</td>";
                     } elseif ($friendsOnly) {
                         echo "<td>" . $userRank . "</td>";
                     } else {
                         echo "<td></td>";
                     }
                     echo "<td>";
-                    echo userAvatar($userData[0]['User']);
+                    echo userAvatar($user->User);
                     echo "</td>";
                     if ($j == 0) {
-                        echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $userData[0]['User'] . "'>" . $userData[0]['Points'] . "</a>";
+                        echo "<td><a href='/historyexamine.php?d=$dateUnix&u=" . $user->User . "'>" . $user->points . "</a>";
                     } else {
-                        echo "<td>" . $userData[0]['Points'];
+                        echo "<td>" . $user->points;
                     }
-                    echo " <span class='TrueRatio'>(" . $userData[0]['RetroPoints'] . ")</span></td>";
+                    echo " <span class='TrueRatio'>(" . $user->points_weighted . ")</span></td>";
                 }
             }
             echo "</tbody></table>";

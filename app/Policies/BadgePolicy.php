@@ -30,11 +30,6 @@ class BadgePolicy
              * artists may update achievement badges if the respective achievements are open for editing
              */
             Role::ARTIST,
-
-            /*
-             * writers may update achievement title and description if the respective achievements are open for editing
-             */
-            // Role::WRITER,
         ]);
     }
 
