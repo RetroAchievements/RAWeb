@@ -25,7 +25,7 @@ class Role extends \Spatie\Permission\Models\Role
 
     // creator roles assigned by admin
 
-    public const HUB_MANAGER = 'hub-manager';
+    public const GAME_HASH_MANAGER = 'game-hash-manager';
 
     public const DEVELOPER_STAFF = 'developer-staff'; // staff
 
@@ -37,7 +37,9 @@ class Role extends \Spatie\Permission\Models\Role
 
     public const WRITER = 'writer';
 
-    public const TESTER = 'tester';
+    public const GAME_EDITOR = 'game-editor';
+
+    public const PLAY_TESTER = 'play-tester';
 
     // moderation roles assigned by admin
 
@@ -50,6 +52,8 @@ class Role extends \Spatie\Permission\Models\Role
     public const NEWS_MANAGER = 'news-manager';
 
     public const EVENT_MANAGER = 'event-manager';
+
+    public const CHEAT_INVESTIGATOR = 'cheat-investigator';
 
     // vanity roles assigned by root
 
@@ -83,13 +87,14 @@ class Role extends \Spatie\Permission\Models\Role
 
             // creator roles assigned by admin
 
-            Role::HUB_MANAGER => 'warning',
+            Role::GAME_HASH_MANAGER => 'warning',
             Role::DEVELOPER_STAFF => 'success',
             Role::DEVELOPER => 'success',
             Role::DEVELOPER_JUNIOR => 'success',
             Role::ARTIST => 'success',
             Role::WRITER => 'success',
-            Role::TESTER => 'success',
+            Role::GAME_EDITOR => 'success',
+            Role::PLAY_TESTER => 'success',
 
             // moderation roles assigned by admin
 
@@ -98,6 +103,7 @@ class Role extends \Spatie\Permission\Models\Role
             Role::TICKET_MANAGER => 'info',
             Role::NEWS_MANAGER => 'info',
             Role::EVENT_MANAGER => 'info',
+            ROLE::CHEAT_INVESTIGATOR => 'info',
 
             // vanity roles assigned by root
 

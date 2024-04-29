@@ -3,7 +3,7 @@
 use function Laravel\Folio\{middleware, name};
 
 middleware(['auth', 'can:view,game', 'can:manage,user']);
-name('game.compare-unlocks');
+name('user.game.activity');
 
 ?>
 
@@ -13,7 +13,6 @@ name('game.compare-unlocks');
 ])
 
 @php
-
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Game;
@@ -48,7 +47,6 @@ $userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
     $gameAchievementCount, $activity->achievementsUnlocked * 100 / $gameAchievementCount) : "n/a";
 
 $userAgentService = new UserAgentService();
-
 @endphp
 
 <x-app-layout pageTitle="{{ $user->User }}'s activity for {{ $game->Title }}">
