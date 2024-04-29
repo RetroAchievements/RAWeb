@@ -52,7 +52,8 @@ trait ActsAsCommunityMember
      */
     public function relatedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id');
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'user_id', 'related_user_id')
+            ->withPivot('Friendship'); // TODO rename to `status`
     }
 
     /**
@@ -60,7 +61,8 @@ trait ActsAsCommunityMember
      */
     public function inverseRelatedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id');
+        return $this->belongsToMany(User::class, (new UserRelation())->getTable(), 'related_user_id', 'user_id')
+            ->withPivot('Friendship'); // TODO rename to `status`
     }
 
     /**
@@ -79,14 +81,21 @@ trait ActsAsCommunityMember
         return $this->inverseRelatedUsers()->where('Friendship', '=', UserRelationship::Following);
     }
 
-    public function isFollowing(string $username): bool
+    public function getRelationship(User $user): int
     {
-        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Following;
+        $relatedUser = $this->relatedUsers()->where('related_user_id', $user->id)->first();
+
+        return $relatedUser ? $relatedUser->pivot->Friendship : UserRelationship::NotFollowing;
     }
 
-    public function isBlocking(string $username): bool
+    public function isFollowing(User $user): bool
     {
-        return UserRelation::getRelationship($this->User, $username) === UserRelationship::Blocked;
+        return $this->getRelationship($user) === UserRelationship::Following;
+    }
+
+    public function isBlocking(User $user): bool
+    {
+        return $this->getRelationship($user) === UserRelationship::Blocked;
     }
 
     public function isForumVerified(): bool
