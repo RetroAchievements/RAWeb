@@ -64,7 +64,7 @@ class ForumTopicPolicy
 
     public function delete(User $user, ForumTopic $topic): bool
     {
-        return $this->manage($user) || $user->is($topic->user);
+        return $this->manage($user);
     }
 
     public function restore(User $user, ForumTopic $topic): bool
