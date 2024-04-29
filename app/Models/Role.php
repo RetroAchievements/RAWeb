@@ -103,7 +103,7 @@ class Role extends \Spatie\Permission\Models\Role
             Role::TICKET_MANAGER => 'info',
             Role::NEWS_MANAGER => 'info',
             Role::EVENT_MANAGER => 'info',
-            ROLE::CHEAT_INVESTIGATOR => 'info',
+            Role::CHEAT_INVESTIGATOR => 'info',
 
             // vanity roles assigned by root
 
