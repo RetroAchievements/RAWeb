@@ -166,6 +166,90 @@ final class ShortcodeTest extends TestCase
         );
     }
 
+    public function testNormalizeUserShortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/user/Jamiras';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[user=Jamiras]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeUserShortcodesWithSubpaths(): void
+    {
+        $rawString = 'https://retroachievements.org/user/Jamiras/progress';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            $rawString,
+            $normalized
+        );
+    }
+
+    public function testNormalizeGameShortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/game/1';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[game=1]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeGameShortcodesWithSubpaths(): void
+    {
+        $rawString = 'https://retroachievements.org/game/1/hashes';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            $rawString,
+            $normalized
+        );
+    }
+
+    public function testNormalizeAchievementShortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/achievement/9';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[ach=9]',
+            $normalized
+        );
+    }
+
+    public function testNormalizeAchievementShortcodesWithSubpaths(): void
+    {
+        $rawString = 'https://retroachievements.org/achievement/9/subpath';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            $rawString,
+            $normalized
+        );
+    }
+
+    public function testNormalizeTicketShortcodes(): void
+    {
+        $rawString = 'https://retroachievements.org/ticketmanager.php?i=100';
+
+        $normalized = normalize_shortcodes($rawString);
+
+        $this->assertEquals(
+            '[ticket=100]',
+            $normalized
+        );
+    }
+
     /**
      * @dataProvider youtubeUrlProvider
      */

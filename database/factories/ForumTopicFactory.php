@@ -24,7 +24,7 @@ class ForumTopicFactory extends Factory
 
         return [
             'Title' => ucwords(fake()->words(2, true)),
-            'author_id' => $user->ID,
+            'author_id' => $user->id,
         ];
     }
 }
