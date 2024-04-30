@@ -14,6 +14,7 @@ $rootAssignable = [
 
 $adminAssignable = [
     Role::ARTIST,
+    Role::CHEAT_INVESTIGATOR,
     Role::DEVELOPER_JUNIOR,
     Role::DEVELOPER_STAFF,
     Role::DEVELOPER_VETERAN,
@@ -27,7 +28,6 @@ $adminAssignable = [
     Role::PLAY_TESTER,
     Role::TICKET_MANAGER,
     Role::WRITER,
-    Role::CHEAT_INVESTIGATOR,
 ];
 
 $staffDevAssignable = [
