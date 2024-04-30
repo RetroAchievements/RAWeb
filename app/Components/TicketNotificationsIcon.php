@@ -22,7 +22,7 @@ class TicketNotificationsIcon extends Component
         $notifications = collect();
 
         // Open ticket notifications
-        $openTicketsData = countOpenTicketsByDev($user->User);
+        $openTicketsData = countOpenTicketsByDev($user);
         if ($openTicketsData[TicketState::Open]) {
             $notifications->push([
                 'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest)),

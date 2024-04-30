@@ -117,7 +117,7 @@ class UserProfileMeta extends Component
         // Open tickets
         $openTickets = null;
         if ($user->ContribCount) {
-            $openTickets = array_sum(countOpenTicketsByDev($user->User));
+            $openTickets = array_sum(countOpenTicketsByDev($user));
         }
         $openTicketsStat = [
             'label' => 'Open tickets',

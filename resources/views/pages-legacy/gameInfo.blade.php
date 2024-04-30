@@ -575,8 +575,7 @@ if ($isFullyFeaturedGame) {
                         :isOfficial="$isOfficial"
                         :isSoleAuthor="$isSoleAuthor"
                         :numAchievements="$numAchievements"
-                        :user="$user"
-                        :userPermissions="$permissions"
+                        :user="$userModel"
                     />
                 @endif
                 <?php

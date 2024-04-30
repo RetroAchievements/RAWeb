@@ -402,13 +402,9 @@ function countRequestTicketsByUser(?User $user = null): int
     });
 }
 
-function countOpenTicketsByDev(string $dev): ?array
+function countOpenTicketsByDev(User $dev): array
 {
-    if ($dev == null) {
-        return null;
-    }
-
-    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev);
+    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev->User);
 
     return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($dev) {
         $retVal = [
@@ -419,7 +415,7 @@ function countOpenTicketsByDev(string $dev): ?array
         $tickets = Ticket::with('achievement')
             ->whereHas('achievement', function ($query) use ($dev) {
                 $query
-                    ->where('Author', $dev)
+                    ->where('user_id', $dev->id)
                     ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
             })
             ->whereIn('ReportState', [TicketState::Open, TicketState::Request])

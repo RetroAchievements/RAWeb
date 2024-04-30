@@ -61,7 +61,7 @@ if ($userPermissions >= Permissions::Moderator) {
         $playerGame = PlayerSession::where('game_id', $gameId)
             ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
             ->where('UserAccounts.User', '=', $claim['User'])
-            ->select(DB::raw('MAX(updated_at) AS last_played'))
+            ->select(DB::raw('MAX(updated_at) AS last_played'), 'user_id')
             ->first();
 
         $activity = '';
@@ -72,7 +72,7 @@ if ($userPermissions >= Permissions::Moderator) {
         } else {
             // player_sessions only exist after 14 Oct 2023
             $achievement = Achievement::where('GameID', $gameId)
-                ->where('Author', $claim['User'])
+                ->where('user_id', $playerGame->user->id)
                 ->select(DB::raw('MAX(Updated) AS last_updated'))
                 ->first();
             if ($achievement && !empty($achievement->last_updated)) {

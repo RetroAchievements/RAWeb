@@ -18,8 +18,7 @@ use App\Enums\Permissions;
     'isOfficial' => true,
     'isSoleAuthor' => false,
     'numAchievements' => 0,
-    'user' => null,
-    'userPermissions' => Permissions::Unregistered,
+    'user' => null, // ?User
 ])
 
 <?php
@@ -36,9 +35,11 @@ $userClaimCount = 0;
 $userHasClaimSlot = false;
 $openTickets = null;
 
+$userPermissions = $user?->getAttribute('Permissions') ?? 0;
+
 // Get user claim data.
 if (isset($user) && $userPermissions >= Permissions::JuniorDeveloper) {
-    $userClaimCount = getActiveClaimCount($user, false, false);
+    $userClaimCount = getActiveClaimCount($user->User, false, false);
     $userHasClaimSlot = $userClaimCount < permissionsToClaim($userPermissions);
     $openTickets = countOpenTicketsByDev($user);
 }
@@ -54,13 +55,13 @@ if ($claimListLength > 0 && $claimData[0]['ClaimType'] == ClaimType::Primary) {
     $primaryClaimStatus = $claimData[0]['Status'];
 
     foreach ($claimData as $claim) {
-        if (isset($claim['User']) && $claim['User'] === $user) {
+        if (isset($claim['User']) && $claim['User'] === $user?->User) {
             $hasGameClaimed = true;
         }
     }
 }
 
-$claimType = $claimListLength > 0 && (!$hasGameClaimed || $primaryClaimUser !== $user) ? ClaimType::Collaboration : ClaimType::Primary;
+$claimType = $claimListLength > 0 && (!$hasGameClaimed || $primaryClaimUser !== $user?->User) ? ClaimType::Collaboration : ClaimType::Primary;
 $isCollaboration = $claimType === ClaimType::Collaboration;
 $claimSetType = $numAchievements > 0 ? ClaimSetType::Revision : ClaimSetType::NewSet;
 $isRevision = $claimSetType === ClaimSetType::Revision;
@@ -164,7 +165,7 @@ function completeClaim() {
     </form>
 
 @elseif ($hasGameClaimed)
-    @if ($primaryClaimUser === $user && $primaryClaimMinutesLeft <= 10080)
+    @if ($primaryClaimUser === $user?->User && $primaryClaimMinutesLeft <= 10080)
         <form
             action="/request/set-claim/extend-claim.php"
             method="post"
@@ -176,7 +177,7 @@ function completeClaim() {
         </form>
     @endif
 
-    @if ($primaryClaimStatus === ClaimStatus::InReview && $primaryClaimUser === $user)
+    @if ($primaryClaimStatus === ClaimStatus::InReview && $primaryClaimUser === $user?->User)
         <div class="ml-2">Cannot Drop Claim while In Review</div>
     @else
         <form
@@ -202,7 +203,7 @@ function completeClaim() {
 @endif
 
 <!-- If the set has achievements and the current user is the primary claim owner, then allow completing the claim. -->
-@if ($primaryClaimStatus !== ClaimStatus::InReview && $user === $primaryClaimUser && $numAchievements > 0)
+@if ($primaryClaimStatus !== ClaimStatus::InReview && $user?->User === $primaryClaimUser && $numAchievements > 0)
     <!-- For valid consoles, only allow completing if core achievements exist. -->
     <!-- For rollout consoles, achievements can't be pushed to core, so don't restrict completing. -->
     @if (isValidConsoleId($consoleId) && !$isOfficial)
@@ -232,7 +233,7 @@ function completeClaim() {
 @endif
 
 <!-- If the author is a jr. dev and the current user is a full dev, allow the set to be changed to Review status -->
-@if ($primaryClaimUser && $userPermissions >= Permissions::Moderator && $primaryClaimUser !== $user)
+@if ($primaryClaimUser && $userPermissions >= Permissions::Moderator && $primaryClaimUser !== $user?->User)
     <?php $primaryClaimUserPermissions = getUserPermissions($primaryClaimUser); ?>
     @if ($primaryClaimUserPermissions < Permissions::Developer)
         @if ($primaryClaimStatus !== ClaimStatus::InReview)
