@@ -2,6 +2,7 @@
 
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
+use App\Models\Game;
 use App\Models\System;
 use Illuminate\Support\Facades\Blade;
 
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Blade;
  * @deprecated use <x-game.avatar />
  */
 function gameAvatar(
-    int|string|array $game,
+    int|string|array|Game $game,
     ?bool $label = null,
     bool|string|null $icon = null,
     int $iconSize = 32,
@@ -19,6 +20,10 @@ function gameAvatar(
     ?string $title = null,
 ): string {
     $id = $game;
+
+    if ($game instanceof Game) {
+        $game = $game->toArray();
+    }
 
     if (is_array($game)) {
         $id = $game['GameID'] ?? $game['ID'];

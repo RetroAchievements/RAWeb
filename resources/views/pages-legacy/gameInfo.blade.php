@@ -1013,11 +1013,11 @@ if ($isFullyFeaturedGame) {
 
             RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
         }
-
-        if (isValidConsoleId($consoleID)) {
-            RenderGameLeaderboardsComponent($lbData, $forumTopicID);
-        }
         ?>
+
+        @if (isValidConsoleId($consoleID))
+            <x-game.leaderboards-listing :game="$gameModel" />
+        @endif
     </x-slot>
 @endif
 </x-app-layout>
