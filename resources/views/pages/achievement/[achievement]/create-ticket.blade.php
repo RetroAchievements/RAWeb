@@ -91,7 +91,7 @@ function reportIssueComponent() {
         },
 
         get descriptionIsUnhelpful() {
-            const unhelpfulRegex = /(n'?t|not?).*work/ig;
+            const unhelpfulRegex = /(n'?t|not?).*(work|trigger)/ig;
             return this.description.length < 25 && unhelpfulRegex.test(this.description);
         }
     }

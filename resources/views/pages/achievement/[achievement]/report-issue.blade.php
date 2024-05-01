@@ -20,6 +20,7 @@ $unlockedSoftcore = false;
 $unlockedManually = false;
 $hasHardcoreUnlocks = false;
 $hasSoftcoreUnlocks = false;
+$hasSession = false;
 
 $playerAchievements = request()->user()->playerAchievements()
     ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
@@ -37,10 +38,15 @@ foreach ($playerAchievements as $playerAchievement) {
 
     $hasHardcoreUnlocks |= $playerAchievement->unlocked_hardcore_at !== null;
     $hasSoftcoreUnlocks |= $playerAchievement->unlocked_at !== null;
+    $hasSession = true;
 }
 
 if ($unlockedHardcore || ($unlockedSoftcore && !$hasHardcoreUnlocks)) {
     $ticketType = TicketType::TriggeredAtWrongTime;
+}
+
+if (!$hasSession) {
+    $hasSession = request()->user()->playerGames()->where('game_id', $achievement->game->id)->exists();
 }
 
 @endphp
@@ -60,7 +66,9 @@ if ($unlockedHardcore || ($unlockedSoftcore && !$hasHardcoreUnlocks)) {
     </div>
 
     <div>
-        @if ($ticketType === TicketType::DidNotTrigger)
+        @if (!$hasSession)
+            {{-- don't say anything if the user has never loaded the game --}}
+        @elseif ($ticketType === TicketType::DidNotTrigger)
             You <span class="font-bold">have not</span> unlocked this achievement.
         @elseif ($unlockedHardcore)
             You <span class="font-bold">have</span> unlocked this achievement.
@@ -73,7 +81,9 @@ if ($unlockedHardcore || ($unlockedSoftcore && !$hasHardcoreUnlocks)) {
         What sort of issue would you like to report?
     </div>
 
-    @if ($ticketType === TicketType::DidNotTrigger)
+    @if (!$hasSession)
+        {{-- don't allow player to create tickets if they've never loaded the game --}}
+    @elseif ($ticketType === TicketType::DidNotTrigger)
         <x-ticket.guide-link text="Create Ticket"
                              link="{{ route('achievement.create-ticket', $achievement) }}?type={{ TicketType::DidNotTrigger }}">
             I met the requirements, but the achievement did not trigger.
