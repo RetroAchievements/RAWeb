@@ -15,7 +15,6 @@ name('achievement.create-ticket');
 
 use App\Community\Enums\TicketType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Services\PlayerGameActivityService;
 use App\Platform\Services\UserAgentService;
 
 $user = request()->user();
@@ -115,7 +114,7 @@ function reportIssueComponent() {
     <div x-data="reportIssueComponent()">
 
         <form action="/request/ticket/create.php" method="post">
-            <?= csrf_field() ?>
+            {{ csrf_field() }}
             <input type="hidden" value="{{ $achievement->id }}" name="achievement">
             <table class='table-highlight'>
                 <tbody>
@@ -227,17 +226,23 @@ function reportIssueComponent() {
                 <tr>
                     <td><label for="description">Description</label></td>
                     <td colspan="2">
+                        <p>
+                        Please describe what you were doing around the time of the problem. Also mention if you
+                        were using any non-default settings, in game cheats, glitches, or were otherwise playing
+                        in some way that may differ from the normal expected gameplay that the developer would
+                        have used when creating the achievement.
+                        </p>
                         <textarea
-                            class="w-full forum"
+                            class="w-full forum mt-2 mb-1"
                             name="description"
                             id="description"
                             style="height:160px"
                             rows="5"
                             cols="61"
-                            placeholder="Describe your issue here.&#10;&#10;Please include any information that may make your playthrough different than the developer's playthrough - things like which non-default settings you're using, any in-game cheats you have activated, or if you are doing things in an abnormal order."
+                            placeholder="Describe your issue here."
                             required
                             x-model="description"
-                        ><?= old('description') ?></textarea>
+                        >{{ old('description') }}</textarea>
 
                         <div x-cloak>
                             <p x-show="descriptionIsNetworkProblem">
