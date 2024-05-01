@@ -17,7 +17,7 @@ class TicketPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::TICKET_MANAGER,
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
@@ -42,5 +42,15 @@ class TicketPolicy
         }
 
         return $user->playerGames()->where('time_taken', '>', 5)->exists();
+    }
+
+    public function updateState(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::TICKET_MANAGER,
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Developer;
     }
 }

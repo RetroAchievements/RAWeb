@@ -4,6 +4,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Game;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\User;
@@ -54,7 +55,8 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
-$parentGame = getParentGameFromGameTitle($gameTitle, $consoleID);
+$game = Game::find($dataOut['GameID']);
+$parentGame = $game->getParentGame() ?? null;
 
 sanitize_outputs(
     $achievementTitle,
@@ -63,8 +65,6 @@ sanitize_outputs(
     $consoleName,
     $author
 );
-
-$numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $numWinners = 0;
 $numWinnersHardcore = 0;
@@ -465,8 +465,6 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
     ?>
     </div>
     <x-slot name="sidebar">
-        <?php
-            RenderGameLeaderboardsComponent($lbData, null);
-        ?>
+        <x-game.leaderboards-listing :game="$game" />
     </x-slot>
 </x-app-layout>

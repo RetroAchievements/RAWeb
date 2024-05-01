@@ -116,6 +116,10 @@ class UserAgentService
                 }
 
                 $data['extra'][$thing] = $this->trimVersion($version);
+
+                if (str_ends_with($thing, '_libretro')) {
+                    $data['clientVariation'] = substr($thing, 0, -9);
+                }
             }
         }
 

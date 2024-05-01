@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\LeaderboardEntryFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaderboardEntry extends BaseModel
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $table = 'leaderboard_entries';
@@ -21,6 +24,11 @@ class LeaderboardEntry extends BaseModel
         'trigger_id',
         'player_session_id',
     ];
+
+    protected static function newFactory(): LeaderboardEntryFactory
+    {
+        return LeaderboardEntryFactory::new();
+    }
 
     // == accessors
 

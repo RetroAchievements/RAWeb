@@ -55,6 +55,7 @@ class UserAgentServiceTest extends TestCase
             'clientVersion' => '1.3.11',
             'os' => 'WindowsNT 10.0',
             'integrationVersion' => '1.0.4.0',
+            'clientVariation' => 'fceumm',
             'extra' => [
                 'fceumm_libretro' => '(SVN)_58030a3',
             ],
@@ -80,6 +81,7 @@ class UserAgentServiceTest extends TestCase
             'client' => 'RetroArch',
             'clientVersion' => '1.8.1',
             'os' => 'Windows 10 x64 Build 18362 10.0',
+            'clientVariation' => 'quicknes',
             'extra' => [
                 'quicknes_libretro' => '1.0-WIP_7c0796d',
             ],
