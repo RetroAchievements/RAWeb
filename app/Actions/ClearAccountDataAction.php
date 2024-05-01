@@ -34,6 +34,7 @@ class ClearAccountDataAction
         // TODO $user->ratings()->delete();
         DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
         $user->gameListEntries()->delete();
+        $user->leaderboardEntries()->delete();
         // TODO $user->badges()->delete();
         DB::statement('DELETE FROM SiteAwards WHERE User = :username', ['username' => $user->User]);
         $user->subscriptions()->delete();

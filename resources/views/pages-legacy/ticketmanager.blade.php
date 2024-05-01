@@ -8,6 +8,7 @@ use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Services\TriggerDecoderService;
@@ -20,44 +21,23 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
+$ticketID = requestInputSanitized('i', 0, 'integer');
+if ($ticketID != 0) {
+    echo view('pages.ticket.[ticket]')->with('ticket', Ticket::firstWhere('ID', $ticketID));
+    return;
+}
+
 $maxCount = 50;
 $count = requestInputSanitized('c', $maxCount, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
-$ticketID = requestInputSanitized('i', 0, 'integer');
 $defaultFilter = TicketFilters::Default;
 $ticketFilters = requestInputSanitized('t', $defaultFilter, 'integer');
-
-$reportModes = ["Softcore", "Hardcore"];
 
 $altTicketData = null;
 $commentData = null;
 $filteredTicketsCount = null;
-$numArticleComments = null;
-$numClosedTickets = null;
-$numOpenTickets = null;
 $ticketData = null;
-if ($ticketID != 0) {
-    $ticketData = getTicket($ticketID);
-    if (!$ticketData) {
-        $ticketID = 0;
-    }
-
-    $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticketID, $commentData);
-
-    // sets all filters enabled so we get closed/resolved tickets as well
-    $altTicketData = ($ticketData !== null) ? getAllTickets(0, 99, null, null, null, null, $ticketData['AchievementID'], TicketFilters::All) : [];
-    $numOpenTickets = 0;
-    foreach ($altTicketData as $pastTicket) {
-        $pastTicket["ID"] = (int) $pastTicket["ID"];
-
-        if ($pastTicket["ReportState"] == TicketState::Open && $pastTicket["ID"] !== $ticketID) {
-            $numOpenTickets++;
-        }
-    }
-
-    $numClosedTickets = count($altTicketData) - $numOpenTickets - 1;
-}
 
 $assignedToUser = null;
 $reportedByUser = null;
@@ -66,46 +46,45 @@ $gamesTableFlag = 0;
 $gameIDGiven = 0;
 $achievementIDGiven = 0;
 $achievementTitle = null;
-if ($ticketID == 0) {
-    $gamesTableFlag = requestInputSanitized('f', 3, 'integer');
-    if ($gamesTableFlag == 1) {
-        $count = requestInputSanitized('c', 100, 'integer');
-        $ticketData = gamesSortedByOpenTickets($count);
-    } else {
-        $assignedToUser = requestInputSanitized('u', null);
-        if (!isValidUsername($assignedToUser)) {
-            $assignedToUser = null;
-        }
-        $reportedByUser = requestInputSanitized('p', null);
-        if (!isValidUsername($reportedByUser)) {
-            $reportedByUser = null;
-        }
-        $resolvedByUser = requestInputSanitized('r', null);
-        if (!isValidUsername($resolvedByUser)) {
-            $resolvedByUser = null;
-        }
-        $gameIDGiven = requestInputSanitized('g', null, 'integer');
 
-        $achievementIDGiven = requestInputSanitized('a', null, 'integer');
-        if ($achievementIDGiven > 0) {
-            $achievementData = Achievement::find($achievementIDGiven);
-            $achievementTitle = $achievementData['Title'];
-            sanitize_outputs($achievementTitle);
-            $gameIDGiven = $achievementData['GameID']; // overwrite the given game ID
-        }
-
-        $ticketData = getAllTickets(
-            $offset,
-            $count,
-            $assignedToUser,
-            $reportedByUser,
-            $resolvedByUser,
-            $gameIDGiven,
-            $achievementIDGiven,
-            $ticketFilters,
-            $gamesTableFlag === AchievementFlag::Unofficial
-        );
+$gamesTableFlag = requestInputSanitized('f', 3, 'integer');
+if ($gamesTableFlag == 1) {
+    $count = requestInputSanitized('c', 100, 'integer');
+    $ticketData = gamesSortedByOpenTickets($count);
+} else {
+    $assignedToUser = requestInputSanitized('u', null);
+    if (!isValidUsername($assignedToUser)) {
+        $assignedToUser = null;
     }
+    $reportedByUser = requestInputSanitized('p', null);
+    if (!isValidUsername($reportedByUser)) {
+        $reportedByUser = null;
+    }
+    $resolvedByUser = requestInputSanitized('r', null);
+    if (!isValidUsername($resolvedByUser)) {
+        $resolvedByUser = null;
+    }
+    $gameIDGiven = requestInputSanitized('g', null, 'integer');
+
+    $achievementIDGiven = requestInputSanitized('a', null, 'integer');
+    if ($achievementIDGiven > 0) {
+        $achievementData = Achievement::find($achievementIDGiven);
+        $achievementTitle = $achievementData['Title'];
+        sanitize_outputs($achievementTitle);
+        $gameIDGiven = $achievementData['GameID']; // overwrite the given game ID
+    }
+
+    $ticketData = getAllTickets(
+        $offset,
+        $count,
+        $assignedToUser,
+        $reportedByUser,
+        $resolvedByUser,
+        $gameIDGiven,
+        $achievementIDGiven,
+        $ticketFilters,
+        $gamesTableFlag === AchievementFlag::Unofficial
+    );
 }
 
 if (!empty($gameIDGiven)) {
@@ -126,28 +105,23 @@ $pageTitle = "Ticket Manager";
     if ($gamesTableFlag === 1) {
         echo "<a href='/ticketmanager.php'>$pageTitle</a></b> &raquo; <b>Games With Open Tickets";
     } else {
-        if ($ticketID == 0) {
-            echo "<a href='/ticketmanager.php'>$pageTitle</a>";
-            if (!empty($assignedToUser)) {
-                echo " &raquo; <a href='/user/$assignedToUser'>$assignedToUser</a>";
+        echo "<a href='/ticketmanager.php'>$pageTitle</a>";
+        if (!empty($assignedToUser)) {
+            echo " &raquo; <a href='/user/$assignedToUser'>$assignedToUser</a>";
+        }
+        if (!empty($reportedByUser)) {
+            echo " &raquo; <a href='/user/$reportedByUser'>$reportedByUser</a>";
+        }
+        if (!empty($resolvedByUser)) {
+            echo " &raquo; <a href='/user/$resolvedByUser'>$resolvedByUser</a>";
+        }
+        if (!empty($gameIDGiven)) {
+            echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
+            if (!empty($achievementIDGiven)) {
+                ?>
+                &raquo; <x-achievement.title :rawTitle="$achievementTitle" />
+                <?php
             }
-            if (!empty($reportedByUser)) {
-                echo " &raquo; <a href='/user/$reportedByUser'>$reportedByUser</a>";
-            }
-            if (!empty($resolvedByUser)) {
-                echo " &raquo; <a href='/user/$resolvedByUser'>$resolvedByUser</a>";
-            }
-            if (!empty($gameIDGiven)) {
-                echo " &raquo; <a href='/ticketmanager.php?g=$gameIDGiven'>$gameTitle ($consoleName)</a>";
-                if (!empty($achievementIDGiven)) {
-                    ?>
-                    &raquo; <x-achievement.title :rawTitle="$achievementTitle" />
-                    <?php
-                }
-            }
-        } else {
-            echo "<a href='/ticketmanager.php'>$pageTitle</a>";
-            echo " &raquo; <b>Inspect Ticket</b>";
         }
     }
     echo "</div>";
@@ -224,7 +198,6 @@ $pageTitle = "Ticket Manager";
         }
         echo "</tbody></table>";
     } else {
-        if ($ticketID == 0) {
             echo "<h4>Filters - " . localized_number($filteredTicketsCount) . " Ticket" . ($filteredTicketsCount == 1 ? "" : "s") . " Filtered</h4>";
             echo "<div class='embedded mb-1'>";
 
@@ -462,7 +435,7 @@ $pageTitle = "Ticket Manager";
                 echo "<tr>";
 
                 echo "<td>";
-                echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
+                echo "<a href='" . route('ticket.show', $ticketID) . "'>$ticketID</a>";
                 echo "</td>";
 
                 echo "<td>";
@@ -474,7 +447,14 @@ $pageTitle = "Ticket Manager";
                 echo "</td>";
 
                 echo "<td>";
-                echo gameAvatar($nextTicket);
+                ?>
+                    <x-game.multiline-avatar
+                        :gameId="$nextTicket['GameID']"
+                        :gameTitle="$nextTicket['GameTitle']"
+                        :gameImageIcon="$nextTicket['GameIcon']"
+                        :consoleName="$nextTicket['ConsoleName']"
+                    />
+                <?php
                 echo "</td>";
 
                 echo "<td>";
@@ -508,491 +488,6 @@ $pageTitle = "Ticket Manager";
             $baseLink .= (Str::contains($baseLink, '?') ? '&' : '?');
             RenderPaginator($filteredTicketsCount, $maxCount, $offset, "{$baseLink}o=");
             echo "</div>";
-        } else {
-            $nextTicket = $ticketData;
-            $ticketID = $nextTicket['ID'];
-            $achID = $nextTicket['AchievementID'];
-            $achTitle = $nextTicket['AchievementTitle'];
-            $achDesc = $nextTicket['AchievementDesc'];
-            $achAuthor = $nextTicket['AchievementAuthor'];
-            $achPoints = $nextTicket['Points'];
-            $achType = $nextTicket['AchievementType'];
-            $achBadgeName = $nextTicket['BadgeName'];
-            $gameID = $nextTicket['GameID'];
-            $gameTitle = $nextTicket['GameTitle'];
-            $gameBadge = $nextTicket['GameIcon'];
-            $consoleName = $nextTicket['ConsoleName'];
-            $reportState = $nextTicket['ReportState'];
-            $reportType = $nextTicket['ReportType'];
-            $mode = $nextTicket['Hardcore'];
-            $reportNotes = str_replace('<br>', "\n", $nextTicket['ReportNotes']);
-
-            $reportedAt = $nextTicket['ReportedAt'];
-            $reportedAtTime = strtotime($reportedAt);
-            $niceReportedAt = getNiceDate(strtotime($reportedAt));
-            $reportedBy = $nextTicket['ReportedBy'];
-            $resolvedAt = $nextTicket['ResolvedAt'];
-            $niceResolvedAt = getNiceDate(strtotime($resolvedAt));
-            $resolvedBy = $nextTicket['ResolvedBy'];
-
-            sanitize_outputs(
-                $achTitle,
-                $achDesc,
-                $achAuthor,
-                $achType,
-                $gameTitle,
-                $consoleName,
-                $mode,
-                $reportNotes,
-                $reportedBy,
-                $resolvedBy
-            );
-
-            echo "<table><tbody>";
-
-            echo "<tr>";
-            echo "<th>ID</th>";
-            echo "<th>State</th>";
-            echo "<th>Achievement</th>";
-            echo "<th>Game</th>";
-            echo "<th>Developer</th>";
-            echo "<th>Reporter</th>";
-            echo "<th>Resolver</th>";
-            echo "<th>Reported At</th>";
-            echo "</tr>";
-
-            echo "<tr>";
-
-            echo "<td>";
-            echo "<a href='/ticketmanager.php?i=$ticketID'>$ticketID</a>";
-            echo "</td>";
-
-            echo "<td>";
-            echo TicketState::toString($reportState);
-            echo "</td>";
-
-            echo "<td style='min-width:25%'>";
-            echo achievementAvatar(array_merge($nextTicket, ['type' => $achType]));
-            echo "</td>";
-
-            echo "<td style='min-width:25%'>";
-            echo gameAvatar($nextTicket);
-            echo "</td>";
-
-            echo "<td>";
-            echo userAvatar($achAuthor);
-            echo "</td>";
-
-            echo "<td>";
-            echo userAvatar($reportedBy);
-            echo "</td>";
-
-            echo "<td>";
-            echo userAvatar($resolvedBy);
-            echo "</td>";
-
-            echo "<td class='smalldate'>";
-            echo $niceReportedAt;
-            echo "</td>";
-
-            echo "</tr>";
-
-            $hashes = getHashListByGameID($gameID);
-            foreach ($hashes as $hash) {
-                if (stripos($reportNotes, (string) $hash['Hash']) !== false) {
-                    $replacement = "<a href='/linkedhashes.php?g=$gameID' title='" .
-                        attributeEscape($hash['Name']) . "'>" . $hash['Hash'] . "</a>";
-                    $reportNotes = str_ireplace($hash['Hash'], $replacement, $reportNotes);
-                }
-            }
-
-            echo "<tr>";
-            echo "<td>";
-            echo "Notes: ";
-            echo "</td>";
-            echo "<td colspan='7'>";
-            echo "<code>$reportNotes</code>";
-            echo "</td>";
-            echo "</tr>";
-
-            if (isset($mode)) {
-                echo "<tr>";
-                echo "<td>";
-                echo "Mode: ";
-                echo "</td>";
-                echo "<td colspan='7'>";
-                echo "<b>$reportModes[$mode]</b>";
-                echo "</td>";
-                echo "</tr>";
-            }
-
-            if (isset($achType)) {
-                $achTypeLabel = $achType ? __('achievement-type.' . $achType) : 'None';
-                echo "<tr>";
-                echo "<td>";
-                echo "Achievement Type: ";
-                echo "</td>";
-                echo "<td colspan='7'>";
-                echo "<b>$achTypeLabel</b>";
-                echo "</td>";
-                echo "</tr>";
-            }
-
-            echo "<tr>";
-            echo "<td>";
-            echo "Report Type: ";
-            echo "</td>";
-            echo "<td colspan='7'>";
-            echo ($reportType == 1) ? "<b>Triggered at wrong time</b>" : "<b>Doesn't Trigger</b>";
-            echo "</td>";
-            echo "</tr>";
-
-            echo "<tr>";
-            echo "<td></td><td colspan='7'>";
-            echo "<div class='temp'>";
-            echo "<a href='ticketmanager.php?g=$gameID'>View other tickets for this game</a>";
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
-
-            if ($numOpenTickets > 0 || $numClosedTickets > 0) {
-                if ($numOpenTickets > 0) {
-                    echo "<tr>";
-                    echo "<td></td><td colspan='7'>";
-                    echo "Found $numOpenTickets other open tickets for this achievement: ";
-
-                    foreach ($altTicketData as $nextTicket) {
-                        $nextTicketID = $nextTicket['ID'];
-                        $nextTicketID = (int) $nextTicketID;
-                        $ticketID = (int) $ticketID;
-
-                        if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] == TicketState::Open)) {
-                            echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
-                        }
-                    }
-
-                    echo "</td>";
-                    echo "</tr>";
-                }
-                if ($numClosedTickets > 0) {
-                    echo "<tr>";
-                    echo "<td></td><td colspan='7'>";
-                    echo "Found $numClosedTickets closed tickets for this achievement: ";
-
-                    foreach ($altTicketData as $nextTicket) {
-                        $nextTicketID = $nextTicket['ID'];
-                        $nextTicketID = (int) $nextTicketID;
-                        $ticketID = (int) $ticketID;
-                        $nextTicket['ReportState'] = (int) $nextTicket['ReportState'];
-
-                        if ($nextTicketID !== $ticketID && ($nextTicket['ReportState'] !== TicketState::Open)) {
-                            echo "<a href='ticketmanager.php?i=$nextTicketID'>$nextTicketID</a>, ";
-                        }
-                    }
-
-                    echo "</td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<tr>";
-                echo "<td></td><td colspan='7'>";
-                echo "<div class='temp'>";
-                echo "No other tickets found for this achievement";
-                echo "</div>";
-                echo "</td>";
-                echo "</tr>";
-            }
-
-            echo "<tr>";
-            echo "<td></td><td colspan='7'>";
-            echo "<div class='temp'>";
-            $awardCount = getUnlocksSince((int) $achID, $reportedAt);
-            echo "This achievement has been earned " . $awardCount['softcoreCount'] . " <b>(" . $awardCount['hardcoreCount'] . ")</b> "
-                . ($awardCount['hardcoreCount'] == 1 ? "time" : "times") . " since this ticket was created.";
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
-
-            if ($permissions >= Permissions::Developer) {
-                echo "<tr>";
-
-                echo "<td>Reporter:</td>";
-                echo "<td colspan='7'>";
-                echo "<div>";
-                $msgPayload = "Hi [user=$reportedBy], I'm contacting you about [ticket=$ticketID]";
-                $msgPayload = rawurlencode($msgPayload);
-                $msgTitle = rawurlencode("Bug Report ($gameTitle)");
-                echo "<a href='" . route('message.create') . "?to=$reportedBy&subject=$msgTitle&message=$msgPayload'>Contact the reporter - $reportedBy</a>";
-                echo "</div>";
-                echo "</td>";
-                echo "</tr>";
-
-                if ($reportState == TicketState::Open) {
-                    $lastComment = null;
-                    foreach ($commentData as $comment) {
-                        if ($comment['User'] != 'Server') {
-                            $lastComment = $comment;
-                        }
-                    }
-                    if ($lastComment != null && ($lastComment['User'] == $user || $lastComment['User'] == $achAuthor)) {
-                        echo "<tr><td/><td colspan='6'>";
-                        echo "<div>";
-                        echo "<form method='post' action='/request/ticket/update.php'>";
-                        echo csrf_field();
-                        echo "<input type='hidden' name='ticket' value='$ticketID'>";
-                        echo "<input type='hidden' name='action' value='" . TicketAction::Request . "'>";
-                        echo "<button class='btn'>Transfer to reporter - $reportedBy</button>";
-                        echo "</div>";
-                        echo "</form>";
-                        echo "</td></tr>";
-                    }
-                } elseif ($reportState == TicketState::Request) {
-                    echo "<tr><td/><td colspan='6'>";
-                    echo "<div>";
-                    echo "<form method='post' action='/request/ticket/update.php'>";
-                    echo csrf_field();
-                    echo "<input type='hidden' name='ticket' value='$ticketID'>";
-                    echo "<input type='hidden' name='action' value='" . TicketAction::Reopen . "'>";
-                    echo "<button class='btn'>Transfer to author - $achAuthor</button>";
-                    echo "</div>";
-                    echo "</form>";
-                    echo "</div>";
-                    echo "</td></tr>";
-                }
-            }
-
-            echo "<tr>";
-            if ($permissions >= Permissions::Developer) {
-                echo "<td></td>";
-            } else {
-                echo "<td>Reporter:</td>";
-            }
-            echo "<td colspan='7'>";
-
-            $unlocks = PlayerAchievement::join('UserAccounts', 'UserAccounts.ID', '=', 'player_achievements.user_id')
-                ->join('Achievements', 'Achievements.ID', '=', 'player_achievements.achievement_id')
-                ->where('GameID', '=', $gameID)
-                ->where('UserAccounts.User', '=', $reportedBy)
-                ->orderByRaw('IFNULL(unlocked_hardcore_at, unlocked_at) DESC')
-                ->select(['player_achievements.*', 'Achievements.Title',
-                          'Achievements.Description', 'Achievements.Points', 'Achievements.BadgeName', 'Achievements.type']);
-            $numAchievements = $unlocks->count();
-
-            $unlocks = $unlocks->get();
-            $existingUnlock = null;
-            foreach ($unlocks as $unlock) {
-                if ($unlock->achievement_id == $achID) {
-                    $existingUnlock = $unlock;
-                    break;
-                }
-            }
-
-            if ($existingUnlock != null) {
-                if ($existingUnlock->unlocked_hardcore_at) {
-                    $unlockDate = $existingUnlock->unlocked_hardcore_at->unix();
-                } else {
-                    $unlockDate = $existingUnlock->unlocked_at->unix();
-                }
-
-                if ($existingUnlock->unlocker_id) {
-                    $unlocker = User::firstWhere('ID', $existingUnlock->unlocker_id);
-                    echo "$reportedBy was manually awarded this achievement at " . getNiceDate($unlockDate) . " by " . $unlocker->User . ".";
-                } else {
-                    echo "$reportedBy earned this achievement at " . getNiceDate($unlockDate);
-
-                    if ($unlockDate >= $reportedAtTime) {
-                        echo " (after the report).";
-                    } else {
-                        echo " (before the report).";
-                    }
-                }
-            } else {
-                if ($numAchievements == 0) {
-                    echo "$reportedBy has not earned any achievements for this game.";
-                } else {
-                    echo "$reportedBy did not earn this achievement.";
-                }
-
-                if ($permissions >= Permissions::Moderator) {
-                    $hasHardcoreUnlock = false;
-                    foreach ($unlocks as $unlock) {
-                        if ($unlock->unlocked_hardcore_at) {
-                            $hasHardcoreUnlock = true;
-                            break;
-                        }
-                    }
-
-                    echo "<script>
-                    function AwardManually(hardcore) {
-                        showStatusMessage('Awarding...');
-
-                        $.post('/request/user/award-achievement.php', {
-                            user: '$reportedBy',
-                            achievement: $achID,
-                            hardcore: hardcore
-                        })
-                            .done(function () {
-                                location.reload();
-                            });
-                    }
-                    </script>";
-                    echo "<button class='btn ml-2' onclick='AwardManually(0)'>Award Softcore</button>";
-                    if ($hasHardcoreUnlock || $numAchievements == 0) {
-                        echo "<button class='btn ml-1' onclick='AwardManually(1)'>Award Hardcore</button>";
-                    }
-                }
-            }
-            echo "</td></tr>";
-
-            if ($numAchievements > 0 && $permissions >= Permissions::Developer) {
-                echo "<tr class='do-not-highlight'><td></td><td colspan='7'>";
-
-                echo "<div class='devbox'>";
-                echo "<span onclick=\"$('#unlockhistory').toggle(); return false;\">Player unlock history for this game ▼</span>";
-                echo "<div id='unlockhistory' style='display: none'>";
-                echo "<table class='table-highlight'>";
-
-                $ticketEntryCreated = false;
-                foreach ($unlocks as $unlock) {
-                    if ($unlock->unlocked_hardcore_at) {
-                        $unlockDate = $unlock->unlocked_hardcore_at->unix();
-                    } else {
-                        $unlockDate = $unlock->unlocked_at->unix();
-                    }
-
-                    if (!$ticketEntryCreated && $unlockDate < $reportedAtTime) {
-                        echo "<tr><td class='smalldate whitespace-nowrap'>";
-                        echo $niceReportedAt;
-                        echo "</td><td>Ticket Created - ";
-                        echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
-                        echo "</td></tr>";
-                        $ticketEntryCreated = true;
-                    }
-
-                    echo "</td><td class='smalldate whitespace-nowrap'>";
-                    $unlockDate = getNiceDate($unlockDate);
-                    if ($unlock->achievement_id == $achID) {
-                        echo "<b>$unlockDate</b>";
-                    } else {
-                        echo $unlockDate;
-                    }
-                    if ($unlock->unlocker_id) {
-                        echo "<br/>&nbsp;(manually awarded)";
-                    }
-                    echo "</td><td style='width:99%'>";
-
-                    echo achievementAvatar([
-                        'AchievementID' => $unlock->achievement_id,
-                        'AchievementTitle' => $unlock->Title,
-                        'AchievementDesc' => $unlock->Description,
-                        'Points' => $unlock->Points,
-                        'Type' => $unlock->type,
-                        'BadgeName' => $unlock->BadgeName,
-                        'HardcoreMode' => ($unlock->unlocked_hardcore_at != null),
-                    ]);
-                    echo "</td></tr>";
-                }
-
-                if (!$ticketEntryCreated) {
-                    echo "<tr><td class='smalldate whitespace-nowrap'>";
-                    echo ($reportType == 1) ? "Triggered at wrong time" : "Doesn't Trigger";
-                    echo "</td><td>Ticket Created - ";
-                    echo $niceReportedAt;
-                    echo "</td></tr>";
-                }
-
-                echo "</table></div></div>";
-                echo "</td></tr>";
-            }
-
-            if ($user == $reportedBy || $permissions >= Permissions::Developer) {
-                echo "<tr>";
-
-                echo "<td>Action: </td><td colspan='7'>";
-                echo "<div>";
-                echo "<span>";
-
-                echo "<b>Please, add some comments about the action you're going to take.</b><br>";
-                echo "<form method='post' action='/request/ticket/update.php'>";
-                echo csrf_field();
-                echo "<input type='hidden' name='ticket' value='$ticketID'>";
-
-                echo "<select name='action' required>";
-                echo "<option value='' disabled selected hidden>Choose an action...</option>";
-
-                if ($reportState == TicketState::Open || $reportState == TicketState::Request) {
-                    if ($user == $reportedBy && $permissions < Permissions::Developer) {
-                        echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
-                    } elseif ($permissions >= Permissions::Developer) {
-                        echo "<option value='resolved'>Resolve as fixed (add comments about your fix below)</option>";
-                        echo "<option value='demoted'>Demote achievement to Unofficial</option>";
-                        echo "<option value='network'>Close - Network problems</option>";
-                        echo "<option value='not-enough-info'>Close - Not enough information</option>";
-                        echo "<option value='wrong-rom'>Close - Wrong ROM</option>";
-                        echo "<option value='unable-to-reproduce'>Close - Unable to reproduce</option>";
-                        echo "<option value='closed-mistaken'>Close - Mistaken report</option>";
-                        echo "<option value='closed-other'>Close - Another reason (add comments below)</option>";
-                    }
-                } else { // ticket is not open
-                    echo "<option value='reopen'>Reopen this ticket</option>";
-                }
-
-                echo "</select>";
-
-                echo " <button class='btn'>Perform action</button>";
-                echo "</form>";
-
-                echo "</span>";
-                echo "</div>";
-                echo "</td>";
-                echo "</tr>";
-            }
-            echo "<tr class='do-not-highlight'>";
-            echo "<td colspan='5'>";
-            echo "<div class='commentscomponent'>";
-
-            echo "<h4>Comments</h4>";
-            RenderCommentsComponent($user,
-                $numArticleComments,
-                $commentData,
-                $ticketID,
-                ArticleType::AchievementTicket,
-                $permissions
-            );
-
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
-
-            echo "</tbody></table>";
-            echo "</div>";
-
-            if ($permissions >= Permissions::Developer && $dataOut = GetAchievementData($achID)) {
-                $achMem = $dataOut['MemAddr'];
-                echo "<div>";
-                echo "<button id='devboxLogicButton' class='btn' onclick=\"toggleExpander('devboxLogicButton', 'devboxLogicContent');\">Achievement Logic ▼</button>";
-                echo "<div id='devboxLogicContent' class='hidden devboxcontainer'>";
-
-                echo "<div style='clear:both;'></div>";
-                echo "<li> Achievement ID: " . $achID . "</li>";
-                echo "<div>";
-                echo "<li>Mem:</li>";
-                echo "<code>" . htmlspecialchars($achMem) . "</code>";
-                echo "<li>Mem explained:</li>";
-
-                $triggerDecoderService = new TriggerDecoderService();
-                $groups = $triggerDecoderService->decode($achMem);
-                $triggerDecoderService->addCodeNotes($groups, $gameID);
-
-                echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" />",
-                    ['groups' => $groups]
-                );
-                echo "</div>";
-
-                echo "</div>"; // achievementlogic
-                echo "</div>"; // devbox
-            }
-        }
     }
     echo "</div>";
     ?>
