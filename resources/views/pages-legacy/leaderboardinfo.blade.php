@@ -2,16 +2,12 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
-use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\TriggerDecoderService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
-
-$userModel = Auth::user();
 
 $lbID = requestInputSanitized('i', null, 'integer');
 if (empty($lbID)) {
@@ -25,20 +21,14 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
-$leaderboard = Leaderboard::with('entries.user')->find($lbID);
+$leaderboard = Leaderboard::find($lbID);
+$lbData = GetLeaderboardData($lbID, $user, $count, $offset);
 
 if (!$leaderboard) {
     abort(404);
 }
 
-$numEntries = $leaderboard->entries->count();
-$orderedEntries = $leaderboard->entries()
-    ->with('user')
-    ->offset($offset)
-    ->limit($count)
-    ->orderBy('score', $leaderboard->rank_asc ? 'ASC' : 'DESC')
-    ->get();
-
+$numEntries = $lbData['TotalEntries'];
 $lbTitle = $leaderboard->title;
 $lbDescription = $leaderboard->description;
 $lbFormat = $leaderboard->format;
@@ -58,6 +48,7 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
 $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, $commentData);
 ?>
+
 <x-app-layout
     :pageTitle="$pageTitle"
     pageDescription="{{ $lbDescription ?? $lbTitle }}, {{ $numEntries }} entries."
@@ -65,7 +56,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
     pageType="retroachievements:leaderboard"
 >
     <div id="lbinfo">
-        <x-game.breadcrumbs 
+        <x-game.breadcrumbs
             :game="$leaderboard->game"
             :currentPageLabel="$lbTitle"
         />
@@ -118,7 +109,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
 
             echo "<li>Manage Entries</li>";
             echo "<div>";
-            if (!$orderedEntries->isEmpty()) {
+            if (!empty($lbData['Entries'])) {
                 echo "<tr><td>";
                 echo "<form method='post' action='/request/leaderboard/remove-entry.php' onsubmit='return confirm(\"Are you sure you want to permanently delete this leaderboard entry?\")'>";
                 echo csrf_field();
@@ -126,11 +117,12 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 echo "Remove Entry:";
                 echo "<select name='user'>";
                 echo "<option selected>-</option>";
-                foreach ($orderedEntries as $nextLBEntry) {
+                foreach ($lbData['Entries'] as $nextLBEntry) {
                     // Display all entries for devs, display only own entry for jr. devs
-                    if ($userModel->can('delete', $nextLBEntry)) {
-                        $nextUser = $nextLBEntry->user->User;
-                        $nextScore = $nextLBEntry->score;
+                    // TODO use a policy
+                    if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
+                        $nextUser = $nextLBEntry['User'];
+                        $nextScore = $nextLBEntry['Score'];
                         $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
                         echo "<option value='$nextUser'>$nextUser ($nextScoreFormatted)</option>";
                     }
@@ -201,19 +193,15 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         $numActualEntries = 0;
         $localUserFound = false;
         $resultsDrawn = 0;
-        $previousScore = null;
-        $currentRank = 1;
-        foreach ($orderedEntries as $nextEntry) {
-            $nextUser = $nextEntry->user->User;
-            $nextScore = $nextEntry->score;
-            $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
-            $nextSubmitAt = $nextEntry->created_at;
-            $nextSubmitAtNice = getNiceDate(strtotime($nextSubmitAt));
+        $nextRank = 1;
 
-            if ($previousScore !== null && $previousScore !== $nextScore) {
-                $currentRank = $resultsDrawn + 1;
-            }
-            $previousScore = $nextScore;
+        foreach ($lbData['Entries'] as $nextEntry) {
+            $nextUser = $nextEntry['User'];
+            $nextScore = $nextEntry['Score'];
+            $nextRank = $nextEntry['Rank'];
+            $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
+            $nextSubmitAt = $nextEntry['DateSubmitted'];
+            $nextSubmitAtNice = getNiceDate($nextSubmitAt);
 
             $isLocal = (strcmp($nextUser, $user) == 0);
             $lastEntry = ($resultsDrawn + 1 == $numEntries);
@@ -236,7 +224,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
             $injectFmt1 = $isLocal ? "<b>" : "";
             $injectFmt2 = $isLocal ? "</b>" : "";
 
-            echo "<td class='lb_rank'>$injectFmt1$currentRank$injectFmt2</td>";
+            echo "<td class='lb_rank'>$injectFmt1$nextRank$injectFmt2</td>";
 
             echo "<td class='lb_user'>";
             echo userAvatar($nextUser);
@@ -284,7 +272,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "<br><br>";
         ?>
     </div>
-    
+
     <x-slot name="sidebar">
         <x-game.leaderboards-listing :game="$leaderboard->game" />
     </x-slot>
