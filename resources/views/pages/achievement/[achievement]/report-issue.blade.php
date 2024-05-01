@@ -14,7 +14,6 @@ name('achievement.report-issue');
 @php
 
 use App\Community\Enums\TicketType;
-use App\Platform\Services\PlayerGameActivityService;
 
 $unlockedHardcore = false;
 $unlockedSoftcore = false;
@@ -75,11 +74,13 @@ if ($unlockedHardcore || ($unlockedSoftcore && !$hasHardcoreUnlocks)) {
     </div>
 
     @if ($ticketType === TicketType::DidNotTrigger)
-        <x-ticket.guide-link text="Create Ticket">
+        <x-ticket.guide-link text="Create Ticket"
+                             link="{{ route('achievement.create-ticket', $achievement) }}?type={{ TicketType::DidNotTrigger }}">
             I met the requirements, but the achievement did not trigger.
         </x-ticket.guide-link>
 
-        <x-ticket.guide-link text="Create Ticket">
+        <x-ticket.guide-link text="Create Ticket"
+                             link="{{ route('achievement.create-ticket', $achievement) }}?type={{ TicketType::TriggeredAtWrongTime }}">
             I unlocked this achievement without meeting the requirements, and then I reset it.
         </x-ticket.guide-link>
 
@@ -89,10 +90,11 @@ if ($unlockedHardcore || ($unlockedSoftcore && !$hasHardcoreUnlocks)) {
         @endphp
         <x-ticket.guide-link text="Request Manual Unlock"
                              link="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}">
-            The achievement triggered, but the unlock didn't appear on the server.
+            The achievement triggered, but the unlock didn't appear on my profile.
         </x-ticket.guide-link>
     @else
-        <x-ticket.guide-link text="Create Ticket">
+        <x-ticket.guide-link text="Create Ticket"
+                             link="{{ route('achievement.create-ticket', $achievement) }}?type={{ TicketType::TriggeredAtWrongTime }}">
             I unlocked this achievement without meeting the requirements.
         </x-ticket.guide-link>
     @endif
@@ -104,6 +106,15 @@ if ($unlockedHardcore || ($unlockedSoftcore && !$hasHardcoreUnlocks)) {
     <x-ticket.guide-link text="Message QATeam"
                          link="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}">
         There is a spelling or grammatical error in the title or description.
+    </x-ticket.guide-link>
+
+    @php
+        $subject = urlencode("Incorrect type: $achievement->title ({$achievement->game->title})");
+        $message = urlencode("I'd like to report a misclassification error in [ach=$achievement->id]:\n(Describe the issue here)");
+    @endphp
+    <x-ticket.guide-link text="Message QATeam"
+                         link="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}">
+        The achievement type (progression/win/missable) is not correct.
     </x-ticket.guide-link>
 
     @php
