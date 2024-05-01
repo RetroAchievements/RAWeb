@@ -9,7 +9,7 @@
             {{ $slot }}
         </div>
         <div class="flex items-center">
-            <a class="btn" href="$link">{{ $text }}</a>
+            <a class="btn" href="{{ $link }}">{{ $text }}</a>
         </div>
     </div>
 </div>
