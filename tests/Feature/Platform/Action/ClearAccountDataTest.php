@@ -8,6 +8,9 @@ use App\Actions\ClearAccountDataAction;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
 use App\Community\Enums\UserRelationship;
+use App\Models\Game;
+use App\Models\Leaderboard;
+use App\Models\LeaderboardEntry;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\Subscription;
@@ -76,6 +79,13 @@ class ClearAccountDataTest extends TestCase
             'thread_id' => $thread->id,
         ]);
 
+        $game = Game::factory()->create();
+        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboardEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboard->id,
+            'user_id' => $user2->id,
+        ]);
+
         $this->assertEquals(1, UserRelation::where('user_id', $user2->id)->count());
         $this->assertEquals(1, UserRelation::where('related_user_id', $user2->id)->count());
         $this->assertEquals(1, UserGameListEntry::where('user_id', $user2->id)->count());
@@ -90,6 +100,7 @@ class ClearAccountDataTest extends TestCase
         $this->assertEquals(0, UserGameListEntry::where('user_id', $user2->id)->count());
         $this->assertEquals(0, Subscription::where('user_id', $user2->id)->count());
         $this->assertEquals(0, MessageThreadParticipant::where('user_id', $user2->id)->count());
+        $this->assertEquals(0, LeaderboardEntry::where('user_id', $user2->id)->count());
 
         $user2->refresh();
         $this->assertEquals('', $user2->EmailAddress);

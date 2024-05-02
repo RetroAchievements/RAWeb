@@ -23,4 +23,13 @@ abstract class TicketState
             default => "Invalid state",
         };
     }
+
+    public static function isOpen(int $type): bool
+    {
+        return match ($type) {
+            TicketState::Open => true,
+            TicketState::Request => true,
+            default => false,
+        };
+    }
 }

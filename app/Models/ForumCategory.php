@@ -53,15 +53,15 @@ class ForumCategory extends BaseModel
 
     // == accessors
 
+    public function getCanonicalUrlAttribute(): string
+    {
+        return route('forum-category.show', [$this, $this->getSlugAttribute()]);
+    }
+
     // TODO remove after rename
     public function getIdAttribute(): int
     {
         return $this->attributes['ID'];
-    }
-
-    public function getCanonicalUrlAttribute(): string
-    {
-        return route('forum-category.show', [$this, $this->getSlugAttribute()]);
     }
 
     public function getPermalinkAttribute(): string
