@@ -10,9 +10,7 @@ $selectedValue = $allFilterOptions[$kind] ?? null;
 ?>
 
 <script>
-function handleSelectFilterChanged(event) {
-    const kind = '{{ $kind }}';
-
+function handleSelectFilterChanged(kind, event) {
     const newQueryParamValue = event.target.value;
     window.updateUrlParameter(
         [`filter[${kind}]`],
@@ -25,7 +23,7 @@ function handleSelectFilterChanged(event) {
 <select
     id="{{ $kind }}-filter-select"
     class="w-full sm:max-w-[240px]"
-    onchange="handleSelectFilterChanged(event)"
+    onchange="handleSelectFilterChanged('{{ $kind }}', event)"
     autocomplete="off"
 >
     @foreach ($options as $value => $label)

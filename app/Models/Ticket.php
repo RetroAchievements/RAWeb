@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\TicketState;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -90,4 +92,22 @@ class Ticket extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeUnresolved(Builder $query): Builder
+    {
+        return $query->whereIn('ReportState', [TicketState::Open, TicketState::Request]);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeResolved(Builder $query): Builder
+    {
+        return $query->whereIn('ReportState', [TicketState::Resolved, TicketState::Closed]);
+    }
 }

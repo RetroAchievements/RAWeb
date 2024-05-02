@@ -106,7 +106,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
     @if ($canSeeOpenTickets)
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{!! $ticketManagerUrl !!}"
+            href="{{ route('game.tickets', $game) }}"
         >
             Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
