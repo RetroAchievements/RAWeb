@@ -2,25 +2,28 @@
 
 use function Laravel\Folio\{name};
 
-name('ticket.index');
+name('game.tickets');
 
 ?>
 
 @props([
+    'game' => null, // Game
     'availableSelectFilters' => [],
     'filterOptions' => [],
     'tickets' => [], // Collection<Ticket>
+    'totalTickets' => 0,
+    'numFilteredTickets' => 0,
 ])
 
-<x-app-layout pageTitle="{{ $statusType }}">
-    <div class="navpath">
-        <a href="/ticketmanager.php">{{ $statusType }}</a>
-        &raquo;
-        <span class="font-bold">{{ $currentPage }}</span>
-    </div>
+<x-app-layout pageTitle="Tickets - {{ $game->Title }}">
+    <x-game.breadcrumbs
+        :game="$game"
+        currentPageLabel="Tickets"
+    />
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">Ticket Manager</h1>
+        {!! gameAvatar($game, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">Tickets</h1>
     </div>
 
     <x-meta-panel
