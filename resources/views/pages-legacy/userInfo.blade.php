@@ -105,7 +105,7 @@ $userScoreData = getAwardedList(
 
 // Get claim data if the user has jr dev or above permissions
 $userClaimData = null;
-if (getActiveClaimCount($userPage, true, true) > 0) {
+if (getActiveClaimCount($userPageModel, true, true) > 0) {
     // Active claims sorted by game title
     $userClaimData = getFilteredClaims(
         claimFilter: ClaimFilters::AllActiveClaims,
