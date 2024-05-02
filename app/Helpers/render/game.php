@@ -305,7 +305,7 @@ function generateEmptyBucketsWithBounds(int $numAchievements): array
 
     // If bucketing is enabled, we'll dynamically generate 19 buckets. The final 20th
     // bucket will contain all users who have completed/mastered the game.
-    $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements;
+    $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements - 1;
 
     // Bucket size is determined based on the total number of achievements in the set.
     // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by $bucketCount).
