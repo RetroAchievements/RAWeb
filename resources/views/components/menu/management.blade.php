@@ -30,7 +30,7 @@ $tools = $settings['tools'] ?? null;
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
                     {{--<x-dropdown-item :link="route('triggers.ticket.index')">{{ __res('ticket') }}</x-dropdown-item>--}}
                     <x-dropdown-item :link="route('tickets.index')">{{ __res('ticket') }}</x-dropdown-item>
-                    <x-dropdown-item :link="url('ticketmanager.php?f=1')">Most Reported Games</x-dropdown-item>
+                    <x-dropdown-item :link="route('tickets.most-reported-games')">Most Reported Games</x-dropdown-item>
                     <x-dropdown-item :link="url('achievementinspector.php')">Achievement Inspector</x-dropdown-item>
                 @endcan
                 @can('manage', App\Models\AchievementSetClaim::class)

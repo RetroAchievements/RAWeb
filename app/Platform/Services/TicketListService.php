@@ -25,6 +25,9 @@ class TicketListService
 {
     public int $totalTickets = 0;
     public int $numFilteredTickets = 0;
+    public int $perPage = 0;
+    public int $pageNumber = 0;
+    public int $totalPages = 0;
 
     public function getFilterOptions(Request $request): array
     {
@@ -35,6 +38,13 @@ class TicketListService
             'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
             'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
         ]);
+
+        if ($this->perPage !== 0) {
+            $validatedData = $request->validate([
+                'page.number' => 'sometimes|integer|min:1',
+            ]);
+            $this->pageNumber = (int) ($validatedData['page']['number'] ?? 1);
+        }
 
         return [
             'status' => $validatedData['filter']['status'] ?? 'unresolved',
@@ -103,8 +113,12 @@ class TicketListService
         return $availableSelectFilters;
     }
 
-    public function getTickets(array $filterOptions, Builder $tickets = null, 
-            ?int $pageNumber = null, ?int $perPage = null): Collection
+    public function getTickets(array $filterOptions, Builder $tickets = null): Collection
+    {
+        return $this->buildQuery($filterOptions, $tickets)->orderBy('ReportedAt', 'DESC')->get();
+    }
+
+    public function buildQuery(array $filterOptions, Builder $tickets = null): Builder
     {
         if ($tickets === null) {
             $tickets = Ticket::query();
@@ -178,14 +192,16 @@ class TicketListService
         
         $this->numFilteredTickets = $tickets->count();
 
-        if ($perPage !== null) {
-            $pageNumber ??= 1;
-            if ($pageNumber > ceil($this->numFilteredTickets / $perPage)) {
-                $pageNumber = 1;
+        if ($this->perPage > 0) {
+            $this->totalPages = (int) ceil($this->numFilteredTickets / $this->perPage);
+
+            if ($this->pageNumber < 1 || $this->pageNumber > $this->totalPages) {
+                $this->pageNumber = 1;
             }
-            $tickets->offset(($pageNumber - 1) * $perPage)->take($perPage);
+
+            $tickets->offset(($this->pageNumber - 1) * $this->perPage)->take($this->perPage);
         }
 
-        return $tickets->with(['achievement', 'reporter'])->orderBy('ReportedAt', 'DESC')->get();
+        return $tickets->with(['achievement', 'reporter']);
     }
 }

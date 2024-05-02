@@ -27,16 +27,11 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $validatedData = $request->validate([
-            'page.number' => 'sometimes|integer|min:1',
-        ]);
-        $pageNumber = (int) ($validatedData['page']['number'] ?? 1);
-        $perPage = 50;
-
         $ticketListService = new TicketListService();
+        $ticketListService->perPage = 50;
         $selectFilters = $ticketListService->getSelectFilters();
         $filterOptions = $ticketListService->getFilterOptions($request);
-        $tickets = $ticketListService->getTickets($filterOptions, pageNumber: $pageNumber, perPage: $perPage);
+        $tickets = $ticketListService->getTickets($filterOptions);
         
         return view('pages.tickets.index', [
             'tickets' => $tickets,
@@ -44,8 +39,8 @@ class TicketController extends Controller
             'filterOptions' => $filterOptions,
             'totalTickets' => $ticketListService->totalTickets,
             'numFilteredTickets' => $ticketListService->numFilteredTickets,
-            'currentPage' => $pageNumber,
-            'totalPages' => (int) ceil($ticketListService->numFilteredTickets / $perPage),
+            'currentPage' => $ticketListService->pageNumber,
+            'totalPages' => $ticketListService->totalPages,
         ]);
     }
 
@@ -72,16 +67,11 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $validatedData = $request->validate([
-            'page.number' => 'sometimes|integer|min:1',
-        ]);
-        $pageNumber = (int) ($validatedData['page']['number'] ?? 1);
-        $perPage = 50;
-
         $ticketListService = new TicketListService();
+        $ticketListService->perPage = 50;
         $selectFilters = $ticketListService->getSelectFilters(showDevType: false);
         $filterOptions = $ticketListService->getFilterOptions($request);
-        $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user), pageNumber: $pageNumber, perPage: $perPage);
+        $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
 
         return view('pages.tickets.[user]', [
             'user' => $user,
@@ -90,9 +80,16 @@ class TicketController extends Controller
             'filterOptions' => $filterOptions,
             'totalTickets' => $ticketListService->totalTickets,
             'numFilteredTickets' => $ticketListService->numFilteredTickets,
-            'currentPage' => $pageNumber,
-            'totalPages' => $ticketListService->numFilteredTickets > $perPage ? (int) ceil($ticketListService->numFilteredTickets / $perPage) : null,
+            'currentPage' => $ticketListService->pageNumber,
+            'totalPages' => $ticketListService->totalPages,
         ]);
+    }
+
+    public function mostReportedGames(Request $request): View
+    {
+        $this->authorize('viewAny', $this->resourceClass());
+       
+        return view('pages.tickets.most-reported-games');
     }
 
     public function create(?Achievement $achievement = null): View
