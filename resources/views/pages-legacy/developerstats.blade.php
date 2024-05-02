@@ -9,7 +9,7 @@ $type = requestInputSanitized('t', 0, 'integer');
 $defaultFilter = 7; // set all 3 status' to enabled
 $devFilter = requestInputSanitized('f', 7, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
-$resolvedForOthersTicketFilter = (
+$resolvedForOthersTicketFilter = ( // TODO
     TicketFilters::AllFilters
     & ~TicketFilters::StateOpen
     & ~TicketFilters::StateRequest

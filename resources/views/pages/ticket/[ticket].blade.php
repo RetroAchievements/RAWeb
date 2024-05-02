@@ -12,7 +12,6 @@ name('ticket.show');
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketAction;
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;

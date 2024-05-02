@@ -17,7 +17,6 @@
 
 <?php
 
-use App\Community\Enums\TicketFilters;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Ticket;
