@@ -32,7 +32,7 @@ $userModel = User::firstWhere('User', $user);
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
 if (
     $permissions === Permissions::JuniorDeveloper
-    && (!checkIfSoleDeveloper($userModel, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))
+    && (!checkIfSoleDeveloper($userModel, $gameId) && !hasSetClaimed($userModel, $gameId, true, ClaimSetType::NewSet))
 ) {
     return back()->withErrors(__('legacy.error.permissions'));
 }

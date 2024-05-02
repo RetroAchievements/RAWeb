@@ -25,7 +25,7 @@ $userModel = User::firstWhere('User', $user);
 // Only allow jr. devs to update the display order if they are the sole author of the set or have the primary claim
 if (
     $permissions == Permissions::JuniorDeveloper
-    && (!checkIfSoleDeveloper($userModel, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))
+    && (!checkIfSoleDeveloper($userModel, $gameId) && !hasSetClaimed($userModel, $gameId, true, ClaimSetType::NewSet))
 ) {
     abort(403);
 }

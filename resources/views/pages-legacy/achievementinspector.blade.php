@@ -11,16 +11,18 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
 
 $userModel = Auth::user();
 
+// TODO use a policy
 $fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
 $flag = requestInputSanitized('f', 3, 'integer');
 
+// TODO use a policy
 $partialModifyOK =
     $permissions == Permissions::JuniorDeveloper
     && (
         checkIfSoleDeveloper($userModel, $gameID)
-        || hasSetClaimed($user, $gameID, false)
+        || hasSetClaimed($userModel, $gameID, false)
     );
 
 $achievementList = [];
