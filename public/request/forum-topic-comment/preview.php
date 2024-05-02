@@ -14,9 +14,11 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
+$normalizedInput = normalize_shortcodes($input['body']);
+
 return response()->json([
     'message' => __('legacy.success.ok'),
     'postPreviewHtml' => Blade::render('<x-forum.post :parsedPostContent="$parsedPostContent" isPreview="true" />', [
-        'parsedPostContent' => Shortcode::render($input['body']),
+        'parsedPostContent' => Shortcode::render($normalizedInput),
     ]),
 ]);

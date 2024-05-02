@@ -336,5 +336,13 @@ class Game extends BaseModel implements HasComments, HasMedia
         return $this->hasMany(GameHash::class, 'game_id');
     }
 
+    /**
+     * @return HasMany<Leaderboard>
+     */
+    public function visibleLeaderboards(): HasMany
+    {
+        return $this->leaderboards()->where('DisplayOrder', '>=', 0);
+    }
+
     // == scopes
 }
