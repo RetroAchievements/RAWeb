@@ -142,6 +142,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
 use App\Platform\Enums\AchievementFlag;
+use Illuminate\Database\Eloquent\Builder;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
 $defaultTicketFilter = TicketFilters::Default;
@@ -216,6 +217,44 @@ if (!empty($assignedToUser)) {
     return response()->json($ticketData);
 }
 
+
+function getTicketInfo(Builder $tickets, int $offset, int $count): array
+{
+    $result = [];
+
+    foreach ($tickets->offset($offset)->take($count)->get() as $ticket) {
+        $ticket->loadMissing(['achievement', 'reporter', 'resolver']);
+        $ticket->achievement->loadMissing('game');
+        $ticket->achievement->game->loadMissing('system');
+    
+        $result[] = [
+            'ID' => $ticket->ID,
+            'AchievementID' => $ticket->achievement->ID,
+            'AchievementTitle' => $ticket->achievement->Title,
+            'AchievementDesc' => $ticket->achievement->Description,
+            'AchievementType' => $ticket->achievement->type,
+            'Points' => $ticket->achievement->points,
+            'BadgeName' => $ticket->achievement->BadgeName,
+            'AchievementAuthor' => $ticket->achievement->author,
+            'GameID' => $ticket->achievement->game->ID,
+            'ConsoleName' => $ticket->achievement->game->system->name,
+            'GameTitle' => $ticket->achievement->game->title,
+            'GameIcon' => $ticket->achievement->game->ImageIcon,
+            'ReportedAt' => $ticket->ReportedAt,
+            'ReportType' => $ticket->ReportType,
+            'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
+            'ReportNotes' => $ticket->ReportNotes,
+            'ReportedBy' => $ticket->reporter->User,
+            'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
+            'ResolvedBy' => $ticket->resolver?->User,
+            'ReportState' => $ticket->ReportState,
+            'ReportStateDescription' => TicketState::toString($ticket->ReportState),        
+        ];
+    }
+
+    return $result;
+}
+
 // getting data for a specific game
 $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
@@ -236,12 +275,7 @@ if ($gameIDGiven > 0) {
 
         $details = (int) request()->query('d');
         if ($details == 1) {
-            $ticketData['Tickets'] = getAllTickets($offset, $count, givenGameID: $gameIDGiven, ticketFilters: $defaultTicketFilter);
-
-            foreach ($ticketData['Tickets'] as &$ticket) {
-                $ticket['ReportStateDescription'] = TicketState::toString($ticket['ReportState']);
-                $ticket['ReportTypeDescription'] = TicketType::toString($ticket['ReportType']);
-            }
+            $ticketData['Tickets'] = getTicketInfo($tickets, $offset, $count);
         }
 
         return response()->json($ticketData);
@@ -268,13 +302,9 @@ if ($achievementIDGiven > 0) {
 }
 
 // getting the 10 most recent tickets
-$ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, null, null, $defaultTicketFilter);
-$ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter, null, null, null, null);
+$tickets = Ticket::officialCore()->unresolved();
+$ticketData['OpenTickets'] = $tickets->count();
 $ticketData['URL'] = $baseUrl;
-
-foreach ($ticketData['RecentTickets'] as &$ticket) {
-    $ticket['ReportStateDescription'] = TicketState::toString($ticket['ReportState']);
-    $ticket['ReportTypeDescription'] = TicketType::toString($ticket['ReportType']);
-}
+$ticketData['RecentTickets'] = getTicketInfo($tickets, $offset, $count);
 
 return response()->json($ticketData);
