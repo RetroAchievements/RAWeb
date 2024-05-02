@@ -2,6 +2,9 @@
     'tickets' => [],
     'totalTickets' => 0,
     'numFilteredTickets' => 0,
+    'offset' => 0,
+    'currentPage' => 0,
+    'totalPages' => 0,
 ])
 
 @php
@@ -14,14 +17,23 @@ $gameCache = [];
 @endphp
 
 <div>
-    <p class="mb-4 text-xs">
-        Viewing
-        <span class="font-bold">{{ localized_number($numFilteredTickets) }}</span>
-        @if ($numFilteredTickets != $totalTickets)
-            of {{ localized_number($totalTickets) }}
+    <div class="w-full flex mb-2 justify-between">
+        <div class="flex items-center">
+            <p class="text-xs">
+                Viewing
+                <span class="font-bold">{{ localized_number($numFilteredTickets) }}</span>
+                @if ($numFilteredTickets != $totalTickets)
+                    of {{ localized_number($totalTickets) }}
+                @endif
+                {{ trans_choice(__('resource.ticket.title'), $totalTickets) }}
+            </p>
+        </div>
+        @if ($totalPages)
+        <div class="flex items-center">
+            <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
+        </div>
         @endif
-        {{ trans_choice(__('resource.ticket.title'), $totalTickets) }}
-    </p>
+    </div>
 
     @if (!empty($tickets))
         <div class="overflow-x-auto lg:overflow-x-visible">
@@ -65,6 +77,12 @@ $gameCache = [];
                     @endforeach
                 </tbody>
             </table>
+        </div>
+    @endif
+
+    @if ($totalPages)
+        <div class="w-full flex items-center justify-end">
+            <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
         </div>
     @endif
 </div>

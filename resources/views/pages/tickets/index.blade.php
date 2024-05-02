@@ -10,17 +10,23 @@ name('ticket.index');
     'availableSelectFilters' => [],
     'filterOptions' => [],
     'tickets' => [], // Collection<Ticket>
+    'totalTickets' => 0,
+    'numFilteredTickets' => 0,
+    'currentPage' => null,
+    'totalPages' => null,
 ])
 
-<x-app-layout pageTitle="{{ $statusType }}">
-    <div class="navpath">
-        <a href="/ticketmanager.php">{{ $statusType }}</a>
-        &raquo;
-        <span class="font-bold">{{ $currentPage }}</span>
-    </div>
+@php
 
-    <div class="mt-3 mb-1 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">Ticket Manager</h1>
+use App\Models\Ticket;
+
+$openTicketCount = Ticket::unresolved()->count();
+
+@endphp
+
+<x-app-layout pageTitle="Ticket Manager">
+    <div class="mb-1 w-full flex gap-x-3">
+        <h1 class="mt-[10px] w-full">Ticket Manager - {{ $openTicketCount }} Open Tickets</h1>
     </div>
 
     <x-meta-panel
@@ -32,5 +38,7 @@ name('ticket.index');
         :tickets="$tickets"
         :totalTickets="$totalTickets"
         :numFilteredTickets="$numFilteredTickets"
+        :currentPage="$currentPage"
+        :totalPages="$totalPages"
     />
 </x-app-layout>

@@ -90,6 +90,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');
             Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
             Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
+            Route::get('user/{user}/tickets', [TicketController::class, 'indexForDeveloper'])->name('developer.tickets');
 
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);

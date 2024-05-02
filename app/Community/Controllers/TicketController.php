@@ -8,6 +8,7 @@ use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
+use App\Models\User;
 use App\Platform\Services\TicketListService;
 use App\Support\Concerns\HandlesResources;
 use Illuminate\Contracts\View\View;
@@ -22,12 +23,30 @@ class TicketController extends Controller
         return 'ticket';
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        return view('resource.index')
-            ->with('resource', $this->resourceName());
+        $validatedData = $request->validate([
+            'page.number' => 'sometimes|integer|min:1',
+        ]);
+        $pageNumber = (int) ($validatedData['page']['number'] ?? 1);
+        $perPage = 50;
+
+        $ticketListService = new TicketListService();
+        $selectFilters = $ticketListService->getSelectFilters();
+        $filterOptions = $ticketListService->getFilterOptions($request);
+        $tickets = $ticketListService->getTickets($filterOptions, pageNumber: $pageNumber, perPage: $perPage);
+        
+        return view('pages.tickets.index', [
+            'tickets' => $tickets,
+            'availableSelectFilters' => $selectFilters,
+            'filterOptions' => $filterOptions,
+            'totalTickets' => $ticketListService->totalTickets,
+            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+            'currentPage' => $pageNumber,
+            'totalPages' => (int) ceil($ticketListService->numFilteredTickets / $perPage),
+        ]);
     }
 
     public function indexForGame(Request $request, Game $game): View
@@ -46,6 +65,33 @@ class TicketController extends Controller
             'filterOptions' => $filterOptions,
             'totalTickets' => $ticketListService->totalTickets,
             'numFilteredTickets' => $ticketListService->numFilteredTickets,
+        ]);
+    }
+
+    public function indexForDeveloper(Request $request, User $user): View
+    {
+        $this->authorize('viewAny', $this->resourceClass());
+
+        $validatedData = $request->validate([
+            'page.number' => 'sometimes|integer|min:1',
+        ]);
+        $pageNumber = (int) ($validatedData['page']['number'] ?? 1);
+        $perPage = 50;
+
+        $ticketListService = new TicketListService();
+        $selectFilters = $ticketListService->getSelectFilters(showDevType: false);
+        $filterOptions = $ticketListService->getFilterOptions($request);
+        $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user), pageNumber: $pageNumber, perPage: $perPage);
+
+        return view('pages.tickets.[user]', [
+            'user' => $user,
+            'tickets' => $tickets,
+            'availableSelectFilters' => $selectFilters,
+            'filterOptions' => $filterOptions,
+            'totalTickets' => $ticketListService->totalTickets,
+            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+            'currentPage' => $pageNumber,
+            'totalPages' => $ticketListService->numFilteredTickets > $perPage ? (int) ceil($ticketListService->numFilteredTickets / $perPage) : null,
         ]);
     }
 

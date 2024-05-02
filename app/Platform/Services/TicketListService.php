@@ -103,7 +103,8 @@ class TicketListService
         return $availableSelectFilters;
     }
 
-    public function getTickets(array $filterOptions, Builder $tickets = null): Collection
+    public function getTickets(array $filterOptions, Builder $tickets = null, 
+            ?int $pageNumber = null, ?int $perPage = null): Collection
     {
         if ($tickets === null) {
             $tickets = Ticket::query();
@@ -176,6 +177,15 @@ class TicketListService
         }
         
         $this->numFilteredTickets = $tickets->count();
-        return $tickets->with(['achievement', 'reporter'])->get();
+
+        if ($perPage !== null) {
+            $pageNumber ??= 1;
+            if ($pageNumber > ceil($this->numFilteredTickets / $perPage)) {
+                $pageNumber = 1;
+            }
+            $tickets->offset(($pageNumber - 1) * $perPage)->take($perPage);
+        }
+
+        return $tickets->with(['achievement', 'reporter'])->orderBy('ReportedAt', 'DESC')->get();
     }
 }

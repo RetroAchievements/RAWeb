@@ -36,11 +36,6 @@ if ($canSeeOpenTickets) {
     $numOpenTickets = $gameTickets->count();
 }
 
-$ticketManagerUrlParams = [
-    'g' => $game->id,
-    'f' => $isViewingOfficial ? null : AchievementFlag::Unofficial,
-];
-$ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketManagerUrlParams);
 ?>
 
 <ul class="flex @if ($variant === 'stacked') flex-col @endif gap-2">

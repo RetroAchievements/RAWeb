@@ -127,6 +127,17 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
+    public function scopeForDeveloper(Builder $query, User $developer): Builder
+    {
+        return $query->whereHas('achievement', function($query) use ($developer) {
+            $query->where('user_id', $developer->id);
+        });
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
     public function scopeOfficialCore(Builder $query): Builder
     {
         return $query->whereHas('achievement', function($query) {
