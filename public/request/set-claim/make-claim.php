@@ -27,7 +27,7 @@ $createForumTopic = (bool) ($input['create_topic'] ?? false);
 
 $userModel = User::findOrFail($userDetails['ID']);
 
-$special = (int) checkIfSoleDeveloper($user, $gameID);
+$special = (int) checkIfSoleDeveloper($userModel, $gameID);
 if (insertClaim($userModel, $gameID, $claimType, $setType, $special)) {
     addArticleComment("Server", ArticleType::SetClaim, $gameID, ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $user);
 

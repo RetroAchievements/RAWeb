@@ -1,46 +1,53 @@
 <?php
 
+use App\Models\Achievement;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 
 /**
  * Gets the number of achievements made by the user for each console they have worked on.
  */
-function getUserAchievementsPerConsole(string $username): array
+function getUserAchievementsPerConsole(User $user): array
 {
-    $query = "SELECT COUNT(a.GameID) AS AchievementCount, c.Name AS ConsoleName
-              FROM Achievements as a
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE a.Author = :author
-              AND a.Flags = :achievementFlag
-              AND gd.ConsoleID NOT IN (100, 101)
-              GROUP BY ConsoleName
-              ORDER BY AchievementCount DESC, ConsoleName";
+    $userAuthoredAchievements = Achievement::whereHas("game.system", function ($query) {
+        $query->whereNotIn("ID", [System::Hubs, System::Events]);
+      })
+        ->with("game.system")
+        ->where("user_id", $user->id)
+        ->where("Flags", AchievementFlag::OfficialCore)
+        ->get();
 
-    return legacyDbFetchAll($query, [
-        'author' => $username,
-        'achievementFlag' => AchievementFlag::OfficialCore,
-    ])->toArray();
+    return $userAuthoredAchievements
+        ->groupBy('game.system.Name')
+        ->map(function ($achievements, $systemName) {
+            return [
+                'ConsoleName' => $systemName,
+                'AchievementCount' => $achievements->count(),
+            ];
+        })
+        ->sortByDesc('AchievementCount')
+        ->values()
+        ->toArray();
 }
 
 /**
  * Gets the number of sets worked on by the user for each console they have worked on.
  */
-function getUserSetsPerConsole(string $username): array
+function getUserSetsPerConsole(User $user): array
 {
     $query = "SELECT COUNT(DISTINCT(a.GameID)) AS SetCount, c.Name AS ConsoleName
               FROM Achievements AS a
               LEFT JOIN GameData AS gd ON gd.ID = a.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE a.Author = :author
+              WHERE a.user_id = :userId
               AND a.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
               GROUP BY ConsoleName
               ORDER BY SetCount DESC, ConsoleName";
 
     return legacyDbFetchAll($query, [
-        'author' => $username,
+        'userId' => $user->id,
         'achievementFlag' => AchievementFlag::OfficialCore,
     ])->toArray();
 }
@@ -48,23 +55,36 @@ function getUserSetsPerConsole(string $username): array
 /**
  * Gets information for all achievements made by the user.
  */
-function getUserAchievementInformation(string $username): array
+function getUserAchievementInformation(User $user): array
 {
-    $query = "SELECT c.Name AS ConsoleName, a.ID, a.GameID, a.Title, a.Description, a.BadgeName, a.Points, a.TrueRatio, a.type, a.Author, a.DateCreated, a.Flags, gd.Title AS GameTitle, LENGTH(a.MemAddr) AS MemLength, ua.ContribCount, ua.ContribYield
-              FROM Achievements AS a
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.User = :joinUsername
-              WHERE Author LIKE :author
-              AND a.Flags = :achievementFlag
-              AND gd.ConsoleID NOT IN (100, 101)
-              ORDER BY a.DateCreated";
+    $userAuthoredAchievements = Achievement::whereHas("game.system", function ($query) {
+        $query->whereNotIn("ID", [System::Hubs, System::Events]);
+      })
+        ->with("game.system")
+        ->where("user_id", $user->id)
+        ->where("Flags", AchievementFlag::OfficialCore)
+        ->get();
 
-    return legacyDbFetchAll($query, [
-        'author' => $username,
-        'joinUsername' => $username,
-        'achievementFlag' => AchievementFlag::OfficialCore,
-    ])->toArray();
+    $mappedValue = $userAuthoredAchievements->map(function ($achievement) use ($user) {
+        return [
+            'ConsoleName' => $achievement->game->system->Name,
+            'GameTitle' => $achievement->game->title,
+            'ID' => $achievement->id,
+            'GameID' => $achievement->game->id,
+            'Title' => $achievement->title,
+            'Description' => $achievement->description,
+            'BadgeName' => $achievement->badge_name,
+            'Points' => $achievement->points,
+            'TrueRatio' => $achievement->points_weighted,
+            'Type' => $achievement->type,
+            'Author' => $user->User, // we're doing this naively based on the $userAuthoredAchievements query
+            'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
+            'Flags' => $achievement->Flags,
+            'MemLength' => strlen($achievement->MemAddr ?? ''),
+        ];
+    });
+
+    return $mappedValue->toArray();
 }
 
 /**
@@ -78,14 +98,14 @@ function getOwnAchievementsObtained(User $user): array
               FROM player_achievements AS pa
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
               INNER JOIN GameData AS gd ON gd.ID = ach.GameID
-              WHERE ach.Author = :author
-              AND pa.user_id = :userid
+              WHERE ach.user_id = :authorId
+              AND pa.user_id = :userId
               AND ach.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)";
 
     return legacyDbFetch($query, [
-        'author' => $user->User,
-        'userid' => $user->ID,
+        'authorId' => $user->id,
+        'userId' => $user->id,
         'achievementFlag' => AchievementFlag::OfficialCore,
     ]);
 }
@@ -102,8 +122,8 @@ function getObtainersOfSpecificUser(User $user): array
               INNER JOIN Achievements AS ach ON ach.ID = pa.achievement_id
               INNER JOIN GameData AS gd ON gd.ID = ach.GameID
               INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
-              WHERE ach.Author = :author
-              AND pa.user_id != :userid
+              WHERE ach.user_id = :authorId
+              AND pa.user_id != :userId
               AND ach.Flags = :achievementFlag
               AND gd.ConsoleID NOT IN (100, 101)
               AND ua.Untracked = 0
@@ -111,8 +131,8 @@ function getObtainersOfSpecificUser(User $user): array
               ORDER BY ObtainCount DESC";
 
     return legacyDbFetchAll($query, [
-        'author' => $user->User,
-        'userid' => $user->ID,
+        'authorId' => $user->id,
+        'userId' => $user->id,
         'achievementFlag' => AchievementFlag::OfficialCore,
     ])->toArray();
 }
@@ -133,35 +153,25 @@ function getRecentUnlocksForDev(User $user, int $offset = 0, int $count = 200): 
               INNER JOIN GameData AS gd ON gd.ID = ach.GameID
               INNER JOIN Console AS c ON c.ID = gd.ConsoleID
               INNER JOIN UserAccounts AS ua ON ua.ID = pa.user_id
-              WHERE ach.Author = :author
+              WHERE ach.user_id = :authorId
               AND gd.ConsoleID NOT IN (100, 101)
               ORDER BY Date DESC
               LIMIT $offset, $count";
 
     return legacyDbFetchAll($query, [
-        'author' => $user->User,
+        'authorId' => $user->id,
     ])->toArray();
 }
 
 /**
  * Checks to see if a user is the sole author of a set.
  */
-function checkIfSoleDeveloper(string $user, int $gameID): bool
+function checkIfSoleDeveloper(User $user, int $gameId): bool
 {
-    $query = "
-        SELECT distinct(Author) AS Author FROM Achievements AS ach
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        WHERE ach.GameID = :gameId
-        AND ach.Flags = :achievementFlag";
+    $developerUserIdsForGame = Achievement::where('GameID', $gameId)
+        ->where('Flags', AchievementFlag::OfficialCore)
+        ->distinct()
+        ->pluck('user_id');
 
-    $authors = legacyDbFetchAll($query, [
-        'gameId' => $gameID,
-        'achievementFlag' => AchievementFlag::OfficialCore,
-    ]);
-
-    if ($authors->count() !== 1) {
-        return false;
-    }
-
-    return $authors->first()['Author'] === $user;
+    return $developerUserIdsForGame->count() === 1 && $developerUserIdsForGame->first() === $user->id;
 }

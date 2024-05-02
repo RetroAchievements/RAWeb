@@ -18,7 +18,7 @@ if (!$devUser) {
 }
 $dev = $devUser->User; // get case-corrected username
 
-$userArchInfo = getUserAchievementInformation($dev);
+$userArchInfo = getUserAchievementInformation($devUser);
 
 // Only get stats if the user has a contribution count
 if (empty($userArchInfo)) {
@@ -29,8 +29,8 @@ $userContribCount = $userArchInfo[0]['ContribCount'];
 $userContribYield = $userArchInfo[0]['ContribYield'];
 
 // Get sets and achievements per console data for pie charts
-$setsPerConsole = getUserSetsPerConsole($dev);
-$achievementsPerConsole = getUserAchievementsPerConsole($dev);
+$setsPerConsole = getUserSetsPerConsole($devUser);
+$achievementsPerConsole = getUserAchievementsPerConsole($devUser);
 
 // Initialise any dev game variables
 $gamesList = [];

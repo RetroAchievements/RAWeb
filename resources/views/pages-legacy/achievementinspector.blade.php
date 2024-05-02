@@ -3,10 +3,13 @@
 use App\Enums\Permissions;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
+use Illuminate\Support\Facades\Auth;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     abort(401);
 }
+
+$userModel = Auth::user();
 
 $fullModifyOK = $permissions >= Permissions::Developer;
 
@@ -16,7 +19,7 @@ $flag = requestInputSanitized('f', 3, 'integer');
 $partialModifyOK =
     $permissions == Permissions::JuniorDeveloper
     && (
-        checkIfSoleDeveloper($user, $gameID)
+        checkIfSoleDeveloper($userModel, $gameID)
         || hasSetClaimed($user, $gameID, false)
     );
 

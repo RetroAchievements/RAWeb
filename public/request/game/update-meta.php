@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,8 +27,13 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $gameId = (int) $input['game'];
 
+$userModel = User::firstWhere('User', $user);
+
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
-if ($permissions === Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($user, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))) {
+if (
+    $permissions === Permissions::JuniorDeveloper
+    && (!checkIfSoleDeveloper($userModel, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))
+) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
