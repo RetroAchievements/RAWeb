@@ -36,7 +36,11 @@ class ForumTopic extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
+        'ForumID',
         'Title',
+        'author_id',
+        'LatestCommentID',
+        'RequiredPermissions',
     ];
 
     protected $dispatchesEvents = [
