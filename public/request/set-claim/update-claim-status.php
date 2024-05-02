@@ -22,9 +22,12 @@ if ($claim) {
     $claim->Status = (int) $input['claim_status'];
     $claim->save();
 
-    print_r($claim->toArray());
-    addArticleComment("Server", ArticleType::SetClaim, $claim->GameID,
-        "$user updated " . $claim->User . "'s claim. Claim Status: " . ClaimStatus::toString($claim->Status));
+    addArticleComment(
+        "Server",
+        ArticleType::SetClaim,
+        $claim->game_id,
+        "$user updated " . $claim->User . "'s claim. Claim Status: " . ClaimStatus::toString($claim->Status)
+    );
 
     return back()->with('success', __('legacy.success.ok'));
 }

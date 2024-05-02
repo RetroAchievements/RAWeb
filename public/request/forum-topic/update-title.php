@@ -1,11 +1,11 @@
 <?php
 
-use App\Enums\Permissions;
 use App\Models\ForumTopic;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($username, $permissions, $userDetails)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -14,14 +14,16 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'title' => 'required|string|max:255',
 ]);
 
-/** @var ForumTopic $topic */
-$topic = ForumTopic::find($input['topic']);
+$userModel = User::firstWhere('User', $username);
 
-if ($permissions < Permissions::Moderator && $topic->Author !== $username) {
+/** @var ForumTopic $forumTopic */
+$forumTopic = ForumTopic::find((int) $input['topic']);
+
+if (!$userModel->can('update', $forumTopic)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-$topic->Title = $input['title'];
-$topic->save();
+$forumTopic->title = $input['title'];
+$forumTopic->save();
 
 return back()->with('success', __('legacy.success.modify'));

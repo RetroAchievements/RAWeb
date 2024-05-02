@@ -28,8 +28,8 @@ function insertClaim(User $user, int $gameId, int $claimType, int $setType, int 
 
     if ($claimType !== ClaimType::Primary) {
         $primaryClaimFinishTime = AchievementSetClaim::where('game_id', $gameId)
-            ->where('Status', ClaimStatus::Active)
-            ->where('ClaimType', ClaimType::Primary)
+            ->active()
+            ->primaryClaim()
             ->value('Finished');
 
         // If a primary claim doesn't exist, treat the new claim as a primary claim.
@@ -40,7 +40,7 @@ function insertClaim(User $user, int $gameId, int $claimType, int $setType, int 
     } elseif ($special === ClaimSpecial::None) {
         // Different roles are allowed a maximum number of active primary claims.
         // Does this user currently have fewer primary claims than that maximum?
-        $isUserAllowedToClaim = getActiveClaimCount($user->User, false) < permissionsToClaim($userPermissions);
+        $isUserAllowedToClaim = getActiveClaimCount($user, false) < permissionsToClaim($userPermissions);
 
         if (!$isUserAllowedToClaim) {
             return false;
@@ -66,38 +66,21 @@ function insertClaim(User $user, int $gameId, int $claimType, int $setType, int 
 /**
  * Checks if the user already has the game claimed. Allows for checking primary/collaboration claims as well as set type.
  */
-function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = false, ?int $setType = null): bool
+function hasSetClaimed(User $user, int $gameId, bool $isPrimaryClaim = false, ?int $setType = null): bool
 {
-    $bindings = [
-        'username' => $username,
-        'gameId' => $gameID,
-    ];
+    $query = AchievementSetClaim::where('user_id', $user->id)
+        ->where('game_id', $gameId)
+        ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview]);
 
-    $claimTypeCondition = '';
     if ($isPrimaryClaim) {
-        $bindings['claimType'] = ClaimType::Primary;
-        $claimTypeCondition = 'AND ClaimType = :claimType';
+        $query->primaryClaim();
     }
 
-    $setTypeCondition = '';
-    if (isset($setType)) {
-        $bindings['setType'] = $setType;
-        $setTypeCondition = 'AND SetType = :setType';
+    if ($setType !== null) {
+        $query->setType($setType);
     }
 
-    $query = "
-        SELECT
-            COUNT(*) AS claimCount
-        FROM
-            SetClaim
-        WHERE
-            Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
-            $claimTypeCondition
-            $setTypeCondition
-            AND User = :username
-            AND game_id = :gameId";
-
-    return legacyDbFetch($query, $bindings)['claimCount'] > 0;
+    return $query->exists();
 }
 
 /**
@@ -105,51 +88,41 @@ function hasSetClaimed(string $username, int $gameID, bool $isPrimaryClaim = fal
  * has the primary claim on the game. Any collaboration claims will also be
  * marked as complete.
  */
-function completeClaim(string $user, int $gameID): bool
+function completeClaim(User $user, int $gameId): bool
 {
-    // Only allow primary claim user to mark a claim as complete
-    if (hasSetClaimed($user, $gameID, true)) {
-        $now = Carbon::now();
-
-        // cannot complete In Review claim
-        $query = "
-            UPDATE
-                SetClaim
-            SET
-                Status = " . ClaimStatus::Complete . ",
-                Finished = '$now',
-                Updated = '$now'
-            WHERE
-                Status = " . ClaimStatus::Active . "
-                AND game_id = '$gameID'";
-
-        return legacyDbStatement($query);
+    if (!hasSetClaimed($user, $gameId, true)) {
+        return false;
     }
 
-    return false;
+    $now = Carbon::now();
+
+    AchievementSetClaim::where('game_id', $gameId)
+        ->where('user_id', $user->id)
+        ->active()
+        ->update([
+            'Status' => ClaimStatus::Complete,
+            'Finished' => $now,
+        ]);
+
+    return true;
 }
 
 /**
  * Marks a claim as dropped.
  */
-function dropClaim(string $user, int $gameID): bool
+function dropClaim(User $user, int $gameId): bool
 {
     $now = Carbon::now();
 
-    // cannot drop In Review claim
-    $query = "
-        UPDATE
-            SetClaim
-        SET
-            Status =  " . ClaimStatus::Dropped . ",
-            Finished = '$now',
-            Updated = '$now'
-        WHERE
-            Status = " . ClaimStatus::Active . "
-            AND User = '$user'
-            AND game_id = '$gameID'";
+    AchievementSetClaim::where('game_id', $gameId)
+        ->where('user_id', $user->id)
+        ->active() // Users cannot drop claims with a status value of ClaimStatus::InReview.
+        ->update([
+            'Status' => ClaimStatus::Dropped,
+            'Finished' => $now,
+        ]);
 
-    return legacyDbStatement($query);
+    return true;
 }
 
 function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int $permissionsBefore, ?string $actingUsername = null): void
@@ -200,26 +173,28 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
  * Extends a claim a months beyone it's initial expiration time if it expires withing a week.
  * Any collaboration claims will be extended as well.
  */
-function extendClaim(string $user, int $gameID): bool
+function extendClaim(User $user, int $gameId): bool
 {
-    if (hasSetClaimed($user, $gameID, true)) {
-        $query = "
-            UPDATE
-                SetClaim
-            SET
-                Extension = Extension + 1,
-                Finished = DATE_ADD(Finished, INTERVAL 3 MONTH),
-                Updated = NOW()
-            WHERE
-                Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
-                AND game_id = '$gameID'
-                AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
+    if (!hasSetClaimed($user, $gameId, true)) {
+        return false;
+    }
 
-        if (s_mysql_query($query)) {
-            Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user));
+    $query = "
+        UPDATE
+            SetClaim
+        SET
+            Extension = Extension + 1,
+            Finished = DATE_ADD(Finished, INTERVAL 3 MONTH),
+            Updated = NOW()
+        WHERE
+            Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+            AND game_id = '$gameId'
+            AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
-            return true;
-        }
+    if (s_mysql_query($query)) {
+        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user));
+
+        return true;
     }
 
     return false;
@@ -228,31 +203,46 @@ function extendClaim(string $user, int $gameID): bool
 /**
  * Gets the claim data for a specific game to display to the users.
  */
-function getClaimData(int|array $gameID, bool $getFullData = true): array
+function getClaimData(array $gameIds, bool $getFullData = true): array
 {
-    $query = "SELECT sc.User as User, sc.SetType as SetType, sc.game_id as GameID,
-        sc.ClaimType as ClaimType, sc.Created as Created, sc.Finished as Expiration";
+    if (empty($gameIds)) {
+        return [];
+    }
+
+    $selectColumns = [
+        'user_id',
+        'SetType',
+        'game_id as GameID',
+        'ClaimType',
+        'Created',
+        'Finished as Expiration',
+    ];
 
     if ($getFullData) {
-        $query .= ", sc.Status as Status, sc.ID, ";
-        $query .= diffMinutesRemainingStatement('sc.Finished', 'MinutesLeft') . ",";
-        $query .= diffMinutesPassedStatement('sc.Created', 'MinutesActive');
+        $selectColumns = array_merge($selectColumns, [
+            'Status',
+            'ID',
+            DB::raw(diffMinutesRemainingStatement('Finished', 'MinutesLeft')),
+            DB::raw(diffMinutesPassedStatement('Created', 'MinutesActive')),
+        ]);
     }
 
-    if (is_array($gameID)) {
-        if (empty($gameID)) {
-            return [];
-        }
-        $gameIDs = implode(',', $gameID);
-    } else {
-        $gameIDs = $gameID;
-    }
+    $claims = AchievementSetClaim::whereIn('game_id', $gameIds)
+        ->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])
+        ->select($selectColumns)
+        ->get()
+        ->toArray();
 
-    $query .= " FROM SetClaim sc WHERE sc.game_id IN ($gameIDs)
-                 AND sc.Status IN (" . ClaimStatus::Active . "," . ClaimStatus::InReview . ")
-               ORDER BY sc.ClaimType ASC";
+    // Fetch the usernames and stitch them into the result.
+    $userIds = array_column($claims, 'user_id');
+    $usernames = User::whereIn('ID', array_unique($userIds))->pluck('User', 'ID')->toArray();
 
-    return legacyDbFetchAll($query)->toArray();
+    return array_map(function ($claim) use ($usernames) {
+        $claim['User'] = $usernames[$claim['user_id']] ?? 'Deleted User';
+        unset($claim['user_id']);
+
+        return $claim;
+    }, $claims);
 }
 
 /**
@@ -361,7 +351,7 @@ function getFilteredClaims(
 
     // Create the sorting condition
     $sortCondition = match ($sortType) {
-        2 => 'sc.User ',
+        2 => 'ua.User ',
         3 => 'gd.Title ',
         4 => 'sc.ClaimType ',
         5 => 'sc.SetType ',
@@ -379,7 +369,7 @@ function getFilteredClaims(
     $userCondition = '';
     if (isset($username)) {
         $bindings['username'] = $username;
-        $userCondition = "AND sc.User = :username";
+        $userCondition = "AND ua.User = :username";
     }
 
     $gameCondition = '';
@@ -397,7 +387,7 @@ function getFilteredClaims(
     // Get either the filtered count or the filtered data
     $selectCondition = "
         sc.ID AS ID,
-        sc.User AS User,
+        ua.User AS User,
         sc.game_id AS GameID,
         gd.Title AS GameTitle,
         gd.ImageIcon AS GameIcon,
@@ -425,7 +415,7 @@ function getFilteredClaims(
         LEFT JOIN
             Console AS c ON c.ID = gd.ConsoleID
         LEFT JOIN
-            UserAccounts AS ua ON ua.User = sc.User
+            UserAccounts AS ua ON ua.ID = sc.user_id
         WHERE
             TRUE
             $claimTypeCondition
@@ -456,14 +446,14 @@ function getFilteredClaims(
  * Gets the number of active claims the user currently has or the total amoung all users. Has the
  * option to count or ignore collaboration claims.
  */
-function getActiveClaimCount(?string $user = null, bool $countCollaboration = true, bool $countSpecial = false): int
+function getActiveClaimCount(?User $user = null, bool $countCollaboration = true, bool $countSpecial = false): int
 {
     $bindings = [];
 
     $userCondition = '';
     if (isset($user)) {
-        $bindings['user'] = $user;
-        $userCondition = "AND User = :user";
+        $bindings['userId'] = $user->id;
+        $userCondition = "AND user_id = :userId";
     }
 
     $claimTypeCondition = '';
@@ -525,13 +515,9 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
 /**
  * Gets the number of expiring and expired claims for a specific user.
  */
-function getExpiringClaim(string $username): array
+function getExpiringClaim(User $user): array
 {
-    if (empty($username)) {
-        return [];
-    }
-
-    $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($username);
+    $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($user->User);
 
     $value = Cache::get($cacheKey);
     if ($value !== null) {
@@ -543,7 +529,7 @@ function getExpiringClaim(string $username): array
         DB::raw('COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), Finished) BETWEEN 0 AND 10080 THEN 1 ELSE 0 END), 0) AS Expiring'),
         DB::raw('COUNT(*) AS Count')
     )
-        ->where('User', $username)
+        ->where('user_id', $user->id)
         ->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview])
         ->where('Special', '!=', ClaimSpecial::ScheduledRelease)
         ->first();
@@ -565,6 +551,7 @@ function getExpiringClaim(string $username): array
     return $value;
 }
 
+// TODO use a policy
 /**
  * Gets the number of claims a user is allowed to have based on their permission
  */
