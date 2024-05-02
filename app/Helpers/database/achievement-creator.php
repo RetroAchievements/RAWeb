@@ -65,7 +65,7 @@ function getUserAchievementInformation(User $user): array
         ->where("Flags", AchievementFlag::OfficialCore)
         ->get();
 
-    $mappedValue = $userAuthoredAchievements->map(function ($achievement) use ($user) {
+    $mappedValue = $userAuthoredAchievements->map(function (Achievement $achievement) {
         return [
             'ConsoleName' => $achievement->game->system->Name,
             'GameTitle' => $achievement->game->title,
@@ -76,10 +76,7 @@ function getUserAchievementInformation(User $user): array
             'BadgeName' => $achievement->badge_name,
             'Points' => $achievement->points,
             'TrueRatio' => $achievement->points_weighted,
-            'Type' => $achievement->type,
-            'Author' => $user->User, // we're doing this naively based on the $userAuthoredAchievements query
             'DateCreated' => $achievement->DateCreated->format('Y-m-d H:i:s'),
-            'Flags' => $achievement->Flags,
             'MemLength' => strlen($achievement->MemAddr ?? ''),
         ];
     });
