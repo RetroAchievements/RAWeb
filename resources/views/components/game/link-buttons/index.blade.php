@@ -28,14 +28,13 @@ $user = Auth::user();
 
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', Ticket::class);
 if ($canSeeOpenTickets) {
-    $numOpenTickets = countOpenTickets(
-        !$isViewingOfficial,
-        TicketFilters::Default,
-        null,
-        null,
-        null,
-        $game->id,
-    );
+    $gameTickets = Ticket::forGame($game)->unresolved();
+    if ($isViewingOfficial) {
+        $gameTickets->officialCore();
+    } else {
+        $gameTickets->unofficial();
+    }
+    $numOpenTickets = $gameTickets->count();
 }
 
 $ticketManagerUrlParams = [

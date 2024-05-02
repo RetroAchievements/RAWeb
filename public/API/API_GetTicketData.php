@@ -139,6 +139,8 @@ use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Ticket;
 use App\Platform\Enums\AchievementFlag;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
@@ -217,19 +219,20 @@ if (!empty($assignedToUser)) {
 // getting data for a specific game
 $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
-    if ($gameData = getGameData($gameIDGiven)) {
-        $ticketData['GameID'] = $gameIDGiven;
-        $ticketData['GameTitle'] = $gameData['Title'];
-        $ticketData['ConsoleName'] = $gameData['ConsoleName'];
-        $ticketData['OpenTickets'] = countOpenTickets(
-            $gamesTableFlag == AchievementFlag::Unofficial,
-            $defaultTicketFilter,
-            null,
-            null,
-            null,
-            $gameIDGiven
-        );
-        $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
+    $game = Game::where('ID', $gameIDGiven)->with('system')->first();
+    if ($game) {
+        $tickets = Ticket::forGame($game);
+        if ($gamesTableFlag === AchievementFlag::Unofficial) {
+            $tickets->unofficial();
+        } else {
+            $tickets->officialCore();
+        }
+
+        $ticketData['GameID'] = $game->ID;
+        $ticketData['GameTitle'] = $game->Title;
+        $ticketData['ConsoleName'] = $game->system->Name;
+        $ticketData['OpenTickets'] = $tickets->count();
+        $ticketData['URL'] = route('game.tickets', $game);
 
         $details = (int) request()->query('d');
         if ($details == 1) {

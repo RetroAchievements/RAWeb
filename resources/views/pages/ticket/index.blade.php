@@ -20,14 +20,11 @@ use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\Ticket;
-use App\Platform\Enums\AchievementFlag;
 
 $currentPage = '';
 
 if ($game !== null) {
-    $tickets = Ticket::whereHas('achievement', function($query) use ($game) {
-        $query->where('GameID', $game->id);
-    });
+    $tickets = Ticket::forGame($game);
     $currentPage = $game->Title;
 } else {
     $tickets = Ticket::query();
@@ -58,15 +55,11 @@ if ($filterOptions['type'] > 0) {
 
 switch ($filterOptions['achievement']) {
     case 'core':
-        $tickets->whereHas('achievement', function($query) {
-            $query->where('Flags', AchievementFlag::OfficialCore);
-        });
+        $tickets->officialCore();
         break;
 
     case 'unofficial':
-        $tickets->whereHas('achievement', function($query) {
-            $query->where('Flags', AchievementFlag::Unofficial);
-        });
+        $tickets->unofficial();
         break;
 }
 

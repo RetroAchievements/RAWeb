@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Community\Enums\TicketState;
+use App\Platform\Enums\AchievementFlag;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -109,5 +110,38 @@ class Ticket extends BaseModel
     public function scopeResolved(Builder $query): Builder
     {
         return $query->whereIn('ReportState', [TicketState::Resolved, TicketState::Closed]);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeForGame(Builder $query, Game $game): Builder
+    {
+        return $query->whereHas('achievement', function($query) use ($game) {
+            $query->where('GameID', $game->id);
+        });
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeOfficialCore(Builder $query): Builder
+    {
+        return $query->whereHas('achievement', function($query) {
+            $query->where('Flags', AchievementFlag::OfficialCore);
+        });
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeUnofficial(Builder $query): Builder
+    {
+        return $query->whereHas('achievement', function($query) {
+            $query->where('Flags', AchievementFlag::Unofficial);
+        });
     }
 }
