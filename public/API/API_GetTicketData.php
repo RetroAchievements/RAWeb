@@ -162,7 +162,7 @@ if ($ticketID > 0) {
     return response()->json($ticketData);
 }
 
-// same logic used in ticketmanager.php
+// same logic previously used in ticketmanager.php
 // f=1 - get info for the most reported games
 // f=5 - get info for unofficial
 $gamesTableFlag = (int) request()->query('f');

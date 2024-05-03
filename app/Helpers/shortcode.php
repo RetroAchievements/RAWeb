@@ -67,8 +67,7 @@ function normalize_shortcodes(string $input): string
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'user');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'game');
     $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'achievement', 'ach');
-    // TODO $modifiedInput = normalize_targeted_shortcodes($input, 'ticket');
-    $modifiedInput = normalize_ticket_shortcodes($modifiedInput); // TODO delete this
+    $modifiedInput = normalize_targeted_shortcodes($modifiedInput, 'ticket');
 
     return $modifiedInput;
 }
@@ -87,21 +86,4 @@ function normalize_targeted_shortcodes(string $input, string $kind, ?string $tag
     $replace = "[" . ($tagName ?? $kind) . "=$1]";
 
     return preg_replace($find, $replace, $input);
-}
-
-// TODO delete this function when ticketmanager.php is migrated to a /ticket/ route.
-// see `normalize_shortcodes()`
-function normalize_ticket_shortcodes(string $value): string
-{
-    // TODO when this routes to /ticket/ instead of /ticketmanager.php, add a subpath lookahead.
-
-    $find = [
-        "~\<a [^/>]*retroachievements\.org/ticketmanager\.php\?i=(\d+)[^/>]*\][^</a>]*</a>~si",
-        "~\[url[^\]]*retroachievements\.org/ticketmanager\.php\?i=(\d+)[^\]]*\][^\[]*\[/url\]~si",
-        "~https?://(?:[\w\-]+\.)?retroachievements\.org/ticketmanager\.php\?i=(\d+)~si",
-        "~https?://localhost(?::\d{1,5})?/ticketmanager\.php\?i=(\d+)~si",
-    ];
-    $replace = '[ticket=$1]';
-
-    return preg_replace($find, $replace, $value);
 }
