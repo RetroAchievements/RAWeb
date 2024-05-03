@@ -137,6 +137,28 @@ class TicketController extends Controller
         ]);
     }
 
+    public function indexForReporterFeedback(Request $request, User $user): View
+    {
+        $this->authorize('viewAny', $this->resourceClass());
+
+        $ticketListService = new TicketListService();
+        $filterOptions = $ticketListService->getFilterOptions($request);
+
+        $ticketQuery = Ticket::where('reporter_id', '=', $user->id)
+            ->where('ReportState', '=', TicketState::Request);
+
+        $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
+
+        return view('pages.tickets.[user]', [
+            'pageTitle' => 'Tickets Awaiting Feedback',
+            'user' => $user,
+            'tickets' => $tickets,
+            'filterOptions' => $filterOptions,
+            'totalTickets' => $ticketListService->totalTickets,
+            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+        ]);
+    }
+
     public function mostReportedGames(Request $request): View
     {
         $this->authorize('viewAny', $this->resourceClass());

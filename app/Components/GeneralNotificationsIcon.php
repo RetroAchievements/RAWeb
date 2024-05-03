@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Components;
 
-use App\Community\Enums\TicketFilters;
 use App\Models\AchievementSetClaim;
 use App\Models\Ticket;
 use App\Models\User;
@@ -34,7 +33,7 @@ class GeneralNotificationsIcon extends Component
             $ticketFeedback = countRequestTicketsByUser($user);
             if ($ticketFeedback) {
                 $notifications->push([
-                    'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
+                    'link' => route('reporter.tickets', $user),
                     'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
                 ]);
             }
