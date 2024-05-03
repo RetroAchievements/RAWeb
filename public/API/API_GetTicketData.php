@@ -217,7 +217,6 @@ if (!empty($assignedToUser)) {
     return response()->json($ticketData);
 }
 
-
 function getTicketInfo(Builder $tickets, int $offset, int $count): array
 {
     $result = [];
@@ -226,7 +225,7 @@ function getTicketInfo(Builder $tickets, int $offset, int $count): array
         $ticket->loadMissing(['achievement', 'reporter', 'resolver']);
         $ticket->achievement->loadMissing('game');
         $ticket->achievement->game->loadMissing('system');
-    
+
         $result[] = [
             'ID' => $ticket->ID,
             'AchievementID' => $ticket->achievement->ID,
@@ -248,7 +247,7 @@ function getTicketInfo(Builder $tickets, int $offset, int $count): array
             'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
             'ResolvedBy' => $ticket->resolver?->User,
             'ReportState' => $ticket->ReportState,
-            'ReportStateDescription' => TicketState::toString($ticket->ReportState),        
+            'ReportStateDescription' => TicketState::toString($ticket->ReportState),
         ];
     }
 

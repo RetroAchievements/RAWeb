@@ -4,23 +4,12 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Community\Enums\AwardType;
-use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Community\Enums\UserGameListType;
 use App\Enums\Permissions;
-use App\Models\Game;
-use App\Models\System;
 use App\Models\Ticket;
-use App\Models\User;
-use App\Models\UserGameListEntry;
-use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\DB;
 
 class TicketListService
 {
@@ -121,12 +110,12 @@ class TicketListService
         return $availableSelectFilters;
     }
 
-    public function getTickets(array $filterOptions, Builder $tickets = null): Collection
+    public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
     {
         return $this->buildQuery($filterOptions, $tickets)->orderBy('ReportedAt', 'DESC')->get();
     }
 
-    public function buildQuery(array $filterOptions, Builder $tickets = null): Builder
+    public function buildQuery(array $filterOptions, ?Builder $tickets = null): Builder
     {
         if ($tickets === null) {
             $tickets = Ticket::query();
@@ -138,66 +127,66 @@ class TicketListService
             case 'unresolved':
                 $tickets->unresolved();
                 break;
-        
+
             case 'resolved':
                 $tickets->resolved();
                 break;
         }
-        
+
         if ($filterOptions['type'] > 0) {
             $tickets->where('ReportType', $filterOptions['type']);
         }
-        
+
         switch ($filterOptions['achievement']) {
             case 'core':
                 $tickets->officialCore();
                 break;
-        
+
             case 'unofficial':
                 $tickets->unofficial();
                 break;
         }
-        
+
         switch ($filterOptions['mode']) {
             case 'hardcore':
                 $tickets->where('Hardcore', 1);
                 break;
-        
+
             case 'softcore':
                 $tickets->where('Hardcore', 0);
                 break;
-        
+
             case 'unspecified':
                 $tickets->whereNull('Hardcore');
                 break;
         }
-        
+
         switch ($filterOptions['developerType']) {
             case 'active':
-                $tickets->whereHas('achievement', function($query) {
-                    $query->whereHas('developer', function($query2) {
+                $tickets->whereHas('achievement', function ($query) {
+                    $query->whereHas('developer', function ($query2) {
                         $query2->where('Permissions', '>=', Permissions::JuniorDeveloper);
                     });
                 });
                 break;
-        
+
             case 'junior':
-                $tickets->whereHas('achievement', function($query) {
-                    $query->whereHas('developer', function($query2) {
+                $tickets->whereHas('achievement', function ($query) {
+                    $query->whereHas('developer', function ($query2) {
                         $query2->where('Permissions', '=', Permissions::JuniorDeveloper);
                     });
                 });
                 break;
-        
+
             case 'inactive':
-                $tickets->whereHas('achievement', function($query) {
-                    $query->whereHas('developer', function($query2) {
+                $tickets->whereHas('achievement', function ($query) {
+                    $query->whereHas('developer', function ($query2) {
                         $query2->where('Permissions', '<', Permissions::JuniorDeveloper);
                     });
                 });
                 break;
         }
-        
+
         $this->numFilteredTickets = $tickets->count();
 
         if ($this->perPage > 0) {

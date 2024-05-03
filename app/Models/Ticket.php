@@ -8,9 +8,9 @@ use App\Community\Enums\TicketState;
 use App\Platform\Enums\AchievementFlag;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TicketFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -118,7 +118,7 @@ class Ticket extends BaseModel
      */
     public function scopeForGame(Builder $query, Game $game): Builder
     {
-        return $query->whereHas('achievement', function($query) use ($game) {
+        return $query->whereHas('achievement', function ($query) use ($game) {
             $query->where('GameID', $game->id);
         });
     }
@@ -138,7 +138,7 @@ class Ticket extends BaseModel
      */
     public function scopeForDeveloper(Builder $query, User $developer): Builder
     {
-        return $query->whereHas('achievement', function($query) use ($developer) {
+        return $query->whereHas('achievement', function ($query) use ($developer) {
             $query->where('user_id', $developer->id);
         });
     }
@@ -149,7 +149,7 @@ class Ticket extends BaseModel
      */
     public function scopeOfficialCore(Builder $query): Builder
     {
-        return $query->whereHas('achievement', function($query) {
+        return $query->whereHas('achievement', function ($query) {
             $query->where('Flags', AchievementFlag::OfficialCore);
         });
     }
@@ -160,7 +160,7 @@ class Ticket extends BaseModel
      */
     public function scopeUnofficial(Builder $query): Builder
     {
-        return $query->whereHas('achievement', function($query) {
+        return $query->whereHas('achievement', function ($query) {
             $query->where('Flags', AchievementFlag::Unofficial);
         });
     }

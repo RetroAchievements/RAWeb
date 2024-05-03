@@ -33,7 +33,7 @@ class TicketController extends Controller
         $selectFilters = $ticketListService->getSelectFilters();
         $filterOptions = $ticketListService->getFilterOptions($request);
         $tickets = $ticketListService->getTickets($filterOptions);
-        
+
         return view('pages.tickets.index', [
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
@@ -118,7 +118,7 @@ class TicketController extends Controller
         $ticketQuery = $user->resolvedTickets()->getQuery()
             ->where('ReportState', '=', TicketState::Resolved)
             ->where('reporter_id', '!=', $user->id)
-            ->whereHas('achievement', function($query) use ($user) {
+            ->whereHas('achievement', function ($query) use ($user) {
                 $query->where('user_id', '!=', $user->id);
             });
 
@@ -140,7 +140,7 @@ class TicketController extends Controller
     public function mostReportedGames(Request $request): View
     {
         $this->authorize('viewAny', $this->resourceClass());
-       
+
         return view('pages.tickets.most-reported-games');
     }
 

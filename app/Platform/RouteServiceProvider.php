@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
-use App\Models\GameHash;
 use App\Community\Controllers\TicketController;
+use App\Models\GameHash;
 use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\CompareUnlocksController;
 use App\Platform\Controllers\DeveloperFeedController;

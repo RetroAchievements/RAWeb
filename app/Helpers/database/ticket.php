@@ -2,7 +2,6 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Models\Achievement;
@@ -10,7 +9,6 @@ use App\Models\NotificationPreferences;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
