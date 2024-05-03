@@ -23,8 +23,7 @@ $hasSoftcoreUnlocks = false;
 $hasSession = false;
 
 $playerAchievements = request()->user()->playerAchievements()
-    ->join('Achievements', 'player_achievements.achievement_id', '=', 'Achievements.ID')
-    ->where('Achievements.GameID', $achievement->game->id)
+    ->forGame($achievement->game)
     ->get();
 
 $ticketType = TicketType::DidNotTrigger;
@@ -46,7 +45,7 @@ if ($unlockedHardcore || ($unlockedSoftcore && !$hasHardcoreUnlocks)) {
 }
 
 if (!$hasSession) {
-    $hasSession = request()->user()->playerGames()->where('game_id', $achievement->game->id)->exists();
+    $hasSession = request()->user()->hasPlayed($achievement->game);
 }
 
 @endphp
