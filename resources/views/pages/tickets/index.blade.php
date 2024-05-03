@@ -26,7 +26,7 @@ $openTicketCount = Ticket::unresolved()->count();
 
 <x-app-layout pageTitle="Ticket Manager">
     <div class="mb-1 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">Ticket Manager - {{ $openTicketCount }} Open Tickets</h1>
+        <h1 class="mt-[10px] w-full">Ticket Manager - {{ localized_number($openTicketCount) }} Open Tickets</h1>
     </div>
 
     <x-meta-panel

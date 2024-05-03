@@ -217,6 +217,7 @@ if (!empty($assignedToUser)) {
 $getTicketsInfo = function (Builder $tickets, int $offset, int $count): array {
     $result = [];
 
+    /** @var Ticket $ticket */
     foreach ($tickets->orderBy('ReportedAt', 'DESC')->offset($offset)->take($count)->get() as $ticket) {
         $ticket->loadMissing(['achievement', 'reporter', 'resolver']);
         $ticket->achievement->loadMissing('game');

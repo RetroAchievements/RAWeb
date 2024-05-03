@@ -110,11 +110,21 @@ class TicketListService
         return $availableSelectFilters;
     }
 
+    /**
+     * @param Builder<Ticket> $tickets
+     *
+     * @return Collection<int, Ticket>
+     */
     public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
     {
         return $this->buildQuery($filterOptions, $tickets)->orderBy('ReportedAt', 'DESC')->get();
     }
 
+    /**
+     * @param Builder<Ticket> $tickets
+     *
+     * @return Builder<Ticket>
+     */
     public function buildQuery(array $filterOptions, ?Builder $tickets = null): Builder
     {
         if ($tickets === null) {
