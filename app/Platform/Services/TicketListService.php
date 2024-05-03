@@ -56,7 +56,7 @@ class TicketListService
         ];
     }
 
-    public function getSelectFilters(bool $showStatus = true, bool $showDevType = true): array
+    public function getSelectFilters(bool $showStatus = true, bool $showDevType = true, bool $showAchievementType = true): array
     {
         $availableSelectFilters = [];
 
@@ -82,15 +82,17 @@ class TicketListService
             ],
         ];
 
-        $availableSelectFilters[] = [
-            'kind' => 'achievement',
-            'label' => 'Achievement Type',
-            'options' => [
-                'all' => 'All',
-                'core' => 'Core',
-                'unofficial' => 'Unofficial',
-            ],
-        ];
+        if ($showAchievementType) {
+            $availableSelectFilters[] = [
+                'kind' => 'achievement',
+                'label' => 'Achievement Type',
+                'options' => [
+                    'all' => 'All',
+                    'core' => 'Core',
+                    'unofficial' => 'Unofficial',
+                ],
+            ];
+        }
 
         $availableSelectFilters[] = [
             'kind' => 'mode',

@@ -64,6 +64,25 @@ class TicketController extends Controller
         ]);
     }
 
+    public function indexForAchievement(Request $request, Achievement $achievement): View
+    {
+        $this->authorize('viewAny', $this->resourceClass());
+
+        $ticketListService = new TicketListService();
+        $selectFilters = $ticketListService->getSelectFilters(showDevType: false, showAchievementType: false);
+        $filterOptions = $ticketListService->getFilterOptions($request);
+        $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
+
+        return view('pages.tickets.[achievement]', [
+            'achievement' => $achievement,
+            'tickets' => $tickets,
+            'availableSelectFilters' => $selectFilters,
+            'filterOptions' => $filterOptions,
+            'totalTickets' => $ticketListService->totalTickets,
+            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+        ]);
+    }
+
     public function indexForDeveloper(Request $request, User $user): View
     {
         $this->authorize('viewAny', $this->resourceClass());
