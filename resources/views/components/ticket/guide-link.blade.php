@@ -4,12 +4,12 @@
 ])
 
 <div class="relative w-full p-2 bg-embed rounded mt-2">
-    <div class="flex flex-col sm:flex-row w-full justify-between gap-x-2">
+<div class="flex w-full justify-between gap-4">
         <div class="flex items-center">
             {{ $slot }}
         </div>
-        <div class="flex items-center">
-            <a class="btn" href="{{ $link }}">{{ $text }}</a>
+        <div class="flex min-w-[140px] justify-end">
+            <a class="btn flex items-center whitespace-normal text-center" href="{{ $link }}">{{ $text }}</a>
         </div>
     </div>
 </div>
