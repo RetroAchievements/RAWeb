@@ -132,7 +132,7 @@ if (!$hasSession) {
     @endphp
     <x-ticket.guide-link buttonText="Message DevCompliance"
                          href="{{ route('message.create') }}?to=DevCompliance&subject={{ $subject }}&message={{ $message }}">
-        <span>The achievement contains an <a href="https://docs.retroachievements.org/Unwelcome-Concepts/">unwelcome concept</a>.</span>
+        The achievement contains an <a href="https://docs.retroachievements.org/Unwelcome-Concepts/">unwelcome concept</a>.
     </x-ticket.guide-link>
 
     @php
