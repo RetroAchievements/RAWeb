@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Enums\TicketState;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
@@ -74,6 +75,38 @@ class TicketController extends Controller
         $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
 
         return view('pages.tickets.[user]', [
+            'user' => $user,
+            'tickets' => $tickets,
+            'availableSelectFilters' => $selectFilters,
+            'filterOptions' => $filterOptions,
+            'totalTickets' => $ticketListService->totalTickets,
+            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+            'currentPage' => $ticketListService->pageNumber,
+            'totalPages' => $ticketListService->totalPages,
+        ]);
+    }
+
+    public function indexForDeveloperResolvedForOthers(Request $request, User $user): View
+    {
+        $this->authorize('viewAny', $this->resourceClass());
+
+        $ticketListService = new TicketListService();
+        $ticketListService->perPage = 50;
+        $selectFilters = $ticketListService->getSelectFilters(showStatus: false);
+        $filterOptions = $ticketListService->getFilterOptions($request);
+        $filterOptions['status'] = 'all'; // will be filtered to Resolved below
+
+        $ticketQuery = $user->resolvedTickets()->getQuery()
+            ->where('ReportState', '=', TicketState::Resolved)
+            ->where('reporter_id', '!=', $user->id)
+            ->whereHas('achievement', function($query) use ($user) {
+                $query->where('user_id', '!=', $user->id);
+            });
+
+        $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
+
+        return view('pages.tickets.[user]', [
+            'pageTitle' => 'Tickets Resolved for Others',
             'user' => $user,
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,

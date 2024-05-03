@@ -15,17 +15,18 @@ name('developer.tickets');
     'numFilteredTickets' => 0,
     'currentPage' => null,
     'totalPages' => null,
+    'pageTitle' => 'Tickets',
 ])
 
-<x-app-layout pageTitle="Tickets - {{ $user->User }}">
+<x-app-layout pageTitle="{{ $pageTitle }} - {{ $user->User }}">
     <x-user.breadcrumbs
         :targetUsername="$user->User"
-        currentPage="Tickets"
+        currentPage="{{ $pageTitle }}"
     />
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
         {!! userAvatar($user->User, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">Tickets</h1>
+        <h1 class="mt-[10px] w-full">{{ $pageTitle }}</h1>
     </div>
 
     <x-meta-panel

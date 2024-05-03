@@ -8,6 +8,7 @@ use App\Community\Enums\AwardType;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Community\Enums\UserGameListType;
+use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\Ticket;
@@ -31,6 +32,13 @@ class TicketListService
 
     public function getFilterOptions(Request $request): array
     {
+        if ($this->perPage !== 0) {
+            $validatedData = $request->validate([
+                'page.number' => 'sometimes|integer|min:1',
+            ]);
+            $this->pageNumber = (int) ($validatedData['page']['number'] ?? 1);
+        }
+
         $validatedData = $request->validate([
             'filter.status' => 'sometimes|string|in:all,unresolved,resolved',
             'filter.type' => 'sometimes|integer|min:0|max:2',
@@ -38,13 +46,6 @@ class TicketListService
             'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
             'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
         ]);
-
-        if ($this->perPage !== 0) {
-            $validatedData = $request->validate([
-                'page.number' => 'sometimes|integer|min:1',
-            ]);
-            $this->pageNumber = (int) ($validatedData['page']['number'] ?? 1);
-        }
 
         return [
             'status' => $validatedData['filter']['status'] ?? 'unresolved',
@@ -55,10 +56,12 @@ class TicketListService
         ];
     }
 
-    public function getSelectFilters(bool $showDevType = true): array
+    public function getSelectFilters(bool $showStatus = true, bool $showDevType = true): array
     {
-        $availableSelectFilters = [
-            [
+        $availableSelectFilters = [];
+
+        if ($showStatus) {
+            $availableSelectFilters[] = [
                 'kind' => 'status',
                 'label' => 'Ticket Status',
                 'options' => [
@@ -66,34 +69,37 @@ class TicketListService
                     'unresolved' => 'Open tickets',
                     'resolved' => 'Resolved tickets',
                 ],
+            ];
+        }
+
+        $availableSelectFilters[] = [
+            'kind' => 'type',
+            'label' => 'Ticket Type',
+            'options' => [
+                0 => 'All',
+                TicketType::TriggeredAtWrongTime => TicketType::toString(TicketType::TriggeredAtWrongTime),
+                TicketType::DidNotTrigger => TicketType::toString(TicketType::DidNotTrigger),
             ],
-            [
-                'kind' => 'type',
-                'label' => 'Ticket Type',
-                'options' => [
-                    0 => 'All',
-                    TicketType::TriggeredAtWrongTime => TicketType::toString(TicketType::TriggeredAtWrongTime),
-                    TicketType::DidNotTrigger => TicketType::toString(TicketType::DidNotTrigger),
-                ],
+        ];
+
+        $availableSelectFilters[] = [
+            'kind' => 'achievement',
+            'label' => 'Achievement Type',
+            'options' => [
+                'all' => 'All',
+                'core' => 'Core',
+                'unofficial' => 'Unofficial',
             ],
-            [
-                'kind' => 'achievement',
-                'label' => 'Achievement Type',
-                'options' => [
-                    'all' => 'All',
-                    'core' => 'Core',
-                    'unofficial' => 'Unofficial',
-                ],
-            ],
-            [
-                'kind' => 'mode',
-                'label' => 'Mode',
-                'options' => [
-                    'all' => 'All',
-                    'hardcore' => 'Hardcore',
-                    'softcore' => 'Softcore',
-                    'unspecified' => 'Unspecified',
-                ],
+        ];
+
+        $availableSelectFilters[] = [
+            'kind' => 'mode',
+            'label' => 'Mode',
+            'options' => [
+                'all' => 'All',
+                'hardcore' => 'Hardcore',
+                'softcore' => 'Softcore',
+                'unspecified' => 'Unspecified',
             ],
         ];
 

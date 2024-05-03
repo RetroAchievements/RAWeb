@@ -1,6 +1,5 @@
 <?php
 
-use App\Community\Enums\TicketFilters;
 use App\Enums\Permissions;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -9,12 +8,6 @@ $type = requestInputSanitized('t', 0, 'integer');
 $defaultFilter = 7; // set all 3 status' to enabled
 $devFilter = requestInputSanitized('f', 7, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
-$resolvedForOthersTicketFilter = ( // TODO
-    TicketFilters::AllFilters
-    & ~TicketFilters::StateOpen
-    & ~TicketFilters::StateRequest
-    & ~TicketFilters::StateClosed
-);
 
 $maxItemsPerPage = 25;
 $devStatsList = GetDeveloperStatsFull($maxItemsPerPage, $offset, $type, $devFilter);
@@ -120,9 +113,9 @@ if ($currentPage < $totalPages) {
         }
         echo "</small>";
         echo "</div></td>";
-        echo "<td class='text-right'><a href='/ticketmanager.php?u=" . $devStats['Author'] . "'>" . $devStats['OpenTickets'] . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.tickets', $devStats['Author']) ."'>" . $devStats['OpenTickets'] . "</a></td>";
         echo "<td class='text-right'><a href='" . route('developer.sets', $devStats['Author']) . "'>" . localized_number($devStats['Achievements']) . "</a></td>";
-        echo "<td class='text-right'><a href='/ticketmanager.php?r=" . $devStats['Author'] . "&t=" . $resolvedForOthersTicketFilter . "'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.tickets.resolved-for-others', $devStats['Author']) ."'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribCount']) . "</td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribYield']) . "</td>";
         echo "<td class='text-right'><a href='/claimlist.php?u=" . $devStats['Author'] . "'>" . $devStats['ActiveClaims'] . "</a></td>";
