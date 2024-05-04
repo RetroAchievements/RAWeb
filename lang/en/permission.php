@@ -11,7 +11,7 @@ return [
 
         Role::MODERATOR => __('Moderator'),
         Role::RELEASE_MANAGER => __('Release Manager'),
-        Role::HUB_MANAGER => __('Hub Manager'),
+        Role::GAME_HASH_MANAGER => __('Hash Manager'),
 
         // creator roles
 
@@ -20,7 +20,8 @@ return [
         Role::DEVELOPER_JUNIOR => __('Junior Developer'),
         Role::ARTIST => __('Artist'),
         Role::WRITER => __('Writer'),
-        Role::TESTER => __('Tester'),
+        Role::GAME_EDITOR => __('Game Editor'),
+        Role::PLAY_TESTER => __('Play Tester'),
 
         // community staff roles
 
@@ -28,6 +29,7 @@ return [
         Role::TICKET_MANAGER => __('Ticket Manager'),
         Role::NEWS_MANAGER => __('News Manager'),
         Role::EVENT_MANAGER => __('Event Manager'),
+        Role::CHEAT_INVESTIGATOR => __('Cheat Investigator'),
 
         // vanity roles assigned by root
 
