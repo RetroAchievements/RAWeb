@@ -4,7 +4,7 @@ use App\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -18,7 +18,7 @@ $gameId = $input['gameId'];
 $address = $input['address'];
 $note = $input['note'] ?? "";
 
-$success = submitCodeNote2($user, $gameId, $address, $note);
+$success = submitCodeNote2($user->username, $gameId, $address, $note);
 
 if (!$success) {
     abort(400);

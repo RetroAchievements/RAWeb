@@ -5,12 +5,9 @@ use App\Models\News;
 use App\Enums\Permissions;
 use App\Models\User;
 
-if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Developer)) {
     abort(401);
 }
-
-/** @var User $user */
-$user = request()->user();
 
 $newsId = (int) request()->query('news');
 $newsItems = News::with('user')->orderByDesc('ID')->take(500)->get();
@@ -19,7 +16,7 @@ $newsItems = News::with('user')->orderByDesc('ID')->take(500)->get();
 $news = $newsItems->firstWhere('ID', $newsId);
 $newsTitle = $news['Title'] ?? '';
 $newsContent = $news['Payload'] ?? '';
-$newsAuthor = $news?->user?->User ?? $user->User;
+$newsAuthor = $news?->user?->display_name ?? $user->display_name;
 $newsLink = $news['Link'] ?? '';
 $newsImage = old('image', $news['Image'] ?? '');
 ?>

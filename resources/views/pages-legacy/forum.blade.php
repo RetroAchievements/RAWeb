@@ -6,7 +6,7 @@ use App\Enums\Permissions;
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $forumList = getForumList($requestedCategoryID);
 
@@ -25,6 +25,7 @@ if ($requestedCategoryID !== 0 && !empty($forumList)) {
 
 sanitize_outputs($requestedCategory);
 ?>
+
 <x-app-layout :pageTitle="$pageTitle">
     <?php
     echo "<div class='navpath'>";

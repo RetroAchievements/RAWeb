@@ -4,7 +4,7 @@ use App\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Developer)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -20,6 +20,6 @@ $relationsArray = explode(",", $input['relations']);
 $filteredArray = array_diff($relationsArray, [$input['game']]);
 $filteredRelationsCsv = implode(",", $filteredArray);
 
-modifyGameAlternatives($user, $gameId, toAdd: $filteredRelationsCsv);
+modifyGameAlternatives($user->username, $gameId, toAdd: $filteredRelationsCsv);
 
 return back()->with('success', __('legacy.success.ok'));

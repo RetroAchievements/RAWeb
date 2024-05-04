@@ -3,22 +3,23 @@
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
 
-// cookie only returns the most common account details. go get the rest
-getAccountDetails($user, $userDetails);
-$points = (int) $userDetails['RAPoints'];
-$websitePrefs = (int) $userDetails['websitePrefs'];
-$emailAddr = $userDetails['EmailAddress'];
-$permissions = (int) $userDetails['Permissions'];
-$contribCount = (int) $userDetails['ContribCount'];
-$contribYield = (int) $userDetails['ContribYield'];
-$userWallActive = $userDetails['UserWallActive'];
-$apiKey = $userDetails['APIKey'];
-$userMotto = htmlspecialchars($userDetails['Motto']);
+$username = $user->username;
+$points = $user->points;
+$websitePrefs = $user->websitePrefs;
+$emailAddr = $user->email;
+$permissions = (int) $user->getAttribute('Permissions');
+$contribCount = $user->ContribCount;
+$contribYield = $user->ContribYield;
+$userWallActive = $user->UserWallActive;
+$apiKey = $user->APIKey;
+$deleteRequested = $user->DeleteRequested;
+$userMotto = htmlspecialchars($user->Motto);
 ?>
+
 <x-app-layout pageTitle="Settings">
 <script>
 function ShowLoadingIcon(iconRootId) {
@@ -72,7 +73,7 @@ function UploadNewAvatar() {
 
                 var result = $.parseJSON(data);
                 var d = new Date();
-                $('.userpic').attr('src', '<?= media_asset('/UserPic/' . $user . '.png')  ?>' + '?' + d.getTime());
+                $('.userpic').attr('src', '<?= media_asset('/UserPic/' . $username . '.png')  ?>' + '?' + d.getTime());
             });
     };
     reader.readAsDataURL(file);
@@ -519,10 +520,10 @@ function confirmEmailChange(event) {
                 Your account's personal data will be cleared from the database permanently.<br>
                 Content you wrote in forums, comments, etc. will NOT be removed.
             </p>
-            <?php if ($userDetails['DeleteRequested']): ?>
+            <?php if ($deleteRequested): ?>
                 <p class='embedded mb-3'>
-                    You requested to have your account deleted on <?= $userDetails['DeleteRequested'] ?> (UTC).<br>
-                    Your account will be permanently deleted on <?= getDeleteDate($userDetails['DeleteRequested']) ?>.
+                    You requested to have your account deleted on <?= $deleteRequested ?> (UTC).<br>
+                    Your account will be permanently deleted on <?= getDeleteDate($deleteRequested) ?>.
                 </p>
                 <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure you want to cancel your account deletion request?');">
                     <?= csrf_field() ?>

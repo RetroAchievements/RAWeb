@@ -5,7 +5,7 @@
 use App\Enums\SearchType;
 use App\Models\Achievement;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $searchQuery = request()->input('s') ?? '';
 $searchType = requestInputSanitized('t', SearchType::All, 'integer');

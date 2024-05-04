@@ -6,7 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

@@ -5,7 +5,7 @@ use App\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     abort(401);
 }
 
@@ -27,23 +27,30 @@ $lbFormat = $input['format'];
 $lbLowerIsBetter = $input['lowerIsBetter'];
 $lbDisplayOrder = $input['order'];
 
-$prevData = GetLeaderboardData($lbID, $user, 1, 0);
+$prevData = GetLeaderboardData($lbID, $user->username, 1, 0);
 $prevUpdated = strtotime($prevData["LBUpdated"]);
 
 // Only let jr. devs update their own leaderboards
-if ($permissions == Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user) {
+// TODO use a policy
+if ($permissions == Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user->username) {
     abort(403);
 }
 
-if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
-    $updatedData = GetLeaderboardData($lbID, $user, 2, 0);
+if (submitLBData($user->username, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
+    $updatedData = GetLeaderboardData($lbID, $user->username, 2, 0);
     $updated = strtotime($updatedData['LBUpdated']);
     $dateDiffMins = ($updated - $prevUpdated) / 60;
 
     if (!empty($updatedData['Entries'])) {
         if ($dateDiffMins > 10) {
             $commentText = 'made updates to this leaderboard';
-            addArticleComment("Server", ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
+            addArticleComment(
+                "Server",
+                ArticleType::Leaderboard,
+                $lbID,
+                "{$user->display_name} made updates to this leaderboard.",
+                $user->username,
+            );
         }
     }
 

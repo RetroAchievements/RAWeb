@@ -4,7 +4,7 @@ use App\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
     abort(401);
 }
 

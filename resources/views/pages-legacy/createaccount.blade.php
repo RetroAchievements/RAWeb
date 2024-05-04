@@ -2,12 +2,13 @@
 
 // TODO migrate to Fortify
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 if (request()->user()) {
     abort_with(redirect(route('home')));
 }
 ?>
+
 <x-app-layout pageTitle="Create Account">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <h3>Create Account</h3>

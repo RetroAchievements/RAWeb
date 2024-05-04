@@ -1,10 +1,11 @@
 <?php
 
 use App\Community\Enums\AwardType;
+use App\Models\PlayerBadge;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
 
@@ -57,26 +58,23 @@ foreach ($awards as $award) {
     $awardDataExtra = $award['extra'];
     $value = $award['number'];
 
+    $query = PlayerBadge::where('user_id', $user->id)
+        ->where('AwardType', $awardType);
+
     // Change display order for all entries if it's a "stacking" award type.
     if (in_array($awardType, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {
-        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
-            "AND AwardType = $awardType " .
-            "AND AwardDataExtra = $awardDataExtra";
+        $query->where('AwardDataExtra', $awardDataExtra);
     } else {
-        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
-            "AND AwardType = $awardType " .
-            "AND AwardData = $awardData";
+        $query->where('AwardData', $awardData);
     }
 
-    if (!s_mysql_query($query)) {
-        abort(500);
-    }
+    $query->update(['DisplayOrder' => $value]);
 }
 
-$userAwards = getUsersSiteAwards($user);
+$userAwards = getUsersSiteAwards($user->username);
 $updatedAwardsHTML = '';
 ob_start();
-RenderSiteAwards($userAwards, $user);
+RenderSiteAwards($userAwards, $user->username);
 $updatedAwardsHTML = ob_get_clean();
 
 return response()->json([

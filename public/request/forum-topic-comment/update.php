@@ -2,11 +2,10 @@
 
 use App\Enums\Permissions;
 use App\Models\ForumTopicComment;
-use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -15,10 +14,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$userModel = User::firstWhere('User', $user);
 $forumTopicComment = ForumTopicComment::find((int) $input['comment']);
 
-if (!$forumTopicComment || !$userModel->can('update', $forumTopicComment)) {
+if (!$forumTopicComment || !$user->can('update', $forumTopicComment)) {
     return back()->withErrors(__('legacy.error.error'));
 }
 

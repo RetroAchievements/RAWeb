@@ -10,9 +10,7 @@ $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $sy
 $consoleIDInput = (int) request()->input('z', 0);
 $mobileBrowser = IsMobileBrowser();
 
-authenticateFromCookie($user, $permissions, $userDetails);
-
-$userModel = $user ? User::firstWhere('User', $user) : null;
+authenticateFromCookie($user, $permissions);
 
 $maxCount = 25;
 
@@ -35,7 +33,7 @@ if ($dev != null) {
 }
 
 $sortBy = (int) request()->input('s', 17);
-$achData = getAchievementsList($userModel, $sortBy, $params, $count, $offset, $flags, $dev);
+$achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $dev);
 
 // Is the user looking at their own achievements list?
 $isOwnEarnedAchievementsList = $user !== null && $params === 1;

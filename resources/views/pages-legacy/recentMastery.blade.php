@@ -3,7 +3,7 @@
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\UnlockMode;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $maxCount = 25;
 $minDate = '2013-03-02';
@@ -39,7 +39,7 @@ $index = $unlockMode == UnlockMode::Hardcore ? 0 : 1;
 $selectedAwardType = $awardTypes[$awardType][$index] ?? null;
 
 if ($followed == 1) {
-    $data = getRecentProgressionAwardData($date, $user, $offset, $maxCount + 1, $awardType, $unlockMode);
+    $data = getRecentProgressionAwardData($date, $user?->username, $offset, $maxCount + 1, $awardType, $unlockMode);
 } else {
     $data = getRecentProgressionAwardData($date, null, $offset, $maxCount + 1, $awardType, $unlockMode);
 }

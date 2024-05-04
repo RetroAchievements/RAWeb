@@ -3,12 +3,12 @@
 use App\Enums\Permissions;
 use Illuminate\Support\Facades\Log;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
 try {
-    UploadAvatar($user, request()->post('imageData'));
+    UploadAvatar($user->username, request()->post('imageData'));
 } catch (Exception $exception) {
     $error = $exception->getMessage();
     if ($error == 'Invalid file type' || $error == 'File too large') {

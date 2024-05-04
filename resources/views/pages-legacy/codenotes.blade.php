@@ -2,7 +2,7 @@
 
 use App\Enums\Permissions;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $gameID = requestInputSanitized('g', 1, 'integer');
 $gameData = getGameData($gameID);
@@ -155,7 +155,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     const addressHex = rowEl.querySelector('td[data-address]').dataset.address;
     const currentAuthor = rowEl.querySelector('td[data-current-author]').dataset.currentAuthor;
 
-    const currentUsername = '<?= $user ?>';
+    const currentUsername = '{{ $user->username }}'; 
 
     // If the user didn't actually change anything in the note but still
     // pressed the Save button, treat this like it's a cancel.
@@ -230,7 +230,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     <p>There are currently <span class='font-bold code-note-count'><?= $codeNoteCount ?></span> code notes for this game.</p>
     <?php
     if (isset($user) && $permissions >= Permissions::Registered) {
-        RenderCodeNotes($codeNotes, $user, $permissions);
+        RenderCodeNotes($codeNotes, $user->username, $permissions);
     }
     ?>
 </x-app-layout>

@@ -5,7 +5,7 @@ use App\Enums\Permissions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Developer)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -17,7 +17,12 @@ $lbId = (int) $input['leaderboard'];
 
 requestResetLB($lbId);
 
-$commentText = 'reset all entries for this leaderboard';
-addArticleComment("Server", ArticleType::Leaderboard, $lbId, "\"$user\" $commentText.", $user);
+addArticleComment(
+    "Server",
+    ArticleType::Leaderboard,
+    $lbId,
+    "{$user->display_name} reset all entries for this leaderboard.",
+    $user->username,
+);
 
 return back()->with('success', __('legacy.success.ok'));

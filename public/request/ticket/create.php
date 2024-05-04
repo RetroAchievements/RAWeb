@@ -1,15 +1,11 @@
 <?php
 
-use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetail)) {
+if (!authenticateFromCookie($user, $permissions)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
-
-/** @var User $user */
-$user = request()->user();
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievement' => 'required|integer|exists:Achievements,ID',

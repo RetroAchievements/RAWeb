@@ -5,7 +5,7 @@ use App\Models\Ticket;
 
 $achievementID = requestInputSanitized('i', 0, 'integer');
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort_with(redirect(route('achievement.show', $achievementID)));
 }
 
@@ -17,14 +17,11 @@ if (empty($dataOut)) {
     abort(404);
 }
 
-/** @var User $userModel */
-$userModel = request()->user();
-
-if (!$userModel->can('create', Ticket::class)) {
+if (!$user?->can('create', Ticket::class)) {
     abort_with(redirect(route('achievement.show', $achievementID)));
 }
 
-$ticketID = getExistingTicketID($userModel, $achievementID);
+$ticketID = getExistingTicketID($user, $achievementID);
 if ($ticketID !== 0) {
     abort_with(redirect(url("/ticketmanager.php?i=$ticketID"))->withErrors(__('legacy.error.ticket_exists')));
 }

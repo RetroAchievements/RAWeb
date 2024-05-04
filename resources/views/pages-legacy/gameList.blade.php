@@ -26,7 +26,7 @@ if ($consoleIDInput > 0 && System::isGameSystem($consoleIDInput)) {
     abort_with(redirect()->route('system.game.index', ['system' => $consoleIDInput]));
 }
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $listType = isset($user) ? requestInputSanitized('t') : null;
 $showTickets = (isset($user) && $permissions >= Permissions::Developer);

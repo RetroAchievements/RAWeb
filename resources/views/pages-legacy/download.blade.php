@@ -5,8 +5,9 @@ usort($emulators, function ($a, $b) {
     return strcasecmp($a['handle'], $b['handle']);
 });
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 ?>
+
 <x-app-layout pageTitle="Download a client">
     <h2 class="mb-6">Emulators supporting RetroAchievements</h2>
 

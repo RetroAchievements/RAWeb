@@ -6,7 +6,7 @@ use App\Models\Achievement;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -22,7 +22,8 @@ if (!$achievement) {
 }
 
 // Only allow jr. devs to update achievement image if they are the author
-if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Author']) {
+// TODO use a policy
+if ($permissions == Permissions::JuniorDeveloper && $user->id !== $achievement->user_id) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -33,13 +34,19 @@ try {
 }
 
 $dbResult = legacyDbStatement('UPDATE Achievements AS a SET BadgeName=:badgeName WHERE a.ID = :achievementId', [
-    'achievementId' => $achievementId,
+    'achievementId' => $achievement->id,
     'badgeName' => $imagePath,
 ]);
 if (!$dbResult) {
     return back()->withErrors(__('legacy.error.image_upload'));
 }
 
-addArticleComment('Server', ArticleType::Achievement, $achievementId, "$user edited this achievement's badge.", $user);
+addArticleComment(
+    'Server',
+    ArticleType::Achievement,
+    $achievementId,
+    "{$user->display_name} edited this achievement's badge.",
+    $user->username,
+);
 
 return back()->with('success', __('legacy.success.image_upload'));

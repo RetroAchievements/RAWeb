@@ -4,9 +4,7 @@ use App\Community\Enums\RankType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Support\Facades\Auth;
 
-authenticateFromCookie($user, $permissions, $userDetails);
-
-$userModel = Auth::user();
+authenticateFromCookie($user, $permissions);
 
 $maxCount = 25;
 
@@ -48,7 +46,7 @@ $lbUsers = match ($friends) {
 if ($friends == 1) {
     // We do a maxCount + 1 so that if we get maxCount + 1 rows returned we know
     // there are more row to get and we can add a "Next X" link for page traversal
-    $data = getGlobalRankingData($type, $sort, $date, null, $user, $untracked, 0, getFriendCount($userModel) + 1, 0);
+    $data = getGlobalRankingData($type, $sort, $date, null, $user?->username, $untracked, 0, getFriendCount($user) + 1, 0);
 } else {
     $data = getGlobalRankingData($type, $sort, $date, null, null, $untracked, $offset, $maxCount + 1, 0);
 }
@@ -244,13 +242,13 @@ $unlockMode = match ($sort % 10) {
         }
 
         if ($rowRank < $offset + 1 || $findUserRank) {
-            if ($dataPoint['User'] == $user) {
+            if ($user && $dataPoint['User'] == $user->username) {
                 $userRank = $rank;
             }
             $rowRank++;
         } else {
             // Outline the currently logged in user in the table
-            if ($dataPoint['User'] == $user) {
+            if ($user && $dataPoint['User'] == $user->username) {
                 $userListed = true;
                 echo "<tr style='outline: thin solid'>";
             } else {
@@ -298,7 +296,7 @@ $unlockMode = match ($sort % 10) {
     if ($user !== null) {
         if (!$userListed) {
             // Get and display the information for the logged in user if applicable
-            $userData = getGlobalRankingData($type, $sort, $date, $user, null, $untracked, 0, 1);
+            $userData = getGlobalRankingData($type, $sort, $date, $user->username, null, $untracked, 0, 1);
             if (!empty($userData)) {
                 // Add dummy row to separate the user from the rest of the table
                 echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
@@ -313,11 +311,11 @@ $unlockMode = match ($sort % 10) {
                 } else {
                     if ($sort < 10 && $sort % 10 != 1) {
                         if ($sort == 5) {
-                            echo "<td>" . localized_number(getUserRank($user, RankType::Hardcore)) . "</td>";
+                            echo "<td>" . localized_number(getUserRank($user->username, RankType::Hardcore)) . "</td>";
                         } elseif ($sort == 6) {
-                            echo "<td>" . localized_number(getUserRank($user, RankType::TruePoints)) . "</td>";
+                            echo "<td>" . localized_number(getUserRank($user->username, RankType::TruePoints)) . "</td>";
                         } elseif ($sort == 2) {
-                            echo "<td>" . localized_number(getUserRank($user, RankType::Softcore)) . "</td>";
+                            echo "<td>" . localized_number(getUserRank($user->username, RankType::Softcore)) . "</td>";
                         } else {
                             echo "<td></td>";
                         }
@@ -335,18 +333,18 @@ $unlockMode = match ($sort % 10) {
                 }
 
                 if ($unlockMode == UnlockMode::Hardcore) {
-                    echo "<td class='text-right'>" . localized_number($userData[0]['Points']);
+                    echo "<td class='text-right'>" . localized_number($user->points);
                     ?>
-                    <x-points-weighted-container>({{ localized_number($userData[0]['RetroPoints']) }})</x-points-weighted-container>
+                    <x-points-weighted-container>({{ localized_number($user->points_weighted) }})</x-points-weighted-container>
                     <?php
                     echo "</td>";
-                    if ($userData[0]['Points'] == 0) {
+                    if ($user->points == 0) {
                         echo "<td class='text-right'>0.00</td>";
                     } else {
                         echo "<td class='text-right'>" . $userData[0]['RetroRatio'] . "</td>";
                     }
                 } else {
-                    echo "<td class='text-right'>" . localized_number($userData[0]['Points']) . "</td>";
+                    echo "<td class='text-right'>" . localized_number($user->points) . "</td>";
                 }
 
                 echo "<td class='text-right'>" . localized_number($userData[0]['TotalAwards'] ?? 0) . "</td></tr>";

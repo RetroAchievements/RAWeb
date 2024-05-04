@@ -3,7 +3,7 @@
 use App\Models\User;
 use Carbon\Carbon;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $userPage = requestInputSanitized('u', $user);
 
@@ -28,8 +28,8 @@ if ($sortBy == 2 || $sortBy == 12) {
     $sortByGraphName = 'Num Achievements Earned';
 }
 
-$userPageHardcorePoints = $userDetails->RAPoints;
-$userPageSoftcorePoints = $userDetails->RASoftcorePoints;
+$userPageHardcorePoints = $userDetails->points;
+$userPageSoftcorePoints = $userDetails->points_softcore;
 
 //	the past week
 $userScoreData = getAwardedList($userDetails);

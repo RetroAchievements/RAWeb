@@ -1,10 +1,10 @@
 <?php
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-if (cancelDeleteRequest($user)) {
+if (cancelDeleteRequest($user->username)) {
     return back()->with('success', __('legacy.success.ok'));
 }
 

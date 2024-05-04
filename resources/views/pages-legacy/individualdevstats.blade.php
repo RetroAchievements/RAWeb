@@ -3,7 +3,7 @@
 use App\Community\Enums\TicketState;
 use App\Models\User;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 // TODO validate
 $dev = requestInputSanitized('u');

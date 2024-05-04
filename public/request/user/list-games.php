@@ -1,13 +1,10 @@
 <?php
 
-use App\Models\User;
-
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
 
-$dataOut = User::firstWhere('User', $user)
-    ->games()
+$dataOut = $user->games()
     ->with('system')
     ->where('player_games.achievements_unlocked', '>', 0)
     ->orderBy('Title')

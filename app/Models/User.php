@@ -102,7 +102,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename User column to username
     // TODO rename Password column to password
-    // TODO rename EmailAddress column to email
+    // TODO rename EmailAddress column to email, remove getEmailAttribute()
     // TODO rename LastLogin column to last_activity_at
     // TODO rename appToken column to connect_token or to passport
     // TODO rename appTokenExpiry column to connect_token_expires_at or to passport
@@ -405,6 +405,13 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return $this->getAttribute('User');
     }
 
+    // TODO remove after rename
+    public function getEmailAttribute(): string
+    {
+        return $this->getAttribute('EmailAddress');
+    }
+
+    // TODO rename to getInternalUsernameAttribute() to avoid ambiguity between username and display_name
     public function getUsernameAttribute(): string
     {
         return $this->getAttribute('User');

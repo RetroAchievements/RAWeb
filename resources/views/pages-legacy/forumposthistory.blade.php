@@ -8,9 +8,9 @@ use App\Models\User;
 $offset = requestInputSanitized('o', 0, 'integer');
 $count = $maxCount = 25;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
-$websitePrefs = $userDetails['websitePrefs'] ?? 0;
+$websitePrefs = $user?->websitePrefs ?? 0;
 
 $messageLength = 120;
 

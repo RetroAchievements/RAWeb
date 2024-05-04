@@ -4,7 +4,7 @@
 
 use App\Enums\Permissions;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
     abort(401);
 }
 
@@ -20,6 +20,7 @@ $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
 $requestors = getSetRequestorsList($gameID);
 ?>
+
 <x-app-layout pageTitle="Set Requests">
     <h2>List of Set Requests</h2>
     <?php

@@ -6,7 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetail)) {
+if (!authenticateFromCookie($senderUser, $permissions)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -15,7 +15,6 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'action' => ['required', 'integer', Rule::in(UserRelationship::cases())],
 ]);
 
-$senderUser = auth()->user();
 $targetUser = User::firstWhere('User', $input['user']);
 
 if (!$targetUser) {

@@ -3,13 +3,12 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
-use App\Models\User;
 use App\Platform\Enums\ImageType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -30,13 +29,11 @@ if ($input['type'] === ImageType::GameIcon) {
 $gameID = (int) $input['game'];
 $imageType = $input['type'];
 
-$userModel = User::firstWhere('User', $user);
-
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
 // TODO use a policy
 if (
     $permissions == Permissions::JuniorDeveloper
-    && (!checkIfSoleDeveloper($user, $gameID) && !hasSetClaimed($userModel, $gameID, true, ClaimSetType::NewSet))) {
+    && (!checkIfSoleDeveloper($user->username, $gameID) && !hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet))) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -71,6 +68,6 @@ $label = match ($imageType) {
     default => '?', // should never hit this because of the match above
 };
 
-addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the $label");
+addArticleComment('Server', ArticleType::GameModification, $gameID, "{$user->display_name} changed the $label");
 
 return back()->with('success', __('legacy.success.image_upload'));

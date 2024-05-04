@@ -9,19 +9,19 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'password' => 'required|confirmed|min:8|different:username',
 ]);
 
-$user = $input['username'];
+$username = $input['username'];
 $passResetToken = $input['token'];
 $newPass = $input['password'];
 
-if (!isValidPasswordResetToken($user, $passResetToken)) {
+if (!isValidPasswordResetToken($username, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));
 }
 
-changePassword($user, $newPass);
+changePassword($username, $newPass);
 
 // Perform auto-login:
-if (authenticateFromCookie($user, $permissions, $userDetails)) {
-    generateAppToken($user, $tokenInOut);
+if (authenticateFromCookie($user, $permissions)) {
+    generateAppToken($user->username, $tokenInOut);
 }
 
 return back()->with('success', __('legacy.success.password_change'));

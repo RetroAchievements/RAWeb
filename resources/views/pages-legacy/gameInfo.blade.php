@@ -22,10 +22,10 @@ if (empty($gameID)) {
     abort(404);
 }
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
-$userID = $userDetails['ID'] ?? 0;
-$userWebsitePrefs = $userDetails['websitePrefs'] ?? null;
+$userID = $user?->id ?? 0;
+$userWebsitePrefs = $user?->websitePrefs ?? null;
 $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 
 $officialFlag = AchievementFlag::OfficialCore;
@@ -37,10 +37,8 @@ if ($flagParam !== $unofficialFlag) {
     $flagParam = $officialFlag;
 }
 
-$userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
-    $userModel = User::firstWhere('User', $user);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');
@@ -49,7 +47,7 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
     $sortBy = 1;
 }
 
-$numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics: true);
+$numAchievements = getGameMetadata($gameID, $user, $achievementData, $gameData, $sortBy, null, $flagParam, metrics: true);
 $gameModel = Game::find($gameID);
 
 if (!$gameModel) {
@@ -102,14 +100,14 @@ if ($v != 1) {
     if ($isFullyFeaturedGame) {
         foreach ($gameHubs as $hub) {
             if ($hub['Title'] == '[Theme - Mature]') {
-                if ($userDetails && BitSet($userDetails['websitePrefs'], $matureContentPref)) {
+                if (isset($user) && BitSet($user->websitePrefs, $matureContentPref)) {
                     break;
                 }
                 $gate = true;
             }
         }
     } elseif (str_contains($gameTitle, '[Theme - Mature]')) {
-        $gate = !$userDetails || !BitSet($userDetails['websitePrefs'], $matureContentPref);
+        $gate = is_null($user) || !BitSet($user->websitePrefs, $matureContentPref);
     }
 }
 ?>
@@ -150,19 +148,19 @@ $userGameProgressionAwards = [
 if ($isFullyFeaturedGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
+    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user?->username, $flagParam, $numDistinctPlayers);
+    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user?->username, $flagParam, $numDistinctPlayers);
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
-    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user, retrieveHidden: false);
+    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user?->username, retrieveHidden: false);
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
-        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+        $isSoleAuthor = checkIfSoleDeveloper($user->username, $gameID);
 
         // Determine if the logged in user has any progression awards for this set
-        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
+        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user->username);
         $hasBeatenSoftcoreAward = !is_null($userGameProgressionAwards['beaten-hardcore']);
         $hasBeatenHardcoreAward = !is_null($userGameProgressionAwards['beaten-softcore']);
     }
@@ -249,7 +247,7 @@ if ($isFullyFeaturedGame) {
 
     // Show the beaten award display in the progress component optimistically.
     // The actual award metadata is updated async via actions/background jobs.
-    if ($user && $isGameBeatable) {
+    if (isset($user) && $isGameBeatable) {
         $neededProgressions = $totalProgressionAchievements > 0 ? $totalProgressionAchievements : 0;
         $neededWinConditions = $totalWinConditionAchievements > 0 ? 1 : 0;
 
@@ -274,7 +272,6 @@ sanitize_outputs(
     $gameTitle,
     $consoleName,
     $richPresenceData,
-    $user,
 );
 
 $pageType = $isFullyFeaturedGame ? 'retroachievements:game' : 'retroachievements:hub';
@@ -304,7 +301,7 @@ if ($isFullyFeaturedGame) {
             :gameTitle="$gameTitle"
             :consoleId="$consoleID"
             :consoleName="$consoleName"
-            :userWebsitePrefs="$userDetails['websitePrefs'] ?? 0"
+            :userWebsitePrefs="$user?->websitePrefs ?? 0"
         />
     </x-app-layout>
     <?php return ?>
@@ -456,8 +453,8 @@ if ($isFullyFeaturedGame) {
             'released' => $released,
             'totalPossible' => $totalPossible,
             'totalPossibleTrueRatio' => $totalPossibleTrueRatio,
-            'user' => $user,
-            'userModel' => $userModel,
+            'user' => $user?->username,
+            'userModel' => $user,
         ];
         ?>
             <x-game.heading
@@ -499,7 +496,7 @@ if ($isFullyFeaturedGame) {
             $hasMinimumDeveloperPermissions = (
                 $permissions >= Permissions::Developer
                 || (
-                    ($isSoleAuthor || hasSetClaimed($userModel, $gameID, true, ClaimSetType::NewSet))
+                    ($isSoleAuthor || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet))
                     && $permissions >= Permissions::JuniorDeveloper
                 )
             );
@@ -536,7 +533,7 @@ if ($isFullyFeaturedGame) {
                         break;
                     }
                 }
-                if ($permissions >= Permissions::Moderator || $primaryClaimUser === $user) {
+                if ($permissions >= Permissions::Moderator || $primaryClaimUser === $user->username) {
                     $interestedUsers = UserGameListEntry::where('type', UserGameListType::Develop)
                         ->where('GameID', $gameID)
                         ->count();
@@ -555,7 +552,7 @@ if ($isFullyFeaturedGame) {
                     "updateachievementssub",
                     SubscriptionSubjectType::GameAchievements,
                     $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID),
+                    isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $user->id),
                     'Achievement Comments'
                 );
 
@@ -563,7 +560,7 @@ if ($isFullyFeaturedGame) {
                     "updateticketssub",
                     SubscriptionSubjectType::GameTickets,
                     $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID),
+                    isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $user->id),
                     'Tickets'
                 );
                 ?>
@@ -584,7 +581,7 @@ if ($isFullyFeaturedGame) {
                         :isOfficial="$isOfficial"
                         :isSoleAuthor="$isSoleAuthor"
                         :numAchievements="$numAchievements"
-                        :user="$user"
+                        :user="$user->username"
                         :userPermissions="$permissions"
                     />
                 @endif
@@ -947,7 +944,7 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             }
 
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
+            RenderCommentsComponent($user?->username, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
         }
         ?>
     </div>
@@ -1009,7 +1006,7 @@ if ($isFullyFeaturedGame) {
             <div class="mb-4">
                 <x-game.compare-progress
                     :game="$gameModel"
-                    :user="$userModel"
+                    :user="$user"
                 />
             </div>
             <?php
@@ -1021,7 +1018,7 @@ if ($isFullyFeaturedGame) {
             echo "<div id='chart_distribution' class='min-h-[260px]'></div>";
             echo "</div>";
 
-            RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
+            RenderTopAchieversComponent($user?->username, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
         }
         ?>
 

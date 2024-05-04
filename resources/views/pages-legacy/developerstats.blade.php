@@ -3,7 +3,7 @@
 use App\Community\Enums\TicketFilters;
 use App\Enums\Permissions;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $type = requestInputSanitized('t', 0, 'integer');
 $defaultFilter = 7; // set all 3 status' to enabled

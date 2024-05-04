@@ -2,16 +2,12 @@
 
 use App\Enums\Permissions;
 use App\Models\News;
-use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Developer)) {
     abort(401);
 }
-
-/** @var User $user */
-$user = request()->user();
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'news' => 'nullable|integer',

@@ -159,10 +159,9 @@ function changePassword(string $username, string $password): string
  */
 
 function authenticateFromCookie(
-    ?string &$userOut,
+    ?User &$userOut,
     ?int &$permissionsOut,
-    ?array &$userDetailsOut = null,
-    ?int $minPermissions = null
+    ?int $minPermissions = null,
 ): bool {
     $userOut = null;
     $permissionsOut = Permissions::Unregistered;
@@ -179,12 +178,10 @@ function authenticateFromCookie(
         return false;
     }
 
-    $userDetailsOut = $user->toArray();
-    $userDetailsOut['isMuted'] = $user->isMuted;
-    $userOut = $user->getAttribute('User');
-    $permissionsOut = $user->getAttribute('Permissions');
+    $userOut = $user;
+    $permissionsOut = (int) $user->getAttribute('Permissions');
 
-    if ($permissionsOut === Permissions::Banned) {
+    if ($user->isBanned || $permissionsOut === Permissions::Banned) {
         return false;
     }
 
@@ -193,6 +190,7 @@ function authenticateFromCookie(
     $user->save();
 
     // validate permissions for the current page if required
+    // TODO favor using access policies instead
     if (isset($minPermissions) && $permissionsOut < $minPermissions) {
         if (request()->wantsJson()) {
             abort(403);

@@ -15,7 +15,7 @@ if (empty($userPage) || !isValidUsername($userPage)) {
     abort(404);
 }
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $maxNumGamesToFetch = requestInputSanitized('g', 5, 'integer');
 
@@ -159,7 +159,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
             :recentlyPlayedEntities="$userMassData['RecentlyPlayed'] ?? []"
             :recentAchievementEntities="$userMassData['RecentAchievements'] ?? []"
             :recentAwardedEntities="$userMassData['Awarded'] ?? []"
-            :targetUsername="$user ?? ''"
+            :targetUsername="$user?->username ?? ''"
             :userAwards="$userAwards"
         />
     <?php
@@ -173,10 +173,10 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
 
     echo "<h2 class='text-h4'>User Wall</h2>";
 
-    if ($userWallActive && request()->user()) {
+    if ($userWallActive && $user) {
         // passing 'null' for $user disables the ability to add comments
         RenderCommentsComponent(
-            !$userPageModel->isBlocking(request()->user()) ? $user : null,
+            !$userPageModel->isBlocking($user) ? $user->username : null,
             $numArticleComments,
             $commentData,
             $userPageID,
@@ -211,7 +211,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
             :userScoreData="$userScoreData"
         />
 
-        @if ($user !== null && $user === $userPage)
+        @if ($user !== null && $user->id === $userPageModel->id)
             <x-user.followed-leaderboard-cta :friendCount="getFriendCount($userPageModel)" />
         @endif
     </x-slot>

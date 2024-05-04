@@ -10,7 +10,7 @@ $maxCount = 25;
 
 $perms = (int) request()->query('p', '1');
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $showUntracked = false;
 if (isset($user) && $permissions >= Permissions::Moderator) {
@@ -19,7 +19,7 @@ if (isset($user) && $permissions >= Permissions::Moderator) {
     $perms = 1;
 }
 
-$userCount = getUserListByPerms($sortBy, $offset, $maxCount, $userListData, $user, $perms, $showUntracked);
+$userCount = getUserListByPerms($sortBy, $offset, $maxCount, $userListData, $user?->username, $perms, $showUntracked);
 
 $permissionName = null;
 if ($perms >= Permissions::Spam && $perms <= Permissions::Moderator) {

@@ -1,11 +1,10 @@
 <?php
 
 use App\Models\Forum;
-use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -15,15 +14,14 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$userModel = User::firstWhere('User', $user);
 $forum = Forum::find((int) $input['forum']);
 
-if (!$forum || !$userModel->can('create', [App\Models\ForumTopic::class, $forum])) {
+if (!$forum || !$user->can('create', [App\Models\ForumTopic::class, $forum])) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
 $topicID = null;
-if (submitNewTopic($user, $forum->id, $input['title'], $input['body'], $topicID)) {
+if (submitNewTopic($user->username, $forum->id, $input['title'], $input['body'], $topicID)) {
     return redirect(url("/viewtopic.php?t=$topicID"))->with('success', __('legacy.success.create'));
 }
 

@@ -9,7 +9,7 @@ use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use Illuminate\Support\Str;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $defaultFilter = ClaimFilters::AllActiveClaims;
 $defaultSorting = ClaimSorting::ClaimDateDescending;
@@ -136,14 +136,14 @@ if (!empty($gameID)) {
     if (isset($user) || !empty($username)) {
         echo "<p class='embedded'><b>User:</b> ";
         if (isset($user)) {
-            if ($username == $user) {
+            if ($username == $user->username) {
                 echo "<b>$user</b> | ";
             } else {
-                echo "<a href='" . $createLink('u', $user) . "'>$user</a> | ";
+                echo "<a href='" . $createLink('u', $user->username) . "'>{$user->display_name}</a> | ";
             }
         }
 
-        if (!empty($username) && $username !== $user) {
+        if (!empty($username) && $username !== $user->username) {
             echo "<b>$username</b> | ";
         }
 

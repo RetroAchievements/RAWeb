@@ -8,7 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
+if (!authenticateFromCookie($sourceUser, $permissions, Permissions::Moderator)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -22,11 +22,13 @@ $targetUsername = $input['target'];
 $propertyType = (int) $input['property'];
 $value = (int) $input['value'];
 
-$foundSourceUser = User::firstWhere('User', $user);
 $foundTargetUser = User::firstWhere('User', $targetUsername);
+if (!$foundTargetUser) {
+    return back()->withErrors(__('legacy.error.error'));
+}
 
 if ($propertyType === UserAction::UpdatePermissions) {
-    $response = SetAccountPermissionsJSON($foundSourceUser->User, $permissions, $targetUsername, $value);
+    $response = SetAccountPermissionsJSON($sourceUser->username, $permissions, $foundTargetUser->username, $value);
 
     // auto-apply forums permissions
     if (
@@ -34,61 +36,55 @@ if ($propertyType === UserAction::UpdatePermissions) {
         && $value >= Permissions::JuniorDeveloper
         && !$foundTargetUser->ManuallyVerified
     ) {
-        setAccountForumPostAuth($foundSourceUser, $permissions, $foundTargetUser, authorize: true);
+        setAccountForumPostAuth($sourceUser, $permissions, $foundTargetUser, authorize: true);
     }
 
     return back()->with('success', __('legacy.success.ok'));
 }
 
 if ($propertyType === UserAction::UpdateForumPostPermissions) {
-    if (setAccountForumPostAuth($foundSourceUser, $permissions, $foundTargetUser, authorize: (bool) $value)) {
+    if (setAccountForumPostAuth($sourceUser, $permissions, $foundTargetUser, authorize: (bool) $value)) {
         return back()->with('success', __('legacy.success.ok'));
     }
 }
 
 if ($propertyType === UserAction::PatreonBadge) {
-    $hasBadge = HasPatreonBadge($targetUsername);
+    $hasBadge = HasPatreonBadge($foundTargetUser->username);
     SetPatreonSupporter($foundTargetUser, !$hasBadge);
 
-    if ($foundTargetUser) {
-        addArticleComment(
-            'Server',
-            ArticleType::UserModeration,
-            $foundTargetUser->id,
-            $foundSourceUser->User . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
-        );
-    }
+    addArticleComment(
+        'Server',
+        ArticleType::UserModeration,
+        $foundTargetUser->id,
+        $sourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
+    );
 
     return back()->with('success', __('legacy.success.ok'));
 }
 
 if ($propertyType === UserAction::LegendBadge) {
-    $hasBadge = HasCertifiedLegendBadge($targetUsername);
+    $hasBadge = HasCertifiedLegendBadge($foundTargetUser->username);
     SetCertifiedLegend($foundTargetUser, !$hasBadge);
 
-    if ($foundTargetUser) {
-        addArticleComment(
-            'Server',
-            ArticleType::UserModeration,
-            $foundTargetUser->id,
-            $foundSourceUser->User . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
-        );
-    }
+    addArticleComment(
+        'Server',
+        ArticleType::UserModeration,
+        $foundTargetUser->id,
+        $sourceUser->display_name . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
+    );
 
     return back()->with('success', __('legacy.success.ok'));
 }
 
 if ($propertyType === UserAction::TrackedStatus) {
-    SetUserUntrackedStatus($targetUsername, $value);
+    SetUserUntrackedStatus($foundTargetUser->username, $value);
 
-    if ($foundTargetUser) {
-        addArticleComment(
-            'Server',
-            ArticleType::UserModeration,
-            $foundTargetUser->id,
-            $foundSourceUser->User . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
-        );
-    }
+    addArticleComment(
+        'Server',
+        ArticleType::UserModeration,
+        $foundTargetUser->id,
+        $sourceUser->display_name . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
+    );
 
     return back()->with('success', __('legacy.success.ok'));
 }

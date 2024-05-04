@@ -9,8 +9,7 @@ use App\Models\ForumTopicComment;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Auth;
 
-authenticateFromCookie($username, $permissions);
-$user = Auth::user();
+authenticateFromCookie($user, $permissions);
 $userID = $user?->id ?? 0;
 
 // Fetch topic ID

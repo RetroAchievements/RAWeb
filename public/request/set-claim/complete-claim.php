@@ -5,11 +5,10 @@ use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
 use App\Models\PlayerBadge;
-use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -20,10 +19,8 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $gameID = (int) $input['game'];
 $claimData = getClaimData([$gameID]);
 
-$userModel = User::firstWhere('User', $user);
-
-if (!empty($claimData) && completeClaim($userModel, $gameID)) { // Check that the claim was successfully completed
-    addArticleComment("Server", ArticleType::SetClaim, $gameID, "Claim completed by " . $user);
+if (!empty($claimData) && completeClaim($user, $gameID)) { // Check that the claim was successfully completed
+    addArticleComment("Server", ArticleType::SetClaim, $gameID, "Claim completed by {$user->display_name}");
 
     // TODO: these emails should be queued and sent asynchronously
     if ($claimData[0]['SetType'] == ClaimSetType::Revision) {
@@ -37,8 +34,8 @@ if (!empty($claimData) && completeClaim($userModel, $gameID)) { // Check that th
 
         foreach ($userAwards as $userAward) {
             sendSetRevisionEmail(
-                $userAward->user->User,
-                $userAward->user->EmailAddress,
+                $userAward->user->username,
+                $userAward->user->email,
                 $userAward->AwardDataExtra === 1,
                 $gameID,
                 $gameTitle,

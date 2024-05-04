@@ -7,9 +7,7 @@ use App\Models\Forum;
 use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 
-authenticateFromCookie($user, $permissions, $userDetails);
-
-$userModel = Auth::user();
+authenticateFromCookie($user, $permissions);
 
 $requestedForumID = requestInputSanitized('f', null, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -89,7 +87,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($requestedForumID && $userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
+    if ($requestedForumID && $user?->can('create', [App\Models\ForumTopic::class, $forum])) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";
@@ -168,7 +166,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($requestedForumID && $userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
+    if ($requestedForumID && $user?->can('create', [App\Models\ForumTopic::class, $forum])) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";

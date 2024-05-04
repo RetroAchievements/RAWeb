@@ -3,12 +3,11 @@
 use App\Enums\Permissions;
 use App\Models\Forum;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
 
 $requestedForumID = (int) request()->query('forum');
-$userModel = request()->user();
 
 if (empty($requestedForumID)) {
     abort(404);
@@ -18,7 +17,7 @@ $forum = Forum::find($requestedForumID);
 if (!$forum) {
     abort(404);
 }
-if (!$userModel->can('create', [App\Models\ForumTopic::class, $forum])) {
+if (!$user->can('create', [App\Models\ForumTopic::class, $forum])) {
     abort(401);
 }
 
@@ -42,7 +41,7 @@ $thisCategoryName = htmlentities($forum->category->title);
             <div class="flex flex-col gap-y-3">
                 <x-base.form.input type="hidden" name="forum" value="{{ $requestedForumID }}" />
                 <x-base.form.input label="{{ __res('forum', 1) }}" value="{{ $thisForumTitle }}" inline readonly :fullWidth="false" />
-                <x-base.form.input label="{{ __res('author', 1) }}" value="{{ $user }}" inline readonly :fullWidth="false" />
+                <x-base.form.input label="{{ __res('author', 1) }}" value="{{ $user->display_name }}" inline readonly :fullWidth="false" />
                 <x-base.form.input name="title" inline />
                 <x-base.form.textarea
                     id="input_compose"

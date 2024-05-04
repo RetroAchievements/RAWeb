@@ -8,7 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Moderator)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -26,7 +26,7 @@ if ($claim) {
         "Server",
         ArticleType::SetClaim,
         $claim->game_id,
-        "$user updated " . $claim->User . "'s claim. Claim Status: " . ClaimStatus::toString($claim->Status)
+        "{$user->display_name} updated " . $claim->user->display_name . "'s claim. Claim Status: " . ClaimStatus::toString($claim->Status)
     );
 
     return back()->with('success', __('legacy.success.ok'));

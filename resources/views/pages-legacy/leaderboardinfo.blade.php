@@ -9,9 +9,7 @@ use App\Platform\Services\TriggerDecoderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 
-authenticateFromCookie($user, $permissions, $userDetails);
-
-$userModel = Auth::user();
+authenticateFromCookie($user, $permissions);
 
 $lbID = requestInputSanitized('i', null, 'integer');
 if (empty($lbID)) {
@@ -128,7 +126,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 echo "<option selected>-</option>";
                 foreach ($orderedEntries as $nextLBEntry) {
                     // Display all entries for devs, display only own entry for jr. devs
-                    if ($userModel->can('delete', $nextLBEntry)) {
+                    if ($user->can('delete', $nextLBEntry)) {
                         $nextUser = $nextLBEntry->user->User;
                         $nextScore = $nextLBEntry->score;
                         $nextScoreFormatted = ValueFormat::format($nextScore, $lbFormat);
@@ -215,7 +213,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
             }
             $previousScore = $nextScore;
 
-            $isLocal = (strcmp($nextUser, $user) == 0);
+            $isLocal = (strcmp($nextUser, $user?->username) == 0);
             $lastEntry = ($resultsDrawn + 1 == $numEntries);
             $userAppendedInResults = ($numEntries > $count);
 
@@ -272,7 +270,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
 
         // Render article comments
         RenderCommentsComponent(
-            $user,
+            $user?->username,
             $numArticleComments,
             $commentData,
             $lbID,

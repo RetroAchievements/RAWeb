@@ -3,7 +3,7 @@
 use App\Enums\Permissions;
 use App\Models\GameHash;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Developer)) {
     abort(401);
 }
 

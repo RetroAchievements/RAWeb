@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Developer)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Developer)) {
     abort(401);
 }
 
@@ -33,7 +33,7 @@ if ($value == AchievementFlag::OfficialCore) {
 if ($value == AchievementFlag::Unofficial) {
     $commentText = 'demoted this achievement to Unofficial';
 }
-addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
+addArticleComment("Server", ArticleType::Achievement, $achievementIds, "{$user->display_name} $commentText.", $user->username);
 expireGameTopAchievers($achievement['GameID']);
 
 return response()->json(['message' => __('legacy.success.ok')]);

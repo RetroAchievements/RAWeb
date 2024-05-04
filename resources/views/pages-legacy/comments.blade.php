@@ -9,7 +9,7 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\System;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $articleTypeID = requestInputSanitized('t', 0, 'integer');
 $articleID = requestInputSanitized('i', 0, 'integer');
@@ -182,7 +182,7 @@ switch ($articleTypeID) {
         <h3>{{ $pageTitle }}</h3>
     @endif
     <?php
-    RenderCommentsComponent($user, $numArticleComments, $commentData, $articleID, $articleTypeID, $permissions, $count, $offset, embedded: false);
+    RenderCommentsComponent($user->username, $numArticleComments, $commentData, $articleID, $articleTypeID, $permissions, $count, $offset, embedded: false);
     ?>
     <br>
     <div class='flex justify-between mb-3'>

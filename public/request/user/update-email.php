@@ -3,10 +3,9 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($username, $permissions, $userDetail)) {
+if (!authenticateFromCookie($user, $permissions)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -16,12 +15,18 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $email = $input['email'];
 
-DB::statement("UPDATE UserAccounts SET EmailAddress='$email', Permissions=" . Permissions::Unregistered . ", email_verified_at = NULL, Updated=NOW() WHERE User='$username'");
+$user->EmailAddress = $email;
+$user->Permissions = Permissions::Unregistered;
+$user->email_verified_at = null;
+$user->save();
 
-sendValidationEmail($username, $email);
+sendValidationEmail($user->username, $email);
 
-addArticleComment('Server', ArticleType::UserModeration, $userDetail['ID'],
-    $username . ' changed their email address'
+addArticleComment(
+    'Server',
+    ArticleType::UserModeration,
+    $user->id,
+    "{$user->display_name} changed their email address",
 );
 
 return back()->with('success', __('legacy.success.change'));

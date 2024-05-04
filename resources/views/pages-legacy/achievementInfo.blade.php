@@ -15,9 +15,7 @@ use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Blade;
 
-authenticateFromCookie($user, $permissions, $userDetails);
-
-$userModel = User::firstWhere('User', $user);
+authenticateFromCookie($user, $permissions);
 
 $achievementID = (int) request('achievement');
 if (empty($achievementID)) {
@@ -44,7 +42,7 @@ $author = $dataOut['Author'];
 $dateCreated = $dataOut['DateCreated'];
 $dateModified = $dataOut['DateModified'];
 $achMem = $dataOut['MemAddr'];
-$isAuthor = $user == $author;
+$isAuthor = $user?->username === $author; // FIXME we need the author id to correctly assess this
 
 $canEmbedVideo = (
     $permissions >= Permissions::Developer
@@ -72,7 +70,7 @@ $numPossibleWinners = 0;
 
 $unlocks = getAchievementUnlocksData(
     $achievementID,
-    $user,
+    $user?->username,
     $numWinners,
     $numWinnersHardcore,
     $numPossibleWinners,
@@ -92,7 +90,7 @@ $dataOut['NumAwardedHardcore'] = $numWinnersHardcore;
 
 $dateWonLocal = "";
 foreach ($unlocks as $userObject) {
-    if ($userObject['User'] == $user) {
+    if ($userObject['User'] == $user?->username) {
         $dateWonLocal = $userObject['DateAwarded'];
 
         if ($userObject['HardcoreMode'] === 1) {
@@ -106,18 +104,16 @@ foreach ($unlocks as $userObject) {
 }
 
 if ($dateWonLocal === "" && isset($user)) {
-    if ($userModel) {
-        $playerAchievement = PlayerAchievement::where('user_id', $userModel->id)
-            ->where('achievement_id', $achievementID)
-            ->first();
-        if ($playerAchievement) {
-            if ($playerAchievement->unlocked_hardcore_at) {
-                $dateWonLocal = $playerAchievement->unlocked_hardcore_at->__toString();
-                $dataOut['DateEarnedHardcore'] = $dateWonLocal;
-            } elseif ($playerAchievement->unlocked_at) {
-                $dateWonLocal = $playerAchievement->unlocked_at->__toString();
-                $dataOut['DateEarned'] = $dateWonLocal;
-            }
+    $playerAchievement = PlayerAchievement::where('user_id', $user->id)
+        ->where('achievement_id', $achievementID)
+        ->first();
+    if ($playerAchievement) {
+        if ($playerAchievement->unlocked_hardcore_at) {
+            $dateWonLocal = $playerAchievement->unlocked_hardcore_at->__toString();
+            $dataOut['DateEarnedHardcore'] = $dateWonLocal;
+        } elseif ($playerAchievement->unlocked_at) {
+            $dateWonLocal = $playerAchievement->unlocked_at->__toString();
+            $dataOut['DateEarned'] = $dateWonLocal;
         }
     }
 }
@@ -257,7 +253,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
         } else {
             echo "<i>No open tickets</i>";
         }
-        if ($userModel?->can('create', Ticket::class)) {
+        if ($user->can('create', Ticket::class)) {
             echo "<a class='btn btn-link' href='/reportissue.php?i=$achievementID'>Report an issue</a>";
         }
         echo "</div>";
@@ -419,7 +415,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achiev
 
     echo "<div class='mb-4'>";
     RenderCommentsComponent(
-        $user,
+        $user?->username,
         $numArticleComments,
         $commentData,
         $achievementID,

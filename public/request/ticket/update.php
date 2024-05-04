@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($username, $permissions, $userDetail)) {
+if (!authenticateFromCookie($user, $permissions)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -85,11 +85,12 @@ switch ($input['action']) {
         break;
 }
 
+// TODO use a policy
 if (
     $ticketState !== null && $ticketState !== (int) $ticketData['ReportState']
-    && ($permissions >= Permissions::Developer || $username == $ticketData['ReportedBy'])
+    && ($permissions >= Permissions::Developer || $user->username == $ticketData['ReportedBy'])
 ) {
-    updateTicket($username, $ticketId, $ticketState, $reason);
+    updateTicket($user->username, $ticketId, $ticketState, $reason);
 
     return back()->with('success', __('legacy.success.update'));
 }

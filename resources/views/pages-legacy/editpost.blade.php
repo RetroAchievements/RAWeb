@@ -4,11 +4,9 @@ use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 
-if (!authenticateFromCookie($username, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
-
-$user = request()->user();
 
 $requestedComment = (int) request()->query('comment');
 if (empty($requestedComment)) {

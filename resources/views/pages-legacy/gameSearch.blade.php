@@ -2,7 +2,7 @@
 
 use App\Models\System;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $maxCount = 50;
 

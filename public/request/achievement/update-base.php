@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
@@ -22,14 +22,15 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $achievement = Achievement::find($input['achievement']);
 
 // Only allow jr. devs to update base data if they are the author
-if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Author']) {
+// TODO use a policy
+if ($permissions === Permissions::JuniorDeveloper && $user->id !== $achievement->user_id) {
     abort(403);
 }
 
 $achievementId = $achievement['ID'];
 
 if (UploadNewAchievement(
-    authorUsername: $user,
+    authorUsername: $user->username,
     gameID: $achievement['GameID'],
     title: $input['title'],
     desc: $input['description'],

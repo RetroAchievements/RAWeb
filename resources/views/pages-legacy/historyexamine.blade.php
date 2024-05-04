@@ -3,7 +3,7 @@
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 $userPage = request()->query('u');
 if (empty($userPage)) {
@@ -17,8 +17,8 @@ if (!$userDetails) {
 
 $dateInput = (int) request()->input('d', 0);
 
-$userPageHardcorePoints = $userDetails->RAPoints;
-$userPageSoftcorePoints = $userDetails->RASoftcorePoints;
+$userPageHardcorePoints = $userDetails->points;
+$userPageSoftcorePoints = $userDetails->points_softcore;
 
 $achEarnedOnDay = getAchievementsEarnedOnDay($dateInput, $userDetails);
 

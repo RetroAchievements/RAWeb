@@ -7,7 +7,7 @@ use App\Platform\Enums\AchievementFlag;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     abort(401);
 }
 
@@ -21,18 +21,18 @@ $embedUrl = $input['video'];
 
 $achievement = Achievement::find($achievementId);
 
-$currentVideoUrl = $achievement['AssocVideo'];
+$currentVideoUrl = $achievement->AssocVideo;
 
 // Only allow jr. devs to update achievement embed if they are the author and the achievement is not core/official
 if (
-    $permissions == Permissions::JuniorDeveloper
-    && ($user != $achievement['Author'] || $achievement['Flags'] == AchievementFlag::OfficialCore)
+    $permissions === Permissions::JuniorDeveloper
+    && ($user->id !== $achievement->user_id || $achievement->Flags === AchievementFlag::OfficialCore)
 ) {
     abort(401);
 }
 
 if (updateAchievementEmbedVideo($achievementId, $embedUrl)) {
-    $auditLog = "$user set this achievement's embed URL.";
+    $auditLog = "{$user->display_name} set this achievement's embed URL.";
 
     addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $user);
 

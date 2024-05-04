@@ -8,7 +8,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Moderator)) {
     abort(401);
 }
 
@@ -24,17 +24,17 @@ $consoleName = $gameData['ConsoleName'];
 $gameTitle = $gameData['Title'];
 $gameIcon = $gameData['ImageIcon'];
 ?>
+
 <x-app-layout pageTitle="Manage Claims - {{ $gameTitle }}">
 <link rel="stylesheet" href="/vendor/jquery.datetimepicker.min.css">
 <script src="/vendor/jquery.datetimepicker.full.min.js"></script>
 <script>
-
   /**
    * Creates update post message when a claim is updated by an admin
    */
   function UpdateClaimDetails(claimID, claimUser, claimType, setType, claimStatus, claimSpecial, claimDate, doneDate) {
     var somethingChanged = 0;
-    var comment = "<?= $user ?> updated " + claimUser + "'s claim. ";
+    var comment = "{{ $user->display_name }} updated " + claimUser + "'s claim. ";
 
     var newClaimType = parseInt($('#claimType_' + claimID).val());
     if (newClaimType != claimType) {
@@ -192,7 +192,7 @@ $gameIcon = $gameData['ImageIcon'];
         echo "</td>";
 
         echo "<td>";
-        if ($claimUser == $user) {
+        if ($claimUser == $user->username) {
             echo "<select id='status_$claimID' disabled title='Use the claim controls on the game page to manage the status of your own claim'>";
         } else {
             echo "<select id='status_$claimID'>";
@@ -226,7 +226,8 @@ $gameIcon = $gameData['ImageIcon'];
     echo "</tbody></table></div>";
 
     $numLogs = getRecentArticleComments(ArticleType::SetClaim, $gameID, $logs);
-    RenderCommentsComponent($user,
+    RenderCommentsComponent(
+        $user->username,
         $numLogs,
         $logs,
         $gameID,

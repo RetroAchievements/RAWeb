@@ -19,11 +19,11 @@ $requiredPermissions = match ($subjectType) {
     default => Permissions::Registered,
 };
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, $requiredPermissions)) {
+if (!authenticateFromCookie($user, $permissions, $requiredPermissions)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (!updateSubscription($subjectType, $subjectID, $userDetails['ID'], $input['operation'] === "subscribe")) {
+if (!updateSubscription($subjectType, $subjectID, $user->id, $input['operation'] === "subscribe")) {
     return back()->withErrors(__('legacy.error.subscription_update'));
 }
 

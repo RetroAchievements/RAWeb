@@ -5,12 +5,11 @@ use App\Community\Actions\RemoveGameFromListAction;
 use App\Community\Enums\UserGameListType;
 use App\Enums\Permissions;
 use App\Models\Game;
-use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($username, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
     abort(401);
 }
 
@@ -25,8 +24,6 @@ $game = Game::findOrFail($gameId);
 $type = (string) $input['type'];
 $command = '';
 
-/** @var User $user */
-$user = User::findOrFail($userDetails['ID']);
 if ($user->gameListEntries($type)->where('GameID', $gameId)->exists()) {
     $action = new RemoveGameFromListAction();
     $success = $action->execute($user, $game, $type);

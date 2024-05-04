@@ -12,7 +12,7 @@ use App\Platform\Jobs\UpdateGameMetricsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
 use Illuminate\Support\Carbon;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Moderator)) {
     abort(401);
 }
 

@@ -9,7 +9,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     abort(401);
 }
 
@@ -34,7 +34,7 @@ if (
 }
 
 // Check for authorship on achievements if a Jr. is editing the type
-$isSoleDeveloper = $foundAchievements->pluck('Author')->unique()->toArray() === [$user];
+$isSoleDeveloper = $foundAchievements->pluck('user_id')->unique()->toArray() === [$user->id];
 if ($permissions === Permissions::JuniorDeveloper && !$isSoleDeveloper) {
     abort(403);
 }
@@ -53,7 +53,7 @@ if (updateAchievementType($achievementIds, $value)) {
     if (!$value) {
         $commentText = "removed this achievement's type";
     }
-    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
+    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "{$user->display_name} $commentText.", $user->username);
 
     return response()->json(['message' => __('legacy.success.ok')]);
 }

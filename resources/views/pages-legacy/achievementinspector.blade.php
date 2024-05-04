@@ -3,13 +3,10 @@
 use App\Enums\Permissions;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
-use Illuminate\Support\Facades\Auth;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     abort(401);
 }
-
-$userModel = Auth::user();
 
 // TODO use a policy
 $fullModifyOK = $permissions >= Permissions::Developer;
@@ -21,8 +18,8 @@ $flag = requestInputSanitized('f', 3, 'integer');
 $partialModifyOK =
     $permissions == Permissions::JuniorDeveloper
     && (
-        checkIfSoleDeveloper($user, $gameID)
-        || hasSetClaimed($userModel, $gameID, false)
+        checkIfSoleDeveloper($user->username, $gameID)
+        || hasSetClaimed($user, $gameID, false)
     );
 
 $achievementList = [];
@@ -173,7 +170,7 @@ if ($gameIDSpecified) {
 
         echo "<tr class='$bgColorClassNames[$currentBgColorIndex]'>";
         if ($partialModifyOK || $fullModifyOK) {
-            if ($achievementData[$achID]['Author'] === $user || $permissions >= Permissions::Developer) {
+            if ($achievementData[$achID]['Author'] === $user->username || $permissions >= Permissions::Developer) {
                 echo "<td><span style='white-space: nowrap'><input type='checkbox' name='achievement" . $achID . "' value='" . $achID . "'> <label for='achievement'>$achID</label></span></td>";
             } else {
                 echo "<td>$achID</td>";

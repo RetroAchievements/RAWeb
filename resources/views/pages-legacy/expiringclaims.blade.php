@@ -8,7 +8,7 @@ use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
 use App\Models\User;
 
-authenticateFromCookie($user, $permissions, $userDetails);
+authenticateFromCookie($user, $permissions);
 
 if (!request()->user()?->can('manage', AchievementSetClaim::class)) {
     abort(403);
@@ -33,23 +33,21 @@ $activeClaimCount = getActiveClaimCount();
     // Add username filter section if the user is in the list
     $expired = $expiring = 0;
     if (isset($user)) {
-        $userModel = User::firstWhere('User', $user);
-
-        $expiringClaims = getExpiringClaim($userModel);
+        $expiringClaims = getExpiringClaim($user);
         $expired = (int) ($expiringClaims["Expired"] ?? 0);
         $expiring = (int) ($expiringClaims["Expiring"] ?? 0);
     }
     if ((isset($user) || !empty($username)) && ($expired + $expiring) > 0) {
         echo "<p class='embedded'><b>User:</b> ";
         if (isset($user)) {
-            if ($username == $user) {
-                echo "<b>$user</b> | ";
+            if ($username == $user->username) {
+                echo "<b>{$user->display_name}</b> | ";
             } else {
-                echo "<a href='/expiringclaims.php?u=$user'>$user</a> | ";
+                echo "<a href='/expiringclaims.php?u={$user->username}'>{$user->display_name}</a> | ";
             }
         }
 
-        if (!empty($username) && $username !== $user) {
+        if (!empty($username) && $username !== $user->username) {
             echo "<b>$username</b> | ";
         }
 

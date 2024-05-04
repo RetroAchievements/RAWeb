@@ -2,11 +2,10 @@
 
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
-use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     abort(401);
 }
 
@@ -20,13 +19,11 @@ $achievementId = (int) $input['achievement'];
 $gameId = (int) $input['game'];
 $number = (int) $input['number'];
 
-$userModel = User::firstWhere('User', $user);
-
 // Only allow jr. devs to update the display order if they are the sole author of the set or have the primary claim
 // TODO use a policy
 if (
     $permissions == Permissions::JuniorDeveloper
-    && (!checkIfSoleDeveloper($user, $gameId) && !hasSetClaimed($userModel, $gameId, true, ClaimSetType::NewSet))
+    && (!checkIfSoleDeveloper($user->username, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))
 ) {
     abort(403);
 }

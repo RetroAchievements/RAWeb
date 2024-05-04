@@ -6,7 +6,7 @@ use App\Models\System;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
 
@@ -140,7 +140,7 @@ foreach ($lbData as $nextLB) {
 
     if ($permissions >= Permissions::JuniorDeveloper) {
         // Allow leaderboard edits for devs and jr. devs if they are the author
-        if ($permissions >= Permissions::Developer || ($lbAuthor == $user && $permissions === Permissions::JuniorDeveloper)) {
+        if ($permissions >= Permissions::Developer || ($lbAuthor == $user->username && $permissions === Permissions::JuniorDeveloper)) {
             $editAllowed = true;
         } else {
             $editAllowed = false;

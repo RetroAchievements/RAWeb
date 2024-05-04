@@ -5,7 +5,7 @@ use App\Models\StaticData;
 use App\Models\User;
 use App\Models\Achievement;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Moderator)) {
+if (!authenticateFromCookie($user, $permissions, Permissions::Moderator)) {
     abort(401);
 }
 

@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Models\System;
 use Illuminate\Support\Facades\DB;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
 
@@ -51,13 +51,12 @@ if (empty($username)) {
         $totalRequestedGames = getGamesWithRequests($selectedConsoleId, $selectedRequestStatus);
     }
 } else {
-    $userModel = User::firstWhere('User', $username);
-    if (!$userModel) {
+    if (!$user) {
         abort(404);
     }
-    $userSetRequestInformation = getUserRequestsInformation($userModel);
+    $userSetRequestInformation = getUserRequestsInformation($user);
 
-    $setRequestList = UserGameListEntry::where('SetRequest.user_id', $userModel->id)
+    $setRequestList = UserGameListEntry::where('SetRequest.user_id', $user->id)
         ->where('type', UserGameListType::AchievementSetRequest)
         ->join('GameData', 'GameData.ID', '=', 'GameId')
         ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
@@ -165,7 +164,7 @@ if (empty($username)) {
             . $userSetRequestInformation['used'] . " of " . $userSetRequestInformation['total'] . " Requests Made</h2>";
 
         if ($flag == 0) {
-            if ($username === $user) {
+            if ($username === $user->username) {
                 echo "<div class='float-right'>Next request in " . localized_number($userSetRequestInformation['pointsForNext']) . " points</div>";
             }
             echo "<a href='/setRequestList.php?u=$username&f=1'>View All User Set Requests</a>";

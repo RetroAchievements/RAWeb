@@ -17,7 +17,7 @@ use App\Models\PlayerAchievement;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($user, $permissions)) {
     abort(401);
 }
 
@@ -335,14 +335,14 @@ $pageTitle = "Ticket Manager";
 
                     echo "<p class='embedded'><b>$label:</b> ";
                     if (isset($user)) {
-                        if ($filteredUser == $user) {
-                            echo "<b><a href='" . $createLink($param, null) . "'>*$user</a></b> | ";
+                        if ($filteredUser == $user->username) {
+                            echo "<b><a href='" . $createLink($param, null) . "'>*{$user->username}</a></b> | ";
                         } else {
-                            echo "<a href='" . $createLink($param, $user) . "'>$user</a> | ";
+                            echo "<a href='" . $createLink($param, $user) . "'>{$user->username}</a> | ";
                         }
                     }
 
-                    if (!empty($filteredUser) && $filteredUser !== $user) {
+                    if (!empty($filteredUser) && $filteredUser !== $user->username) {
                         echo "<b><a href='" . $createLink($param, null) . "'>*$filteredUser</a></b> | ";
                     }
 
