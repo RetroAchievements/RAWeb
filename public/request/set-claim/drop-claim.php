@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -19,7 +20,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $gameID = (int) $input['game'];
 $claimType = (int) $input['claim_type'];
 
-if (dropClaim($user, $gameID)) { // Check that the claim was successfully dropped
+$userModel = User::firstWhere('User', $user);
+
+if (dropClaim($userModel, $gameID)) { // Check that the claim was successfully dropped
     if ($claimType == ClaimType::Primary) {
         addArticleComment("Server", ArticleType::SetClaim, $gameID, "Primary claim dropped by " . $user);
     } else {

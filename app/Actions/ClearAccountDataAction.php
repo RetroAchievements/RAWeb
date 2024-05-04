@@ -35,6 +35,7 @@ class ClearAccountDataAction
         DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
         $user->gameListEntries()->delete();
         $user->playerBadges()->delete();
+        $user->leaderboardEntries()->delete();
         $user->subscriptions()->delete();
 
         // use action to delete each participation so threads with no remaining active participants get cleaned up

@@ -7,6 +7,7 @@ namespace App\Platform\Concerns;
 use App\Connect\Controllers\ConnectApiController;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
@@ -86,6 +87,14 @@ trait ActsAsPlayer
     public function lastGame(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'LastGameID', 'ID');
+    }
+
+    /**
+     * @return HasMany<LeaderboardEntry>
+     */
+    public function leaderboardEntries(): HasMany
+    {
+        return $this->hasMany(LeaderboardEntry::class, 'user_id', 'ID');
     }
 
     /**

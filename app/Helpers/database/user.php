@@ -289,7 +289,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     } elseif ($sortBy == 7) { // ActiveClaims DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
                   FROM UserAccounts ua
-                  LEFT JOIN SetClaim sc ON sc.User=ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+                  LEFT JOIN SetClaim sc ON sc.user_id=ua.ID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
                   WHERE $stateCond
                   GROUP BY ua.ID
                   ORDER BY ActiveClaims DESC, ua.User";
@@ -353,7 +353,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     // merge in active claims
     $query = "SELECT ua.ID, COUNT(*) AS ActiveClaims
               FROM SetClaim sc
-              INNER JOIN UserAccounts ua ON ua.User=sc.User
+              INNER JOIN UserAccounts ua ON ua.ID=sc.user_id
               WHERE sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
               AND ua.ID IN ($devList)
               GROUP BY ua.ID";
