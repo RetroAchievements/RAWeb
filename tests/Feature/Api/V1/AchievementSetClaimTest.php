@@ -56,8 +56,8 @@ class AchievementSetClaimTest extends TestCase
         );
 
         completeClaim(
-            $user->User,
-            $game->ID,
+            $user,
+            $game->id,
         );
 
         $claim = AchievementSetClaim::first();
@@ -94,21 +94,21 @@ class AchievementSetClaimTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var User $user */
         $user = User::factory()->create(['Permissions' => Permissions::JuniorDeveloper]);
 
         insertClaim(
             $user,
-            $game->ID,
+            $game->id,
             ClaimType::Primary,
             ClaimSetType::NewSet,
             ClaimSpecial::None,
         );
 
         dropClaim(
-            $user->User,
-            $game->ID,
+            $user,
+            $game->id,
         );
 
         $claim = AchievementSetClaim::first();
