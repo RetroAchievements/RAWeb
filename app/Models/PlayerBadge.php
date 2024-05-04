@@ -192,7 +192,7 @@ class PlayerBadge extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'User', 'User');
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     // == scopes

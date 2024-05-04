@@ -201,64 +201,52 @@ function getRecentProgressionAwardData(
     ?int $onlyAwardType = null,
     ?int $onlyUnlockMode = null,
 ): array {
-    $startOfDay = Carbon::createFromFormat("Y-m-d", $date)->startOfDay();
-    $endOfDay = Carbon::createFromFormat("Y-m-d", $date)->endOfDay();
+    // Determine the friends condition
+    $friendCondAward = "";
+    if ($friendsOfUser) {
+        $friendSubquery = GetFriendsSubquery($friendsOfUser->User, returnUserIds: true);
+        $friendCondAward = "AND saw.user_id IN ($friendSubquery)";
+    }
 
-    $initialResults = PlayerBadge::with(['user', 'gameIfApplicable.system'])
-        ->whereBetween('AwardDate', [$startOfDay, $endOfDay])
-        ->when($onlyAwardType !== null, fn ($query) => $query->where('AwardType', $onlyAwardType))
-        ->when($onlyUnlockMode !== null, fn ($query) => $query->where('AwardDataExtra', $onlyUnlockMode))
-        ->when($friendsOfUser !== null, fn ($query) => $query->whereIn('user_id', $friendsOfUser->followedUsers()->pluck('UserAccounts.id')->toArray())
-        )
-        ->orderBy('AwardDate', 'DESC')
-        ->offset($offset)
+    $onlyAwardTypeClause = "
+        WHERE saw.AwardType IN (" . AwardType::Mastery . ", " . AwardType::GameBeaten . ")
+    ";
+    if ($onlyAwardType) {
+        $onlyAwardTypeClause = "WHERE saw.AwardType = $onlyAwardType";
+    }
 
-        // We don't want to show multiple rows per user for the same game if they earned
-        // multiple awards very quickly (ie: beat a game and also mastered it simultaneously).
-        // Unfortunately, using window functions like ROW_NUMBER() with Eloquent ORM is
-        // a huge hassle and arguably makes this code much more difficult to maintain. Rather than
-        // try to use a window function, we'll slightly overfetch from the database, then manually
-        // filter the records down later.
-        ->limit($count * 2)
+    $onlyUnlockModeClause = "saw.AwardDataExtra IS NOT NULL";
+    if (isset($onlyUnlockMode)) {
+        $onlyUnlockModeClause = "saw.AwardDataExtra = $onlyUnlockMode";
+    }
 
-        ->get();
+    $retVal = [];
+    $query = "SELECT ua.User, s.AwardedAt, s.AwardedAtUnix, s.AwardType, s.AwardData, s.AwardDataExtra, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
+        FROM (
+            SELECT 
+                saw.user_id, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType, 
+                saw.AwardData, saw.AwardDataExtra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
+                ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.AwardData, TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) ORDER BY saw.AwardType ASC) AS rn
+            FROM SiteAwards AS saw
+            LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
+            LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+            LEFT JOIN SiteAwards AS saw2 ON saw2.user_id = saw.user_id AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
+            $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
+            AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
+        ) s
+        JOIN UserAccounts AS ua ON ua.ID = s.user_id
+        WHERE s.rn = 1
+        ORDER BY AwardedAt DESC
+        LIMIT $offset, $count";
 
-    $filteredResults = $initialResults->reduce(function ($carry, $item) {
-        if (is_null($carry)) {
-            $carry = collect([$item]);
-        } else {
-            $last = $carry->last();
-            $lastUser = $last?->user;
-            $itemUser = $item?->user;
-
-            if (
-                $lastUser === null
-                || $itemUser === null
-                || !$lastUser->is($itemUser)
-                || $last->AwardData !== $item->AwardData
-                || $last->AwardDate->diffInMinutes($item->AwardDate) >= 15
-            ) {
-                $carry->push($item);
-            }
+    $dbResult = s_mysql_query($query);
+    if ($dbResult !== false) {
+        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
+            $retVal[] = $db_entry;
         }
+    }
 
-        return $carry;
-    }, collect())->take($count);
-
-    // Now that we've queried and filtered, we'll perform a final mapping and return.
-    return $filteredResults->map(function ($badge) {
-        return [
-            'User' => $badge->user->User,
-            'AwardedAt' => $badge->AwardDate->format('Y-m-d H:i:s'),
-            'AwardType' => $badge->AwardType,
-            'AwardData' => $badge->AwardData,
-            'AwardDataExtra' => $badge->AwardDataExtra,
-            'GameTitle' => $badge->game?->title,
-            'GameID' => $badge->game?->id,
-            'ConsoleName' => $badge->game?->system->name,
-            'GameIcon' => $badge->game?->ImageIcon,
-        ];
-    })->toArray();
+    return $retVal;
 }
 
 /**
