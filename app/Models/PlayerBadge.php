@@ -154,18 +154,45 @@ class PlayerBadge extends BaseModel
         return null;
     }
 
+    // == instance functions
+
+    private function isGameRelated(): bool
+    {
+        return in_array($this->AwardType, [AwardType::Mastery, AwardType::GameBeaten]);
+    }
+
     // == accessors
+
+    public function getGameAttribute(): ?Game
+    {
+        if ($this->isGameRelated()) {
+            return $this->gameIfApplicable;
+        }
+
+        return null;
+    }
 
     // == mutators
 
     // == relations
 
     /**
+     * Warning: not all awards are associated with games!
+     * see: PlayerBadge::getGameAttribute()
+     *
+     * @return BelongsTo<Game, PlayerBadge>
+     */
+    public function gameIfApplicable(): BelongsTo
+    {
+        return $this->belongsTo(Game::class, 'AwardData', 'id');
+    }
+
+    /**
      * @return BelongsTo<User, PlayerBadge>
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'User', 'User');
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     // == scopes

@@ -59,7 +59,7 @@ $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-$userAwards = getUsersSiteAwards($userPage);
+$userAwards = getUsersSiteAwards($userPageModel);
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
@@ -105,7 +105,7 @@ $userScoreData = getAwardedList(
 
 // Get claim data if the user has jr dev or above permissions
 $userClaimData = null;
-if (getActiveClaimCount($userPage, true, true) > 0) {
+if (getActiveClaimCount($userPageModel, true, true) > 0) {
     // Active claims sorted by game title
     $userClaimData = getFilteredClaims(
         claimFilter: ClaimFilters::AllActiveClaims,

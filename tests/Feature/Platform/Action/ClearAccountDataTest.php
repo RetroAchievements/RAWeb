@@ -13,7 +13,9 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
+use App\Models\PlayerBadge;
 use App\Models\Subscription;
+use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
@@ -55,27 +57,31 @@ class ClearAccountDataTest extends TestCase
         ]);
 
         UserGameListEntry::create([
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'type' => UserGameListType::AchievementSetRequest,
             'GameID' => 1234,
         ]);
 
         Subscription::create([
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'subject_type' => SubscriptionSubjectType::GameWall,
             'subject_id' => 5,
             'state' => true,
         ]);
 
+        $system = System::factory()->create(['ID' => 1]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
+        $this->addMasteryBadge($user2, $game);
+
         $thread = MessageThread::create([
             'title' => 'Message',
         ]);
         MessageThreadParticipant::create([
-            'user_id' => $user1->ID,
+            'user_id' => $user1->id,
             'thread_id' => $thread->id,
         ]);
         MessageThreadParticipant::create([
-            'user_id' => $user2->ID,
+            'user_id' => $user2->id,
             'thread_id' => $thread->id,
         ]);
 
@@ -91,6 +97,7 @@ class ClearAccountDataTest extends TestCase
         $this->assertEquals(1, UserGameListEntry::where('user_id', $user2->id)->count());
         $this->assertEquals(1, Subscription::where('user_id', $user2->id)->count());
         $this->assertEquals(1, MessageThreadParticipant::where('user_id', $user2->id)->count());
+        $this->assertEquals(1, PlayerBadge::where('user_id', $user2->id)->count());
 
         $action = new ClearAccountDataAction();
         $action->execute($user2);
@@ -100,6 +107,7 @@ class ClearAccountDataTest extends TestCase
         $this->assertEquals(0, UserGameListEntry::where('user_id', $user2->id)->count());
         $this->assertEquals(0, Subscription::where('user_id', $user2->id)->count());
         $this->assertEquals(0, MessageThreadParticipant::where('user_id', $user2->id)->count());
+        $this->assertEquals(0, PlayerBadge::where('user_id', $user2->id)->count());
         $this->assertEquals(0, LeaderboardEntry::where('user_id', $user2->id)->count());
 
         $user2->refresh();

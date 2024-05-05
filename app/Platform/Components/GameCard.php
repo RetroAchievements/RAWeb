@@ -8,6 +8,8 @@ use App\Community\Enums\ClaimStatus;
 use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\GameAlternative;
+use App\Models\PlayerBadge;
+use App\Models\User;
 use App\Support\Cache\CacheKey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
@@ -20,13 +22,13 @@ class GameCard extends Component
     private int $gameId;
     private int $hubConsoleId = 100;
     private int $eventConsoleId = 101;
-    private array $userGameProgressionAwards;
-    private ?string $usernameContext;
+    private ?array $userHighestGameAward = null;
+    private ?User $userContext;
 
     public function __construct(int $gameId, ?string $targetUsername = null)
     {
         $this->gameId = $gameId;
-        $this->usernameContext = $targetUsername ?? Auth::user()->User ?? null;
+        $this->userContext = User::firstWhere('User', $targetUsername) ?? Auth::user() ?? null;
     }
 
     public function render(): ?View
@@ -37,22 +39,16 @@ class GameCard extends Component
             return null;
         }
 
-        $this->userGameProgressionAwards = [
-            'beaten-softcore' => null,
-            'beaten-hardcore' => null,
-            'completed' => null,
-            'mastered' => null,
-        ];
-        if ($this->usernameContext) {
-            $this->userGameProgressionAwards = getUserGameProgressionAwards(
+        if ($this->userContext) {
+            $this->userHighestGameAward = PlayerBadge::getHighestUserAwardForGameId(
+                $this->userContext,
                 $this->gameId,
-                $this->usernameContext,
             );
         }
 
         $cardViewValues = $this->buildAllCardViewValues(
             $rawGameData,
-            $this->userGameProgressionAwards
+            $this->userHighestGameAward,
         );
 
         return view('components.cards.game', $cardViewValues);
@@ -150,9 +146,9 @@ class GameCard extends Component
      * Builds an array containing all data required for a game card view.
      * It uses various other private methods to build specific parts of the data.
      *
-     * @param array $userGameProgressionAwards an array of a target user's site awards for this particular game
+     * @param ?array $userHighestGameAward an array containing `highestAwardKind` and `highestAward`, see PlayerBadge::getHighestUserAwardForGameId()
      */
-    private function buildAllCardViewValues(array $rawGameData, array $userGameProgressionAwards): array
+    private function buildAllCardViewValues(array $rawGameData, ?array $userHighestGameAward): array
     {
         $rawTitle = $rawGameData['Title'];
         $badgeUrl = media_asset($rawGameData['ImageIcon']);
@@ -169,7 +165,7 @@ class GameCard extends Component
         );
 
         [$highestProgressionStatus, $highestProgressionAwardDate] = $this->buildCardUserProgressionData(
-            $userGameProgressionAwards,
+            $userHighestGameAward,
             $isEvent,
         );
 
@@ -234,26 +230,19 @@ class GameCard extends Component
     /**
      * Builds an array containing the highest progression status and corresponding award date for a game.
      *
+     * @param ?array $userHighestGameAward an array containing `highestAwardKind` and `highestAward`, see PlayerBadge::getHighestUserAwardForGameId()
      * @param bool $isEvent whether or not the game ID is associated with the "Events" console
-     *
-     * @return array an array containing the highest progression status and corresponding award date
      */
-    private function buildCardUserProgressionData(array $userGameProgressionAwards, bool $isEvent): array
+    private function buildCardUserProgressionData(?array $userHighestGameAward, bool $isEvent): array
     {
         $highestProgressionStatus = null;
         $highestProgressionAwardDate = null;
 
-        $progressionTypes = ['beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'];
+        if ($userHighestGameAward) {
+            // 'beaten-softcore', 'beaten-hardcore', 'completed', 'mastered'
+            $highestProgressionStatus = $userHighestGameAward['highestAwardKind'];
 
-        foreach ($progressionTypes as $progressionType) {
-            if (isset($userGameProgressionAwards[$progressionType])) {
-                $highestProgressionStatus = $progressionType;
-                $highestProgressionAwardDate = Carbon::parse($userGameProgressionAwards[$progressionType]['AwardDate']);
-            }
-        }
-
-        if ($isEvent && $highestProgressionStatus !== null) {
-            $highestProgressionStatus = 'awarded';
+            $highestProgressionAwardDate = Carbon::parse($userHighestGameAward['highestAward']->AwardDate);
         }
 
         return [$highestProgressionStatus, $highestProgressionAwardDate];

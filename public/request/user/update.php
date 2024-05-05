@@ -47,7 +47,7 @@ if ($propertyType === UserAction::UpdateForumPostPermissions) {
 }
 
 if ($propertyType === UserAction::PatreonBadge) {
-    $hasBadge = HasPatreonBadge($targetUsername);
+    $hasBadge = HasPatreonBadge($foundTargetUser);
     SetPatreonSupporter($foundTargetUser, !$hasBadge);
 
     if ($foundTargetUser) {
@@ -63,7 +63,7 @@ if ($propertyType === UserAction::PatreonBadge) {
 }
 
 if ($propertyType === UserAction::LegendBadge) {
-    $hasBadge = HasCertifiedLegendBadge($targetUsername);
+    $hasBadge = HasCertifiedLegendBadge($foundTargetUser);
     SetCertifiedLegend($foundTargetUser, !$hasBadge);
 
     if ($foundTargetUser) {

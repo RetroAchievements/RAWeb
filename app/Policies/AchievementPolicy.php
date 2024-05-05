@@ -17,7 +17,7 @@ class AchievementPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
 
             /*
              * developers may at least upload new achievements to the server, create code notes, etc
@@ -56,14 +56,14 @@ class AchievementPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
     public function update(User $user, Achievement $achievement): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
 
             /*
              * moderators may remove unfit content from achievements
@@ -96,14 +96,14 @@ class AchievementPolicy
         }
 
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
     public function restore(User $user, Achievement $achievement): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 

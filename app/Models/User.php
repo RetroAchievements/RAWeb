@@ -439,7 +439,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
     public function hasVerifiedEmail(): bool
     {
-        return (int) $this->getAttribute('Permissions') >= Permissions::Registered;
+        return $this->email_verified_at?->isPast() ?? false;
     }
 
     public function markEmailAsVerified(): bool

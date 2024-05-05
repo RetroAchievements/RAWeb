@@ -14,16 +14,18 @@ $rootAssignable = [
 
 $adminAssignable = [
     Role::ARTIST,
-    Role::DEVELOPER,
+    Role::CHEAT_INVESTIGATOR,
     Role::DEVELOPER_JUNIOR,
     Role::DEVELOPER_STAFF,
     Role::DEVELOPER_VETERAN,
+    Role::DEVELOPER,
     Role::EVENT_MANAGER,
     Role::FORUM_MANAGER,
-    Role::HUB_MANAGER,
+    Role::GAME_EDITOR,
+    Role::GAME_HASH_MANAGER,
     Role::MODERATOR,
     Role::NEWS_MANAGER,
-    Role::TESTER,
+    Role::PLAY_TESTER,
     Role::TICKET_MANAGER,
     Role::WRITER,
 ];
@@ -64,7 +66,7 @@ return [
     // creator roles assigned by admin
 
     [
-        'name' => Role::HUB_MANAGER,
+        'name' => Role::GAME_HASH_MANAGER,
         'display' => 3,
         'staff' => true,
         'legacy_role' => Permissions::Moderator,
@@ -97,7 +99,12 @@ return [
         'legacy_role' => Permissions::JuniorDeveloper,
     ],
     [
-        'name' => Role::TESTER,
+        'name' => Role::GAME_EDITOR,
+        'display' => 5,
+        'legacy_role' => Permissions::JuniorDeveloper,
+    ],
+    [
+        'name' => Role::PLAY_TESTER,
         'display' => 5,
         'legacy_role' => Permissions::Registered,
     ],
@@ -133,6 +140,12 @@ return [
         'display' => 3,
         'staff' => true,
         'legacy_role' => Permissions::Registered,
+    ],
+    [
+        'name' => Role::CHEAT_INVESTIGATOR,
+        'display' => 0,
+        'staff' => true,
+        'legacy_role' => Permissions::Developer,
     ],
 
     // vanity roles assigned by root

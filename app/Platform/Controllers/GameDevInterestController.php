@@ -11,6 +11,8 @@ use App\Models\UserGameListEntry;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
+// TODO use a policy for the 403 returns
+
 class GameDevInterestController extends Controller
 {
     public function __invoke(Request $request): View
@@ -30,7 +32,7 @@ class GameDevInterestController extends Controller
             abort(404);
         }
 
-        if ($permissions < Permissions::Moderator && !hasSetClaimed($request->user()->User, $gameId, true)) {
+        if ($permissions < Permissions::Moderator && !hasSetClaimed($request->user(), $gameId, true)) {
             abort(403);
         }
 
