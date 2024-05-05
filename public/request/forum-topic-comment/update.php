@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\ForumTopicComment;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -8,29 +10,24 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Regi
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if ($userDetails['isMuted']) {
-    return back()->withErrors(__('legacy.error.error'));
-}
-
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'comment' => 'required|integer|exists:ForumTopicComment,ID',
     'body' => 'required|string|max:60000',
 ]);
 
-$commentID = $input['comment'];
-$commentPayload = $input['body'];
+$userModel = User::firstWhere('User', $user);
+$forumTopicComment = ForumTopicComment::find((int) $input['comment']);
 
-if (!getSingleTopicComment($commentID, $commentData)) {
+if (!$forumTopicComment || !$userModel->can('update', $forumTopicComment)) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-if ($user != $commentData['Author'] && $permissions < Permissions::Moderator) {
-    return back()->withErrors(__('legacy.error.permissions'));
-}
+$commentId = $forumTopicComment->id;
+$commentPayload = $input['body'];
 
-$topicId = $commentData['ForumTopicID'];
-if (editTopicComment($commentID, $commentPayload)) {
-    return redirect(url("/viewtopic.php?t=$topicId&c=$commentID#$commentID"))->with('success', __('legacy.success.update'));
+$topicId = $forumTopicComment->forum_topic_id;
+if (editTopicComment($commentId, $commentPayload)) {
+    return redirect(url("/viewtopic.php?t=$topicId&c=$commentId#$commentId"))->with('success', __('legacy.success.update'));
 }
 
 return back()->withErrors(__('legacy.error.error'));

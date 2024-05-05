@@ -676,7 +676,7 @@ function UploadNewLeaderboard(
         }
     }
 
-    if (!isValidConsoleId(getGameData($gameID)['ConsoleID']) && !hasSetClaimed($author, $gameID, false)) {
+    if (!isValidConsoleId(getGameData($gameID)['ConsoleID']) && !hasSetClaimed($authorModel, $gameID, false)) {
         $errorOut = "You cannot promote leaderboards for a game from an unsupported console (console ID: " . getGameData($gameID)['ConsoleID'] . ") unless you have an active claim on the game.";
 
         return false;
