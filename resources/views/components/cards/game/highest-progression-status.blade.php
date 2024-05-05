@@ -10,7 +10,9 @@
     @endif
 
     <span>
-        @if ($highestProgressionStatus === 'beaten-softcore')
+        @if ($isEvent)
+            Awarded
+        @elseif ($highestProgressionStatus === 'beaten-softcore')
             Beaten (softcore)
         @elseif ($highestProgressionStatus === 'beaten-hardcore')
             Beaten
@@ -18,8 +20,6 @@
             Completed
         @elseif ($highestProgressionStatus === 'mastered')
             Mastered
-        @else
-            Awarded
         @endif
 
         {{ $highestProgressionAwardDate->format('j F Y') }}
