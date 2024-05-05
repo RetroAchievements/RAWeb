@@ -34,8 +34,6 @@ function getAchievementsList(
         $withAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
     }
 
-    $innerJoinUserAccounts = "LEFT JOIN UserAccounts AS ua ON ua.ID = ach.user_id";
-
     // We can't run a sort on a user's achievements AwardedDate
     // if we don't have a user. Bail from the sort.
     if (($sortBy == 9 || $sortBy == 19) && !$user) {
@@ -50,7 +48,7 @@ function getAchievementsList(
                     $withAwardedDate
                 FROM Achievements AS ach
                 $innerJoinPlayerAchievements
-                $innerJoinUserAccounts
+                INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
                 INNER JOIN GameData AS gd ON gd.ID = ach.GameID
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID ";
 
