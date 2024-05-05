@@ -3,12 +3,15 @@
 // TODO migrate to ForumTopicController::show() pages/forum/topic.blade.php
 
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Models\ForumTopicComment;
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Facades\Auth;
 
-authenticateFromCookie($user, $permissions, $userDetails);
-$userID = $userDetails['ID'] ?? 0;
+authenticateFromCookie($username, $permissions);
+$user = Auth::user();
+$userID = $user?->id ?? 0;
 
 // Fetch topic ID
 $requestedTopicID = requestInputSanitized('t', 0, 'integer');
@@ -17,13 +20,13 @@ if ($requestedTopicID == 0) {
     abort(404);
 }
 
-$topicData = getTopicDetails($requestedTopicID);
+$forumTopic = ForumTopic::with(['forum.category', 'user'])->find($requestedTopicID);
 
-if (empty($topicData)) {
+if (!$forumTopic) {
     abort(404);
 }
 
-if ($permissions < $topicData['RequiredPermissions']) {
+if ($permissions < $forumTopic->RequiredPermissions) {
     abort(403);
 }
 
@@ -43,7 +46,7 @@ if (!empty($gotoCommentID)) {
 
 // Fetch comments
 $numTotalComments = ForumTopicComment::where('ForumTopicID', $requestedTopicID)->count();
-$commentList = ForumTopicComment::with('user')
+$allForumTopicCommentsForTopic = ForumTopicComment::with('user')
     ->where('ForumTopicID', $requestedTopicID)
     ->orderBy('DateCreated', 'asc')
     ->offset($offset)
@@ -51,19 +54,18 @@ $commentList = ForumTopicComment::with('user')
     ->get();
 
 // We CANNOT have a topic with no comments... this doesn't make sense.
-if (empty($commentList)) {
+if (empty($allForumTopicCommentsForTopic)) {
     abort(404);
 }
 
-$thisTopicID = $topicData['ID'];
-$thisTopicID = (int) $thisTopicID;
-$thisTopicAuthor = $topicData['Author'];
-$thisTopicCategory = $topicData['Category'];
-$thisTopicCategoryID = $topicData['CategoryID'];
-$thisTopicForum = $topicData['Forum'];
-$thisTopicForumID = $topicData['ForumID'];
-$thisTopicTitle = $topicData['TopicTitle'];
-$thisTopicPermissions = $topicData['RequiredPermissions'];
+$thisTopicID = $forumTopic->id;
+$thisTopicAuthor = $forumTopic->user?->User ?? 'Deleted User';
+$thisTopicCategory = $forumTopic->forum->category->title;
+$thisTopicCategoryID = $forumTopic->forum->category->id;
+$thisTopicForum = $forumTopic->forum->title;
+$thisTopicForumID = $forumTopic->forum->id;
+$thisTopicTitle = $forumTopic->title;
+$thisTopicPermissions = $forumTopic->RequiredPermissions;
 
 $pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
 
@@ -74,7 +76,7 @@ sanitize_outputs(
     $thisTopicTitle,
 );
 
-$isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
+$isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : false;
 ?>
 <x-app-layout :pageTitle="$pageTitle">
     <?php
@@ -87,7 +89,7 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
     echo "<h2>$thisTopicTitle</h2>";
 
-    if (isset($user) && ($thisTopicAuthor == $user || $permissions >= Permissions::Moderator)) {
+    if ($user?->can('update', $forumTopic)) {
         echo "<div class='devbox mb-3'>";
         echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Options ▼</span>";
         echo "<div id='devboxcontent' style='display: none'>";
@@ -100,7 +102,7 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
         echo "<button class='btn'>Submit</button>";
         echo "</form>";
 
-        if ($permissions >= Permissions::Moderator) {
+        if ($user?->can('manage', ForumTopic::class)) {
             echo "<div>Restrict Topic:</div>";
             echo "<form class='mb-3' action='/request/forum-topic/update-permissions.php' method='post'>";
             echo csrf_field();
@@ -114,7 +116,9 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
             echo "</select>";
             echo "<button class='btn'>Change Minimum Permissions</button>";
             echo "</form>";
+        }
 
+        if ($user?->can('delete', $forumTopic)) {
             echo "<form action='/request/forum-topic/delete.php' method='post' onsubmit='return confirm(\"Are you sure you want to permanently delete this topic?\")'>";
             echo csrf_field();
             echo "<input type='hidden' name='topic' value='$thisTopicID' />";
@@ -148,21 +152,23 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
     }
     echo "</div>";
     echo "<div>";
-    RenderUpdateSubscriptionForm(
-        "updatetopicsubscription",
-        SubscriptionSubjectType::ForumTopic,
-        $thisTopicID,
-        $isSubscribed
-    );
+    if ($user) {
+        RenderUpdateSubscriptionForm(
+            "updatetopicsubscription",
+            SubscriptionSubjectType::ForumTopic,
+            $thisTopicID,
+            $isSubscribed
+        );
+    }
     echo "</div>";
     echo "</div>";
 
     echo "<div class='mb-4'>";
     // Output all posts, and offer 'prev/next page'
-    foreach ($commentList as $index => $commentData) {
-        $nextCommentID = $commentData->ID;
-        $nextCommentPayload = $commentData->Payload;
-        $nextCommentAuthor = $commentData->Author;
+    foreach ($allForumTopicCommentsForTopic as $index => $forumTopicComment) {
+        $nextCommentID = $forumTopicComment->ID;
+        $nextCommentPayload = $forumTopicComment->Payload;
+        $nextCommentAuthor = $forumTopicComment->Author;
         $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
 
         $isOriginalPoster = $nextCommentAuthor === $thisTopicAuthor;
@@ -170,17 +176,11 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
         $parsedPostContent = Shortcode::render($nextCommentPayload);
         ?>
         <x-forum.post
-            :commentData="$commentData"
-            :currentUser="$user"
-            :currentUserPermissions="$permissions"
-            :forumTopicId="$thisTopicID"
+            :forumTopicComment="$forumTopicComment"
             :isHighlighted="$isHighlighted"
             :isOriginalPoster="$isOriginalPoster"
             :parsedPostContent="$parsedPostContent"
             :threadPostNumber="$nextCommentIndex"
-            :nextCommentIndex="$nextCommentIndex"
-            :permissions="$permissions"
-            :user="$user"
         />
         <?php
     }
@@ -193,30 +193,25 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
     }
     ?>
 
-    <?php
-    $user = auth()->user();
-    ?>
     @guest
         <p class="text-center">
             You must log in before you can join this conversation.
         </p>
     @endguest
 
-    {{-- TODO use a policy --}}
     @if ($user?->is_muted)
         <div class="flex justify-center bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
             <p class="text-center text-muted">You are muted until {{ getNiceDate($user->muted_until->timestamp) }}.</p>
         </div>
     @endif
 
-    {{-- TODO use a policy --}}
-    @if ($thisTopicID != 0 && $user?->hasVerifiedEmail() && !$user?->is_muted)
+    @can('create', [App\Models\ForumTopicComment::class, $forumTopic])
         <x-section>
             <div class="flex bg-embed p-2 rounded-lg -mx-2 w-[calc(100%+16px)] sm:mx-0 sm:w-full">
                 @auth
                     <div class="hidden sm:flex flex-col gap-1 justify-start items-center lg:border-r border-neutral-700 px-0.5 pb-2 lg:py-2 lg:w-44">
-                        <x-user.avatar :user="request()->user()" display="icon" iconSize="md" class="rounded-sm" />
-                        <x-user.avatar :user="request()->user()" />
+                        <x-user.avatar :user="$user" display="icon" iconSize="md" class="rounded-sm" />
+                        <x-user.avatar :user="$user" />
                     </div>
                     <div class="grow lg:py-0 px-1 lg:px-6 pt-2 pb-4">
                         <x-base.form action="{{ url('request/forum-topic-comment/create.php') }}" validate>
@@ -245,5 +240,5 @@ $isSubscribed = isUserSubscribedToForumTopic($thisTopicID, $userID);
 
             <div id="post-preview-input_quickreply"></div>
         </x-section>
-    @endif
+    @endcan
 </x-app-layout>

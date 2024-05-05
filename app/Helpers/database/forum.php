@@ -27,25 +27,6 @@ function getForumList(int $categoryID = 0): array
     return legacyDbFetchAll($query)->toArray();
 }
 
-function getForumDetails(int $forumID, ?array &$forumDataOut): bool
-{
-    $query = "    SELECT f.ID, f.Title AS ForumTitle, f.Description AS ForumDescription, fc.ID AS CategoryID, fc.Name AS CategoryName
-                FROM Forum AS f
-                LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
-                WHERE f.ID = $forumID ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $forumDataOut = mysqli_fetch_assoc($dbResult);
-
-        return $forumDataOut != null;
-    }
-    log_sql_fail();
-    $forumDataOut = null;
-
-    return false;
-}
-
 function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): ?array
 {
     $query = "  SELECT COUNT(*) FROM ForumTopic AS ft
@@ -116,26 +97,6 @@ function getUnauthorisedForumLinks(): ?array
     log_sql_fail();
 
     return null;
-}
-
-function getTopicDetails(int $topicId): ?array
-{
-    $topic = ForumTopic::with(['forum.category', 'user'])->find($topicId);
-
-    if (!$topic) {
-        return null;
-    }
-
-    return [
-        'ID' => $topic->id,
-        'Author' => $topic->user->User,
-        'CategoryID' => $topic->forum->category->id,
-        'Category' => $topic->forum->category->title,
-        'ForumID' => $topic->forum->id,
-        'Forum' => $topic->forum->title,
-        'TopicTitle' => $topic->title,
-        'RequiredPermissions' => $topic->RequiredPermissions,
-    ];
 }
 
 function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool

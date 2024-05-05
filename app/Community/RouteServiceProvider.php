@@ -6,6 +6,7 @@ namespace App\Community;
 
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
+use App\Community\Controllers\TicketController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -239,9 +240,10 @@ class RouteServiceProvider extends ServiceProvider
                     Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['show', 'destroy']);
                 });
 
-                //     /*
-                //      * tickets
-                //      */
+                /*
+                 * tickets
+                 */
+                Route::resource('ticket', TicketController::class)->only('show');
                 //     // Route::resource('ticket', TicketController::class)->except('index', 'create');
                 //     // Route::resource('achievement.ticket', AchievementTicketController::class)->only('create');
                 //     // Route::group([

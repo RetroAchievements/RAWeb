@@ -1,28 +1,31 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\Forum;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
 }
 
 $requestedForumID = (int) request()->query('forum');
+$userModel = request()->user();
 
 if (empty($requestedForumID)) {
     abort(404);
 }
 
-if (!getForumDetails($requestedForumID, $forumData)) {
+$forum = Forum::find($requestedForumID);
+if (!$forum) {
     abort(404);
 }
-if (empty($forumData)) {
-    abort(404);
+if (!$userModel->can('create', [App\Models\ForumTopic::class, $forum])) {
+    abort(401);
 }
 
-$thisForumID = $forumData['ID'];
-$thisForumTitle = htmlentities($forumData['ForumTitle']);
-$thisCategoryID = $forumData['CategoryID'];
-$thisCategoryName = htmlentities($forumData['CategoryName']);
+$thisForumID = $forum->id;
+$thisForumTitle = htmlentities($forum->title);
+$thisCategoryID = $forum->category->id;
+$thisCategoryName = htmlentities($forum->category->title);
 ?>
 <x-app-layout pageTitle="Create topic: {{ $thisForumTitle }}">
     <div class="navpath">

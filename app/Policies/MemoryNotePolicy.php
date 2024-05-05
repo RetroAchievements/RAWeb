@@ -16,7 +16,7 @@ class MemoryNotePolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
