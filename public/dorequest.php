@@ -243,7 +243,7 @@ switch ($requestType) {
         if (empty($gamesCSV)) {
             return DoRequestError("You must specify which games to retrieve info for", 400);
         }
-        $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV))
+        $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
             ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
         break;
 
