@@ -63,4 +63,14 @@ class AchievementController extends Controller
 
         return back()->with('success', $this->resourceActionSuccessMessage('achievement', 'update'));
     }
+
+    public function reportIssue(Achievement $achievement): View
+    {
+        return view('pages.achievement.[achievement].report-issue')->with('achievement', $achievement);
+    }
+
+    public function createTicket(Achievement $achievement): View
+    {
+        return view('pages.achievement.[achievement].create-ticket')->with('achievement', $achievement);
+    }
 }

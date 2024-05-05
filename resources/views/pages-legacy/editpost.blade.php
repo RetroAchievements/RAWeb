@@ -4,9 +4,11 @@ use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 
-if (!authenticateFromCookie($user, $permissions, $userDetails)) {
+if (!authenticateFromCookie($username, $permissions, $userDetails)) {
     abort(401);
 }
+
+$user = request()->user();
 
 $requestedComment = (int) request()->query('comment');
 if (empty($requestedComment)) {
@@ -18,7 +20,7 @@ if (!$foundPost) {
     abort(404);
 }
 
-if ($user !== $foundPost->user?->User && $permissions < Permissions::Moderator) {
+if (!$user->can('update', $foundPost)) {
     abort_with(back()->withErrors(__('legacy.error.permissions')));
 }
 

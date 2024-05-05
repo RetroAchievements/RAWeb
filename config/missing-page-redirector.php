@@ -58,7 +58,7 @@ return [
         /*
          * achievement tickets
          */
-        '/reportissue.php' => '/achievement/{i}/tickets/create',
+        '/reportissue.php' => '/achievement/{i}/report-issue',
         '/ticketmanager.php' => [
             'i' => '/ticket/{i}',
             'u' => '/user/{u}/tickets',

@@ -289,7 +289,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     } elseif ($sortBy == 7) { // ActiveClaims DESC
         $query = "SELECT ua.ID, SUM(!ISNULL(sc.ID)) AS ActiveClaims
                   FROM UserAccounts ua
-                  LEFT JOIN SetClaim sc ON sc.User=ua.User AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
+                  LEFT JOIN SetClaim sc ON sc.user_id=ua.ID AND sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
                   WHERE $stateCond
                   GROUP BY ua.ID
                   ORDER BY ActiveClaims DESC, ua.User";
@@ -353,7 +353,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     // merge in active claims
     $query = "SELECT ua.ID, COUNT(*) AS ActiveClaims
               FROM SetClaim sc
-              INNER JOIN UserAccounts ua ON ua.User=sc.User
+              INNER JOIN UserAccounts ua ON ua.ID=sc.user_id
               WHERE sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")
               AND ua.ID IN ($devList)
               GROUP BY ua.ID";
@@ -402,7 +402,7 @@ function getMostAwardedUsers(array $gameIDs): array
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '0', 1, 0)) AS Completed,
               SUM(IF(AwardType LIKE " . AwardType::Mastery . " AND AwardDataExtra LIKE '1', 1, 0)) AS Mastered
               FROM SiteAwards AS sa
-              LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
+              LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
               WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN (" . implode(",", $gameIDs) . ")
               AND Untracked = 0
@@ -437,7 +437,7 @@ function getMostAwardedGames(array $gameIDs): array
               FROM SiteAwards AS sa
               LEFT JOIN GameData AS gd ON gd.ID = sa.AwardData
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
+              LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
               WHERE sa.AwardType IN (" . implode(',', AwardType::game()) . ")
               AND AwardData IN(" . implode(",", $gameIDs) . ")
               GROUP BY sa.AwardData, gd.Title

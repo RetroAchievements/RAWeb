@@ -47,9 +47,6 @@ foreach ($achievements as $achievement) {
         }
     }
 }
-
-$canModerate = ($user->Permissions >= Permissions::Moderator);
-
 @endphp
 
 <x-app-layout
@@ -67,12 +64,12 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
         {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
         <h1 class="mt-[10px] w-full">Compare Unlocks</h1>
 
-        @if ($canModerate)
+        @can('viewSessionHistory', App\Models\PlayerGame::class)
             <x-hidden-controls-toggle-button>Moderate</x-hidden-controls-toggle-button>
-        @endif
+        @endcan
     </div>
 
-@if ($canModerate)
+@can('viewSessionHistory', App\Models\PlayerGame::class)
     <x-hidden-controls>
         <div class="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             <ul class="flex flex-col gap-2">
@@ -85,7 +82,7 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
             </ul>
         </div>
     </x-hidden-controls>
-@endif
+@endcan
 
 @if ($numAchievements === 0)
     <p>This game has no published achievements.</p>

@@ -1,7 +1,3 @@
-<?php
-use App\Models\System;
-?>
-
 @props([
     'achievement' => null, // Achievement
     'currentPageLabel' => null, // ?string

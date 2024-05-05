@@ -1,18 +1,18 @@
 <x-card.container imgSrc="{{ $badgeUrl }}" imgKind="game">
     <div class="relative h-full text-2xs">
-        <!-- Game Name -->
+        {{-- Game Name --}}
         <p class="font-bold -mt-1 line-clamp-2 {{ mb_strlen($rawTitle) > 24 ? 'text-sm leading-5 mb-1' : 'text-lg leading-6 mb-0.5' }}">
             <x-game-title :rawTitle="$rawTitle" />
         </p>
 
-        <!-- Console Icon and Name -->
+        {{-- Console Icon and Name --}}
         <div class="flex items-center gap-x-1">
             <img src="{{ $gameSystemIconSrc }}" width="18" height="18" alt="{{ $consoleName }} console icon">
             <span class="block text-sm tracking-tighter">{{ $consoleName }}</span>
         </div>
 
         @if ($achievementsCount > 0 || mb_strpos($rawTitle, '~Z~') !== false)
-            <!-- Progression Status -->
+            {{-- Progression Status --}}
             @if ($highestProgressionStatus && $highestProgressionAwardDate)
                 <x-cards.game.highest-progression-status
                     :highestProgressionStatus="$highestProgressionStatus"
@@ -27,18 +27,18 @@
         @if ($achievementsCount > 0)
             @if (!$isEvent)
                 <div class="-mt-0.5 leading-[0.98rem]">
-                    <!-- Achievement Count -->
+                    {{-- Achievement Count --}}
                     <x-card.info-row label="Achievements">
                         {{ localized_number($achievementsCount) }}
                     </x-card.info-row>
 
                     @if ($pointsSum > 0)
-                        <!-- Points Sum -->
+                        {{-- Points Sum --}}
                         <x-card.info-row label="Points">
                             {{ localized_number($pointsSum) }}
                         </x-card.info-row>
 
-                        <!-- RetroPoints & Retro Ratio -->
+                        {{-- RetroPoints & Retro Ratio --}}
                         <x-card.info-row label="RetroPoints">
                             <span>
                                 {{ $retroPointsSum > 0 ? localized_number($retroPointsSum) : 'None yet' }}
@@ -51,7 +51,7 @@
                 </div>
             @endif
 
-            <!-- Revision Notice -->
+            {{-- Revision Notice --}}
             @if (count($activeDeveloperUsernames) !== 0)
                 <div class="mt-1">
                     <x-cards.game.active-claim-notice

@@ -337,7 +337,7 @@ class GameListService
 
     private function initializeUserAwards(?User $user, array $gameIds): void
     {
-        $userSiteAwards = getUsersSiteAwards($user->User);
+        $userSiteAwards = $user ? getUsersSiteAwards($user) : [];
 
         $awardsLookup = [];
         $awardsDateLookup = [];

@@ -102,7 +102,7 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
             gd.Title as GameTitle,
             gd.ImageIcon as GameIcon,
             c.name as ConsoleName,
-            GROUP_CONCAT(DISTINCT(IF(sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "), sc.User, NULL))) AS Claims
+            GROUP_CONCAT(DISTINCT(IF(sc.Status IN (" . ClaimStatus::Active . ',' . ClaimStatus::InReview . "), ua.User, NULL))) AS Claims
         FROM
             SetRequest sr
         LEFT JOIN
@@ -111,6 +111,8 @@ function getMostRequestedSetsList(array|int|null $console, int $offset, int $cou
             GameData gd ON (sr.GameID = gd.ID)
         LEFT JOIN
             Console c ON (gd.ConsoleID = c.ID)
+        LEFT JOIN
+            UserAccounts ua ON (sc.user_id = ua.ID)
         WHERE
             sr.GameID NOT IN (SELECT DISTINCT(GameID) FROM Achievements where Flags = '3')
             AND sr.type='" . UserGameListType::AchievementSetRequest . "'";

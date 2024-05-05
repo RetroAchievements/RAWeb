@@ -17,7 +17,7 @@ class GameHashSetPolicy
     public function manage(User $user, Game $game, GameHashSet $gameHashSet): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
@@ -39,7 +39,7 @@ class GameHashSetPolicy
     public function update(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 

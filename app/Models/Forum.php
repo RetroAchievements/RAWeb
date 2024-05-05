@@ -21,7 +21,7 @@ class Forum extends BaseModel
     // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename CategoryID to forum_category_id
     // TODO rename Title to title, remove getTitleAttribute()
-    // TODO rename Description to description
+    // TODO rename Description to description, remove getDescriptionAttribute()
     // TODO rename DisplayOrder to order_column
     // TODO rename Created to created_at
     // TODO rename Updated to updated_at
@@ -57,21 +57,21 @@ class Forum extends BaseModel
 
     // == accessors
 
+    public function getCanonicalUrlAttribute(): string
+    {
+        return route('forum.show', [$this, $this->getSlugAttribute()]);
+    }
+
+    // TODO remove after rename
+    public function getDescriptionAttribute(): string
+    {
+        return $this->attributes['Description'];
+    }
+
     // TODO remove after rename
     public function getIdAttribute(): int
     {
         return $this->attributes['ID'];
-    }
-
-    // TODO remove after rename
-    public function getTitleAttribute(): string
-    {
-        return $this->attributes['Title'];
-    }
-
-    public function getCanonicalUrlAttribute(): string
-    {
-        return route('forum.show', [$this, $this->getSlugAttribute()]);
     }
 
     public function getPermalinkAttribute(): string
@@ -85,6 +85,12 @@ class Forum extends BaseModel
             . ($this->title ? '-' . Str::slug($this->title) : '');
     }
 
+    // TODO remove after rename
+    public function getTitleAttribute(): string
+    {
+        return $this->attributes['Title'];
+    }
+
     // == mutators
 
     // == relations
@@ -94,7 +100,7 @@ class Forum extends BaseModel
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ForumCategory::class, 'CategoryID');
+        return $this->belongsTo(ForumCategory::class, 'CategoryID', 'ID');
     }
 
     /**
