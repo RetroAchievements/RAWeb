@@ -6,6 +6,7 @@ use App\Community\Enums\ClaimSorting;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
+use App\Models\User;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -24,6 +25,7 @@ $claimData = getFilteredClaims(
 );
 $activeClaimCount = getActiveClaimCount();
 ?>
+
 <x-app-layout pageTitle="Expiring Claims">
     <?php
     echo "<h3>Expiring Claims</h3>";
@@ -31,7 +33,9 @@ $activeClaimCount = getActiveClaimCount();
     // Add username filter section if the user is in the list
     $expired = $expiring = 0;
     if (isset($user)) {
-        $expiringClaims = getExpiringClaim($user);
+        $userModel = User::firstWhere('User', $user);
+
+        $expiringClaims = getExpiringClaim($userModel);
         $expired = (int) ($expiringClaims["Expired"] ?? 0);
         $expiring = (int) ($expiringClaims["Expiring"] ?? 0);
     }

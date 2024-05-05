@@ -100,7 +100,7 @@ class PlayerGameController extends Controller
 
     public function activity(User $user, Game $game): View
     {
-        $this->authorize('manage', [User::class, $user]);
+        $this->authorize('viewSessionHistory', [PlayerGame::class, $user]);
 
         return view('pages.user.[user].game.[game].activity', [
             'user' => $user,

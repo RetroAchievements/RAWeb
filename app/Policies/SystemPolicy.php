@@ -16,7 +16,7 @@ class SystemPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
@@ -33,14 +33,14 @@ class SystemPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
     public function update(User $user, System $system): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
@@ -51,14 +51,14 @@ class SystemPolicy
         }
 
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 
     public function restore(User $user, System $system): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
         ]);
     }
 

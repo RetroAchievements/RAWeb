@@ -1,5 +1,5 @@
 @props([
-    'commentId',
+    'commentId' => 0,
     'isHighlighted' => false,
     'isPreview' => false,
 ])

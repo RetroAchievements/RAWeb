@@ -6,6 +6,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
+use Illuminate\Support\Facades\Auth;
 
 ?>
 
@@ -39,7 +40,7 @@ $userPermissions = $user?->getAttribute('Permissions') ?? 0;
 
 // Get user claim data.
 if (isset($user) && $userPermissions >= Permissions::JuniorDeveloper) {
-    $userClaimCount = getActiveClaimCount($user->User, false, false);
+    $userClaimCount = getActiveClaimCount($user, false, false);
     $userHasClaimSlot = $userClaimCount < permissionsToClaim($userPermissions);
     $openTickets = countOpenTicketsByDev($user);
 }

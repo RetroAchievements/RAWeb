@@ -267,7 +267,7 @@ if ($isFullyFeaturedGame) {
     // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID);
 
-    $claimData = getClaimData($gameID, true);
+    $claimData = getClaimData([$gameID], true);
 }
 
 sanitize_outputs(
@@ -493,8 +493,17 @@ if ($isFullyFeaturedGame) {
 
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
+        // TODO use a policy
         if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
-            $hasMinimumDeveloperPermissions = $permissions >= Permissions::Developer || (($isSoleAuthor || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet)) && $permissions >= Permissions::JuniorDeveloper);
+            // TODO use a policy
+            $hasMinimumDeveloperPermissions = (
+                $permissions >= Permissions::Developer
+                || (
+                    ($isSoleAuthor || hasSetClaimed($userModel, $gameID, true, ClaimSetType::NewSet))
+                    && $permissions >= Permissions::JuniorDeveloper
+                )
+            );
+            
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";

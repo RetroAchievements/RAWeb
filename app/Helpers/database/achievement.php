@@ -251,7 +251,7 @@ function UploadNewAchievement(
     if (empty($idInOut)) {
         // New achievement added
         // Prevent users from uploading achievements for games they do not have an active claim on unless it's an event game
-        if (!hasSetClaimed($authorUsername, $gameID, false) && !$isEventGame) {
+        if (!hasSetClaimed($author, $gameID, false) && !$isEventGame) {
             $errorOut = "You must have an active claim on this game to perform this action.";
 
             return false;
