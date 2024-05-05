@@ -73,16 +73,9 @@ export function tooltipComponent(anchorEl: HTMLElement, props: Partial<TooltipPr
             props.dynamicType as string,
             props.dynamicId as string,
             props?.dynamicContext,
-            event.pageX,
-            event.pageY,
           );
         } else if (props.staticHtmlContent) {
-          renderTooltip(
-            anchorEl,
-            props.staticHtmlContent as string,
-            event.pageX + 8,
-            event.pageY + 6,
-          );
+          renderTooltip(anchorEl, props.staticHtmlContent as string, 8, 6);
         }
 
         isTooltipShowing = true;

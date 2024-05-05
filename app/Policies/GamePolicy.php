@@ -17,7 +17,7 @@ class GamePolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
             // Role::DEVELOPER_STAFF,
             // Role::DEVELOPER,
         ]);
@@ -40,7 +40,7 @@ class GamePolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
             // Role::DEVELOPER_STAFF,
             // Role::DEVELOPER,
         ]);
@@ -49,7 +49,7 @@ class GamePolicy
     public function update(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
             // Role::DEVELOPER_STAFF,
             // Role::DEVELOPER,
         ]);
