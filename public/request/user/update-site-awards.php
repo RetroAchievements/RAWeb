@@ -71,7 +71,7 @@ foreach ($awards as $award) {
     $query->update(['DisplayOrder' => $value]);
 }
 
-$userAwards = getUsersSiteAwards($user->username);
+$userAwards = getUsersSiteAwards($user);
 $updatedAwardsHTML = '';
 ob_start();
 RenderSiteAwards($userAwards, $user->username);

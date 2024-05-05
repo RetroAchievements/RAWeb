@@ -110,15 +110,17 @@ function GetExtendedFriendsList(User $user): array
     return $friendList->toArray();
 }
 
-function GetFriendsSubquery(string $user, bool $includeUser = true): string
+function GetFriendsSubquery(string $user, bool $includeUser = true, bool $returnUserIds = false): string
 {
     $userModel = User::firstWhere('User', $user);
     $userId = $userModel->id;
 
-    $friendsSubquery = "SELECT ua.User FROM UserAccounts ua
+    $selectColumn = $returnUserIds ? 'ua.ID' : 'ua.User';
+
+    $friendsSubquery = "SELECT $selectColumn FROM UserAccounts ua
         JOIN (
             SELECT related_user_id FROM Friends
-            WHERE user_id=:userId AND Friendship = :friendshipStatus
+            WHERE user_id = :userId AND Friendship = :friendshipStatus
         ) AS Friends1 ON Friends1.related_user_id = ua.ID
         WHERE ua.Deleted IS NULL AND ua.Permissions >= :permissionsLevel
     ";
@@ -135,11 +137,11 @@ function GetFriendsSubquery(string $user, bool $includeUser = true): string
     //       total for two separate queries
     $friends = [];
     foreach (legacyDbFetchAll($friendsSubquery, $bindings) as $db_entry) {
-        $friends[] = "'" . $db_entry['User'] . "'";
+        $friends[] = $returnUserIds ? $db_entry['ID'] : "'" . $db_entry['User'] . "'";
     }
 
     if ($includeUser) {
-        $friends[] = "'$user'";
+        $friends[] = $returnUserIds ? $userId : "'$user'";
     } elseif (count($friends) == 0) {
         return "NULL";
     }

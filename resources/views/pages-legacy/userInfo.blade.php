@@ -59,7 +59,7 @@ $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-$userAwards = getUsersSiteAwards($userPage);
+$userAwards = getUsersSiteAwards($userPageModel);
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(

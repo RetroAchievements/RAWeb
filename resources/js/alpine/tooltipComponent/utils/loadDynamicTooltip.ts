@@ -18,16 +18,16 @@ import { renderTooltip } from './renderTooltip';
  * @param type The type of the dynamic tooltip.
  * @param id The ID of the dynamic tooltip.
  * @param context Optional additional context passed to the server when fetching the dynamic tooltip content.
- * @param givenX Optional X-coordinate for the tooltip's initial position.
- * @param givenY Optional Y-coordinate for the tooltip's initial position.
+ * @param offsetX Optional X-coordinate for the tooltip's initial position.
+ * @param offsetY Optional Y-coordinate for the tooltip's initial position.
  */
 export async function loadDynamicTooltip(
   anchorEl: HTMLElement,
   type: string,
   id: string,
   context?: unknown,
-  givenX?: number,
-  givenY?: number,
+  offsetX?: number,
+  offsetY?: number,
 ): Promise<void> {
   const cacheKey = `${type}_${id}`;
 
@@ -50,7 +50,7 @@ export async function loadDynamicTooltip(
       </div>
     </div>
   `;
-  renderTooltip(anchorEl, genericLoadingTemplate, (givenX ?? 0) + 12, (givenY ?? 0) + 12, {
+  renderTooltip(anchorEl, genericLoadingTemplate, (offsetX ?? 0) + 12, (offsetY ?? 0) + 12, {
     isBorderless: true,
   });
 
@@ -66,7 +66,7 @@ export async function loadDynamicTooltip(
       // if a static tooltip is opened while we're fetching data.
       const wasTimeoutCleared = !store.dynamicTimeoutId;
       if (anchorEl === store.activeAnchorEl && !wasTimeoutCleared && store.isHoveringOverAnchorEl) {
-        renderTooltip(anchorEl, fetchedDynamicContent, givenX, givenY);
+        renderTooltip(anchorEl, fetchedDynamicContent, offsetX, offsetY);
         pinTooltipToCursorPosition(
           anchorEl,
           store.tooltipEl,
@@ -113,7 +113,7 @@ function displayDynamicTooltip(anchorEl: HTMLElement, htmlContent: string) {
   renderTooltip(
     anchorEl,
     htmlContent,
-    store.trackedMouseX ? store.trackedMouseX + 10 : undefined,
-    store.trackedMouseY ? store.trackedMouseY + 8 : undefined,
+    store.trackedMouseX ? 10 : undefined,
+    store.trackedMouseY ? 8 : undefined,
   );
 }

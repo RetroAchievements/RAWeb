@@ -112,7 +112,7 @@ trait ActsAsPlayer
      */
     public function playerBadges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'User', 'User');
+        return $this->hasMany(PlayerBadge::class, 'user_id', 'ID');
     }
 
     /**

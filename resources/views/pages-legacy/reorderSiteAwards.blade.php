@@ -2,6 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
+use App\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
     abort(401);
@@ -9,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions, Permissions::Registered)) {
 
 $prefersSeeingSavedHiddenRows = request()->cookie('prefers_seeing_saved_hidden_rows_when_reordering') === 'true';
 
-$userAwards = getUsersSiteAwards($user->username, true);
+$userAwards = getUsersSiteAwards($user, true);
 [$gameAwards, $eventAwards, $siteAwards] = SeparateAwards($userAwards);
 
 $hasSomeAwards = !empty($gameAwards) || !empty($eventAwards) || !empty($siteAwards);
@@ -164,7 +165,7 @@ function postAllAwardsDisplayOrder(awards) {
     @if ($hasSomeAwards)
         <x-slot name="sidebar">
             <?php
-            RenderSiteAwards(getUsersSiteAwards($user->username), $user->username);
+                RenderSiteAwards(getUsersSiteAwards($user), $user->username);
             ?>
         </x-slot>
     @endif
