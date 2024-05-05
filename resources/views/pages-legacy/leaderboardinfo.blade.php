@@ -28,7 +28,7 @@ if (!$leaderboard) {
     abort(404);
 }
 
-$numEntries = $lbData['TotalEntries'];
+$numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
 $lbTitle = $leaderboard->title;
 $lbDescription = $leaderboard->description;
 $lbFormat = $leaderboard->format;
