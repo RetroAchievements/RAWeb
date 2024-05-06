@@ -45,7 +45,7 @@ $ticketedGames = Ticket::unresolved()
                 @foreach ($ticketedGames as $ticketedGame)
                     @php $game = Game::firstWhere('ID', $ticketedGame->GameID) @endphp
                     <tr>
-                        <td>
+                        <td class="py-2">
                             <x-game.multiline-avatar
                                 :gameId="$game->ID"
                                 :gameTitle="$game->Title"

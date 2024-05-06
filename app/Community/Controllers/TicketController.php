@@ -54,7 +54,7 @@ class TicketController extends Controller
         $filterOptions = $ticketListService->getFilterOptions($request);
         $tickets = $ticketListService->getTickets($filterOptions, Ticket::forGame($game));
 
-        return view('pages.tickets.[game]', [
+        return view('pages.game.[game].tickets', [
             'game' => $game,
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
@@ -73,7 +73,7 @@ class TicketController extends Controller
         $filterOptions = $ticketListService->getFilterOptions($request);
         $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
 
-        return view('pages.tickets.[achievement]', [
+        return view('pages.achievement.[achievement].tickets', [
             'achievement' => $achievement,
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
@@ -93,7 +93,7 @@ class TicketController extends Controller
         $filterOptions = $ticketListService->getFilterOptions($request);
         $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
 
-        return view('pages.tickets.[user]', [
+        return view('pages.user.[user].tickets', [
             'user' => $user,
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
@@ -124,7 +124,7 @@ class TicketController extends Controller
 
         $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
 
-        return view('pages.tickets.[user]', [
+        return view('pages.user.[user].tickets', [
             'pageTitle' => 'Tickets Resolved for Others',
             'user' => $user,
             'tickets' => $tickets,
@@ -149,7 +149,7 @@ class TicketController extends Controller
 
         $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
 
-        return view('pages.tickets.[user]', [
+        return view('pages.user.[user].tickets', [
             'pageTitle' => 'Tickets Awaiting Feedback',
             'user' => $user,
             'tickets' => $tickets,
