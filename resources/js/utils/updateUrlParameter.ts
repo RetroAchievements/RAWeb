@@ -24,7 +24,10 @@ export function updateUrlParameter(
     const currentParamName = paramNames[i];
     const currentNewQueryParamValue = newQueryParamValues[i];
 
-    params.set(currentParamName, currentNewQueryParamValue);
+    if (currentNewQueryParamValue != null)
+      params.set(currentParamName, currentNewQueryParamValue);
+    else
+      params.delete(currentParamName);
   }
 
   url.search = params.toString();
