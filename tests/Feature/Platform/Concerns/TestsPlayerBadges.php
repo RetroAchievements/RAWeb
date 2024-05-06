@@ -30,6 +30,7 @@ trait TestsPlayerBadges
             ->first();
         if ($badge === null) {
             $badge = new PlayerBadge([
+                'user_id' => $user->id,
                 'User' => $user->User,
                 'AwardType' => $type,
                 'AwardData' => $id,

@@ -18,4 +18,12 @@ abstract class TicketType
             default => "Invalid ticket type",
         };
     }
+
+    public static function cases(): array
+    {
+        return [
+            self::TriggeredAtWrongTime,
+            self::DidNotTrigger,
+        ];
+    }
 }
