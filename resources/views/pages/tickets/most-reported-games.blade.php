@@ -21,7 +21,7 @@ $ticketedGames = Ticket::unresolved()
 
 @endphp
 
-<x-app-layout pageTitle="Ticket Manager">
+<x-app-layout pageTitle="Most Reported Games">
     <div class="navpath">
         <a href="{{ route('tickets.index') }}">Open Tickets</a>
         &raquo;
