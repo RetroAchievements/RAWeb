@@ -99,26 +99,6 @@ function SetAccountPermissionsJSON(
     return $retVal;
 }
 
-/*
- * Manual verification / authorize user to post in forums
- */
-
-function getUserForumPostAuth(string $user): bool
-{
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT uc.ManuallyVerified FROM UserAccounts AS uc WHERE uc.User = '$user'";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-
-        return (bool) $data['ManuallyVerified'];
-    }
-
-    return false;
-}
-
 function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User $targetUser, bool $authorize): bool
 {
     // $sourceUser is setting $targetUser's forum post permissions.
