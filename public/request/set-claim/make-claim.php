@@ -24,7 +24,7 @@ $claimType = (int) $input['claim_type'];
 $setType = (int) $input['set_type'];
 $createForumTopic = (bool) ($input['create_topic'] ?? false);
 
-$special = (int) checkIfSoleDeveloper($user->username, $gameID);
+$special = (int) checkIfSoleDeveloper($user, $gameID);
 if (insertClaim($user, $gameID, $claimType, $setType, $special)) {
     addArticleComment(
         "Server",
@@ -32,9 +32,9 @@ if (insertClaim($user, $gameID, $claimType, $setType, $special)) {
         $gameID,
         ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $user->display_name
     );
-
+    
     if ($createForumTopic && $permissions >= Permissions::Developer) {
-        generateGameForumTopic($user->username, $gameID, $forumTopicID);
+        generateGameForumTopic($user, $gameID);
 
         return redirect(route('game.show', $gameID));
     }

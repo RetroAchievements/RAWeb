@@ -30,10 +30,10 @@ $gameID = (int) $input['game'];
 $imageType = $input['type'];
 
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
-// TODO use a policy
 if (
     $permissions == Permissions::JuniorDeveloper
-    && (!checkIfSoleDeveloper($user->username, $gameID) && !hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet))) {
+    && (!checkIfSoleDeveloper($user, $gameID) && !hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet))
+) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

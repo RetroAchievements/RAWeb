@@ -31,7 +31,7 @@ if (
     abort(401);
 }
 
-if (updateAchievementEmbedVideo($achievementId, $embedUrl)) {
+if (updateAchievementEmbedVideoUrl($achievementId, $embedUrl)) {
     $auditLog = "{$user->display_name} set this achievement's embed URL.";
 
     addArticleComment('Server', ArticleType::Achievement, $achievementId, $auditLog, $user);

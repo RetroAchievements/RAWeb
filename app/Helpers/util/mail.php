@@ -250,7 +250,7 @@ function informAllSubscribersAboutActivity(
             $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
             $subjectAuthor = $ticketData['ReportedBy'];
             $articleTitle = $ticketData['AchievementTitle'] . ' (' . $ticketData['GameTitle'] . ')';
-            $urlTarget = "ticketmanager.php?i=$articleID";
+            $urlTarget = route('ticket.show', $articleID);
             break;
 
         default:

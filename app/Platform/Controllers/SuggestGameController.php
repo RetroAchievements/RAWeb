@@ -379,14 +379,15 @@ class SuggestGameController extends Controller
             case 8: // same set author (10%)
                 $author = Achievement::where('GameID', $gameId)
                     ->where('Flags', '=', AchievementFlag::OfficialCore)
-                    ->groupBy('Author')
-                    ->selectRaw('count(*) as Count, Author')
+                    ->join('UserAccounts', 'Achievements.user_id', '=', 'UserAccounts.ID')
+                    ->groupBy('Achievements.user_id')
+                    ->selectRaw('count(*) as Count, UserAccounts.User as Author, Achievements.user_id as AuthorUserID')
                     ->orderBy('Count', 'DESC')
                     ->first();
 
                 if ($author) {
                     $otherAuthoredGame = Achievement::inRandomOrder()
-                        ->where('Author', $author->Author)
+                        ->where('user_id', $author->AuthorUserID)
                         ->where('GameID', '!=', $gameId)
                         ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
                         ->where('GameData.achievements_published', '>', 0)

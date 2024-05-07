@@ -161,7 +161,7 @@ function performSearch(
                 WHEN c.articletype=" . ArticleType::Game . " THEN CONCAT('/game/', c.ArticleID, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::Achievement . " THEN CONCAT('/achievement/', c.ArticleID, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::Leaderboard . " THEN CONCAT('/leaderboardinfo.php?i=', c.ArticleID, '#comment_', c.ID)
-                WHEN c.articletype=" . ArticleType::AchievementTicket . " THEN CONCAT('/ticketmanager.php?i=', c.ArticleID, '#comment_', c.ID)
+                WHEN c.articletype=" . ArticleType::AchievementTicket . " THEN CONCAT('/ticket/', c.ArticleID, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::User . " THEN CONCAT('/user/', ua.User, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::UserModeration . " THEN CONCAT('/user/', ua.User, '#comment_', c.ID)
                 WHEN c.articletype=" . ArticleType::GameHash . " THEN CONCAT('/game/', c.ArticleID, '/hashes/manage', '#comment_', c.ID)

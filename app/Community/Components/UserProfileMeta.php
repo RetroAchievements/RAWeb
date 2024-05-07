@@ -117,12 +117,12 @@ class UserProfileMeta extends Component
         // Open tickets
         $openTickets = null;
         if ($user->ContribCount) {
-            $openTickets = array_sum(countOpenTicketsByDev($user->User));
+            $openTickets = array_sum(countOpenTicketsByDev($user));
         }
         $openTicketsStat = [
             'label' => 'Open tickets',
             'value' => $openTickets === null ? "Tickets can't be assigned to {$user->User}." : localized_number($openTickets),
-            'href' => $openTickets ? '/ticketmanager.php?u=' . $user->User : null,
+            'href' => $openTickets ? route('developer.tickets', $user) : null,
             'isMuted' => !$openTickets,
         ];
 

@@ -183,7 +183,7 @@ name('demo');
                     <x-base.form.input.checkbox label="Checkbox checked" checked />
                     <x-base.form.input.checkbox label="Checkbox disabled" checked disabled />
                     <x-base.form.input.checkbox>
-                        Checkbox with long label text<br>a break<br>and a <x-link link="{{ route('demo') }}">Link</x-link>
+                        Checkbox with long label text<br>a break<br>and a <x-link href="{{ route('demo') }}">Link</x-link>
                     </x-input.checkbox>
                     <x-base.form.input.code label="Code" />
                     <x-base.form.input.date label="Date" value="2024-12-31" :fullWidth="false" />

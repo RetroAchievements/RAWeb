@@ -10,7 +10,7 @@ if (!authenticateFromCookie($user, $permissions)) {
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'forum' => 'required|integer|exists:Forum,ID',
-    'title' => 'required|string|max:255',
+    'title' => 'required|string|max:255', // TODO enforce a min length
     'body' => 'required|string|max:60000',
 ]);
 
@@ -20,9 +20,7 @@ if (!$forum || !$user->can('create', [App\Models\ForumTopic::class, $forum])) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-$topicID = null;
-if (submitNewTopic($user->username, $forum->id, $input['title'], $input['body'], $topicID)) {
-    return redirect(url("/viewtopic.php?t=$topicID"))->with('success', __('legacy.success.create'));
-}
+$forumTopicComment = submitNewTopic($user, $forum->id, $input['title'], $input['body']);
 
-return back()->withErrors(__('legacy.error.error'));
+return redirect(url("/viewtopic.php?t={$forumTopicComment->forumTopic->id}"))
+    ->with('success', __('legacy.success.create'));

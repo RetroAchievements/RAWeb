@@ -19,10 +19,6 @@ if (!$forumTopic || !$user->can('create', [App\Models\ForumTopicComment::class, 
     return back()->withErrors(__('legacy.error.error'));
 }
 
-$topicId = $forumTopic->id;
+$newComment = submitTopicComment($user, $forumTopic->id, null, $input['body']);
 
-if (submitTopicComment($user->username, $topicId, null, $input['body'], $newCommentID)) {
-    return redirect(url("/viewtopic.php?t=$topicId&c=$newCommentID"))->with('success', __('legacy.success.send'));
-}
-
-return back()->withErrors(__('legacy.error.error'));
+return redirect(url("/viewtopic.php?t={$forumTopic->id}&c={$newComment->id}"))->with('success', __('legacy.success.send'));

@@ -5,10 +5,12 @@ use App\Models\User;
 /* @var User $user */
 $user ??= $model ?? null;
 
+// TODO use props
+$hasHref ??= false;
 $class ??= '';
 $display ??= 'name';
 $iconSize ??= 'sm';
-$link ??= $user->canonicalUrl ?? null;
+$href = $hasHref ? $user?->canonicalUrl : null;
 $tooltip ??= true;
 
 $iconWidth = config('media.icon.' . $iconSize . '.width');
@@ -23,7 +25,7 @@ $iconHeight = config('media.icon.' . $iconSize . '.height');
 <x-avatar
     :class="$class"
     :display="$display"
-    :link="$link"
+    :href="$href"
     :model="$user"
     resource="user"
     :tooltip="$tooltip"

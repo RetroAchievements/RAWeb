@@ -27,10 +27,9 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $gameId = (int) $input['game'];
 
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
-// TODO use a policy
 if (
     $permissions === Permissions::JuniorDeveloper
-    && (!checkIfSoleDeveloper($user->username, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))
+    && (!checkIfSoleDeveloper($user, $gameId) && !hasSetClaimed($user, $gameId, true, ClaimSetType::NewSet))
 ) {
     return back()->withErrors(__('legacy.error.permissions'));
 }

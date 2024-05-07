@@ -12,8 +12,10 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:GameData,ID',
 ]);
 
-if (generateGameForumTopic($user->username, (int) $input['game'], $forumTopicID)) {
-    return redirect(url("/viewtopic.php?t=$forumTopicID"))->with('success', __('legacy.success.create'));
+$forumTopicComment = generateGameForumTopic($user, (int) $input['game']);
+if ($forumTopicComment) {
+    return redirect(url("/viewtopic.php?t={$forumTopicComment->forumTopic->id}"))
+        ->with('success', __('legacy.success.create'));
 }
 
 return back()->withErrors(__('legacy.error.error'));
