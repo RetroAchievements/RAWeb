@@ -36,7 +36,11 @@ class ForumTopic extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
+        'ForumID',
         'Title',
+        'author_id',
+        'LatestCommentID',
+        'RequiredPermissions',
     ];
 
     protected $dispatchesEvents = [
@@ -69,12 +73,6 @@ class ForumTopic extends BaseModel
         return $this->attributes['ID'];
     }
 
-    // TODO remove after rename
-    public function getTitleAttribute(): string
-    {
-        return $this->attributes['Title'];
-    }
-
     public function getCanonicalUrlAttribute(): string
     {
         return route('forum-topic.show', [$this, $this->getSlugAttribute()]);
@@ -95,6 +93,12 @@ class ForumTopic extends BaseModel
         return ($this->forum->category->title ? '-' . Str::slug($this->forum->category->title) : '')
             . ($this->forum->title ? '-' . Str::slug($this->forum->title) : '')
             . ($this->title ? '-' . Str::slug($this->title) : '');
+    }
+
+    // TODO remove after rename
+    public function getTitleAttribute(): string
+    {
+        return $this->attributes['Title'];
     }
 
     // == mutators

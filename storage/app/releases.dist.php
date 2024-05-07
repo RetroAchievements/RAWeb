@@ -20,7 +20,7 @@ return [
             'active' => true,
             'link' => 'https://docs.retroachievements.org/FAQ/#retroarch-emulators',
             'description' => 'Maintained by <a href="https://github.com/libretro/" target="_blank">libretro</a>. Supports a multitude of platforms - including Linux, Mac, Windows, Android.
-See <a href="https://docs.libretro.com/guides/retroachievements/#cores-compatibility" target="_blank">Cores Compatibility List</a>.',
+See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" target="_blank">Cores Compatibility List</a>.',
             'download_url' => 'https://www.retroarch.com/index.php?page=platforms',
             'systems' => [
                 1, // Genesis/Mega Drive

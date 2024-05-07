@@ -108,16 +108,22 @@ $menu = collect([
 })
 ?>
 <div class="md:flex flex-wrap flex-row justify-between items-start">
-    @foreach($menu as $menuGroup)
+    @foreach ($menu as $menuGroup)
         <div class="mb-3 lg:mb-0 mr-lg">
             <div class="mb-2"><span class="text-lg">{{ $menuGroup['title'] }}</span></div>
-            @foreach($menuGroup['items'] ?? [] as $menuItem)
+            @foreach ($menuGroup['items'] ?? [] as $menuItem)
                 <div>
-                    <x-link :active="$menuItem['active']" :link="$menuItem['url']">{{ $menuItem['label'] }}</x-link>
+                    <x-link
+                        :active="$menuItem['active']"
+                        :href="$menuItem['url']"
+                    >
+                        {{ $menuItem['label'] }}
+                    </x-link>
                 </div>
             @endforeach
         </div>
     @endforeach
+    
     <div class="mb-3 lg:mb-0">
         <div class="mb-2"><span class="text-lg">Connect</span></div>
         <div class="flex gap-3 text-lg">

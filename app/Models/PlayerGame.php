@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BasePivot;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -73,4 +74,13 @@ class PlayerGame extends BasePivot
     }
 
     // == scopes
+
+    /**
+     * @param Builder<PlayerGame> $query
+     * @return Builder<PlayerGame>
+     */
+    public function scopeForGame(Builder $query, Game $game): Builder
+    {
+        return $query->where('game_id', $game->id);
+    }
 }
