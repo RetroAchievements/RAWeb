@@ -28,9 +28,13 @@
     <div class="embedded p-4 my-4 w-full">
         <p class="sr-only">{{ $header }}</p>
 
-        <div class="grid sm:flex gap-y-4 sm:divide-x-2 divide-embed-highlight">
+        <div class="
+            grid sm:flex gap-y-4 sm:divide-x-2 divide-embed-highlight
+            sm:*:px-4 xl:*:px-8 first:*:pl-0 last:*:pr-0
+            "
+        >
             @if ($hasSorts)
-                <div class="grid gap-y-1 sm:pr-4 xl:pr-8">
+                <div class="grid gap-y-1">
                     <x-meta-panel.sort-order
                         :availableSorts="$availableSorts"
                         :selectedSortOrder="$selectedSortOrder"
@@ -40,7 +44,7 @@
 
             @if ($hasSelectFilters)
                 @foreach ($availableSelectFilters as $availableSelectFilter)
-                    <div class="grid gap-y-1 sm:px-8 lg:px-4 xl:px-8">
+                    <div class="grid gap-y-1">
                         <x-meta-panel.select-filter
                             :allFilterOptions="$filterOptions"
                             :kind="$availableSelectFilter['kind']"
@@ -53,7 +57,7 @@
 
             @if ($hasRadioFilters)
                 @foreach ($availableRadioFilters as $availableRadioFilter)
-                    <div class="grid gap-y-1 sm:px-8 lg:px-4 xl:px-8">
+                    <div class="grid gap-y-1">
                         <x-meta-panel.radio-filter
                             :allFilterOptions="$filterOptions"
                             :kind="$availableRadioFilter['kind']"
@@ -65,7 +69,7 @@
             @endif
 
             @if ($hasCheckboxFilters)
-                <div class="grid gap-y-1 sm:px-8 lg:pl-4 xl:pl-8">
+                <div class="grid gap-y-1">
                     <x-meta-panel.checkbox-filters
                         :availableCheckboxFilters="$availableCheckboxFilters"
                         :filterOptions="$filterOptions"
