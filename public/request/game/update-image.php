@@ -33,10 +33,10 @@ $imageType = $input['type'];
 $userModel = User::firstWhere('User', $user);
 
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
-// TODO use a policy
 if (
     $permissions == Permissions::JuniorDeveloper
-    && (!checkIfSoleDeveloper($user, $gameID) && !hasSetClaimed($userModel, $gameID, true, ClaimSetType::NewSet))) {
+    && (!checkIfSoleDeveloper($userModel, $gameID) && !hasSetClaimed($userModel, $gameID, true, ClaimSetType::NewSet))
+) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

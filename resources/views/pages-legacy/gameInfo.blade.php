@@ -160,7 +160,7 @@ if ($isFullyFeaturedGame) {
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
-        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+        $isSoleAuthor = checkIfSoleDeveloper($userModel, $gameID);
 
         // Determine if the logged in user has any progression awards for this set
         $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
