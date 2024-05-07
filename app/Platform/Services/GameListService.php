@@ -337,7 +337,7 @@ class GameListService
 
     private function initializeUserAwards(?User $user, array $gameIds): void
     {
-        $userSiteAwards = getUsersSiteAwards($user->User);
+        $userSiteAwards = $user ? getUsersSiteAwards($user) : [];
 
         $awardsLookup = [];
         $awardsDateLookup = [];
@@ -527,7 +527,7 @@ class GameListService
                     echo '<td></td>';
                 } else {
                     echo '<td class="text-right">';
-                    echo '<a href="/ticketmanager.php?g=' . $game['ID'] . '">';
+                    echo '<a href="' . route('game.tickets', $game['ID']) . '">';
                     echo localized_number($game['NumTickets']);
                     echo '</a></td>';
                 }

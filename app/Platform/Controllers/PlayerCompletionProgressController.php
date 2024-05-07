@@ -44,7 +44,7 @@ class PlayerCompletionProgressController extends Controller
         }
 
         $userGamesList = getUsersCompletedGamesAndMax($targetUsername);
-        $userSiteAwards = getUsersSiteAwards($targetUsername);
+        $userSiteAwards = getUsersSiteAwards($foundTargetUser);
 
         // Only show filters for console IDs the user has actually associated with.
         $allAvailableConsoleIds = $this->getAllAvailableConsoleIds(

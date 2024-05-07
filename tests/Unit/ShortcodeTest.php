@@ -240,7 +240,7 @@ final class ShortcodeTest extends TestCase
 
     public function testNormalizeTicketShortcodes(): void
     {
-        $rawString = 'https://retroachievements.org/ticketmanager.php?i=100';
+        $rawString = 'https://retroachievements.org/ticket/100';
 
         $normalized = normalize_shortcodes($rawString);
 

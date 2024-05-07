@@ -58,8 +58,15 @@ return [
         /*
          * achievement tickets
          */
-        '/reportissue.php' => '/achievement/{i}/tickets/create',
-        '/ticketmanager.php' => '/tickets',
+        '/reportissue.php' => '/achievement/{i}/report-issue',
+        '/ticketmanager.php' => [
+            'i' => '/ticket/{i}',
+            'u' => '/user/{u}/tickets',
+            'g' => '/game/{g}/tickets',
+            'a' => '/achievement/{a}/tickets',
+            'f' => '/tickets/most-reported-games',
+            '' => '/tickets',
+        ],
 
         /*
          * games

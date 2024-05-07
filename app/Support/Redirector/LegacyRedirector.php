@@ -29,6 +29,16 @@ class LegacyRedirector implements Redirector
                 $queryParams = Query::parse($request->getQueryString());
                 $redirectUrl = $redirects[$request->getPathInfo()];
 
+                // handle single url mapping to multiple paths based on parameters
+                if (is_array($redirectUrl)) {
+                    foreach ($redirectUrl as $param => $url) {
+                        if (empty($param) || array_key_exists($param, $queryParams)) {
+                            $redirectUrl = $url;
+                            break;
+                        }
+                    }
+                }
+
                 // forward route and query string values
                 foreach ($queryParams as $key => $value) {
                     $redirectUrl = str_replace("{{$key}}", $value, $redirectUrl);

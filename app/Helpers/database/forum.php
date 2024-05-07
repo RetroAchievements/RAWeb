@@ -4,18 +4,25 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use App\Models\Game;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
 function getForumList(int $categoryID = 0): array
 {
-    $query = "    SELECT f.ID, f.CategoryID, fc.Name AS CategoryName, fc.Description AS CategoryDescription, f.Title, f.Description, COUNT(DISTINCT ft.ID) AS NumTopics, COUNT( ft.ID ) AS NumPosts, ftc2.ID AS LastPostID, ftc2.Author AS LastPostAuthor, ftc2.DateCreated AS LastPostCreated, ft2.Title AS LastPostTopicName, ft2.ID AS LastPostTopicID, f.DisplayOrder
+    $query = "  SELECT
+                    f.ID, f.CategoryID, f.Title, f.Description, f.DisplayOrder,
+                    fc.Name AS CategoryName, fc.Description AS CategoryDescription,
+                    COUNT(DISTINCT ft.ID) AS NumTopics, COUNT( ft.ID ) AS NumPosts,
+                    ftc2.ID AS LastPostID, ua.User AS LastPostAuthor, ftc2.DateCreated AS LastPostCreated,
+                    ft2.Title AS LastPostTopicName, ft2.ID AS LastPostTopicID
                 FROM Forum AS f
                 LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
                 LEFT JOIN ForumTopic AS ft ON ft.ForumID = f.ID
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ID = f.LatestCommentID
+                LEFT JOIN UserAccounts AS ua ON ua.ID = ftc2.author_id
                 LEFT JOIN ForumTopic AS ft2 ON ft2.ID = ftc2.ForumTopicID ";
 
     if ($categoryID > 0) {
@@ -99,56 +106,31 @@ function getUnauthorisedForumLinks(): ?array
     return null;
 }
 
-function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
-{
-    $query = "    SELECT ID, ForumTopicID, Payload, Author, author_id as AuthorID, DateCreated, DateModified
-                FROM ForumTopicComment
-                WHERE ID=$forumPostID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = mysqli_fetch_assoc($dbResult);
-
-        return true;
-    }
-
-    return false;
-}
-
 function submitNewTopic(
-    string $user,
+    User $user,
     int $forumID,
     string $topicTitle,
     string $topicPayload,
-    ?int &$newTopicIDOut
-): bool {
-    sanitize_sql_inputs($user);
-    $userID = getUserIDFromUser($user);
-
+): ForumTopicComment {
+    // TODO why do we even allow users to submit topic titles this short? just throw a validation error.
     if (mb_strlen($topicTitle) < 2) {
-        $topicTitle = "$user's topic";
+        $topicTitle = "{$user->User}'s topic";
     }
 
-    // Replace inverted commas, Remove HTML, TBD: allow phpbb
-    $topicTitle = str_replace("'", "''", $topicTitle);
-    $topicTitle = strip_tags($topicTitle);
+    $topicTitle = htmlspecialchars($topicTitle, ENT_QUOTES);
 
-    // Create new topic, then submit new comment
+    // Create the new topic.
+    $newTopic = new ForumTopic([
+        'ForumID' => $forumID,
+        'Title' => $topicTitle,
+        'author_id' => $user->id,
+        'LatestCommentID' => 0,
+        'RequiredPermissions' => 0,
+    ]);
+    $newTopic->save();
 
-    // $authFlags = getUserForumPostAuth( $user );
-
-    $query = "INSERT INTO ForumTopic (ForumID, Title, author_id, DateCreated, LatestCommentID, RequiredPermissions) VALUES ( $forumID, '$topicTitle', $userID, NOW(), 0, 0 )";
-
-    $db = getMysqliConnection();
-    if (!mysqli_query($db, $query)) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    $newTopicIDOut = mysqli_insert_id($db);
-
-    return submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID);
+    // Finally, submit the first comment of the new topic.
+    return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload);
 }
 
 function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
@@ -199,80 +181,58 @@ function editTopicComment(int $commentID, string $newPayload): bool
 }
 
 function getIsForumDoublePost(
-    int $authorID,
-    int $topicID,
+    User $user,
+    int $topicId,
     string $commentPayload,
 ): bool {
-    $query = "SELECT ftc.Payload, ftc.ForumTopicID
-        FROM ForumTopicComment AS ftc
-        WHERE author_id = :authorId
-        ORDER BY ftc.DateCreated DESC
-        LIMIT 1";
+    $latestPost = $user->forumPosts()->latest('DateCreated')->first();
 
-    $dbResult = legacyDbFetch($query, ['authorId' => $authorID]);
-
-    // Otherwise the user can't make their first post.
-    if (!$dbResult) {
+    if (!$latestPost) {
         return false;
     }
 
-    $retrievedPayload = $dbResult['Payload'];
-    $retrievedTopicID = $dbResult['ForumTopicID'];
-
     return
-        $retrievedPayload === $commentPayload
-        && $retrievedTopicID === $topicID
-    ;
+        $latestPost->body === $commentPayload
+        && $latestPost->forum_topic_id === $topicId;
 }
 
 function submitTopicComment(
-    string $user,
-    int $topicID,
+    User $user,
+    int $topicId,
     ?string $topicTitle,
     string $commentPayload,
-    ?int &$newCommentIDOut
-): bool {
-    sanitize_sql_inputs($user);
-    $userID = getUserIDFromUser($user);
-
-    if (getIsForumDoublePost($userID, $topicID, $commentPayload)) {
-        // Fail silently.
-        return true;
+): ?ForumTopicComment {
+    if (getIsForumDoublePost($user, $topicId, $commentPayload)) {
+        // Do nothing.
+        return null;
     }
 
-    // Replace inverted commas, Remove HTML
-    $commentPayload = str_replace("'", "''", $commentPayload);
-    $commentPayload = str_replace("<", "&lt;", $commentPayload);
-    $commentPayload = str_replace(">", "&gt;", $commentPayload);
-    // $commentPayload = strip_tags( $commentPayload );
+    $commentPayload = htmlspecialchars($commentPayload, ENT_QUOTES);
 
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
 
-    $authFlags = getUserForumPostAuth($user) ? 1 : 0;
+    $newComment = new ForumTopicComment([
+        'ForumTopicID' => $topicId,
+        'Payload' => $commentPayload,
+        'author_id' => $user->id,
+        'Authorised' => $user->ManuallyVerified ?? false,
+    ]);
+    $newComment->save();
 
-    $query = "INSERT INTO ForumTopicComment (ForumTopicID, Payload, Author, author_id, DateCreated, DateModified, Authorised) VALUES ($topicID, '$commentPayload', '$user', $userID, NOW(), NULL, $authFlags ) ";
+    setLatestCommentInForumTopic($topicId, $newComment->id);
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
-    if ($dbResult !== false) {
-        $newCommentIDOut = mysqli_insert_id($db);
-        setLatestCommentInForumTopic($topicID, $newCommentIDOut);
-
-        if ($topicTitle == null) {
-            $topicTitle = ForumTopic::find($topicID)?->title ?? '';
-        }
-
-        if ($authFlags) {
-            notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
-        }
-
-        return true;
+    if (!$topicTitle) {
+        $topic = ForumTopic::find($topicId);
+        $topicTitle = $topic?->title ?? '';
     }
-    log_sql_fail();
 
-    return false;
+    if ($user->ManuallyVerified) {
+        notifyUsersAboutForumActivity($topicId, $topicTitle, $user->User, $newComment->id);
+    }
+
+    return $newComment;
 }
 
 function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
@@ -335,23 +295,24 @@ function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $co
     return false;
 }
 
-function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID): bool
+function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 {
-    if ($gameID == 0) {
-        return false;
+    if ($gameId === 0) {
+        return null;
     }
 
-    $game = Game::with('system')->find($gameID);
+    $game = Game::with('system')->find($gameId);
     if (!$game) {
-        return false;
+        return null;
     }
 
-    if ($game->ForumTopicID > 0 && ForumTopic::where('ID', $game->ForumTopicID)->exists()) {
-        // valid topic already exists
-        return false;
+    // If a valid forum topic already exists for the game, bail.
+    if ($game->ForumTopicID > 0 && ForumTopic::find($game->ForumTopicID)->exists()) {
+        return null;
     }
 
-    $forumID = match ($game->system->ID) {
+    // TODO we probably can't get away with hardcoding this indefinitely.
+    $forumId = match ($game->system->id) {
         // Mega Drive
         1 => 10,
         // SNES
@@ -366,8 +327,8 @@ function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID):
         default => 10,
     };
 
-    $gameTitle = $game->Title;
-    $consoleName = $game->system->Name;
+    $gameTitle = $game->title;
+    $consoleName = $game->system->name;
 
     $topicTitle = $gameTitle;
 
@@ -378,21 +339,20 @@ function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID):
     $longplaysURL = "https://www.google.com/search?q=site:www.youtube.com+longplay+$urlSafeGameTitle";
     $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
 
-    $topicPayload = "Official Topic Post for discussion about [game=$gameID]\n" .
-        "Created " . date("j M, Y H:i") . " by [user=$user]\n\n" .
+    $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
+        "Created " . date("j M, Y H:i") . " by [user={$user->User}]\n\n" .
         "[b]Resources:[/b]\n" .
+        // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .
         "[url=$longplaysURL]Longplay[/url]\n" .
         "[url=$wikipediaURL]Wikipedia[/url]\n";
 
-    if (!submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $forumTopicID)) {
-        return false;
-    }
+    $forumTopicComment = submitNewTopic($user, $forumId, $topicTitle, $topicPayload);
 
-    $game->ForumTopicID = $forumTopicID;
+    $game->ForumTopicID = $forumTopicComment->forumTopic->id;
     $game->save();
 
-    return true;
+    return $forumTopicComment;
 }
 
 /**

@@ -47,47 +47,47 @@ $user = request()->user();
     </div>
     <x-nav-dropdown trigger-class="py-0" dropdown-class="dropdown-menu-right" :desktopHref="route('user.show', $user)">
         <x-slot name="trigger">
-            <x-user.avatar :user="$user" display="icon" iconSize="sm" :link="false" :tooltip="false" class="rounded-sm" />
+            <x-user.avatar :user="$user" display="icon" :hasHref="false" iconSize="sm" :tooltip="false" class="rounded-sm" />
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
-        <x-dropdown-item :link="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
-        <x-dropdown-item :link="route('user.completion-progress', $user)">Completion Progress</x-dropdown-item>
+        <x-dropdown-item :href="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
+        <x-dropdown-item :href="route('user.completion-progress', $user)">Completion Progress</x-dropdown-item>
 
         @if($user->Permissions >= Permissions::Registered)
-            <x-dropdown-item :link="url('gameList.php?t=play')">Want to Play Games</x-dropdown-item>
-            <x-dropdown-item :link="route('games.suggest')">Game Suggestions</x-dropdown-item>
+            <x-dropdown-item :href="url('gameList.php?t=play')">Want to Play Games</x-dropdown-item>
+            <x-dropdown-item :href="route('games.suggest')">Game Suggestions</x-dropdown-item>
         @endif
         @if($user->ContribCount > 0 || $user->Permissions >= Permissions::JuniorDeveloper)
             <div class="dropdown-divider"></div>
             @if($user->ContribCount > 0)
-                <x-dropdown-item :link="url('individualdevstats.php?u=' . $user->username)">Developer Profile</x-dropdown-item>
+                <x-dropdown-item :href="url('individualdevstats.php?u=' . $user->username)">Developer Profile</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::Developer)
-                <x-dropdown-item :link="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
+                <x-dropdown-item :href="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :link="route('developer.feed', $user->username)">Feed</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.feed', $user->username)">Feed</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :link="url('ticketmanager.php?u=' . $user->username)">Tickets</x-dropdown-item>
-                <x-dropdown-item :link="route('developer.sets', $user)">Sets</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.tickets', $user)">Tickets</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.sets', $user)">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)
-                <x-dropdown-item :link="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>
+                <x-dropdown-item :href="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>
             @endif
         @endif
         <div class="dropdown-divider"></div>
-        <x-dropdown-item :link="url('achievementList.php?s=19&p=1')">Unlocked Achievements</x-dropdown-item>
-        <x-dropdown-item :link="url('setRequestList.php?u=' . $user->username)">Requested Sets</x-dropdown-item>
+        <x-dropdown-item :href="url('achievementList.php?s=19&p=1')">Unlocked Achievements</x-dropdown-item>
+        <x-dropdown-item :href="url('setRequestList.php?u=' . $user->username)">Requested Sets</x-dropdown-item>
         {{--<a class="dropdown-item" href="{{ route('history.index') }}">History</a>--}}
-        <x-dropdown-item :link="url('history.php')">History</x-dropdown-item>
-        {{--<x-dropdown-item :link="route('follower.index')">{{ __res('follower') }}</x-dropdown-item>--}}
-        <x-dropdown-item :link="url('friends.php')">Following</x-dropdown-item>
-        <x-dropdown-item :link="route('message-thread.index')">{{ __res('message') }}</x-dropdown-item>
+        <x-dropdown-item :href="url('history.php')">History</x-dropdown-item>
+        {{--<x-dropdown-item :href="route('follower.index')">{{ __res('follower') }}</x-dropdown-item>--}}
+        <x-dropdown-item :href="url('friends.php')">Following</x-dropdown-item>
+        <x-dropdown-item :href="route('message-thread.index')">{{ __res('message') }}</x-dropdown-item>
         <div class="dropdown-divider"></div>
-        <x-dropdown-item :link="url('reorderSiteAwards.php')">Reorder Site Awards</x-dropdown-item>
-        {{--<x-dropdown-item :link="route('settings')">{{ __res('setting') }}</x-dropdown-item>--}}
-        <x-dropdown-item :link="url('controlpanel.php')">Settings</x-dropdown-item>
+        <x-dropdown-item :href="url('reorderSiteAwards.php')">Reorder Site Awards</x-dropdown-item>
+        {{--<x-dropdown-item :href="route('settings')">{{ __res('setting') }}</x-dropdown-item>--}}
+        <x-dropdown-item :href="url('controlpanel.php')">Settings</x-dropdown-item>
         <div class="dropdown-divider"></div>
         {{--<x-base.form :action="route('logout')">--}}
         <x-base.form :action="route('logout')">

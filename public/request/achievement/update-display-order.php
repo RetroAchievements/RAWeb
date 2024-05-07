@@ -31,7 +31,7 @@ if (
     abort(403);
 }
 
-if (updateAchievementDisplayID($achievementId, $number)) {
+if (updateAchievementDisplayOrder($achievementId, $number)) {
     return response()->json(['message' => __('legacy.success.ok')]);
 }
 
