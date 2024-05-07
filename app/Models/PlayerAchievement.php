@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BasePivot;
 use Database\Factories\PlayerAchievementFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -69,4 +70,15 @@ class PlayerAchievement extends BasePivot
     }
 
     // == scopes
+
+    /**
+     * @param Builder<PlayerAchievement> $query
+     * @return Builder<PlayerAchievement>
+     */
+    public function scopeForGame(Builder $query, Game $game): Builder
+    {
+        return $query->whereHas('achievement', function ($query) use ($game) {
+            $query->where('GameID', $game->id);
+        });
+    }
 }

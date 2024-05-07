@@ -6,14 +6,14 @@ import { updateTooltipPosition } from './updateTooltipPosition';
  *
  * This function creates a new tooltip element, applies the appropriate CSS classes,
  * sets its content to the provided HTML string, and positions it relative to the
- * anchor element. If `givenX` and `givenY` values are provided, the tooltip's position
+ * anchor element. If `offsetX` and `offsetY` values are provided, the tooltip's position
  * is adjusted accordingly. The `options` parameter can be used to customize the appearance
  * of the tooltip.
  *
  * @param anchorEl The HTML element to anchor the tooltip to.
  * @param html The HTML content to be displayed in the tooltip.
- * @param givenX Optional X-coordinate to adjust the tooltip's position.
- * @param givenY Optional Y-coordinate to adjust the tooltip's position.
+ * @param offsetX Optional X-coordinate to adjust the tooltip's position.
+ * @param offsetY Optional Y-coordinate to adjust the tooltip's position.
  * @param options Optional object containing additional configuration for the tooltip appearance.
  *                Currently supports the `isBorderless` property, which, if set to true, removes
  *                the border from the tooltip.
@@ -21,8 +21,8 @@ import { updateTooltipPosition } from './updateTooltipPosition';
 export function renderTooltip(
   anchorEl: HTMLElement,
   html: string,
-  givenX?: number,
-  givenY?: number,
+  offsetX?: number,
+  offsetY?: number,
   options?: Partial<{ isBorderless: boolean }>,
 ) {
   if (store.tooltipEl !== null) {
@@ -61,5 +61,10 @@ export function renderTooltip(
 
   store.tooltipEl.style.display = 'block';
 
-  updateTooltipPosition(anchorEl, store.tooltipEl, givenX, givenY);
+  updateTooltipPosition(
+    anchorEl,
+    store.tooltipEl,
+    store.trackedMouseX + offsetX,
+    store.trackedMouseY + offsetY,
+  );
 }

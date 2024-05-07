@@ -25,6 +25,7 @@
  *    ?datetime   HighestAwardDate          an ISO8601 timestamp string, or null, for when the HighestAwardKind was granted
  */
 
+use App\Models\User;
 use App\Platform\Services\PlayerProgressionService;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
@@ -41,10 +42,12 @@ $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 $user = request()->query('u');
 
+$userModel = User::firstWhere('User', $user);
+
 $playerProgressionService = new PlayerProgressionService();
 
 $userGamesList = getUsersCompletedGamesAndMax($user);
-$userSiteAwards = getUsersSiteAwards($user);
+$userSiteAwards = getUsersSiteAwards($userModel);
 $filteredAndJoinedGamesList = $playerProgressionService->filterAndJoinGames(
     $userGamesList,
     $userSiteAwards,
