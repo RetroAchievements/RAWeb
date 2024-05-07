@@ -205,7 +205,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
         /** @var User $user2 */
@@ -213,7 +213,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $this->user->User]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create(['AchievementID' => $achievement2->ID,
             'reporter_id' => $user2->ID, 'Hardcore' => 0, 'ReportType' => TicketType::TriggeredAtWrongTime]);
@@ -222,7 +222,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'Author' => $this->user->User]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         Ticket::factory()->create(['AchievementID' => $achievement3->ID,
             'reporter_id' => $user2->ID, 'ReportState' => TicketState::Resolved,
             'resolver_id' => $user3->ID, 'ResolvedAt' => Carbon::now()]);
@@ -323,7 +323,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
         /** @var User $user2 */
