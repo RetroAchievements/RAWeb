@@ -60,7 +60,7 @@ $onlyDevLeaderboardCount = 0;
 $onlyDevLeaderboardTotal = 0;
 
 // Get user game list data
-getGamesListByDev($dev, 0, $gamesList, 1, false);
+getGamesListByDev($devUser, 0, $gamesList, 1, false);
 foreach ($gamesList as $game) {
     $consoleID = $game['ConsoleID'];
     if ($consoleID != 100 && $consoleID != 101) {

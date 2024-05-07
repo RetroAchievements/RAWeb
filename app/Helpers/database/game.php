@@ -115,7 +115,7 @@ function getGameMetadata(
         ach.Description,
         ach.Points,
         ach.TrueRatio,
-        ach.Author,
+        ua.User AS Author,
         ach.DateModified,
         ach.DateCreated,
         ach.BadgeName,
@@ -123,6 +123,7 @@ function getGameMetadata(
         ach.MemAddr,
         ach.type
     FROM Achievements AS ach
+    LEFT JOIN UserAccounts AS ua ON ach.user_id = ua.ID
     $metricsJoin
     WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND ach.deleted_at IS NULL
     $orderBy";
@@ -217,7 +218,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 }
 
 function getGamesListByDev(
-    ?string $dev,
+    ?User $dev,
     int $consoleID,
     ?array &$dataOut,
     int $sortBy,
@@ -360,9 +361,9 @@ function getGamesListByDev(
                   FROM Achievements ach
                   INNER JOIN GameData gd ON gd.ID = ach.GameID
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE ach.Author=:author AND ach.Flags = " . AchievementFlag::OfficialCore . " $whereClause
+                  WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore . " $whereClause
                   GROUP BY ach.GameID $orderBy";
-        foreach (legacyDbFetchAll($query, ['author' => $dev]) as $row) {
+        foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
             if (!$initialQuery) {
                 $gameIds[] = $row['ID'];
             }
@@ -481,12 +482,13 @@ function getGamesListByDev(
                 $games[$row['GameID']]['OpenTickets'] = $row['OpenTickets'];
             }
         } else {
-            $query = "SELECT ach.GameID, ach.Author, COUNT(*) AS OpenTickets
+            $query = "SELECT ach.GameID, ua.User as Author, COUNT(*) AS OpenTickets
                       FROM Ticket tick
-                      INNER JOIN Achievements ach ON ach.ID=tick.AchievementID
+                      INNER JOIN Achievements ach ON ach.ID = tick.AchievementID
+                      LEFT JOIN UserAccounts ua ON ach.user_id = ua.ID
                       WHERE ach.GameID IN ($gameList)
                       AND tick.ReportState IN (1,3)
-                      GROUP BY ach.GameID, ach.Author";
+                      GROUP BY ach.GameID, Author";
             foreach (legacyDbFetchAll($query) as $row) {
                 if ($row['Author'] === $dev) {
                     $games[$row['GameID']]['MyOpenTickets'] += (int) $row['OpenTickets'];
