@@ -244,6 +244,8 @@ class RouteServiceProvider extends ServiceProvider
                  * tickets
                  */
                 Route::resource('ticket', TicketController::class)->only('show');
+                Route::resource('tickets', TicketController::class)->only('index');
+                Route::get('tickets/most-reported-games', [TicketController::class, 'mostReportedGames'])->name('tickets.most-reported-games');
                 //     // Route::resource('ticket', TicketController::class)->except('index', 'create');
                 //     // Route::resource('achievement.ticket', AchievementTicketController::class)->only('create');
                 //     // Route::group([
