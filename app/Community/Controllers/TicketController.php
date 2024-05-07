@@ -19,6 +19,11 @@ class TicketController extends Controller
 {
     use HandlesResources;
 
+    public function __construct(
+        protected TicketListService $ticketListService,
+    ) {
+    }
+
     public function resourceName(): string
     {
         return 'ticket';
@@ -28,20 +33,19 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $ticketListService = new TicketListService();
-        $ticketListService->perPage = 50;
-        $selectFilters = $ticketListService->getSelectFilters();
-        $filterOptions = $ticketListService->getFilterOptions($request);
-        $tickets = $ticketListService->getTickets($filterOptions);
+        $this->ticketListService->perPage = 50;
+        $selectFilters = $this->ticketListService->getSelectFilters();
+        $filterOptions = $this->ticketListService->getFilterOptions($request);
+        $tickets = $this->ticketListService->getTickets($filterOptions);
 
         return view('pages.tickets.index', [
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
             'filterOptions' => $filterOptions,
-            'totalTickets' => $ticketListService->totalTickets,
-            'numFilteredTickets' => $ticketListService->numFilteredTickets,
-            'currentPage' => $ticketListService->pageNumber,
-            'totalPages' => $ticketListService->totalPages,
+            'totalTickets' => $this->ticketListService->totalTickets,
+            'numFilteredTickets' => $this->ticketListService->numFilteredTickets,
+            'currentPage' => $this->ticketListService->pageNumber,
+            'totalPages' => $this->ticketListService->totalPages,
         ]);
     }
 
@@ -49,18 +53,18 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $ticketListService = new TicketListService();
-        $selectFilters = $ticketListService->getSelectFilters();
-        $filterOptions = $ticketListService->getFilterOptions($request);
-        $tickets = $ticketListService->getTickets($filterOptions, Ticket::forGame($game));
+        $this->ticketListService = new TicketListService();
+        $selectFilters = $this->ticketListService->getSelectFilters();
+        $filterOptions = $this->ticketListService->getFilterOptions($request);
+        $tickets = $this->ticketListService->getTickets($filterOptions, Ticket::forGame($game));
 
         return view('pages.game.[game].tickets', [
             'game' => $game,
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
             'filterOptions' => $filterOptions,
-            'totalTickets' => $ticketListService->totalTickets,
-            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+            'totalTickets' => $this->ticketListService->totalTickets,
+            'numFilteredTickets' => $this->ticketListService->numFilteredTickets,
         ]);
     }
 
@@ -68,18 +72,18 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $ticketListService = new TicketListService();
-        $selectFilters = $ticketListService->getSelectFilters(showDevType: false, showAchievementType: false);
-        $filterOptions = $ticketListService->getFilterOptions($request);
-        $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
+        $this->ticketListService = new TicketListService();
+        $selectFilters = $this->ticketListService->getSelectFilters(showDevType: false, showAchievementType: false);
+        $filterOptions = $this->ticketListService->getFilterOptions($request);
+        $tickets = $this->ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
 
         return view('pages.achievement.[achievement].tickets', [
             'achievement' => $achievement,
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
             'filterOptions' => $filterOptions,
-            'totalTickets' => $ticketListService->totalTickets,
-            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+            'totalTickets' => $this->ticketListService->totalTickets,
+            'numFilteredTickets' => $this->ticketListService->numFilteredTickets,
         ]);
     }
 
@@ -87,21 +91,21 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $ticketListService = new TicketListService();
-        $ticketListService->perPage = 50;
-        $selectFilters = $ticketListService->getSelectFilters(showDevType: false);
-        $filterOptions = $ticketListService->getFilterOptions($request);
-        $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
+        $this->ticketListService = new TicketListService();
+        $this->ticketListService->perPage = 50;
+        $selectFilters = $this->ticketListService->getSelectFilters(showDevType: false);
+        $filterOptions = $this->ticketListService->getFilterOptions($request);
+        $tickets = $this->ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
 
         return view('pages.user.[user].tickets', [
             'user' => $user,
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
             'filterOptions' => $filterOptions,
-            'totalTickets' => $ticketListService->totalTickets,
-            'numFilteredTickets' => $ticketListService->numFilteredTickets,
-            'currentPage' => $ticketListService->pageNumber,
-            'totalPages' => $ticketListService->totalPages,
+            'totalTickets' => $this->ticketListService->totalTickets,
+            'numFilteredTickets' => $this->ticketListService->numFilteredTickets,
+            'currentPage' => $this->ticketListService->pageNumber,
+            'totalPages' => $this->ticketListService->totalPages,
         ]);
     }
 
@@ -109,10 +113,10 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $ticketListService = new TicketListService();
-        $ticketListService->perPage = 50;
-        $selectFilters = $ticketListService->getSelectFilters(showStatus: false);
-        $filterOptions = $ticketListService->getFilterOptions($request);
+        $this->ticketListService = new TicketListService();
+        $this->ticketListService->perPage = 50;
+        $selectFilters = $this->ticketListService->getSelectFilters(showStatus: false);
+        $filterOptions = $this->ticketListService->getFilterOptions($request);
         $filterOptions['status'] = 'all'; // will be filtered to Resolved below
 
         $ticketQuery = $user->resolvedTickets()->getQuery()
@@ -122,7 +126,7 @@ class TicketController extends Controller
                 $query->where('user_id', '!=', $user->id);
             });
 
-        $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
+        $tickets = $this->ticketListService->getTickets($filterOptions, $ticketQuery);
 
         return view('pages.user.[user].tickets', [
             'pageTitle' => 'Tickets Resolved for Others',
@@ -130,10 +134,10 @@ class TicketController extends Controller
             'tickets' => $tickets,
             'availableSelectFilters' => $selectFilters,
             'filterOptions' => $filterOptions,
-            'totalTickets' => $ticketListService->totalTickets,
-            'numFilteredTickets' => $ticketListService->numFilteredTickets,
-            'currentPage' => $ticketListService->pageNumber,
-            'totalPages' => $ticketListService->totalPages,
+            'totalTickets' => $this->ticketListService->totalTickets,
+            'numFilteredTickets' => $this->ticketListService->numFilteredTickets,
+            'currentPage' => $this->ticketListService->pageNumber,
+            'totalPages' => $this->ticketListService->totalPages,
         ]);
     }
 
@@ -141,21 +145,21 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', $this->resourceClass());
 
-        $ticketListService = new TicketListService();
-        $filterOptions = $ticketListService->getFilterOptions($request);
+        $this->ticketListService = new TicketListService();
+        $filterOptions = $this->ticketListService->getFilterOptions($request);
 
         $ticketQuery = Ticket::where('reporter_id', '=', $user->id)
             ->where('ReportState', '=', TicketState::Request);
 
-        $tickets = $ticketListService->getTickets($filterOptions, $ticketQuery);
+        $tickets = $this->ticketListService->getTickets($filterOptions, $ticketQuery);
 
         return view('pages.user.[user].tickets', [
             'pageTitle' => 'Tickets Awaiting Feedback',
             'user' => $user,
             'tickets' => $tickets,
             'filterOptions' => $filterOptions,
-            'totalTickets' => $ticketListService->totalTickets,
-            'numFilteredTickets' => $ticketListService->numFilteredTickets,
+            'totalTickets' => $this->ticketListService->totalTickets,
+            'numFilteredTickets' => $this->ticketListService->numFilteredTickets,
         ]);
     }
 
