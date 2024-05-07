@@ -1,6 +1,6 @@
 {{--@if(!Route::is('search'))
     <div class="lg:hidden">
-        <x-nav-item :link="route('search')">
+        <x-nav-item :href="route('search')">
             <x-fas-search/>
         </x-nav-item>
     </div>
