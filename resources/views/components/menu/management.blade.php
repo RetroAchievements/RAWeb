@@ -19,7 +19,7 @@ $tools = $settings['tools'] ?? null;
                 <x-dropdown-header>{{ __('System') }}</x-dropdown-header>
                 @foreach ($tools as $tool)
                     @can($tool['abilities'])
-                        <x-dropdown-item :link="!empty($tool['route']) ? route($tool['route']) : url($tool['url'])">{{ $tool['label'] }}</x-dropdown-item>
+                        <x-dropdown-item :href="!empty($tool['route']) ? route($tool['route']) : url($tool['url'])">{{ $tool['label'] }}</x-dropdown-item>
                     @endcan
                 @endforeach
             </div>
@@ -28,27 +28,27 @@ $tools = $settings['tools'] ?? null;
             @can('develop')
                 @can('manage', App\Models\Ticket::class)
                     <x-dropdown-header>{{ __('Development') }}</x-dropdown-header>
-                    {{--<x-dropdown-item :link="route('triggers.ticket.index')">{{ __res('ticket') }}</x-dropdown-item>--}}
-                    <x-dropdown-item :link="url('ticketmanager.php')">{{ __res('ticket') }}</x-dropdown-item>
-                    <x-dropdown-item :link="url('ticketmanager.php?f=1')">Most Reported Games</x-dropdown-item>
-                    <x-dropdown-item :link="url('achievementinspector.php')">Achievement Inspector</x-dropdown-item>
+                    {{--<x-dropdown-item :href="route('triggers.ticket.index')">{{ __res('ticket') }}</x-dropdown-item>--}}
+                    <x-dropdown-item :href="url('ticketmanager.php')">{{ __res('ticket') }}</x-dropdown-item>
+                    <x-dropdown-item :href="url('ticketmanager.php?f=1')">Most Reported Games</x-dropdown-item>
+                    <x-dropdown-item :href="url('achievementinspector.php')">Achievement Inspector</x-dropdown-item>
                 @endcan
                 @can('manage', App\Models\AchievementSetClaim::class)
-                    <x-dropdown-item :link="url('expiringclaims.php')">Expiring Claims</x-dropdown-item>
+                    <x-dropdown-item :href="url('expiringclaims.php')">Expiring Claims</x-dropdown-item>
                 @endcan
                 @can('manage', App\Models\GameHash::class)
-                    <x-dropdown-item :link="url('latesthasheslinked.php')">Latest Linked Hashes</x-dropdown-item>
+                    <x-dropdown-item :href="url('latesthasheslinked.php')">Latest Linked Hashes</x-dropdown-item>
                 @endcan
             @endif
             @if($user->Permissions >= Permissions::Developer)
                 <x-dropdown-header>{{ __('Community') }}</x-dropdown-header>
                 @can('manage', App\Models\News::class)
-                    {{--<x-dropdown-item :link="route('news.index')">{{ __res('news') }}</x-dropdown-item>--}}
-                    <x-dropdown-item :link="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
+                    {{--<x-dropdown-item :href="route('news.index')">{{ __res('news') }}</x-dropdown-item>--}}
+                    <x-dropdown-item :href="url('submitnews.php')">{{ __res('news') }}</x-dropdown-item>
                 @endcan
                 @if($user->can('manage', User::class) || $user->Permissions === Permissions::Moderator)
-                    {{--<x-dropdown-item :link="route('forum-topic.verify')">Forum Verification</x-dropdown-item>--}}
-                    <x-dropdown-item :link="url('viewforum.php?f=0')">Forum Verification</x-dropdown-item>
+                    {{--<x-dropdown-item :href="route('forum-topic.verify')">Forum Verification</x-dropdown-item>--}}
+                    <x-dropdown-item :href="url('viewforum.php?f=0')">Forum Verification</x-dropdown-item>
                 @endcan
                 {{--@can('manage', App\Models\Event::class)
                     <h6 class="dropdown-header">Events</h6>
@@ -56,13 +56,13 @@ $tools = $settings['tools'] ?? null;
                 {{--@can('manage', App\Models\IntegrationRelease::class)
                     <x-dropdown-header>Releases</x-dropdown-header>
                     @can('manage', App\Models\Emulator::class)
-                        <x-dropdown-item :link="route('emulator.index')" :active="request()->routeIs('emulator*')">Emulators</x-dropdown-item>
+                        <x-dropdown-item :href="route('emulator.index')" :active="request()->routeIs('emulator*')">Emulators</x-dropdown-item>
                     @endcan
-                    <x-dropdown-item :link="route('integration.release.index')" :active="request()->routeIs('integration.release*')">Integration</x-dropdown-item>
+                    <x-dropdown-item :href="route('integration.release.index')" :active="request()->routeIs('integration.release*')">Integration</x-dropdown-item>
                 @endcan--}}
                 @if($user->can('tool') || $user->Permissions === Permissions::Moderator)
                     <div class="dropdown-header">Admin</div>
-                    <x-dropdown-item :link="url('admin.php')">Admin Tools</x-dropdown-item>
+                    <x-dropdown-item :href="url('admin.php')">Admin Tools</x-dropdown-item>
                 @endif
             @endif
         </div>
