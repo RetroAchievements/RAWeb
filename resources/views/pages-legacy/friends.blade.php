@@ -2,7 +2,6 @@
 
 use App\Community\Enums\UserRelationship;
 use App\Enums\Permissions;
-use Illuminate\Support\Facades\Auth;
 
 if (!authenticateFromCookie($user, $permissions, Permissions::Unregistered)) {
     abort(401);

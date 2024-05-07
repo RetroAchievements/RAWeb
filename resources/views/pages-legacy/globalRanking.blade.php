@@ -2,7 +2,6 @@
 
 use App\Community\Enums\RankType;
 use App\Platform\Enums\UnlockMode;
-use Illuminate\Support\Facades\Auth;
 
 authenticateFromCookie($user, $permissions);
 

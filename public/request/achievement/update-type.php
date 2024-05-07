@@ -3,7 +3,6 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
-use App\Models\User;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -12,8 +11,6 @@ use Illuminate\Validation\Rule;
 if (!authenticateFromCookie($user, $permissions, Permissions::JuniorDeveloper)) {
     abort(401);
 }
-
-$userModel = User::firstWhere('User', $user);
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',

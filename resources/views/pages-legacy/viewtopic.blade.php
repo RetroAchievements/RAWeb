@@ -7,7 +7,6 @@ use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Support\Shortcode\Shortcode;
-use Illuminate\Support\Facades\Auth;
 
 authenticateFromCookie($user, $permissions);
 $userID = $user?->id ?? 0;

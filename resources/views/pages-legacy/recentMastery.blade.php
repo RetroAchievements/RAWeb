@@ -2,11 +2,8 @@
 
 use App\Community\Enums\AwardType;
 use App\Platform\Enums\UnlockMode;
-use Illuminate\Support\Facades\Auth;
 
 authenticateFromCookie($user, $permissions);
-
-$userModel = Auth::user();
 
 $maxCount = 25;
 $minDate = '2013-03-02';

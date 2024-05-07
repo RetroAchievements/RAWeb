@@ -32,7 +32,7 @@ if (insertClaim($user, $gameID, $claimType, $setType, $special)) {
         $gameID,
         ClaimType::toString($claimType) . " " . ($setType == ClaimSetType::Revision ? "revision" : "") . " claim made by " . $user->display_name
     );
-    
+
     if ($createForumTopic && $permissions >= Permissions::Developer) {
         generateGameForumTopic($user, $gameID);
 

@@ -6,7 +6,6 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
-use Illuminate\Support\Facades\Auth;
 
 ?>
 
