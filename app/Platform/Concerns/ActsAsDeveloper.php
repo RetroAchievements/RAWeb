@@ -34,7 +34,7 @@ trait ActsAsDeveloper
      */
     public function authoredAchievements(): HasMany
     {
-        return $this->hasMany(Achievement::class, 'Author', 'User');
+        return $this->hasMany(Achievement::class, 'user_id', 'ID');
     }
 
     /**

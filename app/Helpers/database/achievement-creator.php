@@ -10,12 +10,12 @@ use App\Platform\Enums\AchievementFlag;
  */
 function getUserAchievementsPerConsole(User $user): array
 {
-    $userAuthoredAchievements = Achievement::whereHas("game.system", function ($query) {
-        $query->whereNotIn("ID", [System::Hubs, System::Events]);
-      })
-        ->with("game.system")
-        ->where("user_id", $user->id)
-        ->where("Flags", AchievementFlag::OfficialCore)
+    $userAuthoredAchievements = $user->authoredAchievements()
+        ->published()
+        ->whereHas('game.system', function ($query) {
+            $query->whereNotIn('ID', [System::Hubs, System::Events]);
+        })
+        ->with('game.system')
         ->get();
 
     return $userAuthoredAchievements
@@ -26,7 +26,9 @@ function getUserAchievementsPerConsole(User $user): array
                 'AchievementCount' => $achievements->count(),
             ];
         })
-        ->sortByDesc('AchievementCount')
+        ->sortBy(function ($item) {
+            return [-$item['AchievementCount'], $item['ConsoleName']];
+        }, SORT_REGULAR, true)
         ->values()
         ->toArray();
 }
@@ -57,12 +59,12 @@ function getUserSetsPerConsole(User $user): array
  */
 function getUserAchievementInformation(User $user): array
 {
-    $userAuthoredAchievements = Achievement::whereHas("game.system", function ($query) {
-        $query->whereNotIn("ID", [System::Hubs, System::Events]);
-      })
-        ->with("game.system")
-        ->where("user_id", $user->id)
-        ->where("Flags", AchievementFlag::OfficialCore)
+    $userAuthoredAchievements = $user->authoredAchievements()
+        ->published()
+        ->whereHas('game.system', function ($query) {
+            $query->whereNotIn('ID', [System::Hubs, System::Events]);
+        })
+        ->with('game.system')
         ->get();
 
     $mappedValue = $userAuthoredAchievements->map(function (Achievement $achievement) {
