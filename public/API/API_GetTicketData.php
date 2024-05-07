@@ -214,15 +214,17 @@ if (!empty($assignedToUser)) {
     return response()->json($ticketData);
 }
 
-$getTicketsInfo = function (Builder $tickets, int $offset, int $count): array {
+$getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
     $result = [];
 
-    /** @var Ticket $ticket */
-    foreach ($tickets->orderBy('ReportedAt', 'DESC')->offset($offset)->take($count)->get() as $ticket) {
-        $ticket->loadMissing(['achievement', 'reporter', 'resolver']);
-        $ticket->achievement->loadMissing('game');
-        $ticket->achievement->game->loadMissing('system');
+    $tickets = $builder->with(['achievement.game.system', 'reporter', 'resolver'])
+       ->orderBy('ReportedAt', 'DESC')
+       ->offset($offset)
+       ->take($count)
+       ->get();
 
+    /** @var Ticket $ticket */
+    foreach ($tickets as $ticket) {
         $result[] = [
             'ID' => $ticket->ID,
             'AchievementID' => $ticket->achievement->ID,
