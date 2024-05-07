@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Components;
 
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -25,14 +24,14 @@ class TicketNotificationsIcon extends Component
         $openTicketsData = countOpenTicketsByDev($user);
         if ($openTicketsData[TicketState::Open]) {
             $notifications->push([
-                'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateRequest)),
+                'link' => route('developer.tickets', $user),
                 'title' => $openTicketsData[TicketState::Open] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Open]) . ' for you to resolve',
                 'class' => 'text-danger',
             ]);
         }
         if ($openTicketsData[TicketState::Request]) {
             $notifications->push([
-                'link' => url('/ticketmanager.php?u=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
+                'link' => route('developer.tickets', $user),
                 'title' => $openTicketsData[TicketState::Request] . ' ' . __res('ticket', (int) $openTicketsData[TicketState::Request]) . ' pending feedback',
                 'read' => true,
             ]);
@@ -41,7 +40,7 @@ class TicketNotificationsIcon extends Component
         $ticketFeedback = countRequestTicketsByUser($user);
         if ($ticketFeedback) {
             $notifications->push([
-                'link' => url('/ticketmanager.php?p=' . $user->User . '&t=' . (TicketFilters::Default & ~TicketFilters::StateOpen)),
+                'link' => route('reporter.tickets', $user),
                 'title' => $ticketFeedback . ' ' . __res('ticket', $ticketFeedback) . ' awaiting your feedback',
             ]);
         }

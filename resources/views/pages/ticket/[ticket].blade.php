@@ -12,7 +12,6 @@ name('ticket.show');
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketAction;
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
@@ -139,9 +138,9 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
     pageType="retroachievements:ticket"
 >
     <div class="navpath">
-        <a href="/ticketmanager.php">Open Tickets</a>
+        <a href="{{ route('tickets.index') }}">Open Tickets</a>
         &raquo;
-        <a href="/ticketmanager.php?g={{ $ticket->achievement->game->ID }}">{{ $ticket->achievement->game->Title }}</a>
+        <a href="{{ route('game.tickets', $ticket->achievement->game) }}">{{ $ticket->achievement->game->Title }}</a>
         &raquo;
         <span class="font-bold">Ticket {{ $ticket->ID }}</span>
     </div>

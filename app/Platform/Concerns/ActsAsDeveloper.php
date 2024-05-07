@@ -54,6 +54,7 @@ trait ActsAsDeveloper
     }
 
     /**
+     * NOTE: this is the tickets the user has resolved (including ones not associated to their achievements).
      * @return HasMany<Ticket>
      */
     public function resolvedTickets(): HasMany

@@ -55,7 +55,7 @@ class TicketDataTest extends TestCase
                 'ReportedBy' => $this->user->User,
                 'ResolvedAt' => null,
                 'ResolvedBy' => null,
-                'URL' => config('app.url') . '/ticketmanager.php?i=' . $ticket->ID,
+                'URL' => config('app.url') . '/ticket/' . $ticket->ID,
             ]);
     }
 
@@ -140,7 +140,7 @@ class TicketDataTest extends TestCase
                     ],
                 ],
                 'OpenTickets' => 2,
-                'URL' => config('app.url') . '/ticketmanager.php',
+                'URL' => config('app.url') . '/tickets',
             ]);
     }
 
@@ -194,7 +194,7 @@ class TicketDataTest extends TestCase
                         'OpenTickets' => 1,
                     ],
                 ],
-                'URL' => config('app.url') . '/ticketmanager.php?f=1',
+                'URL' => config('app.url') . '/tickets/most-reported-games',
             ]);
     }
 
@@ -235,7 +235,7 @@ class TicketDataTest extends TestCase
                 'Closed' => 0,
                 'Resolved' => 1,
                 'Total' => 3,
-                'URL' => config('app.url') . '/ticketmanager.php?u=' . $this->user->User,
+                'URL' => config('app.url') . '/user/' . $this->user->User . '/tickets',
             ]);
     }
 
@@ -312,7 +312,7 @@ class TicketDataTest extends TestCase
                         'ResolvedBy' => null,
                     ],
                 ],
-                'URL' => config('app.url') . '/ticketmanager.php?g=' . $game->ID,
+                'URL' => config('app.url') . '/game/' . $game->ID . '/tickets',
             ]);
     }
 
@@ -339,7 +339,7 @@ class TicketDataTest extends TestCase
                 'AchievementTitle' => $achievement->Title,
                 'AchievementDescription' => $achievement->Description,
                 'OpenTickets' => 2,
-                'URL' => config('app.url') . '/ticketmanager.php?a=' . $achievement->ID,
+                'URL' => config('app.url') . '/achievement/' . $achievement->ID . '/tickets',
             ]);
     }
 }
