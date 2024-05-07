@@ -18,7 +18,7 @@ class ForumTopicComment extends BaseModel
     // TODO rename ForumTopicComment table to forum_topic_comments
     // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename ForumTopicID to forum_topic_id, remove getForumTopicIdAttribute()
-    // TODO rename Payload column to body
+    // TODO rename Payload column to body, remove getBodyAttribute()
     // TODO rename DateCreated to created_at
     // TODO rename DateModified to updated_at
     // TODO drop Author -> derived
@@ -36,6 +36,10 @@ class ForumTopicComment extends BaseModel
         'author_id',
         'Authorised',
         'authorized_at',
+    ];
+
+    protected $casts = [
+        'ManuallyVerified' => 'boolean',
     ];
 
     // == search
@@ -56,6 +60,11 @@ class ForumTopicComment extends BaseModel
 
     // == accessors
 
+    public function getBodyAttribute(): string
+    {
+        return $this->attributes['Payload'];
+    }
+
     public function getEditLinkAttribute(): string
     {
         return route('forum-topic-comment.edit', $this);
@@ -70,8 +79,6 @@ class ForumTopicComment extends BaseModel
     {
         return route('forum-topic-comment.show', $this);
     }
-
-    // == accessors
 
     // TODO remove after rename
     public function getForumTopicIdAttribute(): int

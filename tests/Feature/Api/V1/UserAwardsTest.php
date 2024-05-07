@@ -41,7 +41,7 @@ class UserAwardsTest extends TestCase
     {
         /** @var User $user */
         $user = User::factory()->create();
-        PlayerBadge::factory()->count(3)->create(['User' => $user->User]);
+        PlayerBadge::factory()->count(3)->create(['user_id' => $user->id]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
             ->assertSuccessful()
@@ -56,11 +56,11 @@ class UserAwardsTest extends TestCase
         $user = User::factory()->create();
 
         /** @var PlayerBadge $visibleAward */
-        $visibleAward = PlayerBadge::factory()->create(['DisplayOrder' => 0, 'User' => $user->User]);
+        $visibleAward = PlayerBadge::factory()->create(['DisplayOrder' => 0, 'user_id' => $user->id]);
 
         // Hidden awards
-        PlayerBadge::factory()->create(['DisplayOrder' => -1, 'User' => $user->User]);
-        PlayerBadge::factory()->create(['DisplayOrder' => -1, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => -1, 'user_id' => $user->id]);
+        PlayerBadge::factory()->create(['DisplayOrder' => -1, 'user_id' => $user->id]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
             ->assertSuccessful()
@@ -83,11 +83,11 @@ class UserAwardsTest extends TestCase
         $user = User::factory()->create();
 
         // Mastery award
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Hardcore, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Hardcore, 'user_id' => $user->id]);
 
         // Completion awards
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
             ->assertSuccessful()
@@ -104,11 +104,11 @@ class UserAwardsTest extends TestCase
         $user = User::factory()->create();
 
         // Beaten hardcore award
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Hardcore, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Hardcore, 'user_id' => $user->id]);
 
         // Beaten softcore awards
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
-        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'User' => $user->User]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
+        PlayerBadge::factory()->create(['DisplayOrder' => 0, 'AwardType' => AwardType::GameBeaten, 'AwardDataExtra' => UnlockMode::Softcore, 'user_id' => $user->id]);
 
         $this->get($this->apiUrl('GetUserAwards', ['u' => $user->User]))
             ->assertSuccessful()
@@ -125,13 +125,13 @@ class UserAwardsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
         $awardDate = '2015-07-02 16:44:46';
         $award = PlayerBadge::factory()->create([
-            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => AwardType::Mastery,
-            'AwardData' => $game->ID,
+            'AwardData' => $game->id,
             'AwardDataExtra' => UnlockMode::Hardcore,
             'AwardDate' => $awardDate,
             'DisplayOrder' => 0,

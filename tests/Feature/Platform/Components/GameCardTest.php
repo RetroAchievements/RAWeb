@@ -241,13 +241,13 @@ class GameCardTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ID' => 1, 'ConsoleID' => $system->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'Points' => 5]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $game->id, 'Points' => 5]);
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
-            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => AwardType::GameBeaten,
-            'AwardData' => $game->ID,
+            'AwardData' => $game->id,
             'AwardDataExtra' => 0,
             'AwardDate' => $awardDate,
             'DisplayOrder' => 0,
@@ -273,7 +273,7 @@ class GameCardTest extends TestCase
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
-            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => AwardType::GameBeaten,
             'AwardData' => $game->ID,
             'AwardDataExtra' => 1,
@@ -301,7 +301,7 @@ class GameCardTest extends TestCase
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
-            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => AwardType::Mastery,
             'AwardData' => $game->ID,
             'AwardDataExtra' => 0,
@@ -329,7 +329,7 @@ class GameCardTest extends TestCase
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
-            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => AwardType::Mastery,
             'AwardData' => $game->ID,
             'AwardDataExtra' => 1,
@@ -357,7 +357,7 @@ class GameCardTest extends TestCase
 
         $awardDate = '2015-07-02 16:44:46';
         PlayerBadge::factory()->create([
-            'User' => $user->User,
+            'user_id' => $user->id,
             'AwardType' => AwardType::Mastery,
             'AwardData' => $game->ID,
             'AwardDataExtra' => 1,

@@ -408,13 +408,13 @@ function getGlobalRankingData(
 
         if ($info == 0) {
             if ($unlockMode == UnlockMode::Hardcore) {
-                $selectQuery = "SELECT ua.User,
+                $selectQuery = "SELECT ua.ID, ua.User,
                         COALESCE(ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
                         COALESCE(ua.RAPoints, 0) AS Points,
                         COALESCE(ua.TrueRAPoints, 0) AS RetroPoints,
                         COALESCE(ROUND(ua.TrueRAPoints/ua.RAPoints, 2), 0) AS RetroRatio ";
             } else {
-                $selectQuery = "SELECT ua.User,
+                $selectQuery = "SELECT ua.ID, ua.User,
                         COALESCE(ua.achievements_unlocked - ua.achievements_unlocked_hardcore, 0) AS AchievementCount,
                         COALESCE(ua.RASoftcorePoints, 0) AS Points,
                         0 AS RetroPoints,
@@ -422,11 +422,11 @@ function getGlobalRankingData(
             }
         } else {
             if ($unlockMode == UnlockMode::Hardcore) {
-                $selectQuery = "SELECT ua.User,
+                $selectQuery = "SELECT ua.ID, ua.User,
                         COALESCE(ua.RAPoints, 0) AS Points,
                         COALESCE(ua.TrueRAPoints, 0) AS RetroPoints ";
             } else {
-                $selectQuery = "SELECT ua.User,
+                $selectQuery = "SELECT ua.ID, ua.User,
                         COALESCE(ua.RASoftcorePoints, 0) AS Points,
                         0 AS RetroPoints ";
             }
@@ -441,16 +441,16 @@ function getGlobalRankingData(
 
         $dbResult = s_mysql_query($query);
         if ($dbResult !== false) {
-            $users = [];
+            $userIds = [];
             while ($db_entry = mysqli_fetch_assoc($dbResult)) {
                 $retVal[] = $db_entry;
-                $users[] = $db_entry['User'];
+                $userIds[] = $db_entry['ID'];
             }
 
             // Get site award info for each user.
-            $usersCount = count($users);
+            $usersCount = count($userIds);
             for ($i = 0; $i < $usersCount; $i++) {
-                $query2 = "SELECT $totalAwards AS TotalAwards FROM SiteAwards WHERE User = '" . $users[$i] . "' " . $masteryCond;
+                $query2 = "SELECT $totalAwards AS TotalAwards FROM SiteAwards WHERE user_id = '" . $userIds[$i] . "' " . $masteryCond;
 
                 $dbResult2 = s_mysql_query($query2);
                 if ($dbResult2 !== false) {
@@ -526,19 +526,19 @@ function getGlobalRankingData(
             )
             UNION
             (
-                SELECT sa.User AS User,
+                SELECT sa.user_id AS UserID,
                     NULL AS AchievementCount,
                     NULL AS Points,
                     NULL AS RetroPoints,
                     $totalAwards AS TotalAwards
                 FROM SiteAwards AS sa
-                LEFT JOIN UserAccounts AS ua ON ua.User = sa.User
+                LEFT JOIN UserAccounts AS ua ON ua.ID = sa.user_id
                 WHERE TRUE AND sa.AwardDate $typeCond
                     $friendCondAward
                     $singleUserAwardCond
                     $masteryCond
                     $untrackedCond
-                GROUP BY sa.User
+                GROUP BY sa.user_id
             )
         ) AS Query
         GROUP BY User
