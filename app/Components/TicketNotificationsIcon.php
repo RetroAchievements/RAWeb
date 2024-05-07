@@ -21,7 +21,7 @@ class TicketNotificationsIcon extends Component
         $notifications = collect();
 
         // Open ticket notifications
-        $openTicketsData = countOpenTicketsByDev($user->User);
+        $openTicketsData = countOpenTicketsByDev($user);
         if ($openTicketsData[TicketState::Open]) {
             $notifications->push([
                 'link' => route('developer.tickets', $user),

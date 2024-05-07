@@ -27,10 +27,10 @@ function getAchievementsList(
         'limit' => $limit,
     ];
 
-    $innerJoin = "";
+    $innerJoinPlayerAchievements = "";
     $withAwardedDate = "";
     if ($params > 0 && $user) {
-        $innerJoin = "LEFT JOIN player_achievements AS pa ON pa.achievement_id = ach.ID AND pa.user_id = " . $user->id;
+        $innerJoinPlayerAchievements = "LEFT JOIN player_achievements AS pa ON pa.achievement_id = ach.ID AND pa.user_id = " . $user->id;
         $withAwardedDate = ", COALESCE(pa.unlocked_hardcore_at, pa.unlocked_at) AS AwardedDate";
     }
 
@@ -42,11 +42,13 @@ function getAchievementsList(
 
     // TODO slow query (18)
     $query = "SELECT
-                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.type, ach.Author, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID,
-                    gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName
+                    ach.ID, ach.Title AS AchievementTitle, ach.Description, ach.Points, ach.TrueRatio, ach.type, ach.DateCreated, ach.DateModified, ach.BadgeName, ach.GameID,
+                    gd.Title AS GameTitle, gd.ImageIcon AS GameIcon, gd.ConsoleID, c.Name AS ConsoleName,
+                    ua.User AS Author
                     $withAwardedDate
                 FROM Achievements AS ach
-                $innerJoin
+                $innerJoinPlayerAchievements
+                INNER JOIN UserAccounts AS ua ON ua.ID = ach.user_id
                 INNER JOIN GameData AS gd ON gd.ID = ach.GameID
                 INNER JOIN Console AS c ON c.ID = gd.ConsoleID ";
 
@@ -391,52 +393,49 @@ function UploadNewAchievement(
     return false;
 }
 
-function updateAchievementDisplayID(int $achID, int $newID): bool
+function updateAchievementDisplayOrder(int $achievementId, int $newDisplayOrder): bool
 {
-    $query = "UPDATE Achievements SET DisplayOrder = $newID, Updated=NOW() WHERE ID = $achID";
-    $dbResult = s_mysql_query($query);
+    $achievement = Achievement::find($achievementId);
 
-    return $dbResult !== false;
-}
-
-function updateAchievementEmbedVideo(int $achID, ?string $newURL): bool
-{
-    $newURL = strip_tags($newURL);
-    sanitize_sql_inputs($newURL);
-
-    $query = "UPDATE Achievements SET AssocVideo = '$newURL', Updated=NOW() WHERE ID = $achID";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    return $dbResult !== false;
-}
-
-function updateAchievementFlag(int|string|array $achID, int $newFlag): void
-{
-    $achievementIDs = is_array($achID) ? $achID : [$achID];
-
-    $achievements = Achievement::whereIn('ID', $achievementIDs)
-        ->whereNot('Flags', $newFlag);
-
-    if (!$achievements->count()) {
-        return;
+    if (!$achievement) {
+        return false;
     }
 
-    $updatedAchievements = Achievement::whereIn('ID', $achievementIDs)->get();
-    foreach ($updatedAchievements as $achievement) {
-        $achievement->Flags = $newFlag;
-        $achievement->save();
-    }
-}
-
-function updateAchievementType(int|string|array $achID, ?string $newType): bool
-{
-    $achievementIds = is_array($achID) ? $achID : [$achID];
-
-    Achievement::whereIn('ID', $achievementIds)->update(['type' => $newType, 'Updated' => Carbon::now()]);
+    $achievement->DisplayOrder = $newDisplayOrder;
+    $achievement->save();
 
     return true;
+}
+
+function updateAchievementEmbedVideoUrl(int $achievementId, ?string $embedUrl): bool
+{
+    $achievement = Achievement::find($achievementId);
+
+    if (!$achievement) {
+        return false;
+    }
+
+    $achievement->AssocVideo = strip_tags($embedUrl);
+    $achievement->save();
+
+    return true;
+}
+
+function updateAchievementFlag(int|string|array $inputAchievementIds, int $newFlag): void
+{
+    $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
+
+    Achievement::whereIn('ID', $achievementIds)
+        ->where('Flags', '!=', $newFlag)
+        ->update(['Flags' => $newFlag]);
+}
+
+function updateAchievementType(int|string|array $inputAchievementIds, ?string $newType): void
+{
+    $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
+
+    Achievement::whereIn('ID', $achievementIds)
+        ->update(['type' => $newType, 'Updated' => Carbon::now()]);
 }
 
 function buildBeatenGameCreditDialogContext(array $achievements): string

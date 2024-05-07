@@ -3,7 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
-use App\Models\Game;
+use App\Models\User;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -13,6 +13,8 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Juni
     abort(401);
 }
 
+$userModel = User::firstWhere('User', $user);
+
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'achievements' => 'required',
     'type' => ['nullable', 'string', Rule::in(AchievementType::cases())],
@@ -21,10 +23,10 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $achievementIds = $input['achievements'];
 $value = $input['type'];
 
-$foundAchievements = Achievement::find($achievementIds);
+$foundAchievements = Achievement::with('game')->find($achievementIds);
 
 // Don't allow adding beaten types to subsets or test kits.
-$game = Game::find($foundAchievements->get(0)->GameID);
+$game = $foundAchievements->first()->game;
 if (
     $game
     && !$game->getCanHaveBeatenTypes()
@@ -34,28 +36,26 @@ if (
 }
 
 // Check for authorship on achievements if a Jr. is editing the type
-$isSoleDeveloper = $foundAchievements->pluck('Author')->unique()->toArray() === [$user];
+$isSoleDeveloper = $foundAchievements->pluck('user_id')->unique()->toArray() === [$userModel->id];
 if ($permissions === Permissions::JuniorDeveloper && !$isSoleDeveloper) {
     abort(403);
 }
 
-if (updateAchievementType($achievementIds, $value)) {
-    $commentText = '';
-    if ($value === AchievementType::Progression) {
-        $commentText = "set this achievement's type to Progression";
-    }
-    if ($value === AchievementType::WinCondition) {
-        $commentText = "set this achievement's type to Win Condition";
-    }
-    if ($value === AchievementType::Missable) {
-        $commentText = "set this achievement's type to Missable";
-    }
-    if (!$value) {
-        $commentText = "removed this achievement's type";
-    }
-    addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
+updateAchievementType($achievementIds, $value);
 
-    return response()->json(['message' => __('legacy.success.ok')]);
+$commentText = '';
+if ($value === AchievementType::Progression) {
+    $commentText = "set this achievement's type to Progression";
 }
+if ($value === AchievementType::WinCondition) {
+    $commentText = "set this achievement's type to Win Condition";
+}
+if ($value === AchievementType::Missable) {
+    $commentText = "set this achievement's type to Missable";
+}
+if (!$value) {
+    $commentText = "removed this achievement's type";
+}
+addArticleComment("Server", ArticleType::Achievement, $achievementIds, "$user $commentText.", $user);
 
-abort(400);
+return response()->json(['message' => __('legacy.success.ok')]);
