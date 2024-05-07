@@ -32,20 +32,31 @@ $tooltipContent = null;
 //     });
 // }
 ?>
-@if($link)
-<a href="{{ $link }}" class="{{ $class }} inline-block">
-@elseif($class)
-<span class="{{ $class }}">
+
+{{--
+    TODO refactor, this template is difficult to reason about.
+    maybe create a dynamic WrapperEl component which can conditionally be an <a> or a <span>.
+    eg: <{{ $element }}></{{ $element }}>
+--}}
+
+@if ($href)
+    <a href="{{ $href }}" class="{{ $class }} inline-block">
+@elseif ($class)
+    <span class="{{ $class }}">
 @endif
-@if($tooltipContent)
-<span data-toggle="tooltip" title="{!! $tooltipContent !!}" data-placement="right">
+
+@if ($tooltipContent)
+    <span data-toggle="tooltip" title="{!! $tooltipContent !!}" data-placement="right">
 @endif
+
 {{ $slot }}
-@if($tooltipContent)
-</span>
+
+@if ($tooltipContent)
+    </span>
 @endif
-@if($link)
-</a>
-@elseif($class)
-</span>
+
+@if ($href)
+    </a>
+@elseif ($class)
+    </span>
 @endif

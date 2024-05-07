@@ -40,7 +40,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
             <div>
                 <?php if ($emulator['download_url'] ?? false): ?>
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <?= Blade::render("<x-link link=\"" . $emulator['download_url'] . "\" >Download</x-link>") ?>
+                        <?= Blade::render("<x-link href=\"" . $emulator['download_url'] . "\" >Download</x-link>") ?>
                     </p>
                 <?php endif ?>
                 <?php if ($emulator['latest_version_url_x64'] ?? false): ?>
@@ -61,12 +61,12 @@ authenticateFromCookie($user, $permissions, $userDetails);
                 <?php endif ?>
                 <?php if ($emulator['link'] ?? false): ?>
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <?= Blade::render("<x-link link=\"" . $emulator['link'] . "\" >Documentation</x-link>") ?>
+                        <?= Blade::render("<x-link href=\"" . $emulator['link'] . "\" >Documentation</x-link>") ?>
                     </p>
                 <?php endif ?>
                 <?php if ($emulator['source'] ?? false): ?>
                     <p class="embedded mb-2 text-right whitespace-nowrap">
-                        <?= Blade::render("<x-link link=\"" . $emulator['source'] . "\" >Source Code</x-link>") ?>
+                        <?= Blade::render("<x-link href=\"" . $emulator['source'] . "\" >Source Code</x-link>") ?>
                     </p>
                 <?php endif ?>
             </div>
