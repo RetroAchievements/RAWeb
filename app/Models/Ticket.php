@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\TicketState;
+use App\Platform\Enums\AchievementFlag;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\TicketFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -90,4 +93,75 @@ class Ticket extends BaseModel
     }
 
     // == scopes
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeUnresolved(Builder $query): Builder
+    {
+        return $query->whereIn('ReportState', [TicketState::Open, TicketState::Request]);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeResolved(Builder $query): Builder
+    {
+        return $query->whereIn('ReportState', [TicketState::Resolved, TicketState::Closed]);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeForGame(Builder $query, Game $game): Builder
+    {
+        return $query->whereHas('achievement', function ($query) use ($game) {
+            $query->where('GameID', $game->id);
+        });
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeForAchievement(Builder $query, Achievement $achievement): Builder
+    {
+        return $query->where('AchievementID', $achievement->id);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeForDeveloper(Builder $query, User $developer): Builder
+    {
+        return $query->whereHas('achievement', function ($query) use ($developer) {
+            $query->where('user_id', $developer->id);
+        });
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeOfficialCore(Builder $query): Builder
+    {
+        return $query->whereHas('achievement', function ($query) {
+            $query->where('Flags', AchievementFlag::OfficialCore);
+        });
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeUnofficial(Builder $query): Builder
+    {
+        return $query->whereHas('achievement', function ($query) {
+            $query->where('Flags', AchievementFlag::Unofficial);
+        });
+    }
 }
