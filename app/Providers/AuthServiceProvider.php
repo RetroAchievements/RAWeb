@@ -36,13 +36,14 @@ class AuthServiceProvider extends ServiceProvider
             // Role::COMMUNITY_MANAGER, // rather a mix of moderator and specialized management role?
             Role::EVENT_MANAGER,
             Role::FORUM_MANAGER,
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
             Role::NEWS_MANAGER,
             Role::RELEASE_MANAGER,
             Role::TICKET_MANAGER,
             Role::DEVELOPER,
             Role::ARTIST,
             Role::WRITER,
+            Role::GAME_EDITOR,
         ])
             // TODO remove as soon as permission matrix is in place
             || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper);

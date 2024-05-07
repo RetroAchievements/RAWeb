@@ -25,8 +25,8 @@ for ($i = Permissions::Banned; $i <= $myPermissions; $i++) {
     ];
 }
 
-$hasPatreonBadge = HasPatreonBadge($targetUsername);
-$hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUsername);
+$hasPatreonBadge = HasPatreonBadge($targetUser);
+$hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
 ?>
 
 {{-- TODO port to Filament and delete component --}}

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\Permissions;
 use App\Models\PlayerGame;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -59,5 +61,14 @@ class PlayerGamePolicy
     public function forceDelete(User $user, PlayerGame $playerGame): bool
     {
         return false;
+    }
+
+    public function viewSessionHistory(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::MODERATOR,
+            Role::CHEAT_INVESTIGATOR,
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 }
