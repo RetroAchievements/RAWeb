@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\AwardType;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -73,7 +74,8 @@ foreach ($awards as $award) {
     }
 }
 
-$userAwards = getUsersSiteAwards($user);
+$userModel = User::firstWhere('User', $user);
+$userAwards = getUsersSiteAwards($userModel);
 $updatedAwardsHTML = '';
 ob_start();
 RenderSiteAwards($userAwards, $user);

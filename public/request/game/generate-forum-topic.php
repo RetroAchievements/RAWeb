@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -12,8 +13,12 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'game' => 'required|integer|exists:GameData,ID',
 ]);
 
-if (generateGameForumTopic($user, (int) $input['game'], $forumTopicID)) {
-    return redirect(url("/viewtopic.php?t=$forumTopicID"))->with('success', __('legacy.success.create'));
+$userModel = User::firstWhere('User', $user);
+
+$forumTopicComment = generateGameForumTopic($userModel, (int) $input['game']);
+if ($forumTopicComment) {
+    return redirect(url("/viewtopic.php?t={$forumTopicComment->forumTopic->id}"))
+        ->with('success', __('legacy.success.create'));
 }
 
 return back()->withErrors(__('legacy.error.error'));

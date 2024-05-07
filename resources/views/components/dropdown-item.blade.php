@@ -1,12 +1,21 @@
-@if($link ?? false)
-    <x-link class="dropdown-item {{ $class ?? null }}"
-            :active="$active ?? null"
-            :external="$external ?? null"
-            :link="$link">
+@props([
+    'href' => null, // ?string
+    'active' => null, // ?bool
+    'external' => false,
+    'class' => null, // ?string
+])
+
+@if ($href)
+    <x-link
+        class="dropdown-item {{ $class }}"
+        :active="$active"
+        :external="$external"
+        :href="$href"
+    >
         {{ $slot }}
     </x-link>
 @else
-    <span class="dropdown-item {{ $class ?? null }} {{ ($active ?? false) ? 'active' : '' }}">
+    <span class="dropdown-item {{ $class }} {{ ($active) ? 'active' : '' }}">
         {{ $slot }}
     </span>
 @endif

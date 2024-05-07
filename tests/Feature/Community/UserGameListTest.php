@@ -9,16 +9,19 @@ use App\Community\Actions\RemoveGameFromListAction;
 use App\Community\Enums\UserGameListType;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
 class UserGameListTest extends TestCase
 {
     use RefreshDatabase;
+    use TestsPlayerBadges;
 
     public function testSetRequestLimitNewUser(): void
     {
@@ -53,21 +56,13 @@ class UserGameListTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create(['RAPoints' => 0, 'RASoftcorePoints' => 0]);
 
+        /** @var System $system */
+        $system = System::factory()->create(['ID' => System::Events]);
+
         /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => 101]);
+        $game = Game::factory()->create(['ConsoleID' => $system->id]);
 
-        /** @var Achievement $publishedAchievements */
-        $publishedAchievements = Achievement::factory()->published()->count(10)->create(['GameID' => $game->ID]);
-
-        /** @var PlayerBadge $badge */
-        $badge = new PlayerBadge([
-            'User' => $user->User,
-            'AwardType' => 1,
-            'AwardData' => $game->ID,
-            'AwardDataExtra' => 1,
-            'AwardDate' => Carbon::now(),
-        ]);
-        $user->playerBadges()->save($badge);
+        $this->addMasteryBadge($user, $game, UnlockMode::Hardcore);
 
         $requestInfo = UserGameListEntry::getUserSetRequestsInformation($user);
 

@@ -1,13 +1,30 @@
-<?php
+@props([
+    'active' => null, // ?bool
+    'class' => '',
+    'external' => null, // ?bool
+    'href' => null, // ?string
+    'target' => '_self',
+    'title' => ''
+])
 
-use Illuminate\Support\Str;
+@php
+    use Illuminate\Support\Str;
 
-$external ??= !Str::startsWith($link ?? null, config('app.url'));
-$active ??= Str::startsWith(url()->current(), $link ?? null);
-?>
-<a class="{{ $class ?? '' }} {{ ($active ?? false) ? 'active' : '' }}" target="{{ $target ?? '_self' }}" href="{{ $link ?? null }}" {!! ($external ?? false) ? 'rel="noopener"' : '' !!} title="{{ $title ?? '' }}">
+    $external ??= !Str::startsWith($href ?? null, config('app.url'));
+    $active ??= Str::startsWith(url()->current(), $href ?? null);
+@endphp
+
+<a
+    class="{{ $class }} {{ ($active) ? 'active' : '' }}"
+    target="{{ $target }}"
+    href="{{ $href }}"
+    {!! ($external) ? 'rel="noopener"' : '' !!}
+    title="{{ $title }}"
+>
     {{ $slot }}
-    @if($external ?? false)
+
+    @if ($external)
         <x-fas-external-link-alt />
     @endif
 </a>
+
