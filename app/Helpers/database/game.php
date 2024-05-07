@@ -1019,7 +1019,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
     // prevent divide by zero error if the game has never been played before
     $gamePlayers = max(1, $gamePlayers);
 
-    foreach ($achievements->get() as $achievement) {
+    foreach ($achievements->with('developer')->get() as $achievement) {
         if (!AchievementFlag::isValid($achievement->Flags)) {
             continue;
         }
@@ -1035,7 +1035,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
             'Title' => $achievement->Title,
             'Description' => $achievement->Description,
             'Points' => $achievement->Points,
-            'Author' => $achievement->Author,
+            'Author' => $achievement->developer->User,
             'Modified' => $achievement->DateModified->unix(),
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,
