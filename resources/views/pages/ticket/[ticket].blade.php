@@ -317,37 +317,39 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
         </div>
 
         <div class="commentscomponent">
-            <table id="feed" class="table-highlight"><tbody>
-                <x-comment.item
-                    :author="$ticket->reporter"
-                    :when="$ticket->ReportedAt"
-                    :payload="$ticketNotes"
-                />
-                @php $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticket->ID, $commentData) @endphp
-                @php $allowDelete = $permissions >= Permissions::Moderator @endphp
-                @foreach ($commentData as $comment)
-                    @php
-                        $when = Carbon::createFromTimestamp($comment['Submitted']);
-                        $commentUser = 
-                            ($comment['User'] === $ticket->reporter->User) ? $ticket->reporter :
-                            (($comment['User'] === $user->User) ? $user :
-                                User::firstWhere('User', $comment['User']));
-                    @endphp
+            <table id="feed" class="table-highlight">
+                <tbody>
                     <x-comment.item
-                        :author="$commentUser"
-                        :when="$when"
-                        :payload="$comment['CommentPayload']"
-                        articleType="{{ ArticleType::AchievementTicket }}"
-                        :articleId="$ticket->ID"
-                        :commentId="$comment['ID']"
-                        :allowDelete="$allowDelete"
+                        :author="$ticket->reporter"
+                        :when="$ticket->ReportedAt"
+                        :payload="$ticketNotes"
                     />
-                @endforeach
+                    @php $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticket->ID, $commentData) @endphp
+                    @php $allowDelete = $permissions >= Permissions::Moderator @endphp
+                    @foreach ($commentData as $comment)
+                        @php
+                            $when = Carbon::createFromTimestamp($comment['Submitted']);
+                            $commentUser = 
+                                ($comment['User'] === $ticket->reporter->User) ? $ticket->reporter :
+                                (($comment['User'] === $user->User) ? $user :
+                                    User::firstWhere('User', $comment['User']));
+                        @endphp
+                        <x-comment.item
+                            :author="$commentUser"
+                            :when="$when"
+                            :payload="$comment['CommentPayload']"
+                            articleType="{{ ArticleType::AchievementTicket }}"
+                            :articleId="$ticket->ID"
+                            :commentId="$comment['ID']"
+                            :allowDelete="$allowDelete"
+                        />
+                    @endforeach
 
-                @if (isset($user) && !$user->isMuted)
-                    {!! RenderCommentInputRow($user->User, ArticleType::AchievementTicket, $ticket->ID) !!}
-                @endif
-            </tbody></table>
+                    @can('create', [App\Models\Comment::class, $ticket])
+                        {!! RenderCommentInputRow($user->User, ArticleType::AchievementTicket, $ticket->ID) !!}
+                    @endcan
+                </tbody>
+            </table>
         </div>
     </div>
 
