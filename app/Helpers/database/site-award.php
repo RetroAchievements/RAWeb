@@ -95,6 +95,8 @@ function getUsersSiteAwards(?User $user): array
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
     foreach ($dbResult as &$award) {
+        unset($award['user_id']);
+
         if ($award['ConsoleID']) {
             settype($award['AwardType'], 'integer');
             settype($award['AwardData'], 'integer');
