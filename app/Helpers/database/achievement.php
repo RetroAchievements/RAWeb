@@ -20,7 +20,7 @@ function getAchievementsList(
     int $limit,
     int $offset,
     ?int $achievementFlag = AchievementFlag::OfficialCore,
-    ?string $developer = null
+    ?User $developer = null
 ): Collection {
     $bindings = [
         'offset' => $offset,
@@ -63,9 +63,9 @@ function getAchievementsList(
         $query .= "AND pa.unlocked_at IS NULL ";
     }
 
-    if (isValidUsername($developer)) {
-        $bindings['author'] = $developer;
-        $query .= "AND ach.Author = :author ";
+    if (isValidUsername($developer?->username)) {
+        $bindings['author'] = $developer->username;
+        $query .= "AND ua.User = :author ";
     }
 
     if ($sortBy == 4) {
@@ -87,7 +87,7 @@ function getAchievementsList(
             $query .= "ORDER BY ach.TrueRatio, ach.Points DESC, GameTitle ";
             break;
         case 5:
-            $query .= "ORDER BY ach.Author ";
+            $query .= "ORDER BY ua.User ";
             break;
         case 6:
             $query .= "ORDER BY GameTitle ";
@@ -114,7 +114,7 @@ function getAchievementsList(
             $query .= "ORDER BY ach.TrueRatio DESC, ach.Points, GameTitle ";
             break;
         case 15:
-            $query .= "ORDER BY ach.Author DESC ";
+            $query .= "ORDER BY ua.User DESC ";
             break;
         case 16:
             $query .= "ORDER BY GameTitle DESC ";
@@ -324,10 +324,11 @@ function UploadNewAchievement(
         }
 
         if ($flag === AchievementFlag::OfficialCore || $changingAchSet) { // If modifying core or changing achievement state
-            // changing ach set detected; user is $authorUsername, permissions is $authorPermissions, target set is $flag
+            // changing ach set detected; user is $author, permissions is $authorPermissions, target set is $flag
 
             // Only allow jr. devs to modify core achievements if they are the author and not updating logic or state
-            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $achievement->Author !== $authorUsername)) {
+            // TODO use a policy
+            if ($authorPermissions < Permissions::Developer && ($changingLogic || $changingAchSet || $achievement->user_id !== $author->id)) {
                 // Must be developer to modify core logic!
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
@@ -337,7 +338,8 @@ function UploadNewAchievement(
 
         if ($flag === AchievementFlag::Unofficial) { // If modifying unofficial
             // Only allow jr. devs to modify unofficial if they are the author
-            if ($authorPermissions == Permissions::JuniorDeveloper && $achievement->Author !== $authorUsername) {
+            // TODO use a policy
+            if ($authorPermissions == Permissions::JuniorDeveloper && $achievement->user_id !== $author->id) {
                 $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
                 return false;

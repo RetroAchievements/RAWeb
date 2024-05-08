@@ -19,7 +19,7 @@ class UpdateDeveloperContributionYield
         $contribAchievements = PlayerAchievement::where('player_achievements.user_id', '!=', $user->id)
             ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
             ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
-            ->where('Achievements.Author', '=', $user->User)
+            ->where('Achievements.user_id', '=', $user->id)
             ->select([DB::raw('SUM(Achievements.Points) AS Points'), DB::raw('COUNT(*) as Count')])
             ->first();
 
@@ -77,7 +77,7 @@ class UpdateDeveloperContributionYield
         $unlocks = PlayerAchievement::where('player_achievements.user_id', '!=', $user->id)
             ->join('Achievements', 'Achievements.ID', '=', 'achievement_id')
             ->where('Achievements.Flags', '=', AchievementFlag::OfficialCore)
-            ->where('Achievements.Author', '=', $user->User)
+            ->where('Achievements.user_id', '=', $user->id)
             ->orderBy('unlocked_at');
 
         if ($type == AwardType::AchievementPointsYield) {

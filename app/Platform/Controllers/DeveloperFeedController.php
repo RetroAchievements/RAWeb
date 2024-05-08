@@ -235,7 +235,7 @@ class DeveloperFeedController extends Controller
     {
         return LeaderboardEntryLegacy::query()
             ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'LeaderboardEntry.LeaderboardID')
-            ->where('LeaderboardDef.Author', $targetUser->User);
+            ->where('LeaderboardDef.author_id', $targetUser->id);
     }
 
     private function fetchAwardsContributedForDev(mixed $allUserGameIds): int

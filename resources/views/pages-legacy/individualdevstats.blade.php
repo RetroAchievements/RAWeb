@@ -233,7 +233,7 @@ $userTickets['uniqueValid'] = 0;
 $prevID = 0;
 
 // Get ticket information for user
-$userTicketInfo = getTicketsForUser($dev);
+$userTicketInfo = getTicketsForUser($devUser);
 $counted = false;
 foreach ($userTicketInfo as $ticketData) {
     if ($prevID != $ticketData['AchievementID']) { // relies on getTicketsForUser sorting by ID
@@ -274,11 +274,11 @@ foreach ($userTicketInfo as $ticketData) {
 }
 
 // Get most ticketed game and achievement
-$mostTicketedGame = getUserGameWithMostTickets($dev);
-$mostTicketedAchievement = getUserAchievementWithMostTickets($dev);
+$mostTicketedGame = getUserGameWithMostTickets($devUser);
+$mostTicketedAchievement = getUserAchievementWithMostTickets($devUser);
 
 // Get user who created most tickets
-$mostTicketCreator = getUserWhoCreatedMostTickets($dev);
+$mostTicketCreator = getUserWhoCreatedMostTickets($devUser);
 
 // Get closed/resolved ticket information for user
 $userCount = 0;
@@ -298,7 +298,7 @@ $closedResolvedTicketInfo['ResolvedAuthor'] = '';
 $closedResolvedTicketInfo['ResolvedAuthorCount'] = 0;
 
 // Get closed/resolved ticket information
-$ticketsClosedResolved = getNumberOfTicketsClosedForOthers($dev);
+$ticketsClosedResolved = getNumberOfTicketsClosedForOthers($devUser);
 foreach ($ticketsClosedResolved as $ticketData) {
     // capture the maximum amount of tickets resolved for another user
     if ($closedResolvedTicketInfo['ClosedAuthorCount'] < $ticketData['ClosedCount']) {
@@ -321,7 +321,7 @@ $closedResolvedTicketInfo['SelfClosed'] = 0;
 $closedResolvedTicketInfo['SelfResolved'] = 0;
 $closedResolvedTicketInfo['ClosedByOthers'] = 0;
 $closedResolvedTicketInfo['ResolvedByOthers'] = 0;
-$ticketsClosedResolved = getNumberOfTicketsClosed($dev);
+$ticketsClosedResolved = getNumberOfTicketsClosed($devUser);
 foreach ($ticketsClosedResolved as $ticketData) {
     if ($ticketData['ResolvedByUser'] === $dev) {
         $closedResolvedTicketInfo['SelfClosed'] = $ticketData['ClosedCount'];

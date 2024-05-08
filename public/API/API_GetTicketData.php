@@ -135,11 +135,12 @@
  *  string     URL                     URL to the list of tickets associated to the game
  */
 
-use App\Community\Enums\TicketFilters;
-use App\Community\Enums\TicketState;
-use App\Community\Enums\TicketType;
-use App\Models\Achievement;
-use App\Platform\Enums\AchievementFlag;
+ use App\Community\Enums\TicketFilters;
+ use App\Community\Enums\TicketState;
+ use App\Community\Enums\TicketType;
+ use App\Models\Achievement;
+ use App\Models\User;
+ use App\Platform\Enums\AchievementFlag;
 
 $baseUrl = config('app.url') . '/ticketmanager.php';
 $defaultTicketFilter = TicketFilters::Default;
@@ -178,7 +179,8 @@ if ($gamesTableFlag == 1) {
 // getting ticket info for a specific user
 $assignedToUser = request()->query('u');
 if (!empty($assignedToUser)) {
-    if (!isValidUsername($assignedToUser)) {
+    $foundUser = User::firstWhere('User', $assignedToUser);
+    if (!$foundUser) {
         return response()->json(['error' => "User $assignedToUser not found"], 404);
     }
 
@@ -189,7 +191,7 @@ if (!empty($assignedToUser)) {
     $ticketData['Total'] = 0;
     $prevID = 0;
 
-    $userTicketInfo = getTicketsForUser($assignedToUser);
+    $userTicketInfo = getTicketsForUser($foundUser);
     foreach ($userTicketInfo as $ticket) {
         switch ($ticket['ReportState']) {
             case TicketState::Closed:
@@ -209,7 +211,7 @@ if (!empty($assignedToUser)) {
             $prevID = $ticket['AchievementID'];
         }
     }
-    $ticketData['URL'] = $baseUrl . "?u=$assignedToUser";
+    $ticketData['URL'] = route('developer.tickets', $foundUser->username); // TODO should probably be display_name
 
     return response()->json($ticketData);
 }
