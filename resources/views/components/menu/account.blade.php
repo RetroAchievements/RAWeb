@@ -69,7 +69,7 @@ $user = request()->user();
                 <x-dropdown-item :href="route('developer.feed', $user->username)">Feed</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :href="url('ticketmanager.php?u=' . $user->username)">Tickets</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.tickets', $user)">Tickets</x-dropdown-item>
                 <x-dropdown-item :href="route('developer.sets', $user)">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)

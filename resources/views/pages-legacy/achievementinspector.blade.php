@@ -21,7 +21,7 @@ $flag = requestInputSanitized('f', 3, 'integer');
 $partialModifyOK =
     $permissions == Permissions::JuniorDeveloper
     && (
-        checkIfSoleDeveloper($user, $gameID)
+        checkIfSoleDeveloper($userModel, $gameID)
         || hasSetClaimed($userModel, $gameID, false)
     );
 

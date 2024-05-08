@@ -2,7 +2,6 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Models\Achievement;
@@ -10,7 +9,6 @@ use App\Models\NotificationPreferences;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -127,7 +125,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
     $emailHeader = "Bug Report ($gameTitle)";
-    $ticketUrl = config('app.url') . "/ticketmanager.php?i=$ticketID";
+    $ticketUrl = route('ticket.show', $ticketID);
     $bugReportDetails = "
 Achievement: $achTitle
 Game: $gameTitle
@@ -176,107 +174,6 @@ function getExistingTicketID(User $user, int $achievementID): int
     }
 
     return 0;
-}
-
-function getAllTickets(
-    int $offset = 0,
-    int $limit = 50,
-    ?string $assignedToUser = null,
-    ?string $reportedByUser = null,
-    ?string $resolvedByUser = null,
-    ?int $givenGameID = null,
-    ?int $givenAchievementID = null,
-    int $ticketFilters = TicketFilters::Default,
-    bool $getUnofficial = false
-): array {
-    $retVal = [];
-    $bindings = [];
-
-    $innerCond = "TRUE";
-    if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
-        $innerCond .= " AND ach.Author = :assignedToUsername";
-        $bindings['assignedToUsername'] = $assignedToUser;
-    }
-    if (!empty($reportedByUser) && isValidUsername($reportedByUser)) {
-        $innerCond .= " AND ua.User = :reportedByUsername";
-        $bindings['reportedByUsername'] = $reportedByUser;
-    }
-    if (!empty($resolvedByUser) && isValidUsername($resolvedByUser)) {
-        $innerCond .= " AND ua2.User = :resolvedByUsername";
-        $bindings['resolvedByUsername'] = $resolvedByUser;
-    }
-    if ($givenGameID != 0) {
-        $innerCond .= " AND gd.ID = $givenGameID";
-    }
-    if ($givenAchievementID != 0) {
-        $innerCond .= " AND tick.AchievementID = $givenAchievementID";
-    }
-
-    // State condition
-    $stateCond = getStateCondition($ticketFilters);
-    if ($stateCond === null) {
-        return $retVal;
-    }
-
-    // Report Type condition
-    $reportTypeCond = getReportTypeCondition($ticketFilters);
-    if ($reportTypeCond === null) {
-        return $retVal;
-    }
-
-    // Hash condition
-    $hashCond = getHashCondition($ticketFilters);
-    if ($hashCond === null) {
-        return $retVal;
-    }
-
-    // Mode condition
-    $modeCond = getModeCondition($ticketFilters);
-    if ($modeCond === null) {
-        return $retVal;
-    }
-
-    // Emulator condition
-    $emulatorCond = getEmulatorCondition($ticketFilters);
-
-    // Developer Active condition
-    $devJoin = "";
-    $devActiveCond = getDevActiveCondition($ticketFilters);
-    if ($devActiveCond === null) {
-        return $retVal;
-    }
-    if ($devActiveCond != "") {
-        $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
-    }
-
-    // Karma condition - warning: excludes unresolved tickets
-    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
-    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
-
-    // Progression filter
-    $progressionCond = getProgressionCondition($ticketFilters);
-
-    // official/unofficial filter (ignore when a specific achievement is requested)
-    $achFlagCond = '';
-    if (!$givenAchievementID) {
-        $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
-    }
-
-    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
-                tick.ReportedAt, tick.ReportType, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy, tick.ReportState
-              FROM Ticket AS tick
-              LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
-              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
-              $devJoin
-              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond $notReporterCond $progressionCond
-              ORDER BY tick.ID DESC
-              LIMIT $offset, $limit";
-
-    return legacyDbFetchAll($query, $bindings)->toArray();
 }
 
 function getTicket(int $ticketID): ?array
@@ -379,7 +276,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
         "<br>Comment: $comment" .
         "<br>" .
-        "Click <a href='" . config('app.url') . "/ticketmanager.php?i=$ticketID'>here</a> to view the ticket" .
+        "Click <a href='" . route('ticket.show', $ticketID) . "'>here</a> to view the ticket" .
         "<br>" .
         "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
         "<br>" .
@@ -403,13 +300,9 @@ function countRequestTicketsByUser(?User $user = null): int
     });
 }
 
-function countOpenTicketsByDev(string $dev): ?array
+function countOpenTicketsByDev(User $dev): array
 {
-    if ($dev == null) {
-        return null;
-    }
-
-    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev);
+    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev->User);
 
     return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($dev) {
         $retVal = [
@@ -420,7 +313,7 @@ function countOpenTicketsByDev(string $dev): ?array
         $tickets = Ticket::with('achievement')
             ->whereHas('achievement', function ($query) use ($dev) {
                 $query
-                    ->where('Author', $dev)
+                    ->where('user_id', $dev->id)
                     ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
             })
             ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
@@ -461,119 +354,6 @@ function countOpenTicketsByAchievement(int $achievementID): int
     return ($results != null) ? $results['count'] : 0;
 }
 
-function countOpenTickets(
-    bool $unofficialFlag = false,
-    int $ticketFilters = TicketFilters::Default,
-    ?string $assignedToUser = null,
-    ?string $reportedByUser = null,
-    ?string $resolvedByUser = null,
-    ?int $gameID = null,
-    ?int $achievementID = null
-): int {
-    $bindings = [];
-
-    // State condition
-    $stateCond = getStateCondition($ticketFilters);
-    if ($stateCond === null) {
-        return 0;
-    }
-
-    // Report Type condition
-    $reportTypeCond = getReportTypeCondition($ticketFilters);
-    if ($reportTypeCond === null) {
-        return 0;
-    }
-
-    // Hash condition
-    $hashCond = getHashCondition($ticketFilters);
-    if ($hashCond === null) {
-        return 0;
-    }
-
-    // Emulator condition
-    $emulatorCond = getEmulatorCondition($ticketFilters);
-
-    $modeCond = getModeCondition($ticketFilters);
-    if ($modeCond === null) {
-        return 0;
-    }
-
-    // Developer Active condition
-    $devJoin = "";
-    $devActiveCond = getDevActiveCondition($ticketFilters);
-    if ($devActiveCond === null) {
-        return 0;
-    }
-    if ($devActiveCond != "") {
-        $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
-    }
-
-    // Not Reporter condition - warning: excludes unresolved tickets
-    $reporterJoin = "";
-    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
-    if ($notReporterCond != "") {
-        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id";
-    }
-
-    // Not Author condition - warning: excludes unresolved tickets
-    $resolverJoin = "";
-    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
-    if ($notAuthorCond != "" || $notReporterCond != "") {
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
-    }
-
-    // Author condition
-    $authorCond = "";
-    if ($assignedToUser != null) {
-        $authorCond = " AND ach.Author = :assignedToUser";
-        $bindings['assignedToUser'] = $assignedToUser;
-    }
-
-    // Reporter condition
-    $reporterCond = "";
-    if ($reportedByUser != null) {
-        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id";
-        $reporterCond = " AND ua.User = :reportedByUsername";
-        $bindings['reportedByUsername'] = $reportedByUser;
-    }
-
-    // Resolver condition
-    $resolverCond = "";
-    if ($resolvedByUser != null) {
-        $resolverCond = " AND ua2.User = :resolvedByUsername";
-        $bindings['resolvedByUsername'] = $resolvedByUser;
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
-    }
-
-    // Progression condition
-    $progressionCond = getProgressionCondition($ticketFilters);
-
-    // Game condition
-    $gameCond = "";
-    if ($gameID != null) {
-        $gameCond = " AND ach.GameID = $gameID";
-    }
-    if ($achievementID != null) {
-        $gameCond .= " AND ach.ID = $achievementID";
-    }
-
-    $achFlagCond = $unofficialFlag ? "ach.Flags = '5'" : "ach.Flags = '3'";
-
-    $query = "
-        SELECT count(*) as count
-        FROM Ticket AS tick
-        LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        $reporterJoin
-        $resolverJoin
-        $devJoin
-        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $notReporterCond $reporterCond $resolverCond $progressionCond";
-
-    $results = legacyDbFetch($query, $bindings);
-
-    return ($results != null) ? $results['count'] : 0;
-}
-
 function gamesSortedByOpenTickets(int $count): array
 {
     if ($count < 1) {
@@ -604,239 +384,6 @@ function gamesSortedByOpenTickets(int $count): array
         LIMIT 0, $count";
 
     return legacyDbFetchAll($query)->toArray();
-}
-
-/**
- * Gets the ticket state condition to put into the main ticket query.
- */
-function getStateCondition(int $ticketFilters): ?string
-{
-    $states = [];
-    if ($ticketFilters & TicketFilters::StateOpen) {
-        $states[] = TicketState::Open;
-    }
-    if ($ticketFilters & TicketFilters::StateClosed) {
-        $states[] = TicketState::Closed;
-    }
-    if ($ticketFilters & TicketFilters::StateResolved) {
-        $states[] = TicketState::Resolved;
-    }
-    if ($ticketFilters & TicketFilters::StateRequest) {
-        $states[] = TicketState::Request;
-    }
-
-    if (count($states) == 4) {
-        // all states selected, no need to filter
-        return "";
-    }
-
-    if (count($states) == 0) {
-        // no states selected, can't matching anything
-        return null;
-    }
-
-    return " AND tick.ReportState IN (" . implode(',', $states) . ')';
-}
-
-/**
- * Gets the ticket report type condition to put into the main ticket query.
- */
-function getReportTypeCondition(int $ticketFilters): ?string
-{
-    $triggeredTickets = ($ticketFilters & TicketFilters::TypeTriggeredAtWrongTime);
-    $didNotTriggerTickets = ($ticketFilters & TicketFilters::TypeDidNotTrigger);
-
-    if ($triggeredTickets && $didNotTriggerTickets) {
-        return "";
-    }
-    if ($triggeredTickets) {
-        return " AND tick.ReportType LIKE 1";
-    }
-    if ($didNotTriggerTickets) {
-        return " AND tick.ReportType NOT LIKE 1";
-    }
-
-    return null;
-}
-
-/**
- * Gets the ticket hash condition to put into the main ticket query.
- */
-function getHashCondition(int $ticketFilters): ?string
-{
-    $hashKnownTickets = ($ticketFilters & TicketFilters::HashKnown);
-    $hashUnknownTickets = ($ticketFilters & TicketFilters::HashUnknown);
-
-    if ($hashKnownTickets && $hashUnknownTickets) {
-        return "";
-    }
-    if ($hashKnownTickets) {
-        return " AND (tick.ReportNotes REGEXP '(MD5|RetroAchievements Hash): [a-fA-F0-9]{32}')";
-    }
-    if ($hashUnknownTickets) {
-        return " AND (tick.ReportNotes NOT REGEXP '(MD5|RetroAchievements Hash): [a-fA-F0-9]{32}')";
-    }
-
-    return null;
-}
-
-function getModeCondition(int $ticketFilters): ?string
-{
-    $modeUnknown = ($ticketFilters & TicketFilters::HardcoreUnknown);
-    $modeHardcore = ($ticketFilters & TicketFilters::HardcoreOn);
-    $modeSoftcore = ($ticketFilters & TicketFilters::HardcoreOff);
-
-    if ($modeUnknown && $modeHardcore && $modeSoftcore) {
-        return "";
-    }
-
-    if (!$modeUnknown && !$modeHardcore && !$modeSoftcore) {
-        return null;
-    }
-
-    $subquery = "AND (";
-    $added = false;
-    if ($modeUnknown) {
-        $subquery .= "Hardcore IS NULL";
-        $added = true;
-    }
-
-    if ($modeHardcore) {
-        if ($added) {
-            $subquery .= " OR ";
-        }
-        $subquery .= "Hardcore = " . UnlockMode::Hardcore;
-        $added = true;
-    }
-    if ($modeSoftcore) {
-        if ($added) {
-            $subquery .= " OR ";
-        }
-        $subquery .= "Hardcore = " . UnlockMode::Softcore;
-        $subquery .= "";
-    }
-    $subquery .= ")";
-
-    return $subquery;
-}
-
-/**
- * Gets the developer active condition to put into the main ticket query.
- */
-function getDevActiveCondition(int $ticketFilters): ?string
-{
-    $devInactive = ($ticketFilters & TicketFilters::DevInactive);
-    $devActive = ($ticketFilters & TicketFilters::DevActive);
-    $devJunior = ($ticketFilters & TicketFilters::DevJunior);
-
-    if ($devInactive && $devActive && $devJunior) {
-        return "";
-    }
-
-    if ($devInactive || $devActive || $devJunior) {
-        $stateCond = " AND ua3.Permissions IN (";
-        if ($devInactive) {
-            $stateCond .= "-1,0,1";
-        }
-
-        if ($devActive) {
-            if ($devInactive) {
-                $stateCond .= ",";
-            }
-            $stateCond .= "3,4";
-        }
-
-        if ($devJunior) {
-            if ($devInactive || $devActive) {
-                $stateCond .= ",";
-            }
-            $stateCond .= "2";
-        }
-        $stateCond .= ")";
-
-        return $stateCond;
-    }
-
-    return null;
-}
-
-/**
- * Gets the Not Author condition to put into the main ticket query.
- * Warning: excludes unresolved tickets
- */
-function getResolvedByNonAuthorCondition(int $ticketFilters): string
-{
-    $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonAuthor);
-
-    if ($notAuthorTickets) {
-        return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author";
-    }
-
-    return "";
-}
-
-/**
- * Gets the Not Reporter condition to put into the main ticket query.
- * Warning: excludes unresolved tickets
- */
-function getResolvedByNonReporterCondition(int $ticketFilters): string
-{
-    $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonReporter);
-
-    if ($notAuthorTickets) {
-        return "AND ua.User IS NOT NULL AND ua.User <> ua2.User";
-    }
-
-    return "";
-}
-
-/**
- * Gets the Progression condition to put into the main ticket query.
- */
-function getProgressionCondition(int $ticketFilters): string
-{
-    $progressionOnly = ($ticketFilters & TicketFilters::ProgressionOnly);
-
-    if ($progressionOnly) {
-        return "AND ach.type IS NOT NULL";
-    }
-
-    return "";
-}
-
-/**
- * Gets the ticket emulator condition to put into the main ticket query.
- */
-function getEmulatorCondition(int $ticketFilters): string
-{
-    $parts = [];
-
-    if ($ticketFilters & TicketFilters::EmulatorRA) {
-        $parts[] = "tick.ReportNotes Like '%Emulator: RA%' ";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorRetroArchCoreSpecified) {
-        $parts[] = "tick.ReportNotes LIKE '%Emulator: RetroArch (_%)%' ";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorRetroArchCoreNotSpecified) {
-        $parts[] = "tick.ReportNotes LIKE '%Emulator: RetroArch ()%'";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorOther) {
-        $parts[] = "(tick.ReportNotes LIKE '%Emulator: %' AND tick.ReportNotes NOT LIKE '%Emulator: RA%' AND tick.ReportNotes NOT LIKE '%Emulator: RetroArch%')";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorUnknown) {
-        $parts[] = "tick.ReportNotes NOT LIKE '%Emulator: %'";
-    }
-
-    if (count($parts) == 0 || count($parts) == 5) {
-        /* no filters selected, or all filters selected. don't filter */
-        return '';
-    }
-
-    return ' AND (' . implode(' OR ', $parts) . ')';
 }
 
 /**

@@ -2,14 +2,15 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
-use App\Models\Game;
-use App\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Models\Game;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
@@ -159,7 +160,7 @@ if ($isFullyFeaturedGame) {
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
-        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+        $isSoleAuthor = checkIfSoleDeveloper($userModel, $gameID);
 
         // Determine if the logged in user has any progression awards for this set
         $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
@@ -584,8 +585,7 @@ if ($isFullyFeaturedGame) {
                         :isOfficial="$isOfficial"
                         :isSoleAuthor="$isSoleAuthor"
                         :numAchievements="$numAchievements"
-                        :user="$user"
-                        :userPermissions="$permissions"
+                        :user="$userModel"
                     />
                 @endif
                 <?php
@@ -799,8 +799,7 @@ if ($isFullyFeaturedGame) {
             if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
                 ?>
                     <x-game.claim-info
-                        :claimData="$claimData"
-                        :gameId="$gameID"
+                        :achievementSetClaims="$gameModel->achievementSetClaims->where('status', ClaimStatus::Active)"
                         :userPermissions="$permissions"
                     />
                 <?php

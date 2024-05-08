@@ -29,7 +29,7 @@ class DeveloperFeedController extends Controller
             abort(404);
         }
 
-        $allUserAchievements = collect(getUserAchievementInformation($foundTargetUser->User));
+        $allUserAchievements = collect(getUserAchievementInformation($foundTargetUser));
         $allUserAchievementIds = $allUserAchievements->pluck('ID');
         $allUserGameIds = $allUserAchievements->pluck('GameID')->unique();
 

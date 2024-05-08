@@ -304,6 +304,16 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
+     * TODO will need to be modified if GameID is migrated to game_hash_set_id
+     *
+     * @return HasMany<MemoryNote>
+     */
+    public function memoryNotes(): HasMany
+    {
+        return $this->hasMany(MemoryNote::class, 'GameID');
+    }
+
+    /**
      * @return BelongsToMany<User>
      */
     public function playerUsers(): BelongsToMany
@@ -318,6 +328,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function playerGames(): HasMany
     {
         return $this->hasMany(PlayerGame::class, 'game_id');
+    }
+
+    /**
+     * @return HasMany<PlayerSession>
+     */
+    public function playerSessions(): HasMany
+    {
+        return $this->hasMany(PlayerSession::class, 'game_id');
     }
 
     /**

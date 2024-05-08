@@ -135,15 +135,15 @@
  *  string     URL                     URL to the list of tickets associated to the game
  */
 
- use App\Community\Enums\TicketFilters;
- use App\Community\Enums\TicketState;
- use App\Community\Enums\TicketType;
- use App\Models\Achievement;
- use App\Models\User;
- use App\Platform\Enums\AchievementFlag;
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Platform\Enums\AchievementFlag;
+use Illuminate\Database\Eloquent\Builder;
 
-$baseUrl = config('app.url') . '/ticketmanager.php';
-$defaultTicketFilter = TicketFilters::Default;
 $count = min((int) request()->query('c', '10'), 100);
 $offset = (int) request()->query('o');
 
@@ -158,12 +158,12 @@ if ($ticketID > 0) {
     $ticketData['ReportStateDescription'] = TicketState::toString($ticketData['ReportState']);
     $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
 
-    $ticketData['URL'] = $baseUrl . "?i=$ticketID";
+    $ticketData['URL'] = route('ticket.show', $ticketID);
 
     return response()->json($ticketData);
 }
 
-// same logic used in ticketmanager.php
+// same logic previously used in ticketmanager.php
 // f=1 - get info for the most reported games
 // f=5 - get info for unofficial
 $gamesTableFlag = (int) request()->query('f');
@@ -171,7 +171,7 @@ $gamesTableFlag = (int) request()->query('f');
 // get the most reported games...
 if ($gamesTableFlag == 1) {
     $ticketData['MostReportedGames'] = gamesSortedByOpenTickets($count);
-    $ticketData['URL'] = $baseUrl . "?f=$gamesTableFlag";
+    $ticketData['URL'] = route('tickets.most-reported-games');
 
     return response()->json($ticketData);
 }
@@ -216,31 +216,67 @@ if (!empty($assignedToUser)) {
     return response()->json($ticketData);
 }
 
+$getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
+    $result = [];
+
+    $tickets = $builder->with(['achievement.game.system', 'reporter', 'resolver'])
+       ->orderBy('ReportedAt', 'DESC')
+       ->offset($offset)
+       ->take($count)
+       ->get();
+
+    /** @var Ticket $ticket */
+    foreach ($tickets as $ticket) {
+        $result[] = [
+            'ID' => $ticket->ID,
+            'AchievementID' => $ticket->achievement->ID,
+            'AchievementTitle' => $ticket->achievement->Title,
+            'AchievementDesc' => $ticket->achievement->Description,
+            'AchievementType' => $ticket->achievement->type,
+            'Points' => $ticket->achievement->points,
+            'BadgeName' => $ticket->achievement->BadgeName,
+            'AchievementAuthor' => $ticket->achievement->author,
+            'GameID' => $ticket->achievement->game->ID,
+            'ConsoleName' => $ticket->achievement->game->system->name,
+            'GameTitle' => $ticket->achievement->game->title,
+            'GameIcon' => $ticket->achievement->game->ImageIcon,
+            'ReportedAt' => $ticket->ReportedAt->__toString(),
+            'ReportType' => $ticket->ReportType,
+            'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
+            'ReportNotes' => $ticket->ReportNotes,
+            'ReportedBy' => $ticket->reporter->User,
+            'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
+            'ResolvedBy' => $ticket->resolver?->User,
+            'ReportState' => $ticket->ReportState,
+            'ReportStateDescription' => TicketState::toString($ticket->ReportState),
+            'Hardcore' => $ticket->Hardcore,
+        ];
+    }
+
+    return $result;
+};
+
 // getting data for a specific game
 $gameIDGiven = (int) request()->query('g');
 if ($gameIDGiven > 0) {
-    if ($gameData = getGameData($gameIDGiven)) {
-        $ticketData['GameID'] = $gameIDGiven;
-        $ticketData['GameTitle'] = $gameData['Title'];
-        $ticketData['ConsoleName'] = $gameData['ConsoleName'];
-        $ticketData['OpenTickets'] = countOpenTickets(
-            $gamesTableFlag == AchievementFlag::Unofficial,
-            $defaultTicketFilter,
-            null,
-            null,
-            null,
-            $gameIDGiven
-        );
-        $ticketData['URL'] = $baseUrl . "?g=$gameIDGiven";
+    $game = Game::where('ID', $gameIDGiven)->with('system')->first();
+    if ($game) {
+        $tickets = Ticket::forGame($game);
+        if ($gamesTableFlag === AchievementFlag::Unofficial) {
+            $tickets->unofficial();
+        } else {
+            $tickets->officialCore();
+        }
+
+        $ticketData['GameID'] = $game->ID;
+        $ticketData['GameTitle'] = $game->Title;
+        $ticketData['ConsoleName'] = $game->system->Name;
+        $ticketData['OpenTickets'] = $tickets->count();
+        $ticketData['URL'] = route('game.tickets', $game);
 
         $details = (int) request()->query('d');
         if ($details == 1) {
-            $ticketData['Tickets'] = getAllTickets($offset, $count, givenGameID: $gameIDGiven, ticketFilters: $defaultTicketFilter);
-
-            foreach ($ticketData['Tickets'] as &$ticket) {
-                $ticket['ReportStateDescription'] = TicketState::toString($ticket['ReportState']);
-                $ticket['ReportTypeDescription'] = TicketType::toString($ticket['ReportType']);
-            }
+            $ticketData['Tickets'] = $getTicketsInfo($tickets, $offset, $count);
         }
 
         return response()->json($ticketData);
@@ -260,20 +296,16 @@ if ($achievementIDGiven > 0) {
     $ticketData['AchievementTitle'] = $achievementData['Title'];
     $ticketData['AchievementDescription'] = $achievementData['Description'];
     $ticketData['AchievementType'] = $achievementData['type'];
-    $ticketData['URL'] = $baseUrl . "?a=$achievementIDGiven";
+    $ticketData['URL'] = route('achievement.tickets', $achievementData);
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
 
     return response()->json($ticketData);
 }
 
 // getting the 10 most recent tickets
-$ticketData['RecentTickets'] = getAllTickets($offset, $count, null, null, null, null, null, $defaultTicketFilter);
-$ticketData['OpenTickets'] = countOpenTickets(false, $defaultTicketFilter, null, null, null, null);
-$ticketData['URL'] = $baseUrl;
-
-foreach ($ticketData['RecentTickets'] as &$ticket) {
-    $ticket['ReportStateDescription'] = TicketState::toString($ticket['ReportState']);
-    $ticket['ReportTypeDescription'] = TicketType::toString($ticket['ReportType']);
-}
+$tickets = Ticket::officialCore()->unresolved();
+$ticketData['OpenTickets'] = $tickets->count();
+$ticketData['URL'] = route('tickets.index');
+$ticketData['RecentTickets'] = $getTicketsInfo($tickets, $offset, $count);
 
 return response()->json($ticketData);

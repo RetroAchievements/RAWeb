@@ -17,7 +17,6 @@
 
 <?php
 
-use App\Community\Enums\TicketFilters;
 use App\Enums\Permissions;
 use App\Models\ForumTopic;
 use App\Models\Ticket;
@@ -28,21 +27,15 @@ $user = Auth::user();
 
 $canSeeOpenTickets = in_array('tickets', $allowedLinks) && $user?->can('viewAny', Ticket::class);
 if ($canSeeOpenTickets) {
-    $numOpenTickets = countOpenTickets(
-        !$isViewingOfficial,
-        TicketFilters::Default,
-        null,
-        null,
-        null,
-        $game->id,
-    );
+    $gameTickets = Ticket::forGame($game)->unresolved();
+    if ($isViewingOfficial) {
+        $gameTickets->officialCore();
+    } else {
+        $gameTickets->unofficial();
+    }
+    $numOpenTickets = $gameTickets->count();
 }
 
-$ticketManagerUrlParams = [
-    'g' => $game->id,
-    'f' => $isViewingOfficial ? null : AchievementFlag::Unofficial,
-];
-$ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketManagerUrlParams);
 ?>
 
 <ul class="flex @if ($variant === 'stacked') flex-col @endif gap-2">
@@ -106,7 +99,7 @@ $ticketManagerUrl = url('/ticketmanager.php') . '?' . http_build_query($ticketMa
     @if ($canSeeOpenTickets)
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{!! $ticketManagerUrl !!}"
+            href="{{ route('game.tickets', $game) }}"
         >
             Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>

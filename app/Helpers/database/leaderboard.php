@@ -348,10 +348,10 @@ function GetLeaderboardData(
         ld.Created AS LBCreated,
         ld.Updated AS LBUpdated,
         (
-          SELECT COUNT(UserID)
-          FROM LeaderboardEntry AS le
-          LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-          WHERE ua.Untracked = 0 AND le.LeaderboardID = $lbID
+          SELECT COUNT(user_id)
+          FROM leaderboard_entries AS le
+          LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
+          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID
         ) AS TotalEntries
       FROM LeaderboardDef AS ld
       LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
@@ -391,17 +391,17 @@ function GetLeaderboardData(
         }
 
         // Now get entries:
-        $query = "SELECT ua.User, le.Score, le.DateSubmitted,
+        $query = "SELECT ua.User, le.score AS Score, le.created_at AS DateSubmitted,
                   CASE WHEN lbd.LowerIsBetter = 0
-                  THEN RANK() OVER(ORDER BY le.Score DESC)
-                  ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
+                  THEN RANK() OVER(ORDER BY Score DESC)
+                  ELSE RANK() OVER(ORDER BY Score ASC) END AS UserRank,
                   CASE WHEN lbd.LowerIsBetter = 0
-                  THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
-                  ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
-                  FROM LeaderboardEntry AS le
-                  LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-                  LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
-                  WHERE (ua.Untracked = 0 || ua.User = '$user' ) AND le.LeaderboardID = $lbID
+                  THEN ROW_NUMBER() OVER(ORDER BY Score DESC, DateSubmitted ASC)
+                  ELSE ROW_NUMBER() OVER(ORDER BY Score ASC, DateSubmitted ASC) END AS UserIndex
+                  FROM leaderboard_entries AS le
+                  LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
+                  LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
+                  WHERE (ua.Untracked = 0 || ua.User = '$user' ) AND le.leaderboard_id = $lbID
                   ORDER BY
                   CASE WHEN lbd.LowerIsBetter = 0 THEN Score END DESC,
                   CASE WHEN lbd.LowerIsBetter THEN Score END ASC, DateSubmitted ASC
@@ -435,17 +435,17 @@ function GetLeaderboardData(
             if ($userFound == false && !$nearby) {
                 // Go find user's score in this table, if it exists!
                 $query = "SELECT User, Score, DateSubmitted, UserRank, UserIndex FROM
-                         (SELECT ua.User, le.Score, le.DateSubmitted,
+                         (SELECT ua.User, le.score AS Score, le.created_at AS DateSubmitted,
                           CASE WHEN lbd.LowerIsBetter = 0
-                          THEN RANK() OVER(ORDER BY le.Score DESC)
-                          ELSE RANK() OVER(ORDER BY le.Score ASC) END AS UserRank,
+                          THEN RANK() OVER(ORDER BY Score DESC)
+                          ELSE RANK() OVER(ORDER BY Score ASC) END AS UserRank,
                           CASE WHEN lbd.LowerIsBetter = 0
-                          THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
-                          ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
-                          FROM LeaderboardEntry AS le
-                          LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-                          LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
-                          WHERE ua.Untracked = 0 AND le.LeaderboardID = $lbID) InnerTable
+                          THEN ROW_NUMBER() OVER(ORDER BY Score DESC, DateSubmitted ASC)
+                          ELSE ROW_NUMBER() OVER(ORDER BY Score ASC, DateSubmitted ASC) END AS UserIndex
+                          FROM leaderboard_entries AS le
+                          LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
+                          LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
+                          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID) InnerTable
                           WHERE InnerTable.User = '$user'";
 
                 $dbResult = s_mysql_query($query);
@@ -483,14 +483,14 @@ function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition):
     sanitize_sql_inputs($user);
 
     $query = "SELECT UserIndex FROM
-                         (SELECT ua.User, le.Score, le.DateSubmitted,
+                         (SELECT ua.User, le.score, le.created_at,
                           CASE WHEN lbd.LowerIsBetter = 0
-                          THEN ROW_NUMBER() OVER(ORDER BY le.Score DESC, le.DateSubmitted ASC)
-                          ELSE ROW_NUMBER() OVER(ORDER BY le.Score ASC, le.DateSubmitted ASC) END AS UserIndex
-                          FROM LeaderboardEntry AS le
-                          LEFT JOIN UserAccounts AS ua ON ua.ID = le.UserID
-                          LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.LeaderboardID
-                          WHERE ua.Untracked = 0 AND le.LeaderboardID = $lbID) InnerTable
+                          THEN ROW_NUMBER() OVER(ORDER BY le.score DESC, le.created_at ASC)
+                          ELSE ROW_NUMBER() OVER(ORDER BY le.score ASC, le.created_at ASC) END AS UserIndex
+                          FROM leaderboard_entries AS le
+                          LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
+                          LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
+                          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID) InnerTable
                           WHERE InnerTable.User = '$user'";
 
     $dbResult = s_mysql_query($query);
