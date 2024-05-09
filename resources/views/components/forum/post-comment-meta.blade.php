@@ -11,7 +11,11 @@ use Illuminate\Support\Carbon;
 
 <?php
 $postCreatedTimestamp = $forumTopicComment->DateCreated;
-$postEditedTimestamp = $forumTopicComment->DateModified;
+$postEditedTimestamp =
+    ($forumTopicComment->DateModified
+    && $forumTopicComment->DateModified != $forumTopicComment->DateCreated)
+        ? $forumTopicComment->DateModified
+        : null;
 
 /** @var ?User $user */
 $user = auth()->user();
