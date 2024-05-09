@@ -12,7 +12,7 @@ function SubmitLeaderboardEntry(
     User $user,
     int $lbID,
     int $newEntry,
-    string $validation
+    ?string $validation
 ): array {
     $retVal = ['Success' => true];
 
@@ -38,9 +38,9 @@ function SubmitLeaderboardEntry(
         'GameID' => $leaderboard->GameID,
         'Title' => $leaderboard->Title,
         'LowerIsBetter' => $leaderboard->LowerIsBetter,
-        'Score' => $newEntry,
-        'ScoreFormatted' => ValueFormat::format($newEntry, $leaderboard->Format),
     ];
+    $retVal['Score'] = $newEntry;
+    $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
     // TODO delete after LeaderboardEntries table is dropped and replaced by leaderboard_entries
     writeLegacyLeaderboardEntry($user, $leaderboard, $newEntry);

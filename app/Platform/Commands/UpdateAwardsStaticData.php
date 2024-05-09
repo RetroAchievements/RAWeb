@@ -67,7 +67,7 @@ class UpdateAwardsStaticData extends Command
             ->where('AwardType', AwardType::Mastery)
             ->where('AwardDataExtra', UnlockMode::Hardcore)
             ->orderByDesc('AwardDate')
-            ->first(['AwardData', 'AwardDate', 'User']);
+            ->first(['AwardData', 'AwardDate', 'User', 'user_id']);
 
         if ($foundAward) {
             StaticData::query()->update([
@@ -87,7 +87,7 @@ class UpdateAwardsStaticData extends Command
             ->where('AwardType', AwardType::GameBeaten)
             ->where('AwardDataExtra', UnlockMode::Hardcore)
             ->orderByDesc('AwardDate')
-            ->first(['AwardData', 'AwardDate', 'User']);
+            ->first(['AwardData', 'AwardDate', 'User', 'user_id']);
 
         if ($foundAward) {
             StaticData::query()->update([
