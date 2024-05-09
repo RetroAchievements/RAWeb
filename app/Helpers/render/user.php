@@ -37,24 +37,28 @@ function userAvatar(
         );
 
         if (!$user) {
-            $userSanitized = $username;
-            sanitize_outputs($userSanitized);
-
-            $iconLabel = '';
-            if ($icon !== false && ($icon || !$label)) {
-                $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
-            }
-
-            $usernameLabel = '';
-            if ($label !== false && ($label || !$icon)) {
-                $usernameLabel = "<del>$userSanitized</del>";
-            }
-
-            return "<span class='inline whitespace-nowrap'><span class='inline-block'>" . $iconLabel . $usernameLabel . "</span></span>";
+            $user = ['User' => $username, 'Deleted' => 'yes'];
         }
     }
 
     $username = $user['User'] ?? null;
+
+    if ($user['Deleted'] ?? false) {
+        $userSanitized = $username;
+        sanitize_outputs($userSanitized);
+
+        $iconLabel = '';
+        if ($icon !== false && ($icon || !$label)) {
+            $iconLabel = "<img loading='lazy' width='$iconSize' height='$iconSize' src='" . media_asset('/UserPic/_User.png') . "' title='$userSanitized' alt='$userSanitized' class='$iconClass'>";
+        }
+
+        $usernameLabel = '';
+        if ($label !== false && ($label || !$icon)) {
+            $usernameLabel = "<del>$userSanitized</del>";
+        }
+
+        return "<span class='inline whitespace-nowrap'><span class='inline-block'>$iconLabel $usernameLabel</span></span>";
+    }
 
     return avatar(
         resource: 'user',
