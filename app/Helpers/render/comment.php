@@ -92,7 +92,7 @@ function RenderCommentsComponent(
             ]);
     }
 
-    if ($user?->can('comment', [App\Models\Comment::class])) {
+    if ($user?->can('create', [App\Models\Comment::class])) {
         RenderCommentInputRow($user->User, $articleTypeID, $articleID);
     }
 

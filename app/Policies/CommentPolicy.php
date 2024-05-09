@@ -28,7 +28,7 @@ class CommentPolicy
         return true;
     }
 
-    public function create(User $user, ?Model $commentable): bool
+    public function create(User $user, ?Model $commentable = null): bool
     {
         if ($user->isMuted()) {
             // Even when muted, developers may still comment on tickets for their own achievements.
@@ -39,6 +39,7 @@ class CommentPolicy
 
                 return
                     $didAuthorAchievement
+                    && $commentable->is_open
                     && (
                         $user->hasAnyRole([
                             Role::DEVELOPER_STAFF,

@@ -26,7 +26,7 @@ class Ticket extends BaseModel
     // TODO rename ReportNotes column to body
     // TODO rename ReportedAt column to created_at
     // TODO rename ResolvedAt column to resolved_at
-    // TODO rename ReportState column to state
+    // TODO rename ReportState column to state, remove getStateAttribute()
     // TODO rename Updated column to updated_at
     // TODO drop AchievementID, use ticketable morph instead
     // TODO drop Hardcore, derived from player_session
@@ -63,6 +63,17 @@ class Ticket extends BaseModel
     }
 
     // == accessors
+
+    public function getIsOpenAttribute(): bool
+    {
+        return TicketState::isOpen($this->state);
+    }
+
+    // TODO remove after renaming "ReportState" to "state"
+    public function getStateAttribute(): int
+    {
+        return $this->attributes['ReportState'];
+    }
 
     // == mutators
 
