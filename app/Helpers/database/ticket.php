@@ -516,13 +516,12 @@ function getNumberOfTicketsClosed(User $user): array
               SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
               LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
-              AND ua.ID != {$user->id}
+              AND t.reporter_id != {$user->id}
               AND ach.user_id = {$user->id}
-              AND ach.Flags = '3'
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               GROUP BY ResolvedByUser
               ORDER BY TicketCount DESC, ResolvedByUser";
 

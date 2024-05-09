@@ -65,9 +65,9 @@ function getAchievementsList(
         $query .= "AND pa.unlocked_at IS NULL ";
     }
 
-    if (isValidUsername($developer?->username)) {
-        $bindings['author'] = $developer->username;
-        $query .= "AND ua.User = :author ";
+    if ($developer) {
+        $bindings['userId'] = $developer->id;
+        $query .= "AND ach.user_id = :userId ";
     }
 
     if ($sortBy == 4) {
