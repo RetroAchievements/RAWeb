@@ -40,8 +40,6 @@
             @if (!$author)
                 <img loading="lazy" decoding="async" width="32" height="32"
                      src="{!! media_asset('/UserPic/_User.png') !!}" class="badgeimg" />
-            @elseif ($author->trashed())
-                {!! userAvatar($author->User, label: false) !!}
             @else
                 {!! userAvatar($author, label: false) !!}
             @endif
@@ -57,8 +55,6 @@
             <div>
                 @if (!$author)
                     <del>Unknown</del>
-                @elseif ($author->trashed())
-                    {!! userAvatar($author->User, label: true) !!}
                 @else
                     {!! userAvatar($author, label: true) !!}
                 @endif
