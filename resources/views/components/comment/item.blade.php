@@ -54,7 +54,7 @@
             @endif
             <div>
                 @if (!$author)
-                    <del>Unknown</del>
+                    <del>Deleted User</del>
                 @else
                     {!! userAvatar($author, label: true) !!}
                 @endif
