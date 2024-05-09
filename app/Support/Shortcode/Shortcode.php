@@ -156,7 +156,7 @@ final class Shortcode
         $processor = (new Processor(new RegularParser(), $this->handlers))
             ->withEventContainer($events);
 
-        $html = $processor->process(nl2br($input, false), ['input' => $input]);
+        $html = $processor->process(nl2br($input, false));
 
         // linkify whatever's left
         if ($options['imgur'] ?? false) {
