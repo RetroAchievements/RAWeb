@@ -340,11 +340,11 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                         <x-comment.item
                             :author="$commentUser"
                             :when="$when"
-                            :payload="$comment['CommentPayload']"
+                            :payload="nl2br($comment['CommentPayload'])"
                             articleType="{{ ArticleType::AchievementTicket }}"
                             :articleId="$ticket->ID"
                             :commentId="$comment['ID']"
-                            :allowDelete="$allowDelete"
+                            :allowDelete="$allowDelete || $comment['User'] === $user->User"
                         />
                     @endforeach
 
