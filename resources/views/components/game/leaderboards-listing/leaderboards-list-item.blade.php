@@ -19,10 +19,6 @@ use App\Platform\Enums\ValueFormat;
 
         @php
             $bestScore = $leaderboard->entries()
-                ->whereHas('user', function ($query) {
-                    $query->where('Untracked', '!=', 1)
-                        ->whereNull('unranked_at');
-                })
                 ->orderBy("score", $leaderboard->rank_asc ? 'ASC' : 'DESC')
                 ->first();
         @endphp
