@@ -37,12 +37,7 @@
                     <div class="absolute h-px w-px left-0" style="top: -74px;" id="comment_{{ $commentId }}"></div>
                 </div>
             @endif
-            @if (!$author)
-                <img loading="lazy" decoding="async" width="32" height="32"
-                     src="{!! media_asset('/UserPic/_User.png') !!}" class="badgeimg" />
-            @else
-                {!! userAvatar($author, label: false) !!}
-            @endif
+            {!! userAvatar($author ?? 'Deleted User', label: false) !!}
         </td>
         <td class="w-full py-2" colspan="3">
             @if ($allowDelete)
@@ -53,11 +48,7 @@
                 </div>
             @endif
             <div>
-                @if (!$author)
-                    <del>Deleted User</del>
-                @else
-                    {!! userAvatar($author, label: true) !!}
-                @endif
+                {!! userAvatar($author ?? 'Deleted User', label: true) !!}
                 <span class="smalldate">{{ $when?->format('j M Y H:i') }}</span>
             </div>
 
