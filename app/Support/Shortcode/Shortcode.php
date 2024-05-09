@@ -156,7 +156,7 @@ final class Shortcode
         $processor = (new Processor(new RegularParser(), $this->handlers))
             ->withEventContainer($events);
 
-        $html = $processor->process(nl2br($input, false));
+        $html = $processor->process(nl2br($input, false), ['input' => $input]);
 
         // linkify whatever's left
         if ($options['imgur'] ?? false) {
@@ -195,6 +195,10 @@ final class Shortcode
     {
         // Determine the URL from the shortcode's 'url' parameter or content.
         $url = $shortcode->getParameter('url') ?: $shortcode->getContent();
+
+        if (empty($url)) {
+            return '';
+        }
 
         // Ensure the correct protocol prefix (http/https) is being used.
         $prefixedUrl = $this->protocolPrefix($url);
