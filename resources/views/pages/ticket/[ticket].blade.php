@@ -28,7 +28,10 @@ use Illuminate\Support\Str;
 $ticketID = $ticket->ID;
 
 $user = request()->user();
-$permissions = $user?->getAttribute('Permissions');
+if (!$user) {
+    abort(401);
+}
+$permissions = $user->getAttribute('Permissions');
 
 $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
 $msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->ID}]";
