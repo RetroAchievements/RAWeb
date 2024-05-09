@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Community\Enums\ArticleType;
+use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Database\Eloquent\Model;
 
 class CommentPolicy
 {
@@ -23,6 +25,38 @@ class CommentPolicy
 
     public function view(?User $user, Comment $comment): bool
     {
+        return true;
+    }
+
+    public function create(User $user, ?Model $commentable = null): bool
+    {
+        if ($user->isMuted()) {
+            // Even when muted, developers may still comment on tickets for their own achievements.
+            if ($commentable !== null && $commentable instanceof \App\Models\Ticket) {
+                $commentable->loadMissing(['achievement.developer']);
+
+                $didAuthorAchievement = $commentable->achievement->developer->id === $user->id;
+
+                return
+                    $didAuthorAchievement
+                    && $commentable->is_open
+                    && (
+                        $user->hasAnyRole([
+                            Role::DEVELOPER_STAFF,
+                            Role::DEVELOPER,
+                        ])
+                            || $user->getAttribute('Permissions') >= Permissions::Developer
+                    );
+
+            }
+
+            return false;
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            return false;
+        }
+
         return true;
     }
 
