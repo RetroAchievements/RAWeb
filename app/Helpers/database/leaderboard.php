@@ -12,7 +12,7 @@ function SubmitLeaderboardEntry(
     User $user,
     int $lbID,
     int $newEntry,
-    string $validation
+    ?string $validation
 ): array {
     $retVal = ['Success' => true];
 
