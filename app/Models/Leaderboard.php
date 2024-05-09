@@ -145,10 +145,15 @@ class Leaderboard extends BaseModel
     /**
      * @return HasMany<LeaderboardEntry>
      */
-    public function entries(): HasMany
+    public function entries(bool $includeUnrankedUsers = false): HasMany
     {
         return $this->hasMany(LeaderboardEntry::class, 'leaderboard_id')
-            ->whereHas('user'); // Ignore entries from deleted users.
+            ->whereHas('user', function ($query) use ($includeUnrankedUsers) {
+                if (!$includeUnrankedUsers) {
+                    $query->where('Untracked', '!=', 1)
+                        ->whereNull('unranked_at');
+                }
+            });
     }
 
     /**
