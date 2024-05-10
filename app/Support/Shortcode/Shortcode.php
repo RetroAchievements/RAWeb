@@ -197,7 +197,7 @@ final class Shortcode
         $url = $shortcode->getParameter('url') ?: $shortcode->getContent();
 
         if (empty($url)) {
-            return '';
+            return '[broken link]';
         }
 
         // Ensure the correct protocol prefix (http/https) is being used.
