@@ -547,23 +547,24 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
                 // right column
                 echo "<div class='grow'>";
-
-                RenderUpdateSubscriptionForm(
-                    "updateachievementssub",
-                    SubscriptionSubjectType::GameAchievements,
-                    $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID),
-                    'Achievement Comments'
-                );
-
-                RenderUpdateSubscriptionForm(
-                    "updateticketssub",
-                    SubscriptionSubjectType::GameTickets,
-                    $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID),
-                    'Tickets'
-                );
                 ?>
+
+                <x-update-subscription-button
+                    name="updateachievementssub"
+                    subjectType="{{ SubscriptionSubjectType::GameAchievements }}"
+                    subjectId="{{ $gameID }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID) }}"
+                    resource="Achievement Comments"
+                />
+
+                <x-update-subscription-button
+                    name="updateticketssub"
+                    subjectType="{{ SubscriptionSubjectType::GameTickets }}"
+                    subjectId="{{ $gameID }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID) }}"
+                    resource="Tickets"
+                />
+
                 {{-- Display the claims links if not an event game --}}
                 @if (!$isEventGame)
                     @if ($permissions >= Permissions::Developer)

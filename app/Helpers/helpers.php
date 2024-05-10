@@ -35,12 +35,10 @@ require_once __DIR__ . '/database/user-relationship.php';
 require_once __DIR__ . '/render/achievement.php';
 require_once __DIR__ . '/render/avatar.php';
 require_once __DIR__ . '/render/code-note.php';
-require_once __DIR__ . '/render/comment.php';
 require_once __DIR__ . '/render/game.php';
 require_once __DIR__ . '/render/layout.php';
 require_once __DIR__ . '/render/ranking.php';
 require_once __DIR__ . '/render/site-award.php';
-require_once __DIR__ . '/render/subscription.php';
 require_once __DIR__ . '/render/ticket.php';
 require_once __DIR__ . '/render/user.php';
 

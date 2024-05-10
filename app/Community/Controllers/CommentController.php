@@ -79,6 +79,10 @@ class CommentController extends Controller
 
     public function indexForUser(Request $request, User $user): View
     {
+        if (!$user->UserWallActive) {
+            abort(404);
+        }
+
         return view('pages.user.[user].comments', [
             'user' => $user,
         ]);

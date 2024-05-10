@@ -153,12 +153,11 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
     echo "</div>";
     echo "<div>";
     if ($user) {
-        RenderUpdateSubscriptionForm(
-            "updatetopicsubscription",
-            SubscriptionSubjectType::ForumTopic,
-            $thisTopicID,
-            $isSubscribed
-        );
+        echo Blade::render("<x-update-subscription-button :subjectType=\"\$subjectType\" :subjectId=\"\$subjectId\" :isSubscribed=\"\$isSubscribed\" />", [
+            'subjectType' => SubscriptionSubjectType::ForumTopic,
+            'subjectId' => $thisTopicID,
+            'isSubscribed' => $isSubscribed,
+        ]);
     }
     echo "</div>";
     echo "</div>";
