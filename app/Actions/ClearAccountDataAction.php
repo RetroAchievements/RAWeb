@@ -35,6 +35,7 @@ class ClearAccountDataAction
         DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
         $user->gameListEntries()->delete();
         $user->playerBadges()->delete();
+        $user->playerStats()->delete();
         $user->leaderboardEntries()->delete();
         $user->subscriptions()->delete();
 
