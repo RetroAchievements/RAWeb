@@ -6,6 +6,7 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Http\Controller;
+use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Leaderboard;
 use Illuminate\Contracts\View\View;
@@ -23,6 +24,13 @@ class CommentController extends Controller
         abort_if($comment->commentable === null, 404);
 
         return redirect($getUrlToCommentDestinationAction->execute($comment));
+    }
+
+    public function indexForAchievement(Request $request, Achievement $achievement): View
+    {
+        return view('pages.achievement.[achievement].comments', [
+            'achievement' => $achievement,
+        ]);
     }
 
     public function indexForLeaderboard(Request $request, Leaderboard $leaderboard): View

@@ -14,7 +14,7 @@ $perPage = $embedded ? 20 : 50;
 
 $comments = Comment::where('ArticleType', $articleType)
     ->where('ArticleID', $articleId)
-    ->with('user')
+    ->with(['user' => fn($q) => $q->withTrashed()])
     ->orderBy('Submitted');
 
 $totalComments = $comments->count();
@@ -46,11 +46,12 @@ if ($user) {
     $subjectType = SubscriptionSubjectType::fromArticleType($articleType);
     if ($subjectType !== null) {
         $canSubscribe = true;
-        $isSubscribed = isUserSubscribedToArticleComments($articleType, $articleID, $user->id);
+        $isSubscribed = isUserSubscribedToArticleComments($articleType, $articleId, $user->id);
     }
 }
 
 $route = match($articleType) {
+    ArticleType::Achievement => route('achievement.comments', $articleId),
     ArticleType::Leaderboard => route('leaderboard.comments', $articleId),
     default => '',
 };
@@ -64,7 +65,7 @@ $route = match($articleType) {
                 <i>No comments</i>
             @elseif (!$embedded)
                 @if ($totalPages > 1)
-                    <div class="w-full flex items-center justify-end">
+                    <div class="w-full flex items-center">
                         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
                     </div>
                 @endif
@@ -85,7 +86,7 @@ $route = match($articleType) {
         @if ($canSubscribe)
             <x-update-subscription-button
                 :subjectType="$subjectType"
-                :subjectId="$articleID"
+                :subjectId="$articleId"
                 :isSubscribed="$isSubscribed"
                 resource="{{ $embedded ? 'comments' : null }}"
             />
@@ -109,4 +110,11 @@ $route = match($articleType) {
             <x-comment.input-row articleType="{{ $articleType }}" articleId="{{ $articleId }}" />
         </tbody>
     </table>
+
+    @if (!$embedded && $totalPages > 1)
+        <div class="w-full flex items-center mt-2">
+            <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
+        </div>
+    @endif
+
 </div>

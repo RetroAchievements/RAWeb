@@ -66,6 +66,7 @@ class RouteServiceProvider extends ServiceProvider
              */
             // Route::get('system/{system}{slug?}/achievements', [SystemController::class, 'achievements'])
             //     ->name('system.achievement.index');
+            Route::get('achievement/{achievement}/comments', [CommentController::class, 'indexForAchievement'])->name('achievement.comments');
             Route::get('achievement/{achievement}/tickets', [TicketController::class, 'indexForAchievement'])->name('achievement.tickets');
 
             // Route::get('game/{game}{slug?}', [GameController::class, 'show'])->name('game.show');
