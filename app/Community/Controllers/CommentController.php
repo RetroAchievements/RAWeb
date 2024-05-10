@@ -9,6 +9,7 @@ use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -40,6 +41,15 @@ class CommentController extends Controller
         $this->authorize('viewModifications', $game);
 
         return view('pages.game.[game].modification-comments', [
+            'game' => $game,
+        ]);
+    }
+
+    public function indexForGameHashes(Request $request, Game $game): View
+    {
+        $this->authorize('manage', GameHash::class);
+
+        return view('pages.game.[game].hashes.comments', [
             'game' => $game,
         ]);
     }

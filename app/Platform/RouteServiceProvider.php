@@ -78,6 +78,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/{game}/comments', [CommentController::class, 'indexForGame'])->name('game.comments');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
+            Route::get('game/{game}/hashes/comments', [CommentController::class, 'indexForGameHashes'])->name('game.hashes.comments');
             Route::get('game/{game}/modification-comments', [CommentController::class, 'indexForGameModifications'])->name('game.modification-comments');
             Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest');
             Route::get('game/{game}/tickets', [TicketController::class, 'indexForGame'])->name('game.tickets');

@@ -23,7 +23,6 @@ $gameWithSortedHashes = $game->load([
 $user = request()->user();
 
 $articleTypeGameHash = ArticleType::GameHash;
-$numLogs = getRecentArticleComments($articleTypeGameHash, $game->id, $logs);
 @endphp
 
 <x-app-layout pageTitle="{{ 'Manage Game Hashes - ' . $game->title }}">
@@ -87,16 +86,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->id, $logs);
         </div>
 
         <div>
-            @php
-                RenderCommentsComponent(
-                    $user->username,
-                    $numLogs,
-                    $logs,
-                    $game->id,
-                    $articleTypeGameHash,
-                    $user->Permissions,
-                )
-            @endphp
+            <x-comment.list articleType="{{ ArticleType::GameHash }}" articleId="{{ $game->id }}" />
         </div>
     </div>
 </x-app-layout>
