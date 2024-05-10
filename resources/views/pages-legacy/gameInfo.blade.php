@@ -119,10 +119,8 @@ if ($v != 1) {
 $achDist = null;
 $achDistHardcore = null;
 $authorInfo = [];
-$commentData = null;
 $gameTopAchievers = null;
 $lbData = null;
-$numArticleComments = null;
 $numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
@@ -153,8 +151,6 @@ if ($isFullyFeaturedGame) {
 
     $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
     $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
-
-    $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
     $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user, retrieveHidden: false);
 
@@ -754,8 +750,9 @@ if ($isFullyFeaturedGame) {
                 }
             }
 
-            $numModificationComments = getRecentArticleComments(ArticleType::GameModification, $gameID, $modificationCommentData);
-            RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+                ['articleType' => ArticleType::GameModification, 'articleId' => $gameID]
+            );
 
             echo "</div>"; // devboxcontent
             echo "</div>"; // devbox
@@ -946,7 +943,9 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             }
 
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+                ['articleType' => ArticleType::Game, 'articleId' => $gameID]
+            );
         }
         ?>
     </div>

@@ -51,6 +51,8 @@ if ($user) {
 }
 
 $route = match($articleType) {
+    ArticleType::Game => route('game.comments', $articleId),
+    ArticleType::GameModification => route('game.modification-comments', $articleId),
     ArticleType::Achievement => route('achievement.comments', $articleId),
     ArticleType::Leaderboard => route('leaderboard.comments', $articleId),
     default => '',
