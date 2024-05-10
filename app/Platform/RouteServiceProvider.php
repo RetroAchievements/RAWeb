@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
+use App\Community\Controllers\CommentController;
 use App\Community\Controllers\TicketController;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
@@ -90,6 +91,7 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::resource('leaderboards', LeaderboardController::class)->only('index')->names(['index' => 'leaderboard.index']);
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
+            Route::get('leaderboard/{leaderboard}/comments', [CommentController::class, 'indexForLeaderboard'])->name('leaderboard.comments');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
             Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');

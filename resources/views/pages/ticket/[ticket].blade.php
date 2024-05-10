@@ -350,9 +350,11 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                         />
                     @endforeach
 
-                    @can('create', [App\Models\Comment::class, $ticket])
-                        {!! RenderCommentInputRow($user->User, ArticleType::AchievementTicket, $ticket->ID) !!}
-                    @endcan
+                    <x-comment.input-row
+                        articleType="{{ ArticleType::AchievementTicket }}"
+                        articleId="{{ $ticket->ID }}"
+                        :article="$ticket"
+                    />
                 </tbody>
             </table>
         </div>

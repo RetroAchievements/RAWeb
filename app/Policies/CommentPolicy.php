@@ -20,7 +20,7 @@ class CommentPolicy
     {
         return $user->hasAnyRole([
             Role::MODERATOR,
-        ]);
+        ]) || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 
     public function view(?User $user, Comment $comment): bool
