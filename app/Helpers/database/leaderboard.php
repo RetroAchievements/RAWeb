@@ -75,9 +75,9 @@ function SubmitLeaderboardEntry(
         $retVal['BestScore'] = $newEntry;
     }
 
-    $retVal['TopEntries'] = GetLeaderboardEntriesDataJSON($lbID, $user->User, 10, 0, false);
-    $retVal['TopEntriesFriends'] = GetLeaderboardEntriesDataJSON($lbID, $user->User, 10, 0, true);
-    $retVal['RankInfo'] = GetLeaderboardRankingJSON($user->User, $lbID, (bool) $leaderboard->LowerIsBetter);
+    $retVal['TopEntries'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, false);
+    $retVal['TopEntriesFriends'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, true);
+    $retVal['RankInfo'] = GetLeaderboardRankingJSON($user, $lbID, (bool) $leaderboard->LowerIsBetter);
 
     return $retVal;
 }
