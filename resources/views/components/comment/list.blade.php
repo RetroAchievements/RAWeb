@@ -52,13 +52,14 @@ if ($user) {
     }
 }
 
-$route = match($articleType) {
+$route = match((int) $articleType) {
     ArticleType::Game => route('game.comments', $articleId),
     ArticleType::GameModification => route('game.modification-comments', $articleId),
     ArticleType::Achievement => route('achievement.comments', $articleId),
     ArticleType::Leaderboard => route('leaderboard.comments', $articleId),
     ArticleType::User => route('user.comments', $article ?? User::find($articleId)),
-    default => '',
+    ArticleType::UserModeration => route('user.moderation-comments', $article ?? User::find($articleId)),
+    default => 'hhh',
 };
 
 @endphp

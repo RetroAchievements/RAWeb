@@ -64,4 +64,13 @@ class CommentController extends Controller
             'user' => $user,
         ]);
     }
+
+    public function indexForUserModeration(Request $request, User $user): View
+    {
+        $this->authorize('manage', $user);
+
+        return view('pages.user.[user].moderation-comments', [
+            'user' => $user,
+        ]);
+    }
 }

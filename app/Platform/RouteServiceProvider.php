@@ -101,6 +101,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('user/{user}/comments', [CommentController::class, 'indexForUser'])->name('user.comments');
             Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
             Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
+            Route::get('user/{user}/moderation-comments', [CommentController::class, 'indexForUserModeration'])->name('user.moderation-comments');
             Route::get('user/{user}/tickets', [TicketController::class, 'indexForDeveloper'])->name('developer.tickets');
             Route::get('user/{user}/tickets/feedback', [TicketController::class, 'indexForReporterFeedback'])->name('reporter.tickets');
             Route::get('user/{user}/tickets/resolved-for-others', [TicketController::class, 'indexForDeveloperResolvedForOthers'])->name('developer.tickets.resolved-for-others');
