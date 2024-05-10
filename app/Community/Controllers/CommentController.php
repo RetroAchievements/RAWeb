@@ -10,6 +10,7 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\Leaderboard;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -54,6 +55,13 @@ class CommentController extends Controller
     {
         return view('pages.leaderboard.[leaderboard].comments', [
             'leaderboard' => $leaderboard,
+        ]);
+    }
+
+    public function indexForUser(Request $request, User $user): View
+    {
+        return view('pages.user.[user].comments', [
+            'user' => $user,
         ]);
     }
 }

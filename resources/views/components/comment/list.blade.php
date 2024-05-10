@@ -1,6 +1,7 @@
 @props([
     'articleType' => 0,
     'articleId' => 0,
+    'article' => null,
     'embedded' => true,
 ])
 
@@ -9,6 +10,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Comment;
+use App\Models\User;
 
 $perPage = $embedded ? 20 : 50;
 
@@ -55,6 +57,7 @@ $route = match($articleType) {
     ArticleType::GameModification => route('game.modification-comments', $articleId),
     ArticleType::Achievement => route('achievement.comments', $articleId),
     ArticleType::Leaderboard => route('leaderboard.comments', $articleId),
+    ArticleType::User => route('user.comments', $article ?? User::find($articleId)),
     default => '',
 };
 
@@ -109,7 +112,7 @@ $route = match($articleType) {
                 />
             @endforeach
 
-            <x-comment.input-row articleType="{{ $articleType }}" articleId="{{ $articleId }}" />
+            <x-comment.input-row articleType="{{ $articleType }}" articleId="{{ $articleId }}" :article="$article" />
         </tbody>
     </table>
 
