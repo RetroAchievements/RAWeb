@@ -54,6 +54,15 @@ class CommentController extends Controller
         ]);
     }
 
+    public function indexForGameClaims(Request $request, Game $game): View
+    {
+        $this->authorize('manage', AchievementSetClaim::class);
+
+        return view('pages.game.[game].claims.comments', [
+            'game' => $game,
+        ]);
+    }
+
     public function indexForAchievement(Request $request, Achievement $achievement): View
     {
         return view('pages.achievement.[achievement].comments', [
