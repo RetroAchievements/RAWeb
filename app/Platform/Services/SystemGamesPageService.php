@@ -92,6 +92,8 @@ class SystemGamesPageService
             ];
         }
 
+        $games = $this->gameListService->games;
+
         return [
             'availableCheckboxFilters' => $availableCheckboxFilters,
             'availableRadioFilters' => $availableRadioFilters,
@@ -100,8 +102,8 @@ class SystemGamesPageService
             'columns' => $this->gameListService->getColumns(),
             'filterOptions' => $filterOptions,
             'gameListConsoles' => $this->gameListService->consoles,
-            'games' => $this->gameListService->games,
-            'pageMetaDescription' => $this->buildPageMetaDescription($request, $system),
+            'games' => $games,
+            'pageMetaDescription' => $this->buildPageMetaDescription($request, $system, $games),
             'shouldAlwaysShowMetaSurface' => !isValidConsoleId($system->id) || $system->id === System::Events,
             'sortOrder' => $sortOrder,
             'system' => $system,
@@ -109,16 +111,16 @@ class SystemGamesPageService
         ];
     }
 
-    private function buildPageMetaDescription(Request $request, System $system): string
+    private function buildPageMetaDescription(Request $request, System $system, array $gameListGames): string
     {
         $pageMetaDescription = '';
         $areFiltersPristine = count($request->query()) === 0;
 
         if ($areFiltersPristine) {
-            if (empty($games)) {
+            if (empty($gameListGames)) {
                 $pageMetaDescription = "There are no games with achievements yet for {$system->name}. Check again soon.";
             } else {
-                $numGames = count($games);
+                $numGames = count($gameListGames);
                 if ($numGames < 100) {
                     $numGames = floor($numGames / 10) * 10; // round down to the nearest tenth
                 } elseif ($numGames < 1000) {
