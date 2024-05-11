@@ -235,9 +235,7 @@ class RouteServiceProvider extends ServiceProvider
                     'middleware' => ['auth'], // TODO add 'verified' middleware
                 ], function () {
                     Route::resource('message', MessageController::class)->only(['store']);
-
-                    Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
-                    Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['show', 'destroy']);
+                    Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['destroy']);
                 });
 
                 /*

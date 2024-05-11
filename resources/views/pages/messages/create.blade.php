@@ -1,18 +1,22 @@
 <?php
 
 use App\Models\Message;
-use function Laravel\Folio\{middleware, name};
+use Illuminate\View\View;
 
-middleware(['auth', 'can:create,' . Message::class]);
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:create,' . Message::class]); // TODO add 'verified' middleware
 name('message.create');
 
-?>
+render(function (View $view) {
+    return $view->with([
+        'toUser' => request()->input('to') ?? '',
+        'subject' => request()->input('subject') ?? '',
+        'message' => request()->input('message') ?? '',
+    ]);
+});
 
-@php
-$toUser = request()->input('to') ?? '';
-$subject = request()->input('subject') ?? '';
-$message = request()->input('message') ?? '';
-@endphp
+?>
 
 <x-app-layout
     pageTitle="New Message"
