@@ -56,7 +56,7 @@ class MessageThreadService
             'currentPage' => $currentPage,
             'isShowAbsoluteDatesPreferenceSet' => BitSet($user->websitePrefs, UserPreference::Forum_ShowAbsoluteDates),
             'messages' => $messageThreads,
-            'monthAgo' => Carbon::now()->subMonth(1),
+            'monthAgo' => Carbon::now()->subMonth(),
             'totalMessages' => $totalMessages,
             'totalPages' => $totalPages,
             'unreadCount' => $user->UnreadMessageCount,
@@ -110,8 +110,8 @@ class MessageThreadService
             ->toArray();
 
         $isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
-        $monthAgo = Carbon::now()->subMonth(1);
-        
+        $monthAgo = Carbon::now()->subMonth();
+
         $participantModels = [];
         if (empty($participants)) {
             foreach ($messages as $message) {
@@ -131,7 +131,7 @@ class MessageThreadService
                 }
             }
         }
-        
+
         $pageDescription = "Conversation between " . implode(' and ', $participants);
 
         return [
