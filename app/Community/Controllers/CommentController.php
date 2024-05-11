@@ -7,6 +7,7 @@ namespace App\Community\Controllers;
 use App\Community\Actions\GetUrlToCommentDestinationAction;
 use App\Http\Controller;
 use App\Models\Achievement;
+use App\Models\AchievementSetClaim;
 use App\Models\Comment;
 use App\Models\Game;
 use App\Models\GameHash;

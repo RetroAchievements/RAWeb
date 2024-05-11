@@ -58,7 +58,7 @@ class CommentPolicy
         }
 
         // users cannnot comment on the wall of a user who has them blocked
-        if ($commentable !== null && $commentable instanceof \App\Models\User) {
+        if ($commentable !== null && $commentable instanceof User) {
             if ($commentable->isBlocking($user)) {
                 return false;
             }
