@@ -1,53 +1,28 @@
 <?php
 
-use function Laravel\Folio\{middleware, name};
-
-middleware(['auth', 'can:view,game', 'can:manage,user']);
-name('user.game.activity');
-
-?>
-
-@props([
-    'user' => null,
-    'game' => null,
-])
-
-@php
 use App\Enums\PlayerGameActivityEventType;
 use App\Enums\PlayerGameActivitySessionType;
 use App\Models\Game;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Services\PlayerGameActivityService;
-use App\Platform\Services\UserAgentService;
+use App\Platform\Services\PlayerGameActivityPageService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
-$activity = new PlayerGameActivityService();
-$activity->initialize($user, $game);
-$summary = $activity->summarize();
+use function Laravel\Folio\{middleware, name, render};
 
-$estimated = ($summary['generatedSessionAdjustment'] !== 0) ? " (estimated)" : "";
+middleware(['auth', 'can:view,game']);
+name('user.game.activity');
 
-$unlockSessionCount = $summary['achievementSessionCount'];
-$sessionInfo = "$unlockSessionCount session";
-if ($unlockSessionCount != 1) {
-    $sessionInfo .= 's';
-
-    if ($unlockSessionCount > 1) {
-        $elapsedAchievementDays = ceil($summary['totalUnlockTime'] / (24 * 60 * 60));
-        if ($elapsedAchievementDays > 2) {
-            $sessionInfo .= " over $elapsedAchievementDays days";
-        } else {
-            $sessionInfo .= " over " . ceil($summary['totalUnlockTime'] / (60 * 60)) . " hours";
-        }
+render(function (View $view, User $user, Game $game, PlayerGameActivityPageService $pageService) {
+    if (!Auth::user()->can('viewSessionHistory', App\Models\PlayerGame::class)) {
+        abort(401);
     }
-}
 
-$gameAchievementCount = $game->achievements_published ?? 0;
-$userProgress = ($gameAchievementCount > 0) ? sprintf("/%d (%01.2f%%)",
-    $gameAchievementCount, $activity->achievementsUnlocked * 100 / $gameAchievementCount) : "n/a";
+    return $view->with($pageService->buildViewData($user, $game));
+});
 
-$userAgentService = new UserAgentService();
-@endphp
+?>
 
 <x-app-layout pageTitle="{{ $user->User }}'s activity for {{ $game->Title }}">
     <x-user.breadcrumbs
@@ -63,12 +38,12 @@ $userAgentService = new UserAgentService();
     </div>
 @if (!empty($activity->sessions))
     <div>
-    @if ($summary['totalPlaytime'] != $summary['achievementPlaytime'])
-        <p>
-            <span class="font-bold">Total Playtime:</span>
-            <span>{{ formatHMS($summary['totalPlaytime']) }}{{ $estimated }}</span>
-        </p>
-    @endif
+        @if ($summary['totalPlaytime'] != $summary['achievementPlaytime'])
+            <p>
+                <span class="font-bold">Total Playtime:</span>
+                <span>{{ formatHMS($summary['totalPlaytime']) }}{{ $estimated }}</span>
+            </p>
+        @endif
         <p>
             <span class="font-bold">Achievement Playtime:</span>
             <span>{{ formatHMS($summary['achievementPlaytime']) }}{{ $estimated }}</span>
@@ -100,32 +75,32 @@ $userAgentService = new UserAgentService();
                 @foreach ($activity->sessions as $session)
                     <tr class='do-not-highlight'>
                         <td>{{ $session['startTime']->format("j M Y, H:i:s") }}</td>
-                    @if ($session['type'] === PlayerGameActivitySessionType::Player)
-                        <td>
-                            <span class='text-muted'>Started Playing</span>
-                            @if ($session['userAgent'])
-                                <span class="smalltext" title="{{ $session['userAgent'] }}">
-                                @php $userAgent = $userAgentService->decode($session['userAgent']) @endphp
-                                {{ $userAgent['client'] }}
-                                @if ($userAgent['clientVersion'] !== 'Unknown')
-                                    {{ $userAgent['clientVersion'] }}
+                        @if ($session['type'] === PlayerGameActivitySessionType::Player)
+                            <td>
+                                <span class='text-muted'>Started Playing</span>
+                                @if ($session['userAgent'])
+                                    <span class="smalltext" title="{{ $session['userAgent'] }}">
+                                    @php $userAgent = $userAgentService->decode($session['userAgent']) @endphp
+                                    {{ $userAgent['client'] }}
+                                    @if ($userAgent['clientVersion'] !== 'Unknown')
+                                        {{ $userAgent['clientVersion'] }}
+                                    @endif
+                                    @if (array_key_exists('clientVariation', $userAgent))
+                                        - {{ $userAgent['clientVariation'] }}
+                                    @endif
+                                    @if (!empty($userAgent['os']))
+                                        ({{ $userAgent['os'] }})
+                                    @endif
+                                    </span>
                                 @endif
-                                @if (array_key_exists('clientVariation', $userAgent))
-                                    - {{ $userAgent['clientVariation'] }}
-                                @endif
-                                @if (!empty($userAgent['os']))
-                                    ({{ $userAgent['os'] }})
-                                @endif
-                                </span>
-                            @endif
-                        </td>
-                    @elseif ($session['type'] === PlayerGameActivitySessionType::Generated)
-                        <td class='text-muted'>Generated Session</td>
-                    @elseif ($session['type'] === PlayerGameActivitySessionType::ManualUnlock)
-                        <td class='text-muted'>Manual Unlock</td>
-                    @else
-                        <td class='text-muted'>{{ $session['type'] }}</td>
-                    @endif
+                            </td>
+                        @elseif ($session['type'] === PlayerGameActivitySessionType::Generated)
+                            <td class='text-muted'>Generated Session</td>
+                        @elseif ($session['type'] === PlayerGameActivitySessionType::ManualUnlock)
+                            <td class='text-muted'>Manual Unlock</td>
+                        @else
+                            <td class='text-muted'>{{ $session['type'] }}</td>
+                        @endif
                     </tr>
 
                     @php $prevWhen = $session['startTime'] @endphp
