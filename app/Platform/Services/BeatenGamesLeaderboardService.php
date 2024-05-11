@@ -2,26 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Controllers;
+namespace App\Platform\Services;
 
-use App\Http\Controller;
 use App\Models\Game;
 use App\Models\PlayerStat;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class BeatenGamesLeaderboardController extends Controller
+class BeatenGamesLeaderboardService
 {
     private int $pageSize = 25;
 
-    public function __invoke(Request $request): View|RedirectResponse
+    public function buildViewData(Request $request): array|RedirectResponse
     {
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
@@ -36,7 +34,7 @@ class BeatenGamesLeaderboardController extends Controller
             $foundUserByFilter = User::byDisplayName($validatedData['filter']['user'])->first();
 
             if (!$foundUserByFilter) {
-                return redirect()->route('ranking.beaten-games');
+                return ['redirect' => route('ranking.beaten-games')];
             }
         }
 
@@ -70,14 +68,12 @@ class BeatenGamesLeaderboardController extends Controller
         // If there's an active user filter and we have their ranking data, redirect to that user's page and remove the filter.
         if ($targetUser && $isUserFilterSet) {
             if ($targetUserRankingData) {
-                return redirect()->route('ranking.beaten-games', [
-                    'page[number]' => $userPageNumber,
-                ]);
+                return ['redirect' => route('ranking.beaten-games', ['page[number]' => $userPageNumber])];
             }
 
             // We could end up here for a number of reasons, such as
             // the target user being untracked or being softcore-only.
-            return redirect()->route('ranking.beaten-games');
+            return ['redirect' => route('ranking.beaten-games')];
         }
 
         $currentPageRows = $allBeatenGameAwardsRankedRows->slice($offset, $this->pageSize);
@@ -94,7 +90,7 @@ class BeatenGamesLeaderboardController extends Controller
         // Grab all the systems so we can build the system filter options.
         $allSystems = System::orderBy('Name')->get(['ID', 'Name']);
 
-        return view('pages.ranking.beaten-games', [
+        return [
             'allSystems' => $allSystems,
             'gameKindFilterOptions' => $gameKindFilterOptions,
             'isUserOnCurrentPage' => $isUserOnCurrentPage,
@@ -103,7 +99,7 @@ class BeatenGamesLeaderboardController extends Controller
             'paginator' => $paginator,
             'selectedConsoleId' => $targetSystemId,
             'userPageNumber' => $userPageNumber,
-        ]);
+        ];
     }
 
     private function attachRankingRowsMetadata(mixed $rankingRows, ?int $limit = null, ?int $offset = null): mixed
