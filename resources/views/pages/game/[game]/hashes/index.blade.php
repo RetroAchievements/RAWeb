@@ -2,24 +2,32 @@
 
 use App\Models\Game;
 use App\Models\GameHash;
-use function Laravel\Folio\{middleware, name};
+use Illuminate\View\View;
+
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:view,game']);
 name('game.hash');
 
+render(function (View $view, Game $game) {
+    $hashes = $game->hashes()->with('user')->orderBy('name')->orderBy('md5')->get();
+    $numHashes = $hashes->count();
+
+    $unlabeledHashes = $hashes->filter(function ($hash) {
+        return empty($hash->name);
+    });
+    $labeledHashes = $hashes->reject(function ($hash) {
+        return empty($hash->name);
+    });
+
+    return $view->with([
+        'labeledHashes' => $labeledHashes,
+        'numHashes' => $numHashes,
+        'unlabeledHashes' => $unlabeledHashes,
+    ]);
+});
+
 ?>
-
-@php
-$hashes = $game->hashes()->with('user')->orderBy('name')->orderBy('md5')->get();
-$numHashes = $hashes->count();
-
-$unlabeledHashes = $hashes->filter(function ($hash) {
-    return empty($hash->name);
-});
-$labeledHashes = $hashes->reject(function ($hash) {
-    return empty($hash->name);
-});
-@endphp
 
 <x-app-layout pageTitle="Supported Game Files - {{ $game->title }}">
     <x-game.breadcrumbs
