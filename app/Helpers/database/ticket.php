@@ -125,7 +125,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
     $emailHeader = "Bug Report ($gameTitle)";
-    $ticketUrl = route('ticket.show', $ticketID);
+    $ticketUrl = route('ticket.show', ['ticket' => $ticketID]);
     $bugReportDetails = "
 Achievement: $achTitle
 Game: $gameTitle
@@ -275,7 +275,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
         "<br>Comment: $comment" .
         "<br>" .
-        "Click <a href='" . route('ticket.show', $ticketID) . "'>here</a> to view the ticket" .
+        "Click <a href='" . route('ticket.show', ['ticket' => $ticketID]) . "'>here</a> to view the ticket" .
         "<br>" .
         "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
         "<br>" .

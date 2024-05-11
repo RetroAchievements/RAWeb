@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Models\Ticket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
@@ -7,19 +8,18 @@ use Illuminate\View\View;
 use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
-name('tickets.index');
+name('developer.tickets');
 
-render(function (View $view) {
+render(function (View $view, User $user) {
     $ticketListService = new TicketListService();
 
     $ticketListService->perPage = 50;
-    $selectFilters = $ticketListService->getSelectFilters();
+    $selectFilters = $ticketListService->getSelectFilters(showDevType: false);
     $filterOptions = $ticketListService->getFilterOptions(request());
-    $tickets = $ticketListService->getTickets($filterOptions);
-
-    $openTicketCount = Ticket::unresolved()->count();
+    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forDeveloper($user));
 
     return $view->with([
+        'user' => $user,
         'tickets' => $tickets,
         'availableSelectFilters' => $selectFilters,
         'filterOptions' => $filterOptions,
@@ -27,15 +27,20 @@ render(function (View $view) {
         'numFilteredTickets' => $ticketListService->numFilteredTickets,
         'currentPage' => $ticketListService->pageNumber,
         'totalPages' => $ticketListService->totalPages,
-        'openTicketCount' => $openTicketCount,
     ]);
 });
 
 ?>
 
-<x-app-layout pageTitle="Ticket Manager">
-    <div class="mb-1 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">Ticket Manager - {{ localized_number($openTicketCount) }} Open Tickets</h1>
+<x-app-layout pageTitle="Tickets - {{ $user->User }}">
+    <x-user.breadcrumbs
+        :targetUsername="$user->User"
+        currentPage="Tickets"
+    />
+
+    <div class="mt-3 mb-1 w-full flex gap-x-3">
+        {!! userAvatar($user->User, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">Tickets</h1>
     </div>
 
     <x-meta-panel

@@ -1,25 +1,29 @@
 <?php
 
-use function Laravel\Folio\{name};
-
-name('tickets.most-reported-games');
-
-?>
-
-@php
-
 use App\Models\Game;
 use App\Models\Ticket;
+use Illuminate\View\View;
 
-$ticketedGames = Ticket::unresolved()->officialCore()
-    ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
-    ->select('GameID', DB::raw('count(*) AS TicketCount'))
-    ->groupBy('GameID')
-    ->orderBy('TicketCount', 'DESC')
-    ->take(100)
-    ->get();
+use function Laravel\Folio\{middleware, name, render};
 
-@endphp
+middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
+name('tickets.most-reported-games');
+
+render(function (View $view) {
+    $ticketedGames = Ticket::unresolved()->officialCore()
+        ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
+        ->select('GameID', DB::raw('count(*) AS TicketCount'))
+        ->groupBy('GameID')
+        ->orderBy('TicketCount', 'DESC')
+        ->take(100)
+        ->get();
+
+    return $view->with([
+        'ticketedGames' => $ticketedGames,
+    ]);
+});
+
+?>
 
 <x-app-layout pageTitle="Most Reported Games">
     <div class="navpath">
@@ -54,7 +58,7 @@ $ticketedGames = Ticket::unresolved()->officialCore()
                             />
                         </td>
                         <td class="text-right">
-                            <a href="{{ route('game.tickets', $game) }}?filter%5Bachievement%5D=core">{{ $ticketedGame->TicketCount }}</a>
+                            <a href="{{ route('game.tickets', ['game' => $game]) }}?filter%5Bachievement%5D=core">{{ $ticketedGame->TicketCount }}</a>
                         </td>
                     </tr>
                 @endforeach

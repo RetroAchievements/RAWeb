@@ -1,74 +1,83 @@
 <?php
 
-use function Laravel\Folio\{middleware, name};
-
-middleware(['auth', 'can:view,achievement', 'can:create,ticket']);
-name('achievement.create-ticket');
-
-?>
-
-@props([
-    'achievement' => null, // Achievement
-])
-
-@php
-
 use App\Community\Enums\TicketType;
+use App\Models\Achievement;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\UserAgentService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
-$user = request()->user();
-$ticketID = getExistingTicketID($user, $achievement->id);
-if ($ticketID !== 0) {
-    abort_with(redirect(route('ticket.show', $ticketID))->withErrors(__('legacy.error.ticket_exists')));
-}
+use function Laravel\Folio\{middleware, name, render};
 
-$selectedType = (int) old('issue', request()->input('type'));
-$selectedMode = old('mode');
-$selectedHash = old('hash');
+middleware(['auth', 'can:view,achievement', 'can:create,' . App\Models\Ticket::class]);
+name('achievement.create-ticket');
 
-$selectedEmulator = old('emulator');
-$emulatorVersion = old('emulator_version');
-$emulatorCore = old('emulator_core');
+render(function (View $view, Achievement $achievement) {
+    $user = Auth::user();
 
-if ($selectedEmulator === null) {
-    $userAgent = null;
+    // TODO migrate this logic to a service
 
-    $unlock = $user->playerAchievements()->where('achievement_id', $achievement->id)->first();
-    if ($unlock !== null) {
-        $playerSession = $user->playerSessions()->firstWhere('player_sessions.id', $unlock->player_session_id);
-        $userAgent = $playerSession?->user_agent;
+    $ticketID = getExistingTicketID($user, $achievement->id);
+    if ($ticketID !== 0) {
+        abort_with(redirect(route('ticket.show', ['ticket' => $ticketID]))->withErrors(__('legacy.error.ticket_exists')));
     }
 
-    if ($userAgent === null) {
-        // find the most recent sesssion lasting at least five minutes
-        $playerSession = $user->playerSessions()
-            ->where('game_id', $achievement->game->id)
-            ->where('duration', '>=', '5')
-            ->orderBy('updated_at', 'DESC')
-            ->first();
-        $userAgent = $playerSession?->user_agent;
+    $selectedType = (int) old('issue', request()->input('type'));
+    $selectedMode = old('mode');
+    $selectedHash = old('hash');
+
+    $selectedEmulator = old('emulator');
+    $emulatorVersion = old('emulator_version');
+    $emulatorCore = old('emulator_core');
+
+    if ($selectedEmulator === null) {
+        $userAgent = null;
+
+        $unlock = $user->playerAchievements()->where('achievement_id', $achievement->id)->first();
+        if ($unlock !== null) {
+            $playerSession = $user->playerSessions()->firstWhere('player_sessions.id', $unlock->player_session_id);
+            $userAgent = $playerSession?->user_agent;
+        }
+
+        if ($userAgent === null) {
+            // find the most recent sesssion lasting at least five minutes
+            $playerSession = $user->playerSessions()
+                ->where('game_id', $achievement->game->id)
+                ->where('duration', '>=', '5')
+                ->orderBy('updated_at', 'DESC')
+                ->first();
+            $userAgent = $playerSession?->user_agent;
+        }
+
+        if ($userAgent !== null) {
+            $userAgentService = new UserAgentService();
+            $decoded = $userAgentService->decode($userAgent);
+
+            $selectedEmulator = $decoded['client'];
+            $emulatorVersion = $decoded['clientVersion'];
+            $emulatorCore = $decoded['clientVariation'] ?? null;
+        }
+
+        if ($unlock?->unlocked_hardcore_at) {
+            // user has hardcore unlock for achievement
+            $selectedMode = UnlockMode::Hardcore;
+        } elseif ($user->playerSessions()->where('hardcore', 1)->exists()) {
+            // user has hardcore sessions for game
+            $selectedMode = UnlockMode::Hardcore;
+        }
     }
 
-    if ($userAgent !== null) {
-        $userAgentService = new UserAgentService();
-        $decoded = $userAgentService->decode($userAgent);
+    return $view->with([
+        'emulatorCore' => $emulatorCore,
+        'emulatorVersion' => $emulatorVersion,
+        'selectedEmulator' => $selectedEmulator,
+        'selectedHash' => $selectedHash,
+        'selectedMode' => $selectedMode,
+        'selectedType' => $selectedType,
+    ]);
+});
 
-        $selectedEmulator = $decoded['client'];
-        $emulatorVersion = $decoded['clientVersion'];
-        $emulatorCore = $decoded['clientVariation'] ?? null;
-    }
-
-    if ($unlock?->unlocked_hardcore_at) {
-        // user has hardcore unlock for achievement
-        $selectedMode = UnlockMode::Hardcore;
-    } elseif ($user->playerSessions()->where('hardcore', 1)->exists()) {
-        // user has hardcore sessions for game
-        $selectedMode = UnlockMode::Hardcore;
-    }
-}
-
-@endphp
+?>
 
 <script>
 function reportIssueComponent() {
