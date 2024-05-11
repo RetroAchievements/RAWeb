@@ -20,6 +20,7 @@ use App\Platform\Enums\ValueFormat;
         @php
             $bestScore = $leaderboard->entries()
                 ->orderBy("score", $leaderboard->rank_asc ? 'ASC' : 'DESC')
+                ->orderBy('updated_at')
                 ->first();
         @endphp
         @if (!$bestScore)
