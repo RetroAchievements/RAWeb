@@ -15,7 +15,6 @@ use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Services\GameListService;
 use Illuminate\Support\Facades\Blade;
 
 class SuggestGamesService
