@@ -1,11 +1,6 @@
 <?php
 
-use App\Enums\UserPreference;
-use App\Models\MessageThread;
-use App\Models\User;
 use App\Platform\Services\BeatenGamesLeaderboardService;
-use App\Support\Shortcode\Shortcode;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{name, render};
