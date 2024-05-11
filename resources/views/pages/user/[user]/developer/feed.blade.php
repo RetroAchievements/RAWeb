@@ -1,22 +1,18 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\User;
+use App\Platform\Services\DeveloperFeedService;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{name, render};
 
 name('developer.feed');
 
-?>
+render(function (View $view, User $user, DeveloperFeedService $pageService) {
+    return $view->with($pageService->buildViewData($user));
+});
 
-@props([
-    'awardsContributed' => 0,
-    'foundTargetUser' => null, // User
-    'leaderboardEntriesContributed' => 0,
-    'recentAwards' => null, // Collection
-    'recentLeaderboardEntries' => null, // Collection
-    'recentUnlocks' => null, // Collection
-    'targetGameIds' => [],
-    'targetUserUnlocksContributed' => 0,
-    'targetUserPointsContributed' => 0,
-])
+?>
 
 <x-app-layout
     pageTitle="{{ $foundTargetUser->User }} - Developer Feed"

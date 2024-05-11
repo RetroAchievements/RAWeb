@@ -2,32 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Controllers;
+namespace App\Platform\Services;
 
 use App\Community\Enums\TicketState;
-use App\Http\Controller;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Services\GameListService;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DeveloperSetsController extends Controller
+class DeveloperSetsService
 {
     public function __construct(
         protected GameListService $gameListService,
     ) {
     }
 
-    public function __invoke(Request $request): View
+    public function buildViewData(Request $request, User $user): array
     {
-        $username = $request->route('user');
-        $user = User::firstWhere('User', $username);
-        if ($user === null) {
-            abort(404);
-        }
-
         $loggedInUser = $request->user();
         $this->gameListService->withTicketCounts = true;
 
@@ -147,16 +138,16 @@ class DeveloperSetsController extends Controller
         };
         $columns['tickets']['tally'] = function ($game) { return $game['NumAuthoredTickets']; };
 
-        return view('pages.user.[user].developer.sets', [
-            'user' => $user,
+        return [
+            'availableCheckboxFilters' => $availableCheckboxFilters,
+            'availableSorts' => $availableSorts,
+            'columns' => $columns,
             'consoles' => $this->gameListService->consoles,
+            'filterOptions' => $filterOptions,
             'games' => $this->gameListService->games,
             'sortOrder' => $sortOrder,
-            'availableSorts' => $availableSorts,
-            'filterOptions' => $filterOptions,
-            'availableCheckboxFilters' => $availableCheckboxFilters,
-            'columns' => $columns,
-        ]);
+            'user' => $user,
+        ];
     }
 
     private function renderNumberOfNumber(array $game, string $field1, string $field2): void

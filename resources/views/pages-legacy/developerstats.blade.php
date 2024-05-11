@@ -114,7 +114,7 @@ if ($currentPage < $totalPages) {
         echo "</small>";
         echo "</div></td>";
         echo "<td class='text-right'><a href='" . route('developer.tickets', $devStats['Author']) ."'>" . $devStats['OpenTickets'] . "</a></td>";
-        echo "<td class='text-right'><a href='" . route('developer.sets', $devStats['Author']) . "'>" . localized_number($devStats['Achievements']) . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.sets', ['user' => $devStats['Author']]) . "'>" . localized_number($devStats['Achievements']) . "</a></td>";
         echo "<td class='text-right'><a href='" . route('developer.tickets.resolved-for-others', $devStats['Author']) ."'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribCount']) . "</td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribYield']) . "</td>";

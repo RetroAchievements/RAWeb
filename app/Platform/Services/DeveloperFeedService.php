@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Controllers;
+namespace App\Platform\Services;
 
 use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
-use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\LeaderboardEntryLegacy;
@@ -15,44 +14,41 @@ use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class DeveloperFeedController extends Controller
+class DeveloperFeedService
 {
-    public function __invoke(Request $request): View
+    public function buildViewData(User $user): array
     {
-        $targetUsername = $request->route()->parameters['user'];
-        $foundTargetUser = User::firstWhere('User', $targetUsername);
-        if (!$this->getCanViewTargetUser($foundTargetUser)) {
+        // TODO use a policy
+        if (!$this->getCanViewTargetUser($user)) {
             abort(404);
         }
 
-        $allUserAchievements = collect(getUserAchievementInformation($foundTargetUser));
+        $allUserAchievements = collect(getUserAchievementInformation($user));
         $allUserAchievementIds = $allUserAchievements->pluck('ID');
         $allUserGameIds = $allUserAchievements->pluck('GameID')->unique();
 
         $recentUnlocks = $this->fetchRecentUnlocksForDev(
             $allUserAchievementIds,
-            shouldUseDateRange: $foundTargetUser->ContribCount <= 20000
+            shouldUseDateRange: $user->ContribCount <= 20000
         );
         $recentAwards = $this->fetchRecentAwardsForDev($allUserGameIds);
         $awardsContributed = $this->fetchAwardsContributedForDev($allUserGameIds);
-        $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($foundTargetUser);
-        $recentLeaderboardEntries = $this->fetchRecentLeaderboardEntriesForDev($foundTargetUser);
+        $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($user);
+        $recentLeaderboardEntries = $this->fetchRecentLeaderboardEntriesForDev($user);
 
-        return view('pages.user.[user].developer.feed', [
+        return [
             'awardsContributed' => $awardsContributed,
-            'foundTargetUser' => $foundTargetUser,
+            'foundTargetUser' => $user,
             'leaderboardEntriesContributed' => $leaderboardEntriesContributed,
             'recentAwards' => $recentAwards->reject(fn ($award) => $award->Untracked),
             'recentLeaderboardEntries' => $recentLeaderboardEntries->reject(fn ($entry) => $entry->Untracked),
             'recentUnlocks' => $recentUnlocks->reject(fn ($unlock) => $unlock->Untracked),
             'targetGameIds' => $allUserGameIds->toArray(),
-            'targetUserUnlocksContributed' => $foundTargetUser->ContribCount,
-            'targetUserPointsContributed' => $foundTargetUser->ContribYield,
-        ]);
+            'targetUserUnlocksContributed' => $user->ContribCount,
+            'targetUserPointsContributed' => $user->ContribYield,
+        ];
     }
 
     private function attachRecentLeaderboardEntryRowsMetadata(mixed $entryRows): mixed
