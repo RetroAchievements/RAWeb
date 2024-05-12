@@ -192,17 +192,17 @@ class DeveloperFeedController extends Controller
     {
         return PlayerBadge::from('SiteAwards as pb')
             ->whereIn('pb.AwardData', $allUserGameIds)
-            ->whereIn('pb.AwardType', [1, 8])
+            ->whereIn('pb.AwardType', [AwardType::Mastery, AwardType::GameBeaten])
             ->joinSub(
                 // If a user has both the softcore and hardcore award for the same
                 // AwardType and same game, only consider the most prestigious award.
-                PlayerBadge::selectRaw('MAX(AwardDataExtra) as MaxExtra, AwardData, AwardType, User')
-                    ->groupBy('AwardData', 'AwardType', 'User'),
+                PlayerBadge::selectRaw('MAX(AwardDataExtra) as MaxExtra, AwardData, AwardType, user_id')
+                    ->groupBy('AwardData', 'AwardType', 'user_id'),
                 'priority_awards',
                 function ($join) {
                     $join->on('pb.AwardData', '=', 'priority_awards.AwardData')
                         ->on('pb.AwardType', '=', 'priority_awards.AwardType')
-                        ->on('pb.User', '=', 'priority_awards.User')
+                        ->on('pb.user_id', '=', 'priority_awards.user_id')
                         ->on('pb.AwardDataExtra', '=', 'priority_awards.MaxExtra');
                 }
             );
@@ -235,7 +235,7 @@ class DeveloperFeedController extends Controller
     {
         return LeaderboardEntryLegacy::query()
             ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'LeaderboardEntry.LeaderboardID')
-            ->where('LeaderboardDef.Author', $targetUser->User);
+            ->where('LeaderboardDef.author_id', $targetUser->id);
     }
 
     private function fetchAwardsContributedForDev(mixed $allUserGameIds): int

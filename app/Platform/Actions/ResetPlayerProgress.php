@@ -26,16 +26,17 @@ class ResetPlayerProgress
 
         $affectedAchievements = legacyDbFetchAll("
             SELECT
-                ach.Author,
+                ua.User AS Author,
                 ach.GameID,
                 CASE WHEN pa.unlocked_hardcore_at THEN 1 ELSE 0 END AS HardcoreMode,
                 COUNT(ach.ID) AS Count, SUM(ach.Points) AS Points,
                 SUM(ach.TrueRatio) AS TruePoints
             FROM player_achievements pa
             INNER JOIN Achievements ach ON ach.ID = pa.achievement_id
+            INNER JOIN UserAccounts ua ON ua.ID = ach.user_id
             WHERE ach.Flags = " . AchievementFlag::OfficialCore . "
             AND pa.user_id = {$user->id} $clause
-            GROUP BY ach.Author, ach.GameID, HardcoreMode
+            GROUP BY ach.user_id, ach.GameID, HardcoreMode
         ");
 
         $affectedGames = collect();
