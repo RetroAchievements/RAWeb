@@ -60,6 +60,9 @@ class AchievementSet extends BaseModel
             ->withTimestamps();
     }
 
+    /**
+     * @return BelongsToMany<Game>
+     */
     public function games(): BelongsToMany
     {
         return $this->belongsToMany(Game::class, 'game_achievement_sets', 'achievement_set_id', 'game_id', 'ID');
