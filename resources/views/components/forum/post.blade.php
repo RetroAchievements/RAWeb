@@ -73,7 +73,7 @@ if (!$isPreview) {
 
                         @can('update', $forumTopicComment)
                             <a
-                                href="{{ route('forum.post.edit', $forumTopicComment->id) }}"
+                                href="{{ route('forum.post.edit', ['forumTopicComment' => $forumTopicComment]) }}"
                                 class='btn p-1 lg:text-xs'
                             >
                                 Edit
