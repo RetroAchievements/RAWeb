@@ -525,7 +525,7 @@ function getGlobalRankingData(
                     $untrackedCond
                 GROUP BY ua.ID
             )
-            UNION ALL
+            UNION
             (
                 SELECT ua.User AS User,
                     ua.ID AS user_id,
