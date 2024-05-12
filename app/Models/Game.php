@@ -197,7 +197,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         return !$isSubsetOrTestKit && !$isEventGame;
     }
 
-    public function getCanDelegateActivity(User|string $user): bool
+    public function getCanDelegateActivity(User $user): bool
     {
         return $this->getIsStandalone() && $this->getHasAuthoredSomeAchievements($user);
     }
@@ -217,17 +217,17 @@ class Game extends BaseModel implements HasComments, HasMedia
         return $this->Title ? '-' . Str::slug($this->Title) : '';
     }
 
-    public function getHasAuthoredSomeAchievements(User|string $user): bool
+    public function getHasAuthoredSomeAchievements(User $user): bool
     {
         if ($this->achievements->isEmpty()) {
             return false;
         }
 
-        $username = $user instanceof User ? $user->User : $user;
+        $this->achievements->loadMissing('developer');
 
         // Check if any achievement is authored by the given user.
-        return $this->achievements->some(function ($achievement) use ($username) {
-            return $achievement->Flags === AchievementFlag::OfficialCore && $achievement->Author === $username;
+        return $this->achievements->some(function ($achievement) use ($user) {
+            return $achievement->Flags === AchievementFlag::OfficialCore && $achievement->developer->id === $user->id;
         });
     }
 

@@ -181,7 +181,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                 <div class="relative w-full p-2 bg-embed rounded">
                     <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticket->achievement, iconSize:16) !!}</x-ticket.stat-element>
                     <x-ticket.stat-element label="Game">{!! gameAvatar($ticket->achievement->game, iconSize:16) !!}</x-ticket.stat-element>
-                    <x-ticket.stat-element label="Author">{!! userAvatar($ticket->achievement->author, iconSize:16) !!}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Author">{!! userAvatar($ticket->achievement->developer->display_name, iconSize:16) !!}</x-ticket.stat-element>
         
                     @if ($ticket->achievement->type)
                         <x-ticket.stat-element label="Type">{{ __('achievement-type.' . $ticket->achievement->type) }}</x-ticket.stat-element>
@@ -376,11 +376,11 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                                     }
                                 }
                             @endphp
-                            @if ($lastComment != null && ($lastComment['User'] === $user->User || $lastComment['User'] === $ticket->achievement->Author))
-                                <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->User }}</option>
+                            @if ($lastComment != null && ($lastComment['User'] === $user->User || $lastComment['User'] === $ticket->achievement->developer->display_name))
+                                <option value="{{ TicketAction::Request }}">Transfer to reporter - {{ $ticket->reporter->display_name }}</option>
                             @endif
                         @else
-                            <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticket->achievement->Author }}</option>
+                            <option value="{{ TicketAction::Reopen }}">Transfer to author - {{ $ticket->achievement->developer->display_name }}</option>
                         @endif
                         <option value="{{ TicketAction::Demoted }}">Demote achievement to Unofficial</option>
                         <option value="{{ TicketAction::Network }}">Close - Network problems</option>
