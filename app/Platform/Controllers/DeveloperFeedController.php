@@ -58,7 +58,7 @@ class DeveloperFeedController extends Controller
     private function attachRecentLeaderboardEntryRowsMetadata(mixed $entryRows): mixed
     {
         // Fetch all the user metadata.
-        $userIds = $entryRows->pluck('UserID')->unique();
+        $userIds = $entryRows->pluck('user_id')->unique();
         $userData = User::whereIn('ID', $userIds)->get(['ID', 'User', 'Untracked'])->keyBy('ID');
 
         // Fetch all the game metadata.

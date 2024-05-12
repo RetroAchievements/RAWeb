@@ -136,56 +136,6 @@ function GetLeaderboardRankingJSON(User $user, int $lbID, bool $lowerIsBetter): 
     return $retVal;
 }
 
-function getLeaderboardsForGame(int $gameID, ?array &$dataOut, ?string $localUser, bool $retrieveHidden = true): int
-{
-    sanitize_sql_inputs($localUser);
-
-    $retrieveHiddenClause = '';
-    if (!$retrieveHidden) {
-        $retrieveHiddenClause = "AND lbd.DisplayOrder != -1";
-    }
-
-    $query = "SELECT lbd.ID AS LeaderboardID, lbd.Title, lbd.Description, lbd.Format, lbd.DisplayOrder,
-                     le2.UserID, ua.User, le2.DateSubmitted, BestEntries.Score
-              FROM LeaderboardDef AS lbd
-              LEFT JOIN (
-                  SELECT lbd.ID as LeaderboardID,
-                  CASE WHEN lbd.LowerIsBetter = 0 THEN MAX(le2.Score) ELSE MIN(le2.Score) END AS Score
-                  FROM LeaderboardDef AS lbd
-                  LEFT JOIN LeaderboardEntry AS le2 ON lbd.ID = le2.LeaderboardID
-                  LEFT JOIN UserAccounts AS ua ON ua.ID = le2.UserID
-                  WHERE ua.Untracked = 0 AND lbd.GameID = $gameID $retrieveHiddenClause
-                  GROUP BY lbd.ID
-              ) AS BestEntries ON BestEntries.LeaderboardID = lbd.ID
-              LEFT JOIN LeaderboardEntry AS le2 ON le2.LeaderboardID = lbd.ID AND le2.Score = BestEntries.Score
-              LEFT JOIN UserAccounts ua ON le2.UserID = ua.ID
-              WHERE lbd.GameID = $gameID AND (ua.User IS NULL OR ua.Untracked = 0) $retrieveHiddenClause
-              ORDER BY DisplayOrder ASC, LeaderboardID, DateSubmitted ASC";
-
-    $dataOut = [];
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($data = mysqli_fetch_assoc($dbResult)) {
-            $lbID = $data['LeaderboardID'];
-            if (!isset($dataOut[$lbID])) { // keep earliest entry if players tied
-                $dataOut[$lbID] = $data;
-            }
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    // Get the number of leaderboards for the game
-    $query = "SELECT COUNT(*) AS lbCount FROM LeaderboardDef WHERE GameID = $gameID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        return (int) mysqli_fetch_assoc($dbResult)['lbCount'];
-    }
-
-    return 0;
-}
-
 function GetLeaderboardEntriesDataJSON(int $lbID, User $user, int $numToFetch, int $offset, bool $friendsOnly): array
 {
     $retVal = [];
