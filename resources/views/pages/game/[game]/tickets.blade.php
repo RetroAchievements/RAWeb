@@ -49,5 +49,6 @@ render(function (View $view, Game $game) {
         :tickets="$tickets"
         :totalTickets="$totalTickets"
         :numFilteredTickets="$numFilteredTickets"
+        showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
     />
 </x-app-layout>

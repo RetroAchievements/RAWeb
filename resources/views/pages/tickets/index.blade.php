@@ -49,5 +49,6 @@ render(function (View $view) {
         :numFilteredTickets="$numFilteredTickets"
         :currentPage="$currentPage"
         :totalPages="$totalPages"
+        showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
     />
 </x-app-layout>
