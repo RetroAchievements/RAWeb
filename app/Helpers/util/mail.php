@@ -287,7 +287,10 @@ function sendActivityEmail(
         return false;
     }
 
-    $link = "<a href='" . config('app.url') . "/$urlTarget'>here</a>";
+    if (!str_starts_with($urlTarget, "http")) {
+        $urlTarget = config('app.url') . "/$urlTarget";
+    }
+    $link = "<a href='$urlTarget'>here</a>";
 
     switch ($articleType) {
         case ArticleType::Game:
