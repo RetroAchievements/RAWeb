@@ -28,12 +28,14 @@ $flags = match ($params) {
 };
 
 $dev_param = null;
+$devUser = null;
 if ($dev != null) {
     $dev_param .= "&d=$dev";
+    $devUser = User::firstWhere('User', $dev);
 }
 
 $sortBy = (int) request()->input('s', 17);
-$achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $dev);
+$achData = getAchievementsList($user, $sortBy, $params, $count, $offset, $flags, $devUser);
 
 // Is the user looking at their own achievements list?
 $isOwnEarnedAchievementsList = $user !== null && $params === 1;

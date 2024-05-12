@@ -24,36 +24,40 @@ class LegacyRedirector implements Redirector
         /*
          * handle query string
          */
-        if ($request->getQueryString()) {
-            if (isset($redirects[$request->getPathInfo()])) {
-                $queryParams = Query::parse($request->getQueryString());
-                $redirectUrl = $redirects[$request->getPathInfo()];
+        if (isset($redirects[$request->getPathInfo()])) {
+            $queryParams = Query::parse($request->getQueryString() ?? '');
+            $redirectUrl = $redirects[$request->getPathInfo()];
 
-                // handle single url mapping to multiple paths based on parameters
-                if (is_array($redirectUrl)) {
-                    foreach ($redirectUrl as $param => $url) {
-                        if (empty($param) || array_key_exists($param, $queryParams)) {
-                            $redirectUrl = $url;
-                            break;
-                        }
+            // handle single url mapping to multiple paths based on parameters
+            if (is_array($redirectUrl)) {
+                foreach ($redirectUrl as $param => $url) {
+                    if (empty($param) || array_key_exists($param, $queryParams)) {
+                        $redirectUrl = $url;
+                        break;
                     }
                 }
-
-                // forward route and query string values
-                foreach ($queryParams as $key => $value) {
-                    $redirectUrl = str_replace("{{$key}}", $value, $redirectUrl);
-                }
-
-                // remove remaining, unused markers
+            } elseif (empty($queryParams)) {
+                // no query params to replace. no multiple path mapping.
+                // just let default behavior handle it.
                 $parsedRedirectUrl = Url::fromString($redirectUrl);
-                foreach ($parsedRedirectUrl->getAllQueryParameters() as $queryParameter => $queryParameterValue) {
-                    if (str_starts_with($queryParameterValue, '{')) {
-                        $parsedRedirectUrl = $parsedRedirectUrl->withoutQueryParameter($queryParameter);
-                    }
-                }
 
                 return [$request->getPathInfo() => (string) $parsedRedirectUrl];
             }
+
+            // forward route and query string values
+            foreach ($queryParams as $key => $value) {
+                $redirectUrl = str_replace("{{$key}}", $value, $redirectUrl);
+            }
+
+            // remove remaining, unused markers
+            $parsedRedirectUrl = Url::fromString($redirectUrl);
+            foreach ($parsedRedirectUrl->getAllQueryParameters() as $queryParameter => $queryParameterValue) {
+                if (str_starts_with($queryParameterValue, '{')) {
+                    $parsedRedirectUrl = $parsedRedirectUrl->withoutQueryParameter($queryParameter);
+                }
+            }
+
+            return [$request->getPathInfo() => (string) $parsedRedirectUrl];
         }
 
         return $redirects;

@@ -12,7 +12,7 @@ function SubmitLeaderboardEntry(
     User $user,
     int $lbID,
     int $newEntry,
-    string $validation
+    ?string $validation
 ): array {
     $retVal = ['Success' => true];
 
@@ -38,9 +38,9 @@ function SubmitLeaderboardEntry(
         'GameID' => $leaderboard->GameID,
         'Title' => $leaderboard->Title,
         'LowerIsBetter' => $leaderboard->LowerIsBetter,
-        'Score' => $newEntry,
-        'ScoreFormatted' => ValueFormat::format($newEntry, $leaderboard->Format),
     ];
+    $retVal['Score'] = $newEntry;
+    $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
     // TODO delete after LeaderboardEntries table is dropped and replaced by leaderboard_entries
     writeLegacyLeaderboardEntry($user, $leaderboard, $newEntry);
@@ -340,7 +340,7 @@ function GetLeaderboardData(
         ld.Description AS LBDesc,
         ld.Format AS LBFormat,
         ld.Mem AS LBMem,
-        ld.Author AS LBAuthor,
+        ua.User AS LBAuthor,
         gd.ConsoleID,
         c.Name AS ConsoleName,
         gd.ForumTopicID,
@@ -356,6 +356,7 @@ function GetLeaderboardData(
       FROM LeaderboardDef AS ld
       LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
       LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+      LEFT JOIN UserAccounts AS ua on ua.ID = ld.author_id
       WHERE ld.ID = $lbID";
 
     $dbResult = s_mysql_query($query);
@@ -390,7 +391,7 @@ function GetLeaderboardData(
         }
 
         // Now get entries:
-        $query = "SELECT ua.User, le.score AS Score, le.created_at AS DateSubmitted,
+        $query = "SELECT ua.User, le.score AS Score, le.updated_at AS DateSubmitted,
                   CASE WHEN lbd.LowerIsBetter = 0
                   THEN RANK() OVER(ORDER BY Score DESC)
                   ELSE RANK() OVER(ORDER BY Score ASC) END AS UserRank,
@@ -434,7 +435,7 @@ function GetLeaderboardData(
             if ($userFound == false && !$nearby) {
                 // Go find user's score in this table, if it exists!
                 $query = "SELECT User, Score, DateSubmitted, UserRank, UserIndex FROM
-                         (SELECT ua.User, le.score AS Score, le.created_at AS DateSubmitted,
+                         (SELECT ua.User, le.score AS Score, le.updated_at AS DateSubmitted,
                           CASE WHEN lbd.LowerIsBetter = 0
                           THEN RANK() OVER(ORDER BY Score DESC)
                           ELSE RANK() OVER(ORDER BY Score ASC) END AS UserRank,
@@ -482,10 +483,10 @@ function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition):
     sanitize_sql_inputs($user);
 
     $query = "SELECT UserIndex FROM
-                         (SELECT ua.User, le.score, le.created_at,
+                         (SELECT ua.User, le.score, le.updated_at,
                           CASE WHEN lbd.LowerIsBetter = 0
-                          THEN ROW_NUMBER() OVER(ORDER BY le.score DESC, le.created_at ASC)
-                          ELSE ROW_NUMBER() OVER(ORDER BY le.score ASC, le.created_at ASC) END AS UserIndex
+                          THEN ROW_NUMBER() OVER(ORDER BY le.score DESC, le.updated_at ASC)
+                          ELSE ROW_NUMBER() OVER(ORDER BY le.score ASC, le.updated_at ASC) END AS UserIndex
                           FROM leaderboard_entries AS le
                           LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
                           LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
@@ -549,32 +550,24 @@ function getLeaderboardsList(
             break;
     }
 
-    $query = "SELECT ld.ID,
-                     ld.Title,
-                     ld.Description,
-                     ld.Format,
-                     ld.Mem,
-                     ld.DisplayOrder,
-                     leInner.NumResults,
-                     ld.LowerIsBetter,
-                     ld.Author,
-                     gd.ID AS GameID,
-                     gd.ImageIcon AS GameIcon,
-                     gd.Title AS GameTitle,
-                     c.Name AS ConsoleName,
-                     c.ID AS ConsoleID
-                FROM LeaderboardDef AS ld
-                LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
-                LEFT JOIN
-                (
-                    SELECT le.LeaderboardID, COUNT(*) AS NumResults FROM LeaderboardEntry AS le
-                    GROUP BY le.LeaderboardID
-                    ) AS leInner ON leInner.LeaderboardID = ld.ID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                WHERE gd.ID = :gameId
-                GROUP BY ld.GameID, ld.ID
-                $orderClause
-                ";
+    $query = "SELECT 
+        ld.ID, ld.Title, ld.Description, ld.Format, ld.Mem, ld.DisplayOrder,
+        leInner.NumResults,
+        ld.LowerIsBetter, ua.User AS Author,
+        gd.ID AS GameID, gd.ImageIcon AS GameIcon, gd.Title AS GameTitle,
+        c.Name AS ConsoleName, c.ID AS ConsoleID
+        FROM LeaderboardDef AS ld
+        LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
+        LEFT JOIN
+        (
+            SELECT le.LeaderboardID, COUNT(*) AS NumResults FROM LeaderboardEntry AS le
+            GROUP BY le.LeaderboardID
+            ) AS leInner ON leInner.LeaderboardID = ld.ID
+        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+        LEFT JOIN UserAccounts AS ua ON ua.ID = ld.author_id
+        WHERE gd.ID = :gameId
+        GROUP BY ld.GameID, ld.ID
+        $orderClause";
 
     return legacyDbFetchAll($query, ['gameId' => $gameID])->toArray();
 }

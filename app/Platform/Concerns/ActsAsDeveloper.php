@@ -50,7 +50,7 @@ trait ActsAsDeveloper
      */
     public function authoredLeaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'Author', 'User');
+        return $this->hasMany(Leaderboard::class, 'author_id', 'ID');
     }
 
     /**

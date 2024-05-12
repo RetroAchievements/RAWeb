@@ -48,27 +48,7 @@ function AddSiteAward(
         ->first();
 }
 
-function removeDuplicateGameAwards(array &$dbResult, array $gamesToDedupe, int $awardType): void
-{
-    foreach ($gamesToDedupe as $game) {
-        $index = 0;
-        foreach ($dbResult as $award) {
-            if (
-                isset($award['AwardData'])
-                && $award['AwardData'] === $game
-                && $award['AwardDataExtra'] == UnlockMode::Softcore
-                && $award['AwardType'] == $awardType
-            ) {
-                $dbResult[$index] = "";
-                break;
-            }
-
-            $index++;
-        }
-    }
-}
-
-function getUsersSiteAwards(?User $user, bool $showHidden = false): array
+function getUsersSiteAwards(?User $user): array
 {
     $dbResult = [];
 
@@ -83,7 +63,7 @@ function getUsersSiteAwards(?User $user, bool $showHidden = false): array
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
             FROM SiteAwards AS saw
             LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType IN (" . implode(',', AwardType::game()) . ") )
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
@@ -91,9 +71,20 @@ function getUsersSiteAwards(?User $user, bool $showHidden = false): array
                 saw.AwardType IN(" . implode(',', AwardType::game()) . ")
                 AND saw.user_id = :userId
             GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
+            HAVING
+                -- Remove duplicate game beaten awards
+                (saw.AwardType != " . AwardType::GameBeaten . " OR saw.AwardDataExtra = 1 OR NOT EXISTS (
+                    SELECT 1 FROM SiteAwards AS saw2
+                    WHERE saw2.AwardType = saw.AwardType AND saw2.AwardData = saw.AwardData AND saw2.AwardDataExtra = 1 AND saw2.user_id = saw.user_id
+                ))
+                -- Remove duplicate mastery awards
+                AND (saw.AwardType != " . AwardType::Mastery . " OR saw.AwardDataExtra = 1 OR NOT EXISTS (
+                    SELECT 1 FROM SiteAwards AS saw3
+                    WHERE saw3.AwardType = saw.AwardType AND saw3.AwardData = saw.AwardData AND saw3.AwardDataExtra = 1 AND saw3.user_id = saw.user_id
+                ))
         UNION
         -- non-game awards (developer contribution, ...)
-        SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
+        SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, saw.user_id, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
             FROM SiteAwards AS saw
             WHERE
                 saw.AwardType NOT IN(" . implode(',', AwardType::game()) . ")
@@ -103,42 +94,9 @@ function getUsersSiteAwards(?User $user, bool $showHidden = false): array
 
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
-    // Updated way to "squash" duplicate awards to work with the new site award ordering implementation
-    $softcoreBeatenGames = [];
-    $hardcoreBeatenGames = [];
-    $completedGames = [];
-    $masteredGames = [];
-
-    // Get a separate list of completed and mastered games
-    $awardsCount = count($dbResult);
-    for ($i = 0; $i < $awardsCount; $i++) {
-        if ($dbResult[$i]['AwardType'] == AwardType::Mastery && $dbResult[$i]['AwardDataExtra'] == 1) {
-            $masteredGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery && $dbResult[$i]['AwardDataExtra'] == 0) {
-            $completedGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::GameBeaten && $dbResult[$i]['AwardDataExtra'] == 1) {
-            $hardcoreBeatenGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::GameBeaten && $dbResult[$i]['AwardDataExtra'] == 0) {
-            $softcoreBeatenGames[] = $dbResult[$i]['AwardData'];
-        }
-    }
-
-    // Get a single list of games both beaten hardcore and softcore
-    if (!empty($hardcoreBeatenGames) && !empty($softcoreBeatenGames)) {
-        $multiBeatenGames = array_intersect($hardcoreBeatenGames, $softcoreBeatenGames);
-        removeDuplicateGameAwards($dbResult, $multiBeatenGames, AwardType::GameBeaten);
-    }
-
-    // Get a single list of games both completed and mastered
-    if (!empty($completedGames) && !empty($masteredGames)) {
-        $multiAwardGames = array_intersect($completedGames, $masteredGames);
-        removeDuplicateGameAwards($dbResult, $multiAwardGames, AwardType::Mastery);
-    }
-
-    // Remove blank indexes
-    $dbResult = array_values(array_filter($dbResult));
-
     foreach ($dbResult as &$award) {
+        unset($award['user_id']);
+
         if ($award['ConsoleID']) {
             settype($award['AwardType'], 'integer');
             settype($award['AwardData'], 'integer');

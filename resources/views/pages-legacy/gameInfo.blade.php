@@ -796,7 +796,7 @@ if ($isFullyFeaturedGame) {
             if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
                 ?>
                     <x-game.claim-info
-                        :achievementSetClaims="$gameModel->achievementSetClaims->where('status', ClaimStatus::Active)"
+                        :achievementSetClaims="$gameModel->achievementSetClaims->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])"
                         :userPermissions="$permissions"
                     />
                 <?php

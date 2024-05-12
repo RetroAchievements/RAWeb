@@ -39,7 +39,7 @@ if (!$achievementSetClaims->isEmpty()) {
 }
 
 $userList = collect($achievementSetClaims)->map(function ($achievementSetClaim) use ($achievementSetClaims) {
-    $userAvatar = userAvatar($achievementSetClaim->user->display_name, icon: false);
+    $userAvatar = userAvatar($achievementSetClaim->user->display_name ?? 'Deleted User', icon: false);
 
     if ($achievementSetClaim->getKey() === $achievementSetClaims->first()->getKey()) {
         if ($achievementSetClaim->set_type === ClaimSetType::Revision && empty($revisionText)) {
@@ -58,6 +58,10 @@ $claimantHistory = [];
 // TODO use a policy
 if ($userPermissions >= Permissions::Moderator) {
     foreach ($achievementSetClaims as $achievementSetClaim) {
+        if (!$achievementSetClaim->user) {
+            continue;
+        }
+
         $playerGame = $achievementSetClaim->game
             ->playerSessions
             ->where('user_id', $achievementSetClaim->user->id)

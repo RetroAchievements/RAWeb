@@ -28,27 +28,32 @@ use Illuminate\Support\Str;
 $ticketID = $ticket->ID;
 
 $user = request()->user();
-$permissions = $user?->getAttribute('Permissions');
+if (!$user) {
+    abort(401);
+}
+$permissions = $user->getAttribute('Permissions');
 
 $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
-$msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->ID}]";
-$msgPayload = rawurlencode($msgPayload);
-$contactReporterUrl = route('message.create') . "?to={$ticket->reporter->User}&subject=$msgTitle&message=$msgPayload";
+if ($ticket->reporter) {
+    $msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->ID}]";
+    $msgPayload = rawurlencode($msgPayload);
+    $contactReporterUrl = route('message.create') . "?to={$ticket->reporter->User}&subject=$msgTitle&message=$msgPayload";
 
-$existingUnlock = PlayerAchievement::where('user_id', $ticket->reporter->id)
-    ->where('achievement_id', $ticket->achievement->id)
-    ->first();
+    $existingUnlock = PlayerAchievement::where('user_id', $ticket->reporter->id)
+        ->where('achievement_id', $ticket->achievement->id)
+        ->first();
 
-$openTicketLinks = [];
-$closedTicketLinks = [];
-$achievementTickets = Ticket::where('AchievementID', $ticket->achievement->id);
-foreach ($achievementTickets->get() as $otherTicket) {
-    if ($otherTicket->ID !== $ticket->ID) {
-        $url = '<a href="' . route('ticket.show', $otherTicket) . '">' . $otherTicket->ID . '</a>';
-        if (TicketState::isOpen($otherTicket->ReportState)) {
-            $openTicketLinks[] = $url;
-        } else {
-            $closedTicketLinks[] = $url;
+    $openTicketLinks = [];
+    $closedTicketLinks = [];
+    $achievementTickets = Ticket::where('AchievementID', $ticket->achievement->id);
+    foreach ($achievementTickets->get() as $otherTicket) {
+        if ($otherTicket->ID !== $ticket->ID) {
+            $url = '<a href="' . route('ticket.show', $otherTicket) . '">' . $otherTicket->ID . '</a>';
+            if (TicketState::isOpen($otherTicket->ReportState)) {
+                $openTicketLinks[] = $url;
+            } else {
+                $closedTicketLinks[] = $url;
+            }
         }
     }
 }
@@ -81,7 +86,7 @@ $canManageTicket = $user->can('manage', Ticket::class);
 if (!$canManageTicket) {
     $history = [];
     $userAgentLinks = [];
-} else {
+} elseif ($ticket->reporter) {
     $userAgentService = new UserAgentService();
     $activity = new PlayerGameActivityService();
     $activity->initialize($ticket->reporter, $ticket->achievement->game);
@@ -155,7 +160,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Ticket Information</p>
             <div class="relative w-full p-2 bg-embed rounded">
                 <x-ticket.stat-element label="State">{{ $ticketState }}</x-ticket.stat-element>
-                <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter, iconSize:16) !!}</x-ticket.stat-element>
+                <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize:16) !!}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reported at">{{ getNiceDate($ticket->ReportedAt->unix()) }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Report type">{{ $ticketType }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Mode">{{ $ticketMode }}</x-ticket.stat-element>
@@ -200,7 +205,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
         </div>
     </div>
 
-    @if ($canManageTicket)
+    @if ($canManageTicket && $ticket->reporter)
         <div class="mt-2">
             <div class="flex w-full justify-between border-embed-highlight items-center">
                 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
@@ -307,7 +312,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
                 Comments
             </p>
-            @if ($canManageTicket)
+            @if ($canManageTicket && $ticket->reporter)
                 <div class="flex flex-col gap-y-1">
                     <a class="btn" href="{!! $contactReporterUrl !!}">
                         Message the reporter
@@ -317,37 +322,39 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
         </div>
 
         <div class="commentscomponent">
-            <table id="feed" class="table-highlight"><tbody>
-                <x-comment.item
-                    :author="$ticket->reporter"
-                    :when="$ticket->ReportedAt"
-                    :payload="$ticketNotes"
-                />
-                @php $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticket->ID, $commentData) @endphp
-                @php $allowDelete = $permissions >= Permissions::Moderator @endphp
-                @foreach ($commentData as $comment)
-                    @php
-                        $when = Carbon::createFromTimestamp($comment['Submitted']);
-                        $commentUser = 
-                            ($comment['User'] === $ticket->reporter->User) ? $ticket->reporter :
-                            (($comment['User'] === $user->User) ? $user :
-                                User::firstWhere('User', $comment['User']));
-                    @endphp
+            <table id="feed" class="table-highlight">
+                <tbody>
                     <x-comment.item
-                        :author="$commentUser"
-                        :when="$when"
-                        :payload="$comment['CommentPayload']"
-                        articleType="{{ ArticleType::AchievementTicket }}"
-                        :articleId="$ticket->ID"
-                        :commentId="$comment['ID']"
-                        :allowDelete="$allowDelete"
+                        :author="$ticket->reporter"
+                        :when="$ticket->ReportedAt"
+                        :payload="$ticketNotes"
                     />
-                @endforeach
+                    @php $numArticleComments = getRecentArticleComments(ArticleType::AchievementTicket, $ticket->ID, $commentData) @endphp
+                    @php $allowDelete = $permissions >= Permissions::Moderator @endphp
+                    @foreach ($commentData as $comment)
+                        @php
+                            $when = Carbon::createFromTimestamp($comment['Submitted']);
+                            $commentUser = 
+                                ($comment['User'] === $ticket->reporter?->User) ? $ticket->reporter :
+                                (($comment['User'] === $user->User) ? $user :
+                                    User::firstWhere('User', $comment['User']));
+                        @endphp
+                        <x-comment.item
+                            :author="$commentUser"
+                            :when="$when"
+                            :payload="nl2br($comment['CommentPayload'])"
+                            articleType="{{ ArticleType::AchievementTicket }}"
+                            :articleId="$ticket->ID"
+                            :commentId="$comment['ID']"
+                            :allowDelete="$allowDelete || $comment['User'] === $user->User"
+                        />
+                    @endforeach
 
-                @if (isset($user) && !$user->isMuted)
-                    {!! RenderCommentInputRow($user->User, ArticleType::AchievementTicket, $ticket->ID) !!}
-                @endif
-            </tbody></table>
+                    @can('create', [App\Models\Comment::class, $ticket])
+                        {!! RenderCommentInputRow($user->User, ArticleType::AchievementTicket, $ticket->ID) !!}
+                    @endcan
+                </tbody>
+            </table>
         </div>
     </div>
 

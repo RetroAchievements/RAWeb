@@ -9,7 +9,7 @@
         <x-game.leaderboards-listing.empty-state :game="$game" />
     @else
         <x-game.leaderboards-listing.leaderboards-list
-            :gameLeaderboards="$game->visibleLeaderboards"
+            :gameLeaderboards="$game->visibleLeaderboards->sortBy('DisplayOrder')"
         />
     @endif
 </div>
