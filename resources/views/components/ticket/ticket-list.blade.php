@@ -49,7 +49,7 @@ $gameCache = [];
                         <th>Reporter</th>
                         <th>Reported At</th>
                         @if ($showResolver)
-                            <th>Resovled By</th>
+                            <th>Resolved By</th>
                         @endif
                     </tr>
                 </thead>
