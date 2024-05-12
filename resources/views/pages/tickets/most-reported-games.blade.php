@@ -11,7 +11,7 @@ name('tickets.most-reported-games');
 use App\Models\Game;
 use App\Models\Ticket;
 
-$ticketedGames = Ticket::unresolved()
+$ticketedGames = Ticket::unresolved()->officialCore()
     ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
     ->select('GameID', DB::raw('count(*) AS TicketCount'))
     ->groupBy('GameID')
@@ -54,7 +54,7 @@ $ticketedGames = Ticket::unresolved()
                             />
                         </td>
                         <td class="text-right">
-                            <a href="{{ route('game.tickets', $game) }}">{{ $ticketedGame->TicketCount }}</a>
+                            <a href="{{ route('game.tickets', $game) }}?filter%5Bachievement%5D=core">{{ $ticketedGame->TicketCount }}</a>
                         </td>
                     </tr>
                 @endforeach

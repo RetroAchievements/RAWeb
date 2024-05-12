@@ -92,8 +92,7 @@ function RenderCommentsComponent(
             ]);
     }
 
-    if (isset($user) && !$user->is_muted) {
-        // User comment input:
+    if ($user?->can('create', [App\Models\Comment::class])) {
         RenderCommentInputRow($user->User, $articleTypeID, $articleID);
     }
 
