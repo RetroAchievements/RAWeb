@@ -511,6 +511,7 @@ function getGlobalRankingData(
         (
             (
                 SELECT ua.User AS User,
+                    ua.ID as user_id,
                     SUM($achCount) AS AchievementCount,
                     SUM($achPoints) as Points,
                     SUM($achTruePoints) AS RetroPoints,
@@ -522,11 +523,12 @@ function getGlobalRankingData(
                     $friendCondAchievement
                     $singleUserAchievementCond
                     $untrackedCond
-                GROUP BY aw.user_id
+                GROUP BY ua.ID
             )
-            UNION
+            UNION ALL
             (
-                SELECT sa.user_id AS UserID,
+                SELECT ua.User AS User,
+                    ua.ID AS user_id,
                     NULL AS AchievementCount,
                     NULL AS Points,
                     NULL AS RetroPoints,
@@ -538,10 +540,10 @@ function getGlobalRankingData(
                     $singleUserAwardCond
                     $masteryCond
                     $untrackedCond
-                GROUP BY sa.user_id
+                GROUP BY ua.ID
             )
         ) AS Query
-        GROUP BY User
+        GROUP BY user_id
         HAVING Points > 0 AND AchievementCount > 0
         $orderCond
         LIMIT $offset, $count
