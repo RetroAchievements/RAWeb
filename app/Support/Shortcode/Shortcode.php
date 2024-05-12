@@ -196,6 +196,10 @@ final class Shortcode
         // Determine the URL from the shortcode's 'url' parameter or content.
         $url = $shortcode->getParameter('url') ?: $shortcode->getContent();
 
+        if (empty($url)) {
+            return '[broken link]';
+        }
+
         // Ensure the correct protocol prefix (http/https) is being used.
         $prefixedUrl = $this->protocolPrefix($url);
 
