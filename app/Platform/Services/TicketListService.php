@@ -209,6 +209,6 @@ class TicketListService
             $tickets->offset(($this->pageNumber - 1) * $this->perPage)->take($this->perPage);
         }
 
-        return $tickets->with(['achievement', 'reporter']);
+        return $tickets->with(['achievement', 'reporter', 'resolver']);
     }
 }

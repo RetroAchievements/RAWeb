@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\PlayerStatFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerStat extends BaseModel
 {
+    use HasFactory;
+
     protected $table = 'player_stats';
 
     protected $fillable = [
@@ -27,6 +31,11 @@ class PlayerStat extends BaseModel
         'stat_updated_at' => 'datetime',
         'value' => 'integer',
     ];
+
+    protected static function newFactory(): PlayerStatFactory
+    {
+        return PlayerStatFactory::new();
+    }
 
     // == accessors
 

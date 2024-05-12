@@ -239,7 +239,7 @@ function GetLeaderboardData(
         ld.Description AS LBDesc,
         ld.Format AS LBFormat,
         ld.Mem AS LBMem,
-        ld.Author AS LBAuthor,
+        ua.User AS LBAuthor,
         gd.ConsoleID,
         c.Name AS ConsoleName,
         gd.ForumTopicID,
@@ -255,6 +255,7 @@ function GetLeaderboardData(
       FROM LeaderboardDef AS ld
       LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
       LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+      LEFT JOIN UserAccounts AS ua on ua.ID = ld.author_id
       WHERE ld.ID = $lbID";
 
     $dbResult = s_mysql_query($query);
@@ -448,32 +449,24 @@ function getLeaderboardsList(
             break;
     }
 
-    $query = "SELECT ld.ID,
-                     ld.Title,
-                     ld.Description,
-                     ld.Format,
-                     ld.Mem,
-                     ld.DisplayOrder,
-                     leInner.NumResults,
-                     ld.LowerIsBetter,
-                     ld.Author,
-                     gd.ID AS GameID,
-                     gd.ImageIcon AS GameIcon,
-                     gd.Title AS GameTitle,
-                     c.Name AS ConsoleName,
-                     c.ID AS ConsoleID
-                FROM LeaderboardDef AS ld
-                LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
-                LEFT JOIN
-                (
-                    SELECT le.leaderboard_id, COUNT(*) AS NumResults FROM leaderboard_entries AS le
-                    GROUP BY le.leaderboard_id
-                    ) AS leInner ON leInner.leaderboard_id = ld.ID
-                LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-                WHERE gd.ID = :gameId
-                GROUP BY ld.GameID, ld.ID
-                $orderClause
-                ";
+    $query = "SELECT 
+        ld.ID, ld.Title, ld.Description, ld.Format, ld.Mem, ld.DisplayOrder,
+        leInner.NumResults,
+        ld.LowerIsBetter, ua.User AS Author,
+        gd.ID AS GameID, gd.ImageIcon AS GameIcon, gd.Title AS GameTitle,
+        c.Name AS ConsoleName, c.ID AS ConsoleID
+        FROM LeaderboardDef AS ld
+        LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
+        LEFT JOIN
+        (
+            SELECT le.leaderboard_id, COUNT(*) AS NumResults FROM leaderboard_entries AS le
+            GROUP BY le.leaderboard_id
+            ) AS leInner ON leInner.leaderboard_id = ld.ID
+        LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
+        LEFT JOIN UserAccounts AS ua ON ua.ID = ld.author_id
+        WHERE gd.ID = :gameId
+        GROUP BY ld.GameID, ld.ID
+        $orderClause";
 
     return legacyDbFetchAll($query, ['gameId' => $gameID])->toArray();
 }

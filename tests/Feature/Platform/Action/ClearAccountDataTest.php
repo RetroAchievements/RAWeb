@@ -14,6 +14,7 @@ use App\Models\LeaderboardEntry;
 use App\Models\MessageThread;
 use App\Models\MessageThreadParticipant;
 use App\Models\PlayerBadge;
+use App\Models\PlayerStat;
 use App\Models\Subscription;
 use App\Models\System;
 use App\Models\User;
@@ -92,12 +93,15 @@ class ClearAccountDataTest extends TestCase
             'user_id' => $user2->id,
         ]);
 
+        $playerStat = PlayerStat::factory()->create(['user_id' => $user2->id]);
+
         $this->assertEquals(1, UserRelation::where('user_id', $user2->id)->count());
         $this->assertEquals(1, UserRelation::where('related_user_id', $user2->id)->count());
         $this->assertEquals(1, UserGameListEntry::where('user_id', $user2->id)->count());
         $this->assertEquals(1, Subscription::where('user_id', $user2->id)->count());
         $this->assertEquals(1, MessageThreadParticipant::where('user_id', $user2->id)->count());
         $this->assertEquals(1, PlayerBadge::where('user_id', $user2->id)->count());
+        $this->assertEquals(1, PlayerStat::where('user_id', $user2->id)->count());
 
         $action = new ClearAccountDataAction();
         $action->execute($user2);
@@ -109,6 +113,7 @@ class ClearAccountDataTest extends TestCase
         $this->assertEquals(0, MessageThreadParticipant::where('user_id', $user2->id)->count());
         $this->assertEquals(0, PlayerBadge::where('user_id', $user2->id)->count());
         $this->assertEquals(0, LeaderboardEntry::where('user_id', $user2->id)->count());
+        $this->assertEquals(0, PlayerStat::where('user_id', $user2->id)->count());
 
         $user2->refresh();
         $this->assertEquals('', $user2->EmailAddress);
