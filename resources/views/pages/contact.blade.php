@@ -70,6 +70,17 @@ name('contact');
                     </ul>
                 </div>
             </div>
+
+            <div class="rounded bg-embed p-4">
+                <div>
+                    <h2 class="text-h4">DevQuest</h2>
+                    <p>
+                        <a href='{{ route("message.create") }}?to=DevQuest'>Send a message to DevQuest</a> for
+                        submissions, questions, ideas, or reporting issues related to
+                        <a href='/game/5686'>DevQuest</a>.
+                    </p>
+                </div>
+            </div>
         </div>
 
         <div class="flex flex-col gap-2 lg:gap-4">
@@ -93,12 +104,16 @@ name('contact');
 
             <div class="rounded bg-embed p-4">
                 <div>
-                    <h2 class="text-h4">DevQuest</h2>
+                    <h2 class="text-h4">Writing Team</h2>
                     <p>
-                        <a href='{{ route("message.create") }}?to=DevQuest'>Send a message to DevQuest</a> for
-                        submissions, questions, ideas, or reporting issues related to
-                        <a href='/game/5686'>DevQuest</a>.
+                        <a href='{{ route("message.create") }}?to=WritingTeam'>Send a message to WritingTeam</a> for:
                     </p>
+                    <ul class="list-disc list-inside">
+                        <li>Reporting achievements with grammatical mistakes.</li>
+                        <li>Reporting achievements with unclear or confusing descriptions.</li>
+                        <li>Requesting help from the team with proofreading achievement sets.</li>
+                        <li>Requesting help for coming up with original titles for achievements.</li>
+                    </ul>
                 </div>
             </div>
 
