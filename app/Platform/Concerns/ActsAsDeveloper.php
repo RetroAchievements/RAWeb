@@ -40,9 +40,9 @@ trait ActsAsDeveloper
     /**
      * @return HasMany<MemoryNote>
      */
-    public function authoredCodeNotes(): HasMany
+    public function authoredMemoryNotes(): HasMany
     {
-        return $this->hasMany(MemoryNote::class, 'user_id', 'ID')->where('Note', '!=', '');
+        return $this->hasMany(MemoryNote::class, 'user_id', 'ID')->where('body', '!=', '');
     }
 
     /**

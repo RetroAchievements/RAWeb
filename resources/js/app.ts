@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-unresolved */
 
 // eslint-disable-next-line camelcase
@@ -7,6 +8,7 @@
 // @ts-ignore
 import { Alpine, Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm';
 import {
+  elasticDirective,
   linkifyDirective,
   modalComponent,
   navbarSearchComponent,
@@ -63,8 +65,19 @@ window.tooltipComponent = tooltipComponent;
 window.navbarSearchComponent = navbarSearchComponent;
 
 // Alpine.js Directives
+Alpine.directive('elastic', elasticDirective);
 Alpine.directive('linkify', linkifyDirective);
 
 Livewire.start();
+
+// TODO if you add another one of these, move them to a module
+// Livewire
+(window as any).addEventListener('flashSuccess', (event: { detail: { message: string } }) => {
+  showStatusSuccess(event.detail.message);
+});
+// Livewire
+(window as any).addEventListener('flashError', (event: { detail: { message: string } }) => {
+  showStatusFailure(event.detail.message);
+});
 
 themeChange();

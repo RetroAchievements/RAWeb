@@ -1,11 +1,7 @@
 <?php
 
-use App\Enums\Permissions;
-
-function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $editingPermissions = null): void
+function RenderCodeNotes(array $codeNotes): void
 {
-    $isEditable = $editingUser && $editingPermissions >= Permissions::JuniorDeveloper;
-
     echo "<table class='table-highlight'>";
 
     echo "<thead>";
@@ -13,9 +9,6 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
     echo "<th style='font-size:100%;'>Mem</th>";
     echo "<th style='font-size:100%;'>Note</th>";
     echo "<th style='font-size:100%;'>Author</th>";
-    if ($isEditable) {
-        echo "<th>Dev</th>";
-    }
     echo "</tr>";
     echo "</thead>";
 
@@ -26,11 +19,6 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
         if (empty(trim($nextCodeNote['Note'])) || $nextCodeNote['Note'] == "''") {
             continue;
         }
-
-        $canEditNote = (
-            $editingPermissions >= Permissions::Developer
-            || ($editingPermissions === Permissions::JuniorDeveloper && $nextCodeNote['User'] === $editingUser)
-        );
 
         echo "<tr id='row-$rowIndex' class='note-row'>";
 
@@ -50,27 +38,13 @@ function RenderCodeNotes(array $codeNotes, ?string $editingUser = null, ?int $ed
 
         echo <<<HTML
             <td>
-                <div class="font-mono note-display block" style="word-break: break-word;">$memNote</div>
-                <textarea class="w-full font-mono note-edit hidden">$originalMemNote</textarea>
-                <div class="mt-[6px] flex justify-between">
-                    <button class="btn save-btn hidden" type="button" onclick="saveCodeNote($rowIndex)">Save</button>
-                    <button class="btn delete-btn btn-danger hidden" type="button" onclick="deleteCodeNote($rowIndex)">Delete</button>
-                </div>
+                <div class="font-mono block" style="word-break: break-word;">$memNote</div>
             </td>
         HTML;
 
         echo "<td class='note-author-avatar' data-current-author='" . $nextCodeNote['User'] . "'>";
         echo userAvatar($nextCodeNote['User'], label: false, iconSize: 24);
         echo "</td>";
-
-        if ($canEditNote) {
-            echo "<td>";
-            echo "<button class='btn edit-btn inline' type='button' onclick='beginEditMode($rowIndex)'>Edit</button>";
-            echo "<button class='btn cancel-btn hidden' type='button' onclick='cancelEditMode($rowIndex)'>Cancel</button>";
-            echo "</td>";
-        } elseif ($isEditable) {
-            echo "<td></td>";
-        }
 
         echo "</tr>";
 

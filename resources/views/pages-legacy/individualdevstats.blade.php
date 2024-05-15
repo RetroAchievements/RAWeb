@@ -215,7 +215,7 @@ foreach ($obtainers as $obtainer) {
 $userCodeNoteCount = 0;
 
 // Get code note information for user
-$codeNotes = collect(getCodeNoteCounts($dev));
+$codeNotes = collect(getCodeNoteCounts($devUser));
 $userCodeNoteCount = $codeNotes->sum('NoteCount');
 
 // Initialize ticket information variables

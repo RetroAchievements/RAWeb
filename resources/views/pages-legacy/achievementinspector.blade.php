@@ -43,7 +43,7 @@ if ($gameIDSpecified) {
     $gameIcon = $gameData['ImageIcon'];
     sanitize_outputs($gameTitle, $consoleName);
 
-    getCodeNotes($gameID, $codeNotes);
+    $codeNotes = getCodeNotesData($gameID);
 
     $canHaveBeatenTypes = (
         mb_strpos($gameTitle, "[Subset") === false
@@ -263,7 +263,7 @@ if ($gameIDSpecified) {
         />
     </div>
     @if (!empty($codeNotes))
-        <div>
+        <div class="max-h-[1400px] overflow-y-auto">
             <h3>Code Notes</h3>
             <?php
             RenderCodeNotes($codeNotes);

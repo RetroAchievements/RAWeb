@@ -262,6 +262,7 @@ return [
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\FolioServiceProvider::class,
+        App\Providers\VoltServiceProvider::class,
 
         /*
          * Admin

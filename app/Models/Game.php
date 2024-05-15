@@ -310,7 +310,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function memoryNotes(): HasMany
     {
-        return $this->hasMany(MemoryNote::class, 'GameID');
+        return $this->hasMany(MemoryNote::class, 'GameID')->where('body', '!=', '');
     }
 
     /**

@@ -26,7 +26,7 @@ $pageTitle = "Leaderboards - ";
 $gameData = getGameData($gameID);
 $codeNotes = [];
 if ($permissions >= Permissions::JuniorDeveloper) {
-    getCodeNotes($gameID, $codeNotes);
+    $codeNotes = getCodeNotesData($gameID);
 }
 $pageTitle .= $gameData['Title'];
 

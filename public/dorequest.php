@@ -206,11 +206,12 @@ switch ($requestType) {
 
     // TODO: Deprecate - not used anymore
     case "codenotes":
-        if (!getCodeNotes($gameID, $codeNotesOut)) {
+        $codeNotes = getCodeNotesData($gameID);
+        if (!$codeNotes) {
             return DoRequestError("FAILED!");
         }
         echo "OK:$gameID:";
-        foreach ($codeNotesOut as $codeNote) {
+        foreach ($codeNotes as $codeNote) {
             if (mb_strlen($codeNote['Note']) > 2) {
                 $noteAdj = str_replace("\n", "\r\n", $codeNote['Note']);
                 echo $codeNote['User'] . ':' . $codeNote['Address'] . ':' . $noteAdj . "#";

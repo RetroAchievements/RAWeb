@@ -88,7 +88,7 @@ if ($userPermissions >= Permissions::Moderator) {
 
             $note = $achievementSetClaim->game->memoryNotes
                 ->where('user_id', $achievementSetClaim->user->id)
-                ->sortByDesc('Updated')
+                ->sortByDesc('updated_at')
                 ->first();
 
             if ($note?->updated_at && (!$lastPlayed || $note->updated_at > $lastPlayed)) {

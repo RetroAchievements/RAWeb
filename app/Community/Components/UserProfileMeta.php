@@ -95,7 +95,7 @@ class UserProfileMeta extends Component
         ];
 
         // Code notes created
-        $totalAuthoredCodeNotes = $user->authoredCodeNotes()->count();
+        $totalAuthoredCodeNotes = $user->authoredMemoryNotes()->count();
         $codeNotesCreatedStat = [
             'label' => 'Code notes created',
             'value' => localized_number($totalAuthoredCodeNotes),

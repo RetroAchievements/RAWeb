@@ -89,7 +89,7 @@ if ($canSeeOpenTickets) {
         @can('viewAny', App\Models\MemoryNote::class)
             <x-game.link-buttons.game-link-button
                 icon="📑"
-                href="{{ '/codenotes.php?g=' . $game->id }}"
+                :href="route('game.notes', ['game' => $game])"
             >
                 Code Notes
             </x-game.link-buttons.game-link-button>
