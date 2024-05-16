@@ -15,6 +15,22 @@ render(function (View $view, System $system, SystemGamesPageService $pageService
 
 ?>
 
+@props([
+    'availableCheckboxFilters' => [],
+    'availableRadioFilters' => [], // (string|string[])[][]
+    'availableSelectFilters' => [], // (string|string[])[][]
+    'availableSorts' => [],
+    'columns' => [],
+    'filterOptions' => [],
+    'gameListConsoles' => null, // Collection<int, System>
+    'games' => [],
+    'pageMetaDescription' => '',
+    'shouldAlwaysShowMetaSurface' => false,
+    'sortOrder' => 'title',
+    'system' => null, // System
+    'totalUnfilteredCount' => 0,
+])
+
 <x-app-layout
     pageTitle="{{ $system->name }} Games"
     :pageDescription="$pageMetaDescription"
