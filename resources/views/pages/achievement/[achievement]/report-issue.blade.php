@@ -127,8 +127,8 @@ render(function (View $view, Achievement $achievement) {
         $subject = urlencode("Typo: $achievement->title ({$achievement->game->title})");
         $message = urlencode("I'd like to report a spelling/grammar error in [ach=$achievement->id]:\n(Describe the issue here)");
     @endphp
-    <x-ticket.guide-link buttonText="Message QATeam"
-                         href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}">
+    <x-ticket.guide-link buttonText="Message WritingTeam"
+                         href="{{ route('message.create') }}?to=WritingTeam&subject={{ $subject }}&message={{ $message }}">
         There is a spelling or grammatical error in the title or description.
     </x-ticket.guide-link>
 

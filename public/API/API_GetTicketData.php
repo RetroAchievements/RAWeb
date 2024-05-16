@@ -140,6 +140,7 @@ use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -178,7 +179,8 @@ if ($gamesTableFlag == 1) {
 // getting ticket info for a specific user
 $assignedToUser = request()->query('u');
 if (!empty($assignedToUser)) {
-    if (!isValidUsername($assignedToUser)) {
+    $foundUser = User::firstWhere('User', $assignedToUser);
+    if (!$foundUser) {
         return response()->json(['error' => "User $assignedToUser not found"], 404);
     }
 
@@ -189,7 +191,7 @@ if (!empty($assignedToUser)) {
     $ticketData['Total'] = 0;
     $prevID = 0;
 
-    $userTicketInfo = getTicketsForUser($assignedToUser);
+    $userTicketInfo = getTicketsForUser($foundUser);
     foreach ($userTicketInfo as $ticket) {
         switch ($ticket['ReportState']) {
             case TicketState::Closed:
