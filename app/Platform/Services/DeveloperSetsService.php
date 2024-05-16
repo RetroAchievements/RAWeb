@@ -65,7 +65,7 @@ class DeveloperSetsService
         $gameAuthoredTicketsList = Ticket::whereIn('ReportState', [TicketState::Open, TicketState::Request])
             ->join('Achievements', 'Achievements.ID', '=', 'Ticket.AchievementID')
             ->whereIn('Achievements.GameID', $gameIDs)
-            ->where('Achievements.Author', $user->User)
+            ->where('Achievements.user_id', $user->id)
             ->select(['GameID',
                 DB::raw('COUNT(Ticket.ID) AS NumAuthoredTickets'),
             ])
