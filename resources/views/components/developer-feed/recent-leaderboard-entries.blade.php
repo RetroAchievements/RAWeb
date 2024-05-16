@@ -31,12 +31,12 @@ use App\Platform\Enums\ValueFormat;
                     @foreach ($recentLeaderboardEntries as $recentLeaderboardEntry)
                         <tr>
                             <td>
-                                <a href="/leaderboardinfo.php?i={{ $recentLeaderboardEntry->LeaderboardID }}">
+                                <a href="/leaderboardinfo.php?i={{ $recentLeaderboardEntry->leaderboard_id }}">
                                 {{ $recentLeaderboardEntry->Title }}
                                 </a>
                             </td>
 
-                            <td>{{ ValueFormat::format($recentLeaderboardEntry->Score, $recentLeaderboardEntry->Format) }}</td>
+                            <td>{{ ValueFormat::format($recentLeaderboardEntry->score, $recentLeaderboardEntry->Format) }}</td>
 
                             <td class="py-2">
                                 <x-game.multiline-avatar
