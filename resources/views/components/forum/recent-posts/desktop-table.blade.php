@@ -1,7 +1,6 @@
 <?php
 
 use App\Support\Shortcode\Shortcode;
-use Illuminate\Support\Carbon;
 
 ?>
 

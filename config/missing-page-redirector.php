@@ -111,7 +111,7 @@ return [
         '/forum.php' => '/forums/category/{c}',
         '/forumposthistory.php' => [
             'u' => '/user/{u}/posts',
-            '' => '/forums/posts'
+            '' => '/forums/posts',
         ],
         '/viewforum.php' => '/forums/forum/{f}',
         '/viewtopic.php' => '/forums/topic/{t}',
