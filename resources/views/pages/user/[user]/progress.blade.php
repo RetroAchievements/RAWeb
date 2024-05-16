@@ -15,6 +15,26 @@ render(function (View $view, User $user, PlayerCompletionProgressPageService $pa
 
 ?>
 
+@props([
+    'allAvailableConsoleIds' => [],
+    'completedGamesList' => [],
+    'currentPage' => 1,
+    'isFiltering' => false,
+    'isMe' => false,
+    'me' => null, // ?User
+    'milestones' => [],
+    'primaryCountsMetrics' => [],
+    'selectedConsoleId' => 0,
+    'selectedSortOrder' => 'unlock_date',
+    'selectedStatus' => null, // ?string
+    'seo' => [],
+    'siteAwards' => [],
+    'targetUsername' => '',
+    'totalInList' => 0,
+    'totalPages' => 1,
+    'user' => null, // User
+])
+
 <x-app-layout
     :pageTitle="$seo['pageTitle']"
     :pageDescription="$seo['pageDescription']"
