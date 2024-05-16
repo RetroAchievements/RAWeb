@@ -8,7 +8,7 @@ use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:view,messageThread']); // TODO add 'verified' middleware
+middleware(['auth']); // TODO add 'verified' middleware
 name('message-thread.show');
 
 render(function (View $view, MessageThread $messageThread, MessageThreadService $pageService) {
