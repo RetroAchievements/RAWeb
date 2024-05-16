@@ -19,6 +19,17 @@ render(function (View $view, BeatenGamesLeaderboardService $pageService) {
 
 ?>
 
+@props([
+    'allSystems' => null, // Collection<System>
+    'gameKindFilterOptions' => [],
+    'isUserOnCurrentPage' => false,
+    'leaderboardKind' => 'retail',
+    'targetUserRankingData' => null, // ?array
+    'paginator' => null, // LengthAwarePaginator
+    'selectedConsoleId' => 0,
+    'userPageNumber' => null, // ?int
+])
+
 <x-app-layout
     pageTitle="Beaten Games Leaderboard"
     pageDescription="Where do you rank? Dive into detailed rankings, filter by console, and discover top players on our Beaten Games Leaderboard."
