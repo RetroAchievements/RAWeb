@@ -10,13 +10,19 @@ name('message.create');
 
 render(function (View $view) {
     return $view->with([
-        'toUser' => request()->input('to') ?? '',
-        'subject' => request()->input('subject') ?? '',
         'message' => request()->input('message') ?? '',
+        'subject' => request()->input('subject') ?? '',
+        'toUser' => request()->input('to') ?? '',
     ]);
 });
 
 ?>
+
+@props([
+    'message' => '',
+    'subject' => '',
+    'toUser' => '',
+])
 
 <x-app-layout
     pageTitle="New Message"

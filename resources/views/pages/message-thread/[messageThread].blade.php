@@ -20,6 +20,18 @@ render(function (View $view, MessageThread $messageThread, MessageThreadService 
 
 ?>
 
+@props([
+    'canReply' => false,
+    'currentPage' => 1,
+    'isShowAbsoluteDatesPreferenceSet' => false,
+    'messages' => null, // Collection<Message>
+    'messageThread' => null, // MessageThread
+    'monthAgo' => null, // Carbon
+    'pageDescription' => '',
+    'participants' => [],
+    'totalPages' => 1,
+])
+
 <x-app-layout
     :pageTitle="$messageThread->title"
     :pageDescription="$pageDescription"

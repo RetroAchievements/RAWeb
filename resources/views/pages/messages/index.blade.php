@@ -21,6 +21,17 @@ render(function (View $view, MessageThreadService $pageService) {
 
 ?>
 
+@props([
+    'currentPage' => 1,
+    'isShowAbsoluteDatesPreferenceSet' => false,
+    'messages' => null, // Collection<Message>
+    'monthAgo' => null, // Carbon
+    'totalMessages' => 0,
+    'totalPages' => 1,
+    'unreadCount' => 0,
+    'user' => null, // User
+])
+
 <script>
 function deleteMessage(id) {
     if (confirm('Are you sure you want to delete this message?')) {
