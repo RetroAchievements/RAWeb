@@ -9,7 +9,7 @@ use App\Enums\Permissions;
 use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\LeaderboardEntryLegacy;
+use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\System;
@@ -58,7 +58,7 @@ class DeveloperFeedController extends Controller
     private function attachRecentLeaderboardEntryRowsMetadata(mixed $entryRows): mixed
     {
         // Fetch all the user metadata.
-        $userIds = $entryRows->pluck('UserID')->unique();
+        $userIds = $entryRows->pluck('user_id')->unique();
         $userData = User::whereIn('ID', $userIds)->get(['ID', 'User', 'Untracked'])->keyBy('ID');
 
         // Fetch all the game metadata.
@@ -73,15 +73,15 @@ class DeveloperFeedController extends Controller
         $entryRows->transform(function ($row) use ($userData, $gameData, $consoleData) {
             $game = $gameData[$row->GameID] ?? null;
 
-            $row->User = $userData[$row->UserID]->User ?? null;
-            $row->Untracked = $userData[$row->UserID]->Untracked ?? null;
+            $row->User = $userData[$row->user_id]->User ?? null;
+            $row->Untracked = $userData[$row->user_id]->Untracked ?? null;
 
             $row->GameTitle = $game->Title ?? null;
             $row->GameIcon = $game->ImageIcon ?? null;
 
             $row->ConsoleName = $consoleData[$game->ConsoleID]->Name ?? null;
 
-            $row->TimestampLabel = $this->buildFriendlyTimestampLabel($row->DateSubmitted, null);
+            $row->TimestampLabel = $this->buildFriendlyTimestampLabel($row->updated_at, null);
 
             return $row;
         });
@@ -233,8 +233,8 @@ class DeveloperFeedController extends Controller
 
     private function buildLeaderboardEntriesForDevBaseQuery(User $targetUser): mixed
     {
-        return LeaderboardEntryLegacy::query()
-            ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'LeaderboardEntry.LeaderboardID')
+        return LeaderboardEntry::query()
+            ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'leaderboard_entries.leaderboard_id')
             ->where('LeaderboardDef.author_id', $targetUser->id);
     }
 
@@ -266,12 +266,12 @@ class DeveloperFeedController extends Controller
         $thirtyDaysAgo = Carbon::now()->subDays(30);
 
         $mostRecentLeaderboardEntries = $this->buildLeaderboardEntriesForDevBaseQuery($targetUser)
-            ->whereDate('LeaderboardEntry.DateSubmitted', '>=', $thirtyDaysAgo)
-            ->orderByDesc('LeaderboardEntry.DateSubmitted')
+            ->whereDate('leaderboard_entries.updated_at', '>=', $thirtyDaysAgo)
+            ->orderByDesc('leaderboard_entries.updated_at')
             ->take($limit)
             ->get([
                 'LeaderboardDef.ID', 'LeaderboardDef.GameID', 'LeaderboardDef.Format', 'LeaderboardDef.Title', 'LeaderboardDef.Description',
-                'LeaderboardEntry.LeaderboardID', 'LeaderboardEntry.UserID', 'LeaderboardEntry.Score', 'LeaderboardEntry.DateSubmitted',
+                'leaderboard_entries.leaderboard_id', 'leaderboard_entries.user_id', 'leaderboard_entries.score', 'leaderboard_entries.updated_at',
             ]);
 
         return $this->attachRecentLeaderboardEntryRowsMetadata($mostRecentLeaderboardEntries);
