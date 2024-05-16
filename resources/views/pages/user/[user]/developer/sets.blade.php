@@ -14,6 +14,17 @@ render(function (View $view, User $user, DeveloperSetsService $pageService) {
 
 ?>
 
+@props([
+    'availableCheckboxFilters' => [], // string[]
+    'availableSorts' => [],
+    'columns' => [],
+    'consoles' => null, // ?Collection<System>
+    'filterOptions' => [], // bool[]
+    'games' => [],
+    'sortOrder' => 'title',
+    'user' => null, // User
+])
+
 <x-app-layout
     pageTitle="{{ $user->User }} - Developed Sets"
     pageDescription="View achievement sets developed by {{ $user->User }} for various games on RetroAchievements"

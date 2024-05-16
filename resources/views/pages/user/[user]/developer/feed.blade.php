@@ -14,6 +14,18 @@ render(function (View $view, User $user, DeveloperFeedService $pageService) {
 
 ?>
 
+@props([
+    'awardsContributed' => 0,
+    'foundTargetUser' => null, // User
+    'leaderboardEntriesContributed' => 0,
+    'recentAwards' => [],
+    'recentLeaderboardEntries' => [],
+    'recentUnlocks' => [],
+    'targetGameIds' => [],
+    'targetUserUnlocksContributed' => 0,
+    'targetUserPointsContributed' => 0,
+])
+
 <x-app-layout
     pageTitle="{{ $foundTargetUser->User }} - Developer Feed"
     pageDescription="View recent activity for achievements contributed by {{ $foundTargetUser->User }} on RetroAchievements"
