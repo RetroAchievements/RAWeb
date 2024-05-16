@@ -152,7 +152,7 @@ if ($isFullyFeaturedGame) {
     $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
     $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
-    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user, retrieveHidden: false);
+    $numLeaderboards = $gameModel->visibleLeaderboards()->count();
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set

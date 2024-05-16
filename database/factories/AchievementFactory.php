@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Achievement;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
@@ -26,13 +27,15 @@ class AchievementFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::inRandomOrder()->first();
+
         return [
             'GameID' => 0,
             'Title' => ucwords(fake()->words(2, true)),
             'Description' => fake()->sentence(),
             'MemAddr' => '0x000000',
-            'Author' => $this->fakeUsername(),
-            'user_id' => 1,
+            'Author' => $user?->username ?? $this->fakeUsername(),
+            'user_id' => $user?->id ?? 1,
             'Flags' => AchievementFlag::Unofficial,
             'type' => null,
             'Points' => array_rand(array_diff(AchievementPoints::cases(), [0])),

@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
+use Database\Factories\ForumTopicCommentFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class ForumTopicComment extends BaseModel
 {
+    use HasFactory;
     use Searchable;
     use SoftDeletes;
 
@@ -41,6 +44,11 @@ class ForumTopicComment extends BaseModel
     protected $casts = [
         'ManuallyVerified' => 'boolean',
     ];
+
+    protected static function newFactory(): ForumTopicCommentFactory
+    {
+        return ForumTopicCommentFactory::new();
+    }
 
     // == search
 

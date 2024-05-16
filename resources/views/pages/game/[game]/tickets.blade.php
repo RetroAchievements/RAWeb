@@ -35,5 +35,6 @@ name('game.tickets');
         :tickets="$tickets"
         :totalTickets="$totalTickets"
         :numFilteredTickets="$numFilteredTickets"
+        showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
     />
 </x-app-layout>
