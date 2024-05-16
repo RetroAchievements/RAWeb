@@ -34,6 +34,6 @@
     </div>
 
     <div class="text-right">
-        <a class="btn btn-link" href="/forumposthistory.php">more...</a>
+        <a class="btn btn-link" href="{{ route('forum.posts') }}">more...</a>
     </div>
 </div>
