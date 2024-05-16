@@ -24,6 +24,15 @@ render(function (View $view, User $user, Game $game, PlayerGameActivityPageServi
 
 ?>
 
+@props([
+    'activity' => null, // PlayerGameActivityService
+    'estimated' => '',
+    'sessionInfo' => '',
+    'summary' => [],
+    'userAgentService' => null, // UserAgentService
+    'userProgress' => 'n/a',
+])
+
 <x-app-layout pageTitle="{{ $user->User }}'s activity for {{ $game->Title }}">
     <x-user.breadcrumbs
         :targetUsername="$user->User"

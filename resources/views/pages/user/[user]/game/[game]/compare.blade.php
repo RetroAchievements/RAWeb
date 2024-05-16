@@ -16,6 +16,19 @@ render(function (View $view, User $user, Game $game, CompareUnlocksPageService $
 
 ?>
 
+@props([
+    'achievements' => [],
+    'game' => null, // Game
+    'numAchievements' => 0,
+    'otherUser' => null, // User
+    'otherUserUnlockCount' => 0,
+    'otherUserUnlockHardcoreCount' => 0,
+    'sortOrder' => 'display',
+    'user' => null, // User
+    'userUnlockCount' => 0,
+    'userUnlockHardcoreCount' => 0,
+])
+
 <x-app-layout
     pageTitle="Compare Unlocks - {{ $game->Title }}"
     pageDescription="Compares unlocks between {{ $user->User }} and {{ $otherUser->User }} for {{ $game->Title }}"
