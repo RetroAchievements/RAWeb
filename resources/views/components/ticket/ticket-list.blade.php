@@ -74,7 +74,7 @@ $gameCache = [];
                                     :consoleName="$game->system->Name"
                                 />
                             </td>
-                            <td>{!! userAvatar($ticket->achievement->developer->display_name) !!}</td>
+                            <td>{!! userAvatar($ticket->achievement->developer) !!}</td>
                             <td>{!! userAvatar($ticket->reporter) !!}</td>
                             <td class="smalldate">{{ getNiceDate($ticket->ReportedAt->unix()) }}</td>
                             @if ($showResolver)
