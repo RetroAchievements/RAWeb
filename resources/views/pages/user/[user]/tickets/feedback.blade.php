@@ -32,6 +32,15 @@ render(function (View $view, User $user) {
 
 ?>
 
+@props([
+    'pageTitle' => 'Tickets Awaiting Feedback',
+    'user' => null, // User
+    'tickets' => null, // Collection<int, Ticket>
+    'filterOptions' => [],
+    'totalTickets' => 0,
+    'numFilteredTickets' => 0,
+])
+
 <x-app-layout pageTitle="{{ $pageTitle }} - {{ $user->User }}">
     <x-user.breadcrumbs
         :targetUsername="$user->User"

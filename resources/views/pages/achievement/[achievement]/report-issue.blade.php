@@ -59,6 +59,12 @@ render(function (View $view, Achievement $achievement) {
 
 ?>
 
+@props([
+    'hasSession' => false,
+    'ticketType' => 2, // TicketType
+    'unlockedHardcore' => false,
+])
+
 <x-app-layout
     pageTitle="Report Issue - {{ $achievement->Title }}"
     pageDescription="Report an issue with the achievement: {{ $achievement->Title }}"

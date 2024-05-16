@@ -33,6 +33,17 @@ render(function (View $view) {
 
 ?>
 
+@props([
+    'tickets' => null, // Collection<int, Ticket>
+    'availableSelectFilters' => [],
+    'filterOptions' => [],
+    'totalTickets' => 0,
+    'numFilteredTickets' => 0,
+    'currentPage' => 1,
+    'totalPages' => 1,
+    'openTicketCount' => 0,
+])
+
 <x-app-layout pageTitle="Ticket Manager">
     <div class="mb-1 w-full flex gap-x-3">
         <h1 class="mt-[10px] w-full">Ticket Manager - {{ localized_number($openTicketCount) }} Open Tickets</h1>

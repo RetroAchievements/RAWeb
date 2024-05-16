@@ -10,9 +10,7 @@ use function Laravel\Folio\{middleware, name, render};
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('game.tickets');
 
-render(function (View $view, Game $game) {
-    $ticketListService = new TicketListService();
-
+render(function (View $view, Game $game, TicketListService $ticketListService) {
     $selectFilters = $ticketListService->getSelectFilters();
     $filterOptions = $ticketListService->getFilterOptions(request());
     $tickets = $ticketListService->getTickets($filterOptions, Ticket::forGame($game));
@@ -28,6 +26,15 @@ render(function (View $view, Game $game) {
 });
 
 ?>
+
+@props([
+    'game' => null, // Game
+    'tickets' => null, // Collection<int, Ticket>
+    'availableSelectFilters' => [],
+    'filterOptions' => [],
+    'totalTickets' => 0,
+    'numFilteredTickets' => 0,
+])
 
 <x-app-layout pageTitle="Tickets - {{ $game->Title }}">
     <x-game.breadcrumbs

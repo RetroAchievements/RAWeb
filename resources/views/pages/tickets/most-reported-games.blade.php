@@ -25,6 +25,10 @@ render(function (View $view) {
 
 ?>
 
+@props([
+    'ticketedGames' => [],
+])
+
 <x-app-layout pageTitle="Most Reported Games">
     <div class="navpath">
         <a href="{{ route('tickets.index') }}">Open Tickets</a>

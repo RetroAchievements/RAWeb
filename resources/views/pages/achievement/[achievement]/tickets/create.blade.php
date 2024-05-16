@@ -79,6 +79,15 @@ render(function (View $view, Achievement $achievement) {
 
 ?>
 
+@props([
+    'emulatorCore' => null, // ?string
+    'emulatorVersion' => '',
+    'selectedEmulator' => '',
+    'selectedHash' => '',
+    'selectedMode' => 0, // UnlockMode
+    'selectedType' => '',
+])
+
 <script>
 function reportIssueComponent() {
     return {

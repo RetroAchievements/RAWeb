@@ -10,9 +10,7 @@ use function Laravel\Folio\{middleware, name, render};
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('achievement.tickets');
 
-render(function (View $view, Achievement $achievement) {
-    $ticketListService = new TicketListService();
-    
+render(function (View $view, Achievement $achievement, TicketListService $ticketListService) {
     $selectFilters = $ticketListService->getSelectFilters(showDevType: false, showAchievementType: false);
     $filterOptions = $ticketListService->getFilterOptions(request());
     $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
@@ -28,6 +26,15 @@ render(function (View $view, Achievement $achievement) {
 });
 
 ?>
+
+@props([
+    'achievement' => null, // Achievement
+    'tickets' => null, // Collection<int, Ticket>
+    'availableSelectFilters' => [],
+    'filterOptions' => [],
+    'totalTickets' => 0,
+    'numFilteredTickets' => 0,
+])
 
 <x-app-layout pageTitle="Tickets - {{ $achievement->Title }}">
     <x-achievement.breadcrumbs
