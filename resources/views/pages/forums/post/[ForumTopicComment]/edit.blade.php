@@ -18,10 +18,18 @@ render(function (View $view, ForumTopicComment $forumTopicComment) {
         'category' => $forumTopicComment->forumTopic->forum->category,
         'forum' => $forumTopicComment->forumTopic->forum,
         'forumTopic' => $forumTopicComment->forumTopic,
+        'forumTopicComment' => $forumTopicComment,
     ]);
 });
 
 ?>
+
+@props([
+    'category' => null, // ForumCategory
+    'forum' => null, // Forum
+    'forumTopic' => null, // ForumTopic
+    'forumTopicComment' => null, // ForumTopicComment
+])
 
 <x-app-layout pageTitle="Edit post">
     <div class="navpath">
