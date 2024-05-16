@@ -19,7 +19,7 @@ use App\Support\Shortcode\Shortcode;
             <th>Message</th>
 
             @if (!$isForSpecificUser)
-                <th>Additional Posts</th>
+                <th class="whitespace-nowrap text-right">Additional Posts</th>
             @endif
         </tr>
     </thead>

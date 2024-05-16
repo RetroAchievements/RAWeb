@@ -33,6 +33,14 @@ render(function (View $view, User $user, ForumRecentPostsPageService $pageServic
 
 ?>
 
+@props([
+    'maxPerPage' => 25,
+    'nextPageUrl' => null, // ?string
+    'previousPageUrl' => null, // ?string
+    'recentForumPosts' => [],
+    'targetUser' => null, // User
+])
+
 <x-app-layout
     pageTitle="Recent Posts - {{ $targetUser->display_name }}"
     pageDescription="A list of {{ $targetUser->display_name }}'s recent posts that have been made on the RetroAchievements forum."
