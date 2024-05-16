@@ -17,6 +17,14 @@ render(function (View $view, SuggestGamesService $pageService) {
 
 ?>
 
+@props([
+    'columns' => [],
+    'consoles' => null, // Collection<int, System>
+    'games' => [],
+    'noGamesMessage' => 'No suggestions available.',
+    'user' => null, // User
+])
+
 <x-app-layout
     pageTitle="{{ $user->User }} - Game Suggestions"
     pageDescription="A list of random games that {{ $user->User }} might want to play"

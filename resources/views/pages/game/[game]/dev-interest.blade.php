@@ -12,7 +12,7 @@ middleware(['auth', 'can:view,game', 'can:develop']);
 name('game.dev-interest');
 
 render(function (View $view, Game $game, GameDevInterestPageService $pageService) {
-    // TODO use a policy -- lift it up to the Folio page middleware. "can:viewDeveloperInterest,game"?
+    // TODO use a policy -- "can:viewDeveloperInterest,game"?
     $user = Auth::user();
 
     $permissions = (int) $user->getAttribute('Permissions');
@@ -23,12 +23,18 @@ render(function (View $view, Game $game, GameDevInterestPageService $pageService
     if ($permissions < Permissions::Moderator && !hasSetClaimed($user, $game->id, true)) {
         abort(403);
     }
-    // END TODO use a policy -- lift it up to the Folio page middleware. "can:viewDeveloperInterest,game"?
+    // END TODO use a policy -- "can:viewDeveloperInterest,game"?
 
     return $view->with($pageService->buildViewData($game));
 });
 
 ?>
+
+@props([
+    'pageDescription' => '',
+    'pageTitle' => '',
+    'users' => [],
+])
 
 <x-app-layout
     :pageTitle="$pageTitle"

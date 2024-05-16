@@ -40,6 +40,14 @@ render(function (View $view, Game $game) {
 
 ?>
 
+@props([
+    'articleTypeGameHash' => 10,
+    'gameWithSortedHashes' => null, // Game
+    'logs' => null, // ?array
+    'numLogs' => 0,
+    'user' => null, // User
+])
+
 <x-app-layout pageTitle="{{ 'Manage Game Hashes - ' . $game->title }}">
     <div>
         <x-game.breadcrumbs

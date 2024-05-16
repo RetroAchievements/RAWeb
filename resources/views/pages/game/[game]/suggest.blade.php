@@ -18,9 +18,17 @@ render(function (View $view, Game $game, SuggestGamesService $pageService) {
 
 ?>
 
+@props([
+    'columns' => [],
+    'consoles' => null, // Collection<int, System>
+    'game' => null, // Game
+    'games' => [],
+    'noGamesMessage' => 'No suggestions available.',
+])
+
 <x-app-layout
-    pageTitle="Game Suggestions - {{ $game->Title }}"
-    pageDescription="A list of random games that a user might want to play if they enjoyed {{ $game->Title }}"
+    pageTitle="Game Suggestions - {{ $game->title }}"
+    pageDescription="A list of random games that a user might want to play if they enjoyed {{ $game->title }}"
 >
     <x-game.breadcrumbs 
         :game="$game"
@@ -32,7 +40,7 @@ render(function (View $view, Game $game, SuggestGamesService $pageService) {
         <h1 class="mt-[10px] w-full">Game Suggestions</h1>
     </div>
 
-    <div class="mt-3">If you liked {{ $game->Title }}, you might also like these:</div>
+    <div class="mt-3">If you liked {{ $game->title }}, you might also like these:</div>
 
     <x-game.game-list
         :consoles="$consoles"

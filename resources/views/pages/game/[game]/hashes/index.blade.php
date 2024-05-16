@@ -29,6 +29,12 @@ render(function (View $view, Game $game) {
 
 ?>
 
+@props([
+    'labeledHashes' => null, // Collection<GameHash>
+    'numHashes' => 0,
+    'unlabeledHashes' => null, // Collection<GameHash>
+])
+
 <x-app-layout pageTitle="Supported Game Files - {{ $game->title }}">
     <x-game.breadcrumbs
         :game="$game"
