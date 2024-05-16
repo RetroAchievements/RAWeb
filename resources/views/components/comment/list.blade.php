@@ -53,15 +53,15 @@ if ($user) {
 }
 
 $route = match((int) $articleType) {
-    ArticleType::Game => route('game.comments', $articleId),
-    ArticleType::GameModification => route('game.modification-comments', $articleId),
-    ArticleType::GameHash => route('game.hashes.comments', $articleId),
-    ArticleType::SetClaim => route('game.claims.comments', $articleId),
-    ArticleType::Achievement => route('achievement.comments', $articleId),
-    ArticleType::Leaderboard => route('leaderboard.comments', $articleId),
-    ArticleType::User => route('user.comments', $article ?? User::find($articleId)),
-    ArticleType::UserModeration => route('user.moderation-comments', $article ?? User::find($articleId)),
-    default => 'hhh',
+    ArticleType::Game => route('game.comments', ['game' => $articleId]),
+    ArticleType::GameModification => route('game.modification-comments', ['game' => $articleId]),
+    ArticleType::GameHash => route('game.hashes.comments', ['game' => $articleId]),
+    ArticleType::SetClaim => route('game.claims.comments', ['game' => $articleId]),
+    ArticleType::Achievement => route('achievement.comments', ['achievement' => $articleId]),
+    ArticleType::Leaderboard => route('leaderboard.comments', ['leaderboard' => $articleId]),
+    ArticleType::User => route('user.comments', ['user' => $article ?? User::find($articleId)]),
+    ArticleType::UserModeration => route('user.moderation-comments', ['user' => $article ?? User::find($articleId)]),
+    default => 'unsupported type ' . $articleType,
 };
 
 @endphp

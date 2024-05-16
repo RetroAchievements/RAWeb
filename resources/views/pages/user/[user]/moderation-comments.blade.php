@@ -1,9 +1,18 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\User;
+use Illuminate\View\View;
 
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:manage,' . User::class]);
 name('user.moderation-comments');
 
+render(function (View $view, User $user) {
+    return $view->with([
+        'user' => $user,
+    ]);
+});
 ?>
 
 @php

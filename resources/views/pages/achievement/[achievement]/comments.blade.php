@@ -1,8 +1,18 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\Achievement;
+use Illuminate\View\View;
 
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:viewAny,' . Achievement::class]);
 name('achievement.comments');
+
+render(function (View $view, Achievement $achievement) {
+    return $view->with([
+        'achievement' => $achievement,
+    ]);
+});
 
 ?>
 

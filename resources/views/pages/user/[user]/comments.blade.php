@@ -1,8 +1,22 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\User;
+use Illuminate\View\View;
 
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:viewAny,' . User::class]);
 name('user.comments');
+
+render(function (View $view, User $user) {
+    if (!$user->UserWallActive) {
+        abort(404);
+    }
+
+    return $view->with([
+        'user' => $user,
+    ]);
+});
 
 ?>
 

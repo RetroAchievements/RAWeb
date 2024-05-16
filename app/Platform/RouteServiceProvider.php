@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
-use App\Community\Controllers\CommentController;
 use App\Community\Controllers\TicketController;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
@@ -66,7 +65,6 @@ class RouteServiceProvider extends ServiceProvider
              */
             // Route::get('system/{system}{slug?}/achievements', [SystemController::class, 'achievements'])
             //     ->name('system.achievement.index');
-            Route::get('achievement/{achievement}/comments', [CommentController::class, 'indexForAchievement'])->name('achievement.comments');
             Route::get('achievement/{achievement}/tickets', [TicketController::class, 'indexForAchievement'])->name('achievement.tickets');
 
             // Route::get('game/{game}{slug?}', [GameController::class, 'show'])->name('game.show');
@@ -76,11 +74,7 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
-            Route::get('game/{game}/claims/comments', [CommentController::class, 'indexForGameClaims'])->name('game.claims.comments');
-            Route::get('game/{game}/comments', [CommentController::class, 'indexForGame'])->name('game.comments');
             Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
-            Route::get('game/{game}/hashes/comments', [CommentController::class, 'indexForGameHashes'])->name('game.hashes.comments');
-            Route::get('game/{game}/modification-comments', [CommentController::class, 'indexForGameModifications'])->name('game.modification-comments');
             Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest');
             Route::get('game/{game}/tickets', [TicketController::class, 'indexForGame'])->name('game.tickets');
 
@@ -96,14 +90,11 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::resource('leaderboards', LeaderboardController::class)->only('index')->names(['index' => 'leaderboard.index']);
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
-            Route::get('leaderboard/{leaderboard}/comments', [CommentController::class, 'indexForLeaderboard'])->name('leaderboard.comments');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
             Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');
-            Route::get('user/{user}/comments', [CommentController::class, 'indexForUser'])->name('user.comments');
             Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
             Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
-            Route::get('user/{user}/moderation-comments', [CommentController::class, 'indexForUserModeration'])->name('user.moderation-comments');
             Route::get('user/{user}/tickets', [TicketController::class, 'indexForDeveloper'])->name('developer.tickets');
             Route::get('user/{user}/tickets/feedback', [TicketController::class, 'indexForReporterFeedback'])->name('reporter.tickets');
             Route::get('user/{user}/tickets/resolved-for-others', [TicketController::class, 'indexForDeveloperResolvedForOthers'])->name('developer.tickets.resolved-for-others');

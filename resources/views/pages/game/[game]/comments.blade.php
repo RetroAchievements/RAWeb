@@ -1,8 +1,18 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\Game;
+use Illuminate\View\View;
 
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:viewAny,' . Game::class]);
 name('game.comments');
+
+render(function (View $view, Game $game) {
+    return $view->with([
+        'game' => $game,
+    ]);
+});
 
 ?>
 

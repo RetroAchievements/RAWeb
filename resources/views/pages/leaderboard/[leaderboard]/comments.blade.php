@@ -1,8 +1,18 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\Leaderboard;
+use Illuminate\View\View;
 
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:viewAny,' . Leaderboard::class]);
 name('leaderboard.comments');
+
+render(function (View $view, Leaderboard $leaderboard) {
+    return $view->with([
+        'leaderboard' => $leaderboard,
+    ]);
+});
 
 ?>
 

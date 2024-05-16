@@ -84,7 +84,7 @@ class GamePolicy
             || $user->getAttribute('Permissions') >= Permissions::Developer;
     }
 
-    public function viewModifications(User $user, Game $game): bool
+    public function viewModifications(User $user): bool
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
