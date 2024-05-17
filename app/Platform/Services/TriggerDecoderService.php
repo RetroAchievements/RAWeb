@@ -358,53 +358,8 @@ class TriggerDecoderService
             $indirectNote = '';
             $indirectChain = '';
             foreach ($group['Conditions'] as &$condition) {
-                if (!$condition['IsIndirect'] || empty($indirectNote)) {
-                    if ($this->isMemoryReference($condition['SourceType'])) {
-                        $address = hexdec($condition['SourceAddress']);
-                        if (array_key_exists($address, $codeNotes)) {
-                            $note = $codeNotes[$address];
-                            if (!empty($note)) {
-                                if ($condition['IsIndirect']) {
-                                    $condition['SourceTooltip'] = "[With indirection]\n" . $note;
-                                } else {
-                                    $condition['SourceTooltip'] = $note;
-                                }
-                            }
-                            $groupNotes[$address] = $note;
-                        }
-                    }
-
-                    if ($this->isMemoryReference($condition['TargetType'])) {
-                        $address = hexdec($condition['TargetAddress']);
-                        if (array_key_exists($address, $codeNotes)) {
-                            $note = $codeNotes[$address];
-                            if (!empty($note)) {
-                                if ($condition['IsIndirect']) {
-                                    $condition['TargetTooltip'] = "[With indirection]\n" . $note;
-                                } else {
-                                    $condition['TargetTooltip'] = $note;
-                                }
-                            }
-                            $groupNotes[$address] = $note;
-                        }
-                    }
-                } else {
-                    if ($this->isMemoryReference($condition['SourceType'])) {
-                        $address = $condition['SourceAddress'];
-                        $note = $this->getIndirectNote($indirectNote, hexdec($address));
-                        if (!empty($note)) {
-                            $condition['SourceTooltip'] = "[Indirect $indirectChain + $address]\n$note";
-                        }
-                    }
-
-                    if ($this->isMemoryReference($condition['TargetType'])) {
-                        $address = $condition['TargetAddress'];
-                        $note = $this->getIndirectNote($indirectNote, hexdec($address));
-                        if (!empty($note)) {
-                            $condition['TargetTooltip'] = "[Indirect $indirectChain + $address]\n$note";
-                        }
-                    }
-                }
+                $this->setTooltipFromNotes($condition, 'Source', $codeNotes, $indirectChain, $indirectNote, $groupNotes);
+                $this->setTooltipFromNotes($condition, 'Target', $codeNotes, $indirectChain, $indirectNote, $groupNotes);
 
                 if ($condition['Flag'] === 'Add Address' && ($condition['Operator'] === '' || $condition['Operator'] === '&')) {
                     $indirectNote = $condition['SourceTooltip'] ?? '';
@@ -429,6 +384,32 @@ class TriggerDecoderService
                 }
             }
             $group['Notes'] = $groupNotes;
+        }
+    }
+
+    private function setTooltipFromNotes(array &$condition, string $type, array $codeNotes,
+        string $indirectChain, string $indirectNote, array &$groupNotes): void
+    {
+        if ($this->isMemoryReference($condition[$type . 'Type'])) {
+            $formattedAddress = $condition[$type . 'Address'];
+            $address = hexdec($formattedAddress);
+
+            if (!empty($indirectNote)) {
+                $note = $this->getIndirectNote($indirectNote, $address);
+                if (!empty($note)) {
+                    $condition[$type . 'Tooltip'] = "[Indirect $indirectChain + $formattedAddress]\n$note";
+                }
+            } elseif (array_key_exists($address, $codeNotes)) {
+                $note = $codeNotes[$address];
+                if (!empty($note)) {
+                    if ($condition['IsIndirect']) {
+                        $condition[$type . 'Tooltip'] = "[With indirection]\n" . $note;
+                    } else {
+                        $condition[$type . 'Tooltip'] = $note;
+                    }
+                }
+                $groupNotes[$address] = $note;
+            }
         }
     }
 
