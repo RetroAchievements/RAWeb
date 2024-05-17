@@ -74,7 +74,7 @@ class UserProfileMeta extends Component
         $setsWorkedOnStat = [
             'label' => 'Achievement sets worked on',
             'value' => localized_number($gameAuthoredAchievementsCount),
-            'href' => $gameAuthoredAchievementsCount ? route('developer.sets', $user->User) : null,
+            'href' => $gameAuthoredAchievementsCount ? route('developer.sets', ['user' => $user]) : null,
             'isMuted' => !$gameAuthoredAchievementsCount,
         ];
 
@@ -82,7 +82,7 @@ class UserProfileMeta extends Component
         $achievementsUnlockedByPlayersStat = [
             'label' => 'Achievements unlocked by players',
             'value' => localized_number($userMassData['ContribCount']),
-            'href' => $userMassData['ContribCount'] > 0 ? route('developer.feed', $user->User) : null,
+            'href' => $userMassData['ContribCount'] > 0 ? route('developer.feed', ['user' => $user]) : null,
             'isMuted' => !$userMassData['ContribCount'],
         ];
 
@@ -90,7 +90,7 @@ class UserProfileMeta extends Component
         $pointsAwardedToPlayersStat = [
             'label' => 'Points awarded to players',
             'value' => localized_number($userMassData['ContribYield']),
-            'href' => $userMassData['ContribYield'] > 0 ? route('developer.feed', $user->User) : null,
+            'href' => $userMassData['ContribYield'] > 0 ? route('developer.feed', ['user' => $user]) : null,
             'isMuted' => !$userMassData['ContribYield'],
         ];
 
