@@ -49,8 +49,6 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::get('system/{system}{slug?}', [SystemController::class, 'show'])->name('system.show');
             // Route::resource('systems', SystemController::class)->only('index')->names(['index' => 'system.index']);
-            Route::get('system/{system}/games', [SystemController::class, 'games'])
-                ->name('system.game.index');
             /*
              * Note: not allowing to filter achievements on the system level for now
              * stick to games for now
