@@ -7,7 +7,6 @@ namespace App\Platform;
 use App\Community\Controllers\TicketController;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
-use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\CompareUnlocksController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
@@ -84,8 +83,6 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('developers', DeveloperController::class)->only('index');
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
-
-            Route::get('ranking/beaten-games', BeatenGamesLeaderboardController::class)->name('ranking.beaten-games');
 
             // Route::resource('leaderboards', LeaderboardController::class)->only('index')->names(['index' => 'leaderboard.index']);
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');

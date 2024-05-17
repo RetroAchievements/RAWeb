@@ -90,14 +90,13 @@ function hasSetClaimed(User $user, int $gameId, bool $isPrimaryClaim = false, ?i
  */
 function completeClaim(User $user, int $gameId): bool
 {
-    if (!hasSetClaimed($user, $gameId, true)) {
+    if (!hasSetClaimed($user, $gameId, isPrimaryClaim: true)) {
         return false;
     }
 
     $now = Carbon::now();
 
     AchievementSetClaim::where('game_id', $gameId)
-        ->where('user_id', $user->id)
         ->active()
         ->update([
             'Status' => ClaimStatus::Complete,
