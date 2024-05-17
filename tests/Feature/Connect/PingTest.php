@@ -256,7 +256,11 @@ class PingTest extends TestCase
         $delegatedUser->save();
 
         // The integration user is the sole author of all the set's achievements.
-        Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->id, 'Author' => $integrationUser->User]);
+        Achievement::factory()->published()->count(6)->create([
+            'GameID' => $gameOne->id,
+            'Author' => $integrationUser->User,
+            'user_id' => $integrationUser->id,
+        ]);
 
         $params = [
             'u' => $integrationUser->User,
@@ -309,7 +313,9 @@ class PingTest extends TestCase
         // This is not allowed and should fail.
         /** @var Game $gameThree */
         $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id]);
+        /** @var User $randomUser */
+        $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'Author' => $randomUser->username, 'user_id' => $randomUser->id]);
         $params['g'] = $gameThree->id;
 
         $this->post('dorequest.php', $params)

@@ -5,6 +5,7 @@ use function Laravel\Folio\{name};
 name('terms');
 
 ?>
+
 <x-app-layout :page-title="__('Legal & Terms')">
     <h1 class="mb-4">Legal & Terms</h1>
 

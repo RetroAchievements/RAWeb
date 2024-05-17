@@ -140,6 +140,7 @@ use App\Community\Enums\TicketType;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Ticket;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -157,7 +158,7 @@ if ($ticketID > 0) {
     $ticketData['ReportStateDescription'] = TicketState::toString($ticketData['ReportState']);
     $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
 
-    $ticketData['URL'] = route('ticket.show', $ticketID);
+    $ticketData['URL'] = route('ticket.show', ['ticket' => $ticketID]);
 
     return response()->json($ticketData);
 }
@@ -178,7 +179,8 @@ if ($gamesTableFlag == 1) {
 // getting ticket info for a specific user
 $assignedToUser = request()->query('u');
 if (!empty($assignedToUser)) {
-    if (!isValidUsername($assignedToUser)) {
+    $foundUser = User::firstWhere('User', $assignedToUser);
+    if (!$foundUser) {
         return response()->json(['error' => "User $assignedToUser not found"], 404);
     }
 
@@ -189,7 +191,7 @@ if (!empty($assignedToUser)) {
     $ticketData['Total'] = 0;
     $prevID = 0;
 
-    $userTicketInfo = getTicketsForUser($assignedToUser);
+    $userTicketInfo = getTicketsForUser($foundUser);
     foreach ($userTicketInfo as $ticket) {
         switch ($ticket['ReportState']) {
             case TicketState::Closed:
@@ -209,7 +211,7 @@ if (!empty($assignedToUser)) {
             $prevID = $ticket['AchievementID'];
         }
     }
-    $ticketData['URL'] = route('developer.tickets', $assignedToUser);
+    $ticketData['URL'] = route('developer.tickets', ['user' => $assignedToUser]);
 
     return response()->json($ticketData);
 }
@@ -223,6 +225,8 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
        ->take($count)
        ->get();
 
+    $tickets->loadMissing('achievement.developer');
+
     /** @var Ticket $ticket */
     foreach ($tickets as $ticket) {
         $result[] = [
@@ -233,7 +237,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'AchievementType' => $ticket->achievement->type,
             'Points' => $ticket->achievement->points,
             'BadgeName' => $ticket->achievement->BadgeName,
-            'AchievementAuthor' => $ticket->achievement->author,
+            'AchievementAuthor' => $ticket->achievement->developer->display_name,
             'GameID' => $ticket->achievement->game->ID,
             'ConsoleName' => $ticket->achievement->game->system->name,
             'GameTitle' => $ticket->achievement->game->title,
@@ -270,7 +274,7 @@ if ($gameIDGiven > 0) {
         $ticketData['GameTitle'] = $game->Title;
         $ticketData['ConsoleName'] = $game->system->Name;
         $ticketData['OpenTickets'] = $tickets->count();
-        $ticketData['URL'] = route('game.tickets', $game);
+        $ticketData['URL'] = route('game.tickets', ['game' => $game]);
 
         $details = (int) request()->query('d');
         if ($details == 1) {
@@ -294,7 +298,7 @@ if ($achievementIDGiven > 0) {
     $ticketData['AchievementTitle'] = $achievementData['Title'];
     $ticketData['AchievementDescription'] = $achievementData['Description'];
     $ticketData['AchievementType'] = $achievementData['type'];
-    $ticketData['URL'] = route('achievement.tickets', $achievementData);
+    $ticketData['URL'] = route('achievement.tickets', ['achievement' => $achievementIDGiven]);
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
 
     return response()->json($ticketData);

@@ -17,14 +17,13 @@ use App\Models\GameSet;
 use App\Models\GameSetGame;
 use App\Models\IntegrationRelease;
 use App\Models\Leaderboard;
-use App\Models\LeaderboardEntryLegacy;
+use App\Models\LeaderboardEntry;
 use App\Models\MemoryNote;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
-use App\Platform\Commands\DeleteOrphanedLeaderboardEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
@@ -76,7 +75,6 @@ class AppServiceProvider extends ServiceProvider
 
                 // Leaderboards
                 UpdateLeaderboardMetrics::class,
-                DeleteOrphanedLeaderboardEntries::class,
 
                 // Players
                 ResetPlayerAchievement::class,
@@ -109,7 +107,6 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command(DeleteOrphanedLeaderboardEntries::class)->daily();
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
         });
 
@@ -129,8 +126,7 @@ class AppServiceProvider extends ServiceProvider
             'game-set.game' => GameSetGame::class,
             'integration.release' => IntegrationRelease::class,
             'leaderboard' => Leaderboard::class,
-            // TODO 'leaderboard-entry' => LeaderboardEntry::class,
-            'leaderboard-entry' => LeaderboardEntryLegacy::class,
+            'leaderboard-entry' => LeaderboardEntry::class,
             'memory-note' => MemoryNote::class,
             'player.badge' => PlayerBadge::class,
             'player.badge-stage' => PlayerBadgeStage::class,

@@ -42,7 +42,7 @@ class SyncAchievements extends Command
              * only select achievement data though
              */
             ->join('GameData', 'GameData.ID', '=', 'Achievements.GameID')
-            ->leftJoin('UserAccounts', 'UserAccounts.User', '=', 'Achievements.Author');
+            ->leftJoin('UserAccounts', 'UserAccounts.ID', '=', 'Achievements.user_id');
     }
 
     protected function postProcessEntity(object $origin, object $transformed): void
