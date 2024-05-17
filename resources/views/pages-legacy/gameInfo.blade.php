@@ -537,7 +537,7 @@ if ($isFullyFeaturedGame) {
                     $interestedUsers = UserGameListEntry::where('type', UserGameListType::Develop)
                         ->where('GameID', $gameID)
                         ->count();
-                    echo "<div><a class='btn btn-link' href='" . route('game.dev-interest', $gameID) . "'>View Developer Interest ($interestedUsers)</a></div>";
+                    echo "<div><a class='btn btn-link' href='" . route('game.dev-interest', ['game' => $gameID]) . "'>View Developer Interest ($interestedUsers)</a></div>";
                 }
 
                 if ($permissions >= Permissions::Moderator && !$isEventGame) {

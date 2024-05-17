@@ -253,12 +253,12 @@ $achievedLocal = ($dateWonLocal !== "");
         $countTickets = countOpenTicketsByAchievement($achievementID);
         echo "<div class='flex justify-between mb-2'>";
         if ($countTickets > 0) {
-            echo "<a href='" . route('achievement.tickets', $achievementID) ."'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
+            echo "<a href='" . route('achievement.tickets', ['achievement' => $achievementID]) ."'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
         } else {
             echo "<i>No open tickets</i>";
         }
         if ($userModel?->can('create', Ticket::class)) {
-            echo "<a class='btn btn-link' href='" . route('achievement.report-issue', $achievementID) ."'>Report an issue</a>";
+            echo "<a class='btn btn-link' href='" . route('achievement.report-issue', ['achievement' => $achievementID]) ."'>Report an issue</a>";
         }
         echo "</div>";
     }

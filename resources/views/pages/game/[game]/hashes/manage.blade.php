@@ -5,25 +5,43 @@
 use App\Community\Enums\ArticleType;
 use App\Models\Game;
 use App\Models\GameHash;
-use function Laravel\Folio\{middleware, name};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:view,game', 'can:manage,' . GameHash::class]);
 name('game.hash.manage');
 
+render(function (View $view, Game $game) {
+    // This would all be in a dedicated service if we weren't planning on
+    // migrating this page to a Filament panel.
+    
+    $gameWithSortedHashes = $game->load([
+        'hashes' => function ($query) {
+            $query->orderBy('Name');
+        },
+        'hashes.user'
+    ]);
+
+    $user = Auth::user();
+
+    $articleTypeGameHash = ArticleType::GameHash;
+
+    return $view->with([
+        'articleTypeGameHash' => $articleTypeGameHash,
+        'gameWithSortedHashes' => $gameWithSortedHashes,
+        'user' => $user,
+    ]);
+})
+
 ?>
 
-@php
-$gameWithSortedHashes = $game->load([
-    'hashes' => function ($query) {
-        $query->orderBy('Name');
-    },
-    'hashes.user'
-]);
-
-$user = request()->user();
-
-$articleTypeGameHash = ArticleType::GameHash;
-@endphp
+@props([
+    'articleTypeGameHash' => 10,
+    'gameWithSortedHashes' => null, // Game
+    'user' => null, // User
+])
 
 <x-app-layout pageTitle="{{ 'Manage Game Hashes - ' . $game->title }}">
     <div>

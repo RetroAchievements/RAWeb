@@ -1,25 +1,33 @@
 <?php
 
-use App\Enums\UserPreference;
-use App\Models\MessageThread;
-use App\Models\User;
-use App\Support\Shortcode\Shortcode;
-use Illuminate\Support\Carbon;
-use function Laravel\Folio\{name};
+use App\Platform\Services\BeatenGamesLeaderboardService;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{name, render};
 
 name('ranking.beaten-games');
+
+render(function (View $view, BeatenGamesLeaderboardService $pageService) {
+    $viewData = $pageService->buildViewData(request());
+
+    if (isset($viewData['redirect'])) {
+        return redirect($viewData['redirect']);
+    }
+
+    return $view->with($viewData);
+});
 
 ?>
 
 @props([
-    'allSystems' => [],
+    'allSystems' => null, // Collection<System>
     'gameKindFilterOptions' => [],
     'isUserOnCurrentPage' => false,
     'leaderboardKind' => 'retail',
-    'paginator' => null,
-    'selectedConsoleId' => null,
-    'targetUserRankingData' => null,
-    'userPageNumber' => null,
+    'targetUserRankingData' => null, // ?array
+    'paginator' => null, // LengthAwarePaginator
+    'selectedConsoleId' => 0,
+    'userPageNumber' => null, // ?int
 ])
 
 <x-app-layout

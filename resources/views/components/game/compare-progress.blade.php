@@ -105,7 +105,7 @@ function selectSearchBoxUser() {
 
                         <a
                             class="min-w-[100px] flex flex-col"
-                            href="{!! route('game.compare-unlocks', ['game' => $game, 'user' => $friend->User]) !!}"
+                            href="{!! route('game.compare-unlocks', ['game' => $game, 'user' => $friend]) !!}"
                         >
                             <x-game-progress-bar
                                 containerClassNames="py-2.5"

@@ -554,7 +554,7 @@ function ListGames(
             $openTickets = $gameEntry['OpenTickets'];
             echo "<td class='text-right'>";
             if ($openTickets > 0) {
-                echo "<a href='" . route('game.tickets', $gameID) . "'>$openTickets</a>";
+                echo "<a href='" . route('game.tickets', ['game' => $gameID]) . "'>$openTickets</a>";
                 $ticketsCount += $openTickets;
             }
             echo "</td>";

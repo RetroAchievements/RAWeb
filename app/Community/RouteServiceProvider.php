@@ -6,7 +6,6 @@ namespace App\Community;
 
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
-use App\Community\Controllers\TicketController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -239,35 +238,6 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('messages', [MessageThreadController::class, 'index'])->name('message-thread.index');
                     Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['show', 'destroy']);
                 });
-
-                /*
-                 * tickets
-                 */
-                Route::resource('ticket', TicketController::class)->only('show');
-                Route::resource('tickets', TicketController::class)->only('index');
-                Route::get('tickets/most-reported-games', [TicketController::class, 'mostReportedGames'])->name('tickets.most-reported-games');
-                //     // Route::resource('ticket', TicketController::class)->except('index', 'create');
-                //     // Route::resource('achievement.ticket', AchievementTicketController::class)->only('create');
-                //     // Route::group([
-                //     //     'prefix' => 'achievements',
-                //     // ], function () {
-                //     //     Route::resource('tickets', AchievementTicketController::class)->only('index')
-                //     //     ->names(['index' => 'achievements.ticket.index']);
-                //     // });
-                //     //
-                //     // Route::resource('leaderboard.ticket', LeaderboardTicketController::class)->only('create');
-                //     // Route::group([
-                //     //     'prefix' => 'leaderboards',
-                //     // ], function () {
-                //     //     Route::resource('tickets', LeaderboardTicketController::class)->only('index')
-                //     //         ->names(['index' => 'leaderboards.ticket.index']);
-                //     // });
-                //     Route::resource('trigger.ticket', TriggerTicketController::class)->only('create');
-                //     Route::group(['prefix' => 'triggers'], function () {
-                //         Route::resource('tickets', TriggerTicketController::class)
-                //             ->only('index')
-                //             ->names(['index' => 'triggers.ticket.index']);
-                //     });
             });
     }
 }
