@@ -324,19 +324,17 @@ class TriggerDecoderService
         $memoryReferences = [];
         foreach ($groups as &$group) {
             foreach ($group['Conditions'] as &$condition) {
-                if (!$condition['IsIndirect']) {
-                    if ($this->isMemoryReference($condition['SourceType'])) {
-                        $address = hexdec($condition['SourceAddress']);
-                        if (!in_array($address, $memoryReferences)) {
-                            $memoryReferences[] = $address;
-                        }
+                if ($this->isMemoryReference($condition['SourceType'])) {
+                    $address = hexdec($condition['SourceAddress']);
+                    if (!in_array($address, $memoryReferences)) {
+                        $memoryReferences[] = $address;
                     }
+                }
 
-                    if ($this->isMemoryReference($condition['TargetType'])) {
-                        $address = hexdec($condition['TargetAddress']);
-                        if (!in_array($address, $memoryReferences)) {
-                            $memoryReferences[] = $address;
-                        }
+                if ($this->isMemoryReference($condition['TargetType'])) {
+                    $address = hexdec($condition['TargetAddress']);
+                    if (!in_array($address, $memoryReferences)) {
+                        $memoryReferences[] = $address;
                     }
                 }
             }
@@ -360,12 +358,18 @@ class TriggerDecoderService
             $indirectNote = '';
             $indirectChain = '';
             foreach ($group['Conditions'] as &$condition) {
-                if (!$condition['IsIndirect']) {
+                if (!$condition['IsIndirect'] || empty($indirectNote)) {
                     if ($this->isMemoryReference($condition['SourceType'])) {
                         $address = hexdec($condition['SourceAddress']);
                         if (array_key_exists($address, $codeNotes)) {
                             $note = $codeNotes[$address];
-                            $condition['SourceTooltip'] = $note;
+                            if (!empty($note)) {
+                                if ($condition['IsIndirect']) {
+                                    $condition['SourceTooltip'] = "[With indirection]\n" . $note;
+                                } else {
+                                    $condition['SourceTooltip'] = $note;
+                                }
+                            }
                             $groupNotes[$address] = $note;
                         }
                     }
@@ -374,11 +378,17 @@ class TriggerDecoderService
                         $address = hexdec($condition['TargetAddress']);
                         if (array_key_exists($address, $codeNotes)) {
                             $note = $codeNotes[$address];
-                            $condition['TargetTooltip'] = $note;
+                            if (!empty($note)) {
+                                if ($condition['IsIndirect']) {
+                                    $condition['TargetTooltip'] = "[With indirection]\n" . $note;
+                                } else {
+                                    $condition['TargetTooltip'] = $note;
+                                }
+                            }
                             $groupNotes[$address] = $note;
                         }
                     }
-                } elseif (!empty($indirectNote)) {
+                } else {
                     if ($this->isMemoryReference($condition['SourceType'])) {
                         $address = $condition['SourceAddress'];
                         $note = $this->getIndirectNote($indirectNote, hexdec($address));
