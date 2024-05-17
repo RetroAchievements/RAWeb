@@ -313,7 +313,9 @@ class PingTest extends TestCase
         // This is not allowed and should fail.
         /** @var Game $gameThree */
         $gameThree = Game::factory()->create(['ConsoleID' => $standalonesSystem->ID]);
-        Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'Author' => 'Somebody', 'user_id' => 9999999]);
+        /** @var User $randomUser */
+        $randomUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
+        Achievement::factory()->published()->count(6)->create(['GameID' => $gameThree->id, 'Author' => $randomUser->username, 'user_id' => $randomUser->id]);
         $params['g'] = $gameThree->id;
 
         $this->post('dorequest.php', $params)

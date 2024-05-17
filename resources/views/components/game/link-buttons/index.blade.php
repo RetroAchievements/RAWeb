@@ -99,7 +99,7 @@ if ($canSeeOpenTickets) {
     @if ($canSeeOpenTickets)
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{{ route('game.tickets', $game) }}"
+            href="{{ route('game.tickets', ['game' => $game]) }}"
         >
             Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
