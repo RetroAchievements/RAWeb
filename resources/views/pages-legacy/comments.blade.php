@@ -142,7 +142,7 @@ switch ($articleTypeID) {
         $pageTitle = "Ticket $articleID: " . $ticket->achievement->Title;
         $navPath = [
             'Open Tickets' => route('tickets.index'),
-            "Ticket $articleID" => route('ticket.show', $ticket),
+            "Ticket $articleID" => route('ticket.show', ['ticket' => $ticket]),
         ];
         break;
 

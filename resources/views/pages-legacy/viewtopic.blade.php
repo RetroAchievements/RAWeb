@@ -59,7 +59,7 @@ if (empty($allForumTopicCommentsForTopic)) {
 }
 
 $thisTopicID = $forumTopic->id;
-$thisTopicAuthor = $forumTopic->user?->User ?? 'Deleted User';
+$thisTopicAuthor = $forumTopic->user;
 $thisTopicCategory = $forumTopic->forum->category->title;
 $thisTopicCategoryID = $forumTopic->forum->category->id;
 $thisTopicForum = $forumTopic->forum->title;
@@ -68,13 +68,6 @@ $thisTopicTitle = $forumTopic->title;
 $thisTopicPermissions = $forumTopic->RequiredPermissions;
 
 $pageTitle = "Topic: {$thisTopicForum} - {$thisTopicTitle}";
-
-sanitize_outputs(
-    $thisTopicAuthor,
-    $thisTopicCategory,
-    $thisTopicForum,
-    $thisTopicTitle,
-);
 
 $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : false;
 ?>
@@ -168,10 +161,10 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
     foreach ($allForumTopicCommentsForTopic as $index => $forumTopicComment) {
         $nextCommentID = $forumTopicComment->ID;
         $nextCommentPayload = $forumTopicComment->Payload;
-        $nextCommentAuthor = $forumTopicComment->Author;
+        $nextCommentAuthor = $forumTopicComment->user;
         $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
 
-        $isOriginalPoster = $nextCommentAuthor === $thisTopicAuthor;
+        $isOriginalPoster = isset($nextCommentAuthor) && isset($thisTopicAuthor) && $nextCommentAuthor->is($thisTopicAuthor);
         $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
         $parsedPostContent = Shortcode::render($nextCommentPayload);
         ?>

@@ -9,8 +9,6 @@ use App\Models\GameAlternative;
 use App\Models\GameHash;
 use App\Models\GameSetGame;
 use App\Models\Leaderboard;
-use App\Models\LeaderboardEntry;
-use App\Models\LeaderboardEntryLegacy;
 use App\Models\MemoryNote;
 use App\Models\Message;
 use App\Models\News;
@@ -186,37 +184,6 @@ return [
         //     'map' => [
         //     ],
         // ],
-
-        /*
-         * LeaderboardEntry      1500k    incremental by DateSubmitted
-         */
-        'leaderboard_entries' => [
-            'model' => LeaderboardEntry::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => LeaderboardEntryLegacy::class,
-            'reference_key' => LeaderboardEntryLegacy::UPDATED_AT,
-            'unique_key' => ['leaderboard_id', 'user_id'],
-            'require' => [
-            ],
-            'map' => [
-                'LeaderboardID' => [
-                    'key' => 'leaderboard_id',
-                ],
-                'UserID' => [
-                    'key' => 'user_id',
-                ],
-                'Score' => [
-                    'key' => 'score',
-                    'type' => 'integer',
-                ],
-                'Created' => [
-                    'key' => 'created_at',
-                ],
-                'DateSubmitted' => [
-                    'key' => 'updated_at',
-                ],
-            ],
-        ],
 
         /*
          * CodeNotes             150k    incremental by Updated
