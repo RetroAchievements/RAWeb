@@ -66,11 +66,11 @@ $user = request()->user();
                 <x-dropdown-item :href="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :href="route('developer.feed', $user->username)">Feed</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.feed', ['user' => $user])">Feed</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
                 <x-dropdown-item :href="route('developer.tickets', $user)">Tickets</x-dropdown-item>
-                <x-dropdown-item :href="route('developer.sets', $user)">Sets</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.sets', ['user' => $user])">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)
                 <x-dropdown-item :href="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>

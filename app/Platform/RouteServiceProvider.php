@@ -7,8 +7,6 @@ namespace App\Platform;
 use App\Community\Controllers\TicketController;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
-use App\Platform\Controllers\DeveloperFeedController;
-use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerGameController;
@@ -87,8 +85,6 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
-            Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
-            Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
             Route::get('user/{user}/tickets', [TicketController::class, 'indexForDeveloper'])->name('developer.tickets');
             Route::get('user/{user}/tickets/feedback', [TicketController::class, 'indexForReporterFeedback'])->name('reporter.tickets');
             Route::get('user/{user}/tickets/resolved-for-others', [TicketController::class, 'indexForDeveloperResolvedForOthers'])->name('developer.tickets.resolved-for-others');
