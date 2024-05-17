@@ -99,7 +99,7 @@ if ($canSeeOpenTickets) {
     @if ($canSeeOpenTickets)
         <x-game.link-buttons.game-link-button
             icon="🎫"
-            href="{{ route('game.tickets', $game) }}"
+            href="{{ route('game.tickets', ['game' => $game]) }}"
         >
             Open @if (!$isViewingOfficial) Unofficial @endif Tickets ({{ $numOpenTickets }})
         </x-game.link-buttons.game-link-button>
@@ -119,7 +119,7 @@ if ($canSeeOpenTickets) {
     @if (in_array('suggested-games', $allowedLinks) && $user)
         <x-game.link-buttons.game-link-button
             icon="🕹️"
-            href="{{ route('game.suggest', $game->id) }}"
+            href="{{ route('game.suggest', ['game' => $game]) }}"
         >
             Find Something Similar to Play
         </x-game.link-buttons.game-link-button>
