@@ -24,7 +24,7 @@ render(function (View $view, MessageThreadService $pageService) {
 @props([
     'currentPage' => 1,
     'isShowAbsoluteDatesPreferenceSet' => false,
-    'messages' => null, // Collection<Message>
+    'messages' => null, // Collection<MessageThread>
     'monthAgo' => null, // Carbon
     'totalMessages' => 0,
     'totalPages' => 1,
@@ -86,7 +86,7 @@ function deleteMessage(id) {
                 @endphp
                 <tr>
                     <td @if ($num_unread > 0) class="font-bold" @endif>
-                        <a href="{{ route('message-thread.show', ['messageThread' => $message->id]) }}">
+                        <a href="{{ route('message-thread.show', ['messageThread' => $message]) }}">
                             {{ $message->title }}
                         </a>
                     </td>
