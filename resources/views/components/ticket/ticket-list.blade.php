@@ -58,7 +58,7 @@ $gameCache = [];
                     @foreach ($tickets as $ticket)
                         <tr>
                             <td class="text-right">
-                                <a href="{{ route('ticket.show', $ticket) }}">{{ $ticket->ID }}</a>
+                                <a href="{{ route('ticket.show', ['ticket' => $ticket]) }}">{{ $ticket->ID }}</a>
                             </td>
                             <td>{{ TicketState::toString($ticket->ReportState) }}</td>
                             <td>{!! achievementAvatar($ticket->achievement) !!}</td>
