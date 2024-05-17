@@ -15,7 +15,7 @@ render(function (View $view, User $user, ForumRecentPostsPageService $pageServic
     $currentUser = Auth::user();
 
 
-    if (!$currentUser->can('viewUserPosts', [\App\Models\ForumTopicComment::class, $user])) {
+    if ($currentUser && !$currentUser->can('viewUserPosts', [\App\Models\ForumTopicComment::class, $user])) {
         // Traditionally this would probably be a 401. However, 
         // a 401 might imply the target user has blocked the current user.
         // Returning a 404 is a bit less presumptuous.

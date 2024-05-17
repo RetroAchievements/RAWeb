@@ -149,7 +149,7 @@ $menuSystemsList = [
     </x-slot>
     <x-dropdown-item :href="url('forum.php')">Forums</x-dropdown-item>
     <x-dropdown-item :href="url('viewforum.php?f=25')">Event Forums</x-dropdown-item>
-    <x-dropdown-item :href="route('forum.posts')">Recent Forum Posts</x-dropdown-item>
+    <x-dropdown-item :href="route('forum.recent-posts')">Recent Forum Posts</x-dropdown-item>
     <div class="dropdown-divider"></div>
     <x-dropdown-item :href="url('userList.php')">{{ __res('user') }}</x-dropdown-item>
     <x-dropdown-item :href="url('globalRanking.php')">Global Points Ranking</x-dropdown-item>

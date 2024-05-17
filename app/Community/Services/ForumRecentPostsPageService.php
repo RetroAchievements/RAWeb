@@ -49,13 +49,13 @@ class ForumRecentPostsPageService
         if ($currentOffset > 0) {
             // Don't let a crawler try to index a URL with "?offset=0".
             if ($currentOffset === $maxPerPage) {
-                $previousPageUrl = route('forum.posts');
+                $previousPageUrl = route('forum.recent-posts');
             } else {
-                $previousPageUrl = route('forum.posts', ['offset' => $currentOffset - $maxPerPage]);
+                $previousPageUrl = route('forum.recent-posts', ['offset' => $currentOffset - $maxPerPage]);
             }
         }
         if ($recentForumPostsCount === $maxPerPage) {
-            $nextPageUrl = route('forum.posts', ['offset' => $currentOffset + $maxPerPage]);
+            $nextPageUrl = route('forum.recent-posts', ['offset' => $currentOffset + $maxPerPage]);
         }
 
         return [$previousPageUrl, $nextPageUrl];

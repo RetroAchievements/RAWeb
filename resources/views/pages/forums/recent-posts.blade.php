@@ -8,7 +8,7 @@ use Illuminate\View\View;
 
 use function Laravel\Folio\{name, middleware, render};
 
-name('forum.posts');
+name('forum.recent-posts');
 
 render(function (View $view, ForumRecentPostsPageService $pageService) {
     $user = Auth::user();
