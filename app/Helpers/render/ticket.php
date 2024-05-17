@@ -31,7 +31,7 @@ function ticketAvatar(
         resource: 'ticket',
         id: $ticket->id,
         label: "Ticket #{$ticket->id}",
-        link: route('ticket.show', $ticket->id),
+        link: route('ticket.show', ['ticket' => $ticket->id]),
         tooltip: is_array($tooltip) ? renderAchievementCard($tooltip) : $tooltip,
         class: "ticket-avatar $ticketStateClass",
         iconUrl: media_asset("/Badge/" . $ticket->badgeName . ".png"),

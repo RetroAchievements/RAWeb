@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Controllers;
+namespace App\Platform\Services;
 
 use App\Community\Enums\AwardType;
 use App\Community\Enums\UserGameListType;
-use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameAlternative;
@@ -16,12 +15,9 @@ use App\Models\System;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Services\GameListService;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 
-class SuggestGameController extends Controller
+class SuggestGamesService
 {
     public function __construct(
         protected GameListService $gameListService,
@@ -32,13 +28,17 @@ class SuggestGameController extends Controller
     private array $masteredGames = [];
     private array $beatenGames = [];
 
-    public function __invoke(Request $request): View
+    public function buildViewData(User $user, ?Game $game = null): array
     {
-        $user = $request->user();
-        if ($user === null) {
-            abort(403);
+        if ($game) {
+            return $this->buildForUserGameViewData($user, $game);
         }
 
+        return $this->buildForUserViewData($user);
+    }
+
+    public function buildForUserViewData(User $user): array
+    {
         $selectedGames = [];
         $gameIds = [];
 
@@ -132,19 +132,17 @@ class SuggestGameController extends Controller
         $this->gameListService->mergeWantToPlay($user);
         $this->gameListService->sortGameList('title');
 
-        return view('pages.games.suggest', [
+        return [
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,
             'columns' => $this->getColumns(),
             'noGamesMessage' => 'No suggestions available.',
-        ]);
+        ];
     }
 
-    public function forGame(Request $request, Game $game): View
+    public function buildForUserGameViewData(User $user, Game $game): array
     {
-        $user = $request->user();
-
         $selectedGames = [];
         $gameIds = [];
 
@@ -170,126 +168,13 @@ class SuggestGameController extends Controller
         $this->gameListService->mergeWantToPlay($user);
         $this->gameListService->sortGameList('title');
 
-        return view('pages.game.[game].suggest', [
+        return [
             'game' => $game,
             'user' => $user,
             'consoles' => $this->gameListService->consoles,
             'games' => $this->gameListService->games,
             'columns' => $this->getColumns(),
             'noGamesMessage' => 'No suggestions available.',
-        ]);
-    }
-
-    private function initializeUserProgress(?User $user): void
-    {
-        if (!$user) {
-            return;
-        }
-
-        $history = PlayerGame::where('user_id', $user->id)
-            ->where('achievements_unlocked', '>', 0)
-            ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
-            ->select([
-                'game_id',
-                'achievements_unlocked',
-                'achievements_unlocked_hardcore',
-                'achievements_total',
-                'beaten_at',
-                'ConsoleID',
-            ]);
-
-        foreach ($history->get() as $playerGame) {
-            if (!System::isGameSystem($playerGame->ConsoleID)) {
-                continue;
-            }
-
-            $this->gameListService->userProgress[$playerGame->game_id] = [
-                'achievements_unlocked' => $playerGame->achievements_unlocked,
-                'achievements_unlocked_hardcore' => $playerGame->achievements_unlocked_hardcore,
-            ];
-
-            $this->gameProgress[$playerGame->game_id] =
-                $playerGame->achievements_unlocked / $playerGame->achievements_total;
-
-            if ($playerGame->achievements_unlocked === $playerGame->achievements_total) {
-                $this->masteredGames[] = $playerGame->game_id;
-            } elseif ($playerGame->beaten_at) {
-                $this->beatenGames[] = $playerGame->game_id;
-            }
-        }
-    }
-
-    private function mergeRelatedGameInfo(array $selectedGames, bool $showRelatedGames = true): void
-    {
-        foreach ($this->gameListService->games as &$game) {
-            $game['SelectionMethod'] = $selectedGames[$game['ID']]['how'];
-
-            if ($showRelatedGames) {
-                $relatedGameId = $selectedGames[$game['ID']]['gameId'] ?? 0;
-                if ($relatedGameId > 0) {
-                    $game['RelatedGame'] = Game::where('ID', $relatedGameId)
-                        ->select(['ID', 'Title', 'ImageIcon'])
-                        ->first()
-                        ->toArray();
-
-                    if (array_key_exists('game-type', $selectedGames[$game['ID']])) {
-                        $game['RelatedGameType'] = $selectedGames[$game['ID']]['game-type'];
-                    }
-                }
-            }
-
-            if (array_key_exists('hub', $selectedGames[$game['ID']])) {
-                $game['RelatedHub'] = $selectedGames[$game['ID']]['hub'];
-            }
-        }
-    }
-
-    private function getColumns(): array
-    {
-        // take the default columns and insert the reason column before the progress/backlog columns
-        $defaultColumns = $this->gameListService->getColumns();
-
-        $columns = [];
-        $columns['title'] = $defaultColumns['title'];
-        $columns['achievements'] = $defaultColumns['achievements'];
-        $columns['points'] = $defaultColumns['points'];
-        $columns['players'] = $defaultColumns['players'];
-        $columns['reasoning'] = $this->getReasonColumn();
-
-        if (array_key_exists('progress', $defaultColumns)) {
-            $columns['progress'] = $defaultColumns['progress'];
-            $columns['backlog'] = $defaultColumns['backlog'];
-        }
-
-        return $columns;
-    }
-
-    private function getReasonColumn(): array
-    {
-        return [
-            'header' => 'Reasoning',
-            'width' => 28,
-            'tooltip' => 'Why the game was suggested',
-            'render' => function ($game) {
-                echo '<td>';
-                echo Blade::render('
-                    <x-game-list-item.suggest-reason
-                        :selectionMethod="$selectionMethod"
-                        :relatedSubject="$relatedSubject"
-                        :relatedGameId="$relatedGameId"
-                        :relatedGameType="$relatedGameType"
-                        :relatedGameTitle="$relatedGameTitle"
-                        :relatedGameIcon="$relatedGameIcon"
-                    />', [
-                        'selectionMethod' => $game['SelectionMethod'],
-                        'relatedSubject' => $game['RelatedHub'] ?? '',
-                        'relatedGameId' => $game['RelatedGame']['ID'] ?? 0,
-                        'relatedGameType' => $game['RelatedGameType'] ?? '',
-                        'relatedGameTitle' => $game['RelatedGame']['Title'] ?? '',
-                        'relatedGameIcon' => $game['RelatedGame']['ImageIcon'] ?? '',
-                    ]);
-                echo '</td>';
-            },
         ];
     }
 
@@ -466,5 +351,118 @@ class SuggestGameController extends Controller
         }
 
         return 0;
+    }
+
+    private function initializeUserProgress(?User $user): void
+    {
+        if (!$user) {
+            return;
+        }
+
+        $history = PlayerGame::where('user_id', $user->id)
+            ->where('achievements_unlocked', '>', 0)
+            ->join('GameData', 'GameData.ID', '=', 'player_games.game_id')
+            ->select([
+                'game_id',
+                'achievements_unlocked',
+                'achievements_unlocked_hardcore',
+                'achievements_total',
+                'beaten_at',
+                'ConsoleID',
+            ]);
+
+        foreach ($history->get() as $playerGame) {
+            if (!System::isGameSystem($playerGame->ConsoleID)) {
+                continue;
+            }
+
+            $this->gameListService->userProgress[$playerGame->game_id] = [
+                'achievements_unlocked' => $playerGame->achievements_unlocked,
+                'achievements_unlocked_hardcore' => $playerGame->achievements_unlocked_hardcore,
+            ];
+
+            $this->gameProgress[$playerGame->game_id] =
+                $playerGame->achievements_unlocked / $playerGame->achievements_total;
+
+            if ($playerGame->achievements_unlocked === $playerGame->achievements_total) {
+                $this->masteredGames[] = $playerGame->game_id;
+            } elseif ($playerGame->beaten_at) {
+                $this->beatenGames[] = $playerGame->game_id;
+            }
+        }
+    }
+
+    private function mergeRelatedGameInfo(array $selectedGames, bool $showRelatedGames = true): void
+    {
+        foreach ($this->gameListService->games as &$game) {
+            $game['SelectionMethod'] = $selectedGames[$game['ID']]['how'];
+
+            if ($showRelatedGames) {
+                $relatedGameId = $selectedGames[$game['ID']]['gameId'] ?? 0;
+                if ($relatedGameId > 0) {
+                    $game['RelatedGame'] = Game::where('ID', $relatedGameId)
+                        ->select(['ID', 'Title', 'ImageIcon'])
+                        ->first()
+                        ->toArray();
+
+                    if (array_key_exists('game-type', $selectedGames[$game['ID']])) {
+                        $game['RelatedGameType'] = $selectedGames[$game['ID']]['game-type'];
+                    }
+                }
+            }
+
+            if (array_key_exists('hub', $selectedGames[$game['ID']])) {
+                $game['RelatedHub'] = $selectedGames[$game['ID']]['hub'];
+            }
+        }
+    }
+
+    private function getColumns(): array
+    {
+        // take the default columns and insert the reason column before the progress/backlog columns
+        $defaultColumns = $this->gameListService->getColumns();
+
+        $columns = [];
+        $columns['title'] = $defaultColumns['title'];
+        $columns['achievements'] = $defaultColumns['achievements'];
+        $columns['points'] = $defaultColumns['points'];
+        $columns['players'] = $defaultColumns['players'];
+        $columns['reasoning'] = $this->getReasonColumn();
+
+        if (array_key_exists('progress', $defaultColumns)) {
+            $columns['progress'] = $defaultColumns['progress'];
+            $columns['backlog'] = $defaultColumns['backlog'];
+        }
+
+        return $columns;
+    }
+
+    private function getReasonColumn(): array
+    {
+        return [
+            'header' => 'Reasoning',
+            'width' => 28,
+            'tooltip' => 'Why the game was suggested',
+            'render' => function ($game) {
+                echo '<td>';
+                echo Blade::render('
+                    <x-game-list-item.suggest-reason
+                        :selectionMethod="$selectionMethod"
+                        :relatedSubject="$relatedSubject"
+                        :relatedGameId="$relatedGameId"
+                        :relatedGameType="$relatedGameType"
+                        :relatedGameTitle="$relatedGameTitle"
+                        :relatedGameIcon="$relatedGameIcon"
+                    />', [
+                        'selectionMethod' => $game['SelectionMethod'],
+                        'relatedSubject' => $game['RelatedHub'] ?? '',
+                        'relatedGameId' => $game['RelatedGame']['ID'] ?? 0,
+                        'relatedGameType' => $game['RelatedGameType'] ?? '',
+                        'relatedGameTitle' => $game['RelatedGame']['Title'] ?? '',
+                        'relatedGameIcon' => $game['RelatedGame']['ImageIcon'] ?? '',
+                    ]);
+                echo '</td>';
+            },
+        ];
     }
 }

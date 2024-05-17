@@ -1,53 +1,33 @@
 <?php
 
-use function Laravel\Folio\{middleware, name};
+use App\Models\Game;
+use App\Models\User;
+use App\Platform\Services\CompareUnlocksPageService;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:view,game', 'can:view,user']);
 name('game.compare-unlocks');
 
+render(function (View $view, User $user, Game $game, CompareUnlocksPageService $pageService) {
+    return $view->with($pageService->buildViewData(request(), $user, $game));
+});
+
 ?>
 
 @props([
-    'user' => null,
-    'otherUser' => null,
-    'game' => null,
     'achievements' => [],
+    'game' => null, // Game
+    'numAchievements' => 0,
+    'otherUser' => null, // User
+    'otherUserUnlockCount' => 0,
+    'otherUserUnlockHardcoreCount' => 0,
     'sortOrder' => 'display',
+    'user' => null, // User
+    'userUnlockCount' => 0,
+    'userUnlockHardcoreCount' => 0,
 ])
-
-@php
-use App\Enums\Permissions;
-
-$availableSorts = [
-    'selfUnlocks' => 'My Unlock Times',
-    'otherUnlocks' => 'Their Unlock Times',
-    'display' => 'Display Order',
-    'title' => 'Achievement Title',
-];
-
-$userUnlockCount = 0;
-$otherUserUnlockCount = 0;
-$userUnlockHardcoreCount = 0;
-$otherUserUnlockHardcoreCount = 0;
-$numAchievements = count($achievements);
-
-
-foreach ($achievements as $achievement) {
-    if (array_key_exists('userTimestamp', $achievement)) {
-        $userUnlockCount++;
-        if ($achievement['userHardcore'] ?? false) {
-            $userUnlockHardcoreCount++;
-        }
-    }
-
-    if (array_key_exists('otherUserTimestamp', $achievement)) {
-        $otherUserUnlockCount++;
-        if ($achievement['otherUserHardcore'] ?? false) {
-            $otherUserUnlockHardcoreCount++;
-        }
-    }
-}
-@endphp
 
 <x-app-layout
     pageTitle="Compare Unlocks - {{ $game->Title }}"
@@ -96,7 +76,12 @@ foreach ($achievements as $achievement) {
         </x-slot>
 
         <x-meta-panel
-            :availableSorts="$availableSorts"
+            :availableSorts="[
+                'selfUnlocks' => 'My Unlock Times',
+                'otherUnlocks' => 'Their Unlock Times',
+                'display' => 'Display Order',
+                'title' => 'Achievement Title',
+            ]"
             :selectedSortOrder="$sortOrder"
         />
 

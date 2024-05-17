@@ -31,10 +31,10 @@ $consoleTooltipLabel = $label ?? config('systems')[$consoleId]['name'];
 
 $targetUser = request('user');
 $cellUrls = [
-    'totals' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId]),
-    'unfinished' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'unawarded']),
-    'any-beaten' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'any-beaten']),
-    'any-mastery' => route('user.completion-progress', [$targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'gte-completed']),
+    'totals' => route('user.completion-progress', ['user' => $targetUser, 'filter[system]' => $consoleId]),
+    'unfinished' => route('user.completion-progress', ['user' => $targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'unawarded']),
+    'any-beaten' => route('user.completion-progress', ['user' => $targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'any-beaten']),
+    'any-mastery' => route('user.completion-progress', ['user' => $targetUser, 'filter[system]' => $consoleId, 'filter[status]' => 'gte-completed']),
 ];
 ?>
 
