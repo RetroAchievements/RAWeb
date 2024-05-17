@@ -91,20 +91,6 @@ class PlayerCompletionProgressTest extends TestCase
             ->assertSeeText($targetUser->User . "'s Completion Progress");
     }
 
-    public function testCorrectHeadingIfViewingOtherPlayersProgress2(): void
-    {
-        /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
-        /** @var User $targetUser */
-        $targetUser = User::factory()->create(['User' => 'luchaos']);
-
-        // "luchaos' Completion Progress" (not "luchaos's")
-        $this
-            ->actingAs($me)
-            ->get('/user/' . $targetUser->User . '/progress')
-            ->assertSeeText($targetUser->User . "' Completion Progress");
-    }
-
     public function testShowGamesWithNoFilteringApplied(): void
     {
         // Arrange
@@ -202,7 +188,13 @@ class PlayerCompletionProgressTest extends TestCase
         $this->addHardcoreUnlock($me, $gameTwoAchievements->get(1));
         $this->addHardcoreUnlock($me, $gameTwoAchievements->get(2));
 
-        PlayerBadge::factory()->create(['User' => $me->User, 'AwardData' => $gameOne->ID, 'AwardType' => AwardType::Mastery, 'AwardDataExtra' => UnlockMode::Hardcore, 'AwardDate' => Carbon::now()]);
+        PlayerBadge::factory()->create([
+            'user_id' => $me->id,
+            'AwardData' => $gameOne->id,
+            'AwardType' => AwardType::Mastery,
+            'AwardDataExtra' => UnlockMode::Hardcore,
+            'AwardDate' => Carbon::now(),
+        ]);
 
         // Act
         $view = $this->actingAs($me)->get('/user/' . $me->User . '/progress?filter[status]=eq-mastered');

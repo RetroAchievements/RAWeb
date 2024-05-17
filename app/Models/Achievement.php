@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -50,14 +51,17 @@ class Achievement extends BaseModel implements HasComments
         LogsActivity::activities as auditLog;
     }
 
+    // TODO rename ID to id, remove getIdAttribute()
     // TODO rename Achievements table to achievements
     // TODO rename GameID column to game_id
-    // TODO rename Title column to title
-    // TODO rename Description column to description
-    // TODO rename Points column to points
-    // TODO drop AssocVideo, move to guides or something
-    // TODO rename TrueRation column to points_weighted
+    // TODO rename Title column to title, remove getTitleAttribute()
+    // TODO rename Description column to description, remove getDescriptionAttribute()
+    // TODO rename Points column to points, remove getPointsAttribute()
+    // TODO rename TrueRation column to points_weighted, remove getPointsWeightedAttribute()
     // TODO rename unlocks_hardcore_total to unlocks_hardcore
+    // TODO rename DateCreated to created_at, make non-nullable, remove getCreatedAtAttribute()
+    // TODO rename Updated to updated_at, make non-nullable, remove getUpdatedAtAttribute()
+    // TODO drop AssocVideo, move to guides or something
     // TODO drop MemAddr, migrate to triggerable morph
     // TODO drop Progress, ProgressMax, ProgressFormat migrate to triggerable morph
     // TODO drop Flags, derived from being included in an achievement set
@@ -65,6 +69,7 @@ class Achievement extends BaseModel implements HasComments
     // TODO drop VotesPos, migrate to votable/ratable morph
     // TODO drop VotesNeg, migrate to votable/ratable morph
     // TODO drop BadgeName, derived from badge set
+    // TODO drop DisplayOrder, derive from achievement_set_achievements.order_column
     protected $table = 'Achievements';
 
     protected $primaryKey = 'ID';
@@ -199,6 +204,12 @@ class Achievement extends BaseModel implements HasComments
         return route('achievement.show', [$this, $this->getSlugAttribute()]);
     }
 
+    // TODO remove after rename
+    public function getCreatedAtAttribute(): ?Carbon
+    {
+        return $this->attributes['DateCreated'] ? Carbon::parse($this->attributes['DateCreated']) : null;
+    }
+
     public function getCanDelegateUnlocks(User|string $user): bool
     {
         $username = $user instanceof User ? $user->User : $user;
@@ -241,12 +252,12 @@ class Achievement extends BaseModel implements HasComments
     }
 
     // TODO remove after rename
-
     public function getIdAttribute(): int
     {
         return $this->attributes['ID'];
     }
 
+    // TODO remove after rename
     public function getBadgeNameAttribute(): string
     {
         return $this->attributes['BadgeName'];
@@ -259,19 +270,28 @@ class Achievement extends BaseModel implements HasComments
         return $gameId ? (int) $gameId : null;
     }
 
+    // TODO remove after rename
     public function getTitleAttribute(): ?string
     {
         return $this->attributes['Title'] ?? null;
     }
 
+    // TODO remove after rename
     public function getDescriptionAttribute(): ?string
     {
         return $this->attributes['Description'] ?? null;
     }
 
+    // TODO remove after rename
     public function getPointsAttribute(): int
     {
         return (int) $this->attributes['Points'];
+    }
+
+    // TODO remove after rename
+    public function getUpdatedAtAttribute(): ?Carbon
+    {
+        return $this->attributes['Updated'] ? Carbon::parse($this->attributes['Updated']) : null;
     }
 
     public function getAuthorAttribute(): string
@@ -279,6 +299,7 @@ class Achievement extends BaseModel implements HasComments
         return $this->attributes['Author'];
     }
 
+    // TODO remove after rename
     public function getPointsWeightedAttribute(): int
     {
         return (int) $this->attributes['TrueRatio'];
@@ -290,20 +311,12 @@ class Achievement extends BaseModel implements HasComments
 
     /**
      * @return BelongsTo<User, Achievement>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id', 'ID');
-    }
-
-    /**
-     * @return BelongsTo<User, Achievement>
      *
      * @deprecated make this multiple developers
      */
     public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'Author', 'User');
+        return $this->belongsTo(User::class, 'user_id', 'ID')->withTrashed();
     }
 
     /**
@@ -317,7 +330,7 @@ class Achievement extends BaseModel implements HasComments
     /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_achievements', 'achievement_id', 'user_id')
             ->using(PlayerAchievement::class);
@@ -328,7 +341,7 @@ class Achievement extends BaseModel implements HasComments
      */
     public function playerAchievements(): HasMany
     {
-        return $this->hasMany(PlayerAchievement::class, 'achievement_id');
+        return $this->hasMany(PlayerAchievement::class, 'achievement_id', 'ID');
     }
 
     // == scopes

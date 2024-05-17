@@ -2,14 +2,15 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
+use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\UserGameListType;
-use App\Models\Game;
-use App\Models\UserGameListEntry;
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Models\Game;
 use App\Models\User;
+use App\Models\UserGameListEntry;
 use App\Platform\Controllers\RelatedGamesTableController;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
@@ -50,8 +51,9 @@ if (!isset($user) && ($sortBy == 3 || $sortBy == 13)) {
 }
 
 $numAchievements = getGameMetadata($gameID, $userModel, $achievementData, $gameData, $sortBy, null, $flagParam, metrics: true);
+$gameModel = Game::find($gameID);
 
-if (empty($gameData)) {
+if (!$gameModel) {
     abort(404);
 }
 
@@ -154,11 +156,11 @@ if ($isFullyFeaturedGame) {
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
-    $numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user, retrieveHidden: false);
+    $numLeaderboards = $gameModel->visibleLeaderboards()->count();
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
-        $isSoleAuthor = checkIfSoleDeveloper($user, $gameID);
+        $isSoleAuthor = checkIfSoleDeveloper($userModel, $gameID);
 
         // Determine if the logged in user has any progression awards for this set
         $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
@@ -266,7 +268,7 @@ if ($isFullyFeaturedGame) {
     // Get the top ten players at this game:
     $gameTopAchievers = getGameTopAchievers($gameID);
 
-    $claimData = getClaimData($gameID, true);
+    $claimData = getClaimData([$gameID], true);
 }
 
 sanitize_outputs(
@@ -275,30 +277,27 @@ sanitize_outputs(
     $richPresenceData,
     $user,
 );
-?>
 
-<?php if ($isFullyFeaturedGame): ?>
-    <?php
-        $pageType = 'retroachievements:game';
-        $pageImage = media_asset($gameData['ImageIcon']);
-        $pageDescription = generateGameMetaDescription(
+$pageType = $isFullyFeaturedGame ? 'retroachievements:game' : 'retroachievements:hub';
+$pageImage = media_asset($gameData['ImageIcon']);
+
+if ($isFullyFeaturedGame) {
+    $pageDescription = generateGameMetaDescription(
             $gameTitle,
             $consoleName,
             $numAchievements,
             $totalPossible,
             $isEventGame
         );
-    ?>
-<?php endif ?>
+}
+
+?>
 
 @if ($gate)
-    <?php
-        $matureHubIcon = Game::where('Title', '[Theme - Mature]')->value('ImageIcon');
-    ?>
     <x-app-layout
         :pageTitle="$pageTitle"
         :pageDescription="$pageDescription ?? null"
-        :pageImage="media_asset($matureHubIcon)"
+        :pageImage="$pageImage ?? null"
         :pageType="$pageType ?? null"
     >
         <x-game.mature-content-gate
@@ -495,8 +494,17 @@ sanitize_outputs(
 
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
+        // TODO use a policy
         if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
-            $hasMinimumDeveloperPermissions = $permissions >= Permissions::Developer || (($isSoleAuthor || hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet)) && $permissions >= Permissions::JuniorDeveloper);
+            // TODO use a policy
+            $hasMinimumDeveloperPermissions = (
+                $permissions >= Permissions::Developer
+                || (
+                    ($isSoleAuthor || hasSetClaimed($userModel, $gameID, true, ClaimSetType::NewSet))
+                    && $permissions >= Permissions::JuniorDeveloper
+                )
+            );
+            
             echo "<div class='devbox mb-3'>";
             echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
             echo "<div id='devboxcontent' style='display: none'>";
@@ -533,7 +541,7 @@ sanitize_outputs(
                     $interestedUsers = UserGameListEntry::where('type', UserGameListType::Develop)
                         ->where('GameID', $gameID)
                         ->count();
-                    echo "<div><a class='btn btn-link' href='" . route('game.dev-interest', $gameID) . "'>View Developer Interest ($interestedUsers)</a></div>";
+                    echo "<div><a class='btn btn-link' href='" . route('game.dev-interest', ['game' => $gameID]) . "'>View Developer Interest ($interestedUsers)</a></div>";
                 }
 
                 if ($permissions >= Permissions::Moderator && !$isEventGame) {
@@ -577,8 +585,7 @@ sanitize_outputs(
                         :isOfficial="$isOfficial"
                         :isSoleAuthor="$isSoleAuthor"
                         :numAchievements="$numAchievements"
-                        :user="$user"
-                        :userPermissions="$permissions"
+                        :user="$userModel"
                     />
                 @endif
                 <?php
@@ -792,8 +799,7 @@ sanitize_outputs(
             if ($user !== null && $flagParam == $officialFlag && !$isEventGame) {
                 ?>
                     <x-game.claim-info
-                        :claimData="$claimData"
-                        :gameId="$gameID"
+                        :achievementSetClaims="$gameModel->achievementSetClaims->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview])"
                         :userPermissions="$permissions"
                     />
                 <?php
@@ -921,8 +927,7 @@ sanitize_outputs(
         ?>
             <x-game.link-buttons
                 :allowedLinks="['forum-topic']"
-                :gameForumTopicId="$forumTopicID"
-                :gameId="$gameID"
+                :game="$gameModel"
             />
         <?php
         echo "</div>";
@@ -955,10 +960,7 @@ sanitize_outputs(
         echo "<div class='component'>";
         ?>
             <x-game.link-buttons
-                :gameAchievementsCount="$numAchievements"
-                :gameForumTopicId="$forumTopicID"
-                :gameGuideUrl="$guideURL"
-                :gameId="$gameID"
+                :game="$gameModel"
                 :isViewingOfficial="$flagParam !== $unofficialFlag"
             />
         <?php
@@ -1002,7 +1004,6 @@ sanitize_outputs(
         }
 
         if ($user !== null && $numAchievements > 0) {
-            $gameModel = Game::find($gameID);
             ?>
             <div class="mb-4">
                 <x-game.compare-progress
@@ -1021,11 +1022,11 @@ sanitize_outputs(
 
             RenderTopAchieversComponent($user, $gameTopAchievers['HighScores'], $gameTopAchievers['Masters']);
         }
-
-        if (isValidConsoleId($consoleID)) {
-            RenderGameLeaderboardsComponent($lbData, $forumTopicID);
-        }
         ?>
+
+        @if (isValidConsoleId($consoleID))
+            <x-game.leaderboards-listing :game="$gameModel" />
+        @endif
     </x-slot>
 @endif
 </x-app-layout>

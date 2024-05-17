@@ -1,18 +1,28 @@
 <?php
 
-use function Laravel\Folio\{middleware, name};
+use App\Platform\Services\SuggestGamesService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth']);
 name('games.suggest');
 
+render(function (View $view, SuggestGamesService $pageService) {
+    $user = Auth::user();
+
+    return $view->with($pageService->buildViewData($user));
+});
+
 ?>
 
 @props([
-    'user' => null,
-    'consoles' => [],
-    'games' => [],
     'columns' => [],
-    'noGamesMessage' => 'No games.',
+    'consoles' => null, // Collection<int, System>
+    'games' => [],
+    'noGamesMessage' => 'No suggestions available.',
+    'user' => null, // User
 ])
 
 <x-app-layout
@@ -32,5 +42,4 @@ name('games.suggest');
         :columns="$columns"
         :noGamesMessage="$noGamesMessage"
     />
-
 </x-app-layout>

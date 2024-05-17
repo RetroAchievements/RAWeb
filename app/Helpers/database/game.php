@@ -2,12 +2,12 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Enums\AchievementFlag;
-use Illuminate\Support\Str;
 
 function getGameData(int $gameID): ?array
 {
@@ -27,7 +27,7 @@ function getGameData(int $gameID): ?array
 // If the game is a subset, identify its parent game.
 function getParentGameFromGameTitle(string $title, int $consoleId): ?Game
 {
-    if (strstr('[Subset - ', $title) !== false) {
+    if (mb_strpos($title, '[Subset') !== false) {
         $foundGame = Game::where('Title', $title)->where('ConsoleID', $consoleId)->first();
 
         return $foundGame->getParentGame() ?? null;
@@ -100,7 +100,7 @@ function getGameMetadata(
     $metricsBindings = [];
     if ($metrics) {
         $parentGame = getParentGameFromGameTitle($gameDataOut['Title'], $gameDataOut['ConsoleID']);
-        $numDistinctPlayersSelector = $parentGame?->players_total ?? getGameData($gameID)['NumDistinctPlayers'];
+        $numDistinctPlayersSelector = $parentGame?->players_total ?: getGameData($gameID)['NumDistinctPlayers'];
         $gameDataOut['ParentGameID'] = $parentGame?->id;
         $gameDataOut['NumDistinctPlayers'] = $numDistinctPlayersSelector ?? 0;
 
@@ -115,7 +115,7 @@ function getGameMetadata(
         ach.Description,
         ach.Points,
         ach.TrueRatio,
-        ach.Author,
+        ua.User AS Author,
         ach.DateModified,
         ach.DateCreated,
         ach.BadgeName,
@@ -123,6 +123,7 @@ function getGameMetadata(
         ach.MemAddr,
         ach.type
     FROM Achievements AS ach
+    LEFT JOIN UserAccounts AS ua ON ach.user_id = ua.ID
     $metricsJoin
     WHERE ach.GameID = :gameId AND ach.Flags = :achievementFlag AND ach.deleted_at IS NULL
     $orderBy";
@@ -217,7 +218,7 @@ function getGameAlternatives(int $gameID, ?int $sortBy = null): array
 }
 
 function getGamesListByDev(
-    ?string $dev,
+    ?User $dev,
     int $consoleID,
     ?array &$dataOut,
     int $sortBy,
@@ -360,9 +361,9 @@ function getGamesListByDev(
                   FROM Achievements ach
                   INNER JOIN GameData gd ON gd.ID = ach.GameID
                   INNER JOIN Console c ON c.ID = gd.ConsoleID $listJoin
-                  WHERE ach.Author=:author AND ach.Flags = " . AchievementFlag::OfficialCore . " $whereClause
+                  WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore . " $whereClause
                   GROUP BY ach.GameID $orderBy";
-        foreach (legacyDbFetchAll($query, ['author' => $dev]) as $row) {
+        foreach (legacyDbFetchAll($query, ['userId' => $dev->id]) as $row) {
             if (!$initialQuery) {
                 $gameIds[] = $row['ID'];
             }
@@ -481,12 +482,13 @@ function getGamesListByDev(
                 $games[$row['GameID']]['OpenTickets'] = $row['OpenTickets'];
             }
         } else {
-            $query = "SELECT ach.GameID, ach.Author, COUNT(*) AS OpenTickets
+            $query = "SELECT ach.GameID, ua.User as Author, COUNT(*) AS OpenTickets
                       FROM Ticket tick
-                      INNER JOIN Achievements ach ON ach.ID=tick.AchievementID
+                      INNER JOIN Achievements ach ON ach.ID = tick.AchievementID
+                      LEFT JOIN UserAccounts ua ON ach.user_id = ua.ID
                       WHERE ach.GameID IN ($gameList)
                       AND tick.ReportState IN (1,3)
-                      GROUP BY ach.GameID, ach.Author";
+                      GROUP BY ach.GameID, Author";
             foreach (legacyDbFetchAll($query) as $row) {
                 if ($row['Author'] === $dev) {
                     $games[$row['GameID']]['MyOpenTickets'] += (int) $row['OpenTickets'];
@@ -556,7 +558,7 @@ function getGamesListDataNamesOnly(int $consoleId, bool $officialFlag = false): 
         ->orderBy('Console.Name')
         ->orderBy('GameData.Title')
         ->select('GameData.Title', 'GameData.ID')
-        ->pluck('GameData.Title', 'GameData.ID')
+        ->pluck('GameData.Title', 'GameData.ID') // return mapping of ID => Title
         ->toArray();
 }
 
@@ -723,18 +725,18 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
     }
 }
 
-function modifyGameForumTopic(string $user, int $gameID, int $newForumTopic): bool
+function modifyGameForumTopic(string $user, int $gameID, int $newForumTopicId): bool
 {
-    if ($gameID == 0 || $newForumTopic == 0) {
+    if ($gameID == 0 || $newForumTopicId == 0) {
         return false;
     }
 
-    if (!getTopicDetails($newForumTopic)) {
+    if (!ForumTopic::where('ID', $newForumTopicId)->exists()) {
         return false;
     }
 
     $db = getMysqliConnection();
-    $query = "UPDATE GameData SET ForumTopicID = $newForumTopic WHERE ID = $gameID";
+    $query = "UPDATE GameData SET ForumTopicID = $newForumTopicId WHERE ID = $gameID";
     echo $query;
 
     if (!mysqli_query($db, $query)) {
@@ -1019,7 +1021,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
     // prevent divide by zero error if the game has never been played before
     $gamePlayers = max(1, $gamePlayers);
 
-    foreach ($achievements->get() as $achievement) {
+    foreach ($achievements->with('developer')->get() as $achievement) {
         if (!AchievementFlag::isValid($achievement->Flags)) {
             continue;
         }
@@ -1035,7 +1037,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
             'Title' => $achievement->Title,
             'Description' => $achievement->Description,
             'Points' => $achievement->Points,
-            'Author' => $achievement->Author,
+            'Author' => $achievement->developer->User,
             'Modified' => $achievement->DateModified->unix(),
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,

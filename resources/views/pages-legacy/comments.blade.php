@@ -141,8 +141,8 @@ switch ($articleTypeID) {
         $ticket = Ticket::findOrFail($articleID);
         $pageTitle = "Ticket $articleID: " . $ticket->achievement->Title;
         $navPath = [
-            'Ticket Manager' => '/ticketmanager.php',
-            $articleID => '/ticketmanager.php?i=' . $articleID,
+            'Open Tickets' => route('tickets.index'),
+            "Ticket $articleID" => route('ticket.show', ['ticket' => $ticket]),
         ];
         break;
 

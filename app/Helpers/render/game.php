@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
+use App\Models\Game;
 use App\Models\System;
 use Illuminate\Support\Facades\Blade;
 
@@ -8,7 +10,7 @@ use Illuminate\Support\Facades\Blade;
  * @deprecated use <x-game.avatar />
  */
 function gameAvatar(
-    int|string|array $game,
+    int|string|array|Game $game,
     ?bool $label = null,
     bool|string|null $icon = null,
     int $iconSize = 32,
@@ -18,6 +20,10 @@ function gameAvatar(
     ?string $title = null,
 ): string {
     $id = $game;
+
+    if ($game instanceof Game) {
+        $game = $game->toArray();
+    }
 
     if (is_array($game)) {
         $id = $game['GameID'] ?? $game['ID'];
@@ -62,6 +68,8 @@ function gameAvatar(
  *
  * Format: `All Games » (console) » (game title)`.
  * If given data is for a subset, then `» Subset - (name)` is also added.
+ *
+ * @deprecated use <x-game.breadcrumbs />
  */
 function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true): string
 {
@@ -254,7 +262,7 @@ function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicI
         $gameTitle,
     );
 
-    if (!empty($forumTopicID) && getTopicDetails($forumTopicID)) {
+    if (!empty($forumTopicID) && ForumTopic::where('ID', $forumTopicID)->exists()) {
         echo "<a class='btn py-2 mb-2 block' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
     } else {
         if ($permissions >= Permissions::Developer) {
@@ -297,7 +305,7 @@ function generateEmptyBucketsWithBounds(int $numAchievements): array
 
     // If bucketing is enabled, we'll dynamically generate 19 buckets. The final 20th
     // bucket will contain all users who have completed/mastered the game.
-    $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements;
+    $bucketCount = $isDynamicBucketingEnabled ? $GENERATED_RANGED_BUCKETS_COUNT : $numAchievements - 1;
 
     // Bucket size is determined based on the total number of achievements in the set.
     // If bucketing is enabled, we aim for roughly 20 buckets (hence dividing by $bucketCount).
@@ -546,7 +554,7 @@ function ListGames(
             $openTickets = $gameEntry['OpenTickets'];
             echo "<td class='text-right'>";
             if ($openTickets > 0) {
-                echo "<a href='ticketmanager.php?g=$gameID'>$openTickets</a>";
+                echo "<a href='" . route('game.tickets', ['game' => $gameID]) . "'>$openTickets</a>";
                 $ticketsCount += $openTickets;
             }
             echo "</td>";

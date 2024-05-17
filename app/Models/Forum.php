@@ -18,10 +18,10 @@ class Forum extends BaseModel
     use SoftDeletes;
 
     // TODO rename Forum table to forums
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename CategoryID to forum_category_id
-    // TODO rename Title to title
-    // TODO rename Description to description
+    // TODO rename Title to title, remove getTitleAttribute()
+    // TODO rename Description to description, remove getDescriptionAttribute()
     // TODO rename DisplayOrder to order_column
     // TODO rename Created to created_at
     // TODO rename Updated to updated_at
@@ -62,6 +62,18 @@ class Forum extends BaseModel
         return route('forum.show', [$this, $this->getSlugAttribute()]);
     }
 
+    // TODO remove after rename
+    public function getDescriptionAttribute(): string
+    {
+        return $this->attributes['Description'];
+    }
+
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
     public function getPermalinkAttribute(): string
     {
         return route('forum.show', $this);
@@ -73,6 +85,12 @@ class Forum extends BaseModel
             . ($this->title ? '-' . Str::slug($this->title) : '');
     }
 
+    // TODO remove after rename
+    public function getTitleAttribute(): string
+    {
+        return $this->attributes['Title'];
+    }
+
     // == mutators
 
     // == relations
@@ -82,7 +100,7 @@ class Forum extends BaseModel
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ForumCategory::class, 'CategoryID');
+        return $this->belongsTo(ForumCategory::class, 'CategoryID', 'ID');
     }
 
     /**

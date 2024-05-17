@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
+use App\Models\User;
 use App\Platform\Enums\ImageType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -29,8 +30,13 @@ if ($input['type'] === ImageType::GameIcon) {
 $gameID = (int) $input['game'];
 $imageType = $input['type'];
 
+$userModel = User::firstWhere('User', $user);
+
 // Only allow jr. devs if they are the sole author of the set or have the primary claim
-if ($permissions == Permissions::JuniorDeveloper && (!checkIfSoleDeveloper($user, $gameID) && !hasSetClaimed($user, $gameID, true, ClaimSetType::NewSet))) {
+if (
+    $permissions == Permissions::JuniorDeveloper
+    && (!checkIfSoleDeveloper($userModel, $gameID) && !hasSetClaimed($userModel, $gameID, true, ClaimSetType::NewSet))
+) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

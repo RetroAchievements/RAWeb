@@ -41,7 +41,7 @@ class Game extends BaseModel implements HasComments, HasMedia
     use SoftDeletes;
 
     // TODO rename GameData table to games
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename Title column to title
     // TODO rename ConsoleID column to system_id
     // TODO rename Publisher column to publisher
@@ -197,7 +197,7 @@ class Game extends BaseModel implements HasComments, HasMedia
         return !$isSubsetOrTestKit && !$isEventGame;
     }
 
-    public function getCanDelegateActivity(User|string $user): bool
+    public function getCanDelegateActivity(User $user): bool
     {
         return $this->getIsStandalone() && $this->getHasAuthoredSomeAchievements($user);
     }
@@ -217,17 +217,17 @@ class Game extends BaseModel implements HasComments, HasMedia
         return $this->Title ? '-' . Str::slug($this->Title) : '';
     }
 
-    public function getHasAuthoredSomeAchievements(User|string $user): bool
+    public function getHasAuthoredSomeAchievements(User $user): bool
     {
         if ($this->achievements->isEmpty()) {
             return false;
         }
 
-        $username = $user instanceof User ? $user->User : $user;
+        $this->achievements->loadMissing('developer');
 
         // Check if any achievement is authored by the given user.
-        return $this->achievements->some(function ($achievement) use ($username) {
-            return $achievement->Flags === AchievementFlag::OfficialCore && $achievement->Author === $username;
+        return $this->achievements->some(function ($achievement) use ($user) {
+            return $achievement->Flags === AchievementFlag::OfficialCore && $achievement->developer->id === $user->id;
         });
     }
 
@@ -287,6 +287,8 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     /**
      * @return BelongsTo<System, Game>
+     *
+     * @deprecated use `->system`
      */
     public function console(): BelongsTo
     {
@@ -302,9 +304,19 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
+     * TODO will need to be modified if GameID is migrated to game_hash_set_id
+     *
+     * @return HasMany<MemoryNote>
+     */
+    public function memoryNotes(): HasMany
+    {
+        return $this->hasMany(MemoryNote::class, 'GameID');
+    }
+
+    /**
      * @return BelongsToMany<User>
      */
-    public function players(): BelongsToMany
+    public function playerUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'player_games')
             ->using(PlayerGame::class);
@@ -316,6 +328,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function playerGames(): HasMany
     {
         return $this->hasMany(PlayerGame::class, 'game_id');
+    }
+
+    /**
+     * @return HasMany<PlayerSession>
+     */
+    public function playerSessions(): HasMany
+    {
+        return $this->hasMany(PlayerSession::class, 'game_id');
     }
 
     /**
@@ -332,6 +352,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function hashes(): HasMany
     {
         return $this->hasMany(GameHash::class, 'game_id');
+    }
+
+    /**
+     * @return HasMany<Leaderboard>
+     */
+    public function visibleLeaderboards(): HasMany
+    {
+        return $this->leaderboards()->visible();
     }
 
     // == scopes

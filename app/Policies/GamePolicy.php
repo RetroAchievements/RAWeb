@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\Permissions;
 use App\Models\Game;
 use App\Models\Role;
 use App\Models\User;
@@ -16,7 +17,7 @@ class GamePolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
             // Role::DEVELOPER_STAFF,
             // Role::DEVELOPER,
         ]);
@@ -39,7 +40,7 @@ class GamePolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
             // Role::DEVELOPER_STAFF,
             // Role::DEVELOPER,
         ]);
@@ -48,7 +49,7 @@ class GamePolicy
     public function update(User $user, Game $game): bool
     {
         return $user->hasAnyRole([
-            Role::HUB_MANAGER,
+            Role::GAME_HASH_MANAGER,
             // Role::DEVELOPER_STAFF,
             // Role::DEVELOPER,
         ]);
@@ -67,5 +68,19 @@ class GamePolicy
     public function forceDelete(User $user, Game $game): bool
     {
         return false;
+    }
+
+    public function createForumTopic(User $user, Game $game): bool
+    {
+        if ($game->ForumTopicID) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::FORUM_MANAGER,
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Developer;
     }
 }

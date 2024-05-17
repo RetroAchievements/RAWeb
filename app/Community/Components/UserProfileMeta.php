@@ -74,7 +74,7 @@ class UserProfileMeta extends Component
         $setsWorkedOnStat = [
             'label' => 'Achievement sets worked on',
             'value' => localized_number($gameAuthoredAchievementsCount),
-            'href' => $gameAuthoredAchievementsCount ? route('developer.sets', $user->User) : null,
+            'href' => $gameAuthoredAchievementsCount ? route('developer.sets', ['user' => $user]) : null,
             'isMuted' => !$gameAuthoredAchievementsCount,
         ];
 
@@ -82,7 +82,7 @@ class UserProfileMeta extends Component
         $achievementsUnlockedByPlayersStat = [
             'label' => 'Achievements unlocked by players',
             'value' => localized_number($userMassData['ContribCount']),
-            'href' => $userMassData['ContribCount'] > 0 ? route('developer.feed', $user->User) : null,
+            'href' => $userMassData['ContribCount'] > 0 ? route('developer.feed', ['user' => $user]) : null,
             'isMuted' => !$userMassData['ContribCount'],
         ];
 
@@ -90,7 +90,7 @@ class UserProfileMeta extends Component
         $pointsAwardedToPlayersStat = [
             'label' => 'Points awarded to players',
             'value' => localized_number($userMassData['ContribYield']),
-            'href' => $userMassData['ContribYield'] > 0 ? route('developer.feed', $user->User) : null,
+            'href' => $userMassData['ContribYield'] > 0 ? route('developer.feed', ['user' => $user]) : null,
             'isMuted' => !$userMassData['ContribYield'],
         ];
 
@@ -117,12 +117,12 @@ class UserProfileMeta extends Component
         // Open tickets
         $openTickets = null;
         if ($user->ContribCount) {
-            $openTickets = array_sum(countOpenTicketsByDev($user->User));
+            $openTickets = array_sum(countOpenTicketsByDev($user));
         }
         $openTicketsStat = [
             'label' => 'Open tickets',
             'value' => $openTickets === null ? "Tickets can't be assigned to {$user->User}." : localized_number($openTickets),
-            'href' => $openTickets ? '/ticketmanager.php?u=' . $user->User : null,
+            'href' => $openTickets ? route('developer.tickets', ['user' => $user]) : null,
             'isMuted' => !$openTickets,
         ];
 
@@ -260,9 +260,9 @@ class UserProfileMeta extends Component
 
         // Average points per week
         $averagePointsPerWeek = $this->calculateAveragePointsPerWeek(
-            $this->userMassData['MemberSince'],
-            // Calculate based on the user's primary playing mode.
-            $preferredMode === 'softcore' ? $softcorePoints : $hardcorePoints,
+            $this->user,
+            $preferredMode !== "softcore",
+            $preferredMode !== "softcore" ? $hardcorePoints : $softcorePoints,
         );
         $averagePointsPerWeekStat = [
             'label' => 'Average points per week',
@@ -425,19 +425,27 @@ class UserProfileMeta extends Component
         return number_format($averageFinishedGames, 2, '.', '');
     }
 
-    private function calculateAveragePointsPerWeek(string $userMemberSince, int $points = 0): int
+    private function calculateAveragePointsPerWeek(User $user, bool $doesUserPreferHardcore, int $points = 0): int
     {
-        $memberSince = Carbon::createFromFormat('Y-m-d H:i:s', $userMemberSince);
-        $now = Carbon::now();
+        $field = $doesUserPreferHardcore ? "unlocked_hardcore_at" : "unlocked_at";
 
-        $weeksOfMembership = $memberSince->diffInWeeks($now);
+        $startingDate = $user->playerAchievements()
+            ->whereNotNull($field)
+            ->orderBy($field)
+            ->value($field);
+
+        if (is_null($startingDate)) {
+            return 0;
+        }
+
+        $weeksSinceFirstUnlock = $startingDate->diffInWeeks(Carbon::now());
 
         // Avoid division by zero.
-        if ($weeksOfMembership == 0) {
+        if ($weeksSinceFirstUnlock <= 0) {
             return $points;
         }
 
-        $averagePointsPerWeek = $points / $weeksOfMembership;
+        $averagePointsPerWeek = $points / $weeksSinceFirstUnlock;
 
         return (int) round($averagePointsPerWeek);
     }

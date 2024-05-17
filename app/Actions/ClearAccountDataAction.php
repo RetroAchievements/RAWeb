@@ -8,8 +8,8 @@ use App\Community\Actions\DeleteMessageThreadAction;
 use App\Enums\Permissions;
 use App\Events\UserDeleted;
 use App\Models\User;
-use DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ClearAccountDataAction
@@ -29,13 +29,14 @@ class ClearAccountDataAction
         // TODO $user->activities()->delete();
         // TODO $user->emailConfirmations()->delete();
         DB::statement('DELETE FROM EmailConfirmations WHERE User = :username', ['username' => $user->User]);
-        $user->relationships()->delete();
-        $user->inverseRelationships()->delete();
+        $user->relatedUsers()->detach();
+        $user->inverseRelatedUsers()->detach();
         // TODO $user->ratings()->delete();
         DB::statement('DELETE FROM Rating WHERE User = :username', ['username' => $user->User]);
         $user->gameListEntries()->delete();
-        // TODO $user->badges()->delete();
-        DB::statement('DELETE FROM SiteAwards WHERE User = :username', ['username' => $user->User]);
+        $user->playerBadges()->delete();
+        $user->playerStats()->delete();
+        $user->leaderboardEntries()->delete();
         $user->subscriptions()->delete();
 
         // use action to delete each participation so threads with no remaining active participants get cleaned up

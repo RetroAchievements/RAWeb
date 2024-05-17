@@ -1,20 +1,17 @@
 @props([
-    'commentData', // Collection|ForumTopicComment[]
-    'currentUser' => '',
-    'currentUserPermissions', // legacy permissions
-    'forumTopicId' => 0,
+    'forumTopicComment' => null, // ForumTopicComment
     'isHighlighted' => false,
     'isOriginalPoster' => false,
-    'isUnverified' => false,
+    'isPreview' => false,
     'parsedPostContent' => '',
     'threadPostNumber' => 0,
-    'isPreview' => false,
 ])
 
 <?php
-
 use App\Enums\Permissions;
+use Illuminate\Support\Facades\Auth;
 
+$currentUser = Auth::user();
 $metaContainerClassNames = "w-full mb-4 lg:mb-3 gap-x-2 flex justify-between";
 
 // These values are nullable because we may be rendering a post preview.
@@ -24,31 +21,27 @@ $commentAuthorJoinDate = null;
 $commentAuthorPermissions = null;
 
 if (!$isPreview) {
-    $commentId = $commentData->ID;
-    $commentAuthor = e($commentData->Author);
-    $commentAuthorDeletedDate = $commentData->user->Deleted ?? null;
-    $commentAuthorJoinDate = $commentData->user->created_at ?? null;
-    $commentAuthorPermissions = $commentData->user->Permissions ?? null;
-    $commentDateCreated = $commentData->DateCreated;
-    $commentDateModified = $commentData->DateModified;
-    $commentIsAuthorised = $commentData->Authorised;
+    $commentAuthor = $forumTopicComment->user?->User ?? 'Deleted User';
+    $commentAuthorDeletedDate = $forumTopicComment->user?->Deleted ?? null;
+    $commentAuthorJoinDate = $forumTopicComment->user?->created_at ?? null;
+    $commentAuthorPermissions = $forumTopicComment->user?->Permissions ?? null;
+    $commentDateCreated = $forumTopicComment->DateCreated;
+    $commentDateModified = $forumTopicComment->DateModified;
 
-    // FIXME: legacy permissions
-    $isCurrentUserModerator = $currentUserPermissions >= Permissions::Moderator;
-    $isCurrentUserAuthor = $currentUser === $commentAuthor;
+    $isCurrentUserAuthor = ($forumTopicComment->author_id ?? 0) === $currentUser?->id;
 
-    $showUnverifiedDisclaimer = !$commentIsAuthorised && ($isCurrentUserModerator || $isCurrentUserAuthor);
-    $showAuthoriseTools = !$commentIsAuthorised && $isCurrentUserModerator;
+    $isCurrentUserModerator = $currentUser?->can('manage', App\Models\ForumTopicComment::class);
+    $showAuthoriseTools = !$forumTopicComment->Authorised && $isCurrentUserModerator;
     $showEditButton = ($isCurrentUserModerator || $isCurrentUserAuthor);
 
     // TODO: Move this conditional to the filter level and delete the @if() conditional.
-    $canShowPost = $commentIsAuthorised || $showUnverifiedDisclaimer;
+    $canShowPost = $currentUser?->can('view', $forumTopicComment) || $forumTopicComment->Authorised;
 }
 ?>
 
 @if ($isPreview || $canShowPost)
     <x-forum.post-container
-        :commentId="$commentId ?? null"
+        :commentId="$forumTopicComment?->id ?? 0"
         :isHighlighted="$isHighlighted ?? false"
         :isPreview="$isPreview ?? false"
     >
@@ -68,29 +61,27 @@ if (!$isPreview) {
                 <div class='{{ $metaContainerClassNames }} {{ $showAuthoriseTools ? 'flex-col sm:flex-row items-start gap-y-2' : 'items-center' }}'>
                     <div class='flex gap-x-2 items-center'>
                         <x-forum.post-comment-meta
-                            :showUnverifiedDisclaimer="$showUnverifiedDisclaimer"
                             :isOriginalPoster="$isOriginalPoster"
-                            :postCreatedTimestamp="$commentDateCreated"
-                            :postEditedTimestamp="$commentDateModified"
+                            :forumTopicComment="$forumTopicComment"
                         />
                     </div>
 
                     <div class='flex gap-x-1 items-center lg:-mx-4 lg:pl-4 lg:w-[calc(100% + 32px)]'>
                         @if ($showAuthoriseTools)
-                            <x-forum.post-moderation-tools :commentAuthor="$commentAuthor"/>
+                            <x-forum.post-moderation-tools :commentAuthor="$commentAuthor" />
                         @endif
 
-                        @php
-                            $user = auth()->user();
-                        @endphp
-                        {{-- TODO use a policy --}}
-                        @if ($showEditButton && !$user?->is_muted)
-                            <a href='/editpost.php?comment={{ $commentId }}' class='btn p-1 lg:text-xs'>Edit</a>
-                        @endif
+                        @can('update', $forumTopicComment)
+                            <a
+                                href="{{ route('forum.post.edit', ['forumTopicComment' => $forumTopicComment]) }}"
+                                class='btn p-1 lg:text-xs'
+                            >
+                                Edit
+                            </a>
+                        @endcan
 
                         <x-forum.post-copy-comment-link-button
-                            :commentId="$commentId"
-                            :forumTopicId="$forumTopicId"
+                            :forumTopicComment="$forumTopicComment"
                             :threadPostNumber="$threadPostNumber"
                         />
                     </div>

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Community\Enums\AwardType;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\PlayerBadgeFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -122,11 +123,102 @@ class PlayerBadge extends BaseModel
         return PlayerBadge::where('User', $user->User)->max('DisplayOrder') + 1;
     }
 
+    public static function getHighestUserAwardForGameId(User $user, int $gameId): ?array
+    {
+        $userAwards = $user->playerBadges()->forGameId($gameId)->get();
+
+        $prestigeOrder = [
+            ['type' => AwardType::Mastery, 'isHardcore' => 1, 'label' => 'mastered'],
+            ['type' => AwardType::Mastery, 'isHardcore' => 0, 'label' => 'completed'],
+            ['type' => AwardType::GameBeaten, 'isHardcore' => 1, 'label' => 'beaten-hardcore'],
+            ['type' => AwardType::GameBeaten, 'isHardcore' => 0, 'label' => 'beaten-softcore'],
+        ];
+
+        foreach ($prestigeOrder as $prestigeOrderKind) {
+            $found = $userAwards->first(function ($userAward) use ($prestigeOrderKind) {
+                return
+                    $userAward->AwardType === $prestigeOrderKind['type']
+                    && $userAward->AwardDataExtra === $prestigeOrderKind['isHardcore']
+                ;
+            });
+
+            if ($found) {
+                return [
+                    'highestAwardKind' => $prestigeOrderKind['label'],
+                    'highestAward' => $found,
+                ];
+            }
+        }
+
+        // If we land here, we didn't find anything.
+        return null;
+    }
+
+    // == instance functions
+
+    private function isGameRelated(): bool
+    {
+        return in_array($this->AwardType, [AwardType::Mastery, AwardType::GameBeaten]);
+    }
+
+    // == accessors
+
+    public function getGameAttribute(): ?Game
+    {
+        if ($this->isGameRelated()) {
+            return $this->gameIfApplicable;
+        }
+
+        return null;
+    }
+
+    // == mutators
+
+    // == relations
+
+    /**
+     * Warning: not all awards are associated with games!
+     * see: PlayerBadge::getGameAttribute()
+     *
+     * @return BelongsTo<Game, PlayerBadge>
+     */
+    public function gameIfApplicable(): BelongsTo
+    {
+        return $this->belongsTo(Game::class, 'AwardData', 'id');
+    }
+
     /**
      * @return BelongsTo<User, PlayerBadge>
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'User', 'User');
+        return $this->belongsTo(User::class, 'user_id', 'ID');
+    }
+
+    // == scopes
+
+    /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeForGame(Builder $query, Game $game): Builder
+    {
+        return $query->forGameId($game->id);
+    }
+
+    /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeForGameId(Builder $query, int $gameId): Builder
+    {
+        $query->where(function ($query) {
+            $query->where('AwardType', AwardType::GameBeaten)
+                ->orWhere('AwardType', AwardType::Mastery);
+        });
+
+        $query->where('AwardData', $gameId);
+
+        return $query;
     }
 }

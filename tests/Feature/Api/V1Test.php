@@ -8,6 +8,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\StaticData;
 use App\Models\System;
+use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
@@ -229,7 +230,7 @@ class V1Test extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User]);
+        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID, 'Points' => 100, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
 
         $unlockTime = Carbon::now()->subMinutes(5);
         $this->addSoftcoreUnlock($this->user, $achievement, $unlockTime);
@@ -270,12 +271,18 @@ class V1Test extends TestCase
             ->assertSuccessful()
             ->assertJson(['Achievement' => ['ID' => null]]);
 
+        /** @var User $achievementAuthor */
+        $achievementAuthor = User::factory()->create();
         /** @var System $system */
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->progression()->create(['GameID' => $game->ID]);
+        $achievement = Achievement::factory()->published()->progression()->create([
+            'GameID' => $game->id,
+            'user_id' => $achievementAuthor->id,
+        ]);
+
         $this->addSoftcoreUnlock($this->user, $achievement);
 
         $this->get($this->apiUrl('GetAchievementUnlocks', ['a' => $achievement->ID]))
@@ -287,7 +294,7 @@ class V1Test extends TestCase
                     'Description' => $achievement->Description,
                     'Points' => $achievement->Points,
                     'Type' => $achievement->type,
-                    'Author' => $achievement->Author,
+                    'Author' => $achievementAuthor->User,
                 ],
                 'Console' => [
                     'ID' => $system->ID,
@@ -360,15 +367,6 @@ class V1Test extends TestCase
     //     // TODO
     //
     //     $this->get($this->apiUrl('GetGameExtended'))
-    //         ->assertSuccessful()
-    //         ->assertExactJson([]);
-    // }
-    //
-    // public function testGetGameInfoAndUserProgress(): void
-    // {
-    //     // TODO
-    //
-    //     $this->get($this->apiUrl('GetGameInfoAndUserProgress'))
     //         ->assertSuccessful()
     //         ->assertExactJson([]);
     // }

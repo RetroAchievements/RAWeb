@@ -55,7 +55,7 @@ class TicketDataTest extends TestCase
                 'ReportedBy' => $this->user->User,
                 'ResolvedAt' => null,
                 'ResolvedBy' => null,
-                'URL' => config('app.url') . '/ticketmanager.php?i=' . $ticket->ID,
+                'URL' => config('app.url') . '/ticket/' . $ticket->ID,
             ]);
     }
 
@@ -140,7 +140,7 @@ class TicketDataTest extends TestCase
                     ],
                 ],
                 'OpenTickets' => 2,
-                'URL' => config('app.url') . '/ticketmanager.php',
+                'URL' => config('app.url') . '/tickets',
             ]);
     }
 
@@ -194,7 +194,7 @@ class TicketDataTest extends TestCase
                         'OpenTickets' => 1,
                     ],
                 ],
-                'URL' => config('app.url') . '/ticketmanager.php?f=1',
+                'URL' => config('app.url') . '/tickets/most-reported-games',
             ]);
     }
 
@@ -205,7 +205,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
         /** @var User $user2 */
@@ -213,7 +213,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $this->user->User]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create(['AchievementID' => $achievement2->ID,
             'reporter_id' => $user2->ID, 'Hardcore' => 0, 'ReportType' => TicketType::TriggeredAtWrongTime]);
@@ -222,7 +222,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'Author' => $this->user->User]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         Ticket::factory()->create(['AchievementID' => $achievement3->ID,
             'reporter_id' => $user2->ID, 'ReportState' => TicketState::Resolved,
             'resolver_id' => $user3->ID, 'ResolvedAt' => Carbon::now()]);
@@ -235,7 +235,7 @@ class TicketDataTest extends TestCase
                 'Closed' => 0,
                 'Resolved' => 1,
                 'Total' => 3,
-                'URL' => config('app.url') . '/ticketmanager.php?u=' . $this->user->User,
+                'URL' => config('app.url') . '/user/' . $this->user->User . '/tickets',
             ]);
     }
 
@@ -312,7 +312,7 @@ class TicketDataTest extends TestCase
                         'ResolvedBy' => null,
                     ],
                 ],
-                'URL' => config('app.url') . '/ticketmanager.php?g=' . $game->ID,
+                'URL' => config('app.url') . '/game/' . $game->ID . '/tickets',
             ]);
     }
 
@@ -323,7 +323,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
         /** @var User $user2 */
@@ -339,7 +339,7 @@ class TicketDataTest extends TestCase
                 'AchievementTitle' => $achievement->Title,
                 'AchievementDescription' => $achievement->Description,
                 'OpenTickets' => 2,
-                'URL' => config('app.url') . '/ticketmanager.php?a=' . $achievement->ID,
+                'URL' => config('app.url') . '/achievement/' . $achievement->ID . '/tickets',
             ]);
     }
 }

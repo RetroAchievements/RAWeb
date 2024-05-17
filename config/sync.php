@@ -4,14 +4,11 @@ use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Forum;
 use App\Models\ForumCategory;
-use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\GameAlternative;
 use App\Models\GameHash;
 use App\Models\GameSetGame;
 use App\Models\Leaderboard;
-use App\Models\LeaderboardEntry;
-use App\Models\LeaderboardEntryLegacy;
 use App\Models\MemoryNote;
 use App\Models\Message;
 use App\Models\News;
@@ -115,27 +112,6 @@ return [
         // ],
 
         /*
-         * ForumTopics            60k    incremental by Updated
-         */
-        // 'forum_topics' => [
-        //     'model' => ForumTopic::class,
-        //     'strategy' => SyncStrategy::UPSERT,
-        //     'reference_model' => ForumTopic::class,
-        //     'reference_key' => 'Updated',
-        //     'unique_key' => 'ID',
-        //     'require' => [
-        //         'forums',
-        //         'games',
-        //     ],
-        //     'map' => [
-        //         'Title' => [
-        //             'key' => 'title',
-        //             'fixEncoding' => true,
-        //         ],
-        //     ],
-        // ],
-
-        /*
          * ForumTopicComment            150k    incremental by DateModified
          */
         // 'forum_topics' => [
@@ -208,37 +184,6 @@ return [
         //     'map' => [
         //     ],
         // ],
-
-        /*
-         * LeaderboardEntry      1500k    incremental by DateSubmitted
-         */
-        'leaderboard_entries' => [
-            'model' => LeaderboardEntry::class,
-            'strategy' => SyncStrategy::UPSERT,
-            'reference_model' => LeaderboardEntryLegacy::class,
-            'reference_key' => LeaderboardEntryLegacy::UPDATED_AT,
-            'unique_key' => ['leaderboard_id', 'user_id'],
-            'require' => [
-            ],
-            'map' => [
-                'LeaderboardID' => [
-                    'key' => 'leaderboard_id',
-                ],
-                'UserID' => [
-                    'key' => 'user_id',
-                ],
-                'Score' => [
-                    'key' => 'score',
-                    'type' => 'integer',
-                ],
-                'Created' => [
-                    'key' => 'created_at',
-                ],
-                'DateSubmitted' => [
-                    'key' => 'updated_at',
-                ],
-            ],
-        ],
 
         /*
          * CodeNotes             150k    incremental by Updated

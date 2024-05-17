@@ -25,9 +25,4 @@ class RenderTest extends TestCase
     {
         $this->get('test/tooltip.php')->assertSuccessful();
     }
-
-    public function testItRendersTriggers(): void
-    {
-        $this->get('test/trigger.php')->assertSuccessful();
-    }
 }

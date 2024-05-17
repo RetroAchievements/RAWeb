@@ -85,6 +85,7 @@ class UpdateDeveloperContributionYieldTest extends TestCase
                 'GameID' => $game->id,
                 'Points' => $pointValue,
                 'Author' => $author->User,
+                'user_id' => $author->id,
             ]);
         }
 
@@ -177,6 +178,7 @@ class UpdateDeveloperContributionYieldTest extends TestCase
                 'GameID' => $game->id,
                 'Points' => $pointValue,
                 'Author' => $author->User,
+                'user_id' => $author->id,
             ]);
         }
 

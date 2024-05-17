@@ -57,21 +57,22 @@ if (empty($username)) {
     }
     $userSetRequestInformation = getUserRequestsInformation($userModel);
 
-    $setRequestList = UserGameListEntry::where('user_id', $userModel->id)
+    $setRequestList = UserGameListEntry::where('SetRequest.user_id', $userModel->id)
         ->where('type', UserGameListType::AchievementSetRequest)
         ->join('GameData', 'GameData.ID', '=', 'GameId')
         ->join('Console', 'Console.ID', '=', 'GameData.ConsoleID')
         ->leftJoin('SetClaim', function ($join) {
-            $join->on('SetClaim.GameID', '=', 'GameData.ID')
+            $join->on('SetClaim.game_id', '=', 'GameData.ID')
                 ->whereIn('SetClaim.Status', [ClaimStatus::Active, ClaimStatus::InReview]);
         })
+        ->leftJoin('UserAccounts as ua', 'ua.ID', '=', 'SetClaim.user_id')
         ->select([
             'GameData.ID AS GameID',
             'GameData.Title AS GameTitle',
             'GameData.ImageIcon AS GameIcon',
             'Console.Name AS ConsoleName',
             'GameData.achievements_published AS AchievementCount',
-            DB::raw('GROUP_CONCAT(DISTINCT(SetClaim.User)) AS Claims'),
+            DB::raw('GROUP_CONCAT(DISTINCT(ua.User)) AS Claims'),
         ])
         ->groupBy('GameData.ID')
         ->orderBy(DB::raw(ifStatement("GameData.Title LIKE '~%'", 1, 0) . ", GameData.Title"))

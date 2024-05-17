@@ -99,7 +99,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     // TODO drop ManuallyVerified in favor of forum_verified_at
     // TODO drop SaltedPass in favor of Password
     // TODO drop Permissions in favor of RBAC tables
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename User column to username
     // TODO rename Password column to password
     // TODO rename EmailAddress column to email
@@ -439,7 +439,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
 
     public function hasVerifiedEmail(): bool
     {
-        return (int) $this->getAttribute('Permissions') >= Permissions::Registered;
+        return $this->email_verified_at?->isPast() ?? false;
     }
 
     public function markEmailAsVerified(): bool

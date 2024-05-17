@@ -20,6 +20,8 @@ class PlayerSession extends BasePivot
         'duration',
         'rich_presence',
         'rich_presence_updated_at',
+        'user_agent',
+        'ip_address',
     ];
 
     protected $casts = [
@@ -62,7 +64,7 @@ class PlayerSession extends BasePivot
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     // == scopes

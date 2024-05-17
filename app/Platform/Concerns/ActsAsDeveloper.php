@@ -34,7 +34,7 @@ trait ActsAsDeveloper
      */
     public function authoredAchievements(): HasMany
     {
-        return $this->hasMany(Achievement::class, 'Author', 'User');
+        return $this->hasMany(Achievement::class, 'user_id', 'ID');
     }
 
     /**
@@ -50,10 +50,11 @@ trait ActsAsDeveloper
      */
     public function authoredLeaderboards(): HasMany
     {
-        return $this->hasMany(Leaderboard::class, 'Author', 'User');
+        return $this->hasMany(Leaderboard::class, 'author_id', 'ID');
     }
 
     /**
+     * NOTE: this is the tickets the user has resolved (including ones not associated to their achievements).
      * @return HasMany<Ticket>
      */
     public function resolvedTickets(): HasMany

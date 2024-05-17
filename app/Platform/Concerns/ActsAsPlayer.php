@@ -7,10 +7,12 @@ namespace App\Platform\Concerns;
 use App\Connect\Controllers\ConnectApiController;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
+use App\Models\PlayerStat;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
@@ -89,6 +91,14 @@ trait ActsAsPlayer
     }
 
     /**
+     * @return HasMany<LeaderboardEntry>
+     */
+    public function leaderboardEntries(): HasMany
+    {
+        return $this->hasMany(LeaderboardEntry::class, 'user_id', 'ID');
+    }
+
+    /**
      * @return HasMany<PlayerAchievement>
      */
     public function playerAchievements(): HasMany
@@ -103,7 +113,15 @@ trait ActsAsPlayer
      */
     public function playerBadges(): HasMany
     {
-        return $this->hasMany(PlayerBadge::class, 'User', 'User');
+        return $this->hasMany(PlayerBadge::class, 'user_id', 'ID');
+    }
+
+    /**
+     * @return HasMany<PlayerGame>
+     */
+    public function playerGames(): HasMany
+    {
+        return $this->hasMany(PlayerGame::class, 'user_id');
     }
 
     /**
@@ -115,11 +133,11 @@ trait ActsAsPlayer
     }
 
     /**
-     * @return HasMany<PlayerGame>
+     * @return HasMany<PlayerStat>
      */
-    public function playerGames(): HasMany
+    public function playerStats(): HasMany
     {
-        return $this->hasMany(PlayerGame::class, 'user_id');
+        return $this->hasMany(PlayerStat::class, 'user_id');
     }
 
     /**

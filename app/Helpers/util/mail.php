@@ -250,7 +250,7 @@ function informAllSubscribersAboutActivity(
             $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
             $subjectAuthor = $ticketData['ReportedBy'];
             $articleTitle = $ticketData['AchievementTitle'] . ' (' . $ticketData['GameTitle'] . ')';
-            $urlTarget = "ticketmanager.php?i=$articleID";
+            $urlTarget = route('ticket.show', ['ticket' => $articleID]);
             break;
 
         default:
@@ -287,7 +287,10 @@ function sendActivityEmail(
         return false;
     }
 
-    $link = "<a href='" . config('app.url') . "/$urlTarget'>here</a>";
+    if (!str_starts_with($urlTarget, "http")) {
+        $urlTarget = config('app.url') . "/$urlTarget";
+    }
+    $link = "<a href='$urlTarget'>here</a>";
 
     switch ($articleType) {
         case ArticleType::Game:
@@ -391,20 +394,6 @@ function SendPasswordResetEmail(string $user, string $email, string $token): boo
     return mail_utf8($email, $emailTitle, $msg);
 }
 
-function SendDeleteRequestEmail(string $user, string $email, string $deleteRequested): bool
-{
-    $emailTitle = "Account Deletion Request";
-
-    $msg = "Hello $user,<br>" .
-        "Your account has been marked for deletion.<br>" .
-        "If you do not cancel this request before " . getDeleteDate($deleteRequested) . ", " .
-        "you will no longer be able to access your account.<br>" .
-        "Thanks!<br>" .
-        "-- Your friends at RetroAchievements.org<br>";
-
-    return mail_utf8($email, $emailTitle, $msg);
-}
-
 /**
  * Sends an email to all set requestors indicating new achievement have been
  * added when a set claim has been marked as complete.
@@ -423,15 +412,21 @@ function sendSetRequestEmail(string $user, string $email, int $gameID, string $g
 }
 
 /**
- * Sends an email to all users who have mastered a set when a revision set claim has been marked as complete.
+ * Sends an email to all users who have mastered or completed a set when a revision set claim has been marked as complete.
  */
-function sendSetRevisionEmail(string $user, string $email, int $gameID, string $gameTitle): bool
-{
+function sendSetRevisionEmail(
+    string $user,
+    string $email,
+    bool $isHardcore,
+    int $gameId,
+    string $gameTitle,
+): bool {
     $emailTitle = "Revision Completed for " . $gameTitle;
-    $link = "<a href='" . config('app.url') . "/game/$gameID'>$gameTitle</a>";
+    $link = "<a href='" . config('app.url') . "/game/$gameId'>$gameTitle</a>";
+    $awardLabel = $isHardcore ? 'mastered' : 'completed';
 
     $msg = "Hello $user,<br>" .
-        "A set that you have previously mastered has been revised. Check out the changes to $link.<br><br>" .
+        "A set that you have previously $awardLabel has been revised. Check out the changes to $link.<br><br>" .
         "Thanks!<br>" .
         "-- Your friends at RetroAchievements.org<br>";
 

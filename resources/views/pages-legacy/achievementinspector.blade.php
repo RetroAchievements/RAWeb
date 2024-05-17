@@ -3,21 +3,26 @@
 use App\Enums\Permissions;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementType;
+use Illuminate\Support\Facades\Auth;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     abort(401);
 }
 
+$userModel = Auth::user();
+
+// TODO use a policy
 $fullModifyOK = $permissions >= Permissions::Developer;
 
 $gameID = requestInputSanitized('g', null, 'integer');
 $flag = requestInputSanitized('f', 3, 'integer');
 
+// TODO use a policy
 $partialModifyOK =
     $permissions == Permissions::JuniorDeveloper
     && (
-        checkIfSoleDeveloper($user, $gameID)
-        || hasSetClaimed($user, $gameID, false)
+        checkIfSoleDeveloper($userModel, $gameID)
+        || hasSetClaimed($userModel, $gameID, false)
     );
 
 $achievementList = [];

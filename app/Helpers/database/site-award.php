@@ -2,6 +2,7 @@
 
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\SiteBadgeAwarded;
@@ -20,10 +21,9 @@ function AddSiteAward(
 ): PlayerBadge {
     if (!isset($displayOrder)) {
         $displayOrder = 0;
-        $query = "SELECT MAX(DisplayOrder) AS MaxDisplayOrder FROM SiteAwards WHERE User = :user";
-        $dbData = legacyDbFetch($query, ['user' => $user->User]);
-        if (isset($dbData['MaxDisplayOrder'])) {
-            $displayOrder = (int) $dbData['MaxDisplayOrder'] + 1;
+        $maxDisplayOrder = PlayerBadge::where('user_id', $user->id)->max('DisplayOrder');
+        if ($maxDisplayOrder) {
+            $displayOrder = $maxDisplayOrder + 1;
         }
     }
 
@@ -48,109 +48,55 @@ function AddSiteAward(
         ->first();
 }
 
-function getUsersWithAward(int $awardType, int $data, ?int $dataExtra = null): array
-{
-    $query = "SELECT u.User, u.EmailAddress FROM SiteAwards saw
-              LEFT JOIN UserAccounts u ON u.User=saw.User
-              WHERE saw.AwardType=$awardType AND saw.AwardData=$data";
-    if ($dataExtra != null) {
-        $query .= " AND saw.AwardDataExtra=$dataExtra";
-    }
-
-    return legacyDbFetchAll($query)->toArray();
-}
-
-function removeDuplicateGameAwards(array &$dbResult, array $gamesToDedupe, int $awardType): void
-{
-    foreach ($gamesToDedupe as $game) {
-        $index = 0;
-        foreach ($dbResult as $award) {
-            if (
-                isset($award['AwardData'])
-                && $award['AwardData'] === $game
-                && $award['AwardDataExtra'] == UnlockMode::Softcore
-                && $award['AwardType'] == $awardType
-            ) {
-                $dbResult[$index] = "";
-                break;
-            }
-
-            $index++;
-        }
-    }
-}
-
-function getUsersSiteAwards(string $user, bool $showHidden = false): array
+function getUsersSiteAwards(?User $user): array
 {
     $dbResult = [];
 
-    if (!isValidUsername($user)) {
+    if (!$user) {
         return $dbResult;
     }
 
     $bindings = [
-        'username' => $user,
-        'username2' => $user,
+        'userId' => $user->id,
+        'userId2' => $user->id,
     ];
 
     $query = "
         -- game awards (mastery, beaten)
-        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
+        SELECT " . unixTimestampStatement('saw.AwardDate', 'AwardedAt') . ", saw.AwardType, saw.user_id, saw.AwardData, saw.AwardDataExtra, saw.DisplayOrder, gd.Title, c.ID AS ConsoleID, c.Name AS ConsoleName, gd.Flags, gd.ImageIcon
             FROM SiteAwards AS saw
             LEFT JOIN GameData AS gd ON ( gd.ID = saw.AwardData AND saw.AwardType IN (" . implode(',', AwardType::game()) . ") )
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
             WHERE
                 saw.AwardType IN(" . implode(',', AwardType::game()) . ")
-                AND saw.User = :username
+                AND saw.user_id = :userId
             GROUP BY saw.AwardType, saw.AwardData, saw.AwardDataExtra
+            HAVING
+                -- Remove duplicate game beaten awards
+                (saw.AwardType != " . AwardType::GameBeaten . " OR saw.AwardDataExtra = 1 OR NOT EXISTS (
+                    SELECT 1 FROM SiteAwards AS saw2
+                    WHERE saw2.AwardType = saw.AwardType AND saw2.AwardData = saw.AwardData AND saw2.AwardDataExtra = 1 AND saw2.user_id = saw.user_id
+                ))
+                -- Remove duplicate mastery awards
+                AND (saw.AwardType != " . AwardType::Mastery . " OR saw.AwardDataExtra = 1 OR NOT EXISTS (
+                    SELECT 1 FROM SiteAwards AS saw3
+                    WHERE saw3.AwardType = saw.AwardType AND saw3.AwardData = saw.AwardData AND saw3.AwardDataExtra = 1 AND saw3.user_id = saw.user_id
+                ))
         UNION
         -- non-game awards (developer contribution, ...)
-        SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
+        SELECT " . unixTimestampStatement('MAX(saw.AwardDate)', 'AwardedAt') . ", saw.AwardType, saw.user_id, MAX( saw.AwardData ), saw.AwardDataExtra, saw.DisplayOrder, NULL, NULL, NULL, NULL, NULL
             FROM SiteAwards AS saw
             WHERE
                 saw.AwardType NOT IN(" . implode(',', AwardType::game()) . ")
-                AND saw.User = :username2
+                AND saw.user_id = :userId2
             GROUP BY saw.AwardType
         ORDER BY DisplayOrder, AwardedAt, AwardType, AwardDataExtra ASC";
 
     $dbResult = legacyDbFetchAll($query, $bindings)->toArray();
 
-    // Updated way to "squash" duplicate awards to work with the new site award ordering implementation
-    $softcoreBeatenGames = [];
-    $hardcoreBeatenGames = [];
-    $completedGames = [];
-    $masteredGames = [];
-
-    // Get a separate list of completed and mastered games
-    $awardsCount = count($dbResult);
-    for ($i = 0; $i < $awardsCount; $i++) {
-        if ($dbResult[$i]['AwardType'] == AwardType::Mastery && $dbResult[$i]['AwardDataExtra'] == 1) {
-            $masteredGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::Mastery && $dbResult[$i]['AwardDataExtra'] == 0) {
-            $completedGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::GameBeaten && $dbResult[$i]['AwardDataExtra'] == 1) {
-            $hardcoreBeatenGames[] = $dbResult[$i]['AwardData'];
-        } elseif ($dbResult[$i]['AwardType'] == AwardType::GameBeaten && $dbResult[$i]['AwardDataExtra'] == 0) {
-            $softcoreBeatenGames[] = $dbResult[$i]['AwardData'];
-        }
-    }
-
-    // Get a single list of games both beaten hardcore and softcore
-    if (!empty($hardcoreBeatenGames) && !empty($softcoreBeatenGames)) {
-        $multiBeatenGames = array_intersect($hardcoreBeatenGames, $softcoreBeatenGames);
-        removeDuplicateGameAwards($dbResult, $multiBeatenGames, AwardType::GameBeaten);
-    }
-
-    // Get a single list of games both completed and mastered
-    if (!empty($completedGames) && !empty($masteredGames)) {
-        $multiAwardGames = array_intersect($completedGames, $masteredGames);
-        removeDuplicateGameAwards($dbResult, $multiAwardGames, AwardType::Mastery);
-    }
-
-    // Remove blank indexes
-    $dbResult = array_values(array_filter($dbResult));
-
     foreach ($dbResult as &$award) {
+        unset($award['user_id']);
+
         if ($award['ConsoleID']) {
             settype($award['AwardType'], 'integer');
             settype($award['AwardData'], 'integer');
@@ -162,55 +108,39 @@ function getUsersSiteAwards(string $user, bool $showHidden = false): array
     return $dbResult;
 }
 
-function HasPatreonBadge(string $username): bool
+function HasPatreonBadge(User $user): bool
 {
-    sanitize_sql_inputs($username);
-
-    $query = "SELECT * FROM SiteAwards AS sa "
-        . "WHERE sa.AwardType = " . AwardType::PatreonSupporter . " AND sa.User = '$username'";
-
-    $dbResult = s_mysql_query($query);
-
-    return mysqli_num_rows($dbResult) > 0;
+    return $user->playerBadges()
+        ->where('AwardType', AwardType::PatreonSupporter)
+        ->exists();
 }
 
 function SetPatreonSupporter(User $user, bool $enable): void
 {
-    $username = $user->User;
-
     if ($enable) {
         $badge = AddSiteAward($user, AwardType::PatreonSupporter, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
         // TODO PatreonSupporterAdded::dispatch($user);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::PatreonSupporter;
-        s_mysql_query($query);
+        $user->playerBadges()->where('AwardType', AwardType::PatreonSupporter)->delete();
         // TODO PatreonSupporterRemoved::dispatch($user);
     }
 }
 
-function HasCertifiedLegendBadge(string $username): bool
+function HasCertifiedLegendBadge(User $user): bool
 {
-    sanitize_sql_inputs($username);
-
-    $query = "SELECT * FROM SiteAwards AS sa "
-        . "WHERE sa.AwardType = " . AwardType::CertifiedLegend . " AND sa.User = '$username'";
-
-    $dbResult = s_mysql_query($query);
-
-    return mysqli_num_rows($dbResult) > 0;
+    return $user->playerBadges()
+        ->where('AwardType', AwardType::CertifiedLegend)
+        ->exists();
 }
 
 function SetCertifiedLegend(User $user, bool $enable): void
 {
-    $username = $user->User;
-
     if ($enable) {
         $badge = AddSiteAward($user, AwardType::CertifiedLegend, 0, 0);
         SiteBadgeAwarded::dispatch($badge);
     } else {
-        $query = "DELETE FROM SiteAwards WHERE User = '$username' AND AwardType = " . AwardType::CertifiedLegend;
-        s_mysql_query($query);
+        $user->playerBadges()->where('AwardType', AwardType::CertifiedLegend)->delete();
     }
 }
 
@@ -223,7 +153,7 @@ function SetCertifiedLegend(User $user, bool $enable): void
  */
 function getRecentProgressionAwardData(
     string $date,
-    ?string $friendsOf = null,
+    ?User $friendsOfUser = null,
     int $offset = 0,
     int $count = 50,
     ?int $onlyAwardType = null,
@@ -231,9 +161,9 @@ function getRecentProgressionAwardData(
 ): array {
     // Determine the friends condition
     $friendCondAward = "";
-    if ($friendsOf !== null) {
-        $friendSubquery = GetFriendsSubquery($friendsOf);
-        $friendCondAward = "AND saw.User IN ($friendSubquery)";
+    if ($friendsOfUser) {
+        $friendSubquery = GetFriendsSubquery($friendsOfUser->User, returnUserIds: true);
+        $friendCondAward = "AND saw.user_id IN ($friendSubquery)";
     }
 
     $onlyAwardTypeClause = "
@@ -249,19 +179,20 @@ function getRecentProgressionAwardData(
     }
 
     $retVal = [];
-    $query = "SELECT s.User, s.AwardedAt, s.AwardedAtUnix, s.AwardType, s.AwardData, s.AwardDataExtra, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
+    $query = "SELECT ua.User, s.AwardedAt, s.AwardedAtUnix, s.AwardType, s.AwardData, s.AwardDataExtra, s.GameTitle, s.GameID, s.ConsoleName, s.GameIcon
         FROM (
             SELECT 
-                saw.User, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType, 
+                saw.user_id, saw.AwardDate as AwardedAt, UNIX_TIMESTAMP(saw.AwardDate) as AwardedAtUnix, saw.AwardType, 
                 saw.AwardData, saw.AwardDataExtra, gd.Title AS GameTitle, gd.ID AS GameID, c.Name AS ConsoleName, gd.ImageIcon AS GameIcon,
-                ROW_NUMBER() OVER (PARTITION BY saw.User, saw.AwardData, TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) ORDER BY saw.AwardType ASC) AS rn
+                ROW_NUMBER() OVER (PARTITION BY saw.user_id, saw.AwardData, TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) ORDER BY saw.AwardType ASC) AS rn
             FROM SiteAwards AS saw
             LEFT JOIN GameData AS gd ON gd.ID = saw.AwardData
             LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-            LEFT JOIN SiteAwards AS saw2 ON saw2.User = saw.User AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
+            LEFT JOIN SiteAwards AS saw2 ON saw2.user_id = saw.user_id AND saw2.AwardData = saw.AwardData AND TIMESTAMPDIFF(MINUTE, saw.AwardDate, saw2.AwardDate) BETWEEN 0 AND 1
             $onlyAwardTypeClause AND saw.AwardData > 0 AND $onlyUnlockModeClause $friendCondAward
             AND saw.AwardDate BETWEEN TIMESTAMP('$date') AND DATE_ADD('$date', INTERVAL 24 * 60 * 60 - 1 SECOND)
         ) s
+        JOIN UserAccounts AS ua ON ua.ID = s.user_id
         WHERE s.rn = 1
         ORDER BY AwardedAt DESC
         LIMIT $offset, $count";
@@ -279,24 +210,15 @@ function getRecentProgressionAwardData(
 /**
  * Gets the number of event awards a user has earned
  */
-function getUserEventAwardCount(string $user): int
+function getUserEventAwardCount(User $user): int
 {
-    $bindings = [
-        'user' => $user,
-        'type' => AwardType::Mastery,
-        'event' => 101,
-    ];
-
-    $query = "SELECT COUNT(DISTINCT AwardData) AS TotalAwards
-              FROM SiteAwards sa
-              INNER JOIN GameData gd ON gd.ID = sa.AwardData
-              WHERE User = :user
-              AND AwardType = :type
-              AND gd.ConsoleID = :event";
-
-    $dataOut = legacyDbFetch($query, $bindings);
-
-    return $dataOut['TotalAwards'];
+    return $user->playerBadges()
+        ->where('AwardType', AwardType::Mastery)
+        ->whereHas('gameIfApplicable.system', function ($query) {
+            $query->where('ID', System::Events);
+        })
+        ->distinct('AwardData')
+        ->count('AwardData');
 }
 
 /**

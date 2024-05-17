@@ -58,8 +58,15 @@ return [
         /*
          * achievement tickets
          */
-        '/reportissue.php' => '/achievement/{i}/tickets/create',
-        '/ticketmanager.php' => '/tickets',
+        '/reportissue.php' => '/achievement/{i}/report-issue',
+        '/ticketmanager.php' => [
+            'i' => '/ticket/{i}',
+            'u' => '/user/{u}/tickets',
+            'g' => '/game/{g}/tickets',
+            'a' => '/achievement/{a}/tickets',
+            'f' => '/tickets/most-reported-games',
+            '' => '/tickets',
+        ],
 
         /*
          * games
@@ -68,7 +75,7 @@ return [
         '/gameList.php' => '/system/{c}/games',
         '/gameSearch.php' => '/games',
         '/codenotes.php' => '/game/{g}/notes',
-        '/linkedhashes.php' => '/game/{g}/assets',
+        '/linkedhashes.php' => '/game/{g}/hashes',
         '/popularGames.php' => '/games/popular',
 
         /*
@@ -101,14 +108,14 @@ return [
         /*
          * forums
          */
-        '/forum.php' => '/forums/category/{c}',
+        '/forum.php' => '/forums/category/{c}', // TODO what if no category is specified?
         '/forumposthistory.php' => '/forums/posts',
         '/viewforum.php' => '/forums/forum/{f}',
         '/viewtopic.php' => '/forums/topic/{t}',
         '/forum/viewtopic.php' => '/forums/topic/{t}',
 
         '/createtopic.php' => '/forums/forum/{f}/topic/create',
-        '/editpost.php' => '/forums/post/{c}/edit',
+        '/editpost.php' => '/forums/post/{comment}/edit',
 
         /*
          * redirects (external)

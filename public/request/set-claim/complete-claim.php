@@ -4,6 +4,8 @@ use App\Community\Enums\ArticleType;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimSetType;
 use App\Enums\Permissions;
+use App\Models\PlayerBadge;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,17 +18,31 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 ]);
 
 $gameID = (int) $input['game'];
-$claimData = getClaimData($gameID);
+$claimData = getClaimData([$gameID]);
 
-if (!empty($claimData) && completeClaim($user, $gameID)) { // Check that the claim was successfully completed
+$userModel = User::firstWhere('User', $user);
+
+if (!empty($claimData) && completeClaim($userModel, $gameID)) { // Check that the claim was successfully completed
     addArticleComment("Server", ArticleType::SetClaim, $gameID, "Claim completed by " . $user);
 
     // TODO: these emails should be queued and sent asynchronously
     if ($claimData[0]['SetType'] == ClaimSetType::Revision) {
         // Send email to users who had previously mastered the set
         $gameTitle = getGameData($gameID)['Title'];
-        foreach (getUsersWithAward(AwardType::Mastery, $gameID) as $masteryUser) {
-            sendSetRevisionEmail($masteryUser['User'], $masteryUser['EmailAddress'], $gameID, $gameTitle);
+
+        $userAwards = PlayerBadge::with('user')
+            ->where('AwardData', $gameID)
+            ->where('AwardType', AwardType::Mastery)
+            ->get();
+
+        foreach ($userAwards as $userAward) {
+            sendSetRevisionEmail(
+                $userAward->user->User,
+                $userAward->user->EmailAddress,
+                $userAward->AwardDataExtra === 1,
+                $gameID,
+                $gameTitle,
+            );
         }
     } else {
         // Send email to set requestors

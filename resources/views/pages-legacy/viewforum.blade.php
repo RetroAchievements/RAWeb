@@ -3,9 +3,13 @@
 // TODO migrate to ForumController::show() pages/forum.blade.php
 
 use App\Enums\Permissions;
+use App\Models\Forum;
+use App\Models\User;
 use App\Support\Shortcode\Shortcode;
 
 authenticateFromCookie($user, $permissions, $userDetails);
+
+$userModel = Auth::user();
 
 $requestedForumID = requestInputSanitized('f', null, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
@@ -36,15 +40,16 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Moderator) {
 
     $requestedForum = "Forum Verification";
 } else {
-    if (!getForumDetails($requestedForumID, $forumDataOut)) {
+    $forum = Forum::find($requestedForumID);
+    if (!$forum) {
         abort(404);
     }
 
-    $thisForumID = $forumDataOut['ID'];
-    $thisForumTitle = $forumDataOut['ForumTitle'];
-    $thisForumDescription = $forumDataOut['ForumDescription'];
-    $thisCategoryID = $forumDataOut['CategoryID'];
-    $thisCategoryName = $forumDataOut['CategoryName'];
+    $thisForumID = $forum->id;
+    $thisForumTitle = $forum->title;
+    $thisForumDescription = $forum->description;
+    $thisCategoryID = $forum->category->id;
+    $thisCategoryName = $forum->category->title;
 
     $topicList = getForumTopics($requestedForumID, $offset, $count, $permissions, $numTotalTopics);
 
@@ -84,7 +89,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($permissions >= Permissions::Registered && !$userDetails['isMuted']) {
+    if ($requestedForumID && $userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";
@@ -101,27 +106,27 @@ sanitize_outputs(
 
     $topicCount = is_countable($topicList) ? count($topicList) : 0;
 
+    $fetchedUserCache = [];
+
     // Output all topics, and offer 'prev/next page'
     foreach ($topicList as $topicData) {
         // Output one forum, then loop
         $nextTopicID = $topicData['ForumTopicID'];
         $nextTopicTitle = $topicData['TopicTitle'];
         $nextTopicPreview = $topicData['TopicPreview'];
-        $nextTopicAuthor = $topicData['Author'];
-        $nextTopicAuthorID = $topicData['AuthorID'];
         $nextTopicPostedDate = $topicData['ForumTopicPostedDate'];
         $nextTopicLastCommentID = $topicData['LatestCommentID'];
-        $nextTopicLastCommentAuthor = $topicData['LatestCommentAuthor'];
-        $nextTopicLastCommentAuthorID = $topicData['LatestCommentAuthorID'];
         $nextTopicLastCommentPostedDate = $topicData['LatestCommentPostedDate'];
         $nextTopicNumReplies = $topicData['NumTopicReplies'];
 
-        sanitize_outputs(
-            $nextTopicTitle,
-            $nextTopicPreview,
-            $nextTopicAuthor,
-            $nextTopicLastCommentAuthor,
-        );
+        $nextTopicAuthorID = $topicData['AuthorID'];
+        $nextTopicLastCommentAuthorID = $topicData['LatestCommentAuthorID'];
+        $fetchedUserCache[$nextTopicAuthorID] ??= User::find($nextTopicAuthorID);
+        $fetchedUserCache[$nextTopicLastCommentAuthorID] ??= User::find($nextTopicLastCommentAuthorID);
+        $nextTopicAuthor = $fetchedUserCache[$nextTopicAuthorID] ?? null;
+        $nextTopicLastCommentAuthor = $fetchedUserCache[$nextTopicLastCommentAuthorID] ?? null;
+
+        sanitize_outputs($nextTopicTitle, $nextTopicPreview);
 
         $nextTopicPostedNiceDate = $nextTopicPostedDate !== null ? getNiceDate(strtotime($nextTopicPostedDate)) : "None";
 
@@ -145,11 +150,11 @@ sanitize_outputs(
         echo "</div>";
         echo "</td>";
         echo "<td>";
-        echo "<div>" . userAvatar($nextTopicAuthor, icon: false) . "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
+        echo "<div>" . userAvatar($nextTopicAuthor ?? 'Deleted User', icon: false) . "<br><span class='smalldate'>$nextTopicPostedNiceDate</span></div>";
         echo "</td>";
         echo "<td>" . localized_number($nextTopicNumReplies) . "</td>";
         echo "<td>";
-        echo "<div class='xl:flex xl:flex-col xl:items-end xl:gap-y-0.5'>" . userAvatar($nextTopicLastCommentAuthor, icon: false) . "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
+        echo "<div class='xl:flex xl:flex-col xl:items-end xl:gap-y-0.5'>" . userAvatar($nextTopicLastCommentAuthor ?? 'Deleted User', icon: false) . "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
         echo "<a class='text-2xs' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
         echo "</div>";
         echo "</td>";
@@ -163,7 +168,7 @@ sanitize_outputs(
         RenderPaginator($numTotalTopics, $count, $offset, "/viewforum.php?f=$requestedForumID&o=");
         echo "</div>";
     }
-    if ($permissions >= Permissions::Registered && !$userDetails['isMuted']) {
+    if ($requestedForumID && $userModel?->can('create', [App\Models\ForumTopic::class, $forum])) {
         echo "<a class='btn btn-link' href='createtopic.php?forum=$thisForumID'>Create New Topic</a>";
     }
     echo "</div>";

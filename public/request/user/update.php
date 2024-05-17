@@ -22,10 +22,11 @@ $targetUsername = $input['target'];
 $propertyType = (int) $input['property'];
 $value = (int) $input['value'];
 
+$foundSourceUser = User::firstWhere('User', $user);
 $foundTargetUser = User::firstWhere('User', $targetUsername);
 
 if ($propertyType === UserAction::UpdatePermissions) {
-    $response = SetAccountPermissionsJSON($user, $permissions, $targetUsername, $value);
+    $response = SetAccountPermissionsJSON($foundSourceUser->User, $permissions, $targetUsername, $value);
 
     // auto-apply forums permissions
     if (
@@ -33,20 +34,20 @@ if ($propertyType === UserAction::UpdatePermissions) {
         && $value >= Permissions::JuniorDeveloper
         && !$foundTargetUser->ManuallyVerified
     ) {
-        setAccountForumPostAuth($user, $permissions, $targetUsername, authorize: true);
+        setAccountForumPostAuth($foundSourceUser, $permissions, $foundTargetUser, authorize: true);
     }
 
     return back()->with('success', __('legacy.success.ok'));
 }
 
 if ($propertyType === UserAction::UpdateForumPostPermissions) {
-    if (setAccountForumPostAuth($user, $permissions, $targetUsername, authorize: (bool) $value)) {
+    if (setAccountForumPostAuth($foundSourceUser, $permissions, $foundTargetUser, authorize: (bool) $value)) {
         return back()->with('success', __('legacy.success.ok'));
     }
 }
 
 if ($propertyType === UserAction::PatreonBadge) {
-    $hasBadge = HasPatreonBadge($targetUsername);
+    $hasBadge = HasPatreonBadge($foundTargetUser);
     SetPatreonSupporter($foundTargetUser, !$hasBadge);
 
     if ($foundTargetUser) {
@@ -54,7 +55,7 @@ if ($propertyType === UserAction::PatreonBadge) {
             'Server',
             ArticleType::UserModeration,
             $foundTargetUser->id,
-            $user . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
+            $foundSourceUser->User . ($hasBadge ? ' revoked' : ' awarded') . ' Patreon badge'
         );
     }
 
@@ -62,7 +63,7 @@ if ($propertyType === UserAction::PatreonBadge) {
 }
 
 if ($propertyType === UserAction::LegendBadge) {
-    $hasBadge = HasCertifiedLegendBadge($targetUsername);
+    $hasBadge = HasCertifiedLegendBadge($foundTargetUser);
     SetCertifiedLegend($foundTargetUser, !$hasBadge);
 
     if ($foundTargetUser) {
@@ -70,7 +71,7 @@ if ($propertyType === UserAction::LegendBadge) {
             'Server',
             ArticleType::UserModeration,
             $foundTargetUser->id,
-            $user . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
+            $foundSourceUser->User . ($hasBadge ? ' revoked' : ' awarded') . ' Certified Legend badge'
         );
     }
 
@@ -85,7 +86,7 @@ if ($propertyType === UserAction::TrackedStatus) {
             'Server',
             ArticleType::UserModeration,
             $foundTargetUser->id,
-            $user . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
+            $foundSourceUser->User . ' set status to ' . ($value ? 'Untracked' : 'Tracked')
         );
     }
 

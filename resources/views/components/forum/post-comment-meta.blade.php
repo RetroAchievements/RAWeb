@@ -5,19 +5,28 @@ use Illuminate\Support\Carbon;
 ?>
 
 @props([
-    'showUnverifiedDisclaimer' => false,
     'isOriginalPoster' => false,
-    'postCreatedTimestamp' => '',
-    'postEditedTimestamp' => '',
+    'forumTopicComment' => null, // ForumTopicComment
 ])
 
 <?php
+$postCreatedTimestamp = $forumTopicComment->DateCreated;
+$postEditedTimestamp =
+    ($forumTopicComment->DateModified
+    && $forumTopicComment->DateModified != $forumTopicComment->DateCreated)
+        ? $forumTopicComment->DateModified
+        : null;
+
 /** @var ?User $user */
 $user = auth()->user();
 $preferences = $user?->websitePrefs ?? 0;
 $isShowAbsoluteDatesPreferenceSet = BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates);
 
-$shouldUseTimeAgoDate = function (string $rawDate): bool {
+$shouldUseTimeAgoDate = function (?string $rawDate): bool {
+    if (!$rawDate) {
+        return false;
+    }
+    
     $givenDate = Carbon::parse($rawDate);
     $now = Carbon::now();
 
@@ -27,7 +36,11 @@ $shouldUseTimeAgoDate = function (string $rawDate): bool {
 $shouldUsePostedTimeAgoDate = $shouldUseTimeAgoDate($postCreatedTimestamp);
 $shouldUseEditedTimeAgoDate = $shouldUseTimeAgoDate($postEditedTimestamp);
 
-$formatMetaTimestamp = function (string $rawDate, bool $shouldUseTimeAgoDate, bool $isShowAbsoluteDatesPreferenceSet = false): string {
+$formatMetaTimestamp = function (?string $rawDate, bool $shouldUseTimeAgoDate, bool $isShowAbsoluteDatesPreferenceSet = false): string {
+    if (!$rawDate) {
+        return '';
+    }
+    
     if ($isShowAbsoluteDatesPreferenceSet) {
         return getNiceDate(strtotime($rawDate));
     }
@@ -43,16 +56,13 @@ $formatMetaTimestamp = function (string $rawDate, bool $shouldUseTimeAgoDate, bo
 };
 
 $formattedPostTimestamp = $formatMetaTimestamp($postCreatedTimestamp, $shouldUsePostedTimeAgoDate, $isShowAbsoluteDatesPreferenceSet);
-$formattedEditTimestamp =
-    $postEditedTimestamp
-        ? $formatMetaTimestamp($postEditedTimestamp, $shouldUseEditedTimeAgoDate, $isShowAbsoluteDatesPreferenceSet)
-        : '';
+$formattedEditTimestamp = $formatMetaTimestamp($postEditedTimestamp, $shouldUseEditedTimeAgoDate, $isShowAbsoluteDatesPreferenceSet);
 
 $formattedPostTimestampTooltip = $formatMetaTimestamp($postCreatedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
 $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
 ?>
 
-@if($showUnverifiedDisclaimer)
+@if (!$forumTopicComment->Authorised && ($forumTopicComment->author_id === $user?->id || $user?->can('manage', App\Models\ForumTopicComment::class)))
     <x-forum.post-title-chip
         tooltip="Not yet visible to the public. Please wait for a moderator to authorize this comment."
     >
@@ -60,7 +70,7 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
     </x-forum.post-title-chip>
 @endif
 
-@if($isOriginalPoster)
+@if ($isOriginalPoster)
     <x-forum.post-title-chip tooltip="Original poster">
         OP
     </x-forum.post-title-chip>
@@ -68,7 +78,7 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
 
 <p class='smalltext !leading-[14px]'>
     <span
-        @if($shouldUsePostedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
+        @if ($shouldUsePostedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
             title="{{ $formattedPostTimestampTooltip }}"
             class="cursor-help"
         @endif
@@ -77,11 +87,11 @@ $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, fals
         {{ $formattedPostTimestamp }}@if($formattedEditTimestamp), @endif
     </span>
 
-    @if($formattedEditTimestamp)
+    @if ($formattedEditTimestamp)
         <span class='italic smalltext !leading-[14px]'>
             <span class='hidden sm:inline'>last</span> edited
             <span
-                @if($shouldUseEditedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
+                @if ($shouldUseEditedTimeAgoDate && !$isShowAbsoluteDatesPreferenceSet)
                     class="cursor-help"
                     title="{{ $formattedEditTimestampTooltip }}"
                 @endif

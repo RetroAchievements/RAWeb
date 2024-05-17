@@ -59,7 +59,7 @@ $totalHardcoreAchievements = 0;
 $totalSoftcoreAchievements = 0;
 
 $userCompletedGamesList = getUsersCompletedGamesAndMax($userPage);
-$userAwards = getUsersSiteAwards($userPage);
+$userAwards = getUsersSiteAwards($userPageModel);
 
 $playerProgressionService = new PlayerProgressionService();
 $userJoinedGamesAndAwards = $playerProgressionService->filterAndJoinGames(
@@ -105,7 +105,7 @@ $userScoreData = getAwardedList(
 
 // Get claim data if the user has jr dev or above permissions
 $userClaimData = null;
-if (getActiveClaimCount($userPage, true, true) > 0) {
+if (getActiveClaimCount($userPageModel, true, true) > 0) {
     // Active claims sorted by game title
     $userClaimData = getFilteredClaims(
         claimFilter: ClaimFilters::AllActiveClaims,
@@ -174,9 +174,12 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
     echo "<h2 class='text-h4'>User Wall</h2>";
 
     if ($userWallActive) {
+        $currentUser = request()->user();
+        $userToPassToComments = ($currentUser && !$userPageModel->isBlocking($currentUser)) ? $user : null;
+
         // passing 'null' for $user disables the ability to add comments
         RenderCommentsComponent(
-            !isUserBlocking($userPage, $user) ? $user : null,
+            $userToPassToComments,
             $numArticleComments,
             $commentData,
             $userPageID,
@@ -212,7 +215,7 @@ if (getActiveClaimCount($userPage, true, true) > 0) {
         />
 
         @if ($user !== null && $user === $userPage)
-            <x-user.followed-leaderboard-cta :friendCount="getFriendCount($user)" />
+            <x-user.followed-leaderboard-cta :friendCount="getFriendCount($userPageModel)" />
         @endif
     </x-slot>
 </x-app-layout>

@@ -222,6 +222,7 @@ switch ($requestType) {
         $response['CodeNotes'] = getCodeNotesData($gameID);
         $response['GameID'] = $gameID;
         break;
+
     case "gameid":
         $md5 = request()->input('m') ?? '';
         $response['GameID'] = getGameIDFromMD5($md5);
@@ -232,9 +233,18 @@ switch ($requestType) {
         $response['Response'] = getGamesListDataNamesOnly($consoleID);
         break;
 
-    case "officialgameslist":
+    case "officialgameslist": // TODO: is this used anymore? It's not used by the DLL.
         $consoleID = (int) request()->input('c', 0);
         $response['Response'] = getGamesListDataNamesOnly($consoleID, true);
+        break;
+
+    case "gameinfolist":
+        $gamesCSV = request()->input('g', '');
+        if (empty($gamesCSV)) {
+            return DoRequestError("You must specify which games to retrieve info for", 400);
+        }
+        $response['Response'] = Game::whereIn('ID', explode(',', $gamesCSV, 100))
+            ->select('Title', 'ID', 'ImageIcon')->get()->toArray();
         break;
 
     case "hashlibrary":
@@ -448,7 +458,7 @@ switch ($requestType) {
         break;
 
     case "getfriendlist":
-        $response['Friends'] = GetFriendList($username);
+        $response['Friends'] = GetFriendList($user);
         break;
 
     case "lbinfo":
@@ -539,7 +549,7 @@ switch ($requestType) {
 
         // TODO dispatch job or event/listener using an action
 
-        $response['Response'] = SubmitLeaderboardEntry($username, $lbID, $score, $validation);
+        $response['Response'] = SubmitLeaderboardEntry($user, $lbID, $score, $validation);
         $response['Success'] = $response['Response']['Success']; // Passthru
         if (!$response['Success']) {
             $response['Error'] = $response['Response']['Error'];

@@ -5,15 +5,9 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Models\GameHash;
-use App\Platform\Controllers\BeatenGamesLeaderboardController;
-use App\Platform\Controllers\CompareUnlocksController;
-use App\Platform\Controllers\DeveloperFeedController;
-use App\Platform\Controllers\DeveloperSetsController;
-use App\Platform\Controllers\GameDevInterestController;
+use App\Platform\Controllers\AchievementController;
 use App\Platform\Controllers\GameHashController;
-use App\Platform\Controllers\PlayerCompletionProgressController;
 use App\Platform\Controllers\PlayerGameController;
-use App\Platform\Controllers\SuggestGameController;
 use App\Platform\Controllers\SystemController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -55,8 +49,6 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::get('system/{system}{slug?}', [SystemController::class, 'show'])->name('system.show');
             // Route::resource('systems', SystemController::class)->only('index')->names(['index' => 'system.index']);
-            Route::get('system/{system}/games', [SystemController::class, 'games'])
-                ->name('system.game.index');
             /*
              * Note: not allowing to filter achievements on the system level for now
              * stick to games for now
@@ -67,33 +59,26 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}{slug?}', [GameController::class, 'show'])->name('game.show');
             // Route::resource('games', GameController::class)->only('index')->names(['index' => 'game.index']);
             // Route::get('games/popular', [GameController::class, 'popular'])->name('games.popular');
-            Route::get('games/suggest', SuggestGameController::class)->name('games.suggest');
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
-            Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
-            Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest');
+
+            Route::get('achievement/{achievement}/tickets/create', [AchievementController::class, 'createTicket'])->name('achievement.create-ticket');
+            Route::get('achievement/{achievement}/report-issue', [AchievementController::class, 'reportIssue'])->name('achievement.report-issue');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
 
-            Route::get('ranking/beaten-games', BeatenGamesLeaderboardController::class)->name('ranking.beaten-games');
-
             // Route::resource('leaderboards', LeaderboardController::class)->only('index')->names(['index' => 'leaderboard.index']);
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
-            Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');
-            Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
-            Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
 
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
             // Route::resource('user.game', PlayerGameController::class)->only('show');
-            Route::get('user/{user}/game/{game}/activity', [PlayerGameController::class, 'activity'])->name('user.game.activity');
-            Route::get('user/{user}/game/{game}/compare', CompareUnlocksController::class)->name('game.compare-unlocks');
 
             // Route::resource('user.badges', PlayerBadgeController::class)->only('index')->names(['index' => 'user.badge.index']);
             // Route::resource('user.badge', PlayerBadgeController::class)->only('show');
@@ -105,9 +90,6 @@ class RouteServiceProvider extends ServiceProvider
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
                 Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
-
-                // Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])
-                //     ->name('user.game.compare');
             });
         });
     }

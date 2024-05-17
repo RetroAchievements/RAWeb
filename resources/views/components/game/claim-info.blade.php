@@ -12,98 +12,101 @@ use Illuminate\Support\Facades\DB;
 ?>
 
 @props([
-    'claimData' => [],
-    'gameId' => 0,
+    'achievementSetClaims' => null, // Collection<AchievementSetClaim>
     'userPermissions' => Permissions::Unregistered,
 ])
 
 <?php
 
-$userList = '';
 $expirationText = '';
 
-$first = true;
-foreach ($claimData as $claim) {
-    if (!$first) {
-        $userList .= ', ';
+if (!$achievementSetClaims->isEmpty()) {
+    // TODO use a policy
+    if ($userPermissions >= Permissions::Moderator) {
+        $achievementSetClaims->load(['user', 'game', 'game.playerSessions', 'game.achievements', 'game.memoryNotes']);
+    } else {
+        $achievementSetClaims->load(['user', 'game']);
     }
-    $userList .= userAvatar($claim['User'], icon: false);
 
-    if ($first) {
-        if ($claim['SetType'] == ClaimSetType::Revision && empty($revisionText)) {
-            $userList .= ' (' . ClaimSetType::toString(ClaimSetType::Revision) . ')';
-        }
+    $firstClaim = $achievementSetClaims->first();
+    $claimFormattedDate = $firstClaim->finished_at->format('d M Y, g:ia');
+    $claimTimeAgoDate = $userPermissions >= Permissions::JuniorDeveloper
+        ? ' (' . $firstClaim->finished_at->diffForHumans() . ')'
+        : '';
 
-        if ($claim['Status'] == ClaimStatus::InReview) {
-            $userList .= ' (' . ClaimStatus::toString(ClaimStatus::InReview) . ')';
-        }
-
-        $claimExpiration = Carbon::parse($claim['Expiration']);
-        if ($claimExpiration) {
-            $claimFormattedDate = $claimExpiration->format('d M Y, g:ia');
-            $claimTimeAgoDate = $userPermissions >= Permissions::JuniorDeveloper
-                ? ' (' . $claimExpiration->diffForHumans() . ')'
-                : '';
-
-            // "Expires on: 12 Jun 2023, 01:28 (1 month from now)"
-            $expirationText =
-                ($claimExpiration->isPast() ? 'Expired on:' : 'Expires on:') .
-                " $claimFormattedDate $claimTimeAgoDate";
-        }
-
-        $first = false;
-    }
+    $expirationText = ($firstClaim->finished_at->isPast() ? 'Expired on:' : 'Expires on:')
+        . " $claimFormattedDate $claimTimeAgoDate";
 }
 
+$userList = collect($achievementSetClaims)->map(function ($achievementSetClaim) use ($achievementSetClaims) {
+    $userAvatar = userAvatar($achievementSetClaim->user->display_name ?? 'Deleted User', icon: false);
+
+    if ($achievementSetClaim->getKey() === $achievementSetClaims->first()->getKey()) {
+        if ($achievementSetClaim->set_type === ClaimSetType::Revision && empty($revisionText)) {
+            $userAvatar .= ' (' . ClaimSetType::toString(ClaimSetType::Revision) . ')';
+        }
+
+        if ($achievementSetClaim->status === ClaimStatus::InReview) {
+            $userAvatar .= ' (' . ClaimStatus::toString(ClaimStatus::InReview) . ')';
+        }
+    }
+
+    return $userAvatar;
+})->implode(', ');
+
 $claimantHistory = [];
+// TODO use a policy
 if ($userPermissions >= Permissions::Moderator) {
-    foreach ($claimData as $claim) {
-        $playerGame = PlayerSession::where('game_id', $gameId)
-            ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
-            ->where('UserAccounts.User', '=', $claim['User'])
-            ->select(DB::raw('MAX(updated_at) AS last_played'))
+    foreach ($achievementSetClaims as $achievementSetClaim) {
+        if (!$achievementSetClaim->user) {
+            continue;
+        }
+
+        $playerGame = $achievementSetClaim->game
+            ->playerSessions
+            ->where('user_id', $achievementSetClaim->user->id)
+            ->sortByDesc('updated_at')
             ->first();
 
         $activity = '';
         $lastPlayed = null;
-        if ($playerGame && !empty($playerGame->last_played)) {
-            $lastPlayed = Carbon::parse($playerGame->last_played);
+
+        if ($playerGame?->updated_at) {
+            $lastPlayed = $playerGame->updated_at;
             $activity = 'played this game';
         } else {
             // player_sessions only exist after 14 Oct 2023
-            $achievement = Achievement::where('GameID', $gameId)
-                ->where('Author', $claim['User'])
-                ->select(DB::raw('MAX(Updated) AS last_updated'))
+            $achievement = $achievementSetClaim->game->achievements
+                ->where('user_id', $achievementSetClaim->user->id)
+                ->sortByDesc('Updated')
                 ->first();
-            if ($achievement && !empty($achievement->last_updated)) {
-                $lastPlayed = Carbon::parse($achievement->last_updated);
+
+            if ($achievement?->updated_at) {
+                $lastPlayed = $achievement->updated_at;
                 $activity = 'edited an achievement';
             }
 
-            $note = MemoryNote::where('GameID', $gameId)
-                ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
-                ->where('UserAccounts.User', '=', $claim['User'])
-                ->select(DB::raw('MAX(CodeNotes.Updated) AS last_updated'))
+            $note = $achievementSetClaim->game->memoryNotes
+                ->where('user_id', $achievementSetClaim->user->id)
+                ->sortByDesc('Updated')
                 ->first();
-            if ($note && !empty($note->last_updated)) {
-                $lastUpdated = Carbon::parse($note->last_updated);
-                if (!$lastPlayed || $lastUpdated > $lastPlayed) {
-                    $lastPlayed = $lastUpdated;
-                    $activity = 'edited a note';
-                }
+
+            if ($note?->updated_at && (!$lastPlayed || $note->updated_at > $lastPlayed)) {
+                $lastPlayed = $note->updated_at;
+                $activity = 'edited a note';
             }
         }
 
         if ($lastPlayed) {
             $formattedDate = $lastPlayed->format('d M Y, g:ia');
             $timeAgo = $lastPlayed->diffForHumans();
-            $claimantHistory[] = "{$claim['User']} last $activity on $formattedDate ($timeAgo)";
+            $claimantHistory[] = "{$achievementSetClaim->user->display_name} last {$activity} on {$formattedDate} ({$timeAgo})";
         }
     }
 }
 ?>
 
-@if (empty($claimData))
+@if ($achievementSetClaims->isEmpty())
     <div>No Active Claims</div>
 @else
     <div>

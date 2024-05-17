@@ -1,10 +1,12 @@
 @props([
-    'commentId',
-    'forumTopicId',
-    'threadPostNumber',
+    'forumTopicComment' => null, // ForumTopicComment
+    'threadPostNumber' => 1,
 ])
 
 <?php
+$commentId = $forumTopicComment->id;
+$forumTopicId = $forumTopicComment->forum_topic_id;
+
 $postCommentUrl = config('app.url') . "/viewtopic.php?t=$forumTopicId&c=$commentId#$commentId";
 ?>
 

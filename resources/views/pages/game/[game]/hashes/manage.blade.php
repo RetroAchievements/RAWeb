@@ -1,36 +1,57 @@
 <?php
 
+// TODO migrate to a filament management panel
+
 use App\Community\Enums\ArticleType;
 use App\Models\Game;
 use App\Models\GameHash;
-use function Laravel\Folio\{middleware, name};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:view,game', 'can:manage,' . GameHash::class]);
 name('game.hash.manage');
 
+render(function (View $view, Game $game) {
+    // This would all be in a dedicated service if we weren't planning on
+    // migrating this page to a Filament panel.
+    
+    $gameWithSortedHashes = $game->load([
+        'hashes' => function ($query) {
+            $query->orderBy('Name');
+        },
+        'hashes.user'
+    ]);
+
+    $user = Auth::user();
+
+    $articleTypeGameHash = ArticleType::GameHash;
+    $numLogs = getRecentArticleComments($articleTypeGameHash, $game->id, $logs);
+
+    return $view->with([
+        'articleTypeGameHash' => $articleTypeGameHash,
+        'gameWithSortedHashes' => $gameWithSortedHashes,
+        'logs' => $logs,
+        'numLogs' => $numLogs,
+        'user' => $user,
+    ]);
+})
+
 ?>
 
-@php
-$gameWithSortedHashes = $game->load([
-    'hashes' => function ($query) {
-        $query->orderBy('Name');
-    },
-    'hashes.user'
-]);
+@props([
+    'articleTypeGameHash' => 10,
+    'gameWithSortedHashes' => null, // Game
+    'logs' => null, // ?array
+    'numLogs' => 0,
+    'user' => null, // User
+])
 
-$user = request()->user();
-
-$articleTypeGameHash = ArticleType::GameHash;
-$numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
-@endphp
-
-<x-app-layout pageTitle="{{ 'Manage Game Hashes - ' . $game->Title }}">
+<x-app-layout pageTitle="{{ 'Manage Game Hashes - ' . $game->title }}">
     <div>
         <x-game.breadcrumbs
-            :targetConsoleId="$game->system->ID"
-            :targetConsoleName="$game->system->Name"
-            :targetGameId="$game->ID"
-            :targetGameName="$game->Title"
+            :game="$game"
             currentPageLabel="Manage Hashes"
         />
 
@@ -42,9 +63,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
         <div class="mb-4">
             <x-game.link-buttons.index
                 :allowedLinks="['forum-topic', 'game-files']"
-                :gameId="$game->ID"
-                :gameTitle="$game->Title"
-                :gameForumTopicId="$game->ForumTopicID"
+                :game="$gameWithSortedHashes"
                 variant="row"
             />
         </div>
@@ -60,7 +79,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
 
                         <p>
                             If you're not <span class="underline font-semibold">100% sure</span> of what you're doing,
-                            <a href="{{ route('message.create') . '?to=RAdmin&subject=Help+with+Hash+Management+for+' . urlencode($game->Title) . '&message=%5Bgame=' . $game->ID . '%5D' }}">
+                            <a href="{{ route('message.create') . '?to=RAdmin&subject=Help+with+Hash+Management+for+' . urlencode($game->title) . '&message=%5Bgame=' . $game->ID . '%5D' }}">
                                 contact RAdmin
                             </a>
                             and they'll help you out.
@@ -73,7 +92,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
         <hr class="border-embed-highlight mb-4" />
 
         <p class="mb-4">
-            <span class="font-bold"><x-game-title :rawTitle="$game->Title" /></span>
+            <span class="font-bold"><x-game-title :rawTitle="$game->title" /></span>
             currently has
             <span class="font-bold">{{ count($game->hashes) }}</span>
             unique
@@ -83,7 +102,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
 
         <div class="mb-10">
             <x-manage-hashes.hashes-list
-                :gameId="$game->ID"
+                :gameId="$game->id"
                 :hashes="$game->hashes"
                 :myUsername="$user->username"
             />
@@ -95,7 +114,7 @@ $numLogs = getRecentArticleComments($articleTypeGameHash, $game->ID, $logs);
                     $user->username,
                     $numLogs,
                     $logs,
-                    $game->ID,
+                    $game->id,
                     $articleTypeGameHash,
                     $user->Permissions,
                 )

@@ -3,17 +3,26 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Enums\Permissions;
+use App\Models\ForumTopic;
+use App\Models\ForumTopicComment;
 use App\Models\Game;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 function getForumList(int $categoryID = 0): array
 {
-    $query = "    SELECT f.ID, f.CategoryID, fc.Name AS CategoryName, fc.Description AS CategoryDescription, f.Title, f.Description, COUNT(DISTINCT ft.ID) AS NumTopics, COUNT( ft.ID ) AS NumPosts, ftc2.ID AS LastPostID, ftc2.Author AS LastPostAuthor, ftc2.DateCreated AS LastPostCreated, ft2.Title AS LastPostTopicName, ft2.ID AS LastPostTopicID, f.DisplayOrder
+    $query = "  SELECT
+                    f.ID, f.CategoryID, f.Title, f.Description, f.DisplayOrder,
+                    fc.Name AS CategoryName, fc.Description AS CategoryDescription,
+                    COUNT(DISTINCT ft.ID) AS NumTopics, COUNT( ft.ID ) AS NumPosts,
+                    ftc2.ID AS LastPostID, ua.User AS LastPostAuthor, ftc2.DateCreated AS LastPostCreated,
+                    ft2.Title AS LastPostTopicName, ft2.ID AS LastPostTopicID
                 FROM Forum AS f
                 LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
                 LEFT JOIN ForumTopic AS ft ON ft.ForumID = f.ID
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ID = f.LatestCommentID
+                LEFT JOIN UserAccounts AS ua ON ua.ID = ftc2.author_id
                 LEFT JOIN ForumTopic AS ft2 ON ft2.ID = ftc2.ForumTopicID ";
 
     if ($categoryID > 0) {
@@ -23,25 +32,6 @@ function getForumList(int $categoryID = 0): array
     $query .= "ORDER BY fc.DisplayOrder, f.DisplayOrder, f.ID ";
 
     return legacyDbFetchAll($query)->toArray();
-}
-
-function getForumDetails(int $forumID, ?array &$forumDataOut): bool
-{
-    $query = "    SELECT f.ID, f.Title AS ForumTitle, f.Description AS ForumDescription, fc.ID AS CategoryID, fc.Name AS CategoryName
-                FROM Forum AS f
-                LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
-                WHERE f.ID = $forumID ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $forumDataOut = mysqli_fetch_assoc($dbResult);
-
-        return $forumDataOut != null;
-    }
-    log_sql_fail();
-    $forumDataOut = null;
-
-    return false;
 }
 
 function getForumTopics(int $forumID, int $offset, int $count, int $permissions, ?int &$maxCountOut): ?array
@@ -58,7 +48,7 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
         $maxCountOut = (int) $data['COUNT(*)'];
     }
 
-    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.Author, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
+    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 54 ) AS TopicPreview, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ID = ft.LatestCommentID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
@@ -90,7 +80,7 @@ function getForumTopics(int $forumID, int $offset, int $count, int $permissions,
 
 function getUnauthorisedForumLinks(): ?array
 {
-    $query = "  SELECT f.Title AS ForumTitle, ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.Author, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.Author AS LatestCommentAuthor, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
+    $query = "  SELECT ft.ID AS ForumTopicID, ft.Title AS TopicTitle, LEFT( ftc2.Payload, 60 ) AS TopicPreview, ft.author_id AS AuthorID, ft.DateCreated AS ForumTopicPostedDate, ftc.ID AS LatestCommentID, ftc.author_id AS LatestCommentAuthorID, ftc.DateCreated AS LatestCommentPostedDate, (COUNT(ftc2.ID)-1) AS NumTopicReplies
                 FROM ForumTopic AS ft
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
@@ -116,75 +106,31 @@ function getUnauthorisedForumLinks(): ?array
     return null;
 }
 
-function getTopicDetails(int $topicID, ?array &$topicDataOut = []): bool
-{
-    $query = "  SELECT ft.ID, ft.Author, ft.author_id AS AuthorID, fc.ID AS CategoryID, fc.Name AS Category, fc.ID as CategoryID, f.ID AS ForumID, f.Title AS Forum, ft.Title AS TopicTitle, ft.RequiredPermissions
-                FROM ForumTopic AS ft
-                LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-                LEFT JOIN ForumCategory AS fc ON fc.ID = f.CategoryID
-                WHERE ft.ID = $topicID AND ft.deleted_at IS NULL";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $topicDataOut = mysqli_fetch_assoc($dbResult);
-
-        return $topicID == ($topicDataOut['ID'] ?? null);
-    }
-    $topicDataOut = null;
-
-    return false;
-}
-
-function getSingleTopicComment(int $forumPostID, ?array &$dataOut): bool
-{
-    $query = "    SELECT ID, ForumTopicID, Payload, Author, author_id as AuthorID, DateCreated, DateModified
-                FROM ForumTopicComment
-                WHERE ID=$forumPostID";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $dataOut = mysqli_fetch_assoc($dbResult);
-
-        return true;
-    }
-
-    return false;
-}
-
 function submitNewTopic(
-    string $user,
+    User $user,
     int $forumID,
     string $topicTitle,
     string $topicPayload,
-    ?int &$newTopicIDOut
-): bool {
-    sanitize_sql_inputs($user);
-    $userID = getUserIDFromUser($user);
-
+): ForumTopicComment {
+    // TODO why do we even allow users to submit topic titles this short? just throw a validation error.
     if (mb_strlen($topicTitle) < 2) {
-        $topicTitle = "$user's topic";
+        $topicTitle = "{$user->User}'s topic";
     }
 
-    // Replace inverted commas, Remove HTML, TBD: allow phpbb
-    $topicTitle = str_replace("'", "''", $topicTitle);
-    $topicTitle = strip_tags($topicTitle);
+    $topicTitle = htmlspecialchars($topicTitle, ENT_QUOTES);
 
-    // Create new topic, then submit new comment
+    // Create the new topic.
+    $newTopic = new ForumTopic([
+        'ForumID' => $forumID,
+        'Title' => $topicTitle,
+        'author_id' => $user->id,
+        'LatestCommentID' => 0,
+        'RequiredPermissions' => 0,
+    ]);
+    $newTopic->save();
 
-    // $authFlags = getUserForumPostAuth( $user );
-
-    $query = "INSERT INTO ForumTopic (ForumID, Title, Author, author_id, DateCreated, LatestCommentID, RequiredPermissions) VALUES ( $forumID, '$topicTitle', '$user', $userID, NOW(), 0, 0 )";
-
-    $db = getMysqliConnection();
-    if (!mysqli_query($db, $query)) {
-        log_sql_fail();
-
-        return false;
-    }
-
-    $newTopicIDOut = mysqli_insert_id($db);
-
-    return submitTopicComment($user, $newTopicIDOut, $topicTitle, $topicPayload, $newCommentID);
+    // Finally, submit the first comment of the new topic.
+    return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload);
 }
 
 function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
@@ -235,80 +181,58 @@ function editTopicComment(int $commentID, string $newPayload): bool
 }
 
 function getIsForumDoublePost(
-    int $authorID,
-    int $topicID,
+    User $user,
+    int $topicId,
     string $commentPayload,
 ): bool {
-    $query = "SELECT ftc.Payload, ftc.ForumTopicID
-        FROM ForumTopicComment AS ftc
-        WHERE author_id = :authorId
-        ORDER BY ftc.DateCreated DESC
-        LIMIT 1";
+    $latestPost = $user->forumPosts()->latest('DateCreated')->first();
 
-    $dbResult = legacyDbFetch($query, ['authorId' => $authorID]);
-
-    // Otherwise the user can't make their first post.
-    if (!$dbResult) {
+    if (!$latestPost) {
         return false;
     }
 
-    $retrievedPayload = $dbResult['Payload'];
-    $retrievedTopicID = $dbResult['ForumTopicID'];
-
     return
-        $retrievedPayload === $commentPayload
-        && $retrievedTopicID === $topicID
-    ;
+        $latestPost->body === $commentPayload
+        && $latestPost->forum_topic_id === $topicId;
 }
 
 function submitTopicComment(
-    string $user,
-    int $topicID,
+    User $user,
+    int $topicId,
     ?string $topicTitle,
     string $commentPayload,
-    ?int &$newCommentIDOut
-): bool {
-    sanitize_sql_inputs($user);
-    $userID = getUserIDFromUser($user);
-
-    if (getIsForumDoublePost($userID, $topicID, $commentPayload)) {
-        // Fail silently.
-        return true;
+): ?ForumTopicComment {
+    if (getIsForumDoublePost($user, $topicId, $commentPayload)) {
+        // Do nothing.
+        return null;
     }
 
-    // Replace inverted commas, Remove HTML
-    $commentPayload = str_replace("'", "''", $commentPayload);
-    $commentPayload = str_replace("<", "&lt;", $commentPayload);
-    $commentPayload = str_replace(">", "&gt;", $commentPayload);
-    // $commentPayload = strip_tags( $commentPayload );
+    $commentPayload = htmlspecialchars($commentPayload, ENT_QUOTES);
 
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
 
-    $authFlags = getUserForumPostAuth($user) ? 1 : 0;
+    $newComment = new ForumTopicComment([
+        'ForumTopicID' => $topicId,
+        'Payload' => $commentPayload,
+        'author_id' => $user->id,
+        'Authorised' => $user->ManuallyVerified ?? false,
+    ]);
+    $newComment->save();
 
-    $query = "INSERT INTO ForumTopicComment (ForumTopicID, Payload, Author, author_id, DateCreated, DateModified, Authorised) VALUES ($topicID, '$commentPayload', '$user', $userID, NOW(), NULL, $authFlags ) ";
+    setLatestCommentInForumTopic($topicId, $newComment->id);
 
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
-    if ($dbResult !== false) {
-        $newCommentIDOut = mysqli_insert_id($db);
-        setLatestCommentInForumTopic($topicID, $newCommentIDOut);
-
-        if ($topicTitle == null) {
-            $topicTitle = getTopicDetails($topicID, $topicData) ? $topicData['TopicTitle'] : '';
-        }
-
-        if ($authFlags) {
-            notifyUsersAboutForumActivity($topicID, $topicTitle, $user, $newCommentIDOut);
-        }
-
-        return true;
+    if (!$topicTitle) {
+        $topic = ForumTopic::find($topicId);
+        $topicTitle = $topic?->title ?? '';
     }
-    log_sql_fail();
 
-    return false;
+    if ($user->ManuallyVerified) {
+        notifyUsersAboutForumActivity($topicId, $topicTitle, $user->User, $newComment->id);
+    }
+
+    return $newComment;
 }
 
 function notifyUsersAboutForumActivity(int $topicID, string $topicTitle, string $author, int $commentID): void
@@ -371,23 +295,24 @@ function getTopicCommentCommentOffset(int $forumTopicID, int $commentID, int $co
     return false;
 }
 
-function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID): bool
+function generateGameForumTopic(User $user, int $gameId): ?ForumTopicComment
 {
-    if ($gameID == 0) {
-        return false;
+    if ($gameId === 0) {
+        return null;
     }
 
-    $game = Game::with('system')->find($gameID);
+    $game = Game::with('system')->find($gameId);
     if (!$game) {
-        return false;
+        return null;
     }
 
-    if ($game->ForumTopicID > 0 && getTopicDetails($game->ForumTopicID, $topic)) {
-        // valid topic already exists
-        return false;
+    // If a valid forum topic already exists for the game, bail.
+    if ($game->ForumTopicID > 0 && ForumTopic::find($game->ForumTopicID)->exists()) {
+        return null;
     }
 
-    $forumID = match ($game->system->ID) {
+    // TODO we probably can't get away with hardcoding this indefinitely.
+    $forumId = match ($game->system->id) {
         // Mega Drive
         1 => 10,
         // SNES
@@ -402,8 +327,8 @@ function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID):
         default => 10,
     };
 
-    $gameTitle = $game->Title;
-    $consoleName = $game->system->Name;
+    $gameTitle = $game->title;
+    $consoleName = $game->system->name;
 
     $topicTitle = $gameTitle;
 
@@ -414,21 +339,20 @@ function generateGameForumTopic(string $user, int $gameID, ?int &$forumTopicID):
     $longplaysURL = "https://www.google.com/search?q=site:www.youtube.com+longplay+$urlSafeGameTitle";
     $wikipediaURL = "https://www.google.com/search?q=site:en.wikipedia.org+$urlSafeGameTitle";
 
-    $topicPayload = "Official Topic Post for discussion about [game=$gameID]\n" .
-        "Created " . date("j M, Y H:i") . " by [user=$user]\n\n" .
+    $topicPayload = "Official Topic Post for discussion about [game=$gameId]\n" .
+        "Created " . date("j M, Y H:i") . " by [user={$user->User}]\n\n" .
         "[b]Resources:[/b]\n" .
+        // FIXME there is a bug here. these links are malformed for some games, such as game id 26257
         "[url=$gameFAQsURL]GameFAQs[/url]\n" .
         "[url=$longplaysURL]Longplay[/url]\n" .
         "[url=$wikipediaURL]Wikipedia[/url]\n";
 
-    if (!submitNewTopic($user, $forumID, $topicTitle, $topicPayload, $forumTopicID)) {
-        return false;
-    }
+    $forumTopicComment = submitNewTopic($user, $forumId, $topicTitle, $topicPayload);
 
-    $game->ForumTopicID = $forumTopicID;
+    $game->ForumTopicID = $forumTopicComment->forumTopic->id;
     $game->save();
 
-    return true;
+    return $forumTopicComment;
 }
 
 /**
@@ -439,7 +363,7 @@ function getRecentForumPosts(
     int $limit,
     int $numMessageChars,
     ?int $permissions = Permissions::Unregistered,
-    ?string $fromUser = null
+    ?int $fromAuthorId = null
 ): Collection {
     $bindings = [
         'fromOffset' => $offset,
@@ -448,9 +372,9 @@ function getRecentForumPosts(
         'limit' => $limit,
     ];
 
-    if (!empty($fromUser)) {
-        $bindings['fromAuthor'] = $fromUser;
-        $userClause = "ftc.Author = :fromAuthor";
+    if (!empty($fromAuthorId)) {
+        $bindings['fromAuthorId'] = $fromAuthorId;
+        $userClause = "ftc.author_id = :fromAuthorId";
         if ($permissions < Permissions::Moderator) {
             $userClause .= " AND ftc.Authorised = 1";
         }
@@ -462,11 +386,12 @@ function getRecentForumPosts(
     $query = "
         SELECT LatestComments.DateCreated AS PostedAt,
             LatestComments.Payload,
-            LatestComments.Author,
+            ua.User as Author,
             ua.RAPoints,
             ua.Motto,
             ft.ID AS ForumTopicID,
             ft.Title AS ForumTopicTitle,
+            LatestComments.author_id AS author_id,
             LatestComments.ID AS CommentID
         FROM
         (
@@ -478,7 +403,7 @@ function getRecentForumPosts(
         ) AS LatestComments
         INNER JOIN ForumTopic AS ft ON ft.ID = LatestComments.ForumTopicID
         LEFT JOIN Forum AS f ON f.ID = ft.ForumID
-        LEFT JOIN UserAccounts AS ua ON ua.User = LatestComments.Author
+        LEFT JOIN UserAccounts AS ua ON ua.ID = LatestComments.author_id
         WHERE ft.RequiredPermissions <= :permissions AND ft.deleted_at IS NULL
         ORDER BY LatestComments.DateCreated DESC
         LIMIT 0, :limit";
@@ -497,7 +422,7 @@ function getRecentForumTopics(int $offset, int $count, int $permissions, int $nu
     $query = "
         SELECT ft.ID as ForumTopicID, ft.Title as ForumTopicTitle,
                f.ID as ForumID, f.Title as ForumTitle,
-               lc.CommentID, lftc.DateCreated as PostedAt, lftc.Author,
+               lc.CommentID, lftc.DateCreated as PostedAt, lftc.author_id,
                LEFT(lftc.Payload, $numMessageChars) AS ShortMsg,
                LENGTH(lftc.Payload) > $numMessageChars AS IsTruncated,
                d1.CommentID as CommentID_1d, d1.Count as Count_1d,
@@ -556,55 +481,33 @@ function updateTopicPermissions(int $topicId, int $permissions): bool
     return true;
 }
 
-function RemoveUnauthorisedForumPosts(string $user): bool
+function authorizeAllForumPostsForUser(User $user): bool
 {
-    sanitize_sql_inputs($user);
+    $userUnauthorizedPosts = $user->forumPosts()
+        ->unauthorized()
+        ->with(['forumTopic' => function ($query) {
+            $query->select('ID', 'Title');
+        }])
+        ->get();
 
-    // Removes all 'unauthorised' forum posts by a particular user
-    $query = "DELETE FROM ForumTopicComment
-              WHERE Author = '$user' AND Authorised = 0";
-
-    if (!s_mysql_query($query)) {
-        log_sql_fail();
-
-        return false;
+    foreach ($userUnauthorizedPosts as $unauthorizedPost) {
+        if ($unauthorizedPost->forumTopic) {
+            notifyUsersAboutForumActivity(
+                $unauthorizedPost->forumTopic->id,
+                $unauthorizedPost->forumTopic->title,
+                $user->User,
+                $unauthorizedPost->id,
+            );
+        }
     }
+
+    // Set all unauthorized forum posts by the user to authorized.
+    $user->forumPosts()->unauthorized()->update([
+        'Authorised' => 1,
+        'authorized_at' => now(),
+    ]);
 
     return true;
-}
-
-function AuthoriseAllForumPosts(string $user): bool
-{
-    sanitize_sql_inputs($user);
-
-    // notify users of the posts now that they've been authorised
-    $query = "SELECT ft.ID as TopicID, ft.Title as TopicTitle, ftc.ID as CommentID
-              FROM ForumTopic ft
-              LEFT JOIN ForumTopicComment ftc ON ftc.ForumTopicID=ft.ID
-              WHERE ftc.Author = '$user' AND ftc.Authorised = 0";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            notifyUsersAboutForumActivity((int) $db_entry['TopicID'], $db_entry['TopicTitle'], $user, (int) $db_entry['CommentID']);
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    // Sets all unauthorised forum posts by a particular user to authorised
-    $query = "UPDATE ForumTopicComment AS ftc
-              SET ftc.Authorised = 1
-              WHERE Author = '$user'";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        // user's forum post comments have all been authorised!
-        return true;
-    }
-    log_sql_fail();
-
-    return false;
 }
 
 function isUserSubscribedToForumTopic(int $topicID, int $userID): bool

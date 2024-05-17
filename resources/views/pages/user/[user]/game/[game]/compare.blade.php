@@ -1,56 +1,33 @@
 <?php
 
-use function Laravel\Folio\{middleware, name};
+use App\Models\Game;
+use App\Models\User;
+use App\Platform\Services\CompareUnlocksPageService;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:view,game', 'can:view,user']);
 name('game.compare-unlocks');
 
+render(function (View $view, User $user, Game $game, CompareUnlocksPageService $pageService) {
+    return $view->with($pageService->buildViewData(request(), $user, $game));
+});
+
 ?>
 
 @props([
-    'user' => null,
-    'otherUser' => null,
-    'game' => null,
     'achievements' => [],
+    'game' => null, // Game
+    'numAchievements' => 0,
+    'otherUser' => null, // User
+    'otherUserUnlockCount' => 0,
+    'otherUserUnlockHardcoreCount' => 0,
     'sortOrder' => 'display',
+    'user' => null, // User
+    'userUnlockCount' => 0,
+    'userUnlockHardcoreCount' => 0,
 ])
-
-@php
-use App\Enums\Permissions;
-
-$availableSorts = [
-    'selfUnlocks' => 'My Unlock Times',
-    'otherUnlocks' => 'Their Unlock Times',
-    'display' => 'Display Order',
-    'title' => 'Achievement Title',
-];
-
-$userUnlockCount = 0;
-$otherUserUnlockCount = 0;
-$userUnlockHardcoreCount = 0;
-$otherUserUnlockHardcoreCount = 0;
-$numAchievements = count($achievements);
-
-
-foreach ($achievements as $achievement) {
-    if (array_key_exists('userTimestamp', $achievement)) {
-        $userUnlockCount++;
-        if ($achievement['userHardcore'] ?? false) {
-            $userUnlockHardcoreCount++;
-        }
-    }
-
-    if (array_key_exists('otherUserTimestamp', $achievement)) {
-        $otherUserUnlockCount++;
-        if ($achievement['otherUserHardcore'] ?? false) {
-            $otherUserUnlockHardcoreCount++;
-        }
-    }
-}
-
-$canModerate = ($user->Permissions >= Permissions::Moderator);
-
-@endphp
 
 <x-app-layout
     pageTitle="Compare Unlocks - {{ $game->Title }}"
@@ -67,14 +44,14 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
         {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
         <h1 class="mt-[10px] w-full">Compare Unlocks</h1>
 
-        @if ($canModerate)
+        @can('viewSessionHistory', App\Models\PlayerGame::class)
             <x-hidden-controls-toggle-button>Moderate</x-hidden-controls-toggle-button>
-        @endif
+        @endcan
     </div>
 
-@if ($canModerate)
+@can('viewSessionHistory', App\Models\PlayerGame::class)
     <x-hidden-controls>
-        <div style="width:20%">
+        <div class="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             <ul class="flex flex-col gap-2">
                 <x-game.link-buttons.game-link-button
                     icon="🔬"
@@ -85,7 +62,7 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
             </ul>
         </div>
     </x-hidden-controls>
-@endif
+@endcan
 
 @if ($numAchievements === 0)
     <p>This game has no published achievements.</p>
@@ -99,7 +76,12 @@ $canModerate = ($user->Permissions >= Permissions::Moderator);
         </x-slot>
 
         <x-meta-panel
-            :availableSorts="$availableSorts"
+            :availableSorts="[
+                'selfUnlocks' => 'My Unlock Times',
+                'otherUnlocks' => 'Their Unlock Times',
+                'display' => 'Display Order',
+                'title' => 'Achievement Title',
+            ]"
             :selectedSortOrder="$sortOrder"
         />
 

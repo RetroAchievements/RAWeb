@@ -9,7 +9,7 @@ use App\Models\User;
 ])
 
 <?php
-$followedUserIds = $user->following()->select(['UserAccounts.ID', 'UserAccounts.User'])->pluck('ID');
+$followedUserIds = $user->followedUsers()->select(['UserAccounts.ID', 'UserAccounts.User'])->pluck('ID');
 
 $followedUserCompletion = null;
 if (!empty($followedUserIds)) {
@@ -105,7 +105,7 @@ function selectSearchBoxUser() {
 
                         <a
                             class="min-w-[100px] flex flex-col"
-                            href="{!! route('game.compare-unlocks', ['game' => $game, 'user' => $friend->User]) !!}"
+                            href="{!! route('game.compare-unlocks', ['game' => $game, 'user' => $friend]) !!}"
                         >
                             <x-game-progress-bar
                                 containerClassNames="py-2.5"

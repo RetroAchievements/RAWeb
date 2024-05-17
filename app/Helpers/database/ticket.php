@@ -2,14 +2,13 @@
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\SubscriptionSubjectType;
-use App\Community\Enums\TicketFilters;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket as TicketViewModel;
+use App\Models\Achievement;
 use App\Models\NotificationPreferences;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use App\Platform\Enums\UnlockMode;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -91,8 +90,8 @@ function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore,
 
 function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, string $note): int
 {
-    $achData = GetAchievementData($achID);
-    if (empty($achData)) {
+    $achievement = Achievement::find($achID);
+    if (!$achievement) {
         return 0;
     }
 
@@ -101,7 +100,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
 
     $hardcoreValue = $hardcore === null ? 'NULL' : (string) $hardcore;
 
-    $userId = $user->ID;
+    $userId = $user->id;
     $username = $user->User;
 
     $query = "INSERT INTO Ticket (AchievementID, reporter_id, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, resolver_id )
@@ -117,17 +116,16 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
 
     $ticketID = mysqli_insert_id($db);
 
-    $achAuthor = $achData['Author'];
-    $achTitle = $achData['Title'];
-    $gameID = $achData['GameID'];
-    $gameTitle = $achData['GameTitle'];
+    $achTitle = $achievement->title;
+    $gameID = $achievement->game->id;
+    $gameTitle = $achievement->game->title;
 
-    expireUserTicketCounts($achAuthor);
+    expireUserTicketCounts($achievement->developer->User);
 
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
     $emailHeader = "Bug Report ($gameTitle)";
-    $ticketUrl = config('app.url') . "/ticketmanager.php?i=$ticketID";
+    $ticketUrl = route('ticket.show', ['ticket' => $ticketID]);
     $bugReportDetails = "
 Achievement: $achTitle
 Game: $gameTitle
@@ -139,19 +137,18 @@ This ticket will be raised and will be available for all developers to inspect a
 
 Thanks!";
 
-    $author = User::firstWhere('User', $achAuthor);
-    if ($author && BitSet($author->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
-        $emailBody = "Hi, {$author->User}!
+    if ($achievement->developer && BitSet($achievement->developer->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
+        $emailBody = "Hi, {$achievement->developer->User}!
 
 $username would like to report a bug with an achievement you've created:
 $bugReportDetails";
-        sendRAEmail($author->EmailAddress, $emailHeader, $emailBody);
+        sendRAEmail($achievement->developer->EmailAddress, $emailHeader, $emailBody);
     }
 
     // notify subscribers other than the achievement's author
     $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << NotificationPreferences::EmailOn_PrivateMessage);
     foreach ($subscribers as $sub) {
-        if ($sub['User'] != $achAuthor && $sub['User'] != $username) {
+        if ($sub['User'] !== $achievement->developer->User && $sub['User'] != $username) {
             $emailBody = "Hi, " . $sub['User'] . "!
 
 $username would like to report a bug with an achievement you're subscribed to:
@@ -179,111 +176,10 @@ function getExistingTicketID(User $user, int $achievementID): int
     return 0;
 }
 
-function getAllTickets(
-    int $offset = 0,
-    int $limit = 50,
-    ?string $assignedToUser = null,
-    ?string $reportedByUser = null,
-    ?string $resolvedByUser = null,
-    ?int $givenGameID = null,
-    ?int $givenAchievementID = null,
-    int $ticketFilters = TicketFilters::Default,
-    bool $getUnofficial = false
-): array {
-    $retVal = [];
-    $bindings = [];
-
-    $innerCond = "TRUE";
-    if (!empty($assignedToUser) && isValidUsername($assignedToUser)) {
-        $innerCond .= " AND ach.Author = :assignedToUsername";
-        $bindings['assignedToUsername'] = $assignedToUser;
-    }
-    if (!empty($reportedByUser) && isValidUsername($reportedByUser)) {
-        $innerCond .= " AND ua.User = :reportedByUsername";
-        $bindings['reportedByUsername'] = $reportedByUser;
-    }
-    if (!empty($resolvedByUser) && isValidUsername($resolvedByUser)) {
-        $innerCond .= " AND ua2.User = :resolvedByUsername";
-        $bindings['resolvedByUsername'] = $resolvedByUser;
-    }
-    if ($givenGameID != 0) {
-        $innerCond .= " AND gd.ID = $givenGameID";
-    }
-    if ($givenAchievementID != 0) {
-        $innerCond .= " AND tick.AchievementID = $givenAchievementID";
-    }
-
-    // State condition
-    $stateCond = getStateCondition($ticketFilters);
-    if ($stateCond === null) {
-        return $retVal;
-    }
-
-    // Report Type condition
-    $reportTypeCond = getReportTypeCondition($ticketFilters);
-    if ($reportTypeCond === null) {
-        return $retVal;
-    }
-
-    // Hash condition
-    $hashCond = getHashCondition($ticketFilters);
-    if ($hashCond === null) {
-        return $retVal;
-    }
-
-    // Mode condition
-    $modeCond = getModeCondition($ticketFilters);
-    if ($modeCond === null) {
-        return $retVal;
-    }
-
-    // Emulator condition
-    $emulatorCond = getEmulatorCondition($ticketFilters);
-
-    // Developer Active condition
-    $devJoin = "";
-    $devActiveCond = getDevActiveCondition($ticketFilters);
-    if ($devActiveCond === null) {
-        return $retVal;
-    }
-    if ($devActiveCond != "") {
-        $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
-    }
-
-    // Karma condition - warning: excludes unresolved tickets
-    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
-    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
-
-    // Progression filter
-    $progressionCond = getProgressionCondition($ticketFilters);
-
-    // official/unofficial filter (ignore when a specific achievement is requested)
-    $achFlagCond = '';
-    if (!$givenAchievementID) {
-        $achFlagCond = $getUnofficial ? " AND ach.Flags = '5'" : "AND ach.Flags = '3'";
-    }
-
-    $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
-                tick.ReportedAt, tick.ReportType, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy, tick.ReportState
-              FROM Ticket AS tick
-              LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-              LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
-              LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
-              $devJoin
-              WHERE $innerCond $achFlagCond $stateCond $modeCond $reportTypeCond $hashCond $emulatorCond $devActiveCond $notAuthorCond $notReporterCond $progressionCond
-              ORDER BY tick.ID DESC
-              LIMIT $offset, $limit";
-
-    return legacyDbFetchAll($query, $bindings)->toArray();
-}
-
 function getTicket(int $ticketID): ?array
 {
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
+                ua3.User AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
                 tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
               FROM Ticket AS tick
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
@@ -291,6 +187,7 @@ function getTicket(int $ticketID): ?array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
+              LEFT JOIN UserAccounts AS ua3 ON ua3.ID = ach.user_id
               WHERE tick.ID = $ticketID
               ";
 
@@ -379,7 +276,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
         "<br>Comment: $comment" .
         "<br>" .
-        "Click <a href='" . config('app.url') . "/ticketmanager.php?i=$ticketID'>here</a> to view the ticket" .
+        "Click <a href='" . route('ticket.show', ['ticket' => $ticketID]) . "'>here</a> to view the ticket" .
         "<br>" .
         "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
         "<br>" .
@@ -403,13 +300,9 @@ function countRequestTicketsByUser(?User $user = null): int
     });
 }
 
-function countOpenTicketsByDev(string $dev): ?array
+function countOpenTicketsByDev(User $dev): array
 {
-    if ($dev == null) {
-        return null;
-    }
-
-    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev);
+    $cacheKey = CacheKey::buildUserOpenTicketsCacheKey($dev->User);
 
     return Cache::remember($cacheKey, Carbon::now()->addHours(20), function () use ($dev) {
         $retVal = [
@@ -420,7 +313,7 @@ function countOpenTicketsByDev(string $dev): ?array
         $tickets = Ticket::with('achievement')
             ->whereHas('achievement', function ($query) use ($dev) {
                 $query
-                    ->where('Author', $dev)
+                    ->where('user_id', $dev->id)
                     ->whereIn('Flags', [AchievementFlag::OfficialCore, AchievementFlag::Unofficial]);
             })
             ->whereIn('ReportState', [TicketState::Open, TicketState::Request])
@@ -461,119 +354,6 @@ function countOpenTicketsByAchievement(int $achievementID): int
     return ($results != null) ? $results['count'] : 0;
 }
 
-function countOpenTickets(
-    bool $unofficialFlag = false,
-    int $ticketFilters = TicketFilters::Default,
-    ?string $assignedToUser = null,
-    ?string $reportedByUser = null,
-    ?string $resolvedByUser = null,
-    ?int $gameID = null,
-    ?int $achievementID = null
-): int {
-    $bindings = [];
-
-    // State condition
-    $stateCond = getStateCondition($ticketFilters);
-    if ($stateCond === null) {
-        return 0;
-    }
-
-    // Report Type condition
-    $reportTypeCond = getReportTypeCondition($ticketFilters);
-    if ($reportTypeCond === null) {
-        return 0;
-    }
-
-    // Hash condition
-    $hashCond = getHashCondition($ticketFilters);
-    if ($hashCond === null) {
-        return 0;
-    }
-
-    // Emulator condition
-    $emulatorCond = getEmulatorCondition($ticketFilters);
-
-    $modeCond = getModeCondition($ticketFilters);
-    if ($modeCond === null) {
-        return 0;
-    }
-
-    // Developer Active condition
-    $devJoin = "";
-    $devActiveCond = getDevActiveCondition($ticketFilters);
-    if ($devActiveCond === null) {
-        return 0;
-    }
-    if ($devActiveCond != "") {
-        $devJoin = "LEFT JOIN UserAccounts AS ua3 ON ua3.User = ach.Author";
-    }
-
-    // Not Reporter condition - warning: excludes unresolved tickets
-    $reporterJoin = "";
-    $notReporterCond = getResolvedByNonReporterCondition($ticketFilters);
-    if ($notReporterCond != "") {
-        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id";
-    }
-
-    // Not Author condition - warning: excludes unresolved tickets
-    $resolverJoin = "";
-    $notAuthorCond = getResolvedByNonAuthorCondition($ticketFilters);
-    if ($notAuthorCond != "" || $notReporterCond != "") {
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
-    }
-
-    // Author condition
-    $authorCond = "";
-    if ($assignedToUser != null) {
-        $authorCond = " AND ach.Author = :assignedToUser";
-        $bindings['assignedToUser'] = $assignedToUser;
-    }
-
-    // Reporter condition
-    $reporterCond = "";
-    if ($reportedByUser != null) {
-        $reporterJoin = "LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id";
-        $reporterCond = " AND ua.User = :reportedByUsername";
-        $bindings['reportedByUsername'] = $reportedByUser;
-    }
-
-    // Resolver condition
-    $resolverCond = "";
-    if ($resolvedByUser != null) {
-        $resolverCond = " AND ua2.User = :resolvedByUsername";
-        $bindings['resolvedByUsername'] = $resolvedByUser;
-        $resolverJoin = "LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id AND tick.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")";
-    }
-
-    // Progression condition
-    $progressionCond = getProgressionCondition($ticketFilters);
-
-    // Game condition
-    $gameCond = "";
-    if ($gameID != null) {
-        $gameCond = " AND ach.GameID = $gameID";
-    }
-    if ($achievementID != null) {
-        $gameCond .= " AND ach.ID = $achievementID";
-    }
-
-    $achFlagCond = $unofficialFlag ? "ach.Flags = '5'" : "ach.Flags = '3'";
-
-    $query = "
-        SELECT count(*) as count
-        FROM Ticket AS tick
-        LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
-        LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
-        $reporterJoin
-        $resolverJoin
-        $devJoin
-        WHERE $achFlagCond $stateCond $gameCond $modeCond $reportTypeCond $hashCond $emulatorCond $authorCond $devActiveCond $notAuthorCond $notReporterCond $reporterCond $resolverCond $progressionCond";
-
-    $results = legacyDbFetch($query, $bindings);
-
-    return ($results != null) ? $results['count'] : 0;
-}
-
 function gamesSortedByOpenTickets(int $count): array
 {
     if ($count < 1) {
@@ -607,268 +387,32 @@ function gamesSortedByOpenTickets(int $count): array
 }
 
 /**
- * Gets the ticket state condition to put into the main ticket query.
- */
-function getStateCondition(int $ticketFilters): ?string
-{
-    $states = [];
-    if ($ticketFilters & TicketFilters::StateOpen) {
-        $states[] = TicketState::Open;
-    }
-    if ($ticketFilters & TicketFilters::StateClosed) {
-        $states[] = TicketState::Closed;
-    }
-    if ($ticketFilters & TicketFilters::StateResolved) {
-        $states[] = TicketState::Resolved;
-    }
-    if ($ticketFilters & TicketFilters::StateRequest) {
-        $states[] = TicketState::Request;
-    }
-
-    if (count($states) == 4) {
-        // all states selected, no need to filter
-        return "";
-    }
-
-    if (count($states) == 0) {
-        // no states selected, can't matching anything
-        return null;
-    }
-
-    return " AND tick.ReportState IN (" . implode(',', $states) . ')';
-}
-
-/**
- * Gets the ticket report type condition to put into the main ticket query.
- */
-function getReportTypeCondition(int $ticketFilters): ?string
-{
-    $triggeredTickets = ($ticketFilters & TicketFilters::TypeTriggeredAtWrongTime);
-    $didNotTriggerTickets = ($ticketFilters & TicketFilters::TypeDidNotTrigger);
-
-    if ($triggeredTickets && $didNotTriggerTickets) {
-        return "";
-    }
-    if ($triggeredTickets) {
-        return " AND tick.ReportType LIKE 1";
-    }
-    if ($didNotTriggerTickets) {
-        return " AND tick.ReportType NOT LIKE 1";
-    }
-
-    return null;
-}
-
-/**
- * Gets the ticket hash condition to put into the main ticket query.
- */
-function getHashCondition(int $ticketFilters): ?string
-{
-    $hashKnownTickets = ($ticketFilters & TicketFilters::HashKnown);
-    $hashUnknownTickets = ($ticketFilters & TicketFilters::HashUnknown);
-
-    if ($hashKnownTickets && $hashUnknownTickets) {
-        return "";
-    }
-    if ($hashKnownTickets) {
-        return " AND (tick.ReportNotes REGEXP '(MD5|RetroAchievements Hash): [a-fA-F0-9]{32}')";
-    }
-    if ($hashUnknownTickets) {
-        return " AND (tick.ReportNotes NOT REGEXP '(MD5|RetroAchievements Hash): [a-fA-F0-9]{32}')";
-    }
-
-    return null;
-}
-
-function getModeCondition(int $ticketFilters): ?string
-{
-    $modeUnknown = ($ticketFilters & TicketFilters::HardcoreUnknown);
-    $modeHardcore = ($ticketFilters & TicketFilters::HardcoreOn);
-    $modeSoftcore = ($ticketFilters & TicketFilters::HardcoreOff);
-
-    if ($modeUnknown && $modeHardcore && $modeSoftcore) {
-        return "";
-    }
-
-    if (!$modeUnknown && !$modeHardcore && !$modeSoftcore) {
-        return null;
-    }
-
-    $subquery = "AND (";
-    $added = false;
-    if ($modeUnknown) {
-        $subquery .= "Hardcore IS NULL";
-        $added = true;
-    }
-
-    if ($modeHardcore) {
-        if ($added) {
-            $subquery .= " OR ";
-        }
-        $subquery .= "Hardcore = " . UnlockMode::Hardcore;
-        $added = true;
-    }
-    if ($modeSoftcore) {
-        if ($added) {
-            $subquery .= " OR ";
-        }
-        $subquery .= "Hardcore = " . UnlockMode::Softcore;
-        $subquery .= "";
-    }
-    $subquery .= ")";
-
-    return $subquery;
-}
-
-/**
- * Gets the developer active condition to put into the main ticket query.
- */
-function getDevActiveCondition(int $ticketFilters): ?string
-{
-    $devInactive = ($ticketFilters & TicketFilters::DevInactive);
-    $devActive = ($ticketFilters & TicketFilters::DevActive);
-    $devJunior = ($ticketFilters & TicketFilters::DevJunior);
-
-    if ($devInactive && $devActive && $devJunior) {
-        return "";
-    }
-
-    if ($devInactive || $devActive || $devJunior) {
-        $stateCond = " AND ua3.Permissions IN (";
-        if ($devInactive) {
-            $stateCond .= "-1,0,1";
-        }
-
-        if ($devActive) {
-            if ($devInactive) {
-                $stateCond .= ",";
-            }
-            $stateCond .= "3,4";
-        }
-
-        if ($devJunior) {
-            if ($devInactive || $devActive) {
-                $stateCond .= ",";
-            }
-            $stateCond .= "2";
-        }
-        $stateCond .= ")";
-
-        return $stateCond;
-    }
-
-    return null;
-}
-
-/**
- * Gets the Not Author condition to put into the main ticket query.
- * Warning: excludes unresolved tickets
- */
-function getResolvedByNonAuthorCondition(int $ticketFilters): string
-{
-    $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonAuthor);
-
-    if ($notAuthorTickets) {
-        return "AND ua2.User IS NOT NULL AND ua2.User <> ach.Author";
-    }
-
-    return "";
-}
-
-/**
- * Gets the Not Reporter condition to put into the main ticket query.
- * Warning: excludes unresolved tickets
- */
-function getResolvedByNonReporterCondition(int $ticketFilters): string
-{
-    $notAuthorTickets = ($ticketFilters & TicketFilters::ResolvedByNonReporter);
-
-    if ($notAuthorTickets) {
-        return "AND ua.User IS NOT NULL AND ua.User <> ua2.User";
-    }
-
-    return "";
-}
-
-/**
- * Gets the Progression condition to put into the main ticket query.
- */
-function getProgressionCondition(int $ticketFilters): string
-{
-    $progressionOnly = ($ticketFilters & TicketFilters::ProgressionOnly);
-
-    if ($progressionOnly) {
-        return "AND ach.type IS NOT NULL";
-    }
-
-    return "";
-}
-
-/**
- * Gets the ticket emulator condition to put into the main ticket query.
- */
-function getEmulatorCondition(int $ticketFilters): string
-{
-    $parts = [];
-
-    if ($ticketFilters & TicketFilters::EmulatorRA) {
-        $parts[] = "tick.ReportNotes Like '%Emulator: RA%' ";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorRetroArchCoreSpecified) {
-        $parts[] = "tick.ReportNotes LIKE '%Emulator: RetroArch (_%)%' ";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorRetroArchCoreNotSpecified) {
-        $parts[] = "tick.ReportNotes LIKE '%Emulator: RetroArch ()%'";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorOther) {
-        $parts[] = "(tick.ReportNotes LIKE '%Emulator: %' AND tick.ReportNotes NOT LIKE '%Emulator: RA%' AND tick.ReportNotes NOT LIKE '%Emulator: RetroArch%')";
-    }
-
-    if ($ticketFilters & TicketFilters::EmulatorUnknown) {
-        $parts[] = "tick.ReportNotes NOT LIKE '%Emulator: %'";
-    }
-
-    if (count($parts) == 0 || count($parts) == 5) {
-        /* no filters selected, or all filters selected. don't filter */
-        return '';
-    }
-
-    return ' AND (' . implode(' OR ', $parts) . ')';
-}
-
-/**
  * Gets the total number of tickets and ticket states for a specific user.
  */
-function getTicketsForUser(string $user): array
+function getTicketsForUser(User $user): array
 {
-    $retVal = [];
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = :username AND a.Flags = " . AchievementFlag::OfficialCore . "
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore . "
               GROUP BY t.AchievementID, ReportState
               ORDER BY t.AchievementID";
 
-    return legacyDbFetchAll($query, ['username' => $user])->toArray();
+    return legacyDbFetchAll($query, ['userId' => $user->id])->toArray();
 }
 
 /**
  * Gets the user developed game with the most amount of tickets.
  */
-function getUserGameWithMostTickets(string $user): ?array
+function getUserGameWithMostTickets(User $user): ?array
 {
-    sanitize_sql_inputs($user);
-
     $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE a.Author = '$user'
-              AND a.Flags = '3'
+              WHERE ach.user_id = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY gd.Title
               ORDER BY TicketCount DESC
@@ -885,19 +429,17 @@ function getUserGameWithMostTickets(string $user): ?array
 /**
  * Gets the user developed achievement with the most amount of tickets.
  */
-function getUserAchievementWithMostTickets(string $user): ?array
+function getUserAchievementWithMostTickets(User $user): ?array
 {
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT a.ID, a.Title, a.Description, a.Points, a.BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
+    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE a.Author = '$user'
-              AND a.Flags = '3'
+              WHERE ach.user_id = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               AND t.ReportState != " . TicketState::Closed . "
-              GROUP BY a.ID
+              GROUP BY ach.ID
               ORDER BY TicketCount DESC
               LIMIT 1";
 
@@ -912,15 +454,13 @@ function getUserAchievementWithMostTickets(string $user): ?array
 /**
  * Gets the user who created the most tickets for another user.
  */
-function getUserWhoCreatedMostTickets(string $user): ?array
+function getUserWhoCreatedMostTickets(User $user): ?array
 {
-    sanitize_sql_inputs($user);
-
     $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = '$user'
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              WHERE ach.user_id = {$user->id}
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY t.reporter_id
               ORDER BY TicketCount DESC
@@ -937,24 +477,23 @@ function getUserWhoCreatedMostTickets(string $user): ?array
 /**
  * Gets the number of tickets closed/resolved for other users.
  */
-function getNumberOfTicketsClosedForOthers(string $user): array
+function getNumberOfTicketsClosedForOthers(User $user): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [];
-    $query = "SELECT a.Author, COUNT(a.Author) AS TicketCount,
+    $query = "SELECT ua3.User AS Author, COUNT(ach.user_id) AS TicketCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN UserAccounts as ua3 ON ua3.ID = ach.user_id
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
-              AND ua.User NOT LIKE '$user'
-              AND a.Author NOT LIKE '$user'
-              AND ua2.User LIKE '$user'
-              AND a.Flags = '3'
-              GROUP BY a.Author
+              AND ua.ID != {$user->id}
+              AND ach.user_id != {$user->id}
+              AND ua2.ID = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
+              GROUP BY ach.user_id
               ORDER BY TicketCount DESC, Author";
 
     $dbResult = s_mysql_query($query);
@@ -970,22 +509,19 @@ function getNumberOfTicketsClosedForOthers(string $user): array
 /**
  * Gets the number of tickets closed/resolved for achievements written by the user.
  */
-function getNumberOfTicketsClosed(string $user): array
+function getNumberOfTicketsClosed(User $user): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [];
     $query = "SELECT ua2.User AS ResolvedByUser, COUNT(ua2.User) AS TicketCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
-              AND ua.User NOT LIKE '$user'
-              AND a.Author LIKE '$user'
-              AND a.Flags = '3'
+              AND t.reporter_id != {$user->id}
+              AND ach.user_id = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               GROUP BY ResolvedByUser
               ORDER BY TicketCount DESC, ResolvedByUser";
 

@@ -2,7 +2,10 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Leaderboard;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Services\TriggerDecoderService;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -18,37 +21,34 @@ $offset = requestInputSanitized('o', 0, 'integer');
 $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
+$leaderboard = Leaderboard::find($lbID);
 $lbData = GetLeaderboardData($lbID, $user, $count, $offset);
 
-if (empty($lbData['LBID'] ?? null)) {
+if (!$leaderboard) {
     abort(404);
 }
 
 $numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
+$lbTitle = $leaderboard->title;
+$lbDescription = $leaderboard->description;
+$lbFormat = $leaderboard->format;
+$lbAuthor = $leaderboard?->authorUser?->User;
+$lbCreated = $leaderboard->created_at;
+$lbUpdated = $leaderboard->updated_at;
+$lbMemory = $leaderboard->Mem;
 
-$lbTitle = $lbData['LBTitle'];
-$lbDescription = $lbData['LBDesc'];
-$lbFormat = $lbData['LBFormat'];
-$lbAuthor = $lbData['LBAuthor'];
-$lbCreated = $lbData['LBCreated'];
-$lbUpdated = $lbData['LBUpdated'];
-
-$gameID = $lbData['GameID'];
-$gameTitle = $lbData['GameTitle'];
-$gameIcon = $lbData['GameIcon'];
-
-$sortDesc = $lbData['LowerIsBetter'];
-$lbMemory = $lbData['LBMem'];
-
-$consoleID = $lbData['ConsoleID'];
-$consoleName = $lbData['ConsoleName'];
-$forumTopicID = $lbData['ForumTopicID'];
+$gameID = $leaderboard->game->id;
+$gameTitle = $leaderboard->game->title;
+$gameIcon = $leaderboard->game->ImageIcon;
+$consoleID = $leaderboard->game->system->id;
+$consoleName = $leaderboard->game->system->name;
+$forumTopicID = $leaderboard->game->ForumTopicID;
 
 $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
-$numLeaderboards = getLeaderboardsForGame($gameID, $allGameLBData, $user);
 $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, $commentData);
 ?>
+
 <x-app-layout
     :pageTitle="$pageTitle"
     pageDescription="{{ $lbDescription ?? $lbTitle }}, {{ $numEntries }} entries."
@@ -56,23 +56,22 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
     pageType="retroachievements:leaderboard"
 >
     <div id="lbinfo">
-        <?php
-        echo "<div class='navpath'>";
-        echo renderGameBreadcrumb($lbData);
-        echo " &raquo; <b>$lbTitle</b>";
-        echo "</div>";
-        ?>
-            <x-game.heading
-                :consoleId="$consoleID"
-                :consoleName="$consoleName"
-                :gameTitle="$gameTitle"
-            />
+        <x-game.breadcrumbs
+            :game="$leaderboard->game"
+            :currentPageLabel="$lbTitle"
+        />
+
+        <x-game.heading
+            :consoleId="$consoleID"
+            :consoleName="$consoleName"
+            :gameTitle="$gameTitle"
+        />
         <?php
         echo "<table class='nicebox'><tbody>";
 
         echo "<tr>";
         echo "<td style='width:70px' class='p-0'>";
-        echo gameAvatar($lbData, label: false, iconSize: 96);
+        echo gameAvatar($leaderboard->game->toArray(), label: false, iconSize: 96);
         echo "</td>";
 
         echo "<td class='px-3'>";
@@ -93,7 +92,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "<p class='embedded smalldata my-2'>";
         echo "<small>";
         if (is_null($lbAuthor)) {
-            echo "Created by Unknown on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
+            echo "Created on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         } else {
             echo "Created by " . userAvatar($lbAuthor, icon: false) . " on: $niceDateCreated<br>Last modified: $niceDateModified<br>";
         }
@@ -101,9 +100,9 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "</p>";
 
         if (isset($user) && $permissions >= Permissions::JuniorDeveloper) {
-            echo "<div class='devbox'>";
-            echo "<span onclick=\"$('#devboxcontent').toggle(); return false;\">Dev ▼</span>";
-            echo "<div id='devboxcontent' style='display: none'>";
+            echo "<div>";
+            echo "<button class='btn' id='devboxbutton' onclick=\"toggleExpander('devboxbutton', 'devboxcontent');\">Dev ▼</button>";
+            echo "<div id='devboxcontent' class='hidden devboxcontainer'>";
 
             echo "<ul>";
             echo "<a href='/leaderboardList.php?g=$gameID'>Leaderboard Management for $gameTitle</a>";
@@ -120,6 +119,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 echo "<option selected>-</option>";
                 foreach ($lbData['Entries'] as $nextLBEntry) {
                     // Display all entries for devs, display only own entry for jr. devs
+                    // TODO use a policy
                     if (($user == $nextLBEntry['User'] && $permissions == Permissions::JuniorDeveloper) || $permissions >= Permissions::Developer) {
                         $nextUser = $nextLBEntry['User'];
                         $nextScore = $nextLBEntry['Score'];
@@ -157,23 +157,35 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
                 }
             }
 
-            getCodeNotes($gameID, $codeNotes);
-            ExplainLeaderboardTrigger('Start', $memStart, $codeNotes);
-            ExplainLeaderboardTrigger('Cancel', $memCancel, $codeNotes);
-            ExplainLeaderboardTrigger('Submit', $memSubmit, $codeNotes);
-            ExplainLeaderboardTrigger('Value', $memValue, $codeNotes);
+            $triggerDecoderService = new TriggerDecoderService();
+
+            $groups = $triggerDecoderService->decode($memStart);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memStart, 'header' => 'Start']
+            );
+
+            $groups = $triggerDecoderService->decode($memCancel);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memCancel, 'header' => 'Cancel']
+            );
+
+            $groups = $triggerDecoderService->decode($memSubmit);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memSubmit, 'header' => 'Submit']
+            );
+
+            $groups = $triggerDecoderService->decodeValue($memValue);
+            $triggerDecoderService->addCodeNotes($groups, $gameID);
+            echo Blade::render("<x-leaderboard.trigger-part :groups=\"\$groups\" :definition=\"\$definition\" :header=\"\$header\" />",
+                ['groups' => $groups, 'definition' => $memValue, 'header' => 'Value']
+            );
 
             echo "</div>";
             echo "</div>";
         }
-
-        // Not implemented
-        // if( $friendsOnly )
-        //    echo "<b>Friends Only</b> - <a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=0'>Show All Results</a><br><br>";
-        // else
-        //    echo "<a href='leaderboardinfo.php?i=$lbID&amp;c=$count&amp;f=1'>Show Friends Only</a> - <b>All Results</b><br><br>";
-
-        echo "<div class='larger'>$lbTitle: $lbDescription</div>";
 
         echo "<table class='table-highlight'><tbody>";
         echo "<tr class='do-not-highlight'><th>Rank</th><th>User</th><th class='text-right'>Result</th><th class='text-right'>Date Submitted</th></tr>";
@@ -183,10 +195,7 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         $resultsDrawn = 0;
         $nextRank = 1;
 
-        // for( $i = 0; $i < $numEntries; $i++ )
         foreach ($lbData['Entries'] as $nextEntry) {
-            // $nextEntry = $lbData[$i];
-
             $nextUser = $nextEntry['User'];
             $nextScore = $nextEntry['Score'];
             $nextRank = $nextEntry['Rank'];
@@ -197,8 +206,6 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
             $isLocal = (strcmp($nextUser, $user) == 0);
             $lastEntry = ($resultsDrawn + 1 == $numEntries);
             $userAppendedInResults = ($numEntries > $count);
-
-            // echo "$isLocal, $lastEntry, $userAppendedInResults ($numEntries, $count)<br>";
 
             if ($lastEntry && $isLocal && $userAppendedInResults) {
                 // This is the local, outside-rank user at the end of the table
@@ -244,8 +251,6 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
             echo "<a class='btn btn-link' href='/leaderboardinfo.php?i=$lbID&amp;o=$prevOffset&amp;c=$count&amp;f=$friendsOnly'>&lt; Previous $count</a> - ";
         }
 
-        // echo "$numActualEntries";
-
         if ($numActualEntries == $count) {
             // Max number fetched, i.e. there are more. Can goto next 20.
             $nextOffset = $offset + $count;
@@ -267,9 +272,8 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "<br><br>";
         ?>
     </div>
+
     <x-slot name="sidebar">
-        <?php
-        RenderGameLeaderboardsComponent($allGameLBData, null);
-        ?>
+        <x-game.leaderboards-listing :game="$leaderboard->game" />
     </x-slot>
 </x-app-layout>

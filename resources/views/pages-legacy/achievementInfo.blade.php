@@ -4,13 +4,17 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Game;
 use App\Models\PlayerAchievement;
+use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
+use App\Platform\Services\TriggerDecoderService;
 use App\Support\Shortcode\Shortcode;
+use Illuminate\Support\Facades\Blade;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -52,7 +56,8 @@ $achievementTitleRaw = $dataOut['AchievementTitle'];
 $achievementDescriptionRaw = $dataOut['Description'];
 $gameTitleRaw = $dataOut['GameTitle'];
 
-$parentGame = getParentGameFromGameTitle($gameTitle, $consoleID);
+$game = Game::find($dataOut['GameID']);
+$parentGame = $game->getParentGame() ?? null;
 
 sanitize_outputs(
     $achievementTitle,
@@ -61,8 +66,6 @@ sanitize_outputs(
     $consoleName,
     $author
 );
-
-$numLeaderboards = getLeaderboardsForGame($gameID, $lbData, $user);
 
 $numWinners = 0;
 $numWinnersHardcore = 0;
@@ -123,8 +126,6 @@ if ($dateWonLocal === "" && isset($user)) {
 $achievedLocal = ($dateWonLocal !== "");
 
 $numArticleComments = getRecentArticleComments(ArticleType::Achievement, $achievementID, $commentData);
-
-getCodeNotes($gameID, $codeNotes);
 ?>
 <x-app-layout
     pageTitle="{!! $achievementTitleRaw !!} in {!! $gameTitleRaw !!} ({{ $consoleName }})"
@@ -249,16 +250,16 @@ getCodeNotes($gameID, $codeNotes);
     echo "</small>";
     echo "</p>";
 
-    if (isset($user) && $permissions >= Permissions::Registered) {
+    if (isset($user) && $permissions >= Permissions::Registered && System::isGameSystem($consoleID)) {
         $countTickets = countOpenTicketsByAchievement($achievementID);
         echo "<div class='flex justify-between mb-2'>";
         if ($countTickets > 0) {
-            echo "<a href='/ticketmanager.php?a=$achievementID'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
+            echo "<a href='" . route('achievement.tickets', ['achievement' => $achievementID]) ."'>$countTickets open " . mb_strtolower(__res('ticket', $countTickets)) . "</a>";
         } else {
             echo "<i>No open tickets</i>";
         }
         if ($userModel?->can('create', Ticket::class)) {
-            echo "<a class='btn btn-link' href='/reportissue.php?i=$achievementID'>Report an issue</a>";
+            echo "<a class='btn btn-link' href='" . route('achievement.report-issue', ['achievement' => $achievementID]) ."'>Report an issue</a>";
         }
         echo "</div>";
     }
@@ -396,7 +397,15 @@ getCodeNotes($gameID, $codeNotes);
 
         echo "<code>" . htmlspecialchars($achMem) . "</code>";
         echo "<li>Mem explained:</li>";
-        echo "<code>" . getAchievementPatchReadableHTML($achMem, $codeNotes) . "</code>";
+
+        $triggerDecoderService = new TriggerDecoderService();
+        $groups = $triggerDecoderService->decode($achMem);
+        $triggerDecoderService->addCodeNotes($groups, $gameID);
+
+        echo Blade::render("<x-trigger.viewer :groups=\"\$groups\" />",
+            ['groups' => $groups]
+        );
+
         echo "</div>";
 
         echo "</div>"; // devboxcontent
@@ -457,12 +466,6 @@ getCodeNotes($gameID, $codeNotes);
     ?>
     </div>
     <x-slot name="sidebar">
-        <?php
-        if ($user !== null) {
-            // FIXME: https://discord.com/channels/476211979464343552/1026595325038833725/1162746245996093450
-            // RenderPointsRankingComponent($user, true);
-        }
-        RenderGameLeaderboardsComponent($lbData, null);
-        ?>
+        <x-game.leaderboards-listing :game="$game" />
     </x-slot>
 </x-app-layout>
