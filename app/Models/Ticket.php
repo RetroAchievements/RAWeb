@@ -92,7 +92,7 @@ class Ticket extends BaseModel
      */
     public function reporter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reporter_id', 'ID');
+        return $this->belongsTo(User::class, 'reporter_id', 'ID')->withTrashed();
     }
 
     /**
@@ -100,7 +100,7 @@ class Ticket extends BaseModel
      */
     public function resolver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'resolver_id', 'ID');
+        return $this->belongsTo(User::class, 'resolver_id', 'ID')->withTrashed();
     }
 
     // == scopes
