@@ -72,7 +72,12 @@ if (!$isPreview) {
                         @endif
 
                         @can('update', $forumTopicComment)
-                            <a href='/editpost.php?comment={{ $forumTopicComment->id }}' class='btn p-1 lg:text-xs'>Edit</a>
+                            <a
+                                href="{{ route('forum.post.edit', ['forumTopicComment' => $forumTopicComment]) }}"
+                                class='btn p-1 lg:text-xs'
+                            >
+                                Edit
+                            </a>
                         @endcan
 
                         <x-forum.post-copy-comment-link-button

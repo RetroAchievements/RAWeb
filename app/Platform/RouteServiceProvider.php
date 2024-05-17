@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Platform;
 
-use App\Community\Controllers\TicketController;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
-use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerGameController;
-use App\Platform\Controllers\SuggestGameController;
 use App\Platform\Controllers\SystemController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -52,26 +49,19 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::get('system/{system}{slug?}', [SystemController::class, 'show'])->name('system.show');
             // Route::resource('systems', SystemController::class)->only('index')->names(['index' => 'system.index']);
-            Route::get('system/{system}/games', [SystemController::class, 'games'])
-                ->name('system.game.index');
             /*
              * Note: not allowing to filter achievements on the system level for now
              * stick to games for now
              */
             // Route::get('system/{system}{slug?}/achievements', [SystemController::class, 'achievements'])
             //     ->name('system.achievement.index');
-            Route::get('achievement/{achievement}/tickets', [TicketController::class, 'indexForAchievement'])->name('achievement.tickets');
 
             // Route::get('game/{game}{slug?}', [GameController::class, 'show'])->name('game.show');
             // Route::resource('games', GameController::class)->only('index')->names(['index' => 'game.index']);
             // Route::get('games/popular', [GameController::class, 'popular'])->name('games.popular');
-            Route::get('games/suggest', SuggestGameController::class)->name('games.suggest');
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
-            Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
-            Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest');
-            Route::get('game/{game}/tickets', [TicketController::class, 'indexForGame'])->name('game.tickets');
 
             Route::get('achievement/{achievement}/tickets/create', [AchievementController::class, 'createTicket'])->name('achievement.create-ticket');
             Route::get('achievement/{achievement}/report-issue', [AchievementController::class, 'reportIssue'])->name('achievement.report-issue');
@@ -85,9 +75,6 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
-            Route::get('user/{user}/tickets', [TicketController::class, 'indexForDeveloper'])->name('developer.tickets');
-            Route::get('user/{user}/tickets/feedback', [TicketController::class, 'indexForReporterFeedback'])->name('reporter.tickets');
-            Route::get('user/{user}/tickets/resolved-for-others', [TicketController::class, 'indexForDeveloperResolvedForOthers'])->name('developer.tickets.resolved-for-others');
 
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);

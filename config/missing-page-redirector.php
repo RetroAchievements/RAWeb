@@ -108,7 +108,7 @@ return [
         /*
          * forums
          */
-        '/forum.php' => '/forums/category/{c}',
+        '/forum.php' => '/forums/category/{c}', // TODO what if no category is specified?
         '/forumposthistory.php' => [
             'u' => '/user/{u}/posts',
             '' => '/forums/posts',
@@ -118,7 +118,7 @@ return [
         '/forum/viewtopic.php' => '/forums/topic/{t}',
 
         '/createtopic.php' => '/forums/forum/{f}/topic/create',
-        '/editpost.php' => '/forums/post/{c}/edit',
+        '/editpost.php' => '/forums/post/{comment}/edit',
 
         /*
          * redirects (external)
