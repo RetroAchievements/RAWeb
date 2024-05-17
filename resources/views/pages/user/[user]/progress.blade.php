@@ -1,38 +1,50 @@
 <?php
 
 use App\Models\User;
-use function Laravel\Folio\{name};
+use App\Platform\Services\PlayerCompletionProgressPageService;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{name, middleware, render};
 
 name('user.completion-progress');
+middleware('can:view,user');
+
+render(function (View $view, User $user, PlayerCompletionProgressPageService $pageService) {
+    return $view->with($pageService->buildViewData(request(), $user));
+});
 
 ?>
 
-@php
-$targetUsername = $user->User;
-$isMe = $me?->User === $targetUsername;
-
-$headingLabel = '';
-if ($isMe) {
-    $headingLabel = 'Your Completion Progress';
-} elseif (substr($targetUsername, -1) === 's') {
-    $headingLabel = $targetUsername . "' Completion Progress";
-} else {
-    $headingLabel = $targetUsername . "'s Completion Progress";
-}
-
-$pageDescription = "View {$targetUsername}'s game completion stats and milestones on RetroAchievements. Track their played, unfinished, and mastered games from various systems.";
-@endphp
+@props([
+    'allAvailableConsoleIds' => [],
+    'completedGamesList' => [],
+    'currentPage' => 1,
+    'isFiltering' => false,
+    'isMe' => false,
+    'me' => null, // ?User
+    'milestones' => [],
+    'primaryCountsMetrics' => [],
+    'selectedConsoleId' => 0,
+    'selectedSortOrder' => 'unlock_date',
+    'selectedStatus' => null, // ?string
+    'seo' => [],
+    'siteAwards' => [],
+    'targetUsername' => '',
+    'totalInList' => 0,
+    'totalPages' => 1,
+    'user' => null, // User
+])
 
 <x-app-layout
-    :pageTitle="$headingLabel"
-    :pageDescription="$pageDescription"
+    :pageTitle="$seo['pageTitle']"
+    :pageDescription="$seo['pageDescription']"
 >
     <div>
         <x-user.breadcrumbs :targetUsername="$targetUsername" currentPage="Completion Progress" />
 
         <div class="mt-3 -mb-3 w-full flex gap-x-3">
             {!! userAvatar($targetUsername, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-            <h1 class="mt-[10px] w-full">{{ $headingLabel }}</h1>
+            <h1 class="mt-[10px] w-full">{{ $seo['pageTitle'] }}</h1>
         </div>
 
         <x-completion-progress-page.meta-panel
@@ -68,7 +80,7 @@ $pageDescription = "View {$targetUsername}'s game completion stats and milestone
             @endif
 
             @if ($isFiltering || $selectedSortOrder !== 'unlock_date')
-                <a href="{{ route('user.completion-progress', $targetUsername) }}" class="btn flex items-center gap-x-0.5 transition lg:active:scale-95">
+                <a href="{{ route('user.completion-progress', ['user' => $targetUsername]) }}" class="btn flex items-center gap-x-0.5 transition lg:active:scale-95">
                     <x-fas-undo />
                     <span>Reset filters/sort</span>
                 </a>

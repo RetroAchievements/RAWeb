@@ -125,7 +125,7 @@ function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, 
     $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
 
     $emailHeader = "Bug Report ($gameTitle)";
-    $ticketUrl = route('ticket.show', $ticketID);
+    $ticketUrl = route('ticket.show', ['ticket' => $ticketID]);
     $bugReportDetails = "
 Achievement: $achTitle
 Game: $gameTitle
@@ -179,7 +179,7 @@ function getExistingTicketID(User $user, int $achievementID): int
 function getTicket(int $ticketID): ?array
 {
     $query = "SELECT tick.ID, tick.AchievementID, ach.Title AS AchievementTitle, ach.Description AS AchievementDesc, ach.type AS AchievementType, ach.Points, ach.BadgeName,
-                ach.Author AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
+                ua3.User AS AchievementAuthor, ach.GameID, c.Name AS ConsoleName, gd.Title AS GameTitle, gd.ImageIcon AS GameIcon,
                 tick.ReportedAt, tick.ReportType, tick.ReportState, tick.Hardcore, tick.ReportNotes, ua.User AS ReportedBy, tick.ResolvedAt, ua2.User AS ResolvedBy
               FROM Ticket AS tick
               LEFT JOIN Achievements AS ach ON ach.ID = tick.AchievementID
@@ -187,6 +187,7 @@ function getTicket(int $ticketID): ?array
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
               LEFT JOIN UserAccounts AS ua ON ua.ID = tick.reporter_id
               LEFT JOIN UserAccounts AS ua2 ON ua2.ID = tick.resolver_id
+              LEFT JOIN UserAccounts AS ua3 ON ua3.ID = ach.user_id
               WHERE tick.ID = $ticketID
               ";
 
@@ -275,7 +276,7 @@ function updateTicket(string $user, int $ticketID, int $ticketVal, ?string $reas
         "The ticket you opened for the above achievement had its status changed to \"$status\" by \"$user\".<br>" .
         "<br>Comment: $comment" .
         "<br>" .
-        "Click <a href='" . route('ticket.show', $ticketID) . "'>here</a> to view the ticket" .
+        "Click <a href='" . route('ticket.show', ['ticket' => $ticketID]) . "'>here</a> to view the ticket" .
         "<br>" .
         "Thank-you again for your help in improving the quality of the achievements on RA!<br>" .
         "<br>" .
@@ -388,33 +389,30 @@ function gamesSortedByOpenTickets(int $count): array
 /**
  * Gets the total number of tickets and ticket states for a specific user.
  */
-function getTicketsForUser(string $user): array
+function getTicketsForUser(User $user): array
 {
-    $retVal = [];
     $query = "SELECT t.AchievementID, ReportState, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = :username AND a.Flags = " . AchievementFlag::OfficialCore . "
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              WHERE ach.user_id = :userId AND ach.Flags = " . AchievementFlag::OfficialCore . "
               GROUP BY t.AchievementID, ReportState
               ORDER BY t.AchievementID";
 
-    return legacyDbFetchAll($query, ['username' => $user])->toArray();
+    return legacyDbFetchAll($query, ['userId' => $user->id])->toArray();
 }
 
 /**
  * Gets the user developed game with the most amount of tickets.
  */
-function getUserGameWithMostTickets(string $user): ?array
+function getUserGameWithMostTickets(User $user): ?array
 {
-    sanitize_sql_inputs($user);
-
     $query = "SELECT gd.ID as GameID, gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE a.Author = '$user'
-              AND a.Flags = '3'
+              WHERE ach.user_id = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY gd.Title
               ORDER BY TicketCount DESC
@@ -431,19 +429,17 @@ function getUserGameWithMostTickets(string $user): ?array
 /**
  * Gets the user developed achievement with the most amount of tickets.
  */
-function getUserAchievementWithMostTickets(string $user): ?array
+function getUserAchievementWithMostTickets(User $user): ?array
 {
-    sanitize_sql_inputs($user);
-
-    $query = "SELECT a.ID, a.Title, a.Description, a.Points, a.BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
+    $query = "SELECT ach.ID, ach.Title, ach.Description, ach.Points, ach.BadgeName, gd.Title AS GameTitle, COUNT(*) as TicketCount
               FROM Ticket AS t
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              LEFT JOIN GameData AS gd ON gd.ID = a.GameID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN GameData AS gd ON gd.ID = ach.GameID
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE a.Author = '$user'
-              AND a.Flags = '3'
+              WHERE ach.user_id = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               AND t.ReportState != " . TicketState::Closed . "
-              GROUP BY a.ID
+              GROUP BY ach.ID
               ORDER BY TicketCount DESC
               LIMIT 1";
 
@@ -458,15 +454,13 @@ function getUserAchievementWithMostTickets(string $user): ?array
 /**
  * Gets the user who created the most tickets for another user.
  */
-function getUserWhoCreatedMostTickets(string $user): ?array
+function getUserWhoCreatedMostTickets(User $user): ?array
 {
-    sanitize_sql_inputs($user);
-
     $query = "SELECT ua.User as TicketCreator, COUNT(*) as TicketCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
-              WHERE a.Author = '$user'
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              WHERE ach.user_id = {$user->id}
               AND t.ReportState != " . TicketState::Closed . "
               GROUP BY t.reporter_id
               ORDER BY TicketCount DESC
@@ -483,24 +477,23 @@ function getUserWhoCreatedMostTickets(string $user): ?array
 /**
  * Gets the number of tickets closed/resolved for other users.
  */
-function getNumberOfTicketsClosedForOthers(string $user): array
+function getNumberOfTicketsClosedForOthers(User $user): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [];
-    $query = "SELECT a.Author, COUNT(a.Author) AS TicketCount,
+    $query = "SELECT ua3.User AS Author, COUNT(ach.user_id) AS TicketCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
               LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
+              LEFT JOIN UserAccounts as ua3 ON ua3.ID = ach.user_id
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
-              AND ua.User NOT LIKE '$user'
-              AND a.Author NOT LIKE '$user'
-              AND ua2.User LIKE '$user'
-              AND a.Flags = '3'
-              GROUP BY a.Author
+              AND ua.ID != {$user->id}
+              AND ach.user_id != {$user->id}
+              AND ua2.ID = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
+              GROUP BY ach.user_id
               ORDER BY TicketCount DESC, Author";
 
     $dbResult = s_mysql_query($query);
@@ -516,22 +509,19 @@ function getNumberOfTicketsClosedForOthers(string $user): array
 /**
  * Gets the number of tickets closed/resolved for achievements written by the user.
  */
-function getNumberOfTicketsClosed(string $user): array
+function getNumberOfTicketsClosed(User $user): array
 {
-    sanitize_sql_inputs($user);
-
     $retVal = [];
     $query = "SELECT ua2.User AS ResolvedByUser, COUNT(ua2.User) AS TicketCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Closed . " THEN 1 ELSE 0 END) AS ClosedCount,
               SUM(CASE WHEN t.ReportState = " . TicketState::Resolved . " THEN 1 ELSE 0 END) AS ResolvedCount
               FROM Ticket AS t
-              LEFT JOIN UserAccounts as ua ON ua.ID = t.reporter_id
               LEFT JOIN UserAccounts as ua2 ON ua2.ID = t.resolver_id
-              LEFT JOIN Achievements as a ON a.ID = t.AchievementID
+              LEFT JOIN Achievements as ach ON ach.ID = t.AchievementID
               WHERE t.ReportState IN (" . TicketState::Closed . "," . TicketState::Resolved . ")
-              AND ua.User NOT LIKE '$user'
-              AND a.Author LIKE '$user'
-              AND a.Flags = '3'
+              AND t.reporter_id != {$user->id}
+              AND ach.user_id = {$user->id}
+              AND ach.Flags = " . AchievementFlag::OfficialCore . "
               GROUP BY ResolvedByUser
               ORDER BY TicketCount DESC, ResolvedByUser";
 

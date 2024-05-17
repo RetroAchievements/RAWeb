@@ -1,16 +1,37 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\Game;
+use App\Models\Ticket;
+use App\Platform\Services\TicketListService;
+use Illuminate\View\View;
 
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('game.tickets');
+
+render(function (View $view, Game $game, TicketListService $ticketListService) {
+    $selectFilters = $ticketListService->getSelectFilters();
+    $filterOptions = $ticketListService->getFilterOptions(request());
+    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forGame($game));
+
+    return $view->with([
+        'game' => $game,
+        'tickets' => $tickets,
+        'availableSelectFilters' => $selectFilters,
+        'filterOptions' => $filterOptions,
+        'totalTickets' => $ticketListService->totalTickets,
+        'numFilteredTickets' => $ticketListService->numFilteredTickets,
+    ]);
+});
 
 ?>
 
 @props([
     'game' => null, // Game
+    'tickets' => null, // Collection<int, Ticket>
     'availableSelectFilters' => [],
     'filterOptions' => [],
-    'tickets' => [], // Collection<Ticket>
     'totalTickets' => 0,
     'numFilteredTickets' => 0,
 ])
@@ -35,5 +56,6 @@ name('game.tickets');
         :tickets="$tickets"
         :totalTickets="$totalTickets"
         :numFilteredTickets="$numFilteredTickets"
+        showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
     />
 </x-app-layout>

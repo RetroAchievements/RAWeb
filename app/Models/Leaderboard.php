@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\LeaderboardFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -162,5 +163,16 @@ class Leaderboard extends BaseModel
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class, 'GameID', 'ID');
+    }
+
+    // == scopes
+
+    /**
+     * @param Builder<Leaderboard> $query
+     * @return Builder<Leaderboard>
+     */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->where('DisplayOrder', '>=', 0);
     }
 }

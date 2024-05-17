@@ -42,17 +42,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = '0123456789abcdeffedcba9876543210';
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);
@@ -195,17 +195,17 @@ class AwardAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
         $gameHash = '0123456789abcdeffedcba9876543210';
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement4 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement5 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement6 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);
@@ -359,17 +359,17 @@ class AwardAchievementTest extends TestCase
         $delegatedUser->save();
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement1 = Achievement::factory()->published()->create(['ID' => 1, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement2 = Achievement::factory()->published()->create(['ID' => 2, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement3 = Achievement::factory()->published()->create(['ID' => 3, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->ID]);
+        $achievement4 = Achievement::factory()->published()->create(['ID' => 4, 'GameID' => $gameOne->ID, 'Author' => 'Some Person', 'user_id' => 9999999]);
         /** @var Achievement $achievement5 */
-        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement5 = Achievement::factory()->published()->create(['ID' => 5, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User, 'user_id' => $integrationUser->id]);
         /** @var Achievement $achievement6 */
-        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User]);
+        $achievement6 = Achievement::factory()->published()->create(['ID' => 6, 'GameID' => $gameOne->ID, 'Author' => $integrationUser->User, 'user_id' => $integrationUser->id]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($delegatedUser, $achievement1, $unlock1Date);
@@ -454,7 +454,7 @@ class AwardAchievementTest extends TestCase
         /** @var Game $gameTwo */
         $gameTwo = Game::factory()->create(['ConsoleID' => $normalSystem->ID]);
 
-        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id, 'Author' => $integrationUser->User]);
+        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameTwo->id, 'Author' => $integrationUser->User, 'user_id' => $integrationUser->id]);
 
         $params['a'] = $achievements->get(0)->id;
 
@@ -534,13 +534,13 @@ class AwardAchievementTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         $gameHash = '0123456789abcdeffedcba9876543210';
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
         /** @var Achievement $achievement4 */
-        $achievement4 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement4 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($this->user, $achievement1, $unlock1Date);

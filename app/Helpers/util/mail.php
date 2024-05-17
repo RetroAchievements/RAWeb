@@ -250,7 +250,7 @@ function informAllSubscribersAboutActivity(
             $subscribers = getSubscribersOfTicket($articleID, $ticketData['ReportedBy'], $ticketData['GameID']);
             $subjectAuthor = $ticketData['ReportedBy'];
             $articleTitle = $ticketData['AchievementTitle'] . ' (' . $ticketData['GameTitle'] . ')';
-            $urlTarget = route('ticket.show', $articleID);
+            $urlTarget = route('ticket.show', ['ticket' => $articleID]);
             break;
 
         default:
@@ -287,7 +287,10 @@ function sendActivityEmail(
         return false;
     }
 
-    $link = "<a href='" . config('app.url') . "/$urlTarget'>here</a>";
+    if (!str_starts_with($urlTarget, "http")) {
+        $urlTarget = config('app.url') . "/$urlTarget";
+    }
+    $link = "<a href='$urlTarget'>here</a>";
 
     switch ($articleType) {
         case ArticleType::Game:

@@ -5,6 +5,7 @@
     'offset' => 0,
     'currentPage' => 0,
     'totalPages' => 0,
+    'showResolver' => false,
 ])
 
 @php
@@ -47,6 +48,9 @@ $gameCache = [];
                         <th>Developer</th>
                         <th>Reporter</th>
                         <th>Reported At</th>
+                        @if ($showResolver)
+                            <th>Resolved By</th>
+                        @endif
                     </tr>
                 </thead>
 
@@ -54,7 +58,7 @@ $gameCache = [];
                     @foreach ($tickets as $ticket)
                         <tr>
                             <td class="text-right">
-                                <a href="{{ route('ticket.show', $ticket) }}">{{ $ticket->ID }}</a>
+                                <a href="{{ route('ticket.show', ['ticket' => $ticket]) }}">{{ $ticket->ID }}</a>
                             </td>
                             <td>{{ TicketState::toString($ticket->ReportState) }}</td>
                             <td>{!! achievementAvatar($ticket->achievement) !!}</td>
@@ -70,9 +74,12 @@ $gameCache = [];
                                     :consoleName="$game->system->Name"
                                 />
                             </td>
-                            <td>{!! userAvatar($ticket->achievement->author) !!}</td>
+                            <td>{!! userAvatar($ticket->achievement->developer) !!}</td>
                             <td>{!! userAvatar($ticket->reporter) !!}</td>
                             <td class="smalldate">{{ getNiceDate($ticket->ReportedAt->unix()) }}</td>
+                            @if ($showResolver)
+                                <td>{!! userAvatar($ticket->resolver) !!}</td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
