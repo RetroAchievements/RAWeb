@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use App\Models\GameHash;
-use App\Platform\Controllers\GameDevInterestController;
+use App\Platform\Controllers\AchievementController;
 use App\Platform\Controllers\GameHashController;
 use App\Platform\Controllers\PlayerGameController;
-use App\Platform\Controllers\SuggestGameController;
 use App\Platform\Controllers\SystemController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -62,12 +61,12 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}{slug?}', [GameController::class, 'show'])->name('game.show');
             // Route::resource('games', GameController::class)->only('index')->names(['index' => 'game.index']);
             // Route::get('games/popular', [GameController::class, 'popular'])->name('games.popular');
-            Route::get('games/suggest', SuggestGameController::class)->name('games.suggest');
             // Route::get('game/{game}/badges', [GameBadgeController::class, 'index'])->name('game.badge.index');
             // Route::get('game/{game}/assets', [GameAssetsController::class, 'index'])->name('game.asset.index');
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
-            Route::get('game/{game}/dev-interest', GameDevInterestController::class)->name('game.dev-interest');
-            Route::get('game/{game}/suggest', [SuggestGameController::class, 'forGame'])->name('game.suggest');
+
+            Route::get('achievement/{achievement}/tickets/create', [AchievementController::class, 'createTicket'])->name('achievement.create-ticket');
+            Route::get('achievement/{achievement}/report-issue', [AchievementController::class, 'reportIssue'])->name('achievement.report-issue');
 
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
