@@ -7,12 +7,10 @@ namespace App\Platform;
 use App\Community\Controllers\TicketController;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
-use App\Platform\Controllers\BeatenGamesLeaderboardController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
 use App\Platform\Controllers\GameHashController;
-use App\Platform\Controllers\PlayerCompletionProgressController;
 use App\Platform\Controllers\PlayerGameController;
 use App\Platform\Controllers\SuggestGameController;
 use App\Platform\Controllers\SystemController;
@@ -85,13 +83,10 @@ class RouteServiceProvider extends ServiceProvider
 
             // Route::resource('game-hashes', GameHashController::class)->only('index')->names(['index' => 'game-hash.index']);
 
-            Route::get('ranking/beaten-games', BeatenGamesLeaderboardController::class)->name('ranking.beaten-games');
-
             // Route::resource('leaderboards', LeaderboardController::class)->only('index')->names(['index' => 'leaderboard.index']);
             // Route::resource('leaderboard', LeaderboardController::class)->only('show');
 
             // Route::get('user/{user}/history', [PlayerHistoryController::class, 'show'])->name('user.history');
-            Route::get('user/{user}/progress', PlayerCompletionProgressController::class)->name('user.completion-progress');
             Route::get('user/{user}/developer/feed', DeveloperFeedController::class)->name('developer.feed');
             Route::get('user/{user}/developer/sets', DeveloperSetsController::class)->name('developer.sets');
             Route::get('user/{user}/tickets', [TicketController::class, 'indexForDeveloper'])->name('developer.tickets');

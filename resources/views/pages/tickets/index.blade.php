@@ -40,5 +40,6 @@ $openTicketCount = Ticket::unresolved()->count();
         :numFilteredTickets="$numFilteredTickets"
         :currentPage="$currentPage"
         :totalPages="$totalPages"
+        showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
     />
 </x-app-layout>

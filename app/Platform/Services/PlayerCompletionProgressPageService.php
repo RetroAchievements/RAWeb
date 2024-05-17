@@ -2,28 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Controllers;
+namespace App\Platform\Services;
 
 use App\Enums\Permissions;
-use App\Http\Controller;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Services\PlayerProgressionService;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class PlayerCompletionProgressController extends Controller
+class PlayerCompletionProgressPageService
 {
     private int $pageSize = 100;
 
-    public function __construct(protected PlayerProgressionService $playerProgressionService)
-    {
+    public function __construct(
+        protected PlayerProgressionService $playerProgressionService
+    ) {
     }
 
-    public function __invoke(Request $request): View
+    public function buildViewData(Request $request, User $foundTargetUser): array
     {
-        $targetUsername = $request->route()->parameters['user'];
+        $targetUsername = $foundTargetUser->username;
         $validatedData = $request->validate([
             'page.number' => 'sometimes|integer|min:1',
             'filter.system' => 'sometimes|integer|between:0,102|not_in:100',
@@ -38,7 +36,6 @@ class PlayerCompletionProgressController extends Controller
 
         $me = Auth::user() ?? null;
 
-        $foundTargetUser = User::firstWhere('User', $targetUsername);
         if (!$this->getCanViewTargetUser($foundTargetUser, $me)) {
             abort(404);
         }
@@ -97,22 +94,45 @@ class PlayerCompletionProgressController extends Controller
             $this->pageSize,
         );
 
-        return view('pages.user.[user].progress', [
+        $isMe = $me?->id === $foundTargetUser->id;
+
+        return [
             'allAvailableConsoleIds' => $allAvailableConsoleIds,
             'completedGamesList' => $paginatedGamesList,
             'currentPage' => $currentPage,
             'isFiltering' => $targetGameStatus || $targetSystemId,
+            'isMe' => $isMe,
             'me' => $me,
             'milestones' => $milestones,
             'primaryCountsMetrics' => $primaryCountsMetrics,
             'selectedConsoleId' => $targetSystemId,
             'selectedSortOrder' => $sortOrder,
             'selectedStatus' => $targetGameStatus,
+            'seo' => $this->buildPageSeoMeta($isMe, $foundTargetUser),
             'siteAwards' => $userSiteAwards,
+            'targetUsername' => $targetUsername,
             'totalInList' => $totalInList,
             'totalPages' => $totalPages,
             'user' => $foundTargetUser,
-        ]);
+        ];
+    }
+
+    private function buildPageSeoMeta(bool $isMe, User $targetUser): array
+    {
+        $pageTitle = '';
+
+        if ($isMe) {
+            $pageTitle = 'Your Completion Progress';
+        } else {
+            $pageTitle = "{$targetUser->display_name}'s Completion Progress";
+        }
+
+        $pageDescription = "View {$targetUser->display_name}'s game completion stats and milestones on RetroAchievements. Track their played, unfinished, and mastered games from various systems.";
+
+        return [
+            'pageTitle' => $pageTitle,
+            'pageDescription' => $pageDescription,
+        ];
     }
 
     private function useSortedList(array $filteredAndJoinedGamesList, string $sortOrder): array
@@ -170,6 +190,7 @@ class PlayerCompletionProgressController extends Controller
         return $filteredAndJoinedGamesList;
     }
 
+    // TODO extract to a MilestonesService
     private function buildMilestones(array $filteredAndJoinedGamesList): array
     {
         $milestones = [];
@@ -252,6 +273,7 @@ class PlayerCompletionProgressController extends Controller
         return $milestones;
     }
 
+    // TODO use a policy -- this should rely on the Folio page middleware
     private function getCanViewTargetUser(?User $user, ?User $me): bool
     {
         if (!$user) {

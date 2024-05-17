@@ -77,7 +77,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->for($game)->create(['Author' => $author->username]);
+        $achievement = Achievement::factory()->for($game)->create(['Author' => $author->username, 'user_id' => $author->id]);
 
         AchievementSetClaim::factory()->create([
             'User' => $author->username,
@@ -118,7 +118,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['Author' => $author->User]);
+        $achievement1 = Achievement::factory()->create(['Author' => $author->User, 'user_id' => $author->id]);
 
         AchievementSetClaim::factory()->create([
             'User' => $author->username,
@@ -369,7 +369,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $author->User, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
@@ -403,7 +403,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $this->user->User]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
 
         $params = [
             'u' => $author->User,
@@ -597,7 +597,7 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $this->user->User]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
 
         $params = [
             'u' => $author->User,
@@ -846,7 +846,7 @@ class UploadAchievementTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
@@ -971,7 +971,7 @@ class UploadAchievementTest extends TestCase
         ]);
 
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User]);
+        $achievement1 = Achievement::factory()->create(['GameID' => $game->ID + 1, 'Author' => $author->User, 'user_id' => $author->id]);
 
         $params = [
             'u' => $author->User,
