@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\Permissions;
 use App\Models\MemoryNote;
 use App\Models\Role;
 use App\Models\User;
@@ -20,7 +21,8 @@ class MemoryNotePolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-        ]);
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
     public function viewAny(User $user): bool
@@ -45,12 +47,18 @@ class MemoryNotePolicy
 
     public function update(User $user, MemoryNote $memoryNote): bool
     {
-        if ($user->hasAnyRole([Role::DEVELOPER_STAFF, Role::DEVELOPER])) {
+        if (
+            $user->hasAnyRole([Role::DEVELOPER_STAFF, Role::DEVELOPER])
+            || $user->getAttribute('Permissions') >= Permissions::Developer
+        ) {
             return true;
         }
 
         // Users with the DEVELOPER_JUNIOR role are allowed to update their own notes.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && $user->is($memoryNote->user)) {
+        if (
+            ($user->hasRole(Role::DEVELOPER_JUNIOR) || $user->getAttributes('Permissions') === Permissions::JuniorDeveloper)
+            && $user->is($memoryNote->user)
+        ) {
             return true;
         }
 
@@ -59,12 +67,18 @@ class MemoryNotePolicy
 
     public function delete(User $user, MemoryNote $memoryNote): bool
     {
-        if ($user->hasAnyRole([Role::DEVELOPER_STAFF, Role::DEVELOPER])) {
+        if (
+            $user->hasAnyRole([Role::DEVELOPER_STAFF, Role::DEVELOPER])
+            || $user->getAttribute('Permissions') >= Permissions::Developer
+        ) {
             return true;
         }
 
         // Users with the DEVELOPER_JUNIOR role are allowed to delete their own notes.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && $user->is($memoryNote->user)) {
+        if (
+            ($user->hasRole(Role::DEVELOPER_JUNIOR) || $user->getAttributes('Permissions') === Permissions::JuniorDeveloper)
+            && $user->is($memoryNote->user)
+        ) {
             return true;
         }
 

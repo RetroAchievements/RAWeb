@@ -24,10 +24,6 @@ if (empty($gameID)) {
 $pageTitle = "Leaderboards - ";
 
 $gameData = getGameData($gameID);
-$codeNotes = [];
-if ($permissions >= Permissions::JuniorDeveloper) {
-    $codeNotes = getCodeNotesData($gameID);
-}
 $pageTitle .= $gameData['Title'];
 
 $lbData = getLeaderboardsList($gameID, $sortBy);
