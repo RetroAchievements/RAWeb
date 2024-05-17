@@ -5,7 +5,7 @@ use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . Game::class]);
+middleware(['can:viewAny,' . Game::class]);
 name('game.comments');
 
 render(function (View $view, Game $game) {
@@ -26,7 +26,12 @@ use App\Community\Enums\ArticleType;
     'game' => null, // Game
 ])
 
-<x-app-layout pageTitle="Comments: {{ $game->Title }}">
+<x-app-layout
+    pageTitle="Comments: {{ $game->Title }}"
+    pageDescription="General discussion about the achievement set for {{ $game->Title }}"
+    :pageImage="media_asset($game->ImageIcon)"
+    pageType="retroachievements:comment-list"
+>
     <x-game.breadcrumbs
         :game="$game"
         currentPageLabel="Comments"

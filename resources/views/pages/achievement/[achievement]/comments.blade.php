@@ -5,7 +5,7 @@ use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . Achievement::class]);
+middleware(['can:viewAny,' . Achievement::class]);
 name('achievement.comments');
 
 render(function (View $view, Achievement $achievement) {
@@ -26,14 +26,19 @@ use App\Community\Enums\ArticleType;
     'achievement' => null, // Achievement
 ])
 
-<x-app-layout pageTitle="Comments: {{ $achievement->Title }}">
+<x-app-layout
+    pageTitle="Comments: {{ $achievement->Title }}"
+    pageDescription="General discussion about the achievement: {{ $achievement->Title }}"
+    :pageImage="$achievement->badgeUnlockedUrl"
+    pageType="retroachievements:comment-list"
+>
     <x-achievement.breadcrumbs
         :achievement="$achievement"
         currentPageLabel="Comments"
     />
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
-        {!! gameAvatar($achievement->game, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        {!! achievementAvatar($achievement, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
         <h1 class="mt-[10px] w-full">Comments: {{ $achievement->Title }}</h1>
     </div>
 

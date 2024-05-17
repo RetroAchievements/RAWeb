@@ -5,7 +5,7 @@ use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . Leaderboard::class]);
+middleware(['can:viewAny,' . Leaderboard::class]);
 name('leaderboard.comments');
 
 render(function (View $view, Leaderboard $leaderboard) {
@@ -26,7 +26,12 @@ use App\Community\Enums\ArticleType;
     'leaderboard' => null, // Leaderboard
 ])
 
-<x-app-layout pageTitle="Comments: {{ $leaderboard->Title }}">
+<x-app-layout
+    pageTitle="Comments: {{ $leaderboard->Title }}"
+    pageDescription="General discussion about the leaderboard: {{ $leaderboard->Title }}"
+    :pageImage="media_asset($leaderboard->game->ImageIcon)"
+    pageType="retroachievements:comment-list"
+>
     <x-leaderboard.breadcrumbs
         :leaderboard="$leaderboard"
         currentPageLabel="Comments"

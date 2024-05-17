@@ -5,7 +5,7 @@ use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . User::class]);
+middleware(['can:viewAny,' . User::class]);
 name('user.comments');
 
 render(function (View $view, User $user) {
@@ -30,7 +30,12 @@ use App\Community\Enums\ArticleType;
     'user' => null, // User
 ])
 
-<x-app-layout pageTitle="Comments: {{ $user->display_name }}">
+<x-app-layout
+    pageTitle="Comments: {{ $user->display_name }}"
+    pageDescription="Comments left on {{ $user->display_name }}'s wall"
+    :pageImage="$user->avatarUrl"
+    pageType="retroachievements:comment-list"
+>
     <x-user.breadcrumbs
         :targetUsername="$user->User"
         currentPage="Comments"

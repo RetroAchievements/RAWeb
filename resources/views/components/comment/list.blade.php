@@ -111,7 +111,7 @@ $route = match((int) $articleType) {
                     :articleType="$articleType"
                     :articleId="$articleId"
                     :commentId="$comment->ID"
-                    :allowDelete="$user->can('delete', [App\Models\Comment::class, $comment])"
+                    :allowDelete="$user?->can('delete', [App\Models\Comment::class, $comment])"
                 />
             @endforeach
 
