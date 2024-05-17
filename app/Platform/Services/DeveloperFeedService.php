@@ -2,63 +2,59 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Controllers;
+namespace App\Platform\Services;
 
 use App\Community\Enums\AwardType;
 use App\Enums\Permissions;
-use App\Http\Controller;
 use App\Models\Achievement;
 use App\Models\Game;
-use App\Models\LeaderboardEntryLegacy;
+use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerBadge;
 use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\UnlockMode;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class DeveloperFeedController extends Controller
+class DeveloperFeedService
 {
-    public function __invoke(Request $request): View
+    public function buildViewData(User $user): array
     {
-        $targetUsername = $request->route()->parameters['user'];
-        $foundTargetUser = User::firstWhere('User', $targetUsername);
-        if (!$this->getCanViewTargetUser($foundTargetUser)) {
+        // TODO use a policy
+        if (!$this->getCanViewTargetUser($user)) {
             abort(404);
         }
 
-        $allUserAchievements = collect(getUserAchievementInformation($foundTargetUser));
+        $allUserAchievements = collect(getUserAchievementInformation($user));
         $allUserAchievementIds = $allUserAchievements->pluck('ID');
         $allUserGameIds = $allUserAchievements->pluck('GameID')->unique();
 
         $recentUnlocks = $this->fetchRecentUnlocksForDev(
             $allUserAchievementIds,
-            shouldUseDateRange: $foundTargetUser->ContribCount <= 20000
+            shouldUseDateRange: $user->ContribCount <= 20000
         );
         $recentAwards = $this->fetchRecentAwardsForDev($allUserGameIds);
         $awardsContributed = $this->fetchAwardsContributedForDev($allUserGameIds);
-        $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($foundTargetUser);
-        $recentLeaderboardEntries = $this->fetchRecentLeaderboardEntriesForDev($foundTargetUser);
+        $leaderboardEntriesContributed = $this->fetchLeaderboardEntriesContributedForDev($user);
+        $recentLeaderboardEntries = $this->fetchRecentLeaderboardEntriesForDev($user);
 
-        return view('pages.user.[user].developer.feed', [
+        return [
             'awardsContributed' => $awardsContributed,
-            'foundTargetUser' => $foundTargetUser,
+            'foundTargetUser' => $user,
             'leaderboardEntriesContributed' => $leaderboardEntriesContributed,
             'recentAwards' => $recentAwards->reject(fn ($award) => $award->Untracked),
             'recentLeaderboardEntries' => $recentLeaderboardEntries->reject(fn ($entry) => $entry->Untracked),
             'recentUnlocks' => $recentUnlocks->reject(fn ($unlock) => $unlock->Untracked),
             'targetGameIds' => $allUserGameIds->toArray(),
-            'targetUserUnlocksContributed' => $foundTargetUser->ContribCount,
-            'targetUserPointsContributed' => $foundTargetUser->ContribYield,
-        ]);
+            'targetUserUnlocksContributed' => $user->ContribCount,
+            'targetUserPointsContributed' => $user->ContribYield,
+        ];
     }
 
     private function attachRecentLeaderboardEntryRowsMetadata(mixed $entryRows): mixed
     {
         // Fetch all the user metadata.
-        $userIds = $entryRows->pluck('UserID')->unique();
+        $userIds = $entryRows->pluck('user_id')->unique();
         $userData = User::whereIn('ID', $userIds)->get(['ID', 'User', 'Untracked'])->keyBy('ID');
 
         // Fetch all the game metadata.
@@ -73,15 +69,15 @@ class DeveloperFeedController extends Controller
         $entryRows->transform(function ($row) use ($userData, $gameData, $consoleData) {
             $game = $gameData[$row->GameID] ?? null;
 
-            $row->User = $userData[$row->UserID]->User ?? null;
-            $row->Untracked = $userData[$row->UserID]->Untracked ?? null;
+            $row->User = $userData[$row->user_id]->User ?? null;
+            $row->Untracked = $userData[$row->user_id]->Untracked ?? null;
 
             $row->GameTitle = $game->Title ?? null;
             $row->GameIcon = $game->ImageIcon ?? null;
 
             $row->ConsoleName = $consoleData[$game->ConsoleID]->Name ?? null;
 
-            $row->TimestampLabel = $this->buildFriendlyTimestampLabel($row->DateSubmitted, null);
+            $row->TimestampLabel = $this->buildFriendlyTimestampLabel($row->updated_at, null);
 
             return $row;
         });
@@ -233,8 +229,8 @@ class DeveloperFeedController extends Controller
 
     private function buildLeaderboardEntriesForDevBaseQuery(User $targetUser): mixed
     {
-        return LeaderboardEntryLegacy::query()
-            ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'LeaderboardEntry.LeaderboardID')
+        return LeaderboardEntry::query()
+            ->join('LeaderboardDef', 'LeaderboardDef.ID', '=', 'leaderboard_entries.leaderboard_id')
             ->where('LeaderboardDef.author_id', $targetUser->id);
     }
 
@@ -266,12 +262,12 @@ class DeveloperFeedController extends Controller
         $thirtyDaysAgo = Carbon::now()->subDays(30);
 
         $mostRecentLeaderboardEntries = $this->buildLeaderboardEntriesForDevBaseQuery($targetUser)
-            ->whereDate('LeaderboardEntry.DateSubmitted', '>=', $thirtyDaysAgo)
-            ->orderByDesc('LeaderboardEntry.DateSubmitted')
+            ->whereDate('leaderboard_entries.updated_at', '>=', $thirtyDaysAgo)
+            ->orderByDesc('leaderboard_entries.updated_at')
             ->take($limit)
             ->get([
                 'LeaderboardDef.ID', 'LeaderboardDef.GameID', 'LeaderboardDef.Format', 'LeaderboardDef.Title', 'LeaderboardDef.Description',
-                'LeaderboardEntry.LeaderboardID', 'LeaderboardEntry.UserID', 'LeaderboardEntry.Score', 'LeaderboardEntry.DateSubmitted',
+                'leaderboard_entries.leaderboard_id', 'leaderboard_entries.user_id', 'leaderboard_entries.score', 'leaderboard_entries.updated_at',
             ]);
 
         return $this->attachRecentLeaderboardEntryRowsMetadata($mostRecentLeaderboardEntries);

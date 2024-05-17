@@ -359,7 +359,7 @@ class Game extends BaseModel implements HasComments, HasMedia
      */
     public function visibleLeaderboards(): HasMany
     {
-        return $this->leaderboards()->where('DisplayOrder', '>=', 0);
+        return $this->leaderboards()->visible();
     }
 
     // == scopes

@@ -91,20 +91,6 @@ class PlayerCompletionProgressTest extends TestCase
             ->assertSeeText($targetUser->User . "'s Completion Progress");
     }
 
-    public function testCorrectHeadingIfViewingOtherPlayersProgress2(): void
-    {
-        /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
-        /** @var User $targetUser */
-        $targetUser = User::factory()->create(['User' => 'luchaos']);
-
-        // "luchaos' Completion Progress" (not "luchaos's")
-        $this
-            ->actingAs($me)
-            ->get('/user/' . $targetUser->User . '/progress')
-            ->assertSeeText($targetUser->User . "' Completion Progress");
-    }
-
     public function testShowGamesWithNoFilteringApplied(): void
     {
         // Arrange

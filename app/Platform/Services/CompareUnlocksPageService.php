@@ -2,23 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Controllers;
+namespace App\Platform\Services;
 
-use App\Http\Controller;
 use App\Models\Game;
 use App\Models\User;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class CompareUnlocksController extends Controller
+class CompareUnlocksPageService
 {
-    public function __invoke(Request $request, User $user, Game $game): View
+    public function buildViewData(Request $request, User $user, Game $game): array
     {
         $activeUser = $request->user();
-        if ($activeUser === null) {
-            abort(403);
-        }
 
         $validatedData = $request->validate([
             'sort' => 'sometimes|string|in:selfUnlocks,otherUnlocks,display,title',
@@ -35,13 +30,48 @@ class CompareUnlocksController extends Controller
 
         $this->sortList($achievements, $sortOrder);
 
-        return view('pages.user.[user].game.[game].compare', [
-            'user' => $activeUser,
-            'otherUser' => $user,
-            'game' => $game,
-            'achievements' => $achievements,
-            'sortOrder' => $sortOrder,
-        ]);
+        return array_merge(
+            [
+                'achievements' => $achievements,
+                'game' => $game,
+                'numAchievements' => count($achievements),
+                'otherUser' => $user,
+                'sortOrder' => $sortOrder,
+                'user' => $activeUser,
+            ],
+            $this->buildUsersUnlockCounts($achievements),
+        );
+    }
+
+    private function buildUsersUnlockCounts(array $achievements): array
+    {
+        $userUnlockCount = 0;
+        $otherUserUnlockCount = 0;
+        $userUnlockHardcoreCount = 0;
+        $otherUserUnlockHardcoreCount = 0;
+
+        foreach ($achievements as $achievement) {
+            if (array_key_exists('userTimestamp', $achievement)) {
+                $userUnlockCount++;
+                if ($achievement['userHardcore'] ?? false) {
+                    $userUnlockHardcoreCount++;
+                }
+            }
+
+            if (array_key_exists('otherUserTimestamp', $achievement)) {
+                $otherUserUnlockCount++;
+                if ($achievement['otherUserHardcore'] ?? false) {
+                    $otherUserUnlockHardcoreCount++;
+                }
+            }
+        }
+
+        return [
+            'userUnlockCount' => $userUnlockCount,
+            'otherUserUnlockCount' => $otherUserUnlockCount,
+            'userUnlockHardcoreCount' => $userUnlockHardcoreCount,
+            'otherUserUnlockHardcoreCount' => $otherUserUnlockHardcoreCount,
+        ];
     }
 
     private function mergeUserUnlocks(array &$achievements, User $user, string $prefix): void

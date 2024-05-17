@@ -10,6 +10,8 @@ name('ticket.show');
 
 @php
 
+// TODO migrate all this to a service and use it in a Folio render hook
+
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketAction;
 use App\Community\Enums\TicketState;
@@ -48,7 +50,7 @@ if ($ticket->reporter) {
     $achievementTickets = Ticket::where('AchievementID', $ticket->achievement->id);
     foreach ($achievementTickets->get() as $otherTicket) {
         if ($otherTicket->ID !== $ticket->ID) {
-            $url = '<a href="' . route('ticket.show', $otherTicket) . '">' . $otherTicket->ID . '</a>';
+            $url = '<a href="' . route('ticket.show', ['ticket' => $otherTicket]) . '">' . $otherTicket->ID . '</a>';
             if (TicketState::isOpen($otherTicket->ReportState)) {
                 $openTicketLinks[] = $url;
             } else {
@@ -145,7 +147,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
     <div class="navpath">
         <a href="{{ route('tickets.index') }}">Open Tickets</a>
         &raquo;
-        <a href="{{ route('game.tickets', $ticket->achievement->game) }}">{{ $ticket->achievement->game->Title }}</a>
+        <a href="{{ route('game.tickets', ['game' => $ticket->achievement->game]) }}">{{ $ticket->achievement->game->Title }}</a>
         &raquo;
         <span class="font-bold">Ticket {{ $ticket->ID }}</span>
     </div>

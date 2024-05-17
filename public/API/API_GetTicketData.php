@@ -158,7 +158,7 @@ if ($ticketID > 0) {
     $ticketData['ReportStateDescription'] = TicketState::toString($ticketData['ReportState']);
     $ticketData['ReportTypeDescription'] = TicketType::toString($ticketData['ReportType']);
 
-    $ticketData['URL'] = route('ticket.show', $ticketID);
+    $ticketData['URL'] = route('ticket.show', ['ticket' => $ticketID]);
 
     return response()->json($ticketData);
 }
@@ -211,7 +211,7 @@ if (!empty($assignedToUser)) {
             $prevID = $ticket['AchievementID'];
         }
     }
-    $ticketData['URL'] = route('developer.tickets', $foundUser->username); // TODO should probably be display_name
+    $ticketData['URL'] = route('developer.tickets', ['user' => $assignedToUser]);
 
     return response()->json($ticketData);
 }
@@ -274,7 +274,7 @@ if ($gameIDGiven > 0) {
         $ticketData['GameTitle'] = $game->Title;
         $ticketData['ConsoleName'] = $game->system->Name;
         $ticketData['OpenTickets'] = $tickets->count();
-        $ticketData['URL'] = route('game.tickets', $game);
+        $ticketData['URL'] = route('game.tickets', ['game' => $game]);
 
         $details = (int) request()->query('d');
         if ($details == 1) {
@@ -298,7 +298,7 @@ if ($achievementIDGiven > 0) {
     $ticketData['AchievementTitle'] = $achievementData['Title'];
     $ticketData['AchievementDescription'] = $achievementData['Description'];
     $ticketData['AchievementType'] = $achievementData['type'];
-    $ticketData['URL'] = route('achievement.tickets', $achievementData);
+    $ticketData['URL'] = route('achievement.tickets', ['achievement' => $achievementIDGiven]);
     $ticketData['OpenTickets'] = countOpenTicketsByAchievement($achievementIDGiven);
 
     return response()->json($ticketData);

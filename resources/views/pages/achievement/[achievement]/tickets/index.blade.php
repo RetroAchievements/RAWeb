@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Achievement;
 use App\Models\Ticket;
 use App\Platform\Services\TicketListService;
 use Illuminate\View\View;
@@ -7,46 +8,43 @@ use Illuminate\View\View;
 use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
-name('tickets.index');
+name('achievement.tickets');
 
-render(function (View $view) {
-    $ticketListService = new TicketListService();
-
-    $ticketListService->perPage = 50;
-    $selectFilters = $ticketListService->getSelectFilters();
+render(function (View $view, Achievement $achievement, TicketListService $ticketListService) {
+    $selectFilters = $ticketListService->getSelectFilters(showDevType: false, showAchievementType: false);
     $filterOptions = $ticketListService->getFilterOptions(request());
-    $tickets = $ticketListService->getTickets($filterOptions);
-
-    $openTicketCount = Ticket::unresolved()->count();
+    $tickets = $ticketListService->getTickets($filterOptions, Ticket::forAchievement($achievement));
 
     return $view->with([
+        'achievement' => $achievement,
         'tickets' => $tickets,
         'availableSelectFilters' => $selectFilters,
         'filterOptions' => $filterOptions,
         'totalTickets' => $ticketListService->totalTickets,
         'numFilteredTickets' => $ticketListService->numFilteredTickets,
-        'currentPage' => $ticketListService->pageNumber,
-        'totalPages' => $ticketListService->totalPages,
-        'openTicketCount' => $openTicketCount,
     ]);
 });
 
 ?>
 
 @props([
+    'achievement' => null, // Achievement
     'tickets' => null, // Collection<int, Ticket>
     'availableSelectFilters' => [],
     'filterOptions' => [],
     'totalTickets' => 0,
     'numFilteredTickets' => 0,
-    'currentPage' => 1,
-    'totalPages' => 1,
-    'openTicketCount' => 0,
 ])
 
-<x-app-layout pageTitle="Ticket Manager">
-    <div class="mb-1 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">Ticket Manager - {{ localized_number($openTicketCount) }} Open Tickets</h1>
+<x-app-layout pageTitle="Tickets - {{ $achievement->Title }}">
+    <x-achievement.breadcrumbs
+        :achievement="$achievement"
+        currentPageLabel="Tickets"
+    />
+
+    <div class="mt-3 mb-1 w-full flex gap-x-3">
+        {!! achievementAvatar($achievement, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">Tickets</h1>
     </div>
 
     <x-meta-panel
@@ -58,8 +56,6 @@ render(function (View $view) {
         :tickets="$tickets"
         :totalTickets="$totalTickets"
         :numFilteredTickets="$numFilteredTickets"
-        :currentPage="$currentPage"
-        :totalPages="$totalPages"
         showResolver="{{ ($filterOptions['status'] !== 'unresolved') }}"
     />
 </x-app-layout>
