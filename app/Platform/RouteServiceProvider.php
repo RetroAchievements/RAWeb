@@ -7,7 +7,6 @@ namespace App\Platform;
 use App\Community\Controllers\TicketController;
 use App\Models\GameHash;
 use App\Platform\Controllers\AchievementController;
-use App\Platform\Controllers\CompareUnlocksController;
 use App\Platform\Controllers\DeveloperFeedController;
 use App\Platform\Controllers\DeveloperSetsController;
 use App\Platform\Controllers\GameDevInterestController;
@@ -97,8 +96,6 @@ class RouteServiceProvider extends ServiceProvider
             // Route::resource('user.achievements', PlayerAchievementController::class)->only('index')->names(['index' => 'user.achievement.index']);
             // Route::resource('user.games', PlayerGameController::class)->only('index')->names(['index' => 'user.game.index']);
             // Route::resource('user.game', PlayerGameController::class)->only('show');
-            Route::get('user/{user}/game/{game}/activity', [PlayerGameController::class, 'activity'])->name('user.game.activity');
-            Route::get('user/{user}/game/{game}/compare', CompareUnlocksController::class)->name('game.compare-unlocks');
 
             // Route::resource('user.badges', PlayerBadgeController::class)->only('index')->names(['index' => 'user.badge.index']);
             // Route::resource('user.badge', PlayerBadgeController::class)->only('show');
@@ -110,9 +107,6 @@ class RouteServiceProvider extends ServiceProvider
                 'middleware' => ['auth'], // TODO: 'verified'
             ], function () {
                 Route::resource('game-hash', GameHashController::class)->parameters(['game-hash' => 'gameHash'])->only(['update', 'destroy']);
-
-                // Route::get('user/{user}/game/{game}/compare', [PlayerGameController::class, 'compare'])
-                //     ->name('user.game.compare');
             });
         });
     }
