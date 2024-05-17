@@ -51,7 +51,7 @@ $user = request()->user();
         </x-slot>
         <x-dropdown-header>{{ $user->username }}</x-dropdown-header>
         <x-dropdown-item :href="route('user.show', $user)">{{ __res('profile', 1) }}</x-dropdown-item>
-        <x-dropdown-item :href="route('user.completion-progress', $user)">Completion Progress</x-dropdown-item>
+        <x-dropdown-item :href="route('user.completion-progress', ['user' => $user])">Completion Progress</x-dropdown-item>
 
         @if($user->Permissions >= Permissions::Registered)
             <x-dropdown-item :href="url('gameList.php?t=play')">Want to Play Games</x-dropdown-item>
@@ -66,11 +66,11 @@ $user = request()->user();
                 <x-dropdown-item :href="url('gameList.php?t=develop&f=2')">Want to Develop Games</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
-                <x-dropdown-item :href="route('developer.feed', $user->username)">Feed</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.feed', ['user' => $user])">Feed</x-dropdown-item>
             @endif
             @if($user->ContribCount > 0)
                 <x-dropdown-item :href="route('developer.tickets', ['user' => $user])">Tickets</x-dropdown-item>
-                <x-dropdown-item :href="route('developer.sets', $user)">Sets</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.sets', ['user' => $user])">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)
                 <x-dropdown-item :href="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>

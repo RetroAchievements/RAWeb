@@ -24,7 +24,7 @@ $prefersHiddenUserCompletedSets = request()->cookie('prefers_hidden_user_complet
             </input>
         </label>
 
-        <a href="{{ route('user.completion-progress', $username) }}">more...</a>
+        <a href="{{ route('user.completion-progress', ['user' => $username]) }}">more...</a>
     </div>
 
     <div id="usercompletedgamescomponent">

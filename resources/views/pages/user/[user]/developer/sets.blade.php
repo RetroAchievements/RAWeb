@@ -1,20 +1,28 @@
 <?php
 
-use function Laravel\Folio\{name};
+use App\Models\User;
+use App\Platform\Services\DeveloperSetsService;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{name, render};
 
 name('developer.sets');
+
+render(function (View $view, User $user, DeveloperSetsService $pageService) {
+    return $view->with($pageService->buildViewData(request(), $user));
+});
 
 ?>
 
 @props([
-    'user' => null,
-    'consoles' => [],
+    'availableCheckboxFilters' => [], // string[]
+    'availableSorts' => [],
+    'columns' => [],
+    'consoles' => null, // ?Collection<System>
+    'filterOptions' => [], // bool[]
     'games' => [],
     'sortOrder' => 'title',
-    'availableSorts' => [],
-    'filterOptions' => [],
-    'availableCheckboxFilters' => [],
-    'columns' => [],
+    'user' => null, // User
 ])
 
 <x-app-layout
@@ -37,5 +45,4 @@ name('developer.sets');
         :games="$games"
         :sortOrder="$sortOrder"
     />
-
 </x-app-layout>
