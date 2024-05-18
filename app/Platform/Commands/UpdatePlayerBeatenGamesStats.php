@@ -32,7 +32,7 @@ class UpdatePlayerBeatenGamesStats extends Command
                 ? User::findOrFail($userId)
                 : User::where('User', $userId)->firstOrFail();
 
-            $this->info('Updating stats for player [' . $user->id . ':' . $user->username . ']');
+            $this->info('Updating beaten games stats for player [' . $user->id . ':' . $user->username . ']');
 
             $this->updatePlayerBeatenGamesStats->execute($user);
         } else {
@@ -45,7 +45,7 @@ class UpdatePlayerBeatenGamesStats extends Command
             });
 
             $distinctUserCount = $baseUserQuery->count();
-            $this->info('Preparing batch jobs to update player stats for ' . $distinctUserCount . ' users.');
+            $this->info('Preparing batch jobs to update beaten games player stats for ' . $distinctUserCount . ' users.');
 
             $progressBar = $this->output->createProgressBar($distinctUserCount);
             $progressBar->start();
