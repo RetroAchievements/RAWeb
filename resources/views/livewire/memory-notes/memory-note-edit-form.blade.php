@@ -22,9 +22,9 @@ $save = function() {
     }
 
     $this->form->update();
-    $this->dispatch("editComplete-{$this->memoryNote->id}");
+    $this->dispatch("edited-memory-note-{$this->memoryNote->id}");
     
-    $this->dispatch('flashSuccess', message: 'Updated successfully.');
+    $this->dispatch('flash-success', message: 'Updated successfully.');
 };
 
 $delete = function() {
@@ -36,10 +36,10 @@ $delete = function() {
     $this->memoryNote->save();
     // TODO $this->memoryNote->delete();
 
-    $this->dispatch("deleteComplete-{$this->memoryNote->id}");
-    $this->dispatch("deleteComplete");
+    $this->dispatch("deleted-memory-note-{$this->memoryNote->id}");
+    $this->dispatch("deleted-memory-note");
     
-    $this->dispatch('flashSuccess', message: 'Deleted successfully.');
+    $this->dispatch('flash-success', message: 'Deleted successfully.');
 };
 
 // == lifecycle

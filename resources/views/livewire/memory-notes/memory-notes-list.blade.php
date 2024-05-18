@@ -16,38 +16,44 @@ mount(function() {
     $this->currentCount = $this->memoryNotes->count();
 });
 
-on(['deleteComplete' => function() {
+on(['deleted-memory-note' => function() {
     $this->currentCount--;
 }]);
 ?>
 
-<div>
-    <p class="mb-2">
-        There {{ $currentCount === 1 ? 'is' : 'are' }} currently
-        <span class="font-bold">{{ $currentCount }}</span>
-        code {{  $currentCount === 1 ? 'note' : 'notes' }}.
-    </p>
+@if ($memoryNotes->isEmpty())
+    <x-empty-state>
+        No one has recorded any code notes yet.
+    </x-empty-state>
+@else
+    <div>
+        <p class="mb-2">
+            There {{ $currentCount === 1 ? 'is' : 'are' }} currently
+            <span class="font-bold">{{ $currentCount }}</span>
+            code {{  $currentCount === 1 ? 'note' : 'notes' }}.
+        </p>
 
-    <table class="table-highlight">
-        <thead>
-            <tr class="do-not-highlight">
-                <th>Address</th>
-                <th>Body</th>
-                <th>Author</th>
+        <table class="table-highlight">
+            <thead>
+                <tr class="do-not-highlight">
+                    <th>Address</th>
+                    <th>Body</th>
+                    <th>Author</th>
 
-                @can('manage', App\Models\MemoryNote::class)
-                    <th aria-label="tools"></td>
-                @endcan
-            </tr>
-        </thead>
+                    @can('manage', App\Models\MemoryNote::class)
+                        <th aria-label="tools"></td>
+                    @endcan
+                </tr>
+            </thead>
 
-        <tbody>
-            @foreach ($memoryNotes as $memoryNote)
-                <livewire:memory-notes.memory-notes-list-item
-                    :key="$memoryNote->id"
-                    :memoryNote="$memoryNote"
-                />
-            @endforeach
-        </tbody>
-    </table>
-</div>
+            <tbody>
+                @foreach ($memoryNotes as $memoryNote)
+                    <livewire:memory-notes.memory-notes-list-item
+                        :key="$memoryNote->id"
+                        :memoryNote="$memoryNote"
+                    />
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endif

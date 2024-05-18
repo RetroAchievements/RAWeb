@@ -43,16 +43,10 @@ render(function (View $view, Game $game) {
             </x-slot>
         </x-alert>
 
-        @if ($game->memoryNotes->isEmpty())
-            <x-empty-state>
-                No one has recorded any code notes yet.
-            </x-empty-state>
-        @else
-            <livewire:memory-notes.memory-notes-list
-                :game="$game"
-                :memoryNotes="$game->memoryNotes"
-            />
-        @endif
+        <livewire:memory-notes.memory-notes-list
+            :game="$game"
+            :memoryNotes="$game->memoryNotes"
+        />
     </div>
 </x-app-layout>
 

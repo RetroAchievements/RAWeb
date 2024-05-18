@@ -72,11 +72,11 @@ Livewire.start();
 
 // TODO if you add another one of these, move them to a module
 // Livewire
-(window as any).addEventListener('flashSuccess', (event: { detail: { message: string } }) => {
+(window as any).addEventListener('flash-success', (event: { detail: { message: string } }) => {
   showStatusSuccess(event.detail.message);
 });
 // Livewire
-(window as any).addEventListener('flashError', (event: { detail: { message: string } }) => {
+(window as any).addEventListener('flash-error', (event: { detail: { message: string } }) => {
   showStatusFailure(event.detail.message);
 });
 

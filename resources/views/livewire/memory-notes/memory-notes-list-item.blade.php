@@ -15,11 +15,11 @@ state(['wasDeleted' => false]);
 // == actions
 
 // == lifecycle
-on(['editComplete-{memoryNote.id}' => function() {
+on(['edited-memory-note-{memoryNote.id}' => function() {
     $this->isEditing = false;
 }]);
 
-on(['deleteComplete-{memoryNote.id}' => function() {
+on(['deleted-memory-note-{memoryNote.id}' => function() {
     $this->wasDeleted = true;
 }]);
 
@@ -30,7 +30,6 @@ on(['deleteComplete-{memoryNote.id}' => function() {
     :class="{ 'hidden': wasDeleted }"
     x-data="{
         isEditing: $wire.entangle('isEditing'),
-        isEditInitialized: false,
         wasDeleted: $wire.entangle('wasDeleted'),
     }"
 >
@@ -41,12 +40,10 @@ on(['deleteComplete-{memoryNote.id}' => function() {
     </td>
     
     <td width="100%">
-        <div x-show="isEditing">
-            <template x-if="isEditInitialized">
-                <livewire:memory-notes.memory-note-edit-form
-                    :memoryNote="$memoryNote"
-                />
-            </template>
+        <div x-show="isEditing" x-cloak>
+            <livewire:memory-notes.memory-note-edit-form
+                :memoryNote="$memoryNote"
+            />
         </div>
 
         <p class="font-mono" x-show="!isEditing">
@@ -83,7 +80,7 @@ on(['deleteComplete-{memoryNote.id}' => function() {
                     <button
                         class="btn"
                         x-show="!isEditing"
-                        x-on:click="isEditInitialized = true; isEditing = true"
+                        x-on:click="isEditing = true"
                     >
                         Edit
                     </button>
