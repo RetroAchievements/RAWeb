@@ -340,4 +340,35 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionTargetTooltip($condition, "[Indirect 0x001234 + 0x000004 + 0x000000]\n[16-bit] value1");
         $this->assertConditionHitTarget($condition, '0');
     }
+
+    public function testMergeCodeNotesIndexed(): void
+    {
+        $service = new TriggerDecoderService();
+        $groups = $service->decode("I:0xH1200*2_0xX1234!=16");
+        $service->mergeCodeNotes($groups, [
+            0x001200 => "[8-bit] selected item index",
+            0x001234 => "[100x16-bit] array of items",
+        ]);
+
+        $this->assertEquals(1, count($groups));
+        $this->assertEquals(2, count($groups[0]['Conditions']));
+
+        $condition = $groups[0]['Conditions'][0];
+        $this->assertConditionFlag($condition, 'Add Address');
+        $this->assertConditionSourceOperand($condition, 'Mem', '8-bit', '0x001200');
+        $this->assertConditionSourceTooltip($condition, '[8-bit] selected item index');
+        $this->assertConditionOperator($condition, '*');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000002');
+        $this->assertConditionTargetTooltip($condition, '2');
+        $this->assertConditionHitTarget($condition, '');
+
+        $condition = $groups[0]['Conditions'][1];
+        $this->assertConditionFlag($condition, '');
+        $this->assertConditionSourceOperand($condition, 'Mem', '32-bit', '0x001234');
+        $this->assertConditionSourceTooltip($condition, "[With indirection]\n[100x16-bit] array of items");
+        $this->assertConditionOperator($condition, '!=');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000010');
+        $this->assertConditionTargetTooltip($condition, '16');
+        $this->assertConditionHitTarget($condition, '0');
+    }
 }
