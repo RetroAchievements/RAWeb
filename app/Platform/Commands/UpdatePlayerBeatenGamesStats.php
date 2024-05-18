@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace App\Platform\Commands;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerStats as UpdatePlayerStatsAction;
-use App\Platform\Jobs\UpdatePlayerStatsJob;
+use App\Platform\Actions\UpdatePlayerBeatenGamesStats as UpdatePlayerBeatenGamesStatsAction;
+use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
-class UpdatePlayerStats extends Command
+class UpdatePlayerBeatenGamesStats extends Command
 {
-    protected $signature = 'ra:platform:player:update-stats
+    protected $signature = 'ra:platform:player:update-beaten-games-stats
                             {userId? : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}';
-    protected $description = 'Update player stats';
+    protected $description = 'Update player beaten game stats';
 
     public function __construct(
-        private readonly UpdatePlayerStatsAction $updatePlayerStats
+        private readonly UpdatePlayerBeatenGamesStatsAction $updatePlayerBeatenGamesStats
     ) {
         parent::__construct();
     }
@@ -34,7 +34,7 @@ class UpdatePlayerStats extends Command
 
             $this->info('Updating stats for player [' . $user->id . ':' . $user->username . ']');
 
-            $this->updatePlayerStats->execute($user);
+            $this->updatePlayerBeatenGamesStats->execute($user);
         } else {
             // We want to dispatch unique jobs for all user IDs that are
             // present on the player_games table.
@@ -53,11 +53,11 @@ class UpdatePlayerStats extends Command
             // Retrieve user IDs in chunks and create jobs.
             $baseUserQuery->chunkById(100, function ($users) use ($progressBar) {
                 $jobs = $users->map(function ($user) {
-                    return (new UpdatePlayerStatsJob($user->id))->onQueue('player-stats');
+                    return (new UpdatePlayerBeatenGamesStatsJob($user->id))->onQueue('player-beaten-games-stats');
                 })->all();
 
                 // Dispatch jobs for the current chunk.
-                Bus::batch($jobs)->onQueue('player-stats')->dispatch();
+                Bus::batch($jobs)->onQueue('player-beaten-games-stats')->dispatch();
 
                 $progressBar->advance(count($users));
             });

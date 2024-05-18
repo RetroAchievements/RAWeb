@@ -12,7 +12,7 @@ use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerStatsUpdated;
 
-class UpdatePlayerStats
+class UpdatePlayerBeatenGamesStats
 {
     public function execute(User $user): void
     {
