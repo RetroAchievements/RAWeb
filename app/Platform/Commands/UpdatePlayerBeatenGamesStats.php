@@ -15,7 +15,7 @@ class UpdatePlayerBeatenGamesStats extends Command
 {
     protected $signature = 'ra:platform:player:update-beaten-games-stats
                             {userId? : User ID or username. Usernames containing only numbers are ambiguous and must be referenced by user ID}';
-    protected $description = 'Update player beaten game stats';
+    protected $description = 'Update player beaten games stats';
 
     public function __construct(
         private readonly UpdatePlayerBeatenGamesStatsAction $updatePlayerBeatenGamesStats
