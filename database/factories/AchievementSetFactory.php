@@ -18,7 +18,6 @@ class AchievementSetFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
             'players_total' => $this->faker->numberBetween(0, 1000),
             'players_hardcore' => $this->faker->numberBetween(0, 500),
             'achievements_published' => $this->faker->numberBetween(0, 100),
