@@ -20,7 +20,7 @@ class SubmitLeaderboardEntryTest extends TestCase
     use BootstrapsConnect;
     use RefreshDatabase;
 
-    private function buildLBData($leaderboard): array
+    private function buildLBData(Leaderboard $leaderboard): array
     {
         return [
             'LeaderboardID' => $leaderboard->ID,

@@ -123,7 +123,7 @@ function SubmitLeaderboardEntry(
         return $entries;
     };
 
-    $retVal['TopEntries'] = $getEntries($entries->clone());
+    $retVal['TopEntries'] = $getEntries($entries->getQuery());
 
     $retVal['TopEntriesFriends'] = $getEntries($entries->whereHas('user', function ($query) use ($user) {
         $friends = $user->followedUsers()->pluck('related_user_id');
