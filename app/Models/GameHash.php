@@ -34,7 +34,6 @@ class GameHash extends BaseModel
         'compatibility',
         'name',
         'system_id',
-        'User',
         'user_id',
         'source',
         'patch_url',
@@ -152,7 +151,7 @@ class GameHash extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     // == scopes
