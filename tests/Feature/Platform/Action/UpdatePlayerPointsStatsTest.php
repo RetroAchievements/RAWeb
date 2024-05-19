@@ -34,6 +34,8 @@ class UpdatePlayerPointsStatsTest extends TestCase
     public function testItDoesntAddStatsForUntrackedUsers(): void
     {
         // Arrange
+        Carbon::setTestNow(Carbon::now());
+
         $untrackedUser = User::factory()->create(['Untracked' => true, 'unranked_at' => Carbon::now()]);
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
@@ -52,6 +54,8 @@ class UpdatePlayerPointsStatsTest extends TestCase
     public function testItCreatesStatsCorrectly(): void
     {
         // Arrange
+        Carbon::setTestNow(Carbon::now());
+
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
@@ -107,6 +111,8 @@ class UpdatePlayerPointsStatsTest extends TestCase
     public function testItUpdatesStatsCorrectly(): void
     {
         // Arrange
+        Carbon::setTestNow(Carbon::now());
+
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
@@ -166,6 +172,8 @@ class UpdatePlayerPointsStatsTest extends TestCase
     public function testItPurgesUntrackedUserStats(): void
     {
         // Arrange
+        Carbon::setTestNow(Carbon::now());
+
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
