@@ -90,6 +90,8 @@ $gameData = [
 
 // Use maps to structure the data with how legacy API consumers might expect it to be returned.
 if (!$gameAchievements->isEmpty()) {
+    $gameAchievements->loadMissing('developer');
+
     $gameListAchievements = $gameAchievements->keyBy('ID')->map(function ($am) {
         return [
             'ID' => $am->ID,
@@ -99,7 +101,7 @@ if (!$gameAchievements->isEmpty()) {
             'Description' => $am->Description,
             'Points' => $am->Points,
             'TrueRatio' => $am->TrueRatio,
-            'Author' => $am->Author,
+            'Author' => $am->developer->display_name,
             'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
             'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
             'BadgeName' => $am->BadgeName,

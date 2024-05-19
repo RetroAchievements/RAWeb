@@ -555,6 +555,8 @@ function getGamesListDataNamesOnly(int $consoleId, bool $officialFlag = false): 
         ->when($officialFlag === true, function ($query) {
             return $query->where('GameData.achievements_published', '>', 0);
         })
+        ->orderBy('Console.Name')
+        ->orderBy('GameData.Title')
         ->select('GameData.Title', 'GameData.ID')
         ->pluck('GameData.Title', 'GameData.ID') // return mapping of ID => Title
         ->toArray();
