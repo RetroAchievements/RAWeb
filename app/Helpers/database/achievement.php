@@ -9,6 +9,7 @@ use App\Platform\Enums\AchievementPoints;
 use App\Platform\Enums\AchievementType;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Spatie\Activitylog\Facades\CauserResolver;
 
 /**
  * @return Collection<int, array>
@@ -267,6 +268,8 @@ function UploadNewAchievement(
         $achievement->user_id = $author->id;
         $achievement->BadgeName = $badge;
 
+        CauserResolver::setCauser($author);
+
         $achievement->save();
         $idInOut = $achievement->ID;
 
@@ -349,6 +352,8 @@ function UploadNewAchievement(
         }
 
         if ($achievement->isDirty()) {
+            CauserResolver::setCauser($author);
+
             $achievement->DateModified = now();
             $achievement->save();
 
