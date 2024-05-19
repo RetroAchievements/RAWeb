@@ -163,8 +163,7 @@ class UpdatePlayerPointsStatsTest extends TestCase
                 $achievementOne->points_weighted
                 + $achievementTwo->points_weighted
                 + $achievementThree->points_weighted
-                + $achievementFive->points_weighted
-            ,
+                + $achievementFive->points_weighted,
             $weeklyWeightedPoints->value
         );
     }
