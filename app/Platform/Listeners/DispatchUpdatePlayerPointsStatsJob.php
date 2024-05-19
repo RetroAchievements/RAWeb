@@ -8,10 +8,10 @@ use App\Models\User;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Events\PlayerRankedStatusChanged;
-use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
+use App\Platform\Jobs\UpdatePlayerPointsStatsJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DispatchUpdatePlayerBeatenGamesStatsJob implements ShouldQueue
+class DispatchUpdatePlayerPointsStatsJob implements ShouldQueue
 {
     public function handle(object $event): void
     {
@@ -32,7 +32,7 @@ class DispatchUpdatePlayerBeatenGamesStatsJob implements ShouldQueue
             return;
         }
 
-        dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id))
+        dispatch(new UpdatePlayerPointsStatsJob($user->id))
             ->onQueue('player-beaten-games-stats');
     }
 }

@@ -137,7 +137,7 @@ trait ActsAsPlayer
      */
     public function playerStats(): HasMany
     {
-        return $this->hasMany(PlayerStat::class, 'user_id');
+        return $this->hasMany(PlayerStat::class, 'user_id', 'ID');
     }
 
     /**

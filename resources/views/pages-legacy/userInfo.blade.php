@@ -215,7 +215,7 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
         />
 
         @if ($user !== null && $user === $userPage)
-            <x-user.followed-leaderboard-cta :friendCount="getFriendCount($userPageModel)" />
+            <x-user.followed-leaderboard :user="$userPageModel" />
         @endif
     </x-slot>
 </x-app-layout>
