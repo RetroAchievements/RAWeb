@@ -51,13 +51,12 @@ class FollowedUserLeaderboardServiceTest extends TestCase
         // Assert
         $this->assertEmpty($followedUserStats['statsDaily']);
         $this->assertEmpty($followedUserStats['statsWeekly']);
-        $this->assertEmpty($followedUserStats['statsAllTime']);
     }
 
     public function testItBuildsFollowedUserStats(): void
     {
         // Arrange
-        $user = User::factory()->create();
+        $user = User::factory()->create(['RAPoints' => 125]);
         $followedUsers = User::factory()->count(3)->create();
 
         // Have $user follow all the $followedUsers.
@@ -102,6 +101,6 @@ class FollowedUserLeaderboardServiceTest extends TestCase
 
         $this->assertEquals([50, 30, 10], $sortedDayPoints);
         $this->assertEquals([120, 70, 40], $sortedWeekPoints);
-        $this->assertEquals([150, 130, 120], $sortedAllTimePoints);
+        $this->assertEquals([150, 130, 125, 120], $sortedAllTimePoints);
     }
 }
