@@ -22,8 +22,8 @@ class Ticket extends BaseModel
 
     // TODO rename Ticket table to tickets
     // TODO rename ID column to id
-    // TODO rename ReportType column to type
-    // TODO rename ReportNotes column to body
+    // TODO rename ReportType column to type, remove getTypeAttribute()
+    // TODO rename ReportNotes column to body, remove getBodyAttribute()
     // TODO rename ReportedAt column to created_at
     // TODO rename ResolvedAt column to resolved_at
     // TODO rename ReportState column to state, remove getStateAttribute()
@@ -36,6 +36,15 @@ class Ticket extends BaseModel
 
     public const CREATED_AT = 'ReportedAt';
     public const UPDATED_AT = 'Updated';
+
+    protected $fillable = [
+        'AchievementID',
+        'assignee_id',
+        'Hardcore',
+        'reporter_id',
+        'ReportNotes',
+        'ReportType',
+    ];
 
     protected $casts = [
         'ResolvedAt' => 'datetime',
@@ -64,6 +73,18 @@ class Ticket extends BaseModel
 
     // == accessors
 
+    // TODO remove after renaming "ReportNotes" to "body"
+    public function getBodyAttribute(): string
+    {
+        return $this->attributes['ReportNotes'];
+    }
+
+    // TODO remove after renaming "ID" to "id"
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
     public function getIsOpenAttribute(): bool
     {
         return TicketState::isOpen($this->state);
@@ -73,6 +94,12 @@ class Ticket extends BaseModel
     public function getStateAttribute(): int
     {
         return $this->attributes['ReportState'];
+    }
+
+    // TODO remove after renaming "ReportType" to "type"
+    public function getTypeAttribute(): int
+    {
+        return $this->attributes['ReportType'];
     }
 
     // == mutators
@@ -93,6 +120,14 @@ class Ticket extends BaseModel
     public function reporter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reporter_id', 'ID')->withTrashed();
+    }
+
+    /**
+     * @return BelongsTo<User, Ticket>
+     */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assignee_id', 'ID')->withTrashed();
     }
 
     /**

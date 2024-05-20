@@ -5,6 +5,7 @@ use App\Community\Enums\SubscriptionSubjectType;
 use App\Community\Enums\TicketState;
 use App\Community\ViewModels\Ticket as TicketViewModel;
 use App\Models\Achievement;
+use App\Models\Game;
 use App\Models\NotificationPreferences;
 use App\Models\Ticket;
 use App\Models\User;
@@ -88,76 +89,92 @@ function submitNewTicket(User $user, int $achID, int $reportType, int $hardcore,
     return _createTicket($user, $achID, $reportType, $hardcore, $note);
 }
 
-function _createTicket(User $user, int $achID, int $reportType, ?int $hardcore, string $note): int
-{
-    $achievement = Achievement::find($achID);
-    if (!$achievement) {
-        return 0;
-    }
+function constructAchievementTicketBugReportDetails(
+    Ticket $ticket,
+    Game $game,
+    Achievement $achievement
+): string {
+    $problemTypeStr = ($ticket->type === 1) ? "Triggers at wrong time" : "Doesn't trigger";
+    $ticketUrl = route('ticket.show', ['ticket' => $ticket]);
 
-    $noteSanitized = $note;
-    sanitize_sql_inputs($noteSanitized);
-
-    $hardcoreValue = $hardcore === null ? 'NULL' : (string) $hardcore;
-
-    $userId = $user->id;
-    $username = $user->User;
-
-    $query = "INSERT INTO Ticket (AchievementID, reporter_id, ReportType, Hardcore, ReportNotes, ReportedAt, ResolvedAt, resolver_id )
-              VALUES($achID, $userId, $reportType, $hardcoreValue, \"$noteSanitized\", NOW(), NULL, NULL )";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return 0;
-    }
-
-    $ticketID = mysqli_insert_id($db);
-
-    $achTitle = $achievement->title;
-    $gameID = $achievement->game->id;
-    $gameTitle = $achievement->game->title;
-
-    expireUserTicketCounts($achievement->developer->User);
-
-    $problemTypeStr = ($reportType === 1) ? "Triggers at wrong time" : "Doesn't trigger";
-
-    $emailHeader = "Bug Report ($gameTitle)";
-    $ticketUrl = route('ticket.show', ['ticket' => $ticketID]);
     $bugReportDetails = "
-Achievement: $achTitle
-Game: $gameTitle
-Problem: $problemTypeStr
-Comment: $note
+Achievement: {$achievement->title}
+Game: {$game->title}
+Problem: {$problemTypeStr}
+Comment: {$ticket->body}
 
 This ticket will be raised and will be available for all developers to inspect and manage at the following URL:
-<a href='$ticketUrl'>$ticketUrl</a>
+<a href='{$ticketUrl}'>{$ticketUrl}</a>
 
 Thanks!";
 
-    if ($achievement->developer && BitSet($achievement->developer->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
-        $emailBody = "Hi, {$achievement->developer->User}!
+    return $bugReportDetails;
+}
 
-$username would like to report a bug with an achievement you've created:
+function sendInitialTicketEmailToAssignee(Ticket $ticket, Game $game, Achievement $achievement): void
+{
+    $emailHeader = "Bug Report ({$game->title})";
+    $bugReportDetails = constructAchievementTicketBugReportDetails(
+        $ticket,
+        $game,
+        $achievement,
+    );
+
+    if ($achievement->developer && BitSet($achievement->developer->websitePrefs, NotificationPreferences::EmailOn_PrivateMessage)) {
+        $emailBody = "Hi, {$achievement->developer->display_name}!
+
+{$ticket->reporter->display_name} would like to report a bug with an achievement you've created:
 $bugReportDetails";
         sendRAEmail($achievement->developer->EmailAddress, $emailHeader, $emailBody);
     }
+}
 
-    // notify subscribers other than the achievement's author
-    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $gameID, 1 << NotificationPreferences::EmailOn_PrivateMessage);
+function sendInitialTicketEmailsToSubscribers(Ticket $ticket, Game $game, Achievement $achievement): void
+{
+    $emailHeader = "Bug Report ({$game->title})";
+    $bugReportDetails = constructAchievementTicketBugReportDetails(
+        $ticket,
+        $game,
+        $achievement,
+    );
+
+    $subscribers = getSubscribersOf(SubscriptionSubjectType::GameTickets, $game->id, 1 << NotificationPreferences::EmailOn_PrivateMessage);
     foreach ($subscribers as $sub) {
-        if ($sub['User'] !== $achievement->developer->User && $sub['User'] != $username) {
+        if ($sub['User'] !== $achievement->developer->User && $sub['User'] != $ticket->reporter->username) {
             $emailBody = "Hi, " . $sub['User'] . "!
 
-$username would like to report a bug with an achievement you're subscribed to:
+{$ticket->reporter->display_name} would like to report a bug with an achievement you're subscribed to:
 $bugReportDetails";
             sendRAEmail($sub['EmailAddress'], $emailHeader, $emailBody);
         }
     }
+}
 
-    return $ticketID;
+function _createTicket(User $user, int $achievementId, int $reportType, ?int $hardcore, string $note): int
+{
+    $achievement = Achievement::find($achievementId);
+    if (!$achievement) {
+        return 0;
+    }
+
+    $hardcoreValue = $hardcore === null ? 'NULL' : (string) $hardcore;
+
+    $newTicket = Ticket::create([
+        'AchievementID' => $achievement->id,
+        'reporter_id' => $user->id,
+        'ReportType' => $reportType,
+        'Hardcore' => $hardcoreValue,
+        'ReportNotes' => $note,
+    ]);
+
+    expireUserTicketCounts($achievement->developer->User);
+
+    sendInitialTicketEmailToAssignee($newTicket, $achievement->game, $achievement);
+
+    // notify subscribers other than the achievement's author
+    sendInitialTicketEmailsToSubscribers($newTicket, $achievement->game, $achievement);
+
+    return $newTicket->id;
 }
 
 function getExistingTicketID(User $user, int $achievementID): int
@@ -329,6 +346,7 @@ function countOpenTicketsByDev(User $dev): array
     });
 }
 
+// TODO use $user->id
 function expireUserTicketCounts(string $username): void
 {
     $cacheKey = CacheKey::buildUserRequestTicketsCacheKey($username);
