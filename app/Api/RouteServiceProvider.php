@@ -67,7 +67,7 @@ class RouteServiceProvider extends ServiceProvider
                     });
 
                     Route::middleware(['throttle:login'])->group(function () {
-                        Route::post('request-web-api-key', [WebApiController::class, 'requestWebApiKey']);
+                        Route::post('login', [WebApiController::class, 'login']);
                     });
                 });
 

@@ -37,7 +37,7 @@ class WebApiController extends Controller
         ], 501);
     }
 
-    public function requestWebApiKey(Request $request): JsonResponse
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'username' => 'required|string',
