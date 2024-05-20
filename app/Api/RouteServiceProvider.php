@@ -65,6 +65,10 @@ class RouteServiceProvider extends ServiceProvider
                     Route::middleware(['auth:passport'])->group(function () {
                         Route::get('users', [WebApiController::class, 'users']);
                     });
+
+                    Route::middleware(['throttle:login'])->group(function () {
+                        Route::post('request-web-api-key', [WebApiController::class, 'requestWebApiKey']);
+                    });
                 });
 
                 /*

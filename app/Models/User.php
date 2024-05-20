@@ -106,7 +106,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     // TODO rename LastLogin column to last_activity_at
     // TODO rename appToken column to connect_token or to passport
     // TODO rename appTokenExpiry column to connect_token_expires_at or to passport
-    // TODO rename APIKey column to api_token or to passport
+    // TODO rename APIKey column to api_token or to passport, remove getApiTokenAttribute()
     // TODO rename APIUses column to api_calls or to passport
     // TODO rename RAPoints column to points
     // TODO rename TrueRAPoints column to points_weighted
@@ -389,6 +389,12 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     public function getIdAttribute(): ?int
     {
         return $this->attributes['ID'] ?? null;
+    }
+
+    // TODO remove after rename
+    public function getApiTokenAttribute(): string
+    {
+        return $this->attributes['APIKey'];
     }
 
     // TODO remove after rename
