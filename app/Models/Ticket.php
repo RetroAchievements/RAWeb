@@ -21,7 +21,7 @@ class Ticket extends BaseModel
     use SoftDeletes;
 
     // TODO rename Ticket table to tickets
-    // TODO rename ID column to id
+    // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename ReportType column to type
     // TODO rename ReportNotes column to body
     // TODO rename ReportedAt column to created_at
@@ -36,6 +36,15 @@ class Ticket extends BaseModel
 
     public const CREATED_AT = 'ReportedAt';
     public const UPDATED_AT = 'Updated';
+
+    protected $fillable = [
+        'AchievementID',
+        'reporter_id',
+        'ticketable_author_id',
+        'ReportType',
+        'Hardcore',
+        'ReportNotes',
+    ];
 
     protected $casts = [
         'ResolvedAt' => 'datetime',
@@ -64,6 +73,12 @@ class Ticket extends BaseModel
 
     // == accessors
 
+    // TODO remove after rename
+    public function getIdAttribute(): int
+    {
+        return $this->attributes['ID'];
+    }
+
     public function getIsOpenAttribute(): bool
     {
         return TicketState::isOpen($this->state);
@@ -85,6 +100,14 @@ class Ticket extends BaseModel
     public function achievement(): BelongsTo
     {
         return $this->belongsTo(Achievement::class, 'AchievementID');
+    }
+
+    /**
+     * @return BelongsTo<User, Ticket>
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'ticketable_author_id', 'ID')->withTrashed();
     }
 
     /**
@@ -149,9 +172,7 @@ class Ticket extends BaseModel
      */
     public function scopeForDeveloper(Builder $query, User $developer): Builder
     {
-        return $query->whereHas('achievement', function ($query) use ($developer) {
-            $query->where('user_id', $developer->id);
-        });
+        return $query->where('ticketable_author_id', $developer->id);
     }
 
     /**
