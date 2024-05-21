@@ -47,7 +47,7 @@ if ($staticData) {
     </div>
 
     <x-claims.new-claims count="5" />
-    <x-forum-recent-posts />
+    <x-forum-recent-activity />
 
     <x-slot name="sidebar">
         <x-content.top-links />
