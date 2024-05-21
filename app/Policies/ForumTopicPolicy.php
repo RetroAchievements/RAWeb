@@ -39,7 +39,7 @@ class ForumTopicPolicy
 
     public function create(User $user, Forum $forum): bool
     {
-        if ($user->isMuted()) {
+        if ($user->isMuted() || $user->isBanned()) {
             return false;
         }
 

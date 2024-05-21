@@ -65,7 +65,7 @@ class ForumTopicCommentPolicy
     {
         // Muted users might edit their existing comments to post abuse.
         // Therefore, we will not allow muted users to edit their comments.
-        if ($user->isMuted()) {
+        if ($user->isMuted() || $user->isBanned()) {
             return false;
         }
 
