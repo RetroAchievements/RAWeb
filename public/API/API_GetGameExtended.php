@@ -65,7 +65,7 @@ if (!$game) {
     return response()->json();
 }
 
-$gameSetClaims = AchievementSetClaim::where('game_id', $gameId)->get();
+$gameAchievementSetClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
 $gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag)->findMany($game->achievements);
 
 $gameData = [
@@ -114,12 +114,12 @@ if (!$gameAchievements->isEmpty()) {
     $gameListAchievements = new ArrayObject();
 }
 
-if (!$gameSetClaims) {
+if (!$gameAchievementSetClaims) {
     $gameClaims = [];
 } else {
-    $gameClaims = $gameSetClaims->map(function ($gc) {
+    $gameClaims = $gameAchievementSetClaims->map(function ($gc) {
         return [
-            'User' => $gc->User,
+            'User' => $gc->user->display_name,
             'SetType' => $gc->SetType,
             'GameID' => $gc->game_id,
             'ClaimType' => $gc->ClaimType,

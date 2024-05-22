@@ -38,7 +38,6 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
@@ -80,7 +79,6 @@ class UploadAchievementTest extends TestCase
         $achievement = Achievement::factory()->for($game)->create(['Author' => $author->username, 'user_id' => $author->id]);
 
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
@@ -121,7 +119,6 @@ class UploadAchievementTest extends TestCase
         $achievement1 = Achievement::factory()->create(['Author' => $author->User, 'user_id' => $author->id]);
 
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
@@ -429,7 +426,6 @@ class UploadAchievementTest extends TestCase
         // ====================================================
         // junior developer can create achievement with claim
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
@@ -623,7 +619,6 @@ class UploadAchievementTest extends TestCase
         // ====================================================
         // developer can create achievement with claim
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
@@ -840,7 +835,6 @@ class UploadAchievementTest extends TestCase
         $game->save();
 
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
@@ -965,7 +959,6 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(system: $system, withHash: false);
 
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
@@ -1073,7 +1066,6 @@ class UploadAchievementTest extends TestCase
         $game = $this->seedGame(withHash: false);
 
         AchievementSetClaim::factory()->create([
-            'User' => $author->username,
             'user_id' => $author->id,
             'game_id' => $game->id,
         ]);
