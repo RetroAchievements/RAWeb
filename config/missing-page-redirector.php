@@ -79,6 +79,11 @@ return [
         '/popularGames.php' => '/games/popular',
 
         /*
+         * hashes
+         */
+        'latesthasheslinked.php' => '/manage/game-hashes',
+
+        /*
          * leaderboards
          */
         '/leaderboardinfo.php' => '/leaderboard/{i}',
