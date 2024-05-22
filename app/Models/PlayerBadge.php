@@ -22,7 +22,6 @@ class PlayerBadge extends BaseModel
     public const UPDATED_AT = null;
 
     protected $fillable = [
-        'User',
         'user_id',
         'AwardType',
         'AwardData',
@@ -120,7 +119,7 @@ class PlayerBadge extends BaseModel
 
     public static function getNextDisplayOrder(User $user): int
     {
-        return PlayerBadge::where('User', $user->User)->max('DisplayOrder') + 1;
+        return PlayerBadge::where('user_id', $user->id)->max('DisplayOrder') + 1;
     }
 
     public static function getHighestUserAwardForGameId(User $user, int $gameId): ?array

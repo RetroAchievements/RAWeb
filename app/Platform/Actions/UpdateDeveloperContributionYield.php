@@ -42,7 +42,7 @@ class UpdateDeveloperContributionYield
             return;
         }
 
-        $badge = PlayerBadge::where('User', $user->User)
+        $badge = PlayerBadge::where('user_id', $user->id)
             ->where('AwardType', '=', $type)
             ->orderBy('AwardData', 'DESC')
             ->first();
@@ -62,7 +62,6 @@ class UpdateDeveloperContributionYield
 
         // add new award
         $badge = PlayerBadge::create([
-            'User' => $user->User,
             'user_id' => $user->id,
             'AwardType' => $type,
             'AwardData' => $tier,
@@ -100,7 +99,6 @@ class UpdateDeveloperContributionYield
             while ($total >= $nextThreshold) {
                 if ($tier > $lastAwardedTier) {
                     PlayerBadge::create([
-                        'User' => $user->User,
                         'user_id' => $user->id,
                         'AwardType' => $type,
                         'AwardData' => $tier,

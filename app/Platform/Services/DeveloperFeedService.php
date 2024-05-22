@@ -88,7 +88,7 @@ class DeveloperFeedService
     private function attachRecentAwardRowsMetadata(mixed $awardRows): mixed
     {
         // Fetch all the user metadata.
-        $usernames = $awardRows->pluck('User')->unique();
+        $usernames = $awardRows->loadMissing('user')->pluck('user.User')->unique();
         $userData = User::whereIn('User', $usernames)->get(['ID', 'User', 'Untracked'])->keyBy('User');
 
         // Fetch all the game metadata.
@@ -106,7 +106,7 @@ class DeveloperFeedService
             $row->GameTitle = $game->Title ?? null;
             $row->GameIcon = $game->ImageIcon ?? null;
 
-            $row->Untracked = $userData[$row->User]->Untracked ?? null;
+            $row->Untracked = $userData[$row->user->User]->Untracked ?? null;
 
             $row->ConsoleName = $consoleData[$game->ConsoleID]->Name ?? null;
 
