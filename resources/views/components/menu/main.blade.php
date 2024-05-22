@@ -120,7 +120,7 @@ $menuSystemsList = [
             <x-dropdown-item :href="url('setRequestList.php')">Most Requested</x-dropdown-item>
             <x-dropdown-item :href="url('claimlist.php?s=9&f=8109')">New Sets & Revisions</x-dropdown-item>
             <x-dropdown-item :href="url('claimlist.php')">Sets in Progress</x-dropdown-item>
-            <x-dropdown-item :href="url('random.php')">Random Set</x-dropdown-item>
+            <x-dropdown-item :href="route('game.random')">Random Set</x-dropdown-item>
             <x-dropdown-header>Hubs</x-dropdown-header>
             <x-dropdown-item :href="url('gameList.php?s=6&c=100&f=1')">Hub List</x-dropdown-item>
             <x-dropdown-item :href="url('game/6914')">Central Hub</x-dropdown-item>
