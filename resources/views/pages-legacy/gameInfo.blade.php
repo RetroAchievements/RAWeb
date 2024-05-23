@@ -571,10 +571,11 @@ if ($isFullyFeaturedGame) {
                 {{-- Display the claims links if not an event game --}}
                 @if (!$isEventGame)
                     @if ($permissions >= Permissions::Developer)
-                            <x-game.add-to-list
-                                :gameId="$gameID"
-                                :type="UserGameListType::Develop"
-                            />
+                        <livewire:game.add-to-list-button
+                            label="Want to Develop"
+                            :gameId="$gameID"
+                            :listType="UserGameListType::Develop"
+                        />
                     @endif
                     <x-game.devbox-claim-management
                         :claimData="$claimData"
