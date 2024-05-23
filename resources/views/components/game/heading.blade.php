@@ -37,9 +37,9 @@ $iconUrl = getSystemIconUrl($consoleId);
         @endphp
         @if ($user?->getAttribute('Permissions') >= Permissions::Registered && System::isGameSystem($consoleId))
             <livewire:game.add-to-list-button
+                :$gameId
                 label="Want to Play"
-                :gameId="$gameId"
-            >
+            />
         @endif
     </div>
 </h1>
