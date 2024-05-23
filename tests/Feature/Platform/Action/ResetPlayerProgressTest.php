@@ -106,7 +106,7 @@ class ResetPlayerProgressTest extends TestCase
     {
         /** @var User $user */
         $user = User::factory()->create(['RASoftcorePoints' => 123, 'RAPoints' => 1234, 'TrueRAPoints' => 2345,
-                                         'ContribCount' => 111, 'ContribYield' => 2222]);
+            'ContribCount' => 111, 'ContribYield' => 2222]);
         $game = $this->seedGame(withHash: false);
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->id, 'Points' => 5, 'TrueRatio' => 7, 'Author' => $user->User, 'user_id' => $user->id]);

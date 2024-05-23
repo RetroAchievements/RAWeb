@@ -454,13 +454,13 @@ class SuggestGamesService
                         :relatedGameTitle="$relatedGameTitle"
                         :relatedGameIcon="$relatedGameIcon"
                     />', [
-                        'selectionMethod' => $game['SelectionMethod'],
-                        'relatedSubject' => $game['RelatedHub'] ?? '',
-                        'relatedGameId' => $game['RelatedGame']['ID'] ?? 0,
-                        'relatedGameType' => $game['RelatedGameType'] ?? '',
-                        'relatedGameTitle' => $game['RelatedGame']['Title'] ?? '',
-                        'relatedGameIcon' => $game['RelatedGame']['ImageIcon'] ?? '',
-                    ]);
+                    'selectionMethod' => $game['SelectionMethod'],
+                    'relatedSubject' => $game['RelatedHub'] ?? '',
+                    'relatedGameId' => $game['RelatedGame']['ID'] ?? 0,
+                    'relatedGameType' => $game['RelatedGameType'] ?? '',
+                    'relatedGameTitle' => $game['RelatedGame']['Title'] ?? '',
+                    'relatedGameIcon' => $game['RelatedGame']['ImageIcon'] ?? '',
+                ]);
                 echo '</td>';
             },
         ];

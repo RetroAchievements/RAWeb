@@ -235,7 +235,7 @@ class AchievementResource extends Resource
                 Tables\Columns\TextColumn::make('game')
                     ->label('Game')
                     ->formatStateUsing(fn ($state) => '[' . $state->id . '] ' . $state->title),
-                    // ->url(GameResource::getUrl('view', ['record' => $state->id])),
+                // ->url(GameResource::getUrl('view', ['record' => $state->id])),
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
                     ->formatStateUsing(fn (int $state): string => match ($state) {

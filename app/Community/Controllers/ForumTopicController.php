@@ -52,7 +52,7 @@ class ForumTopicController extends \App\Http\Controller
         $topic->load([
             'forum',
             'user',
-        /*
+            /*
          * eager loading won't let us have a grid paginator for a morphed relationship
          */
             // 'comments' => function($query){

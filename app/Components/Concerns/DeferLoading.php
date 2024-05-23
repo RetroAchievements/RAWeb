@@ -22,7 +22,7 @@ trait DeferLoading
     /**
      * @return array|LengthAwarePaginator<Model>|Collection<int, Model>|null
      */
-    protected function loadDeferred(): array|null|LengthAwarePaginator|Collection
+    protected function loadDeferred(): array|LengthAwarePaginator|Collection|null
     {
         if ($this->defer && !$this->ready) {
             return null;
