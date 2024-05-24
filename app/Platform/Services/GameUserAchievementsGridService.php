@@ -36,6 +36,7 @@ class GameUserAchievementsGridService
                 'DisplayOrder' => $gameAchievement->DisplayOrder,
                 'Unlocked' => false,
                 'DateAwarded' => null,
+                'HardcoreAchieved' => null,
             ];
         }
         foreach ($userUnlocks as $achievementId => $userUnlock) {
