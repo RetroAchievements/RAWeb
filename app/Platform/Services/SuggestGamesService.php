@@ -446,7 +446,7 @@ class SuggestGamesService
             'render' => function ($game) {
                 echo '<td>';
                 echo Blade::render('
-                    <x-game-list-item.suggest-reason
+                    <x-game.suggest-reason
                         :selectionMethod="$selectionMethod"
                         :relatedSubject="$relatedSubject"
                         :relatedGameId="$relatedGameId"
