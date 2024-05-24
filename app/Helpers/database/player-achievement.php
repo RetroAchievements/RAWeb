@@ -294,20 +294,20 @@ function getAchievementDistribution(
 
     // Returns an array of the number of players who have achieved each total, up to the max.
     if ($flag === AchievementFlag::OfficialCore) {
-        $countColumn = $isHardcore ? 'achievements_unlocked_hardcore' : 'achievements_unlocked - achievements_unlocked_hardcore';
+        $countColumn = $isHardcore ? 'player_games.achievements_unlocked_hardcore' : 'player_games.achievements_unlocked - player_games.achievements_unlocked_hardcore';
 
         $countQuery = PlayerGame::query()
             ->selectRaw("$countColumn as AwardedCount, count(*) as NumUniquePlayers")
             ->whereRaw("$countColumn > 0")
-            ->where('game_id', $gameID)
+            ->where('player_games.game_id', $gameID)
             ->groupBy('AwardedCount')
             ->orderByDesc('AwardedCount');
 
         if ($joinUsers) {
-            $countQuery->whereHas("user",
-                fn ($query) => $query
-                    ->where("Untracked", 0)
-                    ->orWhere("User", $requestedBy)
+            $countQuery->join("useraccounts", "player_games.user_id", "=", "useraccounts.ID")
+                ->where(fn ($query) => $query
+                    ->where("useraccounts.Untracked", 0)
+                    ->orWhere("useraccounts.User", $requestedBy)
             );
         }
 
@@ -317,22 +317,20 @@ function getAchievementDistribution(
 
         $subQuery = PlayerAchievement::query()
             ->selectRaw(
-                "user_id, 
-                sum(case when unlocked_hardcore_at is null then 1 else 0 end) as softcore_unlocks, 
-                sum(case when unlocked_hardcore_at is not null then 1 else 0 end) as hardcore_unlocks"
+                "player_achievements.user_id, 
+                sum(case when player_achievements.unlocked_hardcore_at is null then 1 else 0 end) as softcore_unlocks, 
+                sum(case when player_achievements.unlocked_hardcore_at is not null then 1 else 0 end) as hardcore_unlocks"
             )
-            ->whereHas("achievement",
-                fn ($query) => $query
-                    ->where("GameID", $gameID)
-                    ->where("Flags", AchievementFlag::Unofficial)
-            )
-            ->groupBy("user_id");
+            ->join("achievements", "player_achievements.achievement_id", "=", "achievements.ID")
+            ->where("achievements.GameID", $gameID)
+            ->where("achievements.Flags", AchievementFlag::Unofficial)
+            ->groupBy("player_achievements.user_id");
 
         if ($joinUsers) {
-            $subQuery->whereHas("user",
-                fn ($query) => $query
-                    ->where("Untracked", 0)
-                    ->orWhere("User", $requestedBy)
+            $subQuery->join("useraccounts", "player_achievements.user_id", "=", "useraccounts.ID")
+                ->where(fn ($query) => $query
+                    ->where("useraccounts.Untracked", 0)
+                    ->orWhere("useraccounts.User", $requestedBy)
             );
         }
 
