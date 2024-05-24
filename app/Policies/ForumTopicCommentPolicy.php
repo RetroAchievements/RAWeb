@@ -36,6 +36,8 @@ class ForumTopicCommentPolicy
             return true;
         }
 
+        // TODO return false if the comment was authored by someone blocking the current user
+
         // Users are allowed to see their own unauthorized comments.
         // If the user is allowed to manage ForumTopicComment entities,
         // they can also view the comment.
@@ -93,5 +95,10 @@ class ForumTopicCommentPolicy
     public function forceDelete(User $user, ForumTopicComment $comment): bool
     {
         return false;
+    }
+
+    public function viewUserPosts(User $currentUser, User $targetUser): bool
+    {
+        return !$targetUser->isBlocking($currentUser);
     }
 }
