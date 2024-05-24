@@ -32,6 +32,10 @@ $matureContentPref = UserPreference::Site_SuppressMatureContentWarning;
 $officialFlag = AchievementFlag::OfficialCore;
 $unofficialFlag = AchievementFlag::Unofficial;
 $flagParam = requestInputSanitized('f', $officialFlag, 'integer');
+
+//for testing
+//$flagParam = requestInputSanitized('f', $unofficialFlag, 'integer');
+
 $isOfficial = false;
 if ($flagParam !== $unofficialFlag) {
     $isOfficial = true;
@@ -116,8 +120,8 @@ if ($v != 1) {
 ?>
 
 <?php
-$achDist = null;
-$achDistHardcore = null;
+$softcoreUnlocks = null;
+$hardcoreUnlocks = null;
 $authorInfo = [];
 $commentData = null;
 $gameTopAchievers = null;
@@ -151,8 +155,8 @@ $userGameProgressionAwards = [
 if ($isFullyFeaturedGame) {
     $numDistinctPlayers = $gameData['NumDistinctPlayers'];
 
-    $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
-    $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
+    $softcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
+    $hardcoreUnlocks = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
 
     $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
@@ -339,8 +343,8 @@ if ($isFullyFeaturedGame) {
             dataTotalScore.addRows([
                 <?php
                 [$buckets, $isDynamicBucketingEnabled] = generateEmptyBucketsWithBounds($numAchievements);
-                [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $achDist, $achDistHardcore);
-                $allAchievementsCount = handleAllAchievementsCase($numAchievements, $achDist, $achDistHardcore, $buckets);
+                [$largestWonByCount] = calculateBuckets($buckets, $isDynamicBucketingEnabled, $numAchievements, $softcoreUnlocks, $hardcoreUnlocks);
+                $allAchievementsCount = handleAllAchievementsCase($numAchievements, $softcoreUnlocks, $hardcoreUnlocks, $buckets);
                 $largestWonByCount = max($allAchievementsCount, $largestWonByCount);
 
                 $numGridlines = ($numAchievements < 20) ? $numAchievements : 10;
