@@ -47,6 +47,7 @@ class GameUserAchievementsGridServiceTest extends TestCase
             'DisplayOrder' => $publishedAchievement->DisplayOrder,
             'Unlocked' => false,
             'DateAwarded' => null,
+            'HardcoreAchieved' => null,
         ], $gameAchievementsWithUserProgress[0]);
     }
 
