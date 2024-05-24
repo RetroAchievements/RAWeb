@@ -100,7 +100,7 @@ class Supersearch extends Component
     /**
      * @return Collection<int, Model>|null
      */
-    private function searchResource(string $resourceName, string $resourceClass, array $options = []): ?Collection
+    private function searchResource(string $resourceName, string $resourceClass, array $options = []): Collection|null
     {
         try {
             $query = $this->resourceQuery($resourceName);

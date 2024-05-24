@@ -33,12 +33,12 @@ return new class() extends Migration {
             $table->dropForeign('messages_sender_id_foreign');
 
             $table->dropColumn(['recipient_id',
-                'sender_id',
-                'read_at',
-                'Type',
-                'recipient_deleted_at',
-                'sender_deleted_at',
-                'deleted_at']);
+                                'sender_id',
+                                'read_at',
+                                'Type',
+                                'recipient_deleted_at',
+                                'sender_deleted_at',
+                                'deleted_at']);
 
             $table->unsignedBigInteger('thread_id')->after('ID');
             $table->unsignedBigInteger('author_id')->after('thread_id');

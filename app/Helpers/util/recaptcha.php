@@ -167,11 +167,11 @@ function recaptcha_check_answer($privkey, $remoteip, $challenge, $response, $ext
         RECAPTCHA_VERIFY_SERVER,
         "/recaptcha/api/verify",
         [
-            'privatekey' => $privkey,
-            'remoteip' => $remoteip,
-            'challenge' => $challenge,
-            'response' => $response,
-        ] + $extra_params
+                                                 'privatekey' => $privkey,
+                                                 'remoteip' => $remoteip,
+                                                 'challenge' => $challenge,
+                                                 'response' => $response,
+                                                 ] + $extra_params
     );
 
     $answers = explode("\n", $response[1]);

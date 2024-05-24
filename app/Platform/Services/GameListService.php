@@ -561,12 +561,12 @@ class GameListService
                             :maxProgress="$maxProgress"
                             :tooltip="$tooltip"
                         />', [
-                        'awardIndicator' => $highestAwardKind,
-                        'softcoreProgress' => $softcoreProgress,
-                        'hardcoreProgress' => $hardcoreProgress,
-                        'maxProgress' => $game['achievements_published'],
-                        'tooltip' => $tooltip,
-                    ]);
+                            'awardIndicator' => $highestAwardKind,
+                            'softcoreProgress' => $softcoreProgress,
+                            'hardcoreProgress' => $hardcoreProgress,
+                            'maxProgress' => $game['achievements_published'],
+                            'tooltip' => $tooltip,
+                        ]);
                     echo '</td>';
                 }
             },
@@ -592,9 +592,9 @@ class GameListService
                         :gameId="$gameId"
                         :isOnBacklog="$isOnBacklog"
                     />', [
-                    'gameId' => $game['ID'],
-                    'isOnBacklog' => $game['WantToPlay'] ?? false,
-                ]);
+                        'gameId' => $game['ID'],
+                        'isOnBacklog' => $game['WantToPlay'] ?? false,
+                    ]);
                 echo '</td>';
             },
         ];

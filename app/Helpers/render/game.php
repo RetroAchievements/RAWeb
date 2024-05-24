@@ -104,9 +104,9 @@ function renderGameBreadcrumb(array|int $data, bool $addLinkToLastCrumb = true):
                 :rawTitle="$rawTitle"
                 :showTags="$showTags"
             />', [
-            'rawTitle' => $mainTitle,
-            'showTags' => false,
-        ]
+                'rawTitle' => $mainTitle,
+                'showTags' => false,
+            ]
         );
 
         if ($renderedMain !== $mainTitle) {
@@ -355,8 +355,8 @@ function calculateBuckets(
     array &$buckets,
     bool $isDynamicBucketingEnabled,
     int $numAchievements,
-    array $softcoreUnlocks,
-    array $hardcoreUnlocks
+    array $achDist,
+    array $achDistHardcore
 ): array {
     $largestWonByCount = 0;
 
@@ -368,8 +368,9 @@ function calculateBuckets(
         // Distribute the achievements into the bucket by adding the number of hardcore
         // users who achieved it and the number of softcore users who achieved it to
         // the respective counts.
-        $buckets[$targetBucketIndex]['hardcore'] += $hardcoreUnlocks[$i];
-        $buckets[$targetBucketIndex]['softcore'] += $softcoreUnlocks[$i];
+        $wonByUserCount = $achDist[$i];
+        $buckets[$targetBucketIndex]['hardcore'] += $achDistHardcore[$i];
+        $buckets[$targetBucketIndex]['softcore'] += $wonByUserCount - $achDistHardcore[$i];
 
         // We need to also keep tracked of `largestWonByCount`, which is later used for chart
         // configuration, such as determining the number of gridlines to show.
@@ -380,7 +381,7 @@ function calculateBuckets(
     return [$buckets, $largestWonByCount];
 }
 
-function handleAllAchievementsCase(int $numAchievements, array $softcoreUnlocks, array $hardcoreUnlocks, array &$buckets): int
+function handleAllAchievementsCase(int $numAchievements, array $achDist, array $achDistHardcore, array &$buckets): int
 {
     if ($numAchievements <= 0) {
         return 0;
@@ -388,15 +389,15 @@ function handleAllAchievementsCase(int $numAchievements, array $softcoreUnlocks,
 
     // Add a bucket for the users who have earned all achievements.
     $buckets[] = [
-        'hardcore' => $hardcoreUnlocks[$numAchievements],
-        'softcore' => $softcoreUnlocks[$numAchievements],
+        'hardcore' => $achDistHardcore[$numAchievements],
+        'softcore' => $achDist[$numAchievements] - $achDistHardcore[$numAchievements],
     ];
 
     // Calculate the total count of users who have earned all achievements.
     // This will later be used for chart configuration in determining the
     // number of gridlines to show on one of the axes.
     $allAchievementsCount = (
-        $hardcoreUnlocks[$numAchievements] + $softcoreUnlocks[$numAchievements]
+        $achDistHardcore[$numAchievements] + ($achDist[$numAchievements] - $achDistHardcore[$numAchievements])
     );
 
     return $allAchievementsCount;

@@ -48,8 +48,8 @@ class GameTitleTest extends TestCase
                 rawTitle="~Prototype~ Hello, world! [Subset - Bonus]"
                 :showTags="$showTags"
             />', [
-            'showTags' => false,
-        ]
+                'showTags' => false,
+            ]
         );
 
         $view->assertSeeText("Hello, world!");
