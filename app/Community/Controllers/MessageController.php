@@ -44,6 +44,6 @@ class MessageController extends Controller
             $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
         }
 
-        return redirect(route("message-thread.show", $thread->id))->with('success', __('legacy.success.message_send'));
+        return redirect(route("message-thread.show", ['messageThread' => $thread->id]))->with('success', __('legacy.success.message_send'));
     }
 }

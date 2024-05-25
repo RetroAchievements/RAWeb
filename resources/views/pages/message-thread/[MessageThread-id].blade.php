@@ -1,52 +1,36 @@
 <?php
 
-use App\Enums\UserPreference;
+use App\Community\Services\MessageThreadService;
 use App\Models\MessageThread;
-use App\Models\User;
 use App\Support\Shortcode\Shortcode;
-use Illuminate\Support\Carbon;
-use function Laravel\Folio\{middleware, name};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
-middleware(['auth', 'can:view,messageThread']);
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth']); // TODO add 'verified' middleware
 name('message-thread.show');
+
+render(function (View $view, MessageThread $messageThread, MessageThreadService $pageService) {
+    $user = Auth::user();
+    $currentPage = (int) (request()->input('page.number') ?? 1);
+
+    return $view->with($pageService->buildForMessageThreadViewData($user, $messageThread, $currentPage));
+});
 
 ?>
 
 @props([
-    'messages' => [],
-    'participants' => [],
+    'canReply' => false,
     'currentPage' => 1,
+    'isShowAbsoluteDatesPreferenceSet' => false,
+    'messages' => null, // Collection<Message>
+    'messageThread' => null, // MessageThread
+    'monthAgo' => null, // Carbon
+    'pageDescription' => '',
+    'participants' => [],
     'totalPages' => 1,
-    'canReply' => true,
 ])
-
-@php
-$user = request()->user();
-$isShowAbsoluteDatesPreferenceSet = BitSet(request()->user()->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
-$monthAgo = Carbon::now()->subMonth(1);
-
-$participantModels = [];
-if (empty($participants)) {
-    foreach ($messages as $message) {
-        if (!array_key_exists($message->author_id, $participants)) {
-            $participantModel = User::withTrashed()->firstWhere('id', $message->author_id);
-            if ($participantModel) {
-                $participantModels[$message->author_id] = $participantModel;
-                $participants[$participantModel->ID] = $participantModel->User;
-            }
-        }
-    }
-} else {
-    foreach ($participants as $id => $participant) {
-        $participantModel = User::withTrashed()->firstWhere('id', $id);
-        if ($participantModel) {
-            $participantModels[$id] = $participantModel;
-        }
-    }
-}
-
-$pageDescription = "Conversation between " . implode(' and ', $participants);
-@endphp
 
 <x-app-layout
     :pageTitle="$messageThread->title"
@@ -126,5 +110,4 @@ $pageDescription = "Conversation between " . implode(' and ', $participants);
     <div class="w-full flex justify-end mt-2">
         <x-paginator :totalPages="$totalPages" :currentPage="$currentPage"/>
     </div>
-
 </x-app-layout>
