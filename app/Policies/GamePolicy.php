@@ -109,7 +109,7 @@ class GamePolicy
             ->all();
 
         // Junior Developers need to have a claim on the game if they want to edit game fields.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$user->canDeveloperJuniorUpdateGame($user, $game)) {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$this->canDeveloperJuniorUpdateGame($user, $game)) {
             return false;
         }
 
