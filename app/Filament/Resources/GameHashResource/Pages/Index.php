@@ -8,7 +8,7 @@ use App\Filament\Resources\GameHashResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
-class ListGameHashes extends ListRecords
+class Index extends ListRecords
 {
     protected static string $resource = GameHashResource::class;
 

@@ -78,10 +78,10 @@ class GameHashResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListGameHashes::route('/'),
+            'index' => Pages\Index::route('/'),
             // TODO
-            // 'create' => Pages\CreateGameHash::route('/create'),
-            // 'edit' => Pages\EditGameHash::route('/{record}/edit'),
+            // 'create' => Pages\Create::route('/create'),
+            // 'edit' => Pages\Edit::route('/{record}/edit'),
         ];
     }
 }

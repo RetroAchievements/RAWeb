@@ -8,14 +8,14 @@ use App\Filament\Resources\GameHashResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditGameHash extends EditRecord
+class Edit extends EditRecord
 {
     protected static string $resource = GameHashResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            // Actions\DeleteAction::make(),
         ];
     }
 }

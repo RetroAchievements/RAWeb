@@ -7,7 +7,7 @@ namespace App\Filament\Resources\GameHashResource\Pages;
 use App\Filament\Resources\GameHashResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateGameHash extends CreateRecord
+class Create extends CreateRecord
 {
     protected static string $resource = GameHashResource::class;
 }
