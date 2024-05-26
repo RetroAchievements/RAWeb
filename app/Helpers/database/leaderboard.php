@@ -146,9 +146,7 @@ function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
     }
 
     $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
-
-    // TODO utilize soft deletes
-    $wasLeaderboardEntryDeleted = $leaderboardEntry->forceDelete();
+    $wasLeaderboardEntryDeleted = $leaderboardEntry->delete();
 
     return $wasLeaderboardEntryDeleted;
 }
@@ -186,7 +184,7 @@ function GetLeaderboardData(
           SELECT COUNT(user_id)
           FROM leaderboard_entries AS le
           LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
-          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID
+          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID AND le.deleted_at IS NULL
         ) AS TotalEntries
       FROM LeaderboardDef AS ld
       LEFT JOIN GameData AS gd ON gd.ID = ld.GameID
@@ -236,7 +234,7 @@ function GetLeaderboardData(
                   FROM leaderboard_entries AS le
                   LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
                   LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
-                  WHERE (ua.Untracked = 0 || ua.User = '$user' ) AND le.leaderboard_id = $lbID
+                  WHERE (ua.Untracked = 0 || ua.User = '$user' ) AND le.leaderboard_id = $lbID AND le.deleted_at IS NULL
                   ORDER BY
                   CASE WHEN lbd.LowerIsBetter = 0 THEN Score END DESC,
                   CASE WHEN lbd.LowerIsBetter THEN Score END ASC, DateSubmitted ASC
@@ -280,7 +278,7 @@ function GetLeaderboardData(
                           FROM leaderboard_entries AS le
                           LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
                           LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
-                          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID) InnerTable
+                          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID AND le.deleted_at IS NULL) InnerTable
                           WHERE InnerTable.User = '$user'";
 
                 $dbResult = s_mysql_query($query);
@@ -325,7 +323,7 @@ function getLeaderboardUserPosition(int $lbID, string $user, ?int &$lbPosition):
                           FROM leaderboard_entries AS le
                           LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
                           LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
-                          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID) InnerTable
+                          WHERE ua.Untracked = 0 AND le.leaderboard_id = $lbID AND le.deleted_at IS NULL) InnerTable
                           WHERE InnerTable.User = '$user'";
 
     $dbResult = s_mysql_query($query);
@@ -396,6 +394,7 @@ function getLeaderboardsList(
         LEFT JOIN
         (
             SELECT le.leaderboard_id, COUNT(*) AS NumResults FROM leaderboard_entries AS le
+            WHERE le.deleted_at IS NULL
             GROUP BY le.leaderboard_id
             ) AS leInner ON leInner.leaderboard_id = ld.ID
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
