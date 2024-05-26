@@ -11,6 +11,7 @@ use App\Concerns\HasAccount;
 use App\Concerns\HasAvatar;
 use App\Concerns\HasPreferences;
 use App\Enums\Permissions;
+use App\Enums\UserPreference;
 use App\Platform\Concerns\ActsAsDeveloper;
 use App\Platform\Concerns\ActsAsPlayer;
 use App\Platform\Concerns\CollectsBadges;
@@ -413,6 +414,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     public function getPermissionsAttribute(): int
     {
         return $this->attributes['Permissions'];
+    }
+
+    public function getPrefersAbsoluteDatesAttribute(): bool
+    {
+        return BitSet($this->getAttribute('websitePrefs'), UserPreference::Forum_ShowAbsoluteDates);
     }
 
     public function getLastActivityAtAttribute(): string

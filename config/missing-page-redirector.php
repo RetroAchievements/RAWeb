@@ -109,7 +109,10 @@ return [
          * forums
          */
         '/forum.php' => '/forums/category/{c}', // TODO what if no category is specified?
-        '/forumposthistory.php' => '/forums/posts',
+        '/forumposthistory.php' => [
+            'u' => '/user/{u}/posts',
+            '' => '/forums/posts',
+        ],
         '/viewforum.php' => '/forums/forum/{f}',
         '/viewtopic.php' => '/forums/topic/{t}',
         '/forum/viewtopic.php' => '/forums/topic/{t}',

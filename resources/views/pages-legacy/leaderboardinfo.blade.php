@@ -46,7 +46,6 @@ $forumTopicID = $leaderboard->game->ForumTopicID;
 
 $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
 
-$numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, $commentData);
 ?>
 
 <x-app-layout
@@ -259,13 +258,8 @@ $numArticleComments = getRecentArticleComments(ArticleType::Leaderboard, $lbID, 
         echo "</div>";
 
         // Render article comments
-        RenderCommentsComponent(
-            $user,
-            $numArticleComments,
-            $commentData,
-            $lbID,
-            ArticleType::Leaderboard,
-            $permissions
+        echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+            ['articleType' => ArticleType::Leaderboard, 'articleId' => $leaderboard->id]
         );
 
         RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
