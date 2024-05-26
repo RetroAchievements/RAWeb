@@ -618,7 +618,8 @@ function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNum
 function requestResetLB(int $lbID): bool
 {
     $entries = LeaderboardEntry::where('leaderboard_id', $lbID);
-    $entriesDeleted = $entries->delete();
+    // TODO utilize soft deletes
+    $entriesDeleted = $entries->forceDelete();
 
     // When `delete()` returns false, it indicates an error has occurred.
     return $entriesDeleted !== false;
