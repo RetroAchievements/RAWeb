@@ -129,7 +129,8 @@ class GamePolicy
             Role::DEVELOPER,
             Role::FORUM_MANAGER,
             Role::MODERATOR,
-        ]);
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::Developer;
     }
 
     // TODO rename to viewActivitylog or use manage() ?
@@ -140,7 +141,8 @@ class GamePolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
-        ]);
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
     private function canDeveloperJuniorUpdateGame(User $user, Game $game): bool
