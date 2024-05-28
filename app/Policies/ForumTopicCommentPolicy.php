@@ -29,7 +29,7 @@ class ForumTopicCommentPolicy
         return true;
     }
 
-    public function view(User $user, ForumTopicComment $comment): bool
+    public function view(?User $user, ForumTopicComment $comment): bool
     {
         // If the comment is authorized, then it's publicly viewable.
         if ($comment->Authorised) {

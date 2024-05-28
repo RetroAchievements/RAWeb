@@ -1,5 +1,7 @@
 <?php
 
+// TODO migrate to Livewire
+
 use App\Enums\Permissions;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Arr;
@@ -18,7 +20,8 @@ $normalizedInput = normalize_shortcodes($input['body']);
 
 return response()->json([
     'message' => __('legacy.success.ok'),
-    'postPreviewHtml' => Blade::render('<x-forum.post :parsedPostContent="$parsedPostContent" isPreview="true" />', [
-        'parsedPostContent' => Shortcode::render($normalizedInput),
+    'postPreviewHtml' => Blade::render('<x-forum.topic-comment :$variant>{{ $body }}</x-forum.topic-comment> ', [
+        'body' => Shortcode::render($normalizedInput),
+        'variant' => 'preview',
     ]),
 ]);
