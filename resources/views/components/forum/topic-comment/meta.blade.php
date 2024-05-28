@@ -19,7 +19,7 @@ $postEditedTimestamp =
 /** @var ?User $user */
 $user = auth()->user();
 $preferences = $user?->websitePrefs ?? 0;
-$isShowAbsoluteDatesPreferenceSet = $user?->prefers_absolute_dates;
+$isShowAbsoluteDatesPreferenceSet = $user?->prefers_absolute_dates ?? false;
 
 $shouldUseTimeAgoDate = function (?string $rawDate): bool {
     if (!$rawDate) {

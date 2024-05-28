@@ -31,17 +31,23 @@ class ForumTopicCommentPolicy
 
     public function view(?User $user, ForumTopicComment $comment): bool
     {
+        if ($user) {
+            // Users are allowed to see their own unauthorized comments.
+            // If the user is allowed to manage ForumTopicComment entities,
+            // they can also view the comment.
+            if ($this->manage($user) || $user->is($comment->user)) {
+                return true;
+            }
+
+            // TODO return false if the comment was authored by someone blocking the current user
+        }
+
         // If the comment is authorized, then it's publicly viewable.
         if ($comment->Authorised) {
             return true;
         }
 
-        // TODO return false if the comment was authored by someone blocking the current user
-
-        // Users are allowed to see their own unauthorized comments.
-        // If the user is allowed to manage ForumTopicComment entities,
-        // they can also view the comment.
-        return $this->manage($user) || $user->is($comment->user);
+        return false;
     }
 
     public function create(User $user, ?ForumTopic $commentable): bool
