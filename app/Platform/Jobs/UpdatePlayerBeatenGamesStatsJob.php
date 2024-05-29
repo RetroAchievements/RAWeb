@@ -3,7 +3,7 @@
 namespace App\Platform\Jobs;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerStats;
+use App\Platform\Actions\UpdatePlayerBeatenGamesStats;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -12,7 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdatePlayerStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Batchable;
     use Dispatchable;
@@ -55,7 +55,7 @@ class UpdatePlayerStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
             return;
         }
 
-        app()->make(UpdatePlayerStats::class)
+        app()->make(UpdatePlayerBeatenGamesStats::class)
             ->execute(User::findOrFail($this->userId));
     }
 }
