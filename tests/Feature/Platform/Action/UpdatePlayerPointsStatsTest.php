@@ -54,7 +54,7 @@ class UpdatePlayerPointsStatsTest extends TestCase
     public function testItCreatesStatsCorrectly(): void
     {
         // Arrange
-        Carbon::setTestNow(Carbon::now());
+        Carbon::setTestNow('2023-11-18');
 
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
@@ -111,7 +111,7 @@ class UpdatePlayerPointsStatsTest extends TestCase
     public function testItUpdatesStatsCorrectly(): void
     {
         // Arrange
-        Carbon::setTestNow(Carbon::now());
+        Carbon::setTestNow('2023-11-18');
 
         $user = User::factory()->create(); // Initially tracked
         $system = System::factory()->create();
