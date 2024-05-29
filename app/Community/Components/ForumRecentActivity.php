@@ -13,7 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Component;
 
-class ForumRecentPosts extends Component
+class ForumRecentActivity extends Component
 {
     private int $numToFetch = 4;
     private ?User $user = null;
@@ -32,7 +32,7 @@ class ForumRecentPosts extends Component
             $this->user?->websitePrefs ?? 0,
         );
 
-        return view('components.forum.recent-posts', [
+        return view('components.forum.recent-activity', [
             'recentForumPosts' => $recentForumPosts,
             'userPreferences' => $this->user?->websitePrefs ?? 0,
         ]);

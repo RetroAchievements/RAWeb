@@ -44,9 +44,6 @@ $userSetRequestInformation = getUserRequestsInformation($userPageModel);
 $userWallActive = $userMassData['UserWallActive'];
 $userIsUntracked = $userMassData['Untracked'];
 
-// Get wall
-$numArticleComments = getRecentArticleComments(ArticleType::User, $userPageID, $commentData);
-
 // Get user's feed
 // $numFeedItems = getFeed( $userPage, 20, 0, $feedData, 0, 'individual' );
 
@@ -174,17 +171,8 @@ if (getActiveClaimCount($userPageModel, true, true) > 0) {
     echo "<h2 class='text-h4'>User Wall</h2>";
 
     if ($userWallActive) {
-        $currentUser = request()->user();
-        $userToPassToComments = ($currentUser && !$userPageModel->isBlocking($currentUser)) ? $user : null;
-
-        // passing 'null' for $user disables the ability to add comments
-        RenderCommentsComponent(
-            $userToPassToComments,
-            $numArticleComments,
-            $commentData,
-            $userPageID,
-            ArticleType::User,
-            $permissions
+        echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" :article=\"\$article\" />",
+            ['articleType' => ArticleType::User, 'articleId' => $userPageModel->id, 'article' => $userPageModel]
         );
     } else {
         echo "<div>";

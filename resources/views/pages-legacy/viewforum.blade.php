@@ -174,6 +174,6 @@ sanitize_outputs(
     echo "</div>";
     ?>
     <x-slot name="sidebar">
-        <x-forum-recent-posts :numToFetch="8" />
+        <x-forum-recent-activity :numToFetch="8" />
     </x-slot>
 </x-app-layout>

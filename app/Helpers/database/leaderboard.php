@@ -6,6 +6,7 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
+use Illuminate\Database\Eloquent\Builder;
 
 function SubmitLeaderboardEntry(
     User $user,
@@ -75,9 +76,60 @@ function SubmitLeaderboardEntry(
         $retVal['BestScore'] = $newEntry;
     }
 
-    $retVal['TopEntries'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, false);
-    $retVal['TopEntriesFriends'] = GetLeaderboardEntriesDataJSON($lbID, $user, 10, 0, true);
-    $retVal['RankInfo'] = GetLeaderboardRankingJSON($user, $lbID, (bool) $leaderboard->LowerIsBetter);
+    $retVal['RankInfo'] = [
+        'NumEntries' => $leaderboard->entries()->count(),
+    ];
+
+    if ($leaderboard->LowerIsBetter) {
+        $numBetterScores = $leaderboard->entries()->where('score', '<', $retVal['BestScore'])->count();
+        $retVal['RankInfo']['Rank'] = $numBetterScores + 1;
+
+        $entries = $leaderboard->entries()->orderBy('score');
+    } else {
+        // have to use <= for reverse sort so the number of users being subtracted includes
+        // all users with the same score (see issue #1201)
+        $numBetterScores = $leaderboard->entries()->where('score', '<=', $retVal['BestScore'])->count();
+        $retVal['RankInfo']['Rank'] = $retVal['RankInfo']['NumEntries'] - $numBetterScores + 1;
+
+        $entries = $leaderboard->entries()->orderByDesc('score');
+    }
+
+    $getEntries = function (Builder $query) {
+        $entries = $query
+            ->orderBy('updated_at')
+            ->with('user')
+            ->limit(10)
+            ->get()
+            ->map(fn ($entry) => [
+                'User' => $entry->user->User,
+                'Score' => $entry->score,
+                'DateSubmitted' => $entry->updated_at->unix(),
+            ])
+            ->toArray();
+
+        $index = 1;
+        $rank = 0;
+        $score = null;
+        foreach ($entries as &$entry) {
+            if ($entry['Score'] !== $score) {
+                $score = $entry['Score'];
+                $rank = $index;
+            }
+
+            $entry['Rank'] = $rank;
+            $index++;
+        }
+
+        return $entries;
+    };
+
+    $retVal['TopEntries'] = $getEntries($entries->getQuery());
+
+    $retVal['TopEntriesFriends'] = $getEntries($entries->whereHas('user', function ($query) use ($user) {
+        $friends = $user->followedUsers()->pluck('related_user_id');
+        $friends[] = $user->id;
+        $query->whereIn('ID', $friends);
+    })->getQuery());
 
     return $retVal;
 }
@@ -99,72 +151,6 @@ function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
     $wasLeaderboardEntryDeleted = $leaderboardEntry->forceDelete();
 
     return $wasLeaderboardEntryDeleted;
-}
-
-function GetLeaderboardRankingJSON(User $user, int $lbID, bool $lowerIsBetter): array
-{
-    $retVal = [];
-
-    $query = "SELECT COUNT(*) AS UserRank,
-                (SELECT COUNT(*) AS NumEntries FROM leaderboard_entries AS le
-                 INNER JOIN UserAccounts AS ua ON ua.ID = le.user_id
-                 WHERE le.leaderboard_id = $lbID AND NOT ua.Untracked) AS NumEntries
-              FROM leaderboard_entries AS lbe
-              INNER JOIN leaderboard_entries AS lbe2 ON lbe.leaderboard_id = lbe2.leaderboard_id AND lbe.score " . ($lowerIsBetter ? '<=' : '<') . " lbe2.score
-              WHERE lbe.user_id = {$user->id} AND lbe.leaderboard_id = $lbID
-              AND NOT (SELECT Untracked FROM UserAccounts WHERE ID = lbe.user_id)
-              AND NOT (SELECT Untracked FROM UserAccounts WHERE ID = lbe2.user_id)";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        $retVal = mysqli_fetch_assoc($dbResult);
-
-        if ($lowerIsBetter) {
-            // Query fetches number of users with scores higher or equal to the player
-            // Subtract that number from the total number of players to get the actual rank
-            // Top position yields '0', which we should change to '1' for '1st'
-            // NOTE: have to use <= for reverse sort so number of users being subtracted
-            //       includes all users with the same score (see issue #1201)
-            $retVal['Rank'] = (int) $retVal['NumEntries'] - (int) $retVal['UserRank'] + 1;
-        } else {
-            // Query fetches number of users with scores higher than the player
-            // Top position yields '0', which we need to add one.
-            $retVal['Rank'] = (int) $retVal['UserRank'] + 1;
-        }
-    }
-
-    return $retVal;
-}
-
-function GetLeaderboardEntriesDataJSON(int $lbID, User $user, int $numToFetch, int $offset, bool $friendsOnly): array
-{
-    $retVal = [];
-
-    // 'Me or my friends'
-    $friendQuery = $friendsOnly ? "( ua.User IN ( " . GetFriendsSubquery($user->User) . " ) )" : "TRUE";
-
-    // Get entries:
-    $query = "SELECT ua.User, le.score AS Score, UNIX_TIMESTAMP( le.created_at ) AS DateSubmitted
-              FROM leaderboard_entries AS le
-              LEFT JOIN UserAccounts AS ua ON ua.ID = le.user_id
-              LEFT JOIN LeaderboardDef AS lbd ON lbd.ID = le.leaderboard_id
-              WHERE le.leaderboard_id = $lbID AND $friendQuery
-              ORDER BY
-              CASE WHEN lbd.LowerIsBetter = 0 THEN Score END DESC,
-              CASE WHEN lbd.LowerIsBetter = 1 THEN Score END ASC, DateSubmitted ASC
-              LIMIT $offset, $numToFetch ";
-
-    $dbResult = s_mysql_query($query);
-    $numFound = 0;
-    while ($nextData = mysqli_fetch_assoc($dbResult)) {
-        $nextData['Rank'] = $numFound + $offset + 1;
-        $nextData['Score'] = (int) $nextData['Score'];
-        $nextData['DateSubmitted'] = (int) $nextData['DateSubmitted'];
-        $retVal[] = $nextData;
-        $numFound++;
-    }
-
-    return $retVal;
 }
 
 function GetLeaderboardData(
