@@ -126,7 +126,7 @@ class NotifyMessageThreadParticipants
                         'icon_url' => $userFrom->avatar_url,
                     ],
                     'title' => $messageThread->title,
-                    'url' => route('message-thread.show', $messageThread),
+                    'url' => route('message-thread.show', ['messageThread' => $messageThread->id]),
                     'description' => mb_substr($message->body, 0, 2000),
                     'color' => $color,
                 ],
