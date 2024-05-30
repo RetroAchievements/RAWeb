@@ -204,7 +204,6 @@ function GetLeaderboardData(
         $index++;
     }
 
-    // Currently only used for appending player to the end on website leaderboard pages
     if ($userFound === false && $user && !$nearby) {
         $entry = getLeaderboardUserEntry($leaderboard, $user);
         if ($entry) {

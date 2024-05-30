@@ -178,6 +178,27 @@ class Leaderboard extends BaseModel
         return $entries;
     }
 
+    /**
+     * @return BelongsTo<Game, Leaderboard>
+     */
+    public function game(): BelongsTo
+    {
+        return $this->belongsTo(Game::class, 'GameID', 'ID');
+    }
+
+    // == scopes
+
+    /**
+     * @param Builder<Leaderboard> $query
+     * @return Builder<Leaderboard>
+     */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->where('DisplayOrder', '>=', 0);
+    }
+
+    // == helpers
+
     public function getRank(int $score): int
     {
         $entries = $this->entries();
@@ -221,24 +242,5 @@ class Leaderboard extends BaseModel
         } else {
             return $score > $existingScore;
         }
-    }
-
-    /**
-     * @return BelongsTo<Game, Leaderboard>
-     */
-    public function game(): BelongsTo
-    {
-        return $this->belongsTo(Game::class, 'GameID', 'ID');
-    }
-
-    // == scopes
-
-    /**
-     * @param Builder<Leaderboard> $query
-     * @return Builder<Leaderboard>
-     */
-    public function scopeVisible(Builder $query): Builder
-    {
-        return $query->where('DisplayOrder', '>=', 0);
     }
 }
