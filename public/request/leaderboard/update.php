@@ -34,7 +34,7 @@ if (!$leaderboard) {
 }
 
 // Only let jr. devs update their own leaderboards
-if ($permissions == Permissions::JuniorDeveloper && $leaderboard->developer?->User !== $user) {
+if ($permissions == Permissions::JuniorDeveloper && $leaderboard->developer?->id !== $userDetails['ID']) {
     abort(403);
 }
 
