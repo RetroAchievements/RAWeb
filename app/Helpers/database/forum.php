@@ -85,7 +85,7 @@ function getUnauthorisedForumLinks(): ?array
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ftc.Authorised = 0 AND ft.deleted_at IS NULL
+                WHERE ftc.Authorised = 0 AND ftc.deleted_at IS NULL AND ft.deleted_at IS NULL
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC ";
 
@@ -387,6 +387,7 @@ function getRecentForumPosts(
         SELECT LatestComments.DateCreated AS PostedAt,
             LatestComments.Payload,
             ua.User as Author,
+            ua.display_name as AuthorDisplayName,
             ua.RAPoints,
             ua.Motto,
             ft.ID AS ForumTopicID,
@@ -423,6 +424,7 @@ function getRecentForumTopics(int $offset, int $count, int $permissions, int $nu
         SELECT ft.ID as ForumTopicID, ft.Title as ForumTopicTitle,
                f.ID as ForumID, f.Title as ForumTitle,
                lc.CommentID, lftc.DateCreated as PostedAt, lftc.author_id,
+               ua.User AS Author, ua.display_name AS AuthorDisplayName,
                LEFT(lftc.Payload, $numMessageChars) AS ShortMsg,
                LENGTH(lftc.Payload) > $numMessageChars AS IsTruncated,
                d1.CommentID as CommentID_1d, d1.Count as Count_1d,
@@ -448,6 +450,7 @@ function getRecentForumTopics(int $offset, int $count, int $permissions, int $nu
             WHERE ftc.Authorised=1 AND DateCreated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
             GROUP BY ftc.ForumTopicId
         ) AS d7 ON d7.ForumTopicId = ft.ID
+        LEFT JOIN UserAccounts AS ua ON ua.ID = lftc.author_id
         WHERE ft.RequiredPermissions <= $permissions AND ft.deleted_at IS NULL
         ORDER BY PostedAt DESC
         LIMIT $offset, $count";
