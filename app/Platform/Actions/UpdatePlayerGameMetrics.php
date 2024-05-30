@@ -44,6 +44,7 @@ class UpdatePlayerGameMetrics
         $playerAchievementsHardcore = $playerAchievements->whereNotNull('unlocked_hardcore_at');
         $achievementsUnlockedCount = $playerAchievements->count();
         $achievementsUnlockedHardcoreCount = $playerAchievementsHardcore->count();
+        $achievementsUnlockedSoftcoreCount = $achievementsUnlockedCount - $achievementsUnlockedHardcoreCount;
 
         $firstUnlockAt = $playerAchievements->min('unlocked_at');
         $lastUnlockAt = $playerAchievements->max('unlocked_at');
@@ -90,6 +91,7 @@ class UpdatePlayerGameMetrics
             'points_weighted_total' => $game->TotalTruePoints,
             'points_weighted' => $pointsWeighted,
             'created_at' => $createdAt,
+            'achievements_unlocked_softcore' => $achievementsUnlockedSoftcoreCount,
         ]);
 
         $playerGame->fill($this->beatProgressMetrics($playerGame, $achievementsUnlocked));
