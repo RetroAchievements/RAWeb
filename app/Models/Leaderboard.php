@@ -165,16 +165,12 @@ class Leaderboard extends BaseModel
     {
         $entries = $this->entries();
 
+        $direction = $this->LowerIsBetter ? 'ASC' : 'DESC';
+
         if ($this->Format === ValueFormat::ValueUnsigned) {
-            if ($this->LowerIsBetter) {
-                $entries->orderByRaw(toUnsignedStatement('score'));
-            } else {
-                $entries->orderByRaw(toUnsignedStatement('score') . ' DESC');
-            }
-        } elseif ($this->LowerIsBetter) {
-            $entries->orderBy('score');
+            $entries->orderByRaw(toUnsignedStatement('score') . ' ' . $direction);
         } else {
-            $entries->orderByDesc('score');
+            $entries->orderBy('score', $direction);
         }
 
         $entries->orderBy('updated_at');
