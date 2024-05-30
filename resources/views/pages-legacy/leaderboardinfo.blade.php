@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Leaderboard;
+use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\TriggerDecoderService;
 use Illuminate\Support\Facades\Blade;
@@ -26,7 +27,7 @@ if (!$leaderboard) {
     abort(404);
 }
 
-$lbData = GetLeaderboardData($leaderboard, $user, $count, $offset);
+$lbData = GetLeaderboardData($leaderboard, Auth::user(), $count, $offset);
 
 $numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
 $lbTitle = $leaderboard->title;

@@ -468,7 +468,7 @@ switch ($requestType) {
         // TBD: friendsOnly
         $leaderboard = Leaderboard::find($lbID);
         $response['LeaderboardData'] = $leaderboard ?
-            GetLeaderboardData($leaderboard, $username, $count, $offset, nearby: true) : [];
+            GetLeaderboardData($leaderboard, User::firstWhere('User', $username), $count, $offset, nearby: true) : [];
         break;
 
     case "patch":

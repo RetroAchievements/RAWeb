@@ -135,7 +135,7 @@ function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
 
 function GetLeaderboardData(
     Leaderboard $leaderboard,
-    ?string $user,
+    ?User $user,
     int $numToFetch,
     int $offset,
     bool $nearby = false
@@ -162,7 +162,7 @@ function GetLeaderboardData(
 
     // If a $user is passed in and $nearby is true then change $offset to give
     // entries around the player based on their index and total entries
-    if ($nearby && !is_null($user)) {
+    if ($nearby && $user) {
         $entry = getLeaderboardUserEntry($leaderboard, $user);
         if ($entry !== null) {
             $offset = $entry['Index'] - intdiv($numToFetch, 2) - 1;
@@ -197,7 +197,7 @@ function GetLeaderboardData(
             'Index' => $index,
         ];
 
-        if ($entry->user->User === $user) {
+        if ($entry->user->is($user)) {
             $userFound = true;
         }
 
@@ -215,12 +215,10 @@ function GetLeaderboardData(
     return $retVal;
 }
 
-function getLeaderboardUserEntry(Leaderboard $leaderboard, string $user): ?array
+function getLeaderboardUserEntry(Leaderboard $leaderboard, User $user): ?array
 {
     $userEntry = $leaderboard->entries(includeUnrankedUsers: true)
-        ->whereHas('user', function ($query) use ($user) {
-            $query->where('User', '=', $user);
-        })
+        ->where('user_id', '=', $user->id)
         ->first();
 
     if (!$userEntry) {
@@ -228,7 +226,7 @@ function getLeaderboardUserEntry(Leaderboard $leaderboard, string $user): ?array
     }
 
     $retVal = [
-        'User' => $userEntry->user->display_name,
+        'User' => $user->display_name,
         'DateSubmitted' => $userEntry->updated_at->unix(),
         'Score' => $userEntry->score,
         'Rank' => $leaderboard->getRank($userEntry->score),
