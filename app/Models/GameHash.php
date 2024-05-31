@@ -122,6 +122,16 @@ class GameHash extends BaseModel
     // == relations
 
     /**
+     * @return BelongsToMany<AchievementSet>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(AchievementSet::class, 'achievement_set_game_hashes')
+            ->withPivot('compatible')
+            ->withTimestamps();
+    }
+
+    /**
      * @return BelongsTo<Game, GameHash>
      */
     public function game(): BelongsTo

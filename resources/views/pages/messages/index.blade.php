@@ -1,28 +1,36 @@
 <?php
 
+use App\Community\Services\MessageThreadService;
 use App\Enums\UserPreference;
 use App\Models\User;
 use Illuminate\Support\Carbon;
-use function Laravel\Folio\{middleware, name};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
-middleware(['auth', 'can:viewAny,' . MessageThread::class]);
-name('message.index');
+use function Laravel\Folio\{middleware, name, render};
+
+middleware(['auth', 'can:viewAny,' . App\Models\MessageThread::class]); // TODO add 'verified' middleware
+name('message-thread.index');
+
+render(function (View $view, MessageThreadService $pageService) {
+    $user = Auth::user();
+    $currentPage = (int) (request()->input('page.number') ?? 1);
+    
+    return $view->with($pageService->buildForMessageThreadsIndexViewData($user, $currentPage));
+});
 
 ?>
 
 @props([
-    'messages' => [],
     'currentPage' => 1,
+    'isShowAbsoluteDatesPreferenceSet' => false,
+    'messages' => null, // Collection<MessageThread>
+    'monthAgo' => null, // Carbon
+    'totalMessages' => 0,
     'totalPages' => 1,
     'unreadCount' => 0,
-    'totalMessages' => 0,
+    'user' => null, // User
 ])
-
-@php
-$user = request()->user();
-$isShowAbsoluteDatesPreferenceSet = BitSet($user->websitePrefs, UserPreference::Forum_ShowAbsoluteDates);
-$monthAgo = Carbon::now()->subMonth(1);
-@endphp
 
 <script>
 function deleteMessage(id) {
@@ -78,7 +86,7 @@ function deleteMessage(id) {
                 @endphp
                 <tr>
                     <td @if ($num_unread > 0) class="font-bold" @endif>
-                        <a href="{{ route('message-thread.show', ['messageThread' => $message->id]) }}">
+                        <a href="{{ route('message-thread.show', ['messageThread' => $message]) }}">
                             {{ $message->title }}
                         </a>
                     </td>
