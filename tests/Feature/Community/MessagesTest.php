@@ -259,9 +259,7 @@ class MessagesTest extends TestCase
 
         // user1 has user2 blocked
         $relation = new UserRelation([
-            'User' => $user1->User,
             'user_id' => $user1->id,
-            'Friend' => $user2->User,
             'related_user_id' => $user2->id,
             'Friendship' => UserRelationship::Blocked,
         ]);
