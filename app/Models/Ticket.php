@@ -23,7 +23,7 @@ class Ticket extends BaseModel
     // TODO rename Ticket table to tickets
     // TODO rename ID column to id, remove getIdAttribute()
     // TODO rename ReportType column to type
-    // TODO rename ReportNotes column to body
+    // TODO rename ReportNotes column to body, remove getBodyAttribute()
     // TODO rename ReportedAt column to created_at
     // TODO rename ResolvedAt column to resolved_at
     // TODO rename ReportState column to state, remove getStateAttribute()
@@ -72,6 +72,12 @@ class Ticket extends BaseModel
     }
 
     // == accessors
+
+    // TODO remove after rename
+    public function getBodyAttribute(): string
+    {
+        return $this->attributes['ReportNotes'];
+    }
 
     // TODO remove after rename
     public function getIdAttribute(): int
