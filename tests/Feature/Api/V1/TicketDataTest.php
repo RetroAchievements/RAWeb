@@ -44,7 +44,7 @@ class TicketDataTest extends TestCase
                 'AchievementDesc' => $achievement->Description,
                 'Points' => $achievement->Points,
                 'BadgeName' => $achievement->BadgeName,
-                'AchievementAuthor' => $achievement->Author,
+                'AchievementAuthor' => $achievement->developer->User,
                 'GameID' => $game->ID,
                 'GameTitle' => $game->Title,
                 'GameIcon' => $game->ImageIcon,
@@ -114,7 +114,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement2->Description,
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
-                        'AchievementAuthor' => $achievement2->Author,
+                        'AchievementAuthor' => $achievement2->developer->User,
                         'GameID' => $game2->ID,
                         'GameTitle' => $game2->Title,
                         'GameIcon' => $game2->ImageIcon,
@@ -137,7 +137,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement->Description,
                         'Points' => $achievement->Points,
                         'BadgeName' => $achievement->BadgeName,
-                        'AchievementAuthor' => $achievement->Author,
+                        'AchievementAuthor' => $achievement->developer->User,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -232,7 +232,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
             'AchievementID' => $achievement->ID,
@@ -244,7 +244,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket2 */
         $ticket2 = Ticket::factory()->create([
             'AchievementID' => $achievement2->ID,
@@ -258,7 +258,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'user_id' => $this->user->id]);
         Ticket::factory()->create([
             'AchievementID' => $achievement3->ID,
             'reporter_id' => $user2->ID,
@@ -286,7 +286,10 @@ class TicketDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID]);
+        /** @var User $author */
+        $author = User::factory()->create();
+
+        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'user_id' => $author->id]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = $achievements->get(0);
@@ -322,7 +325,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement2->Description,
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
-                        'AchievementAuthor' => $achievement2->Author,
+                        'AchievementAuthor' => $achievement2->developer->User,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -345,7 +348,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement1->Description,
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
-                        'AchievementAuthor' => $achievement1->Author,
+                        'AchievementAuthor' => $achievement1->developer->User,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -373,7 +376,7 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
         $ticket = Ticket::factory()->create([
             'AchievementID' => $achievement->ID,

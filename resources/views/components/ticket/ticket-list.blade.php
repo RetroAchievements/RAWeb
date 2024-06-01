@@ -2,7 +2,6 @@
     'tickets' => [],
     'totalTickets' => 0,
     'numFilteredTickets' => 0,
-    'offset' => 0,
     'currentPage' => 0,
     'totalPages' => 0,
     'showResolver' => false,

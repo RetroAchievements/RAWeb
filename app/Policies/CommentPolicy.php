@@ -20,7 +20,7 @@ class CommentPolicy
     {
         return $user->hasAnyRole([
             Role::MODERATOR,
-        ]);
+        ]) || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 
     public function view(?User $user, Comment $comment): bool
@@ -55,6 +55,13 @@ class CommentPolicy
 
         if (!$user->hasVerifiedEmail()) {
             return false;
+        }
+
+        // users cannnot comment on the wall of a user who has them blocked
+        if ($commentable !== null && $commentable instanceof User) {
+            if ($commentable->isBlocking($user)) {
+                return false;
+            }
         }
 
         return true;
