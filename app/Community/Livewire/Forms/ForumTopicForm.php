@@ -7,10 +7,10 @@ namespace App\Community\Livewire\Forms;
 use App\Models\Forum;
 use App\Models\ForumTopic;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
+use Livewire\Features\SupportRedirects\Redirector;
 use Livewire\Form;
 
 class ForumTopicForm extends Form
@@ -31,7 +31,7 @@ class ForumTopicForm extends Form
         $this->forum = $forum;
     }
 
-    public function store(): RedirectResponse
+    public function store(): Redirector
     {
         $this->authorize('create', [ForumTopic::class, $this->forum]);
         $this->validate();
