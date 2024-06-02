@@ -176,8 +176,6 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         $addFollowing = function ($id) {
             UserRelation::create([
-                'User' => $this->user->User,
-                'Friend' => User::find($id)->User,
                 'user_id' => $this->user->ID,
                 'related_user_id' => $id,
                 'Friendship' => UserRelationship::Following,
