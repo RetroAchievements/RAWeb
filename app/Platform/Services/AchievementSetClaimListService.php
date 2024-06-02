@@ -186,7 +186,12 @@ class AchievementSetClaimListService
         return $this->buildQuery($filterOptions, $claims)->get();
     }
 
-    private function buildQuery(array $filterOptions, ?Builder $claims = null): Builder
+    /**
+     * @param Builder<AchievementSetClaim> $claims
+     *
+     * @return Builder<AchievementSetClaim>
+     */
+    private function buildQuery(array $filterOptions, ?Builder $claims): Builder
     {
         if ($claims === null) {
             $claims = AchievementSetClaim::query();

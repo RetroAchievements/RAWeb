@@ -15,9 +15,6 @@ use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Models\Game;
-use Illuminate\Support\Carbon;
-
-$now = Carbon::now();
 
 @endphp
 
