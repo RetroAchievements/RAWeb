@@ -3,6 +3,7 @@
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
 use App\Models\Leaderboard;
+use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use App\Platform\Services\TriggerDecoderService;
 use Illuminate\Support\Facades\Blade;
@@ -22,17 +23,17 @@ $count = requestInputSanitized('c', 50, 'integer');
 $friendsOnly = requestInputSanitized('f', 0, 'integer');
 
 $leaderboard = Leaderboard::find($lbID);
-$lbData = GetLeaderboardData($lbID, $user, $count, $offset);
-
 if (!$leaderboard) {
     abort(404);
 }
+
+$lbData = GetLeaderboardData($leaderboard, Auth::user(), $count, $offset);
 
 $numEntries = is_countable($lbData['Entries']) ? count($lbData['Entries']) : 0;
 $lbTitle = $leaderboard->title;
 $lbDescription = $leaderboard->description;
 $lbFormat = $leaderboard->format;
-$lbAuthor = $leaderboard?->authorUser?->User;
+$lbAuthor = $leaderboard?->developer?->User;
 $lbCreated = $leaderboard->created_at;
 $lbUpdated = $leaderboard->updated_at;
 $lbMemory = $leaderboard->Mem;
