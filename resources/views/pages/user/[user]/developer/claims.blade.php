@@ -14,27 +14,29 @@ name('developer.claims');
 
 render(function (View $view, User $user) {
     $claimsService = new AchievementSetClaimListService();
-    $claimsService->mergeActiveStatuses = true;
-    $claimsService->sortOrder = '-enddate';
+    $claimsService->sortOrder = '-expiring';
+    $claimsService->defaultFilters['status'] = 'activeOrInReview';
 
-    $selectFilters = array_filter($claimsService->getSelectFilters(), function ($filter) {
-        return ($filter['kind'] !== 'developerType');
-    });
-    $sorts = [
-        'title' => 'Game Title',
-        '-enddate' => 'Latest Completion/Expiration Date',
+    $columns = [
+        $claimsService->getGameColumn(),
+        $claimsService->getClaimTypeColumn(),
+        $claimsService->getSetTypeColumn(),
+        $claimsService->getSpecialColumn(),
+        $claimsService->getClaimDateColumn(),
+        $claimsService->getEndDateColumn(),
+        $claimsService->getExpirationStatusColumn(),
     ];
 
-    if ($user->achievementSetClaims()->activeOrInReview()->exists()) {
-        $sorts['expiring'] = 'Expiring Soonest';
-    }
+    $selectFilters = [
+        $claimsService->getClaimTypeFilter(),
+        $claimsService->getSetTypeFilter(),
+        $claimsService->getMergedActiveStatusesFilter(),
+        $claimsService->getSpecialFilter(),
+    ];
+
+    $sorts = $claimsService->getSorts(withDeveloper: false);
 
     $filterOptions = $claimsService->getFilterOptions(request());
-    if ($filterOptions['type'] === ClaimType::Primary) { // default claim type is primary. if not provided, we want all
-        if (!Request::exists('filter.type')) {
-            $filterOptions['type'] = -1; // All
-        }
-    }
     $claims = $claimsService->getClaims($filterOptions, $user->achievementSetClaims()->getQuery());
 
     $userClaimsCount = $user->achievementSetClaims()->count();
@@ -50,6 +52,7 @@ render(function (View $view, User $user) {
         'currentPage' => $claimsService->pageNumber,
         'totalPages' => $claimsService->totalPages,
         'userClaimsCount' => $userClaimsCount,
+        'columns' => $columns,
     ]);
 });
 
@@ -66,6 +69,7 @@ render(function (View $view, User $user) {
     'currentPage' => 1,
     'totalPages' => 1,
     'userClaimsCount' => 0,
+    'columns' => [],
 ])
 
 <x-app-layout pageTitle="{{ $user->display_name }}'s Claims">
@@ -86,7 +90,6 @@ render(function (View $view, User $user) {
         :numFilteredClaims="$numFilteredClaims"
         :currentPage="$currentPage"
         :totalPages="$totalPages"
-        showDeveloper="{{ false }}"
-        showExpirationStatus="{{ true }}"
+        :columns="$columns"
     />
 </x-app-layout>

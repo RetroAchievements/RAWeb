@@ -12,15 +12,25 @@ name('claims.active');
 render(function (View $view) {
     $claimsService = new AchievementSetClaimListService();
     $claimsService->sortOrder = '-claimdate';
+    $claimsService->defaultFilters['status'] = 'activeOrInReview';
 
-    $selectFilters = $claimsService->getSelectFilters(showActiveStatuses: true);
-    $sorts = $claimsService->getSorts();
-    $sorts['enddate'] = "Expiring Soonest";
-    $sorts['-enddate'] = "Expiring Latest";
+    $columns = [
+        $claimsService->getGameColumn(),
+        $claimsService->getDeveloperColumn(),
+        $claimsService->getSetTypeColumn(),
+        $claimsService->getClaimDateColumn(),
+    ];
+
+    $selectFilters = [
+        $claimsService->getSetTypeFilter(),
+    ];
+
+    $sorts = $claimsService->getSorts(withExpiring: false);
+
     $filterOptions = $claimsService->getFilterOptions(request());
     $claims = $claimsService->getClaims($filterOptions);
 
-    $activeClaimsCount = AchievementSetClaim::activeOrInReview()->count();
+    $activeClaimsCount = AchievementSetClaim::primaryClaim()->activeOrInReview()->count();
 
     return $view->with([
         'claims' => $claims,
@@ -32,6 +42,7 @@ render(function (View $view) {
         'currentPage' => $claimsService->pageNumber,
         'totalPages' => $claimsService->totalPages,
         'activeClaimsCount' => $activeClaimsCount,
+        'columns' => $columns,
     ]);
 });
 
@@ -47,11 +58,12 @@ render(function (View $view) {
     'currentPage' => 1,
     'totalPages' => 1,
     'activeClaimsCount' => 0,
+    'columns' => [],
 ])
 
-<x-app-layout pageTitle="Active Claims">
+<x-app-layout pageTitle="Sets in Progress">
     <div class="mb-1 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">Active Claims</h1>
+        <h1 class="mt-[10px] w-full">Sets in Progress</h1>
     </div>
 
     <x-meta-panel
@@ -67,6 +79,6 @@ render(function (View $view) {
         :numFilteredClaims="$numFilteredClaims"
         :currentPage="$currentPage"
         :totalPages="$totalPages"
-        completionColumnName="Expiration Date"
+        :columns="$columns"
     />
 </x-app-layout>

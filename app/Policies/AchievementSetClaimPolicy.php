@@ -27,7 +27,7 @@ class AchievementSetClaimPolicy
     {
         return true;
     }
-    
+
     public function view(User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         return true;

@@ -2,23 +2,23 @@
 
 use App\Models\AchievementSetClaim;
 use App\Platform\Services\AchievementSetClaimListService;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:viewAny,' . App\Models\AchievementSetClaim::class]);
-name('claims.expiring');
+name('claims.active');
 
 render(function (View $view) {
     $claimsService = new AchievementSetClaimListService();
-    $claimsService->sortOrder = '-expiring';
+    $claimsService->sortOrder = '-claimdate';
 
     $columns = [
         $claimsService->getGameColumn(),
         $claimsService->getDeveloperColumn(),
         $claimsService->getClaimTypeColumn(),
         $claimsService->getSetTypeColumn(),
+        $claimsService->getStatusColumn(),
         $claimsService->getSpecialColumn(),
         $claimsService->getClaimDateColumn(),
         $claimsService->getExpirationDateColumn(),
@@ -28,19 +28,17 @@ render(function (View $view) {
     $selectFilters = [
         $claimsService->getClaimTypeFilter(),
         $claimsService->getSetTypeFilter(),
+        $claimsService->getStatusFilter(),
         $claimsService->getSpecialFilter(),
         $claimsService->getDeveloperTypeFilter(),
     ];
 
     $sorts = $claimsService->getSorts();
 
-    $expiringClaims = AchievementSetClaim::primaryClaim()
-        ->activeOrInReview()
-        ->where('Finished', '<', Carbon::now()->addDays(7));
-    $expiringClaimsCount = $expiringClaims->count();
-
     $filterOptions = $claimsService->getFilterOptions(request());
-    $claims = $claimsService->getClaims($filterOptions, $expiringClaims);
+    $claims = $claimsService->getClaims($filterOptions);
+
+    $activeClaimsCount = AchievementSetClaim::count();
 
     return $view->with([
         'claims' => $claims,
@@ -51,7 +49,7 @@ render(function (View $view) {
         'numFilteredClaims' => $claimsService->numFilteredClaims,
         'currentPage' => $claimsService->pageNumber,
         'totalPages' => $claimsService->totalPages,
-        'expiringClaimsCount' => $expiringClaimsCount,
+        'activeClaimsCount' => $activeClaimsCount,
         'columns' => $columns,
     ]);
 });
@@ -67,13 +65,13 @@ render(function (View $view) {
     'numFilteredClaims' => 0,
     'currentPage' => 1,
     'totalPages' => 1,
-    'expiringClaimsCount' => 0,
+    'activeClaimsCount' => 0,
     'columns' => [],
 ])
 
-<x-app-layout pageTitle="Expiring Claims">
+<x-app-layout pageTitle="Claims">
     <div class="mb-1 w-full flex gap-x-3">
-        <h1 class="mt-[10px] w-full">Expiring Claims</h1>
+        <h1 class="mt-[10px] w-full">Claims</h1>
     </div>
 
     <x-meta-panel
@@ -85,7 +83,7 @@ render(function (View $view) {
 
     <x-claims.claims-list
         :claims="$claims"
-        :totalClaims="$expiringClaimsCount"
+        :totalClaims="$activeClaimsCount"
         :numFilteredClaims="$numFilteredClaims"
         :currentPage="$currentPage"
         :totalPages="$totalPages"

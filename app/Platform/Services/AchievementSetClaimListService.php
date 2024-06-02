@@ -4,26 +4,33 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
-use App\Community\Enums\ClaimType;
 use App\Community\Enums\ClaimSetType;
 use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
+use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 
 class AchievementSetClaimListService
 {
-    public int $totalClaims = 0;
     public int $numFilteredClaims = 0;
     public int $perPage = 50;
     public int $pageNumber = 0;
     public int $totalPages = 0;
-    
-    public bool $mergeActiveStatuses = false;
+
     public string $sortOrder = '-enddate';
+    public array $defaultFilters = [
+        'type' => ClaimType::Primary,
+        'setType' => -1,
+        'status' => 'active',
+        'special' => -1,
+        'developerType' => 'all',
+    ];
 
     public function getFilterOptions(Request $request): array
     {
@@ -38,7 +45,7 @@ class AchievementSetClaimListService
             'sort' => 'sometimes|string|in:console,title,developer,-claimdate,-enddate,-expiring,claimdate,enddate,expiring',
             'filter.type' => 'sometimes|integer|min:-1|max:2',
             'filter.setType' => 'sometimes|integer|min:-1|max:2',
-            'filter.status' => 'sometimes|string|in:all,active,review,complete,dropped,activeOrReview',
+            'filter.status' => 'sometimes|string|in:all,active,review,complete,dropped,activeOrInReview',
             'filter.special' => 'sometimes|integer|min:-1|max:3',
             'filter.developerType' => 'sometimes|string|in:all,full,junior',
         ]);
@@ -46,19 +53,17 @@ class AchievementSetClaimListService
         $this->sortOrder = $validatedData['sort'] ?? $this->sortOrder;
 
         return [
-            'type' => (int) ($validatedData['filter']['type'] ?? ClaimType::Primary),
-            'setType' => (int) ($validatedData['filter']['setType'] ?? -1),
-            'status' => $validatedData['filter']['status'] ?? ($this->mergeActiveStatuses ? 'activeOrReview' : 'active'),
-            'special' => (int) ($validatedData['filter']['special'] ?? -1),
-            'developerType' => $validatedData['filter']['developerType'] ?? 'all',
+            'type' => (int) ($validatedData['filter']['type'] ?? $this->defaultFilters['type']),
+            'setType' => (int) ($validatedData['filter']['setType'] ?? $this->defaultFilters['setType']),
+            'status' => $validatedData['filter']['status'] ?? $this->defaultFilters['status'],
+            'special' => (int) ($validatedData['filter']['special'] ?? $this->defaultFilters['special']),
+            'developerType' => $validatedData['filter']['developerType'] ?? $this->defaultFilters['developerType'],
         ];
     }
 
-    public function getSelectFilters(bool $showActiveStatuses = false): array
+    public function getClaimTypeFilter(): array
     {
-        $availableSelectFilters = [];
-
-        $availableSelectFilters[] = [
+        return [
             'kind' => 'type',
             'label' => 'Claim Type',
             'options' => [
@@ -67,8 +72,11 @@ class AchievementSetClaimListService
                 ClaimType::Collaboration => ClaimType::toString(ClaimType::Collaboration),
             ],
         ];
+    }
 
-        $availableSelectFilters[] = [
+    public function getSetTypeFilter(): array
+    {
+        return [
             'kind' => 'setType',
             'label' => 'Set Type',
             'options' => [
@@ -77,43 +85,53 @@ class AchievementSetClaimListService
                 ClaimSetType::Revision => ClaimSetType::toString(ClaimSetType::Revision),
             ],
         ];
+    }
 
-        if ($showActiveStatuses) {
-            $availableSelectFilters[] = [
-                'kind' => 'status',
-                'label' => 'Status',
-                'options' => [
-                    'activeOrReview' => 'All',
-                    'active' => ClaimStatus::toString(ClaimStatus::Active),
-                    'review' => ClaimStatus::toString(ClaimStatus::InReview),
-                ],
-            ];
-        } elseif ($this->mergeActiveStatuses) {
-            $availableSelectFilters[] = [
-                'kind' => 'status',
-                'label' => 'Status',
-                'options' => [
-                    'all' => 'All',
-                    'activeOrReview' => ClaimStatus::toString(ClaimStatus::Active),
-                    'complete' => ClaimStatus::toString(ClaimStatus::Complete),
-                    'dropped' => ClaimStatus::toString(ClaimStatus::Dropped),
-                ],
-            ];
-        } else {
-            $availableSelectFilters[] = [
-                'kind' => 'status',
-                'label' => 'Status',
-                'options' => [
-                    'all' => 'All',
-                    'active' => ClaimStatus::toString(ClaimStatus::Active),
-                    'review' => ClaimStatus::toString(ClaimStatus::InReview),
-                    'complete' => ClaimStatus::toString(ClaimStatus::Complete),
-                    'dropped' => ClaimStatus::toString(ClaimStatus::Dropped),
-                ],
-            ];
-        }
+    public function getActiveStatusesFilter(): array
+    {
+        return [
+            'kind' => 'status',
+            'label' => 'Status',
+            'options' => [
+                'activeOrInReview' => 'All',
+                'active' => ClaimStatus::toString(ClaimStatus::Active),
+                'review' => ClaimStatus::toString(ClaimStatus::InReview),
+            ],
+        ];
+    }
 
-        $availableSelectFilters[] = [
+    public function getMergedActiveStatusesFilter(): array
+    {
+        return [
+            'kind' => 'status',
+            'label' => 'Status',
+            'options' => [
+                'all' => 'All',
+                'activeOrInReview' => 'In Progress',
+                'complete' => ClaimStatus::toString(ClaimStatus::Complete),
+                'dropped' => ClaimStatus::toString(ClaimStatus::Dropped),
+            ],
+        ];
+    }
+
+    public function getStatusFilter(): array
+    {
+        return [
+            'kind' => 'status',
+            'label' => 'Status',
+            'options' => [
+                'all' => 'All',
+                'active' => ClaimStatus::toString(ClaimStatus::Active),
+                'review' => ClaimStatus::toString(ClaimStatus::InReview),
+                'complete' => ClaimStatus::toString(ClaimStatus::Complete),
+                'dropped' => ClaimStatus::toString(ClaimStatus::Dropped),
+            ],
+        ];
+    }
+
+    public function getSpecialFilter(): array
+    {
+        return [
             'kind' => 'special',
             'label' => 'Special',
             'options' => [
@@ -124,8 +142,11 @@ class AchievementSetClaimListService
                 ClaimSpecial::ScheduledRelease => ClaimSpecial::toString(ClaimSpecial::ScheduledRelease),
             ],
         ];
+    }
 
-        $availableSelectFilters[] = [
+    public function getDeveloperTypeFilter(): array
+    {
+        return [
             'kind' => 'developerType',
             'label' => 'Developer Type',
             'options' => [
@@ -134,20 +155,22 @@ class AchievementSetClaimListService
                 'junior' => 'Junior Developer',
             ],
         ];
-
-        return $availableSelectFilters;
     }
 
-    public function getSorts(): array
+    public function getSorts(bool $withDeveloper = true): array
     {
-        return [
-            'title' => 'Game Title',
-            'developer' => 'Developer',
-            '-claimdate' => 'Latest Claim Date',
-            'claimdate' => 'Oldest Claim Date',
-            '-enddate' => 'Latest Completion Date',
-            'enddate' => 'Oldest Completion Date',
-        ];
+        $sorts['title'] = 'Game Title';
+
+        if ($withDeveloper) {
+            $sorts['developer'] = 'Developer';
+        }
+
+        $sorts['-claimdate'] = 'Newest Claim';
+        $sorts['claimdate'] = 'Oldest Claim';
+        $sorts['-expiring'] = 'Expiring Soonest';
+        $sorts['expiring'] = 'Expiring Latest';
+
+        return $sorts;
     }
 
     /**
@@ -160,25 +183,18 @@ class AchievementSetClaimListService
         return $this->buildQuery($filterOptions, $claims)->get();
     }
 
-    /**
-     * @param Builder<AchievementSetClaim> $claims
-     *
-     * @return Builder<AchievementSetClaim>
-     */
-    public function buildQuery(array $filterOptions, ?Builder $claims = null): Builder
+    private function buildQuery(array $filterOptions, ?Builder $claims = null): Builder
     {
         if ($claims === null) {
             $claims = AchievementSetClaim::query();
         }
-
-        $this->totalClaims = $claims->count();
 
         switch ($filterOptions['status']) {
             case 'active':
                 $claims->active();
                 break;
 
-            case 'activeOrReview':
+            case 'activeOrInReview':
                 $claims->activeOrInReview();
                 break;
 
@@ -209,13 +225,13 @@ class AchievementSetClaimListService
 
         switch ($filterOptions['developerType']) {
             case 'full':
-                $claims->whereHas('user', function($query) {
+                $claims->whereHas('user', function ($query) {
                     $query->where('Permissions', '>=', Permissions::Developer);
                 });
                 break;
 
             case 'junior':
-                $claims->whereHas('user', function($query) {
+                $claims->whereHas('user', function ($query) {
                     $query->where('Permissions', '=', Permissions::JuniorDeveloper);
                 });
                 break;
@@ -268,15 +284,158 @@ class AchievementSetClaimListService
 
             case '-expiring':
                 $claims->orderByRaw(ifStatement("SetClaim.Status IN(" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")", 0, 1))
-                       ->orderByDesc('Finished');
+                       ->orderBy('Finished');
                 break;
 
             case 'expiring':
                 $claims->orderByRaw(ifStatement("SetClaim.Status IN(" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")", 0, 1))
-                       ->orderBy('Finished');
+                       ->orderByDesc('Finished');
                 break;
         }
 
         return $claims->with(['game.system', 'user']);
+    }
+
+    public function getGameColumn(): array
+    {
+        return [
+            'header' => 'Game',
+            'render' => function ($claim) {
+                echo Blade::render('
+                    <x-game.multiline-avatar
+                        :gameId="$ID"
+                        :gameTitle="$Title"
+                        :gameImageIcon="$ImageIcon"
+                        :consoleName="$consoleName"
+                    />', [
+                        'ID' => $claim->game->id,
+                        'Title' => $claim->game->title,
+                        'ImageIcon' => $claim->game->ImageIcon,
+                        'consoleName' => $claim->game->system->name,
+                    ]);
+            },
+        ];
+    }
+
+    public function getDeveloperColumn(): array
+    {
+        return [
+            'header' => 'Developer',
+            'render' => function ($claim) {
+                echo userAvatar($claim->user);
+            },
+        ];
+    }
+
+    public function getClaimTypeColumn(): array
+    {
+        return [
+            'header' => 'Claim Type',
+            'render' => function ($claim) {
+                echo ClaimType::toString($claim->ClaimType);
+            },
+        ];
+    }
+
+    public function getSetTypeColumn(): array
+    {
+        return [
+            'header' => 'Set Type',
+            'render' => function ($claim) {
+                echo ClaimSetType::toString($claim->SetType);
+            },
+        ];
+    }
+
+    public function getStatusColumn(): array
+    {
+        return [
+            'header' => 'Status',
+            'render' => function ($claim) {
+                echo ClaimStatus::toString($claim->Status);
+            },
+        ];
+    }
+
+    public function getSpecialColumn(): array
+    {
+        return [
+            'header' => 'Special',
+            'render' => function ($claim) {
+                echo ClaimSpecial::toString($claim->Special);
+            },
+        ];
+    }
+
+    private function renderDate(?Carbon $date): void
+    {
+        echo '<span class="smalldate whitespace-nowrap">';
+        if ($date) {
+            echo getNiceDate($date->unix());
+        } else {
+            echo 'Unknown';
+        }
+        echo '</span>';
+    }
+
+    public function getClaimDateColumn(): array
+    {
+        return [
+            'header' => 'Claimed At',
+            'render' => function ($claim) {
+                $this->renderDate($claim->Created);
+            },
+        ];
+    }
+
+    public function getEndDateColumn(): array
+    {
+        return [
+            'header' => 'Expires/Finished At',
+            'render' => function ($claim) {
+                $this->renderDate($claim->Finished);
+            },
+        ];
+    }
+
+    public function getFinishedDateColumn(): array
+    {
+        return [
+            'header' => 'Finished At',
+            'render' => function ($claim) {
+                $this->renderDate($claim->Finished);
+            },
+        ];
+    }
+
+    public function getExpirationDateColumn(): array
+    {
+        return [
+            'header' => 'Expires At',
+            'render' => function ($claim) {
+                $this->renderDate($claim->Finished);
+            },
+        ];
+    }
+
+    public function getExpirationStatusColumn(): array
+    {
+        return [
+            'header' => 'Expiration Status',
+            'render' => function ($claim) {
+                if (ClaimStatus::isActive($claim->Status)) {
+                    $now = Carbon::now();
+                    if ($claim->Finished < $now) {
+                        echo '<span class="text-danger">';
+                    }
+
+                    echo $claim->Finished->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]);
+
+                    if ($claim->Finished < $now) {
+                        echo '</span>';
+                    }
+                }
+            },
+        ];
     }
 }

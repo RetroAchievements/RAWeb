@@ -2,6 +2,7 @@
 
 use App\Models\AchievementSetClaim;
 use App\Platform\Services\AchievementSetClaimListService;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
@@ -12,17 +13,26 @@ name('claims.completed');
 render(function (View $view) {
     $claimsService = new AchievementSetClaimListService();
     $claimsService->sortOrder = '-enddate';
+    $claimsService->defaultFilters['status'] = 'complete';
 
-    $selectFilters = array_filter($claimsService->getSelectFilters(), function ($filter) {
-        return ($filter['kind'] === 'setType');
-    });
+    $columns = [
+        $claimsService->getGameColumn(),
+        $claimsService->getDeveloperColumn(),
+        $claimsService->getSetTypeColumn(),
+        $claimsService->getFinishedDateColumn(),
+    ];
+
+    $selectFilters = [
+        $claimsService->getSetTypeFilter(),
+    ];
+
+    $completedClaims = AchievementSetClaim::primaryClaim()
+        ->complete()
+        ->where('Finished', '>', Carbon::now()->subDays(90));
+    $completedClaimsCount = $completedClaims->count();
+
     $filterOptions = $claimsService->getFilterOptions(request());
-    if ($filterOptions['status'] === 'active') { // default status is active, which doesn't apply to this view
-        $filterOptions['status'] = 'complete';
-    }
-    $claims = $claimsService->getClaims($filterOptions, AchievementSetClaim::primaryClaim()->complete());
-
-    $completedClaimsCount = AchievementSetClaim::primaryClaim()->complete()->count();
+    $claims = $claimsService->getClaims($filterOptions, $completedClaims);
 
     return $view->with([
         'claims' => $claims,
@@ -32,6 +42,7 @@ render(function (View $view) {
         'currentPage' => $claimsService->pageNumber,
         'totalPages' => $claimsService->totalPages,
         'completedClaimsCount' => $completedClaimsCount,
+        'columns' => $columns,
     ]);
 });
 
@@ -45,6 +56,7 @@ render(function (View $view) {
     'currentPage' => 1,
     'totalPages' => 1,
     'completedClaimsCount' => 0,
+    'columns' => [],
 ])
 
 <x-app-layout pageTitle="New Sets & Revisions">
@@ -63,7 +75,6 @@ render(function (View $view) {
         :numFilteredClaims="$numFilteredClaims"
         :currentPage="$currentPage"
         :totalPages="$totalPages"
-        completionColumnName="Finished"
-        completedOnly="{{ true }}"
+        :columns="$columns"
     />
 </x-app-layout>
