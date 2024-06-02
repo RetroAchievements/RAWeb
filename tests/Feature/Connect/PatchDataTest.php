@@ -25,7 +25,7 @@ class PatchDataTest extends TestCase
             'Description' => $achievement->Description,
             'MemAddr' => $achievement->MemAddr,
             'Points' => $achievement->Points,
-            'Author' => $achievement->Author,
+            'Author' => $achievement->developer->User,
             'Modified' => $achievement->DateModified->unix(),
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,
