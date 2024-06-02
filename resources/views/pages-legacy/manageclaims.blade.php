@@ -225,14 +225,10 @@ $gameIcon = $gameData['ImageIcon'];
     }
     echo "</tbody></table></div>";
 
-    $numLogs = getRecentArticleComments(ArticleType::SetClaim, $gameID, $logs);
-    RenderCommentsComponent($user,
-        $numLogs,
-        $logs,
-        $gameID,
-        ArticleType::SetClaim,
-        $permissions
+    echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+        ['articleType' => ArticleType::SetClaim, 'articleId' => $gameID]
     );
+
     echo "</div>";
     ?>
 <script>

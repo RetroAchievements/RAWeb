@@ -10,7 +10,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PlayerStatsUpdated
+class PlayerBeatenGamesStatsUpdated
 {
     use Dispatchable;
     use InteractsWithSockets;
