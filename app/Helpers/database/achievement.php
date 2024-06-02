@@ -445,7 +445,7 @@ function updateAchievementType(int|string|array $inputAchievementIds, ?string $n
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
 
-    $achievements = Achievement::whereIn('ID', $achievementIds);
+    $achievements = Achievement::whereIn('ID', $achievementIds)->get();
 
     foreach ($achievements as $achievement) {
         $achievement->type = $newType;
