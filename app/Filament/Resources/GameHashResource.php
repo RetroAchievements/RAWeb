@@ -47,7 +47,7 @@ class GameHashResource extends Resource
                     ->url(fn (GameHash $record): string => route('game.show', ['game' => $record->game])),
 
                 Tables\Columns\TextColumn::make('user.display_name')
-                    ->url(fn (GameHash $record): string => route('user.show', ['user' => $record->user])),
+                    ->url(fn (GameHash $record): ?string => $record->user ? route('user.show', ['user' => $record->user]) : null),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date Linked')
