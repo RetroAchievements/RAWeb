@@ -6,6 +6,7 @@ namespace App\Community\Livewire\Forms;
 
 use App\Models\ForumTopicComment;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -27,7 +28,7 @@ class ForumTopicCommentForm extends Form
         $this->body = $forumTopicComment->body;
     }
 
-    public function update(): Redirector
+    public function update(): RedirectResponse|Redirector
     {
         $this->authorize('update', [ForumTopicComment::class, $this->forumTopicComment]);
         $this->validate();
