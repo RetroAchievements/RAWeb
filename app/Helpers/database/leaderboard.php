@@ -126,9 +126,7 @@ function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
     }
 
     $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
-
-    // TODO utilize soft deletes
-    $wasLeaderboardEntryDeleted = $leaderboardEntry->forceDelete();
+    $wasLeaderboardEntryDeleted = $leaderboardEntry->delete();
 
     return $wasLeaderboardEntryDeleted;
 }
@@ -290,6 +288,7 @@ function getLeaderboardsList(
         LEFT JOIN
         (
             SELECT le.leaderboard_id, COUNT(*) AS NumResults FROM leaderboard_entries AS le
+            WHERE le.deleted_at IS NULL
             GROUP BY le.leaderboard_id
             ) AS leInner ON leInner.leaderboard_id = ld.ID
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
