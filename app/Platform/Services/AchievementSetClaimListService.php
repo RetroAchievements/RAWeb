@@ -157,7 +157,7 @@ class AchievementSetClaimListService
         ];
     }
 
-    public function getSorts(bool $withDeveloper = true): array
+    public function getSorts(bool $withDeveloper = true, bool $withExpiring = true): array
     {
         $sorts['title'] = 'Game Title';
 
@@ -167,8 +167,11 @@ class AchievementSetClaimListService
 
         $sorts['-claimdate'] = 'Newest Claim';
         $sorts['claimdate'] = 'Oldest Claim';
-        $sorts['-expiring'] = 'Expiring Soonest';
-        $sorts['expiring'] = 'Expiring Latest';
+
+        if ($withExpiring) {
+            $sorts['-expiring'] = 'Expiring Soonest';
+            $sorts['expiring'] = 'Expiring Latest';
+        }
 
         return $sorts;
     }

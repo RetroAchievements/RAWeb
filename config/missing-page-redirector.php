@@ -123,7 +123,10 @@ return [
         /*
          * claims
          */
-        '/claimlist.php' => '/claims/active',
+        '/claimlist.php' => [
+            'u' => '/user/{u}/developer/claims',
+            '' => '/claims/active',
+        ],
         '/expiringclaims.php' => '/claims/expiring',
 
         /*
