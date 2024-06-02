@@ -85,7 +85,7 @@ function getUnauthorisedForumLinks(): ?array
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ftc.Authorised = 0 AND ft.deleted_at IS NULL
+                WHERE ftc.Authorised = 0 AND ftc.deleted_at IS NULL AND ft.deleted_at IS NULL
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC ";
 

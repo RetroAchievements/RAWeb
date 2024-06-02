@@ -101,7 +101,7 @@ if (!$gameAchievements->isEmpty()) {
             'Description' => $am->Description,
             'Points' => $am->Points,
             'TrueRatio' => $am->TrueRatio,
-            'Author' => $am->developer->display_name,
+            'Author' => $am->developer?->display_name,
             'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
             'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
             'BadgeName' => $am->BadgeName,
