@@ -5,9 +5,10 @@
     'offset' => 0,
     'currentPage' => 0,
     'totalPages' => 0,
-    'completionColumnName' => 'Completion Date',
+    'completionColumnName' => 'Completion/Expiration Date',
     'completedOnly' => false,
     'showExpirationStatus' => false,
+    'showDeveloper' => true,
 ])
 
 @php
@@ -48,7 +49,9 @@ $now = Carbon::now();
                 <thead>
                     <tr class="do-not-highlight lg:sticky lg:top-[42px] z-[11] bg-box">
                         <th>Game</th>
-                        <th>Developer</th>
+                        @if ($showDeveloper)
+                            <th>Developer</th>
+                        @endif
                         @if (!$completedOnly)
                             <th>Claim Type</th>
                         @endif
@@ -76,7 +79,9 @@ $now = Carbon::now();
                                     :consoleName="$claim->game->system->Name"
                                 />
                             </td>
-                            <td>{!! userAvatar($claim->user) !!}</td>
+                            @if ($showDeveloper)
+                                <td>{!! userAvatar($claim->user) !!}</td>
+                            @endif
                             @if (!$completedOnly)
                                 <td>{{ ClaimType::toString($claim->ClaimType) }}</td>
                             @endif
@@ -89,7 +94,9 @@ $now = Carbon::now();
                             @if ($showExpirationStatus)
                                 <td class="smalldate whitespace-nowrap">{{ $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown' }}</td>
                                 <td @if ($claim->Finished < $now) class="text-danger" @endif>
-                                    {{ $claim->Finished->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]) }}
+                                    @if (ClaimStatus::isActive($claim->Status))
+                                        {{ $claim->Finished->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]) }}
+                                    @endif
                                 </td>
                             @else
                                 <td class="smalldate whitespace-nowrap">{{ $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown' }}</td>

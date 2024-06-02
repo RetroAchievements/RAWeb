@@ -64,6 +64,6 @@ render(function (View $view) {
         :currentPage="$currentPage"
         :totalPages="$totalPages"
         completionColumnName="Finished"
-        completedOnly="true"
+        completedOnly="{{ true }}"
     />
 </x-app-layout>

@@ -21,7 +21,9 @@ class AchievementSetClaimListService
     public int $perPage = 50;
     public int $pageNumber = 0;
     public int $totalPages = 0;
-    public string $sortOrder='-enddate';
+    
+    public bool $mergeActiveStatuses = false;
+    public string $sortOrder = '-enddate';
 
     public function getFilterOptions(Request $request): array
     {
@@ -33,7 +35,7 @@ class AchievementSetClaimListService
         }
 
         $validatedData = $request->validate([
-            'sort' => 'sometimes|string|in:console,title,developer,-claimdate,-enddate,claimdate,enddate',
+            'sort' => 'sometimes|string|in:console,title,developer,-claimdate,-enddate,-expiring,claimdate,enddate,expiring',
             'filter.type' => 'sometimes|integer|min:-1|max:2',
             'filter.setType' => 'sometimes|integer|min:-1|max:2',
             'filter.status' => 'sometimes|string|in:all,active,review,complete,dropped,activeOrReview',
@@ -44,9 +46,9 @@ class AchievementSetClaimListService
         $this->sortOrder = $validatedData['sort'] ?? $this->sortOrder;
 
         return [
-            'type' => (int) ($validatedData['filter']['type'] ?? 0),
+            'type' => (int) ($validatedData['filter']['type'] ?? ClaimType::Primary),
             'setType' => (int) ($validatedData['filter']['setType'] ?? -1),
-            'status' => $validatedData['filter']['status'] ?? 'active',
+            'status' => $validatedData['filter']['status'] ?? ($this->mergeActiveStatuses ? 'activeOrReview' : 'active'),
             'special' => (int) ($validatedData['filter']['special'] ?? -1),
             'developerType' => $validatedData['filter']['developerType'] ?? 'all',
         ];
@@ -84,6 +86,17 @@ class AchievementSetClaimListService
                     'activeOrReview' => 'All',
                     'active' => ClaimStatus::toString(ClaimStatus::Active),
                     'review' => ClaimStatus::toString(ClaimStatus::InReview),
+                ],
+            ];
+        } elseif ($this->mergeActiveStatuses) {
+            $availableSelectFilters[] = [
+                'kind' => 'status',
+                'label' => 'Status',
+                'options' => [
+                    'all' => 'All',
+                    'activeOrReview' => ClaimStatus::toString(ClaimStatus::Active),
+                    'complete' => ClaimStatus::toString(ClaimStatus::Complete),
+                    'dropped' => ClaimStatus::toString(ClaimStatus::Dropped),
                 ],
             ];
         } else {
@@ -166,7 +179,7 @@ class AchievementSetClaimListService
                 break;
 
             case 'activeOrReview':
-                $claims->activeOrReview();
+                $claims->activeOrInReview();
                 break;
 
             case 'review':
@@ -177,7 +190,7 @@ class AchievementSetClaimListService
                 $claims->complete();
                 break;
 
-            case 'review':
+            case 'dropped':
                 $claims->dropped();
                 break;
         }
@@ -251,6 +264,16 @@ class AchievementSetClaimListService
 
             case 'enddate':
                 $claims->orderBy('Finished');
+                break;
+
+            case '-expiring':
+                $claims->orderByRaw(ifStatement("SetClaim.Status IN(" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")", 0, 1))
+                       ->orderByDesc('Finished');
+                break;
+
+            case 'expiring':
+                $claims->orderByRaw(ifStatement("SetClaim.Status IN(" . ClaimStatus::Active . ',' . ClaimStatus::InReview . ")", 0, 1))
+                       ->orderBy('Finished');
                 break;
         }
 
