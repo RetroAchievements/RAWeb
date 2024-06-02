@@ -45,9 +45,9 @@ use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameMetrics;
 use App\Platform\Commands\UpdateGamePlayerGames;
 use App\Platform\Commands\UpdateLeaderboardMetrics;
+use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
-use App\Platform\Commands\UpdatePlayerStats;
 use App\Platform\Commands\UpdateTotalGamesCount;
 use App\Platform\Components\GameCard;
 use App\Platform\Components\GameTitle;
@@ -82,7 +82,7 @@ class AppServiceProvider extends ServiceProvider
                 UnlockPlayerAchievement::class,
                 UpdatePlayerGameMetrics::class,
                 UpdatePlayerMetrics::class,
-                UpdatePlayerStats::class,
+                UpdatePlayerBeatenGamesStats::class,
 
                 // Static Data
                 UpdateAwardsStaticData::class,
