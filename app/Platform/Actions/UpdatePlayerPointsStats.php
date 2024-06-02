@@ -53,10 +53,10 @@ class UpdatePlayerPointsStats
             return $playerAchievement->unlocked_hardcore_at === null;
         });
 
-        // "day" will be over the last 24 hours.
+        // "day" will be the beginning of the day (server time).
         // "week" will be the beginning of the week (server time).
         $statIntervals = [
-            'day' => Carbon::now()->subDay(),
+            'day' => Carbon::now()->startOfDay(),
             'week' => Carbon::now()->startOfWeek(),
         ];
 
