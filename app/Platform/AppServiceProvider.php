@@ -110,7 +110,6 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
-            $schedule->command(UpdateTotalGamesCount::class)->everyMinute();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);
