@@ -23,9 +23,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
         $followedUser = User::factory()->create();
         UserRelation::create([
             'user_id' => $user->id,
-            'User' => $user->User,
             'related_user_id' => $followedUser->id,
-            'Friend' => $followedUser->User,
             'Friendship' => UserRelationship::Following,
         ]);
 
@@ -63,9 +61,7 @@ class FollowedUserLeaderboardServiceTest extends TestCase
         foreach ($followedUsers as $followedUser) {
             UserRelation::create([
                 'user_id' => $user->id,
-                'User' => $user->User,
                 'related_user_id' => $followedUser->id,
-                'Friend' => $followedUser->User,
                 'Friendship' => UserRelationship::Following,
             ]);
         }
