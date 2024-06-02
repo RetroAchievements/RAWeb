@@ -10,14 +10,26 @@ return new class() extends Migration {
     public function up(): void
     {
         Schema::table('SiteAwards', function (Blueprint $table) {
+            $table->dropIndex(['User']);
+        });
+        Schema::table('SiteAwards', function (Blueprint $table) {
+            $table->dropUnique(['User', 'AwardData', 'AwardType', 'AwardDataExtra']);
+        });
+        Schema::table('SiteAwards', function (Blueprint $table) {
             $table->dropColumn('User');
+        });
+        Schema::table('SiteAwards', function (Blueprint $table) {
+            $table->index(['user_id', 'AwardData', 'AwardType', 'AwardDataExtra']);
         });
     }
 
     public function down(): void
     {
         Schema::table('SiteAwards', function (Blueprint $table) {
-            $table->string('User', 32)->after('AwardDate');
+            $table->dropIndex(['user_id', 'AwardData', 'AwardType', 'AwardDataExtra']);
+            $table->string('User', 50)->after('AwardDate');
+            $table->unique(['User', 'AwardData', 'AwardType', 'AwardDataExtra'], 'siteawards_user_awarddata_awardtype_awarddataextra_unique');
+            $table->index('User');
         });
     }
 };

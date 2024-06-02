@@ -41,7 +41,7 @@ if ($flagParam !== $unofficialFlag) {
 $userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
-    $userModel = User::with('playerBadges')->find($userID);
+    $userModel = User::find($userID);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');

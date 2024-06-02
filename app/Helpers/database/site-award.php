@@ -238,7 +238,9 @@ function getUserGameProgressionAwards(int $gameId, User $user): array
         'mastered' => null,
     ];
 
-    $foundAwards = $user->playerBadges;
+    $foundAwards = PlayerBadge::where('user_id', $user->id)
+        ->where('AwardData', $gameId)
+        ->get();
 
     foreach ($foundAwards as $award) {
         $awardExtra = $award['AwardDataExtra'];
