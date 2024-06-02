@@ -8,16 +8,6 @@
     'columns' => [],
 ])
 
-@php
-
-use App\Community\Enums\ClaimType;
-use App\Community\Enums\ClaimSetType;
-use App\Community\Enums\ClaimSpecial;
-use App\Community\Enums\ClaimStatus;
-use App\Models\Game;
-
-@endphp
-
 <div>
     <div class="w-full flex mb-2 justify-between">
         <div class="flex items-center">
