@@ -26,7 +26,7 @@ if ($claim) {
         "Server",
         ArticleType::SetClaim,
         $claim->game_id,
-        "$user updated " . $claim->User . "'s claim. Claim Status: " . ClaimStatus::toString($claim->Status)
+        "{$user} updated {$claim->user->display_name}'s claim. Claim Status: " . ClaimStatus::toString($claim->Status)
     );
 
     return back()->with('success', __('legacy.success.ok'));
