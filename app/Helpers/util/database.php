@@ -74,6 +74,15 @@ function floatDivisionStatement(string $dividend, string $divisor): string
     };
 }
 
+function toUnsignedStatement(string $column): string
+{
+    return match (DB::getDriverName()) {
+        'sqlite' => "CASE WHEN $column < 0 THEN $column + 4294967296 ELSE $column END",
+        // mysql
+        default => "CAST($column AS UNSIGNED)",
+    };
+}
+
 function unixTimestampStatement(string $column, string $alias): string
 {
     return match (DB::getDriverName()) {

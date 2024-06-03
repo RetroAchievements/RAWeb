@@ -192,8 +192,8 @@ return [
             'connection' => 'redis',
             'queue' => [
                 'player-achievements',
+                'player-beaten-games-stats',
                 'player-metrics',
-                'player-stats',
                 'player-sessions',
                 'default',
                 'player-game-metrics',

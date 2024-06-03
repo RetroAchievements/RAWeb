@@ -2,7 +2,6 @@
     'tickets' => [],
     'totalTickets' => 0,
     'numFilteredTickets' => 0,
-    'offset' => 0,
     'currentPage' => 0,
     'totalPages' => 0,
     'showResolver' => false,
@@ -74,11 +73,11 @@ $gameCache = [];
                                     :consoleName="$game->system->Name"
                                 />
                             </td>
-                            <td>{!! userAvatar($ticket->achievement->developer) !!}</td>
-                            <td>{!! userAvatar($ticket->reporter) !!}</td>
+                            <td>{!! userAvatar($ticket->author ?? 'Deleted User') !!}</td>
+                            <td>{!! userAvatar($ticket->reporter ?? 'Deleted User') !!}</td>
                             <td class="smalldate">{{ getNiceDate($ticket->ReportedAt->unix()) }}</td>
                             @if ($showResolver)
-                                <td>{!! userAvatar($ticket->resolver) !!}</td>
+                                <td>{!! userAvatar($ticket->resolver ?? 'Deleted User') !!}</td>
                             @endif
                         </tr>
                     @endforeach
