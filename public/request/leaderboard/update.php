@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\Leaderboard;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,21 +28,24 @@ $lbFormat = $input['format'];
 $lbLowerIsBetter = $input['lowerIsBetter'];
 $lbDisplayOrder = $input['order'];
 
-$prevData = GetLeaderboardData($lbID, $user, 1, 0);
-$prevUpdated = strtotime($prevData["LBUpdated"]);
+$leaderboard = Leaderboard::find($lbID);
+if (!$leaderboard) {
+    abort(404);
+}
 
 // Only let jr. devs update their own leaderboards
-if ($permissions == Permissions::JuniorDeveloper && $prevData["LBAuthor"] != $user) {
+if ($permissions == Permissions::JuniorDeveloper && $leaderboard->developer?->id !== $userDetails['ID']) {
     abort(403);
 }
 
-if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
-    $updatedData = GetLeaderboardData($lbID, $user, 2, 0);
-    $updated = strtotime($updatedData['LBUpdated']);
-    $dateDiffMins = ($updated - $prevUpdated) / 60;
+$prevUpdated = $leaderboard->Updated;
 
-    if (!empty($updatedData['Entries'])) {
-        if ($dateDiffMins > 10) {
+if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbLowerIsBetter, $lbDisplayOrder)) {
+    // if the leaderboard has entries and it's been at least 10 minutes since the last update, log an audit message
+    if ($leaderboard->entries()->exists()) {
+        $leaderboard->refresh();
+
+        if ($leaderboard->Updated->diffInMinutes($prevUpdated) >= 10) {
             $commentText = 'made updates to this leaderboard';
             addArticleComment("Server", ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
         }

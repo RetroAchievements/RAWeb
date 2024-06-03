@@ -163,16 +163,12 @@ class AchievementWonDataTest extends TestCase
         $this->assertEquals($this->user->ID, $users[1]->ID); /* logic assumes that first user is making API call */
 
         UserRelation::create([
-            'User' => $this->user->User,
             'user_id' => $this->user->id,
-            'Friend' => $users[10]->User,
             'related_user_id' => $users[10]->id,
             'Friendship' => UserRelationship::Following,
         ]);
         UserRelation::create([
-            'User' => $this->user->User,
             'user_id' => $this->user->id,
-            'Friend' => $users[4]->User,
             'related_user_id' => $users[4]->id,
             'Friendship' => UserRelationship::Following,
         ]);

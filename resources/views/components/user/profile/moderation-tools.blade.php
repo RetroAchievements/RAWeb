@@ -119,17 +119,7 @@ $hasCertifiedLegendBadge = HasCertifiedLegendBadge($targetUser);
         <tr>
             <td colspan="2">
                 <div class="commentscomponent left">
-                    <?php
-                        $numLogs = getRecentArticleComments(ArticleType::UserModeration, $targetUser->id, $logs);
-                        RenderCommentsComponent(
-                            $targetUser->User,
-                            $numLogs,
-                            $logs,
-                            $targetUser->id,
-                            ArticleType::UserModeration,
-                            $myPermissions,
-                        );
-                    ?>
+                    <x-comment.list articleType="{{ ArticleType::UserModeration }}" articleId="{{ $targetUser->id }}" :article="$targetUser" />
                 </div>
             </td>
         </tr>
