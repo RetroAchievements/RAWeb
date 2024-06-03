@@ -162,13 +162,13 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Ticket Information</p>
             <div class="relative w-full p-2 bg-embed rounded">
                 <x-ticket.stat-element label="State">{{ $ticketState }}</x-ticket.stat-element>
-                <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize:16) !!}</x-ticket.stat-element>
+                <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reported at">{{ getNiceDate($ticket->ReportedAt->unix()) }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Report type">{{ $ticketType }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Mode">{{ $ticketMode }}</x-ticket.stat-element>
                 @if (!TicketState::isOpen($ticket->ReportState))
                     @if ($ticket->resolver)
-                        <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver, iconSize:16) !!}</x-ticket.stat-element>
+                        <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                     @else
                         <x-ticket.stat-element label="Resolved by"><span class="text-muted">Unknown</span></x-ticket.stat-element>
                     @endif
@@ -181,9 +181,9 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
         <div class="flex flex-col gap-y-1">
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Achievement Information</p>
                 <div class="relative w-full p-2 bg-embed rounded">
-                    <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticket->achievement, iconSize:16) !!}</x-ticket.stat-element>
-                    <x-ticket.stat-element label="Game">{!! gameAvatar($ticket->achievement->game, iconSize:16) !!}</x-ticket.stat-element>
-                    <x-ticket.stat-element label="Author">{!! userAvatar($ticket->achievement->developer, iconSize:16) !!}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Achievement">{!! achievementAvatar($ticket->achievement, iconSize: 16) !!}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Game">{!! gameAvatar($ticket->achievement->game, iconSize: 16) !!}</x-ticket.stat-element>
+                    <x-ticket.stat-element label="Author">{!! userAvatar($ticket->author ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
         
                     @if ($ticket->achievement->type)
                         <x-ticket.stat-element label="Type">{{ __('achievement-type.' . $ticket->achievement->type) }}</x-ticket.stat-element>
