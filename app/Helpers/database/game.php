@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Community\Enums\ArticleType;
@@ -1037,7 +1038,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
             'Title' => $achievement->Title,
             'Description' => $achievement->Description,
             'Points' => $achievement->Points,
-            'Author' => $achievement->developer?->User,
+            'Author' => $achievement->developer->User ?? '',
             'Modified' => $achievement->DateModified->unix(),
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,
