@@ -42,7 +42,7 @@ if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbL
 
     if (!empty($updatedData['Entries'])) {
         if ($dateDiffMins > 10) {
-            $commentText = 'made updates to this leaderboard';
+            $commentText = 'edited this leaderboard';
             addArticleComment("Server", ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
         }
     }
