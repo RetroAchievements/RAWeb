@@ -167,7 +167,6 @@ class PatchDataTest extends TestCase
                 ],
             ]);
 
-
         // achievement with null author should not return null (see https://github.com/libretro/RetroArch/issues/16648)
         $achievement3->user_id = null;
         $achievement3->save();
