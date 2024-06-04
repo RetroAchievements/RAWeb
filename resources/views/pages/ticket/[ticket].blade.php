@@ -121,7 +121,7 @@ if (!$canManageTicket) {
         return $diff;
     });
 
-    $userAgentLinks = [];
+    $clients = [];
     foreach ($userAgents as $userAgent) {
         $decoded = $userAgentService->decode($userAgent);
         $client = $decoded['client'];
@@ -131,7 +131,11 @@ if (!$canManageTicket) {
         if (array_key_exists('clientVariation', $decoded)) {
             $client .= ' - ' . $decoded['clientVariation'];
         }
-        $userAgentLinks[] = "<span title=\"$userAgent\">$client</span>";
+        $clients[$client][] = $userAgent;
+    }
+    $userAgentLinks = [];
+    foreach ($clients as $client => $agents) {
+        $userAgentLinks[] = "<span title=\"" . implode("\n", $agents) . "\">$client</span>";
     }
 }
 
