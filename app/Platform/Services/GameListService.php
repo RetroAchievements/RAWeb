@@ -580,13 +580,9 @@ class GameListService
             'width' => 6,
             'tooltip' => 'Whether or not the game is on your want to play list',
             'align' => 'center',
-            'javascript' => function () {
-                echo Blade::render('
-                    <x-game-list-item.backlog-button-javascript />
-                ');
-            },
             'render' => function ($game) {
                 echo '<td class="text-center">';
+
                 echo Blade::render('
                     <x-game-list-item.backlog-button
                         :gameId="$gameId"

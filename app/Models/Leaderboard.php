@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Platform\Enums\ValueFormat;
 use App\Support\Database\Eloquent\BaseModel;
 use Database\Factories\LeaderboardFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -138,9 +139,9 @@ class Leaderboard extends BaseModel
     /**
      * @return BelongsTo<User, Leaderboard>
      */
-    public function authorUser(): BelongsTo
+    public function developer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id', 'ID');
+        return $this->belongsTo(User::class, 'author_id', 'ID')->withTrashed();
     }
 
     /**
@@ -155,6 +156,26 @@ class Leaderboard extends BaseModel
                         ->whereNull('unranked_at');
                 }
             });
+    }
+
+    /**
+     * @return HasMany<LeaderboardEntry>
+     */
+    public function sortedEntries(): HasMany
+    {
+        $entries = $this->entries();
+
+        $direction = $this->LowerIsBetter ? 'ASC' : 'DESC';
+
+        if ($this->Format === ValueFormat::ValueUnsigned) {
+            $entries->orderByRaw(toUnsignedStatement('score') . ' ' . $direction);
+        } else {
+            $entries->orderBy('score', $direction);
+        }
+
+        $entries->orderBy('updated_at');
+
+        return $entries;
     }
 
     /**
@@ -174,5 +195,52 @@ class Leaderboard extends BaseModel
     public function scopeVisible(Builder $query): Builder
     {
         return $query->where('DisplayOrder', '>=', 0);
+    }
+
+    // == helpers
+
+    public function getRank(int $score): int
+    {
+        $entries = $this->entries();
+
+        if ($this->LowerIsBetter) {
+            if ($this->Format === ValueFormat::ValueUnsigned) {
+                $entries->whereRaw(toUnsignedStatement('score') . ' < ' . toUnsignedStatement(strval($score)));
+            } else {
+                $entries->where('score', '<', $score);
+            }
+
+            return $entries->count() + 1;
+        }
+
+        // have to use <= for reverse sort so the number of users being subtracted includes
+        // all users with the same score (see issue #1201)
+        $numEntries = $entries->count();
+
+        if ($this->Format === ValueFormat::ValueUnsigned) {
+            $entries->whereRaw(toUnsignedStatement('score') . ' <= ' . toUnsignedStatement(strval($score)));
+        } else {
+            $entries->where('score', '<=', $score);
+        }
+
+        return $numEntries - $entries->count() + 1;
+    }
+
+    public function isBetterScore(int $score, int $existingScore): bool
+    {
+        if ($this->Format === ValueFormat::ValueUnsigned) {
+            if ($score < 0 && $existingScore >= 0) {
+                return $this->LowerIsBetter ? false : true; // negative score is a very high value when unsigned
+            } elseif ($existingScore < 0 && $score >= 0) {
+                return $this->LowerIsBetter ? true : false; // negative existing score is a very high value when unsigned
+            }
+            // values have same sign, just compare them normally
+        }
+
+        if ($this->LowerIsBetter) {
+            return $score < $existingScore;
+        } else {
+            return $score > $existingScore;
+        }
     }
 }
