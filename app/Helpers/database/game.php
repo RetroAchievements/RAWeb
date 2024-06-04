@@ -877,7 +877,7 @@ function submitNewGameTitleJSON(
             /**
              * Associate md5 to $gameID
              */
-            $query = "INSERT INTO game_hashes (md5, game_id, User, user_id, name) VALUES( '$md5', '$gameID', '$user', '$userId', ";
+            $query = "INSERT INTO game_hashes (md5, game_id, user_id, name) VALUES( '$md5', '$gameID', '$userId', ";
             if (!empty($description)) {
                 $query .= "'$description'";
             } else {
