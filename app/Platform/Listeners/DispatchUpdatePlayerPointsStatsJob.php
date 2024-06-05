@@ -7,6 +7,7 @@ namespace App\Platform\Listeners;
 use App\Models\User;
 use App\Platform\Events\PlayerBadgeAwarded;
 use App\Platform\Events\PlayerBadgeLost;
+use App\Platform\Events\PlayerMetricsUpdated;
 use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Jobs\UpdatePlayerPointsStatsJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,6 +23,7 @@ class DispatchUpdatePlayerPointsStatsJob implements ShouldQueue
                 $user = $event->playerBadge->user;
                 break;
 
+            case PlayerMetricsUpdated::class:
             case PlayerBadgeLost::class:
             case PlayerRankedStatusChanged::class:
                 $user = $event->user;
@@ -33,6 +35,6 @@ class DispatchUpdatePlayerPointsStatsJob implements ShouldQueue
         }
 
         dispatch(new UpdatePlayerPointsStatsJob($user->id))
-            ->onQueue('player-beaten-games-stats');
+            ->onQueue('player-points-stats');
     }
 }
