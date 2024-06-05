@@ -69,6 +69,15 @@ class FollowedUserLeaderboardService
             }
         }
 
+        $userDaily = $this->aggregateStats($user->playerStats, 'Day');
+        $userWeekly = $this->aggregateStats($user->playerStats, 'Week');
+        if (array_sum($userDaily) > 0) {
+            $statsDaily[] = ['user' => $user->display_name] + $userDaily;
+        }
+        if (array_sum($userWeekly) > 0) {
+            $statsWeekly[] = ['user' => $user->display_name] + $userWeekly;
+        }
+
         // Include the current user in the all-time list.
         $statsAllTime[] = [
             'user' => $user->display_name,
@@ -82,12 +91,21 @@ class FollowedUserLeaderboardService
         usort($statsWeekly, function ($a, $b) { return $b['points_hardcore'] <=> $a['points_hardcore']; });
         usort($statsAllTime, function ($a, $b) { return $b['points_hardcore'] <=> $a['points_hardcore']; });
 
+        $userDailyRanking = $this->findUserRanking($user, $statsDaily);
+        $userWeeklyRanking = $this->findUserRanking($user, $statsWeekly);
         $userAllTimeRanking = $this->findUserRanking($user, $statsAllTime);
 
         $statsDaily = array_slice($statsDaily, 0, 10);
         $statsWeekly = array_slice($statsWeekly, 0, 10);
         $statsAllTime = array_slice($statsAllTime, 0, 10);
 
+        // Include user ranking if they are outside the top 10.
+        if ($userDailyRanking) {
+            $statsDaily['userRanking'] = $userDailyRanking;
+        }
+        if ($userWeeklyRanking) {
+            $statsWeekly['userRanking'] = $userWeeklyRanking;
+        }
         if ($userAllTimeRanking) {
             $statsAllTime['userRanking'] = $userAllTimeRanking;
         }
@@ -117,11 +135,11 @@ class FollowedUserLeaderboardService
 
     // If the user is outside the top 10 of their followed users all time rankings,
     // find their ranking and return an element dedicated just to them.
-    private function findUserRanking(User $user, array $statsAllTime): ?array
+    private function findUserRanking(User $user, array $stats): ?array
     {
         // This naively disregards ties.
         $userIndex = null;
-        foreach ($statsAllTime as $index => $rank) {
+        foreach ($stats as $index => $rank) {
             if ($rank['user'] === $user->display_name) {
                 $userIndex = $index;
                 break;
@@ -133,6 +151,6 @@ class FollowedUserLeaderboardService
             return null;
         }
 
-        return array_merge($statsAllTime[$userIndex], ['rank' => $userIndex]);
+        return array_merge($stats[$userIndex], ['rank' => $userIndex + 1]);
     }
 }
