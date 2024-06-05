@@ -7,7 +7,7 @@ use Illuminate\View\View;
 use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:viewAny,' . App\Models\AchievementSetClaim::class]);
-name('claims.active');
+name('claims.index');
 
 render(function (View $view) {
     $claimsService = new AchievementSetClaimListService();
