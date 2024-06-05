@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Blade;
 
 class AchievementSetClaimListService
 {
@@ -346,20 +345,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Game',
-            'render' => function ($claim) {
-                echo Blade::render('
-                    <x-game.multiline-avatar
-                        :gameId="$ID"
-                        :gameTitle="$Title"
-                        :gameImageIcon="$ImageIcon"
-                        :consoleName="$consoleName"
-                    />', [
-                        'ID' => $claim->game->id,
-                        'Title' => $claim->game->title,
-                        'ImageIcon' => $claim->game->ImageIcon,
-                        'consoleName' => $claim->game->system->name,
-                    ]);
-            },
+            'type' => 'game',
+            'value' => fn ($claim) => $claim->game,
         ];
     }
 
@@ -367,9 +354,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Developer',
-            'render' => function ($claim) {
-                echo userAvatar($claim->user);
-            },
+            'type' => 'user',
+            'value' => fn ($claim) => $claim->user,
         ];
     }
 
@@ -377,9 +363,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Claim Type',
-            'render' => function ($claim) {
-                echo ClaimType::toString($claim->ClaimType);
-            },
+            'type' => 'text',
+            'value' => fn ($claim) => ClaimType::toString($claim->ClaimType),
         ];
     }
 
@@ -387,9 +372,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Set Type',
-            'render' => function ($claim) {
-                echo ClaimSetType::toString($claim->SetType);
-            },
+            'type' => 'text',
+            'value' => fn ($claim) => ClaimSetType::toString($claim->SetType),
         ];
     }
 
@@ -397,9 +381,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Status',
-            'render' => function ($claim) {
-                echo ClaimStatus::toString($claim->Status);
-            },
+            'type' => 'text',
+            'value' => fn ($claim) => ClaimStatus::toString($claim->Status),
         ];
     }
 
@@ -407,30 +390,17 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Special',
-            'render' => function ($claim) {
-                echo ClaimSpecial::toString($claim->Special);
-            },
+            'type' => 'text',
+            'value' => fn ($claim) => ClaimSpecial::toString($claim->Special),
         ];
-    }
-
-    private function renderDate(?Carbon $date): void
-    {
-        echo '<span class="smalldate whitespace-nowrap">';
-        if ($date) {
-            echo getNiceDate($date->unix());
-        } else {
-            echo 'Unknown';
-        }
-        echo '</span>';
     }
 
     public function getClaimDateColumn(): array
     {
         return [
             'header' => 'Claimed At',
-            'render' => function ($claim) {
-                $this->renderDate($claim->Created);
-            },
+            'type' => 'date',
+            'value' => fn ($claim) => $claim->Created ? getNiceDate($claim->Created->unix()) : 'Unknown',
         ];
     }
 
@@ -438,9 +408,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Expires/Finished At',
-            'render' => function ($claim) {
-                $this->renderDate($claim->Finished);
-            },
+            'type' => 'date',
+            'value' => fn ($claim) => $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown',
         ];
     }
 
@@ -448,9 +417,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Finished At',
-            'render' => function ($claim) {
-                $this->renderDate($claim->Finished);
-            },
+            'type' => 'date',
+            'value' => fn ($claim) => $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown',
         ];
     }
 
@@ -458,9 +426,8 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Expires At',
-            'render' => function ($claim) {
-                $this->renderDate($claim->Finished);
-            },
+            'type' => 'date',
+            'value' => fn ($claim) => $claim->Finished ? getNiceDate($claim->Finished->unix()) : 'Unknown',
         ];
     }
 
@@ -468,18 +435,20 @@ class AchievementSetClaimListService
     {
         return [
             'header' => 'Expiration Status',
-            'render' => function ($claim) {
-                if (ClaimStatus::isActive($claim->Status)) {
+            'type' => 'expiration',
+            'value' => function ($claim) {
+                if (!ClaimStatus::isActive($claim->Status)) {
+                    return [
+                        'isExpired' => false,
+                        'value' => '',
+                    ];
+                } else {
                     $now = Carbon::now();
-                    if ($claim->Finished < $now) {
-                        echo '<span class="text-danger">';
-                    }
 
-                    echo $claim->Finished->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]);
-
-                    if ($claim->Finished < $now) {
-                        echo '</span>';
-                    }
+                    return [
+                        'isExpired' => ($claim->Finished < $now),
+                        'value' => $claim->Finished->diffForHumans($now, ['syntax' => Carbon::DIFF_RELATIVE_TO_NOW]),
+                    ];
                 }
             },
         ];

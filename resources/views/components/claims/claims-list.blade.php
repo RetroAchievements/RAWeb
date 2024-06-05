@@ -42,8 +42,28 @@
                     @foreach ($claims as $claim)
                         <tr>
                             @foreach ($columns as $column)
+                                @php $value = $column['value']($claim) @endphp
                                 <td class="py-2">
-                                    {!! $column['render']($claim) !!}
+                                    @if ($column['type'] === 'text')
+                                        {{ $value }}
+                                    @elseif ($column['type'] === 'date')
+                                        <span class="smalldate whitespace-nowrap">{{ $value }}</span>
+                                    @elseif ($column['type'] === 'game')
+                                        <x-game.multiline-avatar
+                                            :gameId="$value->id"
+                                            :gameTitle="$value->title"
+                                            :gameImageIcon="$value->ImageIcon"
+                                            :consoleName="$value->system->name"
+                                        />
+                                    @elseif ($column['type'] === 'user')
+                                        {!! userAvatar($value) !!}
+                                    @elseif ($column['type'] === 'expiration')
+                                        @if ($value['isExpired'])
+                                            <span class="text-danger">{{ $value['value'] }}</span>
+                                        @else
+                                            {{ $value['value'] }}
+                                        @endif
+                                    @endif
                                 </td>
                             @endforeach
                         </tr>
