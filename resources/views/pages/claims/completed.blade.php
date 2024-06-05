@@ -59,7 +59,9 @@ render(function (View $view) {
     'columns' => [],
 ])
 
-<x-app-layout pageTitle="New Sets & Revisions">
+<x-app-layout pageTitle="New Sets & Revisions"
+              pageDescription="A list of achievement sets recently published at RetroAchievements"
+>
     <div class="mb-1 w-full flex gap-x-3">
         <h1 class="mt-[10px] w-full">New Sets & Revisions</h1>
     </div>

@@ -73,23 +73,30 @@ render(function (View $view, User $user) {
 ])
 
 <x-app-layout pageTitle="{{ $user->display_name }}'s Claims">
-    <div class="mb-1 w-full flex gap-x-3">
+    <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Claims" />
+
+    <div class="mt-3 mb-6 w-full flex gap-x-3">
+        {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
         <h1 class="mt-[10px] w-full">{{ $user->display_name }}'s Claims</h1>
     </div>
 
-    <x-meta-panel
-        :availableSelectFilters="$availableSelectFilters"
-        :availableSorts="$availableSorts"
-        :filterOptions="$filterOptions"
-        :selectedSortOrder="$sortOrder"
-    />
+    @if ($userClaimsCount === 0)
+        {{ $user->display_name }} hasn't made any claims.
+    @else
+        <x-meta-panel
+            :availableSelectFilters="$availableSelectFilters"
+            :availableSorts="$availableSorts"
+            :filterOptions="$filterOptions"
+            :selectedSortOrder="$sortOrder"
+        />
 
-    <x-claims.claims-list
-        :claims="$claims"
-        :totalClaims="$userClaimsCount"
-        :numFilteredClaims="$numFilteredClaims"
-        :currentPage="$currentPage"
-        :totalPages="$totalPages"
-        :columns="$columns"
-    />
+        <x-claims.claims-list
+            :claims="$claims"
+            :totalClaims="$userClaimsCount"
+            :numFilteredClaims="$numFilteredClaims"
+            :currentPage="$currentPage"
+            :totalPages="$totalPages"
+            :columns="$columns"
+        />
+    @endif
 </x-app-layout>

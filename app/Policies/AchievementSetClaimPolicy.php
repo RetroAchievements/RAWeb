@@ -23,12 +23,12 @@ class AchievementSetClaimPolicy
         ]) || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
     }
 
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
         return true;
     }
 
-    public function view(User $user, AchievementSetClaim $achievementSetClaim): bool
+    public function view(?User $user, AchievementSetClaim $achievementSetClaim): bool
     {
         return true;
     }

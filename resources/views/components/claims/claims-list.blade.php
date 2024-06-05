@@ -42,7 +42,7 @@
                     @foreach ($claims as $claim)
                         <tr>
                             @foreach ($columns as $column)
-                                <td>
+                                <td class="py-2">
                                     {!! $column['render']($claim) !!}
                                 </td>
                             @endforeach

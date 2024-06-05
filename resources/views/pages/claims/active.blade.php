@@ -61,7 +61,9 @@ render(function (View $view) {
     'columns' => [],
 ])
 
-<x-app-layout pageTitle="Sets in Progress">
+<x-app-layout pageTitle="Sets in Progress"
+              pageDescription="A list of achievement sets currently being constructed at RetroAchievements"
+>
     <div class="mb-1 w-full flex gap-x-3">
         <h1 class="mt-[10px] w-full">Sets in Progress</h1>
     </div>
