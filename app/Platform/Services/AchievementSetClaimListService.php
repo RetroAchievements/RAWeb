@@ -10,6 +10,7 @@ use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Enums\Permissions;
 use App\Models\AchievementSetClaim;
+use App\Models\System;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ class AchievementSetClaimListService
         'status' => 'active',
         'special' => -1,
         'developerType' => 'all',
+        'system' => 0,
     ];
 
     public function getFilterOptions(Request $request): array
@@ -48,6 +50,7 @@ class AchievementSetClaimListService
             'filter.status' => 'sometimes|string|in:all,active,review,complete,dropped,activeOrInReview',
             'filter.special' => 'sometimes|integer|min:-1|max:3',
             'filter.developerType' => 'sometimes|string|in:all,full,junior',
+            'filter.system' => 'sometimes|integer|min:0',
         ]);
 
         $this->sortOrder = $validatedData['sort'] ?? $this->sortOrder;
@@ -58,6 +61,7 @@ class AchievementSetClaimListService
             'status' => $validatedData['filter']['status'] ?? $this->defaultFilters['status'],
             'special' => (int) ($validatedData['filter']['special'] ?? $this->defaultFilters['special']),
             'developerType' => $validatedData['filter']['developerType'] ?? $this->defaultFilters['developerType'],
+            'system' => (int) ($validatedData['filter']['system'] ?? $this->defaultFilters['system']),
         ];
     }
 
@@ -157,6 +161,34 @@ class AchievementSetClaimListService
         ];
     }
 
+    public function getSystemFilter(bool $onlyValid = true): array
+    {
+        $systems = [
+            0 => 'All systems',
+        ];
+
+        foreach (System::orderBy('name')->get() as $system) {
+            if (System::isGameSystem($system->id)) {
+                if (isValidConsoleId($system->id)) {
+                    $systems[$system->id] = $system->name;
+                } elseif (!$onlyValid) {
+                    $systemClaims = AchievementSetClaim::whereHas('game', function ($query) use ($system) {
+                        $query->where('ConsoleID', '=', $system->id);
+                    });
+                    if ($systemClaims->exists()) {
+                        $systems[$system->id] = $system->name;
+                    }
+                }
+            }
+        }
+
+        return [
+            'kind' => 'system',
+            'label' => 'System',
+            'options' => $systems,
+        ];
+    }
+
     public function getSorts(bool $withDeveloper = true, bool $withExpiring = true): array
     {
         $sorts['title'] = 'Game Title';
@@ -243,6 +275,12 @@ class AchievementSetClaimListService
                     $query->where('Permissions', '=', Permissions::JuniorDeveloper);
                 });
                 break;
+        }
+
+        if ($filterOptions['system'] !== 0) {
+            $claims->whereHas('game', function ($query) use ($filterOptions) {
+                $query->where('ConsoleID', '=', $filterOptions['system']);
+            });
         }
 
         $this->numFilteredClaims = $claims->count();

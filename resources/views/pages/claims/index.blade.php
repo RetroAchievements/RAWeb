@@ -26,6 +26,7 @@ render(function (View $view) {
     ];
 
     $selectFilters = [
+        $claimsService->getSystemFilter(onlyValid: false),
         $claimsService->getClaimTypeFilter(),
         $claimsService->getSetTypeFilter(),
         $claimsService->getStatusFilter(),
