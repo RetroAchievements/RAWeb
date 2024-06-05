@@ -46,8 +46,8 @@ if (submitLBData($user, $lbID, $lbMem, $lbTitle, $lbDescription, $lbFormat, $lbL
         $leaderboard->refresh();
 
         if ($leaderboard->Updated->diffInMinutes($prevUpdated) >= 10) {
-            $commentText = 'made updates to this leaderboard';
-            addArticleComment("Server", ArticleType::Leaderboard, $lbID, "\"$user\" $commentText.", $user);
+            $commentText = 'edited this leaderboard';
+            addArticleComment("Server", ArticleType::Leaderboard, $lbID, "{$user} {$commentText}.", $user);
         }
     }
 
