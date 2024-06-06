@@ -27,7 +27,6 @@ class AchievementSetClaim extends BaseModel
     // TODO rename Finished to finished_at, remove getFinishedAtAttribute()
     // TODO rename Created to created_at, remove getCreatedAtAttribute()
     // TODO rename Updated to updated_at
-    // TODO drop User, rely solely on user_id
     protected $table = 'SetClaim';
 
     protected $primaryKey = 'ID';
@@ -36,7 +35,6 @@ class AchievementSetClaim extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'User',
         'user_id',
         'game_id',
         'ClaimType',

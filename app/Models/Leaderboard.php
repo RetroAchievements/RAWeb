@@ -37,7 +37,7 @@ class Leaderboard extends BaseModel
     // TODO rename Created column to created_at, set to non-nullable, remove getCreatedAtAttribute()
     // TODO rename Updated column to updated_at, set to non-nullable, remove getUpdatedAtAttribute()
     // TODO drop Mem, migrate to triggerable morph
-    // TODO drop Author and author_id, migrate to triggerable morph author
+    // TODO drop author_id, migrate to triggerable morph author
     protected $table = 'LeaderboardDef';
 
     protected $primaryKey = 'ID';

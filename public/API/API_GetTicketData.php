@@ -225,7 +225,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
        ->take($count)
        ->get();
 
-    $tickets->loadMissing('achievement.developer');
+    $tickets->loadMissing('achievement', 'author');
 
     /** @var Ticket $ticket */
     foreach ($tickets as $ticket) {
@@ -237,7 +237,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'AchievementType' => $ticket->achievement->type,
             'Points' => $ticket->achievement->points,
             'BadgeName' => $ticket->achievement->BadgeName,
-            'AchievementAuthor' => $ticket->achievement->developer->display_name,
+            'AchievementAuthor' => $ticket->author?->display_name,
             'GameID' => $ticket->achievement->game->ID,
             'ConsoleName' => $ticket->achievement->game->system->name,
             'GameTitle' => $ticket->achievement->game->title,
@@ -246,7 +246,7 @@ $getTicketsInfo = function (Builder $builder, int $offset, int $count): array {
             'ReportType' => $ticket->ReportType,
             'ReportTypeDescription' => TicketType::toString($ticket->ReportType),
             'ReportNotes' => $ticket->ReportNotes,
-            'ReportedBy' => $ticket->reporter->User,
+            'ReportedBy' => $ticket->reporter?->User,
             'ResolvedAt' => $ticket->ResolvedAt?->__toString(),
             'ResolvedBy' => $ticket->resolver?->User,
             'ReportState' => $ticket->ReportState,

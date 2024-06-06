@@ -126,9 +126,7 @@ function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
     }
 
     $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
-
-    // TODO utilize soft deletes
-    $wasLeaderboardEntryDeleted = $leaderboardEntry->forceDelete();
+    $wasLeaderboardEntryDeleted = $leaderboardEntry->delete();
 
     return $wasLeaderboardEntryDeleted;
 }
@@ -290,6 +288,7 @@ function getLeaderboardsList(
         LEFT JOIN
         (
             SELECT le.leaderboard_id, COUNT(*) AS NumResults FROM leaderboard_entries AS le
+            WHERE le.deleted_at IS NULL
             GROUP BY le.leaderboard_id
             ) AS leInner ON leInner.leaderboard_id = ld.ID
         LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
@@ -341,9 +340,9 @@ function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, User $user): bool
     }
 
     $defaultMem = "STA:0x0000=h0010_0xhf601=h0c::CAN:0xhfe13<d0xhfe13::SUB:0xf7cc!=0_d0xf7cc=0::VAL:0xhfe24*1_0xhfe25*60_0xhfe22*3600";
-    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, author_id, Created)
+    $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, author_id, Created)
                                 VALUES ($gameID, '$defaultMem', 'SCORE', 'My Leaderboard', 'My Leaderboard Description', 0,
-                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), '{$user->User}', {$user->id}, NOW())";
+                                (SELECT * FROM (SELECT COALESCE(Max(DisplayOrder) + 1, 0) FROM LeaderboardDef WHERE  GameID = $gameID) AS temp), {$user->id}, NOW())";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
@@ -357,7 +356,7 @@ function SubmitNewLeaderboard(int $gameID, ?int &$lbIDOut, User $user): bool
 }
 
 function UploadNewLeaderboard(
-    string $author,
+    string $authorUsername,
     int $gameID,
     string $title,
     string $desc,
@@ -368,16 +367,16 @@ function UploadNewLeaderboard(
     ?string &$errorOut
 ): bool {
     $displayOrder = 0;
-    $originalAuthor = '';
+    $originalAuthor = null;
 
     if ($idInOut > 0) {
-        $query = "SELECT DisplayOrder, Author FROM LeaderboardDef WHERE ID='$idInOut'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-            $data = mysqli_fetch_assoc($dbResult);
-            $displayOrder = $data['DisplayOrder'];
-            $originalAuthor = $data['Author'] ?? "Unknown";
-            $displayOrder = (int) $displayOrder;
+        $foundLeaderboard = Leaderboard::find($idInOut);
+        if ($foundLeaderboard) {
+            $displayOrder = $foundLeaderboard->order_column;
+            $originalAuthor = $foundLeaderboard->authorUser;
+
+            $data['DisplayOrder'] = $displayOrder;
+            $data['Author'] = $originalAuthor?->display_name ?? "Unknown";
         } else {
             $errorOut = "Unknown leaderboard";
 
@@ -385,13 +384,15 @@ function UploadNewLeaderboard(
         }
     }
 
-    $authorModel = User::firstWhere('User', $author);
+    $authorModel = User::firstWhere('User', $authorUsername);
 
     // Prevent non-developers from uploading or modifying leaderboards
     $userPermissions = (int) $authorModel->getAttribute('Permissions');
     if ($userPermissions < Permissions::Developer) {
-        if ($userPermissions < Permissions::JuniorDeveloper
-            || (!empty($originalAuthor) && $author !== $originalAuthor)) {
+        if (
+            $userPermissions < Permissions::JuniorDeveloper
+            || (isset($originalAuthor) && !$authorModel->is($originalAuthor))
+        ) {
             $errorOut = "You must be a developer to perform this action! Please drop a message in the forums to apply.";
 
             return false;
@@ -417,79 +418,23 @@ function UploadNewLeaderboard(
             return false;
         }
 
-        $query = "SELECT DisplayOrder FROM LeaderboardDef WHERE ID='$idInOut'";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false && mysqli_num_rows($dbResult) == 1) {
-            $data = mysqli_fetch_assoc($dbResult);
-            $displayOrder = $data['DisplayOrder'];
-            $displayOrder = (int) $displayOrder;
+        $foundLeaderboard = Leaderboard::find($idInOut);
+        if ($foundLeaderboard) {
+            $displayOrder = $foundLeaderboard->order_column;
+            $data['DisplayOrder'] = $displayOrder;
         }
     }
 
-    if (!submitLBData($author, $idInOut, $mem, $title, $desc, $format, $lowerIsBetter, $displayOrder)) {
+    if (!submitLBData($authorUsername, $idInOut, $mem, $title, $desc, $format, $lowerIsBetter, $displayOrder)) {
         $errorOut = "Internal error updating leaderboard.";
 
         return false;
     }
 
-    if ($originalAuthor != '') {
+    if (isset($originalAuthor)) {
         addArticleComment("Server", ArticleType::Leaderboard, $idInOut,
-            "$author edited this leaderboard.", $author
+            "{$authorModel->display_name} edited this leaderboard.", $authorModel->username
         );
-    }
-
-    return true;
-}
-
-/**
- * Duplicates a leaderboard a specified number of times.
- */
-function duplicateLeaderboard(int $gameID, int $leaderboardID, int $duplicateNumber, string $user): bool
-{
-    if ($gameID == 0) {
-        return false;
-    }
-
-    // Get the leaderboard info to duplicate
-    $getQuery = "
-            SELECT Mem,
-                   Format,
-                   Title,
-                   Description,
-                   LowerIsBetter,
-                   (SELECT Max(DisplayOrder) FROM LeaderboardDef WHERE GameID = $gameID) AS DisplayOrder
-            FROM   LeaderboardDef
-            WHERE  ID = $leaderboardID";
-
-    $dbResult = s_mysql_query($getQuery);
-    if (!$dbResult) {
-        return false;
-    }
-
-    $db_entry = mysqli_fetch_assoc($dbResult);
-
-    if (empty($db_entry)) {
-        return false;
-    }
-
-    $lbMem = $db_entry['Mem'];
-    $lbFormat = $db_entry['Format'];
-    $lbTitle = $db_entry['Title'];
-    $lbDescription = $db_entry['Description'];
-    $lbScoreType = $db_entry['LowerIsBetter'];
-    $lbDisplayOrder = $db_entry['DisplayOrder'];
-
-    // Create the duplicate entries
-    for ($i = 1; $i <= $duplicateNumber; $i++) {
-        $query = "INSERT INTO LeaderboardDef (GameID, Mem, Format, Title, Description, LowerIsBetter, DisplayOrder, Author, Created)
-                                    VALUES ($gameID, '$lbMem', '$lbFormat', '$lbTitle', '$lbDescription', $lbScoreType, ($lbDisplayOrder + $i), '$user', NOW())";
-        $dbResult = s_mysql_query($query);
-        if ($dbResult !== false) {
-            $db = getMysqliConnection();
-            mysqli_insert_id($db);
-        } else {
-            return false;
-        }
     }
 
     return true;
