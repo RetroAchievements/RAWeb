@@ -28,7 +28,6 @@ return new class() extends Migration {
         Schema::table('SiteAwards', function (Blueprint $table) {
             $table->dropIndex(['user_id', 'AwardData', 'AwardType', 'AwardDataExtra']);
             $table->string('User', 50)->after('AwardDate');
-            $table->unique(['User', 'AwardData', 'AwardType', 'AwardDataExtra'], 'siteawards_user_awarddata_awardtype_awarddataextra_unique');
             $table->index('User');
         });
     }
