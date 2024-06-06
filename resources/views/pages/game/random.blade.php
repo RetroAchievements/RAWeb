@@ -14,6 +14,7 @@ name('game.random');
 render(function () {
     $randomGameWithAchievements = Game::where('ConsoleID', '<', 100)
         ->whereNotIn('ConsoleID', System::getNonGameSystems())
+        ->where('achievements_published', '>=', 6)
         ->inRandomOrder()
         ->firstOrFail();
 
