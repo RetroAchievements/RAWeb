@@ -121,6 +121,15 @@ return [
         '/editpost.php' => '/forums/post/{comment}/edit',
 
         /*
+         * claims
+         */
+        '/claimlist.php' => [
+            'u' => '/user/{u}/developer/claims',
+            '' => '/claims/active',
+        ],
+        '/expiringclaims.php' => '/claims/expiring',
+
+        /*
          * redirects (external)
          */
         '/faq.php' => 'https://docs.retroachievements.org/FAQ/',

@@ -73,7 +73,7 @@ $user = request()->user();
                 <x-dropdown-item :href="route('developer.sets', ['user' => $user])">Sets</x-dropdown-item>
             @endif
             @if($user->Permissions >= Permissions::JuniorDeveloper)
-                <x-dropdown-item :href="url('claimlist.php?u=' . $user->username)">Claims</x-dropdown-item>
+                <x-dropdown-item :href="route('developer.claims', ['user' => $user])">Claims</x-dropdown-item>
             @endif
         @endif
         <div class="dropdown-divider"></div>
