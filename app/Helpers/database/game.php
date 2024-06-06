@@ -446,9 +446,9 @@ function getGamesListByDev(
         $query = "SELECT GameID, COUNT(*) AS NumLBs
                   FROM LeaderboardDef
                   WHERE GameID IN ($gameList)
-                  AND Author = :author
+                  AND author_id = :authorId
                   GROUP BY GameID";
-        foreach (legacyDBFetchAll($query, ['author' => $dev]) as $row) {
+        foreach (legacyDBFetchAll($query, ['authorId' => $dev->id]) as $row) {
             $games[$row['GameID']]['MyLBs'] = $row['NumLBs'];
         }
     }
