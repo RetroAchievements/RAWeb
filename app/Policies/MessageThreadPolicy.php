@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\Permissions;
 use App\Models\MessageThread;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -54,11 +56,20 @@ class MessageThreadPolicy
 
     public function createForRecipient(User $user, User $targetUser): bool
     {
+        $isUserDeveloper = $user->hasAnyRole([
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+            Role::DEVELOPER_STAFF,
+        ])
+            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+
         /**
          * TODO check user privacy settings
          */
-        if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
-            return false;
+        if (!$isUserDeveloper) {
+            if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
+                return false;
+            }
         }
 
         return true;
