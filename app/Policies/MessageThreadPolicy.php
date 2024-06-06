@@ -27,8 +27,15 @@ class MessageThreadPolicy
         return true;
     }
 
-    public function create(User $user): bool
+    public function create(User $user, User $targetUser): bool
     {
+        /**
+         * TODO check user privacy settings
+         */
+        if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
+            return false;
+        }
+
         return true;
     }
 

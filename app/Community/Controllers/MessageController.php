@@ -41,6 +41,11 @@ class MessageController extends Controller
             (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
         } else {
             $recipient = User::firstWhere('User', $input['recipient']);
+
+            if (!$user->can('create', [MessageThread::class, $recipient])) {
+                return back()->withErrors(__('legacy.error.permissions'));
+            }
+
             $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
         }
 

@@ -124,5 +124,4 @@ $route = match((int) $articleType) {
             <x-paginator :totalPages="$totalPages" :currentPage="$currentPage" />
         </div>
     @endif
-
 </div>

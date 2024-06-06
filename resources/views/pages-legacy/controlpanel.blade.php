@@ -42,7 +42,7 @@ function ShowDoneIcon(iconRootId) {
  */
 function DoChangeUserPrefs(targetLoadingIcon = 1) {
     var newUserPrefs = 0;
-    for (i = 0; i <= 16; ++i) {
+    for (i = 0; i <= 17; ++i) {
         var checkbox = document.getElementById('UserPreference' + i);
         if (checkbox != null && checkbox.checked) {
             newUserPrefs += (1 << i);
@@ -241,6 +241,12 @@ function confirmEmailChange(event) {
                     <td>
                         Hide missable achievement indicators
                         <td><?php RenderUserPref($websitePrefs, UserPreference::Game_HideMissableIndicators, true, $state = null, $targetLoadingIcon = 2) ?></td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Only let people I follow contact me
+                        <td><?php RenderUserPref($websitePrefs, UserPreference::User_OnlyContactFromFollowing, true, $state = null, $targetLoadingIcon = 2) ?></td>
                     </td>
                 </tr>
             </table>

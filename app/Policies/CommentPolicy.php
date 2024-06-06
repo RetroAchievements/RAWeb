@@ -57,6 +57,10 @@ class CommentPolicy
             return false;
         }
 
+        if ($commentable !== null && $commentable instanceof User) {
+            return (new UserCommentPolicy())->create($user, $commentable);
+        }
+
         // users cannnot comment on the wall of a user who has them blocked
         if ($commentable !== null && $commentable instanceof User) {
             if ($commentable->isBlocking($user)) {
