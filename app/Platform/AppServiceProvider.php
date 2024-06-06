@@ -114,7 +114,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
-            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->hourly();
+            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
         });
 
