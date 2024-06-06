@@ -245,7 +245,7 @@ function confirmEmailChange(event) {
                 </tr>
                 <tr>
                     <td>
-                        Only let people I follow contact me
+                        Only people I follow can message me or post on my wall
                         <td><?php RenderUserPref($websitePrefs, UserPreference::User_OnlyContactFromFollowing, true, $state = null, $targetLoadingIcon = 2) ?></td>
                     </td>
                 </tr>
