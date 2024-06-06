@@ -46,4 +46,16 @@ class MessagePolicy
     {
         return false;
     }
+
+    public function sendToRecipient(User $user, User $targetUser): bool
+    {
+        /**
+         * TODO check user privacy settings
+         */
+        if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
+            return false;
+        }
+
+        return true;
+    }
 }

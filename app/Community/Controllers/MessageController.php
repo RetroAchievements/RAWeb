@@ -38,11 +38,17 @@ class MessageController extends Controller
                 return back()->withErrors(__('legacy.error.error'));
             }
 
+            foreach ($thread->users as $threadUser) {
+                if (!$threadUser->is($user) && !$user->can('sendToRecipient', [Message::class, $threadUser])) {
+                    return back()->withErrors(__('legacy.error.permissions'));
+                }
+            }
+
             (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
         } else {
             $recipient = User::firstWhere('User', $input['recipient']);
 
-            if (!$user->can('create', [MessageThread::class, $recipient])) {
+            if (!$user->can('createForRecipient', [MessageThread::class, $recipient])) {
                 return back()->withErrors(__('legacy.error.permissions'));
             }
 
