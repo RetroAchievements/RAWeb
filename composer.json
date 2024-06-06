@@ -37,6 +37,7 @@
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "^3.3",
         "livewire/livewire": "^3.0",
+        "livewire/volt": "^1.6",
         "matomo/device-detector": "^6.0",
         "opcodesio/log-viewer": "^3.1",
         "owenvoke/blade-fontawesome": "^2.0",
