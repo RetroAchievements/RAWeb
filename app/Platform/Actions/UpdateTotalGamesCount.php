@@ -7,7 +7,6 @@ namespace App\Platform\Actions;
 use App\Models\Game;
 use App\Models\StaticData;
 use App\Models\System;
-use App\Platform\Enums\AchievementFlag;
 
 class UpdateTotalGamesCount
 {
@@ -18,11 +17,9 @@ class UpdateTotalGamesCount
         // - It's not a subset.
         // - It has at least 6 core achievements.
 
-        $gameCount = Game::whereNotIn("ConsoleID", [System::Events, System::Hubs])
+        $gameCount = Game::whereNotIn("ConsoleID", System::getNonGameSystems())
             ->where("Title", "not like", "%[Subset%") // TODO this can probably be removed after multiset
-            ->whereHas("achievements", function ($query) {
-                $query->where("Flags", AchievementFlag::OfficialCore);
-            }, ">=", 6)
+            ->where('achievements_published', '>=', 6)
             ->count();
 
         // TODO put this in redis or somewhere else
