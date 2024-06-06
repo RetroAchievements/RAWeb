@@ -11,7 +11,7 @@ $sortBy = requestInputSanitized('s', 1, 'integer');
 
 $dev = requestInputSanitized('d');
 if ($dev !== null) {
-    abort_with(redirect()->route('developer.sets', $dev));
+    abort_with(redirect()->route('developer.sets', ['user' => $dev]));
 }
 
 if ($consoleIDInput == 0 || $filter != 0) {
