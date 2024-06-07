@@ -794,7 +794,6 @@ function createNewGame(string $title, int $consoleID): ?array
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         $newID = mysqli_insert_id($db);
-        static_addnewgame($newID);
 
         return [
             'ID' => $newID,
