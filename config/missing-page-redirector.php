@@ -80,6 +80,11 @@ return [
         '/random.php' => '/game/random',
 
         /*
+         * hashes
+         */
+        'latesthasheslinked.php' => '/manage/game-hashes',
+
+        /*
          * leaderboards
          */
         '/leaderboardinfo.php' => '/leaderboard/{i}',

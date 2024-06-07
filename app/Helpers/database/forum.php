@@ -112,22 +112,14 @@ function submitNewTopic(
     string $topicTitle,
     string $topicPayload,
 ): ForumTopicComment {
-    // TODO why do we even allow users to submit topic titles this short? just throw a validation error.
-    if (mb_strlen($topicTitle) < 2) {
-        $topicTitle = "{$user->User}'s topic";
-    }
-
-    $topicTitle = htmlspecialchars($topicTitle, ENT_QUOTES);
-
-    // Create the new topic.
-    $newTopic = new ForumTopic([
+    // First, create the topic.
+    $newTopic = ForumTopic::create([
         'ForumID' => $forumID,
         'Title' => $topicTitle,
         'author_id' => $user->id,
         'LatestCommentID' => 0,
         'RequiredPermissions' => 0,
     ]);
-    $newTopic->save();
 
     // Finally, submit the first comment of the new topic.
     return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload);
@@ -206,8 +198,6 @@ function submitTopicComment(
         // Do nothing.
         return null;
     }
-
-    $commentPayload = htmlspecialchars($commentPayload, ENT_QUOTES);
 
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
