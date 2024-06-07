@@ -11,8 +11,7 @@ use function Laravel\Folio\{middleware, name, render};
 middleware(['auth', 'can:viewAny,' . App\Models\Ticket::class]);
 name('reporter.tickets');
 
-render(function (View $view, User $user) {
-    $ticketListService = new TicketListService();
+render(function (View $view, User $user, TicketListService $ticketListService) {
     $filterOptions = $ticketListService->getFilterOptions(request());
 
     $ticketQuery = Ticket::where('reporter_id', '=', $user->id)

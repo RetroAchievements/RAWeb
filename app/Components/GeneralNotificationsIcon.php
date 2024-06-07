@@ -44,13 +44,13 @@ class GeneralNotificationsIcon extends Component
             $expiringClaims = getExpiringClaim($user);
             if ($expiringClaims['Expired'] ?? 0) {
                 $notifications->push([
-                    'link' => url('/expiringclaims.php?u=' . $user->User),
+                    'link' => route('developer.claims', ['user' => $user]),
                     'title' => 'Claim Expired',
                     'class' => 'text-danger',
                 ]);
             } elseif ($expiringClaims['Expiring'] ?? 0) {
                 $notifications->push([
-                    'link' => url('/expiringclaims.php?u=' . $user->User),
+                    'link' => route('developer.claims', ['user' => $user]),
                     'title' => 'Claim Expiring Soon',
                     'class' => 'text-danger',
                 ]);
