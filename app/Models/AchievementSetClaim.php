@@ -216,4 +216,13 @@ class AchievementSetClaim extends BaseModel
     {
         return $this->scopeStatus($query, ClaimStatus::InReview);
     }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeActiveOrInReview(Builder $query): Builder
+    {
+        return $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
+    }
 }
