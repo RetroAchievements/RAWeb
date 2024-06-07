@@ -1,3 +1,5 @@
+{{-- TODO somehow, this needs to accept either a ForumTopic, Forum, or ForumCategory --}}
+
 @props([
     'currentPageLabel' => '',
 ])

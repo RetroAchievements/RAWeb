@@ -431,17 +431,27 @@ function updateAchievementFlag(int|string|array $inputAchievementIds, int $newFl
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
 
-    Achievement::whereIn('ID', $achievementIds)
+    $achievements = Achievement::whereIn('ID', $achievementIds)
         ->where('Flags', '!=', $newFlag)
-        ->update(['Flags' => $newFlag]);
+        ->get();
+
+    foreach ($achievements as $achievement) {
+        $achievement->Flags = $newFlag;
+        $achievement->save();
+    }
 }
 
 function updateAchievementType(int|string|array $inputAchievementIds, ?string $newType): void
 {
     $achievementIds = is_array($inputAchievementIds) ? $inputAchievementIds : [$inputAchievementIds];
 
-    Achievement::whereIn('ID', $achievementIds)
-        ->update(['type' => $newType, 'Updated' => Carbon::now()]);
+    $achievements = Achievement::whereIn('ID', $achievementIds)->get();
+
+    foreach ($achievements as $achievement) {
+        $achievement->type = $newType;
+        $achievement->Updated = Carbon::now();
+        $achievement->save();
+    }
 }
 
 function buildBeatenGameCreditDialogContext(array $achievements): string
