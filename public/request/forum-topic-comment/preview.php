@@ -16,12 +16,13 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'body' => 'required|string|max:60000',
 ]);
 
-$normalizedInput = normalize_shortcodes($input['body']);
+$normalized = normalize_shortcodes($input['body']);
+$sanitized = htmlspecialchars($normalized, ENT_QUOTES, 'UTF-8');
 
 return response()->json([
     'message' => __('legacy.success.ok'),
-    'postPreviewHtml' => Blade::render('<x-forum.topic-comment :$variant>{{ $body }}</x-forum.topic-comment> ', [
-        'body' => Shortcode::render($normalizedInput),
+    'postPreviewHtml' => Blade::render('<x-forum.topic-comment :$variant>{!! $body !!}</x-forum.topic-comment> ', [
+        'body' => Shortcode::render($sanitized),
         'variant' => 'preview',
     ]),
 ]);
