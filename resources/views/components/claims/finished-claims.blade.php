@@ -102,7 +102,6 @@ while ($remainingClaimsToFetch > 0) {
     $currentOffset += $count;
 }
 
-$allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescending . '&f=' . ClaimFilters::AllCompletedPrimaryClaims;
 ?>
 
 <div class="component">
@@ -140,7 +139,7 @@ $allFinishedClaimsHref = '/claimlist.php?s=' . ClaimSorting::FinishedDateDescend
         </div>
 
         <div class="text-right">
-            <a class="btn btn-link" href="{{ $allFinishedClaimsHref }}">more...</a>
+            <a class="btn btn-link" href="{{ route('claims.completed') }}">more...</a>
         </div>
     @endif
 </div>

@@ -185,7 +185,7 @@ class StartSessionTest extends TestCase
         $delegatedUser = User::factory()->create(['Permissions' => Permissions::Registered, 'appToken' => Str::random(16)]);
 
         // The integration user is the sole author of all the set's achievements.
-        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->id, 'Author' => $integrationUser->User, 'user_id' => $integrationUser->id]);
+        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $gameOne->id, 'user_id' => $integrationUser->id]);
 
         $unlock1Date = $now->clone()->subMinutes(65);
         $this->addHardcoreUnlock($delegatedUser, $achievements->get(0), $unlock1Date);

@@ -446,9 +446,9 @@ function getGamesListByDev(
         $query = "SELECT GameID, COUNT(*) AS NumLBs
                   FROM LeaderboardDef
                   WHERE GameID IN ($gameList)
-                  AND Author = :author
+                  AND author_id = :authorId
                   GROUP BY GameID";
-        foreach (legacyDBFetchAll($query, ['author' => $dev]) as $row) {
+        foreach (legacyDBFetchAll($query, ['authorId' => $dev->id]) as $row) {
             $games[$row['GameID']]['MyLBs'] = $row['NumLBs'];
         }
     }
@@ -794,7 +794,6 @@ function createNewGame(string $title, int $consoleID): ?array
     $dbResult = mysqli_query($db, $query);
     if ($dbResult !== false) {
         $newID = mysqli_insert_id($db);
-        static_addnewgame($newID);
 
         return [
             'ID' => $newID,
@@ -877,7 +876,7 @@ function submitNewGameTitleJSON(
             /**
              * Associate md5 to $gameID
              */
-            $query = "INSERT INTO game_hashes (md5, game_id, User, user_id, name) VALUES( '$md5', '$gameID', '$user', '$userId', ";
+            $query = "INSERT INTO game_hashes (md5, game_id, user_id, name) VALUES( '$md5', '$gameID', '$userId', ";
             if (!empty($description)) {
                 $query .= "'$description'";
             } else {
@@ -947,34 +946,6 @@ function getRichPresencePatch(int $gameID, ?array &$dataOut): bool
     return false;
 }
 
-function getRandomGameWithAchievements(): int
-{
-    $maxID = legacyDbFetch("SELECT MAX(Id) AS MaxID FROM GameData")['MaxID'];
-
-    // This seems to be the most efficient way to randomly pick a game with achievements.
-    // Each iteration of this loop takes less than 1ms, whereas alternate implementations that
-    // scanned the table using "LIMIT RAND(),1" or "ORDER BY RAND() LIMIT 1" took upwards of
-    // 400ms as the calculation for number of achievements had to be done for every row skipped.
-    // This logic could be revisited after denormalized achievement counts exist.
-    // With 25k rows in the GameData table, and 6k games with achievements, the chance of any
-    // individual query failing is roughly 75%. The chance of three queries in a row failing is
-    // 42%. At ten queries, the chance is way down at 6%, and we're still 40+ times faster than
-    // the alternate solutions.
-    do {
-        $gameID = random_int(1, $maxID);
-        $query = "SELECT gd.ConsoleID, COUNT(ach.ID) AS NumAchievements
-                FROM GameData gd LEFT JOIN Achievements ach ON ach.GameID=gd.ID
-                WHERE ach.Flags = " . AchievementFlag::OfficialCore . " AND gd.ConsoleID < 100
-                AND gd.ID = $gameID
-                GROUP BY ach.GameID
-                HAVING NumAchievements > 0";
-
-        $dbResult = legacyDbFetch($query);
-    } while ($dbResult === null); // game has no achievements or is associated to hub/event console
-
-    return $gameID;
-}
-
 function GetPatchData(int $gameID, ?User $user, int $flag): array
 {
     $game = Game::find($gameID);
@@ -1037,7 +1008,7 @@ function GetPatchData(int $gameID, ?User $user, int $flag): array
             'Title' => $achievement->Title,
             'Description' => $achievement->Description,
             'Points' => $achievement->Points,
-            'Author' => $achievement->developer->User,
+            'Author' => $achievement->developer->User ?? '',
             'Modified' => $achievement->DateModified->unix(),
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,

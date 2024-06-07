@@ -8,7 +8,7 @@ use App\Models\Game;
 use App\Models\PlayerStat;
 use App\Models\System;
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerStats;
+use App\Platform\Actions\UpdatePlayerBeatenGamesStats;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 use Tests\Feature\Platform\Concerns\TestsPlayerBadges;
 use Tests\TestCase;
 
-class UpdatePlayerStatsTest extends TestCase
+class UpdatePlayerBeatenGamesStatsTest extends TestCase
 {
     use RefreshDatabase;
     use TestsPlayerBadges;
@@ -25,7 +25,7 @@ class UpdatePlayerStatsTest extends TestCase
     {
         $user = User::factory()->create();
 
-        (new UpdatePlayerStats())->execute($user);
+        (new UpdatePlayerBeatenGamesStats())->execute($user);
 
         $userStats = PlayerStat::where('user_id', $user->id)->get();
         $this->assertCount(0, $userStats);
@@ -43,7 +43,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->addGameBeatenAward($user, $games->get(2), UnlockMode::Softcore);
 
         // Act
-        (new UpdatePlayerStats())->execute($user);
+        (new UpdatePlayerBeatenGamesStats())->execute($user);
 
         // Assert
         $userStats = PlayerStat::where('user_id', $user->id)->get();
@@ -60,7 +60,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->addGameBeatenAward($user, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
 
         // Act
-        (new UpdatePlayerStats())->execute($user);
+        (new UpdatePlayerBeatenGamesStats())->execute($user);
 
         // Assert
         $userStats = PlayerStat::where('user_id', $user->id)->get();
@@ -102,7 +102,7 @@ class UpdatePlayerStatsTest extends TestCase
 
         // Act
         foreach ($users as $user) {
-            (new UpdatePlayerStats())->execute($user);
+            (new UpdatePlayerBeatenGamesStats())->execute($user);
         }
 
         // Assert
@@ -144,7 +144,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->addGameBeatenAward($untrackedUser, $game, UnlockMode::Hardcore, Carbon::create(2023, 1, 1));
 
         // Act
-        (new UpdatePlayerStats())->execute($untrackedUser);
+        (new UpdatePlayerBeatenGamesStats())->execute($untrackedUser);
 
         // Assert
         $userStats = PlayerStat::where('user_id', $untrackedUser->id)->get();
@@ -158,13 +158,13 @@ class UpdatePlayerStatsTest extends TestCase
         $system = System::factory()->create();
         Game::factory()->create(['ConsoleID' => $system->ID]);
 
-        (new UpdatePlayerStats())->execute($user);
+        (new UpdatePlayerBeatenGamesStats())->execute($user);
 
         $user->Untracked = true;
         $user->save();
 
         // Act
-        (new UpdatePlayerStats())->execute($user);
+        (new UpdatePlayerBeatenGamesStats())->execute($user);
 
         // Assert
         $userStats = PlayerStat::where('user_id', $user->id)->get();
@@ -189,7 +189,7 @@ class UpdatePlayerStatsTest extends TestCase
         $this->addGameBeatenAward($user, $gameThree, UnlockMode::Hardcore);
 
         // Act
-        (new UpdatePlayerStats())->execute($user);
+        (new UpdatePlayerBeatenGamesStats())->execute($user);
 
         // Assert
         $userRetailStats = PlayerStat::where('user_id', $user->id)->where('type', 'games_beaten_hardcore_retail')->get();

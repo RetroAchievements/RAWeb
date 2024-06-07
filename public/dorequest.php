@@ -4,6 +4,7 @@ use App\Community\Enums\ActivityType;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
@@ -465,7 +466,9 @@ switch ($requestType) {
         $lbID = (int) request()->input('i', 0);
         // Note: Nearby entry behavior has no effect if $username is null
         // TBD: friendsOnly
-        $response['LeaderboardData'] = GetLeaderboardData($lbID, $username, $count, $offset, nearby: true);
+        $leaderboard = Leaderboard::find($lbID);
+        $response['LeaderboardData'] = $leaderboard ?
+            GetLeaderboardData($leaderboard, User::firstWhere('User', $username), $count, $offset, nearby: true) : [];
         break;
 
     case "patch":
