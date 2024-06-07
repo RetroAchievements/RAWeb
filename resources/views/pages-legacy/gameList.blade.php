@@ -2,6 +2,7 @@
 
 use App\Community\Enums\UserGameListType;
 use App\Enums\Permissions;
+use App\Models\StaticData;
 use App\Models\System;
 
 $consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
@@ -11,7 +12,7 @@ $sortBy = requestInputSanitized('s', 1, 'integer');
 
 $dev = requestInputSanitized('d');
 if ($dev !== null) {
-    abort_with(redirect()->route('developer.sets', $dev));
+    abort_with(redirect()->route('developer.sets', ['user' => $dev]));
 }
 
 if ($consoleIDInput == 0 || $filter != 0) {
@@ -85,14 +86,30 @@ if ($filter !== 0) { // if not viewing "games with achievements", fetch claim in
     }
 }
 
+$totalGames = StaticData::first()->NumGames;
+
 sanitize_outputs($consoleName, $requestedConsole, $listType);
 ?>
 <x-app-layout pageTitle="{{ $requestedConsole }} Games">
     <?php
         echo renderConsoleHeading($consoleIDInput, $consoleName);
+    ?>
 
-        echo "<div style='float:left'>$gamesCount " . trans_choice(__('resource.game.title'), $gamesCount) . "</div>";
+    @if ($filter === 0)
+        <p>
+            Viewing <span class="font-bold">{{ localized_number($gamesCount) }}</span>
+            achievement @choice('set'|'sets', $gamesCount)
+            from <span class="font-bold">{{ localized_number($totalGames) }}</span>
+            @choice('game'|'games', $totalGames)
+        </p>
+    @else
+        <p>
+            Viewing <span class="font-bold">{{ localized_number($gamesCount) }}</span>
+            @choice('game'|'games', $gamesCount)
+        </p>
+    @endif
 
+    <?php
         $queryParamArray = [];
         if ($listType !== null) {
             $queryParamArray[] = "t=$listType";

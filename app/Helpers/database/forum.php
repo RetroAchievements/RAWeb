@@ -85,7 +85,7 @@ function getUnauthorisedForumLinks(): ?array
                 LEFT JOIN ForumTopicComment AS ftc ON ftc.ForumTopicID = ft.ID
                 LEFT JOIN Forum AS f ON f.ID = ft.ForumID
                 LEFT JOIN ForumTopicComment AS ftc2 ON ftc2.ForumTopicID = ft.ID
-                WHERE ftc.Authorised = 0 AND ft.deleted_at IS NULL
+                WHERE ftc.Authorised = 0 AND ftc.deleted_at IS NULL AND ft.deleted_at IS NULL
                 GROUP BY ft.ID, LatestCommentPostedDate
                 ORDER BY LatestCommentPostedDate DESC ";
 
@@ -112,22 +112,14 @@ function submitNewTopic(
     string $topicTitle,
     string $topicPayload,
 ): ForumTopicComment {
-    // TODO why do we even allow users to submit topic titles this short? just throw a validation error.
-    if (mb_strlen($topicTitle) < 2) {
-        $topicTitle = "{$user->User}'s topic";
-    }
-
-    $topicTitle = htmlspecialchars($topicTitle, ENT_QUOTES);
-
-    // Create the new topic.
-    $newTopic = new ForumTopic([
+    // First, create the topic.
+    $newTopic = ForumTopic::create([
         'ForumID' => $forumID,
         'Title' => $topicTitle,
         'author_id' => $user->id,
         'LatestCommentID' => 0,
         'RequiredPermissions' => 0,
     ]);
-    $newTopic->save();
 
     // Finally, submit the first comment of the new topic.
     return submitTopicComment($user, $newTopic->id, $topicTitle, $topicPayload);
@@ -206,8 +198,6 @@ function submitTopicComment(
         // Do nothing.
         return null;
     }
-
-    $commentPayload = htmlspecialchars($commentPayload, ENT_QUOTES);
 
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"

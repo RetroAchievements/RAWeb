@@ -18,8 +18,6 @@ class UserRelation extends BaseModel
     protected $fillable = [
         'user_id',
         'related_user_id',
-        'User',
-        'Friend',
         'Friendship',
     ];
 

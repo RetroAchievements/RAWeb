@@ -43,7 +43,7 @@ $claimData = getFilteredClaims(
         </div>
 
         <div class="text-right">
-            <a class="btn btn-link" href="/claimlist.php">more...</a>
+            <a class="btn btn-link" href="{{ route('claims.active') }}">more...</a>
         </div>
     @endif
 </div>

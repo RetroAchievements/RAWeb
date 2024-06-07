@@ -30,11 +30,16 @@ $iconUrl = getSystemIconUrl($consoleId);
             <span class="block text-sm tracking-tighter">{{ $consoleName }}</span>
         </div>
 
+        {{-- TODO extract from the heading component --}}
+        {{-- TODO use a policy --}}
         @php
             $user = $includeAddToListButton ? auth()->user() : null;
         @endphp
         @if ($user?->getAttribute('Permissions') >= Permissions::Registered && System::isGameSystem($consoleId))
-            <x-game.add-to-list :gameId="$gameId" :type="$addToListType" />
+            <livewire:game.add-to-list-button
+                :$gameId
+                label="Want to Play"
+            />
         @endif
     </div>
 </h1>
