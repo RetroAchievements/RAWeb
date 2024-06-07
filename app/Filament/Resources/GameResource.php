@@ -205,11 +205,18 @@ class GameResource extends Resource
                 Tables\Columns\TextColumn::make('system')
                     ->label('System')
                     ->formatStateUsing(fn (System $state) => "[{$state->id}] {$state->name}")
-                    ->url(fn (System $state) => SystemResource::getUrl('view', ['record' => $state->id])),
+                    ->url(function (System $state) {
+                        if (request()->user()->can('manage', System::class)) {
+                            return SystemResource::getUrl('view', ['record' => $state->id]);
+                        }
+
+                        return null;
+                    }),
 
                 Tables\Columns\TextColumn::make('forumTopic.id')
                     ->label('Forum Topic')
-                    ->url(fn (?int $state) => url("viewtopic.php?t={$state}")),
+                    ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('Publisher')
                     ->sortable()
@@ -244,8 +251,7 @@ class GameResource extends Resource
                     ->label('Achievements (Published)')
                     ->numeric()
                     ->sortable()
-                    ->alignEnd()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->alignEnd(),
 
                 Tables\Columns\TextColumn::make('achievements_unpublished')
                     ->label('Achievements (Unofficial)')
