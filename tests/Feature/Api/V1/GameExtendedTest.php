@@ -219,7 +219,7 @@ class GameExtendedTest extends TestCase
                 'Achievements' => [],
                 'Claims' => [
                     [
-                        'User' => $claim->User,
+                        'User' => $claim->user->User,
                         'SetType' => $claim->SetType,
                         'ClaimType' => $claim->ClaimType,
                         'Created' => $claim->Created->__toString(),

@@ -44,7 +44,7 @@ $tools = $settings['tools'] ?? null;
                 @endcan
 
                 @can('manage', App\Models\AchievementSetClaim::class)
-                    <x-dropdown-item :href="url('expiringclaims.php')">Expiring Claims</x-dropdown-item>
+                    <x-dropdown-item :href="route('claims.expiring')">Expiring Claims</x-dropdown-item>
                 @endcan
 
                 @can('manage', App\Models\GameHash::class)
