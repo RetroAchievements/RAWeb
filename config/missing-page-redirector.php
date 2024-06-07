@@ -77,6 +77,12 @@ return [
         '/codenotes.php' => '/game/{g}/notes',
         '/linkedhashes.php' => '/game/{g}/hashes',
         '/popularGames.php' => '/games/popular',
+        '/random.php' => '/game/random',
+
+        /*
+         * hashes
+         */
+        'latesthasheslinked.php' => '/manage/game-hashes',
 
         /*
          * leaderboards
