@@ -30,7 +30,7 @@ class DeleteStalePlayerPointsStatsEntries extends Command
         ];
         PlayerStat::whereIn('type', $relevantPlayerStatTypes)
             ->where('value', 0)
-            ->where('created_at', '<', $dateThreshold)
+            ->where('updated_at', '<', $dateThreshold)
             ->delete();
     }
 }
