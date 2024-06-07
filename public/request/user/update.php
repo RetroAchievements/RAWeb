@@ -38,26 +38,20 @@ if ($propertyType === UserAction::UpdatePermissions) {
         // Adjust attached roles.
         if ($value <= Permissions::Unregistered) {
             $foundTargetUser->roles()->detach();
-        }
-        if ($value === Permissions::Registered) {
+        } elseif ($value === Permissions::Registered) {
             $foundTargetUser->removeRole(Role::DEVELOPER_JUNIOR);
             $foundTargetUser->removeRole(Role::DEVELOPER);
             $foundTargetUser->removeRole(Role::MODERATOR);
-        }
-        if ($value === Permissions::JuniorDeveloper) {
+        } elseif ($value === Permissions::JuniorDeveloper) {
             $foundTargetUser->removeRole(Role::DEVELOPER);
             $foundTargetUser->removeRole(Role::MODERATOR);
 
             $foundTargetUser->assignRole(Role::DEVELOPER_JUNIOR);
-        }
-        if ($value === Permissions::Developer) {
+        } elseif ($value === Permissions::Developer) {
             $foundTargetUser->removeRole(Role::DEVELOPER_JUNIOR);
             $foundTargetUser->removeRole(Role::MODERATOR);
 
             $foundTargetUser->assignRole(Role::DEVELOPER);
-        }
-        if ($value === Permissions::Moderator) {
-            $foundTargetUser->assignRole(Role::MODERATOR);
         }
     }
 
