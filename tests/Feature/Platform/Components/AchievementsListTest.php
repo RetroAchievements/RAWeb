@@ -111,10 +111,13 @@ class AchievementsListTest extends TestCase
         /** @var User $user */
         $user = User::factory()->create();
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->create(['Author' => $user->User, 'user_id' => $user->id]);
+        $achievement = Achievement::factory()->create(['user_id' => $user->id]);
+
+        $achievementsIn = [$achievement->toArray()];
+        $achievementsIn[0]['Author'] = $user->User;
 
         $view = $this->blade('<x-game.achievements-list.root :achievements="$achievements" :showAuthorNames="$showAuthorNames" />', [
-            'achievements' => compact('achievement'),
+            'achievements' => $achievementsIn,
             'showAuthorNames' => true,
         ]);
 

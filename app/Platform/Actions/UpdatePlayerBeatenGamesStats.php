@@ -10,9 +10,9 @@ use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\PlayerStatType;
 use App\Platform\Enums\UnlockMode;
-use App\Platform\Events\PlayerStatsUpdated;
+use App\Platform\Events\PlayerBeatenGamesStatsUpdated;
 
-class UpdatePlayerStats
+class UpdatePlayerBeatenGamesStats
 {
     public function execute(User $user): void
     {
@@ -115,7 +115,7 @@ class UpdatePlayerStats
 
     private function clearExistingUntrackedStats(User $user): void
     {
-        PlayerStat::where('user_id', $user->ID)->delete();
+        PlayerStat::where('user_id', $user->id)->delete();
     }
 
     private function determineGameKind(string $gameTitle, int $gameConsoleId): string
@@ -189,6 +189,6 @@ class UpdatePlayerStats
             ]
         );
 
-        PlayerStatsUpdated::dispatch($user);
+        PlayerBeatenGamesStatsUpdated::dispatch($user);
     }
 }

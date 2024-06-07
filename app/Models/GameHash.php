@@ -34,7 +34,6 @@ class GameHash extends BaseModel
         'compatibility',
         'name',
         'system_id',
-        'User',
         'user_id',
         'source',
         'patch_url',
@@ -122,6 +121,16 @@ class GameHash extends BaseModel
     // == relations
 
     /**
+     * @return BelongsToMany<AchievementSet>
+     */
+    public function achievementSets(): BelongsToMany
+    {
+        return $this->belongsToMany(AchievementSet::class, 'achievement_set_game_hashes')
+            ->withPivot('compatible')
+            ->withTimestamps();
+    }
+
+    /**
      * @return BelongsTo<Game, GameHash>
      */
     public function game(): BelongsTo
@@ -152,7 +161,7 @@ class GameHash extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'ID');
     }
 
     // == scopes

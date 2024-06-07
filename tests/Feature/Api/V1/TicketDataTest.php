@@ -29,7 +29,11 @@ class TicketDataTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         /** @var Ticket $ticket */
-        $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
+        $ticket = Ticket::factory()->create([
+            'AchievementID' => $achievement->id,
+            'reporter_id' => $this->user->id,
+            'ticketable_author_id' => $achievement->user_id,
+        ]);
 
         $this->get($this->apiUrl('GetTicketData', ['i' => $ticket->ID]))
             ->assertSuccessful()
@@ -40,7 +44,7 @@ class TicketDataTest extends TestCase
                 'AchievementDesc' => $achievement->Description,
                 'Points' => $achievement->Points,
                 'BadgeName' => $achievement->BadgeName,
-                'AchievementAuthor' => $achievement->Author,
+                'AchievementAuthor' => $achievement->developer->User,
                 'GameID' => $game->ID,
                 'GameTitle' => $game->Title,
                 'GameIcon' => $game->ImageIcon,
@@ -68,7 +72,11 @@ class TicketDataTest extends TestCase
         /** @var Achievement $achievement */
         $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         /** @var Ticket $ticket */
-        $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
+        $ticket = Ticket::factory()->create([
+            'AchievementID' => $achievement->ID,
+            'reporter_id' => $this->user->ID,
+            'ticketable_author_id' => $achievement->user_id,
+        ]);
         /** @var User $user2 */
         $user2 = User::factory()->create();
         /** @var Game $game2 */
@@ -76,17 +84,24 @@ class TicketDataTest extends TestCase
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID]);
         /** @var Ticket $ticket2 */
-        $ticket2 = Ticket::factory()->create(['AchievementID' => $achievement2->ID,
-            'reporter_id' => $user2->ID, 'Hardcore' => 0, 'ReportType' => TicketType::TriggeredAtWrongTime]);
+        $ticket2 = Ticket::factory()->create([
+            'AchievementID' => $achievement2->ID,
+            'reporter_id' => $user2->ID, 'Hardcore' => 0,
+            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'ticketable_author_id' => $achievement2->user_id,
+        ]);
         /** @var User $user3 */
         $user3 = User::factory()->create();
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
         $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID]);
-        Ticket::factory()->create(['AchievementID' => $achievement3->ID,
+        Ticket::factory()->create([
+            'AchievementID' => $achievement3->ID,
             'reporter_id' => $user2->ID, 'ReportState' => TicketState::Resolved,
-            'resolver_id' => $user3->ID, 'ResolvedAt' => Carbon::now()]);
+            'resolver_id' => $user3->ID, 'ResolvedAt' => Carbon::now(),
+            'ticketable_author_id' => $achievement3->user_id,
+        ]);
 
         $this->get($this->apiUrl('GetTicketData'))
             ->assertSuccessful()
@@ -99,7 +114,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement2->Description,
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
-                        'AchievementAuthor' => $achievement2->Author,
+                        'AchievementAuthor' => $achievement2->developer->User,
                         'GameID' => $game2->ID,
                         'GameTitle' => $game2->Title,
                         'GameIcon' => $game2->ImageIcon,
@@ -122,7 +137,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement->Description,
                         'Points' => $achievement->Points,
                         'BadgeName' => $achievement->BadgeName,
-                        'AchievementAuthor' => $achievement->Author,
+                        'AchievementAuthor' => $achievement->developer->User,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -159,13 +174,25 @@ class TicketDataTest extends TestCase
         $achievements3 = Achievement::factory()->published()->count(6)->create(['GameID' => $game3->ID]);
 
         for ($i = 0; $i < 1; $i++) {
-            Ticket::factory()->create(['AchievementID' => $achievements->get($i)->ID, 'reporter_id' => $this->user->ID]);
+            Ticket::factory()->create([
+                'AchievementID' => $achievements->get($i)->ID,
+                'reporter_id' => $this->user->ID,
+                'ticketable_author_id' => $achievements->get($i)->user_id,
+            ]);
         }
         for ($i = 0; $i < 5; $i++) {
-            Ticket::factory()->create(['AchievementID' => $achievements2->get($i)->ID, 'reporter_id' => $this->user->ID]);
+            Ticket::factory()->create([
+                'AchievementID' => $achievements2->get($i)->ID,
+                'reporter_id' => $this->user->ID,
+                'ticketable_author_id' => $achievements2->get($i)->user_id,
+            ]);
         }
         for ($i = 0; $i < 3; $i++) {
-            Ticket::factory()->create(['AchievementID' => $achievements3->get($i)->ID, 'reporter_id' => $this->user->ID]);
+            Ticket::factory()->create([
+                'AchievementID' => $achievements3->get($i)->ID,
+                'reporter_id' => $this->user->ID,
+                'ticketable_author_id' => $achievements3->get($i)->user_id,
+            ]);
         }
 
         $this->get($this->apiUrl('GetTicketData', ['f' => 1]))
@@ -205,27 +232,41 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
-        $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
+        $ticket = Ticket::factory()->create([
+            'AchievementID' => $achievement->ID,
+            'reporter_id' => $this->user->ID,
+            'ticketable_author_id' => $achievement->user_id,
+        ]);
         /** @var User $user2 */
         $user2 = User::factory()->create();
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement2 */
-        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement2 = Achievement::factory()->published()->create(['GameID' => $game2->ID, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket2 */
-        $ticket2 = Ticket::factory()->create(['AchievementID' => $achievement2->ID,
-            'reporter_id' => $user2->ID, 'Hardcore' => 0, 'ReportType' => TicketType::TriggeredAtWrongTime]);
+        $ticket2 = Ticket::factory()->create([
+            'AchievementID' => $achievement2->ID,
+            'reporter_id' => $user2->ID,
+            'Hardcore' => 0,
+            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'ticketable_author_id' => $achievement2->user_id,
+        ]);
         /** @var User $user3 */
         $user3 = User::factory()->create();
         /** @var Game $game3 */
         $game3 = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement3 */
-        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
-        Ticket::factory()->create(['AchievementID' => $achievement3->ID,
-            'reporter_id' => $user2->ID, 'ReportState' => TicketState::Resolved,
-            'resolver_id' => $user3->ID, 'ResolvedAt' => Carbon::now()]);
+        $achievement3 = Achievement::factory()->published()->create(['GameID' => $game3->ID, 'user_id' => $this->user->id]);
+        Ticket::factory()->create([
+            'AchievementID' => $achievement3->ID,
+            'reporter_id' => $user2->ID,
+            'ReportState' => TicketState::Resolved,
+            'resolver_id' => $user3->ID,
+            'ResolvedAt' => Carbon::now(),
+            'ticketable_author_id' => $achievement3->user_id,
+        ]);
 
         $this->get($this->apiUrl('GetTicketData', ['u' => $this->user->User]))
             ->assertSuccessful()
@@ -245,7 +286,10 @@ class TicketDataTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
-        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID]);
+        /** @var User $author */
+        $author = User::factory()->create();
+
+        $achievements = Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID, 'user_id' => $author->id]);
 
         /** @var Achievement $achievement1 */
         $achievement1 = $achievements->get(0);
@@ -253,10 +297,19 @@ class TicketDataTest extends TestCase
         $achievement2 = $achievements->get(3);
 
         /** @var Ticket $ticket */
-        $ticket = Ticket::factory()->create(['AchievementID' => $achievement1->ID, 'reporter_id' => $this->user->ID]);
+        $ticket = Ticket::factory()->create([
+            'AchievementID' => $achievement1->ID,
+            'reporter_id' => $this->user->ID,
+            'ticketable_author_id' => $achievement1->user_id,
+        ]);
         /** @var Ticket $ticket2 */
-        $ticket2 = Ticket::factory()->create(['AchievementID' => $achievement2->ID,
-            'reporter_id' => $this->user->ID, 'Hardcore' => 0, 'ReportType' => TicketType::TriggeredAtWrongTime]);
+        $ticket2 = Ticket::factory()->create([
+            'AchievementID' => $achievement2->ID,
+            'reporter_id' => $this->user->ID,
+            'Hardcore' => 0,
+            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'ticketable_author_id' => $achievement2->user_id,
+        ]);
 
         $this->get($this->apiUrl('GetTicketData', ['g' => $game->ID, 'd' => 1]))
             ->assertSuccessful()
@@ -272,7 +325,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement2->Description,
                         'Points' => $achievement2->Points,
                         'BadgeName' => $achievement2->BadgeName,
-                        'AchievementAuthor' => $achievement2->Author,
+                        'AchievementAuthor' => $achievement2->developer->User,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -295,7 +348,7 @@ class TicketDataTest extends TestCase
                         'AchievementDesc' => $achievement1->Description,
                         'Points' => $achievement1->Points,
                         'BadgeName' => $achievement1->BadgeName,
-                        'AchievementAuthor' => $achievement1->Author,
+                        'AchievementAuthor' => $achievement1->developer->User,
                         'GameID' => $game->ID,
                         'GameTitle' => $game->Title,
                         'GameIcon' => $game->ImageIcon,
@@ -323,14 +376,23 @@ class TicketDataTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         /** @var Achievement $achievement */
-        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'Author' => $this->user->User, 'user_id' => $this->user->id]);
+        $achievement = Achievement::factory()->published()->create(['GameID' => $game->ID, 'user_id' => $this->user->id]);
         /** @var Ticket $ticket */
-        $ticket = Ticket::factory()->create(['AchievementID' => $achievement->ID, 'reporter_id' => $this->user->ID]);
+        $ticket = Ticket::factory()->create([
+            'AchievementID' => $achievement->ID,
+            'reporter_id' => $this->user->ID,
+            'ticketable_author_id' => $achievement->user_id,
+        ]);
         /** @var User $user2 */
         $user2 = User::factory()->create();
         /** @var Ticket $ticket2 */
-        $ticket2 = Ticket::factory()->create(['AchievementID' => $achievement->ID,
-            'reporter_id' => $user2->ID, 'Hardcore' => 0, 'ReportType' => TicketType::TriggeredAtWrongTime]);
+        $ticket2 = Ticket::factory()->create([
+            'AchievementID' => $achievement->ID,
+            'reporter_id' => $user2->ID,
+            'Hardcore' => 0,
+            'ReportType' => TicketType::TriggeredAtWrongTime,
+            'ticketable_author_id' => $achievement->user_id,
+        ]);
 
         $this->get($this->apiUrl('GetTicketData', ['a' => $achievement->ID]))
             ->assertSuccessful()

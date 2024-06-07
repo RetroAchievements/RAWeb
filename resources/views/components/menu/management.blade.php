@@ -34,7 +34,7 @@ $tools = $settings['tools'] ?? null;
                     <x-dropdown-item :href="url('achievementinspector.php')">Achievement Inspector</x-dropdown-item>
                 @endcan
                 @can('manage', App\Models\AchievementSetClaim::class)
-                    <x-dropdown-item :href="url('expiringclaims.php')">Expiring Claims</x-dropdown-item>
+                    <x-dropdown-item :href="route('claims.expiring')">Expiring Claims</x-dropdown-item>
                 @endcan
                 @can('manage', App\Models\GameHash::class)
                     <x-dropdown-item :href="url('latesthasheslinked.php')">Latest Linked Hashes</x-dropdown-item>
