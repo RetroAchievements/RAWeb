@@ -63,17 +63,17 @@ class Role extends \Spatie\Permission\Models\Role
 
     public const ENGINEER = 'engineer';
 
-    // vanity roles assigned by admin
-
-    public const DEVELOPER_VETERAN = 'developer-veteran';
-
-    // vanity roles assigned by root
+    public const POINT_OF_CONTACT = 'point-of-contact';
 
     public const BETA = 'beta';
 
     // public const SUPPORTER = 'supporter';
 
     // public const CONTRIBUTOR = 'contributor';
+
+    // vanity roles assigned by admin
+
+    public const DEVELOPER_VETERAN = 'developer-veteran';
 
     public static function toFilamentColor(string $role): string
     {
@@ -110,6 +110,7 @@ class Role extends \Spatie\Permission\Models\Role
             Role::FOUNDER => 'primary',
             Role::ARCHITECT => 'primary',
             Role::ENGINEER => 'primary',
+            Role::POINT_OF_CONTACT => 'primary',
             Role::BETA => 'primary',
 
             // vanity roles assigned by admin

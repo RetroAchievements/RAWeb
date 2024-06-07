@@ -51,17 +51,22 @@ class MessagePolicy
 
     public function sendToRecipient(User $user, User $targetUser): bool
     {
-        $isUserDeveloper = $user->hasAnyRole([
-            Role::DEVELOPER,
+        $canUserAlwaysSend = $user->hasAnyRole([
+            Role::ADMINISTRATOR,
             Role::DEVELOPER_JUNIOR,
             Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
+            Role::FORUM_MANAGER,
+            Role::MODERATOR,
+            Role::POINT_OF_CONTACT,
         ])
             || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
 
         /**
          * TODO check user privacy settings
          */
-        if (!$isUserDeveloper) {
+        if (!$canUserAlwaysSend) {
             if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
                 return false;
             }

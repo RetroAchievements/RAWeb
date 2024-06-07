@@ -9,6 +9,7 @@ $rootAssignable = [
     Role::BETA,
     Role::ENGINEER,
     Role::FOUNDER,
+    Role::POINT_OF_CONTACT,
     Role::RELEASE_MANAGER,
 ];
 
@@ -166,6 +167,11 @@ return [
         'name' => Role::ENGINEER,
         'display' => 1,
         'staff' => true,
+        'legacy_role' => Permissions::Registered,
+    ],
+    [
+        'name' => Role::POINT_OF_CONTACT,
+        'display' => 1,
         'legacy_role' => Permissions::Registered,
     ],
     [
