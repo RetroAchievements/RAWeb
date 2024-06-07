@@ -190,7 +190,7 @@ function extendClaim(User $user, int $gameId): bool
             AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
     if (s_mysql_query($query)) {
-        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user));
+        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user->User));
 
         return true;
     }
