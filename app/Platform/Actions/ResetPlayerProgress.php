@@ -10,8 +10,8 @@ use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
-use App\Platform\Jobs\UpdatePlayerStatsJob;
 
 class ResetPlayerProgress
 {
@@ -104,7 +104,7 @@ class ResetPlayerProgress
             }
         }
 
-        dispatch(new UpdatePlayerStatsJob($user->id));
+        dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));
 
         $user->save();
     }

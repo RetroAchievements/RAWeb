@@ -8,6 +8,7 @@ use App\Models\ForumTopic;
 use App\Models\ForumTopicComment;
 use App\Support\Shortcode\Shortcode;
 use Illuminate\Support\Facades\Auth;
+use App\Policies\ForumTopicCommentPolicy;
 
 authenticateFromCookie($username, $permissions);
 $user = Auth::user();
@@ -45,8 +46,9 @@ if (!empty($gotoCommentID)) {
 }
 
 // Fetch comments
-$numTotalComments = ForumTopicComment::where('ForumTopicID', $requestedTopicID)->count();
-$allForumTopicCommentsForTopic = ForumTopicComment::with('user')
+$numTotalComments = $forumTopic->comments()->count();
+$allForumTopicCommentsForTopic = $forumTopic->comments()
+    ->with(['user', 'forumTopic'])
     ->where('ForumTopicID', $requestedTopicID)
     ->orderBy('DateCreated', 'asc')
     ->offset($offset)
@@ -146,35 +148,36 @@ $isSubscribed = $userID ? isUserSubscribedToForumTopic($thisTopicID, $userID) : 
     echo "</div>";
     echo "<div>";
     if ($user) {
-        RenderUpdateSubscriptionForm(
-            "updatetopicsubscription",
-            SubscriptionSubjectType::ForumTopic,
-            $thisTopicID,
-            $isSubscribed
-        );
+        echo Blade::render("<x-update-subscription-button :subjectType=\"\$subjectType\" :subjectId=\"\$subjectId\" :isSubscribed=\"\$isSubscribed\" />", [
+            'subjectType' => SubscriptionSubjectType::ForumTopic,
+            'subjectId' => $thisTopicID,
+            'isSubscribed' => $isSubscribed,
+        ]);
     }
     echo "</div>";
     echo "</div>";
 
+    // Create a policy instance instead of using `can()`. We do this because the
+    // policy logic changes based on whether the user is null.
+    $policy = new ForumTopicCommentPolicy();
+
     echo "<div class='mb-4'>";
     // Output all posts, and offer 'prev/next page'
     foreach ($allForumTopicCommentsForTopic as $index => $forumTopicComment) {
-        $nextCommentID = $forumTopicComment->ID;
-        $nextCommentPayload = $forumTopicComment->Payload;
-        $nextCommentAuthor = $forumTopicComment->user;
-        $nextCommentIndex = ($index + 1) + $offset; // Account for the current page on the post #.
-
-        $isOriginalPoster = isset($nextCommentAuthor) && isset($thisTopicAuthor) && $nextCommentAuthor->is($thisTopicAuthor);
+        $nextCommentID = $forumTopicComment->id;
         $isHighlighted = isset($gotoCommentID) && $nextCommentID == $gotoCommentID;
-        $parsedPostContent = Shortcode::render($nextCommentPayload);
         ?>
-        <x-forum.post
-            :forumTopicComment="$forumTopicComment"
-            :isHighlighted="$isHighlighted"
-            :isOriginalPoster="$isOriginalPoster"
-            :parsedPostContent="$parsedPostContent"
-            :threadPostNumber="$nextCommentIndex"
-        />
+
+        @if ($policy->view(request()->user(), $forumTopicComment))
+            <x-forum.topic-comment
+                :$forumTopic
+                :$forumTopicComment
+                :threadPostNumber="($index + 1) + $offset" 
+                :variant="$isHighlighted ? 'highlight' : 'base'"
+            >
+                {!! Shortcode::render($forumTopicComment->body) !!}
+            </x-forum.topic-comment>
+        @endif
         <?php
     }
     echo "</div>";

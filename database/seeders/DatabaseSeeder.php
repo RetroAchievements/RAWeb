@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             $this->call(NewsTableSeeder::class);
             $this->call(AchievementSetClaimSeeder::class);
             $this->call(ForumTopicSeeder::class);
+            $this->call(AchievementSetSeeder::class);
         }
 
         $this->call(StaticTableSeeder::class);

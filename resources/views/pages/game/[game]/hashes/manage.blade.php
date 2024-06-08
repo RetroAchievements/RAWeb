@@ -27,13 +27,10 @@ render(function (View $view, Game $game) {
     $user = Auth::user();
 
     $articleTypeGameHash = ArticleType::GameHash;
-    $numLogs = getRecentArticleComments($articleTypeGameHash, $game->id, $logs);
 
     return $view->with([
         'articleTypeGameHash' => $articleTypeGameHash,
         'gameWithSortedHashes' => $gameWithSortedHashes,
-        'logs' => $logs,
-        'numLogs' => $numLogs,
         'user' => $user,
     ]);
 })
@@ -43,8 +40,6 @@ render(function (View $view, Game $game) {
 @props([
     'articleTypeGameHash' => 10,
     'gameWithSortedHashes' => null, // Game
-    'logs' => null, // ?array
-    'numLogs' => 0,
     'user' => null, // User
 ])
 
@@ -109,16 +104,7 @@ render(function (View $view, Game $game) {
         </div>
 
         <div>
-            @php
-                RenderCommentsComponent(
-                    $user->username,
-                    $numLogs,
-                    $logs,
-                    $game->id,
-                    $articleTypeGameHash,
-                    $user->Permissions,
-                )
-            @endphp
+            <x-comment.list articleType="{{ ArticleType::GameHash }}" articleId="{{ $game->id }}" />
         </div>
     </div>
 </x-app-layout>

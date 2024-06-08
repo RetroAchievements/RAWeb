@@ -12,7 +12,6 @@ class VoltServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-
     }
 
     /**

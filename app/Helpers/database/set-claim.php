@@ -49,7 +49,6 @@ function insertClaim(User $user, int $gameId, int $claimType, int $setType, int 
 
     // Create the claim.
     AchievementSetClaim::create([
-        'User' => $user->User,
         'user_id' => $user->id,
         'game_id' => $gameId,
         'ClaimType' => $claimType,
@@ -131,9 +130,9 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
     if ($permissionsBefore === Permissions::JuniorDeveloper && $permissionsAfter > Permissions::JuniorDeveloper) {
         $permissionsString = Permissions::toString($permissionsAfter);
         if (!empty($actingUsername)) {
-            $comment = "$actingUsername updated {$user->User}'s claim via promotion to $permissionsString.";
+            $comment = "{$actingUsername} updated {$user->display_name}'s claim via promotion to {$permissionsString}.";
         } else {
-            $comment = "{$user->User}'s claim updated via promotion to $permissionsString";
+            $comment = "{$user->display_name}'s claim updated via promotion to {$permissionsString}.";
         }
         $comment .= " Claim Status: " . ClaimStatus::toString(ClaimStatus::Active);
 
@@ -158,9 +157,9 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
             $claim->save();
 
             if (!empty($actingUsername)) {
-                $comment = "$actingUsername dropped {$user->User}'s " . ClaimType::toString($claim->ClaimType) . " claim via demotion to $permissionsString.";
+                $comment = "{$actingUsername} dropped {$user->display_name}'s " . ClaimType::toString($claim->ClaimType) . " claim via demotion to {$permissionsString}.";
             } else {
-                $comment = "{$user->User}'s " . ClaimType::toString($claim->ClaimType) . " claim dropped via demotion to $permissionsString.";
+                $comment = "{$user->display_name}'s " . ClaimType::toString($claim->ClaimType) . " claim dropped via demotion to {$permissionsString}.";
             }
 
             addArticleComment('Server', ArticleType::SetClaim, $claim->game_id, $comment);
@@ -191,7 +190,7 @@ function extendClaim(User $user, int $gameId): bool
             AND TIMESTAMPDIFF(MINUTE, NOW(), Finished) <= 10080"; // 7 days = 7 * 24 * 60
 
     if (s_mysql_query($query)) {
-        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user));
+        Cache::forget(CacheKey::buildUserExpiringClaimsCacheKey($user->User));
 
         return true;
     }
@@ -504,7 +503,7 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
     $claim->save();
 
     if ($claim->Finished !== $oldFinishedDate) {
-        $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($claim->User);
+        $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($claim->user->username);
         Cache::forget($cacheKey);
     }
 
@@ -516,7 +515,7 @@ function updateClaim(int $claimID, int $claimType, int $setType, int $status, in
  */
 function getExpiringClaim(User $user): array
 {
-    $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($user->User);
+    $cacheKey = CacheKey::buildUserExpiringClaimsCacheKey($user->username);
 
     $value = Cache::get($cacheKey);
     if ($value !== null) {
