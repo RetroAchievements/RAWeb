@@ -119,10 +119,8 @@ if ($v != 1) {
 $achDist = null;
 $achDistHardcore = null;
 $authorInfo = [];
-$commentData = null;
 $gameTopAchievers = null;
 $lbData = null;
-$numArticleComments = null;
 $numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
@@ -153,8 +151,6 @@ if ($isFullyFeaturedGame) {
 
     $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
     $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
-
-    $numArticleComments = getRecentArticleComments(ArticleType::Game, $gameID, $commentData);
 
     $numLeaderboards = $gameModel->visibleLeaderboards()->count();
 
@@ -551,30 +547,32 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
                 // right column
                 echo "<div class='grow'>";
-
-                RenderUpdateSubscriptionForm(
-                    "updateachievementssub",
-                    SubscriptionSubjectType::GameAchievements,
-                    $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID),
-                    'Achievement Comments'
-                );
-
-                RenderUpdateSubscriptionForm(
-                    "updateticketssub",
-                    SubscriptionSubjectType::GameTickets,
-                    $gameID,
-                    isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID),
-                    'Tickets'
-                );
                 ?>
+
+                <x-update-subscription-button
+                    name="updateachievementssub"
+                    subjectType="{{ SubscriptionSubjectType::GameAchievements }}"
+                    subjectId="{{ $gameID }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameAchievements, $gameID, $userID) }}"
+                    resource="Achievement Comments"
+                />
+
+                <x-update-subscription-button
+                    name="updateticketssub"
+                    subjectType="{{ SubscriptionSubjectType::GameTickets }}"
+                    subjectId="{{ $gameID }}"
+                    isSubscribed="{{ isUserSubscribedTo(SubscriptionSubjectType::GameTickets, $gameID, $userID) }}"
+                    resource="Tickets"
+                />
+
                 {{-- Display the claims links if not an event game --}}
                 @if (!$isEventGame)
                     @if ($permissions >= Permissions::Developer)
-                            <x-game.add-to-list
-                                :gameId="$gameID"
-                                :type="UserGameListType::Develop"
-                            />
+                        <livewire:game.add-to-list-button
+                            label="Want to Develop"
+                            :gameId="$gameID"
+                            :listType="UserGameListType::Develop"
+                        />
                     @endif
                     <x-game.devbox-claim-management
                         :claimData="$claimData"
@@ -754,8 +752,9 @@ if ($isFullyFeaturedGame) {
                 }
             }
 
-            $numModificationComments = getRecentArticleComments(ArticleType::GameModification, $gameID, $modificationCommentData);
-            RenderCommentsComponent(null, $numModificationComments, $modificationCommentData, $gameID, ArticleType::GameModification, $permissions);
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+                ['articleType' => ArticleType::GameModification, 'articleId' => $gameID]
+            );
 
             echo "</div>"; // devboxcontent
             echo "</div>"; // devbox
@@ -946,7 +945,9 @@ if ($isFullyFeaturedGame) {
                 echo "</div>";
             }
 
-            RenderCommentsComponent($user, $numArticleComments, $commentData, $gameID, ArticleType::Game, $permissions);
+            echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
+                ['articleType' => ArticleType::Game, 'articleId' => $gameID]
+            );
         }
         ?>
     </div>

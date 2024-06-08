@@ -77,6 +77,12 @@ return [
         '/codenotes.php' => '/game/{g}/notes',
         '/linkedhashes.php' => '/game/{g}/hashes',
         '/popularGames.php' => '/games/popular',
+        '/random.php' => '/game/random',
+
+        /*
+         * hashes
+         */
+        'latesthasheslinked.php' => '/manage/game-hashes',
 
         /*
          * leaderboards
@@ -119,6 +125,15 @@ return [
 
         '/createtopic.php' => '/forums/forum/{f}/topic/create',
         '/editpost.php' => '/forums/post/{comment}/edit',
+
+        /*
+         * claims
+         */
+        '/claimlist.php' => [
+            'u' => '/user/{u}/developer/claims',
+            '' => '/claims/active',
+        ],
+        '/expiringclaims.php' => '/claims/expiring',
 
         /*
          * redirects (external)

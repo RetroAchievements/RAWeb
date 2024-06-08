@@ -65,7 +65,6 @@ class Achievement extends BaseModel implements HasComments
     // TODO drop MemAddr, migrate to triggerable morph
     // TODO drop Progress, ProgressMax, ProgressFormat migrate to triggerable morph
     // TODO drop Flags, derived from being included in an achievement set
-    // TODO drop Author, migrate to user_id
     // TODO drop VotesPos, migrate to votable/ratable morph
     // TODO drop VotesNeg, migrate to votable/ratable morph
     // TODO drop BadgeName, derived from badge set
@@ -97,7 +96,6 @@ class Achievement extends BaseModel implements HasComments
     ];
 
     protected $visible = [
-        'Author',
         'BadgeName',
         'DateCreated',
         'DateModified',
@@ -210,11 +208,9 @@ class Achievement extends BaseModel implements HasComments
         return $this->attributes['DateCreated'] ? Carbon::parse($this->attributes['DateCreated']) : null;
     }
 
-    public function getCanDelegateUnlocks(User|string $user): bool
+    public function getCanDelegateUnlocks(User $user): bool
     {
-        $username = $user instanceof User ? $user->User : $user;
-
-        return $this->game->getIsStandalone() && $this->getAuthorAttribute() === $username;
+        return $this->game->getIsStandalone() && $this->user_id === $user->id;
     }
 
     public function getPermalinkAttribute(): string
@@ -292,11 +288,6 @@ class Achievement extends BaseModel implements HasComments
     public function getUpdatedAtAttribute(): ?Carbon
     {
         return $this->attributes['Updated'] ? Carbon::parse($this->attributes['Updated']) : null;
-    }
-
-    public function getAuthorAttribute(): string
-    {
-        return $this->attributes['Author'];
     }
 
     // TODO remove after rename
