@@ -51,7 +51,7 @@ class SuggestGamesService
 
         $this->initializeUserProgress($user);
 
-        $revisedGames = PlayerBadge::where('User', $user->User)
+        $revisedGames = PlayerBadge::where('user_id', $user->id)
             ->where('AwardType', AwardType::Mastery)
             ->whereNotIn('AwardData', $this->masteredGames)
             ->join('GameData', 'GameData.ID', '=', 'SiteAwards.AwardData')
