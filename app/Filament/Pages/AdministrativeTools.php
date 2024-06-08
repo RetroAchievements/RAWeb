@@ -22,8 +22,8 @@ class AdministrativeTools extends Page
         /** @var User $user */
         $user = auth()->user();
 
-        return 
+        return
             $user->hasAnyRole([Role::MODERATOR, Role::ADMINISTRATOR])
-            || $user->getAttribute('Permissions') >= Permissions::Moderator; 
+            || $user->getAttribute('Permissions') >= Permissions::Moderator;
     }
 }
