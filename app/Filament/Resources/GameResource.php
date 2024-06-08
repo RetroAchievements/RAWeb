@@ -84,7 +84,13 @@ class GameResource extends Resource
 
                         Infolists\Components\TextEntry::make('system')
                             ->formatStateUsing(fn (System $state) => "[{$state->id}] {$state->name}")
-                            ->url(fn (System $state) => SystemResource::getUrl('view', ['record' => $state->id])),
+                            ->url(function (System $state) {
+                                if (request()->user()->can('manage', System::class)) {
+                                    return SystemResource::getUrl('view', ['record' => $state->id]);
+                                }
+
+                                return null;
+                            }),
 
                         Infolists\Components\TextEntry::make('Developer')
                             ->placeholder('None'),
