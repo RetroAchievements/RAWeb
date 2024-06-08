@@ -29,7 +29,6 @@ function AddSiteAward(
 
     PlayerBadge::updateOrInsert(
         [
-            'User' => $user->User,
             'user_id' => $user->id,
             'AwardType' => $awardType,
             'AwardData' => $data,
@@ -41,7 +40,7 @@ function AddSiteAward(
         ]
     );
 
-    return PlayerBadge::where('User', $user->User)
+    return PlayerBadge::where('user_id', $user->id)
         ->where('AwardType', $awardType)
         ->where('AwardData', $data)
         ->where('AwardDataExtra', $dataExtra)
@@ -230,7 +229,7 @@ function getUserEventAwardCount(User $user): int
  *
  * @return array the array of a target user's site award metadata for a given game ID
  */
-function getUserGameProgressionAwards(int $gameId, string $username): array
+function getUserGameProgressionAwards(int $gameId, User $user): array
 {
     $userGameProgressionAwards = [
         'beaten-softcore' => null,
@@ -239,8 +238,8 @@ function getUserGameProgressionAwards(int $gameId, string $username): array
         'mastered' => null,
     ];
 
-    $foundAwards = PlayerBadge::where('User', '=', $username)
-        ->where('AwardData', '=', $gameId)
+    $foundAwards = PlayerBadge::where('user_id', $user->id)
+        ->where('AwardData', $gameId)
         ->get();
 
     foreach ($foundAwards as $award) {

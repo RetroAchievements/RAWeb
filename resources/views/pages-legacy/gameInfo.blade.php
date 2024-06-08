@@ -41,7 +41,7 @@ if ($flagParam !== $unofficialFlag) {
 $userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
-    $userModel = User::firstWhere('User', $user);
+    $userModel = User::find($userID);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');
@@ -159,7 +159,7 @@ if ($isFullyFeaturedGame) {
         $isSoleAuthor = checkIfSoleDeveloper($userModel, $gameID);
 
         // Determine if the logged in user has any progression awards for this set
-        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
+        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $userModel);
         $hasBeatenSoftcoreAward = !is_null($userGameProgressionAwards['beaten-hardcore']);
         $hasBeatenHardcoreAward = !is_null($userGameProgressionAwards['beaten-softcore']);
     }
