@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Enums\Permissions;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Pages\Page;
@@ -21,6 +22,8 @@ class AdministrativeTools extends Page
         /** @var User $user */
         $user = auth()->user();
 
-        return $user->hasAnyRole([Role::MODERATOR, Role::ADMINISTRATOR]);
+        return 
+            $user->hasAnyRole([Role::MODERATOR, Role::ADMINISTRATOR])
+            || $user->getAttribute('Permissions') >= Permissions::Moderator; 
     }
 }
