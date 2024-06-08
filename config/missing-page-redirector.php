@@ -138,7 +138,7 @@ return [
         /*
          * redirects (external)
          */
-        '/faq.php' => 'https://docs.retroachievements.org/FAQ/',
+        '/faq.php' => 'https://docs.retroachievements.org/general/faq.html',
         '/GetRA_API.php' => 'https://github.com/retroachievements/web-api-client-php',
 
         /*
