@@ -12,7 +12,7 @@ name('achievement.report-issue');
 
 render(function (View $view, Achievement $achievement) {
     if (!Auth::user()->can('view', $achievement)) {
-        return abort('401');
+        return abort(401);
     }
     
     // TODO migrate this logic to a service

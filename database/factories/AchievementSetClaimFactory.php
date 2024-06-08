@@ -9,6 +9,7 @@ use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
+use App\Models\User;
 use App\Support\Database\Eloquent\Concerns\FakesUsername;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
@@ -27,9 +28,10 @@ class AchievementSetClaimFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::inRandomOrder()->first();
+
         return [
-            'User' => $this->fakeUsername(),
-            'user_id' => 1,
+            'user_id' => $user?->id ?? 1,
             'game_id' => 0,
             'ClaimType' => ClaimType::Primary,
             'SetType' => ClaimSetType::NewSet,

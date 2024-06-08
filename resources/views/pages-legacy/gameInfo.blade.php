@@ -41,7 +41,7 @@ if ($flagParam !== $unofficialFlag) {
 $userModel = null;
 $defaultSort = 1;
 if (isset($user)) {
-    $userModel = User::firstWhere('User', $user);
+    $userModel = User::find($userID);
     $defaultSort = 13;
 }
 $sortBy = requestInputSanitized('s', $defaultSort, 'integer');
@@ -159,7 +159,7 @@ if ($isFullyFeaturedGame) {
         $isSoleAuthor = checkIfSoleDeveloper($userModel, $gameID);
 
         // Determine if the logged in user has any progression awards for this set
-        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $user);
+        $userGameProgressionAwards = getUserGameProgressionAwards($gameID, $userModel);
         $hasBeatenSoftcoreAward = !is_null($userGameProgressionAwards['beaten-hardcore']);
         $hasBeatenHardcoreAward = !is_null($userGameProgressionAwards['beaten-softcore']);
     }
@@ -568,10 +568,11 @@ if ($isFullyFeaturedGame) {
                 {{-- Display the claims links if not an event game --}}
                 @if (!$isEventGame)
                     @if ($permissions >= Permissions::Developer)
-                            <x-game.add-to-list
-                                :gameId="$gameID"
-                                :type="UserGameListType::Develop"
-                            />
+                        <livewire:game.add-to-list-button
+                            label="Want to Develop"
+                            :gameId="$gameID"
+                            :listType="UserGameListType::Develop"
+                        />
                     @endif
                     <x-game.devbox-claim-management
                         :claimData="$claimData"

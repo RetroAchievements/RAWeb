@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
@@ -9,19 +11,17 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'password' => 'required|confirmed|min:8|different:username',
 ]);
 
-$user = $input['username'];
 $passResetToken = $input['token'];
 $newPass = $input['password'];
 
-if (!isValidPasswordResetToken($user, $passResetToken)) {
+$targetUser = User::firstWhere('User', $input['username']);
+
+if (!$targetUser || !isValidPasswordResetToken($targetUser->username, $passResetToken)) {
     return back()->withErrors(__('legacy.error.token'));
 }
 
-changePassword($user, $newPass);
+// Change the user's password and automatically log them in.
+changePassword($targetUser->username, $newPass);
+Auth::login($targetUser);
 
-// Perform auto-login:
-if (authenticateFromCookie($user, $permissions, $userDetails)) {
-    generateAppToken($user, $tokenInOut);
-}
-
-return back()->with('success', __('legacy.success.password_change'));
+return redirect()->route('home')->with('success', __('legacy.success.password_change'));

@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
     'disabled' => false,
     'formActions' => null, // slot
     'fullWidth' => true,
+    'errors' => null,
     'help' => null,
     'id' => null,
     'inline' => false,

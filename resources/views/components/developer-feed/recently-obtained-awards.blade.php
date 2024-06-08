@@ -36,7 +36,7 @@
                             <td>{{ $recentAward->AwardKindLabel }}</td>
 
                             <td>
-                                {!! userAvatar($recentAward->User) !!}
+                                {!! userAvatar($recentAward->user->User) !!}
                             </td>
 
                             <td class="smalldate">{{ $recentAward->TimestampLabel }}</td>
