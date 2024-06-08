@@ -43,6 +43,15 @@ new class extends Component implements HasForms {
                             })
                             ->toArray();
                     })
+                    ->getOptionLabelsUsing(function (array $values): array {
+                        return Game::with('system')
+                            ->whereIn('ID', $values)
+                            ->get()
+                            ->mapWithKeys(function ($game) {
+                                return [$game->id => "ID: {$game->id} - Title: {$game->title} - System: {$game->system->name}"];
+                            })
+                            ->toArray();
+                    })
                     ->statePath('gameIds'),
         ]);
     }
