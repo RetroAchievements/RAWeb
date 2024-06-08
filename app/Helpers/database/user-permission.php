@@ -117,6 +117,7 @@ function setAccountForumPostAuth(User $sourceUser, int $sourcePermissions, User 
 
         // Also ban the spammy user!
         SetAccountPermissionsJSON($sourceUser->User, $sourcePermissions, $targetUser->User, Permissions::Spam);
+        $targetUser->roles()->detach();
 
         return true;
     }
