@@ -161,7 +161,7 @@ $menuSystemsList = [
     <x-dropdown-item href="https://github.com/RetroAchievements/guides/wiki">RAGuides Wiki</x-dropdown-item>
     <div class="dropdown-divider"></div>
     <x-dropdown-item href="https://docs.retroachievements.org">User Documentation</x-dropdown-item>
-    <x-dropdown-item href="https://docs.retroachievements.org/Developer-Docs">Developer Documentation</x-dropdown-item>
+    <x-dropdown-item href="https://docs.retroachievements.org/developer-docs/">Developer Documentation</x-dropdown-item>
 </x-nav-dropdown>
 <x-nav-item :href="url('download.php')" :title="__('Download')">
     <x-fas-download/>

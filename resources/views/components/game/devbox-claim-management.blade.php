@@ -220,7 +220,7 @@ function completeClaim() {
             <button class="btn">Complete Claim</button>
             @if ($isRecentPrimaryClaim)
                 <a
-                    href="https://docs.retroachievements.org/Claims-System/#how-to-complete-a-claim"
+                    href="https://docs.retroachievements.org/guidelines/developers/claims-system.html#how-to-complete-a-claim"
                     target="_blank"
                     rel="noreferrer"
                     class="ml-3 text-danger underline"
