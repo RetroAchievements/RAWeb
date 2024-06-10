@@ -7,19 +7,23 @@ use function Livewire\Volt\{mount, form, state};
 form(ForumTopicForm::class);
 
 // == props
+
 state(['forum']); // Forum
 
 // == state
 
 // == actions
+
 $save = function() {
     $this->form->store();
 };
 
 // == lifecycle
+
 mount(function() {
     $this->form->setForum($this->forum);
 });
+
 ?>
 
 <div>

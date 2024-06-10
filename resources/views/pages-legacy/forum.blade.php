@@ -124,7 +124,13 @@ sanitize_outputs($requestedCategory);
             echo userAvatar($nextForumLastPostAuthor, icon: false);
         }
         echo "<span class='smalldate'>$nextForumCreatedNiceDate</span>";
-        echo "<a class='text-2xs' href='/viewtopic.php?t=$nextForumLastPostTopicID&c=$nextForumLastPostID#$nextForumLastPostID'>View</a>";
+        if ($nextForumLastPostTopicID) {
+            $destination = route('forum.topic', [
+                'forumTopic' => $nextForumLastPostTopicID,
+                'comment' => $nextForumLastPostID,
+            ]) . "#{$nextForumLastPostID}";
+            echo "<a class='text-2xs' href='$destination'>View</a>";
+        }
         echo "</div>";
         echo "</td>";
         echo "</tr>";

@@ -7,19 +7,23 @@ use function Livewire\Volt\{mount, form, state};
 form(ForumTopicCommentForm::class);
 
 // == props
+
 state(['forumTopicComment']); // ForumTopicComment
 
 // == state
 
 // == actions
+
 $save = function() {
     $this->form->update();
 };
 
 // == lifecycle
+
 mount(function() {
     $this->form->setForumTopicComment($this->forumTopicComment);
 });
+
 ?>
 
 <div>

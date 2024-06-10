@@ -83,7 +83,7 @@ function performSearch(
         $counts[] = "SELECT COUNT(*) AS Count FROM ForumTopicComment WHERE Payload LIKE '%$searchQuery%'";
         $parts[] = "
         SELECT " . SearchType::Forum . " AS Type, ua.User AS ID,
-               CONCAT( '/viewtopic.php?t=', ftc.ForumTopicID, '&c=', ftc.ID, '#', ftc.ID ) AS Target,
+               CONCAT( '/forums/topic/', ftc.ForumTopicID, '?comment=', ftc.ID, '#', ftc.ID ) AS Target,
                CASE WHEN CHAR_LENGTH(ftc.Payload) <= 64 THEN ftc.Payload ELSE
                CONCAT( '...', MID( ftc.Payload, GREATEST( LOCATE('$searchQuery', ftc.Payload)-25, 1), 60 ), '...' ) END AS Title
         FROM ForumTopicComment AS ftc

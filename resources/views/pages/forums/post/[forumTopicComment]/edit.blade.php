@@ -32,11 +32,12 @@ render(function (View $view, ForumTopicComment $forumTopicComment) {
 ])
 
 <x-app-layout pageTitle="Edit post">
+    {{-- TODO forum breadcrumbs component --}}
     <div class="navpath">
         <a href="forum.php">Forum Index</a>
         &raquo; <a href="/forum.php?c={{ $category->id }}">{{ $category->title }}</a>
         &raquo; <a href="/viewforum.php?f={{ $forum->id }}">{{ $forum->title }}</a>
-        &raquo; <a href="/viewtopic.php?t={{ $forumTopic->id }}">{{ $forumTopic->title }}</a>
+        &raquo; <a href="{{ route('forum.topic', ['forumTopic' => $forumTopic]) }}">{{ $forumTopic->title }}</a>
         &raquo; <b>Edit Post</b></a>
     </div>
 

@@ -1,7 +1,5 @@
 <?php
 
-use App\Enums\Permissions;
-use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\System;
 use Illuminate\Support\Facades\Blade;
@@ -254,25 +252,6 @@ function RenderGameAlts(array $gameAlts, ?string $headerText = null): void
 
     echo "</tbody></table>";
     echo "</div>";
-}
-
-function RenderLinkToGameForum(string $gameTitle, int $gameID, ?int $forumTopicID, int $permissions = Permissions::Unregistered): void
-{
-    sanitize_outputs(
-        $gameTitle,
-    );
-
-    if (!empty($forumTopicID) && ForumTopic::where('ID', $forumTopicID)->exists()) {
-        echo "<a class='btn py-2 mb-2 block' href='/viewtopic.php?t=$forumTopicID'><span class='icon icon-md ml-1 mr-3'>💬</span>Official Forum Topic</a>";
-    } else {
-        if ($permissions >= Permissions::Developer) {
-            echo "<form action='/request/game/generate-forum-topic.php' method='post' onsubmit='return confirm(\"Are you sure you want to create the official forum topic for this game?\")'>";
-            echo csrf_field();
-            echo "<input type='hidden' name='game' value='$gameID'>";
-            echo "<button class='btn btn-link py-2 mb-2 w-full'><span class='icon icon-md ml-1 mr-3'>💬</span>Create Forum Topic</button>";
-            echo "</form>";
-        }
-    }
 }
 
 function generateGameMetaDescription(

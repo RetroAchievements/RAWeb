@@ -361,7 +361,7 @@ $staticData = StaticData::first();
                         <input id="event_aotw_forum_topic_id" name="f" value="<?= $eventAotwForumTopicID ?>">
                     </td>
                     <td>
-                        <a href="/viewtopic.php?t=<?= $eventAotwForumTopicID ?>">Link</a>
+                        <a href="{{ route('forum.topic', ['forumTopic' => $eventAotwForumTopicID]) }}">Link</a>
                     </td>
                 </tr>
                 </tbody>

@@ -27,6 +27,7 @@ render(function (View $view, Forum $forum) {
     pageTitle="Start new topic"
     pageDescription="Start a new forum topic for {{ $forum->title }}"
 >
+    {{-- TODO forum breadcrumbs component --}}
     <div class="navpath">
         <a href="forum.php">Forum Index</a>
         &raquo; <a href='/forum.php?c={{ $forum->category->id }}'>{{ $forum->category->title }}</a>

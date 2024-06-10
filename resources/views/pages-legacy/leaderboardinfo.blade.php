@@ -262,10 +262,15 @@ $pageTitle = "$lbTitle in $gameTitle ($consoleName)";
         echo Blade::render("<x-comment.list :articleType=\"\$articleType\" :articleId=\"\$articleId\" />",
             ['articleType' => ArticleType::Leaderboard, 'articleId' => $leaderboard->id]
         );
-
-        RenderLinkToGameForum($gameTitle, $gameID, $forumTopicID, $permissions);
-        echo "<br><br>";
         ?>
+
+        @if ($forumTopicID)
+            <div class="mt-4 list-none">
+                <x-game.link-buttons.view-forum-topic-button
+                    :forumTopicId="$forumTopicID"
+                />
+            </div>
+        @endif
     </div>
 
     <x-slot name="sidebar">

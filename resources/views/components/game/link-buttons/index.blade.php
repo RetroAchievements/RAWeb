@@ -41,12 +41,9 @@ if ($canSeeOpenTickets) {
 <ul class="flex @if ($variant === 'stacked') flex-col @endif gap-2">
     @if (in_array('forum-topic', $allowedLinks))
         @if ($game->ForumTopicID)
-            <x-game.link-buttons.game-link-button
-                icon="💬"
-                href="{{ '/viewtopic.php?t=' . $game->ForumTopicID }}"
-            >
-                Official Forum Topic
-            </x-game.link-buttons.game-link-button>
+            <x-game.link-buttons.view-forum-topic-button
+                :forumTopicId="$game->ForumTopicID"
+            />
         @else
             @can('createForumTopic', $game)
                 <x-game.link-buttons.create-forum-topic-button :gameId="$game->id" />
