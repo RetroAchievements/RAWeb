@@ -739,7 +739,7 @@ if ($isFullyFeaturedGame) {
                 }
             }
             if ($isFullyFeaturedGame) {
-                echo "<div><label for='game_rich_presence'><a href='https://docs.retroachievements.org/Rich-Presence/'>Rich Presence</a> Script</label></div>";
+                echo "<div><label for='game_rich_presence'><a href='https://docs.retroachievements.org/developer-docs/rich-presence.html'>Rich Presence</a> Script</label></div>";
                 if ($hasMinimumDeveloperPermissions) {
                     echo "<form class='mb-2' method='post' action='/request/game/update-rich-presence.php'>";
                     echo csrf_field();

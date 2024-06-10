@@ -54,7 +54,7 @@
             Documentation
         </a>
         
-        <a class="btn grow" href='https://docs.retroachievements.org/FAQ/'>
+        <a class="btn grow" href='https://docs.retroachievements.org/general/faq.html'>
             <span class="text-heading"><x-fas-question-circle /></span>
             FAQ
         </a>
