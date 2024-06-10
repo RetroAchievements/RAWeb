@@ -18,8 +18,9 @@ class GamePolicy
     {
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            // Role::DEVELOPER_STAFF,
-            // Role::DEVELOPER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
         ]);
     }
 
@@ -48,11 +49,24 @@ class GamePolicy
 
     public function update(User $user, Game $game): bool
     {
-        return $user->hasAnyRole([
+        $canAlwaysUpdate = $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
-            // Role::DEVELOPER_STAFF,
-            // Role::DEVELOPER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
         ]);
+
+        if ($canAlwaysUpdate) {
+            return true;
+        }
+
+        // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
+        // on the game or be the sole author of its achievements to be able to
+        // update any of its metadata.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) || $user->getAttribute('Permissions') === Permissions::JuniorDeveloper) {
+            return $this->canDeveloperJuniorUpdateGame($user, $game);
+        }
+
+        return false;
     }
 
     public function delete(User $user, Game $game): bool
@@ -70,6 +84,40 @@ class GamePolicy
         return false;
     }
 
+    public function updateField(User $user, Game $game, string $fieldName): bool
+    {
+        // Some roles can edit everything.
+        if ($user->hasAnyRole([Role::ROOT, Role::GAME_HASH_MANAGER, Role::MODERATOR])) {
+            return true;
+        }
+
+        $roleFieldPermissions = [
+            Role::DEVELOPER_JUNIOR => ['Title', 'GuideURL'],
+            Role::DEVELOPER => ['Title', 'GuideURL'],
+            Role::DEVELOPER_STAFF => ['Title', 'GuideURL'],
+        ];
+
+        $userRoles = $user->getRoleNames();
+
+        // Aggregate the allowed fields for all roles the user has.
+        $allowedFieldsForUser = collect($roleFieldPermissions)
+            ->filter(function ($fields, $role) use ($userRoles) {
+                return $userRoles->contains($role);
+            })
+            ->collapse()
+            ->unique()
+            ->all();
+
+        // Junior Developers need to have a claim on the game if they want to edit game fields.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$this->canDeveloperJuniorUpdateGame($user, $game)) {
+            return false;
+        }
+
+        // If any of the user's roles allow updating the specified field, return true.
+        // Otherwise, they can't edit the field.
+        return in_array($fieldName, $allowedFieldsForUser, true);
+    }
+
     public function createForumTopic(User $user, Game $game): bool
     {
         if ($game->ForumTopicID) {
@@ -80,10 +128,12 @@ class GamePolicy
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::FORUM_MANAGER,
+            Role::MODERATOR,
         ])
             || $user->getAttribute('Permissions') >= Permissions::Developer;
     }
 
+    // TODO rename to viewActivitylog or use manage() ?
     public function viewModifications(User $user): bool
     {
         return $user->hasAnyRole([
@@ -93,5 +143,22 @@ class GamePolicy
             Role::DEVELOPER_JUNIOR,
         ])
             || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+    }
+
+    private function canDeveloperJuniorUpdateGame(User $user, Game $game): bool
+    {
+        // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
+        // on the game or be the sole author of its achievements to be able to
+        // update any of the game's metadata.
+
+        if ($user->hasActiveClaimOnGameId($game->id)) {
+            return true;
+        }
+
+        $game->loadMissing('achievements.developer');
+
+        return $game->achievements->every(function ($achievement) use ($user) {
+            return $achievement->developer->is($user);
+        });
     }
 }

@@ -26,11 +26,11 @@ name('terms');
                     <p role="heading" aria-level="3" class="text-lg font-medium">Code of Conduct</h3>
                     <p>
                         By signing up on RetroAchievements.org, you agree to the
-                        <a href="http://docs.retroachievements.org/Users-Code-of-Conduct/">Users Code of Conduct</a>.
+                        <a href="https://docs.retroachievements.org/guidelines/users/code-of-conduct.html">Users Code of Conduct</a>.
                     </p>
                     <p>
                         By joining the Junior Developer and/or Developer team, you agree to the
-                        <a href="http://docs.retroachievements.org/Developers-Code-of-Conduct/">Developers Code of Conduct</a>.
+                        <a href="https://docs.retroachievements.org/guidelines/developers/code-of-conduct.html">Developers Code of Conduct</a>.
                     </p>
                 </div>
             </div>
