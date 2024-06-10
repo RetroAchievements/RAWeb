@@ -194,6 +194,15 @@ class AchievementSetClaim extends BaseModel
      * @param Builder<AchievementSetClaim> $query
      * @return Builder<AchievementSetClaim>
      */
+    public function scopeActiveClaimForGameId(Builder $query, int $gameId): Builder
+    {
+        return $query->where('game_id', $gameId)->active();
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
     public function scopeComplete(Builder $query): Builder
     {
         return $this->scopeStatus($query, ClaimStatus::Complete);

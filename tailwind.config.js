@@ -3,12 +3,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    './app/Filament/**/*.php',
     './app/Helpers/render/*.php',
     './app/Helpers/util/*.php',
     './public/*.php',
     './resources/js/**/*.ts',
     './resources/views/**/*.blade.php',
     './storage/framework/views/*.php',
+    './vendor/filament/**/*.blade.php',
     './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
   ],
 
