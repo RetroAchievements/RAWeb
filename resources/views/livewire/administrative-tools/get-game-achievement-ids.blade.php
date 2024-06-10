@@ -17,6 +17,7 @@ new class extends Component implements HasForms {
     public function submit(): void
     {
         $this->foundAchievementIds = Achievement::whereIn('GameID', $this->gameIds)
+            ->published()
             ->pluck('ID')
             ->toArray();
 

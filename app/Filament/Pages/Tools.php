@@ -9,13 +9,13 @@ use App\Models\Role;
 use App\Models\User;
 use Filament\Pages\Page;
 
-class AdministrativeTools extends Page
+class Tools extends Page
 {
     protected static ?int $navigationSort = 99;
 
     protected static ?string $navigationIcon = 'heroicon-s-wrench';
 
-    protected static string $view = 'filament.pages.administrative-tools';
+    protected static string $view = 'filament.pages.tools';
 
     public static function canAccess(): bool
     {
