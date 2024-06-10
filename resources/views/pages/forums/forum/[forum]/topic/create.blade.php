@@ -29,7 +29,7 @@ render(function (View $view, Forum $forum) {
 >
     {{-- TODO forum breadcrumbs component --}}
     <div class="navpath">
-        <a href="forum.php">Forum Index</a>
+        <a href="/forum.php">Forum Index</a>
         &raquo; <a href='/forum.php?c={{ $forum->category->id }}'>{{ $forum->category->title }}</a>
         &raquo; <a href='/viewforum.php?f={{ $forum->id }}'>{{ $forum->title }}</a>
         &raquo; <b>Start new topic</b>

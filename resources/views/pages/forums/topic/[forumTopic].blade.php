@@ -39,7 +39,7 @@ render(function (View $view, ForumTopic $forumTopic, ForumTopicPageService $page
 <x-app-layout>
     {{-- TODO forum breadcrumbs component --}}
     <div class="navpath">
-        <a href="forum.php">Forum Index</a>
+        <a href="/forum.php">Forum Index</a>
         &raquo; <a href='/forum.php?c={{ $forum->category->id }}'>{{ $forum->category->title }}</a>
         &raquo; <a href='/viewforum.php?f={{ $forum->id }}'>{{ $forum->title }}</a>
         &raquo; <b>{{ $forumTopic->title }}</b>
