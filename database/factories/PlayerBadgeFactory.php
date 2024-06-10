@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Community\Enums\AwardType;
 use App\Models\PlayerBadge;
-use App\Support\Database\Eloquent\Concerns\FakesUsername;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -14,8 +14,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PlayerBadgeFactory extends Factory
 {
-    use FakesUsername;
-
     protected $model = PlayerBadge::class;
 
     /**
@@ -23,9 +21,10 @@ class PlayerBadgeFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::inRandomOrder()->first();
+
         return [
-            'User' => $this->fakeUsername(),
-            'user_id' => 1,
+            'user_id' => $user?->id ?? 1,
             'AwardType' => AwardType::Mastery,
             'AwardData' => fake()->numberBetween(0, 9999) * 10,
             'AwardDataExtra' => 0,
