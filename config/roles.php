@@ -9,8 +9,8 @@ $rootAssignable = [
     Role::BETA,
     Role::ENGINEER,
     Role::FOUNDER,
-    Role::POINT_OF_CONTACT,
     Role::RELEASE_MANAGER,
+    Role::TEAM_ACCOUNT,
 ];
 
 $adminAssignable = [
@@ -170,7 +170,7 @@ return [
         'legacy_role' => Permissions::Registered,
     ],
     [
-        'name' => Role::POINT_OF_CONTACT,
+        'name' => Role::TEAM_ACCOUNT,
         'display' => 1,
         'legacy_role' => Permissions::Registered,
     ],

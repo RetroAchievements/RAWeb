@@ -63,7 +63,7 @@ class Role extends \Spatie\Permission\Models\Role
 
     public const ENGINEER = 'engineer';
 
-    public const POINT_OF_CONTACT = 'point-of-contact';
+    public const TEAM_ACCOUNT = 'team-account';
 
     public const BETA = 'beta';
 
@@ -110,7 +110,7 @@ class Role extends \Spatie\Permission\Models\Role
             Role::FOUNDER => 'primary',
             Role::ARCHITECT => 'primary',
             Role::ENGINEER => 'primary',
-            Role::POINT_OF_CONTACT => 'primary',
+            Role::TEAM_ACCOUNT => 'primary',
             Role::BETA => 'primary',
 
             // vanity roles assigned by admin

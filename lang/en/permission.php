@@ -36,7 +36,7 @@ return [
         Role::FOUNDER => __('Founder'),
         Role::ARCHITECT => __('Architect'),
         Role::ENGINEER => __('Engineer'),
-        Role::POINT_OF_CONTACT => __('Team Account'),
+        Role::TEAM_ACCOUNT => __('Team Account'),
         Role::BETA => __('Beta'),
 
         // vanity roles assigned by admins

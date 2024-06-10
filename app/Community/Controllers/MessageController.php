@@ -48,7 +48,7 @@ class MessageController extends Controller
         } else {
             $recipient = User::firstWhere('User', $input['recipient']);
 
-            if (!$user->can('sendToRecipient', [MessageThread::class, $recipient])) {
+            if (!$user->can('sendToRecipient', [Message::class, $recipient])) {
                 return back()->withErrors(__('legacy.error.cannot_message_user'));
             }
 

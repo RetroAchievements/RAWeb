@@ -9,6 +9,7 @@ use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserComment;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Database\Eloquent\Model;
 
@@ -58,7 +59,7 @@ class CommentPolicy
         }
 
         if ($commentable !== null && $commentable instanceof User) {
-            return (new UserCommentPolicy())->create($user, $commentable);
+            return $user->can('create', [UserComment::class, $commentable]);
         }
 
         return true;

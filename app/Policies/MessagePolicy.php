@@ -59,7 +59,7 @@ class MessagePolicy
             Role::EVENT_MANAGER,
             Role::FORUM_MANAGER,
             Role::MODERATOR,
-            Role::POINT_OF_CONTACT,
+            Role::TEAM_ACCOUNT,
         ])
             || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
 
