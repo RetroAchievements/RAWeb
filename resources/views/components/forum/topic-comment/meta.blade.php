@@ -5,7 +5,6 @@ use Illuminate\Support\Carbon;
 ?>
 
 @props([
-    'isOriginalPoster' => false,
     'forumTopicComment' => null, // ForumTopicComment
 ])
 
@@ -20,7 +19,7 @@ $postEditedTimestamp =
 /** @var ?User $user */
 $user = auth()->user();
 $preferences = $user?->websitePrefs ?? 0;
-$isShowAbsoluteDatesPreferenceSet = BitSet($preferences, UserPreference::Forum_ShowAbsoluteDates);
+$isShowAbsoluteDatesPreferenceSet = $user?->prefers_absolute_dates ?? false;
 
 $shouldUseTimeAgoDate = function (?string $rawDate): bool {
     if (!$rawDate) {
@@ -60,20 +59,22 @@ $formattedEditTimestamp = $formatMetaTimestamp($postEditedTimestamp, $shouldUseE
 
 $formattedPostTimestampTooltip = $formatMetaTimestamp($postCreatedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
 $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
+
+$isOriginalPoster = $forumTopicComment->user->is($forumTopicComment->forumTopic->user);
 ?>
 
 @if (!$forumTopicComment->Authorised && ($forumTopicComment->author_id === $user?->id || $user?->can('manage', App\Models\ForumTopicComment::class)))
-    <x-forum.post-title-chip
+    <x-forum.topic-comment.title-chip
         tooltip="Not yet visible to the public. Please wait for a moderator to authorize this comment."
     >
         Unverified
-    </x-forum.post-title-chip>
+    </x-forum.topic-comment.title-chip>
 @endif
 
 @if ($isOriginalPoster)
-    <x-forum.post-title-chip tooltip="Original poster">
+    <x-forum.topic-comment.title-chip tooltip="Original poster">
         OP
-    </x-forum.post-title-chip>
+    </x-forum.topic-comment.title-chip>
 @endif
 
 <p class='smalltext !leading-[14px]'>
