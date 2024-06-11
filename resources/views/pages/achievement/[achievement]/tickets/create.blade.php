@@ -265,7 +265,7 @@ function reportIssueComponent() {
                         <div x-cloak>
                             <p x-show="descriptionIsNetworkProblem">
                                 Please do not use this tool for network issues.
-                                See <a href='https://docs.retroachievements.org/FAQ/#in-short-how-to-request-a-manual-unlock'>here</a>
+                                See <a href="https://docs.retroachievements.org/general/faq.html#how-do-i-request-a-manual-unlock">here</a>
                                 for instructions on how to request a manual unlock.
                             </p>
                             <p x-show="descriptionIsUnhelpful">

@@ -11,16 +11,6 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 
 $action = request()->input('action');
 $message = null;
-if ($action === 'achievement-ids') {
-    $gameIDs = separateList(request()->query('g'));
-    $achievementIds = collect();
-    foreach ($gameIDs as $gameId) {
-        $achievementIds = $achievementIds->merge(
-            Achievement::where('GameID', $gameId)->published()->pluck('ID')
-        );
-    }
-    $message = $achievementIds->implode(', ');
-}
 
 if ($action === 'unlocks') {
     $achievementIDs = request()->query('a');
@@ -115,30 +105,6 @@ $staticData = StaticData::first();
 <?php endif ?>
 
 <?php if ($permissions >= Permissions::Moderator) : ?>
-    <section class="mb-4">
-        <h4>Get Game Achievement IDs</h4>
-        <form action="admin.php">
-            <input type="hidden" name="action" value="achievement-ids">
-            <table class="mb-1">
-                <colgroup>
-                    <col>
-                    <col class="w-full">
-                </colgroup>
-                <tbody>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="achievements_game_id">Game ID</label>
-                    </td>
-                    <td>
-                        <input id="achievements_game_id" name="g">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <button class="btn">Submit</button>
-        </form>
-    </section>
-
     <section class="mb-4">
         <?php
         $winnersStartTime = $staticData['winnersStartTime'] ?? null;
@@ -401,11 +367,6 @@ $staticData = StaticData::first();
             </table>
             <button class="btn">Submit</button>
         </form>
-    </section>
-
-    <section>
-        <h4>Feature Flags</h4>
-        <x-feature-flags />
     </section>
 <?php endif ?>
 </x-app-layout>

@@ -20,6 +20,7 @@ $save = function() {
 mount(function() {
     $this->form->setForum($this->forum);
 });
+
 ?>
 
 <div>
