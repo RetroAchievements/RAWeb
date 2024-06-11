@@ -118,7 +118,7 @@ render(function (View $view, Achievement $achievement) {
         @endphp
         <x-ticket.guide-link
             buttonText="Request Manual Unlock"
-            href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}&templateKind='manual-unlock'"
+            href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}&templateKind=manual-unlock"
         >
             The achievement triggered, but the unlock didn't appear on my profile.
         </x-ticket.guide-link>
@@ -137,7 +137,7 @@ render(function (View $view, Achievement $achievement) {
     @endphp
     <x-ticket.guide-link
         buttonText="Message WritingTeam"
-        href="{{ route('message.create') }}?to=WritingTeam&subject={{ $subject }}&message={{ $message }}&templateKind='writing-error'"
+        href="{{ route('message.create') }}?to=WritingTeam&subject={{ $subject }}&message={{ $message }}&templateKind=writing-error"
     >
         There is a spelling or grammatical error in the title or description.
     </x-ticket.guide-link>
@@ -148,7 +148,7 @@ render(function (View $view, Achievement $achievement) {
     @endphp
     <x-ticket.guide-link
         buttonText="Message QATeam"
-        href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}&templateKind='misclassification'"
+        href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}&templateKind=misclassification"
     >
         The achievement type (progression/win/missable) is not correct.
     </x-ticket.guide-link>
@@ -159,10 +159,10 @@ render(function (View $view, Achievement $achievement) {
             "I'd like to report an unwelcome concept in [ach={$achievement->id}].\n\n" .
 
             "- Which Unwelcome Concept:\n" .
-            "[insert which concept from the docs here]\n\n" .
+            "(Insert which concept from the docs here)\n\n" .
 
             "- Detailed Explanation:\n" .
-            "[provide as much detail as possible here. assume the reader may not have played the game before. the more detail you provide, the better your case.]"
+            "(provide as much detail as possible here. Assume the reader may not have played the game before. The more detail you provide, the better your case.)"
         );
     @endphp
     <x-ticket.guide-link
@@ -178,7 +178,7 @@ render(function (View $view, Achievement $achievement) {
     @endphp
     <x-ticket.guide-link
         buttonText="Message RAdmin"
-        href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}&templateKind='achievement-issue'"
+        href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}&templateKind=achievement-issue"
     >
         I have an issue with this achievement that is not described above.
     </x-ticket.guide-link>
