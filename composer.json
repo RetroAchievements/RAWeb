@@ -17,7 +17,6 @@
         "ext-pdo": "*",
         "ext-simplexml": "*",
         "aws/aws-sdk-php": "^3.235",
-        "beyondcode/laravel-websockets": "^1.13",
         "doctrine/dbal": "^3.4",
         "fico7489/laravel-pivot": "^3.0",
         "filament/filament": "^3.2.72",
@@ -159,7 +158,6 @@
     "extra": {
         "laravel": {
             "dont-discover": [
-                "beyondcode/laravel-websockets",
                 "laravel/passport"
             ]
         }

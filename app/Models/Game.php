@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -33,7 +34,9 @@ class Game extends BaseModel implements HasComments, HasMedia
     /*
      * Shared Traits
      */
-    // TODO use LogsActivity;
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
     use HasFactory;
     use InteractsWithMedia;
 
@@ -66,6 +69,8 @@ class Game extends BaseModel implements HasComments, HasMedia
     protected $fillable = [
         'release',
         'Title',
+        'ForumTopicID',
+        'GuideURL',
     ];
 
     protected $visible = [
@@ -99,12 +104,21 @@ class Game extends BaseModel implements HasComments, HasMedia
 
     // == logging
 
-    // protected static $recordEvents = ['created'];
+    // TODO log game creation from the connect api
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnlyDirty();
+            ->logOnly([
+                'Title',
+                'ForumTopicID',
+                'GuideURL',
+                'Publisher',
+                'Developer',
+                'Genre',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == media
@@ -184,6 +198,11 @@ class Game extends BaseModel implements HasComments, HasMedia
     // == actions
 
     // == accessors
+
+    public function getBadgeUrlAttribute(): string
+    {
+        return media_asset($this->ImageIcon);
+    }
 
     public function getCanHaveBeatenTypes(): bool
     {

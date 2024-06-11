@@ -16,11 +16,7 @@ render(function (View $view, Game $game) {
 
 ?>
 
-@php
-
-use App\Community\Enums\ArticleType;
-
-@endphp
+@use(App\Community\Enums\ArticleType);
 
 @props([
     'game' => null, // Game
