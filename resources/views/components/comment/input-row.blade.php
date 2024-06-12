@@ -36,14 +36,14 @@ if ($user) {
                         name="body"
                         maxlength="2000"
                         placeholder="Enter a comment here..."
-                        id="comment_textarea_$commentId"
-                        x-on:input="autoExpandTextInput(\$el); isValid = window.getStringByteCount(\$event.target.value) <= 2000;"
+                        id="comment_textarea_{{ $commentId }}"
+                        x-on:input="autoExpandTextInput($el); isValid = window.getStringByteCount($event.target.value) <= 2000;"
                     ></textarea>
                     <button class="btn h-9 ml-2" :disabled="!isValid" aria-label="Post comment" title="Post comment">
                         Submit
                     </button>
                 </div>
-                <div class="textarea-counter" data-textarea-id="comment_textarea_$commentId"></div>
+                <div class="textarea-counter" data-textarea-id="comment_textarea_{{ $commentId }}"></div>
                 <div class="text-danger hidden"></div>
             </form>
         </td>
