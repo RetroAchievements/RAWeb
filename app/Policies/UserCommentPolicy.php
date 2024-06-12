@@ -58,28 +58,19 @@ class UserCommentPolicy
 
     public function create(User $user, ?User $commentable): bool
     {
-        // if (!$commentable->wall_active) {
-        //     return false;
-        // }
-
-        if ($user->is_muted) {
+        /**
+         * TODO check user privacy settings
+         */
+        if (
+            !$commentable
+            || $user->is_muted
+            || !$user->hasVerifiedEmail()
+            || $commentable->isBlocking($user)
+            || !$commentable->UserWallActive
+            || ($commentable->only_allows_contact_from_followers && !$commentable->isFollowing($user))
+        ) {
             return false;
         }
-
-        if (!$user->hasVerifiedEmail()) {
-            return false;
-        }
-
-        /*
-         * user wants to comment on themselves (profile comments)
-         */
-        if ($user->is($commentable)) {
-            return true;
-        }
-
-        /*
-         * TODO: check user privacy setting
-         */
 
         return true;
     }
