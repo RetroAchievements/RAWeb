@@ -206,6 +206,7 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         'RichPresenceMsgDate' => 'datetime',
         'TrueRAPoints' => 'integer',
         'unranked_at' => 'datetime',
+        'UserWallActive' => 'boolean',
     ];
 
     public static function boot()
@@ -419,6 +420,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     public function getPrefersAbsoluteDatesAttribute(): bool
     {
         return BitSet($this->getAttribute('websitePrefs'), UserPreference::Forum_ShowAbsoluteDates);
+    }
+
+    public function getOnlyAllowsContactFromFollowersAttribute(): bool
+    {
+        return BitSet($this->getAttribute('websitePrefs'), UserPreference::User_OnlyContactFromFollowing);
     }
 
     public function getLastActivityAtAttribute(): string
