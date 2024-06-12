@@ -114,7 +114,7 @@ render(function (View $view, Achievement $achievement) {
 
         @php
             $subject = urlencode("Manual Unlock: {$achievement->title} [{$achievement->id}] ({$achievement->game->title})");
-            $message = urlencode("I'd like a manual unlock for [ach={$achievement->id}]:\n(provide link to video/screenshot showing evidence)");
+            $message = urlencode("I'd like a manual unlock for [ach={$achievement->id}]:\n(Provide link to video/screenshot showing evidence)");
         @endphp
         <x-ticket.guide-link
             buttonText="Request Manual Unlock"
@@ -162,7 +162,7 @@ render(function (View $view, Achievement $achievement) {
             "(Insert which concept from the docs here)\n\n" .
 
             "- Detailed Explanation:\n" .
-            "(provide as much detail as possible here. Assume the reader may not have played the game before. The more detail you provide, the better your case.)"
+            "(Provide as much detail as possible here. Assume the reader may not have played the game before. The more detail you provide, the better your case.)"
         );
     @endphp
     <x-ticket.guide-link
