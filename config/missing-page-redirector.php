@@ -77,6 +77,12 @@ return [
         '/codenotes.php' => '/game/{g}/notes',
         '/linkedhashes.php' => '/game/{g}/hashes',
         '/popularGames.php' => '/games/popular',
+        '/random.php' => '/game/random',
+
+        /*
+         * hashes
+         */
+        'latesthasheslinked.php' => '/manage/game-hashes',
 
         /*
          * leaderboards
@@ -132,7 +138,7 @@ return [
         /*
          * redirects (external)
          */
-        '/faq.php' => 'https://docs.retroachievements.org/FAQ/',
+        '/faq.php' => 'https://docs.retroachievements.org/general/faq.html',
         '/GetRA_API.php' => 'https://github.com/retroachievements/web-api-client-php',
 
         /*

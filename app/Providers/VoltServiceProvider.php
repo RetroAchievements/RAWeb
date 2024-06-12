@@ -12,7 +12,6 @@ class VoltServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-
     }
 
     /**
@@ -21,6 +20,7 @@ class VoltServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Volt::mount([
-            config('livewire.view_path', resource_path('views/livewire')),        ]);
+            config('livewire.view_path', resource_path('views/livewire')),
+        ]);
     }
 }

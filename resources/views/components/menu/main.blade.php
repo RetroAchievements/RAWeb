@@ -120,7 +120,7 @@ $menuSystemsList = [
             <x-dropdown-item :href="url('setRequestList.php')">Most Requested</x-dropdown-item>
             <x-dropdown-item :href="route('claims.completed')">New Sets & Revisions</x-dropdown-item>
             <x-dropdown-item :href="route('claims.active')">Sets in Progress</x-dropdown-item>
-            <x-dropdown-item :href="url('random.php')">Random Set</x-dropdown-item>
+            <x-dropdown-item :href="route('game.random')">Random Set</x-dropdown-item>
             <x-dropdown-header>Hubs</x-dropdown-header>
             <x-dropdown-item :href="url('gameList.php?s=6&c=100&f=1')">Hub List</x-dropdown-item>
             <x-dropdown-item :href="url('game/6914')">Central Hub</x-dropdown-item>
@@ -161,7 +161,7 @@ $menuSystemsList = [
     <x-dropdown-item href="https://github.com/RetroAchievements/guides/wiki">RAGuides Wiki</x-dropdown-item>
     <div class="dropdown-divider"></div>
     <x-dropdown-item href="https://docs.retroachievements.org">User Documentation</x-dropdown-item>
-    <x-dropdown-item href="https://docs.retroachievements.org/Developer-Docs">Developer Documentation</x-dropdown-item>
+    <x-dropdown-item href="https://docs.retroachievements.org/developer-docs/">Developer Documentation</x-dropdown-item>
 </x-nav-dropdown>
 <x-nav-item :href="url('download.php')" :title="__('Download')">
     <x-fas-download/>

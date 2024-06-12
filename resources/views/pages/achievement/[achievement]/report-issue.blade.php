@@ -12,7 +12,7 @@ name('achievement.report-issue');
 
 render(function (View $view, Achievement $achievement) {
     if (!Auth::user()->can('view', $achievement)) {
-        return abort('401');
+        return abort(401);
     }
     
     // TODO migrate this logic to a service
@@ -147,7 +147,7 @@ render(function (View $view, Achievement $achievement) {
     @endphp
     <x-ticket.guide-link buttonText="Message DevCompliance"
                          href="{{ route('message.create') }}?to=DevCompliance&subject={{ $subject }}&message={{ $message }}">
-        The achievement contains an <a href="https://docs.retroachievements.org/Unwelcome-Concepts/">unwelcome concept</a>.
+        The achievement contains an <a href="https://docs.retroachievements.org/guidelines/content/unwelcome-concepts.html">unwelcome concept</a>.
     </x-ticket.guide-link>
 
     @php
