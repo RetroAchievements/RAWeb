@@ -71,7 +71,7 @@ class AchievementOfTheWeekTest extends TestCase
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
-                        'RASoftcorePoints' => $user->RASoftcorePoints,
+                        'RASoftcorePoints' $this->user->RASoftcorePoints,
                         'HardcoreMode' => 0,
                     ],
                     [
