@@ -188,7 +188,7 @@ function getRecentUnlocksPlayersData(
     }
 
     // Get recent winners, and their most recent activity:
-    $query = "SELECT u.User, u.RAPoints, u.RASoftcorePoints, " . unixTimestampStatement('pa.unlocked_at', 'DateAwarded') . "
+    $query = "SELECT u.User, u.RAPoints, " . unixTimestampStatement('pa.unlocked_at', 'DateAwarded') . "
               FROM player_achievements AS pa
               LEFT JOIN UserAccounts AS u ON u.ID = pa.user_id
               WHERE pa.achievement_id = $achID $extraWhere
@@ -197,7 +197,6 @@ function getRecentUnlocksPlayersData(
 
     foreach (legacyDbFetchAll($query) as $db_entry) {
         $db_entry['RAPoints'] = (int) $db_entry['RAPoints'];
-        $db_entry['RASoftcorePoints'] = (int) $db_entry['RASoftcorePoints'];
         $db_entry['DateAwarded'] = (int) $db_entry['DateAwarded'];
         $retVal['RecentWinner'][] = $db_entry;
     }
