@@ -68,7 +68,7 @@ $loadContent = function() {
 
 @script
 <script>
-Alpine.data('userAchievementsGrid', () => {
+    Alpine.data('userAchievementsGrid', () => {
         return {
             isLoading: $wire.entangle('isLoading'),
             gameAchievementsWithProgress: $wire.entangle('gameAchievementsWithProgress'),
