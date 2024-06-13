@@ -47,7 +47,7 @@ $loadContent = function() {
                         $achievement,
                         label: false,
                         iconSize: 48,
-                        iconClass: "badgeimglarge {$achievement['BadgeClassNames']}",
+                        iconClass: "z-10 badgeimglarge {$achievement['BadgeClassNames']}",
                         loading: 'eager',
                     )
                 !!}
@@ -58,7 +58,7 @@ $loadContent = function() {
     <div
         x-ref="skeleton"
         class="z-[1] w-full h-full transition-opacity duration-500"
-        :class="{ 'opacity-0': !isLoading }"
+        :class="{ 'opacity-0 pointer-events-none': !isLoading }"
     >
         <x-game-list-item.user-achievements-grid.skeleton
             :$achievementCount
@@ -68,7 +68,7 @@ $loadContent = function() {
 
 @script
 <script>
-    Alpine.data('userAchievementsGrid', () => {
+Alpine.data('userAchievementsGrid', () => {
         return {
             isLoading: $wire.entangle('isLoading'),
             gameAchievementsWithProgress: $wire.entangle('gameAchievementsWithProgress'),
