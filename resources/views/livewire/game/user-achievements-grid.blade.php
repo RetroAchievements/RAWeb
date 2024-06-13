@@ -47,7 +47,7 @@ $loadContent = function() {
                         $achievement,
                         label: false,
                         iconSize: 48,
-                        iconClass: "z-10 badgeimglarge {$achievement['BadgeClassNames']}",
+                        iconClass: "badgeimglarge {$achievement['BadgeClassNames']}",
                         loading: 'eager',
                     )
                 !!}
