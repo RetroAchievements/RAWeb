@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Community\Enums\ClaimStatus;
 use App\Models\Achievement;
 use App\Models\Role;
 use App\Models\User;
@@ -115,10 +114,10 @@ class AchievementPolicy
     public function updateField(User $user, Achievement $achievement, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['title', 'description', 'flags', 'type', 'points', 'display_order'],
-            Role::DEVELOPER => ['title', 'description', 'flags', 'type', 'points', 'display_order'],
-            Role::DEVELOPER_STAFF => ['title', 'description', 'flags', 'type', 'points', 'display_order'],
-            Role::WRITER => ['title', 'description'],
+            Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
+            Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
+            Role::DEVELOPER_STAFF => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
+            Role::WRITER => ['Title', 'Description'],
         ];
 
         // Root can edit everything.
@@ -153,17 +152,6 @@ class AchievementPolicy
         // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
         // on the game and the achievement must not be promoted to Core/Official.
 
-        $user->load('achievementSetClaims');
-
-        $hasActiveClaim = $user->achievementSetClaims->contains(
-            function ($claim) use ($achievement) {
-                return
-                    $claim->status === ClaimStatus::Active
-                    && $claim->game_id === $achievement->game->id
-                ;
-            }
-        );
-
-        return $hasActiveClaim && !$achievement->is_published;
+        return !$achievement->is_published && $user->hasActiveClaimOnGameId($achievement->game->id);
     }
 }

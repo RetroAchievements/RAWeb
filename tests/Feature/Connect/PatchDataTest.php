@@ -25,7 +25,7 @@ class PatchDataTest extends TestCase
             'Description' => $achievement->Description,
             'MemAddr' => $achievement->MemAddr,
             'Points' => $achievement->Points,
-            'Author' => $achievement->Author,
+            'Author' => $achievement->developer->User,
             'Modified' => $achievement->DateModified->unix(),
             'Created' => $achievement->DateCreated->unix(),
             'BadgeName' => $achievement->BadgeName,
@@ -151,6 +151,40 @@ class PatchDataTest extends TestCase
                     'Achievements' => [
                         $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
                         $this->getAchievementPatchData($achievement3), // DisplayOrder: 2
+                        $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
+                        $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
+                        $this->getAchievementPatchData($achievement4), // DisplayOrder: 5
+                        // $achievement5 (DisplayOrder: 6) has invalid flags and should not be returned
+                        $this->getAchievementPatchData($achievement6), // DisplayOrder: 7
+                        // $achievement8 (DisplayOrder: 8) is unofficial
+                        $this->getAchievementPatchData($achievement9), // DisplayOrder: 9
+                    ],
+                    'Leaderboards' => [
+                        $this->getLeaderboardPatchData($leaderboard3), // DisplayOrder: -1
+                        $this->getLeaderboardPatchData($leaderboard2), // DisplayOrder: 1
+                        $this->getLeaderboardPatchData($leaderboard1), // DisplayOrder: 2
+                    ],
+                ],
+            ]);
+
+        // achievement with null author should not return null (see https://github.com/libretro/RetroArch/issues/16648)
+        $achievement3->user_id = null;
+        $achievement3->save();
+        $achievement3PatchData = $this->getAchievementPatchData($achievement3);
+        $achievement3PatchData['Author'] = '';
+        $this->get($this->apiUrl('patch', ['g' => $game->ID, 'f' => 3]))
+            ->assertExactJson([
+                'Success' => true,
+                'PatchData' => [
+                    'ID' => $game->ID,
+                    'Title' => $game->Title,
+                    'ConsoleID' => $game->ConsoleID,
+                    'ImageIcon' => $game->ImageIcon,
+                    'ImageIconURL' => media_asset($game->ImageIcon),
+                    'RichPresencePatch' => $game->RichPresencePatch,
+                    'Achievements' => [
+                        $this->getAchievementPatchData($achievement1), // DisplayOrder: 1
+                        $achievement3PatchData, // DisplayOrder: 2
                         $this->getAchievementPatchData($achievement2), // DisplayOrder: 3
                         $this->getAchievementPatchData($achievement7), // DisplayOrder: 4
                         $this->getAchievementPatchData($achievement4), // DisplayOrder: 5

@@ -138,7 +138,7 @@ function getAchievementUnlocksData(
     return PlayerAchievement::where('achievement_id', $achievementId)
         ->join('UserAccounts', 'UserAccounts.ID', '=', 'user_id')
         ->orderByRaw('COALESCE(unlocked_hardcore_at, unlocked_at) DESC')
-        ->select(['UserAccounts.User', 'UserAccounts.RAPoints', 'unlocked_at', 'unlocked_hardcore_at'])
+        ->select(['UserAccounts.User', 'UserAccounts.RAPoints', 'UserAccounts.RASoftcorePoints', 'unlocked_at', 'unlocked_hardcore_at'])
         ->offset($offset)
         ->limit($limit)
         ->get()
@@ -146,6 +146,7 @@ function getAchievementUnlocksData(
             return [
                 'User' => $row->User,
                 'RAPoints' => $row->RAPoints,
+                'RASoftcorePoints' => $row->RASoftcorePoints,
                 'DateAwarded' => $row->unlocked_hardcore_at ?? $row->unlocked_at,
                 'HardcoreMode' => $row->unlocked_hardcore_at ? 1 : 0,
             ];

@@ -118,7 +118,7 @@ if ($currentPage < $totalPages) {
         echo "<td class='text-right'><a href='" . route('developer.tickets.resolved-for-others', ['user' => $devStats['Author']]) ."'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribCount']) . "</td>";
         echo "<td class='text-right'>" . localized_number($devStats['ContribYield']) . "</td>";
-        echo "<td class='text-right'><a href='/claimlist.php?u=" . $devStats['Author'] . "'>" . $devStats['ActiveClaims'] . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.claims', ['user' => $devStats['Author']]) . "'>" . $devStats['ActiveClaims'] . "</a></td>";
     }
     echo "</tbody></table></div>";
     ?>

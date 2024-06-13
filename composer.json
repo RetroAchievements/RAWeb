@@ -17,7 +17,6 @@
         "ext-pdo": "*",
         "ext-simplexml": "*",
         "aws/aws-sdk-php": "^3.235",
-        "beyondcode/laravel-websockets": "^1.13",
         "doctrine/dbal": "^3.4",
         "fico7489/laravel-pivot": "^3.0",
         "filament/filament": "^3.2.72",
@@ -37,6 +36,7 @@
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "^3.3",
         "livewire/livewire": "^3.0",
+        "livewire/volt": "^1.6",
         "matomo/device-detector": "^6.0",
         "opcodesio/log-viewer": "^3.1",
         "owenvoke/blade-fontawesome": "^2.0",
@@ -158,7 +158,6 @@
     "extra": {
         "laravel": {
             "dont-discover": [
-                "beyondcode/laravel-websockets",
                 "laravel/passport"
             ]
         }

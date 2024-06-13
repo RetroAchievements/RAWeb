@@ -17,6 +17,17 @@ trait ActsAsDeveloper
     {
     }
 
+    // == instance functions
+
+    public function hasActiveClaimOnGameId(int $gameId): bool
+    {
+        return $this->loadMissing('achievementSetClaims')
+            ->achievementSetClaims()
+            ->where('game_id', $gameId)
+            ->active()
+            ->exists();
+    }
+
     // == accessors
 
     // == relations

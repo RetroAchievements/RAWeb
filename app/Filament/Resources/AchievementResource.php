@@ -34,7 +34,7 @@ class AchievementResource extends Resource
 
     protected static ?string $navigationGroup = 'Platform';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -150,17 +150,17 @@ class AchievementResource extends Resource
                             Forms\Components\TextInput::make('Title')
                                 ->required()
                                 ->maxLength(64)
-                                ->disabled(!$user->can('updateField', [$form->model, 'title'])),
+                                ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
 
                             Forms\Components\TextInput::make('Description')
                                 ->required()
                                 ->maxLength(255)
-                                ->disabled(!$user->can('updateField', [$form->model, 'description'])),
+                                ->disabled(!$user->can('updateField', [$form->model, 'Description'])),
 
                             Forms\Components\TextInput::make('BadgeName')
                                 ->required()
                                 ->default('00000')
-                                ->disabled(!$user->can('updateField', [$form->model, 'badge_name'])),
+                                ->disabled(!$user->can('updateField', [$form->model, 'BadgeName'])),
 
                             Forms\Components\Select::make('GameID')
                                 ->label('Game')
@@ -171,7 +171,7 @@ class AchievementResource extends Resource
                                 ->searchable(['ID', 'Title'])
                                 ->getOptionLabelFromRecordUsing(fn (Model $record) => "[{$record->ID}] {$record->Title}")
                                 ->required()
-                                ->disabled(!$user->can('updateField', [$form->model, 'game_id'])),
+                                ->disabled(!$user->can('updateField', [$form->model, 'GameID'])),
                         ]),
 
                     Forms\Components\Section::make()
@@ -184,7 +184,7 @@ class AchievementResource extends Resource
                                 ])
                                 ->default(AchievementFlag::Unofficial)
                                 ->required()
-                                ->disabled(!$user->can('updateField', [$form->model, 'flags'])),
+                                ->disabled(!$user->can('updateField', [$form->model, 'Flags'])),
 
                             Forms\Components\Select::make('type')
                                 ->options(
@@ -200,13 +200,13 @@ class AchievementResource extends Resource
                                     collect(AchievementPoints::cases())
                                         ->mapWithKeys(fn ($value) => [$value => $value])
                                 )
-                                ->disabled(!$user->can('updateField', [$form->model, 'points'])),
+                                ->disabled(!$user->can('updateField', [$form->model, 'Points'])),
 
                             Forms\Components\TextInput::make('DisplayOrder')
                                 ->required()
                                 ->numeric()
                                 ->default(0)
-                                ->disabled(!$user->can('updateField', [$form->model, 'display_order'])),
+                                ->disabled(!$user->can('updateField', [$form->model, 'DisplayOrder'])),
                         ]),
                 ])->from('md'),
             ]);
@@ -219,23 +219,28 @@ class AchievementResource extends Resource
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
                     ->size(config('media.icon.sm.width')),
+
                 Tables\Columns\TextColumn::make('ID')
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('Title')
                     ->label('Achievement')
                     ->wrap()
                     ->description(fn (Achievement $record): string => $record->description)
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('Description')
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('game')
                     ->label('Game')
-                    ->formatStateUsing(fn ($state) => '[' . $state->id . '] ' . $state->title),
-                    // ->url(GameResource::getUrl('view', ['record' => $state->id])),
+                    ->formatStateUsing(fn (Game $state) => "[{$state->id}] {$state->title}")
+                    ->url(fn (Game $state) => GameResource::getUrl('view', ['record' => $state->id])),
+
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
                     ->formatStateUsing(fn (int $state): string => match ($state) {
@@ -248,61 +253,74 @@ class AchievementResource extends Resource
                         AchievementFlag::Unofficial => 'info',
                         default => '',
                     }),
+
                 Tables\Columns\TextColumn::make('type')
                     ->badge(),
+
                 Tables\Columns\TextColumn::make('Points')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('TrueRatio')
                     ->label('RetroPoints')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('unlocks_total')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('unlocks_hardcore_total')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('unlock_percentage')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('unlock_hardcore_percentage')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('BadgeName')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('DisplayOrder')
                     ->numeric()
                     ->sortable()
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('DateCreated')
                     ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('DateModified')
                     ->label('Modified at')
                     ->dateTime()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('Updated')
                     ->label('Updated at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()

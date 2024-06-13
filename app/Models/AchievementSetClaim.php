@@ -27,7 +27,6 @@ class AchievementSetClaim extends BaseModel
     // TODO rename Finished to finished_at, remove getFinishedAtAttribute()
     // TODO rename Created to created_at, remove getCreatedAtAttribute()
     // TODO rename Updated to updated_at
-    // TODO drop User, rely solely on user_id
     protected $table = 'SetClaim';
 
     protected $primaryKey = 'ID';
@@ -36,7 +35,6 @@ class AchievementSetClaim extends BaseModel
     public const UPDATED_AT = 'Updated';
 
     protected $fillable = [
-        'User',
         'user_id',
         'game_id',
         'ClaimType',
@@ -196,6 +194,15 @@ class AchievementSetClaim extends BaseModel
      * @param Builder<AchievementSetClaim> $query
      * @return Builder<AchievementSetClaim>
      */
+    public function scopeActiveClaimForGameId(Builder $query, int $gameId): Builder
+    {
+        return $query->where('game_id', $gameId)->active();
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
     public function scopeComplete(Builder $query): Builder
     {
         return $this->scopeStatus($query, ClaimStatus::Complete);
@@ -217,5 +224,14 @@ class AchievementSetClaim extends BaseModel
     public function scopeInReview(Builder $query): Builder
     {
         return $this->scopeStatus($query, ClaimStatus::InReview);
+    }
+
+    /**
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeActiveOrInReview(Builder $query): Builder
+    {
+        return $query->whereIn('Status', [ClaimStatus::Active, ClaimStatus::InReview]);
     }
 }

@@ -48,7 +48,6 @@ class GameCardTest extends TestCase
         $user = User::factory()->create(['Permissions' => Permissions::Developer]);
 
         AchievementSetClaim::factory()->create([
-            'User' => $user->User,
             'user_id' => $user->id,
             'game_id' => $game->id,
             'ClaimType' => ClaimType::Primary,
@@ -80,7 +79,6 @@ class GameCardTest extends TestCase
         $user2 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'BBB']);
 
         AchievementSetClaim::factory()->create([
-            'User' => $user1->User,
             'user_id' => $user1->id,
             'game_id' => $game->id,
             'ClaimType' => ClaimType::Primary,
@@ -90,7 +88,6 @@ class GameCardTest extends TestCase
         ]);
 
         AchievementSetClaim::factory()->create([
-            'User' => $user2->User,
             'user_id' => $user2->id,
             'game_id' => $game->id,
             'ClaimType' => ClaimType::Primary,
@@ -124,7 +121,6 @@ class GameCardTest extends TestCase
         $user3 = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'CCC']);
 
         AchievementSetClaim::factory()->create([
-            'User' => $user1->User,
             'user_id' => $user1->id,
             'game_id' => $game->id,
             'ClaimType' => ClaimType::Primary,
@@ -134,7 +130,6 @@ class GameCardTest extends TestCase
         ]);
 
         AchievementSetClaim::factory()->create([
-            'User' => $user2->User,
             'user_id' => $user2->id,
             'game_id' => $game->id,
             'ClaimType' => ClaimType::Primary,
@@ -144,7 +139,6 @@ class GameCardTest extends TestCase
         ]);
 
         AchievementSetClaim::factory()->create([
-            'User' => $user3->User,
             'user_id' => $user3->id,
             'game_id' => $game->id,
             'ClaimType' => ClaimType::Primary,
@@ -195,7 +189,6 @@ class GameCardTest extends TestCase
         $user = User::factory()->create(['Permissions' => Permissions::Developer, 'User' => 'AAA']);
 
         AchievementSetClaim::factory()->create([
-            'User' => $user->User,
             'user_id' => $user->id,
             'game_id' => $game->id,
             'ClaimType' => ClaimType::Primary,
