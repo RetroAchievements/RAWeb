@@ -21,6 +21,7 @@ render(function (View $view, User $user) {
         $claimsService->getGameColumn(),
         $claimsService->getClaimTypeColumn(),
         $claimsService->getSetTypeColumn(),
+        $claimsService->getStatusColumn(),
         $claimsService->getSpecialColumn(),
         $claimsService->getClaimDateColumn(),
         $claimsService->getEndDateColumn(),

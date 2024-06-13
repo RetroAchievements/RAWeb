@@ -60,7 +60,7 @@ $formattedEditTimestamp = $formatMetaTimestamp($postEditedTimestamp, $shouldUseE
 $formattedPostTimestampTooltip = $formatMetaTimestamp($postCreatedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
 $formattedEditTimestampTooltip = $formatMetaTimestamp($postEditedTimestamp, false, $isShowAbsoluteDatesPreferenceSet);
 
-$isOriginalPoster = $forumTopicComment->user->is($forumTopicComment->forumTopic->user);
+$isOriginalPoster = $forumTopicComment->user?->is($forumTopicComment->forumTopic->user);
 ?>
 
 @if (!$forumTopicComment->Authorised && ($forumTopicComment->author_id === $user?->id || $user?->can('manage', App\Models\ForumTopicComment::class)))

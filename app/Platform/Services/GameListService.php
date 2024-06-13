@@ -101,6 +101,8 @@ class GameListService
                 $gameProgress = $this->userProgress[$gameModel->ID]['achievements_unlocked_hardcore'] ?? 0;
                 $game['CompletionPercentage'] = $gameModel->achievements_published ?
                     ($gameProgress * 100 / $gameModel->achievements_published) : 0;
+            } else {
+                $game['CompletionPercentage'] = 0;
             }
 
             $game['RetroRatio'] = $gameModel->points_total ? $gameModel->TotalTruePoints / $gameModel->points_total : 0.0;
