@@ -1,4 +1,5 @@
 import type { Alpine } from 'alpinejs';
+import type { route as ziggyRoute } from 'ziggy-js';
 
 import type {
   modalComponent as ModalComponent,
@@ -23,6 +24,7 @@ import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibi
 import type { updateUrlParameter as UpdateUrlParameter } from '@/utils/updateUrlParameter';
 
 declare global {
+  // Alpine.js
   var Alpine: Alpine;
   var assetUrl: string;
   var autoExpandTextInput: typeof AutoExpandTextInput;
@@ -47,4 +49,7 @@ declare global {
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;
   var updateUrlParameter: typeof UpdateUrlParameter;
+
+  // Inertia
+  var route: typeof ziggyRoute;
 }
