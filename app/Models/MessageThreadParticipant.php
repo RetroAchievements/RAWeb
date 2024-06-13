@@ -26,6 +26,14 @@ class MessageThreadParticipant extends BaseModel
     // == relations
 
     /**
+     * @return BelongsTo<User, MessageThreadParticipant>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'ID');
+    }
+
+    /**
      * @return BelongsTo<MessageThread, MessageThreadParticipant>
      */
     public function thread(): BelongsTo

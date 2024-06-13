@@ -9,6 +9,7 @@ use App\Enums\Permissions;
 use App\Models\Comment;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserComment;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Database\Eloquent\Model;
 
@@ -57,11 +58,8 @@ class CommentPolicy
             return false;
         }
 
-        // users cannnot comment on the wall of a user who has them blocked
         if ($commentable !== null && $commentable instanceof User) {
-            if ($commentable->isBlocking($user)) {
-                return false;
-            }
+            return $user->can('create', [UserComment::class, $commentable]);
         }
 
         return true;
