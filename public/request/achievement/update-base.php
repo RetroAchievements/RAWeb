@@ -22,23 +22,23 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 $achievement = Achievement::find($input['achievement']);
 
 // Only allow jr. devs to update base data if they are the author
-if ($permissions == Permissions::JuniorDeveloper && $user != $achievement['Author']) {
+if ($permissions === Permissions::JuniorDeveloper && $user !== $achievement->developer?->User) {
     abort(403);
 }
 
-$achievementId = $achievement['ID'];
+$achievementId = $achievement->id;
 
 if (UploadNewAchievement(
     authorUsername: $user,
-    gameID: $achievement['GameID'],
+    gameID: $achievement->GameID,
     title: $input['title'],
     desc: $input['description'],
     points: $input['points'],
     type: $input['type'] ?? null,
-    mem: $achievement['MemAddr'],
-    flag: $achievement['Flags'],
+    mem: $achievement->MemAddr,
+    flag: $achievement->Flags,
     idInOut: $achievementId,
-    badge: $achievement['BadgeName'],
+    badge: $achievement->BadgeName,
     errorOut: $errorOut
 )) {
     return response()->json(['message' => __('legacy.success.achievement_update')]);
