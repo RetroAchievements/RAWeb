@@ -28,6 +28,7 @@
  *  array      Unlocks                  requested unlock information
  *   string     User                    user who unlocked the achievement
  *   string     RAPoints                number of points the user has
+ *   string     RASoftcorePoints        number of softcore points the user has
  *   datetime   DateAwarded             when the achievement was unlocked
  *   string     HardcoreMode            "1" if unlocked in hardcore, otherwise "0"
  */

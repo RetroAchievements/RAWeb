@@ -64,23 +64,20 @@ render(function (View $view, Game $game) {
         </div>
 
         <div class="mb-6 flex gap-x-4">
-            <x-alert variant="destructive">
-                <x-slot name="title">Warning</x-slot>
-                <x-slot name="description">
-                    <div class="flex flex-col">
-                        <p>
-                            PLEASE be careful when using this tool. Mistakes can cause a lot of tickets to be created.
-                        </p>
+            <x-alert variant="destructive" title="Warning">
+                <div class="flex flex-col">
+                    <p>
+                        PLEASE be careful when using this tool. Mistakes can cause a lot of tickets to be created.
+                    </p>
 
-                        <p>
-                            If you're not <span class="underline font-semibold">100% sure</span> of what you're doing,
-                            <a href="{{ route('message.create') . '?to=RAdmin&subject=Help+with+Hash+Management+for+' . urlencode($game->title) . '&message=%5Bgame=' . $game->ID . '%5D' }}">
-                                contact RAdmin
-                            </a>
-                            and they'll help you out.
-                        </p>
-                    </div>
-                </x-slot>
+                    <p>
+                        If you're not <span class="underline font-semibold">100% sure</span> of what you're doing,
+                        <a href="{{ route('message.create') . '?to=RAdmin&subject=Help+with+Hash+Management+for+' . urlencode($game->title) . '&message=%5Bgame=' . $game->ID . '%5D' }}">
+                            contact RAdmin
+                        </a>
+                        and they'll help you out.
+                    </p>
+                </div>
             </x-alert>
         </div>
 
