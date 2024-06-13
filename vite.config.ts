@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
     // https://vitejs.dev/config/#plugins
     plugins: [
       laravel({
-        input: ['resources/css/app.css', 'resources/js/app.ts'],
+        input: ['resources/css/app.css', 'resources/js/tall-stack/app.ts'],
         refresh: ['resources/views/**'],
       }),
     ],

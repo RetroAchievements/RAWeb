@@ -7,7 +7,7 @@ import type {
   newsCarouselComponent as NewsCarouselComponent,
   toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
-} from '@/alpine';
+} from '@/tall-stack/alpine';
 import { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
 import type {
   deleteCookie as DeleteCookie,
