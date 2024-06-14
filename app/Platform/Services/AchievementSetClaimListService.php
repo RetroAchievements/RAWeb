@@ -188,9 +188,11 @@ class AchievementSetClaimListService
         ];
     }
 
-    public function getSorts(bool $withDeveloper = true, bool $withExpiring = true): array
+    public function getSorts(bool $withDeveloper = true, bool $withExpiring = true, bool $withGame = true): array
     {
-        $sorts['title'] = 'Game Title';
+        if ($withGame) {
+            $sorts['title'] = 'Game Title';
+        }
 
         if ($withDeveloper) {
             $sorts['developer'] = 'Developer';
