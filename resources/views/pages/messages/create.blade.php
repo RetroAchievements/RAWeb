@@ -50,6 +50,9 @@ render(function (View $view) {
                     requiredSilent
                     inline
                 />
+                @if ($templateKind)
+                    <input type="hidden" name="recipient" value="{{ $toUser }}">
+                @endif
 
                 <x-base.form.input
                     :disabled="!!$templateKind"
@@ -59,6 +62,9 @@ render(function (View $view) {
                     requiredSilent
                     inline
                 />
+                @if ($templateKind)
+                    <input type="hidden" name="title" value="{!! $subject !!}">
+                @endif
                 
                 <x-base.form.textarea
                     id="input_compose"
