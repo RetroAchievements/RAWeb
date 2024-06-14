@@ -152,10 +152,6 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
 
 function editTopicComment(int $commentID, string $newPayload): bool
 {
-    $newPayload = str_replace("'", "''", $newPayload);
-    $newPayload = str_replace("<", "&lt;", $newPayload);
-    $newPayload = str_replace(">", "&gt;", $newPayload);
-
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
