@@ -150,26 +150,15 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
     return true;
 }
 
-function editTopicComment(int $commentID, string $newPayload): bool
+function editTopicComment(int $commentId, string $newPayload): void
 {
-    $newPayload = str_replace("'", "''", $newPayload);
-    $newPayload = str_replace("<", "&lt;", $newPayload);
-    $newPayload = str_replace(">", "&gt;", $newPayload);
-
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $newPayload = normalize_shortcodes($newPayload);
 
-    $query = "UPDATE ForumTopicComment SET Payload = '$newPayload' WHERE ID=$commentID";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);    // TBD: unprotected to allow all characters..
-    if ($dbResult !== false) {
-        return true;
-    }
-    log_sql_fail();
-
-    return false;
+    $comment = ForumTopicComment::findOrFail($commentId);
+    $comment->Payload = $newPayload;
+    $comment->save();
 }
 
 function getIsForumDoublePost(
