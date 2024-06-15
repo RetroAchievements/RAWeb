@@ -11,6 +11,7 @@ return new class() extends Migration {
     {
         Schema::table('player_games', function (Blueprint $table) {
             $table->unsignedInteger('achievements_unlocked_softcore')
+                ->after('achievements_unlocked_hardcore')
                 ->nullable();
             $table->index(['game_id', 'achievements_unlocked_softcore']);
         });

@@ -77,6 +77,7 @@ class UpdatePlayerGameMetrics
             'achievements_total' => $game->achievements_published,
             'achievements_unlocked' => $achievementsUnlockedCount,
             'achievements_unlocked_hardcore' => $achievementsUnlockedHardcoreCount,
+            'achievements_unlocked_softcore' => $achievementsUnlockedSoftcoreCount,
             'last_played_at' => $lastPlayedAt,
             // 'playtime_total' => $playtimeTotal,
             'time_taken' => $timeTaken,
@@ -91,7 +92,6 @@ class UpdatePlayerGameMetrics
             'points_weighted_total' => $game->TotalTruePoints,
             'points_weighted' => $pointsWeighted,
             'created_at' => $createdAt,
-            'achievements_unlocked_softcore' => $achievementsUnlockedSoftcoreCount,
         ]);
 
         $playerGame->fill($this->beatProgressMetrics($playerGame, $achievementsUnlocked));
