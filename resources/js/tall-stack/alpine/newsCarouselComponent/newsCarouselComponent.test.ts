@@ -11,7 +11,7 @@ import {
   vi,
 } from 'vitest';
 
-import { newsCarouselComponent } from '@/alpine';
+import { newsCarouselComponent } from '@/tall-stack/alpine';
 
 function render() {
   (Element as any).prototype.scrollTo = vi.fn();

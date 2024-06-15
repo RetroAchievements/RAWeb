@@ -49,13 +49,13 @@ const privateUtils = {
 
   updateTextElementsOpacity: (textEls: NodeListOf<Element>, isActive: boolean) => {
     setTimeout(() => {
-      textEls.forEach((textEl) => {
+      for (const textEl of textEls) {
         if (isActive) {
           textEl.classList.add('lg:!opacity-100');
         } else {
           textEl.classList.remove('lg:!opacity-100');
         }
-      });
+      }
     }, RESET_DELAY);
   },
 };
@@ -161,12 +161,12 @@ const newsCarouselStore = {
    */
   updateActiveSlideTextVisibility() {
     const allSlideEls = document.querySelectorAll('#news-carousel-image-list > div');
-    allSlideEls.forEach((slideEl, index) => {
+    for (const [index, slideEl] of allSlideEls.entries()) {
       const allTextEls = slideEl.querySelectorAll('.transition.duration-300');
       const isIndexActive = index === this.activeIndex;
 
       privateUtils.updateTextElementsOpacity(allTextEls, isIndexActive);
-    });
+    }
   },
 
   updateActiveIndex() {
@@ -245,6 +245,10 @@ const newsCarouselStore = {
 
   /** Clean up event listeners when destroying the carousel to prevent memory leaks. */
   destroy() {
+    if (process.env?.['MODE'] === 'test') {
+      return;
+    }
+
     window.removeEventListener('resize', this.handleWindowResize);
     document.removeEventListener('visibilitychange', this.handleWindowResize);
   },

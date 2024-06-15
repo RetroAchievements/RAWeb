@@ -1,4 +1,5 @@
 import type { Alpine } from 'alpinejs';
+import type { route as routeFn } from 'ziggy-js';
 
 import type {
   modalComponent as ModalComponent,
@@ -6,8 +7,8 @@ import type {
   newsCarouselComponent as NewsCarouselComponent,
   toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
-} from '@/alpine';
-import { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
+} from '@/tall-stack/alpine';
+import type { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
 import type {
   deleteCookie as DeleteCookie,
   getCookie as GetCookie,
@@ -23,6 +24,7 @@ import type { toggleUserCompletedSetsVisibility as ToggleUserCompletedSetsVisibi
 import type { updateUrlParameter as UpdateUrlParameter } from '@/utils/updateUrlParameter';
 
 declare global {
+  // Alpine.js
   var Alpine: Alpine;
   var assetUrl: string;
   var autoExpandTextInput: typeof AutoExpandTextInput;
@@ -47,4 +49,7 @@ declare global {
   var toggleUserCompletedSetsVisibility: typeof ToggleUserCompletedSetsVisibility;
   var tooltipComponent: typeof TooltipComponent;
   var updateUrlParameter: typeof UpdateUrlParameter;
+
+  // Inertia
+  var route: typeof routeFn;
 }

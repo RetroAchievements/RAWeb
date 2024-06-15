@@ -1,5 +1,5 @@
 <x-header fluid>
-    {{ $header }}
+    {{ $header ?? '' }}
 </x-header>
 @if(trim($breadcrumb ?? null))
     <x-container>

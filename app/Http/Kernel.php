@@ -44,6 +44,7 @@ class Kernel extends HttpKernel
             Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             Middleware\UserPreferences::class,
+            Middleware\HandleInertiaRequests::class,
             // TODO Web Interceptor middleware
             // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.':web',
         ],
