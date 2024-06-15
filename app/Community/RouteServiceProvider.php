@@ -35,7 +35,9 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'csp'])
             ->group(function () {
-                Route::get('forums/recent-posts2', [ForumTopicCommentController::class, 'showRecentPosts'])->name('forum.recent-posts2');
+                Route::middleware(['inertia'])->group(function () {
+                    Route::get('forums/recent-posts2', [ForumTopicCommentController::class, 'showRecentPosts'])->name('forum.recent-posts2');
+                });
 
                 /*
                  * shallow comment routes - keep comments at the root level, not nested (topic.comment, user.comment, achievement.comment)

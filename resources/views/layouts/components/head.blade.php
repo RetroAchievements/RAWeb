@@ -43,7 +43,7 @@
 
     @routes
     @viteReactRefresh
-    @vite(['resources/js/tall-stack/app.ts', 'resources/css/app.css', 'resources/js/app.tsx'], config('vite.build_path'))
+    @vite(['resources/js/tall-stack/app.ts', 'resources/css/app.css'], config('vite.build_path'))
     @if (!empty($page))
         @inertiaHead
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"], config('vite.build_path'))
