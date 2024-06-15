@@ -85,7 +85,7 @@ render(function (View $view, Game $game) {
     </div>
 
     @if ($userClaimsCount === 0)
-        {{ $user->display_name }} hasn't been claimed.
+        {{ $game->title }} hasn't been claimed.
     @else
         <x-meta-panel
             :availableSelectFilters="$availableSelectFilters"
