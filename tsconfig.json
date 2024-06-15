@@ -10,6 +10,7 @@
       "esModuleInterop": true,
       "forceConsistentCasingInFileNames": true,
       "noEmit": true,
+      "types": ["vitest/globals"],
       "paths": {
         "@/*": ["./resources/js/*"],
         "ziggy-js": ["./vendor/tightenco/ziggy"]

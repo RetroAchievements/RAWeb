@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: 'resources/js/setupTests.ts',
       include: ['resources/js/**/*.{test,spec}.ts'],
+      globals: true,
     },
     // @ see https://vitejs.dev/config/#server-options
     server: detectServerConfig(env),
