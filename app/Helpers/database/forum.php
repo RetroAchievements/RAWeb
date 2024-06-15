@@ -393,8 +393,6 @@ function getRecentForumPosts(
             $post['ShortMsg'] = mb_substr($post['Payload'], 0, $numMessageChars);
             $post['IsTruncated'] = mb_strlen($post['Payload']) > $numMessageChars;
 
-            // TODO strip and clamp
-
             return $post;
         });
 }
