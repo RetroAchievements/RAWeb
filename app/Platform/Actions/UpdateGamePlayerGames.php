@@ -26,10 +26,6 @@ class UpdateGamePlayerGames
         // Note: this might dispatch multiple thousands of jobs depending on a game's players count
         // add all affected player games to the update queue in batches
         $game->playerGames()
-            ->where(function ($query) use ($game) {
-                $query->whereNot('achievement_set_version_hash', '=', $game->achievement_set_version_hash)
-                    ->orWhereNull('achievement_set_version_hash');
-            })
             ->chunkById(1000, function (Collection $chunk, $page) use ($game) {
                 // map and dispatch this chunk as a batch of jobs
                 Bus::batch(
