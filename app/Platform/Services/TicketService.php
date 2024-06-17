@@ -11,7 +11,6 @@ use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\User;
 
-
 class TicketService
 {
     public int $unlocksSinceReported = 0;
