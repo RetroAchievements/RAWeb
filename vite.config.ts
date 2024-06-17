@@ -6,7 +6,7 @@ import { homedir } from 'os';
 import { resolve } from 'path';
 import { defineConfig, loadEnv } from 'vite';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   if (!env.VITE_BUILD_PATH) {
@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
   return {
     // https://vitejs.dev/config/#build-options
     build: {
-      outDir: `public/${env.VITE_BUILD_PATH}`,
+      outDir: isSsrBuild ? 'bootstrap/ssr' : `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
       assetsInlineLimit: 4096,
     },
