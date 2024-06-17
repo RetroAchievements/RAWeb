@@ -148,6 +148,13 @@ $permissions = $user->getAttribute('Permissions');
                     @if (empty($activity->sessions))
                         {{ $ticket->reporter->User }} has not earned any achievements for this game.
                     @else
+                        <x-alert title="Warning">
+                            <p>
+                                Timestamps are captured when the server receives the request. A player experiencing
+                                network issues may have an unusual sequence of unlocks within a small period of time.
+                            </p>
+                        </x-alert>
+
                         <x-user.game-activity
                             :game="$ticket->achievement->game"
                             :user="$user"
