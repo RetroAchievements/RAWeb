@@ -940,7 +940,7 @@ function modifyGameRichPresence(string $username, int $gameId, string $dataIn): 
     return true;
 }
 
-function getRichPresencePatch(int $gameId, ?array &$dataOut): bool
+function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
 {
     $game = Game::find($gameId);
     if (!$game) {
