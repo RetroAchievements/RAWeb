@@ -18,9 +18,14 @@ class TicketViewService
     public array $closedTickets = [];
     public string $contactReporterUrl = '';
     public ?PlayerAchievement $existingUnlock = null;
-    public ?PlayerGameActivityService $activity = null;
-    public ?UserAgentService $userAgentService = null;
     public string $ticketNotes = '';
+
+    public function __construct(
+        public PlayerGameActivityService $activity = new PlayerGameActivityService(),
+        public UserAgentService $userAgentService = new UserAgentService(),
+    ) {
+
+    }
 
     public function load(Ticket $ticket): void
     {
@@ -69,8 +74,6 @@ class TicketViewService
 
     public function buildHistory(Ticket $ticket, User $user): void
     {
-        $this->activity = new PlayerGameActivityService();
-        $this->userAgentService = new UserAgentService();
         $this->clients = [];
 
         $canManageTicket = $user->can('manage', Ticket::class);
