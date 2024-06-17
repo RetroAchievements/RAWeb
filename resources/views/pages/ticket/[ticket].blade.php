@@ -19,8 +19,8 @@ render(function (View $view, Ticket $ticket) {
         'unlocksSinceReported' => $ticketService->unlocksSinceReported,
         'openTicketLinks' => $ticketService->openTicketLinks,
         'closedTicketLinks' => $ticketService->closedTicketLinks,
-        'userAgentLinks' => $ticketService->userAgentLinks,
-        'history' => $ticketService->history,
+        'activity' => $ticketService->activity,
+        'userAgentService' => $ticketService->userAgentService,
         'contactReporterUrl' => $ticketService->contactReporterUrl,
         'existingUnlock' => $ticketService->existingUnlock,
         'ticketNotes' => $ticketService->ticketNotes,
@@ -34,8 +34,8 @@ render(function (View $view, Ticket $ticket) {
     'unlocksSinceReported' => 0,
     'openTicketLinks' => [],
     'closedTicketLinks' => [],
-    'userAgentLinks' => [],
-    'history' => [],
+    'activity' => null, // ?PlayerGameActivityService
+    'userAgentService' => null, // ?UserAgentService
     'contactReporterUrl' => '',
     'existingUnlock' => null, // ?PlayerAchievement
     'ticketNotes' => '',
@@ -138,49 +138,22 @@ $permissions = $user->getAttribute('Permissions');
 
             <div class="relative w-full p-2 bg-embed rounded">
                 <div class="w-full relative flex gap-x-3">
-                @if (empty($userAgentLinks))
-                    <span class="text-muted">No client data available</span>
-                @else
-                    <span>
-                        <span class="font-bold">Clients used:</span>
-                        <span>{!! implode(', ', $userAgentLinks) !!}</span>
-                    </span>
-                @endif
+                    <x-user.client-list :clients="$activity->getClientBreakdown($userAgentService)" />
 
                     <button id="unlockHistoryButton" class="absolute bottom-0 right-0 btn"
                             onclick="toggleExpander('unlockHistoryButton', 'unlockHistoryContent')">Unlock History ▼</button>
                 </div>
 
                 <div id="unlockHistoryContent" class="hidden devboxcontainer">
-                    @if (empty($history))
+                    @if (empty($activity->sessions))
                         {{ $ticket->reporter->User }} has not earned any achievements for this game.
                     @else
-                        <table class="do-not-highlight">
-                            <tbody>
-                                @foreach ($history as $event)
-                                    <tr>
-                                        <td style="width: 15%">
-                                            <span>&nbsp;</span>
-                                            <span class="smalldate">{{ $event['when']->format("Y-m-d H:i:s") }}</span>
-                                        </td>
-                                        <td style="width: 85%">
-                                            @if ($event['type'] === PlayerGameActivityEventType::Unlock)
-                                                @php $achievement = $event['achievement'] @endphp
-                                                {!! achievementAvatar($achievement) !!}
-                                                @if ($event['unlocker'] ?? null)
-                                                    (unlocked by {!! userAvatar($event['unlocker'], label:true, icon:false) !!})
-                                                @endif
-                                                @if ($achievement['ID'] === $ticket->achievement->id)
-                                                    (reported achievement)
-                                                @endif
-                                            @else
-                                                Ticket created - {{ TicketType::toString($ticket->ReportType) }}
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <x-user.game-activity
+                            :game="$ticket->achievement->game"
+                            :user="$user"
+                            :activity="$activity"
+                            :userAgentService="$userAgentService"
+                        />
                     @endif
                 </div>
 

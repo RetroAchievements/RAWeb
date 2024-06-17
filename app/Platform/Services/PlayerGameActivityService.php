@@ -117,6 +117,24 @@ class PlayerGameActivityService
         $this->sessions[$existingSessionIndex]['events'][] = $event;
     }
 
+    public function addCustomEvent(Carbon $when, string $description, string $header = ''): void
+    {
+        $event = [
+            'type' => PlayerGameActivityEventType::Custom,
+            'header' => $header,
+            'description' => $description,
+            'when' => $when,
+        ];
+
+        $existingSessionIndex = $this->findSession(PlayerGameActivitySessionType::Player, $when);
+        if ($existingSessionIndex < 0) {
+            $existingSessionIndex = $this->generateSession(PlayerGameActivitySessionType::Generated, $when);
+        }
+
+        $this->sessions[$existingSessionIndex]['events'][] = $event;
+        $this->sortEvents($this->sessions[$existingSessionIndex]['events']);
+    }
+
     private function sortEvents(array &$events): void
     {
         usort($events, function ($a, $b) {
@@ -279,5 +297,49 @@ class PlayerGameActivityService
             // total time from all sessions (including those before the first or after the last earned achievement)
             'totalPlaytime' => $totalTime,
         ];
+    }
+
+    // returns array of ['agents' => [], 'duration' => 0, 'durationPercentage' => 0.0]
+    public function getClientBreakdown(UserAgentService $userAgentService): array
+    {
+        $clients = [];
+
+        foreach ($this->sessions as $session) {
+            if ($session['userAgent'] ?? null) {
+                $userAgent = $session['userAgent'];
+
+                $decoded = $userAgentService->decode($userAgent);
+                $client = $decoded['client'];
+                if ($decoded['clientVersion'] !== 'Unknown') {
+                    $client .= ' (' . $decoded['clientVersion'] . ')';
+                }
+                if (array_key_exists('clientVariation', $decoded)) {
+                    $client .= ' - ' . $decoded['clientVariation'];
+                }
+
+                if (in_array($client, $clients)) {
+                    $clients[$client]['duration'] = $clients[$client]['duration'] + $session['duration'];
+                    if (!in_array($userAgent, $clients[$client]['agents'])) {
+                        $this->clients[$client]['agents'][] = $userAgent;
+                    }
+                } else {
+                    $clients[$client] = [
+                        'agents' => [$userAgent],
+                        'duration' => $session['duration'],
+                    ];
+                }
+            }
+        }
+
+        $totalDuration = 0;
+        foreach ($clients as $client) {
+            $totalDuration += $client['duration'];
+        }
+
+        foreach ($clients as &$client) {
+            $client['durationPercentage'] = ($totalDuration > 0) ? round($client['duration'] * 100 / $totalDuration, 1) : 0.0;
+        }
+
+        return $clients;
     }
 }
