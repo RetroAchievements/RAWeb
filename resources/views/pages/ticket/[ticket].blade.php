@@ -1,16 +1,47 @@
 <?php
 
 use App\Models\Ticket;
-use function Laravel\Folio\{middleware, name};
+use App\Platform\Services\TicketService;
+use Illuminate\View\View;
+
+use function Laravel\Folio\{middleware, name, render};
 
 middleware(['auth', 'can:view,ticket']);
 name('ticket.show');
 
+render(function (View $view, Ticket $ticket) {
+    $ticketService = new TicketService();
+    $ticketService->load($ticket);
+    $ticketService->buildHistory($ticket, Auth::user());
+    
+    return $view->with([
+        'ticket' => $ticket,
+        'unlocksSinceReported' => $ticketService->unlocksSinceReported,
+        'openTicketLinks' => $ticketService->openTicketLinks,
+        'closedTicketLinks' => $ticketService->closedTicketLinks,
+        'userAgentLinks' => $ticketService->userAgentLinks,
+        'history' => $ticketService->history,
+        'contactReporterUrl' => $ticketService->contactReporterUrl,
+        'existingUnlock' => $ticketService->existingUnlock,
+        'ticketNotes' => $ticketService->ticketNotes,
+    ]);
+});
+
 ?>
 
-@php
+@props([
+    'ticket' => null, // ?Ticket
+    'unlocksSinceReported' => 0,
+    'openTicketLinks' => [],
+    'closedTicketLinks' => [],
+    'userAgentLinks' => [],
+    'history' => [],
+    'contactReporterUrl' => '',
+    'existingUnlock' => null, // ?PlayerAchievement
+    'ticketNotes' => '',
+])
 
-// TODO migrate all this to a service and use it in a Folio render hook
+@php
 
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketAction;
@@ -18,132 +49,17 @@ use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\Permissions;
 use App\Enums\PlayerGameActivityEventType;
-use App\Models\Achievement;
-use App\Models\PlayerAchievement;
 use App\Models\User;
-use App\Platform\Services\PlayerGameActivityService;
 use App\Platform\Services\TriggerDecoderService;
-use App\Platform\Services\UserAgentService;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
-$ticketID = $ticket->ID;
-
-$user = request()->user();
-if (!$user) {
-    abort(401);
-}
+$user = Auth::user();
 $permissions = $user->getAttribute('Permissions');
 
-$msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
-if ($ticket->reporter) {
-    $msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->ID}]";
-    $msgPayload = rawurlencode($msgPayload);
-    $contactReporterUrl = route('message.create') . "?to={$ticket->reporter->User}&subject=$msgTitle&message=$msgPayload";
-
-    $existingUnlock = PlayerAchievement::where('user_id', $ticket->reporter->id)
-        ->where('achievement_id', $ticket->achievement->id)
-        ->first();
-
-    $openTicketLinks = [];
-    $closedTicketLinks = [];
-    $achievementTickets = Ticket::where('AchievementID', $ticket->achievement->id);
-    foreach ($achievementTickets->get() as $otherTicket) {
-        if ($otherTicket->ID !== $ticket->ID) {
-            $url = '<a href="' . route('ticket.show', ['ticket' => $otherTicket]) . '">' . $otherTicket->ID . '</a>';
-            if (TicketState::isOpen($otherTicket->ReportState)) {
-                $openTicketLinks[] = $url;
-            } else {
-                $closedTicketLinks[] = $url;
-            }
-        }
-    }
-}
-
-$unlocksSinceReported = 0;
-if (TicketState::isOpen($ticket->ReportState)) {
-    $unlocksSinceReported = PlayerAchievement::where('achievement_id', $ticket->achievement->id)
-        ->where(function($query) use ($ticket) {
-            $query->where('unlocked_at', '>', $ticket->ReportedAt)
-                ->orWhere('unlocked_hardcore_at', '>', $ticket->ReportedAt);
-        })->count();
-}
-
-$ticketType = TicketType::toString($ticket->ReportType);
-$ticketSummary = "{$ticket->achievement->Title} ($ticketType)";
-
-$ticketState = TicketState::toString($ticket->ReportState);
-$ticketMode = $ticket->Hardcore ? "Hardcore" : "Softcore";
-
-$ticketNotes = nl2br($ticket->ReportNotes);
-foreach ($ticket->achievement->game->hashes as $hash) {
-    if (stripos($ticketNotes, $hash->md5) !== false) {
-        $replacement = '<a href="/linkedhashes.php?g=' . $ticket->achievement->game->id . '" title="' .
-            attributeEscape($hash->name) . '">' . $hash->md5 . '</a>';
-        $ticketNotes = str_ireplace($hash->md5, $replacement, $ticketNotes);
-    }
-}
-
-$canManageTicket = $user->can('manage', Ticket::class);
-if (!$canManageTicket) {
-    $history = [];
-    $userAgentLinks = [];
-} elseif ($ticket->reporter) {
-    $userAgentService = new UserAgentService();
-    $activity = new PlayerGameActivityService();
-    $activity->initialize($ticket->reporter, $ticket->achievement->game);
-
-    $userAgents = [];
-    $history = [];
-    foreach ($activity->sessions as $session) {
-        if ($session['userAgent'] ?? null) {
-            if (!in_array($session['userAgent'], $userAgents)) {
-                $userAgents[] = $session['userAgent'];
-            }
-        }
-        foreach ($session['events'] as $event) {
-            if ($event['type'] === PlayerGameActivityEventType::Unlock) {
-                $history[] = $event;
-            }
-        }
-    }
-    $history[] = [
-        'type' => 'ticket',
-        'when' => $ticket->ReportedAt,    
-    ];
-    usort($history, function ($a, $b) {
-        $diff = $b['when']->timestamp - $a['when']->timestamp;
-        if ($diff === 0) {
-            // two events at same time should be sub-sorted by ID
-            $diff = ($a['ID'] ?? 0) - ($b['ID'] ?? 0);
-        }
-
-        return $diff;
-    });
-
-    $clients = [];
-    foreach ($userAgents as $userAgent) {
-        $decoded = $userAgentService->decode($userAgent);
-        $client = $decoded['client'];
-        if ($decoded['clientVersion'] !== 'Unknown') {
-            $client .= ' (' . $decoded['clientVersion'] . ')';
-        }
-        if (array_key_exists('clientVariation', $decoded)) {
-            $client .= ' - ' . $decoded['clientVariation'];
-        }
-        $clients[$client][] = $userAgent;
-    }
-    $userAgentLinks = [];
-    foreach ($clients as $client => $agents) {
-        $userAgentLinks[] = "<span title=\"" . implode("\n", $agents) . "\">$client</span>";
-    }
-}
-
-$pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
 @endphp
 
 <x-app-layout
-    pageTitle="{{ $pageTitle }}"
+    pageTitle="Ticket {{ $ticket->ID }}: {{ $ticket->achievement->Title }} ({{ TicketType::toString($ticket->ReportType) }})"
     pageDescription="{{ $ticket->achievement->Description }}"
     pageImage="{{ media_asset('/Badge/' . $ticket->achievement->BadgeName . '.png') }}"
     pageType="retroachievements:ticket"
@@ -158,18 +74,18 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
 
     <div class="mt-3 mb-1 w-full flex gap-x-3">
         {!! achievementAvatar($ticket->achievement, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">{{ $ticketSummary }}</h1>
+        <h1 class="mt-[10px] w-full">{{ $ticket->achievement->Title }} ({{ TicketType::toString($ticket->ReportType) }})</h1>
     </div>
 
     <div class="grid md:grid-cols-2 gap-x-12 gap-y-1">
         <div class="flex flex-col gap-y-1">
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">Ticket Information</p>
             <div class="relative w-full p-2 bg-embed rounded">
-                <x-ticket.stat-element label="State">{{ $ticketState }}</x-ticket.stat-element>
+                <x-ticket.stat-element label="State">{{ TicketState::toString($ticket->ReportState) }}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reporter">{!! userAvatar($ticket->reporter ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
                 <x-ticket.stat-element label="Reported at">{{ getNiceDate($ticket->ReportedAt->unix()) }}</x-ticket.stat-element>
-                <x-ticket.stat-element label="Report type">{{ $ticketType }}</x-ticket.stat-element>
-                <x-ticket.stat-element label="Mode">{{ $ticketMode }}</x-ticket.stat-element>
+                <x-ticket.stat-element label="Report type">{{ TicketType::toString($ticket->ReportType) }}</x-ticket.stat-element>
+                <x-ticket.stat-element label="Mode">{{ $ticket->Hardcore ? "Hardcore" : "Softcore" }}</x-ticket.stat-element>
                 @if (!TicketState::isOpen($ticket->ReportState))
                     @if ($ticket->resolver)
                         <x-ticket.stat-element label="Resolved by">{!! userAvatar($ticket->resolver ?? 'Deleted User', iconSize: 16) !!}</x-ticket.stat-element>
@@ -211,7 +127,8 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
         </div>
     </div>
 
-    @if ($canManageTicket && $ticket->reporter)
+    @if ($ticket->reporter)
+      @can('manage', Ticket::class)
         <div class="mt-2">
             <div class="flex w-full justify-between border-embed-highlight items-center">
                 <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
@@ -257,7 +174,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                                                     (reported achievement)
                                                 @endif
                                             @else
-                                                Ticket created - {{ $ticketType }}
+                                                Ticket created - {{ TicketType::toString($ticket->ReportType) }}
                                             @endif
                                         </td>
                                     </tr>
@@ -311,6 +228,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                 </div>
             </div>
         </div>
+      @endcan
     @endif
 
     <div class="mt-2">
@@ -318,12 +236,14 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             <p role="heading" aria-level="2" class="mb-0.5 text-2xs font-bold">
                 Comments
             </p>
-            @if ($canManageTicket && $ticket->reporter)
-                <div class="flex flex-col gap-y-1">
-                    <a class="btn" href="{!! $contactReporterUrl !!}">
-                        Message the reporter
-                    </a>
-                </div>
+            @if ($ticket->reporter)
+                @can('manage', Ticket::class)
+                    <div class="flex flex-col gap-y-1">
+                        <a class="btn" href="{!! $contactReporterUrl !!}">
+                            Message the reporter
+                        </a>
+                    </div>
+                @endcan
             @endif
         </div>
 
@@ -403,7 +323,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                     <input type="hidden" name="action" value="{{ TicketAction::Reopen }}">
                     <button class='btn'>Reopen this ticket</button>
                 @endif
-            @elseif ($user?->id === $ticket->reporter->id)
+            @elseif ($user->id === $ticket->reporter->id)
                 @if (TicketState::isOpen($ticket->ReportState))
                     <input type="hidden" name="action" value="{{ TicketAction::ClosedMistaken }}">
                     <button class='btn'>Close as mistaken report</button>
@@ -411,7 +331,7 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
             @endif
         </form>
 
-        @if ($canManageTicket)
+        @can('manage', Ticket::class)
             <div class="mt-4 w-full relative flex gap-x-3">
                 <button id="achievementLogicButton" class="btn"
                         onclick="toggleExpander('achievementLogicButton', 'achievementLogicContent')">Achievement Logic ▼</button>
@@ -436,6 +356,6 @@ $pageTitle = "Ticket {$ticket->ID}: $ticketSummary";
                     <x-trigger.viewer :groups="$groups" />
                 </div>
             </div>
-        @endif
+        @endcan
     </div>
 </x-app-layout>
