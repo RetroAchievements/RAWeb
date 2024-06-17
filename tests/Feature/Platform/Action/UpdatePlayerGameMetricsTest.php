@@ -25,9 +25,7 @@ class UpdatePlayerGameMetricsTest extends TestCase
 
     public function testMetrics(): void
     {
-        User::factory()->count(1)->create();
-
-        $user = User::first();
+        $user = User::factory()->create();
         $game = $this->seedGame(withHash: false);
 
         Achievement::factory()->published()->count(1)->create(['GameID' => $game->id, 'Points' => 3]);
