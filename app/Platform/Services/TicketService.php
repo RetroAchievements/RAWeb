@@ -89,7 +89,7 @@ class TicketService
             foreach ($session['events'] as &$event) {
                 if ($event['type'] === PlayerGameActivityEventType::Unlock
                     && $event['id'] === $ticket->achievement->id) {
-                    $event['note'] = 'ticketed achievement';
+                    $event['note'] = 'reported achievement';
                 }
             }
         }
