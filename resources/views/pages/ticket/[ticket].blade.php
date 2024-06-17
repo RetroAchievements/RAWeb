@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Ticket;
-use App\Platform\Services\TicketService;
+use App\Platform\Services\TicketViewService;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
@@ -10,15 +10,15 @@ middleware(['auth', 'can:view,ticket']);
 name('ticket.show');
 
 render(function (View $view, Ticket $ticket) {
-    $ticketService = new TicketService();
+    $ticketService = new TicketViewService();
     $ticketService->load($ticket);
     $ticketService->buildHistory($ticket, Auth::user());
     
     return $view->with([
         'ticket' => $ticket,
         'unlocksSinceReported' => $ticketService->unlocksSinceReported,
-        'openTicketLinks' => $ticketService->openTicketLinks,
-        'closedTicketLinks' => $ticketService->closedTicketLinks,
+        'openTickets' => $ticketService->openTickets,
+        'closedTickets' => $ticketService->closedTickets,
         'activity' => $ticketService->activity,
         'userAgentService' => $ticketService->userAgentService,
         'contactReporterUrl' => $ticketService->contactReporterUrl,
@@ -32,8 +32,8 @@ render(function (View $view, Ticket $ticket) {
 @props([
     'ticket' => null, // ?Ticket
     'unlocksSinceReported' => 0,
-    'openTicketLinks' => [],
-    'closedTicketLinks' => [],
+    'openTickets' => [],
+    'closedTickets' => [],
     'activity' => null, // ?PlayerGameActivityService
     'userAgentService' => null, // ?UserAgentService
     'contactReporterUrl' => '',
@@ -110,17 +110,25 @@ $permissions = $user->getAttribute('Permissions');
                     @endif
 
                     @php $label = TicketState::isOpen($ticket->ReportState) ? 'Other open tickets' : 'Open tickets' @endphp
-                    @if (empty($openTicketLinks))
+                    @if (empty($openTickets))
                         <x-ticket.stat-element label="{{ $label }}"><span class="text-muted">None</span></x-ticket.stat-element>
                     @else
-                        <x-ticket.stat-element label="{{ $label }} ({{ count($openTicketLinks) }})">{!! implode(', ', $openTicketLinks) !!}</x-ticket.stat-element>
+                        <x-ticket.stat-element label="{{ $label }} ({{ count($openTickets) }})">
+                            @foreach ($openTickets as $ticketId)
+                                <a href="{{ route('ticket.show', ['ticket' => $ticketId])}}">{!! $ticketId !!}</a>{{ $loop->last ? '' : ', ' }}
+                            @endforeach
+                        </x-ticket.stat-element>
                     @endif
         
                     @php $label = TicketState::isOpen($ticket->ReportState) ? 'Closed tickets' : 'Other closed tickets' @endphp
-                    @if (empty($closedTicketLinks))
+                    @if (empty($closedTickets))
                         <x-ticket.stat-element label="{{ $label }}"><span class="text-muted">None</span></x-ticket.stat-element>
                     @else
-                        <x-ticket.stat-element label="{{ $label }} ({{ count($closedTicketLinks) }})">{!! implode(', ', $closedTicketLinks) !!}</x-ticket.stat-element>
+                        <x-ticket.stat-element label="{{ $label }} ({{ count($closedTickets) }})">
+                            @foreach ($closedTickets as $ticketId)
+                                <a href="{{ route('ticket.show', ['ticket' => $ticketId])}}">{!! $ticketId !!}</a>{{ $loop->last ? '' : ', ' }}
+                            @endforeach
+                        </x-ticket.stat-element>
                     @endif
                 </div>
             </p>

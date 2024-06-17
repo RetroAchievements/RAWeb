@@ -11,11 +11,11 @@ use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\User;
 
-class TicketService
+class TicketViewService
 {
     public int $unlocksSinceReported = 0;
-    public array $openTicketLinks = [];
-    public array $closedTicketLinks = [];
+    public array $openTickets = [];
+    public array $closedTickets = [];
     public string $contactReporterUrl = '';
     public ?PlayerAchievement $existingUnlock = null;
     public ?PlayerGameActivityService $activity = null;
@@ -34,16 +34,15 @@ class TicketService
                 ->where('achievement_id', $ticket->achievement->id)
                 ->first();
 
-            $this->openTicketLinks = [];
-            $this->closedTicketLinks = [];
+            $this->openTickets = [];
+            $this->closedTickets = [];
             $achievementTickets = Ticket::where('AchievementID', $ticket->achievement->id);
             foreach ($achievementTickets->get() as $otherTicket) {
                 if ($otherTicket->ID !== $ticket->ID) {
-                    $url = '<a href="' . route('ticket.show', ['ticket' => $otherTicket]) . '">' . $otherTicket->ID . '</a>';
                     if (TicketState::isOpen($otherTicket->ReportState)) {
-                        $this->openTicketLinks[] = $url;
+                        $this->openTickets[] = $otherTicket->id;
                     } else {
-                        $this->closedTicketLinks[] = $url;
+                        $this->closedTickets[] = $otherTicket->id;
                     }
                 }
             }
