@@ -178,7 +178,7 @@ function getGlobalRankingData(
     $singleUserCond = "";
     if ($user !== null) {
         $singleUserAchievementCond = "AND ua.User LIKE '$user'";
-        $singleUserAwardCond = "AND sa.User LIKE '$user'";
+        $singleUserAwardCond = "AND ua.User LIKE '$user'";
         $singleUserCond = "AND ua.User LIKE '$user'";
     }
 
@@ -190,7 +190,7 @@ function getGlobalRankingData(
         $friendsSubquery = GetFriendsSubquery($friendsOf);
 
         $friendCondAchievement = "AND ua.User IN ($friendsSubquery)";
-        $friendCondAward = "AND sa.User IN ($friendsSubquery)";
+        $friendCondAward = "AND ua.User IN ($friendsSubquery)";
         $friendCondAllTime = "AND ua.User IN ($friendsSubquery)";
     }
 

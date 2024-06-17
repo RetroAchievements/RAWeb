@@ -307,6 +307,7 @@ class V1Test extends TestCase
                     [
                         'User' => $this->user->User,
                         'RAPoints' => $this->user->RAPoints,
+                        'RASoftcorePoints' => $this->user->RASoftcorePoints,
                         'HardcoreMode' => 0,
                     ],
                 ],

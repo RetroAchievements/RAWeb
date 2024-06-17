@@ -12,6 +12,7 @@ render(function (View $view) {
     return $view->with([
         'message' => request()->input('message') ?? '',
         'subject' => request()->input('subject') ?? '',
+        'templateKind' => request()->input('templateKind') ?? null,
         'toUser' => request()->input('to') ?? '',
     ]);
 });
@@ -21,6 +22,7 @@ render(function (View $view) {
 @props([
     'message' => '',
     'subject' => '',
+    'templateKind' => null, // 'manual-unlock' | 'writing-error' | 'misclassification' | 'unwelcome-concept' | 'achievement-issue' | null
     'toUser' => '',
 ])
 
@@ -34,11 +36,36 @@ render(function (View $view) {
         <h1 class="mt-[10px] w-full">New Message</h1>
     </div>
 
+    @if ($templateKind)
+        <x-message.template-kind-alert :templateKind="$templateKind" />
+    @endif
+
     <x-section>
         <x-base.form action="{{ route('message.store') }}" validate>
             <div class="flex flex-col gap-y-3">
-                <x-base.form.user-select name="recipient" value="{{ $toUser }}" requiredSilent inline />
-                <x-base.form.input name="title" label="{{ __('Subject') }}" value="{!! $subject !!}" requiredSilent inline />
+                <x-base.form.user-select
+                    :disabled="!!$templateKind"
+                    name="recipient"
+                    value="{{ $toUser }}"
+                    requiredSilent
+                    inline
+                />
+                @if ($templateKind)
+                    <input type="hidden" name="recipient" value="{{ $toUser }}">
+                @endif
+
+                <x-base.form.input
+                    :disabled="!!$templateKind"
+                    name="title"
+                    label="{{ __('Subject') }}"
+                    value="{!! $subject !!}"
+                    requiredSilent
+                    inline
+                />
+                @if ($templateKind)
+                    <input type="hidden" name="title" value="{!! $subject !!}">
+                @endif
+                
                 <x-base.form.textarea
                     id="input_compose"
                     name="body"

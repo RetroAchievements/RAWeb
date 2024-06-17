@@ -38,9 +38,20 @@ class MessageController extends Controller
                 return back()->withErrors(__('legacy.error.error'));
             }
 
+            foreach ($thread->users as $threadUser) {
+                if (!$threadUser->is($user) && !$user->can('sendToRecipient', [Message::class, $threadUser])) {
+                    return back()->withErrors(__('legacy.error.cannot_message_user'));
+                }
+            }
+
             (new AddToMessageThreadAction())->execute($thread, $user, $input['body']);
         } else {
             $recipient = User::firstWhere('User', $input['recipient']);
+
+            if (!$user->can('sendToRecipient', [Message::class, $recipient])) {
+                return back()->withErrors(__('legacy.error.cannot_message_user'));
+            }
+
             $thread = (new CreateMessageThreadAction())->execute($user, $recipient, $input['title'], $input['body']);
         }
 
