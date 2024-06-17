@@ -29,8 +29,8 @@ class TicketViewService
 
     public function load(Ticket $ticket): void
     {
-        $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
         if ($ticket->reporter) {
+            $msgTitle = rawurlencode("Bug Report ({$ticket->achievement->game->Title})");
             $msgPayload = "Hi [user={$ticket->reporter->User}], I'm contacting you about [ticket={$ticket->ID}]";
             $msgPayload = rawurlencode($msgPayload);
             $this->contactReporterUrl = route('message.create') . "?to={$ticket->reporter->User}&subject=$msgTitle&message=$msgPayload";
