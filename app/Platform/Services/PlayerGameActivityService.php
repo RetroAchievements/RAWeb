@@ -320,7 +320,7 @@ class PlayerGameActivityService
                 if (in_array($client, $clients)) {
                     $clients[$client]['duration'] = $clients[$client]['duration'] + $session['duration'];
                     if (!in_array($userAgent, $clients[$client]['agents'])) {
-                        $this->clients[$client]['agents'][] = $userAgent;
+                        $clients[$client]['agents'][] = $userAgent;
                     }
                 } else {
                     $clients[$client] = [

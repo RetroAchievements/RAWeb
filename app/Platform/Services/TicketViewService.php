@@ -21,8 +21,7 @@ class TicketViewService
     public string $ticketNotes = '';
 
     public function __construct(
-        public PlayerGameActivityService $activity = new PlayerGameActivityService(),
-        public UserAgentService $userAgentService = new UserAgentService(),
+        protected PlayerGameActivityService $activity = new PlayerGameActivityService()
     ) {
 
     }
@@ -72,13 +71,13 @@ class TicketViewService
         }
     }
 
-    public function buildHistory(Ticket $ticket, User $user): void
+    public function buildHistory(Ticket $ticket, User $actingUser): array
     {
         $this->clients = [];
 
-        $canManageTicket = $user->can('manage', Ticket::class);
+        $canManageTicket = $actingUser->can('manage', Ticket::class);
         if (!$canManageTicket || !$ticket->reporter) {
-            return;
+            return [];
         }
 
         $this->activity->initialize($ticket->reporter, $ticket->achievement->game);
@@ -94,5 +93,12 @@ class TicketViewService
                 }
             }
         }
+
+        return $this->activity->sessions;
+    }
+
+    public function getClientBreakdown(UserAgentService $userAgentService): array
+    {
+        return $this->activity->getClientBreakdown($userAgentService);
     }
 }

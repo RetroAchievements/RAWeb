@@ -2,6 +2,7 @@
 
 use App\Models\Ticket;
 use App\Platform\Services\TicketViewService;
+use App\Platform\Services\UserAgentService;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
@@ -10,17 +11,19 @@ middleware(['auth', 'can:view,ticket']);
 name('ticket.show');
 
 render(function (View $view, Ticket $ticket) {
+    $userAgentService = new UserAgentService();
     $ticketService = new TicketViewService();
     $ticketService->load($ticket);
-    $ticketService->buildHistory($ticket, Auth::user());
+    $sessions = $ticketService->buildHistory($ticket, Auth::user());
     
     return $view->with([
         'ticket' => $ticket,
         'unlocksSinceReported' => $ticketService->unlocksSinceReported,
         'openTickets' => $ticketService->openTickets,
         'closedTickets' => $ticketService->closedTickets,
-        'activity' => $ticketService->activity,
-        'userAgentService' => $ticketService->userAgentService,
+        'sessions' => $sessions,
+        'clients' => $ticketService->getClientBreakdown($userAgentService),
+        'userAgentService' => $userAgentService,
         'contactReporterUrl' => $ticketService->contactReporterUrl,
         'existingUnlock' => $ticketService->existingUnlock,
         'ticketNotes' => $ticketService->ticketNotes,
@@ -34,7 +37,8 @@ render(function (View $view, Ticket $ticket) {
     'unlocksSinceReported' => 0,
     'openTickets' => [],
     'closedTickets' => [],
-    'activity' => null, // ?PlayerGameActivityService
+    'sessions' => [],
+    'clients' => [],
     'userAgentService' => null, // ?UserAgentService
     'contactReporterUrl' => '',
     'existingUnlock' => null, // ?PlayerAchievement
@@ -146,14 +150,14 @@ $permissions = $user->getAttribute('Permissions');
 
             <div class="relative w-full p-2 bg-embed rounded">
                 <div class="w-full relative flex gap-x-3">
-                    <x-user.client-list :clients="$activity->getClientBreakdown($userAgentService)" />
+                    <x-user.client-list :clients="$clients" />
 
                     <button id="unlockHistoryButton" class="absolute bottom-0 right-0 btn"
                             onclick="toggleExpander('unlockHistoryButton', 'unlockHistoryContent')">Unlock History ▼</button>
                 </div>
 
                 <div id="unlockHistoryContent" class="hidden devboxcontainer">
-                    @if (empty($activity->sessions))
+                    @if (empty($sessions))
                         {{ $ticket->reporter->User }} has not earned any achievements for this game.
                     @else
                         <x-alert title="Warning">
@@ -166,7 +170,7 @@ $permissions = $user->getAttribute('Permissions');
                         <x-user.game-activity
                             :game="$ticket->achievement->game"
                             :user="$user"
-                            :activity="$activity"
+                            :sessions="$sessions"
                             :userAgentService="$userAgentService"
                         />
                     @endif

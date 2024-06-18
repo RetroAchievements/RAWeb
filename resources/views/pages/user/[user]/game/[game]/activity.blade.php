@@ -74,7 +74,7 @@ render(function (View $view, User $user, Game $game, PlayerGameActivityPageServi
 <x-user.game-activity
     :game="$game"
     :user="$user"
-    :activity="$activity"
+    :sessions="$activity->sessions"
     :userAgentService="$userAgentService"
 />
 

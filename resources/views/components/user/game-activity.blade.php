@@ -9,11 +9,11 @@ use App\Platform\Enums\AchievementFlag;
 @props([
     'user' => null, // User
     'game' => null, // Game
-    'activity' => null, // PlayerGameActivityService
+    'sessions' => [],
     'userAgentService' => null, // UserAgentService
 ])
 
-@if (empty($activity->sessions))
+@if (empty($sessions))
     <p>{{ $user->User }} has not played {{ $game->Title }}.</p>
 @else
     <div class="overflow-x-auto lg:overflow-x-visible">
@@ -26,7 +26,7 @@ use App\Platform\Enums\AchievementFlag;
             </thead>
 
             <tbody>
-                @foreach ($activity->sessions as $session)
+                @foreach ($sessions as $session)
                     <tr class='do-not-highlight'>
                         <td>{{ $session['startTime']->format("j M Y, H:i:s") }}</td>
                         @if ($session['type'] === PlayerGameActivitySessionType::Player)
