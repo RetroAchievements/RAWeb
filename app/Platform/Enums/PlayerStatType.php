@@ -18,6 +18,18 @@ abstract class PlayerStatType
 
     public const GamesBeatenHardcoreUnlicensed = 'games_beaten_hardcore_unlicensed';
 
+    public const PointsHardcoreDay = 'points_hardcore_day';
+
+    public const PointsHardcoreWeek = 'points_hardcore_week';
+
+    public const PointsSoftcoreDay = 'points_softcore_day';
+
+    public const PointsSoftcoreWeek = 'points_softcore_week';
+
+    public const PointsWeightedDay = 'points_weighted_day';
+
+    public const PointsWeightedWeek = 'points_weighted_week';
+
     public static function cases(): array
     {
         return [
@@ -27,6 +39,13 @@ abstract class PlayerStatType
             self::GamesBeatenHardcorePrototypes,
             self::GamesBeatenHardcoreRetail,
             self::GamesBeatenHardcoreUnlicensed,
+
+            self::PointsHardcoreDay,
+            self::PointsHardcoreWeek,
+            self::PointsSoftcoreDay,
+            self::PointsSoftcoreWeek,
+            self::PointsWeightedDay,
+            self::PointsWeightedWeek,
         ];
     }
 
