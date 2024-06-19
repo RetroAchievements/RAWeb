@@ -62,7 +62,7 @@ class GameHashResource extends Resource
                     ->formatStateUsing(fn (System $state) => "[{$state->id}] {$state->name}")
                     ->url(function (GameHash $record) {
                         if (request()->user()->can('manage', System::class)) {
-                            return SystemResource::getUrl('view', ['record' => $record->id]);
+                            return SystemResource::getUrl('view', ['record' => $record->game->system->id]);
                         }
 
                         return null;
