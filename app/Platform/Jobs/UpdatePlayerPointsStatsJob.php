@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Jobs;
 
 use App\Models\User;
-use App\Platform\Actions\UpdatePlayerBeatenGamesStats;
+use App\Platform\Actions\UpdatePlayerPointsStats;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -13,8 +13,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 
-class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+class UpdatePlayerPointsStatsJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Batchable;
     use Dispatchable;
@@ -24,6 +25,7 @@ class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUnti
 
     public function __construct(
         private readonly int $userId,
+        private readonly ?string $mockCurrentDate = null, // For testing only, use with the UpdatePlayerPointsStats command.
     ) {
     }
 
@@ -56,7 +58,11 @@ class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUnti
             return;
         }
 
-        app()->make(UpdatePlayerBeatenGamesStats::class)
+        if ($this->mockCurrentDate) {
+            Carbon::setTestNow(Carbon::parse($this->mockCurrentDate));
+        }
+
+        app()->make(UpdatePlayerPointsStats::class)
             ->execute($user);
     }
 }
