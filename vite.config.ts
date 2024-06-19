@@ -24,7 +24,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
 
     // https://vitejs.dev/config/#build-options
     build: {
-      outDir: isSsrBuild ? `bootstrap/ssr` : `public/${env.VITE_BUILD_PATH}`,
+      outDir: isSsrBuild ? 'bootstrap/ssr' : `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
       assetsInlineLimit: 4096,
     },
