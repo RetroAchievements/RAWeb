@@ -100,9 +100,7 @@ $followersList = $userModel->followerUsers()->pluck('UserAccounts.User')->toArra
     ?>
     @if (!empty($followingList))
         <x-slot name="sidebar">
-            <?php
-                RenderPointsRankingComponent($userModel, true);
-            ?>
+            <x-user.followed-leaderboard :user="$userModel" />
         </x-slot>
     @endif
 </x-app-layout>
