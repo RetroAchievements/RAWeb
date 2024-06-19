@@ -44,18 +44,12 @@ class ConvertGameReleasedToTimestamp extends Command
             $progressBar = $this->output->createProgressBar($gamesCount);
 
             $games = $gamesBaseQuery->get();
-            $unwrittenIds = [];
-            $writtenIds = [];
             foreach ($games as $game) {
                 $timestamp = $this->convertGameReleasedToTimestampAction->execute($game);
 
                 if ($timestamp) {
                     // TODO enable this if you need it for debugging purposes.
                     // $this->info("Wrote {$timestamp} for [{$game->id}:{$game->title}].");
-                    $writtenIds[] = $game->id;
-                } else {
-                    $this->info("Could not write a timestamp for [{$game->id}:{$game->title}].");
-                    $unwrittenIds[] = $game->id;
                 }
 
                 $progressBar->advance();
@@ -63,16 +57,7 @@ class ConvertGameReleasedToTimestamp extends Command
 
             $progressBar->finish();
 
-            $writtenCount = count($writtenIds);
-            $unwrittenCount = count($unwrittenIds);
-
-            $this->info("{$writtenCount} games have been updated.");
-            $this->info("{$unwrittenCount} games could not be written to.");
-
-            if ($unwrittenCount > 0) {
-                $unwrittenIdsStr = implode(',', $unwrittenIds);
-                $this->info("Unwritten IDs: {$unwrittenIdsStr}");
-            }
+            $this->info("Done.");
         }
     }
 }
