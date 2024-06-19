@@ -25,6 +25,7 @@ use App\Models\PlayerBadgeStage;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\ConvertGameReleasedToTimestamp;
+use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
@@ -49,6 +50,7 @@ use App\Platform\Commands\UpdateLeaderboardMetrics;
 use App\Platform\Commands\UpdatePlayerBeatenGamesStats;
 use App\Platform\Commands\UpdatePlayerGameMetrics;
 use App\Platform\Commands\UpdatePlayerMetrics;
+use App\Platform\Commands\UpdatePlayerPointsStats;
 use App\Platform\Commands\UpdateTotalGamesCount;
 use App\Platform\Components\GameCard;
 use App\Platform\Components\GameTitle;
@@ -84,7 +86,11 @@ class AppServiceProvider extends ServiceProvider
                 UnlockPlayerAchievement::class,
                 UpdatePlayerGameMetrics::class,
                 UpdatePlayerMetrics::class,
+
+                // Player Stats
+                DeleteStalePlayerPointsStatsEntries::class,
                 UpdatePlayerBeatenGamesStats::class,
+                UpdatePlayerPointsStats::class,
 
                 // Static Data
                 UpdateAwardsStaticData::class,
@@ -111,6 +117,8 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
+            $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
+            $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
             $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
         });
 
