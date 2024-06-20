@@ -17,6 +17,7 @@ use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\ImageType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Services\GameListService;
+use Illuminate\Support\Carbon;
 
 $gameID = (int) request('game');
 if (empty($gameID)) {
@@ -465,10 +466,6 @@ if ($isFullyFeaturedGame) {
                 :includeAddToListButton="true"
             />
             <x-game.primary-meta
-                :developer="$developer"
-                :publisher="$publisher"
-                :genre="$genre"
-                :released="$released"
                 :imageIcon="$imageIcon"
                 :metaKind="$isFullyFeaturedGame ? 'Game' : 'Hub'"
             >
@@ -481,16 +478,34 @@ if ($isFullyFeaturedGame) {
                     <x-game.primary-meta-row-item label="Publisher" :metadataValue="$publisher" />
                     <x-game.primary-meta-row-item label="Genre" :metadataValue="$genre" />
                 @endif
-                <x-game.primary-meta-row-item label="Released" :metadataValue="$released" />
+
+                @php
+                    $releasedAtDisplay = null;
+
+                    if ($gameModel->released_at && $gameModel->released_at_granularity) {
+                        $releasedAtDisplay = match ($gameModel->released_at_granularity) {
+                            'year' => $gameModel->released_at->format('Y'),
+                            'month' => $gameModel->released_at->format('F Y'),
+                            default => $gameModel->released_at->format('F j, Y'),
+                        };
+                    }
+                @endphp
+                <x-game.primary-meta-row-item label="Released" :metadataValue="$releasedAtDisplay" />
             </x-game.primary-meta>
 
         @if ($isFullyFeaturedGame)
             <x-game.screenshots :titleImageSrc="$imageTitle" :ingameImageSrc="$imageIngame" />
         @endif
 
+        @if ($isFullyFeaturedGame)
+            @can('manage', $gameModel)
+                <a class="btn mb-1" href="{{ route('filament.admin.resources.games.view', ['record' => $gameModel->id]) }}">Manage</a>
+            @endcan
+        @endif
+
         <?php
         // Display dev section if logged in as either a developer or a jr. developer viewing a non-hub page
-        // TODO use a policy
+        // TODO migrate devbox entirely to filament
         if (isset($user) && ($permissions >= Permissions::Developer || ($isFullyFeaturedGame && $permissions >= Permissions::JuniorDeveloper))) {
             // TODO use a policy
             $hasMinimumDeveloperPermissions = (
@@ -616,8 +631,15 @@ if ($isFullyFeaturedGame) {
                 echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                 echo "<label for='game_genre'>Genre</label><input type='text' name='genre' id='game_genre' value='" . attributeEscape($genre) . "' class='w-full'>";
                 echo "<div class='text-right'><button class='btn'>Submit</button></div>";
-                echo "<label for='game_release'>First Released</label><input type='text' name='release' id='game_release' value='" . attributeEscape($released) . "' class='w-full'>";
-                echo "<div class='text-right'><button class='btn'>Submit</button></div>";
+                ?>
+                
+                <label for='game_release'>First Released</label>
+                <input type="date" name="release" id="game_release" value="{{ $gameModel->released_at->format('Y-m-d') }}" class="w-full">
+                <div class="text-right">
+                    <button class="btn">Submit</button>
+                </div>
+
+                <?php
                 echo "</div>";
                 echo "</form>";
 

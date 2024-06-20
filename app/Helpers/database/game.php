@@ -600,7 +600,6 @@ function modifyGameData(
     $developer = TrimGameMetadata::trimWhitespace($developer);
     $publisher = TrimGameMetadata::trimWhitespace($publisher);
     $genre = TrimGameMetadata::trimWhitespace($genre);
-    $released = TrimGameMetadata::trimWhitespace($released);
     $guideUrl = TrimGameMetadata::trimWhitespace($guideUrl);
 
     $modifications = [];
@@ -616,9 +615,10 @@ function modifyGameData(
         $modifications[] = "genre";
         $game->Genre = $genre;
     }
-    if ($game->Released !== $released) {
+    if ($game->released_at->format('Y-m-d') !== $released) {
         $modifications[] = "first released";
-        $game->Released = $released;
+        $game->released_at = $released;
+        $game->released_at_granularity = 'day';
     }
     if ($game->GuideURL !== $guideUrl) {
         $modifications[] = "Guide URL";

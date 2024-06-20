@@ -73,6 +73,10 @@ class Game extends BaseModel implements HasComments, HasMedia
         'GuideURL',
     ];
 
+    protected $casts = [
+        'released_at' => 'datetime',
+    ];
+
     protected $visible = [
         'ID',
         'Title',
