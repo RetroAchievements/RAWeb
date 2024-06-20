@@ -70,6 +70,11 @@ class Game extends BaseModel implements HasComments, HasMedia
         'release',
         'Title',
         'ForumTopicID',
+        'Publisher',
+        'Developer',
+        'Genre',
+        'released_at',
+        'released_at_granularity',
         'GuideURL',
     ];
 
@@ -87,6 +92,8 @@ class Game extends BaseModel implements HasComments, HasMedia
         'Developer',
         'Genre',
         'Released',
+        'released_at',
+        'released_at_granularity',
         'IsFinal',
         'RichPresencePatch',
         'GuideURL',
