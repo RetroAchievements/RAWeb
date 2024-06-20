@@ -8,6 +8,8 @@ use App\Models\PlayerGame;
 use App\Models\User;
 use App\Platform\Actions\TrimGameMetadata;
 use App\Platform\Enums\AchievementFlag;
+use Illuminate\Support\Facades\Log;
+use Spatie\Activitylog\Facades\CauserResolver;
 
 function getGameData(int $gameID): ?array
 {
@@ -582,16 +584,16 @@ function getGameIDFromTitle(string $gameTitle, int $consoleID): int
 }
 
 function modifyGameData(
-    string $user,
-    int $gameID,
+    string $username,
+    int $gameId,
     ?string $developer,
     ?string $publisher,
     ?string $genre,
     ?string $released,
-    ?string $guideURL
+    ?string $guideUrl,
 ): bool {
-    $gameData = getGameData($gameID);
-    if (empty($gameData)) {
+    $game = Game::with("system")->find($gameId);
+    if (!$game) {
         return false;
     }
 
@@ -599,64 +601,62 @@ function modifyGameData(
     $publisher = TrimGameMetadata::trimWhitespace($publisher);
     $genre = TrimGameMetadata::trimWhitespace($genre);
     $released = TrimGameMetadata::trimWhitespace($released);
-    $guideURL = TrimGameMetadata::trimWhitespace($guideURL);
+    $guideUrl = TrimGameMetadata::trimWhitespace($guideUrl);
 
     $modifications = [];
-    if ($gameData['Developer'] != $developer) {
-        $modifications[] = 'developer';
+    if ($game->Developer !== $developer) {
+        $modifications[] = "developer";
+        $game->Developer = $developer;
     }
-    if ($gameData['Publisher'] != $publisher) {
-        $modifications[] = 'publisher';
+    if ($game->Publisher !== $publisher) {
+        $modifications[] = "publisher";
+        $game->Publisher = $publisher;
     }
-    if ($gameData['Genre'] != $genre) {
-        $modifications[] = 'genre';
+    if ($game->Genre !== $genre) {
+        $modifications[] = "genre";
+        $game->Genre = $genre;
     }
-    if ($gameData['Released'] != $released) {
-        $modifications[] = 'first released';
+    if ($game->Released !== $released) {
+        $modifications[] = "first released";
+        $game->Released = $released;
     }
-    if ($gameData['GuideURL'] != $guideURL) {
-        $modifications[] = 'Guide URL';
+    if ($game->GuideURL !== $guideUrl) {
+        $modifications[] = "Guide URL";
+        $game->GuideURL = $guideUrl;
     }
 
     if (count($modifications) == 0) {
         return true;
     }
 
-    sanitize_sql_inputs($developer, $publisher, $genre, $released, $guideURL);
+    $game->save();
+    addArticleComment(
+        "Server",
+        ArticleType::GameModification,
+        $gameId,
+        "{$username} changed the " .
+            implode(", ", $modifications) .
+            (count($modifications) == 1 ? " field" : " fields"),
+    );
 
-    $query = "UPDATE GameData AS gd
-              SET gd.Developer = '$developer', gd.Publisher = '$publisher', gd.Genre = '$genre', gd.Released = '$released', gd.GuideURL = '$guideURL'
-              WHERE gd.ID = $gameID";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-    }
-
-    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the " .
-        implode(', ', $modifications) . ((count($modifications) == 1) ? " field" : " fields"));
-
-    return $dbResult != null;
+    return true;
 }
 
-function modifyGameTitle(string $user, int $gameID, string $value): bool
+function modifyGameTitle(string $username, int $gameId, string $value): bool
 {
     if (mb_strlen($value) < 2) {
         return false;
     }
 
-    sanitize_sql_inputs($value);
-
-    $query = "UPDATE GameData SET Title='$value' WHERE ID=$gameID";
-
-    $db = getMysqliConnection();
-    if (!mysqli_query($db, $query)) {
+    $game = Game::find($gameId);
+    if (!$game) {
         return false;
     }
 
-    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the game name");
+    $game->Title = $value;
+    $game->save();
+
+    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the game name");
 
     return true;
 }
@@ -725,9 +725,9 @@ function modifyGameAlternatives(string $user, int $gameID, int|string|null $toAd
     }
 }
 
-function modifyGameForumTopic(string $user, int $gameID, int $newForumTopicId): bool
+function modifyGameForumTopic(string $username, int $gameId, int $newForumTopicId): bool
 {
-    if ($gameID == 0 || $newForumTopicId == 0) {
+    if ($gameId == 0 || $newForumTopicId == 0) {
         return false;
     }
 
@@ -735,15 +735,15 @@ function modifyGameForumTopic(string $user, int $gameID, int $newForumTopicId): 
         return false;
     }
 
-    $db = getMysqliConnection();
-    $query = "UPDATE GameData SET ForumTopicID = $newForumTopicId WHERE ID = $gameID";
-    echo $query;
-
-    if (!mysqli_query($db, $query)) {
+    $game = Game::find($gameId);
+    if (!$game) {
         return false;
     }
 
-    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the forum topic");
+    $game->ForumTopicID = $newForumTopicId;
+    $game->save();
+
+    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the forum topic");
 
     return true;
 }
@@ -782,32 +782,41 @@ function getGameListSearch(int $offset, int $count, int $method, ?int $consoleID
     return $retval;
 }
 
-function createNewGame(string $title, int $consoleID): ?array
+function createNewGame(string $title, int $systemId): ?array
 {
-    sanitize_sql_inputs($title);
-    // $title = str_replace( "--", "-", $title );    // subtle non-comment breaker
+    try {
+        $game = new Game();
+        $game->Title = $title;
+        $game->ConsoleID = $systemId;
+        $game->ForumTopicID = null;
+        $game->Flags = 0;
+        $game->ImageIcon = '/Images/000001.png';
+        $game->ImageTitle = '/Images/000002.png';
+        $game->ImageIngame = '/Images/000002.png';
+        $game->ImageBoxArt = '/Images/000002.png';
+        $game->Publisher = null;
+        $game->Developer = null;
+        $game->Genre = null;
+        $game->Released = null;
+        $game->IsFinal = 0;
+        $game->RichPresencePatch = null;
+        $game->TotalTruePoints = 0;
 
-    $query = "INSERT INTO GameData (Title, ConsoleID, ForumTopicID, Flags, ImageIcon, ImageTitle, ImageIngame, ImageBoxArt, Publisher, Developer, Genre, Released, IsFinal, RichPresencePatch, TotalTruePoints)
-                            VALUES ('$title', $consoleID, NULL, 0, '/Images/000001.png', '/Images/000002.png', '/Images/000002.png', '/Images/000002.png', NULL, NULL, NULL, NULL, 0, NULL, 0 )";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-    if ($dbResult !== false) {
-        $newID = mysqli_insert_id($db);
+        $game->save();
 
         return [
-            'ID' => $newID,
+            'ID' => $game->id,
             'Title' => $title,
         ];
+    } catch (Exception $e) {
+        Log::error('Failed to create new game', ['error' => $e->getMessage()]);
+
+        return null;
     }
-
-    log_sql_fail();
-
-    return null;
 }
 
 function submitNewGameTitleJSON(
-    string $user,
+    string $username,
     string $md5,
     ?int $gameIDin,
     string $titleIn,
@@ -815,7 +824,7 @@ function submitNewGameTitleJSON(
     ?string $description
 ): array {
     $unsanitizedDescription = $description;
-    sanitize_sql_inputs($user, $md5, $description);
+    sanitize_sql_inputs($username, $md5, $description);
 
     $retVal = [];
     $retVal['MD5'] = $md5;
@@ -824,11 +833,12 @@ function submitNewGameTitleJSON(
     $retVal['GameTitle'] = $titleIn;
     $retVal['Success'] = true;
 
-    $userModel = User::where('User', $user)->first();
+    $userModel = User::where('User', $username)->first();
     $permissions = (int) $userModel->getAttribute('Permissions');
     $userId = $userModel->id;
+    CauserResolver::setCauser($userModel);
 
-    if (!isset($user)) {
+    if (!isset($username)) {
         $retVal['Error'] = "User doesn't appear to be set or have permissions?";
         $retVal['Success'] = false;
     } elseif ($permissions < Permissions::Developer) {
@@ -888,14 +898,14 @@ function submitNewGameTitleJSON(
             $dbResult = mysqli_query($db, $query);
             if ($dbResult !== false) {
                 /*
-                 * $user added $md5, $gameID to game_hashes, and $gameID, $titleIn to GameData
+                 * $username added $md5, $gameID to game_hashes, and $gameID, $titleIn to GameData
                  */
 
                 // Log hash linked
                 if (!empty($unsanitizedDescription)) {
-                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $user . ". Description: \"" . $unsanitizedDescription . "\"");
+                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $username . ". Description: \"" . $unsanitizedDescription . "\"");
                 } else {
-                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $user);
+                    addArticleComment("Server", ArticleType::GameHash, $gameID, $md5 . " linked by " . $username);
                 }
             } else {
                 /*
@@ -910,40 +920,36 @@ function submitNewGameTitleJSON(
     return $retVal;
 }
 
-function modifyGameRichPresence(string $user, int $gameID, string $dataIn): bool
+function modifyGameRichPresence(string $username, int $gameId, string $dataIn): bool
 {
-    getRichPresencePatch($gameID, $existingData);
+    getRichPresencePatch($gameId, $existingData);
     if ($existingData == $dataIn) {
         return true;
     }
 
-    sanitize_sql_inputs($dataIn);
-    $query = "UPDATE GameData SET RichPresencePatch='$dataIn' WHERE ID=$gameID";
-
-    $db = getMysqliConnection();
-    $dbResult = mysqli_query($db, $query);
-    if (!$dbResult) {
+    $game = Game::find($gameId);
+    if (!$game) {
         return false;
     }
 
-    addArticleComment('Server', ArticleType::GameModification, $gameID, "$user changed the rich presence script");
+    $game->RichPresencePatch = $dataIn;
+    $game->save();
+
+    addArticleComment('Server', ArticleType::GameModification, $gameId, "{$username} changed the rich presence script");
 
     return true;
 }
 
-function getRichPresencePatch(int $gameID, ?array &$dataOut): bool
+function getRichPresencePatch(int $gameId, ?string &$dataOut): bool
 {
-    $query = "SELECT gd.RichPresencePatch FROM GameData AS gd WHERE gd.ID = $gameID ";
-    $dbResult = s_mysql_query($query);
-
-    if ($dbResult !== false) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $dataOut = $data['RichPresencePatch'];
-
-        return true;
+    $game = Game::find($gameId);
+    if (!$game) {
+        return false;
     }
 
-    return false;
+    $dataOut = $game->RichPresencePatch;
+
+    return true;
 }
 
 function GetPatchData(int $gameID, ?User $user, int $flag): array
