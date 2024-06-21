@@ -72,7 +72,8 @@ class GameResource extends Resource
                     ->label('')
                     ->size(config('media.icon.lg.width')),
 
-                Infolists\Components\Section::make('Metadata')
+                Infolists\Components\Section::make('Primary Details')
+                    ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Infolists\Components\TextEntry::make('id')
@@ -81,7 +82,7 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('title'),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
-                            ->label('Forum Topic')
+                            ->label('Forum Topic ID')
                             ->url(fn (?int $state) => url("viewtopic.php?t={$state}")),
 
                         Infolists\Components\TextEntry::make('system')
@@ -93,19 +94,38 @@ class GameResource extends Resource
 
                                 return null;
                             }),
+                    ]),
 
-                        Infolists\Components\TextEntry::make('Developer')
-                            ->placeholder('None'),
+                Infolists\Components\Section::make('Metadata')
+                    ->icon('heroicon-c-information-circle')
+                    ->description('While optional, this metadata can help more players find the game. It also gets fed to various apps plugged in to the RetroAchievements API.')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\TextEntry::make('Developer'),
 
-                        Infolists\Components\TextEntry::make('Publisher')
-                            ->placeholder('None'),
+                        Infolists\Components\TextEntry::make('Publisher'),
 
-                        Infolists\Components\TextEntry::make('Genre')
-                            ->placeholder('None'),
+                        Infolists\Components\TextEntry::make('Genre'),
 
                         Infolists\Components\TextEntry::make('GuideURL')
-                            ->label('RAGuide URL')
-                            ->placeholder('None'),
+                            ->label('RAGuide URL'),
+                    ]),
+
+                Infolists\Components\Section::make('Earliest Release Date')
+                    ->icon('heroicon-c-calendar-days')
+                    ->description("
+                        The game's earliest known release date. This is used to improve searching,
+                        sorting, and filtering on the site.
+                    ")
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\TextEntry::make('released_at')
+                            ->label('Earliest Release Date')
+                            ->dateTime('F j, Y'),
+
+                        Infolists\Components\TextEntry::make('released_at_granularity')
+                            ->label('Release Date Precision')
+                            ->formatStateUsing(fn (string $state): string => ucfirst($state)),
                     ]),
 
                 Infolists\Components\Section::make('Metrics')
