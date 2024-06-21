@@ -42,12 +42,19 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
-    $existingLeaderboardEntry = LeaderboardEntry::where('leaderboard_id', $leaderboard->id)
+    $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
+        ->where('leaderboard_id', $leaderboard->id)
         ->where('user_id', $user->id)
         ->first();
 
     if ($existingLeaderboardEntry) {
-        if ($leaderboard->isBetterScore($newEntry, $existingLeaderboardEntry->score)) {
+        if ($existingLeaderboardEntry->trashed()
+            || $leaderboard->isBetterScore($newEntry, $existingLeaderboardEntry->score)) {
+
+            if ($existingLeaderboardEntry->trashed()) {
+                $existingLeaderboardEntry->restore();
+            }
+
             // Update the player's entry.
             $existingLeaderboardEntry->score = $newEntry;
             $existingLeaderboardEntry->save();
