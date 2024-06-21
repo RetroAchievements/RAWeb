@@ -6,7 +6,7 @@ import { homedir } from 'os';
 import { resolve } from 'path';
 import { defineConfig, loadEnv } from 'vite';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   if (!env.VITE_BUILD_PATH) {
@@ -20,14 +20,14 @@ export default defineConfig(({ mode }) => {
   return {
     // https://vitejs.dev/config/#build-options
     build: {
-      outDir: `public/${env.VITE_BUILD_PATH}`,
+      outDir: isSsrBuild ? 'bootstrap/ssr' : `public/${env.VITE_BUILD_PATH}`,
       assetsDir: '',
       assetsInlineLimit: 4096,
     },
     // https://vitejs.dev/config/#plugins
     plugins: [
       laravel({
-        input: ['resources/css/app.css', 'resources/js/app.ts'],
+        input: ['resources/css/app.css', 'resources/js/tall-stack/app.ts'],
         refresh: ['resources/views/**'],
       }),
     ],
@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: 'resources/js/setupTests.ts',
       include: ['resources/js/**/*.{test,spec}.ts'],
+      globals: true,
     },
     // @ see https://vitejs.dev/config/#server-options
     server: detectServerConfig(env),

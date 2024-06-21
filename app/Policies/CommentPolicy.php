@@ -29,7 +29,7 @@ class CommentPolicy
         return true;
     }
 
-    public function create(User $user, ?Model $commentable = null): bool
+    public function create(User $user, ?Model $commentable = null, ?int $articleType = null): bool
     {
         if ($user->isMuted()) {
             // Even when muted, developers may still comment on tickets for their own achievements.
@@ -58,7 +58,11 @@ class CommentPolicy
             return false;
         }
 
-        if ($commentable !== null && $commentable instanceof User) {
+        if (
+            $commentable !== null
+            && $commentable instanceof User
+            && $articleType !== ArticleType::UserModeration
+        ) {
             return $user->can('create', [UserComment::class, $commentable]);
         }
 
