@@ -12,7 +12,7 @@ $canCreate = false;
 $user = request()->user();
 if ($user) {
     if ($article) {
-        $canCreate = $user->can('create', [App\Models\Comment::class, $article]);
+        $canCreate = $user->can('create', [App\Models\Comment::class, $article, $articleType]);
     } else {
         $canCreate = $user->can('create', [App\Models\Comment::class]);
     }
