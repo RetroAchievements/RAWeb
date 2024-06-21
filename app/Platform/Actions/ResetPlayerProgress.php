@@ -50,6 +50,11 @@ class ResetPlayerProgress
 
         if ($achievementID !== null) {
             $playerAchievement = $user->playerAchievements()->where('achievement_id', $achievementID)->first();
+            if (!$playerAchievement) {
+                // already deleted? do nothing.
+                return;
+            }
+
             $achievement = $playerAchievement->achievement;
             if ($achievement->isPublished) {
                 // resetting a published achievement removes the completion/mastery badge.
