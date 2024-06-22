@@ -61,6 +61,12 @@ class AchievementPolicy
 
     public function update(User $user, Achievement $achievement): bool
     {
+        // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
+        // on the game and the achievement must not be promoted to Core/Official.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR)) {
+            return !$achievement->is_published && $user->hasActiveClaimOnGameId($achievement->game->id);
+        }
+
         return $user->hasAnyRole([
             Role::GAME_HASH_MANAGER,
 
@@ -74,7 +80,6 @@ class AchievementPolicy
              */
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
-            Role::DEVELOPER_JUNIOR,
 
             /*
              * artists may update achievement badges if the respective achievements are open for editing
@@ -111,10 +116,10 @@ class AchievementPolicy
         return false;
     }
 
-    public function updateField(User $user, Achievement $achievement, string $fieldName): bool
+    public function updateField(User $user, ?Achievement $achievement, string $fieldName): bool
     {
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
+            Role::DEVELOPER_JUNIOR => ['Title', 'Description', 'type', 'Points', 'DisplayOrder'],
             Role::DEVELOPER => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
             Role::DEVELOPER_STAFF => ['Title', 'Description', 'Flags', 'type', 'Points', 'DisplayOrder'],
             Role::WRITER => ['Title', 'Description'],
@@ -138,20 +143,16 @@ class AchievementPolicy
 
         // Junior Developers have additional specific criteria that must be satisfied
         // before they are allowed to edit achievement fields.
-        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && !$this->canDeveloperJuniorUpdateField($user, $achievement)) {
+        if (
+            isset($achievement)
+            && $user->hasRole(Role::DEVELOPER_JUNIOR)
+            && !$this->update($user, $achievement)
+        ) {
             return false;
         }
 
         // If any of the user's roles allow updating the specified field, return true.
         // Otherwise, they can't edit the field.
         return in_array($fieldName, $allowedFieldsForUser, true);
-    }
-
-    private function canDeveloperJuniorUpdateField(User $user, Achievement $achievement): bool
-    {
-        // If the user has a DEVELOPER_JUNIOR role, they need to have a claim
-        // on the game and the achievement must not be promoted to Core/Official.
-
-        return !$achievement->is_published && $user->hasActiveClaimOnGameId($achievement->game->id);
     }
 }
