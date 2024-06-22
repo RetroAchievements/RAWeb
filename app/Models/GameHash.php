@@ -19,7 +19,10 @@ class GameHash extends BaseModel
     use HasFactory;
     use Searchable;
     use SoftDeletes;
-    // TODO use LogsActivity;
+
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     // TODO drop User in favor of user_id
     // TODO migrate functionality from md5 to hash. ensure md5 retains external md5 values and hash is the primary reference for game detection
@@ -54,7 +57,8 @@ class GameHash extends BaseModel
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnlyDirty();
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == search
