@@ -82,13 +82,15 @@ class GameHashesRelationManager extends RelationManager
                                     ]),
 
                                 Forms\Components\TextInput::make('patch_url')
-                                    ->label('RAPatches URL')
+                                    ->label('Patch URL')
                                     ->placeholder('https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
-                                    ->helperText('This MUST be a URL to a .zip or .7z file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip'),   // TODO url pattern validation
+                                    ->helperText('This MUST be a URL to a .zip or .7z file in the RAPatches GitHub repo, eg: https://github.com/RetroAchievements/RAPatches/raw/main/NES/Subset/5136-CastlevaniaIIBonus.zip')
+                                    ->regex('/^https:\/\/github\.com\/RetroAchievements\/RAPatches\/raw\/main\/.*\.(zip|7z)$/i'),
 
                                 Forms\Components\TextInput::make('source')
                                     ->label('Resource Page URL')
-                                    ->helperText('Do not link to a commercially-sold ROM. Link to a specific No Intro, Redump, RHDN, SMWCentral, itch.io, etc. page.'),   // TODO url validation
+                                    ->helperText('Do not link to a commercially-sold ROM. Link to a specific No Intro, Redump, RHDN, SMWCentral, itch.io, etc. page.')
+                                    ->activeUrl(),
                             ]),
                     ]),
 
