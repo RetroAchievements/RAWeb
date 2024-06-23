@@ -50,7 +50,19 @@ class MessagePolicy
 
     public function sendToRecipient(User $user, User $targetUser): bool
     {
-        $canUserAlwaysSend = $user->hasAnyRole([
+        $canUserSendWhileBlocked = $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ]);
+        if ($targetUser->isBlocking($user) && !$canUserSendWhileBlocked) {
+            return false;
+        }
+
+        /**
+         * TODO check user privacy settings
+         */
+        $canUserAlwaysPierceNoContactPreference = $user->hasAnyRole([
             Role::ADMINISTRATOR,
             Role::DEVELOPER_JUNIOR,
             Role::DEVELOPER_STAFF,
@@ -60,15 +72,7 @@ class MessagePolicy
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
         ]);
-
-        if ($targetUser->isBlocking($user)) {
-            return false;
-        }
-
-        /**
-         * TODO check user privacy settings
-         */
-        if (!$canUserAlwaysSend) {
+        if (!$canUserAlwaysPierceNoContactPreference) {
             if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
                 return false;
             }
