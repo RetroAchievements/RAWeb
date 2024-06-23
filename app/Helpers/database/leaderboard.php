@@ -159,8 +159,8 @@ function GetLeaderboardData(
         'ConsoleName' => $leaderboard->game->system->name,
         'ForumTopicID' => $leaderboard->game->ForumTopicID,
         'GameIcon' => $leaderboard->game->ImageIcon,
-        'LBCreated' => $leaderboard->Created,
-        'LBUpdated' => $leaderboard->Updated,
+        'LBCreated' => $leaderboard->Created->format('Y-m-d H:i:s'),
+        'LBUpdated' => $leaderboard->Updated->format('Y-m-d H:i:s'),
         'TotalEntries' => $leaderboard->entries()->count(),
         'Entries' => [],
     ];
