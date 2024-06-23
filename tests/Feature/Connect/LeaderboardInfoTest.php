@@ -7,8 +7,8 @@ namespace Tests\Feature\Connect;
 use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\System;
-use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class LeaderboardInfoTest extends TestCase
@@ -50,7 +50,7 @@ class LeaderboardInfoTest extends TestCase
                     'LBUpdated' => $now->format('Y-m-d H:i:s'),
                     'LowerIsBetter' => (int) $leaderboard->rank_asc,
                     'TotalEntries' => 0,
-                ]
+                ],
             ]);
     }
 }
