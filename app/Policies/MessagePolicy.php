@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\Message;
 use App\Models\Role;
 use App\Models\User;
@@ -60,8 +59,11 @@ class MessagePolicy
             Role::FORUM_MANAGER,
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
+        ]);
+
+        if ($targetUser->isBlocking($user)) {
+            return false;
+        }
 
         /**
          * TODO check user privacy settings
