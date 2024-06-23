@@ -23,7 +23,7 @@ if ($maxNumGamesToFetch < 1 || $maxNumGamesToFetch > 100) {
     abort(400);
 }
 
-$userPageModel = User::firstWhere('User', $userPage);
+$userPageModel = User::where('User', $userPage)->orWhere('display_name', $userPage)->first();
 if (!$userPageModel) {
     abort(404);
 }
