@@ -3,15 +3,14 @@
 use App\Community\Enums\ArticleType;
 use App\Community\Enums\TicketState;
 use App\Enums\Permissions;
+use App\Models\Comment;
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
     return back()->withErrors(__('legacy.error.permissions'));
-}
-
-if ($userDetails['isMuted']) {
-    return back()->withErrors(__('legacy.error.error'));
 }
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
@@ -22,6 +21,12 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
 
 $articleID = (int) $input['commentable_id'];
 $articleType = (int) $input['commentable_type'];
+
+$userModel = User::find($userDetails['ID']);
+$ticketModel = Ticket::find($articleID);
+if (!$userModel->can('create', [Comment::class, $ticketModel])) {
+    return back()->withErrors(__('legacy.error.error'));
+}
 
 if (addArticleComment($user, $articleType, $articleID, $input['body'])) {
     // if a user is responding to a ticket in the Request state,
