@@ -63,6 +63,10 @@ class GameHashPolicy
 
     public function forceDelete(User $user, GameHash $gameHash): bool
     {
-        return false;
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ]);
     }
 }
