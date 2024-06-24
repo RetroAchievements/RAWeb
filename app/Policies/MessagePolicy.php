@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\Message;
 use App\Models\Role;
 use App\Models\User;
@@ -51,7 +50,19 @@ class MessagePolicy
 
     public function sendToRecipient(User $user, User $targetUser): bool
     {
-        $canUserAlwaysSend = $user->hasAnyRole([
+        $canUserSendWhileBlocked = $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
+            Role::TEAM_ACCOUNT,
+        ]);
+        if ($targetUser->isBlocking($user) && !$canUserSendWhileBlocked) {
+            return false;
+        }
+
+        /**
+         * TODO check user privacy settings
+         */
+        $canUserAlwaysPierceNoContactPreference = $user->hasAnyRole([
             Role::ADMINISTRATOR,
             Role::DEVELOPER_JUNIOR,
             Role::DEVELOPER_STAFF,
@@ -60,13 +71,8 @@ class MessagePolicy
             Role::FORUM_MANAGER,
             Role::MODERATOR,
             Role::TEAM_ACCOUNT,
-        ])
-            || $user->getAttribute('Permissions') >= Permissions::JuniorDeveloper;
-
-        /**
-         * TODO check user privacy settings
-         */
-        if (!$canUserAlwaysSend) {
+        ]);
+        if (!$canUserAlwaysPierceNoContactPreference) {
             if ($targetUser->only_allows_contact_from_followers && !$targetUser->isFollowing($user)) {
                 return false;
             }
