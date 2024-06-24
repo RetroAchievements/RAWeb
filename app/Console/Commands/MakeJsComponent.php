@@ -11,7 +11,7 @@ class MakeJsComponent extends Command
     protected $signature = 'make:js-component {name} {feature?}';
     protected $description = 'Generate a new React component with a test and barrel file';
 
-    protected $files;
+    protected Filesystem $files;
 
     public function __construct(Filesystem $files)
     {
@@ -51,7 +51,7 @@ class MakeJsComponent extends Command
         $this->files->put($path, $content);
     }
 
-    private function getStub($stubName): string
+    private function getStub(string $stubName): string
     {
         return $this->files->get("stubs/js/{$stubName}");
     }
