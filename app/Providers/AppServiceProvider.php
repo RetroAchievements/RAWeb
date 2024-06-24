@@ -10,6 +10,7 @@ use App\Console\Commands\CleanupAvatars;
 use App\Console\Commands\DeleteExpiredEmailVerificationTokens;
 use App\Console\Commands\DeleteOverdueUserAccounts;
 use App\Console\Commands\LogUsersOnlineCount;
+use App\Console\Commands\MakeJsComponent;
 use App\Console\Commands\SyncUsers;
 use App\Console\Commands\SystemAlert;
 use App\Models\Role;
@@ -44,16 +45,15 @@ class AppServiceProvider extends ServiceProvider
                 DeleteExpiredEmailVerificationTokens::class,
                 DeleteOverdueUserAccounts::class,
 
-                /*
-                 * User Accounts
-                 */
+                // User Accounts
                 CleanupAvatars::class,
                 SyncUsers::class,
 
-                /*
-                 * Settings
-                 */
+                // Settings
                 SystemAlert::class,
+
+                // Generators
+                MakeJsComponent::class,
             ]);
         }
 
