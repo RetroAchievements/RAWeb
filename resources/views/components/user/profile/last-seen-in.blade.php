@@ -58,7 +58,7 @@ $parsedDate = Carbon::parse($mostRecentSession?->rich_presence_updated_at);
                 && $mostRecentRichPresenceMessage !== 'Unknown'
                 && $mostRecentRichPresenceMessage !== 'Playing ' . $sessionGame->Title
             )
-                <p class="text-2xs">
+                <p class="text-2xs" style="word-break: break-word;">
                     {{ $mostRecentRichPresenceMessage }}
                 </p>
             @endif
