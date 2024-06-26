@@ -177,8 +177,8 @@ render(function (View $view, Achievement $achievement) {
         $message = urlencode("I'd like to report an issue with [ach={$achievement->id}]:\n(Describe the issue here)");
     @endphp
     <x-ticket.guide-link
-        buttonText="Message RAdmin"
-        href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}&templateKind=achievement-issue"
+        buttonText="Message QATeam"
+        href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}&templateKind=achievement-issue"
     >
         I have an issue with this achievement that is not described above.
     </x-ticket.guide-link>
