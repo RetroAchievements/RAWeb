@@ -1,0 +1,9 @@
+import type { FC } from 'react';
+
+interface {{componentName}}Props {
+  foo: string;
+}
+
+export const {{componentName}}: FC<{{componentName}}Props> = ({ foo }) => {
+  return <p>Hello from {{componentName}} The value of `foo` is {foo}!</p>;
+};
