@@ -6,6 +6,7 @@ namespace Tests\Feature\Connect;
 
 use App\Community\Enums\UserRelationship;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
@@ -48,12 +49,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         /** @var Game $game */
         $game = Game::factory()->create();
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
 
         // first submission
         $score = $bestScore = 55555;
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -81,7 +84,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now2);
 
         $score = 44444;
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -109,7 +112,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now3);
 
         $score = $bestScore = 66666;
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->id]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -131,6 +134,16 @@ class SubmitLeaderboardEntryTest extends TestCase
                     ],
                 ],
             ]);
+
+        /** @var User $user */
+        $user = User::first();
+
+        /** @var LeaderboardEntry $entry */
+        $entry = LeaderboardEntry::where('leaderboard_id', $leaderboard->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        $this->assertEquals($gameHash->id, $entry->playerSession->game_hash_id);
     }
 
     public function testSubmitLeaderboardEntryMany(): void

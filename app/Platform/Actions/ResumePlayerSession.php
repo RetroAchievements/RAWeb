@@ -65,6 +65,10 @@ class ResumePlayerSession
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
 
+            if ($gameHash && !$playerSession->game_hash_id) {
+                $playerSession->game_hash_id = $gameHash->id;
+            }
+
             if ($userAgent && !$playerSession->user_agent) {
                 $playerSession->user_agent = $userAgent;
             }
@@ -94,8 +98,8 @@ class ResumePlayerSession
         $playerSession = new PlayerSession([
             'user_id' => $user->id,
             'game_id' => $game->id,
+            'game_hash_id' => $gameHash?->id,
             // TODO add game hash set reference as soon as they are in place
-            // 'game_hash_id' => $game->gameHashSets()->first()->hashes()->first()->id,
             // 'game_hash_set_id' => $game->gameHashSets()->first()->id, // TODO
             'rich_presence' => $presence,
             'rich_presence_updated_at' => $timestamp,

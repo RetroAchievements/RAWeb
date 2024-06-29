@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use Carbon\Carbon;
@@ -17,7 +18,8 @@ class UnlockPlayerAchievement
         Achievement $achievement,
         bool $hardcore,
         ?Carbon $timestamp = null,
-        ?User $unlockedBy = null
+        ?User $unlockedBy = null,
+        ?GameHash $gameHash = null,
     ): void {
         $timestamp ??= Carbon::now();
 
@@ -33,7 +35,7 @@ class UnlockPlayerAchievement
         } else {
             // make sure to resume the player session which will attach the game to the player, too
             $playerSession = app()->make(ResumePlayerSession::class)
-                ->execute($user, $achievement->game, timestamp: $timestamp);
+                ->execute($user, $achievement->game, gameHash: $gameHash, timestamp: $timestamp);
         }
 
         $unlock = $user->playerAchievements()->firstOrCreate([

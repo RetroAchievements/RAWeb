@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Platform\Concerns;
 
 use App\Models\Achievement;
+use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievement;
 use App\Platform\Enums\UnlockMode;
@@ -16,7 +17,8 @@ trait TestsPlayerAchievements
         User $user,
         Achievement $achievement,
         ?Carbon $hardcoreUnlockTime,
-        Carbon $softcoreUnlockTime
+        Carbon $softcoreUnlockTime,
+        ?GameHash $gameHash = null,
     ): void {
         (new UnlockPlayerAchievement())
             ->execute(
@@ -24,20 +26,22 @@ trait TestsPlayerAchievements
                 $achievement,
                 $hardcoreUnlockTime !== null,
                 $hardcoreUnlockTime ?? $softcoreUnlockTime,
+                null,
+                $gameHash,
             );
 
         // refresh user, unlocking achievements cascades into metrics recalculations
         $user->refresh();
     }
 
-    protected function addHardcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void
+    protected function addHardcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null, ?GameHash $gameHash = null): void
     {
-        $this->addPlayerAchievement($user, $achievement, $when ?? Carbon::now(), $when ?? Carbon::now());
+        $this->addPlayerAchievement($user, $achievement, $when ?? Carbon::now(), $when ?? Carbon::now(), $gameHash);
     }
 
-    protected function addSoftcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null): void
+    protected function addSoftcoreUnlock(User $user, Achievement $achievement, ?Carbon $when = null, ?GameHash $gameHash = null): void
     {
-        $this->addPlayerAchievement($user, $achievement, null, $when ?? Carbon::now());
+        $this->addPlayerAchievement($user, $achievement, null, $when ?? Carbon::now(), $gameHash);
     }
 
     protected function removeUnlock(User $user, Achievement $achievement): void

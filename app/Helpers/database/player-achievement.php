@@ -2,6 +2,7 @@
 
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
 use App\Models\User;
@@ -12,7 +13,7 @@ use Illuminate\Support\Collection;
 /**
  * @deprecated see UnlockPlayerAchievementAction
  */
-function unlockAchievement(User $user, int $achievementId, bool $isHardcore): array
+function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?GameHash $gameHash = null): array
 {
     $retVal = [
         'Success' => false,
@@ -45,6 +46,10 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore): ar
     $playerGame = PlayerGame::where('user_id', $user->id)
         ->where('game_id', $achievement->GameID)
         ->first();
+
+    if ($playerGame && $gameHash) {
+        $playerGame->game_hash_id = $gameHash->id;
+    }
 
     if (!$alreadyAwarded) {
         $now = Carbon::now();
