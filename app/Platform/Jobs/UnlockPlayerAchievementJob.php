@@ -3,6 +3,7 @@
 namespace App\Platform\Jobs;
 
 use App\Models\Achievement;
+use App\Models\GameHash;
 use App\Models\User;
 use App\Platform\Actions\UnlockPlayerAchievement;
 use Illuminate\Bus\Queueable;
@@ -25,6 +26,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue
         private readonly bool $hardcore,
         private ?Carbon $timestamp = null,
         private readonly ?int $unlockedByUserId = null,
+        private readonly ?int $gameHashId = null,
     ) {
         $this->timestamp ??= Carbon::now();
     }
@@ -49,6 +51,7 @@ class UnlockPlayerAchievementJob implements ShouldQueue
             $this->hardcore,
             $this->timestamp,
             $this->unlockedByUserId ? User::findOrFail($this->unlockedByUserId) : null,
+            $this->gameHashId ? GameHash::find($this->gameHashId) : null,
         );
     }
 }

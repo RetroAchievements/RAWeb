@@ -2,17 +2,21 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
+use App\Platform\Actions\ResumePlayerSession;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
 
+// TODO migrate to action
 function SubmitLeaderboardEntry(
     User $user,
     int $lbID,
     int $newEntry,
-    ?string $validation
+    ?string $validation,
+    ?GameHash $gameHash = null
 ): array {
     $retVal = ['Success' => true];
 
@@ -42,6 +46,9 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
+    $playerSession = app()->make(ResumePlayerSession::class)
+        ->execute($user, $leaderboard->game, $gameHash);
+
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
         ->where('leaderboard_id', $leaderboard->id)
         ->where('user_id', $user->id)
@@ -57,6 +64,7 @@ function SubmitLeaderboardEntry(
 
             // Update the player's entry.
             $existingLeaderboardEntry->score = $newEntry;
+            $existingLeaderboardEntry->player_session_id = $playerSession->id;
             $existingLeaderboardEntry->save();
 
             $retVal['BestScore'] = $newEntry;
@@ -70,6 +78,7 @@ function SubmitLeaderboardEntry(
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user->id,
             'score' => $newEntry,
+            'player_session_id' => $playerSession->id,
         ]);
 
         $retVal['BestScore'] = $newEntry;
