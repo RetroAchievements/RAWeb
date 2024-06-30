@@ -20,7 +20,10 @@ function generateEmailVerificationToken(string $user): ?string
     }
 
     // Clear permissions til they validate their email.
-    SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Unregistered);
+    $userModel = User::firstWhere('User', $user);
+    if (!$userModel->isBanned) {
+        SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Unregistered);
+    }
 
     return $emailCookie;
 }
