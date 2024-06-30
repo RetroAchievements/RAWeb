@@ -77,5 +77,10 @@ $gameSystemUrl = route('game.index', ['c' => $game->ConsoleID]);
         </div>
     </div>
 
-    <a class="btn text-center py-2 w-full mt-2" href="/viewtopic.php?t={{ $forumTopicId }}">Learn more about this event</a>
+    <a
+        class="btn text-center py-2 w-full mt-2"
+        href="{{ route('forum.topic', ['forumTopic' => $forumTopicId]) }}"
+    >
+        Learn more about this event
+    </a>
 </div>

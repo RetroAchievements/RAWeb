@@ -37,7 +37,7 @@ use App\Support\Shortcode\Shortcode;
             <div class="flex flex-col gap-y-2">
                 <p class="truncate">
                     in
-                    <a href="/viewtopic.php?t={{ $post['ForumTopicID'] }}&c={{ $post['CommentID'] }}#{{ $post['CommentID'] }}">
+                    <a href="{{ route('forum.topic', ['forumTopic' => $post['ForumTopicID'], 'comment' => $post['CommentID']]) }}#{{ $post['CommentID'] }}">
                         {{ $post['ForumTopicTitle'] }}
                     </a>
                 </p>

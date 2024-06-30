@@ -35,7 +35,7 @@ use App\Support\Shortcode\Shortcode;
 
                 <td @if ($isForSpecificUser) class="py-2" @endif>
                     <p class="flex items-center gap-x-2">
-                        <a href="/viewtopic.php?t={{ $post['ForumTopicID'] }}&c={{ $post['CommentID'] }}#{{ $post['CommentID'] }}">
+                        <a href="{{ route('forum.topic', ['forumTopic' => $post['ForumTopicID'], 'comment' => $post['CommentID']]) }}#{{ $post['CommentID'] }}">
                             {{ $post['ForumTopicTitle'] }}
                         </a>
 

@@ -145,7 +145,9 @@ sanitize_outputs(
         <?php
         echo "</td>";
         echo "<td>";
-        echo "<a href='/viewtopic.php?t=$nextTopicID'>$nextTopicTitle</a>";
+        ?>
+        <a href="{{ route('forum.topic', ['forumTopic' => $nextTopicID]) }}">{{ $nextTopicTitle }}</a>
+        <?php
         echo "<div class='mb-1' style='word-break:break-word'>";
         echo Shortcode::stripAndClamp("$nextTopicPreview...", previewLength: 57);
         echo "</div>";
@@ -156,7 +158,15 @@ sanitize_outputs(
         echo "<td>" . localized_number($nextTopicNumReplies) . "</td>";
         echo "<td>";
         echo "<div class='xl:flex xl:flex-col xl:items-end xl:gap-y-0.5'>" . userAvatar($nextTopicLastCommentAuthor ?? 'Deleted User', icon: false) . "<span class='smalldate'>$nextTopicLastCommentPostedNiceDate</span>";
-        echo "<a class='text-2xs' href='viewtopic.php?t=$nextTopicID&amp;c=$nextTopicLastCommentID#$nextTopicLastCommentID' title='View latest post'>View</a>";
+        ?>
+        <a
+            class="text-2xs"
+            href="{{ route('forum.topic', ['forumTopic' => $nextTopicID, 'comment' => $nextTopicLastCommentID]) }}#{{ $nextTopicLastCommentID }}"
+            title="View latest post"
+        >
+            View
+        </a>
+        <?php
         echo "</div>";
         echo "</td>";
         echo "</tr>";

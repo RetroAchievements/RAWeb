@@ -16,7 +16,7 @@ use App\Models\ForumTopic;
 @if ($doesGameHaveForumTopic)
     <p>
         No leaderboards found. Why not
-        <a href="{{ '/viewtopic.php?t=' . $game->ForumTopicID }}">
+        <a href="{{ route('forum.topic', ['forumTopic' => $game->ForumTopicID]) }}">
             suggest some
         </a>
         for this game?

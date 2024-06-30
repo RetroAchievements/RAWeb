@@ -120,8 +120,11 @@ return [
             '' => '/forums/posts',
         ],
         '/viewforum.php' => '/forums/forum/{f}',
-        '/viewtopic.php' => '/forums/topic/{t}',
-        '/forum/viewtopic.php' => '/forums/topic/{t}',
+        '/viewtopic.php' => [
+            'c' => '/forums/topic/{t}?comment={c}',
+            'o' => '/forums/topic/{t}?offset={o}',
+            '' => '/forums/topic/{t}',
+        ],
 
         '/createtopic.php' => '/forums/forum/{f}/topic/create',
         '/editpost.php' => '/forums/post/{comment}/edit',

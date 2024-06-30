@@ -24,12 +24,25 @@ class ForumTopicForm extends Form
     #[Validate('required|max:60000')]
     public string $body = '';
 
+    public int $requiredPermissions = 0;
+
     #[Locked]
     public Forum $forum;
+
+    #[Locked]
+    public ForumTopic $forumTopic;
 
     public function setForum(Forum $forum): void
     {
         $this->forum = $forum;
+    }
+
+    public function setForumTopic(ForumTopic $forumTopic): void
+    {
+        $this->forumTopic = $forumTopic;
+
+        $this->title = $this->forumTopic->title;
+        $this->requiredPermissions = $this->forumTopic->RequiredPermissions;
     }
 
     public function store(): RedirectResponse|Redirector
@@ -46,7 +59,42 @@ class ForumTopicForm extends Form
             $this->body,
         );
 
-        return redirect(url("/viewtopic.php?t={$newForumTopicComment->forumTopic->id}"))
+        return redirect(route('forum.topic', ['forumTopic' => $newForumTopicComment->forumTopic->id]))
             ->with('success', __('legacy.success.create'));
+    }
+
+    public function delete(): RedirectResponse|Redirector
+    {
+        $this->authorize('delete', $this->forumTopic);
+
+        $forumId = $this->forumTopic->forum->id;
+
+        $this->forumTopic->delete();
+
+        return redirect(url("/viewforum.php?f={$forumId}"))
+            ->with('success', __('legacy.success.delete'));
+    }
+
+    public function updateTitle(): RedirectResponse|Redirector
+    {
+        $this->authorize('update', $this->forumTopic);
+        $validated = $this->validateOnly('title');
+
+        $this->forumTopic->title = $validated['title'];
+        $this->forumTopic->save();
+
+        return redirect(route('forum.topic', ['forumTopic' => $this->forumTopic]))
+            ->with('success', __('legacy.success.modify'));
+    }
+
+    public function updateRequiredPermissions(): RedirectResponse|Redirector
+    {
+        $this->authorize('manage', $this->forumTopic);
+
+        $this->forumTopic->RequiredPermissions = $this->requiredPermissions;
+        $this->forumTopic->save();
+
+        return redirect(route('forum.topic', ['forumTopic' => $this->forumTopic]))
+            ->with('success', __('legacy.success.modify'));
     }
 }

@@ -29,16 +29,16 @@ $lastPageUrl = $baseUrl . '?' . http_build_query($queryParams);
 ?>
 
 <script>
-function handlePageSelected(event) {
-    const newQueryParamValue = event.target.value;
-    window.updateUrlParameter('page[number]', newQueryParamValue);
-}
+    function handlePageSelected(event) {
+        const newQueryParamValue = event.target.value;
+        window.updateUrlParameter('page[number]', newQueryParamValue);
+    }
 </script>
 
 <div class="flex items-center gap-x-1">
     @if ($currentPage > 1)
-        <a title="First" href="{{ $firstPageUrl }}">≪</a>
-        <a title="Previous" href="{{ $previousPageUrl }}"><</a>
+        <a title="First" href="{{ $firstPageUrl }}">&Lt;</a>
+        <a title="Previous" href="{{ $previousPageUrl }}">&lt;</a>
     @endif
 
     Page
@@ -59,7 +59,7 @@ function handlePageSelected(event) {
     of {{ $totalPages }}
 
     @if ($currentPage < $totalPages)
-        <a title="Next" href="{{ $nextPageUrl }}">></a>
-        <a title="Last" href="{{ $lastPageUrl }}">≫</a>
+        <a title="Next" href="{{ $nextPageUrl }}">&gt;</a>
+        <a title="Last" href="{{ $lastPageUrl }}">&Gt;</a>
     @endif
 </div>

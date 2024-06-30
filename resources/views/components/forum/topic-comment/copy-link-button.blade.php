@@ -7,7 +7,10 @@
 $commentId = $forumTopicComment->id;
 $forumTopicId = $forumTopicComment->forum_topic_id;
 
-$postCommentUrl = config('app.url') . "/viewtopic.php?t=$forumTopicId&c=$commentId#$commentId";
+$postCommentUrl = route('forum.topic', [
+    'forumTopic' => $forumTopicId,
+    'comment' => $commentId
+]) . "#{$commentId}";
 ?>
 
 <button

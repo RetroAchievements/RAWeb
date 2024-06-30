@@ -56,10 +56,10 @@ class ForumRecentActivity extends Component
                 'ForumTopicTitle' => $rawRecentPost['ForumTopicTitle'],
                 'HasDateTooltip' => !$isShowAbsoluteDatesPreferenceSet,
 
-                // "viewtopic.php?t=12345&c=112233#112233"
-                'URL' => '/viewtopic.php?t='
-                    . $rawRecentPost['ForumTopicID'] . '&c=' . $rawRecentPost['CommentID']
-                    . '#' . $rawRecentPost['CommentID'],
+                'URL' => route('forum.topic', [
+                        'forumTopic' => $rawRecentPost['ForumTopicID'],
+                        'comment' => $rawRecentPost['CommentID'],
+                    ]) . '#' . $rawRecentPost['CommentID'],
 
                 'PostedAt' => $isShowAbsoluteDatesPreferenceSet
                     ? getNiceDate(strtotime($rawRecentPost['PostedAt']))
