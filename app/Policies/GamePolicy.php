@@ -92,9 +92,11 @@ class GamePolicy
         }
 
         $roleFieldPermissions = [
-            Role::DEVELOPER_JUNIOR => ['Title', 'GuideURL'],
-            Role::DEVELOPER => ['Title', 'GuideURL'],
-            Role::DEVELOPER_STAFF => ['Title', 'GuideURL'],
+            // Junior Developers cannot edit the game title.
+            Role::DEVELOPER_JUNIOR => ['GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
+
+            Role::DEVELOPER => ['Title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
+            Role::DEVELOPER_STAFF => ['Title', 'GuideURL', 'Developer', 'Publisher', 'Genre', 'released_at', 'released_at_granularity'],
         ];
 
         $userRoles = $user->getRoleNames();
