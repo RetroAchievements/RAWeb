@@ -84,6 +84,9 @@ class NotifyMessageThreadParticipants
             return;
         }
 
+        // Thread names cannot be over 100 characters long, otherwise the webhook POST will fail.
+        $truncatedTitle = mb_strimwidth($messageThread->title, 0, 95, '...');
+
         $color = hexdec('0x0066CC');
         $mentionRoles = collect(Arr::wrap($inboxConfig['mention_role'] ?? []))
             ->map(fn ($role) => '<@&' . $role . '>');
@@ -114,6 +117,12 @@ class NotifyMessageThreadParticipants
             $isForum = false;
         }
 
+        if (mb_strpos(mb_strtolower($messageThread->title), 'unwelcome concept') !== false) {
+            $webhookUrl = $inboxConfig['unwelcome_concept_url'];
+            $mentionRoles = collect();
+            $isForum = true;
+        }
+
         $payload = [
             'username' => $userTo->username . ' Inbox',
             'avatar_url' => $userTo->avatar_url,
@@ -125,7 +134,7 @@ class NotifyMessageThreadParticipants
                         'url' => url('user/' . $userFrom->username),
                         'icon_url' => $userFrom->avatar_url,
                     ],
-                    'title' => $messageThread->title,
+                    'title' => $truncatedTitle,
                     'url' => route('message-thread.show', ['messageThread' => $messageThread->id]),
                     'description' => mb_substr($message->body, 0, 2000),
                     'color' => $color,
@@ -139,7 +148,7 @@ class NotifyMessageThreadParticipants
 
         if ($isForum) {
             // Forum channels require an additional 'thread_name' JSON parameter to be successfully posted.
-            $payload['thread_name'] = $messageThread->title;
+            $payload['thread_name'] = $truncatedTitle;
         }
 
         (new Client())->post($webhookUrl, ['json' => $payload]);
