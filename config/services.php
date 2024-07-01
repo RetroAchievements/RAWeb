@@ -32,6 +32,7 @@ return [
                 'url' => env('DISCORD_WEBHOOK_DEVCOMPLIANCE'),
                 'is_forum' => true,
                 'mention_role' => env('DISCORD_ROLE_DEVCOMPLIANCE'),
+                'unwelcome_concept_url' => env('DISCORD_WEBHOOK_DEVCOMPLIANCE_UNWELCOME_CONCEPT'),
             ],
             'DevQuest' => [
                 'url' => env('DISCORD_WEBHOOK_DEVQUEST'),
