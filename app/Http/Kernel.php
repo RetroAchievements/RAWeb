@@ -48,6 +48,10 @@ class Kernel extends HttpKernel
             // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.':web',
         ],
 
+        'inertia' => [
+            Middleware\HandleInertiaRequests::class,
+        ],
+
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \App\Api\Middleware\AccessControlAllowOriginWildcard::class,

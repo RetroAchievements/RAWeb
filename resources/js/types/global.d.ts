@@ -1,5 +1,5 @@
 import type { Alpine } from 'alpinejs';
-import type { route as ziggyRoute } from 'ziggy-js';
+import type { route as routeFn } from 'ziggy-js';
 
 import type {
   modalComponent as ModalComponent,
@@ -8,7 +8,7 @@ import type {
   toggleAchievementRowsComponent as ToggleAchievementRowsComponent,
   tooltipComponent as TooltipComponent,
 } from '@/tall-stack/alpine';
-import { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
+import type { autoExpandTextInput as AutoExpandTextInput } from '@/utils/autoExpandTextInput';
 import type {
   deleteCookie as DeleteCookie,
   getCookie as GetCookie,
@@ -51,5 +51,5 @@ declare global {
   var updateUrlParameter: typeof UpdateUrlParameter;
 
   // Inertia
-  var route: typeof ziggyRoute;
+  var route: typeof routeFn;
 }

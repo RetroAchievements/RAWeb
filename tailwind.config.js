@@ -43,11 +43,23 @@ module.exports = {
       },
 
       animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in': 'fade-in 100ms ease',
         'collapse-open': 'collapse-open 200ms ease-in-out',
         tilt: 'tilt 10s infinite linear',
       },
       keyframes: {
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+
         'fade-in': {
           '0%': { opacity: 0 },
           '100%': { opacity: 1 },
@@ -97,6 +109,7 @@ module.exports = {
   },
 
   plugins: [
+    require('tailwindcss-animate'),
     require('@tailwindcss/forms')({
       // TODO switch to global strategy as soon UI has been consolidated
       strategy: 'class', // only generate classes
