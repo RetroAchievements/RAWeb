@@ -10,7 +10,7 @@ $devFilter = requestInputSanitized('f', 7, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $maxItemsPerPage = 25;
-$devStatsList = GetDeveloperStatsFull($maxItemsPerPage, $offset, $type, $devFilter);
+$devStatsList = GetDeveloperStatsFull($maxItemsPerPage, max(0, $offset), $type, $devFilter);
 $filteredDevCount = sizeof($devStatsList);
 $totalDevCount = getDeveloperStatsTotalCount($devFilter);
 $totalPages = ceil($totalDevCount / $maxItemsPerPage);
