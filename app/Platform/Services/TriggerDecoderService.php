@@ -340,11 +340,11 @@ class TriggerDecoderService
             }
         }
 
-        $codeNotes = MemoryNote::where('GameID', $gameId)
-            ->whereIn('Address', $memoryReferences)
+        $codeNotes = MemoryNote::where('game_id', $gameId)
+            ->whereIn('address', $memoryReferences)
             ->get()
             ->mapWithKeys(function ($row, $key) {
-                return [$row['Address'] => $row['Note']];
+                return [$row['address'] => $row['body']];
             })
             ->toArray();
 

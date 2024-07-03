@@ -323,13 +323,13 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
-     * TODO will need to be modified if GameID is migrated to game_hash_set_id
+     * TODO will need to be modified if game_id is migrated to game_hash_set_id
      *
      * @return HasMany<MemoryNote>
      */
     public function memoryNotes(): HasMany
     {
-        return $this->hasMany(MemoryNote::class, 'GameID');
+        return $this->hasMany(MemoryNote::class, 'game_id');
     }
 
     /**

@@ -4,54 +4,44 @@ use App\Enums\Permissions;
 use App\Models\MemoryNote;
 use App\Models\User;
 
-function getCodeNotesData(int $gameID): array
+function loadCodeNotes(int $gameId): ?array
 {
-    $codeNotesOut = [];
-
-    $query = "SELECT ua.User, cn.Address, cn.Note
-              FROM CodeNotes AS cn
-              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.user_id
-              WHERE cn.GameID = '$gameID'
-              ORDER BY cn.Address ";
-
-    $dbResult = s_mysql_query($query);
-    if ($dbResult !== false) {
-        while ($db_entry = mysqli_fetch_assoc($dbResult)) {
-            // Seamless :)
-            $db_entry['Address'] = sprintf("0x%06x", $db_entry['Address']);
-            $codeNotesOut[] = $db_entry;
-        }
-    } else {
-        log_sql_fail();
-    }
-
-    return $codeNotesOut;
-}
-
-function getCodeNotes(int $gameID, ?array &$codeNotesOut): bool
-{
-    $query = "SELECT ua.User, cn.Address, cn.Note
-              FROM CodeNotes AS cn
-              LEFT JOIN UserAccounts AS ua ON ua.ID = cn.user_id
-              WHERE cn.GameID = $gameID
-              ORDER BY cn.Address ";
+    $query = "SELECT ua.User, mn.address AS Address, mn.body AS Note
+              FROM memory_notes AS mn
+              LEFT JOIN UserAccounts AS ua ON ua.ID = mn.user_id
+              WHERE mn.game_id = '$gameId'
+              ORDER BY mn.Address ";
 
     $dbResult = s_mysql_query($query);
     if ($dbResult !== false) {
         $codeNotesOut = [];
 
-        $numResults = 0;
         while ($db_entry = mysqli_fetch_assoc($dbResult)) {
             // Seamless :)
             $db_entry['Address'] = sprintf("0x%06x", $db_entry['Address']);
-            $codeNotesOut[$numResults++] = $db_entry;
+            $codeNotesOut[] = $db_entry;
         }
 
-        return true;
+        return $codeNotesOut;
     }
+
     log_sql_fail();
 
-    return false;
+    return null;
+}
+
+function getCodeNotesData(int $gameId): array
+{
+    $codeNotesOut = loadCodeNotes($gameId);
+
+    return $codeNotesOut !== null ? $codeNotesOut : [];
+}
+
+function getCodeNotes(int $gameId, ?array &$codeNotesOut): bool
+{
+    $codeNotesOut = loadCodeNotes($gameId);
+
+    return $codeNotesOut !== null;
 }
 
 function submitCodeNote2(string $username, int $gameID, int $address, string $note): bool
@@ -86,12 +76,12 @@ function submitCodeNote2(string $username, int $gameID, int $address, string $no
 
     MemoryNote::updateOrCreate(
         [
-            'GameID' => $gameID,
-            'Address' => $address,
+            'game_id' => $gameID,
+            'address' => $address,
         ],
         [
             'user_id' => $user->ID,
-            'Note' => $note,
+            'body' => $note,
         ]
     );
 
@@ -108,13 +98,13 @@ function getCodeNoteCounts(string $username): array
     $userId = $user->ID;
 
     $retVal = [];
-    $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, cn.GameID as GameID, COUNT(cn.GameID) as TotalNotes,
-              SUM(CASE WHEN cn.user_id = $userId THEN 1 ELSE 0 END) AS NoteCount
-              FROM CodeNotes AS cn
-              LEFT JOIN GameData AS gd ON gd.ID = cn.GameID
+    $query = "SELECT gd.Title as GameTitle, gd.ImageIcon as GameIcon, c.Name as ConsoleName, mn.game_id as GameID, COUNT(mn.game_id) as TotalNotes,
+              SUM(CASE WHEN mn.user_id = $userId THEN 1 ELSE 0 END) AS NoteCount
+              FROM memory_notes AS mn
+              LEFT JOIN GameData AS gd ON gd.ID = mn.game_id
               LEFT JOIN Console AS c ON c.ID = gd.ConsoleID
-              WHERE LENGTH(Note) > 0
-              AND gd.ID IN (SELECT GameID from CodeNotes WHERE user_id = $userId GROUP BY GameID)
+              WHERE LENGTH(body) > 0
+              AND gd.ID IN (SELECT game_id from memory_notes WHERE user_id = $userId GROUP BY game_id)
               AND gd.Title IS NOT NULL
               GROUP BY GameID, GameTitle
               HAVING NoteCount > 0
