@@ -5,6 +5,10 @@
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
+if (!request()->query('v')) {
+    abort_with(redirect(route('home')));
+}
+
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'v' => 'required',
 ], [], [
