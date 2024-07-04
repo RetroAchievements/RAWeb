@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Community\Enums\Rank;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -181,13 +182,14 @@ class UserPolicy
     public function updateAvatar(User $user): bool
     {
         // Users may only upload a new avatar if they have been a member for at
-        // least 14 days or if they have earned at least 250 points in either mode.
+        // least 14 days or if they have earned at least a minimum number of points
+        // in either mode.
 
         if ($user->isMuted()) {
             return false;
         }
 
-        if ($user->points >= 250 || $user->points_softcore >= 250) {
+        if ($user->points >= Rank::MIN_POINTS || $user->points_softcore >= Rank::MIN_POINTS) {
             return true;
         }
 

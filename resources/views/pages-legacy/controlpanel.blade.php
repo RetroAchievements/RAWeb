@@ -555,9 +555,9 @@ function confirmEmailChange(event) {
             </div>
             <a class="btn btn-link" href="reorderSiteAwards.php">Reorder Site Awards</a>
         </div>
-        @if ($userModel->can('updateAvatar', [User::class]))
-            <div class='component'>
-                <h3>Avatar</h3>
+        <div class='component'>
+            <h3>Avatar</h3>
+            @if ($userModel->can('updateAvatar', [User::class]))
                 <div style="margin-bottom: 10px">
                     New image should be less than 1MB, png/jpeg/gif supported.
                 </div>
@@ -578,8 +578,12 @@ function confirmEmailChange(event) {
                     <?= csrf_field() ?>
                     <button class="btn btn-danger">Remove Avatar</button>
                 </form>
-            </div>
-        @endif
+            @else
+                <div style="margin-bottom: 10px">
+                    To upload an avatar, earn 250 points in either mode or wait until your account is at least 14 days old.
+                </div>
+            @endif
+        </div>
     </x-slot>
 @endif
 </x-app-layout>
