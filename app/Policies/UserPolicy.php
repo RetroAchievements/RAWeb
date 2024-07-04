@@ -178,6 +178,27 @@ class UserPolicy
         return true;
     }
 
+    public function updateAvatar(User $user): bool
+    {
+        // Users may only upload a new avatar if they have been a member for at
+        // least 14 days or if they have earned at least 250 points in either mode.
+
+        if ($user->isMuted()) {
+            return false;
+        }
+
+        if ($user->points >= 250 || $user->points_softcore >= 250) {
+            return true;
+        }
+
+        $membershipDuration = now()->diffInDays($user->created_at ?? now());
+        if ($membershipDuration >= 14) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function deleteAvatar(User $user, User $model): bool
     {
         // users may delete their own avatar

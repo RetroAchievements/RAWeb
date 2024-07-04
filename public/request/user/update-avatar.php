@@ -1,9 +1,15 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
+    return back()->withErrors(__('legacy.error.permissions'));
+}
+
+$userModel = User::firstWhere('User', $user);
+if (!$userModel->can('updateAvatar', [User::class])) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 

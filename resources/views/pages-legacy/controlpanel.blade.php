@@ -2,6 +2,7 @@
 
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -9,6 +10,9 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 
 // cookie only returns the most common account details. go get the rest
 getAccountDetails($user, $userDetails);
+
+$userModel = User::firstWhere('User', $user);
+
 $points = (int) $userDetails['RAPoints'];
 $websitePrefs = (int) $userDetails['websitePrefs'];
 $emailAddr = $userDetails['EmailAddress'];
@@ -551,29 +555,31 @@ function confirmEmailChange(event) {
             </div>
             <a class="btn btn-link" href="reorderSiteAwards.php">Reorder Site Awards</a>
         </div>
-        <div class='component'>
-            <h3>Avatar</h3>
-            <div style="margin-bottom: 10px">
-                New image should be less than 1MB, png/jpeg/gif supported.
+        @if ($userModel->can('updateAvatar', [User::class]))
+            <div class='component'>
+                <h3>Avatar</h3>
+                <div style="margin-bottom: 10px">
+                    New image should be less than 1MB, png/jpeg/gif supported.
+                </div>
+                <div style="margin-bottom: 10px">
+                    <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
+                    <span id="loadingiconavatar" class="transition-all duration-300 opacity-0 float-right pt-1" aria-hidden="true">
+                        <x-fas-spinner class="loadingicon-spinner h-5 w-5" />
+                        <x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />
+                    </span>
+                </div>
+                <div style="margin-bottom: 10px">
+                    After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
+                </div>
+                <div style="margin-bottom: 10px">
+                    Reset your avatar to default by removing your current one:
+                </div>
+                <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
+                    <?= csrf_field() ?>
+                    <button class="btn btn-danger">Remove Avatar</button>
+                </form>
             </div>
-            <div style="margin-bottom: 10px">
-                <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
-                <span id="loadingiconavatar" class="transition-all duration-300 opacity-0 float-right pt-1" aria-hidden="true">
-                    <x-fas-spinner class="loadingicon-spinner h-5 w-5" />
-                    <x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />
-                </span>
-            </div>
-            <div style="margin-bottom: 10px">
-                After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
-            </div>
-            <div style="margin-bottom: 10px">
-                Reset your avatar to default by removing your current one:
-            </div>
-            <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
-                <?= csrf_field() ?>
-                <button class="btn btn-danger">Remove Avatar</button>
-            </form>
-        </div>
+        @endif
     </x-slot>
 @endif
 </x-app-layout>
