@@ -245,8 +245,7 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
             // invalid start, valid end
             $dateQuery = "AND pa.$column <= '$endTime'";
         } else {
-            // invalid start and end
-            // no date query needed
+            $dateQuery = "AND pa.$column IS NOT NULL";
         }
     }
 
