@@ -37,7 +37,12 @@ class EntriesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('user.display_name')
                     ->label('User')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('user', function (Builder $subQuery) use ($search) {
+                            return $subQuery->where('display_name', 'LIKE', "%{$search}%")
+                                ->orWhere('User', 'LIKE', "%{$search}%");
+                        });
+                    }),
 
                 Tables\Columns\TextColumn::make('score')
                     ->label('Result')
@@ -53,7 +58,11 @@ class EntriesRelationManager extends RelationManager
                     ->label('Date Submitted')
                     ->dateTime(),
             ])
-            ->defaultSort('score', 'asc')
+            ->defaultSort('score', function () {
+                $leaderboard = $this->getRelationship()->getParent();
+
+                return $leaderboard->rank_asc ? 'asc' : 'desc';
+            })
             ->searchPlaceholder('Search (User)')
             ->filters([
 
@@ -94,14 +103,5 @@ class EntriesRelationManager extends RelationManager
             ->bulkActions([
 
             ]);
-    }
-
-    /**
-     * @return Builder<LeaderboardEntry>
-     */
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->with(['leaderboard', 'user']);
     }
 }
