@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
@@ -42,7 +43,16 @@ class UpdateDeveloperContributionYieldJob implements ShouldQueue, ShouldBeUnique
 
     public function handle(): void
     {
+        $user = User::find($this->userId);
+
+        // This often occurs if the user has deleted their account.
+        if (!$user) {
+            Log::info("User [{$this->userId}] not found for UpdateDeveloperContributionYield.");
+
+            return;
+        }
+
         app()->make(UpdateDeveloperContributionYield::class)
-            ->execute(User::findOrFail($this->userId));
+            ->execute($user);
     }
 }
