@@ -1,14 +1,17 @@
 <?php
 
-use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\LeaderboardEntry;
 use App\Models\User;
+use App\Platform\Actions\RemoveLeaderboardEntry;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::JuniorDeveloper)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
+
+$currentUser = User::find($userDetails['ID']);
 
 $input = Validator::validate(Arr::wrap(request()->post()), [
     'user' => 'required|string|exists:UserAccounts,User',
@@ -24,21 +27,14 @@ if (!$targetUser) {
     return back()->withErrors(__('legacy.error.error'));
 }
 
-// Only let jr. devs remove their own entries
-if ($permissions == Permissions::JuniorDeveloper && $user !== $targetUser->User) {
+$entry = LeaderboardEntry::where('leaderboard_id', $leaderboardId)
+    ->where('user_id', $targetUser->id)
+    ->first();
+
+if (!$currentUser->can('delete', $entry)) {
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (removeLeaderboardEntry($targetUser, $leaderboardId, $score)) {
-    if ($targetUser->User !== $user) {
-        $commentText = 'removed "' . $targetUser->User . '"s entry of "' . $score . '" from this leaderboard';
-        if (!empty($reason)) {
-            $commentText .= '. Reason: ' . $reason;
-        }
-        addArticleComment("Server", ArticleType::Leaderboard, $leaderboardId, "\"$user\" $commentText.", $user);
-    }
+(new RemoveLeaderboardEntry())->execute($entry, $reason);
 
-    return back()->with('success', __('legacy.success.ok'));
-}
-
-return back()->withErrors(__('legacy.error.error'));
+return back()->with('success', __('legacy.success.ok'));

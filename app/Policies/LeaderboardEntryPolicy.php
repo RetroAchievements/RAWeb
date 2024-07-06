@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\LeaderboardEntry;
 use App\Models\Role;
 use App\Models\User;
@@ -13,6 +12,16 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class LeaderboardEntryPolicy
 {
     use HandlesAuthorization;
+
+    public function manage(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
+        ]);
+    }
 
     public function viewAny(?User $user): bool
     {
@@ -45,15 +54,12 @@ class LeaderboardEntryPolicy
             Role::DEVELOPER,
         ];
 
-        if ($user->hasAnyRole($canAlwaysDelete) || (int) $user->getAttribute('Permissions') >= Permissions::Developer) {
+        if ($user->hasAnyRole($canAlwaysDelete)) {
             return true;
         }
 
         // Junior Developers can only delete their own entries.
-        if (
-            ($user->hasRole(Role::DEVELOPER_JUNIOR) || (int) $user->getAttribute('Permissions') === Permissions::JuniorDeveloper)
-            && $leaderboardEntry->user_id === $user->id
-        ) {
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && $leaderboardEntry->user_id === $user->id) {
             return true;
         }
 
