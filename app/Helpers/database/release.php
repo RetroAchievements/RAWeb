@@ -28,7 +28,7 @@ function isValidConsoleId(int $consoleId): bool
         13, // Atari Lynx
         14, // Neo Geo Pocket
         15, // Game Gear
-        // 16, // GameCube
+        16, // GameCube
         17, // Atari Jaguar
         18, // Nintendo DS
         // 19, // Wii

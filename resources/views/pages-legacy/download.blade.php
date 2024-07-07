@@ -7,8 +7,11 @@ usort($emulators, function ($a, $b) {
 
 authenticateFromCookie($user, $permissions, $userDetails);
 ?>
-<x-app-layout pageTitle="Download a client">
-    <h2 class="mb-6">Emulators supporting RetroAchievements</h2>
+<x-app-layout
+    pageTitle="Download a supported emulator"
+    pageDescription="Get started with RetroAchievements by downloading an emulator with built-in RetroAchievements support."
+>
+    <h2 class="mb-6">Download a supported emulator</h2>
 
     <?php foreach ($emulators as $emulator): ?>
         <h2 class="longheader" id="<?= mb_strtolower($emulator['handle'] ?? null) ?>">
