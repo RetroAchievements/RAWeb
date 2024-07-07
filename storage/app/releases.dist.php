@@ -193,7 +193,7 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
             'name' => 'Dolphin',
             'handle' => 'Dolphin',
             'active' => true,
-            'link' => 'https://dolphin-emu.org/docs/faq/',
+            'link' => 'https://wiki.dolphin-emu.org/index.php?title=Main_Page',
             'download_url' => 'https://dolphin-emu.org/download/',
             'systems' => [
                 16, // GameCube
