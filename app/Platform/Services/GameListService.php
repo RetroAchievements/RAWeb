@@ -231,7 +231,7 @@ class GameListService
     public function getWantToPlayList(?User $user, int $offset, int $count): array
     {
         if ($user === null) {
-            return;
+            return [];
         }
 
         $wantToPlayGames = UserGameListEntry::where('user_id', $user->id)
