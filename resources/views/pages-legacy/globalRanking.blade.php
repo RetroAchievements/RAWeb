@@ -269,7 +269,7 @@ $unlockMode = match ($sort % 10) {
             if ($type == 0) {
                 echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['User'] . "'>" . localized_number($dataPoint['AchievementCount']) . "</a></td>";
             } else {
-                echo "<td class='text-right'>" . localized_number($dataPoint['AchievementCount']) . "</td>";
+                echo "<td class='text-right'>" . localized_number($dataPoint['AchievementCount'] ?? 0) . "</td>";
             }
 
             if ($unlockMode == UnlockMode::Hardcore) {
