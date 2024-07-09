@@ -39,7 +39,7 @@ class UserWantToPlayListTest extends TestCase
 
         /** Set up a user with 10 games on Want to Play List: */
 
-        /** @var User $me */
+        /** @var User $user */
         $user = User::factory()->create(['User' => 'myUser']);
 
         /** @var System $system */
@@ -125,7 +125,7 @@ class UserWantToPlayListTest extends TestCase
             'type' => UserGameListType::Play,
         ]);
 
-        $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $me->User]))
+        $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $user->User]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 10,
