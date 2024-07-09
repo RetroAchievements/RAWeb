@@ -73,6 +73,9 @@ class GameResource extends Resource
                 Infolists\Components\Section::make('Metadata')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
+                        Infolists\Components\TextEntry::make('permalink')
+                            ->url(fn (Game $record): string => $record->getPermalinkAttribute()),
+
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
