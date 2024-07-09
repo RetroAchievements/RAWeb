@@ -40,7 +40,7 @@ class UserWantToPlayListTest extends TestCase
         /** Set up a user with 10 games on Want to Play List: */
 
         /** @var User $me */
-        $me = User::factory()->create(['User' => 'myUser']);
+        $user = User::factory()->create(['User' => 'myUser']);
 
         /** @var System $system */
         $system = System::factory()->create();
