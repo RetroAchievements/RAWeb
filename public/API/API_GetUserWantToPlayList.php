@@ -11,8 +11,8 @@
  *  int        ConsoleID                  unique identifier of the console associated to the game
  *  string     ConsoleName                name of the console associated to the game
  *  string     ImageIcon                  site-relative path to the game's icon image
- *  int        Points                     total points able to be earned
- *  int        NumAchievements            total number of achievements to be unlocked
+ *  int        TotalPoints                     total points able to be earned
+ *  int        NumPossibleAchievements            total number of achievements to be unlocked
  */
 
 use App\Models\Game;
@@ -55,7 +55,7 @@ if (!empty($wantToPlayGameIDs)) {
                 'Title' => $game->Title,
                 'ConsoleID' => $game->ConsoleID,
                 'ImageIcon' => $game->ImageIcon,
-                'Points' => $game->points_total,
+                'TotalPoints' => $game->points_total,
                 'NumPossibleAchievements' => $game->achievements_published
             ];
 
