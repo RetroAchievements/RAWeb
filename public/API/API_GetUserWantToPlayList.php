@@ -67,5 +67,5 @@ if (!empty($wantToPlayGameIDs)) {
 return response()->json([
     'Count' => count($results),
     'Total' => count($wantToPlayGameIDs),
-    'Results' => $results,
+    'Results' => $results
 ]);
