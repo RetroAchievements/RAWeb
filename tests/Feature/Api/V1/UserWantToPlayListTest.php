@@ -172,7 +172,7 @@ class UserWantToPlayListTest extends TestCase
                         'NumPossibleAchievements' => $gameFive->achievements_published,
                     ],
                     [
-                        "GameID" => $gameSix->ID,
+                        "ID" => $gameSix->ID,
                         "Title" => $gameSix->Title,
                         "ImageIcon" => $gameSix->ImageIcon,
                         "ConsoleID" => $system->ID,
@@ -180,7 +180,7 @@ class UserWantToPlayListTest extends TestCase
                         'NumPossibleAchievements' => $gameSix->achievements_published,
                     ],
                     [
-                        "GameID" => $gameSeven->ID,
+                        "ID" => $gameSeven->ID,
                         "Title" => $gameSeven->Title,
                         "ImageIcon" => $gameSeven->ImageIcon,
                         "ConsoleID" => $system->ID,
@@ -188,7 +188,7 @@ class UserWantToPlayListTest extends TestCase
                         'NumPossibleAchievements' => $gameSeven->achievements_published,
                     ],
                     [
-                        "GameID" => $gameEight->ID,
+                        "ID" => $gameEight->ID,
                         "Title" => $gameEight->Title,
                         "ImageIcon" => $gameEight->ImageIcon,
                         "ConsoleID" => $system->ID,
@@ -196,7 +196,7 @@ class UserWantToPlayListTest extends TestCase
                         'NumPossibleAchievements' => $gameEight->achievements_published,
                     ],
                     [
-                        "GameID" => $gameNine->ID,
+                        "ID" => $gameNine->ID,
                         "Title" => $gameNine->Title,
                         "ImageIcon" => $gameNine->ImageIcon,
                         "ConsoleID" => $system->ID,
@@ -204,7 +204,7 @@ class UserWantToPlayListTest extends TestCase
                         'NumPossibleAchievements' => $gameNine->achievements_published,
                     ],
                     [
-                        "GameID" => $gameTen->ID,
+                        "ID" => $gameTen->ID,
                         "Title" => $gameTen->Title,
                         "ImageIcon" => $gameTen->ImageIcon,
                         "ConsoleID" => $system->ID,
