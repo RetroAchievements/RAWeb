@@ -15,10 +15,10 @@
  *  int        NumPossibleAchievements            total number of achievements to be unlocked
  */
 
+use App\Community\Enums\UserGameListType;
 use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
-use App\Community\Enums\UserGameListType;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Validator;
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
-    'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable']
+    'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
 
 $offset = $input['o'] ?? 0;
@@ -56,7 +56,7 @@ if (!empty($wantToPlayGameIDs)) {
                 'ConsoleID' => $game->ConsoleID,
                 'ImageIcon' => $game->ImageIcon,
                 'TotalPoints' => $game->points_total,
-                'NumPossibleAchievements' => $game->achievements_published
+                'NumPossibleAchievements' => $game->achievements_published,
             ];
 
             array_push($results, $gameData);
@@ -67,5 +67,5 @@ if (!empty($wantToPlayGameIDs)) {
 return response()->json([
     'Count' => count($results),
     'Total' => count($wantToPlayGameIDs),
-    'Results' => $results
+    'Results' => $results,
 ]);
