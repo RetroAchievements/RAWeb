@@ -228,6 +228,25 @@ class GameListService
         }
     }
 
+    public function getWantToPlayList(?User $user, int $offset, int $count): array
+    {
+        if ($user === null) {
+            return;
+        }
+
+        $wantToPlayGames = UserGameListEntry::where('user_id', $user->id)
+            ->where('type', UserGameListType::Play)
+            ->pluck('GameID')
+            ->toArray();
+            //how do I get the offset and count to work here?
+
+        foreach ($this->games as &$game) {
+            $game['WantToPlay'] = in_array($game['ID'], $wantToPlayGames);
+        }
+
+        return $wantToPlayGames;
+    }
+
     public function getAvailableSorts(): array
     {
         $sorts = [
