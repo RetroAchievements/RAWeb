@@ -23,7 +23,7 @@ class UserWantToPlayListTest extends TestCase
     {
         $this->get($this->apiUrl('GetUserWantToPlayList'))
             ->assertJsonValidationErrors([
-                'u',
+                'u'
             ]);
     }
 
@@ -51,7 +51,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameOne->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameTwo */
@@ -59,7 +59,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameTwo->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
         
         /** @var Game $gameThree */
@@ -67,7 +67,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameThree->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameFour */
@@ -75,7 +75,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameFour->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameFive */
@@ -83,7 +83,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameFive->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameSix */
@@ -91,7 +91,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameSix->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameSeven */
@@ -99,7 +99,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameSeven->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameEight */
@@ -107,7 +107,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameEight->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameNine */
@@ -115,7 +115,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameNine->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
         /** @var Game $gameTen */
@@ -123,7 +123,7 @@ class UserWantToPlayListTest extends TestCase
         UserGameListEntry::create([
             'user_id' => $user->id,
             'GameID' => $gameTen->ID,
-            'type' => UserGameListType::Play,
+            'type' => UserGameListType::Play
         ]);
 
 

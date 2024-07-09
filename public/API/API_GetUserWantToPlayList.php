@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Validator;
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
-    'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
+    'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable']
 ]);
 
 $offset = $input['o'] ?? 0;
