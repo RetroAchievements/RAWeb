@@ -55,8 +55,8 @@ if (!empty($wantToPlayGameIDs)) {
                 'Title' => $game->Title,
                 'ConsoleID' => $game->ConsoleID,
                 'ImageIcon' => $game->ImageIcon,
-                'TotalPoints' => $game->points_total,
-                'NumPossibleAchievements' => $game->achievements_published,
+                'PointsTotal' => $game->points_total,
+                'AchievementsPublished' => $game->achievements_published,
             ];
 
             array_push($results, $gameData);
