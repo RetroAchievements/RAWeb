@@ -3,122 +3,65 @@
 /*
  *  API_GetUserWantToPlayList - returns a list of GameIDs that a user has saved on their WantToPlayList
  *    u : username
+ *    o : offset - number of entries to skip (default: 0)
+ *    c : count - number of entries to return (default: 100, max: 500)
  *
- *  array
- *   int     GameID                id of the game 
+ *  int        ID                         unique identifier of the game
+ *  string     Title                      name of the game
+ *  int        ConsoleID                  unique identifier of the console associated to the game
+ *  string     ConsoleName                name of the console associated to the game
+ *  string     ImageIcon                  site-relative path to the game's icon image
  */
 
-use App\Models\Achievement;
-use App\Models\AchievementSetClaim;
 use App\Models\Game;
 use App\Models\User;
+use App\Models\UserGameListEntry;
+use App\Community\Enums\UserGameListType;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
-    'c' => 'nullable|integer|min:0',
-    'o' => 'nullable|integer|min:0',
+    'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
+    'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
+
+$offset = $input['o'] ?? 0;
+$count = $input['c'] ?? 100;
 
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {
     return response()->json([]);
 }
 
-$count = min((int) request()->query('c', '10'), 50);
-$offset = (int) request()->query('o');
+$wantToPlayGameIDs = UserGameListEntry::where('user_id', $user->id)
+    ->where('type', UserGameListType::Play)
+    ->offset($offset)
+    ->limit($count)
+    ->pluck('GameID')
+    ->toArray();
 
-$wantToPlayData = getWantToPlayList($user, $offset, $count)
-$gameArray = []
+$results = [];
 
-if (!empty($wantToPlayData)) {
-    $gameIDs = [];
-    foreach ($wantToPlayData as $wantToPlay) {
-        $gameIDs[] = $wantToPlay['GameID'];
-    }
-
-    foreach ($gameIDs['GameID'] as $nextGameID) {
-        $game = Game::with('system')->find($gameId);
+if (!empty($wantToPlayGameIDs)) {
+    foreach ($wantToPlayGameIDs as $nextGameID) {
+        $game = Game::with('system')->find($nextGameID);
         if ($game) {
-            $gameAchievementSetClaims = AchievementSetClaim::with('user')->where('game_id', $gameId)->get();
-            $gameAchievements = Achievement::where('GameID', $gameId)->where('Flags', $flag)->findMany($game->achievements);
-
             $gameData = [
                 'ID' => $game->ID,
                 'Title' => $game->Title,
                 'ConsoleID' => $game->ConsoleID,
-                'ForumTopicID' => $game->ForumTopicID,
-                'Flags' => null, // Always '0', this is different in the extended endpoint test for some reason
                 'ImageIcon' => $game->ImageIcon,
-                'ImageTitle' => $game->ImageTitle,
-                'ImageIngame' => $game->ImageIngame,
-                'ImageBoxArt' => $game->ImageBoxArt,
-                'Publisher' => $game->Publisher,
-                'Developer' => $game->Developer,
-                'Genre' => $game->Genre,
-                'Released' => $game->Released,
-                'IsFinal' => $game->IsFinal,
-                'RichPresencePatch' => md5($game->RichPresencePatch),
-                'GuideURL' => $game->GuideURL,
-                'Updated' => $game->Updated->format('Y-m-d\TH:i:s.u\Z'),
             ];
 
-            // Use maps to structure the data with how legacy API consumers might expect it to be returned.
-            if (!$gameAchievements->isEmpty()) {
-                $gameAchievements->loadMissing('developer');
-
-                $gameListAchievements = $gameAchievements->keyBy('ID')->map(function ($am) {
-                    return [
-                        'ID' => $am->ID,
-                        'NumAwarded' => $am->unlocks_total,
-                        'NumAwardedHardcore' => $am->unlocks_hardcore_total,
-                        'Title' => $am->Title,
-                        'Description' => $am->Description,
-                        'Points' => $am->Points,
-                        'TrueRatio' => $am->TrueRatio,
-                        'Author' => $am->developer?->display_name,
-                        'DateModified' => Carbon::parse($am->DateModified)->format('Y-m-d H:i:s'),
-                        'DateCreated' => Carbon::parse($am->DateCreated)->format('Y-m-d H:i:s'),
-                        'BadgeName' => $am->BadgeName,
-                        'DisplayOrder' => $am->DisplayOrder,
-                        'MemAddr' => md5($am->MemAddr),
-                        'type' => $am->type,
-                    ];
-                });
-            } else {
-                $gameListAchievements = new ArrayObject();
-            }
-
-            if (!$gameAchievementSetClaims) {
-                $gameClaims = [];
-            } else {
-                $gameClaims = $gameAchievementSetClaims->map(function ($gc) {
-                    return [
-                        'User' => $gc->user->display_name,
-                        'SetType' => $gc->SetType,
-                        'GameID' => $gc->game_id,
-                        'ClaimType' => $gc->ClaimType,
-                        'Created' => Carbon::parse($gc->Created)->format('Y-m-d H:i:s'),
-                        'Expiration' => Carbon::parse($gc->Finished)->format('Y-m-d H:i:s'),
-                    ];
-                });
-            }
-
-            array_push($gameArray, array_merge(
-                $gameData,
-                [
-                    'ConsoleName' => $game->system->Name,
-                    'ParentGameID' => $game->getParentGame()?->id,
-                    'NumDistinctPlayers' => $game->players_total,
-                    'NumAchievements' => count($gameAchievements),
-                    'Achievements' => $gameListAchievements,
-                    'Claims' => $gameClaims
-                ]
-            ));
+            array_push($results, $gameData);
         }
     }
 }
 
-return response()->json($gameArray);
+return response()->json([
+    'Count' => count($results),
+    'Total' => count($wantToPlayGameIDs),
+    'Results' => $results,
+]);
