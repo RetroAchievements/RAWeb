@@ -42,15 +42,15 @@ if (!$user) {
 
 $wantToPlayGameIDs = UserGameListEntry::where('user_id', $user->id)
     ->where('type', UserGameListType::Play)
-    ->offset($offset)
-    ->limit($count)
     ->pluck('GameID')
     ->toArray();
 
+$pagedResults = array_slice($wantToPlayGameIDs, $offset, $count);
+
 $results = [];
 
-if (!empty($wantToPlayGameIDs)) {
-    foreach ($wantToPlayGameIDs as $nextGameID) {
+if (!empty($pagedResults)) {
+    foreach ($pagedResults as $nextGameID) {
         $game = Game::with('system')->find($nextGameID);
         if ($game) {
             $gameData = [
