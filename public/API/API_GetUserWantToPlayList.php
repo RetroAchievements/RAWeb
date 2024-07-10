@@ -5,14 +5,17 @@
  *    u : username
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
- *
- *  int        ID                         unique identifier of the game
- *  string     Title                      name of the game
- *  int        ConsoleID                  unique identifier of the console associated to the game
- *  string     ConsoleName                name of the console associated to the game
- *  string     ImageIcon                  site-relative path to the game's icon image
- *  int        TotalPoints                     total points able to be earned
- *  int        NumPossibleAchievements            total number of achievements to be unlocked
+ *  int         Count                       number of want to play game records returned in the response
+ *  int         Total                       number of want to play game records the user actually has overall
+ *  array       Results
+ *   object      [value]
+ *    int        ID                         unique identifier of the game
+ *    string     Title                      name of the game
+ *    int        ConsoleID                  unique identifier of the console associated to the game
+ *    string     ConsoleName                name of the console associated to the game
+ *    string     ImageIcon                  site-relative path to the game's icon image
+ *    int        TotalPoints                     total points able to be earned
+ *    int        NumPossibleAchievements            total number of achievements to be unlocked
  */
 
 use App\Community\Enums\UserGameListType;
