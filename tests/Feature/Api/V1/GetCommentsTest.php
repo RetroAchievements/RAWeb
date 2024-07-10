@@ -17,15 +17,15 @@ class API_GetCommentsTest extends TestCase
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetComments'))
+        $this->get($this->apiUrl('GetComments', ['u' => '1', 't' => 1]))
             ->assertJsonValidationErrors([
                 'u',
             ]);
     }
 
-    public function testGetUserCompletionProgressUnknownUser(): void
+    public function testGetCommentsUnknownUser(): void
     {
-        $this->get($this->apiUrl('GetComments', ['u' => 'nonExistant']))
+        $this->get($this->apiUrl('GetComments', ['u' => 'nonExistant', 't' => 3]))
             ->assertSuccessful()
             ->assertJson([]);
     }
