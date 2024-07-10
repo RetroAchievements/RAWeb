@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  API_GetUserWantToPlayList - returns a list of GameIDs that a user has saved on their WantToPlayList
+ *  API_GetUserWantToPlayList - returns a list of Games, with basic data, that a user has saved on their WantToPlayList
  *    u : username
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
@@ -12,10 +12,9 @@
  *    int        ID                         unique identifier of the game
  *    string     Title                      name of the game
  *    int        ConsoleID                  unique identifier of the console associated to the game
- *    string     ConsoleName                name of the console associated to the game
  *    string     ImageIcon                  site-relative path to the game's icon image
- *    int        TotalPoints                     total points able to be earned
- *    int        NumPossibleAchievements            total number of achievements to be unlocked
+ *    int        PointsTotal                total points able to be earned
+ *    int        AchievementsPublished      total number of achievements to be unlocked
  */
 
 use App\Community\Enums\UserGameListType;
@@ -40,32 +39,32 @@ if (!$user) {
     return response()->json([]);
 }
 
-$wantToPlayGameIDs = UserGameListEntry::where('user_id', $user->id)
+$totalWantToPlayItems = UserGameListEntry::where('user_id', $user->id)
     ->where('type', UserGameListType::Play)
-    ->pluck('GameID')
-    ->toArray();
+    ->count();
 
-$pagedResults = array_slice($wantToPlayGameIDs, $offset, $count);
 
-$games = Game::with('system')
-    ->whereIn('ID', $pagedResults)
-    ->get();
-
-$results = [];
-foreach ($games as $game) {
-    $gameData = [
-        'ID' => $game->ID,
-        'Title' => $game->Title,
-        'ConsoleID' => $game->ConsoleID,
-        'ImageIcon' => $game->ImageIcon,
-        'PointsTotal' => $game->points_total,
-        'AchievementsPublished' => $game->achievements_published,
-    ];
-    $results[] = $gameData;
-}
+$results = UserGameListEntry::where('user_id', $user->id)
+    ->where('type', UserGameListType::Play)
+    ->with(['game.system'])
+    ->skip($offset)
+    ->take($count)
+    ->get()
+    ->map(function ($entry) {
+        $game = $entry->game;
+        return [
+            'ID' => $game->ID,
+            'Title' => $game->Title,
+            'ConsoleID' => $game->ConsoleID,
+            'ConsoleName' => $game->system->name,
+            'ImageIcon' => $game->ImageIcon,
+            'PointsTotal' => $game->points_total,
+            'AchievementsPublished' => $game->achievements_published,
+        ];
+    });
 
 return response()->json([
     'Count' => count($results),
-    'Total' => count($wantToPlayGameIDs),
+    'Total' => $totalWantToPlayItems,
     'Results' => $results,
 ]);
