@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\Feature\Api\V1\BootstrapsApiV1;
 use Tests\TestCase;
@@ -37,6 +38,9 @@ class API_GetCommentsTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
+        $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
+
+        debug_to_console($bannedUser);
 
         $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $user1->ID]);
         $comment1 = Comment::factory()->create([
@@ -50,6 +54,12 @@ class API_GetCommentsTest extends TestCase
             'ArticleType' => 2,
             'user_id' => $user2->ID,
             'Payload' => 'I agree, this is awesome!',
+        ]);
+        $comment3 = Comment::factory()->create([
+            'ArticleID' => $achievement->ID,
+            'ArticleType' => 2,
+            'user_id' => $bannedUser->ID,
+            'Payload' => 'This comment is from a banned user!',
         ]);
 
         // Act
@@ -83,6 +93,8 @@ class API_GetCommentsTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
+        $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
+
         $comment1 = Comment::factory()->create([
             'ArticleID' => $game->ID,
             'ArticleType' => 1,
@@ -94,6 +106,12 @@ class API_GetCommentsTest extends TestCase
             'ArticleType' => 1,
             'user_id' => $user2->ID,
             'Payload' => 'I agree, this is awesome!',
+        ]);
+        $comment3 = Comment::factory()->create([
+            'ArticleID' => $achievement->ID,
+            'ArticleType' => 2,
+            'user_id' => $bannedUser->ID,
+            'Payload' => 'This comment is from a banned user!',
         ]);
 
         // Act
@@ -125,6 +143,8 @@ class API_GetCommentsTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $user2 = User::factory()->create();
+        $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
+        
         $comment1 = Comment::factory()->create([
             'ArticleID' => $user->ID,
             'ArticleType' => 3,
@@ -136,6 +156,12 @@ class API_GetCommentsTest extends TestCase
             'ArticleType' => 3,
             'user_id' => $user2->ID,
             'Payload' => 'This is my second comment.',
+        ]);
+        $comment3 = Comment::factory()->create([
+            'ArticleID' => $achievement->ID,
+            'ArticleType' => 2,
+            'user_id' => $bannedUser->ID,
+            'Payload' => 'This comment is from a banned user!',
         ]);
 
         // Act
@@ -161,4 +187,41 @@ class API_GetCommentsTest extends TestCase
         $this->assertEquals($user2->User, $response->json('Results.1.User'));
         $this->assertEquals($comment2->Payload, $response->json('Results.1.CommentText'));
     }
+
+    public function testGetCommentsForUserWithDisabledWall(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['UserWallActive' => false]);
+        $user2 = User::factory()->create();
+        $comment1 = Comment::factory()->create([
+            'ArticleID' => $user->ID,
+            'ArticleType' => 3,
+            'user_id' => $user2->ID,
+            'Payload' => 'This is my first comment.',
+        ]);
+        $comment2 = Comment::factory()->create([
+            'ArticleID' => $user->ID,
+            'ArticleType' => 3,
+            'user_id' => $user2->ID,
+            'Payload' => 'This is my second comment.',
+        ]);
+
+        debug_to_console($user);
+
+        // Act
+        $response = $this->get($this->apiUrl('GetComments', ['u' => $user->User, 't' => 3]))
+            ->assertSuccessful();
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertJsonStructure([]);
+    }
+}
+
+function debug_to_console($data) {
+    $output = $data;
+    if (is_array($output))
+        $output = implode(',', $output);
+
+    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
 }

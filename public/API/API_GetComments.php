@@ -5,6 +5,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Facades\Validator;
+use App\Policies\CommentPolicy;
 
 /*
 *  API_GetComments - returns the comments associated to a game or achievement
@@ -39,16 +40,16 @@ $username = (string) request()->query('u');
 $commentType = (int) request()->query('t');
 
 if ($username) {
-    $userId = User::firstWhere('User', $username);
+    $user = User::firstWhere('User', $username);
 
-    if (!$userId) {
+    if (!$user || !$user->UserWallActive) {
         return [];
     }
 
     $comments = Comment::where('ArticleType', $commentType)
                                     ->offset($offset)
                                     ->limit($count)
-                                    ->where('ArticleID', $userId->ID)
+                                    ->where('ArticleID', $user->ID)
                                     ->get();
 } else {
     $comments = Comment::where('ArticleType', $commentType)
@@ -60,10 +61,15 @@ if ($username) {
 
 $results = [];
 
+$policy = new CommentPolicy();
+
 if (!empty($comments)) {
     foreach ($comments as $nextComment) {
         $user = User::firstWhere('ID', $nextComment['user_id']);
-        if ($user) {
+
+        
+
+        if ($user && $policy->view(request()->user(), $nextComment)) {
             $commentData = [
                 'User' => $user->username,
                 'Submitted' => $nextComment->Submitted,
