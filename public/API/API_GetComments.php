@@ -3,7 +3,6 @@
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\User;
-use App\Community\Enums\ArticleType;
 
 /*
 *  API_GetComments - returns the comments associated to a game or achievement
