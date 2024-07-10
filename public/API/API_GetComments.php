@@ -3,9 +3,9 @@
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\User;
+use App\Policies\CommentPolicy;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Facades\Validator;
-use App\Policies\CommentPolicy;
 
 /*
 *  API_GetComments - returns the comments associated to a game or achievement
@@ -66,8 +66,6 @@ $policy = new CommentPolicy();
 if (!empty($comments)) {
     foreach ($comments as $nextComment) {
         $user = User::firstWhere('ID', $nextComment['user_id']);
-
-        
 
         if ($user && $policy->view(request()->user(), $nextComment)) {
             $commentData = [

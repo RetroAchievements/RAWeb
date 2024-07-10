@@ -6,8 +6,8 @@ use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
 use Tests\Feature\Api\V1\BootstrapsApiV1;
 use Tests\TestCase;
 
@@ -144,7 +144,7 @@ class API_GetCommentsTest extends TestCase
         $user = User::factory()->create();
         $user2 = User::factory()->create();
         $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
-        
+
         $comment1 = Comment::factory()->create([
             'ArticleID' => $user->ID,
             'ArticleType' => 3,
@@ -218,10 +218,12 @@ class API_GetCommentsTest extends TestCase
     }
 }
 
-function debug_to_console($data) {
+function debug_to_console($data)
+{
     $output = $data;
-    if (is_array($output))
+    if (is_array($output)) {
         $output = implode(',', $output);
+    }
 
     echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
 }
