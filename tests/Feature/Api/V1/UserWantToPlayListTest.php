@@ -217,7 +217,7 @@ class UserWantToPlayListTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
-                'Total' => 5,
+                'Total' => 10,
                 'Results' => [
                     [
                         "ID" => $gameSix->ID,
@@ -266,7 +266,7 @@ class UserWantToPlayListTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 2,
-                'Total' => 2,
+                'Total' => 10,
                 'Results' => [
                     [
                         "ID" => $gameOne->ID,
@@ -291,7 +291,7 @@ class UserWantToPlayListTest extends TestCase
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 2,
-                'Total' => 2,
+                'Total' => 10,
                 'Results' => [
                     [
                         "ID" => $gameSix->ID,
