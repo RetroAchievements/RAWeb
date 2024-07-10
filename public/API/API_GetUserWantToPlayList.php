@@ -43,7 +43,6 @@ $totalWantToPlayItems = UserGameListEntry::where('user_id', $user->id)
     ->where('type', UserGameListType::Play)
     ->count();
 
-
 $results = UserGameListEntry::where('user_id', $user->id)
     ->where('type', UserGameListType::Play)
     ->with(['game.system'])
@@ -52,6 +51,7 @@ $results = UserGameListEntry::where('user_id', $user->id)
     ->get()
     ->map(function ($entry) {
         $game = $entry->game;
+
         return [
             'ID' => $game->ID,
             'Title' => $game->Title,
