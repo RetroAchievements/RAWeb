@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 *    c : count - number of entries to return (default: 100, max: 500)
 *
 *  int         Count                       number of comment records returned in the response
-*  int         Total                       number of comment records the game/achievment/user actually has overall
+*  int         Total                       number of comment records the game/achievement/user actually has overall
 *  array       Results
 *   object      [value]
 *    int         User                      username of the commenter
