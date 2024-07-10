@@ -1,9 +1,9 @@
 <?php
 
-use App\Community\Enums\ArticleType;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\User;
+use App\Community\Enums\ArticleType;
 
 /*
 *  API_GetComments - returns the comments associated to a game or achievement
@@ -40,16 +40,16 @@ $commentType = (int) request()->query('t');
 if ($username) {
     $userId = User::firstWhere('User', $username);
 
-    $comments = Comment::where(ArticleType::class, $commentType)
+    $comments = Comment::where('ArticleType', $commentType)
                                     ->offset($offset)
                                     ->limit($count)
-                                    ->where(ArticleID::class, $userId->ID)
+                                    ->where('ArticleID', $userId->ID)
                                     ->get();
 } else {
-    $comments = Comment::where(ArticleType::class, $commentType)
+    $comments = Comment::where('ArticleType', $commentType)
                                     ->offset($offset)
                                     ->limit($count)
-                                    ->where(ArticleID::class, $gameOrAchievementId)
+                                    ->where('ArticleID', $gameOrAchievementId)
                                     ->get();
 }
 
