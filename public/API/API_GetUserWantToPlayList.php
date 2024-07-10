@@ -47,24 +47,21 @@ $wantToPlayGameIDs = UserGameListEntry::where('user_id', $user->id)
 
 $pagedResults = array_slice($wantToPlayGameIDs, $offset, $count);
 
+$games = Game::with('system')
+    ->whereIn('ID', $pagedResults)
+    ->get();
+
 $results = [];
-
-if (!empty($pagedResults)) {
-    foreach ($pagedResults as $nextGameID) {
-        $game = Game::with('system')->find($nextGameID);
-        if ($game) {
-            $gameData = [
-                'ID' => $game->ID,
-                'Title' => $game->Title,
-                'ConsoleID' => $game->ConsoleID,
-                'ImageIcon' => $game->ImageIcon,
-                'PointsTotal' => $game->points_total,
-                'AchievementsPublished' => $game->achievements_published,
-            ];
-
-            array_push($results, $gameData);
-        }
-    }
+foreach ($games as $game) {
+    $gameData = [
+        'ID' => $game->ID,
+        'Title' => $game->Title,
+        'ConsoleID' => $game->ConsoleID,
+        'ImageIcon' => $game->ImageIcon,
+        'PointsTotal' => $game->points_total,
+        'AchievementsPublished' => $game->achievements_published,
+    ];
+    $results[] = $gameData;
 }
 
 return response()->json([
