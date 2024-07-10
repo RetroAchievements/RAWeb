@@ -3,6 +3,8 @@
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\User;
+use App\Support\Rules\CtypeAlnum;
+use Illuminate\Support\Facades\Validator;
 
 /*
 *  API_GetComments - returns the comments associated to a game or achievement
@@ -23,8 +25,8 @@ use App\Models\User;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['sometimes', 'integer'],
-    'u' => ['sometimes', 'string'],
     't' => ['required', 'integer'],
+    'u' => ['sometimes', 'min:2', 'max:20', new CtypeAlnum()],
     'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
     'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
 ]);
@@ -38,6 +40,10 @@ $commentType = (int) request()->query('t');
 
 if ($username) {
     $userId = User::firstWhere('User', $username);
+
+    if (!$userId) {
+        return [];
+    }
 
     $comments = Comment::where('ArticleType', $commentType)
                                     ->offset($offset)
