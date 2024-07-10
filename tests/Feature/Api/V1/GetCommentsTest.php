@@ -30,7 +30,7 @@ class API_GetCommentsTest extends TestCase
             ->assertJson([]);
     }
 
-    public function testGetCommentsForAchievement()
+    public function testGetCommentsForAchievement(): void
     {
         // Arrange
         $system = System::factory()->create();
@@ -76,7 +76,7 @@ class API_GetCommentsTest extends TestCase
         $this->assertEquals($comment2->Payload, $response->json('Results.1.CommentText'));
     }
 
-    public function testGetCommentsForGame()
+    public function testGetCommentsForGame(): void
     {
         // Arrange
         $system = System::factory()->create();
@@ -120,7 +120,7 @@ class API_GetCommentsTest extends TestCase
         $this->assertEquals($comment2->Payload, $response->json('Results.1.CommentText'));
     }
 
-    public function testGetCommentsForUser()
+    public function testGetCommentsForUser(): void
     {
         // Arrange
         $user = User::factory()->create();

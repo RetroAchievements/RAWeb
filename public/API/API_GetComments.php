@@ -1,5 +1,6 @@
 <?php
 
+use App\Community\Enums\ArticleType;
 use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\User;
