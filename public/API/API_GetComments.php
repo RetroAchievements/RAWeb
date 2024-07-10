@@ -1,0 +1,76 @@
+<?php
+
+use App\Models\Achievement;
+use App\Models\Comment;
+use App\Models\User;
+
+/*
+*  API_GetComments - returns the comments associated to a game or achievement
+*    i : game or achievement id
+*    u : username
+*    t : 1 = game, 2 = achievement, 3 = user
+*    o : offset - number of entries to skip (default: 0)
+*    c : count - number of entries to return (default: 100, max: 500)
+*
+*  int         Count                       number of comment records returned in the response
+*  int         Total                       number of comment records the game/achievment/user actually has overall
+*  array       Results
+*   object      [value]
+*    int         User                      username of the commenter
+*    string      Submitted                 date time the comment was submitted
+*    string      CommentText               text of the comment
+*/
+
+$input = Validator::validate(Arr::wrap(request()->query()), [
+    'i' => ['sometimes', 'integer'],
+    'u' => ['sometimes', 'string'],
+    't' => ['required', 'integer'],
+    'o' => ['sometimes', 'integer', 'min:0', 'nullable'],
+    'c' => ['sometimes', 'integer', 'min:1', 'max:500', 'nullable'],
+]);
+
+$offset = $input['o'] ?? 0;
+$count = $input['c'] ?? 100;
+
+$gameOrAchievementId = (int) request()->query('i');
+$username = (string) request()->query('u');
+$commentType = (int) request()->query('t');
+
+if ($username) {
+    $userId = User::firstWhere('User', $username);
+
+    $comments = Comment::where(ArticleType::class, $commentType)
+                                    ->offset($offset)
+                                    ->limit($count)
+                                    ->where(ArticleID::class, $userId->ID)
+                                    ->get();
+} else {
+    $comments = Comment::where(ArticleType::class, $commentType)
+                                    ->offset($offset)
+                                    ->limit($count)
+                                    ->where(ArticleID::class, $gameOrAchievementId)
+                                    ->get();
+}
+
+$results = [];
+
+if (!empty($comments)) {
+    foreach ($comments as $nextComment) {
+        $user = User::firstWhere('ID', $nextComment['user_id']);
+        if ($user) {
+            $commentData = [
+                'User' => $user->username,
+                'Submitted' => $nextComment->Submitted,
+                'CommentText' => $nextComment->Payload,
+            ];
+
+            array_push($results, $commentData);
+        }
+    }
+}
+
+return response()->json([
+    'Count' => count($results),
+    'Total' => count($comments),
+    'Results' => $results,
+]);
