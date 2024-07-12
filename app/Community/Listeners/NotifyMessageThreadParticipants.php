@@ -121,6 +121,15 @@ class NotifyMessageThreadParticipants
             $webhookUrl = $inboxConfig['unwelcome_concept_url'];
             $mentionRoles = collect();
             $isForum = true;
+
+            // Extract the achievement ID from the message thread title.
+            // To help the team that reviews unwelcome concepts, we'll auto-insert a
+            // link to the achievement at the top of the message.
+            if (preg_match('/\[([0-9]+)\]/', $messageThread->title, $matches)) {
+                $achievementId = $matches[1];
+                $achievementUrl = route('achievement.show', $achievementId);
+                $message->body = $achievementUrl . "\n\n" . $message->body;
+            }
         }
 
         $payload = [
