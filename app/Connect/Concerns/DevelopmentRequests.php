@@ -442,7 +442,7 @@ trait DevelopmentRequests
     //                 //$newSmallImageLocked = imagecreatetruecolor($smallPx, $smallPx);
     //                 $newImageLocked = imagecreatetruecolor($normalPx, $normalPx);
     //
-    //                 //	Copy source to dest for all imaegs
+    //                 //	Copy source to dest for all images
     //                 //imagecopyresampled($newSmallImage, 	$tempImage, 0, 0, 0, 0, $smallPx, $smallPx, $width, $height);
     //                 imagecopyresampled($newImage, $tempImage, 0, 0, 0, 0, $normalPx, $normalPx, $width, $height);
     //                 //imagecopyresampled($newLargeImage, 	$tempImage, 0, 0, 0, 0, $largePx, $largePx, $width, $height);
