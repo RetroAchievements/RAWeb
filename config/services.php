@@ -41,6 +41,8 @@ return [
                 'url' => env('DISCORD_WEBHOOK_QATEAM'),
                 'is_forum' => true,
                 'mention_role' => env('DISCORD_ROLE_QATEAM'),
+                'achievement_issues_url' => env('DISCORD_WEBHOOK_QATEAM_ACHIEVEMENT_ISSUES'),
+                'incorrect_type_url' => env('DISCORD_WEBHOOK_QATEAM_INCORRECT_TYPE'),
             ],
             'QualityQuest' => [
                 'url' => env('DISCORD_WEBHOOK_QUALITYQUEST'),
