@@ -84,9 +84,6 @@ class NotifyMessageThreadParticipants
             return;
         }
 
-        // Thread names cannot be over 100 characters long, otherwise the webhook POST will fail.
-        $truncatedTitle = mb_strimwidth($messageThread->title, 0, 95, '...');
-
         $color = hexdec('0x0066CC');
         $mentionRoles = collect(Arr::wrap($inboxConfig['mention_role'] ?? []))
             ->map(fn ($role) => '<@&' . $role . '>');
@@ -117,18 +114,35 @@ class NotifyMessageThreadParticipants
             $isForum = false;
         }
 
-        if (mb_strpos(mb_strtolower($messageThread->title), 'unwelcome concept') !== false) {
-            $webhookUrl = $inboxConfig['unwelcome_concept_url'];
-            $mentionRoles = collect();
-            $isForum = true;
+        // If true, has title like "Kind: Achievement Name [Achievement ID] (Game Name)"
+        $structuredTitlePrefixes = [
+            'Incorrect type:' => 'incorrect_type_url',
+            'Issue:' => 'achievement_issues_url',
+            'Unwelcome Concept:' => 'unwelcome_concept_url'
+        ];
+        foreach ($structuredTitlePrefixes as $prefix => $configKey) {
+            if (mb_strpos($messageThread->title, $prefix) !== false) {
+                $webhookUrl = $inboxConfig[$configKey];
+                $mentionRoles = collect();
+                $isForum = true;
 
-            // Extract the achievement ID from the message thread title.
-            // To help the team that reviews unwelcome concepts, we'll auto-insert a
-            // link to the achievement at the top of the message.
-            if (preg_match('/\[([0-9]+)\]/', $messageThread->title, $matches)) {
-                $achievementId = $matches[1];
-                $achievementUrl = route('achievement.show', $achievementId);
-                $message->body = $achievementUrl . "\n\n" . $message->body;
+                // Extract the achievement ID from the message thread title.
+                // We'll auto-insert a link to the achievement at the top of the message.
+                if (preg_match('/\[([0-9]+)\]/', $messageThread->title, $matches)) {
+                    $achievementId = $matches[1];
+                    $achievementUrl = route('achievement.show', $achievementId);
+                    $message->body = $achievementUrl . "\n\n" . $message->body;
+
+                    // We want to reformat the incoming structured title before it lands in the team forum.
+                    //  - Original:  "Unwelcome Concept: Lots of Rings [12345] (Sonic the Hedgehog)"
+                    //  - Formatted: "12345: Lots of Rings (Sonic the Hedgehog)"
+                    if (preg_match('/^(Incorrect type:|Issue:|Unwelcome Concept:)\s*(.*)\s*\[([0-9]+)\]\s*(\(.*\))$/', $messageThread->title, $titleMatches)) {
+                        $newTitle = $achievementId . ': ' . $titleMatches[2] . ' ' . $titleMatches[4];
+                        $messageThread->title = $newTitle;
+                    }
+                }
+
+                break;
             }
         }
 
@@ -143,7 +157,7 @@ class NotifyMessageThreadParticipants
                         'url' => url('user/' . $userFrom->username),
                         'icon_url' => $userFrom->avatar_url,
                     ],
-                    'title' => $truncatedTitle,
+                    'title' => mb_substr($messageThread->title, 0, 100),
                     'url' => route('message-thread.show', ['messageThread' => $messageThread->id]),
                     'description' => mb_substr($message->body, 0, 2000),
                     'color' => $color,
@@ -157,7 +171,7 @@ class NotifyMessageThreadParticipants
 
         if ($isForum) {
             // Forum channels require an additional 'thread_name' JSON parameter to be successfully posted.
-            $payload['thread_name'] = $truncatedTitle;
+            $payload['thread_name'] = mb_substr($messageThread->title, 0, 100);
         }
 
         (new Client())->post($webhookUrl, ['json' => $payload]);
