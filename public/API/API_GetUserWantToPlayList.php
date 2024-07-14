@@ -36,7 +36,7 @@ $count = $input['c'] ?? 100;
 
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {
-    return response()->json([]);
+    return response()->json([], 404);
 }
 
 $totalWantToPlayItems = UserGameListEntry::where('user_id', $user->id)
