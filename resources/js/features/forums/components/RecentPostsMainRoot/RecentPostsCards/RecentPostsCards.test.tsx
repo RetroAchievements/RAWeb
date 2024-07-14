@@ -1,4 +1,5 @@
-import { createRecentForumPost, render, screen } from '@/test';
+import { createRecentForumPost } from '@/features/forums/models';
+import { render, screen } from '@/test';
 
 import { RecentPostsCards } from './RecentPostsCards';
 

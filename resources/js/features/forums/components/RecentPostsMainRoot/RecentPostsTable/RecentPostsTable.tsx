@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/react';
 import type { FC } from 'react';
 
 import { UserAvatar } from '@/common/components/UserAvatar';
-import type { RecentPostsPageProps } from '@/forums/models';
+import type { RecentPostsPageProps } from '@/features/forums/models';
 
 import { AggregateRecentPostLinks } from '../AggregateRecentPostLinks';
 import { PostTimestamp } from '../PostTimestamp';

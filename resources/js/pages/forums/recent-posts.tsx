@@ -2,7 +2,7 @@ import { Head } from '@inertiajs/react';
 
 import { AppLayout } from '@/common/layouts/AppLayout';
 import type { AppPage } from '@/common/models';
-import { RecentPostsMainRoot } from '@/forums/components/RecentPostsMainRoot';
+import { RecentPostsMainRoot } from '@/features/forums/components/RecentPostsMainRoot';
 
 const RecentPosts: AppPage = () => {
   return (

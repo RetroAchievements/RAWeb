@@ -8,7 +8,7 @@ import {
   BasePaginationNext,
   BasePaginationPrevious,
 } from '@/common/components/+vendor/BasePagination';
-import type { RecentPostsPageProps } from '@/forums/models';
+import type { RecentPostsPageProps } from '@/features/forums/models';
 
 export const RecentPostsPagination: FC = () => {
   const { previousPageUrl, nextPageUrl, maxPerPage } = usePage<RecentPostsPageProps>().props;

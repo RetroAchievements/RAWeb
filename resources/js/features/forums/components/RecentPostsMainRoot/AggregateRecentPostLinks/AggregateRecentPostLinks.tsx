@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-import type { RecentForumPost } from '@/forums/models';
+import type { RecentForumPost } from '@/features/forums/models';
 
 interface AggregateRecentPostLinksProps {
   recentForumPost: RecentForumPost;

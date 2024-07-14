@@ -2,6 +2,12 @@ import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
 
+import { loadFaker } from './test/createFactory';
+
+beforeAll(async () => {
+  await loadFaker();
+});
+
 beforeEach(() => {
   // We'll directly dump all arguments given to Ziggy's route() function.
 
