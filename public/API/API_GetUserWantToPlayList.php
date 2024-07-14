@@ -12,6 +12,7 @@
  *    int        ID                         unique identifier of the game
  *    string     Title                      name of the game
  *    int        ConsoleID                  unique identifier of the console associated to the game
+ *    string     ConsoleName                name of the console associated to the game
  *    string     ImageIcon                  site-relative path to the game's icon image
  *    int        PointsTotal                total points able to be earned
  *    int        AchievementsPublished      total number of achievements to be unlocked
