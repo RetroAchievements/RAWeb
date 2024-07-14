@@ -5,6 +5,10 @@ import { cleanup } from '@testing-library/react';
 import { loadFaker } from './test/createFactory';
 
 beforeAll(async () => {
+  /**
+   * Asynchronously load faker before any tests run. `createFactory()` helpers
+   * assume faker is loaded in memory and will throw an error if it's not.
+   */
   await loadFaker();
 });
 
