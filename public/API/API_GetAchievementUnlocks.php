@@ -16,7 +16,7 @@
  *   datetime   DateCreated             when the achievement was created
  *   datetime   DateModified            when the achievement was last modified
  *   string     Type                    null, "progression", "win_condition", or "missable"
- *  object     Console                  information about the console associated to the game associated to the achievemnt
+ *  object     Console                  information about the console associated to the game associated to the achievement
  *   string     ID                      unique identifier of the console
  *   string     Title                   name of the console
  *  object     Game                     information about the game associated to the achievement

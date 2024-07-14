@@ -14,7 +14,7 @@ class ProfileSettingsRequest extends FormRequest
         /**
          * https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
          * medialibrary handles conversions of jpg, png, svg, pdf, mp4, mov or webm
-         * TODO: video conversion requires PHP-FFmpeg which is not isntallable atm - check back in a while
+         * TODO: video conversion requires PHP-FFmpeg which is not installable atm - check back in a while
          * TODO: check if dimensions rule works when ffprobe is available
          * video/mp4,video/webm,video/mpeg,video/quicktime
          * TODO: "gd-webp cannot allocate temporary buffer" when trying to upload a webp
