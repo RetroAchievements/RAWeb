@@ -29,7 +29,7 @@ class UserWantToPlayListTest extends TestCase
     public function testGetUserWantToPlayListUnknownUser(): void
     {
         $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => 'nonExistant']))
-            ->assertSuccessful()
+            ->assertNotFound()
             ->assertJson([]);
     }
 
