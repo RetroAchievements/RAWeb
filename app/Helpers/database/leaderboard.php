@@ -25,11 +25,13 @@ function SubmitLeaderboardEntry(
         return $retVal;
     }
 
-    if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
-        $retVal['Success'] = false;
-        $retVal['Error'] = "Cannot submit entry for unsupported console";
+    if (app()->environment('production')) {
+        if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
+            $retVal['Success'] = false;
+            $retVal['Error'] = "Cannot submit entry for unsupported console";
 
-        return $retVal;
+            return $retVal;
+        }
     }
 
     $retVal['LBData'] = [

@@ -37,7 +37,7 @@ class UserWantToPlayListTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
 
-        /** Set up a user with 10 games on Want to Play List: */
+        /** Set up a user with 5 games on Want to Play List: */
 
         /** @var User $user */
         $user = User::factory()->create(['User' => 'myUser']);
