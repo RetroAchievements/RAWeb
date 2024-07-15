@@ -189,6 +189,16 @@ See <a href="https://docs.retroachievements.org/Emulator-Support-and-Issues/" ta
                 12, // PlayStation
             ],
         ],
+        Emulators::Dolphin => [
+            'name' => 'Dolphin',
+            'handle' => 'Dolphin',
+            'active' => true,
+            'link' => 'https://wiki.dolphin-emu.org/index.php?title=Main_Page',
+            'download_url' => 'https://dolphin-emu.org/download/',
+            'systems' => [
+                16, // GameCube
+            ],
+        ],
         Emulators::PPSSPP => [
             'minimum_version' => '1.16.0',
             'name' => 'PPSSPP',

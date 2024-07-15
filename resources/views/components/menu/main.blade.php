@@ -13,6 +13,7 @@ $menuSystemsList = [
             7, // NES/Famicom
             3, // SNES/Super Famicom
             2, // Nintendo 64
+            16, // Nintendo GameCube
             18, // Nintendo DS
             78, // Nintendo DSi
             24, // Pokemon Mini
