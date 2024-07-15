@@ -115,7 +115,7 @@ class CompareUnlocksPageService
 
     private function sortByUnlockTimestamps(array $a, array $b, string $field): int
     {
-        // '~' is guaranteed to be lexigraphically after any date time (regardless of the
+        // '~' is guaranteed to be lexicographically after any date time (regardless of the
         // format) because it follows all alphanumeric characters in the ASCII table.
         $aTimestamp = $a[$field] ?? '~';
         $bTimestamp = $b[$field] ?? '~';
