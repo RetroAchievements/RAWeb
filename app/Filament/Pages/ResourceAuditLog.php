@@ -109,7 +109,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     }
 
     /**
-     * @return Collection<string, callable>
+     * @return Collection<string, \Closure(int): string>
      */
     protected function createFieldValueMap(): Collection
     {

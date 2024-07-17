@@ -28,6 +28,7 @@ abstract class AchievementFlag
         return match ($flag) {
             AchievementFlag::OfficialCore => 'Published',
             AchievementFlag::Unofficial => 'Unpublished',
+            default => 'Invalid flag',
         };
     }
 }
