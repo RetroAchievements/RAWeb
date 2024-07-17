@@ -219,9 +219,20 @@ class AchievementsRelationManager extends RelationManager
             ->paginated([50, 100, 'all'])
             ->defaultPaginationPageOption(50)
             ->defaultSort('DisplayOrder')
-            ->reorderable('DisplayOrder')
+            ->reorderable('DisplayOrder', $this->canReorderAchievements())
             ->checkIfRecordIsSelectableUsing(
                 fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),
             );
+    }
+
+    private function canReorderAchievements(): bool
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        return $user->can('update', $game);
     }
 }
