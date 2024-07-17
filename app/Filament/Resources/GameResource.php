@@ -121,7 +121,25 @@ class GameResource extends Resource
                     ->schema([
                         Infolists\Components\TextEntry::make('released_at')
                             ->label('Earliest Release Date')
-                            ->dateTime('F j, Y'),
+                            ->formatStateUsing(function (Game $game): string {
+                                $releasedAt = $game->released_at;
+                                $releasedAtGranularity = $game->released_at_granularity;
+
+                                if (!$releasedAt) {
+                                    return 'No release date.';
+                                }
+
+                                switch ($releasedAtGranularity) {
+                                    case 'year':
+                                        return Carbon::parse($releasedAt)->format('Y');
+
+                                    case 'month':
+                                        return Carbon::parse($releasedAt)->format('F Y');
+
+                                    default:
+                                        return Carbon::parse($releasedAt)->format('F j, Y');
+                                }
+                            }),
 
                         Infolists\Components\TextEntry::make('released_at_granularity')
                             ->label('Release Date Precision')

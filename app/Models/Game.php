@@ -123,6 +123,8 @@ class Game extends BaseModel implements HasComments, HasMedia
                 'Publisher',
                 'Developer',
                 'Genre',
+                'released_at',
+                'released_at_granularity',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
