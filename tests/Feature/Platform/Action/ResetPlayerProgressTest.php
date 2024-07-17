@@ -56,10 +56,17 @@ class ResetPlayerProgressTest extends TestCase
         $this->assertEquals(0, $user->RAPoints);
         $this->assertEquals(0, $user->TrueRAPoints);
 
-        // author contibutions should have been adjusted
+        // author contributions should have been adjusted
         $author->refresh();
         // $this->assertEquals(0, $author->ContribCount);
         // $this->assertEquals(0, $author->ContribYield);
+
+        // repeated call should do nothing
+        (new ResetPlayerProgress())->execute($user, $achievement->ID);
+        $this->assertDoesNotHaveAnyUnlock($user, $achievement);
+        $this->assertEquals(0, $user->RASoftcorePoints);
+        $this->assertEquals(0, $user->RAPoints);
+        $this->assertEquals(0, $user->TrueRAPoints);
     }
 
     public function testResetHardcore(): void
@@ -96,7 +103,7 @@ class ResetPlayerProgressTest extends TestCase
         $this->assertEquals(0, $user->RAPoints);
         $this->assertEquals(0, $user->TrueRAPoints);
 
-        // author contibutions should have been adjusted
+        // author contributions should have been adjusted
         $author->refresh();
         // $this->assertEquals(0, $author->ContribCount);
         // $this->assertEquals(0, $author->ContribYield);
