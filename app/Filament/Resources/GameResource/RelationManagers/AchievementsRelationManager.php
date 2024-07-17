@@ -13,6 +13,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -219,6 +220,11 @@ class AchievementsRelationManager extends RelationManager
             ->paginated([50, 100, 'all'])
             ->defaultPaginationPageOption(50)
             ->defaultSort('DisplayOrder')
+            ->reorderRecordsTriggerAction(
+                fn (Action $action, bool $isReordering) => $action
+                    ->button()
+                    ->label($isReordering ? 'Stop reordering' : 'Start reordering'),
+            )
             ->reorderable('DisplayOrder', $this->canReorderAchievements())
             ->checkIfRecordIsSelectableUsing(
                 fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),

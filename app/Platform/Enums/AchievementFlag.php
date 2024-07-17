@@ -22,4 +22,12 @@ abstract class AchievementFlag
     {
         return in_array($flag, self::cases());
     }
+
+    public static function toString(int $flag): string
+    {
+        return match ($flag) {
+            AchievementFlag::OfficialCore => 'Published',
+            AchievementFlag::Unofficial => 'Unpublished',
+        };
+    }
 }

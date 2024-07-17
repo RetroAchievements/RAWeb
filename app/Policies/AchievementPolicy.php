@@ -68,8 +68,6 @@ class AchievementPolicy
         }
 
         return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
-
             /*
              * moderators may remove unfit content from achievements
              */
