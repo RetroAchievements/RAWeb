@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Platform\Enums\AchievementFlag;
+use Closure;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Contracts\HasForms;
@@ -109,7 +110,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
     }
 
     /**
-     * @return Collection<string, \Closure(int): string>
+     * @return Collection<string, Closure(int): string>
      */
     protected function createFieldValueMap(): Collection
     {
