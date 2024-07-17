@@ -216,6 +216,14 @@ class UserProfileMeta extends Component
         // Total games beaten
         $gamesBeatenStats = PlayerStat::where('user_id', $user->ID)
             ->where('system_id', null)
+            ->whereIn('type', [
+                PlayerStatType::GamesBeatenHardcoreDemos,
+                PlayerStatType::GamesBeatenHardcoreHacks,
+                PlayerStatType::GamesBeatenHardcoreHomebrew,
+                PlayerStatType::GamesBeatenHardcorePrototypes,
+                PlayerStatType::GamesBeatenHardcoreRetail,
+                PlayerStatType::GamesBeatenHardcoreUnlicensed,
+            ])
             ->selectRaw('
                 SUM(value) as totalGamesBeaten,
                 SUM(CASE WHEN type IN (?, ?) THEN value ELSE 0 END) AS retailGamesBeaten',
