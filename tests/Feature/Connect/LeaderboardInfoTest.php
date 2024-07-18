@@ -20,7 +20,6 @@ class LeaderboardInfoTest extends TestCase
 
     public function testLeaderboardInfo(): void
     {
-        #region Response with no entries
         $now = Carbon::now();
         Carbon::setTestNow($now);
 
@@ -54,9 +53,7 @@ class LeaderboardInfoTest extends TestCase
                     'TotalEntries' => 0,
                 ],
             ]);
-        #endregion
 
-        #region Response with entries
         /** @var User $playerOne */
         $playerOne = User::factory()->create();
         /** @var User $playerTwo */
@@ -109,6 +106,5 @@ class LeaderboardInfoTest extends TestCase
                     'TotalEntries' => 3,
                 ],
             ]);
-        #endregion
     }
 }
