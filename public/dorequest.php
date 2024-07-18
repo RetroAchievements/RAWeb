@@ -464,32 +464,11 @@ switch ($requestType) {
 
     case "lbinfo":
         $lbID = (int) request()->input('i', 0);
-
         // Note: Nearby entry behavior has no effect if $username is null
         // TBD: friendsOnly
         $leaderboard = Leaderboard::find($lbID);
-        if ($leaderboard) {
-            $leaderboardData = GetLeaderboardData(
-                $leaderboard,
-                User::firstWhere('User', $username),
-                $count,
-                $offset,
-                nearby: true
-            );
-
-            // Remove fields that are unused by rc_client.
-            unset(
-                $leaderboardData['GameTitle'],
-                $leaderboardData['ConsoleID'],
-                $leaderboardData['ConsoleName'],
-                $leaderboardData['ForumTopicID'],
-                $leaderboardData['GameIcon'],
-            );
-
-            $response['LeaderboardData'] = $leaderboardData;
-        } else {
-            $response['LeaderboardData'] = [];
-        }
+        $response['LeaderboardData'] = $leaderboard ?
+            GetLeaderboardData($leaderboard, User::firstWhere('User', $username), $count, $offset, nearby: true) : [];
         break;
 
     case "patch":

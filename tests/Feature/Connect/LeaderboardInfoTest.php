@@ -20,6 +20,7 @@ class LeaderboardInfoTest extends TestCase
 
     public function testLeaderboardInfo(): void
     {
+        #region Response with no entries
         $now = Carbon::now();
         Carbon::setTestNow($now);
 
@@ -28,7 +29,11 @@ class LeaderboardInfoTest extends TestCase
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->id]);
         /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->id,
+            'LowerIsBetter' => false,
+            'Format' => ValueFormat::Score,
+        ]);
 
         $this->get($this->apiUrl('lbinfo', ['i' => $leaderboard->id]))
             ->assertStatus(200)
@@ -49,24 +54,9 @@ class LeaderboardInfoTest extends TestCase
                     'TotalEntries' => 0,
                 ],
             ]);
-    }
+        #endregion
 
-    public function testLeaderboardInfoWithEntries(): void
-    {
-        $now = Carbon::now();
-        Carbon::setTestNow($now);
-
-        /** @var System $system */
-        $system = System::factory()->create();
-        /** @var Game $game */
-        $game = Game::factory()->create(['ConsoleID' => $system->id]);
-        /** @var Leaderboard $leaderboard */
-        $leaderboard = Leaderboard::factory()->create([
-            'GameID' => $game->id,
-            'LowerIsBetter' => false,
-            'Format' => ValueFormat::Score,
-        ]);
-
+        #region Response with entries
         /** @var User $playerOne */
         $playerOne = User::factory()->create();
         /** @var User $playerTwo */
@@ -119,5 +109,6 @@ class LeaderboardInfoTest extends TestCase
                     'TotalEntries' => 3,
                 ],
             ]);
+        #endregion
     }
 }
