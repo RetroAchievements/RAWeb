@@ -243,7 +243,7 @@ class AchievementsRelationManager extends RelationManager
 
         // We don't want to flood the logs with reordering activity.
         // We'll throttle these events by 10 minutes.
-        $recentReorderingActivity = DB::table('activity_log')
+        $recentReorderingActivity = DB::table('audit_log')
             ->where('causer_id', $user->id)
             ->where('subject_id', $game->id)
             ->where('subject_type', Game::class)
