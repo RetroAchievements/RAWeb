@@ -135,7 +135,7 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
         log_sql_fail();
     }
 
-    // Propogate to Forum table
+    // Propagate to Forum table
     $query = "  UPDATE Forum AS f
                 INNER JOIN ForumTopic AS ft ON ft.ForumID = f.ID
                 SET f.LatestCommentID = ft.LatestCommentID
@@ -161,36 +161,23 @@ function editTopicComment(int $commentId, string $newPayload): void
     $comment->save();
 }
 
-function getIsForumDoublePost(
-    User $user,
-    int $topicId,
-    string $commentPayload,
-): bool {
-    $latestPost = $user->forumPosts()->latest('DateCreated')->first();
-
-    if (!$latestPost) {
-        return false;
-    }
-
-    return
-        $latestPost->body === $commentPayload
-        && $latestPost->forum_topic_id === $topicId;
-}
-
 function submitTopicComment(
     User $user,
     int $topicId,
     ?string $topicTitle,
     string $commentPayload,
-): ?ForumTopicComment {
-    if (getIsForumDoublePost($user, $topicId, $commentPayload)) {
-        // Do nothing.
-        return null;
-    }
-
+): ForumTopicComment {
     // Take any RA links and convert them to relevant shortcodes.
     // eg: "https://retroachievements.org/game/1" --> "[game=1]"
     $commentPayload = normalize_shortcodes($commentPayload);
+
+    // if this exact message was just posted by this user, assume it's an
+    // accidental double submission and ignore.
+    $latestPost = $user->forumPosts()->latest('DateCreated')->first();
+    if ($latestPost && $latestPost->forum_topic_id === $topicId
+        && $latestPost->body === $commentPayload) {
+        return $latestPost;
+    }
 
     $newComment = new ForumTopicComment([
         'ForumTopicID' => $topicId,

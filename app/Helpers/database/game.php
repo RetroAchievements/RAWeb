@@ -455,7 +455,7 @@ function getGamesListByDev(
         }
     }
 
-    // caclulate last updated
+    // calculate last updated
     $query = "SELECT GameID, MAX(DateModified) AS DateModified
               FROM Achievements
               WHERE GameID IN ($gameList)

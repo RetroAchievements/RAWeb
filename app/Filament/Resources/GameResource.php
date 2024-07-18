@@ -13,6 +13,7 @@ use App\Models\System;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
@@ -22,6 +23,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class GameResource extends Resource
@@ -70,16 +72,20 @@ class GameResource extends Resource
                     ->label('')
                     ->size(config('media.icon.lg.width')),
 
-                Infolists\Components\Section::make('Metadata')
+                Infolists\Components\Section::make('Primary Details')
+                    ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
+                        Infolists\Components\TextEntry::make('permalink')
+                            ->url(fn (Game $record): string => $record->getPermalinkAttribute()),
+
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
 
                         Infolists\Components\TextEntry::make('title'),
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
-                            ->label('Forum Topic')
+                            ->label('Forum Topic ID')
                             ->url(fn (?int $state) => url("viewtopic.php?t={$state}")),
 
                         Infolists\Components\TextEntry::make('system')
@@ -91,19 +97,56 @@ class GameResource extends Resource
 
                                 return null;
                             }),
+                    ]),
 
-                        Infolists\Components\TextEntry::make('Developer')
-                            ->placeholder('None'),
+                Infolists\Components\Section::make('Metadata')
+                    ->icon('heroicon-c-information-circle')
+                    ->description('While optional, this metadata can help more players find the game. It also gets fed to various apps plugged in to the RetroAchievements API.')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\TextEntry::make('Developer'),
 
-                        Infolists\Components\TextEntry::make('Publisher')
-                            ->placeholder('None'),
+                        Infolists\Components\TextEntry::make('Publisher'),
 
-                        Infolists\Components\TextEntry::make('Genre')
-                            ->placeholder('None'),
+                        Infolists\Components\TextEntry::make('Genre'),
 
                         Infolists\Components\TextEntry::make('GuideURL')
-                            ->label('RAGuide URL')
-                            ->placeholder('None'),
+                            ->label('RAGuide URL'),
+                    ]),
+
+                Infolists\Components\Section::make('Earliest Release Date')
+                    ->icon('heroicon-c-calendar-days')
+                    ->description("
+                        The game's earliest known release date. This is used to improve searching,
+                        sorting, and filtering on the site.
+                    ")
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\TextEntry::make('released_at')
+                            ->label('Earliest Release Date')
+                            ->formatStateUsing(function (Game $game): string {
+                                $releasedAt = $game->released_at;
+                                $releasedAtGranularity = $game->released_at_granularity;
+
+                                if (!$releasedAt) {
+                                    return 'No release date.';
+                                }
+
+                                switch ($releasedAtGranularity) {
+                                    case 'year':
+                                        return Carbon::parse($releasedAt)->format('Y');
+
+                                    case 'month':
+                                        return Carbon::parse($releasedAt)->format('F Y');
+
+                                    default:
+                                        return Carbon::parse($releasedAt)->format('F j, Y');
+                                }
+                            }),
+
+                        Infolists\Components\TextEntry::make('released_at_granularity')
+                            ->label('Release Date Precision')
+                            ->formatStateUsing(fn (string $state): string => ucfirst($state)),
                     ]),
 
                 Infolists\Components\Section::make('Metrics')
@@ -158,29 +201,39 @@ class GameResource extends Resource
 
         return $form
             ->schema([
-                Forms\Components\Section::make()
+                Forms\Components\Section::make('Primary Details')
+                    ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Forms\Components\TextInput::make('Title')
                             ->required()
+                            ->minLength(2)
                             ->maxLength(80)
                             ->disabled(!$user->can('updateField', [$form->model, 'Title'])),
-
-                        // TODO Support these three when we also support managing related games / hubs.
-                        // Forms\Components\TextInput::make('Developer')
-                        //     ->maxLength(50),
-
-                        // Forms\Components\TextInput::make('Publisher')
-                        //     ->maxLength(50),
-
-                        // Forms\Components\TextInput::make('Genre')
-                        //     ->maxLength(50),
 
                         Forms\Components\TextInput::make('ForumTopicID')
                             ->label('Forum Topic ID')
                             ->numeric()
                             ->rules([new ExistsInForumTopics()])
                             ->disabled(!$user->can('updateField', [$form->model, 'ForumTopicID'])),
+                    ]),
+
+                Forms\Components\Section::make('Metadata')
+                    ->icon('heroicon-c-information-circle')
+                    ->description('While optional, this metadata can help more players find the game. It also gets fed to various apps plugged in to the RetroAchievements API.')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\TextInput::make('Developer')
+                            ->maxLength(50)
+                            ->disabled(!$user->can('updateField', [$form->model, 'Developer'])),
+
+                        Forms\Components\TextInput::make('Publisher')
+                            ->maxLength(50)
+                            ->disabled(!$user->can('updateField', [$form->model, 'Publisher'])),
+
+                        Forms\Components\TextInput::make('Genre')
+                            ->maxLength(50)
+                            ->disabled(!$user->can('updateField', [$form->model, 'Genre'])),
 
                         Forms\Components\TextInput::make('GuideURL')
                             ->label('RAGuide URL')
@@ -189,6 +242,57 @@ class GameResource extends Resource
                             ->suffixIcon('heroicon-m-globe-alt')
                             ->disabled(!$user->can('updateField', [$form->model, 'GuideURL'])),
                     ]),
+
+                Forms\Components\Section::make('Earliest Release Date')
+                    ->icon('heroicon-c-calendar-days')
+                    ->description("
+                        Provide the game's earliest known release date to improve searching, sorting, and filtering on the site.
+                        Use the Precision control to specify if the release day or month are unknown.
+                    ")
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\Placeholder::make('released_at_display')
+                            ->label('Preview')
+                            ->columnSpan(['md' => 2, 'xl' => 3, '2xl' => 4])
+                            ->content(function (Get $get): string {
+                                $releasedAt = $get('released_at');
+                                $releasedAtGranularity = $get('released_at_granularity');
+
+                                if (!$releasedAt) {
+                                    return 'No release date.';
+                                }
+
+                                switch ($releasedAtGranularity) {
+                                    case 'year':
+                                        return Carbon::parse($releasedAt)->format('Y');
+
+                                    case 'month':
+                                        return Carbon::parse($releasedAt)->format('F Y');
+
+                                    default:
+                                        return Carbon::parse($releasedAt)->format('F j, Y');
+                                }
+                            }),
+
+                Forms\Components\DatePicker::make('released_at')
+                    ->label('Earliest Release Date')
+                    ->native(false)
+                    ->minDate('1970-01-01')
+                    ->maxDate(now())
+                    ->displayFormat('F j, Y')
+                    ->reactive(),
+
+                Forms\Components\ToggleButtons::make('released_at_granularity')
+                    ->label('Release Date Precision')
+                    ->options([
+                        'day' => 'Day',
+                        'month' => 'Month',
+                        'year' => 'Year',
+                    ])
+                    ->inline()
+                    ->default('day')
+                    ->reactive(),
+                ]),
             ]);
     }
 
