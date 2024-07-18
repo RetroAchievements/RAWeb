@@ -29,7 +29,7 @@ class MessageThreadPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->isNotMuted() && $user->isNotBanned();
     }
 
     public function update(User $user, MessageThread $messageThread): bool
