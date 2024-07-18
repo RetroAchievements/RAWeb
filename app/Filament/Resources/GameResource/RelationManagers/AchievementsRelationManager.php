@@ -17,6 +17,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class AchievementsRelationManager extends RelationManager
 {
@@ -229,6 +230,36 @@ class AchievementsRelationManager extends RelationManager
             ->checkIfRecordIsSelectableUsing(
                 fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),
             );
+    }
+
+    public function reorderTable(array $order): void
+    {
+        parent::reorderTable($order);
+
+        /** @var User $user */
+        $user = auth()->user();
+        /** @var Game $game */
+        $game = $this->getOwnerRecord();
+
+        // We don't want to flood the logs with reordering activity.
+        // We'll throttle these events by 10 minutes.
+        $recentReorderingActivity = DB::table('activity_log')
+            ->where('causer_id', $user->id)
+            ->where('subject_id', $game->id)
+            ->where('subject_type', Game::class)
+            ->where('event', 'reorderedAchievements')
+            ->where('created_at', '>=', now()->subMinutes(10))
+            ->first();
+
+        // If the user didn't recently reorder achievements, write a new log.
+        if (!$recentReorderingActivity) {
+            activity()
+                ->useLog('default')
+                ->causedBy(auth()->user())
+                ->performedOn($game)
+                ->event('reorderedAchievements')
+                ->log('Reordered Achievements');
+        }
     }
 
     private function canReorderAchievements(): bool
