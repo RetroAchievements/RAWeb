@@ -23,24 +23,29 @@ class MakeJsComponent extends Command
     {
         $name = $this->argument('name');
         $feature = $this->argument('feature') ?? 'common';
-        $componentDir = resource_path("js/{$feature}/components/{$name}");
+        $componentDir =
+            $feature === "common"
+                ? "js/{$feature}/components/{$name}"
+                : "js/features/{$feature}/components/{$name}";
 
-        if ($this->files->isDirectory($componentDir)) {
+        $componentResourcePath = resource_path($componentDir);
+
+        if ($this->files->isDirectory($componentResourcePath)) {
             $this->error("Component {$name} already exists in {$feature}.");
 
             return;
         }
 
-        $this->files->makeDirectory($componentDir, recursive: true);
+        $this->files->makeDirectory($componentResourcePath, recursive: true);
 
-        $this->generateFile($componentDir, "{$name}.tsx", 'component.stub', $name);
-        $this->generateFile($componentDir, "{$name}.test.tsx", 'component-test.stub', $name);
-        $this->generateFile($componentDir, "index.ts", 'component-barrel.stub', $name);
+        $this->generateFile($componentResourcePath, "{$name}.tsx", 'component.stub', $name);
+        $this->generateFile($componentResourcePath, "{$name}.test.tsx", 'component-test.stub', $name);
+        $this->generateFile($componentResourcePath, "index.ts", 'component-barrel.stub', $name);
 
         $io = new SymfonyStyle($this->input, $this->output);
-        $io->text("<info>CREATE</info> [resources/js/{$feature}/components/{$name}/{$name}.tsx]");
-        $io->text("<info>CREATE</info> [resources/js/{$feature}/components/{$name}/{$name}.test.tsx]");
-        $io->text("<info>CREATE</info> [resources/js/{$feature}/components/{$name}/index.ts]");
+        $io->text("<info>CREATE</info> [{$componentDir}/{$name}.tsx]");
+        $io->text("<info>CREATE</info> [{$componentDir}/{$name}.test.tsx]");
+        $io->text("<info>CREATE</info> [{$componentDir}/{$name}/index.ts]");
     }
 
     private function generateFile(string $directory, string $fileName, string $stubName, string $componentName): void
