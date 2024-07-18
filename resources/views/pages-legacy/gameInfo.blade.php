@@ -631,15 +631,6 @@ if ($isFullyFeaturedGame) {
                 echo "<div class='text-right'><button class='btn'>Submit</button></div>";
                 echo "<label for='game_genre'>Genre</label><input type='text' name='genre' id='game_genre' value='" . attributeEscape($genre) . "' class='w-full'>";
                 echo "<div class='text-right'><button class='btn'>Submit</button></div>";
-                ?>
-                
-                <label for='game_release'>First Released</label>
-                <input type="date" name="release" id="game_release" value="{{ $gameModel->released_at->format('Y-m-d') }}" class="w-full">
-                <div class="text-right">
-                    <button class="btn">Submit</button>
-                </div>
-
-                <?php
                 echo "</div>";
                 echo "</form>";
 
