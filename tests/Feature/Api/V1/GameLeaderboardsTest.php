@@ -26,7 +26,7 @@ class GameLeaderboardsTest extends TestCase
 
     public function testGetGameLeaderboardsGameWithNoLeaderboards(): void
     {
-        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => 'nonExistant']))
+        $this->get($this->apiUrl('GetGameLeaderboards', ['i' => 99999]))
             ->assertNotFound()
             ->assertJson([]);
     }

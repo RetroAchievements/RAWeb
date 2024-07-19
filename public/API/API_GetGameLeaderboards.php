@@ -28,15 +28,16 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 
-$leaderboard = Leaderboard::firstWhere('GameID', request()->query('i'));
-if (!$leaderboard) {
+$gameId = request()->query('i');
+
+$leaderboardsQuery = Leaderboard::where('GameID', $gameId);
+
+$totalLeaderboards = $leaderboardsQuery->count();
+if ($totalLeaderboards == 0) {
     return response()->json([], 404);
 }
 
-$totalLeaderboards = Leaderboard::where('GameID', $leaderboard->game->id)
-    ->count();
-
-$results = Leaderboard::where('GameID', $leaderboard->game->id)
+$results = $leaderboardsQuery
     ->skip($offset)
     ->take($count)
     ->get()
