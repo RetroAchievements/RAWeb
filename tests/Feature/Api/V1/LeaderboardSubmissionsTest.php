@@ -85,6 +85,8 @@ class LeaderboardSubmissionsTest extends TestCase
         $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID]))
             ->assertSuccessful()
             ->assertJson([
+                'Title' => $leaderboard->Title,
+                'Description' => $leaderboard->Description,
                 'Count' => 5,
                 'Total' => 5,
                 'Entries' => [
@@ -124,6 +126,8 @@ class LeaderboardSubmissionsTest extends TestCase
             $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
+                    'Title' => $leaderboard->Title,
+                    'Description' => $leaderboard->Description,
                     'Count' => 2,
                     'Total' => 5,
                     'Entries' => [
@@ -145,6 +149,8 @@ class LeaderboardSubmissionsTest extends TestCase
             $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
+                    'Title' => $leaderboard->Title,
+                    'Description' => $leaderboard->Description,
                     'Count' => 2,
                     'Total' => 5,
                     'Entries' => [
@@ -166,6 +172,8 @@ class LeaderboardSubmissionsTest extends TestCase
             $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
+                    'Title' => $leaderboard->Title,
+                    'Description' => $leaderboard->Description,
                     'Count' => 2,
                     'Total' => 5,
                     'Entries' => [

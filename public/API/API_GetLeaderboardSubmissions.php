@@ -5,10 +5,10 @@
  *    i : leaderboardID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
- *  int         Count                       number of user entries returned in the response
- *  int         Total                       number of user entries the leaderboard actually has overall
  *  string      Title                       name of the leaderboard
  *  int         Description                 details about what the leaderboard is tracking
+ *  int         Count                       number of user entries returned in the response
+ *  int         Total                       number of user entries the leaderboard actually has overall
  *  array       Entries
  *   object      [value]
  *    int        Rank                       user's leaderboard rank
@@ -54,6 +54,8 @@ $entries = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
     });
 
 return response()->json([
+    'Title' => $leaderboard->Title,
+    'Description' => $leaderboard->Description,
     'Count' => count($entries),
     'Total' => $totalLeaderboardEntries,
     'Entries' => $entries,
