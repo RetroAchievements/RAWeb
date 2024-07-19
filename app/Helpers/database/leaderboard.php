@@ -25,13 +25,11 @@ function SubmitLeaderboardEntry(
         return $retVal;
     }
 
-    if (app()->environment('production')) {
-        if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
-            $retVal['Success'] = false;
-            $retVal['Error'] = "Cannot submit entry for unsupported console";
+    if ($leaderboard->game->ConsoleID && !isValidConsoleId($leaderboard->game->ConsoleID)) {
+        $retVal['Success'] = false;
+        $retVal['Error'] = "Cannot submit entry for unsupported console";
 
-            return $retVal;
-        }
+        return $retVal;
     }
 
     $retVal['LBData'] = [
@@ -150,17 +148,12 @@ function GetLeaderboardData(
     $retVal = [
         'LBID' => $leaderboard->ID,
         'GameID' => $leaderboard->game->ID,
-        'GameTitle' => $leaderboard->game->Title,
         'LowerIsBetter' => $leaderboard->LowerIsBetter,
         'LBTitle' => $leaderboard->Title,
         'LBDesc' => $leaderboard->Description,
         'LBFormat' => $leaderboard->Format,
         'LBMem' => $leaderboard->Mem,
         'LBAuthor' => $leaderboard->developer?->User,
-        'ConsoleID' => $leaderboard->game->system->id,
-        'ConsoleName' => $leaderboard->game->system->name,
-        'ForumTopicID' => $leaderboard->game->ForumTopicID,
-        'GameIcon' => $leaderboard->game->ImageIcon,
         'LBCreated' => $leaderboard->Created?->format('Y-m-d H:i:s'),
         'LBUpdated' => $leaderboard->Updated?->format('Y-m-d H:i:s'),
         'TotalEntries' => $leaderboard->entries()->count(),
