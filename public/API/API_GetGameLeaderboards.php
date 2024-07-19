@@ -5,8 +5,8 @@
  *    i : gameID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
- *  int         Count                       number of want to play game records returned in the response
- *  int         Total                       number of want to play game records the user actually has overall
+ *  int         Count                       number of leaderboard records returned in the response
+ *  int         Total                       number of leaderboard records the game actually has overall
  *  array       Results
  *   object      [value]
  *    int        ID                         unique identifier of the leaderboard
