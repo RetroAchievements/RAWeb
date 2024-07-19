@@ -12,9 +12,12 @@
  *    int        ID                         unique identifier of the leaderboard
  *    string     Title                      name of the leaderboard
  *    int        Description                details about what the leaderboard is tracking
+ *    string     CurrentLeader              name of the user that is currently at the top of the leaderboard
  */
 
 use App\Models\Leaderboard;
+use App\Models\LeaderboardEntry;
+use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -42,10 +45,19 @@ $results = $leaderboardsQuery
     ->take($count)
     ->get()
     ->map(function ($entry) {
+        $highestScoreEntry = LeaderboardEntry::where('leaderboard_id', $entry->ID)
+            ->orderByDesc('score')
+            ->first();
+
+        $currentLeaderUserID = $highestScoreEntry->user_id;
+
+        $currentLeader = User::firstWhere('ID', $currentLeaderUserID);
+
         return [
             'ID' => $entry->ID,
             'Title' => $entry->Title,
             'Description' => $entry->Description,
+            'CurrentLeader' => $currentLeader->User,
         ];
     });
 
