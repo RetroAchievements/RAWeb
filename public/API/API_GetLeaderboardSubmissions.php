@@ -7,10 +7,10 @@
  *    c : count - number of entries to return (default: 100, max: 500)
  *  string      Title                       name of the leaderboard
  *  int         Description                 details about what the leaderboard is tracking
- *  int         Count                       number of user entries returned in the response
- *  int         Total                       number of user entries the leaderboard actually has overall
  *  array       Entries
  *   object      [value]
+ *    int        Count                      number of user entries returned in the response
+ *    int        Total                      number of user entries the leaderboard actually has overall
  *    int        Rank                       user's leaderboard rank
  *    string     User                       name of user
  *    string     Score                      string value of the proper ValueFormat of the leaderboard entry //this feels wrong
@@ -40,7 +40,7 @@ if (!$leaderboard) {
 $totalLeaderboardEntries = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
     ->count();
 
-$entries = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
+$results = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
     ->skip($offset)
     ->take($count)
     ->get()
@@ -53,10 +53,13 @@ $entries = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
         ];
     });
 
+$entries = new stdClass();
+$entries->Count = count($results);
+$entries->Total = $totalLeaderboardEntries;
+$entries->Results = $results;
+
 return response()->json([
     'Title' => $leaderboard->Title,
     'Description' => $leaderboard->Description,
-    'Count' => count($entries),
-    'Total' => $totalLeaderboardEntries,
     'Entries' => $entries,
 ]);
