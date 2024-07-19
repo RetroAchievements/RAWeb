@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  API_GetGameLeaderboards - returns a list of Leaderboards for the give GameID
+ *  API_GetGameLeaderboards - returns a list of Leaderboards for the given GameID
  *    i : gameID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
