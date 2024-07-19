@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1;
 
-use App\Models\Leaderboard;
 use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\System;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -40,34 +40,43 @@ class GameLeaderboardsTest extends TestCase
         /** @var System $system */
         $system = System::factory()->create();
 
-        /** @var Game $gameOne */
+        /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+
+        /** @var Leaderboard $leaderboardOne */
         $leaderboardOne = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 1",
             'Description' => "I am the first leaderboard",
         ]);
-        $leaderboardTwo =Leaderboard::factory()->create([
+
+        /** @var Leaderboard $leaderboardTwo */
+        $leaderboardTwo = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 2",
             'Description' => "I am the second leaderboard",
         ]);
-        $leaderboardThree =Leaderboard::factory()->create([
+
+        /** @var Leaderboard $leaderboardThree */
+        $leaderboardThree = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 3",
             'Description' => "I am the third leaderboard",
         ]);
-        $leaderboardFour =Leaderboard::factory()->create([
+
+        /** @var Leaderboard $leaderboardFour */
+        $leaderboardFour = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 4",
             'Description' => "I am the fourth leaderboard",
         ]);
-        $leaderboardFive =Leaderboard::factory()->create([
+
+        /** @var Leaderboard $leaderboardFive */
+        $leaderboardFive = Leaderboard::factory()->create([
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 5",
             'Description' => "I am the fifth leaderboard",
         ]);
-
 
         $this->get($this->apiUrl('GetGameLeaderboards', ['i' => $game->ID]))
             ->assertSuccessful()
