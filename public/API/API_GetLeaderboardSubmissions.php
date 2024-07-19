@@ -32,15 +32,19 @@ $input = Validator::validate(Arr::wrap(request()->query()), [
 $offset = $input['o'] ?? 0;
 $count = $input['c'] ?? 100;
 
-$leaderboard = Leaderboard::firstWhere('ID', request()->query('i'));
-if (!$leaderboard) {
+$leaderboardId = request()->query('i');
+
+$leaderboardData = Leaderboard::select("ID", "Title", "Description")
+    ->where("ID", $leaderboardId)
+    ->withCount("entries")
+    ->first();
+
+if (!$leaderboardData) {
     return response()->json([], 404);
 }
 
-$totalLeaderboardEntries = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
-    ->count();
-
-$results = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
+$results = LeaderboardEntry::select("id", "user_id", "score", "updated_at")
+    ->where("leaderboard_id", $leaderboardId)
     ->skip($offset)
     ->take($count)
     ->get()
@@ -49,17 +53,17 @@ $results = LeaderboardEntry::where('leaderboard_id', $leaderboard->ID)
             'ID' => $entry->id,
             'UserID' => $entry->user_id,
             'Score' => $entry->score,
-            'DateSubmitted' => $entry->updated_at->toDateTimeString(),
+            'DateSubmitted' => $entry->updated_at->format('Y-m-d H:i:s'),
         ];
     });
 
 $entries = new stdClass();
 $entries->Count = count($results);
-$entries->Total = $totalLeaderboardEntries;
+$entries->Total = $leaderboardData->entries_count;
 $entries->Results = $results;
 
 return response()->json([
-    'Title' => $leaderboard->Title,
-    'Description' => $leaderboard->Description,
+    'Title' => $leaderboardData->Title,
+    'Description' => $leaderboardData->Description,
     'Entries' => $entries,
 ]);
