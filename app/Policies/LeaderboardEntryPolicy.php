@@ -16,6 +16,7 @@ class LeaderboardEntryPolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
+            Role::CHEAT_INVESTIGATOR,
             Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
             Role::DEVELOPER_JUNIOR,
