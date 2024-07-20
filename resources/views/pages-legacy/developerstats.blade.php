@@ -10,22 +10,21 @@ $devFilter = requestInputSanitized('f', 7, 'integer');
 $offset = requestInputSanitized('o', 0, 'integer');
 
 $maxItemsPerPage = 25;
-$devStatsList = GetDeveloperStatsFull($maxItemsPerPage, $offset, $type, $devFilter);
+$devStatsList = GetDeveloperStatsFull($maxItemsPerPage, max(0, $offset), $type, $devFilter);
 $filteredDevCount = sizeof($devStatsList);
 $totalDevCount = getDeveloperStatsTotalCount($devFilter);
 $totalPages = ceil($totalDevCount / $maxItemsPerPage);
 $currentPage = ($offset / $maxItemsPerPage) + 1;
 
-$previousPageHref = null;
-$nextPageHref = null;
-if ($currentPage > 1) {
-    $previousOffset = $offset - $filteredDevCount;
-    $previousPageHref = url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $previousOffset);
-}
-if ($currentPage < $totalPages) {
-    $nextOffset = $offset + $filteredDevCount;
-    $nextPageHref = url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $nextOffset);
-}
+$previousOffset = max(0, $offset - $maxItemsPerPage);
+$nextOffset = $offset + $maxItemsPerPage;
+
+$previousPageHref = ($currentPage > 1)
+    ? url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $previousOffset)
+    : null;
+$nextPageHref = ($currentPage < $totalPages)
+    ? url('developerstats.php?t=' . $type . '&f=' . $devFilter . '&o=' . $nextOffset)
+    : null;
 ?>
 
 <x-app-layout pageTitle="Developer Stats">

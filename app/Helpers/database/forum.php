@@ -135,7 +135,7 @@ function setLatestCommentInForumTopic(int $topicID, int $commentID): bool
         log_sql_fail();
     }
 
-    // Propogate to Forum table
+    // Propagate to Forum table
     $query = "  UPDATE Forum AS f
                 INNER JOIN ForumTopic AS ft ON ft.ForumID = f.ID
                 SET f.LatestCommentID = ft.LatestCommentID
