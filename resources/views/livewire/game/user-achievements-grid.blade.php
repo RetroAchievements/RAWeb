@@ -58,7 +58,7 @@ $loadContent = function() {
     <div
         x-ref="skeleton"
         class="z-[1] w-full h-full transition-opacity duration-500"
-        :class="{ 'opacity-0': !isLoading }"
+        :class="{ 'opacity-0 pointer-events-none': !isLoading }"
     >
         <x-game-list-item.user-achievements-grid.skeleton
             :$achievementCount

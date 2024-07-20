@@ -52,6 +52,8 @@ $sortedAwards = $parseCsv($sortedCsv);
 
 $awards = array_merge($hiddenAwards, $sortedAwards);
 
+$userId = $userDetails['ID'];
+
 foreach ($awards as $award) {
     $awardType = $award['type'];
     $awardData = $award['data'];
@@ -60,11 +62,11 @@ foreach ($awards as $award) {
 
     // Change display order for all entries if it's a "stacking" award type.
     if (in_array($awardType, [AwardType::AchievementUnlocksYield, AwardType::AchievementPointsYield])) {
-        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
+        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE user_id = $userId " .
             "AND AwardType = $awardType " .
             "AND AwardDataExtra = $awardDataExtra";
     } else {
-        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE User = '$user' " .
+        $query = "UPDATE SiteAwards SET DisplayOrder = $value WHERE user_id = $userId " .
             "AND AwardType = $awardType " .
             "AND AwardData = $awardData";
     }

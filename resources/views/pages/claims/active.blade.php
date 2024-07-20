@@ -22,7 +22,7 @@ render(function (View $view) {
     ];
 
     $selectFilters = [
-        $claimsService->getSystemFilter(),
+        $claimsService->getSystemFilter(onlyValid: false),
         $claimsService->getSetTypeFilter(),
     ];
 

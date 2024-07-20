@@ -8,6 +8,7 @@ use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\AchievementType;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -218,7 +219,7 @@ class GameInfoAndUserProgressTest extends TestCase
             'Released' => 'Jan 1989',
         ]);
         /** @var Achievement $achievement1 */
-        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1]);
+        $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '12345', 'DisplayOrder' => 1, 'type' => AchievementType::Progression]);
         /** @var Achievement $achievement2 */
         $achievement2 = Achievement::factory()->published()->create(['GameID' => $game->ID, 'BadgeName' => '23456', 'DisplayOrder' => 3]);
         /** @var Achievement $achievement3 */

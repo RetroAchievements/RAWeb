@@ -131,6 +131,7 @@ return [
          */
         '/claimlist.php' => [
             'u' => '/user/{u}/developer/claims',
+            'g' => '/game/{g}/claims',
             '' => '/claims/active',
         ],
         '/expiringclaims.php' => '/claims/expiring',

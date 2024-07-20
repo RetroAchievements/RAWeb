@@ -266,4 +266,4 @@ function completeClaim() {
     @endif
 @endif
 
-<a class="btn btn-link" href="/claimlist.php?g={{ $gameId }}&f={{ $allClaimFilters }}">Claim History</a>
+<a class="btn btn-link" href="{{ route('game.claims', ['game' => $gameId]) }}">Claim History</a>

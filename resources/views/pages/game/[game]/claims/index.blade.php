@@ -2,23 +2,23 @@
 
 use App\Community\Enums\ClaimType;
 use App\Models\AchievementSetClaim;
-use App\Models\User;
+use App\Models\Game;
 use App\Platform\Services\AchievementSetClaimListService;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 use function Laravel\Folio\{middleware, name, render};
 
-middleware(['auth', 'can:viewAny,' . App\Models\AchievementSetClaim::class, 'can:view,user']);
-name('developer.claims');
+middleware(['auth', 'can:viewAny,' . App\Models\AchievementSetClaim::class, 'can:view,game']);
+name('game.claims');
 
-render(function (View $view, User $user) {
+render(function (View $view, Game $game) {
     $claimsService = new AchievementSetClaimListService();
-    $claimsService->sortOrder = '-expiring';
-    $claimsService->defaultFilters['status'] = 'activeOrInReview';
+    $claimsService->sortOrder = '-claimdate';
+    $claimsService->defaultFilters['status'] = 'all';
 
     $columns = [
-        $claimsService->getGameColumn(),
+        $claimsService->getDeveloperColumn(),
         $claimsService->getClaimTypeColumn(),
         $claimsService->getSetTypeColumn(),
         $claimsService->getStatusColumn(),
@@ -35,15 +35,15 @@ render(function (View $view, User $user) {
         $claimsService->getSpecialFilter(),
     ];
 
-    $sorts = $claimsService->getSorts(withDeveloper: false);
+    $sorts = $claimsService->getSorts(withGame: false);
 
     $filterOptions = $claimsService->getFilterOptions(request());
-    $claims = $claimsService->getClaims($filterOptions, $user->achievementSetClaims()->getQuery());
+    $claims = $claimsService->getClaims($filterOptions, AchievementSetClaim::where('game_id', $game->id));
 
-    $userClaimsCount = $user->achievementSetClaims()->count();
+    $gameClaimsCount = AchievementSetClaim::where('game_id', $game->id)->count();
 
     return $view->with([
-        'user' => $user,
+        'game' => $game,
         'claims' => $claims,
         'availableSelectFilters' => $selectFilters,
         'availableSorts' => $sorts,
@@ -52,7 +52,7 @@ render(function (View $view, User $user) {
         'numFilteredClaims' => $claimsService->numFilteredClaims,
         'currentPage' => $claimsService->pageNumber,
         'totalPages' => $claimsService->totalPages,
-        'userClaimsCount' => $userClaimsCount,
+        'userClaimsCount' => $gameClaimsCount,
         'columns' => $columns,
     ]);
 });
@@ -60,7 +60,7 @@ render(function (View $view, User $user) {
 ?>
 
 @props([
-    'user' => null, // User
+    'game' => null, // Game
     'claims' => null, // Collection<int, AchievementSetClaim>
     'availableSelectFilters' => [],
     'availableSorts' => [],
@@ -73,16 +73,19 @@ render(function (View $view, User $user) {
     'columns' => [],
 ])
 
-<x-app-layout pageTitle="{{ $user->display_name }}'s Claims">
-    <x-user.breadcrumbs :targetUsername="$user->User" currentPage="Claims" />
+<x-app-layout pageTitle="Claim History - {{ $game->title }}">
+    <x-game.breadcrumbs
+        :game="$game"
+        currentPageLabel="Claim History"
+    />
 
-    <div class="mt-3 mb-6 w-full flex gap-x-3">
-        {!! userAvatar($user, label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
-        <h1 class="mt-[10px] w-full">{{ $user->display_name }}'s Claims</h1>
+    <div class="mt-3 w-full flex gap-x-3">
+        {!! gameAvatar($game->toArray(), label: false, iconSize: 48, iconClass: 'rounded-sm') !!}
+        <h1 class="mt-[10px] w-full">Claim History</h1>
     </div>
 
     @if ($userClaimsCount === 0)
-        {{ $user->display_name }} hasn't made any claims.
+        {{ $game->title }} hasn't been claimed.
     @else
         <x-meta-panel
             :availableSelectFilters="$availableSelectFilters"
