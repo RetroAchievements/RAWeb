@@ -246,7 +246,7 @@ class AchievementsRelationManager extends RelationManager
         $recentReorderingActivity = DB::table('audit_log')
             ->where('causer_id', $user->id)
             ->where('subject_id', $game->id)
-            ->where('subject_type', Game::class)
+            ->where('subject_type', 'game')
             ->where('event', 'reorderedAchievements')
             ->where('created_at', '>=', now()->subMinutes(10))
             ->first();
