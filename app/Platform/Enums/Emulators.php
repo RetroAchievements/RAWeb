@@ -49,6 +49,8 @@ abstract class Emulators
 
     public const WinArcadia = 'winarcadia';
 
+    public const Dolphin = 'dolphin';
+
     public static function cases(): array
     {
         return [
