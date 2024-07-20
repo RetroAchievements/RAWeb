@@ -57,6 +57,13 @@ class GameHash extends BaseModel
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
+            ->logOnly([
+                'name',
+                'labels',
+                'md5',
+                'patch_url',
+                'source',
+            ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -68,7 +75,8 @@ class GameHash extends BaseModel
         return $this->only([
             'id',
             'hash',
-            'Name',
+            'name',
+            'md5',
             'description',
         ]);
     }
