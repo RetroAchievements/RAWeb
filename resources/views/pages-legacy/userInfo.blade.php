@@ -28,7 +28,7 @@ if (!$userPageModel) {
     abort(404);
 }
 
-$userMassData = getUserPageInfo($userPage, numGames: $maxNumGamesToFetch);
+$userMassData = getUserPageInfo($userPageModel->username, numGames: $maxNumGamesToFetch);
 if (empty($userMassData)) {
     abort(404);
 }

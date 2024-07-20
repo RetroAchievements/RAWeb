@@ -1,6 +1,5 @@
 <?php
 
-use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Facades\Validator;
 
 function sanitize_outputs(string|int|null &...$outputs): void
@@ -29,11 +28,20 @@ function attributeEscape(?string $input): string
 
 function isValidUsername(?string $username): bool
 {
+    /**
+     * Allows:
+     *   - \p{L}: Any kind of letter from any language.
+     *   - \p{N}: Any kind of numeric character from any script.
+     *   - \s   : Spaces.
+     *   - \-_.  : Hyphens, underscores, and periods.
+     */
+    $allowedPattern = '/^[\p{L}\p{N}\s\-_.]*$/u';
+
     // Note: use request validation where applicable instead of checking the username manually
     // Note: allow 2 character usernames for existing accounts. New accounts are limited to 4.
     return Validator::make(
         ['username' => $username],
-        ['username' => ['min:2', 'max:20', new CtypeAlnum()]]
+        ['username' => ['required', 'min:2', 'max:20', 'regex:' . $allowedPattern]]
     )->passes();
 }
 
