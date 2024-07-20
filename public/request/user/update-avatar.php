@@ -5,12 +5,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Registered)) {
-    return back()->withErrors(__('legacy.error.permissions'));
+    return response()->json(['message' => __('legacy.error.permissions')], 401);
 }
 
 $userModel = User::firstWhere('User', $user);
 if (!$userModel->can('updateAvatar', [User::class])) {
-    return back()->withErrors(__('legacy.error.permissions'));
+    return response()->json(['message' => __('legacy.error.permissions')], 401);
 }
 
 try {

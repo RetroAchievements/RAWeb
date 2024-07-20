@@ -33,6 +33,22 @@ function ShowLoadingIcon(iconRootId) {
     iconRoot.classList.remove('opacity-0');
 }
 
+function HideLoadingIcon(iconRootId) {
+    var iconRoot = document.getElementById(iconRootId);
+    var spinner = iconRoot.querySelector('.loadingicon-spinner');
+    var doneIcon = iconRoot.querySelector('.loadingicon-done');
+
+    if (!spinner.classList.contains('hidden')) {
+        spinner.classList.add('hidden');
+        spinner.classList.remove('animate-spin');
+    }
+    if (!doneIcon.classList.contains('hidden')) {
+        doneIcon.classList.add('hidden');
+    }
+
+    iconRoot.classList.add('opacity-0');
+}
+
 function ShowDoneIcon(iconRootId) {
     var iconRoot = document.getElementById(iconRootId);
     iconRoot.querySelector('.loadingicon-done').classList.remove('hidden');
@@ -77,7 +93,10 @@ function UploadNewAvatar() {
                 var result = $.parseJSON(data);
                 var d = new Date();
                 $('.userpic').attr('src', '<?= media_asset('/UserPic/' . $user . '.png')  ?>' + '?' + d.getTime());
-            });
+            })
+            .fail(function() {
+                HideLoadingIcon('loadingiconavatar');
+            })
     };
     reader.readAsDataURL(file);
     return false;
