@@ -29,7 +29,7 @@ describe('Component: PostTimestamp', () => {
     render(<PostTimestamp asAbsoluteDate={false} postedAt={mockPostDate.toISOString()} />);
 
     // ASSERT
-    expect(screen.getByText(/4 days ago/i)).toBeVisible();
+    expect(screen.getByText(/3 days ago/i)).toBeVisible();
   });
 
   it('given `asAbsoluteDate` is true, renders an absolute date', () => {
@@ -43,5 +43,24 @@ describe('Component: PostTimestamp', () => {
 
     // ASSERT
     expect(screen.getByText(/04 May 2024, 05:08/i)).toBeVisible();
+  });
+
+  it('renders the month divide correctly', () => {
+    // ARRANGE
+    const mockCurrentDate = dayjs('2024-07-20T23:41:24Z');
+    vi.setSystemTime(mockCurrentDate.toDate());
+
+    const mockPostOneDate = dayjs('2024-05-21T03:37:57.000Z');
+    const mockPostTwoDate = dayjs('2024-05-21T03:19:31.000Z');
+
+    render(
+      <div>
+        <PostTimestamp asAbsoluteDate={false} postedAt={mockPostOneDate.toISOString()} />
+        <PostTimestamp asAbsoluteDate={false} postedAt={mockPostTwoDate.toISOString()} />
+      </div>,
+    );
+
+    // ASSERT
+    expect(screen.getByText(/1 month ago/i)).toBeVisible();
   });
 });
