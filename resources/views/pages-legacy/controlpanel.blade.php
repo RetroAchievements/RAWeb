@@ -26,7 +26,7 @@ $userMotto = htmlspecialchars($userDetails['Motto']);
 <x-app-layout pageTitle="Settings">
 <script>
 function ShowLoadingIcon(iconRootId) {
-    var iconRoot = document.getElementById(iconRootId);
+    let iconRoot = document.getElementById(iconRootId);
     iconRoot.querySelector('.loadingicon-done').classList.add('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.remove('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.add('animate-spin');
@@ -34,9 +34,9 @@ function ShowLoadingIcon(iconRootId) {
 }
 
 function HideLoadingIcon(iconRootId) {
-    var iconRoot = document.getElementById(iconRootId);
-    var spinner = iconRoot.querySelector('.loadingicon-spinner');
-    var doneIcon = iconRoot.querySelector('.loadingicon-done');
+    let iconRoot = document.getElementById(iconRootId);
+    let spinner = iconRoot.querySelector('.loadingicon-spinner');
+    let doneIcon = iconRoot.querySelector('.loadingicon-done');
 
     if (!spinner.classList.contains('hidden')) {
         spinner.classList.add('hidden');
@@ -50,7 +50,7 @@ function HideLoadingIcon(iconRootId) {
 }
 
 function ShowDoneIcon(iconRootId) {
-    var iconRoot = document.getElementById(iconRootId);
+    let iconRoot = document.getElementById(iconRootId);
     iconRoot.querySelector('.loadingicon-done').classList.remove('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.add('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.remove('animate-spin');
