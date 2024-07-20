@@ -46,7 +46,7 @@
  *   string     Title                  name of the game
  *   int        ConsoleID              unique identifier of the console associated to the game
  *   string     ConsoleName            name of the console associated to the game
- *   string     ImageIcon              site-relative path to te game's icon
+ *   string     ImageIcon              site-relative path to the game's icon
  *   string     ImageTitle             title image for the game
  *   string     ImageIngame            gameplay image for the game
  *   string     ImageBoxArt            box art image for the game

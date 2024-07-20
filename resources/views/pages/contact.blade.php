@@ -47,7 +47,6 @@ name('contact');
                     </p>
                     <ul class="list-disc list-inside">
                         <li>Reporting a broken set, leaderboard, or rich presence.</li>
-                        <li>Reporting achievements with grammatical mistakes.</li>
                         <li>Requesting a set be playtested.</li>
                         <li>Hash compatibility questions.</li>
                         <li>Hub organizational questions.</li>

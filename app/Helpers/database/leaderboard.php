@@ -42,12 +42,19 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
-    $existingLeaderboardEntry = LeaderboardEntry::where('leaderboard_id', $leaderboard->id)
+    $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
+        ->where('leaderboard_id', $leaderboard->id)
         ->where('user_id', $user->id)
         ->first();
 
     if ($existingLeaderboardEntry) {
-        if ($leaderboard->isBetterScore($newEntry, $existingLeaderboardEntry->score)) {
+        if ($existingLeaderboardEntry->trashed()
+            || $leaderboard->isBetterScore($newEntry, $existingLeaderboardEntry->score)) {
+
+            if ($existingLeaderboardEntry->trashed()) {
+                $existingLeaderboardEntry->restore();
+            }
+
             // Update the player's entry.
             $existingLeaderboardEntry->score = $newEntry;
             $existingLeaderboardEntry->save();
@@ -141,19 +148,14 @@ function GetLeaderboardData(
     $retVal = [
         'LBID' => $leaderboard->ID,
         'GameID' => $leaderboard->game->ID,
-        'GameTitle' => $leaderboard->game->Title,
         'LowerIsBetter' => $leaderboard->LowerIsBetter,
         'LBTitle' => $leaderboard->Title,
         'LBDesc' => $leaderboard->Description,
         'LBFormat' => $leaderboard->Format,
         'LBMem' => $leaderboard->Mem,
         'LBAuthor' => $leaderboard->developer?->User,
-        'ConsoleID' => $leaderboard->game->system->id,
-        'ConsoleName' => $leaderboard->game->system->name,
-        'ForumTopicID' => $leaderboard->game->ForumTopicID,
-        'GameIcon' => $leaderboard->game->ImageIcon,
-        'LBCreated' => $leaderboard->Created,
-        'LBUpdated' => $leaderboard->Updated,
+        'LBCreated' => $leaderboard->Created?->format('Y-m-d H:i:s'),
+        'LBUpdated' => $leaderboard->Updated?->format('Y-m-d H:i:s'),
         'TotalEntries' => $leaderboard->entries()->count(),
         'Entries' => [],
     ];
