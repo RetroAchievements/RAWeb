@@ -48,10 +48,6 @@ class Kernel extends HttpKernel
             // TODO \Illuminate\Routing\Middleware\ThrottleRequests::class.':web',
         ],
 
-        'inertia' => [
-            Middleware\HandleInertiaRequests::class,
-        ],
-
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \App\Api\Middleware\AccessControlAllowOriginWildcard::class,
@@ -83,6 +79,7 @@ class Kernel extends HttpKernel
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => Middleware\RedirectIfAuthenticated::class,
+        'inertia' => Middleware\HandleInertiaRequests::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => Middleware\ValidateSignature::class,
