@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\GameHash;
+use App\Models\MemoryNote;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -25,7 +25,7 @@ class MemoryNotePolicy
         return true;
     }
 
-    public function view(User $user, GameHash $gameHash): bool
+    public function view(User $user, MemoryNote $memoryNote): bool
     {
         return true;
     }
@@ -37,24 +37,24 @@ class MemoryNotePolicy
         ]);
     }
 
-    public function update(User $user, GameHash $gameHash): bool
+    public function update(User $user, MemoryNote $memoryNote): bool
     {
         return $user->hasAnyRole([
             Role::DEVELOPER,
         ]);
     }
 
-    public function delete(User $user, GameHash $gameHash): bool
+    public function delete(User $user, MemoryNote $memoryNote): bool
     {
         return false;
     }
 
-    public function restore(User $user, GameHash $gameHash): bool
+    public function restore(User $user, MemoryNote $memoryNote): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, GameHash $gameHash): bool
+    public function forceDelete(User $user, MemoryNote $memoryNote): bool
     {
         return false;
     }
