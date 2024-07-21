@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\GameResource\Pages;
+use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
@@ -420,6 +421,7 @@ class GameResource extends Resource
     public static function getRelations(): array
     {
         return [
+            AchievementsRelationManager::class,
         ];
     }
 

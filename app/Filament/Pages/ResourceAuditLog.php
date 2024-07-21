@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Platform\Enums\AchievementFlag;
+use Closure;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Contracts\HasForms;
@@ -45,9 +47,26 @@ abstract class ResourceAuditLog extends Page implements HasForms
             return new LengthAwarePaginator([], 0, 1);
         }
 
-        return $this->paginateTableQuery(
-            $this->record->auditLog()->with('causer')->latest()->getQuery()
-        );
+        $query = $this->record->auditLog()->with('causer')->latest()->getQuery();
+        $paginator = $this->paginateTableQuery($query);
+
+        // Map raw values to human-readable values.
+        // eg: 3 -> "Published"
+        foreach ($paginator->items() as $log) {
+            $properties = json_decode($log->properties, true);
+
+            if (isset($properties['attributes'])) {
+                $properties['attributes'] = $this->transformFieldValues($properties['attributes']);
+            }
+
+            if (isset($properties['old'])) {
+                $properties['old'] = $this->transformFieldValues($properties['old']);
+            }
+
+            $log->properties = $properties;
+        }
+
+        return $paginator;
     }
 
     public function getFieldLabel(string $name): string
@@ -88,6 +107,29 @@ abstract class ResourceAuditLog extends Page implements HasForms
             ->mapWithKeys(fn (Field $field) => [
                 $field->getName() => $field->getLabel(),
             ]);
+    }
+
+    /**
+     * @return Collection<string, Closure(int): string>
+     */
+    protected function createFieldValueMap(): Collection
+    {
+        return collect([
+            'Flags' => fn (int $flag): string => AchievementFlag::toString($flag),
+        ]);
+    }
+
+    protected function transformFieldValues(array $values): array
+    {
+        $fieldValueMap = $this->createFieldValueMap();
+
+        foreach ($values as $key => $value) {
+            if ($fieldValueMap->has($key) && is_callable($fieldValueMap->get($key))) {
+                $values[$key] = $fieldValueMap->get($key)($value);
+            }
+        }
+
+        return $values;
     }
 
     protected function getEventColor(string $event): string
