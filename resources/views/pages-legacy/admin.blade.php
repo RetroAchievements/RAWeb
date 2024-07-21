@@ -12,34 +12,6 @@ if (!authenticateFromCookie($user, $permissions, $userDetails, Permissions::Mode
 $action = request()->input('action');
 $message = null;
 
-if ($action === 'unlocks') {
-    $achievementIDs = request()->query('a');
-    $startTime = request()->query('s');
-    $endTime = request()->query('e');
-    $hardcoreMode = (int) request()->query('h');
-    $dateString = "";
-    if (isset($achievementIDs)) {
-        if (strtotime($startTime)) {
-            $dateString = strtotime($endTime) ? " between $startTime and $endTime" : " since $startTime";
-        } else {
-            if (strtotime($endTime)) {
-                // invalid start, valid end
-                $dateString = " before $endTime";
-            }
-        }
-
-        $winners = getUnlocksInDateRange(separateList($achievementIDs), $startTime, $endTime, $hardcoreMode);
-
-        $keys = array_keys($winners);
-        $winnersCount = count($winners);
-        foreach ($winners as $key => $winner) {
-            $winnersCount = is_countable($winner) ? count($winner) : 0;
-            $message .= "<strong>" . number_format($winnersCount) . " Winners of " . $key . " in " . ($hardcoreMode ? "Hardcore mode" : "Softcore mode") . "$dateString:</strong><br>";
-            $message .= implode(', ', $winner) . "<br><br>";
-        }
-    }
-}
-
 if ($action === 'alt_identifier') {
     $altsForUser = request()->input('u');
 
@@ -105,73 +77,6 @@ $staticData = StaticData::first();
 <?php endif ?>
 
 <?php if ($permissions >= Permissions::Moderator) : ?>
-    <section class="mb-4">
-        <?php
-        $winnersStartTime = $staticData['winnersStartTime'] ?? null;
-        $winnersEndTime = $staticData['winnersEndTime'] ?? null;
-        ?>
-        <h4>Get Achievement Unlocks</h4>
-        <form action="admin.php">
-            <input type="hidden" name="action" value="unlocks">
-            <table class="mb-1">
-                <colgroup>
-                    <col>
-                    <col>
-                    <col>
-                    <col class="w-full">
-                </colgroup>
-                <tbody>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="winnersAchievementIDs">Achievement IDs</label>
-                    </td>
-                    <td>
-                        <input id="winnersAchievementIDs" name="a">
-                    </td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="startTime">Start At (UTC time)</label>
-                    </td>
-                    <td>
-                        <input id="startTime" name="s" value="<?= $winnersStartTime ?>">
-                    </td>
-                    <td class="whitespace-nowrap">
-                        <label for="endTime">End At (UTC time)</label>
-                    </td>
-                    <td>
-                        <input id="endTime" name="e" value="<?= $winnersEndTime ?>">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="whitespace-nowrap">
-                        <label for="hardcoreWinners">Hardcore winners?</label>
-                    </td>
-                    <td>
-                        <input id="hardcoreWinners" type="checkbox" name="h" value="1">
-                    </td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-            <button class="btn">Submit</button>
-        </form>
-
-        <script>
-        jQuery('#startTime').datetimepicker({
-            format: 'Y-m-d H:i:s',
-            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-        });
-        jQuery('#endTime').datetimepicker({
-            format: 'Y-m-d H:i:s',
-            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
-        });
-        </script>
-    </section>
-
     <section class="mb-4">
         <h4>Unlock Achievement</h4>
         <form method="post" action="request/admin.php">
