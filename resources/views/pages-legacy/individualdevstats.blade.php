@@ -556,7 +556,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         }
         echo "</td></tr>";
 
-        // Achievementes with custom badges
+        // Achievements with custom badges
         echo "<tr><td>Achievements with Custom Badges:</td><td>" . $customBadgesCount . " (" . number_format($customBadgesCount / $achievementCount * 100, 2, '.', '') . "%)</td></tr>";
 
         // Average achievement points
@@ -602,7 +602,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
         // Achievements won by others
         echo "<tr><td>Achievements Won by Others:</td><td>$userContribCount</td></tr>";
 
-        // Achievement poits awarded to others
+        // Achievement points awarded to others
         echo "<tr><td>Points Awarded to Others:</td><td>$userContribYield</td></tr>";
 
         // Number of own achievements obtained

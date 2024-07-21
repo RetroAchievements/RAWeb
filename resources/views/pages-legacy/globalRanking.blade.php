@@ -119,7 +119,7 @@ $unlockMode = match ($sort % 10) {
     }
     echo "</div>";
 
-    // Create the custom date folter
+    // Create the custom date filter
     echo "<form action='/globalRanking.php'>";
     echo "<label for='d'><b>Custom Date: </b></label>";
     echo "<input type='hidden' name='s' value=" . $sort . ">";
@@ -308,7 +308,7 @@ $unlockMode = match ($sort % 10) {
                 if ($friends == 1) {
                     echo "<td>" . localized_number($userRank) . "</td>";
                 } elseif ($type != 2) {
-                    // Dont show rank on pages you are not actually ranked in. This would require rerunning the query just to find yourself
+                    // Don't show rank on pages you are not actually ranked in. This would require rerunning the query just to find yourself
                     echo "<td></td>";
                 } else {
                     if ($sort < 10 && $sort % 10 != 1) {

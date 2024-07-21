@@ -261,6 +261,10 @@ class GameListService
         $reverse = substr($sortOrder, 0, 1) === '-';
         $sortMatch = $reverse ? substr($sortOrder, 1) : $sortOrder;
 
+        if ($sortMatch === 'tickets' && !$this->withTicketCounts) {
+            $sortMatch = 'title';
+        }
+
         $sortFunction = match ($sortMatch) {
             default => function ($a, $b) {
                 return $a['SortTitle'] <=> $b['SortTitle'];
