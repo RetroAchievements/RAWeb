@@ -221,7 +221,7 @@ class TicketDataTest extends TestCase
                         'OpenTickets' => 1,
                     ],
                 ],
-                'URL' => config('app.url') . '/tickets/most-reported-games',
+                'URL' => config('app.url') . '/manage/most-reported-games',
             ]);
     }
 
