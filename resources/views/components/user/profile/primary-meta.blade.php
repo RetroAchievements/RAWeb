@@ -50,7 +50,7 @@ $shouldMoveRoleToNextLine =
         </div>
 
         {{-- Motto --}}
-        @if (!empty($userMassData['Motto']))
+        @if (!empty($userMassData['Motto']) && !$user->isMuted())
             <div x-data="{}" class="rounded bg-box-bg px-2 py-1 max-w-fit italic text-2xs hyphens-auto mb-3">
                 <p x-linkify class="[&>a]:text-text [&>a]:transition-colors [&>a]:duration-700 [&>a]:ease-out" style="word-break: break-word;">
                     {{ $userMassData['Motto'] }}
