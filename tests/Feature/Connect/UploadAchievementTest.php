@@ -230,7 +230,7 @@ class UploadAchievementTest extends TestCase
         // ====================================================
         // rescore achievement; contrib yield changes
         $params['z'] = 5;
-        unset($params['x']); // ommitting optional 'x' parameter should not change type
+        unset($params['x']); // omitting optional 'x' parameter should not change type
         $this->get($this->apiUrl('uploadachievement', $params))
             ->assertExactJson([
                 'Success' => true,

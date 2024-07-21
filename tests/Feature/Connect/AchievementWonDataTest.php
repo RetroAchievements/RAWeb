@@ -143,7 +143,7 @@ class AchievementWonDataTest extends TestCase
                 ],
             ]);
 
-        // non-existant achievement
+        // non-existent achievement
         $this->get($this->apiUrl('achievementwondata', ['a' => 999999]))
             ->assertExactJson([
                 'Success' => true,
