@@ -13,6 +13,7 @@ return [
             'updated' => 'Updated',
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
+            'reorderedAchievements' => 'Reordered achievements',
         ],
     ],
 ];
