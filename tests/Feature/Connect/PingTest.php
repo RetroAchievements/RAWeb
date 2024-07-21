@@ -60,7 +60,7 @@ class PingTest extends TestCase
         $this->assertEquals('Doing good', $user1->RichPresenceMsg);
 
         // string sent by GET will not update user's rich presence message
-        $this->get($this->apiUrl('ping', ['g' => $game->ID, 'm' => 'Doing better']))
+        $this->get($this->apiUrl('ping', ['g' => $game->ID, 'm' => 'Doing better', 'x' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
