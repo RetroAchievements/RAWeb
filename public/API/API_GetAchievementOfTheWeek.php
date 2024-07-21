@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  *   string     BadgeURL                site-relative path to the badge image for the achievement
  *   datetime   DateCreated             when the achievement was created
  *   datetime   DateModified            when the achievement was last modified
- *  object     Console                  information about the console associated to the game associated to the achievemnt
+ *  object     Console                  information about the console associated to the game associated to the achievement
  *   int        ID                      unique identifier of the console
  *   string     Title                   name of the console
  *  object     Game                     information about the game associated to the achievement

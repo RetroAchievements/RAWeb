@@ -48,7 +48,7 @@ class SyncMemoryNotes extends Command
         /*
          * Address might be 0 even though it's 0 - fix that
          */
-        $transformed['address'] = $origin->Address ?? 0;
+        $transformed['address'] = $origin->address ?? 0;
 
         $transformed['game_hash_set_id'] = $gameHashSetId;
 
