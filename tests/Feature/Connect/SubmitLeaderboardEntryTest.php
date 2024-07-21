@@ -112,7 +112,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now3);
 
         $score = $bestScore = 66666;
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->id]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
