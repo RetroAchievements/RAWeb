@@ -6,7 +6,7 @@
                     Get Game Achievement IDs
                 </x-filament::section.heading>
 
-                <livewire:administrative-tools.get-game-achievement-ids />
+                <livewire:filament-tools.get-game-achievement-ids />
             </div>
         </x-filament::section>
     </x-filament::grid>
