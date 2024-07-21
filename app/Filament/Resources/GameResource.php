@@ -124,9 +124,9 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('GuideURL')
                             ->label('RAGuide URL')
                             ->placeholder('none')
-                            ->url(fn (Game $record): ?string => $record?->GuideURL)
+                            ->url(fn (Game $record): ?string => $record->GuideURL)
                             ->extraAttributes(function (Game $game): array {
-                                if ($game?->GuideURL) {
+                                if ($game->GuideURL) {
                                     return ['class' => 'underline'];
                                 }
 
