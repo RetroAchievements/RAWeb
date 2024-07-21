@@ -40,7 +40,7 @@ render(function (View $view, Achievement $achievement) {
         }
 
         if ($userAgent === null) {
-            // find the most recent sesssion lasting at least five minutes
+            // find the most recent session lasting at least five minutes
             $playerSession = $user->playerSessions()
                 ->where('game_id', $achievement->game->id)
                 ->where('duration', '>=', '5')

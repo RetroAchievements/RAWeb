@@ -168,7 +168,7 @@ function updateClaimsForPermissionChange(User $user, int $permissionsAfter, int 
 }
 
 /**
- * Extends a claim a months beyone it's initial expiration time if it expires withing a week.
+ * Extends a claim a months beyond its initial expiration time if it expires within a week.
  * Any collaboration claims will be extended as well.
  */
 function extendClaim(User $user, int $gameId): bool
@@ -441,7 +441,7 @@ function getFilteredClaims(
 }
 
 /**
- * Gets the number of active claims the user currently has or the total amoung all users. Has the
+ * Gets the number of active claims the user currently has or the total among all users. Has the
  * option to count or ignore collaboration claims.
  */
 function getActiveClaimCount(?User $user = null, bool $countCollaboration = true, bool $countSpecial = false): int

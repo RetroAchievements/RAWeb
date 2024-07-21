@@ -121,23 +121,6 @@ function SubmitLeaderboardEntry(
     return $retVal;
 }
 
-function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
-{
-    $leaderboardEntry = LeaderboardEntry::with('leaderboard')
-        ->where('leaderboard_id', $lbID)
-        ->where('user_id', $user->id)
-        ->first();
-
-    if (!$leaderboardEntry) {
-        return false;
-    }
-
-    $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
-    $wasLeaderboardEntryDeleted = $leaderboardEntry->delete();
-
-    return $wasLeaderboardEntryDeleted;
-}
-
 function GetLeaderboardData(
     Leaderboard $leaderboard,
     ?User $user,
@@ -148,17 +131,12 @@ function GetLeaderboardData(
     $retVal = [
         'LBID' => $leaderboard->ID,
         'GameID' => $leaderboard->game->ID,
-        'GameTitle' => $leaderboard->game->Title,
         'LowerIsBetter' => $leaderboard->LowerIsBetter,
         'LBTitle' => $leaderboard->Title,
         'LBDesc' => $leaderboard->Description,
         'LBFormat' => $leaderboard->Format,
         'LBMem' => $leaderboard->Mem,
         'LBAuthor' => $leaderboard->developer?->User,
-        'ConsoleID' => $leaderboard->game->system->id,
-        'ConsoleName' => $leaderboard->game->system->name,
-        'ForumTopicID' => $leaderboard->game->ForumTopicID,
-        'GameIcon' => $leaderboard->game->ImageIcon,
         'LBCreated' => $leaderboard->Created?->format('Y-m-d H:i:s'),
         'LBUpdated' => $leaderboard->Updated?->format('Y-m-d H:i:s'),
         'TotalEntries' => $leaderboard->entries()->count(),
@@ -284,7 +262,7 @@ function getLeaderboardsList(
             break;
     }
 
-    $query = "SELECT 
+    $query = "SELECT
         ld.ID, ld.Title, ld.Description, ld.Format, ld.Mem, ld.DisplayOrder,
         leInner.NumResults,
         ld.LowerIsBetter, ua.User AS Author,

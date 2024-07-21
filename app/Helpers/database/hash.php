@@ -53,7 +53,7 @@ function getGameIDFromMD5(string $md5): int
 }
 
 /**
- * Gets the list of hashes and hash information from the databased using the input offset and count.
+ * Gets the list of hashes and hash information from the database using the input offset and count.
  */
 function getHashList(int $offset, int $count, ?string $searchedHash): array
 {
