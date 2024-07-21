@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -400,6 +401,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function visibleLeaderboards(): HasMany
     {
         return $this->leaderboards()->visible();
+    }
+
+    /**
+     * @return HasManyThrough<Ticket>
+     */
+    public function tickets(): HasManyThrough
+    {
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID');
     }
 
     // == scopes
