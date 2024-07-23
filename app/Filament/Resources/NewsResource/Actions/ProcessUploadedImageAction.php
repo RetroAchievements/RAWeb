@@ -17,9 +17,18 @@ class ProcessUploadedImageAction
 
         $imagePath = UploadNewsImage($dataUrl);
 
-        // Clean up the temporary file.
-        Storage::disk('local')->delete($tempImagePath);
+        // Clean up all temp files.
+        $this->cleanUpTempFiles();
 
         return $imagePath;
+    }
+
+    private function cleanUpTempFiles(): void
+    {
+        $tempFiles = Storage::disk('local')->files('temp');
+
+        foreach ($tempFiles as $tempFile) {
+            Storage::disk('local')->delete($tempFile);
+        }
     }
 }

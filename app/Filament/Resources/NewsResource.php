@@ -84,7 +84,10 @@ class NewsResource extends Resource
                             ->disk('local')
                             ->directory('temp')
                             ->visibility('private')
-                            ->image(),
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
+                            ->maxSize(1024)
+                            ->maxFiles(1),
 
                         Forms\Components\Placeholder::make('ImagePreview')
                             ->content(function (News $news) {
