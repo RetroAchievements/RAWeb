@@ -8,7 +8,6 @@ use App\Models\Game;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Platform\Enums\ValueFormat;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -34,7 +33,7 @@ class LeaderboardsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                //
+
             ]);
     }
 
