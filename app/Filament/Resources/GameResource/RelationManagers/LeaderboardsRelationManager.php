@@ -119,6 +119,13 @@ class LeaderboardsRelationManager extends RelationManager
                             }
 
                             $leaderboard->entries()->delete();
+
+                            activity()
+                                ->useLog('default')
+                                ->causedBy($user)
+                                ->performedOn($leaderboard)
+                                ->event('resetAllLeaderboardEntries')
+                                ->log('Reset All Leaderboard Entries');
                         })
                         ->visible(function (Leaderboard $leaderboard) {
                             /** @var User $user */

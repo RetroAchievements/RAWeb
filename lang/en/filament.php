@@ -15,6 +15,7 @@ return [
             'pivotDetached' => 'Detached',
             'reorderedAchievements' => 'Reordered achievements',
             'reorderedLeaderboards' => 'Reordered leaderboards',
+            'resetAllLeaderboardEntries' => 'Reset all leaderboard entries',
         ],
     ],
 ];
