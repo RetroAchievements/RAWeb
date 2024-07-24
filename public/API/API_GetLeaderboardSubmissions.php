@@ -18,7 +18,6 @@
  */
 
 use App\Models\Leaderboard;
-use App\Models\LeaderboardEntry;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -34,8 +33,7 @@ $count = $input['c'] ?? 100;
 
 $leaderboardId = request()->query('i');
 
-$leaderboardData = Leaderboard::select("ID", "Title", "Description")
-    ->where("ID", $leaderboardId)
+$leaderboardData = Leaderboard::where("ID", $leaderboardId)
     ->withCount("entries")
     ->first();
 
@@ -43,27 +41,22 @@ if (!$leaderboardData) {
     return response()->json([], 404);
 }
 
-$results = LeaderboardEntry::select("id", "user_id", "score", "updated_at")
-    ->where("leaderboard_id", $leaderboardId)
-    ->skip($offset)
-    ->take($count)
-    ->get()
-    ->map(function ($entry) {
-        return [
-            'ID' => $entry->id,
-            'UserID' => $entry->user_id,
-            'Score' => $entry->score,
-            'DateSubmitted' => $entry->updated_at->format('Y-m-d H:i:s'),
-        ];
-    });
+$fetchedLeaderboardData = GetLeaderboardData($leaderboardData, null, $count, $offset);
 
-$entries = new stdClass();
-$entries->Count = count($results);
-$entries->Total = $leaderboardData->entries_count;
-$entries->Results = $results;
+$results = [];
+foreach ($fetchedLeaderboardData['Entries'] as $entry) {
+    $results[] = [
+        'User' => $entry['User'],
+        'DateSubmitted' => date('Y-m-d H:i:s', $entry['DateSubmitted']),
+        'Score' => $entry['Score'],
+        'Rank' => $entry['Rank'],
+        ];
+}
 
 return response()->json([
-    'Title' => $leaderboardData->Title,
-    'Description' => $leaderboardData->Description,
-    'Entries' => $entries,
+    'Count' => count($fetchedLeaderboardData['Entries']),
+    'Total' => $fetchedLeaderboardData['TotalEntries'],
+    'Results' => usort($results, function ($a, $b) {
+        return $a['Rank'] - $b['Rank'];
+    }),
 ]);

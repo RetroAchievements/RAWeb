@@ -85,42 +85,38 @@ class LeaderboardSubmissionsTest extends TestCase
         $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID]))
             ->assertSuccessful()
             ->assertJson([
-                'Title' => $leaderboard->Title,
-                'Description' => $leaderboard->Description,
-                'Entries' => [
-                    'Count' => 5,
-                    'Total' => 5,
-                    'Results' => [
-                        [
-                            "ID" => $leaderboardEntryOne->id,
-                            'UserID' => $leaderboardEntryOne->user->id,
-                            'Score' => $leaderboardEntryOne->score,
-                            'DateSubmitted' => $leaderboardEntryOne->updated_at->toDateTimeString(),
-                        ],
-                        [
-                            "ID" => $leaderboardEntryTwo->id,
-                            'UserID' => $leaderboardEntryTwo->user->id,
-                            'Score' => $leaderboardEntryTwo->score,
-                            'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
-                        ],
-                        [
-                            "ID" => $leaderboardEntryThree->id,
-                            'UserID' => $leaderboardEntryThree->user->id,
-                            'Score' => $leaderboardEntryThree->score,
-                            'DateSubmitted' => $leaderboardEntryThree->updated_at->toDateTimeString(),
-                        ],
-                        [
-                            "ID" => $leaderboardEntryFour->id,
-                            'UserID' => $leaderboardEntryFour->user->id,
-                            'Score' => $leaderboardEntryFour->score,
-                            'DateSubmitted' => $leaderboardEntryFour->updated_at->toDateTimeString(),
-                        ],
-                        [
-                            "ID" => $leaderboardEntryFive->id,
-                            'UserID' => $leaderboardEntryFive->user->id,
-                            'Score' => $leaderboardEntryFive->score,
-                            'DateSubmitted' => $leaderboardEntryFive->updated_at->toDateTimeString(),
-                        ],
+                'Count' => 5,
+                'Total' => 5,
+                'Results' => [
+                    [
+                        "Rank" => $leaderboardEntryOne->id,
+                        'User' => $userOne->User,
+                        'Score' => $leaderboardEntryOne->score,
+                        'DateSubmitted' => $leaderboardEntryOne->updated_at->toDateTimeString(),
+                    ],
+                    [
+                        "Rank" => $leaderboardEntryTwo->id,
+                        'User' => $userTwo->User,
+                        'Score' => $leaderboardEntryTwo->score,
+                        'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
+                    ],
+                    [
+                        "Rank" => $leaderboardEntryThree->id,
+                        'User' => $userThree->User,
+                        'Score' => $leaderboardEntryThree->score,
+                        'DateSubmitted' => $leaderboardEntryThree->updated_at->toDateTimeString(),
+                    ],
+                    [
+                        "Rank" => $leaderboardEntryFour->id,
+                        'User' => $userFour->User,
+                        'Score' => $leaderboardEntryFour->score,
+                        'DateSubmitted' => $leaderboardEntryFour->updated_at->toDateTimeString(),
+                    ],
+                    [
+                        "Rank" => $leaderboardEntryFive->id,
+                        'User' => $userFive->User,
+                        'Score' => $leaderboardEntryFive->score,
+                        'DateSubmitted' => $leaderboardEntryFive->updated_at->toDateTimeString(),
                     ],
                 ],
             ]);
@@ -128,24 +124,20 @@ class LeaderboardSubmissionsTest extends TestCase
             $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
-                    'Title' => $leaderboard->Title,
-                    'Description' => $leaderboard->Description,
-                    'Entries' => [
-                        'Count' => 2,
-                        'Total' => 5,
-                        'Results' => [
-                            [
-                                "ID" => $leaderboardEntryFour->id,
-                                'UserID' => $leaderboardEntryFour->user->id,
-                                'Score' => $leaderboardEntryFour->score,
-                                'DateSubmitted' => $leaderboardEntryFour->updated_at->toDateTimeString(),
-                            ],
-                            [
-                                "ID" => $leaderboardEntryFive->id,
-                                'UserID' => $leaderboardEntryFive->user->id,
-                                'Score' => $leaderboardEntryFive->score,
-                                'DateSubmitted' => $leaderboardEntryFive->updated_at->toDateTimeString(),
-                            ],
+                    'Count' => 2,
+                    'Total' => 5,
+                    'Results' => [
+                        [
+                            "Rank" => $leaderboardEntryFour->id,
+                            'User' => $userFour->User,
+                            'Score' => $leaderboardEntryFour->score,
+                            'DateSubmitted' => $leaderboardEntryFour->updated_at->toDateTimeString(),
+                        ],
+                        [
+                            "Rank" => $leaderboardEntryFive->id,
+                            'User' => $userFive->User,
+                            'Score' => $leaderboardEntryFive->score,
+                            'DateSubmitted' => $leaderboardEntryFive->updated_at->toDateTimeString(),
                         ],
                     ],
                 ]);
@@ -153,24 +145,20 @@ class LeaderboardSubmissionsTest extends TestCase
             $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
-                    'Title' => $leaderboard->Title,
-                    'Description' => $leaderboard->Description,
-                    'Entries' => [
-                        'Count' => 2,
-                        'Total' => 5,
-                        'Results' => [
-                            [
-                                "ID" => $leaderboardEntryOne->id,
-                                'UserID' => $leaderboardEntryOne->user->id,
-                                'Score' => $leaderboardEntryOne->score,
-                                'DateSubmitted' => $leaderboardEntryOne->updated_at->toDateTimeString(),
-                            ],
-                            [
-                                "ID" => $leaderboardEntryTwo->id,
-                                'UserID' => $leaderboardEntryTwo->user->id,
-                                'Score' => $leaderboardEntryTwo->score,
-                                'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
-                            ],
+                    'Count' => 2,
+                    'Total' => 5,
+                    'Results' => [
+                        [
+                            "Rank" => $leaderboardEntryOne->id,
+                            'User' => $userOne->User,
+                            'Score' => $leaderboardEntryOne->score,
+                            'DateSubmitted' => $leaderboardEntryOne->updated_at->toDateTimeString(),
+                        ],
+                        [
+                            "Rank" => $leaderboardEntryTwo->id,
+                            'User' => $userTwo->User,
+                            'Score' => $leaderboardEntryTwo->score,
+                            'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
                         ],
                     ],
                 ]);
@@ -178,24 +166,20 @@ class LeaderboardSubmissionsTest extends TestCase
             $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
-                    'Title' => $leaderboard->Title,
-                    'Description' => $leaderboard->Description,
-                    'Entries' => [
-                        'Count' => 2,
-                        'Total' => 5,
-                        'Results' => [
-                            [
-                                "ID" => $leaderboardEntryTwo->id,
-                                'UserID' => $leaderboardEntryTwo->user->id,
-                                'Score' => $leaderboardEntryTwo->score,
-                                'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
-                            ],
-                            [
-                                "ID" => $leaderboardEntryThree->id,
-                                'UserID' => $leaderboardEntryThree->user->id,
-                                'Score' => $leaderboardEntryThree->score,
-                                'DateSubmitted' => $leaderboardEntryThree->updated_at->toDateTimeString(),
-                            ],
+                    'Count' => 2,
+                    'Total' => 5,
+                    'Results' => [
+                        [
+                            "Rank" => $leaderboardEntryTwo->id,
+                            'User' => $userTwo->User,
+                            'Score' => $leaderboardEntryTwo->score,
+                            'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
+                        ],
+                        [
+                            "Rank" => $leaderboardEntryThree->id,
+                            'User' => $userThree->User,
+                            'Score' => $leaderboardEntryThree->score,
+                            'DateSubmitted' => $leaderboardEntryThree->updated_at->toDateTimeString(),
                         ],
                     ],
                 ]);

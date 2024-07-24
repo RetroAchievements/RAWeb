@@ -174,40 +174,43 @@ function GetLeaderboardData(
         }
     }
 
-    // Now get entries:
-    $index = $rank = $offset + 1;
-    $rankScore = null;
-    $userFound = false;
-    $entries = $leaderboard->sortedEntries()->with('user')->skip($offset)->take($numToFetch);
-    foreach ($entries->get() as $entry) {
-        if ($entry->score !== $rankScore) {
-            if ($rankScore === null) {
-                $rank = $leaderboard->getRank($entry->score);
-            } else {
-                $rank = $index;
+    if ($numToFetch != 0) {
+        // Now get entries:
+        $index = $rank = $offset + 1;
+        $rankScore = null;
+        $userFound = false;
+
+        $entries = $leaderboard->sortedEntries()->with('user')->skip($offset)->take($numToFetch);
+        foreach ($entries->get() as $entry) {
+            if ($entry->score !== $rankScore) {
+                if ($rankScore === null) {
+                    $rank = $leaderboard->getRank($entry->score);
+                } else {
+                    $rank = $index;
+                }
+                $rankScore = $entry->score;
             }
-            $rankScore = $entry->score;
+
+            $retVal['Entries'][] = [
+                'User' => $entry->user->display_name,
+                'DateSubmitted' => $entry->updated_at->unix(),
+                'Score' => $entry->score,
+                'Rank' => $rank,
+                'Index' => $index,
+            ];
+
+            if ($entry->user->is($user)) {
+                $userFound = true;
+            }
+
+            $index++;
         }
 
-        $retVal['Entries'][] = [
-            'User' => $entry->user->display_name,
-            'DateSubmitted' => $entry->updated_at->unix(),
-            'Score' => $entry->score,
-            'Rank' => $rank,
-            'Index' => $index,
-        ];
-
-        if ($entry->user->is($user)) {
-            $userFound = true;
-        }
-
-        $index++;
-    }
-
-    if ($userFound === false && $user && !$nearby) {
-        $entry = getLeaderboardUserEntry($leaderboard, $user);
-        if ($entry) {
-            $retVal['Entries'][] = $entry;
+        if ($userFound === false && $user && !$nearby) {
+            $entry = getLeaderboardUserEntry($leaderboard, $user);
+            if ($entry) {
+                $retVal['Entries'][] = $entry;
+            }
         }
     }
 
