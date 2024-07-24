@@ -5,6 +5,8 @@
  *    i : console id
  *    f : 1=only return games where NumAchievements > 0 (default: 0)
  *    h : 1=also return hashes (default: 0)
+ *    o : offset (default: 0)
+ *    c : count (default: 0)
  *
  *  array
  *   object     [value]
@@ -31,8 +33,10 @@ if ($consoleID <= 0) {
 
 $withAchievements = (bool) request()->query('f');
 $withHashes = (bool) request()->query('h');
+$offset = (int) request()->query('o');
+$count = (int) request()->query('c');
 
-getGamesListByDev(null, $consoleID, $dataOut, 1, false, $withAchievements ? 0 : 2);
+getGamesListByDev(null, $consoleID, $dataOut, 1, false, $withAchievements ? 0 : 2, $offset, $count);
 
 $response = [];
 foreach ($dataOut as &$entry) {
