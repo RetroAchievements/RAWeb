@@ -8,6 +8,7 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\GameResource\Pages;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\GameHashesRelationManager;
+use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
@@ -423,6 +424,7 @@ class GameResource extends Resource
     {
         return [
             AchievementsRelationManager::class,
+            LeaderboardsRelationManager::class,
             GameHashesRelationManager::class,
         ];
     }

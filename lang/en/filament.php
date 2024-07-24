@@ -14,6 +14,7 @@ return [
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
             'reorderedAchievements' => 'Reordered achievements',
+            'reorderedLeaderboards' => 'Reordered leaderboards',
         ],
     ],
 ];
