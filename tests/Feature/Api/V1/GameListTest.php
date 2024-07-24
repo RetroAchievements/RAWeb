@@ -183,7 +183,7 @@ class GameListTest extends TestCase
         //             'ForumTopicID' => null,
         //         ],
         //     ]);
-        
+
         // games with achievements for all systems
 
         /* disabled until denormalized data is available
