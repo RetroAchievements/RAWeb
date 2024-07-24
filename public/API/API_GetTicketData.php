@@ -171,7 +171,7 @@ $gamesTableFlag = (int) request()->query('f');
 // get the most reported games...
 if ($gamesTableFlag == 1) {
     $ticketData['MostReportedGames'] = gamesSortedByOpenTickets($count);
-    $ticketData['URL'] = route('tickets.most-reported-games');
+    $ticketData['URL'] = route('filament.admin.pages.most-reported-games');
 
     return response()->json($ticketData);
 }

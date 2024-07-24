@@ -26,6 +26,7 @@ use App\Models\PlayerSession;
 use App\Models\System;
 use App\Platform\Commands\ConvertGameReleasedToTimestamp;
 use App\Platform\Commands\DeleteStalePlayerPointsStatsEntries;
+use App\Platform\Commands\EnqueueStaleGamePlayerGamesUpdates;
 use App\Platform\Commands\MigrateMissableAchievementsToType;
 use App\Platform\Commands\NoIntroImport;
 use App\Platform\Commands\ResetPlayerAchievement;
@@ -67,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
             $this->commands([
                 // Games
                 ConvertGameReleasedToTimestamp::class,
+                EnqueueStaleGamePlayerGamesUpdates::class,
                 TrimGameMetadata::class,
                 UpdateGameMetrics::class,
                 UpdateGameAchievementsMetrics::class,
@@ -117,9 +119,10 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
+            $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
+            $schedule->command(EnqueueStaleGamePlayerGamesUpdates::class)->everyFifteenMinutes();
             $schedule->command(UpdatePlayerPointsStats::class, ['--existing-only'])->hourly();
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();
-            $schedule->command(UpdateAwardsStaticData::class)->everyMinute();
         });
 
         $this->loadMigrationsFrom([database_path('migrations/platform')]);

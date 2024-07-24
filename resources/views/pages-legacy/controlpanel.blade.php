@@ -2,6 +2,7 @@
 
 use App\Enums\Permissions;
 use App\Enums\UserPreference;
+use App\Models\User;
 
 if (!authenticateFromCookie($user, $permissions, $userDetails)) {
     abort(401);
@@ -9,6 +10,9 @@ if (!authenticateFromCookie($user, $permissions, $userDetails)) {
 
 // cookie only returns the most common account details. go get the rest
 getAccountDetails($user, $userDetails);
+
+$userModel = User::firstWhere('User', $user);
+
 $points = (int) $userDetails['RAPoints'];
 $websitePrefs = (int) $userDetails['websitePrefs'];
 $emailAddr = $userDetails['EmailAddress'];
@@ -22,15 +26,31 @@ $userMotto = htmlspecialchars($userDetails['Motto']);
 <x-app-layout pageTitle="Settings">
 <script>
 function ShowLoadingIcon(iconRootId) {
-    var iconRoot = document.getElementById(iconRootId);
+    let iconRoot = document.getElementById(iconRootId);
     iconRoot.querySelector('.loadingicon-done').classList.add('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.remove('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.add('animate-spin');
     iconRoot.classList.remove('opacity-0');
 }
 
+function HideLoadingIcon(iconRootId) {
+    let iconRoot = document.getElementById(iconRootId);
+    let spinner = iconRoot.querySelector('.loadingicon-spinner');
+    let doneIcon = iconRoot.querySelector('.loadingicon-done');
+
+    if (!spinner.classList.contains('hidden')) {
+        spinner.classList.add('hidden');
+        spinner.classList.remove('animate-spin');
+    }
+    if (!doneIcon.classList.contains('hidden')) {
+        doneIcon.classList.add('hidden');
+    }
+
+    iconRoot.classList.add('opacity-0');
+}
+
 function ShowDoneIcon(iconRootId) {
-    var iconRoot = document.getElementById(iconRootId);
+    let iconRoot = document.getElementById(iconRootId);
     iconRoot.querySelector('.loadingicon-done').classList.remove('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.add('hidden');
     iconRoot.querySelector('.loadingicon-spinner').classList.remove('animate-spin');
@@ -73,7 +93,10 @@ function UploadNewAvatar() {
                 var result = $.parseJSON(data);
                 var d = new Date();
                 $('.userpic').attr('src', '<?= media_asset('/UserPic/' . $user . '.png')  ?>' + '?' + d.getTime());
-            });
+            })
+            .fail(function() {
+                HideLoadingIcon('loadingiconavatar');
+            })
     };
     reader.readAsDataURL(file);
     return false;
@@ -551,29 +574,38 @@ function confirmEmailChange(event) {
             </div>
             <a class="btn btn-link" href="reorderSiteAwards.php">Reorder Site Awards</a>
         </div>
-        <div class='component'>
-            <h3>Avatar</h3>
-            <div style="margin-bottom: 10px">
-                New image should be less than 1MB, png/jpeg/gif supported.
+
+        @if (!$userModel->isMuted())
+            <div class='component'>
+                <h3>Avatar</h3>
+                @if ($userModel->can('updateAvatar', [User::class]))
+                    <div style="margin-bottom: 10px">
+                        New image should be less than 1MB, png/jpeg/gif supported.
+                    </div>
+                    <div style="margin-bottom: 10px">
+                        <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
+                        <span id="loadingiconavatar" class="transition-all duration-300 opacity-0 float-right pt-1" aria-hidden="true">
+                            <x-fas-spinner class="loadingicon-spinner h-5 w-5" />
+                            <x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 10px">
+                        After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
+                    </div>
+                    <div style="margin-bottom: 10px">
+                        Reset your avatar to default by removing your current one:
+                    </div>
+                    <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
+                        <?= csrf_field() ?>
+                        <button class="btn btn-danger">Remove Avatar</button>
+                    </form>
+                @else
+                    <div style="margin-bottom: 10px">
+                        To upload an avatar, earn 250 points in either mode or wait until your account is at least 14 days old.
+                    </div>
+                @endif
             </div>
-            <div style="margin-bottom: 10px">
-                <input type="file" name="file" id="uploadimagefile" onchange="return UploadNewAvatar();">
-                <span id="loadingiconavatar" class="transition-all duration-300 opacity-0 float-right pt-1" aria-hidden="true">
-                    <x-fas-spinner class="loadingicon-spinner h-5 w-5" />
-                    <x-fas-check class="loadingicon-done text-green-500 h-5 w-5" />
-                </span>
-            </div>
-            <div style="margin-bottom: 10px">
-                After uploading, press Ctrl + F5. This refreshes your browser cache making the image visible.
-            </div>
-            <div style="margin-bottom: 10px">
-                Reset your avatar to default by removing your current one:
-            </div>
-            <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
-                <?= csrf_field() ?>
-                <button class="btn btn-danger">Remove Avatar</button>
-            </form>
-        </div>
+        @endif
     </x-slot>
 @endif
 </x-app-layout>
