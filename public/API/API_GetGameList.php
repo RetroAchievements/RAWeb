@@ -5,8 +5,8 @@
  *    i : console id
  *    f : 1=only return games where NumAchievements > 0 (default: 0)
  *    h : 1=also return hashes (default: 0)
- *    o : offset (default: 0)
- *    c : count (default: 0)
+ *    o : offset (optional)
+ *    c : count (optional)
  *
  *  array
  *   object     [value]
