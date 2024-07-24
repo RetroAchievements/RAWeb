@@ -1,16 +1,14 @@
 <?php
 
 /*
- *  API_GetLeaderboardSubmissions - returns info and submissions for a Leaderboard for the given ID
+ *  API_GetLeaderboardSubmissions - returns submissions for a Leaderboard for the given ID
  *    i : leaderboardID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)
- *  string      Title                       name of the leaderboard
- *  int         Description                 details about what the leaderboard is tracking
- *  array       Entries
+ *  int         Count                       number of user entries returned in the response
+ *  int         Total                       number of user entries the leaderboard actually has overall
+ *  array       Results
  *   object      [value]
- *    int        Count                      number of user entries returned in the response
- *    int        Total                      number of user entries the leaderboard actually has overall
  *    int        Rank                       user's leaderboard rank
  *    string     User                       name of user
  *    string     Score                      string value of the proper ValueFormat of the leaderboard entry //this feels wrong
