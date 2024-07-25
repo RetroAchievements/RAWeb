@@ -91,7 +91,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals("Playing " . $game->Title, $user1->RichPresenceMsg);
 
         // ----------------------------
-        // non-existant game
+        // non-existent game
         $this->get($this->apiUrl('startsession', ['g' => 999999]))
             ->assertExactJson([
                 'Success' => false,

@@ -446,7 +446,7 @@ trait SyncTrait
             return false;
         }
 
-        // can only sync up to the last sync time of a depedendant record. newer local
+        // can only sync up to the last sync time of a dependant record. newer local
         // records could be referencing unsynced records from the parent table.
         // NOTE: updated is when the sync finished for that record, we could still be
         //       missing references to whatever records were created during the sync
