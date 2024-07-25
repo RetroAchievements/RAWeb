@@ -125,7 +125,6 @@ $lbData = null;
 $numDistinctPlayers = null;
 $numEarnedCasual = null;
 $numEarnedHardcore = null;
-$numLeaderboards = null;
 $screenshotMaxHeight = null;
 $screenshotWidth = null;
 $totalEarnedCasual = null;
@@ -152,8 +151,6 @@ if ($isFullyFeaturedGame) {
 
     $achDist = getAchievementDistribution($gameID, UnlockMode::Softcore, $user, $flagParam, $numDistinctPlayers);
     $achDistHardcore = getAchievementDistribution($gameID, UnlockMode::Hardcore, $user, $flagParam, $numDistinctPlayers);
-
-    $numLeaderboards = $gameModel->visibleLeaderboards()->count();
 
     if (isset($user)) {
         // Determine if the logged in user is the sole author of the set
@@ -532,8 +529,8 @@ if ($isFullyFeaturedGame) {
                     echo "<div><a class='btn btn-link' href='/achievementinspector.php?g=$gameID'>Manage Core Achievements</a></div>";
                 }
 
-                // Display leaderboard management options depending on the current number of leaderboards
-                if ($numLeaderboards != 0) {
+                // Display leaderboard management options depending on if the game has any leaderboards (including hidden)
+                if ($gameModel->leaderboards()->exists()) {
                     echo "<div><a class='btn btn-link' href='/leaderboardList.php?g=$gameID'>Manage Leaderboards</a></div>";
                 }
 
