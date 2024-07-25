@@ -1,7 +1,7 @@
 <?php
 
 /*
- *  API_GetLeaderboardSubmissions - returns submissions for a Leaderboard for the given ID
+ *  API_GetLeaderboardEntries - returns entries for a Leaderboard for the given ID
  *    i : leaderboardID
  *    o : offset - number of entries to skip (default: 0)
  *    c : count - number of entries to return (default: 100, max: 500)

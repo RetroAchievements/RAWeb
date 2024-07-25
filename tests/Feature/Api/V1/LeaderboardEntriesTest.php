@@ -13,31 +13,31 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-class LeaderboardSubmissionsTest extends TestCase
+class LeaderboardEntriesTest extends TestCase
 {
     use RefreshDatabase;
     use BootstrapsApiV1;
 
     public function testItValidates(): void
     {
-        $this->get($this->apiUrl('GetLeaderboardSubmissions'))
+        $this->get($this->apiUrl('GetLeaderboardEntries'))
             ->assertJsonValidationErrors([
                 'i',
             ]);
     }
 
-    public function testGetLeaderboardSubmissionsLeaderboardWithNoSubmissions(): void
+    public function testGetLeaderboardEntriesLeaderboardWithNoEntries(): void
     {
-        $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => 99999]))
+        $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => 99999]))
             ->assertNotFound()
             ->assertJson([]);
     }
 
-    public function testGetLeaderboardSubmissions(): void
+    public function testGetLeaderboardEntries(): void
     {
         Carbon::setTestNow(Carbon::now());
 
-        /** Set up a leaderboard with 5 submissions: */
+        /** Set up a leaderboard with 5 entries: */
 
         /** @var System $system */
         $system = System::factory()->create();
@@ -82,7 +82,7 @@ class LeaderboardSubmissionsTest extends TestCase
             'user_id' => $userFive->ID,
         ]);
 
-        $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID]))
+        $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,
@@ -121,7 +121,7 @@ class LeaderboardSubmissionsTest extends TestCase
                 ],
             ]);
 
-            $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'o' => 3]))
+            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID, 'o' => 3]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -142,7 +142,7 @@ class LeaderboardSubmissionsTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'c' => 2]))
+            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
@@ -163,7 +163,7 @@ class LeaderboardSubmissionsTest extends TestCase
                     ],
                 ]);
 
-            $this->get($this->apiUrl('GetLeaderboardSubmissions', ['i' => $leaderboard->ID, 'o' => 1, 'c' => 2]))
+            $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID, 'o' => 1, 'c' => 2]))
                 ->assertSuccessful()
                 ->assertJson([
                     'Count' => 2,
