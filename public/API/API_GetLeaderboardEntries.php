@@ -43,7 +43,7 @@ $results = [];
 foreach ($fetchedLeaderboardData['Entries'] as $entry) {
     $results[] = [
         'User' => $entry['User'],
-        'DateSubmitted' => date('Y-m-d H:i:s', $entry['DateSubmitted']),
+        'DateSubmitted' => date('c', $entry['DateSubmitted']),
         'Score' => $entry['Score'],
         'Rank' => $entry['Rank'],
     ];
