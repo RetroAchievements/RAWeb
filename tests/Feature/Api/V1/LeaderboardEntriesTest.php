@@ -56,30 +56,35 @@ class LeaderboardEntriesTest extends TestCase
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userOne->ID,
+            'score' => 1
         ]);
 
         $userTwo = User::factory()->create(['User' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userTwo->ID,
+            'score' => 1
         ]);
 
         $userThree = User::factory()->create(['User' => 'myUser3']);
         $leaderboardEntryThree = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userThree->ID,
+            'score' => 1123
         ]);
 
         $userFour = User::factory()->create(['User' => 'myUser4']);
         $leaderboardEntryFour = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userFour->ID,
+            'score' => 1222
         ]);
 
         $userFive = User::factory()->create(['User' => 'myUser5']);
         $leaderboardEntryFive = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userFive->ID,
+            'score' => 1000
         ]);
 
         $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID]))
@@ -89,31 +94,31 @@ class LeaderboardEntriesTest extends TestCase
                 'Total' => 5,
                 'Results' => [
                     [
-                        "Rank" => $leaderboardEntryOne->id,
+                        "Rank" => $leaderboard->getRank($leaderboardEntryOne->score),
                         'User' => $userOne->User,
                         'Score' => $leaderboardEntryOne->score,
                         'DateSubmitted' => $leaderboardEntryOne->updated_at->toDateTimeString(),
                     ],
                     [
-                        "Rank" => $leaderboardEntryTwo->id,
+                        "Rank" => $leaderboard->getRank($leaderboardEntryTwo->score),
                         'User' => $userTwo->User,
                         'Score' => $leaderboardEntryTwo->score,
                         'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
                     ],
                     [
-                        "Rank" => $leaderboardEntryThree->id,
+                        "Rank" => $leaderboard->getRank($leaderboardEntryThree->score),
                         'User' => $userThree->User,
                         'Score' => $leaderboardEntryThree->score,
                         'DateSubmitted' => $leaderboardEntryThree->updated_at->toDateTimeString(),
                     ],
                     [
-                        "Rank" => $leaderboardEntryFour->id,
+                        "Rank" => $leaderboard->getRank($leaderboardEntryFour->score),
                         'User' => $userFour->User,
                         'Score' => $leaderboardEntryFour->score,
                         'DateSubmitted' => $leaderboardEntryFour->updated_at->toDateTimeString(),
                     ],
                     [
-                        "Rank" => $leaderboardEntryFive->id,
+                        "Rank" => $leaderboard->getRank($leaderboardEntryFive->score),
                         'User' => $userFive->User,
                         'Score' => $leaderboardEntryFive->score,
                         'DateSubmitted' => $leaderboardEntryFive->updated_at->toDateTimeString(),
@@ -128,13 +133,13 @@ class LeaderboardEntriesTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "Rank" => $leaderboardEntryFour->id,
+                            "Rank" => $leaderboard->getRank($leaderboardEntryFour->score),
                             'User' => $userFour->User,
                             'Score' => $leaderboardEntryFour->score,
                             'DateSubmitted' => $leaderboardEntryFour->updated_at->toDateTimeString(),
                         ],
                         [
-                            "Rank" => $leaderboardEntryFive->id,
+                            "Rank" => $leaderboard->getRank($leaderboardEntryFive->score),
                             'User' => $userFive->User,
                             'Score' => $leaderboardEntryFive->score,
                             'DateSubmitted' => $leaderboardEntryFive->updated_at->toDateTimeString(),
@@ -149,13 +154,13 @@ class LeaderboardEntriesTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "Rank" => $leaderboardEntryOne->id,
+                            "Rank" => $leaderboard->getRank($leaderboardEntryOne->score),
                             'User' => $userOne->User,
                             'Score' => $leaderboardEntryOne->score,
                             'DateSubmitted' => $leaderboardEntryOne->updated_at->toDateTimeString(),
                         ],
                         [
-                            "Rank" => $leaderboardEntryTwo->id,
+                            "Rank" => $leaderboard->getRank($leaderboardEntryTwo->score),
                             'User' => $userTwo->User,
                             'Score' => $leaderboardEntryTwo->score,
                             'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
@@ -170,13 +175,13 @@ class LeaderboardEntriesTest extends TestCase
                     'Total' => 5,
                     'Results' => [
                         [
-                            "Rank" => $leaderboardEntryTwo->id,
+                            "Rank" => $leaderboard->getRank($leaderboardEntryTwo->score),
                             'User' => $userTwo->User,
                             'Score' => $leaderboardEntryTwo->score,
                             'DateSubmitted' => $leaderboardEntryTwo->updated_at->toDateTimeString(),
                         ],
                         [
-                            "Rank" => $leaderboardEntryThree->id,
+                            "Rank" => $leaderboard->getRank($leaderboardEntryThree->score),
                             'User' => $userThree->User,
                             'Score' => $leaderboardEntryThree->score,
                             'DateSubmitted' => $leaderboardEntryThree->updated_at->toDateTimeString(),
