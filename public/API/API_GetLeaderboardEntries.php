@@ -31,13 +31,13 @@ $count = $input['c'] ?? 100;
 
 $leaderboardId = request()->query('i');
 
-$leaderboardData = Leaderboard::firstWhere("ID", $leaderboardId);
+$leaderboard = Leaderboard::firstWhere("ID", $leaderboardId);
 
-if (!$leaderboardData) {
+if (!$leaderboard) {
     return response()->json([], 404);
 }
 
-$fetchedLeaderboardData = GetLeaderboardData($leaderboardData, null, $count, $offset);
+$fetchedLeaderboardData = GetLeaderboardData($leaderboard, null, $count, $offset);
 
 $results = [];
 foreach ($fetchedLeaderboardData['Entries'] as $entry) {
@@ -46,7 +46,7 @@ foreach ($fetchedLeaderboardData['Entries'] as $entry) {
         'DateSubmitted' => date('Y-m-d H:i:s', $entry['DateSubmitted']),
         'Score' => $entry['Score'],
         'Rank' => $entry['Rank'],
-        ];
+    ];
 }
 
 return response()->json([
