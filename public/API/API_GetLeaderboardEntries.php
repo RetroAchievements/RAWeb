@@ -31,9 +31,7 @@ $count = $input['c'] ?? 100;
 
 $leaderboardId = request()->query('i');
 
-$leaderboardData = Leaderboard::where("ID", $leaderboardId)
-    ->withCount("entries")
-    ->first();
+$leaderboardData = Leaderboard::firstWhere("ID", $leaderboardId);
 
 if (!$leaderboardData) {
     return response()->json([], 404);
