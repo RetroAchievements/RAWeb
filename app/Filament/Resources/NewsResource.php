@@ -72,6 +72,7 @@ class NewsResource extends Resource
                                 );
                             })
                             ->reactive()
+                            ->rows(4)
                             ->required(),
                     ]),
 
