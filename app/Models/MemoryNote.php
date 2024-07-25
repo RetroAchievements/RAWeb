@@ -42,6 +42,7 @@ class MemoryNote extends BaseModel
             ->logOnly([
                 'user_id',
             ])
+            ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
 

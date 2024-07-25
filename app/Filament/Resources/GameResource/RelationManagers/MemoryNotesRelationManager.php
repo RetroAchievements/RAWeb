@@ -149,7 +149,7 @@ class MemoryNotesRelationManager extends RelationManager
                         }),
                 ]),
             ])
-            ->paginated([200])
+            ->paginated([50, 100])
             ->extremePaginationLinks()
             ->recordAction(null);
     }
