@@ -52,7 +52,5 @@ foreach ($fetchedLeaderboardData['Entries'] as $entry) {
 return response()->json([
     'Count' => count($fetchedLeaderboardData['Entries']),
     'Total' => $fetchedLeaderboardData['TotalEntries'],
-    'Results' => usort($results, function ($a, $b) {
-        return $a['Rank'] <=> $b['Rank'];
-    }),
+    'Results' => $results,
 ]);
