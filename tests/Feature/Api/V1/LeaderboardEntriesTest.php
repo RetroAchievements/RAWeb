@@ -56,35 +56,35 @@ class LeaderboardEntriesTest extends TestCase
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userOne->ID,
-            'score' => 1
+            'score' => 1,
         ]);
 
         $userTwo = User::factory()->create(['User' => 'myUser2']);
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userTwo->ID,
-            'score' => 1
+            'score' => 1,
         ]);
 
         $userThree = User::factory()->create(['User' => 'myUser3']);
         $leaderboardEntryThree = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userThree->ID,
-            'score' => 100
+            'score' => 100,
         ]);
 
         $userFour = User::factory()->create(['User' => 'myUser4']);
         $leaderboardEntryFour = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userFour->ID,
-            'score' => 300
+            'score' => 300,
         ]);
 
         $userFive = User::factory()->create(['User' => 'myUser5']);
         $leaderboardEntryFive = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboard->ID,
             'user_id' => $userFive->ID,
-            'score' => 200
+            'score' => 200,
         ]);
 
         $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID]))

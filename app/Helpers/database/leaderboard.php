@@ -177,7 +177,7 @@ function GetLeaderboardData(
     if ($numToFetch == 0) {
         return $retVal;
     }
-    
+
     // Now get entries:
     $index = $rank = $offset + 1;
     $rankScore = null;
