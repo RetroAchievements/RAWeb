@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\System;
-use App\Support\Cache\CacheKey;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -14,8 +12,7 @@ use Illuminate\Support\Facades\Log;
  */
 function getValidConsoleIds(): array
 {
-    return Cache::store('array')->rememberForever('system:active-ids', function()
-    {
+    return Cache::store('array')->rememberForever('system:active-ids', function () {
         return System::active()->pluck('ID')->toArray();
     });
 }

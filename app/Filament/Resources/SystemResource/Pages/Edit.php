@@ -28,6 +28,7 @@ class Edit extends EditRecord
         Cache::forget(CacheKey::SystemMenuList);
 
         $record->update($data);
+
         return $record;
     }
 }
