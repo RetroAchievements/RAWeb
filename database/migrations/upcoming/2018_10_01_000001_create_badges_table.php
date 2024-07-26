@@ -135,7 +135,7 @@ return new class() extends Migration {
          *      - a softcore/hardcore modifier is set by the player_achievement given hardcore/softcore unlock
          *
          *  - unlocked with hardcore modifier - as the first and second stage
-         *  - multiple achievements that refer to a badge's progress should be mergable:
+         *  - multiple achievements that refer to a badge's progress should be mergeable:
          *     -
          */
         Schema::create('badge_stages', function (Blueprint $table) {
