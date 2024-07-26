@@ -166,23 +166,22 @@ class GameListTest extends TestCase
             ]);
 
         // games for system 1 with offset and count
-        /* disabled due to an error with SQL_CALC_FOUND_ROWS in testing */
-        // $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1, 'c' => 1]))
-        //     ->assertSuccessful()
-        //     ->assertJsonCount(1)
-        //     ->assertJson([
-        //         [
-        //             'ID' => $game2->ID,
-        //             'Title' => $game2->Title,
-        //             'ConsoleID' => $system1->ID,
-        //             'ConsoleName' => $system1->Name,
-        //             'ImageIcon' => $game2->ImageIcon,
-        //             'NumAchievements' => 0,
-        //             'Points' => 0,
-        //             'NumLeaderboards' => 0,
-        //             'ForumTopicID' => null,
-        //         ],
-        //     ]);
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1, 'c' => 1]))
+            ->assertSuccessful()
+            ->assertJsonCount(1)
+            ->assertJson([
+                [
+                    'ID' => $game2->ID,
+                    'Title' => $game2->Title,
+                    'ConsoleID' => $system1->ID,
+                    'ConsoleName' => $system1->Name,
+                    'ImageIcon' => $game2->ImageIcon,
+                    'NumAchievements' => 0,
+                    'Points' => 0,
+                    'NumLeaderboards' => 0,
+                    'ForumTopicID' => null,
+                ],
+            ]);
 
         // games with achievements for all systems
 
