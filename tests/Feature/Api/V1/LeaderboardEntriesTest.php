@@ -88,6 +88,20 @@ class LeaderboardEntriesTest extends TestCase
             'score' => 200,
         ]);
 
+        /** @var Leaderboard $timedLeaderboard */
+        $timedLeaderboard = Leaderboard::factory()->create([
+            'GameID' => $game->ID,
+            'Title' => "Test leaderboard 2",
+            'Description' => "I am a timed leaderboard",
+            'Format' => "TIME",
+        ]);
+
+        $timedLeaderboardEntryOne = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $timedLeaderboard->ID,
+            'user_id' => $userOne->ID,
+            'score' => 123,
+        ]);
+
         $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $leaderboard->ID]))
             ->assertSuccessful()
             ->assertJson([
@@ -197,6 +211,22 @@ class LeaderboardEntriesTest extends TestCase
                             'Score' => $leaderboardEntryThree->score,
                             'FormattedScore' => ValueFormat::format($leaderboardEntryThree->score, $leaderboard->Format),
                             'DateSubmitted' => $leaderboardEntryThree->updated_at->toIso8601String(),
+                        ],
+                    ],
+                ]);
+
+                $this->get($this->apiUrl('GetLeaderboardEntries', ['i' => $timedLeaderboard->ID]))
+                ->assertSuccessful()
+                ->assertJson([
+                    'Count' => 1,
+                    'Total' => 1,
+                    'Results' => [
+                        [
+                            "Rank" => $timedLeaderboard->getRank($timedLeaderboardEntryOne->score),
+                            'User' => $userOne->User,
+                            'Score' => $timedLeaderboardEntryOne->score,
+                            'FormattedScore' => ValueFormat::format($timedLeaderboardEntryOne->score, $timedLeaderboard->Format),
+                            'DateSubmitted' => $timedLeaderboardEntryOne->updated_at->toIso8601String(),
                         ],
                     ],
                 ]);
