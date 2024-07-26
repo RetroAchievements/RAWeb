@@ -84,7 +84,7 @@ class UserProgressionStatus extends Component
             $userJoinedGamesAndAwards
         );
 
-        $validConsoleIds = array_filter(getValidConsoleIds(), fn ($n) => $n != System::Events);
+        $validConsoleIds = array_filter(getValidConsoleIds(), fn ($n) => System::isGameSystem($n));
 
         // Loop through joinedData to calculate counts for individual consoles.
         foreach ($allConsoleIds as $consoleId) {
