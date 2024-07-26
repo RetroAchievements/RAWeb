@@ -12,14 +12,21 @@ use Illuminate\Support\Facades\Log;
  * https://github.com/RetroAchievements/rcheevos/blob/develop/src/rcheevos/consoleinfo.c
  * https://github.com/RetroAchievements/rcheevos/blob/develop/test/rcheevos/test_consoleinfo.c
  */
-function isValidConsoleId(int $consoleId): bool
+function getValidConsoleIds(): array
 {
-    $validConsoleIds = Cache::store('array')->rememberForever('system:active_ids', function()
+    return Cache::store('array')->rememberForever('system:active-ids', function()
     {
         return System::active()->pluck('ID')->toArray();
     });
+}
 
-    return in_array($consoleId, $validConsoleIds);
+function isValidConsoleId(int $consoleId): bool
+{
+    // This function is called A LOT - as many as four or five times per console that
+    // the player has loaded a game for when rendering their profile. It takes roughly
+    // the same amount of time to query all active IDs as it does to query each individual
+    // ID, so fetch them all once per request, even if we only ever need one.
+    return in_array($consoleId, getValidConsoleIds());
 }
 
 function getEmulatorReleaseByIntegrationId(?int $integrationId): ?array

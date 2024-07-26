@@ -96,13 +96,15 @@ class PlayerProgressionService
             }
         }
 
+        $validConsoleIds = getValidConsoleIds();
+
         // [B] Iterate once while appending the entities with constant time O(1).
         $filteredAndJoined = [];
         foreach ($gamesList as &$game) {
             $canUseGame = (
                 $game['NumAwarded'] !== 0
                 && ($allowEvents ? true : $game['ConsoleID'] !== System::Events)
-                && isValidConsoleId($game['ConsoleID'])
+                && in_array($game['ConsoleID'], $validConsoleIds)
             );
 
             if ($canUseGame) {
@@ -147,7 +149,7 @@ class PlayerProgressionService
                 if (
                     $award
                     && ($allowEvents ? true : $award['ConsoleID'] !== System::Events)
-                    && isValidConsoleId($award['ConsoleID'])
+                    && in_array($award['ConsoleID'], $validConsoleIds)
                 ) {
                     $newGame = [
                         'GameID' => $gameId,

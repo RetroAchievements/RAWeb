@@ -84,9 +84,11 @@ class UserProgressionStatus extends Component
             $userJoinedGamesAndAwards
         );
 
+        $validConsoleIds = array_filter(getValidConsoleIds(), fn($n) => $n != System::Events);
+
         // Loop through joinedData to calculate counts for individual consoles.
         foreach ($allConsoleIds as $consoleId) {
-            if ($consoleId !== -1 && (!$consoleId || $consoleId == 101 || !isValidConsoleId($consoleId))) {
+            if ($consoleId !== -1 && (!in_array($consoleId, $validConsoleIds))) {
                 continue;
             }
 
@@ -114,11 +116,13 @@ class UserProgressionStatus extends Component
         array $userCompletionProgress,
         array $userSiteAwards
     ): array {
+        $validConsoleIds = getValidConsoleIds();
+
         $mostRecentlyPlayedConsole = collect($userRecentlyPlayed)
             ->reject(fn ($game) => (
                 !System::isGameSystem($game['ConsoleID'])
                 || !$game['AchievementsTotal']
-                || !isValidConsoleId($game['ConsoleID'])
+                || !in_array($game['ConsoleID'], $validConsoleIds)
             ))
             ->groupBy('ConsoleID')
             ->map(fn ($games) => $games->max('LastPlayed'))
@@ -135,7 +139,7 @@ class UserProgressionStatus extends Component
 
         $mostRecentlyAwardedConsole = collect($userSiteAwardsWithConsoleID)
             ->reject(fn ($award) => $award['ConsoleID'] == 101
-                || (isset($award['ConsoleID']) && !isValidConsoleId($award['ConsoleID']))
+                || (isset($award['ConsoleID']) && !in_array($award['ConsoleID'], $validConsoleIds))
             )
             ->groupBy('ConsoleID')
             ->map(fn ($awards) => $awards->max('AwardedAt'))
