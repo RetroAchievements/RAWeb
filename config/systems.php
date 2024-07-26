@@ -629,6 +629,6 @@ return [
         'name' => 'Standalone',
         'name_full' => 'Standalone',
         'name_short' => 'EXE',
-        'active' => false,
+        'active' => true,
     ],
 ];
