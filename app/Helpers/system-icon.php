@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
-function getSystemIconUrl(int $consoleID): string
+use App\Models\System;
+
+function getSystemIconUrl(int|System $system): string
 {
     $fallBackConsoleIcon = asset("assets/images/system/unknown.png");
 
-    $name_short = config("systems.$consoleID.name_short");
-    if (empty($name_short)) {
-        return $fallBackConsoleIcon;
+    if (is_int($system)) {
+        $system = System::find($system);
+        if (!$system) {
+            return $fallBackConsoleIcon;
+        }
     }
 
-    $cleanSystemShortName = Str::lower(str_replace("/", "", $name_short));
+    $cleanSystemShortName = Str::lower(str_replace("/", "", $system->name_short));
     $iconName = Str::kebab($cleanSystemShortName);
     $iconPath = public_path("assets/images/system/$iconName.png");
     $iconUrl = file_exists($iconPath) ? asset("assets/images/system/$iconName.png") : $fallBackConsoleIcon;

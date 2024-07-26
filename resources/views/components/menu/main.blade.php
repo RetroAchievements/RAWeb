@@ -62,11 +62,8 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
             @foreach ($column as $manufacturer => $manufacturerSystems)
                     <x-dropdown-header>{{ $manufacturer }}</x-dropdown-header>
                     @foreach ($manufacturerSystems as $system)
-                        <?php
-                        $iconName = Str::kebab(Str::lower(str_replace("/", "", $system->name_short)));
-                        ?>
                         <x-dropdown-item :href="route('system.game.index', ['system' => $system->ID])">
-                            <img src="{{ asset('assets/images/system/' . $iconName . '.png') }}" loading="lazy" width="16" height="16" alt='{{ $system->Name }}'>
+                            <img src="{!! getSystemIconUrl($system) !!}" loading="lazy" width="16" height="16" alt='{{ $system->Name }}'>
                             <span>{{ $system->Name }}</span>
                         </x-dropdown-item>
                     @endforeach

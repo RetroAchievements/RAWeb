@@ -152,7 +152,7 @@ class PlayerProgressionService
                     $newGame = [
                         'GameID' => $gameId,
                         'ConsoleID' => $award['ConsoleID'],
-                        'ConsoleName' => config('systems')[$award['ConsoleID']]['name'],
+                        'ConsoleName' => $award['ConsoleName'],
                         'Title' => $award['Title'],
                         'HighestAwardKind' => $awardKind,
                         'HighestAwardDate' => $awardsDateLookup[$gameId],
