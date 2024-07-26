@@ -10,19 +10,24 @@
  *  array       Results
  *   object      [value]
  *    int        ID                         unique identifier of the leaderboard
- *    string     Title                      name of the leaderboard
- *    int        Description                details about what the leaderboard is tracking
- *    string     CurrentLeader              name of the user that is currently at the top of the leaderboard
+ *    string     RankAsc                    string value of true or false for if the leaderboard views a lower score as better
+ *    string     Title                      the title of the leaderboard
+ *    string     Description                the description of the leaderboard
+ *    string     Format                     the format of the leaderboard (see: ValueFormat enum)
+ *    object     TopEntry                   details of the current leader
+ *     object      [value]
+ *      string     User                     username of the current leader
+ *      int        Score                    raw value of current leader's score
+ *      string     FormattedScore           formatted string value of current leader's score
  */
 
-use App\Models\Leaderboard;
 use App\Models\Game;
-use App\Models\LeaderboardEntry;
+use App\Models\Leaderboard;
 use App\Models\User;
+use App\Platform\Enums\ValueFormat;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use App\Platform\Enums\ValueFormat;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'min:1', new CtypeAlnum()],
@@ -37,6 +42,10 @@ $gameId = request()->query('i');
 
 $game = Game::firstWhere("ID", $gameId);
 
+if (!$game) {
+    return response()->json([], 404);
+}
+
 $leaderboards = $game->leaderboards()
     ->with('game')
     ->with('developer')
@@ -50,24 +59,25 @@ if (!$leaderboards) {
 
 $results = [];
 foreach ($leaderboards as $leaderboard) {
-
-    $fetchedLeaderboardData = GetLeaderboardData($leaderboard, null, $count, $offset);
-    $fetchedTopEntry = $fetchedLeaderboardData['Entries'][0];
+    $bestScore = $leaderboard->sortedEntries()->first();
 
     $topEntry = new stdClass();
-    $topEntry->User = $fetchedTopEntry['User'];
-    $topEntry->FormattedScore = ValueFormat::format($fetchedTopEntry['Score'], $leaderboard->Format);
+    $topEntry->User = $bestScore->user->User;
+    $topEntry->Score = $bestScore->score;
+    $topEntry->FormattedScore = ValueFormat::format($bestScore->score, $leaderboard->Format);
 
     $results[] = [
-        'ID' => $fetchedLeaderboardData['LBID'],
-        'GameID' => $fetchedLeaderboardData['GameID'],
-        'RankAsc' => boolval($fetchedLeaderboardData['LowerIsBetter']),
-        'Title' => $fetchedLeaderboardData['LBTitle'],
-        'Description' => $fetchedLeaderboardData['LBDesc'],
-        'Format' => $fetchedLeaderboardData['LBFormat'],
-        'TotalEntries' => $fetchedLeaderboardData['TotalEntries'],
+        'ID' => $leaderboard->ID,
+        'RankAsc' => boolval($leaderboard->LowerIsBetter),
+        'Title' => $leaderboard->Title,
+        'Description' => $leaderboard->Description,
+        'Format' => $leaderboard->Format,
         'TopEntry' => $topEntry,
     ];
 }
 
-return response()->json($results);
+return response()->json([
+    'Count' => count($leaderboards),
+    'Total' => $game->leaderboards()->count(),
+    'Results' => $results,
+]);

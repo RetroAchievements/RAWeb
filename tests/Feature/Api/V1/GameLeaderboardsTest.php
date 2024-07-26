@@ -9,6 +9,7 @@ use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\System;
 use App\Models\User;
+use App\Platform\Enums\ValueFormat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -98,6 +99,8 @@ class GameLeaderboardsTest extends TestCase
             'GameID' => $game->ID,
             'Title' => "Test leaderboard 5",
             'Description' => "I am the fifth leaderboard",
+            'Format' => "TIME",
+            'LowerIsBetter' => 1,
         ]);
         $userFive = User::factory()->create(['User' => 'myUser5']);
         $leaderboardEntryFive = LeaderboardEntry::factory()->create([
@@ -112,38 +115,64 @@ class GameLeaderboardsTest extends TestCase
                 'Total' => 5,
                 'Results' => [
                     [
-                        "ID" => $leaderboardOne->LBID,
-                        "GameID" => $game->ID,
+                        "ID" => $leaderboardOne->ID,
                         "RankAsc" => boolval($leaderboardOne->LowerIsBetter),
-                        "Title" => $leaderboardOne->LBTitle,
-                        "Description" => $leaderboardOne->LBDesc,
-                        "Format" => $leaderboardOne->LBFormat,
-                        "TotalEntries" => $leaderboardOne->TotalEntries,
-                        "TopEntry"=>$leaderboardEntryOne,
+                        "Title" => $leaderboardOne->Title,
+                        "Description" => $leaderboardOne->Description,
+                        "Format" => $leaderboardOne->Format,
+                        "TopEntry" => [
+                            "User" => $leaderboardEntryOne->User->User,
+                            "Score" => $leaderboardEntryOne->score,
+                            "FormattedScore" => ValueFormat::format($leaderboardEntryOne->score, $leaderboardOne->Format),
+                        ],
                     ],
                     [
                         "ID" => $leaderboardTwo->ID,
+                        "RankAsc" => boolval($leaderboardTwo->LowerIsBetter),
                         "Title" => $leaderboardTwo->Title,
                         "Description" => $leaderboardTwo->Description,
-                        "CurrentLeader" => $userTwo->User,
+                        "Format" => $leaderboardTwo->Format,
+                        "TopEntry" => [
+                            "User" => $leaderboardEntryTwo->User->User,
+                            "Score" => $leaderboardEntryTwo->score,
+                            "FormattedScore" => ValueFormat::format($leaderboardEntryTwo->score, $leaderboardTwo->Format),
+                        ],
                     ],
                     [
                         "ID" => $leaderboardThree->ID,
+                        "RankAsc" => boolval($leaderboardThree->LowerIsBetter),
                         "Title" => $leaderboardThree->Title,
                         "Description" => $leaderboardThree->Description,
-                        "CurrentLeader" => $userThree->User,
+                        "Format" => $leaderboardThree->Format,
+                        "TopEntry" => [
+                            "User" => $leaderboardEntryThree->User->User,
+                            "Score" => $leaderboardEntryThree->score,
+                            "FormattedScore" => ValueFormat::format($leaderboardEntryThree->score, $leaderboardThree->Format),
+                        ],
                     ],
                     [
                         "ID" => $leaderboardFour->ID,
+                        "RankAsc" => boolval($leaderboardFour->LowerIsBetter),
                         "Title" => $leaderboardFour->Title,
                         "Description" => $leaderboardFour->Description,
-                        "CurrentLeader" => $userFour->User,
+                        "Format" => $leaderboardFour->Format,
+                        "TopEntry" => [
+                            "User" => $leaderboardEntryFour->User->User,
+                            "Score" => $leaderboardEntryFour->score,
+                            "FormattedScore" => ValueFormat::format($leaderboardEntryFour->score, $leaderboardFour->Format),
+                        ],
                     ],
                     [
                         "ID" => $leaderboardFive->ID,
+                        "RankAsc" => boolval($leaderboardFive->LowerIsBetter),
                         "Title" => $leaderboardFive->Title,
                         "Description" => $leaderboardFive->Description,
-                        "CurrentLeader" => $userFive->User,
+                        "Format" => $leaderboardFive->Format,
+                        "TopEntry" => [
+                            "User" => $leaderboardEntryFive->User->User,
+                            "Score" => $leaderboardEntryFive->score,
+                            "FormattedScore" => ValueFormat::format($leaderboardEntryFive->score, $leaderboardFive->Format),
+                        ],
                     ],
                 ],
             ]);
@@ -156,13 +185,27 @@ class GameLeaderboardsTest extends TestCase
                     'Results' => [
                         [
                             "ID" => $leaderboardFour->ID,
+                            "RankAsc" => boolval($leaderboardFour->LowerIsBetter),
                             "Title" => $leaderboardFour->Title,
                             "Description" => $leaderboardFour->Description,
+                            "Format" => $leaderboardFour->Format,
+                            "TopEntry" => [
+                                "User" => $leaderboardEntryFour->User->User,
+                                "Score" => $leaderboardEntryFour->score,
+                                "FormattedScore" => ValueFormat::format($leaderboardEntryFour->score, $leaderboardFour->Format),
+                            ],
                         ],
                         [
                             "ID" => $leaderboardFive->ID,
+                            "RankAsc" => boolval($leaderboardFive->LowerIsBetter),
                             "Title" => $leaderboardFive->Title,
                             "Description" => $leaderboardFive->Description,
+                            "Format" => $leaderboardFive->Format,
+                            "TopEntry" => [
+                                "User" => $leaderboardEntryFive->User->User,
+                                "Score" => $leaderboardEntryFive->score,
+                                "FormattedScore" => ValueFormat::format($leaderboardEntryFive->score, $leaderboardFive->Format),
+                            ],
                         ],
                     ],
                 ]);
@@ -175,13 +218,27 @@ class GameLeaderboardsTest extends TestCase
                     'Results' => [
                         [
                             "ID" => $leaderboardOne->ID,
+                            "RankAsc" => boolval($leaderboardOne->LowerIsBetter),
                             "Title" => $leaderboardOne->Title,
                             "Description" => $leaderboardOne->Description,
+                            "Format" => $leaderboardOne->Format,
+                            "TopEntry" => [
+                                "User" => $leaderboardEntryOne->User->User,
+                                "Score" => $leaderboardEntryOne->score,
+                                "FormattedScore" => ValueFormat::format($leaderboardEntryOne->score, $leaderboardOne->Format),
+                            ],
                         ],
                         [
                             "ID" => $leaderboardTwo->ID,
+                            "RankAsc" => boolval($leaderboardTwo->LowerIsBetter),
                             "Title" => $leaderboardTwo->Title,
                             "Description" => $leaderboardTwo->Description,
+                            "Format" => $leaderboardTwo->Format,
+                            "TopEntry" => [
+                                "User" => $leaderboardEntryTwo->User->User,
+                                "Score" => $leaderboardEntryTwo->score,
+                                "FormattedScore" => ValueFormat::format($leaderboardEntryTwo->score, $leaderboardTwo->Format),
+                            ],
                         ],
                     ],
                 ]);
@@ -194,13 +251,27 @@ class GameLeaderboardsTest extends TestCase
                     'Results' => [
                         [
                             "ID" => $leaderboardTwo->ID,
+                            "RankAsc" => boolval($leaderboardTwo->LowerIsBetter),
                             "Title" => $leaderboardTwo->Title,
                             "Description" => $leaderboardTwo->Description,
+                            "Format" => $leaderboardTwo->Format,
+                            "TopEntry" => [
+                                "User" => $leaderboardEntryTwo->User->User,
+                                "Score" => $leaderboardEntryTwo->score,
+                                "FormattedScore" => ValueFormat::format($leaderboardEntryTwo->score, $leaderboardTwo->Format),
+                            ],
                         ],
                         [
                             "ID" => $leaderboardThree->ID,
+                            "RankAsc" => boolval($leaderboardThree->LowerIsBetter),
                             "Title" => $leaderboardThree->Title,
                             "Description" => $leaderboardThree->Description,
+                            "Format" => $leaderboardThree->Format,
+                            "TopEntry" => [
+                                "User" => $leaderboardEntryThree->User->User,
+                                "Score" => $leaderboardEntryThree->score,
+                                "FormattedScore" => ValueFormat::format($leaderboardEntryThree->score, $leaderboardThree->Format),
+                            ],
                         ],
                     ],
                 ]);
