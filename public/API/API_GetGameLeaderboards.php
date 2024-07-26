@@ -16,11 +16,13 @@
  */
 
 use App\Models\Leaderboard;
+use App\Models\Game;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use App\Platform\Enums\ValueFormat;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'min:1', new CtypeAlnum()],
@@ -33,36 +35,39 @@ $count = $input['c'] ?? 100;
 
 $gameId = request()->query('i');
 
-$leaderboardsQuery = Leaderboard::where('GameID', $gameId);
+$game = Game::firstWhere("ID", $gameId);
 
-$totalLeaderboards = $leaderboardsQuery->count();
-if ($totalLeaderboards == 0) {
+$leaderboards = $game->leaderboards()
+    ->with('game')
+    ->with('developer')
+    ->skip($offset)
+    ->take($count)
+    ->get();
+
+if (!$leaderboards) {
     return response()->json([], 404);
 }
 
-$results = $leaderboardsQuery
-    ->skip($offset)
-    ->take($count)
-    ->get()
-    ->map(function ($entry) {
-        $highestScoreEntry = LeaderboardEntry::where('leaderboard_id', $entry->ID)
-            ->orderByDesc('score')
-            ->first();
+$results = [];
+foreach ($leaderboards as $leaderboard) {
 
-        $currentLeaderUserID = $highestScoreEntry->user_id;
+    $fetchedLeaderboardData = GetLeaderboardData($leaderboard, null, $count, $offset);
+    $fetchedTopEntry = $fetchedLeaderboardData['Entries'][0];
 
-        $currentLeader = User::firstWhere('ID', $currentLeaderUserID);
+    $topEntry = new stdClass();
+    $topEntry->User = $fetchedTopEntry['User'];
+    $topEntry->FormattedScore = ValueFormat::format($fetchedTopEntry['Score'], $leaderboard->Format);
 
-        return [
-            'ID' => $entry->ID,
-            'Title' => $entry->Title,
-            'Description' => $entry->Description,
-            'CurrentLeader' => $currentLeader->User,
-        ];
-    });
+    $results[] = [
+        'ID' => $fetchedLeaderboardData['LBID'],
+        'GameID' => $fetchedLeaderboardData['GameID'],
+        'RankAsc' => boolval($fetchedLeaderboardData['LowerIsBetter']),
+        'Title' => $fetchedLeaderboardData['LBTitle'],
+        'Description' => $fetchedLeaderboardData['LBDesc'],
+        'Format' => $fetchedLeaderboardData['LBFormat'],
+        'TotalEntries' => $fetchedLeaderboardData['TotalEntries'],
+        'TopEntry' => $topEntry,
+    ];
+}
 
-return response()->json([
-    'Count' => count($results),
-    'Total' => $totalLeaderboards,
-    'Results' => $results,
-]);
+return response()->json($results);

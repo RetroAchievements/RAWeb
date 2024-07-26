@@ -112,10 +112,14 @@ class GameLeaderboardsTest extends TestCase
                 'Total' => 5,
                 'Results' => [
                     [
-                        "ID" => $leaderboardOne->ID,
-                        "Title" => $leaderboardOne->Title,
-                        "Description" => $leaderboardOne->Description,
-                        "CurrentLeader" => $userOne->User,
+                        "ID" => $leaderboardOne->LBID,
+                        "GameID" => $game->ID,
+                        "RankAsc" => boolval($leaderboardOne->LowerIsBetter),
+                        "Title" => $leaderboardOne->LBTitle,
+                        "Description" => $leaderboardOne->LBDesc,
+                        "Format" => $leaderboardOne->LBFormat,
+                        "TotalEntries" => $leaderboardOne->TotalEntries,
+                        "TopEntry"=>$leaderboardEntryOne,
                     ],
                     [
                         "ID" => $leaderboardTwo->ID,
