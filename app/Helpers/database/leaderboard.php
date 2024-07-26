@@ -121,23 +121,6 @@ function SubmitLeaderboardEntry(
     return $retVal;
 }
 
-function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
-{
-    $leaderboardEntry = LeaderboardEntry::with('leaderboard')
-        ->where('leaderboard_id', $lbID)
-        ->where('user_id', $user->id)
-        ->first();
-
-    if (!$leaderboardEntry) {
-        return false;
-    }
-
-    $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
-    $wasLeaderboardEntryDeleted = $leaderboardEntry->delete();
-
-    return $wasLeaderboardEntryDeleted;
-}
-
 function GetLeaderboardData(
     Leaderboard $leaderboard,
     ?User $user,
@@ -284,7 +267,7 @@ function getLeaderboardsList(
             break;
     }
 
-    $query = "SELECT 
+    $query = "SELECT
         ld.ID, ld.Title, ld.Description, ld.Format, ld.Mem, ld.DisplayOrder,
         leInner.NumResults,
         ld.LowerIsBetter, ua.User AS Author,
