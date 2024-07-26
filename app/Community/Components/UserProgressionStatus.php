@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Components;
 
+use App\Models\System;
 use App\Platform\Services\PlayerProgressionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -115,9 +116,9 @@ class UserProgressionStatus extends Component
     ): array {
         $mostRecentlyPlayedConsole = collect($userRecentlyPlayed)
             ->reject(fn ($game) => (
-                $game['ConsoleID'] == 101
-                || !isValidConsoleId($game['ConsoleID'])
+                !System::isGameSystem($game['ConsoleID'])
                 || !$game['AchievementsTotal']
+                || !isValidConsoleId($game['ConsoleID'])
             ))
             ->groupBy('ConsoleID')
             ->map(fn ($games) => $games->max('LastPlayed'))

@@ -100,9 +100,9 @@ class PlayerProgressionService
         $filteredAndJoined = [];
         foreach ($gamesList as &$game) {
             $canUseGame = (
-                isValidConsoleId($game['ConsoleID'])
+                $game['NumAwarded'] !== 0
                 && ($allowEvents ? true : $game['ConsoleID'] !== System::Events)
-                && $game['NumAwarded'] !== 0
+                && isValidConsoleId($game['ConsoleID'])
             );
 
             if ($canUseGame) {
@@ -146,8 +146,8 @@ class PlayerProgressionService
 
                 if (
                     $award
-                    && isValidConsoleId($award['ConsoleID'])
                     && ($allowEvents ? true : $award['ConsoleID'] !== System::Events)
+                    && isValidConsoleId($award['ConsoleID'])
                 ) {
                     $newGame = [
                         'GameID' => $gameId,
