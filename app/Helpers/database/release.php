@@ -57,14 +57,16 @@ function getReleasesFromFile(): ?array
 
 function getActiveEmulatorReleases(): array
 {
-    $consoles = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
+    $consoles = System::active()->get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name'])->toArray();
     $releases = getReleasesFromFile();
     $emulators = array_filter($releases['emulators'] ?? [], fn ($emulator) => $emulator['active'] ?? false);
-    if ($consoles->isNotEmpty()) {
+    if (!empty($consoles)) {
         return array_map(function ($emulator) use ($consoles) {
             $systems = [];
             foreach ($emulator['systems'] as $system) {
-                $systems[$system] = $consoles[$system];
+                if (array_key_exists($system, $consoles)) {
+                    $systems[$system] = $consoles[$system];
+                }
             }
             $emulator['systems'] = $systems;
 
