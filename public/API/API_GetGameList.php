@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\Game;
-
 /*
  *  API_GetGameList - returns games for the specified console
  *    i : console id
