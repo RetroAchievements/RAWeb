@@ -57,10 +57,10 @@ function unlockAchievement(User $user, int $achievementId, bool $isHardcore, ?Ga
         // The client is expecting to receive the number of AchievementsRemaining in the response, and if
         // it's 0, a mastery placard will be shown. Multiple achievements may be unlocked by the client at
         // the same time using separate requests, so we need to update the unlock counts for the
-        // player_game (and commit it) as soon as possible so whichever reqeust is processed last _should_
+        // player_game (and commit it) as soon as possible so whichever request is processed last _should_
         // return the correct number of remaining achievements. It will be accurately recalculated by the
         // UpdatePlayerGameMetrics action triggered by an asynchronous UnlockPlayerAchievementJob.
-        // Also update user points for the response, but don't immediately commit them to avoid uncessary
+        // Also update user points for the response, but don't immediately commit them to avoid unnecessary
         // DB writes.
         if ($isHardcore && !$hasHardcore) {
             if ($playerGame) {
@@ -250,8 +250,7 @@ function getUnlocksInDateRange(array $achievementIDs, string $startTime, string 
             // invalid start, valid end
             $dateQuery = "AND pa.$column <= '$endTime'";
         } else {
-            // invalid start and end
-            // no date query needed
+            $dateQuery = "AND pa.$column IS NOT NULL";
         }
     }
 
