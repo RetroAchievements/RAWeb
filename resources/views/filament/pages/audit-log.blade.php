@@ -30,7 +30,8 @@ use \Illuminate\Support\Js;
 
                 @php
                 /** @var \Spatie\Activitylog\Models\Activity $auditLogItem */
-                $changes = $auditLogItem->getChangesAttribute();
+                $properties = json_decode($auditLogItem->properties, true);
+                $changes = collect($properties);
                 @endphp
                 @if($changes->isNotEmpty())
                     <x-filament-tables::table class="w-full overflow-hidden text-sm">
@@ -48,7 +49,7 @@ use \Illuminate\Support\Js;
                             </x-filament-tables::header-cell>
                         </x-slot:header>
                         @foreach(data_get($changes, 'attributes', []) as $field => $change)
-                            @php
+                        @php
                             $oldValue = data_get($changes, "old.{$field}");
                             $newValue = data_get($changes, "attributes.{$field}");
                             $isRelationship = method_exists($this->record, $field);
