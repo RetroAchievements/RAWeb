@@ -35,7 +35,12 @@ class ResumePlayerSession
         /** @var ?PlayerSession $playerSession */
         $playerSession = $user->playerSessions()
             ->where('game_id', $game->id)
-            ->where('game_hash_id', $gameHash?->id)
+            ->where(function ($query) use ($gameHash) {
+                if ($gameHash) {
+                    $query->where('game_hash_id', $gameHash->id)
+                        ->orWhereNull('game_hash_id');
+                }
+            })
             ->where(function ($query) use ($userAgent) {
                 if ($userAgent) {
                     $query->where('user_agent', $userAgent)
