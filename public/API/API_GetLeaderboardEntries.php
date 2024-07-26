@@ -16,10 +16,10 @@
  */
 
 use App\Models\Leaderboard;
+use App\Platform\Enums\ValueFormat;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
-use App\Platform\Enums\ValueFormat;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'i' => ['required', 'min:1', new CtypeAlnum()],
