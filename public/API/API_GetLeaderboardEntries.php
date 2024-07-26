@@ -11,6 +11,7 @@
  *   object      [value]
  *    int        Rank                       user's leaderboard rank
  *    string     User                       name of user
+ *    string     Score                      raw string value of the leaderboard entry's score
  *    string     FormattedScore             string value of the formatted leaderboard entry's score (reference GetGameLeaderboard for Format type)
  *    string     DateSubmitted              an ISO8601 timestamp string for when the entry was submitted
  */
@@ -45,6 +46,7 @@ foreach ($fetchedLeaderboardData['Entries'] as $entry) {
     $results[] = [
         'User' => $entry['User'],
         'DateSubmitted' => date('c', $entry['DateSubmitted']),
+        'Score' => $entry['Score'],
         'FormattedScore' => ValueFormat::format($entry['Score'], $leaderboard->Format),
         'Rank' => $entry['Rank'],
     ];
