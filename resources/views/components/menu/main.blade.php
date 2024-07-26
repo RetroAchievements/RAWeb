@@ -21,6 +21,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
         ['Sega' => [], 'NEC' => [], 'SNK' => []],
     ];
 
+    $otherManufacturers = [];
     foreach ($systems as $system) {
         $found = false;
         foreach ($menuSystemsList as &$column) {
@@ -35,8 +36,10 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
         }
     }
 
-    usort($otherManufacturers, fn ($a, $b) => strcasecmp($a['Name'], $b['Name']));
-    $menuSystemsList[] = ['Others' => $otherManufacturers];
+    if (!empty($otherManufacturers)) {
+        usort($otherManufacturers, fn ($a, $b) => strcasecmp($a['Name'], $b['Name']));
+        $menuSystemsList[] = ['Others' => $otherManufacturers];
+    }
 
     return $menuSystemsList;
 });
