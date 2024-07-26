@@ -3,6 +3,7 @@
 use App\Models\System;
 use App\Support\Cache\CacheKey;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * used for mobile presentation where dropdowns won't work in horizontally scrollable navbars
@@ -10,7 +11,6 @@ use Illuminate\Support\Carbon;
 $mobile ??= false;
 
 /* caching this saves about 750us on every page load */
-Cache::forget(CacheKey::SystemMenuList);
 $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addHours(1), function() {
     $systems = System::gameSystems()->active()
         ->orderBy('order_column')
