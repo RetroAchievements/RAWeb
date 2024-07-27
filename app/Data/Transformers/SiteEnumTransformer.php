@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Transformers;
+namespace App\Data\Transformers;
 
 use App\Models\Role;
 use ReflectionClass;
@@ -9,6 +9,9 @@ use Spatie\TypeScriptTransformer\Transformers\Transformer;
 
 class SiteEnumTransformer implements Transformer
 {
+    /**
+     * @param ReflectionClass<object> $class
+     */
     public function transform(ReflectionClass $class, string $name): ?TransformedType
     {
         $reflection = new ReflectionClass($class->getName());
@@ -55,6 +58,9 @@ class SiteEnumTransformer implements Transformer
         return true;
     }
 
+    /**
+     * @param ReflectionClass<object> $class
+     */
     protected function toEnum(ReflectionClass $class, string $name, array $values): TransformedType
     {
 

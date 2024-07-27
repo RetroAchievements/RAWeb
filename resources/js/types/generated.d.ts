@@ -1,12 +1,46 @@
 declare namespace App.Data {
-  export type User = {
-    avatarUrl: string;
-    displayName: string;
+  export type ForumTopicComment = {
     id: number;
-    legacyPermissions: number;
-    preferences: { prefersAbsoluteDates: boolean };
-    roles: App.Models.UserRole[];
-    unreadMessageCount: number;
+    body: string;
+    createdAt: string;
+    updatedAt: string;
+    user: App.Data.User;
+    authorized: boolean;
+    forumTopicId: number | null;
+  };
+  export type ForumTopic = {
+    id: number;
+    title: string;
+    createdAt: string;
+    user: App.Data.User | null;
+    latestComment?: App.Data.ForumTopicComment;
+    commentCount24h?: number;
+    oldestComment24hId?: number;
+    commentCount7d?: number;
+    oldestComment7dId?: number;
+  };
+  export type __UNSAFE_PaginatedData = {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+    items: Array<any>;
+    links: {
+      firstPageUrl: string | null;
+      lastPageUrl: string | null;
+      previousPageUrl: string | null;
+      nextPageUrl: string | null;
+    };
+  };
+  export type User = {
+    displayName: string;
+    avatarUrl: string;
+    id?: number;
+    username?: string;
+    legacyPermissions?: number;
+    preferences?: { prefersAbsoluteDates: boolean };
+    roles?: App.Models.UserRole[];
+    unreadMessageCount?: number;
   };
 }
 declare namespace App.Models {

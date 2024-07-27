@@ -41,7 +41,13 @@ class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
             'auth' => $user ? [
-                'user' => UserData::fromUser($user),
+                'user' => UserData::fromUser($user)->include(
+                    'legacyPermissions',
+                    'preferences',
+                    'roles',
+                    'unreadMessageCount',
+                    'username',
+                ),
             ] : null,
 
             'ziggy' => fn () => [
