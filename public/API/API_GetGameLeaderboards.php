@@ -61,10 +61,14 @@ $results = [];
 foreach ($leaderboards as $leaderboard) {
     $bestScore = $leaderboard->sortedEntries()->first();
 
+
     $topEntry = new stdClass();
-    $topEntry->User = $bestScore->user->User;
-    $topEntry->Score = $bestScore->score;
-    $topEntry->FormattedScore = ValueFormat::format($bestScore->score, $leaderboard->Format);
+    
+    if ($bestScore) {
+        $topEntry->User = $bestScore->user->User;
+        $topEntry->Score = $bestScore->score;
+        $topEntry->FormattedScore = ValueFormat::format($bestScore->score, $leaderboard->Format);
+    }
 
     $results[] = [
         'ID' => $leaderboard->ID,

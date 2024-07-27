@@ -88,11 +88,6 @@ class GameLeaderboardsTest extends TestCase
             'Title' => "Test leaderboard 4",
             'Description' => "I am the fourth leaderboard",
         ]);
-        $userFour = User::factory()->create(['User' => 'myUser4']);
-        $leaderboardEntryFour = LeaderboardEntry::factory()->create([
-            'leaderboard_id' => $leaderboardFour->ID,
-            'user_id' => $userFour->ID,
-        ]);
 
         /** @var Leaderboard $leaderboardFive */
         $leaderboardFive = Leaderboard::factory()->create([
@@ -156,11 +151,7 @@ class GameLeaderboardsTest extends TestCase
                         "Title" => $leaderboardFour->Title,
                         "Description" => $leaderboardFour->Description,
                         "Format" => $leaderboardFour->Format,
-                        "TopEntry" => [
-                            "User" => $leaderboardEntryFour->User->User,
-                            "Score" => $leaderboardEntryFour->score,
-                            "FormattedScore" => ValueFormat::format($leaderboardEntryFour->score, $leaderboardFour->Format),
-                        ],
+                        "TopEntry" => [],
                     ],
                     [
                         "ID" => $leaderboardFive->ID,
@@ -189,11 +180,7 @@ class GameLeaderboardsTest extends TestCase
                             "Title" => $leaderboardFour->Title,
                             "Description" => $leaderboardFour->Description,
                             "Format" => $leaderboardFour->Format,
-                            "TopEntry" => [
-                                "User" => $leaderboardEntryFour->User->User,
-                                "Score" => $leaderboardEntryFour->score,
-                                "FormattedScore" => ValueFormat::format($leaderboardEntryFour->score, $leaderboardFour->Format),
-                            ],
+                            "TopEntry" => [],
                         ],
                         [
                             "ID" => $leaderboardFive->ID,
