@@ -308,7 +308,7 @@ switch ($requestType) {
                 $activityMessage = utf8_sanitize($activityMessage);
             }
 
-            $gameHashMd5 = request()->post('x') ?? request()->query('x') ?? null;
+            $gameHashMd5 = request()->input('x');
             if ($gameHashMd5) {
                 $gameHash = GameHash::whereMd5($gameHashMd5)->first();
             }
