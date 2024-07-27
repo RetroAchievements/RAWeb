@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Achievement;
+use App\Models\Leaderboard;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\System;
@@ -45,6 +46,14 @@ class GamesTableSeeder extends Seeder
             $game->achievements()->saveMany(Achievement::factory()->count(random_int(0, 10))->create([
                 'GameID' => $game->ID,
                 'Flags' => AchievementFlag::OfficialCore,
+            ]));
+        });
+
+        Game::all()->first(function (Game $game) {
+            $game->leaderboards()->saveMany(Leaderboard::factory()->count(random_int(0,10))->create([
+                'GameID' => $game->ID,
+                'Title' => "Test leaderboard",
+                'Description' => "I am a seeded leaderboard",
             ]));
         });
     }
