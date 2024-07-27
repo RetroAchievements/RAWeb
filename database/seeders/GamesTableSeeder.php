@@ -49,7 +49,7 @@ class GamesTableSeeder extends Seeder
             ]));
         });
 
-        Game::all()->first(function (Game $game) {
+        Game::all()->each(function (Game $game) {
             $game->leaderboards()->saveMany(Leaderboard::factory()->count(random_int(0, 10))->create([
                 'GameID' => $game->ID,
                 'Title' => "Test leaderboard",
