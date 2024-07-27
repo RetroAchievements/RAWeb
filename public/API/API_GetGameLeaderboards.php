@@ -61,9 +61,8 @@ $results = [];
 foreach ($leaderboards as $leaderboard) {
     $bestScore = $leaderboard->sortedEntries()->first();
 
-
     $topEntry = new stdClass();
-    
+
     if ($bestScore) {
         $topEntry->User = $bestScore->user->User;
         $topEntry->Score = $bestScore->score;
