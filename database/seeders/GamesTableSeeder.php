@@ -50,11 +50,15 @@ class GamesTableSeeder extends Seeder
         });
 
         Game::all()->each(function (Game $game) {
-            $game->leaderboards()->saveMany(Leaderboard::factory()->count(random_int(0, 10))->create([
-                'GameID' => $game->ID,
-                'Title' => "Test leaderboard",
-                'Description' => "I am a seeded leaderboard",
-            ]));
+            $leaderboardCount = random_int(0, 10);
+
+            $leaderboards = Leaderboard::factory()->count($leaderboardCount)->make()->each(function (Leaderboard $leaderboard) use ($game) {
+                $leaderboard->GameID = $game->ID;
+                $leaderboard->Title = ucwords(fake()->words(2, true));
+                $leaderboard->Description = fake()->sentence();
+            });
+
+            $game->leaderboards()->saveMany($leaderboards);
         });
     }
 }
