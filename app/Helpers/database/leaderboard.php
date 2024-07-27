@@ -157,7 +157,7 @@ function GetLeaderboardData(
         }
     }
 
-    if ($numToFetch == 0) {
+    if ($numToFetch === 0) {
         return $retVal;
     }
 
