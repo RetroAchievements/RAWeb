@@ -1,19 +1,6 @@
-import { createFactory } from '@/test/createFactory';
+import { createFactory } from '../createFactory';
 
-interface UserPreferences {
-  prefersAbsoluteDates: boolean;
-}
-
-export interface User {
-  avatarUrl: string;
-  displayName: string;
-  id: number;
-  legacyPermissions: number;
-  preferences: UserPreferences;
-  unreadMessageCount: number;
-}
-
-export const createUser = createFactory<User>((faker) => {
+export const createUser = createFactory<App.Data.User>((faker) => {
   const displayName = faker.internet.displayName();
 
   return {
@@ -24,6 +11,7 @@ export const createUser = createFactory<User>((faker) => {
     preferences: {
       prefersAbsoluteDates: faker.datatype.boolean(),
     },
+    roles: [],
     unreadMessageCount: faker.number.int({ min: 0, max: 3 }),
   };
 });

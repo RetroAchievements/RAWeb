@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Enums;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript('AchievementFlag')]
 abstract class AchievementFlag
 {
     public const OfficialCore = 3;

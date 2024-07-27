@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\UserData;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -40,18 +41,7 @@ class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
             'auth' => $user ? [
-                'user' => [
-                    'avatarUrl' => $user->avatar_url,
-                    'displayName' => $user->display_name ?? $user->username,
-                    'id' => $user->id,
-                    'legacyPermissions' => (int) $user->getAttribute('Permissions'),
-                    'preferences' => [
-                        'prefersAbsoluteDates' => $user->prefers_absolute_dates,
-                    ],
-                    'unreadMessageCount' => $user->UnreadMessageCount,
-                ],
-
-                'roles' => $user->getRoleNames(),
+                'user' => UserData::fromUser($user),
             ] : null,
 
             'ziggy' => fn () => [
