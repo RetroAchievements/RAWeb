@@ -60,7 +60,10 @@ class UserCard extends Component
             function () use ($username): ?array {
                 $foundUser = User::firstWhere('User', $username);
 
-                return $foundUser ? $foundUser->toArray() : null;
+                return $foundUser ? [
+                    ...$foundUser->toArray(),
+                    'isMuted' => $foundUser->isMuted(),
+                ] : null;
             }
         );
     }
@@ -77,7 +80,7 @@ class UserCard extends Component
     private function buildCardBioData(array $rawUserData): array
     {
         $username = $rawUserData['User'] ?? "";
-        $motto = $rawUserData['Motto'] ?? null;
+        $motto = $rawUserData['Motto'] && !$rawUserData['isMuted'] ? $rawUserData['Motto'] : null;
         $avatarUrl = $rawUserData['avatarUrl'] ?? null;
         $hardcorePoints = $rawUserData['RAPoints'] ?? 0;
         $softcorePoints = $rawUserData['RASoftcorePoints'] ?? 0;

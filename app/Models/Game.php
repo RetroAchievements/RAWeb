@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -76,6 +77,10 @@ class Game extends BaseModel implements HasComments, HasMedia
         'released_at',
         'released_at_granularity',
         'GuideURL',
+    ];
+
+    protected $casts = [
+        'released_at' => 'datetime',
     ];
 
     protected $visible = [
@@ -332,13 +337,13 @@ class Game extends BaseModel implements HasComments, HasMedia
     }
 
     /**
-     * TODO will need to be modified if GameID is migrated to game_hash_set_id
+     * TODO will need to be modified if game_id is migrated to game_hash_set_id
      *
      * @return HasMany<MemoryNote>
      */
     public function memoryNotes(): HasMany
     {
-        return $this->hasMany(MemoryNote::class, 'GameID');
+        return $this->hasMany(MemoryNote::class, 'game_id');
     }
 
     /**
@@ -396,6 +401,14 @@ class Game extends BaseModel implements HasComments, HasMedia
     public function visibleLeaderboards(): HasMany
     {
         return $this->leaderboards()->visible();
+    }
+
+    /**
+     * @return HasManyThrough<Ticket>
+     */
+    public function tickets(): HasManyThrough
+    {
+        return $this->hasManyThrough(Ticket::class, Achievement::class, 'GameID', 'AchievementID');
     }
 
     // == scopes
