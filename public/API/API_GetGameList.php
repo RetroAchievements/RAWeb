@@ -40,7 +40,13 @@ $query = DB::table('GameData')
     ->leftjoin('Console AS c', 'c.ID', '=', 'GameData.ConsoleID')
     ->leftjoin('Achievements AS ach', 'ach.GameID', '=', 'GameData.ID')
     ->leftjoin('LeaderboardDef AS ld', 'ld.GameID', '=', 'GameData.ID')
-    ->select('GameData.*', 'c.Name as ConsoleName', DB::raw('MAX(ach.DateModified) as DateModified'), DB::raw('COALESCE(GameData.achievements_published,0) AS NumAchievements'))
+    ->select(
+        'GameData.*',
+        'c.Name as ConsoleName',
+        DB::raw('MAX(ach.DateModified) as DateModified'),
+        DB::raw('COALESCE(GameData.achievements_published,0) AS NumAchievements'),
+        DB::raw('COUNT(DISTINCT ld.ID) AS NumLBs')
+    )
     ->where('ConsoleID', $consoleID);
 
 if ($withAchievements) {
