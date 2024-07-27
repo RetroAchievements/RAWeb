@@ -7,6 +7,7 @@ namespace Tests\Feature\Api\V1;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\Leaderboard;
 use App\Models\System;
 use App\Platform\Actions\UpdateGameMetrics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -42,6 +43,7 @@ class GameListTest extends TestCase
         $game1Points = $game1Achievements->get(0)->Points +
                        $game1Achievements->get(1)->Points +
                        $game1Achievements->get(2)->Points;
+        $game1Leaderboards = Leaderboard::factory()->count(8)->create(['GameID' => $game1->ID]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'Title' => 'Beta',
@@ -97,7 +99,7 @@ class GameListTest extends TestCase
                     'ImageIcon' => $game1->ImageIcon,
                     'NumAchievements' => 3,
                     'Points' => $game1Points,
-                    'NumLeaderboards' => 0,
+                    'NumLeaderboards' => 8,
                     'ForumTopicID' => 123,
                 ],
                 [
@@ -126,7 +128,7 @@ class GameListTest extends TestCase
                     'ImageIcon' => $game1->ImageIcon,
                     'NumAchievements' => 3,
                     'Points' => $game1Points,
-                    'NumLeaderboards' => 0,
+                    'NumLeaderboards' => 8,
                     'ForumTopicID' => 123,
                 ],
             ]);
