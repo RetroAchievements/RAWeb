@@ -4,6 +4,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Models\LeaderboardEntry;
+use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Support\Facades\Auth;
 
