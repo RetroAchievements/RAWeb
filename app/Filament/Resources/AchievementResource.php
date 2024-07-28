@@ -387,7 +387,6 @@ class AchievementResource extends Resource
     {
         return [
             'index' => Pages\Index::route('/'),
-            'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),

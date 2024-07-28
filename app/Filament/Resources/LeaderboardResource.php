@@ -15,6 +15,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -63,9 +64,29 @@ class LeaderboardResource extends Resource
                 Infolists\Components\Section::make('Metadata')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
+                        Infolists\Components\TextEntry::make('game.title')
+                            ->url(function (Leaderboard $record) {
+                                if (request()->user()->can('manage', Game::class)) {
+                                    return GameResource::getUrl('view', ['record' => $record->game->id]);
+                                }
+
+                                return null;
+                            })
+                            ->extraAttributes(function (): array {
+                                if (request()->user()->can('manage', Game::class)) {
+                                    return ['class' => 'underline'];
+                                }
+
+                                return [];
+                            }),
+
                         Infolists\Components\TextEntry::make('Title'),
 
-                        Infolists\Components\TextEntry::make('game.title'),
+                        Infolists\Components\TextEntry::make('Description'),
+
+                        Infolists\Components\TextEntry::make('LowerIsBetter')
+                            ->label('Lower Is Better')
+                            ->formatStateUsing(fn (string $state): string => $state === '1' ? 'Yes' : 'No'),
                     ]),
             ]);
     }
@@ -74,7 +95,31 @@ class LeaderboardResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Section::make('Primary Details')
+                    ->icon('heroicon-m-key')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Forms\Components\TextInput::make('Title')
+                            ->required()
+                            ->minLength(2)
+                            ->maxLength(255),
 
+                        Forms\Components\TextInput::make('Description')
+                            ->maxLength(255),
+
+                        Forms\Components\Select::make('Format')
+                            ->options(
+                                collect(ValueFormat::cases())
+                                    ->mapWithKeys(fn ($format) => [$format => ValueFormat::toString($format)])
+                                    ->toArray()
+                            )
+                            ->required(),
+
+                        Forms\Components\Toggle::make('LowerIsBetter')
+                            ->label('Lower Is Better')
+                            ->inline(false)
+                            ->helperText('Useful for speedrun leaderboards and similar scenarios.'),
+                    ]),
             ]);
     }
 
@@ -179,12 +224,21 @@ class LeaderboardResource extends Resource
         ];
     }
 
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationitems([
+            Pages\Details::class,
+            Pages\AuditLog::class,
+        ]);
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\Index::route('/'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
+            'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),
         ];
     }
 
