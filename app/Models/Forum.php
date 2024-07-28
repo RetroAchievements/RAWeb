@@ -108,7 +108,7 @@ class Forum extends BaseModel
      */
     public function topics(): HasMany
     {
-        return $this->hasMany(ForumTopic::class);
+        return $this->hasMany(ForumTopic::class, 'ForumID', 'ID');
     }
 
     /**

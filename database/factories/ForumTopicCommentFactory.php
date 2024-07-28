@@ -7,6 +7,7 @@ namespace Database\Factories;
 use App\Models\ForumTopicComment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends Factory<ForumTopicComment>
@@ -24,7 +25,9 @@ class ForumTopicCommentFactory extends Factory
 
         return [
             'Payload' => ucwords(fake()->words(2, true)),
-            'user_id' => $user->ID,
+            'author_id' => $user->ID,
+            'authorized_at' => Carbon::now(),
+            'Authorised' => 1,
         ];
     }
 }
