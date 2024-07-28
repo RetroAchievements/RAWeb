@@ -15,7 +15,6 @@ declare module 'ziggy-js' {
               "binding": "ID"
           }
       ],
-      "forum.recent-posts": [],
       "demo": [],
       "home": [],
       "tickets.index": [],
@@ -266,8 +265,7 @@ declare module 'ziggy-js' {
               "binding": "hash"
           }
       ],
-      "forum.recent-posts2": [],
-      "forum.recent-posts3": [],
+      "forum.recent-posts": [],
       "message.store": [],
       "message-thread.destroy": [
           {
