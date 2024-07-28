@@ -15,7 +15,7 @@ return [
             'reorderedAchievements' => 'Reordered achievements',
             'reorderedLeaderboards' => 'Reordered leaderboards',
             'resetAllLeaderboardEntries' => 'Reset all leaderboard entries',
-            'unlinkedHash'=> 'Unlinked hash',
+            'unlinkedHash' => 'Unlinked hash',
             'updated' => 'Updated',
         ],
     ],

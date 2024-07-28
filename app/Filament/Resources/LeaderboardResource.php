@@ -107,7 +107,7 @@ class LeaderboardResource extends Resource
                         Infolists\Components\TextEntry::make('LowerIsBetter')
                             ->label('Lower Is Better')
                             ->formatStateUsing(fn (string $state): string => $state === '1' ? 'Yes' : 'No'),
-                    ])
+                    ]),
             ]);
     }
 

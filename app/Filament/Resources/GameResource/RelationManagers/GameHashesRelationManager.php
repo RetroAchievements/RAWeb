@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Resources\GameResource\RelationManagers;
 
 use App\Community\Enums\ArticleType;
-use App\Models\GameHash;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -132,7 +132,7 @@ class GameHashesRelationManager extends RelationManager
                                     'name' => $name,
                                     'md5' => $md5,
                                     'labels' => $labels,
-                                ]
+                                ],
                             ])
                             ->event('unlinkedHash')
                             ->log('Unlinked hash');
