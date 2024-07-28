@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permissions;
 use App\Models\News;
 use App\Models\Role;
 use App\Models\User;
@@ -16,12 +15,15 @@ class NewsPolicy
 
     public function manage(User $user): bool
     {
-        return $user->getAttribute('Permissions') >= Permissions::Developer;
-        // return $user->hasAnyRole([
-        //     // Role::ADMINISTRATOR,
-        //     Role::MODERATOR,
-        //     Role::NEWS_MANAGER,
-        // ]);
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
+            Role::MODERATOR,
+            Role::NEWS_MANAGER,
+            Role::TEAM_ACCOUNT,
+        ]);
     }
 
     public function viewAny(?User $user): bool
@@ -37,20 +39,34 @@ class NewsPolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
+            Role::MODERATOR,
             Role::NEWS_MANAGER,
+            Role::TEAM_ACCOUNT,
         ]);
     }
 
     public function update(User $user, News $news): bool
     {
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+            Role::EVENT_MANAGER,
+            Role::MODERATOR,
             Role::NEWS_MANAGER,
+            Role::TEAM_ACCOUNT,
         ]);
     }
 
     public function delete(User $user, News $news): bool
     {
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
             Role::NEWS_MANAGER,
         ]);
     }
@@ -58,6 +74,8 @@ class NewsPolicy
     public function restore(User $user, News $news): bool
     {
         return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+            Role::MODERATOR,
             Role::NEWS_MANAGER,
         ]);
     }
@@ -73,5 +91,17 @@ class NewsPolicy
             Role::MODERATOR,
             Role::NEWS_MANAGER,
         ]);
+    }
+
+    public function publish(User $user, News $news): bool
+    {
+        // TODO
+        return false;
+    }
+
+    public function unpublish(User $user, News $news): bool
+    {
+        // TODO
+        return false;
     }
 }

@@ -22,7 +22,7 @@
         </h4>
 
         <p class="newstext shadowoutline lg:opacity-0 transition delay-300 duration-300 subpixel-antialiased {{ $index === 0 ? '!opacity-100' : '' }}">
-            {!! $news->Payload !!}
+            {{ $news->Payload }}
         </p>
 
             <div class="hidden sm:flex flex-col newsauthor shadowoutline absolute bottom-2 right-2">
