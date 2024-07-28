@@ -10,6 +10,7 @@ use App\Data\PaginatedData;
 use App\Models\Forum;
 use App\Models\ForumTopic;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -100,14 +101,10 @@ class ForumTopicController extends \App\Http\Controller
     public function recentlyActive(): InertiaResponse
     {
         $recentlyActiveTopics = ForumTopic::query()
-            ->select('ForumTopic.*')
+            ->select('ForumTopic.*', 'ftc24h.comment_count as comment_count_24h', 'ftc24h.oldest_comment_id as oldest_comment_id_24h', 'ftc7d.comment_count as comment_count_7d', 'ftc7d.oldest_comment_id as oldest_comment_id_7d')
             ->with(['latestComment.user'])
-            ->addSelect([
-                DB::raw('(SELECT COUNT(*) FROM ForumTopicComment WHERE ForumTopicComment.ForumTopicID = ForumTopic.ID AND ForumTopicComment.Authorised = 1 AND ForumTopicComment.DateCreated >= DATE_SUB(NOW(), INTERVAL 24 HOUR)) as comment_count_24h'),
-                DB::raw('(SELECT MIN(ID) FROM ForumTopicComment WHERE ForumTopicComment.ForumTopicID = ForumTopic.ID AND ForumTopicComment.Authorised = 1 AND ForumTopicComment.DateCreated >= DATE_SUB(NOW(), INTERVAL 24 HOUR)) as oldest_comment_id_24h'),
-                DB::raw('(SELECT COUNT(*) FROM ForumTopicComment WHERE ForumTopicComment.ForumTopicID = ForumTopic.ID AND ForumTopicComment.Authorised = 1 AND ForumTopicComment.DateCreated >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as comment_count_7d'),
-                DB::raw('(SELECT MIN(ID) FROM ForumTopicComment WHERE ForumTopicComment.ForumTopicID = ForumTopic.ID AND ForumTopicComment.Authorised = 1 AND ForumTopicComment.DateCreated >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as oldest_comment_id_7d'),
-            ])
+            ->leftJoinSub($this->buildCommentCountSubQuery('24 HOUR'), 'ftc24h', 'ForumTopic.ID', '=', 'ftc24h.ForumTopicID')
+            ->leftJoinSub($this->buildCommentCountSubQuery('7 DAY'), 'ftc7d', 'ForumTopic.ID', '=', 'ftc7d.ForumTopicID')
             ->orderByDesc(
                 DB::raw('(SELECT DateCreated FROM ForumTopicComment WHERE ForumTopicComment.ForumTopicID = ForumTopic.ID AND ForumTopicComment.Authorised = 1 ORDER BY DateCreated DESC LIMIT 1)')
             )
@@ -127,5 +124,14 @@ class ForumTopicController extends \App\Http\Controller
         return Inertia::render('forums/recent-posts', [
             'paginatedTopics' => PaginatedData::fromLengthAwarePaginator($recentlyActiveTopics),
         ]);
+    }
+
+    private function buildCommentCountSubQuery(string $interval): Builder
+    {
+        return DB::table('ForumTopicComment')
+            ->select('ForumTopicID', DB::raw('COUNT(*) as comment_count'), DB::raw('MIN(ID) as oldest_comment_id'))
+            ->where('Authorised', '=', 1)
+            ->where('DateCreated', '>=', DB::raw("DATE_SUB(NOW(), INTERVAL $interval)"))
+            ->groupBy('ForumTopicID');
     }
 }
