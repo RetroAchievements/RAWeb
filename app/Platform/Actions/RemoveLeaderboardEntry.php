@@ -11,6 +11,7 @@ class RemoveLeaderboardEntry
 {
     public function execute(LeaderboardEntry $entry, ?string $reason): void
     {
+        /** @var User $currentUser */
         $currentUser = Auth::user();
 
         // Authorize.

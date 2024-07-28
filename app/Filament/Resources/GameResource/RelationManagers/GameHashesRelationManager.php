@@ -6,6 +6,7 @@ namespace App\Filament\Resources\GameResource\RelationManagers;
 
 use App\Community\Enums\ArticleType;
 use App\Models\GameHash;
+use App\Models\Game;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -103,22 +104,45 @@ class GameHashesRelationManager extends RelationManager
                     ->action(function (GameHash $gameHash) {
                         /** @var User $user */
                         $user = auth()->user();
+                        /** @var Game $game */
+                        $game = $gameHash->game;
 
                         if (!$user->can('forceDelete', $gameHash)) {
                             return;
                         }
 
                         $gameId = $gameHash->game_id;
-                        $hash = $gameHash->md5;
+                        $md5 = $gameHash->md5;
+                        $name = $gameHash->name;
+                        $labels = $gameHash->labels;
 
                         $gameHash->forceDelete();
 
-                        // TODO eventually remove this
+                        activity()
+                            ->useLog('default')
+                            ->causedBy($user)
+                            ->performedOn($game)
+                            ->withProperties([
+                                'attributes' => [
+                                    'name' => '',
+                                    'md5' => '',
+                                    'labels' => '',
+                                ],
+                                'old' => [
+                                    'name' => $name,
+                                    'md5' => $md5,
+                                    'labels' => $labels,
+                                ]
+                            ])
+                            ->event('unlinkedHash')
+                            ->log('Unlinked hash');
+
+                        // TODO remove this after deleting 'game.hash.manage' route
                         addArticleComment(
                             "Server",
                             ArticleType::GameHash,
                             $gameId,
-                            "{$hash} unlinked by {$user->display_name}"
+                            "{$md5} unlinked by {$user->display_name}"
                         );
                     })
                     ->visible(function (GameHash $gameHash): bool {
