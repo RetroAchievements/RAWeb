@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Leaderboard extends BaseModel
 {
@@ -25,6 +27,10 @@ class Leaderboard extends BaseModel
 
     use Searchable;
     use SoftDeletes;
+
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
 
     // TODO rename LeaderboardDef table to leaderboards
     // TODO rename ID column to id
@@ -45,9 +51,31 @@ class Leaderboard extends BaseModel
     public const CREATED_AT = 'Created';
     public const UPDATED_AT = 'Updated';
 
+    protected $fillable = [
+        'Title',
+        'Description',
+        'Format',
+        'LowerIsBetter',
+    ];
+
     protected static function newFactory(): LeaderboardFactory
     {
         return LeaderboardFactory::new();
+    }
+
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'Title',
+                'Description',
+                'Format',
+                'LowerIsBetter',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     // == search

@@ -16,7 +16,9 @@ class MemoryNotePolicy
     public function manage(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::GAME_HASH_MANAGER,
+            Role::DEVELOPER_JUNIOR,
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
         ]);
     }
 
@@ -33,20 +35,36 @@ class MemoryNotePolicy
     public function create(User $user): bool
     {
         return $user->hasAnyRole([
+            Role::DEVELOPER_JUNIOR,
+            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
 
     public function update(User $user, MemoryNote $memoryNote): bool
     {
+        // If the user has a DEVELOPER_JUNIOR role, they need to have authored the note to edit it.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && $user->is($memoryNote->user)) {
+            return true;
+        }
+
         return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
             Role::DEVELOPER,
         ]);
     }
 
     public function delete(User $user, MemoryNote $memoryNote): bool
     {
-        return false;
+        // If the user has a DEVELOPER_JUNIOR role, they need to have authored the note to delete it.
+        if ($user->hasRole(Role::DEVELOPER_JUNIOR) && $user->is($memoryNote->user)) {
+            return true;
+        }
+
+        return $user->hasAnyRole([
+            Role::DEVELOPER_STAFF,
+            Role::DEVELOPER,
+        ]);
     }
 
     public function restore(User $user, MemoryNote $memoryNote): bool
