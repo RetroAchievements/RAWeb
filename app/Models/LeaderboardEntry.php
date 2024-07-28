@@ -49,7 +49,7 @@ class LeaderboardEntry extends BaseModel
      */
     public function playerSession(): BelongsTo
     {
-        return $this->belongsTo(PlayerSession::class);
+        return $this->belongsTo(PlayerSession::class, 'player_session_id', 'id');
     }
 
     /**
