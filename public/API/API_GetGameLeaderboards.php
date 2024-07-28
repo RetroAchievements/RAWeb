@@ -48,6 +48,8 @@ if (!$game) {
 $leaderboards = $game->leaderboards()
     ->with('game')
     ->with('developer')
+    ->withTopEntry()
+    ->visible()
     ->skip($offset)
     ->take($count)
     ->get();
@@ -58,14 +60,14 @@ if (!$leaderboards) {
 
 $results = [];
 foreach ($leaderboards as $leaderboard) {
-    $bestScore = $leaderboard->sortedEntries()->first();
+    $topEntry = null;
 
-    $topEntry = new stdClass();
-
-    if ($bestScore) {
-        $topEntry->User = $bestScore->user->User;
-        $topEntry->Score = $bestScore->score;
-        $topEntry->FormattedScore = ValueFormat::format($bestScore->score, $leaderboard->Format);
+    if ($leaderboard->topEntry) {
+        $topEntry = [
+            'User' => $leaderboard->topEntry->user->User,
+            'Score' => $leaderboard->topEntry->score,
+            'FormattedScore' => ValueFormat::format($leaderboard->topEntry->score, $leaderboard->Format),
+        ];
     }
 
     $results[] = [

@@ -56,6 +56,13 @@ class GameLeaderboardsTest extends TestCase
         $leaderboardEntryOne = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardOne->ID,
             'user_id' => $userOne->ID,
+            'score' => 1,
+        ]);
+        $untrackedUser = User::factory()->create(['User' => 'cheater', "unranked_at" => Carbon::now(), "Untracked" => 1]);
+        $untrackedLeaderboardEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardOne->ID,
+            'user_id' => $untrackedUser->ID,
+            'score' => 2,
         ]);
 
         /** @var Leaderboard $leaderboardTwo */
@@ -68,6 +75,13 @@ class GameLeaderboardsTest extends TestCase
         $leaderboardEntryTwo = LeaderboardEntry::factory()->create([
             'leaderboard_id' => $leaderboardTwo->ID,
             'user_id' => $userTwo->ID,
+            'score' => 1,
+        ]);
+        $bannedUser = User::factory()->create(['User' => 'bannedUser', "banned_at" => Carbon::now()]);
+        $bannedLeaderboardEntry = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardTwo->ID,
+            'user_id' => $bannedUser->ID,
+            'score' => 2,
         ]);
 
         /** @var Leaderboard $leaderboardThree */
