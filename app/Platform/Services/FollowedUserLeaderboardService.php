@@ -39,7 +39,7 @@ class FollowedUserLeaderboardService
                     ->whereIn('type', $types)
                     ->where('value', '>', 0)
                     ->orderByDesc('value')
-                    ->limit(150);
+                    ->limit(700);
             }])
             ->get();
 

@@ -16,6 +16,9 @@ new class extends Component implements HasForms {
 
     public function submit(): void
     {
+        // Validate.
+        $this->form->getState();
+
         $this->foundAchievementIds = Achievement::whereIn('GameID', $this->gameIds)
             ->published()
             ->pluck('ID')
@@ -53,7 +56,8 @@ new class extends Component implements HasForms {
                             })
                             ->toArray();
                     })
-                    ->statePath('gameIds'),
+                    ->statePath('gameIds')
+                    ->required(),
         ]);
     }
 }
@@ -61,7 +65,7 @@ new class extends Component implements HasForms {
 ?>
 
 <div>
-    <form wire:submit="submit">
+    <form wire:submit.prevent="submit">
         <div class="flex flex-col gap-y-4">
             {{ $this->form }}
 

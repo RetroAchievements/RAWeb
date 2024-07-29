@@ -2,17 +2,21 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
+use App\Platform\Actions\ResumePlayerSession;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
 
+// TODO migrate to action
 function SubmitLeaderboardEntry(
     User $user,
     int $lbID,
     int $newEntry,
-    ?string $validation
+    ?string $validation,
+    ?GameHash $gameHash = null
 ): array {
     $retVal = ['Success' => true];
 
@@ -42,6 +46,9 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
+    $playerSession = app()->make(ResumePlayerSession::class)
+        ->execute($user, $leaderboard->game, $gameHash);
+
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
         ->where('leaderboard_id', $leaderboard->id)
         ->where('user_id', $user->id)
@@ -57,6 +64,7 @@ function SubmitLeaderboardEntry(
 
             // Update the player's entry.
             $existingLeaderboardEntry->score = $newEntry;
+            $existingLeaderboardEntry->player_session_id = $playerSession->id;
             $existingLeaderboardEntry->save();
 
             $retVal['BestScore'] = $newEntry;
@@ -70,6 +78,7 @@ function SubmitLeaderboardEntry(
             'leaderboard_id' => $leaderboard->id,
             'user_id' => $user->id,
             'score' => $newEntry,
+            'player_session_id' => $playerSession->id,
         ]);
 
         $retVal['BestScore'] = $newEntry;
@@ -121,23 +130,6 @@ function SubmitLeaderboardEntry(
     return $retVal;
 }
 
-function removeLeaderboardEntry(User $user, int $lbID, ?string &$score): bool
-{
-    $leaderboardEntry = LeaderboardEntry::with('leaderboard')
-        ->where('leaderboard_id', $lbID)
-        ->where('user_id', $user->id)
-        ->first();
-
-    if (!$leaderboardEntry) {
-        return false;
-    }
-
-    $score = ValueFormat::format($leaderboardEntry->score, $leaderboardEntry->leaderboard->Format);
-    $wasLeaderboardEntryDeleted = $leaderboardEntry->delete();
-
-    return $wasLeaderboardEntryDeleted;
-}
-
 function GetLeaderboardData(
     Leaderboard $leaderboard,
     ?User $user,
@@ -148,17 +140,12 @@ function GetLeaderboardData(
     $retVal = [
         'LBID' => $leaderboard->ID,
         'GameID' => $leaderboard->game->ID,
-        'GameTitle' => $leaderboard->game->Title,
         'LowerIsBetter' => $leaderboard->LowerIsBetter,
         'LBTitle' => $leaderboard->Title,
         'LBDesc' => $leaderboard->Description,
         'LBFormat' => $leaderboard->Format,
         'LBMem' => $leaderboard->Mem,
         'LBAuthor' => $leaderboard->developer?->User,
-        'ConsoleID' => $leaderboard->game->system->id,
-        'ConsoleName' => $leaderboard->game->system->name,
-        'ForumTopicID' => $leaderboard->game->ForumTopicID,
-        'GameIcon' => $leaderboard->game->ImageIcon,
         'LBCreated' => $leaderboard->Created?->format('Y-m-d H:i:s'),
         'LBUpdated' => $leaderboard->Updated?->format('Y-m-d H:i:s'),
         'TotalEntries' => $leaderboard->entries()->count(),
@@ -179,10 +166,15 @@ function GetLeaderboardData(
         }
     }
 
+    if ($numToFetch === 0) {
+        return $retVal;
+    }
+
     // Now get entries:
     $index = $rank = $offset + 1;
     $rankScore = null;
     $userFound = false;
+
     $entries = $leaderboard->sortedEntries()->with('user')->skip($offset)->take($numToFetch);
     foreach ($entries->get() as $entry) {
         if ($entry->score !== $rankScore) {
@@ -284,7 +276,7 @@ function getLeaderboardsList(
             break;
     }
 
-    $query = "SELECT 
+    $query = "SELECT
         ld.ID, ld.Title, ld.Description, ld.Format, ld.Mem, ld.DisplayOrder,
         leInner.NumResults,
         ld.LowerIsBetter, ua.User AS Author,

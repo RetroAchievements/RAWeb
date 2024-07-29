@@ -13,6 +13,9 @@ return [
             'updated' => 'Updated',
             'pivotAttached' => 'Attached',
             'pivotDetached' => 'Detached',
+            'reorderedAchievements' => 'Reordered achievements',
+            'reorderedLeaderboards' => 'Reordered leaderboards',
+            'resetAllLeaderboardEntries' => 'Reset all leaderboard entries',
         ],
     ],
 ];

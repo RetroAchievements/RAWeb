@@ -17,7 +17,7 @@ use App\Community\Enums\ClaimFilters;
  *    int        ClaimType          claim type: 0 - primary, 1 - collaboration
  *    int        SetType            set type claimed: 0 - new set, 1 - revision
  *    int        Status             claim status: 0 - active, 1 - complete, 2 - dropped
- *    int        Extension          number of thes the claim has been extended
+ *    int        Extension          number of times the claim has been extended
  *    int        Special            flag indicating a special type of claim
  *    string     Created            date the claim was made
  *    string     DoneTime           date the claim is done
