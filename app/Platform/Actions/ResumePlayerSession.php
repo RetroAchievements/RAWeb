@@ -29,7 +29,7 @@ class ResumePlayerSession
         $playerGame->last_played_at = $timestamp;
         $playerGame->save();
 
-        $isMultiDiscGameHash = $gameHash && $gameHash->isMultiDiscGameHash();
+        $isMultiDiscGameHash = $gameHash?->isMultiDiscGameHash();
 
         $timestamp ??= Carbon::now();
 

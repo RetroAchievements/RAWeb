@@ -311,7 +311,7 @@ switch ($requestType) {
             $gameHashMd5 = request()->input('x');
             if ($gameHashMd5) {
                 $gameHash = GameHash::whereMd5($gameHashMd5)->first();
-                if ($gameHash && $gameHash->isMultiDiscGameHash()) {
+                if ($gameHash?->isMultiDiscGameHash()) {
                     $gameHash = null;
                 }
             }

@@ -28,7 +28,7 @@ class UnlockPlayerAchievement
             throw new Exception('Achievement does not belong to any game');
         }
 
-        if ($gameHash && $gameHash->isMultiDiscGameHash()) {
+        if ($gameHash?->isMultiDiscGameHash()) {
             $gameHash = null;
         }
 
