@@ -558,24 +558,4 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
     {
         return $query->where('Permissions', '>', 0);
     }
-
-    /**
-     * @return BelongsToMany<User>
-     */
-    public function friends(): BelongsToMany
-    {
-    return $this->belongsToMany(User::class, 'friends', 'user_id', 'related_user_id')
-        ->wherePivot('Friendship', '1')
-        ->whereExists(function ($query) {
-            $query->select(DB::raw(1))
-                  ->from('friends as f')
-                  ->whereRaw('f.user_id = UserAccounts.id AND f.related_user_id = ' . $this->id)
-                  ->where('Friendship', '1');
-        });
-    }
-
-    public function isFriendsWith(User $user): bool
-    {
-        return $this->friends()->where('related_user_id', $user->id)->exists();
-    }
 }

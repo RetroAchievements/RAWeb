@@ -20,26 +20,15 @@ class UserGameListEntryPolicy
             return false;
         }
 
-        if ($user->hasAnyRole([
+        return $user->hasAnyRole([
             Role::MODERATOR,
             Role::ADMINISTRATOR,
-        ])) {
-            return true;
-        }
-
-        return false;
+        ]);
     }
-
-    // public function view(User $user, UserGameListEntry $userGameListEntry): bool
-    // {
-    //     return $user->ID === $userGameListEntry->user_id
-    //         ? Response::allow()
-    //         : Response::denyWithStatus(401);
-    // }
 
     public function view(User $user, User $targetUser): bool
     {
-        return $user->id === $targetUser->id || $user->isFriendsWith($targetUser);
+        return $user->is($targetUser) || $user->isFriendsWith($targetUser);
     }
 
     public function create(User $user): bool
