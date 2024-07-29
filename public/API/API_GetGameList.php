@@ -47,23 +47,20 @@ $query = DB::table('GameData')
         DB::raw('COALESCE(GameData.achievements_published,0) AS NumAchievements'),
         DB::raw('COUNT(DISTINCT ld.ID) AS NumLBs')
     )
-    ->where('ConsoleID', $consoleID);
-
-if ($withAchievements) {
-    $query
-        ->where('achievements_published', '>', 0);
-}
-
-if ($offset > 0 && $count > 0) {
-    $query
-        ->offset($offset)
-        ->take($count);
-}
-
-$queryResponse = $query
+    ->where('GameData.ConsoleID', $consoleID)
+    ->when($withAchievements, function ($query) {
+        return $query->where('GameData.achievements_published', '>', 0);
+    })
+    ->when($offset > 0, function ($query) use ($offset) {
+        return $query->offset($offset);
+    })
+    ->when($count > 0, function ($query) use ($count) {
+        return $query->take($count);
+    })
     ->groupBy('GameData.ID')
-    ->orderBy('GameData.Title', 'asc')
-    ->get();
+    ->orderBy('GameData.Title', 'asc');
+
+$queryResponse = $query->get();
 
 $response = [];
 
@@ -74,15 +71,12 @@ foreach ($queryResponse as $game) {
         'ConsoleID' => $game->ConsoleID,
         'ConsoleName' => $game->ConsoleName,
         'ImageIcon' => $game->ImageIcon,
-        'NumAchievements' => $game->NumAchievements ?? 0,
+        'NumAchievements' => (int) $game->NumAchievements,
         'NumLeaderboards' => $game->NumLBs ?? 0,
         'Points' => $game->points_total ?? 0,
         'DateModified' => $game->DateModified,
         'ForumTopicID' => $game->ForumTopicID,
     ];
-    $responseEntry['NumAchievements'] = (int) $responseEntry['NumAchievements'];
-    $responseEntry['NumLeaderboards'] = (int) $responseEntry['NumLeaderboards'];
-    $responseEntry['Points'] = (int) $responseEntry['Points'];
 
     if ($withHashes) {
         $responseEntry['Hashes'] = [];
