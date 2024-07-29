@@ -109,6 +109,8 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertParseOperand('f123.4', 'Float', '', '123.4');
         $this->assertParseOperand('f-5.432', 'Float', '', '-5.432');
         $this->assertParseOperand('f8.0', 'Float', '', '8.0');
+
+        $this->assertParseOperand('{recall}', 'Recall', '', '');
     }
 
     public function testParseCondition(): void
@@ -133,10 +135,18 @@ class TriggerDecoderServiceTest extends TestCase
         $this->assertConditionOperator($condition, '*');
         $this->assertConditionTargetOperand($condition, 'Value', '', '0x000002');
         $this->assertConditionHitTarget($condition, '');
+
+        $condition = $this->parseSingleCondition("K:{recall}+2");
+        $this->assertConditionFlag($condition, 'Remember');
+        $this->assertConditionSourceOperand($condition, 'Recall', '', '');
+        $this->assertConditionOperator($condition, '+');
+        $this->assertConditionTargetOperand($condition, 'Value', '', '0x000002');
+        $this->assertConditionHitTarget($condition, '');
     }
 
     public function testParseConditionFlags(): void
     {
+        // these flags have a comparison operator
         $flags = [
             'P' => 'Pause If',
             'R' => 'Reset If',
@@ -157,10 +167,12 @@ class TriggerDecoderServiceTest extends TestCase
             $this->assertConditionOperator($condition, '=');
         }
 
+        // these flags have a modifier operator that can optionally be none
         $modifierFlags = [
             'A' => 'Add Source',
             'B' => 'Sub Source',
             'I' => 'Add Address',
+            'K' => 'Remember',
         ];
 
         foreach ($modifierFlags as $flag => $text) {

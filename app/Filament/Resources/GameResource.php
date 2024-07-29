@@ -8,6 +8,8 @@ use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\GameResource\Pages;
 use App\Filament\Resources\GameResource\RelationManagers\AchievementsRelationManager;
 use App\Filament\Resources\GameResource\RelationManagers\GameHashesRelationManager;
+use App\Filament\Resources\GameResource\RelationManagers\LeaderboardsRelationManager;
+use App\Filament\Resources\GameResource\RelationManagers\MemoryNotesRelationManager;
 use App\Filament\Rules\ExistsInForumTopics;
 use App\Filament\Rules\IsAllowedGuideUrl;
 use App\Models\Game;
@@ -79,7 +81,8 @@ class GameResource extends Resource
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Infolists\Components\TextEntry::make('permalink')
-                            ->url(fn (Game $record): string => $record->getPermalinkAttribute()),
+                            ->url(fn (Game $record): string => $record->getPermalinkAttribute())
+                            ->extraAttributes(['class' => 'underline']),
 
                         Infolists\Components\TextEntry::make('id')
                             ->label('ID'),
@@ -88,16 +91,24 @@ class GameResource extends Resource
 
                         Infolists\Components\TextEntry::make('forumTopic.id')
                             ->label('Forum Topic ID')
-                            ->url(fn (?int $state) => url("viewtopic.php?t={$state}")),
+                            ->url(fn (?int $state) => url("viewtopic.php?t={$state}"))
+                            ->extraAttributes(['class' => 'underline']),
 
                         Infolists\Components\TextEntry::make('system')
                             ->formatStateUsing(fn (System $state) => "[{$state->id}] {$state->name}")
-                            ->url(function (System $state) {
+                            ->url(function (System $state): ?string {
                                 if (request()->user()->can('manage', System::class)) {
                                     return SystemResource::getUrl('view', ['record' => $state->id]);
                                 }
 
                                 return null;
+                            })
+                            ->extraAttributes(function (): array {
+                                if (request()->user()->can('manage', System::class)) {
+                                    return ['class' => 'underline'];
+                                }
+
+                                return [];
                             }),
                     ]),
 
@@ -113,7 +124,17 @@ class GameResource extends Resource
                         Infolists\Components\TextEntry::make('Genre'),
 
                         Infolists\Components\TextEntry::make('GuideURL')
-                            ->label('RAGuide URL'),
+                            ->label('RAGuide URL')
+                            ->placeholder('none')
+                            ->url(fn (Game $record): ?string => $record->GuideURL)
+                            ->extraAttributes(function (Game $game): array {
+                                if ($game->GuideURL) {
+                                    return ['class' => 'underline'];
+                                }
+
+                                return [];
+                            })
+                            ->limit(30),
                     ]),
 
                 Infolists\Components\Section::make('Earliest Release Date')
@@ -126,6 +147,7 @@ class GameResource extends Resource
                     ->schema([
                         Infolists\Components\TextEntry::make('released_at')
                             ->label('Earliest Release Date')
+                            ->placeholder('unknown')
                             ->formatStateUsing(function (Game $game): string {
                                 $releasedAt = $game->released_at;
                                 $releasedAtGranularity = $game->released_at_granularity;
@@ -148,10 +170,15 @@ class GameResource extends Resource
 
                         Infolists\Components\TextEntry::make('released_at_granularity')
                             ->label('Release Date Precision')
+                            ->placeholder('none')
                             ->formatStateUsing(fn (string $state): string => ucfirst($state)),
                     ]),
 
                 Infolists\Components\Section::make('Metrics')
+                    ->icon('heroicon-s-arrow-trending-up')
+                    ->description("
+                        Statistics regarding the game's players and achievements can be found here.
+                    ")
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
                         Infolists\Components\Fieldset::make('Players')
@@ -423,7 +450,9 @@ class GameResource extends Resource
     {
         return [
             AchievementsRelationManager::class,
+            LeaderboardsRelationManager::class,
             GameHashesRelationManager::class,
+            MemoryNotesRelationManager::class,
         ];
     }
 
