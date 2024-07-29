@@ -37,11 +37,9 @@ class UserGameListEntryPolicy
     //         : Response::denyWithStatus(401);
     // }
 
-    public function view(User $user, User $targetUser): Response
+    public function view(User $user, User $targetUser): bool
     {
-        return ($user->id === $targetUser->id) || $user->isFriendsWith($targetUser)
-        ? Response::allow()
-        : Response::denyWithStatus(401);
+        return $user->id === $targetUser->id || $user->isFriendsWith($targetUser);
     }
 
     public function create(User $user): bool

@@ -43,9 +43,8 @@ if (!$user) {
 }
 
 $policy = new UserGameListEntryPolicy();
-$response = $policy->view(Auth::user(), $user);
 
-if ($response->denied()) {
+if (!$policy->view(Auth::user(), $user)) {
     return response()->json([], 401);
 }
 
