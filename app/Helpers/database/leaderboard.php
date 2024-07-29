@@ -166,10 +166,15 @@ function GetLeaderboardData(
         }
     }
 
+    if ($numToFetch === 0) {
+        return $retVal;
+    }
+
     // Now get entries:
     $index = $rank = $offset + 1;
     $rankScore = null;
     $userFound = false;
+
     $entries = $leaderboard->sortedEntries()->with('user')->skip($offset)->take($numToFetch);
     foreach ($entries->get() as $entry) {
         if ($entry->score !== $rankScore) {
