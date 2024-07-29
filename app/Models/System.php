@@ -79,35 +79,11 @@ class System extends BaseModel implements HasMedia
 
     // == constants
 
-    public const PlayStation = 12;
-    public const GameCube = 16;
-    public const Wii = 19;
-    public const WiiU = 20;
-    public const PlayStation2 = 21;
-    public const Xbox = 22;
-    public const AppleII = 38;
-    public const SegaSaturn = 39;
-    public const Dreamcast = 40;
     public const Arduboy = 71;
     public const WASM4 = 72;
     public const Uzebox = 80;
     public const Hubs = 100;
     public const Events = 101;
-
-    public static function getSystemsWithMultiDiscGames(): array
-    {
-        return [
-            System::PlayStation,
-            System::GameCube,
-            System::Wii,
-            System::WiiU,
-            System::PlayStation2,
-            System::Xbox,
-            System::AppleII,
-            System::SegaSaturn,
-            System::Dreamcast,
-        ];
-    }
 
     public static function getHomebrewSystems(): array
     {
@@ -129,12 +105,6 @@ class System extends BaseModel implements HasMedia
     public static function isHomebrewSystem(int $systemId): bool
     {
         return in_array($systemId, self::getHomebrewSystems());
-    }
-
-    // TODO add attribute accessor ($system->has_multi_disc_games)
-    public static function isMultiDiscGamesSystem(int $systemId): bool
-    {
-        return in_array($systemId, self::getSystemsWithMultiDiscGames());
     }
 
     // audit activity log

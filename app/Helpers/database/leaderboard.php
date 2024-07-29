@@ -5,7 +5,6 @@ use App\Enums\Permissions;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\ResumePlayerSession;
 use App\Platform\Enums\ValueFormat;
@@ -50,7 +49,7 @@ function SubmitLeaderboardEntry(
     $playerSession = app()->make(ResumePlayerSession::class)->execute(
         $user,
         $leaderboard->game,
-        System::isMultiDiscGamesSystem($leaderboard->game->ConsoleID) ? null : $gameHash,
+        ($gameHash && !$gameHash->isMultiDiscGameHash()) ? $gameHash : null,
     );
 
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()

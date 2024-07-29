@@ -7,7 +7,6 @@ namespace App\Platform\Actions;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerSession;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Events\PlayerSessionResumed;
 use App\Platform\Events\PlayerSessionStarted;
@@ -30,7 +29,7 @@ class ResumePlayerSession
         $playerGame->last_played_at = $timestamp;
         $playerGame->save();
 
-        $isForMultiDiscGamesSystem = System::isMultiDiscGamesSystem($game->ConsoleID);
+        $isMultiDiscGameHash = $gameHash && $gameHash->isMultiDiscGameHash();
 
         $timestamp ??= Carbon::now();
 
@@ -38,8 +37,8 @@ class ResumePlayerSession
         /** @var ?PlayerSession $playerSession */
         $playerSession = $user->playerSessions()
             ->where('game_id', $game->id)
-            ->where(function ($query) use ($gameHash, $isForMultiDiscGamesSystem) {
-                if ($gameHash && !$isForMultiDiscGamesSystem) {
+            ->where(function ($query) use ($gameHash, $isMultiDiscGameHash) {
+                if ($gameHash && !$isMultiDiscGameHash) {
                     $query->where('game_hash_id', $gameHash->id)
                         ->orWhereNull('game_hash_id');
                 }
@@ -74,7 +73,7 @@ class ResumePlayerSession
             }
             $playerSession->rich_presence_updated_at = $timestamp > $playerSession->rich_presence_updated_at ? $timestamp : $playerSession->rich_presence_updated_at;
 
-            if ($gameHash && !$playerSession->game_hash_id && !$isForMultiDiscGamesSystem) {
+            if ($gameHash && !$playerSession->game_hash_id && !$isMultiDiscGameHash) {
                 $playerSession->game_hash_id = $gameHash->id;
             }
 
@@ -107,7 +106,7 @@ class ResumePlayerSession
         $playerSession = new PlayerSession([
             'user_id' => $user->id,
             'game_id' => $game->id,
-            'game_hash_id' => $gameHash && !$isForMultiDiscGamesSystem ? $gameHash->id : null,
+            'game_hash_id' => $gameHash?->id,
             // TODO add game hash set reference as soon as they are in place
             // 'game_hash_set_id' => $game->gameHashSets()->first()->id, // TODO
             'rich_presence' => $presence,

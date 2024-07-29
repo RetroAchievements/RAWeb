@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -127,6 +128,16 @@ class GameHash extends BaseModel
     }
 
     // == accessors
+
+    /**
+     * Check if the game hash is related to a multi-disc game.
+     * These hashes nearly always have the word "disk" or "disc" in their label.
+     * This is temporary until we fully support game_hash_sets.
+     */
+    public function isMultiDiscGameHash(): bool
+    {
+        return Str::contains(Str::lower($this->name), ['disk', 'disc']);
+    }
 
     // == mutators
 

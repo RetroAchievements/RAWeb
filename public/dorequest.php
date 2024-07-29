@@ -7,7 +7,6 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\PlayerAchievement;
-use App\Models\System;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
@@ -310,8 +309,11 @@ switch ($requestType) {
             }
 
             $gameHashMd5 = request()->input('x');
-            if ($gameHashMd5 && !System::isMultiDiscGamesSystem($game->ConsoleID)) {
+            if ($gameHashMd5) {
                 $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+                if ($gameHash && $gameHash->isMultiDiscGameHash()) {
+                    $gameHash = null;
+                }
             }
 
             PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage, $gameHash);
