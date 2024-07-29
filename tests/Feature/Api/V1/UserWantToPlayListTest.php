@@ -16,7 +16,14 @@ use Tests\TestCase;
 class UserWantToPlayListTest extends TestCase
 {
     use RefreshDatabase;
-    use BootstrapsApiV1;
+    // use BootstrapsApiV1;
+
+    protected function apiUrl(User $user, string $method, array $params = []): string
+    {
+        $params = array_merge(['y' => $user->APIKey], $params);
+
+        return sprintf('API/API_%s.php?%s', $method, http_build_query($params));
+    }
 
     // public function testItValidates(): void
     // {
@@ -94,7 +101,7 @@ class UserWantToPlayListTest extends TestCase
         ]);
         
 
-        $this->actingAs($user)->get($this->apiUrl('GetUserWantToPlayList', ['u' => $user->User]))
+        $this->be($user)->get($this->apiUrl($user, 'GetUserWantToPlayList', ['u' => $user->User]))
             ->assertSuccessful()
             ->assertJson([
                 'Count' => 5,

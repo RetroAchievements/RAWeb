@@ -37,8 +37,6 @@ class UserGameListEntryPolicy
 
     public function view(User $user, User $targetUser)
     {
-        dd("User ID: {$user}, Target User ID: {$targetUser}");
-
         return ($user->id === $targetUser->id) || $user->isFriendsWith($targetUser)
         ? Response::allow()
         : Response::denyWithStatus(401);
