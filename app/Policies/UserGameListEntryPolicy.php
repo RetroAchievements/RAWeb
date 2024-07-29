@@ -8,7 +8,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Auth\Access\Response;
 
 class UserGameListEntryPolicy
 {

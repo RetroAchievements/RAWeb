@@ -100,9 +100,6 @@ trait ActsAsCommunityMember
 
     /**
      * Check if two users are mutually following each other.
-     *
-     * @param User $user
-     * @return bool
      */
     public function isFriendsWith(User $user): bool
     {
