@@ -98,9 +98,6 @@ trait ActsAsCommunityMember
         return $this->getRelationship($user) === UserRelationship::Blocked;
     }
 
-    /**
-     * Check if two users are mutually following each other.
-     */
     public function isFriendsWith(User $user): bool
     {
         return $this->isFollowing($user) && $user->isFollowing($this);
