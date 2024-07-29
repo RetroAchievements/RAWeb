@@ -7,6 +7,7 @@ namespace App\Platform\Actions;
 use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerGame;
+use App\Models\System;
 use App\Platform\Enums\AchievementType;
 use App\Platform\Events\PlayerGameMetricsUpdated;
 use Carbon\Carbon;
@@ -76,8 +77,10 @@ class UpdatePlayerGameMetrics
             ->orderByDesc('updated_at')
             ->first();
 
+        $isForMultiDiscGamesSystem = System::isMultiDiscGamesSystem($game->ConsoleID);
+
         $playerGame->fill([
-            'game_hash_id' => $session?->game_hash_id,
+            'game_hash_id' => $isForMultiDiscGamesSystem ? null : $session?->game_hash_id,
             'achievement_set_version_hash' => $game->achievement_set_version_hash,
             'achievements_total' => $game->achievements_published,
             'achievements_unlocked' => $achievementsUnlockedCount,

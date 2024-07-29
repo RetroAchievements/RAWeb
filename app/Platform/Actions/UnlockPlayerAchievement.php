@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Models\Achievement;
 use App\Models\GameHash;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use Carbon\Carbon;
@@ -26,6 +27,10 @@ class UnlockPlayerAchievement
         $achievement->loadMissing('game');
         if (!$achievement->game) {
             throw new Exception('Achievement does not belong to any game');
+        }
+
+        if (System::isMultiDiscGamesSystem($achievement->game->ConsoleID)) {
+            $gameHash = null;
         }
 
         if ($unlockedBy) {
