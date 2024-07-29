@@ -9,8 +9,8 @@ use App\Community\Enums\UserRelationship;
 use App\Models\Game;
 use App\Models\System;
 use App\Models\User;
-use App\Models\UserRelation;
 use App\Models\UserGameListEntry;
+use App\Models\UserRelation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -143,7 +143,6 @@ class UserWantToPlayListTest extends TestCase
             'GameID' => $gameFive->ID,
             'type' => UserGameListType::Play,
         ]);
-        
 
         $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $this->user->User]))
             ->assertSuccessful()
@@ -269,11 +268,11 @@ class UserWantToPlayListTest extends TestCase
                     ],
                 ]);
 
-                //friendship tests
+                // friendship tests
                 $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followedUser->User]))
                     ->assertUnauthorized()
                     ->assertJson([]);
-                
+
                 $this->get($this->apiUrl('GetUserWantToPlayList', ['u' => $followingUser->User]))
                     ->assertUnauthorized()
                     ->assertJson([]);

@@ -26,13 +26,14 @@ use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Jenssegers\Optimus\Optimus;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
@@ -558,8 +559,11 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
         return $query->where('Permissions', '>', 0);
     }
 
-    public function friends()
-{
+    /**
+     * @return BelongsToMany<User>
+     */
+    public function friends(): BelongsToMany
+    {
     return $this->belongsToMany(User::class, 'friends', 'user_id', 'related_user_id')
         ->wherePivot('Friendship', '1')
         ->whereExists(function ($query) {
@@ -568,13 +572,10 @@ class User extends Authenticatable implements CommunityMember, Developer, HasCom
                   ->whereRaw('f.user_id = UserAccounts.id AND f.related_user_id = ' . $this->id)
                   ->where('Friendship', '1');
         });
-}
-
+    }
 
     public function isFriendsWith(User $user): bool
     {
         return $this->friends()->where('related_user_id', $user->id)->exists();
     }
-
-
 }

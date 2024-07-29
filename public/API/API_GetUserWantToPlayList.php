@@ -22,12 +22,11 @@ use App\Community\Enums\UserGameListType;
 use App\Models\Game;
 use App\Models\User;
 use App\Models\UserGameListEntry;
+use App\Policies\UserGameListEntryPolicy;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use App\Policies\UserGameListEntryPolicy;
-use Illuminate\Support\Facades\Gate;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGameListEntry;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -25,17 +26,18 @@ class UserGameListEntryPolicy
         ])) {
             return true;
         }
+
         return false;
     }
 
     // public function view(User $user, UserGameListEntry $userGameListEntry): bool
     // {
-    //     return $user->ID === $userGameListEntry->user_id 
+    //     return $user->ID === $userGameListEntry->user_id
     //         ? Response::allow()
     //         : Response::denyWithStatus(401);
     // }
 
-    public function view(User $user, User $targetUser)
+    public function view(User $user, User $targetUser): Response
     {
         return ($user->id === $targetUser->id) || $user->isFriendsWith($targetUser)
         ? Response::allow()
