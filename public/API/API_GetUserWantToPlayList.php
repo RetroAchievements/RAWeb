@@ -24,7 +24,10 @@ use App\Models\User;
 use App\Models\UserGameListEntry;
 use App\Support\Rules\CtypeAlnum;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Policies\UserGameListEntryPolicy;
+use Illuminate\Support\Facades\Gate;
 
 $input = Validator::validate(Arr::wrap(request()->query()), [
     'u' => ['required', 'min:2', 'max:20', new CtypeAlnum()],
@@ -38,6 +41,13 @@ $count = $input['c'] ?? 100;
 $user = User::firstWhere('User', request()->query('u'));
 if (!$user) {
     return response()->json([], 404);
+}
+
+$policy = new UserGameListEntryPolicy();
+$response = $policy->view(Auth::user(), $user);
+
+if ($response->denied()) {
+    return response()->json([], 401);
 }
 
 $totalWantToPlayItems = UserGameListEntry::where('user_id', $user->id)

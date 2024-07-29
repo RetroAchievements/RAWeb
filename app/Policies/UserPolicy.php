@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Spatie\Permission\Models\Role as SpatieRole;
+use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
