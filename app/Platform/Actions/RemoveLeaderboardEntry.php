@@ -4,6 +4,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\ArticleType;
 use App\Models\LeaderboardEntry;
+use App\Models\User;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,6 +12,7 @@ class RemoveLeaderboardEntry
 {
     public function execute(LeaderboardEntry $entry, ?string $reason): void
     {
+        /** @var User $currentUser */
         $currentUser = Auth::user();
 
         // Authorize.
