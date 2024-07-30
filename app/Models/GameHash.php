@@ -136,7 +136,23 @@ class GameHash extends BaseModel
      */
     public function isMultiDiscGameHash(): bool
     {
-        return Str::contains(Str::lower($this->name), ['disk', 'disc']);
+        $name = Str::lower($this->name);
+        $patterns = [
+            'disk ', // avoid matching words like "diskworld"
+            'disk)', // match phrases like "bonus disk)"
+            'disc ', // avoid matching words like "discovery" or "discs of tron"
+            'disc)', // match phrases like "bonus disc)"
+            'side a',
+            'side b',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (Str::contains($name, $pattern)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // == mutators
