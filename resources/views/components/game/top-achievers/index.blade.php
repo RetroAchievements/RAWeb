@@ -19,6 +19,8 @@ $service->initialize($game);
             <a class="btn btn-link" href="{{ route('game.masters', ['game' => $game]) }}">more...</a>
         </div>
     @endif
+@elseif ($game->points_total === 0)
+    <x-game.top-achievers.most-points :highestPointEarners="$topAchievers" isEvent="true" />
 @else
     <x-game.top-achievers.most-points :highestPointEarners="$topAchievers" />
 @endif

@@ -15,10 +15,12 @@ class GameTopAchieversService
 {
     private int $gameId;
     private int $masteryPoints;
+    private int $masteryAchievements;
 
     public function initialize(Game $game): void
     {
         $this->gameId = $game->id;
+        $this->masteryAchievements = $game->achievements_published;
         $this->masteryPoints = $game->points_total;
     }
 
@@ -38,7 +40,7 @@ class GameTopAchieversService
      */
     private function masteryQuery(): Builder
     {
-        return $this->baseQuery()->where('points_hardcore', $this->masteryPoints);
+        return $this->baseQuery()->where('achievements_unlocked_hardcore', $this->masteryAchievements);
 
     }
 
@@ -75,8 +77,18 @@ class GameTopAchieversService
      */
     public function highestPointEarners(int $count = 10): Collection
     {
-        return $this->baseQuery()
-            ->orderByDesc('points_hardcore')
+        $query = $this->baseQuery();
+
+        if ($this->masteryPoints === 0) {
+            // event with no points. primary sort by number of achievements unlocked.
+            $query = $query->where('achievements_unlocked_hardcore', '>', 0)
+                ->orderByDesc('achievements_unlocked_hardcore');
+        } else {
+            // standard game. primary sort by number of points earned.
+            $query = $query->orderByDesc('points_hardcore');
+        }
+
+        return $query
             ->orderBy('last_unlock_hardcore_at')
             ->with('user')
             ->limit($count)
