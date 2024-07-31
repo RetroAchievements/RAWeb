@@ -140,6 +140,7 @@ abstract class ResourceAuditLog extends Page implements HasForms
             'pivotAttached' => 'info',
             'pivotDetached' => 'warning',
             'resetAllLeaderboardEntries' => 'danger',
+            'unlinkedHash' => 'danger',
             default => 'info',
         };
     }

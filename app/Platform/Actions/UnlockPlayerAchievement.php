@@ -28,6 +28,10 @@ class UnlockPlayerAchievement
             throw new Exception('Achievement does not belong to any game');
         }
 
+        if ($gameHash?->isMultiDiscGameHash()) {
+            $gameHash = null;
+        }
+
         if ($unlockedBy) {
             // only attach the game if it's a manual unlock
             app()->make(AttachPlayerGame::class)

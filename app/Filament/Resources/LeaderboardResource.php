@@ -61,9 +61,16 @@ class LeaderboardResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Metadata')
+                Infolists\Components\Section::make('Primary Details')
+                    ->icon('heroicon-m-key')
                     ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
                     ->schema([
+                        Infolists\Components\TextEntry::make('canonicalUrl')
+                            ->label('Permalink')
+                            ->formatStateUsing(fn (Leaderboard $record) => url("leaderboardinfo.php?i={$record->id}"))
+                            ->url(fn (Leaderboard $record): string => url("leaderboardinfo.php?i={$record->id}"))
+                            ->extraAttributes(['class' => 'underline']),
+
                         Infolists\Components\TextEntry::make('game.title')
                             ->url(function (Leaderboard $record) {
                                 if (request()->user()->can('manage', Game::class)) {
@@ -83,6 +90,19 @@ class LeaderboardResource extends Resource
                         Infolists\Components\TextEntry::make('Title'),
 
                         Infolists\Components\TextEntry::make('Description'),
+
+                        Infolists\Components\TextEntry::make('LowerIsBetter')
+                            ->label('Lower Is Better')
+                            ->formatStateUsing(fn (string $state): string => $state === '1' ? 'Yes' : 'No'),
+                    ]),
+
+                Infolists\Components\Section::make('Rules')
+                    ->icon('heroicon-c-wrench-screwdriver')
+                    ->columns(['md' => 2, 'xl' => 3, '2xl' => 4])
+                    ->schema([
+                        Infolists\Components\TextEntry::make('Format')
+                            ->label('Format')
+                            ->formatStateUsing(fn (string $state): string => ValueFormat::toString($state)),
 
                         Infolists\Components\TextEntry::make('LowerIsBetter')
                             ->label('Lower Is Better')
