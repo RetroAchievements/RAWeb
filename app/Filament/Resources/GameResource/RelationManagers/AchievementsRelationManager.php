@@ -219,7 +219,7 @@ class AchievementsRelationManager extends RelationManager
             ->recordUrl(
                 fn (Achievement $record): string => route('filament.admin.resources.achievements.view', ['record' => $record])
             )
-            ->paginated([50, 100, 'all'])
+            ->paginated([50, 100, 150])
             ->defaultPaginationPageOption(50)
             ->defaultSort(function (Builder $query): Builder {
                 return $query
