@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Tests\Feature\Api\V1\BootstrapsApiV1;
 use Tests\TestCase;
 
-class API_GetCommentsTest extends TestCase
+class GetCommentsTest extends TestCase
 {
     use RefreshDatabase; use WithFaker;
     use BootstrapsApiV1;
@@ -38,9 +38,7 @@ class API_GetCommentsTest extends TestCase
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
-        $bannedUser = User::factory()->create(['banned_at' => Carbon::now()]);
-
-        debug_to_console($bannedUser);
+        $bannedUser = User::factory()->create(['ID' => 309, 'banned_at' => Carbon::now()->subDay()]);
 
         $achievement = Achievement::factory()->create(['GameID' => $game->ID, 'user_id' => $user1->ID]);
         $comment1 = Comment::factory()->create([
@@ -68,22 +66,22 @@ class API_GetCommentsTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'Count',
-            'Total',
+        $response->assertJson([
+            'Count' => 2,
+            'Total' => 2,
             'Results' => [
-                '*' => [
-                    'User',
-                    'Submitted',
-                    'CommentText',
+                [
+                    'User' => $user1->User,
+                    'Submitted' => $comment1->Submitted->toISOString(),
+                    'CommentText' => $comment1->Payload,
+                ],
+                [
+                    'User' => $user2->User,
+                    'Submitted' => $comment2->Submitted->toISOString(),
+                    'CommentText' => $comment2->Payload,
                 ],
             ],
         ]);
-        $this->assertCount(2, $response->json('Results'));
-        $this->assertEquals($user1->User, $response->json('Results.0.User'));
-        $this->assertEquals($comment1->Payload, $response->json('Results.0.CommentText'));
-        $this->assertEquals($user2->User, $response->json('Results.1.User'));
-        $this->assertEquals($comment2->Payload, $response->json('Results.1.CommentText'));
     }
 
     public function testGetCommentsForGame(): void
@@ -108,7 +106,7 @@ class API_GetCommentsTest extends TestCase
             'Payload' => 'I agree, this is awesome!',
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $game->ID,
             'ArticleType' => 2,
             'user_id' => $bannedUser->ID,
             'Payload' => 'This comment is from a banned user!',
@@ -120,22 +118,22 @@ class API_GetCommentsTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'Count',
-            'Total',
+        $response->assertJson([
+            'Count' => 2,
+            'Total' => 2,
             'Results' => [
-                '*' => [
-                    'User',
-                    'Submitted',
-                    'CommentText',
+                [
+                    'User' => $user1->User,
+                    'Submitted' => $comment1->Submitted->toISOString(),
+                    'CommentText' => $comment1->Payload,
+                ],
+                [
+                    'User' => $user2->User,
+                    'Submitted' => $comment2->Submitted->toISOString(),
+                    'CommentText' => $comment2->Payload,
                 ],
             ],
         ]);
-        $this->assertCount(2, $response->json('Results'));
-        $this->assertEquals($user1->username, $response->json('Results.0.User'));
-        $this->assertEquals($comment1->Payload, $response->json('Results.0.CommentText'));
-        $this->assertEquals($user2->username, $response->json('Results.1.User'));
-        $this->assertEquals($comment2->Payload, $response->json('Results.1.CommentText'));
     }
 
     public function testGetCommentsForUser(): void
@@ -158,7 +156,7 @@ class API_GetCommentsTest extends TestCase
             'Payload' => 'This is my second comment.',
         ]);
         $comment3 = Comment::factory()->create([
-            'ArticleID' => $achievement->ID,
+            'ArticleID' => $user->ID,
             'ArticleType' => 2,
             'user_id' => $bannedUser->ID,
             'Payload' => 'This comment is from a banned user!',
@@ -170,22 +168,22 @@ class API_GetCommentsTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'Count',
-            'Total',
+        $response->assertJson([
+            'Count' => 2,
+            'Total' => 2,
             'Results' => [
-                '*' => [
-                    'User',
-                    'Submitted',
-                    'CommentText',
+                [
+                    'User' => $user2->User,
+                    'Submitted' => $comment1->Submitted->toISOString(),
+                    'CommentText' => $comment1->Payload,
+                ],
+                [
+                    'User' => $user2->User,
+                    'Submitted' => $comment2->Submitted->toISOString(),
+                    'CommentText' => $comment2->Payload,
                 ],
             ],
         ]);
-        $this->assertCount(2, $response->json('Results'));
-        $this->assertEquals($user2->User, $response->json('Results.0.User'));
-        $this->assertEquals($comment1->Payload, $response->json('Results.0.CommentText'));
-        $this->assertEquals($user2->User, $response->json('Results.1.User'));
-        $this->assertEquals($comment2->Payload, $response->json('Results.1.CommentText'));
     }
 
     public function testGetCommentsForUserWithDisabledWall(): void
@@ -206,8 +204,6 @@ class API_GetCommentsTest extends TestCase
             'Payload' => 'This is my second comment.',
         ]);
 
-        debug_to_console($user);
-
         // Act
         $response = $this->get($this->apiUrl('GetComments', ['u' => $user->User, 't' => 3]))
             ->assertSuccessful();
@@ -216,14 +212,4 @@ class API_GetCommentsTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([]);
     }
-}
-
-function debug_to_console($data)
-{
-    $output = $data;
-    if (is_array($output)) {
-        $output = implode(',', $output);
-    }
-
-    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
 }
