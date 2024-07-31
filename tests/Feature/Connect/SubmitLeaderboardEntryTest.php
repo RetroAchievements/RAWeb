@@ -6,6 +6,7 @@ namespace Tests\Feature\Connect;
 
 use App\Community\Enums\UserRelationship;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\Leaderboard;
 use App\Models\LeaderboardEntry;
 use App\Models\User;
@@ -48,12 +49,14 @@ class SubmitLeaderboardEntryTest extends TestCase
 
         /** @var Game $game */
         $game = Game::factory()->create();
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         /** @var Leaderboard $leaderboard */
         $leaderboard = Leaderboard::factory()->create(['GameID' => $game->id]);
 
         // first submission
         $score = $bestScore = 55555;
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -81,7 +84,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now2);
 
         $score = 44444;
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -109,7 +112,7 @@ class SubmitLeaderboardEntryTest extends TestCase
         Carbon::setTestNow($now3);
 
         $score = $bestScore = 66666;
-        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score, 'm' => $gameHash->md5]))
             ->assertStatus(200)
             ->assertExactJson([
                 'Success' => true,
@@ -131,6 +134,16 @@ class SubmitLeaderboardEntryTest extends TestCase
                     ],
                 ],
             ]);
+
+        /** @var User $user */
+        $user = User::first();
+
+        /** @var LeaderboardEntry $entry */
+        $entry = LeaderboardEntry::where('leaderboard_id', $leaderboard->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        $this->assertEquals($gameHash->id, $entry->playerSession->game_hash_id);
     }
 
     public function testSubmitLeaderboardEntryMany(): void
@@ -429,6 +442,54 @@ class SubmitLeaderboardEntryTest extends TestCase
                         $this->buildEntry(3, User::find(8), 3526, $timestamps[8]),
                         $this->buildEntry(3, $this->user, 3526, $now5),
                         $this->buildEntry(5, User::find(6), 4480, $timestamps[6]),
+                        $this->buildEntry(6, User::find(9), 4851, $timestamps[9]),
+                        $this->buildEntry(7, User::find(14), 5696, $timestamps[14]),
+                        $this->buildEntry(8, User::find(16), 5713, $timestamps[16]),
+                        $this->buildEntry(9, User::find(7), 6581, $timestamps[7]),
+                    ],
+                ],
+            ]);
+
+        // delete entry
+        LeaderboardEntry::where('leaderboard_id', $leaderboard->id)->where('user_id', $this->user->ID)->delete();
+
+        // submit worse
+        $now6 = $now5->clone()->addMinutes(5)->startOfSecond();
+        Carbon::setTestNow($now6);
+
+        $score = $bestScore = 4500;
+        $this->post('dorequest.php', $this->apiParams('submitlbentry', ['i' => $leaderboard->ID, 's' => $score]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'Response' => [
+                    'Success' => true,
+                    'Score' => $score,
+                    'ScoreFormatted' => ValueFormat::format($score, $leaderboard->Format),
+                    'BestScore' => $bestScore,
+                    'LBData' => $this->buildLBData($leaderboard),
+                    'RankInfo' => [
+                        'NumEntries' => 17,
+                        'Rank' => 7,
+                    ],
+                    'TopEntries' => [
+                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
+                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
+                        $this->buildEntry(3, User::find(4), 3488, $timestamps[4]),
+                        $this->buildEntry(4, User::find(8), 3526, $timestamps[8]),
+                        $this->buildEntry(5, User::find(5), 3699, $timestamps[5]),
+                        $this->buildEntry(6, User::find(6), 4480, $timestamps[6]),
+                        $this->buildEntry(7, $this->user, 4500, $now6),
+                        $this->buildEntry(8, User::find(11), 4710, $timestamps[11]),
+                        $this->buildEntry(9, User::find(9), 4851, $timestamps[9]),
+                        $this->buildEntry(10, User::find(15), 4861, $timestamps[15]),
+                    ],
+                    'TopEntriesFriends' => [
+                        $this->buildEntry(1, User::find(2), 3456, $timestamps[2]),
+                        $this->buildEntry(2, User::find(3), 3457, $timestamps[3]),
+                        $this->buildEntry(3, User::find(8), 3526, $timestamps[8]),
+                        $this->buildEntry(4, User::find(6), 4480, $timestamps[6]),
+                        $this->buildEntry(5, $this->user, 4500, $now6),
                         $this->buildEntry(6, User::find(9), 4851, $timestamps[9]),
                         $this->buildEntry(7, User::find(14), 5696, $timestamps[14]),
                         $this->buildEntry(8, User::find(16), 5713, $timestamps[16]),

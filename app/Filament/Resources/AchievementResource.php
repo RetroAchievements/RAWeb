@@ -244,8 +244,8 @@ class AchievementResource extends Resource
                 Tables\Columns\TextColumn::make('Flags')
                     ->badge()
                     ->formatStateUsing(fn (int $state): string => match ($state) {
-                        AchievementFlag::OfficialCore => __('published'),
-                        AchievementFlag::Unofficial => __('unpublished'),
+                        AchievementFlag::OfficialCore => 'Published',
+                        AchievementFlag::Unofficial => 'Unpublished',
                         default => '',
                     })
                     ->color(fn (int $state): string => match ($state) {
@@ -255,6 +255,18 @@ class AchievementResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('type')
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        AchievementType::Missable => 'Missable',
+                        AchievementType::Progression => 'Progression',
+                        AchievementType::WinCondition => 'Win Condition',
+                        default => '',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        AchievementType::Missable => 'warning',
+                        AchievementType::Progression => 'info',
+                        AchievementType::WinCondition => 'success',
+                        default => '',
+                    })
                     ->badge(),
 
                 Tables\Columns\TextColumn::make('Points')
@@ -375,7 +387,6 @@ class AchievementResource extends Resource
     {
         return [
             'index' => Pages\Index::route('/'),
-            'create' => Pages\Create::route('/create'),
             'view' => Pages\Details::route('/{record}'),
             'edit' => Pages\Edit::route('/{record}/edit'),
             'audit-log' => Pages\AuditLog::route('/{record}/audit-log'),

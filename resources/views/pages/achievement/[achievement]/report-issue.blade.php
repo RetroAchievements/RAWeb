@@ -54,6 +54,7 @@ render(function (View $view, Achievement $achievement) {
         'unlockedHardcore' => $unlockedHardcore,
         'hasSession' => $hasSession,
         'ticketType' => $ticketType,
+        'extra' => request()->input('extra'),
     ]);
 });
 
@@ -63,6 +64,7 @@ render(function (View $view, Achievement $achievement) {
     'hasSession' => false,
     'ticketType' => 2, // TicketType
     'unlockedHardcore' => false,
+    'extra' => null,
 ])
 
 <x-app-layout
@@ -105,9 +107,13 @@ render(function (View $view, Achievement $achievement) {
             I met the requirements, but the achievement did not trigger.
         </x-ticket.guide-link>
 
+        @php
+            $url = route('achievement.create-ticket', ['achievement' => $achievement]) . '?type=' . TicketType::TriggeredAtWrongTime;
+            if (!empty($extra)) { $url .= '&extra=' . urlencode($extra); }
+        @endphp
         <x-ticket.guide-link
             buttonText="Create Ticket"
-            href="{{ route('achievement.create-ticket', ['achievement' => $achievement]) }}?type={{ TicketType::TriggeredAtWrongTime }}"
+            href="{!! $url !!}"
         >
             I unlocked this achievement without meeting the requirements, and then I reset it.
         </x-ticket.guide-link>
@@ -123,9 +129,13 @@ render(function (View $view, Achievement $achievement) {
             The achievement triggered, but the unlock didn't appear on my profile.
         </x-ticket.guide-link>
     @else
+        @php
+            $url = route('achievement.create-ticket', ['achievement' => $achievement]) . '?type=' . TicketType::TriggeredAtWrongTime;
+            if (!empty($extra)) { $url .= '&extra=' . urlencode($extra); }
+        @endphp
         <x-ticket.guide-link
             buttonText="Create Ticket"
-            href="{{ route('achievement.create-ticket', ['achievement' => $achievement]) }}?type={{ TicketType::TriggeredAtWrongTime }}"
+            href="{!! $url !!}"
         >
             I unlocked this achievement without meeting the requirements.
         </x-ticket.guide-link>
@@ -177,8 +187,8 @@ render(function (View $view, Achievement $achievement) {
         $message = urlencode("I'd like to report an issue with [ach={$achievement->id}]:\n(Describe the issue here)");
     @endphp
     <x-ticket.guide-link
-        buttonText="Message RAdmin"
-        href="{{ route('message.create') }}?to=RAdmin&subject={{ $subject }}&message={{ $message }}&templateKind=achievement-issue"
+        buttonText="Message QATeam"
+        href="{{ route('message.create') }}?to=QATeam&subject={{ $subject }}&message={{ $message }}&templateKind=achievement-issue"
     >
         I have an issue with this achievement that is not described above.
     </x-ticket.guide-link>

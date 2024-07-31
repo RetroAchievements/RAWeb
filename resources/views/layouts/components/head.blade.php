@@ -32,7 +32,7 @@
     {{-- TODO replace with ESM imports, Alpine, tailwind --}}
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/sunny/jquery-ui.css">
 
-    @vite(['resources/js/app.ts', 'resources/css/app.css'], config('vite.build_path'))
+    @vite(['resources/js/tall-stack/app.ts', 'resources/css/app.css'], config('vite.build_path'))
 
     <livewire:styles />
 
