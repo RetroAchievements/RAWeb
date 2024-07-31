@@ -46,8 +46,11 @@ function SubmitLeaderboardEntry(
     $retVal['Score'] = $newEntry;
     $retVal['ScoreFormatted'] = ValueFormat::format($newEntry, $leaderboard->Format);
 
-    $playerSession = app()->make(ResumePlayerSession::class)
-        ->execute($user, $leaderboard->game, $gameHash);
+    $playerSession = app()->make(ResumePlayerSession::class)->execute(
+        $user,
+        $leaderboard->game,
+        ($gameHash && !$gameHash->isMultiDiscGameHash()) ? $gameHash : null,
+    );
 
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
         ->where('leaderboard_id', $leaderboard->id)

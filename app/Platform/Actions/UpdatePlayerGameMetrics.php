@@ -72,12 +72,15 @@ class UpdatePlayerGameMetrics
         $timeTakenHardcore = $startedAt ? $startedAt->diffInSeconds($lastPlayedAt) : $playerGame->time_taken_hardcore;
 
         $session = $user->playerSessions()
+            ->with('gameHash')
             ->where('game_id', $game->id)
             ->orderByDesc('updated_at')
             ->first();
 
+        $isMultiDiscGameHash = $session?->game_hash_id && $session->gameHash->isMultiDiscGameHash();
+
         $playerGame->fill([
-            'game_hash_id' => $session?->game_hash_id,
+            'game_hash_id' => $isMultiDiscGameHash ? null : $session?->game_hash_id,
             'achievement_set_version_hash' => $game->achievement_set_version_hash,
             'achievements_total' => $game->achievements_published,
             'achievements_unlocked' => $achievementsUnlockedCount,

@@ -311,6 +311,9 @@ switch ($requestType) {
             $gameHashMd5 = request()->input('x');
             if ($gameHashMd5) {
                 $gameHash = GameHash::whereMd5($gameHashMd5)->first();
+                if ($gameHash?->isMultiDiscGameHash()) {
+                    $gameHash = null;
+                }
             }
 
             PlayerSessionHeartbeat::dispatch($user, $game, $activityMessage, $gameHash);
