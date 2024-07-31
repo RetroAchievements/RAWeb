@@ -39,48 +39,45 @@ $gameOrAchievementId = (int) request()->query('i');
 $username = (string) request()->query('u');
 $commentType = (int) request()->query('t');
 
+$user = null;
+
 if ($username) {
     $user = User::firstWhere('User', $username);
-
     if (!$user || !$user->UserWallActive) {
-        return [];
+        return response()->json(['Count' => 0, 'Total' => 0, 'Results' => []]);
     }
-
-    $comments = Comment::where('ArticleType', $commentType)
-                                    ->offset($offset)
-                                    ->limit($count)
-                                    ->where('ArticleID', $user->ID)
-                                    ->get();
-} else {
-    $comments = Comment::where('ArticleType', $commentType)
-                                    ->offset($offset)
-                                    ->limit($count)
-                                    ->where('ArticleID', $gameOrAchievementId)
-                                    ->get();
 }
 
-$results = [];
+$articleId = $user ? $user->ID : $gameOrAchievementId;
+
+$comments = Comment::where('ArticleType', $commentType)
+    ->where('ArticleID', $articleId)
+    ->offset($offset)
+    ->limit($count)
+    ->with('user')
+    ->get();
+
+$totalComments = Comment::where('ArticleType', $commentType)
+    ->where('ArticleID', $articleId)
+    ->whereHas('user', function ($query) {
+        $query->whereNull('banned_at');
+    })
+    ->count();
 
 $policy = new CommentPolicy();
 
-if (!empty($comments)) {
-    foreach ($comments as $nextComment) {
-        $user = User::firstWhere('ID', $nextComment['user_id']);
-
-        if ($user && $policy->view(request()->user(), $nextComment)) {
-            $commentData = [
-                'User' => $user->username,
-                'Submitted' => $nextComment->Submitted,
-                'CommentText' => $nextComment->Payload,
-            ];
-
-            array_push($results, $commentData);
-        }
-    }
-}
+$results = $comments->filter(function ($nextComment) use ($policy) {
+    return $policy->view($nextComment->user, $nextComment);
+})->map(function ($nextComment) {
+    return [
+        'User' => $nextComment->user->username,
+        'Submitted' => $nextComment->Submitted,
+        'CommentText' => $nextComment->Payload,
+    ];
+});
 
 return response()->json([
-    'Count' => count($results),
-    'Total' => count($comments),
+    'Count' => $results->count(),
+    'Total' => $totalComments,
     'Results' => $results,
 ]);
