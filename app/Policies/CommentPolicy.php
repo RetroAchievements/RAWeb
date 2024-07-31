@@ -26,7 +26,6 @@ class CommentPolicy
 
     public function view(?User $user, Comment $comment): bool
     {
-
         return $user->isNotBanned();
     }
 
