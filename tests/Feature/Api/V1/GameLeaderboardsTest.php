@@ -65,6 +65,21 @@ class GameLeaderboardsTest extends TestCase
             'score' => 2,
         ]);
 
+        $untrackedUser2 = User::factory()->create(['User' => 'cheater2', "unranked_at" => Carbon::now(), "Untracked" => 1]);
+        $untrackedLeaderboardEntry2 = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardOne->ID,
+            'user_id' => $untrackedUser2->ID,
+            'score' => 4,
+        ]);
+
+        $deletedEntryUser = User::factory()->create(['User' => 'deletedEntryUse']);
+        $untrackedLeaderboardEntry2 = LeaderboardEntry::factory()->create([
+            'leaderboard_id' => $leaderboardOne->ID,
+            'user_id' => $deletedEntryUser->ID,
+            'score' => 3,
+            'deleted_at' => Carbon::now()->subDay(),
+        ]);
+
         /** @var Leaderboard $leaderboardTwo */
         $leaderboardTwo = Leaderboard::factory()->create([
             'GameID' => $game->ID,
