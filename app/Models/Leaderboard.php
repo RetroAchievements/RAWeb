@@ -247,6 +247,7 @@ class Leaderboard extends BaseModel
             ->whereNull('u.unranked_at')
             ->where('u.Untracked', 0)
             ->whereNull('u.banned_at')
+            ->whereNull('le.deleted_at')
             ->orderByRaw('
                 CASE
                     WHEN (SELECT LowerIsBetter FROM LeaderboardDef WHERE ID = le.leaderboard_id) = 1 THEN le.score
