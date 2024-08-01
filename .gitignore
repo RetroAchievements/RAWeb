@@ -20,7 +20,7 @@
 /public/Latest*
 /public/.well-known
 /reports
-/resources/views/pages-legacy/interceptor/
+/resources/views/pages-legacy/interceptor
 /storage/*.key
 /storage/backup
 /storage/media-library
