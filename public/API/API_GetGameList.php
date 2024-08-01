@@ -51,7 +51,7 @@ $query = DB::table('GameData')
     ->when($withAchievements, function ($query) {
         return $query->where('GameData.achievements_published', '>', 0);
     })
-    ->when($offset > 0, function ($query) use ($offset) {
+    ->when($offset > 0 && $count > 0, function ($query) use ($offset) {
         return $query->offset($offset);
     })
     ->when($count > 0, function ($query) use ($count) {
