@@ -185,6 +185,35 @@ class GameListTest extends TestCase
             ],
         ]);
 
+        // games for system 1 with offset
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1]))
+        ->assertSuccessful()
+        ->assertJsonCount(2)
+        ->assertJson([
+            [
+                'ID' => $game1->ID,
+                'Title' => $game1->Title,
+                'ConsoleID' => $system1->ID,
+                'ConsoleName' => $system1->Name,
+                'ImageIcon' => $game1->ImageIcon,
+                'NumAchievements' => 3,
+                'Points' => $game1Points,
+                'NumLeaderboards' => 8,
+                'ForumTopicID' => 123,
+            ],
+            [
+                'ID' => $game2->ID,
+                'Title' => $game2->Title,
+                'ConsoleID' => $system1->ID,
+                'ConsoleName' => $system1->Name,
+                'ImageIcon' => $game2->ImageIcon,
+                'NumAchievements' => 0,
+                'Points' => 0,
+                'NumLeaderboards' => 0,
+                'ForumTopicID' => null,
+            ],
+        ]);
+
         // games for system 1 with offset and count
         $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1, 'c' => 1]))
             ->assertSuccessful()
