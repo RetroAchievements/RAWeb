@@ -19,7 +19,8 @@
  *  string     Publisher                  publisher information for the game
  *  string     Developer                  developer information for the game
  *  string     Genre                      genre information for the game
- *  string     Released                   release date information for the game
+ *  string?    Released                   an ISO8601 timestamp of the game's earliest release date, or null. also see ReleasedAtGranularity.
+ *  string?    ReleasedAtGranularity      how precise the Released value is. possible values are "day", "month", "year", and null.
  */
 
 use App\Models\Game;
@@ -48,5 +49,6 @@ return response()->json([
     'Publisher' => $game->Publisher,
     'Developer' => $game->Developer,
     'Genre' => $game->Genre,
-    'Released' => $game->Released,
+    'Released' => $game->released_at?->toIso8601String(),
+    'ReleasedAtGranularity' => $game->released_at_granularity,
 ]);
