@@ -60,6 +60,14 @@ class PlayerSession extends BasePivot
     }
 
     /**
+     * @return BelongsTo<GameHash, PlayerSession>
+     */
+    public function gameHash(): BelongsTo
+    {
+        return $this->belongsTo(GameHash::class);
+    }
+
+    /**
      * @return BelongsTo<User, PlayerSession>
      */
     public function user(): BelongsTo

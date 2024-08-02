@@ -49,21 +49,17 @@ function submitCodeNote2(string $username, int $gameID, int $address, string $no
     /** @var ?User $user */
     $user = User::firstWhere('User', $username);
 
-    if (!$user) {
-        return false;
-    }
-
-    // TODO refactor to ability
-    $permissions = (int) $user->getAttribute('Permissions');
-
-    // Prevent <= registered users from creating code notes.
-    if ($permissions <= Permissions::Registered) {
+    if (!$user?->can('create', MemoryNote::class)) {
         return false;
     }
 
     $addressHex = '0x' . str_pad(dechex($address), 6, '0', STR_PAD_LEFT);
     $currentNotes = getCodeNotesData($gameID);
     $i = array_search($addressHex, array_column($currentNotes, 'Address'));
+
+    // TODO use Eloquent ORM to determine if the operation is an update, and
+    // if so, use MemoryNotePolicy::update() instead of a legacy Permissions check.
+    $permissions = (int) $user->getAttribute('Permissions');
 
     if (
         $i !== false

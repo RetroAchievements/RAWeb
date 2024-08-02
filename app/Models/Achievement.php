@@ -176,13 +176,14 @@ class Achievement extends BaseModel implements HasComments
     {
         return LogOptions::defaults()
             ->logOnly([
-                'Title',
+                'AssocVideo',
+                'BadgeName',
                 'Description',
+                'Flags',
                 'GameID',
                 'Points',
-                'Flags',
+                'Title',
                 'type',
-                'BadgeName',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

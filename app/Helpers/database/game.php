@@ -589,7 +589,6 @@ function modifyGameData(
     ?string $developer,
     ?string $publisher,
     ?string $genre,
-    ?string $released,
     ?string $guideUrl,
 ): bool {
     $game = Game::with("system")->find($gameId);
@@ -614,11 +613,6 @@ function modifyGameData(
     if ($game->Genre !== $genre) {
         $modifications[] = "genre";
         $game->Genre = $genre;
-    }
-    if ($game->released_at->format('Y-m-d') !== $released) {
-        $modifications[] = "first released";
-        $game->released_at = $released;
-        $game->released_at_granularity = 'day';
     }
     if ($game->GuideURL !== $guideUrl) {
         $modifications[] = "Guide URL";

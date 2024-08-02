@@ -1,0 +1,10 @@
+import { render, screen } from '@/test';
+
+import { {{componentName}} } from './{{componentName}}';
+
+describe('Component: {{componentName}}', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<{{componentName}} foo="bar" />);
+    expect(container).toBeTruthy();
+  });
+});

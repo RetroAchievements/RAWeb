@@ -15,6 +15,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -218,9 +219,13 @@ class AchievementsRelationManager extends RelationManager
             ->recordUrl(
                 fn (Achievement $record): string => route('filament.admin.resources.achievements.view', ['record' => $record])
             )
-            ->paginated([50, 100, 'all'])
+            ->paginated([50, 100, 150])
             ->defaultPaginationPageOption(50)
-            ->defaultSort('DisplayOrder')
+            ->defaultSort(function (Builder $query): Builder {
+                return $query
+                    ->orderBy('DisplayOrder')
+                    ->orderBy('DateCreated', 'asc');
+            })
             ->reorderRecordsTriggerAction(
                 fn (Action $action, bool $isReordering) => $action
                     ->button()
