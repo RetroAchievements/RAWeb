@@ -80,7 +80,7 @@ class GameTest extends TestCase
                 'Publisher' => $gameOne->Publisher,
                 'Developer' => $gameOne->Developer,
                 'Genre' => $gameOne->Genre,
-                'Released' => $releasedAt->toIso8601String(),
+                'Released' => $releasedAt->format('Y-m-d H:i:s'),
                 'ReleasedAtGranularity' => 'week',
             ]);
 
