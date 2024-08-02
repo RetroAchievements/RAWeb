@@ -7,6 +7,7 @@ namespace Tests\Feature\Connect;
 use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerSession;
 use App\Models\System;
 use App\Models\User;
@@ -31,6 +32,8 @@ class StartSessionTest extends TestCase
         $system = System::factory()->create();
         /** @var Game $game */
         $game = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var GameHash $gameHash */
+        $gameHash = GameHash::factory()->create(['game_id' => $game->id]);
         /** @var Achievement $achievement1 */
         $achievement1 = Achievement::factory()->published()->create(['GameID' => $game->ID]);
         /** @var Achievement $achievement2 */
@@ -53,7 +56,7 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // game with unlocks
         $this->withHeaders(['User-Agent' => 'MyApp/1.0'])
-            ->get($this->apiUrl('startsession', ['g' => $game->ID]))
+            ->get($this->apiUrl('startsession', ['g' => $game->ID, 'm' => $gameHash->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'HardcoreUnlocks' => [
@@ -84,6 +87,7 @@ class StartSessionTest extends TestCase
         $this->assertEquals(1, $playerSession->duration);
         $this->assertEquals('Playing ' . $game->title, $playerSession->rich_presence);
         $this->assertEquals('MyApp/1.0', $playerSession->user_agent);
+        $this->assertEquals($gameHash->id, $playerSession->game_hash_id);
 
         /** @var User $user1 */
         $user1 = User::firstWhere('User', $this->user->User);
@@ -109,9 +113,11 @@ class StartSessionTest extends TestCase
         // game with no unlocks
         /** @var Game $game2 */
         $game2 = Game::factory()->create(['ConsoleID' => $system->ID]);
+        /** @var GameHash $gameHash */
+        $gameHash2 = GameHash::factory()->create(['game_id' => $game2->id]);
         Achievement::factory()->published()->count(6)->create(['GameID' => $game->ID]);
 
-        $this->get($this->apiUrl('startsession', ['g' => $game2->ID]))
+        $this->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'ServerNow' => Carbon::now()->timestamp,
@@ -125,6 +131,7 @@ class StartSessionTest extends TestCase
         $this->assertModelExists($playerSession);
         $this->assertEquals(1, $playerSession->duration);
         $this->assertEquals('Playing ' . $game2->title, $playerSession->rich_presence);
+        $this->assertEquals($gameHash2->id, $playerSession->game_hash_id);
 
         $user1 = User::firstWhere('User', $this->user->User);
         $this->assertEquals($game2->ID, $user1->LastGameID);
@@ -133,7 +140,7 @@ class StartSessionTest extends TestCase
         // ----------------------------
         // recently active session is extended
         Carbon::setTestNow($now->addMinutes(8));
-        $this->get($this->apiUrl('startsession', ['g' => $game2->ID]))
+        $this->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'ServerNow' => Carbon::now()->timestamp,
@@ -148,11 +155,12 @@ class StartSessionTest extends TestCase
         $this->assertEquals($playerSession->id, $playerSession2->id);
         $this->assertEquals(8, $playerSession2->duration);
         $this->assertEquals('Playing ' . $game2->title, $playerSession2->rich_presence);
+        $this->assertEquals($gameHash2->id, $playerSession->game_hash_id);
 
         // ----------------------------
         // new session created after long absence
         Carbon::setTestNow($now->addHours(4));
-        $this->get($this->apiUrl('startsession', ['g' => $game2->ID]))
+        $this->get($this->apiUrl('startsession', ['g' => $game2->ID, 'm' => $gameHash2->md5]))
             ->assertExactJson([
                 'Success' => true,
                 'ServerNow' => Carbon::now()->timestamp,

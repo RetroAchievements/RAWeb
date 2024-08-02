@@ -18,7 +18,6 @@
 @import "brand-top.css";
 @import "breadcrumb.css";
 @import "button.css";
-@import "carousel.css";
 @import "chart.css";
 @import "completion-progress.css";
 @import "dropdown.css";
@@ -38,11 +37,9 @@
 @import "tooltip.css";
 
 /* TODO split into components or replace with utility classes */
-@import "award-count.css";
 @import "comment.css";
 @import "devbox.css";
 @import "motto.css";
-@import "news.css";
 @import "ticket-manager.css";
 
 /* utilities come last to allow for overrides */
