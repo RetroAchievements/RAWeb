@@ -44,8 +44,8 @@
  *  string     ImageBoxArt                site-relative path to the game's box art image
  *  string     Publisher                  publisher information for the game
  *  string     Developer                  developer information for the game
- *  string     Genre                      genre information for the game
- *  string     Released                   release date information for the game
+ *  string?    Released                   a timestamp of the game's earliest release date, or null. also see ReleasedAtGranularity.
+ *  string?    ReleasedAtGranularity      how precise the Released value is. possible values are "day", "month", "year", and null.
  *  bool       IsFinal
  *  string     RichPresencePatch          md5 of the script for generating the rich presence for the game
  *  ?string    HighestAwardKind           "mastered", "completed", "beaten-hardcore", "beaten-softcore", or null. requires the 'a' query param to be 1.
@@ -54,6 +54,7 @@
 
  use App\Models\PlayerBadge;
  use App\Models\User;
+ use Illuminate\Support\Carbon;
 
 $gameID = (int) request()->query('g');
 $targetUser = User::firstWhere('User', request()->query('u'));
@@ -84,6 +85,9 @@ $gameData['NumAwardedToUserHardcore'] = 0;
 $gameData['NumDistinctPlayersCasual'] = $gameData['NumDistinctPlayers'];
 $gameData['NumDistinctPlayersHardcore'] = $gameData['NumDistinctPlayers'];
 
+$gameData['Released'] = $gameData['released_at'] ? Carbon::parse($gameData['released_at'])->format('Y-m-d H:i:s') : null;
+$gameData['ReleasedAtGranularity'] = $gameData['released_at_granularity'];
+
 if (!empty($achData)) {
     foreach ($achData as $nextAch) {
         if (isset($nextAch['DateEarned'])) {
@@ -95,8 +99,15 @@ if (!empty($achData)) {
     }
 }
 
-unset($gameData['system']);
+// Don't expose these values.
+// TODO stop using getGameMetadata helper
 unset($gameData['achievement_set_version_hash']);
+unset($gameData['achievements_published']);
+unset($gameData['players_total']);
+unset($gameData['points_total']);
+unset($gameData['released_at_granularity']);
+unset($gameData['released_at']);
+unset($gameData['system']);
 unset($gameData['Updated']);
 
 $gameData['UserCompletion'] = '0.00%';
