@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace App\Platform;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        // Auth::extend('api-token', function ($app, $name, array $config) {
-        //     return new TokenGuard(Auth::createUserProvider($config['provider']), $app->request, 'z', 'api_token');
-        // });
-        //
         // Auth::extend('connect-token', function ($app, $name, array $config) {
         //     return new TokenGuard(Auth::createUserProvider($config['provider']), $app->request, 't', 'connect_token');
         // });
