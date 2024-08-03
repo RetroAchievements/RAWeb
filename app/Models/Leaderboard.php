@@ -217,7 +217,7 @@ class Leaderboard extends BaseModel
     /**
      * @return BelongsTo<LeaderboardEntry, Leaderboard>
      */
-    public function topEntry()
+    public function topEntry(): BelongsTo
     {
         return $this->belongsTo(LeaderboardEntry::class, 'top_entry_id');
     }
@@ -237,29 +237,29 @@ class Leaderboard extends BaseModel
      * @param Builder<Leaderboard> $query
      * @return Builder<Leaderboard>
      */
-    public function scopeWithTopEntry(Builder $query)
+    public function scopeWithTopEntry(Builder $query): Builder
     {
-    return $query->addSelect(['top_entry_id' => function ($subQuery) {
-        $subQuery->select('le.id')
-            ->from('leaderboard_entries as le')
-            ->join('UserAccounts as u', 'u.id', '=', 'le.user_id')
-            ->whereColumn('le.leaderboard_id', 'LeaderboardDef.ID')
-            ->whereNull('u.unranked_at')
-            ->where('u.Untracked', 0)
-            ->whereNull('u.banned_at')
-            ->whereNull('le.deleted_at')
-            ->orderByRaw('
-                CASE
-                    WHEN (SELECT LowerIsBetter FROM LeaderboardDef WHERE ID = le.leaderboard_id) = 1 THEN le.score
-                    ELSE -le.score
-                END ASC
-            ')
-            ->orderBy('le.updated_at', 'ASC')
-            ->limit(1);
-    }])->with(['topEntry' => function ($query) {
-        $query->with('user');
-    }]);
-}
+        return $query->addSelect(['top_entry_id' => function ($subQuery) {
+            $subQuery->select('le.id')
+                ->from('leaderboard_entries as le')
+                ->join('UserAccounts as u', 'u.id', '=', 'le.user_id')
+                ->whereColumn('le.leaderboard_id', 'LeaderboardDef.ID')
+                ->whereNull('u.unranked_at')
+                ->where('u.Untracked', 0)
+                ->whereNull('u.banned_at')
+                ->whereNull('le.deleted_at')
+                ->orderByRaw('
+                    CASE
+                        WHEN (SELECT LowerIsBetter FROM LeaderboardDef WHERE ID = le.leaderboard_id) = 1 THEN le.score
+                        ELSE -le.score
+                    END ASC
+                ')
+                ->orderBy('le.updated_at', 'ASC')
+                ->limit(1);
+        }])->with(['topEntry' => function ($query) {
+            $query->with('user');
+        }]);
+    }
 
     // == helpers
 
