@@ -18,7 +18,6 @@ if ($gameId <= 0) {
     return response()->json(['success' => false]);
 }
 
-$username = request()->query('z');
 $type = (int) request()->query('t');
 
 $gameTopAchievers = getGameTopAchievers($gameId);
