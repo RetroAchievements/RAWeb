@@ -16,7 +16,7 @@ use App\Platform\Enums\UnlockMode;
 
 $gameID = (int) request()->query('i');
 $hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);
-$requestedBy = request()->query('z');
+$requestedBy = request()->query('z'); // the z (username) param has been deprecated, but to ensure we don't introduce a breaking change we will keep this here
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
 return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $flag));
