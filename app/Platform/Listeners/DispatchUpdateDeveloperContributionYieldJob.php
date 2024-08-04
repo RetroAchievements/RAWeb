@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Platform\Events\AchievementPointsChanged;
 use App\Platform\Events\AchievementPublished;
 use App\Platform\Events\AchievementUnpublished;
+use App\Platform\Events\PlayerAchievementLocked;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,6 +29,11 @@ class DispatchUpdateDeveloperContributionYieldJob implements ShouldQueue
                 $user = $achievement->developer;
                 break;
             case AchievementPointsChanged::class:
+                $achievement = $event->achievement;
+                $achievement->loadMissing('developer');
+                $user = $achievement->developer;
+                break;
+            case PlayerAchievementLocked::class:
                 $achievement = $event->achievement;
                 $achievement->loadMissing('developer');
                 $user = $achievement->developer;
