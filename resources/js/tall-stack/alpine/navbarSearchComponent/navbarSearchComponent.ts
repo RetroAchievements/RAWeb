@@ -1,4 +1,4 @@
-import { autoUpdate, computePosition, ReferenceElement } from '@floating-ui/dom';
+import { autoUpdate, computePosition, type ReferenceElement } from '@floating-ui/dom';
 
 import { fetcher } from '@/utils';
 

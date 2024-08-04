@@ -98,6 +98,11 @@ trait ActsAsCommunityMember
         return $this->getRelationship($user) === UserRelationship::Blocked;
     }
 
+    public function isFriendsWith(User $user): bool
+    {
+        return $this->isFollowing($user) && $user->isFollowing($this);
+    }
+
     public function isForumVerified(): bool
     {
         return !empty($this->forum_verified_at);

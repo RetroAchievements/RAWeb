@@ -44,6 +44,7 @@ class UpdatePlayerGameMetrics
         $playerAchievementsHardcore = $playerAchievements->whereNotNull('unlocked_hardcore_at');
         $achievementsUnlockedCount = $playerAchievements->count();
         $achievementsUnlockedHardcoreCount = $playerAchievementsHardcore->count();
+        $achievementsUnlockedSoftcoreCount = $achievementsUnlockedCount - $achievementsUnlockedHardcoreCount;
 
         $firstUnlockAt = $playerAchievements->min('unlocked_at');
         $lastUnlockAt = $playerAchievements->max('unlocked_at');
@@ -85,6 +86,7 @@ class UpdatePlayerGameMetrics
             'achievements_total' => $game->achievements_published,
             'achievements_unlocked' => $achievementsUnlockedCount,
             'achievements_unlocked_hardcore' => $achievementsUnlockedHardcoreCount,
+            'achievements_unlocked_softcore' => $achievementsUnlockedSoftcoreCount,
             'last_played_at' => $lastPlayedAt,
             // 'playtime_total' => $playtimeTotal,
             'time_taken' => $timeTaken,

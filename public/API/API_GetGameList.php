@@ -5,6 +5,8 @@
  *    i : console id
  *    f : 1=only return games where NumAchievements > 0 (default: 0)
  *    h : 1=also return hashes (default: 0)
+ *    o : offset (optional)
+ *    c : count (optional)
  *
  *  array
  *   object     [value]
@@ -31,26 +33,53 @@ if ($consoleID <= 0) {
 
 $withAchievements = (bool) request()->query('f');
 $withHashes = (bool) request()->query('h');
+$offset = (int) request()->query('o');
+$count = (int) request()->query('c');
 
-getGamesListByDev(null, $consoleID, $dataOut, 1, false, $withAchievements ? 0 : 2);
+$query = DB::table('GameData')
+    ->leftjoin('Console AS c', 'c.ID', '=', 'GameData.ConsoleID')
+    ->leftjoin('Achievements AS ach', 'ach.GameID', '=', 'GameData.ID')
+    ->leftjoin('LeaderboardDef AS ld', 'ld.GameID', '=', 'GameData.ID')
+    ->select(
+        'GameData.*',
+        'c.Name as ConsoleName',
+        DB::raw('MAX(ach.DateModified) as DateModified'),
+        DB::raw('COALESCE(GameData.achievements_published,0) AS NumAchievements'),
+        DB::raw('COUNT(DISTINCT ld.ID) AS NumLBs')
+    )
+    ->where('GameData.ConsoleID', $consoleID)
+    ->when($withAchievements, function ($query) {
+        return $query->where('GameData.achievements_published', '>', 0);
+    })
+    ->when($offset > 0, function ($query) use ($offset) {
+        return $query->offset($offset);
+    })
+    ->when($count > 0, function ($query) use ($count) {
+        return $query->limit($count);
+    })
+    ->when($count == 0, function ($query) {
+        return $query->limit(9999999);
+    })
+    ->groupBy('GameData.ID')
+    ->orderBy('GameData.Title', 'asc');
+
+$queryResponse = $query->get();
 
 $response = [];
-foreach ($dataOut as &$entry) {
+
+foreach ($queryResponse as $game) {
     $responseEntry = [
-        'Title' => $entry['Title'],
-        'ID' => $entry['ID'],
-        'ConsoleID' => $entry['ConsoleID'],
-        'ConsoleName' => $entry['ConsoleName'],
-        'ImageIcon' => $entry['GameIcon'],
-        'NumAchievements' => $entry['NumAchievements'] ?? 0,
-        'NumLeaderboards' => $entry['NumLBs'] ?? 0,
-        'Points' => $entry['MaxPointsAvailable'] ?? 0,
-        'DateModified' => $entry['DateModified'],
-        'ForumTopicID' => $entry['ForumTopicID'],
+        'Title' => $game->Title,
+        'ID' => $game->ID,
+        'ConsoleID' => $game->ConsoleID,
+        'ConsoleName' => $game->ConsoleName,
+        'ImageIcon' => $game->ImageIcon,
+        'NumAchievements' => (int) $game->NumAchievements,
+        'NumLeaderboards' => $game->NumLBs ?? 0,
+        'Points' => $game->points_total ?? 0,
+        'DateModified' => $game->DateModified,
+        'ForumTopicID' => $game->ForumTopicID,
     ];
-    $responseEntry['NumAchievements'] = (int) $responseEntry['NumAchievements'];
-    $responseEntry['NumLeaderboards'] = (int) $responseEntry['NumLeaderboards'];
-    $responseEntry['Points'] = (int) $responseEntry['Points'];
 
     if ($withHashes) {
         $responseEntry['Hashes'] = [];
