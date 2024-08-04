@@ -87,9 +87,12 @@ rules:
   # set up prettier as an eslint plugin
   prettier/prettier:
     - error
-    - tabWidth: 2
-      printWidth: 100
-      singleQuote: true
+    - {
+      "tabWidth": 2,
+      "printWidth": 100,
+      "singleQuote": true,
+      "plugins": ["prettier-plugin-tailwindcss"]
+    }
 
   # some react recommended rules are fine to avoid in typescript projects
   react/display-name: off
@@ -105,6 +108,9 @@ rules:
   unicorn/prefer-module: off
   unicorn/prefer-node-protocol: off
   unicorn/prefer-switch: off
+
+  # similar to pint, force a newline before return statements
+  newline-before-return: error
 
 # don't enforce explicit-any rule in test files
 overrides:

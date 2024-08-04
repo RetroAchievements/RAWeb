@@ -4,5 +4,6 @@
 export function getStringByteCount(value: string) {
   // Replace newline characters with a 2-character placeholder
   const valueWithReplacedNewlines = value.replace(/\n/g, '--');
+
   return encodeURI(valueWithReplacedNewlines).split(/%..|./).length - 1;
 }
