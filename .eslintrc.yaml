@@ -91,7 +91,6 @@ rules:
       "tabWidth": 2,
       "printWidth": 100,
       "singleQuote": true,
-      "plugins": ["prettier-plugin-tailwindcss"]
     }
 
   # some react recommended rules are fine to avoid in typescript projects
