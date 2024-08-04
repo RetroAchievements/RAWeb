@@ -44,6 +44,7 @@
  *  string     ImageBoxArt                site-relative path to the game's box art image
  *  string     Publisher                  publisher information for the game
  *  string     Developer                  developer information for the game
+ *  string     Genre                      genre information for the game
  *  string?    Released                   a timestamp of the game's earliest release date, or null. also see ReleasedAtGranularity.
  *  string?    ReleasedAtGranularity      how precise the Released value is. possible values are "day", "month", "year", and null.
  *  bool       IsFinal
