@@ -7,6 +7,7 @@ namespace Tests\Feature\Api\V1;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\GameHash;
+use App\Models\Leaderboard;
 use App\Models\System;
 use App\Platform\Actions\UpdateGameMetrics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -42,6 +43,7 @@ class GameListTest extends TestCase
         $game1Points = $game1Achievements->get(0)->Points +
                        $game1Achievements->get(1)->Points +
                        $game1Achievements->get(2)->Points;
+        $game1Leaderboards = Leaderboard::factory()->count(8)->create(['GameID' => $game1->ID]);
         /** @var Game $game2 */
         $game2 = Game::factory()->create([
             'Title' => 'Beta',
@@ -97,7 +99,7 @@ class GameListTest extends TestCase
                     'ImageIcon' => $game1->ImageIcon,
                     'NumAchievements' => 3,
                     'Points' => $game1Points,
-                    'NumLeaderboards' => 0,
+                    'NumLeaderboards' => 8,
                     'ForumTopicID' => 123,
                 ],
                 [
@@ -126,7 +128,7 @@ class GameListTest extends TestCase
                     'ImageIcon' => $game1->ImageIcon,
                     'NumAchievements' => 3,
                     'Points' => $game1Points,
-                    'NumLeaderboards' => 0,
+                    'NumLeaderboards' => 8,
                     'ForumTopicID' => 123,
                 ],
             ]);
@@ -162,6 +164,60 @@ class GameListTest extends TestCase
                     'NumLeaderboards' => 0,
                     'ForumTopicID' => null,
                     'Hashes' => [],
+                ],
+            ]);
+
+        // games for system 1 with count
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'c' => 1]))
+        ->assertSuccessful()
+        ->assertJsonCount(1)
+        ->assertJson([
+            [
+                'ID' => $game1->ID,
+                'Title' => $game1->Title,
+                'ConsoleID' => $system1->ID,
+                'ConsoleName' => $system1->Name,
+                'ImageIcon' => $game1->ImageIcon,
+                'NumAchievements' => 3,
+                'Points' => $game1Points,
+                'NumLeaderboards' => 8,
+                'ForumTopicID' => 123,
+            ],
+        ]);
+
+        // games for system 1 with offset
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1]))
+        ->assertSuccessful()
+        ->assertJsonCount(1)
+        ->assertJson([
+            [
+                'ID' => $game2->ID,
+                'Title' => $game2->Title,
+                'ConsoleID' => $system1->ID,
+                'ConsoleName' => $system1->Name,
+                'ImageIcon' => $game2->ImageIcon,
+                'NumAchievements' => 0,
+                'Points' => 0,
+                'NumLeaderboards' => 0,
+                'ForumTopicID' => null,
+            ],
+        ]);
+
+        // games for system 1 with offset and count
+        $this->get($this->apiUrl('GetGameList', ['i' => $system1->ID, 'o' => 1, 'c' => 1]))
+            ->assertSuccessful()
+            ->assertJsonCount(1)
+            ->assertJson([
+                [
+                    'ID' => $game2->ID,
+                    'Title' => $game2->Title,
+                    'ConsoleID' => $system1->ID,
+                    'ConsoleName' => $system1->Name,
+                    'ImageIcon' => $game2->ImageIcon,
+                    'NumAchievements' => 0,
+                    'Points' => 0,
+                    'NumLeaderboards' => 0,
+                    'ForumTopicID' => null,
                 ],
             ]);
 
