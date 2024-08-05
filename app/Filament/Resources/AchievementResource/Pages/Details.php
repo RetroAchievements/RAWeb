@@ -20,7 +20,7 @@ class Details extends ViewRecord
         $game = $achievement->game;
 
         return [
-            route('filament.admin.resources.games.index') => 'Games',
+            route('filament.admin.resources.achievements.index') => 'Achievements',
             route('filament.admin.resources.games.view', $game) => $game->title,
             route('filament.admin.resources.achievements.view', $achievement) => $achievement->title,
             'View',
