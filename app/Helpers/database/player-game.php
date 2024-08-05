@@ -6,8 +6,7 @@ use App\Models\PlayerGame;
 use App\Models\PlayerSession;
 use App\Models\User;
 use App\Platform\Enums\AchievementFlag;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
+use App\Platform\Services\GameTopAchieversService;
 use Illuminate\Support\Facades\DB;
 
 function getGameRankAndScore(int $gameID, User $user): array
@@ -374,74 +373,5 @@ function getGameRecentPlayers(int $gameID, int $maximum_results = 10): array
  */
 function expireGameTopAchievers(int $gameID): void
 {
-    $cacheKey = "game:$gameID:topachievers";
-    Cache::forget($cacheKey);
-}
-
-/**
- * Gets a game's high scorers or latest masters.
- *
- * @deprecated use denormalized data from player_games
- */
-function getGameTopAchievers(int $gameID): array
-{
-    $cacheKey = "game:$gameID:topachievers";
-    $retval = Cache::get($cacheKey);
-    if ($retval !== null) {
-        return $retval;
-    }
-
-    $high_scores = [];
-    $masters = [];
-    $numAchievementsInSet = 0;
-
-    $query = "SELECT COUNT(*) AS NumAchievementsInSet
-        FROM Achievements
-        WHERE GameID = $gameID AND Flags = " . AchievementFlag::OfficialCore;
-    $data = legacyDbFetch($query);
-    if ($data !== null) {
-        $numAchievementsInSet = $data['NumAchievementsInSet'];
-    }
-
-    $query = "SELECT ua.User, pg.achievements_unlocked_hardcore AS NumAchievements,
-                        pg.points_hardcore AS TotalScore, pg.last_unlock_hardcore_at AS LastAward
-                FROM player_games pg
-                INNER JOIN UserAccounts ua ON ua.ID = pg.user_id
-                WHERE ua.Untracked = 0
-                AND pg.game_id = $gameID
-                AND pg.achievements_unlocked_hardcore > 0
-                ORDER BY TotalScore DESC, NumAchievements DESC, LastAward";
-
-    $mastersCounter = 0;
-    foreach (legacyDbFetchAll($query) as $data) {
-        settype($data['NumAchievements'], 'integer');
-        settype($data['TotalScore'], 'integer');
-
-        if (count($high_scores) < 10) {
-            $high_scores[] = $data;
-        }
-
-        if ($data['NumAchievements'] == $numAchievementsInSet) {
-            if (count($masters) == 10) {
-                array_shift($masters);
-            }
-            $data['Rank'] = ++$mastersCounter;
-            $masters[] = $data;
-        } elseif (count($high_scores) == 10) {
-            break;
-        }
-    }
-
-    $retval = [];
-    $retval['Masters'] = array_reverse($masters);
-    $retval['HighScores'] = $high_scores;
-
-    if (count($masters) == 10) {
-        // only cache the result if the masters list is full.
-        // that way we only have to expire it when there's a new mastery
-        // or an achievement gets promoted or demoted
-        Cache::put($cacheKey, $retval, Carbon::now()->addDays(30));
-    }
-
-    return $retval;
+    GameTopAchieversService::expireTopAchieversComponentData($gameID);
 }
