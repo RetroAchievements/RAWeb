@@ -5,6 +5,9 @@
  */
 
 return [
+    'output' => [
+        'path' => 'resources/js',
+    ],
     'except' => [
         'demo.*',
         'debugbar.*',

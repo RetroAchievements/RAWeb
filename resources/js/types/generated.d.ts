@@ -3,7 +3,7 @@ declare namespace App.Data {
     id: number;
     body: string;
     createdAt: string;
-    updatedAt: string;
+    updatedAt: string | null;
     user: App.Data.User;
     authorized: boolean;
     forumTopicId: number | null;
@@ -70,8 +70,5 @@ declare namespace App.Models {
     | 'developer-veteran';
 }
 declare namespace App.Platform.Enums {
-  export enum AchievementFlag {
-    OfficialCore = 3,
-    Unofficial = 5,
-  }
+  export type AchievementFlag = 3 | 5;
 }

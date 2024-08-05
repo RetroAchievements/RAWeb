@@ -149,7 +149,10 @@
         "stan-clear": "@php vendor/bin/phpstan clear-result-cache",
         "start": "@php artisan serve --port=64000",
         "test": "@php artisan test",
-        "types": "@php artisan typescript:transform"
+        "types": [
+            "@php artisan typescript:generate",
+            "@php artisan ziggy:generate --types"
+        ]
     },
     "scripts-descriptions": {
         "analyse": "Run static analysis",
