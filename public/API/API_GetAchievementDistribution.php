@@ -13,10 +13,11 @@
 
 use App\Platform\Enums\AchievementFlag;
 use App\Platform\Enums\UnlockMode;
+use Illuminate\Support\Facades\Auth;
 
 $gameID = (int) request()->query('i');
 $hardcore = (int) request()->query('h', (string) UnlockMode::Softcore);
-$requestedBy = request()->query('z');
+$requestedBy = Auth::user()->User;
 $flag = (int) request()->query('f', (string) AchievementFlag::OfficialCore);
 
 return response()->json(getAchievementDistribution($gameID, $hardcore, $requestedBy, $flag));
