@@ -185,7 +185,7 @@ export function buildSectionsOrderList(): string[] {
   const sectionsOrderList: string[] = [];
 
   // Store the selected order and its corresponding award kind in the selectedValues object.
-  sectionOrderSelectEls.forEach((selectEl) => {
+  for (const selectEl of sectionOrderSelectEls) {
     const awardKind = selectEl.getAttribute('data-award-kind');
     const currentValue = selectEl.value;
 
@@ -194,7 +194,7 @@ export function buildSectionsOrderList(): string[] {
     } else if (awardKind) {
       selectedValues[currentValue] = awardKind;
     }
-  });
+  }
 
   // If the user picked multiple of the same number, throw an error.
   if (hasDuplicates) {
@@ -202,11 +202,9 @@ export function buildSectionsOrderList(): string[] {
   }
 
   // Build the ordered list of award sections.
-  Object.keys(selectedValues)
-    .sort()
-    .forEach((key) => {
-      sectionsOrderList.push(selectedValues[key]);
-    });
+  for (const key of Object.keys(selectedValues).sort()) {
+    sectionsOrderList.push(selectedValues[key]);
+  }
 
   return sectionsOrderList;
 }
@@ -229,10 +227,10 @@ export function computeDisplayOrderValues(mappedTableRows: MappedTableRow[]) {
 
   // Sort the rows by the user-defined sections ordering.
   const sortedBySectionsOrder: MappedTableRow[] = [];
-  sectionsOrder.forEach((targetSection) => {
+  for (const targetSection of sectionsOrder) {
     const sectionRows = mappedTableRows.filter((row) => row.kind === targetSection);
     sortedBySectionsOrder.push(...sectionRows);
-  });
+  }
 
   // Compute display order values for each row based on their position and section.
   const withDisplayOrderValues = sortedBySectionsOrder.map((row, rowIndex) => {
@@ -304,18 +302,18 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
         buttonsContainerEl.style.opacity = '0';
 
         // The buttons are invisible, but make sure they are also disabled.
-        buttonsContainerEl.querySelectorAll('button').forEach((buttonEl) => {
+        for (const buttonEl of buttonsContainerEl.querySelectorAll('button')) {
           buttonEl.disabled = true;
-        });
+        }
       } else {
         targetRowEl.classList.add('cursor-grab');
         targetRowEl.setAttribute('draggable', 'true');
         buttonsContainerEl.style.opacity = '100';
 
         // Re-enable the buttons so they can be used again.
-        buttonsContainerEl.querySelectorAll('button').forEach((buttonEl) => {
+        for (const buttonEl of buttonsContainerEl.querySelectorAll('button')) {
           buttonEl.removeAttribute('disabled');
-        });
+        }
       }
     }
 
@@ -324,13 +322,13 @@ export function handleRowHiddenCheckedChange(event: MouseEvent, rowIndex: number
     // Update the opacity of the row's cells based on
     // the hidden checkbox status.
     const allTdEls = targetRowEl.querySelectorAll('td');
-    allTdEls.forEach((tdEl) => {
+    for (const tdEl of allTdEls) {
       if (isHiddenChecked && !tdEl.classList.contains('!opacity-100')) {
         tdEl.classList.add('opacity-40');
       } else {
         tdEl.classList.remove('opacity-40');
       }
-    });
+    }
   }
 }
 
@@ -344,31 +342,31 @@ export function handleDisplayOrderChange() {
 export function moveHiddenRowsToTop() {
   const tableEls = document.querySelectorAll('table');
 
-  tableEls.forEach((tableEl) => {
+  for (const tableEl of tableEls) {
     const rowEls = tableEl.querySelectorAll('tr');
     const hiddenRows: HTMLTableRowElement[] = [];
     const visibleRows: HTMLTableRowElement[] = [];
 
-    rowEls.forEach((rowEl) => {
+    for (const rowEl of rowEls) {
       const checkboxEl = rowEl.querySelector<HTMLInputElement>('input[name$="-is-hidden"]');
       if (checkboxEl && checkboxEl.checked) {
         hiddenRows.push(rowEl);
       } else {
         visibleRows.push(rowEl);
       }
-    });
+    }
 
     // Move the hidden rows to the top of the table,
     // just before the first non-hidden row.
     if (visibleRows.length > 0) {
       const firstVisibleRowParent = visibleRows[1]?.parentNode;
       if (firstVisibleRowParent) {
-        hiddenRows.forEach((hiddenRow) => {
+        for (const hiddenRow of hiddenRows) {
           firstVisibleRowParent.insertBefore(hiddenRow, visibleRows[1]);
-        });
+        }
       }
     }
-  });
+  }
 }
 
 /**
