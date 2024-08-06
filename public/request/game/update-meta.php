@@ -15,7 +15,6 @@ $input = Validator::validate(Arr::wrap(request()->post()), [
     'developer' => 'nullable|string|max:50',
     'publisher' => 'nullable|string|max:50',
     'genre' => 'nullable|string|max:50',
-    'release' => 'nullable|string|max:50',
     'guide_url' => [
         'nullable',
         'active_url',
@@ -37,7 +36,7 @@ if (
     return back()->withErrors(__('legacy.error.permissions'));
 }
 
-if (modifyGameData($user, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['release'], $input['guide_url'])) {
+if (modifyGameData($user, $gameId, $input['developer'], $input['publisher'], $input['genre'], $input['guide_url'])) {
     return back()->with('success', __('legacy.success.update'));
 }
 
