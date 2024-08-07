@@ -257,28 +257,17 @@ function newAppToken(): string
  * TODO replace with passport personal token
  */
 
-function generateAPIKey(string $user): string
+function generateAPIKey(string $username): string
 {
-    sanitize_sql_inputs($user);
-
-    if (!getAccountDetails($user, $userData)) {
-        return "";
-    }
-
-    if ($userData['Permissions'] < Permissions::Registered) {
-        return "";
+    $user = User::firstWhere('User', $username);
+    if (!$user || !$user->isEmailVerified()) {
+        return '';
     }
 
     $newKey = Str::random(32);
 
-    $query = "UPDATE UserAccounts AS ua
-              SET ua.APIKey='$newKey', Updated=NOW()
-              WHERE ua.User = '$user'";
-
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        return "";
-    }
+    $user->APIKey = $newKey;
+    $user->save();
 
     return $newKey;
 }

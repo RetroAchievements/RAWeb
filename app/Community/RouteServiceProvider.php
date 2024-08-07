@@ -7,6 +7,8 @@ namespace App\Community;
 use App\Community\Controllers\ForumTopicCommentController;
 use App\Community\Controllers\MessageController;
 use App\Community\Controllers\MessageThreadController;
+use App\Community\Controllers\UserCommentController;
+use App\Community\Controllers\UserSettingsController;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -152,9 +154,11 @@ class RouteServiceProvider extends ServiceProvider
                  * protected routes, need an authenticated user with a verified email address
                  * permissions are checked in controllers individually by authorizing abilities in the respective controller actions
                  */
-                // Route::group([
-                //     'middleware' => ['auth', 'verified'],
-                // ], function () {
+                Route::group([
+                    'middleware' => ['auth', 'verified'],
+                ], function () {
+                    Route::delete('user/{user}/comments', [UserCommentController::class, 'destroyAll'])->name('user.comment.destroyAll');
+
                 //     /*
                 //      * commentables
                 //      * nested auth comments routes -> no conflicts with id/slug in route
@@ -220,8 +224,6 @@ class RouteServiceProvider extends ServiceProvider
                 //             ])
                 //             ->shallow();
                 //     });
-                //     // additional "delete all" route
-                //     Route::delete('user/{user}/comments', [UserCommentController::class, 'destroyAll'])->name('user.comment.destroyAll');
 
                 //     /*
                 //      * "My" friends
@@ -232,6 +234,8 @@ class RouteServiceProvider extends ServiceProvider
 
                 //     // Route::get('history', [PlayerHistoryController::class, 'index'])->name('history.index');
 
+                });
+
                 /*
                  * messages
                  */
@@ -240,6 +244,22 @@ class RouteServiceProvider extends ServiceProvider
                 ], function () {
                     Route::resource('message', MessageController::class)->only(['store']);
                     Route::resource('message-thread', MessageThreadController::class)->parameter('message-thread', 'messageThread')->only(['destroy']);
+                });
+
+                /*
+                 * user settings
+                 */
+                Route::group([
+                    'middleware' => ['auth'],
+                    'prefix' => 'settings',
+                ], function () {
+                    Route::put('profile', [UserSettingsController::class, 'updateProfile'])->name('settings.profile.update');
+                    Route::put('preferences', [UserSettingsController::class, 'updatePreferences'])->name('settings.preferences.update');
+                    Route::put('password', [UserSettingsController::class, 'updatePassword'])->name('settings.password.update');
+                    Route::put('email', [UserSettingsController::class, 'updateEmail'])->name('settings.email.update');
+
+                    Route::delete('keys/web', [UserSettingsController::class, 'resetWebApiKey'])->name('settings.keys.web.destroy');
+                    Route::delete('keys/connect', [UserSettingsController::class, 'resetConnectApiKey'])->name('settings.keys.connect.destroy');
                 });
             });
     }

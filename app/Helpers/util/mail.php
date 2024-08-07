@@ -2,6 +2,7 @@
 
 use App\Community\Enums\ArticleType;
 use App\Enums\Permissions;
+use App\Models\User;
 use Aws\CommandPool;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
@@ -148,14 +149,14 @@ function mail_ses(string $to, string $subject = '(No subject)', string $message 
     }
 }
 
-function sendValidationEmail(string $user, string $email): bool
+function sendValidationEmail(User $user, string $email): bool
 {
     // This generates and stores (and returns) a new email validation string in the DB.
     $strValidation = generateEmailVerificationToken($user);
     $strEmailLink = config('app.url') . "/validateEmail.php?v=$strValidation";
 
     // $subject = "RetroAchievements.org - Confirm Email: $user";
-    $subject = "Welcome to RetroAchievements.org, $user";
+    $subject = "Welcome to RetroAchievements.org, {$user->display_name}";
 
     $msg = "You or someone using your email address has attempted to sign up for an account at <a href='" . config('app.url') . "'>RetroAchievements.org</a><br>" .
         "<br>" .

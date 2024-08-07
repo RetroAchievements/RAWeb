@@ -211,9 +211,39 @@ class UserPolicy
         return $this->requireAdministrativePrivileges($user, $model);
     }
 
+    public function updateMotto(User $user, User $model): bool
+    {
+        // users may update their own motto
+        if ($user->is($model) && $user->isEmailVerified()) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
     public function deleteMotto(User $user, User $model): bool
     {
-        // users may delete their own avatar
+        // users may delete their own motto
+        if ($user->is($model)) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
+    public function manipulateApiKeys(User $user, User $model): bool
+    {
+        // users may manipulate their own web and connect api keys
+        if ($user->is($model) && $user->isEmailVerified()) {
+            return true;
+        }
+
+        return $this->requireAdministrativePrivileges($user, $model);
+    }
+
+    public function clearUserWall(User $user, User $model): bool
+    {
+        // users can clear their own profile walls
         if ($user->is($model)) {
             return true;
         }
