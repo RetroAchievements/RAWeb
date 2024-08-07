@@ -26,7 +26,7 @@ class CommentPolicy
 
     public function view(?User $user, Comment $comment): bool
     {
-        return true;
+        return $user->isNotBanned();
     }
 
     public function create(User $user, ?Model $commentable = null, ?int $articleType = null): bool
