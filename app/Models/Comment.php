@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Support\Database\Eloquent\BaseModel;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -97,5 +98,10 @@ class Comment extends BaseModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'ID')->withDefault(['username' => 'Deleted User']);
+    }
+
+    protected static function newFactory(): CommentFactory
+    {
+        return CommentFactory::new();
     }
 }
