@@ -1,4 +1,5 @@
-import { createRecentForumPost } from '@/features/forums/models';
+import { createPaginatedData } from '@/common/models';
+import { createRecentActiveForumTopic } from '@/features/forums/models';
 import { render, screen } from '@/test';
 
 import { RecentPostsCards } from './RecentPostsCards';
@@ -8,7 +9,7 @@ describe('Component: RecentPostsCards', () => {
     // ARRANGE
     const { container } = render(<RecentPostsCards />, {
       pageProps: {
-        recentForumPosts: [],
+        paginatedTopics: createPaginatedData([]),
       },
     });
 
@@ -20,7 +21,10 @@ describe('Component: RecentPostsCards', () => {
     // ARRANGE
     render(<RecentPostsCards />, {
       pageProps: {
-        recentForumPosts: [createRecentForumPost(), createRecentForumPost()],
+        paginatedTopics: createPaginatedData([
+          createRecentActiveForumTopic(),
+          createRecentActiveForumTopic(),
+        ]),
       },
     });
 
@@ -30,12 +34,16 @@ describe('Component: RecentPostsCards', () => {
 
   it('displays the topic title and the short message', () => {
     // ARRANGE
-    const recentForumPost = createRecentForumPost();
+    const recentActiveForumTopic = createRecentActiveForumTopic();
 
-    render(<RecentPostsCards />, { pageProps: { recentForumPosts: [recentForumPost] } });
+    render(<RecentPostsCards />, {
+      pageProps: {
+        paginatedTopics: createPaginatedData([recentActiveForumTopic]),
+      },
+    });
 
     // ASSERT
-    expect(screen.getByText(recentForumPost.forumTopicTitle)).toBeVisible();
-    expect(screen.getByText(recentForumPost.shortMessage)).toBeVisible();
+    expect(screen.getByText(recentActiveForumTopic.title)).toBeVisible();
+    expect(screen.getByText(recentActiveForumTopic.latestComment.body)).toBeVisible();
   });
 });

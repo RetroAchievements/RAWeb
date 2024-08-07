@@ -1,10 +1,7 @@
-import type { AppGlobalProps } from '@/common/models';
+import type { AppGlobalProps, PaginatedData } from '@/common/models';
 
-import type { RecentForumPost } from './recent-forum-post.model';
+import type { RecentActiveForumTopic } from './recent-active-forum-topic.model';
 
 export interface RecentPostsPageProps extends AppGlobalProps {
-  maxPerPage: number;
-  nextPageUrl: string;
-  previousPageUrl: string | null;
-  recentForumPosts: RecentForumPost[];
+  paginatedTopics: PaginatedData<RecentActiveForumTopic>;
 }

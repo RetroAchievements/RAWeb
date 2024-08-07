@@ -85,23 +85,14 @@ class ForumRecentPostsPageService
 
         $currentUserPermissions = $currentUser?->getAttribute('Permissions') ?? Permissions::Unregistered;
 
-        if ($targetUser) {
-            $postsList = getRecentForumPosts(
-                $currentOffset,
-                $maxPerPage,
-                260,
-                $currentUserPermissions,
-                $targetUser->id,
-            )
-                ->toArray();
-        } else {
-            $postsList = getRecentForumTopics(
-                $currentOffset,
-                $maxPerPage,
-                $currentUserPermissions,
-                260,
-            );
-        }
+        $postsList = getRecentForumPosts(
+            $currentOffset,
+            $maxPerPage,
+            260,
+            $currentUserPermissions,
+            $targetUser->id,
+        )
+            ->toArray();
 
         return $postsList;
     }

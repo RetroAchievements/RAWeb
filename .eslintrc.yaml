@@ -18,6 +18,7 @@ plugins:
 
 ignorePatterns:
   - ziggy.d.ts
+  - ziggy.js
 
 settings:
   # allows for tsconfig path aliases

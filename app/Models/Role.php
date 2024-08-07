@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+#[TypeScript('UserRole')]
 class Role extends \Spatie\Permission\Models\Role
 {
     /*

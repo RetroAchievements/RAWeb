@@ -42,6 +42,7 @@ class ForumTopicComment extends BaseModel
     ];
 
     protected $casts = [
+        'Authorised' => 'boolean',
         'ManuallyVerified' => 'boolean',
     ];
 

@@ -1,11 +1,11 @@
 import type { PageProps } from '@inertiajs/core';
+import type { SetRequired } from 'type-fest';
 
-import type { User } from './user.model';
-import type { UserRole } from './user-role.model';
+type AuthenticatedUser = SetRequired<
+  App.Data.User,
+  'legacyPermissions' | 'preferences' | 'roles' | 'unreadMessageCount'
+>;
 
 export interface AppGlobalProps extends PageProps {
-  auth: {
-    roles: UserRole[];
-    user: User;
-  } | null;
+  auth: { user: AuthenticatedUser } | null;
 }
