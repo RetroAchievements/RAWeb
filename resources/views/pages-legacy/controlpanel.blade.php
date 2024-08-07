@@ -71,12 +71,17 @@ function DoChangeUserPrefs(targetLoadingIcon = 1) {
 
     const loadingIconId = `loadingicon-${targetLoadingIcon}`;
     ShowLoadingIcon(loadingIconId);
-    $.post('/request/user/update-preferences.php', {
-        preferences: newUserPrefs
-    })
-        .done(function () {
+
+    $.ajax({
+        url: '{{ route("settings.preferences.update") }}',
+        type: 'PUT',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify({ websitePrefs: newUserPrefs }),
+        success: () => {
             ShowDoneIcon(loadingIconId);
-        });
+        }
+    });
 }
 
 function UploadNewAvatar() {
@@ -86,7 +91,9 @@ function UploadNewAvatar() {
     var reader = new FileReader();
     reader.onload = function () {
         ShowLoadingIcon('loadingiconavatar');
-        $.post('/request/user/update-avatar.php', { imageData: reader.result },
+        
+        const route = '{{ route("user.avatar.store") }}';
+        $.post(route, { imageData: reader.result },
             function (data) {
                 ShowDoneIcon('loadingiconavatar');
 
@@ -102,12 +109,178 @@ function UploadNewAvatar() {
     return false;
 }
 
-function confirmEmailChange(event) {
-    <?php if ($permissions >= Permissions::Developer): ?>
-    return confirm('Changing your email address will revoke your privileges and you will need to have them restored by staff.');
-    <?php else: ?>
-    return true;
-    <?php endif ?>
+function handleSetMotto(newMotto) {
+    $.ajax({
+        url: '{{ route('settings.profile.update') }}',
+        type: 'PUT',
+        data: { motto: newMotto },
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.change") }}');
+        }
+    });
+}
+
+function handleSetAllowComments() {
+    const newValue = document.querySelector('#userwallactive').checked;
+
+    $.ajax({
+        url: '{{ route('settings.profile.update') }}',
+        type: 'PUT',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify({ userWallActive: newValue }),
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.change") }}');
+        }
+    });
+}
+
+function handleResetWebApiKeyClick() {
+    if (!confirm('Are you sure you want to reset your web API key?')) {
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('settings.keys.web.destroy') }}',
+        type: 'DELETE',
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.reset") }}');
+
+            // Temporary, will be removed in the Inertia migration.
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000)
+        }
+    });
+}
+
+function handleResetConnectApiKeyClick() {
+    if (!confirm('Are you sure you want to reset your Connect API key?')) {
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('settings.keys.connect.destroy') }}',
+        type: 'DELETE',
+        success: () => {
+            showStatusSuccess('{{ _("legacy.success.reset") }}');
+        }
+    });
+}
+
+function handleDeleteAllUserComments() {
+    if (!confirm('Are you sure you want to permanently delete all comment on your wall?')) {
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('user.comment.destroyAll', $userModel) }}',
+        type: 'DELETE',
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.delete") }}');
+        }
+    });
+}
+
+function handleChangePasswordSubmit(formValues) {
+    const { currentPassword, newPassword, confirmPassword } = formValues;
+
+    if (newPassword !== confirmPassword) {
+        alert("Make sure the New Password and Confirm Password values match.");
+        
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('settings.password.update') }}',
+        type: 'PUT',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify({ currentPassword, newPassword }),
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.change") }}');
+        }
+    });
+}
+
+function handleChangeEmailSubmit(formValues) {
+    const { newEmail, confirmEmail } = formValues;
+
+    if (newEmail !== confirmEmail) {
+        alert("Make sure the New Email Address and Confirm Email Address values match.");
+        
+        return;
+    }
+
+    const hasDevPermissions = {{ $permissions >= Permissions::Developer ? 'true' : 'false' }};
+    if (
+        hasDevPermissions
+        && !confirm('Changing your email address will revoke your privileges and you will need to have them restored by staff. Are you sure you want to continue?')
+    ) {
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('settings.email.update') }}',
+        type: 'PUT',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify({ newEmail }),
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.change") }}')
+        }
+    });
+}
+
+function handleRequestAccountDeletion() {
+    if (!confirm('Are you sure you want to request account deletion?')) {
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('user.delete-request.store') }}',
+        type: 'POST',
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.ok") }}');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    });
+}
+
+function handleCancelRequestAccountDeletion() {
+    if(!confirm('Are you sure you want to cancel your account deletion request?')) {
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('user.delete-request.destroy') }}',
+        type: 'DELETE',
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.ok") }}');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    });
+}
+
+function handleRemoveAvatar() {
+    if (!confirm('Are you sure you want to permanently delete this avatar?')) {
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('user.avatar.destroy') }}',
+        type: 'DELETE',
+        success: () => {
+            showStatusSuccess('{{ __("legacy.success.ok") }}');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    });
 }
 </script>
 
@@ -127,31 +300,32 @@ function confirmEmailChange(event) {
                 echo "<tr>";
                 echo "<td><label for='motto'>User Motto</label></td>";
                 echo "<td>";
-                echo "<form class='flex gap-2 mb-1' method='post' action='/request/user/update-motto.php'>";
-                echo csrf_field();
 
                 echo <<<HTML
-                    <div x-data="{ isValid: true }" class="flex gap-x-2">
-                        <div class="grid gap-y-1">
-                            <input
-                                id="motto"
-                                name="motto"
-                                value="$userMottoString"
-                                maxlength="50"
-                                size="50"
-                                placeholder="Your motto"
-                                x-on:input="isValid = window.getStringByteCount(\$event.target.value) <= 50"
-                            >
-                            <div class="text-xs flex w-full justify-between">
-                                <p>No profanity.</p>
-                                <div>
-                                    <div class="textarea-counter" data-textarea-id="motto"></div>
-                                    <div class="text-danger hidden"></div>
+                    <form x-data="{ isValid: true, motto: '$userMottoString' }" class='flex gap-2 mb-1' @submit.prevent="handleSetMotto(motto)">
+                        <div class="flex gap-x-2">
+                            <div class="grid gap-y-1">
+                                <input
+                                    id="motto"
+                                    name="motto"
+                                    x-model="motto"
+                                    value="$userMottoString"
+                                    maxlength="50"
+                                    size="50"
+                                    placeholder="Your motto"
+                                    x-on:input="isValid = window.getStringByteCount(\$event.target.value) <= 50"
+                                >
+                                <div class="text-xs flex w-full justify-between">
+                                    <p>No profanity.</p>
+                                    <div>
+                                        <div class="textarea-counter" data-textarea-id="motto"></div>
+                                        <div class="text-danger hidden"></div>
+                                    </div>
                                 </div>
                             </div>
+                            <button class="btn" :disabled="!isValid">Set Motto</button>
                         </div>
-                        <button class="btn" :disabled="!isValid">Set Motto</button>
-                    </div>
+                    </form>
                 HTML;
 
                 echo "</form>";
@@ -162,22 +336,18 @@ function confirmEmailChange(event) {
                 echo "<tr>";
                 echo "<td>Allow Comments on my User Wall</td>";
                 echo "<td>";
-                echo "<form method='post' action='/request/user-comment/toggle.php'>";
-                echo csrf_field();
                 $checkedStr = ($userWallActive == 1) ? "checked" : "";
                 echo "<input class='mr-2' type='checkbox' name='active' value='1' id='userwallactive' $checkedStr>";
-                echo "<button class='btn'>Save</button>";
-                echo "</form>";
+                echo "<button class='btn' onclick='handleSetAllowComments()'>Save</button>";
                 echo "</td>";
                 echo "</tr>";
 
                 echo "<tr>";
                 echo "<td>Remove all comments from my User Wall</td>";
                 echo "<td>";
-                echo "<form method='post' action='/request/user-comment/delete-all.php' onsubmit='return confirm(\"Are you sure you want to permanently delete all comment on your wall?\");'>";
-                echo csrf_field();
-                echo "<button class='btn btn-danger'>Delete All Comments</button>";
-                echo "</form>";
+                ?>
+                <button class="btn btn-danger" onclick="handleDeleteAllUserComments()">Delete All Comments</button>
+                <?php
                 echo "</td>";
                 echo "</tr>";
             }
@@ -301,11 +471,7 @@ function confirmEmailChange(event) {
                 </p>
             </div>
         <?php
-            echo "<form method='post' action='/request/auth/reset-api-key.php' onsubmit='return confirm(\"Are you sure you want to reset your web api key?\");'>";
-            echo csrf_field();
-            $checkedStr = ($userWallActive == 1) ? "checked" : "";
-            echo "<button class='btn btn-danger'>Reset Web API Key</button>";
-            echo "</form>";
+            echo "<button class='btn btn-danger' onclick='handleResetWebApiKeyClick()'>Reset Web API Key</button>";
             echo "</td>";
             echo "</tr>";
 
@@ -314,10 +480,7 @@ function confirmEmailChange(event) {
             echo "<td>";
             echo "<p class='mb-1'>The Connect Key is used in emulators to keep you logged in.<br>";
             echo "Resetting the key will log you out of all emulators.</p>";
-            echo "<form method='post' action='/request/auth/reset-connect-key.php' onsubmit='return confirm(\"Are you sure you want to reset your connect key?\");'>";
-            echo csrf_field();
-            $checkedStr = ($userWallActive == 1) ? "checked" : "";
-            echo "<button class='btn btn-danger'>Reset Connect Key</button>";
+            echo "<button class='btn btn-danger' onclick='handleResetConnectApiKeyClick()'>Reset Connect Key</button>";
             echo "</form>";
             echo "</td>";
             echo "</tr>";
@@ -327,8 +490,10 @@ function confirmEmailChange(event) {
         ?>
         <div class='component'>
             <h3>Change Password</h3>
-            <form method='post' action='/request/auth/update-password.php'>
-                <?= csrf_field() ?>
+            <form
+                x-data="{ currentPassword: '', newPassword: '', confirmPassword: '' }"
+                @submit.prevent="handleChangePasswordSubmit({ currentPassword, newPassword, confirmPassword })"
+            >
                 <table class='table-highlight'>
                     <colgroup>
                         <col style='width: 200px'>
@@ -336,15 +501,15 @@ function confirmEmailChange(event) {
                     <tbody>
                     <tr>
                         <td><label for="password_current"></label>Current Password</td>
-                        <td><input type="password" name="password_current" id="password_current"></td>
+                        <td><input type="password" name="password_current" id="password_current" x-model="currentPassword"></td>
                     </tr>
                     <tr>
                         <td><label for="password"></label>New Password</td>
-                        <td><input type="password" name="password" id="password"></td>
+                        <td><input type="password" name="password" id="password" x-model="newPassword"></td>
                     </tr>
                     <tr>
                         <td><label for="password_confirmation"></label>Confirm Password</td>
-                        <td><input type="password" name="password_confirmation" id="password_confirmation"></td>
+                        <td><input type="password" name="password_confirmation" id="password_confirmation" x-model="confirmPassword"></td>
                     </tr>
                     <tr class='do-not-highlight'>
                         <td></td>
@@ -358,8 +523,11 @@ function confirmEmailChange(event) {
         </div>
         <div class='component'>
             <h3>Change Email Address</h3>
-            <form name='updateEmail' method='post' action='/request/user/update-email.php' onsubmit='return confirmEmailChange()'>
-                <?= csrf_field() ?>
+            <form
+                x-data="{ newEmail: '', confirmEmail: '' }"
+                name='updateEmail'
+                @submit.prevent="handleChangeEmailSubmit({ newEmail, confirmEmail })"
+            >
                 <table class='table-highlight'>
                     <colgroup>
                         <col style='width: 200px'>
@@ -374,13 +542,13 @@ function confirmEmailChange(event) {
                     <tr>
                         <td><label for="email">New Email Address</label></td>
                         <td>
-                            <input type="email" name="email" id="email">
+                            <input type="email" name="email" id="email" x-model="newEmail">
                         </td>
                     </tr>
                     <tr>
                         <td><label for="email_confirmation">Confirm Email Address</label></td>
                         <td>
-                            <input type="email" name="email_confirmation" id="email_confirmation">
+                            <input type="email" name="email_confirmation" id="email_confirmation" x-model="confirmEmail">
                         </td>
                     </tr>
                     <tr class='do-not-highlight'>
@@ -443,7 +611,8 @@ function confirmEmailChange(event) {
                 ShowLoadingIcon('loadingiconreset');
 
                 // Make API call to get game list
-                $.post('/request/user/list-games.php').done(data => {
+                $.get('{{ route('player.games.resettable') }}').done(({ results }) => {
+
                     // Create a document fragment to hold the options
                     const fragment = new DocumentFragment();
 
@@ -454,10 +623,10 @@ function confirmEmailChange(event) {
                     fragment.appendChild(option);
 
                     // Create an option for each game and append it to the fragment
-                    for (const game of data) {
+                    for (const game of results) {
                         const option = document.createElement('option');
-                        option.value = game.ID;
-                        option.textContent = `${game.GameTitle} (${game.ConsoleName}) (${game.NumAwarded} / ${game.NumPossible} won)`;
+                        option.value = game.id;
+                        option.textContent = `${game.title} (${game.consoleName}) (${game.numAwarded} / ${game.numPossible} won)`;
                         fragment.appendChild(option);
                     }
 
@@ -480,14 +649,15 @@ function confirmEmailChange(event) {
                 gameSelect.setAttribute('disabled', 'disabled');
                 achievementSelect.innerHTML += '<option value=\'\'>--</option>';
                 ShowLoadingIcon('loadingiconreset');
-                $.post('/request/user/list-unlocks.php', { game: gameID })
-                    .done(function (data) {
+
+                $.get(`/game/${gameID}/achievements/resettable`)
+                    .done(function ({ results }) {
                         achievementSelect.replaceChildren();
                         achievementSelect.innerHTML += '<option value=\'all\' >All achievements for this game</option>';
-                        data.forEach(function (achievement) {
-                            var achTitle = achievement.Title;
-                            var achID = achievement.ID;
-                            achievementSelect.innerHTML += '<option value=\'' + achID + '\'>' + achTitle + (achievement.HardcoreMode ? ' (Hardcore)' : '') + '</option>';
+                        results.forEach(function (achievement) {
+                            var achTitle = achievement.title;
+                            var achID = achievement.id;
+                            achievementSelect.innerHTML += '<option value=\'' + achID + '\'>' + achTitle + (achievement.isHardcore ? ' (Hardcore)' : '') + '</option>';
                         });
                         gameSelect.removeAttribute('disabled');
                         achievementSelect.removeAttribute('disabled');
@@ -512,19 +682,24 @@ function confirmEmailChange(event) {
 
                     if (gameId > 0 && confirm('Reset all achievements for "' + gameName + '"?')) {
                         ShowLoadingIcon('loadingiconreset');
-                        $.post('/request/user/reset-achievements.php', { game: gameId })
-                            .done(function () {
+
+                        $.ajax({
+                            url: `/user/game/${gameId}`,
+                            type: 'DELETE',
+                            success: () => {
                                 ShowDoneIcon('loadingiconreset');
                                 achievementSelect.replaceChildren();
                                 GetAllResettableGamesList();
-                            });
+                            }
+                        });
                     }
                 } else if (achID > 0 && confirm('Reset achievement "' + achName + '"?')) {
                     ShowLoadingIcon('loadingiconreset');
-                    $.post('/request/user/reset-achievements.php', {
-                        achievement: achID,
-                    })
-                        .done(function () {
+
+                    $.ajax({
+                        url: `/user/achievement/${achID}`,
+                        type: 'DELETE',
+                        success: () => {
                             ShowDoneIcon('loadingiconreset');
                             if ($('#resetachievementscontainer').children('option').length > 2) {
                                 // Just reset ach. list
@@ -534,7 +709,8 @@ function confirmEmailChange(event) {
                                 achievementSelect.replaceChildren();
                                 GetAllResettableGamesList();
                             }
-                        });
+                        }
+                    });
                 }
             }
 
@@ -553,15 +729,9 @@ function confirmEmailChange(event) {
                     You requested to have your account deleted on <?= $userDetails['DeleteRequested'] ?> (UTC).<br>
                     Your account will be permanently deleted on <?= getDeleteDate($userDetails['DeleteRequested']) ?>.
                 </p>
-                <form method="post" action="/request/auth/delete-account-cancel.php" onsubmit="return confirm('Are you sure you want to cancel your account deletion request?');">
-                    <?= csrf_field() ?>
-                    <button class='btn'>Cancel account deletion request</button>
-                </form>
+                <button class='btn' onclick='handleCancelRequestAccountDeletion()'>Cancel account deletion request</button>
             <?php else: ?>
-                <form method="post" action="/request/auth/delete-account.php" onsubmit="return confirm('Are you sure you want to request account deletion?');">
-                    <?= csrf_field() ?>
-                    <button class='btn btn-danger'>Request account deletion</button>
-                </form>
+                <button class='btn btn-danger' onclick='handleRequestAccountDeletion()'>Request account deletion</button>
             <?php endif ?>
         </div>
     </div>
@@ -595,10 +765,7 @@ function confirmEmailChange(event) {
                     <div style="margin-bottom: 10px">
                         Reset your avatar to default by removing your current one:
                     </div>
-                    <form method="post" action="/request/user/remove-avatar.php" onsubmit="return confirm('Are you sure you want to permanently delete this avatar?')">
-                        <?= csrf_field() ?>
-                        <button class="btn btn-danger">Remove Avatar</button>
-                    </form>
+                    <button class="btn btn-danger" onclick='handleRemoveAvatar()'>Remove Avatar</button>
                 @else
                     <div style="margin-bottom: 10px">
                         To upload an avatar, earn 250 points in either mode or wait until your account is at least 14 days old.

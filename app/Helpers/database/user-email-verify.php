@@ -1,27 +1,25 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Models\EmailConfirmation;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
-function generateEmailVerificationToken(string $user): ?string
+function generateEmailVerificationToken(User $user): string
 {
     $emailCookie = Str::random(16);
     $expiry = date('Y-m-d', time() + 60 * 60 * 24 * 7);
 
-    sanitize_sql_inputs($user);
-
-    $query = "INSERT INTO EmailConfirmations (User, EmailCookie, Expires) VALUES( '$user', '$emailCookie', '$expiry' )";
-    $dbResult = s_mysql_query($query);
-    if (!$dbResult) {
-        log_sql_fail();
-
-        return null;
-    }
+    EmailConfirmation::create([
+        'User' => $user->username,
+        'user_id' => $user->id,
+        'EmailCookie' => $emailCookie,
+        'Expires' => $expiry,
+    ]);
 
     // Clear permissions til they validate their email.
-    $userModel = User::firstWhere('User', $user);
-    if (!$userModel->isBanned) {
+    if (!$user->isBanned) {
         SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Unregistered);
     }
 
@@ -33,43 +31,39 @@ function generateEmailVerificationToken(string $user): ?string
  */
 function validateEmailVerificationToken(string $emailCookie, ?string &$user): bool
 {
-    sanitize_sql_inputs($emailCookie);
+    $emailConfirmation = EmailConfirmation::firstWhere('EmailCookie', $emailCookie);
 
-    $query = "SELECT * FROM EmailConfirmations WHERE EmailCookie='$emailCookie'";
-    $dbResult = s_mysql_query($query);
-
-    if (!$dbResult) {
-        log_sql_fail();
-
+    if (!$emailConfirmation) {
         return false;
     }
 
-    if (mysqli_num_rows($dbResult) == 1) {
-        $data = mysqli_fetch_assoc($dbResult);
-        $user = $data['User'];
+    $user = User::find($emailConfirmation->user_id);
+    // TODO delete after dropping User from EmailConfirmations
+    if (!$user) {
+        $user = User::firstWhere('User', $emailConfirmation->User);
+    }
+    // ENDTODO delete after dropping User from EmailConfirmations
 
-        if (getUserPermissions($user) != Permissions::Unregistered) {
-            return false;
-        }
+    if (!$user) {
+        return false;
+    }
 
-        $query = "DELETE FROM EmailConfirmations WHERE User='$user'";
-        $dbResult = s_mysql_query($query);
-        if (!$dbResult) {
-            log_sql_fail();
+    if ((int) $user->getAttribute('Permissions') !== Permissions::Unregistered) {
+        return false;
+    }
 
-            return false;
-        }
+    $emailConfirmation->delete();
 
-        $response = SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Registered);
-        if ($response['Success']) {
-            static_addnewregistereduser($user);
-            generateAPIKey($user);
+    $response = SetAccountPermissionsJSON('Server', Permissions::Moderator, $user, Permissions::Registered);
+    if ($response['Success']) {
+        static_addnewregistereduser($user);
+        generateAPIKey($user);
 
-            User::where('User', $user)->update(['email_verified_at' => now()]);
+        $user->email_verified_at = Carbon::now();
+        $user->save();
 
-            // SUCCESS: validated email address for $user
-            return true;
-        }
+        // SUCCESS: validated email address for $user
+        return true;
     }
 
     return false;
@@ -77,5 +71,7 @@ function validateEmailVerificationToken(string $emailCookie, ?string &$user): bo
 
 function deleteExpiredEmailVerificationTokens(): bool
 {
-    return (bool) s_mysql_query("DELETE FROM EmailConfirmations WHERE Expires <= DATE(NOW()) ORDER BY Expires DESC");
+    EmailConfirmation::where('Expires', '<=', Carbon::today())->delete();
+
+    return true;
 }
