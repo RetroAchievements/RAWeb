@@ -284,4 +284,13 @@ class System extends BaseModel implements HasMedia
 
         return $query->having('games_count', '>', '0');
     }
+
+    /**
+     * @param Builder<System> $query
+     * @return Builder<System>
+     */
+    public function scopeGameSystems(Builder $query): Builder
+    {
+        return $query->whereNotIn('id', $this->getNonGameSystems());
+    }
 }

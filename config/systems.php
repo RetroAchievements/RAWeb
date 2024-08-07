@@ -9,6 +9,7 @@ return [
         'name_full' => 'Sega Genesis/Mega Drive',
         'name_short' => 'MD',
         'manufacturer' => 'Sega',
+        'order_column' => 4,
         'active' => true,
     ],
     2 => [
@@ -16,6 +17,7 @@ return [
         'name_full' => 'Nintendo 64',
         'name_short' => 'N64',
         'manufacturer' => 'Nintendo',
+        'order_column' => 6,
         'active' => true,
     ],
     3 => [
@@ -23,6 +25,7 @@ return [
         'name_full' => 'Super Nintendo Entertainment System/Famicom',
         'name_short' => 'SNES',
         'manufacturer' => 'Nintendo',
+        'order_column' => 5,
         'active' => true,
     ],
     4 => [
@@ -30,6 +33,7 @@ return [
         'name_full' => 'Nintendo Game Boy',
         'name_short' => 'GB',
         'manufacturer' => 'Nintendo',
+        'order_column' => 1,
         'active' => true,
     ],
     5 => [
@@ -37,6 +41,7 @@ return [
         'name_full' => 'Nintendo Game Boy Advance',
         'name_short' => 'GBA',
         'manufacturer' => 'Nintendo',
+        'order_column' => 3,
         'active' => true,
     ],
     6 => [
@@ -44,6 +49,7 @@ return [
         'name_full' => 'Nintendo Game Boy Color',
         'name_short' => 'GBC',
         'manufacturer' => 'Nintendo',
+        'order_column' => 2,
         'active' => true,
     ],
     7 => [
@@ -51,6 +57,7 @@ return [
         'name_full' => 'Nintendo Entertainment System/Famicom',
         'name_short' => 'NES',
         'manufacturer' => 'Nintendo',
+        'order_column' => 4,
         'active' => true,
     ],
     8 => [
@@ -58,6 +65,7 @@ return [
         'name_full' => 'NEC PC Engine/TurboGrafx-16',
         'name_short' => 'PCE',
         'manufacturer' => 'NEC',
+        'order_column' => 1,
         'active' => true,
     ],
     9 => [
@@ -65,6 +73,7 @@ return [
         'name_full' => 'Sega CD',
         'name_short' => 'SCD',
         'manufacturer' => 'Sega',
+        'order_column' => 5,
         'active' => true,
     ],
     10 => [
@@ -72,6 +81,7 @@ return [
         'name_full' => 'Sega 32X',
         'name_short' => '32X',
         'manufacturer' => 'Sega',
+        'order_column' => 6,
         'active' => true,
     ],
     11 => [
@@ -79,6 +89,7 @@ return [
         'name_full' => 'Sega Master System',
         'name_short' => 'SMS',
         'manufacturer' => 'Sega',
+        'order_column' => 2,
         'active' => true,
     ],
     12 => [
@@ -86,6 +97,7 @@ return [
         'name_full' => 'Sony PlayStation',
         'name_short' => 'PS1',
         'manufacturer' => 'Sony',
+        'order_column' => 1,
         'active' => true,
     ],
     13 => [
@@ -93,6 +105,7 @@ return [
         'name_full' => 'Atari Lynx',
         'name_short' => 'Lynx',
         'manufacturer' => 'Atari',
+        'order_column' => 7,
         'active' => true,
     ],
     14 => [
@@ -100,6 +113,7 @@ return [
         'name_full' => 'SNK Neo Geo Pocket',
         'name_short' => 'NGP',
         'manufacturer' => 'SNK',
+        'order_column' => 2,
         'active' => true,
     ],
     15 => [
@@ -107,6 +121,7 @@ return [
         'name_full' => 'Sega Game Gear',
         'name_short' => 'GG',
         'manufacturer' => 'Sega',
+        'order_column' => 3,
         'active' => true,
     ],
     16 => [
@@ -114,13 +129,15 @@ return [
         'name_full' => 'Nintendo GameCube',
         'name_short' => 'GC',
         'manufacturer' => 'Nintendo',
-        'active' => false,
+        'order_column' => 7,
+        'active' => true,
     ],
     17 => [
         'name' => 'Atari Jaguar',
         'name_full' => 'Atari Jaguar',
         'name_short' => 'JAG',
         'manufacturer' => 'Atari',
+        'order_column' => 5,
         'active' => true,
     ],
     18 => [
@@ -128,6 +145,7 @@ return [
         'name_full' => 'Nintendo DS',
         'name_short' => 'DS',
         'manufacturer' => 'Nintendo',
+        'order_column' => 10,
         'active' => true,
     ],
     19 => [
@@ -135,6 +153,7 @@ return [
         'name_full' => 'Nintendo Wii',
         'name_short' => 'Wii',
         'manufacturer' => 'Nintendo',
+        'order_column' => 8,
         'active' => false,
     ],
     20 => [
@@ -142,6 +161,7 @@ return [
         'name_full' => 'Nintendo Wii U',
         'name_short' => 'WiiU',
         'manufacturer' => 'Nintendo',
+        'order_column' => 9,
         'active' => false,
     ],
     21 => [
@@ -149,6 +169,7 @@ return [
         'name_full' => 'Sony PlayStation 2',
         'name_short' => 'PS2',
         'manufacturer' => 'Sony',
+        'order_column' => 2,
         'active' => true,
     ],
     22 => [
@@ -156,6 +177,7 @@ return [
         'name_full' => 'Microsoft Xbox',
         'name_short' => 'Xbox',
         'manufacturer' => 'Microsoft',
+        'order_column' => 3,
         'active' => false,
     ],
     23 => [
@@ -170,6 +192,7 @@ return [
         'name_full' => 'Nintendo Pokemon Mini',
         'name_short' => 'MINI',
         'manufacturer' => 'Nintendo',
+        'order_column' => 13,
         'active' => true,
     ],
     25 => [
@@ -177,20 +200,21 @@ return [
         'name_full' => 'Atari 2600',
         'name_short' => '2600',
         'manufacturer' => 'Atari',
+        'order_column' => 1,
         'active' => true,
     ],
     26 => [
         'name' => 'DOS',
         'name_full' => 'DOS',
         'name_short' => 'DOS',
-        'manufacturer' => null,
+        'manufacturer' => 'Microsoft',
+        'order_column' => 2,
         'active' => false,
     ],
     27 => [
         'name' => 'Arcade',
         'name_full' => 'Arcade',
         'name_short' => 'ARC',
-        'manufacturer' => null,
         'active' => true,
     ],
     28 => [
@@ -198,6 +222,7 @@ return [
         'name_full' => 'Nintendo Virtual Boy',
         'name_short' => 'VB',
         'manufacturer' => 'Nintendo',
+        'order_column' => 15,
         'active' => true,
     ],
     29 => [
@@ -205,6 +230,7 @@ return [
         'name_full' => 'Microsoft MSX',
         'name_short' => 'MSX',
         'manufacturer' => 'Microsoft',
+        'order_column' => 1,
         'active' => true,
     ],
     30 => [
@@ -212,6 +238,7 @@ return [
         'name_full' => 'Commodore 64',
         'name_short' => 'C64',
         'manufacturer' => 'Commodore',
+        'order_column' => 2,
         'active' => false,
     ],
     31 => [
@@ -219,6 +246,7 @@ return [
         'name_full' => 'Sinclair ZX81',
         'name_short' => 'ZX81',
         'manufacturer' => 'Sinclair',
+        'order_column' => 1,
         'active' => false,
     ],
     32 => [
@@ -233,6 +261,7 @@ return [
         'name_full' => 'Sega SG-1000',
         'name_short' => 'SG1K',
         'manufacturer' => 'Sega',
+        'order_column' => 1,
         'active' => true,
     ],
     34 => [
@@ -240,6 +269,7 @@ return [
         'name_full' => 'Commodore VIC-20',
         'name_short' => 'VIC-20',
         'manufacturer' => 'Commodore',
+        'order_column' => 1,
         'active' => false,
     ],
     35 => [
@@ -247,6 +277,7 @@ return [
         'name_full' => 'Commodore Amiga',
         'name_short' => 'Amiga',
         'manufacturer' => 'Commodore',
+        'order_column' => 3,
         'active' => false,
     ],
     36 => [
@@ -254,6 +285,7 @@ return [
         'name_full' => 'Atari ST',
         'name_short' => 'AST',
         'manufacturer' => 'Atari',
+        'order_column' => 4,
         'active' => false,
     ],
     37 => [
@@ -275,6 +307,7 @@ return [
         'name_full' => 'Sega Saturn',
         'name_short' => 'SAT',
         'manufacturer' => 'Sega',
+        'order_column' => 7,
         'active' => true,
     ],
     40 => [
@@ -282,6 +315,7 @@ return [
         'name_full' => 'Sega Dreamcast',
         'name_short' => 'DC',
         'manufacturer' => 'Sega',
+        'order_column' => 8,
         'active' => true,
     ],
     41 => [
@@ -289,6 +323,7 @@ return [
         'name_full' => 'Sony PlayStation Portable',
         'name_short' => 'PSP',
         'manufacturer' => 'Sony',
+        'order_column' => 3,
         'active' => true,
     ],
     42 => [
@@ -331,6 +366,7 @@ return [
         'name_full' => 'NEC PC-8000/8800',
         'name_short' => '80/88',
         'manufacturer' => 'NEC',
+        'order_column' => 4,
         'active' => true,
     ],
     48 => [
@@ -338,6 +374,7 @@ return [
         'name_full' => 'NEC PC-9800',
         'name_short' => '9800',
         'manufacturer' => 'NEC',
+        'order_column' => 5,
         'active' => false,
     ],
     49 => [
@@ -345,6 +382,7 @@ return [
         'name_full' => 'NEC PC-FX',
         'name_short' => 'PC-FX',
         'manufacturer' => 'NEC',
+        'order_column' => 6,
         'active' => true,
     ],
     50 => [
@@ -352,6 +390,7 @@ return [
         'name_full' => 'Atari 5200',
         'name_short' => '5200',
         'manufacturer' => 'Atari',
+        'order_column' => 2,
         'active' => false,
     ],
     51 => [
@@ -359,6 +398,7 @@ return [
         'name_full' => 'Atari 7800',
         'name_short' => '7800',
         'manufacturer' => 'Atari',
+        'order_column' => 3,
         'active' => true,
     ],
     52 => [
@@ -366,6 +406,7 @@ return [
         'name_full' => 'Sharp X68000',
         'name_short' => 'X68K',
         'manufacturer' => 'Sharp',
+        'order_column' => 2,
         'active' => false,
     ],
     53 => [
@@ -380,6 +421,7 @@ return [
         'name_full' => 'Epoch Co. Cassette Vision',
         'name_short' => 'ECV',
         'manufacturer' => 'Epoch Co.',
+        'order_column' => 1,
         'active' => false,
     ],
     55 => [
@@ -387,6 +429,7 @@ return [
         'name_full' => 'Epoch Co. Super Cassette Vision',
         'name_short' => 'ESCV',
         'manufacturer' => 'Epoch Co.',
+        'order_column' => 2,
         'active' => false,
     ],
     56 => [
@@ -394,6 +437,7 @@ return [
         'name_full' => 'SNK Neo Geo CD',
         'name_short' => 'NGCD',
         'manufacturer' => 'SNK',
+        'order_column' => 1,
         'active' => true,
     ],
     57 => [
@@ -415,6 +459,7 @@ return [
         'name_full' => 'Sinclair ZX Spectrum',
         'name_short' => 'ZXS',
         'manufacturer' => 'Sinclair',
+        'order_column' => 2,
         'active' => false,
     ],
     60 => [
@@ -422,6 +467,7 @@ return [
         'name_full' => 'Nintendo Game & Watch',
         'name_short' => 'G&W',
         'manufacturer' => 'Nintendo',
+        'order_column' => 14,
         'active' => false,
     ],
     61 => [
@@ -435,6 +481,7 @@ return [
         'name' => 'Nintendo 3DS',
         'name_full' => 'Nintendo 3DS',
         'name_short' => '3DS',
+        'order_column' => 12,
         'manufacturer' => 'Nintendo',
         'active' => false,
     ],
@@ -450,13 +497,13 @@ return [
         'name_full' => 'Sharp X1',
         'name_short' => 'X1',
         'manufacturer' => 'Sharp',
+        'order_column' => 1,
         'active' => false,
     ],
     65 => [
         'name' => 'TIC-80',
         'name_full' => 'TIC-80',
         'name_short' => 'TIC-80',
-        'manufacturer' => null,
         'active' => false,
     ],
     66 => [
@@ -471,6 +518,7 @@ return [
         'name_full' => 'NEC PC-6000',
         'name_short' => 'PC-6000',
         'manufacturer' => 'NEC',
+        'order_column' => 3,
         'active' => false,
     ],
     68 => [
@@ -478,6 +526,7 @@ return [
         'name_full' => 'Sega Pico',
         'name_short' => 'Pico',
         'manufacturer' => 'Sega',
+        'order_column' => 9,
         'active' => false,
     ],
     69 => [
@@ -498,57 +547,58 @@ return [
         'name' => 'Arduboy',
         'name_full' => 'Arduboy',
         'name_short' => 'ARD',
-        'manufacturer' => '',
-        'active' => false,
+        'active' => true,
     ],
     72 => [
         'name' => 'WASM-4',
         'name_full' => 'WASM-4',
         'name_short' => 'WASM4',
-        'manufacturer' => '',
-        'active' => false,
+        'active' => true,
     ],
     73 => [
         'name' => 'Arcadia 2001',
         'name_full' => 'Arcadia 2001',
         'name_short' => 'A2001',
         'manufacturer' => 'Emerson Radio',
-        'active' => false,
+        'active' => true,
     ],
     74 => [
         'name' => 'Interton VC 4000',
         'name_full' => 'Interton VC 4000',
         'name_short' => 'VC4000',
         'manufacturer' => 'Interton',
-        'active' => false,
+        'active' => true,
     ],
     75 => [
         'name' => 'Elektor TV Games Computer',
         'name_full' => 'Elektor TV Games Computer',
         'name_short' => 'ELEK',
         'manufacturer' => 'Elektor',
-        'active' => false,
+        'active' => true,
     ],
     76 => [
         'name' => 'PC Engine CD/TurboGrafx-CD',
         'name_full' => 'NEC PC Engine CD/TurboGrafx-CD',
         'name_short' => 'PCCD',
         'manufacturer' => 'NEC',
-        'active' => false,
+        'order_column' => 2,
+        'active' => true,
     ],
     77 => [
         'name' => 'Atari Jaguar CD',
         'name_full' => 'Atari Jaguar CD',
         'name_short' => 'JCD',
         'manufacturer' => 'Atari',
-        'active' => false,
+        'order_column' => 6,
+        'active' => true,
     ],
     78 => [
         'name' => 'Nintendo DSi',
         'name_full' => 'Nintendo DSi',
         'name_short' => 'DSi',
         'manufacturer' => 'Nintendo',
-        'active' => false,
+        'order_column' => 11,
+        'active' => true,
     ],
     79 => [
         'name' => 'TI-83',
@@ -561,28 +611,24 @@ return [
         'name' => 'Uzebox',
         'name_full' => 'Uzebox',
         'name_short' => 'UZE',
-        'manufacturer' => '',
-        'active' => false,
+        'active' => true,
     ],
     100 => [
         'name' => 'Hubs',
         'name_full' => 'Hubs',
         'name_short' => 'Hubs',
-        'manufacturer' => null,
         'active' => false,
     ],
     101 => [
         'name' => 'Events',
         'name_full' => 'Events',
         'name_short' => 'Events',
-        'manufacturer' => null,
         'active' => true,
     ],
     102 => [
         'name' => 'Standalone',
         'name_full' => 'Standalone',
         'name_short' => 'EXE',
-        'manufacturer' => '',
-        'active' => false,
+        'active' => true,
     ],
 ];

@@ -6,14 +6,7 @@ authenticateFromCookie($user, $permissions, $userDetails);
 
 $maxCount = 50;
 
-$consoleList = System::get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
-
-// Remove 'Hubs' and 'Events' from the collection.
-$consolesToRemove = ['Hubs', 'Events'];
-$consoleList = $consoleList->filter(function ($value, $key) use ($consolesToRemove) {
-    return !in_array($value, $consolesToRemove);
-});
-
+$consoleList = System::gameSystems()->active()->get(['ID', 'Name'])->keyBy('ID')->map(fn ($system) => $system['Name']);
 $consoleList = $consoleList->sort();
 $consoleList->prepend('All Consoles', 0);
 
@@ -41,11 +34,8 @@ $gameData = getGameListSearch($offset, $count, $method, $consoleID);
     echo "<p>Show:</p>";
     echo "<select class='w-full sm:w-auto' onchange='window.location = \"/gameSearch.php?o=0&p=$method&i=\" + this.options[this.selectedIndex].value'>";
     foreach ($consoleList as $nextConsoleID => $nextConsoleName) {
-        // 0 is "All Consoles". Don't show consoles that haven't been rolled out yet.
-        if ($nextConsoleID == 0 || isValidConsoleId($nextConsoleID)) {
-            sanitize_outputs($nextConsoleName);
-            echo "<option value='$nextConsoleID' " . ($nextConsoleID == $consoleID ? "selected" : "") . ">$nextConsoleName</option>";
-        }
+        sanitize_outputs($nextConsoleName);
+        echo "<option value='$nextConsoleID' " . ($nextConsoleID == $consoleID ? "selected" : "") . ">$nextConsoleName</option>";
     }
     echo "</select>";
     echo "</div>";

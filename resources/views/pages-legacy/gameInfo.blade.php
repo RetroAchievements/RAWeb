@@ -1035,7 +1035,7 @@ if ($isFullyFeaturedGame) {
         }
         ?>
 
-        @if (isValidConsoleId($consoleID))
+        @if ($gameModel->system->active)
             <x-game.leaderboards-listing :game="$gameModel" />
         @endif
     </x-slot>

@@ -10,10 +10,24 @@
 ])
 
 <?php
+
+use App\Models\System;
+
 $gameHref = route('game.show', $gameId);
 
-$gameSystemIconSrc = $consoleId ? getSystemIconUrl($consoleId) : null;
 $showConsoleLine = $consoleId || $consoleName;
+if ($showConsoleLine) {
+    $gameSystemIconSrc = null;
+    if ($consoleId) {
+        // TODO: pass $game->system to avoid extra query
+        $system = System::find($consoleId);
+        if ($system) {
+            $gameSystemIconSrc = getSystemIconUrl($consoleId);
+            $consoleName = $system->name;
+        }
+    }
+}
+
 ?>
 
 <div class="gap-x-2 flex relative items-center">
@@ -58,10 +72,6 @@ $showConsoleLine = $consoleId || $consoleName;
 
                 @if ($consoleName && !$consoleId)
                     <span class="block text-xs tracking-tighter mt-px">{{ $consoleName }}</span>
-                @endif
-
-                @if ($consoleId && !$consoleName)
-                    <span class="block text-xs tracking-tighter mt-px">{{ config('systems')[$consoleId]['name'] }}</span>
                 @endif
             </div>
         </div>

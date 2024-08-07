@@ -8,16 +8,21 @@
 ])
 
 <?php
+
+use App\Models\System;
+
 $gameId = $game['GameID'];
-$consoleId = $game['ConsoleID'];
-$consoleName = config('systems')[$consoleId]['name'];
-$consoleShortName = config('systems')[$consoleId]['name_short'];
 $hasAward = isset($game['HighestAwardKind']);
 
 $hardcoreCompletionPercentage = floor($game['PctWonHC'] * 100);
 $totalCompletionPercentage = floor($game['PctWon'] * 100);
 
-$gameSystemIconSrc = getSystemIconUrl($consoleId);
+// TODO: pass $game model with system child to avoid fetching system for every row
+$consoleId = $game['ConsoleID'];
+$system = System::find($game['ConsoleID']);
+$consoleName = $system->name;
+$consoleShortName = $system->name_short;
+$gameSystemIconSrc = getSystemIconUrl($system);
 
 $doesGameHaveAchievements = !!$game['MaxPossible'];
 ?>

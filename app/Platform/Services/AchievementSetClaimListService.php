@@ -166,17 +166,15 @@ class AchievementSetClaimListService
             0 => 'All systems',
         ];
 
-        foreach (System::orderBy('name')->get() as $system) {
-            if (System::isGameSystem($system->id)) {
-                if (isValidConsoleId($system->id)) {
+        foreach (System::gameSystems()->orderBy('name')->get() as $system) {
+            if ($system->active) {
+                $systems[$system->id] = $system->name;
+            } elseif (!$onlyValid) {
+                $systemClaims = AchievementSetClaim::whereHas('game', function ($query) use ($system) {
+                    $query->where('ConsoleID', '=', $system->id);
+                });
+                if ($systemClaims->exists()) {
                     $systems[$system->id] = $system->name;
-                } elseif (!$onlyValid) {
-                    $systemClaims = AchievementSetClaim::whereHas('game', function ($query) use ($system) {
-                        $query->where('ConsoleID', '=', $system->id);
-                    });
-                    if ($systemClaims->exists()) {
-                        $systems[$system->id] = $system->name;
-                    }
                 }
             }
         }
