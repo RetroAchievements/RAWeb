@@ -59,12 +59,14 @@ jQuery(document).ready(function onReady($) {
       if (event.keyCode === TABKEY) {
         $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
       }
+
       return false;
     },
   });
   $searchUser.on('autocompleteselect', function (event, ui) {
     $searchUser.val(ui.item.label);
     $('.searchusericon').attr('src', mediaAsset('/UserPic/' + ui.item.label + '.png'));
+
     return false;
   });
 
@@ -90,10 +92,11 @@ function removeComment(artTypeID, artID, commentID) {
     commentable: artID,
     comment: commentID,
   }).done(function () {
-    document.querySelectorAll(`[id^="comment_${commentID}"]`).forEach(function (el) {
+    for (const el of document.querySelectorAll(`[id^="comment_${commentID}"]`)) {
       el.style.display = 'none';
-    });
+    }
   });
+
   return true;
 }
 

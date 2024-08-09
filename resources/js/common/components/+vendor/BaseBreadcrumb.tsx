@@ -22,7 +22,7 @@ const BaseBreadcrumbList = forwardRef<HTMLOListElement, ComponentPropsWithoutRef
     <ol
       ref={ref}
       className={cn(
-        'flex flex-wrap items-center gap-1.5 break-words text-xs text-neutral-400 sm:gap-2.5 light:text-neutral-500',
+        'flex flex-wrap items-center gap-1.5 break-words text-xs text-neutral-400 light:text-neutral-500 sm:gap-2.5',
         className,
       )}
       {...props}
@@ -49,7 +49,7 @@ const BaseBreadcrumbLink = forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn('light:hover:text-neutral-950 hover:text-neutral-50', className)}
+      className={cn('hover:text-neutral-50 light:hover:text-neutral-950', className)}
       {...props}
     />
   );
@@ -63,7 +63,7 @@ const BaseBreadcrumbPage = forwardRef<HTMLSpanElement, ComponentPropsWithoutRef<
       role="link"
       aria-disabled="true"
       aria-current="page"
-      className={cn('font-normal light:text-neutral-950 text-neutral-50', className)}
+      className={cn('font-normal text-neutral-50 light:text-neutral-950', className)}
       {...props}
     />
   ),

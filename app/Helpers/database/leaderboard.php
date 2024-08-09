@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Platform\Actions\ResumePlayerSession;
 use App\Platform\Enums\ValueFormat;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 // TODO migrate to action
 function SubmitLeaderboardEntry(
@@ -50,6 +51,7 @@ function SubmitLeaderboardEntry(
         $user,
         $leaderboard->game,
         ($gameHash && !$gameHash->isMultiDiscGameHash()) ? $gameHash : null,
+        timestamp: Carbon::now(),
     );
 
     $existingLeaderboardEntry = LeaderboardEntry::withTrashed()
