@@ -4,6 +4,7 @@ namespace App\Filament\Resources\LeaderboardResource\Pages;
 
 use App\Filament\Pages\ResourceAuditLog;
 use App\Filament\Resources\LeaderboardResource;
+use App\Models\Leaderboard;
 
 class AuditLog extends ResourceAuditLog
 {

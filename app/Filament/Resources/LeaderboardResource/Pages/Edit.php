@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\LeaderboardResource\Pages;
 
 use App\Filament\Resources\LeaderboardResource;
+use App\Models\Leaderboard;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
