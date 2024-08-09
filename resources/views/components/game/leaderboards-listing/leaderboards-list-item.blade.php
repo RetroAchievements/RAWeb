@@ -17,16 +17,13 @@ use App\Platform\Enums\ValueFormat;
 
         <p>{{ $leaderboard->description }}</p>
 
-        @php
-            $bestScore = $leaderboard->sortedEntries()->first();
-        @endphp
-        @if (!$bestScore)
+        @if (!$leaderboard->topEntry)
             <p>No entries.</p>
         @else
             <div class="flex justify-between">
-                {!! userAvatar($bestScore->user, iconSize: 16, iconClass: 'rounded-sm') !!}
+                {!! userAvatar($leaderboard->topEntry->user->username, iconSize: 16, iconClass: 'rounded-sm') !!}
                 <a href="{{ '/leaderboardinfo.php?i=' . $leaderboard->id }}">
-                    {{ ValueFormat::format($bestScore->score, $leaderboard->format) }}
+                    {{ ValueFormat::format($leaderboard->topEntry->score, $leaderboard->format) }}
                 </a>
             </div>
         @endif
