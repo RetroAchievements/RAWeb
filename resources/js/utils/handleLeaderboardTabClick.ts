@@ -16,12 +16,12 @@ export function handleLeaderboardTabClick(
 
   // Hide all the currently-visible tab content and mark all
   // the tabs as being inactive.
-  tabContent.forEach((tab) => {
+  for (const tab of tabContent) {
     tab.style.display = 'none';
-  });
-  tabLinks.forEach((tabLink) => {
+  }
+  for (const tabLink of tabLinks) {
     tabLink.classList.remove('active');
-  });
+  }
 
   // Now show the current tab and mark it as active.
   const destinationTabEl = document.getElementById(destinationTabName) as HTMLElement;
