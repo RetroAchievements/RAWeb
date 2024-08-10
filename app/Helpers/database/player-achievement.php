@@ -299,11 +299,11 @@ function getAchievementDistribution(
 
     // Returns an array of the number of players who have achieved each total, up to the max.
     if ($flag === AchievementFlag::OfficialCore) {
-        $countColumn = $isHardcore ? 'player_games.achievements_unlocked_hardcore' : 'player_games.achievements_unlocked - player_games.achievements_unlocked_hardcore';
+        $countColumn = $isHardcore ? 'player_games.achievements_unlocked_hardcore' : 'player_games.achievements_unlocked_softcore';
 
-        $countQuery = PlayerGame::query()
+        $countQuery = DB::table("player_games")
             ->selectRaw("$countColumn as AwardedCount, count(*) as NumUniquePlayers")
-            ->whereRaw("$countColumn > 0")
+            ->where("$countColumn", ">", 0)
             ->where('player_games.game_id', $gameID)
             ->groupBy('AwardedCount')
             ->orderByDesc('AwardedCount');
